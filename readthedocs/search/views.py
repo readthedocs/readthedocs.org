@@ -1,25 +1,18 @@
 """Search views."""
 import collections
-import structlog
 
+import structlog
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.views import View
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Feature, Project
-from readthedocs.search.faceted_search import (
-    ALL_FACETS,
-    PageSearch,
-    ProjectSearch,
-)
-
-from .serializers import (
+from readthedocs.search.api.v2.serializers import (
     PageSearchSerializer,
-    ProjectData,
     ProjectSearchSerializer,
-    VersionData,
 )
+from readthedocs.search.faceted_search import ALL_FACETS, PageSearch, ProjectSearch
 
 log = structlog.get_logger(__name__)
 
@@ -96,26 +89,6 @@ class ProjectSearchView(SearchViewBase):
         project = get_object_or_404(queryset, slug=project_slug)
         return project
 
-    def _get_project_data(self, project, version_slug):
-        docs_url = project.get_docs_url(version_slug=version_slug)
-        version_data = VersionData(
-            slug=version_slug,
-            docs_url=docs_url,
-        )
-        project_data = {
-            project.slug: ProjectData(
-                alias=None,
-                version=version_data,
-            )
-        }
-        return project_data
-
-    def get_serializer_context(self, project, version_slug):
-        context = {
-            'projects_data': self._get_project_data(project, version_slug),
-        }
-        return context
-
     def get(self, request, project_slug):
         project_obj = self._get_project(project_slug)
         use_advanced_query = not project_obj.has_feature(
@@ -137,8 +110,7 @@ class ProjectSearchView(SearchViewBase):
             use_advanced_query=use_advanced_query,
         )
 
-        context = self.get_serializer_context(project_obj, user_input.version)
-        results = PageSearchSerializer(results, many=True, context=context).data
+        results = PageSearchSerializer(results, many=True).data
 
         template_context = user_input._asdict()
         template_context.update({

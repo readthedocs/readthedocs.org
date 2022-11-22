@@ -8,7 +8,10 @@ from django.test.client import RequestFactory
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
+from readthedocs.core.middleware import (
+    NullCharactersMiddleware,
+    ReadTheDocsSessionMiddleware,
+)
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
@@ -145,6 +148,23 @@ class TestCORSMiddleware(TestCase):
         resp = self.middleware.process_response(request, {})
         self.assertNotIn('Access-Control-Allow-Origin', resp)
 
+    def test_embed_api_external_url(self):
+        request = self.factory.get(
+            "/api/v2/embed/",
+            {"url": "https://pip.readthedocs.io/en/latest/index.hml"},
+            HTTP_ORIGIN="http://my.valid.domain",
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn("Access-Control-Allow-Origin", resp)
+
+        request = self.factory.get(
+            "/api/v2/embed/",
+            {"url": "https://docs.example.com/en/latest/index.hml"},
+            HTTP_ORIGIN="http://my.valid.domain",
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn("Access-Control-Allow-Origin", resp)
+
     @mock.patch('readthedocs.core.signals._has_donate_app')
     def test_sustainability_endpoint_allways_allowed(self, has_donate_app):
         has_donate_app.return_value = True
@@ -259,3 +279,18 @@ class TestSessionMiddleware(TestCase):
 
         self.assertEqual(response.cookies[settings.SESSION_COOKIE_NAME]['samesite'], 'Lax')
         self.assertTrue(self.test_main_cookie_samesite_none not in response.cookies)
+
+
+class TestNullCharactersMiddleware(TestCase):
+    def setUp(self):
+        self.factory = RequestFactory()
+        self.middleware = NullCharactersMiddleware(None)
+
+    def test_request_with_null_chars(self):
+        request = self.factory.get("/?language=en\x00es&project_slug=myproject")
+        response = self.middleware(request)
+        self.assertContains(
+            response,
+            "There are NULL (0x00) characters in at least one of the parameters (language) passed to the request.",
+            status_code=400,
+        )

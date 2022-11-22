@@ -16,6 +16,7 @@ from readthedocs.api.v2.views.integrations import (
     GITHUB_CREATE,
     GITHUB_DELETE,
     GITHUB_EVENT_HEADER,
+    GITHUB_PING,
     GITHUB_PULL_REQUEST,
     GITHUB_PULL_REQUEST_CLOSED,
     GITHUB_PULL_REQUEST_OPENED,
@@ -39,8 +40,8 @@ from readthedocs.api.v2.views.task_views import get_status_data
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_TRIGGERED,
-    BUILD_STATUS_DUPLICATED,
     EXTERNAL,
+    EXTERNAL_VERSION_STATE_CLOSED,
     LATEST,
 )
 from readthedocs.builds.models import Build, BuildCommandResult, Version
@@ -103,7 +104,6 @@ class APIBuildTests(TestCase):
             project=self.project,
             version=self.version,
             state=BUILD_STATE_CLONING,
-            status=BUILD_STATUS_DUPLICATED,
             success=False,
             output='Output',
             error='Error',
@@ -801,7 +801,7 @@ class APITests(TestCase):
             max_concurrent_builds=None,
             main_language_project=None,
         )
-        for state in ('triggered', 'building', 'cloning', 'finished'):
+        for state in ("triggered", "building", "cloning", "finished", "cancelled"):
             get(
                 Build,
                 project=project,
@@ -1084,6 +1084,22 @@ class IntegrationsTests(TestCase):
         latest_version = self.project.versions.get(slug=LATEST)
         sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
 
+    @mock.patch("readthedocs.core.views.hooks.sync_repository_task")
+    def test_github_ping_event(self, sync_repository_task, trigger_build):
+        client = APIClient()
+
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PING}
+        resp = client.post(
+            "/api/v2/webhook/github/{}/".format(self.project.slug),
+            self.github_payload,
+            format="json",
+            **headers,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertDictEqual(resp.data, {"detail": "Webhook configured correctly"})
+        trigger_build.assert_not_called()
+        sync_repository_task.assert_not_called()
+
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_github_create_event(self, sync_repository_task, trigger_build):
         client = APIClient()
@@ -1242,12 +1258,12 @@ class IntegrationsTests(TestCase):
             manager=EXTERNAL
         ).get(verbose_name=pull_request_number)
 
-        # External version should be inactive.
-        self.assertFalse(external_version.active)
+        self.assertTrue(external_version.active)
+        self.assertEqual(external_version.state, EXTERNAL_VERSION_STATE_CLOSED)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deactivated'])
-        self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        self.assertTrue(resp.data["closed"])
+        self.assertEqual(resp.data["project"], self.project.slug)
+        self.assertEqual(resp.data["versions"], [version.verbose_name])
         core_trigger_build.assert_not_called()
 
     def test_github_pull_request_no_action(self, trigger_build):
@@ -1938,12 +1954,12 @@ class IntegrationsTests(TestCase):
             manager=EXTERNAL
         ).get(verbose_name=merge_request_number)
 
-        # External version should be inactive.
-        self.assertFalse(external_version.active)
+        self.assertTrue(external_version.active)
+        self.assertEqual(external_version.state, EXTERNAL_VERSION_STATE_CLOSED)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deactivated'])
-        self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        self.assertTrue(resp.data["closed"])
+        self.assertEqual(resp.data["project"], self.project.slug)
+        self.assertEqual(resp.data["versions"], [version.verbose_name])
         core_trigger_build.assert_not_called()
 
     @mock.patch('readthedocs.core.utils.trigger_build')
@@ -1983,11 +1999,12 @@ class IntegrationsTests(TestCase):
         ).get(verbose_name=merge_request_number)
 
         # external version should be deleted
-        self.assertFalse(external_version.active)
+        self.assertTrue(external_version.active)
+        self.assertEqual(external_version.state, EXTERNAL_VERSION_STATE_CLOSED)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deactivated'])
-        self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        self.assertTrue(resp.data["closed"])
+        self.assertEqual(resp.data["project"], self.project.slug)
+        self.assertEqual(resp.data["versions"], [version.verbose_name])
         core_trigger_build.assert_not_called()
 
     def test_gitlab_merge_request_no_action(self, trigger_build):

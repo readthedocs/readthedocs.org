@@ -9,7 +9,7 @@ from django.conf.urls import re_path
 
 from readthedocs.analytics.proxied_api import AnalyticsView
 from readthedocs.api.v2.views.proxied import ProxiedEmbedAPI, ProxiedFooterHTML
-from readthedocs.search.proxied_api import ProxiedPageSearchAPIView
+from readthedocs.search.api.v2.views import ProxiedPageSearchAPIView
 
 api_footer_urls = [
     re_path(r'footer_html/', ProxiedFooterHTML.as_view(), name='footer_html'),

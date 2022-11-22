@@ -38,7 +38,7 @@ feel free to `shoot us an email <mailto:rev@readthedocs.org>`_.
 You can :ref:`opt out <advertising/ethical-advertising:Opting out>` of having paid ads on your projects,
 or seeing paid ads if you want.
 You will still see :ref:`community ads <advertising/ethical-advertising:Community Ads>`,
-which we run for free that promote community projects. 
+which we run for free that promote community projects.
 
 Our Worldview
 -------------
@@ -148,11 +148,9 @@ There are a few qualifications for our Community Ads program:
 
 We'll show 10% of our ad inventory each month to support initiatives that we care about.
 Please `complete an application`_ to be considered for our Community Ads program.
-If you have any questions about our community ads program, feel free to
-`send us an email <mailto:ads@readthedocs.org>`_.
 
 .. _OSI approved license: https://opensource.org/licenses
-.. _complete an application: https://docs.google.com/forms/d/e/1FAIpQLSdd9LDska1eiDHWHs4No-8AlqjDxsUuP_zSBTeYyl5tMcBeFQ/viewform?usp=sf_link
+.. _complete an application: https://www.ethicalads.io/community-ads/?ref=docs.readthedocs.io
 
 
 Opting Out

@@ -11,9 +11,9 @@ python:
     - requirements: requirements/docs.txt
 
 build:
-  os: ubuntu-20.04
+  os: ubuntu-22.04
   tools:
-    python: "3.8"
+    python: "3.10"
 
 search:
   ranking:
@@ -23,3 +23,5 @@ search:
 
     # Useful content, but not something we want most users finding
     changelog.html: -6
+  ignore:
+    - dmca/archive/*

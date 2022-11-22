@@ -4,7 +4,7 @@
 from django.conf import settings
 from django.utils.translation import gettext_noop as _
 
-from readthedocs.doc_builder.exceptions import BuildUserError
+from readthedocs.doc_builder.exceptions import BuildAppError, BuildUserError
 
 
 class ProjectConfigurationError(BuildUserError):
@@ -41,7 +41,8 @@ class RepositoryError(BuildUserError):
         'git/ssh URL schemas for submodules are not supported.'
     )
     DUPLICATED_RESERVED_VERSIONS = _(
-        'You can not have two versions with the name latest or stable.',
+        "You can not have two versions with the name latest or stable."
+        " Ensure you don't have both a branch and a tag with this name."
     )
 
     FAILED_TO_CHECKOUT = _('Failed to checkout revision: {}')
@@ -51,11 +52,21 @@ class RepositoryError(BuildUserError):
         "Please check the command output for more information.",
     )
 
-    @property
-    def CLONE_ERROR(self):  # noqa: N802
+    # NOTE: we are not using `@property` here because Python 3.8 does not
+    # suport `@property` together with `@classmethod`. On Python >= 3.9, we
+    # could call `RepositoryError.CLONE_ERROR` without parenthesis and it will
+    # work. However, for now, we are just using a class method and calling it
+    # as a function/method.
+    @classmethod
+    def CLONE_ERROR(cls):  # noqa: N802
         if settings.ALLOW_PRIVATE_REPOS:
-            return self.PRIVATE_ALLOWED
-        return self.PRIVATE_NOT_ALLOWED
+            return cls.PRIVATE_ALLOWED
+        return cls.PRIVATE_NOT_ALLOWED
 
     def get_default_message(self):
         return self.GENERIC_ERROR
+
+
+class SyncRepositoryLocked(BuildAppError):
+
+    """Error risen when there is another sync_repository_task already running."""

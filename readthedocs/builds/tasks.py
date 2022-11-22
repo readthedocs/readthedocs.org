@@ -22,6 +22,8 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_PENDING,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
+    EXTERNAL_VERSION_STATE_CLOSED,
+    LOCK_EXPIRE,
     MAX_BUILD_COMMAND_SIZE,
     TAG,
 )
@@ -189,7 +191,7 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
         return
 
     lock_id = '{0}-lock'.format(self.name)
-    with memcache_lock(lock_id, self.app.oid) as acquired:
+    with memcache_lock(lock_id, LOCK_EXPIRE, self.app.oid) as acquired:
         if not acquired:
             log.warning('Archive Builds Task still locked')
             return False
@@ -208,12 +210,22 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
             commands = BuildCommandSerializer(build.commands, many=True).data
             if commands:
                 for cmd in commands:
-                    if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
-                        cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
-                        cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
-                        log.warning('Truncating build command for build.', build_id=build.id)
-                output = BytesIO(json.dumps(commands).encode('utf8'))
-                filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
+                    if len(cmd["output"]) > MAX_BUILD_COMMAND_SIZE:
+                        cmd["output"] = cmd["output"][-MAX_BUILD_COMMAND_SIZE:]
+                        cmd["output"] = (
+                            "\n\n"
+                            "... (truncated) ..."
+                            "\n\n"
+                            "Command output too long. Truncated to last 1MB."
+                            "\n\n" + cmd["output"]
+                        )  # noqa
+                        log.debug(
+                            "Truncating build command for build.", build_id=build.id
+                        )
+                output = BytesIO(json.dumps(commands).encode("utf8"))
+                filename = "{date}/{id}.json".format(
+                    date=str(build.date.date()), id=build.id
+                )
                 try:
                     build_commands_storage.save(name=filename, content=output)
                     if delete:
@@ -227,15 +239,15 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
 
 
 @app.task(queue='web')
-def delete_inactive_external_versions(limit=200, days=30 * 3):
+def delete_closed_external_versions(limit=200, days=30 * 3):
     """
-    Delete external versions that have been marked as inactive after ``days``.
+    Delete external versions that have been marked as closed after ``days``.
 
     The commit status is updated to link to the build page, as the docs are removed.
     """
     days_ago = timezone.now() - timezone.timedelta(days=days)
     queryset = Version.external.filter(
-        active=False,
+        state=EXTERNAL_VERSION_STATE_CLOSED,
         modified__lte=days_ago,
     )[:limit]
     for version in queryset:
@@ -530,8 +542,6 @@ class BuildNotificationSender:
 
     def send_email(self, email):
         """Send email notifications for build failures."""
-        # We send only what we need from the Django model objects here to avoid
-        # serialization problems in the ``readthedocs.core.tasks.send_email_task``
         protocol = 'http' if settings.DEBUG else 'https'
         context = {
             'version': {

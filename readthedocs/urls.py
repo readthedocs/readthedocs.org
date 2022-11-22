@@ -4,13 +4,17 @@ from functools import reduce
 from operator import add
 
 from django.conf import settings
-from django.conf.urls import include, re_path
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.urls import include, path, re_path
 from django.views.generic.base import RedirectView, TemplateView
 
-from readthedocs.core.views import HomepageView, SupportView, do_not_track, server_error_500
-from readthedocs.search.api import PageSearchAPIView
+from readthedocs.core.views import (
+    HomepageView,
+    SupportView,
+    do_not_track,
+    server_error_500,
+)
 from readthedocs.search.views import GlobalSearchView
 
 admin.autodiscover()
@@ -18,39 +22,42 @@ admin.autodiscover()
 handler500 = server_error_500
 
 basic_urls = [
-    re_path(r'^$', HomepageView.as_view(), name='homepage'),
-    re_path(r'^security/', TemplateView.as_view(template_name='security.html')),
+    path("", HomepageView.as_view(), name="homepage"),
+    re_path(r"^security/", TemplateView.as_view(template_name="security.html")),
     re_path(
         r'^\.well-known/security.txt$',
         TemplateView
         .as_view(template_name='security.txt', content_type='text/plain'),
     ),
-    re_path(r'^support/$', SupportView.as_view(), name='support'),
+    path("support/", SupportView.as_view(), name="support"),
     # These are redirected to from the support form
-    re_path(
-        r'^support/success/$',
-        TemplateView.as_view(template_name='support/success.html'),
-        name='support_success',
+    path(
+        "support/success/",
+        TemplateView.as_view(template_name="support/success.html"),
+        name="support_success",
     ),
-    re_path(
-        r'^support/error/$',
-        TemplateView.as_view(template_name='support/error.html'),
-        name='support_error',
+    path(
+        "support/error/",
+        TemplateView.as_view(template_name="support/error.html"),
+        name="support_error",
     ),
 ]
 
 rtd_urls = [
-    re_path(r'^search/$', GlobalSearchView.as_view(), name='search'),
-    re_path(r'^dashboard/', include('readthedocs.projects.urls.private')),
-    re_path(r'^profiles/', include('readthedocs.profiles.urls.public')),
-    re_path(r'^accounts/', include('readthedocs.profiles.urls.private')),
-    re_path(r'^accounts/', include('allauth.urls')),
-    re_path(r'^notifications/', include('readthedocs.notifications.urls')),
-    re_path(r'^accounts/gold/', include('readthedocs.gold.urls')),
+    path("search/", GlobalSearchView.as_view(), name="search"),
+    re_path(r"^dashboard/", include("readthedocs.projects.urls.private")),
+    re_path(r"^profiles/", include("readthedocs.profiles.urls.public")),
+    re_path(r"^accounts/", include("readthedocs.profiles.urls.private")),
+    re_path(r"^accounts/", include("allauth.urls")),
+    re_path(r"^notifications/", include("readthedocs.notifications.urls")),
+    re_path(r"^accounts/gold/", include("readthedocs.gold.urls")),
+    path("invitations/", include("readthedocs.invitations.urls")),
     # For redirects
     re_path(r'^builds/', include('readthedocs.builds.urls')),
     # For testing the 500's with DEBUG on.
-    re_path(r'^500/$', handler500),
+    path("500/", handler500),
+    # Put this as a unique path for the webhook, so we don't clobber existing Stripe URL's
+    re_path(r"^djstripe/", include("djstripe.urls", namespace="djstripe")),
 ]
 
 project_urls = [
@@ -83,7 +90,7 @@ organization_urls = [
 api_urls = [
     re_path(r'^api/v2/', include('readthedocs.api.v2.urls')),
     # Keep `search_api` at root level, so the test does not fail for other API
-    re_path(r'^api/v2/search/$', PageSearchAPIView.as_view(), name='search_api'),
+    path("api/v2/search/", include("readthedocs.search.api.v2.urls")),
     # Deprecated
     re_path(r'^api/v1/embed/', include('readthedocs.embed.urls')),
     re_path(r'^api/v2/embed/', include('readthedocs.embed.urls')),
@@ -121,16 +128,16 @@ for build_format in ('epub', 'htmlzip', 'json', 'pdf'):
         document_root=os.path.join(settings.MEDIA_ROOT, build_format),
     )
 debug_urls += [
-    re_path(
-        'style-catalog/$',
-        TemplateView.as_view(template_name='style_catalog.html'),
+    path(
+        "style-catalog/",
+        TemplateView.as_view(template_name="style_catalog.html"),
     ),
 
     # This must come last after the build output files
-    re_path(
-        r'^media/(?P<remainder>.+)$',
-        RedirectView.as_view(url=settings.STATIC_URL + '%(remainder)s'),
-        name='media-redirect',
+    path(
+        "media/<path:remainder>",
+        RedirectView.as_view(url=settings.STATIC_URL + "%(remainder)s"),
+        name="media-redirect",
     ),
 ]
 
@@ -156,7 +163,8 @@ if settings.READ_THE_DOCS_EXTENSIONS:
 
 if settings.ALLOW_ADMIN:
     groups.append(admin_urls)
-if settings.DEBUG:
+
+if settings.SHOW_DEBUG_TOOLBAR:
     import debug_toolbar
 
     debug_urls += [

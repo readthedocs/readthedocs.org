@@ -1,4 +1,3 @@
-from datetime import timedelta
 from unittest import mock
 
 from allauth.socialaccount.models import SocialAccount
@@ -6,11 +5,10 @@ from django.contrib.auth.models import User
 from django.http.response import HttpResponseRedirect
 from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
 
-from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED, EXTERNAL
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
@@ -127,7 +125,7 @@ class TestBasicsForm(WizardTestCase):
         self.assertEqual(proj.documentation_type, 'sphinx')
 
     def test_remote_repository_is_added(self):
-        remote_repo = get(RemoteRepository)
+        remote_repo = get(RemoteRepository, default_branch="default-branch")
         socialaccount = get(SocialAccount, user=self.user)
         get(
             RemoteRepositoryRelation,
@@ -144,6 +142,7 @@ class TestBasicsForm(WizardTestCase):
         proj = Project.objects.get(name='foobar')
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
+        self.assertEqual(proj.get_default_branch(), remote_repo.default_branch)
 
     def test_remote_repository_invalid_type(self):
         self.step_data['basics']['remote_repository'] = 'Invalid id'
@@ -264,7 +263,7 @@ class TestAdvancedForm(TestBasicsForm):
         self.assertWizardFailure(resp, 'documentation_type')
 
     def test_remote_repository_is_added(self):
-        remote_repo = get(RemoteRepository)
+        remote_repo = get(RemoteRepository, default_branch="default-branch")
         socialaccount = get(SocialAccount, user=self.user)
         get(
             RemoteRepositoryRelation,
@@ -283,6 +282,7 @@ class TestAdvancedForm(TestBasicsForm):
         proj = Project.objects.get(name='foobar')
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
+        self.assertEqual(proj.get_default_branch(), remote_repo.default_branch)
 
 
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
@@ -518,25 +518,6 @@ class TestBadges(TestCase):
 
     def test_passing_badge(self):
         get(Build, project=self.project, version=self.version, success=True)
-        res = self.client.get(self.badge_url, {'version': self.version.slug})
-        self.assertContains(res, 'passing')
-        self.assertEqual(res['Content-Type'], 'image/svg+xml')
-
-    def test_ignore_duplicated_build(self):
-        """Ignore builds marked as duplicate from the badge status."""
-        get(
-            Build,
-            project=self.project,
-            version=self.version,
-            success=True,
-        )
-        get(
-            Build,
-            project=self.project,
-            version=self.version,
-            success=False,
-            status=BUILD_STATUS_DUPLICATED,
-        )
         res = self.client.get(self.badge_url, {'version': self.version.slug})
         self.assertContains(res, 'passing')
         self.assertEqual(res['Content-Type'], 'image/svg+xml')

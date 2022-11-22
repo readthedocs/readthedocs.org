@@ -1,41 +1,39 @@
 var rtddata = require('./rtd-data');
 var versionCompare = require('./version-compare');
 
+var EXPLICIT_FLYOUT_PLACEMENT_SELECTOR = '#readthedocs-embed-flyout';
+
 
 function injectFooter(data) {
-    var config = rtddata.get();
+    // Injects the footer into the page
+    // There are 3 main cases:
+    // * EXPLICIT_FLYOUT_PLACEMENT_SELECTOR is defined, inject it there
+    // * The page looks like our Sphinx theme, updated the existing div
+    // * All other pages just get it appended to the <body>
 
-    // If the theme looks like ours, update the existing badge
-    // otherwise throw a a full one into the page.
-    // Do not inject for mkdocs even for the RTD theme
-    if (config.is_sphinx_builder() && config.is_rtd_like_theme()) {
-        $("div.rst-other-versions").html(data['html']);
+    var config = rtddata.get();
+    let placement = document.querySelector(EXPLICIT_FLYOUT_PLACEMENT_SELECTOR);
+    if (placement !== null) {
+        placement.innerHTML = data['html'];
+    }
+    else if (config.is_sphinx_builder() && config.is_rtd_like_theme()) {
+        let placement = document.querySelector('div.rst-other-versions');
+        if (placement !== null) {
+            placement.innerHTML = data['html'];
+        }
     } else {
-        $("body").append(data['html']);
+        document.body.insertAdjacentHTML('beforeend', data['html']);
     }
 
     if (!data['version_active']) {
-        $('.rst-current-version').addClass('rst-out-of-date');
+      for (let element of document.getElementsByClassName('rst-current-version')) {
+          element.classList.add('rst-out-of-date');
+      }
     } else if (!data['version_supported']) {
         //$('.rst-current-version').addClass('rst-active-old-version')
     }
 }
 
-
-function setupBookmarkCSRFToken() {
-    function csrfSafeMethod(method) {
-        // these HTTP methods do not require CSRF protection
-        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-    }
-
-    $.ajaxSetup({
-        beforeSend: function (xhr, settings) {
-            if (!csrfSafeMethod(settings.type)) {
-                xhr.setRequestHeader("X-CSRFToken", $('a.bookmark[token]').attr('token'));
-            }
-        }
-    });
-}
 
 function init() {
     var rtd = rtddata.get();
@@ -43,9 +41,10 @@ function init() {
     var get_data = {
         project: rtd['project'],
         version: rtd['version'],
-        page: rtd['page'],
+        // Page is a sphinx concept only,
+        // avoid serializing this as a literal `null` instead of empty.
+        page: rtd['page'] || "",
         theme: rtd.get_theme_name(),
-        format: "jsonp",
     };
 
     // Crappy heuristic, but people change the theme name on us.
@@ -63,40 +62,39 @@ function init() {
     }
 
     // Get footer HTML from API and inject it into the page.
-    $.ajax({
-        url: rtd.proxied_api_host + "/api/v2/footer_html/",
-        crossDomain: true,
-        xhrFields: {
-            withCredentials: true,
-        },
-        dataType: "jsonp",
-        data: get_data,
-        cache: true,
-        jsonpCallback: "callback",
-        success: function (data) {
-            if (data.show_version_warning) {
-                versionCompare.init(data.version_compare);
-            }
-            injectFooter(data);
-            setupBookmarkCSRFToken();
-        },
-        error: function () {
-            console.error('Error loading Read the Docs footer');
+    let footer_api_url = rtd.proxied_api_host + "/api/v2/footer_html/?" + new URLSearchParams(get_data).toString();
+    fetch(footer_api_url, {method: 'GET'})
+    .then(response => {
+        if (!response.ok) {
+            throw new Error();
         }
+        return response.json();
+    })
+    .then(data => {
+        if (data.show_version_warning) {
+            versionCompare.init(data.version_compare);
+        }
+        injectFooter(data);
+    })
+    .catch(error => {
+        console.error('Error loading Read the Docs footer');
     });
 
     // Register page view.
-    $.ajax({
-        url: rtd.proxied_api_host + "/api/v2/analytics/",
-        data: {
-            project: rtd['project'],
-            version: rtd['version'],
-            absolute_uri: window.location.href,
-        },
-        cache: false,
-        error: function () {
-            console.error('Error registering page view');
+    let data = {
+        project: rtd['project'],
+        version: rtd['version'],
+        absolute_uri: window.location.href,
+    };
+    let url = rtd.proxied_api_host + '/api/v2/analytics/?' + new URLSearchParams(data).toString();
+    fetch(url, {method: 'GET', cache: 'no-store'})
+    .then(response => {
+        if (!response.ok) {
+            throw new Error();
         }
+    })
+    .catch(error => {
+        console.error('Error registering page view');
     });
 }
 

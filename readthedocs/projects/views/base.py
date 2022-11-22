@@ -1,11 +1,9 @@
 """Mix-in classes for project views."""
-import structlog
 from functools import lru_cache
 
+import structlog
 from django.conf import settings
-from django.http import HttpResponseRedirect
-from django.shortcuts import render, get_object_or_404
-from django.urls import reverse
+from django.shortcuts import get_object_or_404, render
 
 from readthedocs.projects.models import Project
 
@@ -72,12 +70,20 @@ class ProjectAdminMixin:
     def get_context_data(self, **kwargs):
         """Add project to context data."""
         context = super().get_context_data(**kwargs)
-        context['project'] = self.get_project()
+        project = self.get_project()
+        context["project"] = project
+        context["superproject"] = project and project.superproject
         return context
+
+    def get_form_kwargs(self):
+        kwargs = {
+            "project": self.get_project(),
+        }
+        return kwargs
 
     def get_form(self, data=None, files=None, **kwargs):
         """Pass in project to form class instance."""
-        kwargs['project'] = self.get_project()
+        kwargs.update(self.get_form_kwargs())
         return self.form_class(data, files, **kwargs)
 
 
@@ -92,7 +98,9 @@ class ProjectSpamMixin:
 
     def get(self, request, *args, **kwargs):
         if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
-            from readthedocsext.spamfighting.utils import is_show_dashboard_denied  # noqa
+            from readthedocsext.spamfighting.utils import (  # noqa
+                is_show_dashboard_denied,
+            )
             if is_show_dashboard_denied(self.get_project()):
                 return render(request, template_name='spam.html', status=410)
 

@@ -150,7 +150,9 @@ class PrivateViewsAreProtectedTests(TestCase):
         self.assertRedirectToLogin(response)
 
     def test_project_redirects_delete(self):
-        response = self.client.get('/dashboard/pip/redirects/delete/')
+        response = self.client.get(
+            reverse("projects_redirects_delete", args=["pip", 3])
+        )
         self.assertRedirectToLogin(response)
 
 

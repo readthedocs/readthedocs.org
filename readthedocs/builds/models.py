@@ -14,25 +14,21 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from django_extensions.db.fields import (
-    CreationDateTimeField,
-    ModificationDateTimeField,
-)
+from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from polymorphic.models import PolymorphicModel
 
 import readthedocs.builds.automation_actions as actions
 from readthedocs.builds.constants import (
     BRANCH,
+    BUILD_FINAL_STATES,
     BUILD_STATE,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     BUILD_STATUS_CHOICES,
     BUILD_TYPES,
     EXTERNAL,
-    GENERIC_EXTERNAL_VERSION_NAME,
-    GITHUB_EXTERNAL_VERSION_NAME,
-    GITLAB_EXTERNAL_VERSION_NAME,
+    EXTERNAL_VERSION_STATES,
     INTERNAL,
     LATEST,
     NON_REPOSITORY_VERSIONS,
@@ -57,6 +53,7 @@ from readthedocs.builds.querysets import (
     VersionQuerySet,
 )
 from readthedocs.builds.utils import (
+    external_version_name,
     get_bitbucket_username_repo,
     get_github_username_repo,
     get_gitlab_username_repo,
@@ -77,6 +74,8 @@ from readthedocs.projects.constants import (
     GITLAB_MERGE_REQUEST_COMMIT_URL,
     GITLAB_URL,
     MEDIA_TYPES,
+    MKDOCS,
+    MKDOCS_HTML,
     PRIVACY_CHOICES,
     PRIVATE,
     SPHINX,
@@ -85,7 +84,6 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.storage import build_environment_storage
 
 log = structlog.get_logger(__name__)
 
@@ -145,8 +143,16 @@ class Version(TimeStampedModel):
 
     supported = models.BooleanField(_('Supported'), default=True)
     active = models.BooleanField(_('Active'), default=False)
-    built = models.BooleanField(_('Built'), default=False)
-    uploaded = models.BooleanField(_('Uploaded'), default=False)
+    state = models.CharField(
+        _("State"),
+        max_length=20,
+        choices=EXTERNAL_VERSION_STATES,
+        null=True,
+        blank=True,
+        help_text=_("State of the PR/MR associated to this version."),
+    )
+    built = models.BooleanField(_("Built"), default=False)
+    uploaded = models.BooleanField(_("Uploaded"), default=False)
     privacy_level = models.CharField(
         _('Privacy Level'),
         max_length=20,
@@ -210,6 +216,27 @@ class Version(TimeStampedModel):
     @property
     def is_external(self):
         return self.type == EXTERNAL
+
+    @property
+    def explicit_name(self):
+        """
+        Version name that is explicit about external origins.
+
+        For example, if a version originates from GitHub pull request #4, then
+        ``version.explicit_name == "#4 (PR)"``.
+
+        On the other hand, Versions associated with regular RTD builds
+        (e.g. new tags or branches), simply return :obj:`~.verbose_name`.
+        This means that a regular git tag named **v4** will correspond to
+        ``version.explicit_name == "v4"``.
+        """
+        if not self.is_external:
+            return self.verbose_name
+
+        template = "#{name} ({abbrev})"
+        external_origin = external_version_name(self)
+        abbrev = "".join(word[0].upper() for word in external_origin.split())
+        return template.format(name=self.verbose_name, abbrev=abbrev)
 
     @property
     def ref(self):
@@ -345,13 +372,12 @@ class Version(TimeStampedModel):
         return self.type == BRANCH
 
     @property
-    def supports_wipe(self):
-        """Return True if version is not external."""
-        return self.type != EXTERNAL
-
-    @property
     def is_sphinx_type(self):
         return self.documentation_type in {SPHINX, SPHINX_HTMLDIR, SPHINX_SINGLEHTML}
+
+    @property
+    def is_mkdocs_type(self):
+        return self.documentation_type in {MKDOCS, MKDOCS_HTML}
 
     def get_subdomain_url(self):
         external = self.type == EXTERNAL
@@ -392,13 +418,6 @@ class Version(TimeStampedModel):
         conf_py_path = os.path.relpath(conf_py_path, checkout_prefix)
         return conf_py_path
 
-    def get_build_path(self):
-        """Return version build path if path exists, otherwise `None`."""
-        path = self.project.checkout_path(version=self.slug)
-        if os.path.exists(path):
-            return path
-        return None
-
     def get_storage_paths(self):
         """
         Return a list of all build artifact storage paths for this version.
@@ -418,10 +437,6 @@ class Version(TimeStampedModel):
             )
 
         return paths
-
-    def get_storage_environment_cache_path(self):
-        """Return the path of the cached environment tar file."""
-        return build_environment_storage.join(self.project.slug, f'{self.slug}.tar')
 
     def get_github_url(
             self,
@@ -908,8 +923,8 @@ class Build(models.Model):
 
     @property
     def finished(self):
-        """Return if build has a finished state."""
-        return self.state == BUILD_STATE_FINISHED
+        """Return if build has an end state."""
+        return self.state in BUILD_FINAL_STATES
 
     @property
     def is_stale(self):
@@ -946,16 +961,7 @@ class Build(models.Model):
 
     @property
     def external_version_name(self):
-        if self.is_external:
-            if self.project.git_provider_name == GITHUB_BRAND:
-                return GITHUB_EXTERNAL_VERSION_NAME
-
-            if self.project.git_provider_name == GITLAB_BRAND:
-                return GITLAB_EXTERNAL_VERSION_NAME
-
-            # TODO: Add External Version Name for BitBucket.
-            return GENERIC_EXTERNAL_VERSION_NAME
-        return None
+        return external_version_name(self)
 
     def using_latest_config(self):
         if self.config:
@@ -1324,7 +1330,7 @@ class RegexAutomationRule(VersionAutomationRule):
                 pattern=match_arg,
                 version_slug=version.slug,
             )
-        except Exception as e:
+        except Exception:
             log.exception('Error parsing regex.', exc_info=True)
         return False, None
 

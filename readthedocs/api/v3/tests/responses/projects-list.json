@@ -33,8 +33,8 @@
                 "versions": "https://readthedocs.org/projects/project/versions/"
             },
             "tags": [
-                "tag",
                 "project",
+                "tag",
                 "test"
             ],
             "users": [

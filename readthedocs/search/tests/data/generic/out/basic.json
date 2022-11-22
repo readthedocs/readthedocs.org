@@ -1,0 +1,14 @@
+[
+  {
+    "title": "Title of the page",
+    "path": "basic.html",
+    "sections": [
+      {
+        "id": "",
+        "title": "Title of the page",
+        "content": "Content of the body."
+      }
+    ],
+    "domain_data": {}
+  }
+]

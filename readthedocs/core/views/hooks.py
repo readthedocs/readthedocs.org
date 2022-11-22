@@ -2,7 +2,11 @@
 
 import structlog
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import (
+    EXTERNAL,
+    EXTERNAL_VERSION_STATE_CLOSED,
+    EXTERNAL_VERSION_STATE_OPEN,
+)
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Feature, Project
 from readthedocs.projects.tasks.builds import sync_repository_task
@@ -133,7 +137,11 @@ def get_or_create_external_version(project, version_data):
     external_version, created = project.versions.get_or_create(
         verbose_name=version_data.id,
         type=EXTERNAL,
-        defaults={"identifier": version_data.commit, "active": True},
+        defaults={
+            "identifier": version_data.commit,
+            "active": True,
+            "state": EXTERNAL_VERSION_STATE_OPEN,
+        },
     )
 
     if created:
@@ -145,8 +153,8 @@ def get_or_create_external_version(project, version_data):
     else:
         # Identifier will change if there is a new commit to the Pull/Merge Request.
         external_version.identifier = version_data.commit
-        # If the PR was previously closed it was marked as inactive.
-        external_version.active = True
+        # If the PR was previously closed it was marked as closed
+        external_version.state = EXTERNAL_VERSION_STATE_OPEN
         external_version.save()
         log.info(
             'External version updated.',
@@ -156,21 +164,16 @@ def get_or_create_external_version(project, version_data):
     return external_version
 
 
-def deactivate_external_version(project, version_data):
+def close_external_version(project, version_data):
     """
-    Deactivate external versions using `identifier` and `verbose_name`.
+    Close external versions using `identifier` and `verbose_name`.
 
-    if external version does not exist then returns `None`.
-
-    We mark the version as inactive,
-    so another celery task will remove it after some days.
+    We mark the version's state as `closed` so another celery task will remove
+    it after some days. If external version does not exist then returns `None`.
 
     :param project: Project instance
     :param version_data: A :py:class:`readthedocs.api.v2.views.integrations.ExternalVersionData`
      instance.
-    :param identifier: Commit Hash
-    :param verbose_name: pull/merge request number
-    :returns: verbose_name (pull/merge request number).
     :rtype: str
     """
     external_version = (
@@ -183,10 +186,10 @@ def deactivate_external_version(project, version_data):
     )
 
     if external_version:
-        external_version.active = False
+        external_version.state = EXTERNAL_VERSION_STATE_CLOSED
         external_version.save()
         log.info(
-            'External version marked as inactive.',
+            "External version marked as closed.",
             project_slug=project.slug,
             version_slug=external_version.slug,
         )

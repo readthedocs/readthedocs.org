@@ -3,12 +3,10 @@
 import codecs
 import copy
 import itertools
-import structlog
 import os
-import tarfile
 
+import structlog
 import yaml
-from django.conf import settings
 
 from readthedocs.config import PIP, SETUPTOOLS, ParseError
 from readthedocs.config import parse as parse_yaml
@@ -16,7 +14,6 @@ from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.models import Feature
-from readthedocs.storage import build_tools_storage
 
 log = structlog.get_logger(__name__)
 
@@ -39,138 +36,6 @@ class PythonEnvironment:
             project_slug=self.project.slug,
             version_slug=self.version.slug,
         )
-
-    def install_build_tools(self):
-        """
-        Install all ``build.tools`` defined by the user in the config file.
-
-        It uses ``asdf`` behind the scenes to manage all the tools and versions
-        of them. These tools/versions are stored in the Cloud cache and are
-        downloaded on each build (~50 - ~100Mb).
-
-        If the requested tool/version is not present in the cache, it's
-        installed via ``asdf`` on the fly.
-        """
-        if settings.RTD_DOCKER_COMPOSE:
-            # Create a symlink for ``root`` user to use the same ``.asdf``
-            # installation as the ``docs`` user. Required for local building
-            # since everything is run as ``root`` when using Local Development
-            # instance
-            cmd = [
-                'ln',
-                '-s',
-                os.path.join(settings.RTD_DOCKER_WORKDIR, '.asdf'),
-                '/root/.asdf',
-            ]
-            self.build_env.run(
-                *cmd,
-                record=False,
-            )
-
-        for tool, version in self.config.build.tools.items():
-            full_version = version.full_version  # e.g. 3.9 -> 3.9.7
-
-            # TODO: generate the correct path for the Python version
-            # see https://github.com/readthedocs/readthedocs.org/pull/8447#issuecomment-911562267
-            # tool_path = f'{self.config.build.os}/{tool}/2021-08-30/{full_version}.tar.gz'
-            tool_path = f'{self.config.build.os}-{tool}-{full_version}.tar.gz'
-            tool_version_cached = build_tools_storage.exists(tool_path)
-            if tool_version_cached:
-                remote_fd = build_tools_storage.open(tool_path, mode='rb')
-                with tarfile.open(fileobj=remote_fd) as tar:
-                    # Extract it on the shared path between host and Docker container
-                    extract_path = os.path.join(self.project.doc_path, 'tools')
-                    tar.extractall(extract_path)
-
-                    # Move the extracted content to the ``asdf`` installation
-                    cmd = [
-                        'mv',
-                        f'{extract_path}/{full_version}',
-                        os.path.join(
-                            settings.RTD_DOCKER_WORKDIR,
-                            f'.asdf/installs/{tool}/{full_version}',
-                        ),
-                    ]
-                    self.build_env.run(
-                        *cmd,
-                        record=False,
-                    )
-            else:
-                log.debug(
-                    'Cached version for tool not found.',
-                    os=self.config.build.os,
-                    tool=tool,
-                    full_version=full_version,
-                    tool_path=tool_path,
-                )
-                # If the tool version selected is not available from the
-                # cache we compile it at build time
-                cmd = [
-                    # TODO: make ``PYTHON_CONFIGURE_OPTS="--enable-shared"``
-                    # environment variable to work here. Note that
-                    # ``self.build_env.run`` does not support passing
-                    # environment for a particular command:
-                    # https://github.com/readthedocs/readthedocs.org/blob/9d2d1a2/readthedocs/doc_builder/environments.py#L430-L431
-                    'asdf',
-                    'install',
-                    tool,
-                    full_version,
-                ]
-                self.build_env.run(
-                    *cmd,
-                )
-
-            # Make the tool version chosen by the user the default one
-            cmd = [
-                'asdf',
-                'global',
-                tool,
-                full_version,
-            ]
-            self.build_env.run(
-                *cmd,
-            )
-
-            # Recreate shims for this tool to make the new version
-            # installed available
-            # https://asdf-vm.com/learn-more/faq.html#newly-installed-exectable-not-running
-            cmd = [
-                'asdf',
-                'reshim',
-                tool,
-            ]
-            self.build_env.run(
-                *cmd,
-                record=False,
-            )
-
-            if all([
-                    tool == 'python',
-                    # Do not install them if the tool version was cached
-                    # because these dependencies are already installed when
-                    # created with our script and uploaded to the cache's
-                    # bucket
-                    not tool_version_cached,
-                    # Do not install them on conda/mamba since they are not
-                    # needed because the environment is managed by conda/mamba
-                    # itself
-                    self.config.python_interpreter not in ('conda', 'mamba'),
-            ]):
-                # Install our own requirements if the version is compiled
-                cmd = [
-                    'python',
-                    '-mpip',
-                    'install',
-                    '-U',
-                    'virtualenv',
-                    # We cap setuptools to avoid breakage of projects
-                    # relying on setup.py invokations,
-                    # see https://github.com/readthedocs/readthedocs.org/issues/8659
-                    'setuptools<58.3.0',
-                ]
-                self.build_env.run(
-                    *cmd,
-                )
 
     def install_requirements(self):
         """Install all requirements from the config object."""
@@ -304,13 +169,23 @@ class Virtualenv(PythonEnvironment):
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
-        requirements = [
-            'mock==1.0.1',
-            'pillow==5.4.1',
-            'alabaster>=0.7,<0.8,!=0.7.5',
-            'commonmark==0.8.1',
-            'recommonmark==0.5.0',
-        ]
+        requirements = []
+
+        # Unpin Pillow on newer Python versions to avoid re-compiling
+        # https://pillow.readthedocs.io/en/stable/installation.html#python-support
+        if self.config.python.version in ("2.7", "3.4", "3.5", "3.6", "3.7"):
+            requirements.append("pillow==5.4.1")
+        else:
+            requirements.append("pillow")
+
+        requirements.extend(
+            [
+                "mock==1.0.1",
+                "alabaster>=0.7,<0.8,!=0.7.5",
+                "commonmark==0.9.1",
+                "recommonmark==0.5.0",
+            ]
+        )
 
         if self.config.doctype == 'mkdocs':
             requirements.append(
@@ -325,25 +200,29 @@ class Virtualenv(PythonEnvironment):
                 ),
             )
         else:
-            requirements.extend([
-                self.project.get_feature_value(
-                    Feature.USE_SPHINX_LATEST,
-                    positive='sphinx',
-                    negative='sphinx<2',
-                ),
-                # If defaulting to Sphinx 2+, we need to push the latest theme
-                # release as well. `<0.5.0` is not compatible with Sphinx 2+
-                self.project.get_feature_value(
-                    Feature.USE_SPHINX_LATEST,
-                    positive='sphinx-rtd-theme',
-                    negative='sphinx-rtd-theme<0.5',
-                ),
-                self.project.get_feature_value(
-                    Feature.USE_SPHINX_RTD_EXT_LATEST,
-                    positive='readthedocs-sphinx-ext',
-                    negative='readthedocs-sphinx-ext<2.2',
-                ),
-            ])
+            requirements.extend(
+                [
+                    self.project.get_feature_value(
+                        Feature.USE_SPHINX_LATEST,
+                        positive="sphinx",
+                        negative="sphinx<2",
+                    ),
+                    # If defaulting to Sphinx 2+, we need to push the latest theme
+                    # release as well. `<0.5.0` is not compatible with Sphinx 2+
+                    self.project.get_feature_value(
+                        Feature.USE_SPHINX_LATEST,
+                        positive="sphinx-rtd-theme",
+                        negative="sphinx-rtd-theme<0.5",
+                    ),
+                    self.project.get_feature_value(
+                        Feature.USE_SPHINX_RTD_EXT_LATEST,
+                        positive="readthedocs-sphinx-ext",
+                        negative="readthedocs-sphinx-ext<2.3",
+                    ),
+                ]
+            )
+            if not self.project.has_feature(Feature.USE_SPHINX_LATEST):
+                requirements.extend(["jinja2<3.1.0"])
 
         cmd = copy.copy(pip_install_cmd)
         if self.config.python.use_system_site_packages:
@@ -445,10 +324,6 @@ class Conda(PythonEnvironment):
         """
         Decide whether use ``mamba`` or ``conda`` to create the environment.
 
-        Return ``mamba`` if the project has ``CONDA_USES_MAMBA`` feature and
-        ``conda`` otherwise. This will be the executable name to be used when
-        creating the conda environment.
-
         ``mamba`` is really fast to solve dependencies and download channel
         metadata on startup.
 
@@ -457,10 +332,6 @@ class Conda(PythonEnvironment):
         # Config file using ``build.tools.python``
         if self.config.using_build_tools:
             return self.config.python_interpreter
-
-        # Config file using ``conda``
-        if self.project.has_feature(Feature.CONDA_USES_MAMBA):
-            return 'mamba'
         return 'conda'
 
     def _update_conda_startup(self):
@@ -471,8 +342,6 @@ class Conda(PythonEnvironment):
         independently the version of Miniconda that it has installed.
         """
         self.build_env.run(
-            # TODO: use ``self.conda_bin_name()`` once ``mamba`` is installed in
-            # the Docker image
             'conda',
             'update',
             '--yes',
@@ -483,22 +352,9 @@ class Conda(PythonEnvironment):
             cwd=self.checkout_path,
         )
 
-    def _install_mamba(self):
-        self.build_env.run(
-            'conda',
-            'install',
-            '--yes',
-            '--quiet',
-            '--name=base',
-            '--channel=conda-forge',
-            'python=3.7',
-            'mamba',
-            cwd=self.checkout_path,
-        )
-
     def setup_base(self):
         conda_env_path = os.path.join(self.project.doc_path, 'conda')
-        version_path = os.path.join(conda_env_path, self.version.slug)
+        os.path.join(conda_env_path, self.version.slug)
 
         if self.project.has_feature(Feature.UPDATE_CONDA_STARTUP):
             self._update_conda_startup()
@@ -506,15 +362,6 @@ class Conda(PythonEnvironment):
         if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
             self._append_core_requirements()
             self._show_environment_yaml()
-
-        if all([
-                # The project has CONDA_USES_MAMBA feature enabled and,
-                self.project.has_feature(Feature.CONDA_USES_MAMBA),
-                # the project is not using ``build.tools``,
-                # which has mamba installed via asdf.
-                not self.config.using_build_tools,
-        ]):
-            self._install_mamba()
 
         self.build_env.run(
             self.conda_bin_name(),
@@ -603,9 +450,6 @@ class Conda(PythonEnvironment):
             'mock',
             'pillow',
         ]
-
-        if self.project.has_feature(Feature.CONDA_USES_MAMBA):
-            conda_requirements.append('pip')
 
         # Install pip-only things.
         pip_requirements = [

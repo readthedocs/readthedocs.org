@@ -3,9 +3,9 @@ from collections import namedtuple
 import pytest
 from pyquery import PyQuery
 
-from readthedocs.embed.utils import clean_links
+from readthedocs.embed.utils import clean_references
 
-URLData = namedtuple('URLData', ['docurl', 'href', 'expected'])
+URLData = namedtuple("URLData", ["docurl", "ref", "expected"])
 
 html_base_url = 'https://t.readthedocs.io/en/latest/page.html'
 dirhtml_base_url = 'https://t.readthedocs.io/en/latest/page/'
@@ -90,12 +90,36 @@ dirhtmldata = [
     ),
 ]
 
+imagedata = [
+    URLData(
+        html_base_url,
+        "/_images/image.png",
+        "/_images/image.png",
+    ),
+    URLData(
+        html_base_url,
+        "relative/section/image.png",
+        "https://t.readthedocs.io/en/latest/relative/section/image.png",
+    ),
+    URLData(
+        "https://t.readthedocs.io/en/latest/internal/deep/page/topic.html",
+        "../../../_images/image.png",
+        "https://t.readthedocs.io/en/latest/internal/deep/page/../../../_images/image.png",
+    ),
+]
 
 @pytest.mark.parametrize('url', htmldata + dirhtmldata)
 def test_clean_links(url):
-    pq = PyQuery(f'<body><a href="{url.href}">Click here</a></body>')
-    response = clean_links(pq, url.docurl)
+    pq = PyQuery(f'<body><a href="{url.ref}">Click here</a></body>')
+    response = clean_references(pq, url.docurl)
     assert response.find('a').attr['href'] == url.expected
+
+
+@pytest.mark.parametrize("url", imagedata)
+def test_clean_images(url):
+    pq = PyQuery(f'<body><img alt="image alt content" src="{url.ref}"></img></body>')
+    response = clean_references(pq, url.docurl)
+    assert response.find("img").attr["src"] == url.expected
 
 
 def test_two_links():
@@ -115,7 +139,9 @@ def test_two_links():
         '#to-a-section',
         'https://t.readthedocs.io/en/latest/internal/deep/page/section.html#to-a-section',
     )
-    pq = PyQuery(f'<body><a href="{firsturl.href}">Click here</a><a href="{secondurl.href}">Click here</a></body>')
-    response = clean_links(pq, firsturl.docurl)
+    pq = PyQuery(
+        f'<body><a href="{firsturl.ref}">Click here</a><a href="{secondurl.ref}">Click here</a></body>'
+    )
+    response = clean_references(pq, firsturl.docurl)
     firstlink, secondlink = response.find('a')
     assert (firstlink.attrib['href'], secondlink.attrib['href']) == (firsturl.expected, secondurl.expected)

@@ -1,3 +1,623 @@
+Version 8.9.0
+-------------
+
+:Date: November 15, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9728 <https://github.com/readthedocs/readthedocs.org/pull/9728>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix tests (`#9725 <https://github.com/readthedocs/readthedocs.org/pull/9725>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.8.1 (`#9724 <https://github.com/readthedocs/readthedocs.org/pull/9724>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update security policy (`#9723 <https://github.com/readthedocs/readthedocs.org/pull/9723>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: refactor "skipping a build" section (`#9717 <https://github.com/readthedocs/readthedocs.org/pull/9717>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: don't depend on attributes injected in the request (`#9711 <https://github.com/readthedocs/readthedocs.org/pull/9711>`__)
+* `@stsewd <https://github.com/stsewd>`__: Unresolver: support external versions for single version projects (`#9709 <https://github.com/readthedocs/readthedocs.org/pull/9709>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: add expired queryset (`#9667 <https://github.com/readthedocs/readthedocs.org/pull/9667>`__)
+* `@humitos <https://github.com/humitos>`__: Build: skip build based on commands' exit codes (`#9649 <https://github.com/readthedocs/readthedocs.org/pull/9649>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Change mailing list subscription to when the user validates their email (`#9384 <https://github.com/readthedocs/readthedocs.org/pull/9384>`__)
+
+Version 8.8.1
+-------------
+
+This release contains a security fix, which is the most important part of the update.
+
+:Date: November 09, 2022
+
+* Security fix: https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-98pf-gfh3-x3mp
+* `@stsewd <https://github.com/stsewd>`__: Unresolver: support external versions for single version projects (`#9709 <https://github.com/readthedocs/readthedocs.org/pull/9709>`__)
+
+Version 8.8.0
+-------------
+
+:Date: November 08, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9714 <https://github.com/readthedocs/readthedocs.org/pull/9714>`__)
+* `@humitos <https://github.com/humitos>`__: Build: bump `readthedocs-sphinx-ext` to `<2.3` (`#9707 <https://github.com/readthedocs/readthedocs.org/pull/9707>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Bump to sphinx-rtd-theme to 1.1.0 (`#9701 <https://github.com/readthedocs/readthedocs.org/pull/9701>`__)
+* `@humitos <https://github.com/humitos>`__: GHA: only run the preview links action on `docs/` path (`#9696 <https://github.com/readthedocs/readthedocs.org/pull/9696>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: not collect Sphinx data if there is no `conf.py` (`#9695 <https://github.com/readthedocs/readthedocs.org/pull/9695>`__)
+* `@stsewd <https://github.com/stsewd>`__: Static files: don't 500 on invalid paths (`#9694 <https://github.com/readthedocs/readthedocs.org/pull/9694>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: don't remove stripe id on canceled subscriptions (`#9693 <https://github.com/readthedocs/readthedocs.org/pull/9693>`__)
+* `@humitos <https://github.com/humitos>`__: Build tools: upgrade all versions (`#9692 <https://github.com/readthedocs/readthedocs.org/pull/9692>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.7.1 (`#9691 <https://github.com/readthedocs/readthedocs.org/pull/9691>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9688 <https://github.com/readthedocs/readthedocs.org/pull/9688>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Split up Build Notifications into feature/reference and how-to (Diátaxis) (`#9686 <https://github.com/readthedocs/readthedocs.org/pull/9686>`__)
+* `@dojutsu-user <https://github.com/dojutsu-user>`__: Run `blacken-docs` precommit hook on all files (`#9672 <https://github.com/readthedocs/readthedocs.org/pull/9672>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Proposal for sphinxcontrib-jquery (`#9665 <https://github.com/readthedocs/readthedocs.org/pull/9665>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: use djstripe events to mail owners (`#9661 <https://github.com/readthedocs/readthedocs.org/pull/9661>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Use current year instead of hard-coded 2010 (`#9660 <https://github.com/readthedocs/readthedocs.org/pull/9660>`__)
+* `@SyedMa3 <https://github.com/SyedMa3>`__: API v3: added support for tags in API (`#9513 <https://github.com/readthedocs/readthedocs.org/pull/9513>`__)
+
+Version 8.7.1
+-------------
+
+:Date: October 24, 2022
+
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Comment out the science contact form (`#9674 <https://github.com/readthedocs/readthedocs.org/pull/9674>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9663 <https://github.com/readthedocs/readthedocs.org/pull/9663>`__)
+* `@humitos <https://github.com/humitos>`__: Template: fix build details page link (`#9662 <https://github.com/readthedocs/readthedocs.org/pull/9662>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Use current year instead of hard-coded 2010 (`#9660 <https://github.com/readthedocs/readthedocs.org/pull/9660>`__)
+* `@humitos <https://github.com/humitos>`__: Clean up some old code that's not used (`#9659 <https://github.com/readthedocs/readthedocs.org/pull/9659>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Adds more basic info to the default 404 page (`#9656 <https://github.com/readthedocs/readthedocs.org/pull/9656>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.7.0 (`#9655 <https://github.com/readthedocs/readthedocs.org/pull/9655>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: Use djstripe event handlers (`#9651 <https://github.com/readthedocs/readthedocs.org/pull/9651>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: use path for API URL (`#9646 <https://github.com/readthedocs/readthedocs.org/pull/9646>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: enable `django-debug-toolbar` when Django Admin is enabled (`#9641 <https://github.com/readthedocs/readthedocs.org/pull/9641>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: track Sphinx `extensions` and `html_theme` variables (`#9639 <https://github.com/readthedocs/readthedocs.org/pull/9639>`__)
+* `@humitos <https://github.com/humitos>`__: Run django-upgrade (`#9628 <https://github.com/readthedocs/readthedocs.org/pull/9628>`__)
+* `@evildmp <https://github.com/evildmp>`__: Docs: Made some small changes to the MyST migration how-to (`#9620 <https://github.com/readthedocs/readthedocs.org/pull/9620>`__)
+* `@dojutsu-user <https://github.com/dojutsu-user>`__: Add admin functions for wiping a version (`#5140 <https://github.com/readthedocs/readthedocs.org/pull/5140>`__)
+
+Version 8.7.0
+-------------
+
+:Date: October 11, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9648 <https://github.com/readthedocs/readthedocs.org/pull/9648>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: enable `django-debug-toolbar` when Django Admin is enabled (`#9641 <https://github.com/readthedocs/readthedocs.org/pull/9641>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: use stripe price instead of relying on plan object (`#9640 <https://github.com/readthedocs/readthedocs.org/pull/9640>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9636 <https://github.com/readthedocs/readthedocs.org/pull/9636>`__)
+* `@humitos <https://github.com/humitos>`__: Query: minor improvement (`#9634 <https://github.com/readthedocs/readthedocs.org/pull/9634>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.6.0 (`#9630 <https://github.com/readthedocs/readthedocs.org/pull/9630>`__)
+* `@humitos <https://github.com/humitos>`__: Run django-upgrade (`#9628 <https://github.com/readthedocs/readthedocs.org/pull/9628>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor serializer's context (`#9624 <https://github.com/readthedocs/readthedocs.org/pull/9624>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Re-scope Intersphinx article as a how-to (`#9622 <https://github.com/readthedocs/readthedocs.org/pull/9622>`__)
+* `@evildmp <https://github.com/evildmp>`__: Made some small changes to the MyST migration how-to (`#9620 <https://github.com/readthedocs/readthedocs.org/pull/9620>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: move api.py into a module (`#9616 <https://github.com/readthedocs/readthedocs.org/pull/9616>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove `DEDUPLICATE_BUILDS` feature (`#9591 <https://github.com/readthedocs/readthedocs.org/pull/9591>`__)
+* `@stsewd <https://github.com/stsewd>`__: Email: render template before sending it to the task (`#9538 <https://github.com/readthedocs/readthedocs.org/pull/9538>`__)
+
+Version 8.6.0
+-------------
+
+:Date: September 28, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9621 <https://github.com/readthedocs/readthedocs.org/pull/9621>`__)
+* `@evildmp <https://github.com/evildmp>`__: Made some small changes to the MyST migration how-to (`#9620 <https://github.com/readthedocs/readthedocs.org/pull/9620>`__)
+* `@boahc077 <https://github.com/boahc077>`__: ci: add minimum GitHub at the workflow level for pip-tools.yaml (`#9617 <https://github.com/readthedocs/readthedocs.org/pull/9617>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: refactor API view (`#9613 <https://github.com/readthedocs/readthedocs.org/pull/9613>`__)
+* `@sashashura <https://github.com/sashashura>`__: GitHub Workflows security hardening (`#9609 <https://github.com/readthedocs/readthedocs.org/pull/9609>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: test with/without organizations (`#9605 <https://github.com/readthedocs/readthedocs.org/pull/9605>`__)
+* `@humitos <https://github.com/humitos>`__: Builds: concurrency small optimization (`#9602 <https://github.com/readthedocs/readthedocs.org/pull/9602>`__)
+* `@uvidyadharan <https://github.com/uvidyadharan>`__: Update intersphinx.rst (`#9601 <https://github.com/readthedocs/readthedocs.org/pull/9601>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.5.0 (`#9600 <https://github.com/readthedocs/readthedocs.org/pull/9600>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9596 <https://github.com/readthedocs/readthedocs.org/pull/9596>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth: save refresh token (`#9594 <https://github.com/readthedocs/readthedocs.org/pull/9594>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: allow update (`#9593 <https://github.com/readthedocs/readthedocs.org/pull/9593>`__)
+* `@stsewd <https://github.com/stsewd>`__: Unresolver: strict validation for external versions and other fixes (`#9534 <https://github.com/readthedocs/readthedocs.org/pull/9534>`__)
+* `@stsewd <https://github.com/stsewd>`__: New unresolver implementation (`#9500 <https://github.com/readthedocs/readthedocs.org/pull/9500>`__)
+* `@stsewd <https://github.com/stsewd>`__: API v3: fix organizations permissions (`#8771 <https://github.com/readthedocs/readthedocs.org/pull/8771>`__)
+
+Version 8.5.0
+-------------
+
+:Date: September 12, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9596 <https://github.com/readthedocs/readthedocs.org/pull/9596>`__)
+* `@stsewd <https://github.com/stsewd>`__: OAuth: save refresh token (`#9594 <https://github.com/readthedocs/readthedocs.org/pull/9594>`__)
+* `@humitos <https://github.com/humitos>`__: OAuth: add logging for imported GitHub RemoteRepository (`#9590 <https://github.com/readthedocs/readthedocs.org/pull/9590>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: lowercase JSON keys (`#9587 <https://github.com/readthedocs/readthedocs.org/pull/9587>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embedded js: fix no-sphinx docs (`#9586 <https://github.com/readthedocs/readthedocs.org/pull/9586>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.4.3 (`#9584 <https://github.com/readthedocs/readthedocs.org/pull/9584>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9583 <https://github.com/readthedocs/readthedocs.org/pull/9583>`__)
+* `@stsewd <https://github.com/stsewd>`__: Invitations: delete related invitations when deleting an object (`#9582 <https://github.com/readthedocs/readthedocs.org/pull/9582>`__)
+* `@stsewd <https://github.com/stsewd>`__: New unresolver implementation (`#9500 <https://github.com/readthedocs/readthedocs.org/pull/9500>`__)
+
+Version 8.4.3
+-------------
+
+:Date: September 06, 2022
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9583 <https://github.com/readthedocs/readthedocs.org/pull/9583>`__)
+* `@stsewd <https://github.com/stsewd>`__: Invitations: delete related invitations when deleting an object (`#9582 <https://github.com/readthedocs/readthedocs.org/pull/9582>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: improve "Badges" page (`#9580 <https://github.com/readthedocs/readthedocs.org/pull/9580>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use utility function domReady instead of JQuery's .ready (`#9579 <https://github.com/readthedocs/readthedocs.org/pull/9579>`__)
+* `@humitos <https://github.com/humitos>`__: Development: disable NGINX logs (`#9569 <https://github.com/readthedocs/readthedocs.org/pull/9569>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: log time spent to upload build artifacts (`#9568 <https://github.com/readthedocs/readthedocs.org/pull/9568>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: recommend using `pip` instead of `setuptools` (`#9567 <https://github.com/readthedocs/readthedocs.org/pull/9567>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed API: strip leading `/` before joining path (`#9565 <https://github.com/readthedocs/readthedocs.org/pull/9565>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed API: fix CORS check (`#9564 <https://github.com/readthedocs/readthedocs.org/pull/9564>`__)
+* `@humitos <https://github.com/humitos>`__: Build: upgrade `commonmark` to 0.9.1 (`#9563 <https://github.com/readthedocs/readthedocs.org/pull/9563>`__)
+* `@humitos <https://github.com/humitos>`__: Templates: minor typo (`#9560 <https://github.com/readthedocs/readthedocs.org/pull/9560>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: unskip test (`#9559 <https://github.com/readthedocs/readthedocs.org/pull/9559>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.4.2 (`#9558 <https://github.com/readthedocs/readthedocs.org/pull/9558>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Proxito redirects: pass full_path instead of re-creating it.  (`#9557 <https://github.com/readthedocs/readthedocs.org/pull/9557>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed js: use fetch API for footer (`#9551 <https://github.com/readthedocs/readthedocs.org/pull/9551>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: use stripe subscriptions to show details (`#9550 <https://github.com/readthedocs/readthedocs.org/pull/9550>`__)
+* `@humitos <https://github.com/humitos>`__: Build: cancel old builds  (`#9549 <https://github.com/readthedocs/readthedocs.org/pull/9549>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: HTML form for getting in touch with Read the Docs for Science (`#9543 <https://github.com/readthedocs/readthedocs.org/pull/9543>`__)
+* `@humitos <https://github.com/humitos>`__: Dependencies: pin deploy dependencies (`#9537 <https://github.com/readthedocs/readthedocs.org/pull/9537>`__)
+* `@humitos <https://github.com/humitos>`__: Code comment (`#9518 <https://github.com/readthedocs/readthedocs.org/pull/9518>`__)
+* `@stsewd <https://github.com/stsewd>`__: Avoid jquery in rtd data (`#9493 <https://github.com/readthedocs/readthedocs.org/pull/9493>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use djstripe models for organization subscriptions (`#9486 <https://github.com/readthedocs/readthedocs.org/pull/9486>`__)
+* `@stsewd <https://github.com/stsewd>`__: Ask for confirmation when adding a user to a project/organization/team (`#9440 <https://github.com/readthedocs/readthedocs.org/pull/9440>`__)
+* `@stsewd <https://github.com/stsewd>`__: Design doc: Better handling of docs URLs (`#9425 <https://github.com/readthedocs/readthedocs.org/pull/9425>`__)
+* `@stsewd <https://github.com/stsewd>`__: Security logs: delete old user security logs (`#8620 <https://github.com/readthedocs/readthedocs.org/pull/8620>`__)
+
+Version 8.4.2
+-------------
+
+:Date: August 29, 2022
+
+* `@ericholscher <https://github.com/ericholscher>`__: Proxito redirects: pass full_path instead of re-creating it.  (`#9557 <https://github.com/readthedocs/readthedocs.org/pull/9557>`__)
+* `@humitos <https://github.com/humitos>`__: Build: cancel old builds  (`#9549 <https://github.com/readthedocs/readthedocs.org/pull/9549>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embedded js: update docstring (`#9547 <https://github.com/readthedocs/readthedocs.org/pull/9547>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: HTML form for getting in touch with Read the Docs for Science (`#9543 <https://github.com/readthedocs/readthedocs.org/pull/9543>`__)
+* `@stsewd <https://github.com/stsewd>`__: Unresolver: port changes from #9540 (`#9542 <https://github.com/readthedocs/readthedocs.org/pull/9542>`__)
+* `@stsewd <https://github.com/stsewd>`__: Domains: test tasks with organizations (`#9541 <https://github.com/readthedocs/readthedocs.org/pull/9541>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: set logging to debug (`#9540 <https://github.com/readthedocs/readthedocs.org/pull/9540>`__)
+* `@humitos <https://github.com/humitos>`__: Dependencies: pin deploy dependencies (`#9537 <https://github.com/readthedocs/readthedocs.org/pull/9537>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.4.1 (`#9536 <https://github.com/readthedocs/readthedocs.org/pull/9536>`__)
+* `@humitos <https://github.com/humitos>`__: Dependencies: pin django-structlog to 2.2.1 (`#9535 <https://github.com/readthedocs/readthedocs.org/pull/9535>`__)
+* `@humitos <https://github.com/humitos>`__: Code comment (`#9518 <https://github.com/readthedocs/readthedocs.org/pull/9518>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embedded js: remove more dependency on jquery (`#9515 <https://github.com/readthedocs/readthedocs.org/pull/9515>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: collect user's requirements (`#9514 <https://github.com/readthedocs/readthedocs.org/pull/9514>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embedded js: remove some dependency from jquery (`#9508 <https://github.com/readthedocs/readthedocs.org/pull/9508>`__)
+* `@stsewd <https://github.com/stsewd>`__: New unresolver implementation (`#9500 <https://github.com/readthedocs/readthedocs.org/pull/9500>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use djstripe models for organization subscriptions (`#9486 <https://github.com/readthedocs/readthedocs.org/pull/9486>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Park resolutions to common build problems in FAQ (`#9472 <https://github.com/readthedocs/readthedocs.org/pull/9472>`__)
+
+Version 8.4.1
+-------------
+
+:Date: August 23, 2022
+
+* `@humitos <https://github.com/humitos>`__: Dependencies: pin django-structlog to 2.2.1 (`#9535 <https://github.com/readthedocs/readthedocs.org/pull/9535>`__)
+* `@xk999 <https://github.com/xk999>`__: Update Transifex link (`#9531 <https://github.com/readthedocs/readthedocs.org/pull/9531>`__)
+* `@dependabot[bot] <https://github.com/dependabot[bot]>`__: Bump actions/setup-python from 3 to 4 (`#9529 <https://github.com/readthedocs/readthedocs.org/pull/9529>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9528 <https://github.com/readthedocs/readthedocs.org/pull/9528>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: collect user's requirements (`#9514 <https://github.com/readthedocs/readthedocs.org/pull/9514>`__)
+* `@stsewd <https://github.com/stsewd>`__: Teams: don't send email notification when users adds themselves to a team (`#9511 <https://github.com/readthedocs/readthedocs.org/pull/9511>`__)
+* `@humitos <https://github.com/humitos>`__: Preview: escape characters (`#9509 <https://github.com/readthedocs/readthedocs.org/pull/9509>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Removes rstcheck (`#9505 <https://github.com/readthedocs/readthedocs.org/pull/9505>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.4.0 (`#9504 <https://github.com/readthedocs/readthedocs.org/pull/9504>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: sphinxcontrib-video was added incorrectly (`#9501 <https://github.com/readthedocs/readthedocs.org/pull/9501>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix typo in build concurrency logging (`#9499 <https://github.com/readthedocs/readthedocs.org/pull/9499>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update template from documentation preview (`#9495 <https://github.com/readthedocs/readthedocs.org/pull/9495>`__)
+* `@humitos <https://github.com/humitos>`__: Dependencies: use pip-tools for all our files  (`#9480 <https://github.com/readthedocs/readthedocs.org/pull/9480>`__)
+* `@humitos <https://github.com/humitos>`__: Dependencies: use GitHub Action + pip-tools (`#9479 <https://github.com/readthedocs/readthedocs.org/pull/9479>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: separate project slug extraction from request manipulation (`#9462 <https://github.com/readthedocs/readthedocs.org/pull/9462>`__)
+* `@stsewd <https://github.com/stsewd>`__: Ask for confirmation when adding a user to a project/organization/team (`#9440 <https://github.com/readthedocs/readthedocs.org/pull/9440>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom domains: track validation process (`#9428 <https://github.com/readthedocs/readthedocs.org/pull/9428>`__)
+
+Version 8.4.0
+-------------
+
+:Date: August 16, 2022
+
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: sphinxcontrib-video was added incorrectly (`#9501 <https://github.com/readthedocs/readthedocs.org/pull/9501>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix typo in build concurrency logging (`#9499 <https://github.com/readthedocs/readthedocs.org/pull/9499>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embedded js: fix flyout click event (`#9498 <https://github.com/readthedocs/readthedocs.org/pull/9498>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom urlconf: support serving static files (`#9496 <https://github.com/readthedocs/readthedocs.org/pull/9496>`__)
+* `@stsewd <https://github.com/stsewd>`__: Avoid jquery in rtd data (`#9493 <https://github.com/readthedocs/readthedocs.org/pull/9493>`__)
+* `@humitos <https://github.com/humitos>`__: Preview: add links to `dev` documentation (`#9491 <https://github.com/readthedocs/readthedocs.org/pull/9491>`__)
+* `@humitos <https://github.com/humitos>`__: Use Read the Docs action v1 (`#9487 <https://github.com/readthedocs/readthedocs.org/pull/9487>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.3.7 (`#9484 <https://github.com/readthedocs/readthedocs.org/pull/9484>`__)
+* `@stsewd <https://github.com/stsewd>`__: Disable sphinx domains (`#9483 <https://github.com/readthedocs/readthedocs.org/pull/9483>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sphinx domain: change type of ID field (`#9482 <https://github.com/readthedocs/readthedocs.org/pull/9482>`__)
+* `@humitos <https://github.com/humitos>`__: Build: unpin Pillow for unsupported Python versions (`#9473 <https://github.com/readthedocs/readthedocs.org/pull/9473>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Read the Docs for Science - new alternative with sphinx-design (`#9460 <https://github.com/readthedocs/readthedocs.org/pull/9460>`__)
+* `@stsewd <https://github.com/stsewd>`__: Ask for confirmation when adding a user to a project/organization/team (`#9440 <https://github.com/readthedocs/readthedocs.org/pull/9440>`__)
+
+Version 8.3.7
+-------------
+
+:Date: August 09, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Sphinx domain: change type of ID field (`#9482 <https://github.com/readthedocs/readthedocs.org/pull/9482>`__)
+* `@humitos <https://github.com/humitos>`__: Build: unpin Pillow for unsupported Python versions (`#9473 <https://github.com/readthedocs/readthedocs.org/pull/9473>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.3.6 (`#9465 <https://github.com/readthedocs/readthedocs.org/pull/9465>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: check only for hostname and path for infinite redirects (`#9463 <https://github.com/readthedocs/readthedocs.org/pull/9463>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Fix missing indentation on reStructuredText badge code (`#9404 <https://github.com/readthedocs/readthedocs.org/pull/9404>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed JS: fix incompatibilities with sphinx 6.x (jquery removal) (`#9359 <https://github.com/readthedocs/readthedocs.org/pull/9359>`__)
+
+Version 8.3.6
+-------------
+
+:Date: August 02, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Build: use correct build environment for build.commands (`#9454 <https://github.com/readthedocs/readthedocs.org/pull/9454>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Fixes warnings and other noisy build messages (`#9453 <https://github.com/readthedocs/readthedocs.org/pull/9453>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.3.5 (`#9452 <https://github.com/readthedocs/readthedocs.org/pull/9452>`__)
+* `@humitos <https://github.com/humitos>`__: GitHub Action: add link to Pull Request preview (`#9450 <https://github.com/readthedocs/readthedocs.org/pull/9450>`__)
+* `@humitos <https://github.com/humitos>`__: OAuth: add logging for GitHub RemoteRepository (`#9449 <https://github.com/readthedocs/readthedocs.org/pull/9449>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Adds Jupyter Book to examples table (`#9446 <https://github.com/readthedocs/readthedocs.org/pull/9446>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: `poetry` example on `build.jobs` section (`#9445 <https://github.com/readthedocs/readthedocs.org/pull/9445>`__)
+
+Version 8.3.5
+-------------
+
+:Date: July 25, 2022
+
+* `@humitos <https://github.com/humitos>`__: GitHub Action: add link to Pull Request preview (`#9450 <https://github.com/readthedocs/readthedocs.org/pull/9450>`__)
+* `@humitos <https://github.com/humitos>`__: OAuth: add logging for GitHub RemoteRepository (`#9449 <https://github.com/readthedocs/readthedocs.org/pull/9449>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Adds Jupyter Book to examples table (`#9446 <https://github.com/readthedocs/readthedocs.org/pull/9446>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: `poetry` example on `build.jobs` section (`#9445 <https://github.com/readthedocs/readthedocs.org/pull/9445>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update env var docs (`#9443 <https://github.com/readthedocs/readthedocs.org/pull/9443>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Update dev domain to `devthedocs.org` (`#9442 <https://github.com/readthedocs/readthedocs.org/pull/9442>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: mention `docsify` on "Build customization" (`#9439 <https://github.com/readthedocs/readthedocs.org/pull/9439>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.3.4 (`#9436 <https://github.com/readthedocs/readthedocs.org/pull/9436>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom domains: don't allow IPs (`#9429 <https://github.com/readthedocs/readthedocs.org/pull/9429>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit logs: truncate browser (`#9417 <https://github.com/readthedocs/readthedocs.org/pull/9417>`__)
+
+Version 8.3.4
+-------------
+
+:Date: July 19, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Fix docs (`#9432 <https://github.com/readthedocs/readthedocs.org/pull/9432>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: check for self.data.version being None (`#9430 <https://github.com/readthedocs/readthedocs.org/pull/9430>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.3.3 (`#9427 <https://github.com/readthedocs/readthedocs.org/pull/9427>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: merge query params from the redirect and original request (`#9420 <https://github.com/readthedocs/readthedocs.org/pull/9420>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit logs: truncate browser (`#9417 <https://github.com/readthedocs/readthedocs.org/pull/9417>`__)
+
+Version 8.3.3
+-------------
+
+:Date: July 12, 2022
+
+* `@davidfischer <https://github.com/davidfischer>`__: Stickybox ad fix (`#9421 <https://github.com/readthedocs/readthedocs.org/pull/9421>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: add extra log info for oauth (`#9416 <https://github.com/readthedocs/readthedocs.org/pull/9416>`__)
+* `@humitos <https://github.com/humitos>`__: OAuth: unify the exception used for the user message (`#9415 <https://github.com/readthedocs/readthedocs.org/pull/9415>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: improve the flyout page to include a full example (`#9413 <https://github.com/readthedocs/readthedocs.org/pull/9413>`__)
+* `@humitos <https://github.com/humitos>`__: OAuth: resync `RemoteRepository` weekly for active users (`#9410 <https://github.com/readthedocs/readthedocs.org/pull/9410>`__)
+* `@humitos <https://github.com/humitos>`__: OAuth: re-sync `RemoteRepository` on login (`#9409 <https://github.com/readthedocs/readthedocs.org/pull/9409>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics: make sure there is only one record with version=None (`#9408 <https://github.com/readthedocs/readthedocs.org/pull/9408>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add frontend team codeowners rules (`#9407 <https://github.com/readthedocs/readthedocs.org/pull/9407>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: delete old `BuildData` models (`#9403 <https://github.com/readthedocs/readthedocs.org/pull/9403>`__)
+* `@humitos <https://github.com/humitos>`__: Sessions: do not save on each request (`#9402 <https://github.com/readthedocs/readthedocs.org/pull/9402>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.3.2 (`#9400 <https://github.com/readthedocs/readthedocs.org/pull/9400>`__)
+* `@naveensrinivasan <https://github.com/naveensrinivasan>`__: chore: Included githubactions in the dependabot config (`#9396 <https://github.com/readthedocs/readthedocs.org/pull/9396>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: refactor TaskData (`#9389 <https://github.com/readthedocs/readthedocs.org/pull/9389>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Add an examples section (`#9371 <https://github.com/readthedocs/readthedocs.org/pull/9371>`__)
+
+Version 8.3.2
+-------------
+
+:Date: July 05, 2022
+
+* `@neilnaveen <https://github.com/neilnaveen>`__: chore: Set permissions for GitHub actions (`#9394 <https://github.com/readthedocs/readthedocs.org/pull/9394>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: do not log the token itself (`#9393 <https://github.com/readthedocs/readthedocs.org/pull/9393>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test explicitly with/out organizations (`#9391 <https://github.com/readthedocs/readthedocs.org/pull/9391>`__)
+* `@stsewd <https://github.com/stsewd>`__: Telemetry: skip listing conda packages on non-conda envs (`#9390 <https://github.com/readthedocs/readthedocs.org/pull/9390>`__)
+* `@stsewd <https://github.com/stsewd>`__: Enable djstripe again (`#9385 <https://github.com/readthedocs/readthedocs.org/pull/9385>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: UX: Improve DUPLICATED_RESERVED_VERSIONS error (`#9383 <https://github.com/readthedocs/readthedocs.org/pull/9383>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.3.1 (`#9379 <https://github.com/readthedocs/readthedocs.org/pull/9379>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove old feature flags (`#9377 <https://github.com/readthedocs/readthedocs.org/pull/9377>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Properly log build exceptions in Celery (`#9375 <https://github.com/readthedocs/readthedocs.org/pull/9375>`__)
+* `@humitos <https://github.com/humitos>`__: Middleware: use regular `HttpResponse` and log the suspicious operation (`#9366 <https://github.com/readthedocs/readthedocs.org/pull/9366>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add an explicit flyout placement option (`#9357 <https://github.com/readthedocs/readthedocs.org/pull/9357>`__)
+* `@stsewd <https://github.com/stsewd>`__: PR previews: Warn users when enabling the feature on incompatible projects (`#9291 <https://github.com/readthedocs/readthedocs.org/pull/9291>`__)
+
+Version 8.3.1
+-------------
+
+:Date: June 27, 2022
+
+* `@ericholscher <https://github.com/ericholscher>`__: Properly log build exceptions in Celery (`#9375 <https://github.com/readthedocs/readthedocs.org/pull/9375>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove old FAQ entry (`#9374 <https://github.com/readthedocs/readthedocs.org/pull/9374>`__)
+* `@humitos <https://github.com/humitos>`__: CSP header: enforce mode (`#9373 <https://github.com/readthedocs/readthedocs.org/pull/9373>`__)
+* `@humitos <https://github.com/humitos>`__: Development: default value for environment variable (`#9370 <https://github.com/readthedocs/readthedocs.org/pull/9370>`__)
+* `@humitos <https://github.com/humitos>`__: Middleware: use regular `HttpResponse` and log the suspicious operation (`#9366 <https://github.com/readthedocs/readthedocs.org/pull/9366>`__)
+* `@humitos <https://github.com/humitos>`__: Development: remove silent and use long attribute name (`#9363 <https://github.com/readthedocs/readthedocs.org/pull/9363>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix glossary ordering (`#9362 <https://github.com/readthedocs/readthedocs.org/pull/9362>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Do not list feature overview twice (`#9361 <https://github.com/readthedocs/readthedocs.org/pull/9361>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 8.3.0 (`#9358 <https://github.com/readthedocs/readthedocs.org/pull/9358>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add an explicit flyout placement option (`#9357 <https://github.com/readthedocs/readthedocs.org/pull/9357>`__)
+* `@humitos <https://github.com/humitos>`__: Development: allow to pass `--ngrok` when starting up (`#9353 <https://github.com/readthedocs/readthedocs.org/pull/9353>`__)
+* `@humitos <https://github.com/humitos>`__: Development: avoid path collision when running multiple builders (`#9352 <https://github.com/readthedocs/readthedocs.org/pull/9352>`__)
+* `@humitos <https://github.com/humitos>`__: Security: avoid requests with NULL characters (0x00) on GET (`#9350 <https://github.com/readthedocs/readthedocs.org/pull/9350>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: reduce log verbosity (`#9348 <https://github.com/readthedocs/readthedocs.org/pull/9348>`__)
+* `@humitos <https://github.com/humitos>`__: Build: handle 422 response on send build status (`#9347 <https://github.com/readthedocs/readthedocs.org/pull/9347>`__)
+* `@humitos <https://github.com/humitos>`__: Build: truncate command output (`#9346 <https://github.com/readthedocs/readthedocs.org/pull/9346>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Updates and fixes to Development Install guide (`#9319 <https://github.com/readthedocs/readthedocs.org/pull/9319>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add DMCA takedown request for project dicom-standard (`#9311 <https://github.com/readthedocs/readthedocs.org/pull/9311>`__)
+
+Version 8.3.0
+-------------
+
+:Date: June 20, 2022
+
+* `@humitos <https://github.com/humitos>`__: Security: avoid requests with NULL characters (0x00) on GET (`#9350 <https://github.com/readthedocs/readthedocs.org/pull/9350>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: reduce log verbosity (`#9348 <https://github.com/readthedocs/readthedocs.org/pull/9348>`__)
+* `@humitos <https://github.com/humitos>`__: Build: truncate command output (`#9346 <https://github.com/readthedocs/readthedocs.org/pull/9346>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#9345 <https://github.com/readthedocs/readthedocs.org/pull/9345>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: log subscription id when canceling (`#9340 <https://github.com/readthedocs/readthedocs.org/pull/9340>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: support section titles inside header tags (`#9339 <https://github.com/readthedocs/readthedocs.org/pull/9339>`__)
+* `@humitos <https://github.com/humitos>`__: Local development: use `nodemon` to watch files instead of `watchmedo` (`#9338 <https://github.com/readthedocs/readthedocs.org/pull/9338>`__)
+* `@humitos <https://github.com/humitos>`__:  EmbedAPI: clean images (`src`) properly from inside a tooltip  (`#9337 <https://github.com/readthedocs/readthedocs.org/pull/9337>`__)
+* `@humitos <https://github.com/humitos>`__: Development: update `common/` submodule (`#9336 <https://github.com/readthedocs/readthedocs.org/pull/9336>`__)
+* `@stsewd <https://github.com/stsewd>`__: Gold: log if the subscription has more than one item (`#9334 <https://github.com/readthedocs/readthedocs.org/pull/9334>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPI: handle special case for Sphinx manual references (`#9333 <https://github.com/readthedocs/readthedocs.org/pull/9333>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Add `mc` client to `web` container (`#9331 <https://github.com/readthedocs/readthedocs.org/pull/9331>`__)
+* `@humitos <https://github.com/humitos>`__: Translations: migrate `.tx/config` to new client's version format (`#9327 <https://github.com/readthedocs/readthedocs.org/pull/9327>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: index generic doctype (`#9322 <https://github.com/readthedocs/readthedocs.org/pull/9322>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Improve scoping of two potentially overlapping Triage sections (`#9302 <https://github.com/readthedocs/readthedocs.org/pull/9302>`__)
+
+Version 8.2.0
+-------------
+
+:Date: June 14, 2022
+
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Small edits to add a couple keywords and clarify headings (`#9329 <https://github.com/readthedocs/readthedocs.org/pull/9329>`__)
+* `@humitos <https://github.com/humitos>`__: Translations: integrate Transifex into our Docker tasks (`#9326 <https://github.com/readthedocs/readthedocs.org/pull/9326>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPIv3: make usage of CDN (`#9321 <https://github.com/readthedocs/readthedocs.org/pull/9321>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: handle subscriptions with multiple products/plans/items (`#9320 <https://github.com/readthedocs/readthedocs.org/pull/9320>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Update the team page (`#9309 <https://github.com/readthedocs/readthedocs.org/pull/9309>`__)
+* `@stsewd <https://github.com/stsewd>`__: Stripe: use new api version (`#9308 <https://github.com/readthedocs/readthedocs.org/pull/9308>`__)
+* `@humitos <https://github.com/humitos>`__: Build: avoid overwriting a variable (`#9305 <https://github.com/readthedocs/readthedocs.org/pull/9305>`__)
+* `@humitos <https://github.com/humitos>`__: Integrations: handle `ping` event on GitHub (`#9303 <https://github.com/readthedocs/readthedocs.org/pull/9303>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.1.2 (`#9300 <https://github.com/readthedocs/readthedocs.org/pull/9300>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix Docs CI (`#9299 <https://github.com/readthedocs/readthedocs.org/pull/9299>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: test build views with organizations (`#9298 <https://github.com/readthedocs/readthedocs.org/pull/9298>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update mentions of our roadmap to be current (`#9293 <https://github.com/readthedocs/readthedocs.org/pull/9293>`__)
+* `@stsewd <https://github.com/stsewd>`__: lsremote: set max split when parsing remotes (`#9292 <https://github.com/readthedocs/readthedocs.org/pull/9292>`__)
+* `@humitos <https://github.com/humitos>`__: Tests: make `tests-embedapi` require regular `tests` first (`#9289 <https://github.com/readthedocs/readthedocs.org/pull/9289>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Truncate output that we log from commands to 10 lines (`#9286 <https://github.com/readthedocs/readthedocs.org/pull/9286>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update custom domains docs (`#9266 <https://github.com/readthedocs/readthedocs.org/pull/9266>`__)
+* `@stsewd <https://github.com/stsewd>`__: Requirements: update django-allauth (`#9249 <https://github.com/readthedocs/readthedocs.org/pull/9249>`__)
+
+Version 8.1.2
+-------------
+
+:Date: June 06, 2022
+
+* `@ericholscher <https://github.com/ericholscher>`__: Fix Docs CI (`#9299 <https://github.com/readthedocs/readthedocs.org/pull/9299>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update mentions of our roadmap to be current (`#9293 <https://github.com/readthedocs/readthedocs.org/pull/9293>`__)
+* `@stsewd <https://github.com/stsewd>`__: lsremote: set max split when parsing remotes (`#9292 <https://github.com/readthedocs/readthedocs.org/pull/9292>`__)
+* `@humitos <https://github.com/humitos>`__: Tests: make `tests-embedapi` require regular `tests` first (`#9289 <https://github.com/readthedocs/readthedocs.org/pull/9289>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update 8.1.1 changelog with hotfixes (`#9288 <https://github.com/readthedocs/readthedocs.org/pull/9288>`__)
+* `@stsewd <https://github.com/stsewd>`__: Cancel build: get build from the current project (`#9287 <https://github.com/readthedocs/readthedocs.org/pull/9287>`__)
+* `@stsewd <https://github.com/stsewd>`__: Python: increase 3.11 beta version (`#9284 <https://github.com/readthedocs/readthedocs.org/pull/9284>`__)
+* `@stsewd <https://github.com/stsewd>`__: Disable djstripe (`#9282 <https://github.com/readthedocs/readthedocs.org/pull/9282>`__)
+* `@stsewd <https://github.com/stsewd>`__: Python: use 3.11.0b2 (`#9278 <https://github.com/readthedocs/readthedocs.org/pull/9278>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Remote repository: Add user admin action for syncing remote repositories (`#9272 <https://github.com/readthedocs/readthedocs.org/pull/9272>`__)
+* `@stsewd <https://github.com/stsewd>`__: Requirements: update django-allauth (`#9249 <https://github.com/readthedocs/readthedocs.org/pull/9249>`__)
+* `@humitos <https://github.com/humitos>`__: Build: implementation of `build.commands` (`#9150 <https://github.com/readthedocs/readthedocs.org/pull/9150>`__)
+
+Version 8.1.1
+-------------
+
+:Date: Jun 1, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Cancel build: get build from the current project (`#9287 <https://github.com/readthedocs/readthedocs.org/pull/9287>`__)
+* `@stsewd <https://github.com/stsewd>`__: Disable djstripe (`#9282 <https://github.com/readthedocs/readthedocs.org/pull/9282>`__)
+* `@stsewd <https://github.com/stsewd>`__: Python: increase 3.11 beta version (`#9284 <https://github.com/readthedocs/readthedocs.org/pull/9284>`__)
+* `@stsewd <https://github.com/stsewd>`__: Python: use 3.11.0b2 (`#9278 <https://github.com/readthedocs/readthedocs.org/pull/9278>`__)
+* `@yarons <https://github.com/yarons>`__: Typo fix (`#9271 <https://github.com/readthedocs/readthedocs.org/pull/9271>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update json schema (`#9270 <https://github.com/readthedocs/readthedocs.org/pull/9270>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build tools: update versions (`#9268 <https://github.com/readthedocs/readthedocs.org/pull/9268>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix docs (`#9264 <https://github.com/readthedocs/readthedocs.org/pull/9264>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update commmon (`#9248 <https://github.com/readthedocs/readthedocs.org/pull/9248>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 18 (`#9157 <https://github.com/readthedocs/readthedocs.org/pull/9157>`__)
+
+Version 8.1.0
+-------------
+
+:Date: May 24, 2022
+
+* `@humitos <https://github.com/humitos>`__: Assets: update `package-lock.json` with newer versions (`#9262 <https://github.com/readthedocs/readthedocs.org/pull/9262>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Improve contributing dev doc (`#9260 <https://github.com/readthedocs/readthedocs.org/pull/9260>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update translations, pull from Transifex (`#9259 <https://github.com/readthedocs/readthedocs.org/pull/9259>`__)
+* `@humitos <https://github.com/humitos>`__: Build: solve problem with sanitized output (`#9257 <https://github.com/readthedocs/readthedocs.org/pull/9257>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: improve "Environment Variables" page (`#9256 <https://github.com/readthedocs/readthedocs.org/pull/9256>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: reduce noise on working features (`#9255 <https://github.com/readthedocs/readthedocs.org/pull/9255>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: jsdoc example using `build.jobs` and `build.tools` (`#9241 <https://github.com/readthedocs/readthedocs.org/pull/9241>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docker environment: check for None on stdout/stderr response (`#9238 <https://github.com/readthedocs/readthedocs.org/pull/9238>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxied static files: use its own storage class (`#9237 <https://github.com/readthedocs/readthedocs.org/pull/9237>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: gitlab integration update (`#9236 <https://github.com/readthedocs/readthedocs.org/pull/9236>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 8.0.2 (`#9234 <https://github.com/readthedocs/readthedocs.org/pull/9234>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix tests on .com (`#9233 <https://github.com/readthedocs/readthedocs.org/pull/9233>`__)
+* `@humitos <https://github.com/humitos>`__: Development: only pull the images required (`#9182 <https://github.com/readthedocs/readthedocs.org/pull/9182>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: serve static files from the same domain as the docs (`#9168 <https://github.com/readthedocs/readthedocs.org/pull/9168>`__)
+* `@humitos <https://github.com/humitos>`__: Build: add a new "Cancelled" final state (`#9145 <https://github.com/readthedocs/readthedocs.org/pull/9145>`__)
+* `@stsewd <https://github.com/stsewd>`__: Collect build data (`#9113 <https://github.com/readthedocs/readthedocs.org/pull/9113>`__)
+* `@humitos <https://github.com/humitos>`__: Project: use `RemoteRepository` to define `default_branch` (`#8988 <https://github.com/readthedocs/readthedocs.org/pull/8988>`__)
+* `@humitos <https://github.com/humitos>`__: Design doc: forward path to a future builder (`#8190 <https://github.com/readthedocs/readthedocs.org/pull/8190>`__)
+
+Version 8.0.2
+-------------
+
+:Date: May 16, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Fix tests on .com (`#9233 <https://github.com/readthedocs/readthedocs.org/pull/9233>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Disable codecov annotations (`#9186 <https://github.com/readthedocs/readthedocs.org/pull/9186>`__)
+* `@choldgraf <https://github.com/choldgraf>`__: Note sub-folders with a single domain. (`#9185 <https://github.com/readthedocs/readthedocs.org/pull/9185>`__)
+* `@stsewd <https://github.com/stsewd>`__: BuildCommand: add option to merge or not stderr with stdout (`#9184 <https://github.com/readthedocs/readthedocs.org/pull/9184>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix bumpver issue (`#9181 <https://github.com/readthedocs/readthedocs.org/pull/9181>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 8.0.1 (`#9180 <https://github.com/readthedocs/readthedocs.org/pull/9180>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Spruce up docs on pull request builds (`#9177 <https://github.com/readthedocs/readthedocs.org/pull/9177>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix RTD branding in the code (`#9175 <https://github.com/readthedocs/readthedocs.org/pull/9175>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix copy issues on model fields (`#9170 <https://github.com/readthedocs/readthedocs.org/pull/9170>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: serve static files from the same domain as the docs (`#9168 <https://github.com/readthedocs/readthedocs.org/pull/9168>`__)
+* `@stsewd <https://github.com/stsewd>`__: User: delete organizations where the user is the last owner (`#9164 <https://github.com/readthedocs/readthedocs.org/pull/9164>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a basic djstripe integration (`#9087 <https://github.com/readthedocs/readthedocs.org/pull/9087>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom domains: don't allow adding a custom domain on subprojects (`#8953 <https://github.com/readthedocs/readthedocs.org/pull/8953>`__)
+
+Version 8.0.1
+-------------
+
+:Date: May 09, 2022
+
+* `@ericholscher <https://github.com/ericholscher>`__: Fix RTD branding in the code (`#9175 <https://github.com/readthedocs/readthedocs.org/pull/9175>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove our old out-dated architecture diagram (`#9169 <https://github.com/readthedocs/readthedocs.org/pull/9169>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: mention `ubuntu-22.04` as a valid option (`#9166 <https://github.com/readthedocs/readthedocs.org/pull/9166>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Initial test of adding plan to CDN (`#9163 <https://github.com/readthedocs/readthedocs.org/pull/9163>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix links in docs from the build page refactor (`#9162 <https://github.com/readthedocs/readthedocs.org/pull/9162>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics: skip requests from bots on 404s (`#9161 <https://github.com/readthedocs/readthedocs.org/pull/9161>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Note build.jobs required other keys (`#9160 <https://github.com/readthedocs/readthedocs.org/pull/9160>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add docs showing pip-tools usage on dependencies (`#9158 <https://github.com/readthedocs/readthedocs.org/pull/9158>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Expierment with pip-tools for our docs.txt requirements (`#9124 <https://github.com/readthedocs/readthedocs.org/pull/9124>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a basic djstripe integration (`#9087 <https://github.com/readthedocs/readthedocs.org/pull/9087>`__)
+
+Version 8.0.0
+-------------
+
+:Date: May 03, 2022
+
+
+.. note::
+
+   We are upgrading to Ubuntu 22.04 LTS and also to Python 3.10.
+
+
+Projects using Mamba with the old feature flag, and now removed, ``CONDA_USES_MAMBA``,
+have to update their ``.readthedocs.yaml`` file to use ``build.tools.python: mambaforge-4.10``
+to continue using Mamba to create their environment.
+See more about ``build.tools.python`` at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-tools-python
+
+* `@stsewd <https://github.com/stsewd>`__: Search: fix parsing of footnotes (`#9154 <https://github.com/readthedocs/readthedocs.org/pull/9154>`__)
+* `@humitos <https://github.com/humitos>`__: Mamba: remove CONDA_USES_MAMBA feature flag (`#9153 <https://github.com/readthedocs/readthedocs.org/pull/9153>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove prebuild step so docs keep working (`#9143 <https://github.com/readthedocs/readthedocs.org/pull/9143>`__)
+* `@stsewd <https://github.com/stsewd>`__: lsremote: fix incorrect kwarg (`#9142 <https://github.com/readthedocs/readthedocs.org/pull/9142>`__)
+* `@stsewd <https://github.com/stsewd>`__: Rebase of #9136 (`#9141 <https://github.com/readthedocs/readthedocs.org/pull/9141>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 7.6.2 (`#9140 <https://github.com/readthedocs/readthedocs.org/pull/9140>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: feature documentation for `build.jobs` (`#9138 <https://github.com/readthedocs/readthedocs.org/pull/9138>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: fix retry (`#9133 <https://github.com/readthedocs/readthedocs.org/pull/9133>`__)
+* `@humitos <https://github.com/humitos>`__: External versions: save state (open / closed) (`#9128 <https://github.com/readthedocs/readthedocs.org/pull/9128>`__)
+* `@stsewd <https://github.com/stsewd>`__: Resolver: allow to ignore custom domains (`#9089 <https://github.com/readthedocs/readthedocs.org/pull/9089>`__)
+* `@humitos <https://github.com/humitos>`__: Update project to use Ubuntu 22.04 LTS (`#9010 <https://github.com/readthedocs/readthedocs.org/pull/9010>`__)
+* `@OriolAbril <https://github.com/OriolAbril>`__: add note on setting locale_dirs (`#8972 <https://github.com/readthedocs/readthedocs.org/pull/8972>`__)
+* `@stsewd <https://github.com/stsewd>`__: Design doc: collect data about builds (`#8124 <https://github.com/readthedocs/readthedocs.org/pull/8124>`__)
+
+Version 7.6.2
+-------------
+
+:Date: April 25, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Builds: fix retry (`#9133 <https://github.com/readthedocs/readthedocs.org/pull/9133>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: log more data (`#9132 <https://github.com/readthedocs/readthedocs.org/pull/9132>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics: add feature flag to skip tracking 404s (`#9131 <https://github.com/readthedocs/readthedocs.org/pull/9131>`__)
+* `@humitos <https://github.com/humitos>`__: External versions: save state (open / closed) (`#9128 <https://github.com/readthedocs/readthedocs.org/pull/9128>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: log more attributes (`#9127 <https://github.com/readthedocs/readthedocs.org/pull/9127>`__)
+* `@stsewd <https://github.com/stsewd>`__: git: respect SKIP_SYNC_* flags when using lsremote (`#9125 <https://github.com/readthedocs/readthedocs.org/pull/9125>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 7.6.1 (`#9123 <https://github.com/readthedocs/readthedocs.org/pull/9123>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 16 (`#9121 <https://github.com/readthedocs/readthedocs.org/pull/9121>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix docs (`#9120 <https://github.com/readthedocs/readthedocs.org/pull/9120>`__)
+* `@thomasrockhu-codecov <https://github.com/thomasrockhu-codecov>`__: ci: add informational Codecov status checks (`#9119 <https://github.com/readthedocs/readthedocs.org/pull/9119>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use gvisor for projects using build.jobs (`#9114 <https://github.com/readthedocs/readthedocs.org/pull/9114>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: call `linkcheck` Sphinx builder for our docs (`#9091 <https://github.com/readthedocs/readthedocs.org/pull/9091>`__)
+
+Version 7.6.1
+-------------
+
+:Date: April 19, 2022
+
+* `@humitos <https://github.com/humitos>`__: Logging: reduce verbosity (`#9107 <https://github.com/readthedocs/readthedocs.org/pull/9107>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics: Don't use full_path in get_or_create (`#9099 <https://github.com/readthedocs/readthedocs.org/pull/9099>`__)
+* `@humitos <https://github.com/humitos>`__: Build: do not upload `build.tool` to production S3 (`#9098 <https://github.com/readthedocs/readthedocs.org/pull/9098>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Cleanup Redirects docs (`#9095 <https://github.com/readthedocs/readthedocs.org/pull/9095>`__)
+
+Version 7.6.0
+-------------
+
+:Date: April 12, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: Celery: workaround fix for bug on retrying builds (`#9096 <https://github.com/readthedocs/readthedocs.org/pull/9096>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: use circle api v2 to trigger builds (`#9094 <https://github.com/readthedocs/readthedocs.org/pull/9094>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Try to fix .com tests (`#9092 <https://github.com/readthedocs/readthedocs.org/pull/9092>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: don't send it on build retry (`#9086 <https://github.com/readthedocs/readthedocs.org/pull/9086>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: add notes about gvisor on Fedora (`#9085 <https://github.com/readthedocs/readthedocs.org/pull/9085>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#9084 <https://github.com/readthedocs/readthedocs.org/pull/9084>`__)
+* `@humitos <https://github.com/humitos>`__: Build: bugfix `RepositoryError.CLONE_ERROR` message (`#9083 <https://github.com/readthedocs/readthedocs.org/pull/9083>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: remove unused code (`#9080 <https://github.com/readthedocs/readthedocs.org/pull/9080>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: only check for index files if there is a version (`#9079 <https://github.com/readthedocs/readthedocs.org/pull/9079>`__)
+* `@stsewd <https://github.com/stsewd>`__: Adapt scripts and docs to make use of the new github personal tokens (`#9078 <https://github.com/readthedocs/readthedocs.org/pull/9078>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: avoid using re.sub (`#9077 <https://github.com/readthedocs/readthedocs.org/pull/9077>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: fix URL parsing (`#9075 <https://github.com/readthedocs/readthedocs.org/pull/9075>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 7.5.1 (`#9074 <https://github.com/readthedocs/readthedocs.org/pull/9074>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 14 (`#9073 <https://github.com/readthedocs/readthedocs.org/pull/9073>`__)
+* `@humitos <https://github.com/humitos>`__: Github: use probot auto-assign bot (`#9069 <https://github.com/readthedocs/readthedocs.org/pull/9069>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add gVisor runtime option for build containers (`#9066 <https://github.com/readthedocs/readthedocs.org/pull/9066>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: `build.jobs` reference documentation (`#9056 <https://github.com/readthedocs/readthedocs.org/pull/9056>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: do not serve non-existent versions (`#9048 <https://github.com/readthedocs/readthedocs.org/pull/9048>`__)
+* `@stsewd <https://github.com/stsewd>`__: Traffic analytics: track 404s (`#9027 <https://github.com/readthedocs/readthedocs.org/pull/9027>`__)
+* `@humitos <https://github.com/humitos>`__: SyncRepositoryTask: rate limit to 1 per minute per project (`#9021 <https://github.com/readthedocs/readthedocs.org/pull/9021>`__)
+* `@stsewd <https://github.com/stsewd>`__: Sync versions: filter by type on update (`#9019 <https://github.com/readthedocs/readthedocs.org/pull/9019>`__)
+* `@humitos <https://github.com/humitos>`__: Build: implement `build.jobs` config file key (`#9016 <https://github.com/readthedocs/readthedocs.org/pull/9016>`__)
+
+Version 7.5.1
+-------------
+
+:Date: April 04, 2022
+
+* `@humitos <https://github.com/humitos>`__: Github: use probot auto-assign bot (`#9069 <https://github.com/readthedocs/readthedocs.org/pull/9069>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update sphinx-tabs (`#9061 <https://github.com/readthedocs/readthedocs.org/pull/9061>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: use sphinx-multiproject (`#9057 <https://github.com/readthedocs/readthedocs.org/pull/9057>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: `build.jobs` reference documentation (`#9056 <https://github.com/readthedocs/readthedocs.org/pull/9056>`__)
+* `@humitos <https://github.com/humitos>`__: Build: use same hack for VCS and build environments (`#9055 <https://github.com/readthedocs/readthedocs.org/pull/9055>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix jinja2 on embed tests (`#9053 <https://github.com/readthedocs/readthedocs.org/pull/9053>`__)
+* `@jsquyres <https://github.com/jsquyres>`__: director.py: restore READTHEDOCS_VERSION_[TYPE|NAME] (`#9052 <https://github.com/readthedocs/readthedocs.org/pull/9052>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix tests around jinja2 (`#9050 <https://github.com/readthedocs/readthedocs.org/pull/9050>`__)
+* `@humitos <https://github.com/humitos>`__: Build: do not send VCS build status on specific exceptions (`#9049 <https://github.com/readthedocs/readthedocs.org/pull/9049>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: do not serve non-existent versions (`#9048 <https://github.com/readthedocs/readthedocs.org/pull/9048>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 7.5.0 (`#9047 <https://github.com/readthedocs/readthedocs.org/pull/9047>`__)
+* `@humitos <https://github.com/humitos>`__: Build: Mercurial (`hg`) compatibility with old versions (`#9042 <https://github.com/readthedocs/readthedocs.org/pull/9042>`__)
+* `@eyllanesc <https://github.com/eyllanesc>`__: Fixes link (`#9041 <https://github.com/readthedocs/readthedocs.org/pull/9041>`__)
+* `@ericholscher <https://github.com/ericholscher>`__:     Fix jinja2 pinning on Sphinx 1.8 feature flagged projects (`#9036 <https://github.com/readthedocs/readthedocs.org/pull/9036>`__)
+* `@humitos <https://github.com/humitos>`__: Copyright date (`#9022 <https://github.com/readthedocs/readthedocs.org/pull/9022>`__)
+* `@humitos <https://github.com/humitos>`__: SyncRepositoryTask: rate limit to 1 per minute per project (`#9021 <https://github.com/readthedocs/readthedocs.org/pull/9021>`__)
+* `@humitos <https://github.com/humitos>`__: Build: use same build environment for setup and build (`#9018 <https://github.com/readthedocs/readthedocs.org/pull/9018>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git: fix annotated tags on lsremote (`#9017 <https://github.com/readthedocs/readthedocs.org/pull/9017>`__)
+* `@humitos <https://github.com/humitos>`__: Build: implement `build.jobs` config file key (`#9016 <https://github.com/readthedocs/readthedocs.org/pull/9016>`__)
+* `@abravalheri <https://github.com/abravalheri>`__: Improve displayed version name when building from PR (`#8237 <https://github.com/readthedocs/readthedocs.org/pull/8237>`__)
+
+Version 7.5.0
+-------------
+
+:Date: March 28, 2022
+
+* `@humitos <https://github.com/humitos>`__: Build: Mercurial (`hg`) compatibility with old versions (`#9042 <https://github.com/readthedocs/readthedocs.org/pull/9042>`__)
+* `@eyllanesc <https://github.com/eyllanesc>`__: Fixes link (`#9041 <https://github.com/readthedocs/readthedocs.org/pull/9041>`__)
+* `@ericholscher <https://github.com/ericholscher>`__:     Fix jinja2 pinning on Sphinx 1.8 feature flagged projects (`#9036 <https://github.com/readthedocs/readthedocs.org/pull/9036>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add bumpver configuration (`#9029 <https://github.com/readthedocs/readthedocs.org/pull/9029>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Update the community ads application link (`#9028 <https://github.com/readthedocs/readthedocs.org/pull/9028>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Don't use master branch explicitly in requirements (`#9025 <https://github.com/readthedocs/readthedocs.org/pull/9025>`__)
+* `@humitos <https://github.com/humitos>`__: Copyright date (`#9022 <https://github.com/readthedocs/readthedocs.org/pull/9022>`__)
+* `@humitos <https://github.com/humitos>`__: GitHub OAuth: use bigger pages to make fewer requests (`#9020 <https://github.com/readthedocs/readthedocs.org/pull/9020>`__)
+* `@humitos <https://github.com/humitos>`__: Build: use same build environment for setup and build (`#9018 <https://github.com/readthedocs/readthedocs.org/pull/9018>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git: fix annotated tags on lsremote (`#9017 <https://github.com/readthedocs/readthedocs.org/pull/9017>`__)
+* `@humitos <https://github.com/humitos>`__: Build: log when a build is reset (`#9015 <https://github.com/readthedocs/readthedocs.org/pull/9015>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 11 (`#9012 <https://github.com/readthedocs/readthedocs.org/pull/9012>`__)
+* `@humitos <https://github.com/humitos>`__: Build: allow users to use Ubuntu 22.04 LTS (`#9009 <https://github.com/readthedocs/readthedocs.org/pull/9009>`__)
+* `@humitos <https://github.com/humitos>`__: Build: proof of concept for pre/post build commands (`build.jobs`) (`#9002 <https://github.com/readthedocs/readthedocs.org/pull/9002>`__)
+
+Version 7.4.2
+-------------
+
+:Date: March 14, 2022
+
+* `@stsewd <https://github.com/stsewd>`__: CI: fix codecov again (`#9007 <https://github.com/readthedocs/readthedocs.org/pull/9007>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: fix codecov (`#9006 <https://github.com/readthedocs/readthedocs.org/pull/9006>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Release 7.4.1 (`#9004 <https://github.com/readthedocs/readthedocs.org/pull/9004>`__)
+* `@pyup-bot <https://github.com/pyup-bot>`__: pyup:  Scheduled weekly dependency update for week 10 (`#9003 <https://github.com/readthedocs/readthedocs.org/pull/9003>`__)
+* `@humitos <https://github.com/humitos>`__: Upgrade common submodule (`#9001 <https://github.com/readthedocs/readthedocs.org/pull/9001>`__)
+* `@humitos <https://github.com/humitos>`__: Build: `RepositoryError` message (`#8999 <https://github.com/readthedocs/readthedocs.org/pull/8999>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: fix integration with latest sphinx (`#8994 <https://github.com/readthedocs/readthedocs.org/pull/8994>`__)
+* `@humitos <https://github.com/humitos>`__: API: validate `RemoteRepository` when creating a `Project` (`#8983 <https://github.com/readthedocs/readthedocs.org/pull/8983>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: fix mock.patch order (`#8909 <https://github.com/readthedocs/readthedocs.org/pull/8909>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: remove queue priority (`#8848 <https://github.com/readthedocs/readthedocs.org/pull/8848>`__)
+* `@dogukanteber <https://github.com/dogukanteber>`__: Use django-storages' manifest files class instead of the overriden class (`#8781 <https://github.com/readthedocs/readthedocs.org/pull/8781>`__)
+* `@abravalheri <https://github.com/abravalheri>`__: Improve displayed version name when building from PR (`#8237 <https://github.com/readthedocs/readthedocs.org/pull/8237>`__)
+
 Version 7.4.1
 -------------
 
@@ -156,7 +776,7 @@ Version 7.1.0
 Version 7.0.0
 -------------
 
-This is our 7th major version! This is because we are upgrading to **Django 3.2 LTS**. 
+This is our 7th major version! This is because we are upgrading to **Django 3.2 LTS**.
 
 :Date: January 17, 2022
 
@@ -364,7 +984,7 @@ Version 6.0.0
 
 This release includes the upgrade of some base dependencies:
 
-- Python version from 3.6 to 3.8 
+- Python version from 3.6 to 3.8
 - Ubuntu version from 18.04 LTS to 20.04 LTS
 
 Starting from this release, all the Read the Docs code will be tested and QAed on these versions.
