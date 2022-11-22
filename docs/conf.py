@@ -71,7 +71,7 @@ master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
 version = "8.9.0"
 release = version
-exclude_patterns = ["_build"]
+exclude_patterns = ["_build", "user/shared"]
 default_role = "obj"
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.10/", None),
