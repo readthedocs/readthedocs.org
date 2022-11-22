@@ -116,7 +116,6 @@ Projects will be delisted if they meet *all* of the following criteria:
 * The project has been determined unmaintained_ and unofficial_ by the rules described above.
 * The project owners are notified by the Read the Docs team.
 * The core team does not have any additional reservations.
-* If the project owners are unreachable_ by the Read the Docs team, no further action is taken.
 * If any of the project owners respond, their response will be taken into account by the core team and it may be listed again if the criteria are met.
 
 
