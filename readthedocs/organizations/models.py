@@ -1,4 +1,5 @@
 """Organizations models."""
+import structlog
 from autoslug import AutoSlugField
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
@@ -16,6 +17,8 @@ from . import constants
 from .managers import TeamManager, TeamMemberManager
 from .querysets import OrganizationQuerySet
 from .utils import send_team_add_email
+
+log = structlog.get_logger(__name__)
 
 
 class Organization(models.Model):
@@ -131,8 +134,11 @@ class Organization(models.Model):
         subscription = Subscription.objects.get_or_create_default_subscription(self)
         if not subscription:
             # This only happens during development.
+            log.warning("No default subscription created.")
             return None
 
+        # Active subscriptions take precedence over non-active subscriptions,
+        # otherwise we return the must recently created subscription.
         active_subscription = self.stripe_customer.subscriptions.filter(
             status=SubscriptionStatus.active
         ).first()
