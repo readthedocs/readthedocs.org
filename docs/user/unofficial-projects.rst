@@ -33,17 +33,6 @@ Definitions
 -----------
 
 
-Source project
-~~~~~~~~~~~~~~
-
-For a given documentation project to be assessed, the *source project* comes into question. This is defined as:
-
-* The origin project from which the documentation project's repository was forked (if forked).
-* The origin project from which the documentation project was copied (if not forked but evidently copied).
-* The original project which the documentation project refers as the subject of documentation.
-* Any other project that is understood by the core team to be a the *source project*.
-
-
 Unofficial projects
 ~~~~~~~~~~~~~~~~~~~
 
@@ -59,7 +48,7 @@ Unmaintained projects
 A project is considered *unmaintained* when ANY of the following are met:
 
 * The configured version control repository is unreadable. This can happen if the repository is deleted, credentials are broken or the Git host is permanently unresponsive.
-* The project is only serving content from releases and commits 6 months or older than its source repository.
+* The project is only serving content from releases and commits 6 months or older.
 * All builds have failed for more than 6 months.
 
 
@@ -99,7 +88,7 @@ Projects that are determined to be unmaintained_ and unofficial_ will have a ``r
   Disallow: /
 
 
-Projects will be delisted if they meet *all* of the following criteria:
+Projects will be delisted if they meet ALL of the following criteria:
 
 * The person who submits the report of the unmaintained_ and unofficial_ project also demonstrates failed attempts to contact the existing owners.
 * The project has been determined unmaintained_ and unofficial_ by the rules described above.
