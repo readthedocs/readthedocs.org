@@ -92,9 +92,14 @@ Projects will be delisted if they meet ALL of the following criteria:
 
 * The person who submits the report of the unmaintained_ and unofficial_ project also demonstrates failed attempts to contact the existing owners.
 * The project has been determined unmaintained_ and unofficial_ by the rules described above.
-* The project owners are notified by the Read the Docs team.
 * The core team does not have any additional reservations.
-* If any of the project owners respond, their response will be taken into account by the core team and it may be listed again if the criteria are met.
+
+The Read the Docs team will do the following actions when a project is delisted:
+
+* Notify the Read the Docs project owners via email about the delisting.
+* Add the ``robots.txt`` file to be served on the project domain.
+
+If any of the project owners respond, their response will be taken into account, and the delisting might be reversed.
 
 
 Thinking behind the policy
