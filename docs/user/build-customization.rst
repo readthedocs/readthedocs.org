@@ -140,15 +140,14 @@ Here is an example that cancels builds from pull requests when there are no chan
      jobs:
        post_checkout:
          # Cancel building pull requests when there aren't changed in the docs directory.
-         # `--quiet` exits with a 1 when there **are** changes,
-         # so we invert the logic with a !
          #
-         # If there are no changes (exit 0) we force the command to return with 183.
+         # If there are no changes (git diff exits with 0) we force the command to return with 183.
          # This is a special exit code on Read the Docs that will cancel the build immediately.
          - |
-           if [ "$READTHEDOCS_VERSION_TYPE" = "external" ];
+           git diff --quiet origin/main -- docs/
+           if [ "$READTHEDOCS_VERSION_TYPE" = "external" && $? -eq 0 ];
            then
-             ! git diff --quiet origin/main -- docs/ && exit 183;
+             exit 183;
            fi
 
 
