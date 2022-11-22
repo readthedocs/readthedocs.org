@@ -144,8 +144,7 @@ Here is an example that cancels builds from pull requests when there are no chan
          # If there are no changes (git diff exits with 0) we force the command to return with 183.
          # This is a special exit code on Read the Docs that will cancel the build immediately.
          - |
-           git diff --quiet origin/main -- docs/
-           if [ "$READTHEDOCS_VERSION_TYPE" = "external" && $? -eq 0 ];
+           if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/;
            then
              exit 183;
            fi
