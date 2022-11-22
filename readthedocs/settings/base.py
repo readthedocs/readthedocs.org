@@ -250,8 +250,13 @@ class CommunityBaseSettings(Settings):
             apps.append('readthedocsext.spamfighting')
         if self.RTD_EXT_THEME_ENABLED:
             apps.append('readthedocsext.theme')
-        if self.SHOW_DEBUG_TOOLBAR:
-            apps.append('debug_toolbar')
+
+        # We always have to install this application,
+        # even if we don't show the toolbar later.
+        # This is because `collectstatic` needs it to copy the static files.
+        # Otherwise, it fails due
+        # "Missing staticfiles manifest entry for 'debug_toolbar/*'"
+        apps.append('debug_toolbar')
 
         return apps
 
