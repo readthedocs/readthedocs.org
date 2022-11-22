@@ -23,9 +23,9 @@ High level overview
 
 The process at a high level looks like:
 
-* A reporter emails us about a project they think is outdated and unofficial
-* An RTD team member evaluates it to make sure it's outdated and unofficial, according to this policy
-* We delist this project from search results and send an email to owners of the RTD project
+* A reporter contacts us about a project they think is outdated and unofficial
+* A Read the Docs team member evaluates it to make sure it's outdated and unofficial, according to this policy
+* We delist this project from search results and send an email to owners of the Read the Docs project
 * If a project owner objects, we evaluate their evidence and make a final decision
 
 
@@ -47,7 +47,7 @@ For a given documentation project to be assessed, the *source project* comes int
 Unofficial projects
 ~~~~~~~~~~~~~~~~~~~
 
-A project is considered *unofficial* when it is not linked to or mentioned in *any* of the following places:
+A project is considered *unofficial* when it is not linked to or mentioned in ANY of these places:
 
 * Websites and domains associated with the project
 * The project's primary repository -- README files, repository description, or source code
@@ -96,15 +96,15 @@ Projects will be delisted if they meet *all* of the following criteria:
 
 * The person who submits the report of the unmaintained_ and unofficial_ project also demonstrates failed attempts to contact the existing owners.
 * The project has been determined unmaintained_ and unofficial_ by the rules described above.
-* The project owners is notified by the Read the Docs team.
+* The project owners are notified by the Read the Docs team.
 * The core team does not have any additional reservations.
 * If the project owners are unreachable_ by the Read the Docs team, no further action is taken.
-* If the any of the project owners respond, their response will be taken into account by the core team and it may be listed again if the criteria are met.
+* If any of the project owners respond, their response will be taken into account by the core team and it may be listed again if the criteria are met.
 
 Requesting a project be delisted
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can request that we delist an outdated, unmaintained documentation with our :doc:`/support`.
+You can request that we delist an outdated, unmaintained documentation by contacting our :doc:`/support`.
 
 Please include the following information:
 
@@ -112,8 +112,8 @@ Please include the following information:
 
   URL of unofficial and unmaintained documentation project: ...
   URL of official documentation (if any): ...
-  URL of official source project website (if any): ...
-  URL of official source project repository (if any): ...
+  URL of official project website (if any): ...
+  URL of official project repository (if any): ...
 
   Describe attempts of reaching the owner(s) of the documentation project:
   ...
