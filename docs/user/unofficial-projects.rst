@@ -63,17 +63,6 @@ A project is considered *unmaintained* when ANY of the following are met:
 * All builds have failed for more than 6 months.
 
 
-Reachability
-~~~~~~~~~~~~
-
-In every case where contacting the user is necessary, the core team will reach out using one of the following means of contact:
-
-* E-mail address on file in the user's profile
-* E-mail address on the GitHub user account where the project is pointed
-
-The core team will stop trying to reach the user after 3 weeks and the user will be considered *unreachable*.
-
-
 Implementation
 --------------
 
@@ -139,4 +128,3 @@ The Python Package Index (PyPI) policy for claiming abandoned packages
 
 .. _unmaintained: #unmaintained-projects
 .. _unofficial: #unofficial-projects
-.. _unreachable: #reachability
