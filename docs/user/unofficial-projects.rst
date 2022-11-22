@@ -123,7 +123,7 @@ Thinking behind the policy
 --------------------------
 
 The main idea behind this policy is that Read the Docs serves the community.
-Every user is invited to upload content under the Terms of Use,
+Every user is invited to upload content under :doc:`/terms-of-service`,
 understanding that it is at the sole risk of the user.
 
 While Read the Docs is not a backup service, the core team of Read the Docs does their best to keep content accessible indefinitely in its published form. However, in certain edge cases,
