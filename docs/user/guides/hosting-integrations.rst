@@ -59,12 +59,12 @@ These are all the hosting features that Read the Docs provides by default:
 Flyout menu
 -----------
 
-Displying the flyout menu, requires adding some Javascript and CSS files in each of the documentation pages.
+Displying the flyout menu requires adding some Javascript and CSS files in each of the documentation pages.
 These files have to be added inside the ``<head>`` tag:
 
 .. code-block:: html
    :linenos:
-   :highlight: 24-25
+   :emphasize-lines: 24,25
 
    <script
      crossorigin="anonymous"
