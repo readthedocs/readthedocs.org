@@ -66,10 +66,12 @@ class InvitationSerializer(serializers.ModelSerializer):
 
     # pylint: disable=no-self-use
     def get_object(self, obj):
-        serializers = {
+        # The type of obj depends on the invitation,
+        # a different serializer is used for each type.
+        obj_serializers = {
             "organization": OrganizationSerializer,
             "project": ProjectSerializer,
             "team": TeamSerializer,
         }
-        serializer = serializers[obj.object_type]
+        serializer = obj_serializers[obj.object_type]
         return serializer(obj.object).data

@@ -36,9 +36,7 @@ class UserSecurityLogFilter(FilterSet):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.filters["action"].field.choices = [
-            (action, label) for action, label in self.allowed_actions
-        ]
+        self.filters["action"].field.choices = self.allowed_actions
 
 
 class OrganizationSecurityLogFilter(UserSecurityLogFilter):
