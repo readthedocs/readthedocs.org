@@ -30,7 +30,7 @@ from readthedocs.projects.models import Domain, Feature, Project
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.redirects.models import Redirect
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
-from readthedocs.subscriptions.constants import TYPE_CDN
+from readthedocs.subscriptions.constants import TYPE_CDN, TYPE_CNAME
 from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 
 from .base import BaseDocServing
@@ -1212,6 +1212,10 @@ class TestAdditionalDocViews(BaseDocServing):
     ALLOW_PRIVATE_REPOS=True,
     PUBLIC_DOMAIN='dev.readthedocs.io',
     PUBLIC_DOMAIN_USES_HTTPS=True,
+    RTD_DEFAULT_FEATURES={
+        TYPE_CNAME: 1,
+        TYPE_CDN: 1,
+    },
 )
 class TestCDNCache(BaseDocServing):
 

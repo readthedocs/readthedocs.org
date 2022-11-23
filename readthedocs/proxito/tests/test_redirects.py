@@ -3,12 +3,18 @@
 import pytest
 from django.test import override_settings
 
+from readthedocs.subscriptions.constants import TYPE_CNAME, TYPE_SSL
+
 from .base import BaseDocServing
 
 
 @override_settings(
     PUBLIC_DOMAIN='dev.readthedocs.io',
     PUBLIC_DOMAIN_USES_HTTPS=True,
+    RTD_DEFAULT_FEATURES={
+        TYPE_CNAME: 1,
+        TYPE_SSL: 1,
+    },
 )
 class RedirectTests(BaseDocServing):
 

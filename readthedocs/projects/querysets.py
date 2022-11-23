@@ -1,5 +1,4 @@
 """Project model QuerySet classes."""
-from django.conf import settings
 from django.db import models
 from django.db.models import Count, OuterRef, Prefetch, Q, Subquery
 

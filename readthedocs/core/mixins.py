@@ -67,7 +67,7 @@ class CDNCacheControlMixin:
     @lru_cache(maxsize=1)
     def _is_cache_enabled(self, project):
         """Helper function to check if CDN is enabled for a project."""
-        plan_has_cdn = PlanFeature.objects.get_feature(obj=project, type=TYPE_CDN)
+        plan_has_cdn = PlanFeature.objects.has_feature(obj=project, type=TYPE_CDN)
         return settings.ALLOW_PRIVATE_REPOS and (
             plan_has_cdn or project.has_feature(Feature.CDN_ENABLED)
         )
