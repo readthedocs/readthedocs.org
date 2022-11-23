@@ -172,7 +172,7 @@ class PlanFeatureManager(models.Manager):
         Get feature `type` for `obj`.
 
         :param obj: An organization or project instance.
-        :param type: The type of the feature (PlanFeature.TYPE_*).
+        :param type: The type of the feature (readthedocs.subscriptions.constants.TYPE_*).
         :returns: A PlanFeature object or None.
         """
         # Avoid circular imports.
@@ -198,7 +198,7 @@ class PlanFeatureManager(models.Manager):
         Get the value of the given feature.
 
         Use this function instead of ``get_feature().value``
-        when you need to respect the ``RTD_ALL_FEATURES_ENABLED`` setting.
+        when you need to respect the ``RTD_DEFAULT_FEATURES`` setting.
         """
         feature = self.get_feature(obj, type)
         if feature:
@@ -211,7 +211,7 @@ class PlanFeatureManager(models.Manager):
         Get the value of the given feature.
 
         Use this function instead of ``bool(get_feature())``
-        when you need to respect the ``RTD_ALL_FEATURES_ENABLED`` setting.
+        when you need to respect the ``RTD_DEFAULT_FEATURES`` setting.
         """
         if self.get_feature(obj, type) is not None:
             return True
