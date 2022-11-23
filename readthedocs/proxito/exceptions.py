@@ -1,5 +1,5 @@
 """
-This module contains exceptions that may be raised in the proxito application
+This module contains exceptions that may be raised in El Proxito application
 but are handled elsewhere in the Django project.
 
 --------------
