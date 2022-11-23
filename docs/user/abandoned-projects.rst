@@ -3,7 +3,7 @@ Policy for Abandoned Projects
 
 This policy describes the process by which a Read the Docs project :term:`slug` may be changed.
 
-.. tip:: If you are reporting a project but a name change does not solve the issue, please see :doc:`/unofficial-projects`.
+.. tip:: If you want to de-list a project's fork from search results, please see :doc:`/unofficial-projects`.
 
 Rationale
 ---------
