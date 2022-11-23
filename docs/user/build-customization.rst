@@ -324,12 +324,13 @@ Take a look at the following example:
      jobs:
        post_create_environment:
          # Install poetry
-         # https://python-poetry.org/docs/#osx--linux--bashonwindows-install-instructions
-         - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+         # https://python-poetry.org/docs/#installing-manually
+         - pip install poetry
          # Tell poetry to not use a virtual environment
-         - $HOME/.poetry/bin/poetry config virtualenvs.create false
-         # Install project's dependencies
-         - $HOME/.poetry/bin/poetry install
+         - poetry config virtualenvs.create false
+         # Install dependencies with 'docs' dependency group
+         # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
+         - poetry install --with docs
 
    sphinx:
      configuration: docs/conf.py
