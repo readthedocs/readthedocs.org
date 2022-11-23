@@ -17,6 +17,8 @@ from readthedocs.builds.models import Version
 from readthedocs.organizations.models import Organization
 from readthedocs.projects import constants
 from readthedocs.projects.constants import (
+    DOWNLOADABLE_MEDIA_TYPES,
+    MEDIA_TYPE_HTMLZIP,
     MKDOCS,
     PRIVATE,
     PUBLIC,
@@ -359,6 +361,34 @@ class TestDocServingBackends(BaseDocServing):
             resp['x-accel-redirect'],
             '/proxito/media/html/project/latest/%C3%BA%C3%B1%C3%AD%C4%8D%C3%B3d%C3%A9.html',
         )
+
+    @override_settings(PYTHON_MEDIA=False)
+    def test_download_files(self):
+        for type_ in DOWNLOADABLE_MEDIA_TYPES:
+            resp = self.client.get(
+                f"/_/downloads/en/latest/{type_}/",
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 200)
+            extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
+            self.assertEqual(
+                resp["X-Accel-Redirect"],
+                f"/proxito/media/{type_}/project/latest/project.{extension}",
+            )
+
+    @override_settings(PYTHON_MEDIA=False)
+    def test_invalid_download_files(self):
+        """
+        Making sure we don't serve HTML or other formats here.
+
+        See GHSA-98pf-gfh3-x3mp for more information.
+        """
+        for type_ in ["html", "foo", "zip"]:
+            resp = self.client.get(
+                f"/_/downloads/en/latest/{type_}/",
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 404)
 
     @mock.patch.object(ServeDocsMixin, '_is_audit_enabled')
     def test_track_html_files_only(self, is_audit_enabled):
@@ -1158,6 +1188,23 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(
             resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
         )
+
+    @override_settings(
+        RTD_STATICFILES_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest"
+    )
+    @mock.patch("readthedocs.proxito.views.serve.staticfiles_storage")
+    def test_serve_invalid_static_file(self, staticfiles_storage):
+        staticfiles_storage.url.side_effect = Exception
+        paths = ["../", "foo/../bar"]
+        for path in paths:
+            resp = self.client.get(
+                reverse(
+                    "proxito_static_files",
+                    args=[path],
+                ),
+                HTTP_HOST="project.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 404)
 
 
 @override_settings(

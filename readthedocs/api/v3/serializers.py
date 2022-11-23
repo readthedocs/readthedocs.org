@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
+from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify
@@ -457,21 +458,23 @@ class ProjectLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
-class ProjectCreateSerializerBase(FlexFieldsModelSerializer):
+class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
 
     """Serializer used to Import a Project."""
 
     repository = RepositorySerializer(source='*')
     homepage = serializers.URLField(source='project_url', required=False)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Project
         fields = (
-            'name',
-            'language',
-            'programming_language',
-            'repository',
-            'homepage',
+            "name",
+            "language",
+            "programming_language",
+            "repository",
+            "homepage",
+            "tags",
         )
 
     def _validate_remote_repository(self, data):
@@ -533,7 +536,7 @@ class ProjectCreateSerializer(SettingsOverrideObject):
     _default_class = ProjectCreateSerializerBase
 
 
-class ProjectUpdateSerializerBase(FlexFieldsModelSerializer):
+class ProjectUpdateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
 
     """Serializer used to modify a Project once imported."""
 
@@ -542,17 +545,18 @@ class ProjectUpdateSerializerBase(FlexFieldsModelSerializer):
         source='project_url',
         required=False,
     )
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Project
         fields = (
             # Settings
-            'name',
-            'repository',
-            'language',
-            'programming_language',
-            'homepage',
-
+            "name",
+            "repository",
+            "language",
+            "programming_language",
+            "homepage",
+            "tags",
             # Advanced Settings -> General Settings
             'default_version',
             'default_branch',

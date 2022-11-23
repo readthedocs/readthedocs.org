@@ -30,8 +30,9 @@ from .constants import (
     DOCKER_SOCKET,
     DOCKER_TIMEOUT_EXIT_CODE,
     DOCKER_VERSION,
+    RTD_SKIP_BUILD_EXIT_CODE,
 )
-from .exceptions import BuildAppError, BuildUserError
+from .exceptions import BuildAppError, BuildUserError, BuildUserSkip
 
 log = structlog.get_logger(__name__)
 
@@ -468,6 +469,8 @@ class BaseEnvironment:
                     project_slug=self.project.slug if self.project else '',
                     version_slug=self.version.slug if self.version else '',
                 )
+            elif build_cmd.exit_code == RTD_SKIP_BUILD_EXIT_CODE:
+                raise BuildUserSkip()
             else:
                 # TODO: for now, this still outputs a generic error message
                 # that is the same across all commands. We could improve this
