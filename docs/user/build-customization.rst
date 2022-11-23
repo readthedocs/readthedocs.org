@@ -140,15 +140,13 @@ Here is an example that cancels builds from pull requests when there are no chan
      jobs:
        post_checkout:
          # Cancel building pull requests when there aren't changed in the docs directory.
-         # `--quiet` exits with a 1 when there **are** changes,
-         # so we invert the logic with a !
          #
-         # If there are no changes (exit 0) we force the command to return with 183.
+         # If there are no changes (git diff exits with 0) we force the command to return with 183.
          # This is a special exit code on Read the Docs that will cancel the build immediately.
          - |
-           if [ $READTHEDOCS_VERSION_TYPE = "external" ];
+           if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/;
            then
-             ! git diff --quiet origin/main -- docs/ && exit 183;
+             exit 183;
            fi
 
 
@@ -326,12 +324,13 @@ Take a look at the following example:
      jobs:
        post_create_environment:
          # Install poetry
-         # https://python-poetry.org/docs/#osx--linux--bashonwindows-install-instructions
-         - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+         # https://python-poetry.org/docs/#installing-manually
+         - pip install poetry
          # Tell poetry to not use a virtual environment
-         - $HOME/.poetry/bin/poetry config virtualenvs.create false
-         # Install project's dependencies
-         - $HOME/.poetry/bin/poetry install
+         - poetry config virtualenvs.create false
+         # Install dependencies with 'docs' dependency group
+         # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
+         - poetry install --with docs
 
    sphinx:
      configuration: docs/conf.py
