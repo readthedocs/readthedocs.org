@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.13
+boto3==1.26.15
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.13
+botocore==1.29.15
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -230,7 +230,7 @@ ipython==8.6.0
     # via
     #   -r requirements/debug.txt
     #   ipdb
-jedi==0.18.1
+jedi==0.18.2
     # via
     #   -r requirements/debug.txt
     #   ipython
@@ -269,7 +269,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.1
+orjson==3.8.2
     # via -r requirements/pip.txt
 packaging==21.3
     # via
@@ -300,7 +300,7 @@ platformdirs==2.5.4
     #   virtualenv
 pluggy==1.0.0
     # via tox
-prompt-toolkit==3.0.32
+prompt-toolkit==3.0.33
     # via
     #   -r requirements/debug.txt
     #   -r requirements/pip.txt
@@ -449,7 +449,7 @@ stack-data==0.6.1
     # via
     #   -r requirements/debug.txt
     #   ipython
-stripe==5.0.0
+stripe==4.2.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
