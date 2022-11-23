@@ -64,7 +64,7 @@ These files have to be added inside the ``<head>`` tag:
 
 .. code-block:: html
    :linenos:
-   :emphasize-lines: 24,25
+   :emphasize-lines: 22,23
 
    <script
      crossorigin="anonymous"
