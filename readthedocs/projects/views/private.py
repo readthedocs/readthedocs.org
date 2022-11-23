@@ -79,8 +79,12 @@ from readthedocs.projects.views.mixins import (
     ProjectRelationListMixin,
 )
 from readthedocs.search.models import SearchQuery
+from readthedocs.subscriptions.constants import (
+    TYPE_CNAME,
+    TYPE_PAGEVIEW_ANALYTICS,
+    TYPE_SEARCH_ANALYTICS,
+)
 from readthedocs.subscriptions.models import PlanFeature
-from readthedocs.subscriptions.constants import TYPE_PAGEVIEW_ANALYTICS, TYPE_CNAME, TYPE_SEARCH_ANALYTICS
 
 log = structlog.get_logger(__name__)
 

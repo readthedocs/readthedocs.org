@@ -5,8 +5,8 @@ from django_dynamic_fixture import get
 
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Domain, Project
-from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 from readthedocs.subscriptions.constants import TYPE_CNAME
+from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=False)

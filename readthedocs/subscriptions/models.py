@@ -9,12 +9,9 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.utils import slugify
-from readthedocs.subscriptions.constants import FEATURE_TYPES
 from readthedocs.organizations.models import Organization
-from readthedocs.subscriptions.managers import (
-    PlanFeatureManager,
-    SubscriptionManager,
-)
+from readthedocs.subscriptions.constants import FEATURE_TYPES
+from readthedocs.subscriptions.managers import PlanFeatureManager, SubscriptionManager
 
 
 class Plan(models.Model):
@@ -97,8 +94,8 @@ class PlanFeature(models.Model):
         related_name='features',
         on_delete=models.CASCADE,
     )
-    feature_type = models.CharField(_('Type'), max_length=32, choices=FEATURE_TYPES)
-    value = models.IntegerField(_('Numeric value'), null=True, blank=True)
+    feature_type = models.CharField(_("Type"), max_length=32, choices=FEATURE_TYPES)
+    value = models.IntegerField(_("Numeric value"), null=True, blank=True)
     description = models.CharField(
         _('Description'),
         max_length=255,

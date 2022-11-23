@@ -105,8 +105,8 @@ class ProjectQuerySetBase(models.QuerySet):
         :returns: number of max concurrent builds for the project
         :rtype: int
         """
-        from readthedocs.subscriptions.models import PlanFeature
         from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
+        from readthedocs.subscriptions.models import PlanFeature
 
         max_concurrent_organization = None
         organization = project.organizations.first()

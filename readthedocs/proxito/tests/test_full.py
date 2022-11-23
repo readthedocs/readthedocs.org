@@ -30,8 +30,8 @@ from readthedocs.projects.models import Domain, Feature, Project
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.redirects.models import Redirect
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
-from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 from readthedocs.subscriptions.constants import TYPE_CDN
+from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 
 from .base import BaseDocServing
 

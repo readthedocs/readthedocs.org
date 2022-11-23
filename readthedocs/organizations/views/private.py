@@ -27,8 +27,8 @@ from readthedocs.organizations.views.base import (
     OrganizationView,
 )
 from readthedocs.projects.utils import get_csv_file
-from readthedocs.subscriptions.models import PlanFeature
 from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
+from readthedocs.subscriptions.models import PlanFeature
 
 
 # Organization views
