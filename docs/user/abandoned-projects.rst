@@ -3,6 +3,8 @@ Policy for Abandoned Projects
 
 This policy describes the process by which a Read the Docs project name may be changed.
 
+.. tip:: If you are reporting a project but a name change does not solve the issue, please see :doc:`/unofficial-projects`.
+
 Rationale
 ---------
 

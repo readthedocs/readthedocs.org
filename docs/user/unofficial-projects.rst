@@ -3,6 +3,7 @@ Policy for Unofficial and Unmaintained Projects
 
 This policy describes a process where we take actions against unmaintained_ and unofficial_ forks of project documentation.
 
+.. tip:: If you want to report an Abandoned project in order to free up its name (slug), please see :doc:`/abandoned-projects`.
 
 Rationale
 ---------
