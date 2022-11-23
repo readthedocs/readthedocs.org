@@ -50,9 +50,9 @@ class OrganizationSecurityLogFilter(UserSecurityLogFilter):
         (AuditLog.INVITATION_SENT, AuditLog.INVITATION_SENT_TEXT),
         (AuditLog.INVITATION_REVOKED, AuditLog.INVITATION_REVOKED_TEXT),
         (AuditLog.INVITATION_ACCEPTED, AuditLog.INVITATION_ACCEPTED_TEXT),
-        (AuditLog.INVITATION_DECLINED, AuditLog.INVITATION_DECLINED_TEXT),
         # NOTE: We don't allow organization owners to see information about declined
         # invitations, since those users aren't part of the organization yet.
+        # (AuditLog.INVITATION_DECLINED, AuditLog.INVITATION_DECLINED_TEXT),
         (AuditLog.PAGEVIEW, AuditLog.PAGEVIEW_TEXT),
         (AuditLog.DOWNLOAD, AuditLog.DOWNLOAD_TEXT),
     ]
