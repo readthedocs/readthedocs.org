@@ -4,10 +4,16 @@ import pytest
 from readthedocs.builds.models import Build
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
+from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 
 
 @pytest.mark.django_db
 class TestBuildQuerySet:
+    @pytest.fixture(autouse=True)
+    def setup_method(self, settings):
+        settings.RTD_DEFAULT_FEATURES = {
+            TYPE_CONCURRENT_BUILDS: 4,
+        }
 
     def test_concurrent_builds(self):
         project = fixture.get(

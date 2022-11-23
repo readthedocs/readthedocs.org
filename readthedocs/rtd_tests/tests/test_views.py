@@ -15,6 +15,7 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Feature, Project
+from readthedocs.subscriptions.constants import TYPE_SEARCH_ANALYTICS
 
 
 @mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())
@@ -333,6 +334,11 @@ class BuildViewTests(TestCase):
         self.assertEqual(r.status_code, 302)
 
 
+@override_settings(
+    RTD_DEFAULT_FEATURES={
+        TYPE_SEARCH_ANALYTICS: 90,
+    }
+)
 class TestSearchAnalyticsView(TestCase):
 
     """Tests for search analytics page."""
