@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.8
+boto3==1.26.15
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.8
+botocore==1.29.15
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -152,7 +152,7 @@ django-storages[boto3]==1.13.1
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
-django-taggit==3.0.0
+django-taggit==3.1.0
     # via -r requirements/pip.txt
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
@@ -247,7 +247,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.1
+orjson==3.8.2
     # via -r requirements/pip.txt
 packaging==21.3
     # via
@@ -257,11 +257,11 @@ packaging==21.3
     #   sphinx
 pbr==5.11.0
     # via sphinxcontrib-video
-platformdirs==2.5.3
+platformdirs==2.5.4
     # via
     #   -r requirements/pip.txt
     #   virtualenv
-prompt-toolkit==3.0.32
+prompt-toolkit==3.0.33
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -426,7 +426,7 @@ stripe==4.2.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-structlog==22.1.0
+structlog==22.2.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
