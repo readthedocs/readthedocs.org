@@ -85,7 +85,7 @@ These files have to be added inside the ``<head>`` tag:
    }
    </script>
 
-Note that you have to change lines 24-25 with your project and version slugs.
+Note that you have to change the highlighted lines with your project and version slugs.
 
 Besides including these files,
 a ``div`` tag is required to define *where* the flyout menu will be displayed.
