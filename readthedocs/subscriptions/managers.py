@@ -166,6 +166,7 @@ class PlanFeatureManager(models.Manager):
 
     """Model manager for PlanFeature."""
 
+    # pylint: disable=redefined-builtin
     def get_feature(self, obj, type):
         """
         Get feature `type` for `obj`.
@@ -191,6 +192,7 @@ class PlanFeatureManager(models.Manager):
         )
         return feature.first()
 
+    # pylint: disable=redefined-builtin
     def get_feature_value(self, obj, type, default=0):
         """
         Get the value of the given feature.
@@ -203,6 +205,7 @@ class PlanFeatureManager(models.Manager):
             return feature.value
         return settings.RTD_DEFAULT_FEATURES.get(type, default)
 
+    # pylint: disable=redefined-builtin
     def has_feature(self, obj, type):
         """
         Get the value of the given feature.
