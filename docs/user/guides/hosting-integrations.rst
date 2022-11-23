@@ -62,7 +62,7 @@ Flyout menu
 Displying the flyout menu, requires adding some Javascript and CSS files in each of the documentation pages.
 These files have to be added inside the ``<head>`` tag:
 
-.. raw:: html
+.. code-block:: html
    :linenos:
    :highlight: 24-25
 
@@ -98,7 +98,7 @@ Besides including these files,
 a ``div`` tag is required to define *where* the flyout menu will be displayed.
 This tag has to be added inside the ``<body>`` tag:
 
-.. raw:: html
+.. code-block:: html
 
    <!-- Manually added to show the Read the Docs flyout -->
    <div id="readthedocs-embed-flyout"></div>
