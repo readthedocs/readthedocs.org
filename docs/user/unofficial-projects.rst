@@ -37,7 +37,7 @@ Definitions
 Unofficial projects
 ~~~~~~~~~~~~~~~~~~~
 
-A project is considered *unofficial* when it is not linked to or mentioned in ANY of these places:
+A project is considered *unofficial* when it is not linked to or mentioned in **any** of these places:
 
 * Websites and domains associated with the project
 * The project's primary repository -- README files, repository description, or source code
@@ -46,7 +46,7 @@ A project is considered *unofficial* when it is not linked to or mentioned in AN
 Unmaintained projects
 ~~~~~~~~~~~~~~~~~~~~~
 
-A project is considered *unmaintained* when ANY of the following are met:
+A project is considered *unmaintained* when **any** of the following are met:
 
 * The configured version control repository is unreadable. This can happen if the repository is deleted, credentials are broken or the Git host is permanently unresponsive.
 * The project is only serving content from releases and commits 6 months or older.
@@ -89,7 +89,7 @@ Projects that are determined to be unmaintained_ and unofficial_ will have a ``r
   Disallow: /
 
 
-Projects will be delisted if they meet ALL of the following criteria:
+Projects will be delisted if they meet **all** of the following criteria:
 
 * The person who submits the report of the unmaintained_ and unofficial_ project also demonstrates failed attempts to contact the existing owners.
 * The project has been determined unmaintained_ and unofficial_ by the rules described above.
