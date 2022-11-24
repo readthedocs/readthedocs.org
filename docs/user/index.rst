@@ -250,7 +250,8 @@ of Read the Docs and the larger software documentation ecosystem.
 * **Policies & Process**:
   :doc:`security` |
   :doc:`DMCA takedown policy <dmca/index>` |
-  :doc:`Policy for abandoned projects <abandoned-projects>` |
+  :doc:`/abandoned-projects` |
+  :doc:`/unofficial-projects` |
   :doc:`Release notes & changelog <changelog>`
 
 
@@ -283,6 +284,7 @@ of Read the Docs and the larger software documentation ecosystem.
    security
    dmca/index
    abandoned-projects
+   unofficial-projects
    changelog
 
    about
