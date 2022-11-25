@@ -72,6 +72,7 @@ to help you create fantastic documentation for your project.
    :caption: Explanation
 
    /build-notifications
+   /custom-domains
 
 
 .. toctree::
@@ -138,7 +139,6 @@ and some of the core features of Read the Docs.
    /features
    /config-file/index
    /integrations
-   /custom-domains
    /versions
    /downloadable-documentation
    /hosting

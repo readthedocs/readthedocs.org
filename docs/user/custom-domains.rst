@@ -2,9 +2,10 @@ Custom Domains
 ==============
 
 Custom domains allow you to serve your documentation from your own domain.
+For instance, this could be ``docs.example.com``.
 This is great for maintaining a consistent brand for your documentation and application.
 
-By default, your documentation is served from a Read the Docs :ref:`subdomain <hosting:subdomain support>` using the project's :term:`slug`:
+*By default*, your documentation is served from a Read the Docs :ref:`subdomain <hosting:subdomain support>` using the project's :term:`slug`:
 
 * ``<slug>.readthedocs.io`` for |org_brand|
 * ``<slug>.readthedocs-hosted.com`` for |com_brand|.
@@ -19,6 +20,14 @@ Once the DNS record has propagated, an SSL certificate will be automatically iss
 
 In case you change your domain name, your documentation can have multiple secondary domains but only one canonical domain name.
 Additional domains or subdomains will redirect to the canonical domain.
+
+What to consider
+----------------
+
+Some Open Source projects have seen their domains expire. Even prominent ones.
+It's important that you allocate the responsibility of your domain to a central actor in your organization.
+The domain will feature in search indexing and if you lose the domain, domain sharks may exploit this.
+
 
 .. seealso::
 
