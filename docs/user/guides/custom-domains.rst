@@ -13,7 +13,7 @@ To setup your :doc:`custom domain </custom-domains>`, follow these steps:
 
 #. Go the :guilabel:`Admin` tab of your project.
 #. Click on :guilabel:`Domains`.
-#. Enter your domain.
+#. Enter the domain where you want to serve the documentation from (e.g. ``docs.example.com``).
 #. Mark the :guilabel:`Canonical` option if you want use this domain
    as your :doc:`canonical domain </canonical-urls>`.
 #. Click on :guilabel:`Add`.

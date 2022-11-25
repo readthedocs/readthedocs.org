@@ -112,6 +112,10 @@ class BuildDataCollector:
         if self._get_doctool_name() != "sphinx":
             return data
 
+        # The project does not define a `conf.py` or does not have one
+        if not self.config.sphinx.configuration:
+            return data
+
         conf_py_dir = os.path.join(
             self.checkout_path,
             os.path.dirname(self.config.sphinx.configuration),
@@ -259,7 +263,6 @@ class BuildDataCollector:
             "--local",
             "--format",
             "json",
-            "--not-required",
         ]
         code, stdout, _ = self.run(*cmd)
         if code == 0 and stdout:

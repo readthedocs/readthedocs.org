@@ -56,13 +56,44 @@ to help you create fantastic documentation for your project.
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: First steps
+   :caption: Tutorials
 
    /tutorial/index
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
    /intro/import-guide
    /choosing-a-site
+
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :glob:
+   :caption: Explanation
+
+   /build-notifications
+
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: How-to Guides
+   :glob:
+
+   /guides/authors
+   /guides/administrators
+   /guides/developers
+   /science
+   /examples
+
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Reference
+   :glob:
+
+   api/index
 
 
 Read the Docs feature overview
@@ -114,7 +145,6 @@ and some of the core features of Read the Docs.
    /server-side-search
    /analytics
    /pull-requests
-   /build-notifications
    /security-log
 
    /connected-accounts
@@ -148,6 +178,7 @@ and how to write successful documentation.
   :doc:`/guides/manage-translations-sphinx` |
   :doc:`/guides/advanced-search` |
   :doc:`/guides/private-submodules` |
+  Setup Build Notifications <build-notifications> |
   :doc:`More guides for administrators </guides/administrators>`
 
 * **For developers and designers**:
@@ -156,18 +187,9 @@ and how to write successful documentation.
   :doc:`/guides/reproducible-builds` |
   :doc:`/guides/embedding-content` |
   :doc:`/guides/conda` |
+  Setup Build Notifications <build-notifications> |
   :doc:`More guides for developers and designers </guides/developers>`
 
-.. toctree::
- :maxdepth: 2
- :hidden:
- :caption: How-to Guides
-
- /guides/authors
- /guides/administrators
- /guides/developers
- /science
- /examples
 
 Advanced features of Read the Docs
 ----------------------------------
@@ -217,7 +239,6 @@ out of your documentation and Read the Docs.
    canonical-urls
 
 
-   api/index
 
 Read the Docs for Business
 --------------------------
@@ -249,7 +270,8 @@ of Read the Docs and the larger software documentation ecosystem.
 * **Policies & Process**:
   :doc:`security` |
   :doc:`DMCA takedown policy <dmca/index>` |
-  :doc:`Policy for abandoned projects <abandoned-projects>` |
+  :doc:`/abandoned-projects` |
+  :doc:`/unofficial-projects` |
   :doc:`Release notes & changelog <changelog>`
 
 
@@ -282,6 +304,7 @@ of Read the Docs and the larger software documentation ecosystem.
    security
    dmca/index
    abandoned-projects
+   unofficial-projects
    changelog
 
    about

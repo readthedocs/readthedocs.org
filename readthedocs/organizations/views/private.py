@@ -50,7 +50,7 @@ class CreateOrganizationSignup(PrivateViewMixin, OrganizationView, CreateView):
 
         .. note::
 
-            This method is overriden here from
+            This method is overridden here from
             ``OrganizationView.get_success_url`` because that method
             redirects to Organization's Edit page.
         """
@@ -200,14 +200,15 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
         organization = self.get_organization()
         current_timezone = settings.TIME_ZONE
         values = [
-            (f'Date ({current_timezone})', 'created'),
-            ('User', 'log_user_username'),
-            ('Project', 'log_project_slug'),
-            ('Organization', 'log_organization_slug'),
-            ('Action', 'action'),
-            ('Resource', 'resource'),
-            ('IP', 'ip'),
-            ('Browser', 'browser'),
+            (f"Date ({current_timezone})", "created"),
+            ("User", "log_user_username"),
+            ("Project", "log_project_slug"),
+            ("Organization", "log_organization_slug"),
+            ("Action", "action"),
+            ("Resource", "resource"),
+            ("IP", "ip"),
+            ("Browser", "browser"),
+            ("Extra data", "data"),
         ]
         data = self.get_queryset().values_list(*[value for _, value in values])
 
@@ -260,10 +261,7 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
         queryset = AuditLog.objects.filter(
             log_organization_id=organization.id,
             action__in=[
-                AuditLog.AUTHN,
-                AuditLog.AUTHN_FAILURE,
-                AuditLog.PAGEVIEW,
-                AuditLog.DOWNLOAD,
+                action for action, _ in OrganizationSecurityLogFilter.allowed_actions
             ],
             created__gte=start_date,
         )
