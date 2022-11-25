@@ -26,17 +26,6 @@ A development setup can be hosted by your laptop, in a VM, on a separate server 
 Set up your environment
 -----------------------
 
-.. warning::
-
-    The environment is developed and mainly tested on Docker Compose v1.x.
-    If you are running Docker Compose 2.x, please define the environment variable ``COMPOSE_COMPATIBILITY=true``
-    or make sure that the repository's ``.env`` file is loaded:
-
-    .. code-block:: console
-
-        source .env
-
-
 #. Clone the ``readthedocs.org`` repository:
 
    .. prompt:: bash
@@ -235,6 +224,17 @@ For others, the webhook will simply fail to connect when there are new commits t
 Troubleshooting
 ---------------
 
+.. warning::
+
+    The environment is developed and mainly tested on Docker Compose v1.x.
+    If you are running Docker Compose 2.x, the environment ``COMPOSE_COMPATIBILITY=true`` is needed.
+    This is automatically loaded via the ``.env`` file.
+    If you want to ensure that the file is loaded, run:
+
+    .. code-block:: console
+
+        source .env
+
 Builds fail with a generic error
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -277,6 +277,50 @@ you have to follow these steps:
       docker tag readthedocs/build:ubuntu-22.04-2022.03.15 readthedocs/build:ubuntu-22.04
 
 Once this is done, you should be able to trigger a new build on that project and it should succeed.
+
+
+Network connection failures
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After starting up your services with ``inv docker.up``, you might not be able to connect to the ``web`` instance on ``http://devthedocs.org:80``. Firstly, check all the outputs from Docker Compose to see that one of the instances hasn't crashed for a particular reason. If everything is up and running, it's likely related to a Docker network issue.
+
+Firstly, ensure that ``devthedocs.org`` resolves to ``10.10.0.100``. If not, you can add it in your system's ``/etc/hosts``:
+
+.. code-block:: console
+
+    # Opens a text editor.
+    # Add a line containing this:
+    #   10.10.0.100 devthedocs.org
+    sudo nano /etc/hosts
+
+You should also have a look at your routing table:
+
+.. code-block:: console
+
+    # Run the command "route" to see how network traffic is routed.
+    route
+
+This should contain a network interface ``br-<docker-id>`` handling traffic for the subnet ``10.10.0.0``. If you have several networks handling traffic for that subnet, that's an issue you need to solve. This can happen because of Docker but you might also have other services occupying the subnet.
+
+It's a good idea to run ``docker network prune`` to remove Docker's unused network devices. If the problem persists, you may want to reboot or manually remove the network device, for instance with ``sudo ifconfig <device> down``.
+
+You may also want to have a look at how the containers are connected to the network:
+
+.. code-block:: console
+
+    docker network inspect community_readthedocs
+
+Finally, try attaching to the ``web`` instance and test connections via telnet:
+
+.. code-block:: console
+
+    # Connect to the web instance
+    inv docker.shell
+    # Once in the web instance, try to telnet the database instance
+    telnet database 5432
+
+Notice that the web instance automatically shuts down after some time if it cannot connect to the database. You will want to attach to it right after it has launched.
+
 
 Core team standards
 -------------------
