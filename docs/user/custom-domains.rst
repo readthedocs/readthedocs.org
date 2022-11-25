@@ -16,7 +16,7 @@ How does it work?
 To begin using a custom domain, you will need to create a new custom domain for your project and add a DNS record for your new custom domain.
 Once the DNS record has propagated, an SSL certificate will be automatically issued for your custom domain and your documentation will be configured to serve using the new domain and certificate.
 
-In case you change your domain name, your documentation can have multiple secondary domains but only one canonical domain name.
+In case you change your domain name, your documentation can have multiple secondary domains but only one **canonical** domain name.
 Additional domains or subdomains will redirect to the canonical domain.
 
 What to consider
@@ -27,7 +27,7 @@ It's important that you allocate the responsibility of your domain to a reliable
 The domain will feature in search indexing and if you lose the domain, domain sharks may exploit this.
 
 You can choose if the domain is just an alias.
-The **canonical** domain feature allows you to have several domains and choose which one search engines should respect when indexing your documentation project.
+The **canonical** domain feature allows you to have several domains and choose which one search engines should respect when indexing your documentation project. The domain that you choose as your canonical domain is by far the most important one.
 
 .. seealso::
 
