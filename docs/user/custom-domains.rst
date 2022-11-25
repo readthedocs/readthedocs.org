@@ -26,6 +26,8 @@ Some Open Source projects have seen their domains expire. Even prominent ones.
 It's important that you allocate the responsibility of your domain to a reliable actor in your organization.
 The domain will feature in search indexing and if you lose the domain, domain sharks may exploit this.
 
+You can choose if the domain is just an alias.
+The **canonical** domain feature allows you to have several domains and choose which one search engines should respect when indexing your documentation project.
 
 .. seealso::
 
