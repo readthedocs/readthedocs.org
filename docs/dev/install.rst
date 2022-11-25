@@ -227,7 +227,7 @@ Troubleshooting
 .. warning::
 
     The environment is developed and mainly tested on Docker Compose v1.x.
-    If you are running Docker Compose 2.x, the environment ``COMPOSE_COMPATIBILITY=true`` is needed.
+    If you are running Docker Compose 2.x, please make sure you have ``COMPOSE_COMPATIBILITY=true`` set.
     This is automatically loaded via the ``.env`` file.
     If you want to ensure that the file is loaded, run:
 
