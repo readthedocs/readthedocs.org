@@ -408,7 +408,7 @@ Read the Docs will automatically index the content of all your HTML files,
 respecting the :ref:`search <config-file/v2:search>` options from your config file.
 
 You can access the search results from the :guilabel:`Search` tab of your project,
-or by using the :ref:`search API <server-side-search:api>`.
+or by using the :doc:`/server-side-search/api`.
 
 .. note::
 

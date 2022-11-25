@@ -1,10 +1,9 @@
-import structlog
 import re
 
+import structlog
 from django.conf import settings
 from elasticsearch import Elasticsearch
 from elasticsearch_dsl import FacetedSearch, TermsFacet
-from elasticsearch_dsl.faceted_search import NestedFacet
 from elasticsearch_dsl.query import (
     Bool,
     FunctionScore,
@@ -19,8 +18,6 @@ from elasticsearch_dsl.query import (
 from readthedocs.search.documents import PageDocument, ProjectDocument
 
 log = structlog.get_logger(__name__)
-
-ALL_FACETS = ['project', 'version', 'role_name', 'language']
 
 
 class RTDFacetedSearch(FacetedSearch):
@@ -268,11 +265,6 @@ class ProjectSearch(RTDFacetedSearch):
 class PageSearch(RTDFacetedSearch):
     facets = {
         'project': TermsFacet(field='project'),
-        'version': TermsFacet(field='version'),
-        'role_name': NestedFacet(
-            'domains',
-            TermsFacet(field='domains.role_name')
-        ),
     }
     doc_types = [PageDocument]
     index = PageDocument._index._name
@@ -364,18 +356,6 @@ class PageSearch(RTDFacetedSearch):
             re.sub(r'\^.*$', '', field)
             for field in fields
         ]
-
-        # The ``post_filter`` filter will only filter documents
-        # at the parent level (domains is a nested document),
-        # resulting in results with domains that don't match the current
-        # role_name being filtered, so we need to force filtering by role_name
-        # on the ``domains`` document here. See #8268.
-        # TODO: We should use a flattened document instead
-        # to avoid this kind of problems and have faster queries.
-        role_name = self.filter_values.get('role_name')
-        if path == 'domains' and role_name:
-            role_name_query = Bool(must=Terms(**{'domains.role_name': role_name}))
-            bool_query = Bool(must=[role_name_query, bool_query])
 
         highlight = dict(
             self._highlight_options,

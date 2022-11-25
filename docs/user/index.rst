@@ -78,7 +78,7 @@ and some of the core features of Read the Docs.
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
-  :doc:`/server-side-search` |
+  :doc:`/server-side-search/index` |
   :doc:`/analytics` |
   :doc:`/pull-requests` |
   :doc:`/build-notifications` |
@@ -111,7 +111,7 @@ and some of the core features of Read the Docs.
    /versions
    /downloadable-documentation
    /hosting
-   /server-side-search
+   /server-side-search/index
    /analytics
    /pull-requests
    /build-notifications
@@ -145,7 +145,6 @@ and how to write successful documentation.
 * **For project administrators**:
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
-  :doc:`/guides/advanced-search` |
   :doc:`/guides/private-submodules` |
   Setup Build Notifications <build-notifications> |
   :doc:`More guides for administrators </guides/administrators>`
