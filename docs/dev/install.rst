@@ -26,6 +26,17 @@ A development setup can be hosted by your laptop, in a VM, on a separate server 
 Set up your environment
 -----------------------
 
+.. warning::
+
+    The environment is developed and mainly tested on Docker Compose v1.x.
+    If you are running Docker Compose 2.x, please define the environment variable ``COMPOSE_COMPATIBILITY=true``
+    or make sure that the repository's ``.env`` file is loaded:
+
+    .. code-block:: console
+
+        source .env
+
+
 #. Clone the ``readthedocs.org`` repository:
 
    .. prompt:: bash
