@@ -32,6 +32,7 @@ The SSL certificate issuance should happen within a few minutes,
 but might take up to one hour.
 See `SSL certificate issue delays`_ for more troubleshooting options.
 
+To see if your DNS change has propagated, you can use a tool like ``dig`` to inspect your domain from your command line.
 As an example, our blog's DNS record looks like this:
 
 .. prompt:: bash $, auto

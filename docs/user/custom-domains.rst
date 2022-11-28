@@ -13,11 +13,18 @@ This is great for maintaining a consistent brand for your documentation and appl
 How does it work?
 -----------------
 
-To begin using a custom domain, you will need to create a new custom domain for your project and add a DNS record for your new custom domain.
-Once the DNS record has propagated, an SSL certificate will be automatically issued for your custom domain and your documentation will be configured to serve using the new domain and certificate.
+To use a custom domain, you enter the domain in your Read the Docs project's administration and update your DNS provider with a new DNS entry.
+
+These two actions are all that are needed. Once the DNS record has propagated, Read the Docs automatically issues an SSL certificate through CloudFlare and start serving your documentation.
 
 In case you change your domain name, your documentation can have multiple secondary domains but only one **canonical** domain name.
 Additional domains or subdomains will redirect to the canonical domain.
+
+To make this work, Read the Docs generates a special text that you are responsible for copy-pasting to your domain's DNS.
+In most cases, the ``CNAME`` record is used.
+This is all that's needed for a web browser to resolve your domain name to Read the Docs' servers and for our servers to match the right documentation project.
+You will find all the details in :doc:`/guides/custom-domains`.
+
 
 What to consider
 ----------------
