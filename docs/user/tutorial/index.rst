@@ -97,7 +97,7 @@ By now, you should have two email notifications:
 * Another one from Read the Docs, prompting you to "verify your email
   address". Click on the link to finalize the process.
 
-Once done, your "Read the Docs" account is created
+Once done, your Read the Docs account is created
 and ready to import your first project.
 
 Welcome!
