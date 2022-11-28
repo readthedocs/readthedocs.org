@@ -286,16 +286,18 @@ After starting up your services with ``inv docker.up``, you might not be able to
 Firstly, check all the outputs from Docker Compose to see that one of the instances hasn't crashed for a particular reason.
 If everything is up and running, it's likely related to a Docker network issue.
 
-Firstly, ensure that ``devthedocs.org`` resolves to ``10.10.0.100``. If not, you can add it in your system's ``/etc/hosts``:
+In many cases, it can help to bring down any existing containers and docker networks.
 
 .. code-block:: console
 
-    # Opens a text editor.
-    # Add a line containing this:
-    #   10.10.0.100 devthedocs.org
-    sudo nano /etc/hosts
+    # Give Docker Compose a chance to clean up what it can
+    inv docker.down
+    # After this step, you can try to start Docker Compose again
+    inv docker.up
 
-You should also have a look at your routing table:
+
+If it still doesn't work, we need to gather some more information to understand the issue.
+Have a look at how your networking traffic is routed:
 
 .. code-block:: console
 
