@@ -1,11 +1,13 @@
 Hosting Integrations
 ====================
 
-Read the Docs performs some actions by default when building documentation for its users to.
-These actions integrate the documentation project with multiple hosting features Read the Docs offers.
-However, when using ``build.commands`` configuration (see :doc:`build-customization`),
-the build process is overriden completely and it's the user responsibility to integrate these features.
-This page explains how to manually integrate these features when Read the Docs cannot do it automatically.
+This page explains the manual steps required to integrate all the hosting features when overriding the build process by using ``build.commands`` configuration
+(see :doc:`build-customization`).
+As Read the Docs does not have control over the build process,
+it cannot install and inject the required extensions to automatically integrate them.
+You are encourage to read this document and understand the "behind the scenes" to integrate these features by yourself.
+This can be done by running user-defined commands in the build process or by creating a doctool extensions
+that execute these actions as part of the build itself.
 
 These are all the hosting features that Read the Docs provides by default:
 
