@@ -4,8 +4,8 @@ Development Installation
 .. meta::
    :description lang=en: Install a local development instance of Read the Docs with our step by step guide.
 
-These are development setup and :ref:`standards <install:Core team standards>` that are followed to by the core development team. If you are a contributor to Read the Docs,
-it might a be a good idea to follow these guidelines as well.
+These are development setup and :ref:`standards <install:Core team standards>` that are followed to by the core development team.
+If you are a contributor to Read the Docs, it might a be a good idea to follow these guidelines as well.
 
 Requirements
 ------------
@@ -282,7 +282,9 @@ Once this is done, you should be able to trigger a new build on that project and
 Network connection failures
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-After starting up your services with ``inv docker.up``, you might not be able to connect to the ``web`` instance on ``http://devthedocs.org:80``. Firstly, check all the outputs from Docker Compose to see that one of the instances hasn't crashed for a particular reason. If everything is up and running, it's likely related to a Docker network issue.
+After starting up your services with ``inv docker.up``, you might not be able to connect to the ``web`` instance on ``http://devthedocs.org:80``.
+Firstly, check all the outputs from Docker Compose to see that one of the instances hasn't crashed for a particular reason.
+If everything is up and running, it's likely related to a Docker network issue.
 
 Firstly, ensure that ``devthedocs.org`` resolves to ``10.10.0.100``. If not, you can add it in your system's ``/etc/hosts``:
 
@@ -300,9 +302,13 @@ You should also have a look at your routing table:
     # Run the command "route" to see how network traffic is routed.
     route
 
-This should contain a network interface ``br-<docker-id>`` handling traffic for the subnet ``10.10.0.0``. If you have several networks handling traffic for that subnet, that's an issue you need to solve. This can happen because of Docker but you might also have other services occupying the subnet.
+This should contain a network interface ``br-<docker-id>`` handling traffic for the subnet ``10.10.0.0``.
+If you have several networks handling traffic for that subnet, that's an issue you need to solve.
+This can happen because of Docker but you might also have other services occupying the subnet.
 
-It's a good idea to run ``docker network prune`` to remove Docker's unused network devices. If the problem persists, you may want to reboot or manually remove the network device, for instance with ``sudo ifconfig <device> down``.
+It's a good idea to run ``docker network prune`` to remove Docker's unused network devices.
+If the problem persists, you may want to reboot or manually remove the network device,
+for instance with ``sudo ifconfig <device> down``.
 
 You may also want to have a look at how the containers are connected to the network:
 
@@ -319,7 +325,8 @@ Finally, try attaching to the ``web`` instance and test connections via telnet:
     # Once in the web instance, try to telnet the database instance
     telnet database 5432
 
-Notice that the web instance automatically shuts down after some time if it cannot connect to the database. You will want to attach to it right after it has launched.
+Notice that the web instance automatically shuts down after some time if it cannot connect to the database.
+You will want to attach to it right after it has launched.
 
 
 Core team standards
