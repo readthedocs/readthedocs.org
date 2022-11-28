@@ -1,7 +1,7 @@
 How to connect your Git repository
 ==================================
 
-In this guide, you will find the simple steps to integrating your Read the Docs project with GitHub, Bitbucket, GitLab, Gitea or any other VCS (version control system) provider that supports our generic API.
+In this guide, you will find the simple steps to integrating your Read the Docs project with GitHub, Bitbucket, GitLab, Gitea or any other Git provider that supports our generic API.
 
 To manually set up an integration, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
 dashboard page and select the integration type you'd like to add.
