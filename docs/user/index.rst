@@ -56,13 +56,44 @@ to help you create fantastic documentation for your project.
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: First steps
+   :caption: Tutorials
 
    /tutorial/index
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
    /intro/import-guide
    /choosing-a-site
+
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :glob:
+   :caption: Explanation
+
+   /build-notifications
+
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: How-to Guides
+   :glob:
+
+   /guides/authors
+   /guides/administrators
+   /guides/developers
+   /science
+   /examples
+
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Reference
+   :glob:
+
+   api/index
 
 
 Read the Docs feature overview
@@ -112,7 +143,6 @@ and some of the core features of Read the Docs.
    /server-side-search/index
    /analytics
    /pull-requests
-   /build-notifications
    /security-log
 
    /connected-accounts
@@ -157,16 +187,6 @@ and how to write successful documentation.
   Setup Build Notifications <build-notifications> |
   :doc:`More guides for developers and designers </guides/developers>`
 
-.. toctree::
- :maxdepth: 2
- :hidden:
- :caption: How-to Guides
-
- /guides/authors
- /guides/administrators
- /guides/developers
- /science
- /examples
 
 Advanced features of Read the Docs
 ----------------------------------
@@ -216,7 +236,6 @@ out of your documentation and Read the Docs.
    canonical-urls
 
 
-   api/index
 
 Read the Docs for Business
 --------------------------
