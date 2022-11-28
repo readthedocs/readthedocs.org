@@ -26,7 +26,7 @@ To setup your :doc:`custom domain </custom-domains>`, follow these steps:
       For a subdomain like ``docs.example.com`` add a CNAME record,
       and for a root domain like ``example.com`` use an ANAME or ALIAS record.
 
-By default, we provide a validated SSL certificate for the domain,
+We provide a validated SSL certificate for the domain,
 managed by `Cloudflare <https://www.cloudflare.com/>`_.
 The SSL certificate issuance should happen within a few minutes,
 but might take up to one hour.
