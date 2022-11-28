@@ -72,7 +72,7 @@ to help you create fantastic documentation for your project.
    :caption: Explanation
 
    /build-notifications
-
+   /integrations
 
 .. toctree::
    :maxdepth: 2
