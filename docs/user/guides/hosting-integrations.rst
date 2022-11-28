@@ -42,7 +42,6 @@ These are all the hosting features that Read the Docs provides by default:
    Read more in our blog post
    `Knowing more about how people use our service <https://blog.readthedocs.com/knowing-more-about-ourselves/>`_
 
-
 `Advertisement`_
    Ad shown on documentation pages that helps Read the Docs to be sustainable.
    Read more at :doc:`advertising`.
@@ -94,6 +93,119 @@ a ``div`` tag is required to define *where* the flyout menu will be displayed.
 This tag has to be added inside the ``<body>`` tag:
 
 .. code-block:: html
+   :linenos:
 
    <!-- Manually added to show the Read the Docs flyout -->
    <div id="readthedocs-embed-flyout"></div>
+
+
+Telemetry
+---------
+
+Read the Docs expects the file ``_build/json/telemetry.json`` once the build has finished.
+This file contains a list of doctool extensions/plugins installed to perform the build
+and also the HTML theme used.
+
+The data is organized in a JSON file as follows:
+
+.. code-block:: json
+   :linenos:
+
+   {
+     "extensions": [
+       "module.extension"
+     ],
+     "html_theme": "name"
+   }
+
+
+Advertisement
+-------------
+
+Advertisement makes Read the Docs sustainable and free for Open Source projects.
+Similarly to the flyout_, it requires including the same Javascript and stylesheet files
+(you can copy the code from the previous section),
+plus a ``div`` specifying *where* the Ad should be shown:
+.. NOTE: should we tell people to integrate it using the ``readthedocs-doc-embed.js`` file,
+   or should they use the EthicalAds client directly?
+
+.. code-block:: html
+   :linenos:
+
+   <!-- Manually added to show Ethical Ads -->
+   <div id="rtd-stickybox-container">
+     <div class="raised" data-ea-publisher="readthedocs" data-ea-type="image" data-ea-style="stickybox"></div>
+   </div>
+
+
+.. note::
+
+   Make sure to not include the Javascript and stylesheet twice when integrating the Flyout_ and Advertisement_.
+   That chunk of HTML code is exactly the same and shared between both.
+   They should be included only once in the page.
+
+
+External (pull request) version warning
+---------------------------------------
+
+On each build built from a pull requests,
+a warning banner is added to communicate readers this particular version of the documentation is not in production
+and it's still under review.
+
+Read the Docs adds the following HTML to create the warning admonition:
+.. NOTE: we should standardize this by providing the CSS as well and making it sticky (maybe at the top).
+   Now, it's injected at a particular place in the HTML structure --which won't be general for all the doctools.
+   Besides, we are inject it using a Sphinx extension that may differ what's the outputed HTML (based on docutils version).
+
+.. code-block:: html
+   :lienos:
+   :emphasize-lines: 5,7
+
+   <div class="admonition warning">
+     <p class="admonition-title">Warning</p>
+     <p>
+       This page
+       <a class="reference external" href="https://readthedocs.org/projects/<project-slug>/builds/<build-id>/">was created </a>
+       from a pull request
+       (<a class="reference external" href="https://github.com/<gh-username>/<gh-repository>/pull/pr-number">#PRNUMBER</a>).
+     </p>
+   </div>
+
+Note in the highlighted lines there are some placeholders for:
+
+* Read the Docs' project slug
+* Read the Docs' build id
+* GitHub username
+* GitHub pull request number
+
+These placeholders should be replaced by the real values.
+
+
+Version warning
+---------------
+
+Read the Docs adds a warning banner at the top of each documentation page
+when the reader visits an old page when there is a newer version of the same page available.
+.. NOTE: this has the same non-standardized issue as the "External version warning"
+
+
+.. code-block:: html
+   :lienos:
+   :emphasize-lines: 5,7
+
+   <div class="admonition warning">
+     <p class="admonition-title">Warning</p>
+     <p>
+       This page documents version
+       <a class="reference" href="https://<slug>.readthedocs.io/<lang>/<version>"><version></a>.
+       The latest version is
+       <a class="reference" href="https://<slug>.readthedocs.io/<lang>/<version>"><version></a>.
+     </p>
+   </div>
+
+Note in the highlighted lines there are some placeholders for:
+
+* Read the Docs' project slug
+* Read the Docs' language
+* Read the Docs' current version (old)
+* Read the Docs' new version
