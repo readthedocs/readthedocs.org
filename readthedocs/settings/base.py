@@ -612,11 +612,11 @@ class CommunityBaseSettings(Settings):
             'python': {
                 '2.7': '2.7.18',
                 '3.6': '3.6.15',
-                '3.7': '3.7.13',
-                '3.8': '3.8.13',
-                '3.9': '3.9.13',
-                '3.10': '3.10.4',
-                '3.11': '3.11.0b3',
+                '3.7': '3.7.15',
+                '3.8': '3.8.15',
+                '3.9': '3.9.15',
+                '3.10': '3.10.8',
+                '3.11': '3.11.0',
                 'pypy3.7': 'pypy3.7-7.3.9',
                 'pypy3.8': 'pypy3.8-7.3.9',
                 'pypy3.9': 'pypy3.9-7.3.9',
@@ -624,22 +624,25 @@ class CommunityBaseSettings(Settings):
                 'mambaforge-4.10': 'mambaforge-4.10.3-10',
             },
             'nodejs': {
-                '14': '14.19.3',
-                '16': '16.15.0',
-                '18': '18.2.0',
+                '14': '14.20.1',
+                '16': '16.18.0',
+                '18': '18.11.0',
+                '19': '19.0.0',
             },
             'rust': {
                 '1.55': '1.55.0',
                 '1.61': '1.61.0',
+                '1.64': '1.64.0',
             },
             'golang': {
-                '1.17': '1.17.10',
-                '1.18': '1.18.2',
+                '1.17': '1.17.13',
+                '1.18': '1.18.7',
+                '1.19': '1.19.2',
             },
         },
     }
     # Always point to the latest stable release.
-    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.10']
+    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.11']
 
     def _get_docker_memory_limit(self):
         try:
@@ -971,6 +974,7 @@ class CommunityBaseSettings(Settings):
 
     # MailerLite API for newsletter signups
     MAILERLITE_API_SUBSCRIBERS_URL = 'https://api.mailerlite.com/api/v2/subscribers'
+    MAILERLITE_API_ONBOARDING_GROUP_URL = None
     MAILERLITE_API_KEY = None
 
     RTD_EMBED_API_EXTERNAL_DOMAINS = [

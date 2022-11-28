@@ -77,7 +77,7 @@ and some of the core features of Read the Docs.
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
-  :doc:`/server-side-search` |
+  :doc:`/server-side-search/index` |
   :doc:`/analytics` |
   :doc:`/pull-requests` |
   :doc:`/build-notifications` |
@@ -109,7 +109,7 @@ and some of the core features of Read the Docs.
    /versions
    /downloadable-documentation
    /hosting
-   /server-side-search
+   /server-side-search/index
    /analytics
    /pull-requests
    /build-notifications
@@ -144,8 +144,8 @@ and how to write successful documentation.
   :doc:`Connect Your Git Repository </guides/git-integrations>` |
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
-  :doc:`/guides/advanced-search` |
   :doc:`/guides/private-submodules` |
+  Setup Build Notifications <build-notifications> |
   :doc:`More guides for administrators </guides/administrators>`
 
 * **For developers and designers**:
@@ -154,6 +154,7 @@ and how to write successful documentation.
   :doc:`/guides/reproducible-builds` |
   :doc:`/guides/embedding-content` |
   :doc:`/guides/conda` |
+  Setup Build Notifications <build-notifications> |
   :doc:`More guides for developers and designers </guides/developers>`
 
 .. toctree::
@@ -247,7 +248,8 @@ of Read the Docs and the larger software documentation ecosystem.
 * **Policies & Process**:
   :doc:`security` |
   :doc:`DMCA takedown policy <dmca/index>` |
-  :doc:`Policy for abandoned projects <abandoned-projects>` |
+  :doc:`/abandoned-projects` |
+  :doc:`/unofficial-projects` |
   :doc:`Release notes & changelog <changelog>`
 
 
@@ -280,6 +282,7 @@ of Read the Docs and the larger software documentation ecosystem.
    security
    dmca/index
    abandoned-projects
+   unofficial-projects
    changelog
 
    about

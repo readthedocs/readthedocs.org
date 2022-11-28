@@ -3,21 +3,6 @@ How to connect your Git repository
 
 In this guide, you will find the simple steps to integrating your Read the Docs project with GitHub, Bitbucket, GitLab, Gitea or any other VCS (version control system) provider that supports our generic API.
 
-You'll find a list of configured integrations on your project's :guilabel:`Admin`
-dashboard, under :guilabel:`Integrations`. You can select any of these integrations to
-see the *integration detail page*. This page has additional configuration
-details and a list of HTTP exchanges that have taken place for the integration,
-including the Payload URL needed by the repository provider
-such as GitHub, GitLab, or Bitbucket.
-
-Integration Creation
---------------------
-
-If you have :doc:`connected your Read the Docs account </connected-accounts>` to GitHub, Bitbucket, or GitLab,
-**an integration will be set up automatically for your repository**. However, if your
-project was not imported through a connected account, you may need to
-manually configure an integration for your project.
-
 To manually set up an integration, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
 dashboard page and select the integration type you'd like to add.
 After you have added the integration, you'll see a link to information about the integration.
@@ -37,9 +22,9 @@ Use this URL when setting up a new integration with your provider -- these steps
 GitHub
 ~~~~~~
 
-* Go to the :guilabel:`Settings` page for your project
+* Go to the :guilabel:`Settings` page for your **GitHub project**
 * Click :guilabel:`Webhooks` > :guilabel:`Add webhook`
-* For **Payload URL**, use the URL of the integration on Read the Docs,
+* For **Payload URL**, use the URL of the integration on your **Read the Docs project**,
   found on the project's :guilabel:`Admin` > :guilabel:`Integrations` page.
   You may need to prepend *https://* to the URL.
 * For **Content type**, both *application/json* and
@@ -72,8 +57,8 @@ Bitbucket
 GitLab
 ~~~~~~
 
-* Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project
-* For **URL**, use the URL of the integration on Read the Docs,
+* Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your GitLab project
+* For **URL**, use the URL of the integration on **Read the Docs project**,
   found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
 * Leave the default **Push events** selected,
   additionally mark **Tag push events** and **Merge request events**.

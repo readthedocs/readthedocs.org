@@ -15,8 +15,8 @@ have a look at our :doc:`/tutorial/index`.
    Connect your git repository <git-integrations>
    technical-docs-seo-guide
    manage-translations-sphinx
-   advanced-search
    hiding-a-version
    deprecating-content
    pdf-non-ascii-languages
    importing-private-repositories
+   Setup Build Notifications <build-notifications>
