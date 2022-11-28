@@ -19,7 +19,7 @@ class DebugToolbarFinder(AppDirectoriesFinder):
     """
 
     def __init__(self, app_names=None, *args, **kwargs):
-        app_config = DebugToolbarConfig.create('debug_toolbar')
+        app_config = DebugToolbarConfig.create("debug_toolbar")
         self.apps = [app_config.name]
         self.storages = {
             app_config.name: self.storage_class(
