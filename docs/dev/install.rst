@@ -279,58 +279,6 @@ you have to follow these steps:
 Once this is done, you should be able to trigger a new build on that project and it should succeed.
 
 
-Network connection failures
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-After starting up your services with ``inv docker.up``, you might not be able to connect to the ``web`` instance on ``http://devthedocs.org:80``.
-Firstly, check all the outputs from Docker Compose to see that one of the instances hasn't crashed for a particular reason.
-If everything is up and running, it's likely related to a Docker network issue.
-
-In many cases, it can help to bring down any existing containers and docker networks.
-
-.. code-block:: console
-
-    # Give Docker Compose a chance to clean up what it can
-    inv docker.down
-    # After this step, you can try to start Docker Compose again
-    inv docker.up
-
-
-If it still doesn't work, we need to gather some more information to understand the issue.
-Have a look at how your networking traffic is routed:
-
-.. code-block:: console
-
-    # Run the command "route" to see how network traffic is routed.
-    route
-
-This should contain a network interface ``br-<docker-id>`` handling traffic for the subnet ``10.10.0.0``.
-If you have several networks handling traffic for that subnet, that's an issue you need to solve.
-This can happen because of Docker but you might also have other services occupying the subnet.
-
-It's a good idea to run ``docker network prune`` to remove Docker's unused network devices.
-If the problem persists, you may want to reboot or manually remove the network device,
-for instance with ``sudo ifconfig <device> down``.
-
-You may also want to have a look at how the containers are connected to the network:
-
-.. code-block:: console
-
-    docker network inspect community_readthedocs
-
-Finally, try attaching to the ``web`` instance and test connections via telnet:
-
-.. code-block:: console
-
-    # Connect to the web instance
-    inv docker.shell
-    # Once in the web instance, try to telnet the database instance
-    telnet database 5432
-
-Notice that the web instance automatically shuts down after some time if it cannot connect to the database.
-You will want to attach to it right after it has launched.
-
-
 Core team standards
 -------------------
 
