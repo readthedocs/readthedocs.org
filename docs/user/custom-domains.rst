@@ -15,7 +15,7 @@ How does it work?
 
 To use a custom domain, you enter the domain in your Read the Docs project's administration and update your DNS provider with a new DNS entry.
 
-These two actions are all that are needed. Once the DNS record has propagated, Read the Docs automatically issues an SSL certificate through CloudFlare and start serving your documentation.
+These two actions are all that are needed. Once the DNS record has propagated, Read the Docs automatically issues an SSL certificate through Cloudflare and starts serving your documentation.
 
 In case you change your domain name, your documentation can have multiple secondary domains but only one **canonical** domain name.
 Additional domains or subdomains will redirect to the canonical domain.
