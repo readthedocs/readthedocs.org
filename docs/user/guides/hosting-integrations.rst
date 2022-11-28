@@ -126,6 +126,7 @@ Advertisement makes Read the Docs sustainable and free for Open Source projects.
 Similarly to the flyout_, it requires including the same Javascript and stylesheet files
 (you can copy the code from the previous section),
 plus a ``div`` specifying *where* the Ad should be shown:
+
 .. NOTE: should we tell people to integrate it using the ``readthedocs-doc-embed.js`` file,
    or should they use the EthicalAds client directly?
 
@@ -153,6 +154,7 @@ a warning banner is added to communicate readers this particular version of the 
 and it's still under review.
 
 Read the Docs adds the following HTML to create the warning admonition:
+
 .. NOTE: we should standardize this by providing the CSS as well and making it sticky (maybe at the top).
    Now, it's injected at a particular place in the HTML structure --which won't be general for all the doctools.
    Besides, we are inject it using a Sphinx extension that may differ what's the outputed HTML (based on docutils version).
@@ -186,6 +188,7 @@ Version warning
 
 Read the Docs adds a warning banner at the top of each documentation page
 when the reader visits an old page when there is a newer version of the same page available.
+
 .. NOTE: this has the same non-standardized issue as the "External version warning"
 
 
