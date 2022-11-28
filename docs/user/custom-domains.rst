@@ -10,31 +10,32 @@ This is great for maintaining a consistent brand for your documentation and appl
 * ``<slug>.readthedocs.io`` for |org_brand|
 * ``<slug>.readthedocs-hosted.com`` for |com_brand|.
 
-How does it work?
------------------
+How do custom domains work?
+---------------------------
 
 To use a custom domain, you enter the domain in your Read the Docs project's administration and update your DNS provider with a new DNS entry.
 
 These two actions are all that are needed. Once the DNS record has propagated, Read the Docs automatically issues an SSL certificate through Cloudflare and starts serving your documentation.
 
-In case you change your domain name, your documentation can have multiple secondary domains but only one **canonical** domain name.
+Your documentation can have multiple secondary domains but only one **canonical** domain name.
 Additional domains or subdomains will redirect to the canonical domain.
 
 To make this work, Read the Docs generates a special text that you are responsible for copy-pasting to your domain's DNS.
 In most cases, the ``CNAME`` record is used.
 This is all that's needed for a web browser to resolve your domain name to Read the Docs' servers and for our servers to match the right documentation project.
-You will find all the details in :doc:`/guides/custom-domains`.
+You can find step-by-step instructions for this in :doc:`/guides/custom-domains`.
 
 
 What to consider
 ----------------
 
 Some Open Source projects have seen their domains expire. Even prominent ones.
-It's important that you allocate the responsibility of your domain to a reliable actor in your organization.
-The domain will feature in search indexing and if you lose the domain, domain sharks may exploit this.
+**It's important that you give the responsibility for managing your domain to someone reliable in your organization.**
+Your canonical domain will feature in search indexing, so if you lose the domain your users could be sent to a page owned by someone else.
 
 You can choose if the domain is just an alias.
-The **canonical** domain feature allows you to have several domains and choose which one search engines should respect when indexing your documentation project. The domain that you choose as your canonical domain is by far the most important one.
+The **canonical domain** feature allows you to have several domains and the canonical domain will be indexed by search engines.
+The domain that you choose as your canonical domain is by far the most important one.
 
 .. seealso::
 

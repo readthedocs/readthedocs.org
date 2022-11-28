@@ -117,4 +117,4 @@ Migrating from GitBook
 
 If your custom domain was previously used in GitBook, contact GitBook support (via live chat in their website)
 to remove the domain name from their DNS Zone in order for your domain name to work with Read the Docs,
-else it will always redirect to GitBook.
+otherwise it will always redirect to GitBook.
