@@ -1,12 +1,7 @@
-How to connect your Git repository
-==================================
+How to manually connect your Git repository
+===========================================
 
 In this guide, you will find the simple steps to integrating your Read the Docs project with GitHub, Bitbucket, GitLab, Gitea or any other Git provider that supports our generic API.
-
-.. contents:: Table of contents
-   :local:
-   :backlinks: none
-   :depth: 2
 
 .. note::
 
@@ -14,94 +9,98 @@ In this guide, you will find the simple steps to integrating your Read the Docs 
    we'll try to setup the integration automatically.
    If something fails, you can still setup the integration manually.
 
-.. _webhook-integration-github:
 
-GitHub
-------
+Provider-specific instructions
+------------------------------
 
-* Go to the :guilabel:`Settings` page for your **GitHub project**
-* Click :guilabel:`Webhooks` > :guilabel:`Add webhook`
-* For **Payload URL**, use the URL of the integration on your **Read the Docs project**,
-  found on the project's :guilabel:`Admin` > :guilabel:`Integrations` page.
-  You may need to prepend *https://* to the URL.
-* For **Content type**, both *application/json* and
-  *application/x-www-form-urlencoded* work
-* Leave the **Secrets** field blank
-* Select **Let me select individual events**,
-  and mark **Branch or tag creation**, **Branch or tag deletion**, **Pull requests** and **Pushes** events
-* Ensure **Active** is enabled; it is by default
-* Finish by clicking **Add webhook**.  You may be prompted to enter your GitHub password to confirm your action.
+.. tabs::
 
-You can verify if the webhook is working at the bottom of the GitHub page under **Recent Deliveries**.
-If you see a Response 200, then the webhook is correctly configured.
-For a 403 error, it's likely that the Payload URL is incorrect.
+   .. tab:: GitHub
 
-.. note:: The webhook token, intended for the GitHub **Secret** field, is not yet implemented.
+      .. _webhook-integration-github:
 
-.. _webhook-integration-bitbucket:
+      * Go to the :guilabel:`Settings` page for your **GitHub project**
+      * Click :guilabel:`Webhooks` > :guilabel:`Add webhook`
+      * For **Payload URL**, use the URL of the integration on your **Read the Docs project**,
+        found on the project's :guilabel:`Admin` > :guilabel:`Integrations` page.
+        You may need to prepend *https://* to the URL.
+      * For **Content type**, both *application/json* and
+        *application/x-www-form-urlencoded* work
+      * Leave the **Secrets** field blank
+      * Select **Let me select individual events**,
+        and mark **Branch or tag creation**, **Branch or tag deletion**, **Pull requests** and **Pushes** events
+      * Ensure **Active** is enabled; it is by default
+      * Finish by clicking **Add webhook**.  You may be prompted to enter your GitHub password to confirm your action.
 
-Bitbucket
----------
+      You can verify if the webhook is working at the bottom of the GitHub page under **Recent Deliveries**.
+      If you see a Response 200, then the webhook is correctly configured.
+      For a 403 error, it's likely that the Payload URL is incorrect.
 
-* Go to the :guilabel:`Settings` > :guilabel:`Webhooks` > :guilabel:`Add webhook` page for your project
-* For **URL**, use the URL of the integration on Read the Docs,
-  found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
-* Under **Triggers**, **Repository push** should be selected
-* Finish by clicking **Save**
+      .. note:: The webhook token, intended for the GitHub **Secret** field, is not yet implemented.
 
-.. _webhook-integration-gitlab:
+   .. tab:: Bitbucket
 
-GitLab
-------
+      .. _webhook-integration-bitbucket:
 
-* Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your GitLab project
-* For **URL**, use the URL of the integration on **Read the Docs project**,
-  found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
-* Leave the default **Push events** selected,
-  additionally mark **Tag push events** and **Merge request events**.
-* Finish by clicking **Add Webhook**
+      * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` > :guilabel:`Add webhook` page for your project
+      * For **URL**, use the URL of the integration on Read the Docs,
+        found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
+      * Under **Triggers**, **Repository push** should be selected
+      * Finish by clicking **Save**
 
-Gitea
------
+   .. tab:: GitLab
 
-These instructions apply to any Gitea instance.
+      .. _webhook-integration-gitlab:
 
-.. warning::
+      * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your GitLab project
+      * For **URL**, use the URL of the integration on **Read the Docs project**,
+        found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
+      * Leave the default **Push events** selected,
+        additionally mark **Tag push events** and **Merge request events**.
+      * Finish by clicking **Add Webhook**
 
-   This isn't officially supported, but using the "GitHub webhook" is an effective workaround,
-   because Gitea uses the same payload as GitHub. The generic webhook is not compatible with Gitea.
-   See `issue #8364`_ for more details. Official support may be implemented in the future.
+   .. tab:: Gitea
 
-On Read the Docs:
+      These instructions apply to any Gitea instance.
 
-* Manually create a "GitHub webhook" integration
-  (this will show a warning about the webhook not being correctly set up,
-  that will go away when the webhook is configured in Gitea)
+      .. warning::
 
-On your Gitea instance:
+         This isn't officially supported, but using the "GitHub webhook" is an effective workaround,
+         because Gitea uses the same payload as GitHub. The generic webhook is not compatible with Gitea.
+         See `issue #8364`_ for more details. Official support may be implemented in the future.
 
-* Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project on your Gitea instance
-* Create a new webhook of type "Gitea"
-* For **URL**, use the URL of the integration on Read the Docs,
-  found on the :guilabel:`Admin` > :guilabel:`Integrations` page
-* Leave the default **HTTP Method** as POST
-* For **Content type**, both *application/json* and
-  *application/x-www-form-urlencoded* work
-* Leave the **Secret** field blank
-* Select **Choose events**,
-  and mark **Branch or tag creation**, **Branch or tag deletion** and **Push** events
-* Ensure **Active** is enabled; it is by default
-* Finish by clicking **Add Webhook**
-* Test the webhook with :guilabel:`Delivery test`
+      On Read the Docs:
 
-Finally, on Read the Docs, check that the warnings have disappeared
-and the delivery test triggered a build.
+      * Manually create a "GitHub webhook" integration
+        (this will show a warning about the webhook not being correctly set up,
+        that will go away when the webhook is configured in Gitea)
 
-.. _issue #8364: https://github.com/readthedocs/readthedocs.org/issues/8364
+      On your Gitea instance:
+
+      * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project on your Gitea instance
+      * Create a new webhook of type "Gitea"
+      * For **URL**, use the URL of the integration on Read the Docs,
+        found on the :guilabel:`Admin` > :guilabel:`Integrations` page
+      * Leave the default **HTTP Method** as POST
+      * For **Content type**, both *application/json* and
+        *application/x-www-form-urlencoded* work
+      * Leave the **Secret** field blank
+      * Select **Choose events**,
+        and mark **Branch or tag creation**, **Branch or tag deletion** and **Push** events
+      * Ensure **Active** is enabled; it is by default
+      * Finish by clicking **Add Webhook**
+      * Test the webhook with :guilabel:`Delivery test`
+
+      Finally, on Read the Docs, check that the warnings have disappeared
+      and the delivery test triggered a build.
+
+      .. _issue #8364: https://github.com/readthedocs/readthedocs.org/issues/8364
 
 
-Manually setting up a git repository
-------------------------------------
+Additional integration
+----------------------
+
+You can configure multiple webhooks.
 
 To manually set up an integration, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
 dashboard page and select the integration type you'd like to add.
