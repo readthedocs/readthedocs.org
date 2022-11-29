@@ -1290,6 +1290,10 @@ class Project(models.Model):
         )
         return queryset
 
+    @property
+    def organization(self):
+        return self.organizations.first()
+
 
 class APIProject(Project):
 

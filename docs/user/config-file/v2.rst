@@ -684,7 +684,7 @@ Do a recursive clone of the submodules.
 search
 ~~~~~~
 
-Settings for more control over :doc:`/server-side-search`.
+Settings for more control over :doc:`/server-side-search/index`.
 
 .. code-block:: yaml
 
