@@ -161,15 +161,6 @@ token, a check will determine if the token is valid and matches the given
 project. If instead an authenticated user is used to make this request, a check
 will be performed to ensure the authenticated user is an owner of the project.
 
-Debugging webhooks
-------------------
-
-If you are experiencing problems with an existing webhook, you may be able to
-use the integration detail page to help debug the issue. Each project
-integration, such as a webhook or the generic API endpoint, stores the HTTP
-exchange that takes place between Read the Docs and the external source. You'll
-find a list of these exchanges in any of the integration detail pages.
-
 Resyncing webhooks
 ------------------
 
@@ -188,6 +179,16 @@ offer a way to check this.
 Troubleshooting
 ---------------
 
+Debugging webhooks
+^^^^^^^^^^^^^^^^^^
+
+If you are experiencing problems with an existing webhook, you may be able to
+use the integration detail page to help debug the issue. Each project
+integration, such as a webhook or the generic API endpoint, stores the HTTP
+exchange that takes place between Read the Docs and the external source. You'll
+find a list of these exchanges in any of the integration detail pages.
+
+
 Webhook activation failed. Make sure you have the necessary permissions
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -197,6 +198,7 @@ In case of GitHub,
 check that you have granted access to the Read the Docs `OAuth App`_ to your organization.
 
 .. _OAuth App: https://github.com/settings/applications
+
 
 My project isn't automatically building
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
