@@ -18,7 +18,7 @@ class DebugToolbarFinder(AppDirectoriesFinder):
     we avoid this issue when running the `admin` instance.
     """
 
-    def __init__(self, app_names=None, *args, **kwargs):
+    def __init__(self, *args, app_names=None, **kwargs):
         app_config = DebugToolbarConfig.create("debug_toolbar")
         self.apps = [app_config.name]
         self.storages = {
