@@ -3,13 +3,10 @@ How to connect your Git repository
 
 In this guide, you will find the simple steps to integrating your Read the Docs project with GitHub, Bitbucket, GitLab, Gitea or any other Git provider that supports our generic API.
 
-To manually set up an integration, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
-dashboard page and select the integration type you'd like to add.
-After you have added the integration, you'll see a link to information about the integration.
-
-As an example, the URL pattern looks like this: *https://readthedocs.org/api/v2/webhook/<project-name>/<id>/*.
-
-Use this URL when setting up a new integration with your provider -- these steps vary depending on the provider.
+.. contents:: Table of contents
+   :local:
+   :backlinks: none
+   :depth: 2
 
 .. note::
 
@@ -20,7 +17,7 @@ Use this URL when setting up a new integration with your provider -- these steps
 .. _webhook-integration-github:
 
 GitHub
-~~~~~~
+------
 
 * Go to the :guilabel:`Settings` page for your **GitHub project**
 * Click :guilabel:`Webhooks` > :guilabel:`Add webhook`
@@ -44,7 +41,7 @@ For a 403 error, it's likely that the Payload URL is incorrect.
 .. _webhook-integration-bitbucket:
 
 Bitbucket
-~~~~~~~~~
+---------
 
 * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` > :guilabel:`Add webhook` page for your project
 * For **URL**, use the URL of the integration on Read the Docs,
@@ -55,7 +52,7 @@ Bitbucket
 .. _webhook-integration-gitlab:
 
 GitLab
-~~~~~~
+------
 
 * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your GitLab project
 * For **URL**, use the URL of the integration on **Read the Docs project**,
@@ -65,7 +62,7 @@ GitLab
 * Finish by clicking **Add Webhook**
 
 Gitea
-~~~~~
+-----
 
 These instructions apply to any Gitea instance.
 
@@ -102,6 +99,19 @@ and the delivery test triggered a build.
 
 .. _issue #8364: https://github.com/readthedocs/readthedocs.org/issues/8364
 
+
+Manually setting up a git repository
+------------------------------------
+
+To manually set up an integration, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
+dashboard page and select the integration type you'd like to add.
+After you have added the integration, you'll see a link to information about the integration.
+
+As an example, the URL pattern looks like this: ``https://readthedocs.org/api/v2/webhook/<project-name>/<id>/*``.
+
+Use this URL when setting up a new integration with your provider ^^ these steps vary depending on the provider.
+
+
 .. _webhook-integration-generic:
 
 Using the generic API integration
@@ -117,7 +127,7 @@ token on the integration details page. The token should be passed in as a
 request parameter, either as form data or as part of JSON data input.
 
 Parameters
-~~~~~~~~~~
+^^^^^^^^^^
 
 This endpoint accepts the following arguments during an HTTP POST:
 
@@ -145,7 +155,7 @@ inside Git_, Subversion_, Mercurial_, or Bazaar_.
 .. _Bazaar: http://wiki.bazaar.canonical.com/BzrHooks
 
 Authentication
-~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^
 
 This endpoint requires authentication. If authenticating with an integration
 token, a check will determine if the token is valid and matches the given
@@ -180,7 +190,7 @@ Troubleshooting
 ---------------
 
 Webhook activation failed. Make sure you have the necessary permissions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If you find this error,
 make sure your user has permissions over the repository.
@@ -190,7 +200,7 @@ check that you have granted access to the Read the Docs `OAuth App`_ to your org
 .. _OAuth App: https://github.com/settings/applications
 
 My project isn't automatically building
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 If your project isn't automatically building, you can check your integration on
 Read the Docs to see the payload sent to our servers. If there is no recent
