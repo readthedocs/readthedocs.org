@@ -271,7 +271,7 @@ of Read the Docs and the larger software documentation ecosystem.
 
 * **Getting involved with Read the Docs**:
   :doc:`/glossary` |
-  :doc:`/gsoc`|
+  :doc:`/gsoc` |
   :doc:`Developer Documentation <rtd-dev:index>`
 
 
