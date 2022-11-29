@@ -545,11 +545,10 @@ class SphinxParser(GenericParser):
     def _parse_domain_tag(self, tag):
         """Returns the text from the description tag of the domain."""
 
-        # remove the 'dl', 'dt' and 'dd' tags from it
-        # because all the 'dd' and 'dt' tags are inside 'dl'
-        # and all 'dl' tags are already captured.
-        nodes_to_be_removed = tag.css('dl') + tag.css('dt') + tag.css('dd')
-        for node in nodes_to_be_removed:
+        # Remove all nested domains,
+        # since they are already parsed separately.
+        nested_domains = self._get_sphinx_domains(tag)
+        for node in nested_domains:
             if tag != node:
                 node.decompose()
 

@@ -67,7 +67,11 @@ orjson
 django-gravatar2
 pytz
 django-kombu
-stripe
+
+# We cannot upgrade it until dj-stripe fixes this issue
+# https://github.com/dj-stripe/dj-stripe/issues/1842
+stripe==4.2.0
+
 regex
 
 # NOTE: djstripe overrides the stripe api version

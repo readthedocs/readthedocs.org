@@ -44,9 +44,9 @@ Use this URL when setting up a new integration with your provider -- these steps
 GitHub
 ~~~~~~
 
-* Go to the :guilabel:`Settings` page for your project
+* Go to the :guilabel:`Settings` page for your **GitHub project**
 * Click :guilabel:`Webhooks` > :guilabel:`Add webhook`
-* For **Payload URL**, use the URL of the integration on Read the Docs,
+* For **Payload URL**, use the URL of the integration on your **Read the Docs project**,
   found on the project's :guilabel:`Admin` > :guilabel:`Integrations` page.
   You may need to prepend *https://* to the URL.
 * For **Content type**, both *application/json* and
@@ -79,8 +79,8 @@ Bitbucket
 GitLab
 ~~~~~~
 
-* Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project
-* For **URL**, use the URL of the integration on Read the Docs,
+* Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your GitLab project
+* For **URL**, use the URL of the integration on **Read the Docs project**,
   found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
 * Leave the default **Push events** selected,
   additionally mark **Tag push events** and **Merge request events**.

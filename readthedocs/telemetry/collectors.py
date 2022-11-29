@@ -263,7 +263,6 @@ class BuildDataCollector:
             "--local",
             "--format",
             "json",
-            "--not-required",
         ]
         code, stdout, _ = self.run(*cmd)
         if code == 0 and stdout:
