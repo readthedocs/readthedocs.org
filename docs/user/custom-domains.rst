@@ -13,7 +13,7 @@ This is great for maintaining a consistent brand for your documentation and appl
 How do custom domains work?
 ---------------------------
 
-To use a custom domain, you enter the domain in your Read the Docs project's administration and update your DNS provider with a new DNS entry.
+To use a custom domain, you enter the domain in your Read the Docs project's :term:`Dashboard` and update your DNS provider with a new DNS entry.
 
 These two actions are all that are needed. Once the DNS record has propagated, Read the Docs automatically issues an SSL certificate through Cloudflare and starts serving your documentation.
 
