@@ -81,12 +81,12 @@ class TestTasks(TestCase):
         kwargs = send_email.call_args_list[0][1]
         self.assertEqual(kwargs["recipient"], self.user.email)
         self.assertTrue(kwargs["subject"].startswith(subject))
-        self.assertIn(self.domain_recently_expired.domain, kwargs["context"]["content"])
+        self.assertIn(self.domain_recently_expired.domain, kwargs["subject"])
 
         kwargs = send_email.call_args_list[1][1]
         self.assertEqual(kwargs["recipient"], self.another_user.email)
         self.assertTrue(kwargs["subject"].startswith(subject))
-        self.assertIn(self.domain_recently_expired.domain, kwargs["context"]["content"])
+        self.assertIn(self.domain_recently_expired.domain, kwargs["subject"])
 
     @mock.patch("readthedocs.notifications.backends.send_email")
     def test_dont_send_email_on_given_days(self, send_email):
@@ -111,15 +111,15 @@ class TestTasks(TestCase):
 
                 kwargs = send_email.call_args_list[0][1]
                 self.assertEqual(kwargs["recipient"], self.user.email)
-                self.assertIn(self.domain_pending.domain, kwargs["context"]["content"])
+                self.assertIn(self.domain_pending.domain, kwargs["subject"])
 
                 kwargs = send_email.call_args_list[1][1]
                 self.assertEqual(kwargs["recipient"], self.user.email)
-                self.assertIn(self.domain_invalid.domain, kwargs["context"]["content"])
+                self.assertIn(self.domain_invalid.domain, kwargs["subject"])
 
                 kwargs = send_email.call_args_list[2][1]
                 self.assertEqual(kwargs["recipient"], self.another_user.email)
-                self.assertIn(self.domain_invalid.domain, kwargs["context"]["content"])
+                self.assertIn(self.domain_invalid.domain, kwargs["subject"])
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)

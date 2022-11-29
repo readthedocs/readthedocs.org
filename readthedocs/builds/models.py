@@ -84,7 +84,6 @@ from readthedocs.projects.constants import (
 )
 from readthedocs.projects.models import APIProject, Project
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.storage import build_environment_storage
 
 log = structlog.get_logger(__name__)
 
@@ -373,11 +372,6 @@ class Version(TimeStampedModel):
         return self.type == BRANCH
 
     @property
-    def supports_wipe(self):
-        """Return True if version is not external."""
-        return self.type != EXTERNAL
-
-    @property
     def is_sphinx_type(self):
         return self.documentation_type in {SPHINX, SPHINX_HTMLDIR, SPHINX_SINGLEHTML}
 
@@ -424,13 +418,6 @@ class Version(TimeStampedModel):
         conf_py_path = os.path.relpath(conf_py_path, checkout_prefix)
         return conf_py_path
 
-    def get_build_path(self):
-        """Return version build path if path exists, otherwise `None`."""
-        path = self.project.checkout_path(version=self.slug)
-        if os.path.exists(path):
-            return path
-        return None
-
     def get_storage_paths(self):
         """
         Return a list of all build artifact storage paths for this version.
@@ -450,10 +437,6 @@ class Version(TimeStampedModel):
             )
 
         return paths
-
-    def get_storage_environment_cache_path(self):
-        """Return the path of the cached environment tar file."""
-        return build_environment_storage.join(self.project.slug, f'{self.slug}.tar')
 
     def get_github_url(
             self,

@@ -21,8 +21,12 @@ class SubscriptionViewTests(TestCase):
 
     def setUp(self):
         self.user = get(User)
-        self.organization = get(Organization, stripe_id='123', owners=[self.user])
-        self.plan = get(Plan, published=True, slug=settings.ORG_DEFAULT_SUBSCRIPTION_PLAN_SLUG)
+        self.organization = get(Organization, stripe_id="123", owners=[self.user])
+        self.plan = get(
+            Plan,
+            published=True,
+            stripe_id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE,
+        )
         self.stripe_subscription = self._create_stripe_subscription(
             customer_id=self.organization.stripe_id,
             subscription_id="sub_a1b2c3d4",
@@ -30,6 +34,7 @@ class SubscriptionViewTests(TestCase):
         self.stripe_customer = self.stripe_subscription.customer
 
         self.organization.stripe_customer = self.stripe_customer
+        self.organization.stripe_subscription = self.stripe_subscription
         self.organization.save()
         self.subscription = get(
             Subscription,
@@ -109,10 +114,12 @@ class SubscriptionViewTests(TestCase):
 
         self.organization.refresh_from_db()
         self.organization.stripe_customer = None
+        self.organization.stripe_subscription = None
         self.organization.save()
         self.subscription.delete()
         self.assertFalse(hasattr(self.organization, 'subscription'))
         self.assertIsNone(self.organization.stripe_customer)
+        self.assertIsNone(self.organization.stripe_subscription)
 
         resp = self.client.get(reverse('subscription_detail', args=[self.organization.slug]))
         self.assertEqual(resp.status_code, 200)
@@ -121,6 +128,7 @@ class SubscriptionViewTests(TestCase):
         self.assertEqual(subscription.status, 'active')
         self.assertEqual(subscription.stripe_id, 'sub_a1b2c3')
         self.assertEqual(self.organization.stripe_customer, stripe_customer)
+        self.assertEqual(self.organization.stripe_subscription, stripe_subscription)
         customer_retrieve_mock.assert_called_once()
         customer_create_mock.assert_not_called()
 
@@ -142,12 +150,14 @@ class SubscriptionViewTests(TestCase):
         # When stripe_id is None, a new customer is created.
         self.organization.stripe_id = None
         self.organization.stripe_customer = None
+        self.organization.stripe_subscription = None
         self.organization.save()
         self.subscription.delete()
         self.organization.refresh_from_db()
         self.assertFalse(hasattr(self.organization, 'subscription'))
         self.assertIsNone(self.organization.stripe_id)
         self.assertIsNone(self.organization.stripe_customer)
+        self.assertIsNone(self.organization.stripe_subscription)
 
         customer_retrieve_mock.reset_mock()
         resp = self.client.get(reverse('subscription_detail', args=[self.organization.slug]))
@@ -158,6 +168,7 @@ class SubscriptionViewTests(TestCase):
         self.assertEqual(subscription.stripe_id, 'sub_a1b2c3')
         self.assertEqual(self.organization.stripe_id, 'cus_a1b2c3')
         self.assertEqual(self.organization.stripe_customer, stripe_customer)
+        self.assertEqual(self.organization.stripe_subscription, stripe_subscription)
         customer_create_mock.assert_called_once()
         customer_retrieve_mock.assert_not_called()
 

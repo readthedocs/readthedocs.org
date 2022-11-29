@@ -18,12 +18,8 @@ from readthedocs.builds.models import (
 from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.projects.models import (
-    Domain,
-    EnvironmentVariable,
-    Project,
-    WebHook,
-)
+from readthedocs.projects.models import Domain, EnvironmentVariable, Project, WebHook
+from readthedocs.redirects.models import Redirect
 from readthedocs.rtd_tests.utils import create_user
 
 
@@ -187,24 +183,30 @@ class ProjectMixin(URLAccessMixin):
             response_headers={'foo': 'bar'},
             status_code=200,
         )
+        self.redirect = get(
+            Redirect,
+            project=self.pip,
+            redirect_type="sphinx_html",
+        )
         self.default_kwargs = {
-            'project_slug': self.pip.slug,
-            'subproject_slug': self.subproject.slug,
-            'version_slug': self.pip.versions.all()[0].slug,
-            'filename': 'index.html',
-            'type_': 'pdf',
-            'tag': self.tag.slug,
-            'child_slug': self.subproject.slug,
-            'build_pk': self.build.pk,
-            'domain_pk': self.domain.pk,
-            'integration_pk': self.integration.pk,
-            'exchange_pk': self.integration_exchange.pk,
-            'environmentvariable_pk': self.environment_variable.pk,
-            'automation_rule_pk': self.automation_rule.pk,
-            'steps': 1,
-            'invalid_project_slug': 'invalid_slug',
-            'webhook_pk': self.webhook.pk,
-            'webhook_exchange_pk': self.webhook_exchange.pk,
+            "project_slug": self.pip.slug,
+            "subproject_slug": self.subproject.slug,
+            "version_slug": self.pip.versions.all()[0].slug,
+            "filename": "index.html",
+            "type_": "pdf",
+            "tag": self.tag.slug,
+            "child_slug": self.subproject.slug,
+            "build_pk": self.build.pk,
+            "domain_pk": self.domain.pk,
+            "redirect_pk": self.redirect.pk,
+            "integration_pk": self.integration.pk,
+            "exchange_pk": self.integration_exchange.pk,
+            "environmentvariable_pk": self.environment_variable.pk,
+            "automation_rule_pk": self.automation_rule.pk,
+            "steps": 1,
+            "invalid_project_slug": "invalid_slug",
+            "webhook_pk": self.webhook.pk,
+            "webhook_exchange_pk": self.webhook_exchange.pk,
         }
 
 
@@ -218,10 +220,11 @@ class PublicProjectMixin(ProjectMixin):
     }
     response_data = {
         # Public
-        '/projects/': {'status_code': 301},
-        '/projects/pip/downloads/pdf/latest/': {'status_code': 200},
-        '/projects/pip/badge/': {'status_code': 200},
-        '/projects/invalid_slug/': {'status_code': 302},
+        "/projects/": {"status_code": 301},
+        "/projects/pip/downloads/pdf/latest/": {"status_code": 200},
+        "/projects/pip/badge/": {"status_code": 200},
+        "/projects/invalid_slug/": {"status_code": 302},
+        "/projects/pip/search/": {"status_code": 302},
     }
 
     def test_public_urls(self):
@@ -277,28 +280,31 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/subprojects/delete/sub/': {'status_code': 302},
 
         # 405's where we should be POST'ing
-        '/dashboard/pip/users/delete/': {'status_code': 405},
-        '/dashboard/pip/notifications/delete/': {'status_code': 405},
-        '/dashboard/pip/redirects/delete/': {'status_code': 405},
-        '/dashboard/pip/subprojects/sub/delete/': {'status_code': 405},
-        '/dashboard/pip/integrations/sync/': {'status_code': 405},
-        '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
-        '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
-        '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
-        '/dashboard/pip/translations/delete/sub/': {'status_code': 405},
-        '/dashboard/pip/version/latest/delete_html/': {'status_code': 405},
-        '/dashboard/pip/rules/{automation_rule_id}/delete/': {'status_code': 405},
-        '/dashboard/pip/rules/{automation_rule_id}/move/{steps}/': {'status_code': 405},
-        '/dashboard/pip/webhooks/{webhook_id}/delete/': {'status_code': 405},
+        "/dashboard/pip/users/delete/": {"status_code": 405},
+        "/dashboard/pip/notifications/delete/": {"status_code": 405},
+        "/dashboard/pip/redirects/{redirect_pk}/delete/": {"status_code": 405},
+        "/dashboard/pip/subprojects/sub/delete/": {"status_code": 405},
+        "/dashboard/pip/integrations/sync/": {"status_code": 405},
+        "/dashboard/pip/integrations/{integration_id}/sync/": {"status_code": 405},
+        "/dashboard/pip/integrations/{integration_id}/delete/": {"status_code": 405},
+        "/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/": {
+            "status_code": 405
+        },
+        "/dashboard/pip/translations/delete/sub/": {"status_code": 405},
+        "/dashboard/pip/version/latest/delete_html/": {"status_code": 405},
+        "/dashboard/pip/rules/{automation_rule_id}/delete/": {"status_code": 405},
+        "/dashboard/pip/rules/{automation_rule_id}/move/{steps}/": {"status_code": 405},
+        "/dashboard/pip/webhooks/{webhook_id}/delete/": {"status_code": 405},
     }
 
     def get_url_path_ctx(self):
         return {
-            'integration_id': self.integration.id,
-            'environmentvariable_id': self.environment_variable.id,
-            'automation_rule_id': self.automation_rule.id,
-            'webhook_id': self.webhook.id,
-            'steps': 1,
+            "integration_id": self.integration.id,
+            "environmentvariable_id": self.environment_variable.id,
+            "automation_rule_id": self.automation_rule.id,
+            "webhook_id": self.webhook.id,
+            "redirect_pk": self.redirect.pk,
+            "steps": 1,
         }
 
     def login(self):
@@ -322,19 +328,21 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         '/dashboard/pip/': {'status_code': 301},
 
         # 405's where we should be POST'ing
-        '/dashboard/pip/users/delete/': {'status_code': 405},
-        '/dashboard/pip/notifications/delete/': {'status_code': 405},
-        '/dashboard/pip/redirects/delete/': {'status_code': 405},
-        '/dashboard/pip/subprojects/sub/delete/': {'status_code': 405},
-        '/dashboard/pip/integrations/sync/': {'status_code': 405},
-        '/dashboard/pip/integrations/{integration_id}/sync/': {'status_code': 405},
-        '/dashboard/pip/integrations/{integration_id}/delete/': {'status_code': 405},
-        '/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/': {'status_code': 405},
-        '/dashboard/pip/translations/delete/sub/': {'status_code': 405},
-        '/dashboard/pip/version/latest/delete_html/': {'status_code': 405},
-        '/dashboard/pip/rules/{automation_rule_id}/delete/': {'status_code': 405},
-        '/dashboard/pip/rules/{automation_rule_id}/move/{steps}/': {'status_code': 405},
-        '/dashboard/pip/webhooks/{webhook_id}/delete/': {'status_code': 405},
+        "/dashboard/pip/users/delete/": {"status_code": 405},
+        "/dashboard/pip/notifications/delete/": {"status_code": 405},
+        "/dashboard/pip/redirects/{redirect_pk}/delete/": {"status_code": 405},
+        "/dashboard/pip/subprojects/sub/delete/": {"status_code": 405},
+        "/dashboard/pip/integrations/sync/": {"status_code": 405},
+        "/dashboard/pip/integrations/{integration_id}/sync/": {"status_code": 405},
+        "/dashboard/pip/integrations/{integration_id}/delete/": {"status_code": 405},
+        "/dashboard/pip/environmentvariables/{environmentvariable_id}/delete/": {
+            "status_code": 405
+        },
+        "/dashboard/pip/translations/delete/sub/": {"status_code": 405},
+        "/dashboard/pip/version/latest/delete_html/": {"status_code": 405},
+        "/dashboard/pip/rules/{automation_rule_id}/delete/": {"status_code": 405},
+        "/dashboard/pip/rules/{automation_rule_id}/move/{steps}/": {"status_code": 405},
+        "/dashboard/pip/webhooks/{webhook_id}/delete/": {"status_code": 405},
     }
 
     # Filtered out by queryset on projects that we don't own.
@@ -342,11 +350,12 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
 
     def get_url_path_ctx(self):
         return {
-            'integration_id': self.integration.id,
-            'environmentvariable_id': self.environment_variable.id,
-            'automation_rule_id': self.automation_rule.id,
-            'webhook_id': self.webhook.id,
-            'steps': 1,
+            "integration_id": self.integration.id,
+            "environmentvariable_id": self.environment_variable.id,
+            "automation_rule_id": self.automation_rule.id,
+            "webhook_id": self.webhook.id,
+            "redirect_pk": self.redirect.pk,
+            "steps": 1,
         }
 
     def login(self):

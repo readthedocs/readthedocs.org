@@ -347,7 +347,11 @@ Project create
             },
             "homepage": "http://template.readthedocs.io/",
             "programming_language": "py",
-            "language": "es"
+            "language": "es",
+            "tags": [
+                "automation",
+                "sphinx"
+            ]
         }
 
     **Example response**:
@@ -413,6 +417,10 @@ Project update
             "language": "ja",
             "programming_language": "py",
             "homepage": "https://readthedocs.org/",
+            "tags" : [
+                "extension",
+                "mkdocs"
+            ]
             "default_version": "v0.27.0",
             "default_branch": "develop",
             "analytics_code": "UA000000",
@@ -421,6 +429,11 @@ Project update
             "external_builds_enabled": true,
 
         }
+
+    .. note::
+
+        Adding ``tags`` will replace existing tags with the new list,
+        and if omitted won't change the tags.
 
     :statuscode 204: Updated successfully
 
@@ -1869,4 +1882,4 @@ Embed
 Additional APIs
 ---------------
 
-- :ref:`Server side search API <server-side-search:api>`.
+- :doc:`Server side search API </server-side-search/api>`.

@@ -68,10 +68,10 @@ docset = get_project(multiproject_projects)
 templates_path = ["_templates"]
 
 master_doc = "index"
-copyright = "2010, Read the Docs, Inc & contributors"
-version = "8.4.3"
+copyright = "Read the Docs, Inc & contributors"
+version = "8.9.0"
 release = version
-exclude_patterns = ["_build"]
+exclude_patterns = ["_build", "shared"]
 default_role = "obj"
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.10/", None),
@@ -129,10 +129,6 @@ man_pages = [
         ["Eric Holscher, Charlie Leifer, Bobby Grace"],
         1,
     )
-]
-
-exclude_patterns = [
-    # 'api' # needed for ``make gettext`` to not die.
 ]
 
 language = "en"
