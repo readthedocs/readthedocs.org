@@ -9,7 +9,7 @@
 Connecting git repositories
 ===========================
 
-Read the Docs is a *Continuous Integration* platform for your git repository.
+Read the Docs is a *Continuous Documentation Deployment* platform for your software project.
 Every time you change something in your documentation, Read the Docs will detect your change and build your documentation.
 This happens using *webhooks*.
 
