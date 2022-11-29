@@ -161,13 +161,6 @@ token, a check will determine if the token is valid and matches the given
 project. If instead an authenticated user is used to make this request, a check
 will be performed to ensure the authenticated user is an owner of the project.
 
-Resyncing webhooks
-------------------
-
-It might be necessary to re-establish a webhook if you are noticing problems.
-To resync a webhook from Read the Docs, visit the integration detail page and
-follow the directions for re-syncing your repository webhook.
-
 Payload validation
 ------------------
 
