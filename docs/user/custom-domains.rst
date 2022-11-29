@@ -31,11 +31,10 @@ What to consider
 
 Some Open Source projects have seen their domains expire. Even prominent ones.
 **It's important that you give the responsibility for managing your domain to someone reliable in your organization.**
-Your canonical domain will feature in search indexing, so if you lose the domain your users could be sent to a page owned by someone else.
 
-You can choose if the domain is just an alias.
 The **canonical domain** feature allows you to have several domains and the canonical domain will be indexed by search engines.
 The domain that you choose as your canonical domain is by far the most important one.
+If you lose the canonical domain, someone else can set up a website that search results will end up referring to.
 
 .. seealso::
 
