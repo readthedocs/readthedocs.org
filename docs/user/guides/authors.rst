@@ -17,3 +17,4 @@ and :doc:`/intro/getting-started-with-mkdocs`.
    Link to external projects (Intersphinx) <intersphinx>
    jupyter
    Migrate from rST to MyST <migrate-rest-myst>
+   enable-offline-formats
