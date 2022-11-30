@@ -25,7 +25,10 @@ Many academic and scientific projects benefit from these additional formats.
 
 The other value is having the entire documentation in a single file.
 You can send a user an email with a single PDF or ePub and they'll have all the docs in one place.
-This is useful for archiving documentation, as well as distributing it in other scenarios.
+This makes your documentation project easy to redistribute or archive. 
+Your entire documentation can now be delivered as an email attachment, 
+uploaded to an eReader,
+or accessed and searched locally without online latency.
 
 Accessing offline formats
 -------------------------
