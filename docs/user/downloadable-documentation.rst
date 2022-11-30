@@ -7,13 +7,21 @@ Read the Docs supports building multiple offline formats:
 * ePub
 * Zipped HTML
 
-This means that every commit that you push will automatically update your these offline formats as well as your HTML.
+This means that every commit that you push will automatically update your offline formats as well as your documentation website.
 
 Use cases
 ---------
 
 This functionality is great for anyone who needs documentation when they aren't connected to the internet.
 Users who are about to get on a plane can grab a PDF and have the entire doc set ready for their trip.
+
+PDF versions are also helpful to automatically create printable versions of your documentation. 
+Using Sphinx, 
+the source of your documentation will be structured to support both online and offline formats. 
+This means that a documentation project displayed as a website can be downloaded as a PDF, 
+ready to be printed as a report or a book.
+
+Many academic and scientific projects benefit from these additional formats.
 
 The other value is having the entire documentation in a single file.
 You can send a user an email with a single PDF or ePub and they'll have all the docs in one place.
