@@ -209,16 +209,19 @@ linkcheck_ignore = [
 ]
 
 
-# Config values for sphinxcontrib-mermaid
+# Config values for sphinxcontrib-mermaid are handled differently
+# If running on a local environment, we render "raw" and bundle mermaid-js from CDN to render diagrams in the browser.
+# This is to avoid requiring the @mermaid-js/mermaid-cli package
+if os.environ.get("READTHEDOCS"):
 
-# Write SVGs, those we can style via CSS! (we aren't doing that yet)
-mermaid_output_format = "svg"
+    # Write SVGs, those we can style via CSS! (we aren't doing that yet)
+    mermaid_output_format = "svg"
 
-# Do not load javascript from CDN
-mermaid_version = ""
+    # Do not load javascript from CDN
+    mermaid_version = ""
 
-# Nothing to init, we don't build raw diagrams
-mermaid_init_js = ""
+    # Nothing to init, we don't build raw diagrams
+    mermaid_init_js = ""
 
 # Use transparent backgrounds
 mermaid_params = ["--backgroundColor", "transparent"]

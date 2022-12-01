@@ -19,17 +19,25 @@ These two actions are all that are needed. Once the DNS record has propagated, R
 
 .. mermaid::
 
-   sequenceDiagram
-      participant Alice
-      participant Bob
-      Alice->John: Hello John, how are you?
-      loop Healthcheck
-          John->John: Fight against hypochondria
-      end
-      Note right of John: Rational thoughts <br/>prevail...
-      John-->Alice: Great!
-      John->Bob: How about you?
-      Bob-->John: Jolly good!
+    graph LR
+        subgraph rtd [On Read the Docs]
+          A(Add docs.example.com as Custom domain)
+        end
+        subgraph dns [On your domain's DNS administration]
+          B(Edit DNS entry for docs.example.com)
+        end
+
+        A & B-->C(fa:fa-spinner Wait for DNS propogation)
+
+        direction TB
+        subgraph automatic [Automatic handling]
+          direction TB
+          D(SSL Certificate is issued)
+          D-->E(Resolving docs.example.com now works)
+        end
+
+        C-->automatic
+
 
 Your documentation can have multiple secondary domains but only one **canonical** domain name.
 Additional domains or subdomains will redirect to the canonical domain.
