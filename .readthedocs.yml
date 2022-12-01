@@ -14,7 +14,6 @@ build:
   os: ubuntu-22.04
   tools:
     python: "3.10"
-    nodejs: "18"
   jobs:
     post_checkout:
       # https://docs.readthedocs.io/en/stable/build-customization.html#cancel-build-based-on-a-condition
@@ -29,9 +28,6 @@ build:
           echo "No changes to docs/ - exiting the build.";
           exit 183;
         fi
-    post_install:
-      # Install mmdc needed to render SVG/PNG mermaid diagrams for sphinxcontrib-mermaid
-      - npm install -g @mermaid-js/mermaid-cli
 
 search:
   ranking:
