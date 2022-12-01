@@ -19,21 +19,22 @@ These two actions are all that are needed. Once the DNS record has propagated, R
 
 .. mermaid::
 
-    graph LR
+    graph TD
         subgraph rtd [On Read the Docs]
-          A(Add docs.example.com as Custom domain)
+          A(fa:fa-pencil Add docs.example.com as Custom domain)
         end
         subgraph dns [On your domain's DNS administration]
-          B(Edit DNS entry for docs.example.com)
+          B(fa:fa-pencil Edit DNS entry for docs.example.com)
         end
 
-        A & B-->C(fa:fa-spinner Wait for DNS propogation)
+        A & B-->C(fa:fa-spinner Wait for DNS propogation<br>Usually just a few minutes)
 
-        direction TB
-        subgraph automatic [Automatic handling]
+        direction LR
+        subgraph automatic [The rest is handled automatically]
           direction TB
-          D(SSL Certificate is issued)
-          D-->E(Resolving docs.example.com now works)
+          D(Visit https://docs.example.com)
+          D-->E(fa:fa-lock SSL Certificate issued<br>dynamically)
+          E-->F(fa:fa-check Read the Docs matches<br>docs.example.com with<br>your project<br>)
         end
 
         C-->automatic
