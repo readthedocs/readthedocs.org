@@ -13,14 +13,17 @@ This is great for maintaining a consistent brand for your documentation and appl
 .. seealso::
 
     :doc:`/guides/custom-domains`
-        Information on creating and managing custom domains, and common configurations you might use to set up your domain
+        Information on creating and managing custom domains,
+        and common configurations you might use to set up your domain
 
-How do custom domains work?
----------------------------
+How custom domains work
+-----------------------
 
 To use a custom domain, you enter the domain in your Read the Docs project's :guilabel:`Admin` and update your DNS provider with a new DNS entry.
 
-These two actions are all that are needed. Once the DNS record has propagated, Read the Docs automatically issues an SSL certificate through Cloudflare and starts serving your documentation.
+These two actions are all that are needed from you.
+Once the DNS record has propagated,
+Read the Docs automatically issues an SSL certificate through Cloudflare and starts serving your documentation.
 
 .. mermaid::
 
@@ -58,12 +61,14 @@ You can find step-by-step instructions for this in :doc:`/guides/custom-domains`
 Considerations for custom domain usage
 --------------------------------------
 
-Some Open Source projects have seen their domains expire. Even prominent ones.
+Some Open Source projects have seen their domains expire.
+Even prominent ones.
 **It's important that you give the responsibility for managing your domain to someone reliable in your organization.**
 
 The **canonical domain** feature allows you to have several domains and the canonical domain will be indexed by search engines.
 The domain that you choose as your canonical domain is by far the most important one.
-If you lose the canonical domain, someone else can set up a website that search results will end up referring to.
+If you lose the canonical domain,
+someone else can set up a website that search results will end up referring to.
 
 
 Canonical URLs
