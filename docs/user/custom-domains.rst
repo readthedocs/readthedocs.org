@@ -22,12 +22,13 @@ These two actions are all that are needed. Once the DNS record has propagated, R
     graph TD
         subgraph rtd [On Read the Docs]
           A(fa:fa-pencil Add docs.example.com as Custom domain)
+          A-->AA(fa:fa-spinner Your project is rebuilt with<br>docs.example.com as a canonical domain)
         end
         subgraph dns [On your domain's DNS administration]
           B(fa:fa-pencil Edit DNS entry for docs.example.com)
         end
 
-        A & B-->C(fa:fa-spinner Wait for DNS propogation<br>Usually just a few minutes)
+        rtd & dns-->C(fa:fa-spinner Wait for DNS propogation<br>Usually just a few minutes)
 
         direction LR
         subgraph automatic [The rest is handled automatically]
@@ -49,8 +50,8 @@ This is all that's needed for a web browser to resolve your domain name to Read 
 You can find step-by-step instructions for this in :doc:`/guides/custom-domains`.
 
 
-What to consider
-----------------
+Considerations for custom domain usage
+--------------------------------------
 
 Some Open Source projects have seen their domains expire. Even prominent ones.
 **It's important that you give the responsibility for managing your domain to someone reliable in your organization.**
