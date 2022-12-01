@@ -15,6 +15,7 @@ git+https://github.com/readthedocs/sphinx-hoverxref
 # Docs
 sphinxemoji==0.2.0
 sphinxcontrib-httpdomain==1.8.0
+sphinxcontrib-mermaid>=0.7.1,<0.8
 sphinx-prompt==1.4.0
 sphinx-notfound-page==0.8
 sphinx-autobuild==2021.3.14

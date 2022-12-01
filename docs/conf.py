@@ -34,6 +34,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.httpdomain",
+    "sphinxcontrib.mermaid",
     "sphinxcontrib.video",
     "djangodocs",
     "doc_extensions",
@@ -206,3 +207,18 @@ linkcheck_ignore = [
     # This page is under login
     r"https://readthedocs\.org/accounts/gold",
 ]
+
+
+# Config values for sphinxcontrib-mermaid
+
+# Write SVGs, those we can style via CSS! (we aren't doing that yet)
+mermaid_output_format = "svg"
+
+# Do not load javascript from CDN
+mermaid_version = ""
+
+# Nothing to init, we don't build raw diagrams
+mermaid_init_js = ""
+
+# Use transparent backgrounds
+mermaid_params = ["--backgroundColor", "transparent"]
