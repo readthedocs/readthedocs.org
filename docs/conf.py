@@ -160,8 +160,11 @@ hoverxref_auto_ref = True
 hoverxref_domains = ["py"]
 hoverxref_roles = [
     "option",
-    "doc",  # Documentation pages
-    "term",  # Glossary terms
+    # Documentation pages
+    # Not supported yet: https://github.com/readthedocs/sphinx-hoverxref/issues/18
+    "doc",
+    # Glossary terms
+    "term",
 ]
 hoverxref_role_types = {
     "mod": "modal",  # for Python Sphinx Domain
