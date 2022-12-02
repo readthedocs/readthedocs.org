@@ -82,4 +82,4 @@ someone else can set up a website that search results will end up referring to.
    Therefore, it's important to ensure that incoming links and search engine results point to the canonical URL of the resource
    and not a specific version that becomes outdated.
 
-   See more: :doc:`/canonical-urls`
+   To learn more about canonical URLs, see: :doc:`/canonical-urls`
