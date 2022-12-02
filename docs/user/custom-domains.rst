@@ -1,8 +1,8 @@
 Custom Domains
 ==============
 
-Custom domains allow you to serve your documentation from your own domain.
-For instance, this could be ``docs.example.com``.
+You can serve your documentation project from your own domain,
+for instance ``docs.example.com``.
 This is great for maintaining a consistent brand for your product and its documentation.
 
 *By default*, your documentation is served from a Read the Docs :ref:`subdomain <hosting:subdomain support>` using the project's :term:`slug`:
