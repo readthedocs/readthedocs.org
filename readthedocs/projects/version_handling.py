@@ -3,11 +3,7 @@ import unicodedata
 
 from packaging.version import InvalidVersion, Version
 
-from readthedocs.builds.constants import (
-    LATEST_VERBOSE_NAME,
-    STABLE_VERBOSE_NAME,
-    TAG,
-)
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME, TAG
 from readthedocs.vcs_support.backends import backend_cls
 
 
