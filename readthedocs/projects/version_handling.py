@@ -138,25 +138,34 @@ def determine_stable_version(version_list):
     :param version_list: list of versions
     :type version_list: list(readthedocs.builds.models.Version)
 
-    :returns: version considered the most recent stable one or ``None`` if there
-              is no stable version in the list
+    :returns: version considered the most recent stable one, the latest
+              pre-release if there is no stable version in the list or
+              ``None`` if there are no versions in the list
 
     :rtype: readthedocs.builds.models.Version
     """
     versions = sort_versions(version_list)
-    versions = [
-        (version_obj, comparable)
+
+    if not versions:
+        # No versions, so no info we can give
+        return None
+
+    stable_versions = [
+        version_obj
         for version_obj, comparable in versions
         if not comparable.is_prerelease
     ]
 
-    if versions:
+    if stable_versions:
         # We take preference for tags over branches. If we don't find any tag,
         # we just return the first branch found.
-        for version_obj, comparable in versions:
+        for version_obj in stable_versions:
             if version_obj.type == TAG:
                 return version_obj
 
-        version_obj, comparable = versions[0]
-        return version_obj
-    return None
+        return stable_versions[0]
+
+    # There are no stable versions, so we just treat the latest pre-release as
+    # the stable one.
+    version_obj, _ = versions[0]
+    return version_obj
