@@ -57,20 +57,21 @@ you can download the Read the Docs documentation in the following formats:
 Continue learning
 -----------------
 
-Downloadable documentation formats are built by your documentation framework. 
-They are then published by Read the Docs and included in your :term:`Flyout menu`. 
+Downloadable documentation formats are built by your documentation framework.
+They are then published by Read the Docs and included in your :term:`Flyout menu`.
 Therefore, it's your framework that decides exactly how each output is built and which formats are supported:
 
 Sphinx
-   All output formats are built mostly lossless from the documentation source, meaning that your documentation source (reStructuredText or Markdown/MyST) is built from scratch for each output format.
+   All output formats are built mostly lossless from the documentation source,
+   meaning that your documentation source (reStructuredText or Markdown/MyST) is built from scratch for each output format.
 
 MkDocs and Docsify + more
-   The common case for most documentation frameworks is that several alternative extensions exist supporting various output formats. 
+   The common case for most documentation frameworks is that several alternative extensions exist supporting various output formats.
    Most of the extensions export the HTML outputs as another format (for instance PDF) through a conversion process.
 
-Because Sphinx supports the generation of downloadable formats through an official process, 
-we are also able to support it officially. 
-Other alternatives can also work, 
+Because Sphinx supports the generation of downloadable formats through an official process,
+we are also able to support it officially.
+Other alternatives can also work,
 provided that you identify which extension you want to use and configure the environment for it to run.
 **Other formats aren't natively supported by Read the Docs,
 but support is coming soon.**
