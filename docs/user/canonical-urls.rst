@@ -39,7 +39,7 @@ The canonical URL takes the following into account:
 For example, if you have a project named ``example-docs``
 with a custom domain ``https://docs.example.com``,
 then your documentation will be served at ``https://example-docs.readthedocs.io`` and ``https://docs.example.com``.
-Without your documentation website defining its canonical URL, a search engine like Google will index both domains.
+Without specifying a canonical URL, a search engine like Google will index both domains.
 
 You'll want to use ``https://docs.example.com`` as your canonical domain.
 This means that when Google indexes a page like ``https://example-docs.readthedocs.io/en/latest/``,
