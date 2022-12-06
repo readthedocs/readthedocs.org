@@ -3,11 +3,11 @@ Canonical URLs
 
 A `canonical URL`_
 allows you to specify the preferred version of a web page to prevent duplicated content.
-They as a final destination by:
+Here are some examples of when a canonical URL is used:
 
-- Search engines to link users to the correct
-  version and domain of your documentation.
-- Many popular chat clients and social media networks that generate link previews.
+- Search engines use your canonical URL to link users to the correct version and domain of your documentation.
+- Many popular chat clients and social media networks generate link previews,
+  using your canonical URL as the final destination.
 
 If canonical URLs aren't used,
 it's easy for outdated documentation to be the top search result for various pages in your documentation.
@@ -16,6 +16,16 @@ but generally people finding outdated documentation is a big problem,
 and this is one of the suggested ways to solve it from search engines.
 
 .. _canonical URL: https://developers.google.com/search/docs/advanced/crawling/consolidate-duplicate-urls
+
+.. tip::
+
+   In most cases, Sphinx projects will automatically generate a Canonical URL.
+   Most Sphinx users do not need to take further action.
+
+.. seealso::
+
+   :doc:`/guides/canonical-urls`
+      More information on how to enable canonical URLs in your project.
 
 How Read the Docs generates canonical URLs
 ------------------------------------------
