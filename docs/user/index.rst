@@ -4,6 +4,11 @@ Read the Docs: Documentation Simplified
 .. meta::
    :description lang=en: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.
 
+.. Adds a hidden link for the purpose of validating Read the Docs' Mastodon profile
+.. raw:: html
+
+   <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
+
 `Read the Docs`_ simplifies software documentation
 by building, versioning, and hosting of your docs, automatically.
 This enables many "docs like code" workflows,
@@ -110,7 +115,7 @@ and some of the core features of Read the Docs.
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
-  :doc:`/server-side-search` |
+  :doc:`/server-side-search/index` |
   :doc:`/analytics` |
   :doc:`/pull-requests` |
   :doc:`/build-notifications` |
@@ -142,7 +147,7 @@ and some of the core features of Read the Docs.
    /versions
    /downloadable-documentation
    /hosting
-   /server-side-search
+   /server-side-search/index
    /analytics
    /pull-requests
    /security-log
@@ -176,7 +181,6 @@ and how to write successful documentation.
   :doc:`Manage Custom Domains </guides/custom-domains>` |
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
-  :doc:`/guides/advanced-search` |
   :doc:`/guides/private-submodules` |
   Setup Build Notifications <build-notifications> |
   :doc:`More guides for administrators </guides/administrators>`
@@ -292,7 +296,7 @@ of Read the Docs and the larger software documentation ecosystem.
 
 * **Getting involved with Read the Docs**:
   :doc:`/glossary` |
-  :doc:`/gsoc`|
+  :doc:`/gsoc` |
   :doc:`Developer Documentation <rtd-dev:index>`
 
 
