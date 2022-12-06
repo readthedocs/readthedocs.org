@@ -31,6 +31,12 @@ Glossary
       and hypens. You can retreive your project or version slugs from
       :doc:`our API <api/v3>`.
 
+   subproject
+      Project A can be configured such that when requesting a URL ``/<subproject-slug>``,
+      the root of Project B is returned.
+      In this case, *Project B* is the subproject.
+      Read more in :doc:`/subprojects`.
+
    root URL
       Home URL of your documentation without the ``/<lang>`` and ``/<version>`` segments.
       For projects without custom domains, the one ending in ``.readthedocs.io/``
