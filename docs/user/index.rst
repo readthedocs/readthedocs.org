@@ -77,6 +77,7 @@ to help you create fantastic documentation for your project.
    :caption: Explanation
 
    /build-notifications
+   /downloadable-documentation
 
 
 .. toctree::
@@ -145,7 +146,6 @@ and some of the core features of Read the Docs.
    /integrations
    /custom-domains
    /versions
-   /downloadable-documentation
    /hosting
    /server-side-search/index
    /analytics
