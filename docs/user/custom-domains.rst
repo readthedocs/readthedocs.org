@@ -64,7 +64,7 @@ and therefore the response times are unaffected as the delivery of resources hap
 Considerations for custom domain usage
 --------------------------------------
 
-Some Open Source projects have seen their domains expire.
+Some open source projects have seen their domains expire.
 Even prominent ones.
 **It's important that you give the responsibility for managing your domain to someone reliable in your organization.**
 
