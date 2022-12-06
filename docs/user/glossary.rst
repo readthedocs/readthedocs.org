@@ -33,8 +33,8 @@ Glossary
 
    subproject
       Project A can be configured such that when requesting a URL ``/<subproject-slug>``,
-      the root of Project B is returned.
-      In this case, *Project B* is the subproject.
+      the root of project B is returned.
+      In this case, *project B* is the subproject.
       Read more in :doc:`/subprojects`.
 
    root URL

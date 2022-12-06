@@ -51,11 +51,11 @@ We support CDNs on both of our sites:
       we offer a CDN as part of our **Pro plan** and above.
       Please contact support@readthedocs.com to discuss how we can enable this for you.
 
-      We bust the cache on the CDN when the following actions happen:
+      We invalidate and refresh the cache on the CDN when the following actions happen:
 
-      * Your Project is saved
-      * Your Domain is saved
-      * A new version is built
+      * Your project is saved
+      * Your domain is saved
+      * A version or branch is built
 
 .. _Cloudflare: https://www.cloudflare.com/
 

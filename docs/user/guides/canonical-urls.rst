@@ -1,4 +1,4 @@
-How to enable Canonical URLs
+How to Enable Canonical URLs
 ============================
 
 In this guide, we introduce relevant settings for enabling canonical URLs in popular documentation frameworks.
