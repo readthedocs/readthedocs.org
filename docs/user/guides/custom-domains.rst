@@ -75,7 +75,7 @@ For both |org_brand| and |com_brand|, HSTS and other custom headers can be set u
 We always return the HSTS header with a max-age of at least one year
 for our own domains including ``*.readthedocs.io``, ``*.readthedocs-hosted.com``, ``readthedocs.org`` and ``readthedocs.com``.
 
-.. sealso:
+.. note::
 
    Please contact :doc:`/support` if you want to add a custom header to your domain.
 
