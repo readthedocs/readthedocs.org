@@ -28,7 +28,27 @@ MkDocs
 For :doc:`MkDocs </intro/getting-started-with-mkdocs>` we do not define your canonical domain automatically,
 but you can use the site_url_ setting to set a similar value.
 
+In your ``mkdocs.yml``, define the following:
+
+.. code-block:: yaml
+
+   # Canonical URL, adjust as need with respect to your slug, language,
+   # default branch and if you use a custom domain.
+   site_url: https://<slug>.readthedocs.io/en/stable/
+
+Note that this will define the same canonical URL for all your branches and versions.
+According to MkDocs, defining site_url_ only affects the canonical URL of a website.
+
+.. note::
+
+   2 know issues are currently making it impossible to use `environment variables in MkDocs configuration`_.
+   Once these issues are solved, it will be easier.
+
+   - Support for ``!ENV``: :rtd-issue:`8529`
+   - Add environment variable for canonical URL: :rtd-issue:`9781`
+
 .. _site_url: https://www.mkdocs.org/user-guide/configuration/#site_url
+.. _environment variables in MkDocs configuration: https://www.mkdocs.org/user-guide/configuration/#environment-variables
 
 .. warning::
 
