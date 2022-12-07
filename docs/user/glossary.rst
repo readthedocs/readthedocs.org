@@ -32,7 +32,7 @@ Glossary
       :doc:`our API <api/v3>`.
 
    subproject
-      Project A can be configured such that when requesting a URL ``/<subproject-slug>``,
+      Project A can be configured such that when requesting a URL ``/projects/<subproject-slug>``,
       the root of project B is returned.
       In this case, *project B* is the subproject.
       Read more in :doc:`/subprojects`.

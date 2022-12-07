@@ -36,14 +36,14 @@ Read the Docs automatically issues an SSL certificate through Cloudflare and sta
           B(fa:fa-pencil Edit DNS entry for docs.example.com)
         end
 
-        rtd & dns-->C(fa:fa-spinner Wait for DNS propogation<br>Usually just a few minutes)
+        rtd & dns-->C(fa:fa-spinner Wait for DNS propagation.<br>Usually just a few minutes)
 
         direction LR
-        subgraph automatic [The rest is handled automatically]
+        subgraph automatic [fa:fa-sparkles The rest is handled automatically]
           direction TB
           D(Visit https://docs.example.com)
-          D-->E(fa:fa-lock SSL Certificate issued<br>dynamically)
-          E-->F(fa:fa-check Read the Docs matches<br>docs.example.com with<br>your project<br>)
+          D-->E(fa:fa-lock Correct SSL Certificate <br>automatically used)
+          E-->F(fa:fa-check Read the Docs knows<br> to serve your project <br>at ``docs.example.com``)
         end
 
         C-->automatic

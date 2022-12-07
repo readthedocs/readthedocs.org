@@ -19,7 +19,7 @@ and this is one of the suggested ways to solve it from search engines.
 
 .. tip::
 
-   In most cases, Sphinx projects will automatically generate a canonical URL.
+   In most cases, Read the Docs will automatically generate a canonical URL for Sphinx projects.
    Most Sphinx users do not need to take further action.
 
 .. seealso::
