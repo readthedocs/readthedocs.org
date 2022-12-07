@@ -19,31 +19,30 @@ This is great for maintaining a consistent brand for your product and its docume
 How custom domains work
 -----------------------
 
-To use a custom domain, you enter the domain in your Read the Docs project's :guilabel:`Admin` and update your DNS provider with a new DNS entry.
+To use a custom domain, two actions are all that are needed from you: 1) enter the domain in your Read the Docs project's :guilabel:`Admin` and 2) update your DNS provider with a new DNS entry. The name and value of the DNS entry is found in Read the Docs' :guilabel:`Admin`.
 
-These two actions are all that are needed from you.
-Once the DNS record has propagated,
+Once the new DNS record has propagated,
 Read the Docs automatically issues an SSL certificate through Cloudflare and starts serving your documentation.
 
 .. mermaid::
 
     graph TD
         subgraph rtd [On Read the Docs]
-          A(fa:fa-pencil Add docs.example.com as Custom domain)
-          A-->AA(fa:fa-spinner Your project is rebuilt with<br>docs.example.com as a canonical domain)
+          A(fa:fa-pencil Add docs.example.com as Custom Domain)
         end
         subgraph dns [On your domain's DNS administration]
-          B(fa:fa-pencil Edit DNS entry for docs.example.com)
+          B(fa:fa-pencil Edit/add a DNS entry for docs.example.com<br>making it point to Read the Docs)
         end
 
         rtd & dns-->C(fa:fa-spinner Wait for DNS propagation.<br>Usually just a few minutes)
 
         direction LR
-        subgraph automatic [fa:fa-sparkles The rest is handled automatically]
+        subgraph automatic [fa:fa-paper-plane The rest is handled automatically]
           direction TB
-          D(Visit https://docs.example.com)
-          D-->E(fa:fa-lock Correct SSL Certificate <br>automatically used)
-          E-->F(fa:fa-check Read the Docs knows<br> to serve your project <br>at ``docs.example.com``)
+          D(fa:fa-spinner The next time your project is built,<br>its Canonical URLs use docs.example.com)
+          D-->E(Visit https://docs.example.com)
+          E-->F(fa:fa-lock Correct SSL Certificate <br>automatically used)
+          F-->G(fa:fa-check Read the Docs knows<br> to serve your project <br>at ``docs.example.com``)
         end
 
         C-->automatic
