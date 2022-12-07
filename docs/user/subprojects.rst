@@ -6,6 +6,12 @@ Projects can be configured in a nested manner, by configuring a project as a
 a search index and a namespace or custom domain, but still be maintained
 independently.
 
+This is useful for:
+
+* Organizations that need all their projects visible in one documentation portal or landing page
+* Projects that document and release several packages through a combined release cycle
+* Projects that document and release several packages through different release cycles
+
 For example, a parent project, ``Foo`` is set up with a subproject, ``Bar``. The
 documentation for ``Foo`` will be available at:
 
