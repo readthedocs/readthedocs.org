@@ -3,9 +3,7 @@ How to Enable Canonical URLs
 
 In this guide, we introduce relevant settings for enabling canonical URLs in popular documentation frameworks.
 
-.. seealso::
-
-   If you want to customize the domain from which your documentation project is served, please refer to :doc:`/guides/custom-domains`.
+If you need to customize the domain from which your documentation project is served, please refer to :doc:`/guides/custom-domains`.
 
 Sphinx
 ~~~~~~
