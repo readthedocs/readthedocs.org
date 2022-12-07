@@ -78,6 +78,7 @@ to help you create fantastic documentation for your project.
 
    /build-notifications
    /downloadable-documentation
+   /subprojects
 
 
 .. toctree::
@@ -228,7 +229,6 @@ out of your documentation and Read the Docs.
    :glob:
    :caption: Advanced features
 
-   subprojects
    single_version
    flyout-menu
    feature-flags

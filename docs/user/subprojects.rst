@@ -1,5 +1,5 @@
-Subprojects
-===========
+Organizing projects in one site: Subprojects
+============================================
 
 Projects can be configured in a nested manner, by configuring a project as a
 *subproject* of another project. This allows for documentation projects to share
@@ -15,16 +15,10 @@ The documentation for ``Bar`` will be available under this same path:
 
 https://foo.readthedocs.io/projects/bar/en/latest/
 
-Adding a subproject
--------------------
+.. seealso::
 
-In the admin dashboard for your project, select "Subprojects" from the menu.
-From this page you can add a subproject by typing in the project slug.
+   :doc:`/guides/subprojects`
 
-Subproject aliases
-~~~~~~~~~~~~~~~~~~
-
-You can use an alias for the subproject when it is created. This allows you to override the URL that is used to access it, giving more configurability to how you want to structure your projects.
 
 Sharing a custom domain
 -----------------------
