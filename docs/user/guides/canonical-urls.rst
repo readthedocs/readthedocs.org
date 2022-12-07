@@ -15,7 +15,7 @@ Read the Docs will automatically add a default value of the html_baseurl_ settin
 If you need a custom ``html_baseurl`` in your ``conf.py``,
 you need to ensure that the value is correct.
 This can be complex,
-given the possibility for PR builds (hosted on a different domain),
+given the possibility for PR builds (which are published on a separate domain),
 special branches
 or if you are using :term:`subproject` s or :ref:`translations <localization:Localization of Documentation>`.
 We recommend leaving out ``html_baseurl`` from ``conf.py``, letting Read the Docs define it.
