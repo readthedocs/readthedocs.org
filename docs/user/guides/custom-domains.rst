@@ -21,10 +21,13 @@ To setup your :doc:`custom domain </custom-domains>`, follow these steps:
    For |org_brand| this is ``readthedocs.io``, and for :doc:`/commercial/index`
    the record is in the form of ``<hash>.domains.readthedocs.com``.
 
-   .. note::
 
-      For a subdomain like ``docs.example.com`` add a CNAME record,
-      and for a root domain like ``example.com`` use an ANAME or ALIAS record.
+**Once you have completed these steps and your new DNS entry has propagated (usually takes a few minutes), you need to build your project's published branches again so the Canonical URL is correct.**
+
+ .. note::
+
+    For a subdomain like ``docs.example.com`` add a CNAME record,
+    and for a root domain like ``example.com`` use an ANAME or ALIAS record.
 
 We provide a validated SSL certificate for the domain,
 managed by `Cloudflare <https://www.cloudflare.com/>`_.
