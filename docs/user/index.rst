@@ -78,6 +78,7 @@ to help you create fantastic documentation for your project.
 
    /build-notifications
    /custom-domains
+   /downloadable-documentation
 
 
 .. toctree::
@@ -145,7 +146,6 @@ and some of the core features of Read the Docs.
    /config-file/index
    /integrations
    /versions
-   /downloadable-documentation
    /hosting
    /server-side-search/index
    /analytics
