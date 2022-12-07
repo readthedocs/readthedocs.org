@@ -32,6 +32,7 @@ extensions = [
     "multiproject",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.autodoc",
+    "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.httpdomain",
     "sphinxcontrib.mermaid",
@@ -211,6 +212,9 @@ linkcheck_ignore = [
     r"https://readthedocs\.org/accounts/gold",
 ]
 
+extlinks = {
+    "rtd-issue": ("https://github.com/readthedocs/readthedocs.org/issues/%s", "#"),
+}
 
 # Config values for sphinxcontrib-mermaid are handled differently
 # If running on a local environment, we render "raw" and bundle mermaid-js from CDN to render diagrams in the browser.
