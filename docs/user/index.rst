@@ -67,7 +67,6 @@ to help you create fantastic documentation for your project.
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
    /intro/import-guide
-   /choosing-a-site
 
 
 .. toctree::
@@ -76,6 +75,7 @@ to help you create fantastic documentation for your project.
    :glob:
    :caption: Explanation
 
+   /choosing-a-site
    /build-notifications
    /downloadable-documentation
 
