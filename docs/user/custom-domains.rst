@@ -24,28 +24,38 @@ To use a custom domain, two actions are all that are needed from you: 1) enter t
 Once the new DNS record has propagated,
 Read the Docs automatically issues an SSL certificate through Cloudflare and starts serving your documentation.
 
-.. mermaid::
+.. image:: img/mermaid-custom-domains.svg
+   :align: center
+   :alt: Diagram of the process of adding a custom domain on Read the Docs
 
-    graph TD
-        subgraph rtd [On Read the Docs]
-          A(fa:fa-pencil Add docs.example.com as Custom Domain)
-        end
-        subgraph dns [On your domain's DNS administration]
-          B(fa:fa-pencil Edit/add a DNS entry for docs.example.com<br>making it point to Read the Docs)
-        end
+..
+   We have generated an SVG version of the following diagram using mermaid.live
+   If you wish to sketch diagrams locally, you can add sphinxcontrib-mermaid to
+   this project's extensions and keep using the below code.
 
-        rtd & dns-->C(fa:fa-spinner Wait for DNS propagation.<br>Usually just a few minutes)
+   PLEASE KEEP THIS SOURCE CODE UPDATED
+   .. mermaid::
 
-        direction LR
-        subgraph automatic [fa:fa-paper-plane The rest is handled automatically]
-          direction TB
-          D(fa:fa-spinner The next time your project is built,<br>its Canonical URLs use docs.example.com)
-          D-->E(Visit https://docs.example.com)
-          E-->F(fa:fa-lock Correct SSL Certificate <br>automatically used)
-          F-->G(fa:fa-check Read the Docs knows<br> to serve your project <br>at ``docs.example.com``)
-        end
+       graph TD
+           subgraph rtd [On Read the Docs]
+             A(fa:fa-pencil Add docs.example.com as Custom Domain)
+           end
+           subgraph dns [On your domain's DNS administration]
+             B(fa:fa-pencil Edit/add a DNS entry for docs.example.com<br>making it point to Read the Docs)
+           end
 
-        C-->automatic
+           rtd & dns-->C(fa:fa-spinner Wait for DNS propagation.<br>Usually just a few minutes)
+
+           direction LR
+           subgraph automatic [fa:fa-paper-plane The rest is handled automatically]
+             direction TB
+             D(fa:fa-spinner The next time your project is built,<br>its Canonical URLs use docs.example.com)
+             D-->E(Visit https://docs.example.com)
+             E-->F(fa:fa-lock Correct SSL Certificate <br>automatically used)
+             F-->G(fa:fa-check Read the Docs knows<br> to serve your project <br>at docs.example.com)
+           end
+
+           C-->automatic
 
 
 Your documentation can have multiple secondary domains but only one **canonical** domain name.

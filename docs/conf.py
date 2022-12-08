@@ -35,7 +35,6 @@ extensions = [
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.httpdomain",
-    "sphinxcontrib.mermaid",
     "sphinxcontrib.video",
     "djangodocs",
     "doc_extensions",
@@ -215,24 +214,3 @@ linkcheck_ignore = [
 extlinks = {
     "rtd-issue": ("https://github.com/readthedocs/readthedocs.org/issues/%s", "#"),
 }
-
-# Config values for sphinxcontrib-mermaid are handled differently
-# If running on a local environment, we render "raw" and bundle mermaid-js from CDN to render diagrams in the browser.
-# This is to avoid requiring the @mermaid-js/mermaid-cli package
-#
-# This can run locally but the following issues need to be solved:
-# a) Read the Docs Docker images need at least libasound2 to be installed for puppeteer to work.
-# b) A <style> with FontAwesome needs to be injected into the SVG's DOM.
-if False and os.environ.get("READTHEDOCS"):
-
-    # Write SVGs, those we can style via CSS! (we aren't doing that yet)
-    mermaid_output_format = "svg"
-
-    # Do not load javascript from CDN
-    mermaid_version = ""
-
-    # Nothing to init, we don't build raw diagrams
-    mermaid_init_js = ""
-
-# Use transparent backgrounds
-mermaid_params = ["--backgroundColor", "transparent"]
