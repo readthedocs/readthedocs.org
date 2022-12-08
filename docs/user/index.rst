@@ -76,6 +76,7 @@ to help you create fantastic documentation for your project.
    :glob:
    :caption: Explanation
 
+   /localization
    /build-notifications
    /downloadable-documentation
 
@@ -232,8 +233,6 @@ out of your documentation and Read the Docs.
    single_version
    flyout-menu
    feature-flags
-
-   localization
 
    user-defined-redirects
    automatic-redirects
