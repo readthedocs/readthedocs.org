@@ -12,13 +12,14 @@ Sphinx
 If you are using :doc:`Sphinx </intro/getting-started-with-sphinx>`,
 Read the Docs will automatically add a default value of the html_baseurl_ setting matching your canonical domain.
 
-If you need a custom ``html_baseurl`` in your ``conf.py``,
-you need to ensure that the value is correct.
+If you are using a custom ``html_baseurl`` in your ``conf.py``,
+you have to ensure that the value is correct.
 This can be complex,
-given the possibility for PR builds (which are published on a separate domain),
+supporting pull request builds (which are published on a separate domain),
 special branches
 or if you are using :term:`subproject` s or :ref:`translations <localization:Localization of Documentation>`.
-We recommend leaving out ``html_baseurl`` from ``conf.py``, letting Read the Docs define it.
+We recommend not including a ``html_baseurl`` in your ``conf.py``,
+and letting Read the Docs define it.
 
 .. _html_baseurl: https://www.sphinx-doc.org/page/usage/configuration.html#confval-html_baseurl
 
@@ -41,7 +42,7 @@ According to MkDocs, defining site_url_ only affects the canonical URL of a webs
 
 .. note::
 
-   2 know issues are currently making it impossible to use `environment variables in MkDocs configuration`_.
+   2 known issues are currently making it impossible to use `environment variables in MkDocs configuration`_.
    Once these issues are solved, it will be easier.
 
    - Support for ``!ENV``: :rtd-issue:`8529`
