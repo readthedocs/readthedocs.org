@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
 from storages.utils import get_available_overwrite_name, safe_join
+from readthedocs.doc_builder.exceptions import UnsupportedSymlinkFileError
 
 from readthedocs.core.utils.filesystem import safe_open
 
@@ -89,11 +90,11 @@ class BuildMediaStorageMixin:
 
             # Don't follow symlinks when uploading to storage.
             if filepath.is_symlink():
-                log.info(
+                log.warning(
                     "Skipping symlink upload.",
                     path_resolved=str(filepath.resolve()),
                 )
-                continue
+                raise UnsupportedSymlinkFileError(filepath)
 
             if filepath.is_dir():
                 # Recursively copy the subdirectory
@@ -127,11 +128,11 @@ class BuildMediaStorageMixin:
             sub_destination = self.join(destination, filepath.name)
             # Don't follow symlinks when uploading to storage.
             if filepath.is_symlink():
-                log.info(
+                log.warning(
                     "Skipping symlink upload.",
                     path_resolved=str(filepath.resolve()),
                 )
-                continue
+                raise UnsupportedSymlinkFileError(filepath)
 
             if filepath.is_dir():
                 # Recursively sync the subdirectory
