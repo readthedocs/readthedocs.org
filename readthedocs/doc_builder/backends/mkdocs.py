@@ -11,9 +11,11 @@ import yaml
 from django.conf import settings
 from django.template import loader as template_loader
 
+from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
+from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Feature
 
 log = structlog.get_logger(__name__)
@@ -71,8 +73,11 @@ class BaseMkdocs(BaseBuilder):
 
         https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
         """
-        with open(self.yaml_file, 'r') as f:
-            config = yaml_load_safely(f)
+        # Allow symlinks, but only the ones that resolve inside the base directory.
+        with safe_open(
+            self.yaml_file, "r", allow_symlinks=True, base_path=self.project_path
+        ) as fh:
+            config = yaml_load_safely(fh)
             use_directory_urls = config.get('use_directory_urls', True)
             return MKDOCS if use_directory_urls else MKDOCS_HTML
 
@@ -93,7 +98,16 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to syntax errors.
         """
         try:
-            config = yaml_load_safely(open(self.yaml_file, 'r'))
+            # Allow symlinks, but only the ones that resolve inside the base directory.
+            result = safe_open(
+                self.yaml_file, "r", allow_symlinks=True, base_path=self.project_path
+            )
+            if not result:
+                raise UserFileNotFound(
+                    UserFileNotFound.FILE_NOT_FOUND.format(self.yaml_file)
+                )
+
+            config = yaml_load_safely(result)
 
             if not config:
                 raise MkDocsYAMLParseError(

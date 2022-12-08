@@ -1,10 +1,12 @@
-import structlog
 from pathlib import Path
 
+import structlog
 from django.conf import settings
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
 from storages.utils import get_available_overwrite_name, safe_join
+
+from readthedocs.core.utils.filesystem import safe_open
 
 log = structlog.get_logger(__name__)
 
@@ -84,11 +86,20 @@ class BuildMediaStorageMixin:
         source = Path(source)
         for filepath in source.iterdir():
             sub_destination = self.join(destination, filepath.name)
+
+            # Don't follow symlinks when uploading to storage.
+            if filepath.is_symlink():
+                log.info(
+                    "Skipping symlink upload.",
+                    path_resolved=str(filepath.resolve()),
+                )
+                continue
+
             if filepath.is_dir():
                 # Recursively copy the subdirectory
                 self.copy_directory(filepath, sub_destination)
             elif filepath.is_file():
-                with filepath.open('rb') as fd:
+                with safe_open(filepath, "rb") as fd:
                     self.save(sub_destination, fd)
 
     def sync_directory(self, source, destination):
@@ -114,12 +125,20 @@ class BuildMediaStorageMixin:
         copied_dirs = set()
         for filepath in source.iterdir():
             sub_destination = self.join(destination, filepath.name)
+            # Don't follow symlinks when uploading to storage.
+            if filepath.is_symlink():
+                log.info(
+                    "Skipping symlink upload.",
+                    path_resolved=str(filepath.resolve()),
+                )
+                continue
+
             if filepath.is_dir():
                 # Recursively sync the subdirectory
                 self.sync_directory(filepath, sub_destination)
                 copied_dirs.add(filepath.name)
             elif filepath.is_file():
-                with filepath.open('rb') as fd:
+                with safe_open(filepath, "rb") as fd:
                     self.save(sub_destination, fd)
                 copied_files.add(filepath.name)
 
