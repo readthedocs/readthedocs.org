@@ -6,6 +6,7 @@ Read the Docs: Documentation Simplified
 
 .. Adds a hidden link for the purpose of validating Read the Docs' Mastodon profile
 .. raw:: html
+
    <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
 
 `Read the Docs`_ simplifies software documentation
