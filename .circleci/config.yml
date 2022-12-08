@@ -18,7 +18,7 @@ jobs:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-      - run: pip install --user tox
+      - run: pip install --user 'tox<5'
       - run: tox -e py310
       - codecov/upload
 
@@ -43,7 +43,7 @@ jobs:
       - run: git submodule update --init
       - run: git fetch origin main  # needed for comparisson in pre-commit
       - run: git branch --track main origin/main  # needed for comparisson in pre-commit
-      - run: pip install --user tox
+      - run: pip install --user 'tox<5'
       - run: tox -e pre-commit
       - run: tox -e migrations
       - run: tox -e lint
