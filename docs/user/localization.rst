@@ -3,14 +3,23 @@ Localization of Documentation
 
 In this article, we explain high-level approaches to internationalizing and localizing your documentation.
 
-Read the Docs supports hosting your docs in multiple languages.
-There are two different things that we support:
+By default, Read the Docs assumes that your documentation is or *might become* multilingual one day.
+The initial default language is English and
+therefore you often see the initial build of your documentation published at ``/en/latest/``,
+where the ``/en`` denotes that it's in English.
+By having the ``en`` URL component present from the beginning,
+you are ready for the eventuality that you would want a second language.
+
+Read the Docs supports hosting your documentation in multiple languages.
 
 .. contents::
     :local:
 
-Single project in another language
-----------------------------------
+Single language project
+-----------------------
+
+If your documentation isn't in English (the default),
+you should indicate which language you have written it in.
 
 It is easy to set the *Language* of your project.
 On the project *Admin* page (or *Import* page),
