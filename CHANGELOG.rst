@@ -1,4 +1,4 @@
-Version 9.0.1
+Version 9.1.0
 -------------
 
 **This release contains an important security fix**. See more information `on the GitHub advisory <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-368m-86q9-m99w>`_.
