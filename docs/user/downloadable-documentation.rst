@@ -69,7 +69,7 @@ MkDocs and Docsify + more
    The common case for most documentation frameworks is that several alternative extensions exist supporting various output formats.
    Most of the extensions export the HTML outputs as another format (for instance PDF) through a conversion process.
 
-Because Sphinx supports the generation of downloadable formats through an official process,
+Because Sphinx supports the generation of offline formats through an official process,
 we are also able to support it officially.
 Other alternatives can also work,
 provided that you identify which extension you want to use and configure the environment for it to run.
