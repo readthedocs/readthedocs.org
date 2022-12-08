@@ -1,17 +1,13 @@
 import tempfile
 from os import path
-
 from unittest import mock
+
 import yaml
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
-from readthedocs.config import (
-    SETUPTOOLS,
-    BuildConfigV1,
-    InvalidConfig,
-)
+from readthedocs.config import SETUPTOOLS, BuildConfigV1, InvalidConfig
 from readthedocs.config.models import PythonInstallRequirements
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_IMAGE_SETTINGS
@@ -266,7 +262,8 @@ class LoadConfigTests(TestCase):
             },
             base_path=base_path,
         )
-        config = load_yaml_config(self.version)
+        with override_settings(DOCROOT=base_path):
+            config = load_yaml_config(self.version)
         self.assertTrue(config.conda is not None)
         self.assertEqual(config.conda.environment, conda_file)
 
@@ -315,7 +312,8 @@ class LoadConfigTests(TestCase):
             },
             base_path=base_path,
         )
-        config = load_yaml_config(self.version)
+        with override_settings(DOCROOT=base_path):
+            config = load_yaml_config(self.version)
         self.assertEqual(len(config.python.install), 1)
         self.assertEqual(
             config.python.install[0].requirements,
