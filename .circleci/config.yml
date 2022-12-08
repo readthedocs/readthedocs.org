@@ -51,8 +51,6 @@ jobs:
       - run: tox -e migrations
       - run: tox -e pre-commit
       - run: tox -e lint
-      - run: tox -e docs
-      - run: tox -e docs-dev
       - run: tox -e eslint
 
 workflows:
