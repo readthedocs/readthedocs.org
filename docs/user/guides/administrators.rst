@@ -13,6 +13,8 @@ have a look at our :doc:`/tutorial/index`.
    :maxdepth: 1
 
    Connect your git repository <git-integrations>
+   Manage Custom Domains <custom-domains>
+   Enable Canonical URLs <canonical-urls>
    technical-docs-seo-guide
    manage-translations-sphinx
    hiding-a-version
@@ -20,3 +22,4 @@ have a look at our :doc:`/tutorial/index`.
    pdf-non-ascii-languages
    importing-private-repositories
    Setup Build Notifications <build-notifications>
+   Configure Pull Request Builds <pull-requests>

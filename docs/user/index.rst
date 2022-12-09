@@ -4,6 +4,11 @@ Read the Docs: Documentation Simplified
 .. meta::
    :description lang=en: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.
 
+.. Adds a hidden link for the purpose of validating Read the Docs' Mastodon profile
+.. raw:: html
+
+   <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
+
 `Read the Docs`_ simplifies software documentation
 by building, versioning, and hosting of your docs, automatically.
 This enables many "docs like code" workflows,
@@ -62,7 +67,6 @@ to help you create fantastic documentation for your project.
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
    /intro/import-guide
-   /choosing-a-site
 
 
 .. toctree::
@@ -71,8 +75,12 @@ to help you create fantastic documentation for your project.
    :glob:
    :caption: Explanation
 
+   /choosing-a-site
    /build-notifications
    /integrations
+   /custom-domains
+   /pull-requests
+   /downloadable-documentation
 
 .. toctree::
    :maxdepth: 2
@@ -136,13 +144,11 @@ and some of the core features of Read the Docs.
 
    /features
    /config-file/index
-   /custom-domains
+   /integrations
    /versions
-   /downloadable-documentation
    /hosting
    /server-side-search/index
    /analytics
-   /pull-requests
    /security-log
 
    /connected-accounts
@@ -172,10 +178,12 @@ and how to write successful documentation.
 
 * **For project administrators**:
   :doc:`Connect Your Git Repository </guides/git-integrations>` |
+  :doc:`Manage Custom Domains </guides/custom-domains>` |
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
   :doc:`/guides/private-submodules` |
   Setup Build Notifications <build-notifications> |
+  :doc:`Configure Pull Request Builds </guides/pull-requests>` |
   :doc:`More guides for administrators </guides/administrators>`
 
 * **For developers and designers**:
@@ -289,7 +297,7 @@ of Read the Docs and the larger software documentation ecosystem.
 
 * **Getting involved with Read the Docs**:
   :doc:`/glossary` |
-  :doc:`/gsoc`|
+  :doc:`/gsoc` |
   :doc:`Developer Documentation <rtd-dev:index>`
 
 
