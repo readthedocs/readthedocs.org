@@ -21,3 +21,4 @@ have a look at our :doc:`/tutorial/index`.
    pdf-non-ascii-languages
    importing-private-repositories
    Setup Build Notifications <build-notifications>
+   Configure Pull Request Builds <pull-requests>
