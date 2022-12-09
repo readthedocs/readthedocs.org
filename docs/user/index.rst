@@ -149,7 +149,6 @@ and some of the core features of Read the Docs.
    /versions
    /hosting
    /server-side-search/index
-   /analytics
    /security-log
 
    /connected-accounts
