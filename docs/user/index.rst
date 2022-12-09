@@ -78,6 +78,7 @@ to help you create fantastic documentation for your project.
    /choosing-a-site
    /build-notifications
    /custom-domains
+   /pull-requests
    /downloadable-documentation
 
 
@@ -149,7 +150,6 @@ and some of the core features of Read the Docs.
    /hosting
    /server-side-search/index
    /analytics
-   /pull-requests
    /security-log
 
    /connected-accounts
