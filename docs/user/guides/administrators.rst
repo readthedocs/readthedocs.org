@@ -12,6 +12,8 @@ have a look at our :doc:`/tutorial/index`.
 .. toctree::
    :maxdepth: 1
 
+   Manage Custom Domains <custom-domains>
+   Enable Canonical URLs <canonical-urls>
    technical-docs-seo-guide
    manage-translations-sphinx
    hiding-a-version
