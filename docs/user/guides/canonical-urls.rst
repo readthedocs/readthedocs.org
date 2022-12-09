@@ -38,7 +38,7 @@ In your ``mkdocs.yml``, define the following:
    site_url: https://<slug>.readthedocs.io/en/stable/
 
 Note that this will define the same canonical URL for all your branches and versions.
-According to MkDocs, defining site_url_ only affects the canonical URL of a website.
+According to MkDocs, defining site_url_ will only define the canonical URL of a website and does not affect the base URL of generated links, CSS, or Javascript files.
 
 .. note::
 
