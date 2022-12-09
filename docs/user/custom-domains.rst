@@ -27,13 +27,18 @@ To use a custom domain, two actions are needed from you:
 Once the new DNS record has propagated,
 Read the Docs automatically issues an SSL certificate through Cloudflare and starts serving your documentation.
 
-.. image:: img/mermaid-custom-domains.svg
+.. image:: img/mermaid-custom-domains.png
    :alt: Diagram of the process of adding a custom domain on Read the Docs
 
 ..
-   We have generated an SVG version of the following diagram using mermaid.live
+   We have generated an PNG version of the following diagram using mermaid.live
+   Firstly, we generate an SVG, then we render it in a browser, then we take a screenshot,
+   then we paste it into GIMP or similar and make the background transparent.
+
    If you wish to sketch diagrams locally, you can add sphinxcontrib-mermaid to
    this project's extensions and keep using the below code.
+
+   SVG does not work because it embeds fontawesome from CDN (which is blocked by CSP)
 
    PLEASE KEEP THIS SOURCE CODE UPDATED
    .. mermaid::
