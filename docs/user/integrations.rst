@@ -24,23 +24,25 @@ Continuous Documentation for software projects
 ----------------------------------------------
 
 Documentation fits into any CI/CD pipeline through the idea and objectives of *Documentation as Code*.
-A straight-forward method to achieve this is by maintaining documentation code alongside the source code,
-meaning that the documentation's life-cycle is contained within the same git repository as the source code.
+A straight-forward method to achieve this is by maintaining documentation alongside the source code,
+meaning that the documentation's life cycle is contained within the same git repository as the source code.
 
 When changes happen to the source code, changes should also happen to the documentation.
 By managing these changes in the same life-cycle,
-you can benefit from for instance both documentation and source code being subject of the same code reviews process.
+you can benefit from **documentation and source code being part of the same code review process**.
 
-Having an automated and short feedback loop for your documentation affords you to
-keep it updated and published at a low cost and effort for your contributors.
+Having an automated and short feedback loop for your documentation allows you to
+keep it updated with minimal effort.
+This allows more iteration on documentation,
+and increases overall value from the documentation you write.
 
 Continuous Documentation for all projects
 -----------------------------------------
 
-All categories of documentation benefit from being *continuously* built and published through a git platform.
+All categories of documentation benefit from being *continuously* built and published through Read the Docs.
 
 If you are managing your documentation in git,
-you will be able to preview changes and see accepted changes published immediately.
+you will be able to preview changes and see accepted changes published immediately using :doc:`/pull-requests`.
 
 .. seealso::
 
