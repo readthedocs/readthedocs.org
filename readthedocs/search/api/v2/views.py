@@ -14,11 +14,7 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Feature, Project
 from readthedocs.search import tasks
 from readthedocs.search.api.pagination import SearchPagination
-from readthedocs.search.api.v2.serializers import (
-    PageSearchSerializer,
-    ProjectData,
-    VersionData,
-)
+from readthedocs.search.api.v2.serializers import PageSearchSerializer
 from readthedocs.search.faceted_search import PageSearch
 
 log = structlog.get_logger(__name__)
@@ -80,45 +76,15 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
             raise ValidationError(errors)
 
     @lru_cache(maxsize=1)
-    def _get_all_projects_data(self):
-        """
-        Return a dictionary of the project itself and all its subprojects.
-
-        Example:
-
-        .. code::
-
-           {
-               "requests": ProjectData(
-                   alias='alias',
-                   version=VersionData(
-                        "latest",
-                        "https://requests.readthedocs.io/en/latest/",
-                    ),
-               ),
-               "requests-oauth": ProjectData(
-                   alias=None,
-                   version=VersionData(
-                       "latest",
-                       "https://requests-oauth.readthedocs.io/en/latest/",
-                   ),
-               ),
-           }
-
-        .. note:: The response is cached into the instance.
-
-        :rtype: A dictionary of project slugs mapped to a `VersionData` object.
-        """
+    def _get_projects_to_search(self):
+        """Get all projects to search."""
         main_version = self._get_version()
         main_project = self._get_project()
 
         if not self._has_permission(self.request.user, main_version):
-            return {}
+            return []
 
-        projects_data = {
-            main_project.slug: self._get_project_data(main_project, main_version),
-        }
-
+        projects_to_search = [(main_project, main_version)]
         subprojects = Project.objects.filter(superprojects__parent_id=main_project.id)
         for subproject in subprojects:
             version = self._get_project_version(
@@ -136,24 +102,9 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
                 )
 
             if version and self._has_permission(self.request.user, version):
-                projects_data[subproject.slug] = self._get_project_data(
-                    subproject, version
-                )
+                projects_to_search.append((subproject, version))
 
-        return projects_data
-
-    def _get_project_data(self, project, version):
-        """Build a `ProjectData` object given a project and its version."""
-        url = project.get_docs_url(version_slug=version.slug)
-        project_alias = project.superprojects.values_list("alias", flat=True).first()
-        version_data = VersionData(
-            slug=version.slug,
-            docs_url=url,
-        )
-        return ProjectData(
-            alias=project_alias,
-            version=version_data,
-        )
+        return projects_to_search
 
     def _get_project_version(self, project, version_slug, include_hidden=True):
         """
@@ -219,8 +170,8 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
            is compatible with DRF's paginator.
         """
         projects = {
-            project: project_data.version.slug
-            for project, project_data in self._get_all_projects_data().items()
+            project.slug: version.slug
+            for project, version in self._get_projects_to_search()
         }
         # Check to avoid searching all projects in case it's empty.
         if not projects:
@@ -236,11 +187,6 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
         )
         return queryset
 
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context["projects_data"] = self._get_all_projects_data()
-        return context
-
     def get(self, request, *args, **kwargs):
         self._validate_query_params()
         result = self.list()
@@ -255,7 +201,9 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
             self.request,
             view=self,
         )
-        serializer = self.get_serializer(page, many=True)
+        serializer = self.get_serializer(
+            page, many=True, projects=self._get_projects_to_search()
+        )
         return self.paginator.get_paginated_response(serializer.data)
 
 

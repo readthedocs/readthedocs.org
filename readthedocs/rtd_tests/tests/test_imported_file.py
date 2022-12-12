@@ -29,7 +29,8 @@ class ImportedFileTests(TestCase):
         self.version = self.project.versions.first()
 
         self.test_dir = os.path.join(base_dir, 'files')
-        self._copy_storage_dir()
+        with override_settings(DOCROOT=self.test_dir):
+            self._copy_storage_dir()
 
     def _manage_imported_files(
         self,
@@ -163,7 +164,8 @@ class ImportedFileTests(TestCase):
         with open(os.path.join(test_dir, 'test.html'), 'w+') as f:
             f.write('Woo')
 
-        self._copy_storage_dir()
+        with override_settings(DOCROOT=self.test_dir):
+            self._copy_storage_dir()
 
         self._manage_imported_files(self.version, 'commit01', 1)
         self.assertEqual(ImportedFile.objects.count(), 2)
@@ -171,7 +173,8 @@ class ImportedFileTests(TestCase):
         with open(os.path.join(test_dir, 'test.html'), 'w+') as f:
             f.write('Something Else')
 
-        self._copy_storage_dir()
+        with override_settings(DOCROOT=self.test_dir):
+            self._copy_storage_dir()
 
         self._manage_imported_files(self.version, 'commit02', 2)
         self.assertEqual(ImportedFile.objects.count(), 2)
