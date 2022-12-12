@@ -485,6 +485,8 @@ class TestProjectTranslations(ProjectMixin, TestCase):
     def test_user_cant_change_lang_to_translation_lang(self):
         user_a = User.objects.get(username='eric')
         project_a = Project.objects.get(slug='read-the-docs')
+        project_a.users.add(user_a)
+        project_a.save()
         project_b = get(
             Project, users=[user_a],
             language='es', main_language_project=None,
@@ -513,6 +515,7 @@ class TestProjectTranslations(ProjectMixin, TestCase):
             data=data,
             follow=True,
         )
+
         self.assertEqual(resp.status_code, 200)
         self.assertContains(
             resp,
@@ -523,6 +526,8 @@ class TestProjectTranslations(ProjectMixin, TestCase):
     def test_user_can_change_project_with_same_lang(self):
         user_a = User.objects.get(username='eric')
         project_a = Project.objects.get(slug='read-the-docs')
+        project_a.users.add(user_a)
+        project_a.save()
         project_b = get(
             Project, users=[user_a],
             language='es', main_language_project=None,

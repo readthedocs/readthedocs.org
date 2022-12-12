@@ -236,7 +236,9 @@ class BuildViewTests(TestCase):
     def setUp(self):
         self.client.login(username='eric', password='test')
         call_command("fixtures_projects")
-        self.pip = Project.objects.get(slug='pip')
+        self.pip = Project.objects.get(slug="pip")
+        self.user = User.objects.get(username="eric")
+        self.pip.users.add(self.user)
         self.pip.privacy_level = PUBLIC
         self.pip.external_builds_privacy_level = PUBLIC
         self.pip.save()
@@ -349,13 +351,14 @@ class TestSearchAnalyticsView(TestCase):
         self.client.login(username="eric", password="test")
         call_command("fixtures_projects")
         call_command("search_queries")
-        self.pip = Project.objects.get(slug='pip')
+        self.pip = Project.objects.get(slug="pip")
+        self.user = User.objects.get(username="eric")
+        self.pip.users.add(self.user)
+        self.pip.save()
         self.version = self.pip.versions.order_by('id').first()
         self.analyics_page = reverse('projects_search_analytics', args=[self.pip.slug])
-
         test_time = timezone.datetime(2019, 8, 2, 12, 0)
         self.test_time = timezone.make_aware(test_time)
-
         get(Feature, projects=[self.pip])
 
     def test_top_queries(self):
@@ -375,7 +378,6 @@ class TestSearchAnalyticsView(TestCase):
             ]
 
             resp = self.client.get(self.analyics_page)
-
             self.assertEqual(resp.status_code, 200)
             self.assertEqual(
                 expected_result,
