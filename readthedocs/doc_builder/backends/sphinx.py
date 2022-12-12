@@ -233,9 +233,8 @@ class BaseSphinx(BaseBuilder):
             self.config_file = (
                 self.config_file or self.project.conf_file(self.version.slug)
             )
-            # Allow symlinks, but only the ones that resolve inside the base directory.
             outfile = safe_open(
-                self.config_file, "a", allow_symlinks=True, base_path=self.project_path
+                self.config_file, "a", base_path=self.project_path
             )
             if not outfile:
                 raise UserFileNotFound(

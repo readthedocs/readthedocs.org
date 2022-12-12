@@ -395,14 +395,12 @@ class Conda(PythonEnvironment):
         See https://github.com/readthedocs/readthedocs.org/pull/5631
         """
         try:
-            # Allow symlinks, but only the ones that resolve inside the base directory.
             inputfile = safe_open(
                 os.path.join(
                     self.checkout_path,
                     self.config.conda.environment,
                 ),
                 "r",
-                allow_symlinks=True,
                 base_path=self.checkout_path,
             )
             if not inputfile:
@@ -438,14 +436,12 @@ class Conda(PythonEnvironment):
             dependencies.extend(conda_requirements)
             environment.update({'dependencies': dependencies})
             try:
-                # Allow symlinks, but only the ones that resolve inside the base directory.
                 outputfile = safe_open(
                     os.path.join(
                         self.checkout_path,
                         self.config.conda.environment,
                     ),
                     "w",
-                    allow_symlinks=True,
                     base_path=self.checkout_path,
                 )
                 if not outputfile:

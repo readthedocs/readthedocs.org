@@ -88,14 +88,6 @@ class BuildMediaStorageMixin:
         for filepath in source.iterdir():
             sub_destination = self.join(destination, filepath.name)
 
-            # Don't follow symlinks when uploading to storage.
-            if filepath.is_symlink():
-                log.warning(
-                    "Skipping symlink upload.",
-                    path_resolved=str(filepath.resolve()),
-                )
-                raise UnsupportedSymlinkFileError(filepath)
-
             if filepath.is_dir():
                 # Recursively copy the subdirectory
                 self.copy_directory(filepath, sub_destination)
@@ -126,13 +118,6 @@ class BuildMediaStorageMixin:
         copied_dirs = set()
         for filepath in source.iterdir():
             sub_destination = self.join(destination, filepath.name)
-            # Don't follow symlinks when uploading to storage.
-            if filepath.is_symlink():
-                log.warning(
-                    "Skipping symlink upload.",
-                    path_resolved=str(filepath.resolve()),
-                )
-                raise UnsupportedSymlinkFileError(filepath)
 
             if filepath.is_dir():
                 # Recursively sync the subdirectory

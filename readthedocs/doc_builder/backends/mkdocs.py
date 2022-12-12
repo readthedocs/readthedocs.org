@@ -73,9 +73,8 @@ class BaseMkdocs(BaseBuilder):
 
         https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
         """
-        # Allow symlinks, but only the ones that resolve inside the base directory.
         with safe_open(
-            self.yaml_file, "r", allow_symlinks=True, base_path=self.project_path
+            self.yaml_file, "r", base_path=self.project_path
         ) as fh:
             config = yaml_load_safely(fh)
             use_directory_urls = config.get('use_directory_urls', True)
@@ -98,9 +97,8 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to syntax errors.
         """
         try:
-            # Allow symlinks, but only the ones that resolve inside the base directory.
             result = safe_open(
-                self.yaml_file, "r", allow_symlinks=True, base_path=self.project_path
+                self.yaml_file, "r", base_path=self.project_path
             )
             if not result:
                 raise UserFileNotFound(

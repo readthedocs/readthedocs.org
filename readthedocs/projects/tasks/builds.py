@@ -48,6 +48,7 @@ from readthedocs.doc_builder.exceptions import (
     MkDocsYAMLParseError,
     ProjectBuildsSkippedError,
     YAMLParseError,
+    UnsupportedSymlinkFileError,
 )
 from readthedocs.storage import build_media_storage
 from readthedocs.telemetry.collectors import BuildDataCollector
@@ -514,29 +515,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build['success'] = False
 
     def on_success(self, retval, task_id, args, kwargs):
-        html = self.data.outcomes['html']
-        search = self.data.outcomes['search']
-        localmedia = self.data.outcomes['localmedia']
-        pdf = self.data.outcomes['pdf']
-        epub = self.data.outcomes['epub']
-
-        time_before_store_build_artifacts = timezone.now()
-        # Store build artifacts to storage (local or cloud storage)
-        self.store_build_artifacts(
-            html=html,
-            search=search,
-            localmedia=localmedia,
-            pdf=pdf,
-            epub=epub,
-        )
-        log.info(
-            "Store build artifacts finished.",
-            time=(timezone.now() - time_before_store_build_artifacts).seconds,
-        )
-
         # NOTE: we are updating the db version instance *only* when
         # HTML are built successfully.
+        html = self.data.outcomes['html']
         if html:
+            localmedia = self.data.outcomes['localmedia']
+            pdf = self.data.outcomes['pdf']
+            epub = self.data.outcomes['epub']
             try:
                 api_v2.version(self.data.version.pk).patch(
                     {
@@ -699,6 +684,26 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             finally:
                 self.data.build_data = self.collect_build_data()
 
+        html = self.data.outcomes['html']
+        search = self.data.outcomes['search']
+        localmedia = self.data.outcomes['localmedia']
+        pdf = self.data.outcomes['pdf']
+        epub = self.data.outcomes['epub']
+
+        time_before_store_build_artifacts = timezone.now()
+        # Store build artifacts to storage (local or cloud storage)
+        self.store_build_artifacts(
+            html=html,
+            search=search,
+            localmedia=localmedia,
+            pdf=pdf,
+            epub=epub,
+        )
+        log.info(
+            "Store build artifacts finished.",
+            time=(timezone.now() - time_before_store_build_artifacts).seconds,
+        )
+
     def collect_build_data(self):
         """
         Collect data from the current build.
@@ -834,9 +839,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
             try:
                 build_media_storage.sync_directory(from_path, to_path)
+            except UnsupportedSymlinkFileError:
+                raise
             except Exception:
                 # Ideally this should just be an IOError
                 # but some storage backends unfortunately throw other errors
+                #
+                # NOTE: this should hard fail the build to avoid unexpected results:
+                # missing pages, for example
                 log.exception(
                     'Error copying to storage (not failing build)',
                     media_type=media_type,
@@ -856,6 +866,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             except Exception:
                 # Ideally this should just be an IOError
                 # but some storage backends unfortunately throw other errors
+                #
+                # NOTE: this should hard fail the build to avoid unexpected results:
+                # pages that should not exist anymore, for example
                 log.exception(
                     'Error deleting from storage (not failing build)',
                     media_type=media_type,

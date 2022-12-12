@@ -97,9 +97,17 @@ class MkDocsYAMLParseError(BuildUserError):
     )
 
 
-# TODO: improve messages for symlink errors with a more detailed error and include the `filepath`.
 class UnsupportedSymlinkFileError(BuildUserError):
-    message = gettext_noop("Symlinks are not fully supported")
+    message = gettext_noop(
+        "There is at least one file ({filepath}) in the output that is a symlink. "
+        "Please, review your output directory and remove the symlinks. "
+        "Symlinks are not fully supported."
+    )
+
+    def __init__(self, message=None, **kwargs):
+        filepath = kwargs.pop('filepath')
+        message = self.message.format(filepath=filepath)
+        super().__init__(message, **kwargs)
 
 
 class FileIsNotRegularFile(UnsupportedSymlinkFileError):

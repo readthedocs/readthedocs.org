@@ -1384,7 +1384,7 @@ def load(path, env_config):
 
     # Allow symlinks, but only the ones that resolve inside the base directory.
     with safe_open(
-        filename, "r", allow_symlinks=True, base_path=path
+        filename, "r", base_path=path
     ) as configuration_file:
         try:
             config = parse(configuration_file.read())
