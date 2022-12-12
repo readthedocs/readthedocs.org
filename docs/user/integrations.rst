@@ -28,7 +28,7 @@ A straight-forward method to achieve this is by maintaining documentation alongs
 meaning that the documentation's life cycle is contained within the same git repository as the source code.
 
 When changes happen to the source code, changes should also happen to the documentation.
-By managing these changes in the same life-cycle,
+By managing these changes in the same life cycle,
 you can benefit from **documentation and source code being part of the same code review process**.
 
 Having an automated and short feedback loop for your documentation allows you to
