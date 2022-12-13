@@ -44,7 +44,20 @@ All categories of documentation benefit from being *continuously* built and publ
 If you are managing your documentation in git,
 you will be able to preview changes and see accepted changes published immediately using :doc:`/pull-requests`.
 
+Automated versioning
+--------------------
+
+Maintaining your documentation in a git repository with Read the Docs' automated CI/CD pipeline
+also means that you will be able to align your project's **release cycle** with your documentation.
+Whenever you announce a new **version** for your documentation,
+you will probably tag that version in your git repository.
+Read the Docs automatically registers the change and adds a new version to your documentation.
+This is captured in the :term:`flyout menu`.
+
+
 .. seealso::
 
     :doc:`/guides/git-integrations`
+        Information on setting up your Git repository to make Read the Docs automatically build your documentation project.
+    :doc:`/automation-rules`
         Information on setting up your Git repository to make Read the Docs automatically build your documentation project.
