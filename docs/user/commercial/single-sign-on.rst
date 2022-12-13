@@ -1,5 +1,5 @@
-Choosing a Single Sign-On approach
-==================================
+Choosing a Single Sign-On approach for your organization
+=========================================================
 
 .. include:: /shared/admonition-rtd-business.rst
 
