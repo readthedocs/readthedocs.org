@@ -67,7 +67,6 @@ to help you create fantastic documentation for your project.
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
    /intro/import-guide
-   /choosing-a-site
 
 
 .. toctree::
@@ -77,7 +76,10 @@ to help you create fantastic documentation for your project.
    :caption: Explanation
 
    /localization
+   /choosing-a-site
    /build-notifications
+   /custom-domains
+   /pull-requests
    /downloadable-documentation
 
 
@@ -145,12 +147,10 @@ and some of the core features of Read the Docs.
    /features
    /config-file/index
    /integrations
-   /custom-domains
    /versions
    /hosting
    /server-side-search/index
    /analytics
-   /pull-requests
    /security-log
 
    /connected-accounts
@@ -179,10 +179,12 @@ and how to write successful documentation.
   :doc:`More guides for authors </guides/authors>`
 
 * **For project administrators**:
+  :doc:`Manage Custom Domains </guides/custom-domains>` |
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
   :doc:`/guides/private-submodules` |
   Setup Build Notifications <build-notifications> |
+  :doc:`Configure Pull Request Builds </guides/pull-requests>` |
   :doc:`More guides for administrators </guides/administrators>`
 
 * **For developers and designers**:
