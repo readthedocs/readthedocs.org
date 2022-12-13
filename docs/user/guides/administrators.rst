@@ -22,3 +22,6 @@ have a look at our :doc:`/tutorial/index`.
    importing-private-repositories
    Setup Build Notifications <build-notifications>
    Configure Pull Request Builds <pull-requests>
+   setup-single-sign-on-github-gitlab-bitbucket
+   setup-single-sign-on-google-email
+   manage-read-the-docs-teams
