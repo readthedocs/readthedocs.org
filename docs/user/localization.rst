@@ -11,6 +11,7 @@ By having the ``en`` URL component present from the beginning,
 you are ready for the eventuality that you would want a second language.
 
 Read the Docs supports hosting your documentation in multiple languages.
+Read below for the various approaches that we support.
 
 .. contents::
     :local:
