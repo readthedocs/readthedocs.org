@@ -15,8 +15,8 @@ Read the Docs supports hosting your documentation in multiple languages.
 .. contents::
     :local:
 
-Single language project
------------------------
+Projects with one language
+--------------------------
 
 If your documentation isn't in English (the default),
 you should indicate which language you have written it in.
@@ -30,8 +30,8 @@ The language will be represented in the URL for your project.
 For example,
 a project that is in Spanish will have a default URL of ``/es/latest/`` instead of ``/en/latest/``.
 
-Project with multiple translations (Sphinx)
--------------------------------------------
+Projects with multiple translations (Sphinx)
+--------------------------------------------
 
 This situation is a bit more complicated.
 To support this,
