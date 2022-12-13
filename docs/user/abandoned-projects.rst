@@ -41,8 +41,8 @@ Reachability
 
 The user of Read the Docs is solely responsible for being reachable by the core team
 for matters concerning projects that the user owns. In every case where
-contacting the user is necessary, the core team will try to do so at least
-three times, using the following means of contact:
+contacting the user is necessary, the core team will try to do so,
+using the following means of contact:
 
 * E-mail address on file in the user's profile
 * E-mail addresses found in the given project's documentation

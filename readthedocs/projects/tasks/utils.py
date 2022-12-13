@@ -1,6 +1,5 @@
 import datetime
 import os
-import shutil
 
 import structlog
 from celery.worker.request import Request
@@ -15,6 +14,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Build
 from readthedocs.builds.tasks import send_build_status
+from readthedocs.core.utils.filesystem import safe_rmtree
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -33,7 +33,7 @@ def clean_build(version):
 
     log.info('Removing directories.', directories=del_dirs)
     for path in del_dirs:
-        shutil.rmtree(path, ignore_errors=True)
+        safe_rmtree(path, ignore_errors=True)
 
 
 @app.task(queue='web')
