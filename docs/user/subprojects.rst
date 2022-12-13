@@ -1,4 +1,4 @@
-Organizing projects in one site: Subprojects
+Organizing multiple projects in one site: Subprojects
 ============================================
 
 Projects can be configured in a nested manner, by configuring a project as a

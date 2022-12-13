@@ -1,7 +1,7 @@
 How To Add a Subproject
 =======================
 
-This guide shows you how to add a Subproject to your main project.
+This guide shows you how to add a subproject to your main project.
 
 .. seealso::
 
@@ -11,10 +11,12 @@ This guide shows you how to add a Subproject to your main project.
 Adding a subproject
 -------------------
 
-In the admin dashboard for your project, select "Subprojects" from the menu.
+In the admin dashboard for your project, select :guilabel:`Subprojects` from the menu.
 From this page you can add a subproject by typing in the project slug.
 
 Subproject aliases
 ~~~~~~~~~~~~~~~~~~
 
-You can use an alias for the subproject when it is created. This allows you to override the URL that is used to access it, giving more configurability to how you want to structure your projects.
+You can use an alias for the subproject when it is created.
+This allows you to override the URL that is used to access it,
+giving more configurability to how you want to structure your projects.
