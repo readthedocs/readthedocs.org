@@ -102,6 +102,7 @@ to help you create fantastic documentation for your project.
    :glob:
 
    api/index
+   reference/features
 
 
 Read the Docs feature overview
