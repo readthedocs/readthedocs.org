@@ -30,8 +30,8 @@ The language will be represented in the URL for your project.
 For example,
 a project that is in Spanish will have a default URL of ``/es/latest/`` instead of ``/en/latest/``.
 
-Projects with multiple translations (Sphinx)
---------------------------------------------
+Projects with multiple translations (Sphinx-only)
+-------------------------------------------------
 
 .. seealso::
 
