@@ -18,7 +18,7 @@ you need to be an *owner* of that organization.
 
 You can validate your ownership of the Organization with these steps:
 
-* Navigate to :guilabel:`Username dropdown` > :guilabel:`Organizations` > :guilabel:`<Organization name>`
+* Navigate to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Organization name>`
 * Look at the **Owners** UI elements on the right menu.
 
 If you'd like to to modify this setting and are not an owner,
@@ -32,7 +32,7 @@ all users who have access to the configured Google Workspace will be granted a s
 .. tip::
 
    You can still add outside collaborators and manage their access. Organizations may for instance wish to give read-access to onboarding documents or grant temporary write access to external consultants.
-   
+
 .. seealso::
 
    :doc:`/commercial/sharing`
