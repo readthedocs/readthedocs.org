@@ -1,5 +1,4 @@
 import os
-import shutil
 import tarfile
 
 import structlog
@@ -7,6 +6,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.core.utils.filesystem import safe_copytree
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
@@ -371,10 +371,7 @@ class BuildDirector:
         if not os.path.exists(artifacts_path):
             raise BuildUserError(BuildUserError.BUILD_COMMANDS_WITHOUT_OUTPUT)
 
-        shutil.copytree(
-            artifacts_path,
-            target,
-        )
+        safe_copytree(artifacts_path, target)
 
         # Update the `Version.documentation_type` to match the doctype defined
         # by the config file. When using `build.commands` it will be `GENERIC`

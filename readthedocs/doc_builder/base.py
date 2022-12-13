@@ -1,12 +1,13 @@
 """Base classes for Builders."""
 
-import structlog
 import os
 import shutil
 from functools import wraps
 
-from readthedocs.projects.models import Feature
+import structlog
 
+from readthedocs.core.utils.filesystem import safe_copytree, safe_open, safe_rmtree
+from readthedocs.projects.models import Feature
 
 log = structlog.get_logger(__name__)
 
@@ -54,7 +55,6 @@ class BaseBuilder:
 
     def append_conf(self):
         """Set custom configurations for this builder."""
-        pass
 
     def build(self):
         """Do the actual building of the documentation."""
@@ -64,10 +64,10 @@ class BaseBuilder:
         """Move the generated documentation to its artifact directory."""
         if os.path.exists(self.old_artifact_path):
             if os.path.exists(self.target):
-                shutil.rmtree(self.target)
+                safe_rmtree(self.target)
             log.debug('Copying output type on the local filesystem.', output_type=self.type)
             log.debug('Ignoring patterns.', patterns=self.ignore_patterns)
-            shutil.copytree(
+            safe_copytree(
                 self.old_artifact_path,
                 self.target,
                 ignore=shutil.ignore_patterns(*self.ignore_patterns),
@@ -79,7 +79,7 @@ class BaseBuilder:
         """Clean the path where documentation will be built."""
         # NOTE: this shouldn't be needed. We are always CLEAN_AFTER_BUILD now
         if os.path.exists(self.old_artifact_path):
-            shutil.rmtree(self.old_artifact_path)
+            safe_rmtree(self.old_artifact_path)
             log.info('Removing old artifact path.', path=self.old_artifact_path)
 
     def docs_dir(self, docs_dir=None, **__):
@@ -127,7 +127,7 @@ Check out our `Getting Started Guide
 familiar with Read the Docs.
                 """
 
-                with open(index_filename, 'w+') as index_file:
+                with safe_open(index_filename, "w+") as index_file:
                     index_file.write(index_text.format(dir=docs_dir, ext=extension))
 
         return 'index'
