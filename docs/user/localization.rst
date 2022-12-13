@@ -50,7 +50,7 @@ This has the results of serving:
 * ``phpmyadmin`` at ``http://phpmyadmin.readthedocs.io/en/latest/``
 * ``phpmyadmin-spanish`` at ``http://phpmyadmin.readthedocs.io/es/latest/``
 
-It also gets included in the Read the Docs flyout:
+It also gets included in the Read the Docs :term:`flyout menu`:
 
 .. image:: /img/translation_bar.png
 
@@ -66,3 +66,33 @@ It also gets included in the Read the Docs flyout:
 .. note:: You can read :doc:`guides/manage-translations-sphinx` to understand the whole process for a documentation with multiples languages in the same repository and how to keep the translations updated on time.
 
 .. note:: You must commit the ``.po`` files for Read the Docs to translate your documentation.
+
+
+Translation workflows
+~~~~~~~~~~~~~~~~~~~~~
+
+When you work with translations,
+the workflow of your translators becomes a critical component.
+
+Considerations include:
+
+* Are your translators able to use a git workflow? For instance, are they able to translate directly via GitHub?
+* Do you benefit from machine translation?
+* Do you need different roles, for instance do you need translators and editors?
+* What is your source language?
+* When are your translated versions published?
+
+By using Sphinx and .po files,
+you will be able to automatically synchronize between your documentation source messages on your git platform and your translation platform.
+
+There are many translation platforms that support this workflow.
+These include:
+
+* `Weblate <https://weblate.org/>`_
+* `Transifex <https://www.transifex.com/>`_
+* `Crowdin <https://crowdin.com/>`_
+
+Because Read the Docs builds your git repository,
+you can use any of the above solutions.
+Any solution that synchronizes your translations with your git repository
+will ensure that your translations are automatically published with Read the Docs.
