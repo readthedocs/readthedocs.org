@@ -21,7 +21,7 @@ Users can log out by using the :ref:`Log Out <versions:Logging out>` link in the
 Single Sign-on with GitHub, Bitbucket or GitLab
 -----------------------------------------------
 
-Using an identity provider that supports authentication and authorization allows you to manage
+Using an identity provider that supports authentication and authorization allows organization owners to manage
 who has access to projects on Read the Docs,
 directly from the provider itself.
 If a user needs access to your documentation project on Read the Docs,
