@@ -8,7 +8,7 @@ Adding a user to a team gives them all the permissions available to that team,
 whether it's *read-only* or *admin*.
 This can be done by:
 
-* Navigating to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Username name>` > :guilabel:`Teams` > :guilabel:`<Team name>`
+* Navigating to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Organization name>` > :guilabel:`Teams` > :guilabel:`<Team name>`
 * Clicking :guilabel:`Invite Member`.
 * Input the user's Read the Docs username or email address.
 * Clicking :guilabel:`Add member`.
@@ -18,7 +18,7 @@ Removing a user from a team
 
 Removing a user to a team removes all permissions that team gave them
 
-* Navigating to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Username name>` > :guilabel:`Teams` > :guilabel:`<Team name>`
+* Navigating to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Organization name>` > :guilabel:`Teams` > :guilabel:`<Team name>`
 * Clicking :guilabel:`Remove` next to the user.
 
 

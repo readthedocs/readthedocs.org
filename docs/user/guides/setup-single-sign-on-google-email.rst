@@ -46,7 +46,7 @@ However, you can define which teams users matching your company's domain email a
 
 You can enable this feature in your organization:
 
-* Navigate to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Username name>` > > :guilabel:`Settings` > :guilabel:`Authorization`
+* Navigate to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Organization name>` > > :guilabel:`Settings` > :guilabel:`Authorization`
 * Select :guilabel:`Google` as the *Provider*
 * Specify your Google Workspace domain as the *Domain*.
 

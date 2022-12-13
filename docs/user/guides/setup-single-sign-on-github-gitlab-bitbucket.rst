@@ -30,23 +30,20 @@ User setup
 Users in your organization must have their GitHub, Bitbucket, or GitLab
 :doc:`account connected </connected-accounts>`,
 otherwise they will lose access to all repositories.
+You can read more about `granting permissions on GitHub`_ in their documentation.
+
+.. _granting permissions on GitHub: https://docs.github.com/en/github/setting-up-and-managing-organizations-and-teams/repository-permission-levels-for-an-organization
 
 Enabling SSO
 ------------
 
 You can enable this feature in your organization by:
-* Navigate to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Username name>` > :guilabel:`Settings` > :guilabel:`Authorization`
+
+* Navigate to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Organization name>` > :guilabel:`Settings` > :guilabel:`Authorization`
 * Select :guilabel:`GitHub, GitLab or Bitbucket` on the *Provider* dropdown.
 * Select :guilabel:`Save`
 
-The users in your organization **must connect**  their GitHub, Bitbucket or GitLab
-:doc:`account connected </connected-accounts>`,
-otherwise they will lose access to all repositories.
-You can read more about `granting permissions on GitHub`_ in their documentation.
-
 .. warning:: Once you enable this option, your existing Read the Docs teams will not be used.
-
-.. _granting permissions on GitHub: https://docs.github.com/en/github/setting-up-and-managing-organizations-and-teams/repository-permission-levels-for-an-organization
 
 Grant access to read private documentation
 ------------------------------------------
