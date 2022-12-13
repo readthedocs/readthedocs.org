@@ -33,6 +33,11 @@ a project that is in Spanish will have a default URL of ``/es/latest/`` instead 
 Projects with multiple translations (Sphinx)
 --------------------------------------------
 
+.. seealso::
+
+   :doc:`guides/manage-translations-sphinx`
+     Describes the whole process for a documentation with multiples languages in the same repository and how to keep the translations updated on time.
+
 This situation is a bit more complicated.
 To support this,
 you will have one parent project and a number of projects marked as translations of that parent.
@@ -62,8 +67,6 @@ It also gets included in the Read the Docs :term:`flyout menu`:
 .. note:: You can include multiple translations in the same repository,
           with same ``conf.py`` and ``.rst`` files,
           but each project must specify the language to build for those docs.
-
-.. note:: You can read :doc:`guides/manage-translations-sphinx` to understand the whole process for a documentation with multiples languages in the same repository and how to keep the translations updated on time.
 
 .. note:: You must commit the ``.po`` files for Read the Docs to translate your documentation.
 
