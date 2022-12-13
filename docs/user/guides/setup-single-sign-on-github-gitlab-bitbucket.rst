@@ -43,7 +43,7 @@ You can enable this feature in your organization by:
 * Select :guilabel:`GitHub, GitLab or Bitbucket` on the *Provider* dropdown.
 * Select :guilabel:`Save`
 
-.. warning:: Once you enable this option, your existing Read the Docs teams will not be used.
+.. warning:: Once you enable this option, your existing Read the Docs :doc:`/commercial/organizations` will not be used.
 
 Grant access to read private documentation
 ------------------------------------------
