@@ -7,7 +7,7 @@ Read the Docs offers a number of platform features that are possible because we 
 Automatic Documentation Deployment
 ----------------------------------
 
-We integrate with GitHub, BitBucket, and GitLab.
+We integrate with GitHub, Bitbucket, and GitLab.
 We automatically create webhooks in your repository,
 which tell us whenever you push a commit.
 We will then build and deploy your docs every time you push a commit.

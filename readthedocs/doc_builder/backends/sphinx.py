@@ -191,7 +191,7 @@ class BaseSphinx(BaseBuilder):
             'github_version_is_editable': github_version_is_editable,
             'display_github': display_github,
 
-            # BitBucket
+            # Bitbucket
             'bitbucket_user': bitbucket_user,
             'bitbucket_repo': bitbucket_repo,
             'bitbucket_version': remote_version,

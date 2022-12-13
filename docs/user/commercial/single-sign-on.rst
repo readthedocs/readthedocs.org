@@ -20,8 +20,8 @@ Users can log out by using the :ref:`Log Out <versions:Logging out>` link in the
    :depth: 2
 
 
-Single Sign-on with GitHub, Bitbucket or GitLab
------------------------------------------------
+Single Sign-on with GitHub, Bitbucket, or GitLab
+------------------------------------------------
 
 Using an identity provider that supports authentication and authorization allows organization owners to manage
 who has access to projects on Read the Docs,
@@ -54,6 +54,6 @@ We are always interested in hearing from our users about what authentication nee
 You can reach out to our :doc:`/support` to talk with us about any additional authentication needs you might have.
 
 .. tip::
-   Many additional providers can be supported via GitHub, BitBucket, and GitLab SSO.
+   Many additional providers can be supported via GitHub, Bitbucket, and GitLab SSO.
    We will depend on those sites in order to authenticate you,
    so you can use all your existing SSO methods already configured on those services.
