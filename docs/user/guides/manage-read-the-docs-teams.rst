@@ -1,6 +1,11 @@
 How to manage Read the Docs teams
 =================================
 
+Read the Docs uses teams within an organization to group users and provide permissions to projects.
+This guide will cover how to do team management,
+including adding and removing people from teams.
+You can read more about organizations and teams in our :doc:`/commercial/organizations` documentation.
+
 Adding a user to a team
 -----------------------
 
