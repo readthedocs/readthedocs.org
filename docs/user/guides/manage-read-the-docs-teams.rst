@@ -36,7 +36,7 @@ they will be granted access to import a project.
 Automating this process
 -----------------------
 
-You can manage teams more easily using our :doc:`/commercial/single-sign-on` features.
+You can manage teams more easily using our :doc:`Single Sign-On </commercial/single-sign-on>` features.
 
 
 .. seealso:: Our infomation on :doc:`/commercial/organizations`.
