@@ -13,7 +13,7 @@ Prerequisites
 Organization permissions
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-To change your Organization's settings,
+To change your :ref:`Organization <commercial/organization:Organizations>`'s settings,
 you need to be an *owner* of that organization.
 
 You can validate your ownership of the Organization with these steps:
@@ -28,8 +28,15 @@ User setup
 ~~~~~~~~~~
 
 Using this setup,
-all users who have access to the domain you configure will be granted a subset of permissions on your organization automatically on account creation.
-Other users can also be added to your organization and given access in an ad hoc manner.
+all users who have access to the configured Google Workspace will be granted a subset of permissions on your organization automatically on account creation.
+.. tip::
+
+   You can still add outside collaborators and manage their access. Organizations may for instance wish to give read-access to onboarding documents or grant temporary write access to external consultants.
+   
+.. seealso::
+
+   :doc:`/commercial/sharing`
+     Read more about methods for sharing **read** access to private sets of documentation without requiring a login for Read the Docs or your SSO provider.
 
 Enabling SSO
 ------------
@@ -65,6 +72,8 @@ By disabling the Google Workspace account with email ``employee@company.com``,
 you revoke access to all the projects that user had access and disable login on Read the Docs completely for that user.
 
 .. seealso::
-    * Additional user management options are available at :doc:`/guides/manage-read-the-docs-teams`.
-    * To learn more about choosing a Single Sign-on approach,
-    please read :doc:`/commercial/single-sign-on`.
+
+   :doc:`/guides/manage-read-the-docs-teams`
+     Additional user management options
+   :doc:`/commercial/single-sign-on`
+     Information about choosing a Single Sign-on approach

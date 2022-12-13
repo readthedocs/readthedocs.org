@@ -38,6 +38,6 @@ SSO with Google Workspace
 .. note:: Google Workspace was formerly called G Suite
 
 This feature allows you to restrict access to users with a specific email address (e.g. ``employee@company.com``),
-provided by Google.
+where ``company.com`` is a registered Google Workspace domain.
 As this identity provider does not provide authorization over each project a user has access to,
 permissions are managed by the :ref:`internal Read the Docs's teams <commercial/organizations:Team Types>` authorization system.

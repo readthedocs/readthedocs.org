@@ -13,7 +13,7 @@ Prerequisites
 Organization permissions
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To change your Organization's settings,
+To change your :ref:`Organization <commercial/organization:Organizations>`'s settings,
 you need to be an *owner* of that organization.
 
 You can validate your ownership of the Organization with these steps:
@@ -48,11 +48,13 @@ You can read more about `granting permissions on GitHub`_ in their documentation
 
 .. _granting permissions on GitHub: https://docs.github.com/en/github/setting-up-and-managing-organizations-and-teams/repository-permission-levels-for-an-organization
 
-Grant access to read the documentation
---------------------------------------
+Grant access to read private documentation
+------------------------------------------
 
 By granting **read** permissions to a user in your git repository,
 you are giving the user access to read the documentation of the associated project on Read the Docs.
+By default, private git repositories are built as private documentation websites.
+Having **read** permissions to the git repository translates to having **view** permissions to a private documentation website.
 
 Grant access to administer a project
 ------------------------------------
@@ -63,11 +65,13 @@ you are giving the user access to read the documentation *and* to be an administ
 Grant access to import a project
 --------------------------------
 
-When SSO with a VCS provider is enabled, only owners of the Read the Docs organization can import projects.
-Adding users as owners of your organization will give them permissions to import projects.
+When SSO with a Git provider is enabled, only owners of the Read the Docs organization can import projects.
 
 To be able to import a project,
-that user must have **admin** permissions in the VCS repository associated.
+a user must have:
+
+#. **admin** permissions in the associated Git repository.
+#. Ownership rights to the Read the Docs organization
 
 Revoke access to a project
 --------------------------
@@ -79,7 +83,7 @@ and this will be automatically reflected in Read the Docs.
 The same process is followed in case you need to remove admin access,
 but still want that user to have access to read the documentation.
 Instead of revoking access completely,
-just need their permissions to read only.
+downgrade their permissions to *read only*.
 
 .. seealso::
     To learn more about choosing a Single Sign-on approach,
