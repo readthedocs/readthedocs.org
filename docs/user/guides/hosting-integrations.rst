@@ -1,6 +1,13 @@
 Hosting Integrations
 ====================
 
+.. This document is not ready to be presented to our users and tell them to integrate with us.
+   It has been more useful as an internal exercise to understand how our integrations work,
+   and be able to standardize and migrate them out from the build process to a JavaScript library.
+
+   Note there are already some integrations that happens statically at build time by using a Sphinx extension,
+   or application code, and there are others that happen dynamically via our current JavaScript library.
+
 This page explains the manual steps required to integrate all the hosting features when overriding the build process by using ``build.commands`` configuration
 (see :doc:`build-customization`).
 As Read the Docs does not have control over the build process,
