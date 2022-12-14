@@ -33,6 +33,7 @@ we use sentence case there as well.
 Content
 -------
 
+* Use ``:guilabel:`` when referring to an element on the screen.
 * Do not break the content across multiple lines at 80 characters,
   but rather break them on semantic meaning (e.g. periods or commas).
   Read more about this `here <https://rhodesmill.org/brandon/2012/one-sentence-per-line/>`_.
@@ -48,3 +49,5 @@ We have a specific way that we write common words:
 
 * ``open source`` should be lower case.
 * ``git`` should be lower case.
+
+You can also see the :doc:`/glossary` other words that have canonical definitions in our docs.
