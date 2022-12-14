@@ -10,7 +10,7 @@ Hosting Integrations
    or application code, and there are others that happen dynamically via our current JavaScript library.
 
 This page explains the manual steps required to integrate all the hosting features when overriding the build process by using ``build.commands`` configuration
-(see :doc:`build-customization`).
+(see :doc:`/build-customization`).
 As Read the Docs does not have control over the build process,
 it cannot install and inject the required extensions to automatically integrate them.
 You are encourage to read this document and understand the "behind the scenes" to integrate these features by yourself.
@@ -22,26 +22,26 @@ These are all the hosting features that Read the Docs provides by default:
 `Flyout menu`_
    Menu displaying on all documentation pages containing the list of active versions,
    downloadable formats and other useful links.
-   Read more at :doc:`flyout-menu`.
+   Read more at :doc:`/flyout-menu`.
 
 `Search index`_
    Smart search index powered by Elasticsearch able to differentiate between regular text,
    function names in code, and search in all subprojects, among others.
-   Read more at :doc:`server-side-search`.
+   Read more at :doc:`/server-side-search`.
 
 `Search as you type`_
    Level up your search by providing immediate feedback while the user is typing.
-   Read more at :doc:`advanced-search.html#enable-search-as-you-type-in-your-documentation`.
+   Read more at :doc:`/advanced-search.html#enable-search-as-you-type-in-your-documentation`.
 
 `Version warning`_
    Banner displayed on old versions when there is a newer version available,
    communicating readers they may be careful since they are reading an older version of the documentation.
-   Read more at :doc:`versions#version-warning`.
+   Read more at :doc:`/versions#version-warning`.
 
 `External (pull request) version warning`_
    Benner displayed on versions of the documentation built from an external version (pull request),
    warning readers this is not the final version of this documentation.
-   Read more at :doc:`pull-requests`.
+   Read more at :doc:`/pull-requests`.
 
 .. TODO: write a new page explaining this and link it from here.
 `Telemetry`_
@@ -52,11 +52,11 @@ These are all the hosting features that Read the Docs provides by default:
 
 `Advertisement`_
    Ad shown on documentation pages that helps Read the Docs to be sustainable.
-   Read more at :doc:`advertising`.
+   Read more at :doc:`/advertising`.
 
 `Google Analytics`_
    Google Analytics integration to track pageviews on your documentation.
-   Read more at :doc:`analytics:Enabling Google Analytics on your Project`.
+   Read more at :doc:`/analytics:Enabling Google Analytics on your Project`.
 
 
 .. TODO: explain "Visual diff" when we have it available for our users.
