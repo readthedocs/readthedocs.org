@@ -171,7 +171,7 @@ Read the Docs adds the following HTML to create the warning admonition:
    Besides, we are inject it using a Sphinx extension that may differ what's the outputed HTML (based on docutils version).
 
 .. code-block:: html
-   :lienos:
+   :linenos:
    :emphasize-lines: 5,7
 
    <div class="admonition warning">
@@ -204,7 +204,7 @@ when the reader visits an old page when there is a newer version of the same pag
 
 
 .. code-block:: html
-   :lienos:
+   :linenos:
    :emphasize-lines: 5,7
 
    <div class="admonition warning">
@@ -232,7 +232,7 @@ Read the Docs uses Google Analytics behind the scenes to track pageviews.
 Besides, if the user defines a Google Analytics code, pageviews will also be sent to it.
 
 .. code-block:: html
-   :lienos:
+   :linenos:
    :emphasize-lines: 4
 
    <script type="text/javascript">
