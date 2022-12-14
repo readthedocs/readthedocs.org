@@ -206,3 +206,6 @@ linkcheck_ignore = [
     # This page is under login
     r"https://readthedocs\.org/accounts/gold",
 ]
+
+# Disable epub mimetype warnings
+suppress_warnings = ["epub.unknown_project_files"]
