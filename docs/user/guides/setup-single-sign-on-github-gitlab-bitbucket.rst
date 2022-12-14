@@ -29,7 +29,7 @@ User setup
 
 Users in your organization must have their GitHub, Bitbucket, or GitLab
 :doc:`account connected </connected-accounts>`,
-otherwise they will lose access to all repositories.
+otherwise they won't have access to any project on Read the Docs after performing this change.
 You can read more about `granting permissions on GitHub`_ in their documentation.
 
 .. _granting permissions on GitHub: https://docs.github.com/en/github/setting-up-and-managing-organizations-and-teams/repository-permission-levels-for-an-organization
