@@ -202,7 +202,3 @@ activity on your Read the Docs project webhook integration, then it's likely
 that your VCS provider is not configured correctly. If there is payload
 information on your Read the Docs project, you might need to verify that your
 versions are configured to build correctly.
-
-Either way, it may help to either resync your webhook integration (see
-`Resyncing webhooks`_ for information on this process), or set up an entirely
-new webhook integration.
