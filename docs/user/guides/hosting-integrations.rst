@@ -46,6 +46,10 @@ These are all the hosting features that Read the Docs provides by default:
    Ad shown on documentation pages that helps Read the Docs to be sustainable.
    Read more at :doc:`advertising`.
 
+`Google Analytics`_
+   Google Analytics integration to track pageviews on your documentation.
+   Read more at :doc:`analytics:Enabling Google Analytics on your Project`.
+
 
 .. TODO: explain "Visual diff" when we have it available for our users.
 
@@ -212,3 +216,26 @@ Note in the highlighted lines there are some placeholders for:
 * Read the Docs' language
 * Read the Docs' current version (old)
 * Read the Docs' new version
+
+
+Google Analytics
+----------------
+
+Read the Docs uses Google Analytics behind the scenes to track pageviews.
+Besides, if the user defines a Google Analytics code, pageviews will also be sent to it.
+
+.. code-block:: html
+   :lienos:
+   :emphasize-lines: 4
+
+   <script type="text/javascript">
+   READTHEDOCS_DATA = {
+     "user_analytics_code": "<your GA code>",
+   }
+   </script>
+
+.. The GA4 JavaScript required for this is inject dynamically at:
+   https://github.com/readthedocs/readthedocs.org/blob/cfecfb9b7da783aa856ffad82ea5cec474d2f31c/media/javascript/readthedocs-analytics.js#L9-L44
+
+   In that file, "global_analytics_code" and "user_analytics_code" is injected
+   via the readthedocs-sphinx-ext.
