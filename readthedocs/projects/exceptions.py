@@ -23,6 +23,11 @@ class ProjectConfigurationError(BuildUserError):
     )
 
 
+class UserFileNotFound(BuildUserError):
+
+    FILE_NOT_FOUND = _("The file {} doesn't exist. Make sure it's a valid file path.")
+
+
 class RepositoryError(BuildUserError):
 
     """Failure during repository operation."""

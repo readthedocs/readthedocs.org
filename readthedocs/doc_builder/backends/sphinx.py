@@ -3,10 +3,8 @@ Sphinx_ backend for building docs.
 
 .. _Sphinx: http://www.sphinx-doc.org/
 """
-import codecs
 import itertools
 import os
-import shutil
 import zipfile
 from glob import glob
 from pathlib import Path
@@ -20,8 +18,9 @@ from requests.exceptions import ConnectionError
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
+from readthedocs.core.utils.filesystem import safe_copytree, safe_open, safe_rmtree
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.exceptions import ProjectConfigurationError
+from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
 from readthedocs.projects.models import Feature
 from readthedocs.projects.utils import safe_write
 
@@ -234,7 +233,14 @@ class BaseSphinx(BaseBuilder):
             self.config_file = (
                 self.config_file or self.project.conf_file(self.version.slug)
             )
-            outfile = codecs.open(self.config_file, encoding='utf-8', mode='a')
+            # Allow symlinks, but only the ones that resolve inside the base directory.
+            outfile = safe_open(
+                self.config_file, "a", allow_symlinks=True, base_path=self.project_path
+            )
+            if not outfile:
+                raise UserFileNotFound(
+                    UserFileNotFound.FILE_NOT_FOUND.format(self.config_file)
+                )
         except IOError:
             raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
 
@@ -353,9 +359,9 @@ class HtmlBuilder(BaseSphinx):
         )
         if os.path.exists(json_path):
             if os.path.exists(json_path_target):
-                shutil.rmtree(json_path_target)
+                safe_rmtree(json_path_target)
             log.debug('Copying json on the local filesystem')
-            shutil.copytree(
+            safe_copytree(
                 json_path,
                 json_path_target,
             )
