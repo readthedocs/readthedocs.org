@@ -47,12 +47,19 @@ you will be able to preview changes and see accepted changes published immediate
 Automated versioning
 --------------------
 
-Maintaining your documentation in a git repository with Read the Docs' automated CI/CD pipeline
-also means that you will be able to align your project's **release cycle** with your documentation.
-Whenever you announce a new **version** for your documentation,
+With Read the Docs' automated CI/CD pipeline, you will be able to fully align your project's **release cycle** with your documentation.
+For instance, a new version of a software project can build and publish a new version of its documentation.
+
+Read the Docs is notified of all changes to your git branches and git tags.
+When you announce a new **version** for your project,
 you will probably tag that version in your git repository.
-Read the Docs automatically registers the change and adds a new version to your documentation.
-This is captured in the :term:`flyout menu`.
+Read the Docs can be configured to understand your versioning patterns and discover the changes to git tags and branches.
+
+Once a new git branch or git tag is registered, Read the Docs can be configured to build and publish new versions.
+Whether you choose to handle this automatically or with manual control is up to you.
+
+Read the Docs will store your version history and make it possible for users to visit archived versions of your documentation.
+Your version setup is ultimately captured by the :term:`flyout menu`.
 
 
 .. seealso::
@@ -61,3 +68,5 @@ This is captured in the :term:`flyout menu`.
         Information on setting up your Git repository to make Read the Docs automatically build your documentation project.
     :doc:`/automation-rules`
         Information on setting up your Git repository to make Read the Docs automatically build your documentation project.
+    :doc:`/flyout-menu`
+        Discover the functionality of the Flyout menu and the ways that it can be customized.
