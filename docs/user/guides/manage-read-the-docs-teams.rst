@@ -21,7 +21,7 @@ This can be done by:
 Removing a user from a team
 ----------------------------
 
-Removing a user to a team removes all permissions that team gave them
+Removing a user from a team removes all permissions that team gave them
 
 * Navigating to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Organization name>` > :guilabel:`Teams` > :guilabel:`<Team name>`
 * Clicking :guilabel:`Remove` next to the user.
@@ -31,7 +31,7 @@ Grant access to users to import a project
 -----------------------------------------
 
 Make the user a member of any team with *admin* permissions,
-they will be granted access to import a project.
+they will be granted access to import a project on that team.
 
 Automating this process
 -----------------------
