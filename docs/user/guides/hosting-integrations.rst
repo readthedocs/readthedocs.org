@@ -234,7 +234,7 @@ Besides, if the user defines a Google Analytics code, pageviews will also be sen
 
 .. code-block:: html
    :linenos:
-   :emphasize-lines: 4
+   :emphasize-lines: 3
 
    <script type="text/javascript">
    READTHEDOCS_DATA = {
