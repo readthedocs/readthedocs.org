@@ -51,12 +51,10 @@ With Read the Docs' automated CI/CD pipeline, you will be able to fully align yo
 For instance, a new version of a software project can build and publish a new version of its documentation.
 
 Read the Docs is notified of all changes to your git branches and git tags.
-When you release a **new version** for your project,
+When you release a new version for your project,
 you are likely also adding a version tag to your git repository.
-
-Read the Docs is notified of changes to git tags and branches.
-These events can be configured to build and publish your documentation when new tags or branches are added in your repository.
-If you use a versioning schema, you can choose or define the schema and automate this process.
+These git events can be configured to build and publish your documentation automatically with :doc:`/automation-rules`.
+If you use a versioning schema, you can configure it as part of the automation process.
 
 Whether you choose to handle versioning automatically or with manual control is up to you.
 
