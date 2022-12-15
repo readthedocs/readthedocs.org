@@ -12,6 +12,9 @@ have a look at our :doc:`/tutorial/index`.
 .. toctree::
    :maxdepth: 1
 
+   Connect your git repository <git-integrations>
+   Manage Custom Domains <custom-domains>
+   Enable Canonical URLs <canonical-urls>
    technical-docs-seo-guide
    manage-translations-sphinx
    hiding-a-version
@@ -20,3 +23,4 @@ have a look at our :doc:`/tutorial/index`.
    importing-private-repositories
    Setup Build Notifications <build-notifications>
    subprojects
+   Configure Pull Request Builds <pull-requests>

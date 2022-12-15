@@ -16,7 +16,10 @@ If you go to ``<slug>.readthedocs.io``, it should show you the latest version of
 for example https://docs.readthedocs.io.
 For :doc:`/commercial/index` the subdomain looks like ``<slug>.readthedocs-hosted.com``.
 
-.. seealso:: :doc:`/custom-domains`.
+.. seealso::
+
+   :doc:`/custom-domains`
+      More information on using a custom domain.
 
 Content Delivery Network (CDN)
 ------------------------------
@@ -25,8 +28,7 @@ A CDN is used for making documentation pages faster for your users.
 This is done by caching the documentation page content in multiple data centers around the world,
 and then serving docs from the data center closest to the user.
 
-We support CDN's on both of our sites,
-as we talk about below.
+We support CDNs on both of our sites:
 
 .. tabs::
 
@@ -34,7 +36,7 @@ as we talk about below.
 
       On |org_brand|,
       we are able to provide a CDN to all the projects that we host.
-      This service is graciously sponsored by `CloudFlare`_.
+      This service is graciously sponsored by `Cloudflare`_.
 
       We bust the cache on the CDN when the following actions happen:
 
@@ -49,7 +51,13 @@ as we talk about below.
       we offer a CDN as part of our **Pro plan** and above.
       Please contact support@readthedocs.com to discuss how we can enable this for you.
 
-.. _CloudFlare: https://www.cloudflare.com/
+      We invalidate and refresh the cache on the CDN when the following actions happen:
+
+      * Your project is saved
+      * Your domain is saved
+      * A version or branch is built
+
+.. _Cloudflare: https://www.cloudflare.com/
 
 Sitemaps
 --------
