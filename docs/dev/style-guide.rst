@@ -21,11 +21,11 @@ Titles
 For page titles we use sentence case.
 This means only proper nouns and the first word are capitalized::
 
-# Good ✅
-How we handle support on Read the Docs.
+    # Good ✅
+    How we handle support on Read the Docs.
 
-# Bad 🔴
-How we Handle Support on Read the Docs
+    # Bad 🔴
+    How we Handle Support on Read the Docs
 
 If the page includes multiple sub-headings (H2, H3),
 we use sentence case there as well.
@@ -49,7 +49,7 @@ Word List
 
 We have a specific way that we write common words:
 
-* ``Git repository`` for the place that stores Git repos. We used to use ``VCS``, but this is deprecated. 
+* ``Git repository`` for the place that stores Git repos. We used to use ``VCS``, but this is deprecated.
 * ``open source`` should be lower case, unless you are definitely referring to `OSI's Open Source Definition <https://opensource.org/osd>`.
 * ``Git`` should be upper case, except when referring to the command, when it should be written as `:program:\`git\``.
 
@@ -57,10 +57,10 @@ Glossary
 --------
 
 Since the above Word List is for internal reference,
-we also maintain a :doc:`/glossary` with terms that have canonical definitions in our docs.
+we also maintain a :doc:`rtd:glossary` with terms that have canonical definitions in our docs.
 Terms that can otherwise have multiple definitions
 *or* have a particular meaning in Read the Docs context
-should always be added to the :doc:`/glossary` and referenced using the ``:term:`` role.
+should always be added to the :doc:`rtd:glossary` and referenced using the ``:term:`` role.
 
 Using a glossary helps us (authors) to have consistent definitions
 but even more importantly,
