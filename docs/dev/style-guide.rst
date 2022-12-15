@@ -33,7 +33,9 @@ we use sentence case there as well.
 Content
 -------
 
-* Use ``:guilabel:`` when referring to an element on the screen.
+* Use ``:menuselection:`` when referring to an item or sequence of items in navigation.
+* Use ``:guilabel:`` when referring to a visual element on the screen - such as a button, drop down or input field.
+* Use ``**bold text**`` when referring to a non-interactive text element, such as a header.
 * Do not break the content across multiple lines at 80 characters,
   but rather break them on semantic meaning (e.g. periods or commas).
   Read more about this `here <https://rhodesmill.org/brandon/2012/one-sentence-per-line/>`_.
@@ -50,4 +52,17 @@ We have a specific way that we write common words:
 * ``open source`` should be lower case.
 * ``git`` should be lower case.
 
-You can also see the :doc:`/glossary` other words that have canonical definitions in our docs.
+Glossary
+--------
+
+Since the above Word List is for internal reference,
+we also maintain a :doc:`/glossary` with terms that have canonical definitions in our docs.
+Terms that can otherwise have multiple definitions
+*or* have a particular meaning in Read the Docs context
+should always be added to the :doc:`/glossary` and referenced using the ``:term:`` role.
+
+Using a glossary helps us (authors) to have consistent definitions
+but even more importantly,
+it helps and includes readers by giving them quick and easy access to terms that they may be unfamiliar with.
+
+Use an external link or Intersphinx reference when a term is clearly defined elsewhere.
