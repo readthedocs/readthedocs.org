@@ -3,7 +3,7 @@ Choosing a Single Sign-On (SSO) approach for your organization
 
 .. include:: /shared/admonition-rtd-business.rst
 
-Single sign-on an optional feature on |com_brand| for all users.
+Single sign-on is an optional feature on |com_brand| for all users.
 By default,
 you will use :doc:`teams </guides/manage-read-the-docs-teams>` within Read the Docs to manage user authorization.
 :abbr:`SSO (single sign-on)` will allow you to grant permissions to your organization's projects in an easy way.
@@ -27,7 +27,7 @@ Using an identity provider that supports authentication and authorization allows
 who has access to projects on Read the Docs,
 directly from the provider itself.
 If a user needs access to your documentation project on Read the Docs,
-that user just needs to be granted permissions in the git repository associated with the project.
+that user just needs to be granted permissions in the Git repository associated with the project.
 
 Once you enable this option,
 your existing Read the Docs teams will not be used.
