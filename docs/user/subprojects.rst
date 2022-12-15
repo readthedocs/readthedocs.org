@@ -1,5 +1,5 @@
 Organizing multiple projects in one site: Subprojects
-============================================
+=====================================================
 
 Projects can be configured in a nested manner, by configuring a project as a
 *subproject* of another project. This allows for documentation projects to share
@@ -9,8 +9,8 @@ independently.
 This is useful for:
 
 * Organizations that need all their projects visible in one documentation portal or landing page
-* Projects that document and release several packages through a combined release cycle
-* Projects that document and release several packages through different release cycles
+* Projects that document and release several packages or extensions
+* Organizations or projects that want to have a common search function for several sets of documentation
 
 For example, a parent project, ``foo`` is set up with a subproject, ``bar``. The
 documentation for ``foo`` will be available at:
@@ -45,6 +45,18 @@ Custom domain on subprojects
 Adding a custom domain to a subproject is not allowed,
 since your documentation will always be served from
 the domain of the parent project.
+
+Separate release cycles
+-----------------------
+
+When several projects are documented in the same space, it's common that they follow separate release cycles.
+
+We recommend that the documentation follows the release cycle of whatever it is documenting.
+By using subprojects, you can present your documentation for several projects with separate release cycles.
+This is solved by having the :term:`flyout menu` active for the project that's viewed.
+
+When the user navigates to a subproject,
+they are presented with a :term:`flyout menu` matching the subproject's versions and :doc:`/downloadable-documentation`.
 
 Search
 ------
