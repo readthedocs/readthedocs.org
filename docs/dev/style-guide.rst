@@ -49,6 +49,7 @@ Word List
 
 We have a specific way that we write common words:
 
+* ``Git repository`` for the place that stores Git repos. We used to use ``VCS``, but this is deprecated. 
 * ``open source`` should be lower case, unless you are definitely referring to `OSI's Open Source Definition <https://opensource.org/osd>`.
 * ``Git`` should be upper case, except when referring to the command, when it should be written as `:program:\`git\``.
 
