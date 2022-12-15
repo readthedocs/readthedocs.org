@@ -12,12 +12,12 @@ This is useful for:
 * Projects that document and release several packages through a combined release cycle
 * Projects that document and release several packages through different release cycles
 
-For example, a parent project, ``Foo`` is set up with a subproject, ``Bar``. The
-documentation for ``Foo`` will be available at:
+For example, a parent project, ``foo`` is set up with a subproject, ``bar``. The
+documentation for ``foo`` will be available at:
 
 https://foo.readthedocs.io/en/latest/
 
-The documentation for ``Bar`` will be available under this same path:
+The documentation for ``bar`` will be available under this same path:
 
 https://foo.readthedocs.io/projects/bar/en/latest/
 
@@ -34,8 +34,8 @@ of projects. To configure this, one project should be established as the parent
 project. This project will be configured with a custom domain. Projects can then
 be added as subprojects to this parent project.
 
-If the example project ``Foo`` was set up with a custom domain,
-``docs.example.com``, the URLs for projects ``Foo`` and ``Bar`` would
+If the example project ``foo`` was set up with a custom domain,
+``docs.example.com``, the URLs for projects ``foo`` and ``bar`` would
 respectively be at: https://docs.example.com/en/latest/ and
 https://docs.example.com/projects/bar/en/latest/
 
