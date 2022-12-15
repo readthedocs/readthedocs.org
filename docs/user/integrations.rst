@@ -6,7 +6,7 @@
        (Perhaps reuse this: https://about.readthedocs.com/images/homepage.png)
 
 
-Building documentation on every git commit
+Building documentation on every Git commit
 ==========================================
 
 Read the Docs is a *Continuous Documentation Deployment* platform for your software project.
@@ -25,7 +25,7 @@ Continuous Documentation for software projects
 
 Documentation fits into any CI/CD pipeline through the idea and objectives of *Documentation as Code*.
 A straight-forward method to achieve this is by maintaining documentation alongside the source code,
-meaning that the documentation's life cycle is contained within the same git repository as the source code.
+meaning that the documentation's life cycle is contained within the same Git repository as the source code.
 
 When changes happen to the source code, changes should also happen to the documentation.
 By managing these changes in the same life cycle,
@@ -41,7 +41,7 @@ Continuous Documentation for all projects
 
 All categories of documentation benefit from being *continuously* built and published through Read the Docs.
 
-If you are managing your documentation in git,
+If you are managing your documentation in Git,
 you will be able to preview changes and see accepted changes published immediately using :doc:`/pull-requests`.
 
 Automated versioning
@@ -50,10 +50,10 @@ Automated versioning
 With Read the Docs' automated CI/CD pipeline, you will be able to fully align your project's **release cycle** with your documentation.
 For instance, a new version of a software project can build and publish a new version of its documentation.
 
-Read the Docs is notified of all changes to your git branches and git tags.
+Read the Docs is notified of all changes to your Git branches and tags.
 When you release a new version for your project,
-you are likely also adding a version tag to your git repository.
-These git events can be configured to build and publish your documentation automatically with :doc:`/automation-rules`.
+you are likely also adding a version tag to your Git repository.
+These Git events can be configured to build and publish your documentation automatically with :doc:`/automation-rules`.
 If you use a versioning schema, you can configure it as part of the automation process.
 
 Whether you choose to handle versioning automatically or with manual control is up to you.
