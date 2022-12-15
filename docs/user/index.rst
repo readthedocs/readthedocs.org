@@ -78,10 +78,10 @@ to help you create fantastic documentation for your project.
    /localization
    /choosing-a-site
    /build-notifications
+   /integrations
    /custom-domains
    /pull-requests
    /downloadable-documentation
-
 
 .. toctree::
    :maxdepth: 2
@@ -113,7 +113,6 @@ and some of the core features of Read the Docs.
 
 * **Overview of core features**:
   :doc:`/features` |
-  :doc:`/integrations` |
   :doc:`/custom-domains` |
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
@@ -179,6 +178,7 @@ and how to write successful documentation.
   :doc:`More guides for authors </guides/authors>`
 
 * **For project administrators**:
+  :doc:`Connect Your Git Repository </guides/git-integrations>` |
   :doc:`Manage Custom Domains </guides/custom-domains>` |
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
