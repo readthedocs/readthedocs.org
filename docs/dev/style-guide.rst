@@ -50,7 +50,7 @@ Word List
 We have a specific way that we write common words:
 
 * ``open source`` should be lower case, unless you are definitely referring to `OSI's Open Source Definition <https://opensource.org/osd>`.
-* ``git`` should be lower case.
+* ``Git`` should be upper case, except when referring to the command, when it should be written as `:program:\`git\``.
 
 Glossary
 --------
