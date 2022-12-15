@@ -106,7 +106,8 @@ def prepare_build(
             version_type=version.type,
             build_pk=build.id,
             commit=commit,
-            status=BUILD_STATUS_PENDING
+            status=BUILD_STATUS_PENDING,
+            link_to_build=False,
         )
 
     if version.type != EXTERNAL:

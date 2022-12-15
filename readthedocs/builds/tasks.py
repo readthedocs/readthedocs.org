@@ -389,6 +389,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
     :param build_pk: Build primary key
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
+    :param link_to_build: When True, link to the built HTML
     """
     # TODO: Send build status for BitBucket.
     build = Build.objects.filter(pk=build_pk).first()
@@ -449,7 +450,9 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                 # Try to loop through services for users all social accounts
                 # to send successful build status
                 for service in services:
-                    success = service.send_build_status(build, commit, status)
+                    success = service.send_build_status(
+                        build, commit, status, link_to_build=link_to_build
+                    )
                     if success:
                         log.debug(
                             'Build status report sent correctly using an user account.',

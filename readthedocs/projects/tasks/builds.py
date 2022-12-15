@@ -482,7 +482,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
 
         # NOTE: why we wouldn't have `self.data.build_commit` here?
-        # This attribute is set when we get it after clonning the repository
+        # This attribute is set when we get it after cloning the repository
         #
         # Oh, I think this is to differentiate a task triggered with
         # `Build.commit` than a one triggered just with the `Version` to build
@@ -508,6 +508,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 build_pk=self.data.build['id'],
                 commit=self.data.build_commit,
                 status=status,
+                # Fix bug where we were generating relative links to the version
+                # with ``get_absolute_url``.
+                # https://github.com/readthedocs/readthedocs.org/issues/9791
+                link_to_build=True,
             )
 
         # Update build object
@@ -578,6 +582,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 build_pk=self.data.build['id'],
                 commit=self.data.build_commit,
                 status=BUILD_STATUS_SUCCESS,
+                link_to_build=True,
             )
 
         # Update build object
