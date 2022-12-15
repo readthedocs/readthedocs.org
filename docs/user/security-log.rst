@@ -35,7 +35,7 @@ Organization security log
 
    This feature exists only on :doc:`/commercial/index`.
 
-The length of log store varies with your plan,
+The length of log storage varies with your plan,
 check our `pricing page <https://readthedocs.com/pricing/>`__ for more details.
 We track the following events:
 
@@ -57,7 +57,7 @@ Your organization security log is a great place to check periodically to ensure 
 If you have any additional information that you wished the security log was capturing,
 you can always reach out to :doc:`/support`.
 
-.. seealso:: 
+.. seealso::
 
     :doc:`/security`
       Security information related to our own platform, personal data treatment, and how to report a security issue.
