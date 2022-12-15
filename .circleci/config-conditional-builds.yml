@@ -16,7 +16,10 @@ jobs:
           ES_JAVA_OPTS: -Xms750m -Xmx750m
     steps:
       - when:
-          condition: build-code
+          condition:
+            or:
+              - build-code
+              - equal: [ main, << pipeline.git.branch >> ]
           steps:
             - checkout
             - run: git submodule sync
@@ -30,7 +33,10 @@ jobs:
       - image: 'cimg/python:3.10'
     steps:
       - when:
-          condition: build-code
+          condition:
+            or:
+              - build-code
+              - equal: [ main, << pipeline.git.branch >> ]
           steps:
             - checkout
             - run: git submodule sync
