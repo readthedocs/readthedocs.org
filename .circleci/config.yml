@@ -17,3 +17,6 @@ workflows:
             pytest.* build-code true
             tox.* build-code true
             package.* build-code true
+            \.circleci/* build-code true
+            common build-code true
+            setup.* build-code true
