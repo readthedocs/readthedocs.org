@@ -168,7 +168,7 @@ and some of the core features of Read the Docs.
 How-to Guides
 -------------
 
-These guides will help walk you through specific use cases
+These guides will help you walk through specific use cases
 related to Read the Docs itself, documentation tools like Sphinx and MkDocs
 and how to write successful documentation.
 
@@ -184,8 +184,8 @@ and how to write successful documentation.
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
   :doc:`/guides/private-submodules` |
-  Setup Build Notifications <build-notifications> |
   :doc:`Configure Pull Request Builds </guides/pull-requests>` |
+  :doc:`/guides/build-notifications` |
   :doc:`More guides for administrators </guides/administrators>`
 
 * **For developers and designers**:
@@ -194,7 +194,7 @@ and how to write successful documentation.
   :doc:`/guides/reproducible-builds` |
   :doc:`/guides/embedding-content` |
   :doc:`/guides/conda` |
-  Setup Build Notifications <build-notifications> |
+  :doc:`/guides/build-notifications` |
   :doc:`More guides for developers and designers </guides/developers>`
 
 
