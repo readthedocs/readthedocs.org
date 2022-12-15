@@ -74,6 +74,7 @@ version = "9.1.0"
 release = version
 exclude_patterns = ["_build", "shared"]
 default_role = "obj"
+intersphinx_timeout = 3  # 3 seconds timeout
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.10/", None),
     "django": (
@@ -195,6 +196,9 @@ notfound_context = {
 <p>Try using the search box or go to the homepage.</p>
 """,
 }
+linkcheck_retries = 2
+linkcheck_timeout = 1
+linkcheck_workers = 10
 linkcheck_ignore = [
     r"http://127\.0\.0\.1",
     r"http://localhost",
@@ -214,3 +218,6 @@ linkcheck_ignore = [
 extlinks = {
     "rtd-issue": ("https://github.com/readthedocs/readthedocs.org/issues/%s", "#"),
 }
+
+# Disable epub mimetype warnings
+suppress_warnings = ["epub.unknown_project_files"]
