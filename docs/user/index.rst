@@ -78,10 +78,10 @@ to help you create fantastic documentation for your project.
    /localization
    /choosing-a-site
    /build-notifications
+   /integrations
    /custom-domains
    /pull-requests
    /downloadable-documentation
-
 
 .. toctree::
    :maxdepth: 2
@@ -113,7 +113,6 @@ and some of the core features of Read the Docs.
 
 * **Overview of core features**:
   :doc:`/features` |
-  :doc:`/integrations` |
   :doc:`/custom-domains` |
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
@@ -168,7 +167,7 @@ and some of the core features of Read the Docs.
 How-to Guides
 -------------
 
-These guides will help walk you through specific use cases
+These guides will help you walk through specific use cases
 related to Read the Docs itself, documentation tools like Sphinx and MkDocs
 and how to write successful documentation.
 
@@ -179,12 +178,13 @@ and how to write successful documentation.
   :doc:`More guides for authors </guides/authors>`
 
 * **For project administrators**:
+  :doc:`Connect Your Git Repository </guides/git-integrations>` |
   :doc:`Manage Custom Domains </guides/custom-domains>` |
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
   :doc:`/guides/private-submodules` |
-  Setup Build Notifications <build-notifications> |
   :doc:`Configure Pull Request Builds </guides/pull-requests>` |
+  :doc:`/guides/build-notifications` |
   :doc:`More guides for administrators </guides/administrators>`
 
 * **For developers and designers**:
@@ -193,7 +193,7 @@ and how to write successful documentation.
   :doc:`/guides/reproducible-builds` |
   :doc:`/guides/embedding-content` |
   :doc:`/guides/conda` |
-  Setup Build Notifications <build-notifications> |
+  :doc:`/guides/build-notifications` |
   :doc:`More guides for developers and designers </guides/developers>`
 
 
