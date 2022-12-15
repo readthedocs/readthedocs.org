@@ -151,7 +151,7 @@ and how to write successful documentation.
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
   :doc:`/guides/private-submodules` |
-  :doc:`/guides/build-notifications`|
+  :doc:`/guides/build-notifications` |
   :doc:`More guides for administrators </guides/administrators>`
 
 * **For developers and designers**:
@@ -160,7 +160,7 @@ and how to write successful documentation.
   :doc:`/guides/reproducible-builds` |
   :doc:`/guides/embedding-content` |
   :doc:`/guides/conda` |
-  :doc:`/guides/build-notifications`|
+  :doc:`/guides/build-notifications` |
   :doc:`More guides for developers and designers </guides/developers>`
 
 .. toctree::
