@@ -389,7 +389,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
     :param build_pk: Build primary key
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
-    :param link_to_build: When True, link to the built HTML
+    :param link_to_build: If true, link to the build page regardless the state.
     """
     # TODO: Send build status for BitBucket.
     build = Build.objects.filter(pk=build_pk).first()

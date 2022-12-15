@@ -333,7 +333,7 @@ class TestBuildTask(BuildEnvironmentBase):
             build_pk=self.build.pk,
             commit=self.build.commit,
             status=BUILD_STATUS_SUCCESS,
-            link_to_build=True,
+            link_to_build=False,
         )
 
         build_complete.send.assert_called_once_with(

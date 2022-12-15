@@ -38,8 +38,11 @@ class SendBuildStatusTests(TestCase):
     @patch('readthedocs.projects.tasks.utils.send_build_status')
     def test_send_external_build_status_with_internal_version(self, send_build_status):
         send_external_build_status(
-            self.internal_version.type, self.internal_build.id,
-            self.external_build.commit, BUILD_STATUS_SUCCESS
+            self.internal_version.type,
+            self.internal_build.id,
+            self.external_build.commit,
+            BUILD_STATUS_SUCCESS,
+            link_to_build=False,
         )
 
         send_build_status.delay.assert_not_called()
