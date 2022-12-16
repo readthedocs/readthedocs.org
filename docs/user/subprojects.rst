@@ -1,10 +1,9 @@
 Subprojects: host multiple projects on a single domain
 ======================================================
 
-Projects can be configured in a nested manner, by configuring a project as a
-*subproject* of another project. This allows for documentation projects to share
-a search index and a namespace or custom domain, but still be maintained
-independently.
+Projects can be configured to make other so-called subprojects available from the same website.
+This allows for documentation projects to share a search index and a namespace or custom domain,
+but still be maintained independently.
 
 This is useful for:
 
