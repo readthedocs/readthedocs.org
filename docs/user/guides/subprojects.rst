@@ -29,7 +29,7 @@ You can edit a subproject at any time by clicking :guilabel:`|:memo:|` in the li
 On the following page, it's possible to both change the alias and source project.
 Click :guilabel:`Update subproject` to save your changes.
 
-What is visible in ``/projects/<subproject-alias>/`` will be updated immediately when you save your changes.
+The documentations served at``/projects/<subproject-alias>/`` will be updated immediately when you save your changes.
 
 
 Deleting a subproject
