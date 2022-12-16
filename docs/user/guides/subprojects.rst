@@ -14,6 +14,11 @@ Adding a subproject
 In the admin dashboard for your project, select :guilabel:`Subprojects` from the menu.
 From this page you can add a subproject by typing in the project slug.
 
+.. note::
+
+   * On |org_brand|, you need to be maintainer of a subproject in order to choose it from your main project.
+   * On |com_brand|, you need to have admin access to the subproject in order to choose it from your main project.
+
 Subproject aliases
 ~~~~~~~~~~~~~~~~~~
 
