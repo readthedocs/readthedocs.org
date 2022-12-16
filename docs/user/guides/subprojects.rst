@@ -1,7 +1,8 @@
 How to manage subprojects
 =========================
 
-This guide shows you how to add a subproject to your main project.
+This guide shows you how to manage subprojects, 
+which are a way to host multiple projects under a "main project".
 
 .. seealso::
 
