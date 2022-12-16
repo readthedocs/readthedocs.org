@@ -21,7 +21,7 @@ You can choose an alias for the subproject when it is created.
 This allows you to override the URL that is used to access it,
 giving more control over how you want to structure your projects.
 
-You can set your subproject's project name and slug however you want,
+You can set your subproject's project name and :term:`slug` however you want,
 but we suggest prefixing it with the name of the main project.
 
 Typically, a subproject is created with a ``<mainproject>-`` prefix,

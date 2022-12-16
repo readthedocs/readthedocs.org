@@ -36,8 +36,10 @@ be added as subprojects to this parent project.
 
 If the example project ``foo`` was set up with a custom domain,
 ``docs.example.com``, the URLs for projects ``foo`` and ``bar`` would
-respectively be at: https://docs.example.com/en/latest/ and
-https://docs.example.com/projects/bar/en/latest/
+respectively be at: 
+
+* `foo`: https://docs.example.com/en/latest/
+* `bar`: https://docs.example.com/projects/bar/en/latest/
 
 Custom domain on subprojects
 ----------------------------
