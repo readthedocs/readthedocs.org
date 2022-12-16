@@ -35,10 +35,13 @@ The documentations served at``/projects/<subproject-alias>/`` will be updated im
 Deleting a subproject
 ---------------------
 
-You can edit a subproject at any time by clicking :guilabel:`|:memo:|` in the list of subprojects.
+You can delete a subproject at any time by clicking :guilabel:`|:memo:|` in the list of subprojects.
 On the edit page, click :guilabel:`Delete subproject`.
 
-Your subproject will be removed immediately and it will stop redirecting from its own domain.
+Your subproject will be removed immediately and will be served from it's own domain:
 
-Deleting a subproject does not mean to completely remove that project.
-It is solely about removing the reference from the main project.
+* Previously it was served at: `<source-project-domain>/projects/<subproject-alias>/`
+* Now it will be served at `<subproject-domain>/`
+
+**Deleting a subproject does not mean to completely remove that project**.
+It only removes the reference from the main project.
