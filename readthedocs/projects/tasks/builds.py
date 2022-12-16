@@ -582,7 +582,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 build_pk=self.data.build['id'],
                 commit=self.data.build_commit,
                 status=BUILD_STATUS_SUCCESS,
-                link_to_build=False,
+                link_to_build=False,  # Link to HTML on success...
             )
 
         # Update build object

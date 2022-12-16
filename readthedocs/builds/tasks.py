@@ -261,7 +261,7 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
                     build_pk=last_build.pk,
                     commit=last_build.commit,
                     status=status,
-                    link_to_build=True,
+                    link_to_build=True,  # Unset the link to the docs if it was set.
                 )
         except Exception:
             log.exception(
