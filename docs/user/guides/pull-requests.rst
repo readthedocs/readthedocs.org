@@ -60,7 +60,7 @@ No new builds are started when I open a pull request
 
    You may also notice this behavior if your Read the Docs account is not
    connected to your VCS provider account, or if it needs to be reconnected.
-   You can (re)connect your account by going to your :guilabel:`Username dropdown`,
+   You can (re)connect your account by going to your :guilabel:`<Username dropdown>`,
    :guilabel:`Settings`, then to :guilabel:`Connected Services`.
 
 

@@ -646,9 +646,9 @@ class BitbucketWebhookView(WebhookMixin, APIView):
 
     def handle_webhook(self):
         """
-        Handle BitBucket events for push.
+        Handle Bitbucket events for push.
 
-        BitBucket doesn't have a separate event for creation/deletion, instead
+        Bitbucket doesn't have a separate event for creation/deletion, instead
         it sets the new attribute (null if it is a deletion) and the old
         attribute (null if it is a creation).
         """
@@ -684,7 +684,7 @@ class BitbucketWebhookView(WebhookMixin, APIView):
         return None
 
     def is_payload_valid(self):
-        """BitBucket doesn't have an option for payload validation."""
+        """Bitbucket doesn't have an option for payload validation."""
         return True
 
 

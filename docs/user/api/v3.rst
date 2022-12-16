@@ -1652,7 +1652,7 @@ Remote Organizations
 ~~~~~~~~~~~~~~~~~~~~
 
 Remote Organizations are the VCS organizations connected via
-``GitHub``, ``GitLab`` and ``BitBucket``.
+``GitHub``, ``GitLab`` and ``Bitbucket``.
 
 
 Remote Organization listing
@@ -1715,7 +1715,7 @@ Remote Repositories
 ~~~~~~~~~~~~~~~~~~~
 
 Remote Repositories are the importable repositories connected via
-``GitHub``, ``GitLab`` and ``BitBucket``.
+``GitHub``, ``GitLab`` and ``Bitbucket``.
 
 
 Remote Repository listing

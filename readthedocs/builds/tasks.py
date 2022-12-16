@@ -390,7 +390,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
-    # TODO: Send build status for BitBucket.
+    # TODO: Send build status for Bitbucket.
     build = Build.objects.filter(pk=build_pk).first()
     if not build:
         return

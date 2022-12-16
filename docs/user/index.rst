@@ -124,7 +124,7 @@ and some of the core features of Read the Docs.
   :doc:`/user-defined-redirects` |
   :doc:`/security-log`
 
-* **Connecting with GitHub, BitBucket, or GitLab**:
+* **Connecting with GitHub, Bitbucket, or GitLab**:
   :doc:`Connecting your VCS account </connected-accounts>`
 
 * **Read the Docs build process**:
