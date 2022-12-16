@@ -456,7 +456,7 @@ class GitHubService(Service):
         target_url = build.get_full_url()
         statuses_url = f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}'
 
-        if not link_to_build and state == BUILD_STATUS_SUCCESS:
+        if not link_to_build and not build.version.built and not build.version.uploaded:
             target_url = build.version.get_absolute_url()
 
         context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'
