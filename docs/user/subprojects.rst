@@ -1,4 +1,4 @@
-Organizing multiple projects in one site: Subprojects
+Subprojects: host multiple projects on a single domain
 =====================================================
 
 Projects can be configured in a nested manner, by configuring a project as a
