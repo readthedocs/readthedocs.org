@@ -3,7 +3,7 @@ Subprojects: host multiple projects on a single domain
 
 In this article, you can learn more about how several documentation projects can be combined and presented to the reader on the same website.
 
-Read the Docs projects can be configured to make other *subprojects* available on the same website.
+Read the Docs projects can be configured to make other *subprojects* available on the website of the *main project*.
 This allows for documentation projects to share a search index and a namespace or custom domain,
 but still be maintained independently.
 
