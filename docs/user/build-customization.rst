@@ -139,12 +139,14 @@ Here is an example that cancels builds from pull requests when there are no chan
        python: "3.11"
      jobs:
        post_checkout:
-         # Cancel building pull requests when there aren't changed in the docs directory.
+         # Cancel building pull requests when there aren't changed in the docs directory or YAML file.
+         # You can add any other files or directories that you'd like here as well,
+         # like your docs requirements file, or other files that will change your docs build.
          #
          # If there are no changes (git diff exits with 0) we force the command to return with 183.
          # This is a special exit code on Read the Docs that will cancel the build immediately.
          - |
-           if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/;
+           if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/ .readthedocs.yaml;
            then
              exit 183;
            fi

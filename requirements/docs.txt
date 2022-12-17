@@ -381,7 +381,7 @@ sphinx-notfound-page==0.8
     # via -r requirements/docs.in
 sphinx-prompt==1.4.0
     # via -r requirements/docs.in
-sphinx-rtd-theme==1.1.0
+sphinx-rtd-theme==1.2.0rc1
     # via -r requirements/docs.in
 sphinx-tabs==3.3.1
     # via -r requirements/docs.in
