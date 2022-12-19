@@ -1,8 +1,9 @@
 """Defines serializers for each of our models."""
 
 import re
-from django.conf import settings
+
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
@@ -147,18 +148,18 @@ class BuildCommandSerializer(serializers.ModelSerializer):
         #   $ python
         project_slug = obj.build.version.project.slug
         version_slug = obj.build.version.slug
-        docroot = settings.DOCROOT.rstrip('/')  # remove trailing '/'
+        docroot = settings.DOCROOT.rstrip("/")  # remove trailing '/'
 
         # Remove Docker hash from DOCROOT when running it locally
         # DOCROOT contains the Docker container hash (e.g. b7703d1b5854).
         # We have to remove it from the DOCROOT it self since it changes each time we spin up a new Docker instance locally.
-        container_hash = '/'
+        container_hash = "/"
         if settings.RTD_DOCKER_COMPOSE:
-            docroot = re.sub('/[0-9a-z]+/?$', '', settings.DOCROOT, count=1)
-            container_hash = '/[0-9a-z]+/'
+            docroot = re.sub("/[0-9a-z]+/?$", "", settings.DOCROOT, count=1)
+            container_hash = "/[0-9a-z]+/"
 
-        regex = f'{docroot}{container_hash}{project_slug}/envs/{version_slug}(/bin/)?'
-        command = re.sub(regex, '', obj.command, count=1)
+        regex = f"{docroot}{container_hash}{project_slug}/envs/{version_slug}(/bin/)?"
+        command = re.sub(regex, "", obj.command, count=1)
         return command
 
 
