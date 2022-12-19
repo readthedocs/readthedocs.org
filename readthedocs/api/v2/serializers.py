@@ -142,8 +142,10 @@ class BuildCommandSerializer(serializers.ModelSerializer):
         # and hack a small solution to fix the immediate problem.
         #
         # This converts:
-        #   $ /usr/src/app/checkouts/readthedocs.org/user_builds/<container_hash>/<project_slug>/envs/<version_slug>/bin/python
-        #   $ /home/docs/checkouts/readthedocs.org/user_builds/<project_slug>/envs/<version_slug>/bin/python
+        #   $ /usr/src/app/checkouts/readthedocs.org/user_builds/
+        #        <container_hash>/<project_slug>/envs/<version_slug>/bin/python
+        #   $ /home/docs/checkouts/readthedocs.org/user_builds/
+        #        <project_slug>/envs/<version_slug>/bin/python
         # into
         #   $ python
         project_slug = obj.build.version.project.slug
@@ -152,7 +154,8 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
         # Remove Docker hash from DOCROOT when running it locally
         # DOCROOT contains the Docker container hash (e.g. b7703d1b5854).
-        # We have to remove it from the DOCROOT it self since it changes each time we spin up a new Docker instance locally.
+        # We have to remove it from the DOCROOT it self since it changes each time
+        # we spin up a new Docker instance locally.
         container_hash = "/"
         if settings.RTD_DOCKER_COMPOSE:
             docroot = re.sub("/[0-9a-z]+/?$", "", settings.DOCROOT, count=1)
