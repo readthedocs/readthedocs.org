@@ -26,7 +26,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-29 03:27+0000\n"
+"POT-Creation-Date: 2022-12-20 08:43+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Leonardo J. Caballero G. <leonardocaballero@gmail.com>, "
 "2015,2017-2020,2022\n"
@@ -163,20 +163,16 @@ msgid "Download"
 msgstr "Descarga"
 
 #: audit/models.py:83
-#, fuzzy
-#| msgid "Authentication success"
 msgid "Authentication"
-msgstr "Autenticación exitosa"
+msgstr ""
 
 #: audit/models.py:86
 msgid "Authentication failure"
 msgstr "Autenticación fallida"
 
 #: audit/models.py:89
-#, fuzzy
-#| msgid "Log Out"
 msgid "Log out"
-msgstr "Salir"
+msgstr ""
 
 #: audit/models.py:92 organizations/views/private.py:104
 #: organizations/views/private.py:169 projects/views/private.py:475
@@ -184,22 +180,16 @@ msgid "Invitation sent"
 msgstr "Invitación enviada"
 
 #: audit/models.py:95
-#, fuzzy
-#| msgid "Invitation request"
 msgid "Invitation revoked"
-msgstr "Solicitud de invitación"
+msgstr ""
 
 #: audit/models.py:98
-#, fuzzy
-#| msgid "Invitation expired"
 msgid "Invitation accepted"
-msgstr "Invitación caducada"
+msgstr ""
 
 #: audit/models.py:101
-#, fuzzy
-#| msgid "Invitation expired"
 msgid "Invitation declined"
-msgstr "Invitación caducada"
+msgstr ""
 
 #: audit/models.py:117 core/models.py:21 gold/models.py:35
 #: projects/models.py:125
@@ -294,20 +284,16 @@ msgid "User downloaded a document"
 msgstr ""
 
 #: audit/templates/audit/list_logs.html:36
-#, fuzzy
-#| msgid "Create an Organization"
 msgid "User sent an invitation"
-msgstr "Crear una Organización"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:40
 msgid "User revoked an invitation"
 msgstr ""
 
 #: audit/templates/audit/list_logs.html:44
-#, fuzzy
-#| msgid "Create an Organization"
 msgid "User accepted an invitation"
-msgstr "Crear una Organización"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:48
 msgid "User declined an invitation"
@@ -333,22 +319,16 @@ msgstr ""
 
 #: audit/templates/audit/list_logs.html:73
 #: audit/templates/audit/list_logs.html:94
-#, fuzzy
-#| msgid "project"
 msgid "project:"
-msgstr "proyecto"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:78
-#, fuzzy
-#| msgid "Manpage"
 msgid "page:"
-msgstr "Manpage"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:84
-#, fuzzy
-#| msgid "To user"
 msgid "to user:"
-msgstr "Al usuario"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:87
 msgid "to email:"
@@ -357,16 +337,12 @@ msgstr ""
 #: audit/templates/audit/list_logs.html:99
 #: audit/templates/audit/list_logs.html:106
 #: audit/templates/audit/list_logs.html:109
-#, fuzzy
-#| msgid "organization"
 msgid "organization:"
-msgstr "organización"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:103
-#, fuzzy
-#| msgid "team"
 msgid "team:"
-msgstr "equipo"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:116
 msgid "IP:"
@@ -1031,6 +1007,10 @@ msgstr ""
 "usuario https://www.mkdocs.org/user-guide/configuration/ para configurar el "
 "archivo correctamente."
 
+#: doc_builder/exceptions.py:102
+msgid "Symlinks are not fully supported"
+msgstr ""
+
 #: gold/forms.py:52
 msgid "No project found."
 msgstr "No se encontraron proyectos."
@@ -1306,7 +1286,7 @@ msgid "Invitation pending"
 msgstr "Invitación pendiente"
 
 #: invitations/templates/invitations/includes/invitation_list.html:28
-#: templates/profiles/private/token_list.html:40
+#: templates/profiles/private/token_list.html:45
 msgid "Revoke"
 msgstr "Revocar"
 
@@ -1579,10 +1559,8 @@ msgid "Stripe customer"
 msgstr "Cliente Stripe"
 
 #: organizations/models.py:110
-#, fuzzy
-#| msgid "Stripe subscription ID"
 msgid "Stripe subscription"
-msgstr "ID de suscripción de Stripe"
+msgstr ""
 
 #: organizations/models.py:123
 msgid "organization"
@@ -2151,7 +2129,11 @@ msgstr ""
 "Especifique el archivo correcto en la pestaña Configuración avanzada en el "
 "Administrador del proyecto."
 
-#: projects/exceptions.py:31
+#: projects/exceptions.py:28
+msgid "The file {} doesn't exist. Make sure it's a valid file path."
+msgstr ""
+
+#: projects/exceptions.py:36
 msgid ""
 "There was a problem connecting to your repository, ensure that your "
 "repository URL is correct."
@@ -2159,7 +2141,7 @@ msgstr ""
 "Hubo un problema conectándose con su repositorio, asegúrese que la dirección "
 "URL de su repositorio es correcta."
 
-#: projects/exceptions.py:35
+#: projects/exceptions.py:40
 msgid ""
 "There was a problem connecting to your repository, ensure that your "
 "repository URL is correct and your repository is public. Private "
@@ -2169,7 +2151,7 @@ msgstr ""
 "su repositorio sea correcta y de que su repositorio sea público. Los "
 "repositorios privados no son compatibles."
 
-#: projects/exceptions.py:40
+#: projects/exceptions.py:45
 msgid ""
 "One or more submodule URLs are not valid: {}, git/ssh URL schemas for "
 "submodules are not supported."
@@ -2177,7 +2159,7 @@ msgstr ""
 "Una o más URL de submódulos no son válidas: {}, los esquemas de URL git/ssh "
 "para submódulos no son compatibles."
 
-#: projects/exceptions.py:44
+#: projects/exceptions.py:49
 msgid ""
 "You can not have two versions with the name latest or stable. Ensure you "
 "don't have both a branch and a tag with this name."
@@ -2185,11 +2167,11 @@ msgstr ""
 "No puede tener dos versiones con el nombre latest o stable. Asegúrese de no "
 "tener una branch y una tag con este nombre."
 
-#: projects/exceptions.py:48
+#: projects/exceptions.py:53
 msgid "Failed to checkout revision: {}"
 msgstr "Error al comprobar de la revisión: {}"
 
-#: projects/exceptions.py:51
+#: projects/exceptions.py:56
 msgid ""
 "There was a problem cloning your repository. Please check the command output "
 "for more information."
@@ -3197,10 +3179,8 @@ msgid "This query param is required"
 msgstr "Este parámetro de consulta es obligatorio"
 
 #: search/api/v3/views.py:68
-#, fuzzy
-#| msgid "This query param is required"
 msgid "This query parameter is required"
-msgstr "Este parámetro de consulta es obligatorio"
+msgstr ""
 
 #: search/models.py:33
 msgid "Query"
@@ -3210,67 +3190,67 @@ msgstr "Consulta"
 msgid "Total results"
 msgstr "Resultados totales"
 
-#: settings/base.py:408
+#: settings/base.py:409
 msgid "Catalan"
 msgstr "Catalán"
 
-#: settings/base.py:409
+#: settings/base.py:410
 msgid "English"
 msgstr "Inglés"
 
-#: settings/base.py:410
+#: settings/base.py:411
 msgid "Spanish"
 msgstr "Español"
 
-#: settings/base.py:411
+#: settings/base.py:412
 msgid "Brazilian Portuguese"
 msgstr "Portugués brasileño"
 
-#: settings/base.py:412
+#: settings/base.py:413
 msgid "Norwegian Bokmål"
 msgstr "Noruego bokmål"
 
-#: settings/base.py:413
+#: settings/base.py:414
 msgid "French"
 msgstr "Francés"
 
-#: settings/base.py:414
+#: settings/base.py:415
 msgid "Russian"
 msgstr "Ruso"
 
-#: settings/base.py:415
+#: settings/base.py:416
 msgid "German"
 msgstr "Alemán"
 
-#: settings/base.py:416
+#: settings/base.py:417
 msgid "Galician"
 msgstr "Gallego"
 
-#: settings/base.py:417
+#: settings/base.py:418
 msgid "Vietnamese"
 msgstr "Vietnamita"
 
-#: settings/base.py:418
+#: settings/base.py:419
 msgid "Simplified Chinese"
 msgstr "Chino simplificado"
 
-#: settings/base.py:419
+#: settings/base.py:420
 msgid "Traditional Chinese"
 msgstr "Chino tradicional"
 
-#: settings/base.py:420
+#: settings/base.py:421
 msgid "Japanese"
 msgstr "Japonés"
 
-#: settings/base.py:421
+#: settings/base.py:422
 msgid "Ukrainian"
 msgstr "Ucraniano"
 
-#: settings/base.py:422
+#: settings/base.py:423
 msgid "Italian"
 msgstr "Italiano"
 
-#: settings/base.py:423
+#: settings/base.py:424
 msgid "Korean"
 msgstr "Coreano"
 
@@ -4271,6 +4251,10 @@ msgstr ""
 "creación, el control de versiones y el alojamiento de sus documentaciones "
 "por usted."
 
+#: templates/homepage.html:58
+msgid "Free docs hosting for open source"
+msgstr ""
+
 #: templates/homepage.html:60
 msgid ""
 "We will host your documentation for free, forever. There are no tricks. We "
@@ -4280,6 +4264,10 @@ msgstr ""
 "Alojaremos su documentación de forma gratuita, para siempre. No hay trucos. "
 "Ayudamos a más de 100.000 proyectos de código abierto a compartir sus "
 "documentos, incluidos un dominio y un tema personalizados."
+
+#: templates/homepage.html:69
+msgid "Always up to date"
+msgstr ""
 
 #: templates/homepage.html:71
 msgid ""
@@ -4291,6 +4279,12 @@ msgstr ""
 "sea GitHub, BitBucket o GitLab, crearemos automáticamente sus documentos "
 "para que su código y documentación nunca estén desincronizados."
 
+#: templates/homepage.html:84
+#, fuzzy
+#| msgid "Download all data"
+msgid "Downloadable formats"
+msgstr "Descargar todos los datos"
+
 #: templates/homepage.html:86
 msgid ""
 "We build and host your docs for the web, but they are also viewable as PDFs, "
@@ -4300,6 +4294,12 @@ msgstr ""
 "Creamos y alojamos sus documentos para la web, pero también se pueden ver "
 "como PDF, como HTML de una sola página y para lectores electrónicos. No se "
 "requiere ninguna configuración adicional."
+
+#: templates/homepage.html:94
+#, fuzzy
+#| msgid "Public versions"
+msgid "Multiple versions"
+msgstr "Versiones públicas"
 
 #: templates/homepage.html:96
 msgid ""
@@ -4531,11 +4531,15 @@ msgstr ""
 "advertising.html\">nuestra documentación</a>."
 
 #: templates/profiles/private/advertising_profile.html:41
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You can <strong>go ad-free</strong> by becoming a <a "
+#| "href=\"%(gold_detail)s\">Gold member</a> or <a "
+#| "href=\"%(donate_url)s\">Supporter</a> of Read the Docs</a>."
 msgid ""
 "You can <strong>go ad-free</strong> by becoming a <a "
 "href=\"%(gold_detail)s\">Gold member</a> or <a "
-"href=\"%(donate_url)s\">Supporter</a> of Read the Docs</a>."
+"href=\"%(donate_url)s\">Supporter</a> of Read the Docs."
 msgstr ""
 "Puede <strong>no tener publicidad</strong> convirtiéndose en <a "
 "href=\"%(gold_detail)s\">Miembro Gold</a> o <a "
@@ -4592,11 +4596,28 @@ msgstr ""
 "ver lo que sucedió recientemente en su cuenta. Mostrando registros de los "
 "últimos %(days_limit)s días."
 
-#: templates/profiles/private/token_list.html:20
+#: templates/profiles/private/token_list.html:13
+#, fuzzy
+#| msgid ""
+#| "Automate actions on new branches and tags. Check the <a href=\"https://"
+#| "docs.readthedocs.io/page/automation-rules.html\">documentation on "
+#| "automation rules</a> for more information."
+msgid ""
+"Personal Access Token are tokens that allow you to use the Read the Docs "
+"APIv3 being authenticated as yourself. See <a href=\"https://docs."
+"readthedocs.org/page/api/v3.html\">APIv3 documentation</a> for more "
+"information."
+msgstr ""
+"Automatice acciones en nuevas sucursales y etiquetas. Consulte la <a "
+"href=\"https://docs.readthedocs.io/page/automation-rules."
+"html\">documentación sobre reglas de automatización</a> para obtener más "
+"información."
+
+#: templates/profiles/private/token_list.html:25
 msgid "Generate API Token"
 msgstr "Generar Tokens de API"
 
-#: templates/profiles/private/token_list.html:49
+#: templates/profiles/private/token_list.html:54
 msgid "No API Tokens currently configured."
 msgstr "No hay tokens de API configurados actualmente."
 
@@ -4705,6 +4726,13 @@ msgstr "Añadir"
 #: templates/projects/project_edit_base.html:27
 msgid "Environment Variables"
 msgstr "Variables de ambiente"
+
+#: templates/projects/environmentvariable_list.html:15
+msgid ""
+"Environment variables allow you to change the way that your build behaves. "
+"Take into account that these environment variables are available to all "
+"build steps."
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:22
 msgid "Add Environment Variable"
@@ -5697,25 +5725,16 @@ msgid "Files"
 msgstr "Archivos"
 
 #: templates/search/elastic_search.html:42
-#, fuzzy
-#| msgid "Search all docs"
 msgid "Search all"
-msgstr "Buscar en todos los documentos"
+msgstr ""
 
 #: templates/search/elastic_search.html:105
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "            %(count)s results for `%(query)s`\n"
-#| "          "
+#, python-format
 msgid ""
 "\n"
 "            %(count)s results for <code>%(query)s</code>\n"
 "          "
 msgstr ""
-"\n"
-"            %(count)s resultados para `%(query)s`\n"
-"          "
 
 #: templates/search/elastic_search.html:197
 msgid "No results found."
@@ -5773,72 +5792,3 @@ msgid ""
 msgstr ""
 "Actualmente no tienes ninguna cuenta de redes sociales conectadas a esta "
 "cuenta."
-
-#, python-format
-#~ msgid ""
-#~ "<a href=\"?action=%(action)s\" title=\"%(method)s\">Authenticated</a>"
-#~ msgstr "<a href=\"?action=%(action)s\" title=\"%(method)s\">Autenticado</a>"
-
-#, python-format
-#~ msgid ""
-#~ "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
-#~ "action=%(action)s\" title=\"%(method)s\">authenticated</a>"
-#~ msgstr ""
-#~ "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
-#~ "action=%(action)s\" title=\"%(method)s\">autenticado</a>"
-
-#, python-format
-#~ msgid ""
-#~ "User <a href=\"?action=%(action)s\" title=\"%(method)s\">authenticated</a>"
-#~ msgstr ""
-#~ "Usuario <a href=\"?action=%(action)s\" title=\"%(method)s\">autenticado</"
-#~ "a>"
-
-#, python-format
-#~ msgid ""
-#~ "<a href=\"?action=%(action)s\" title=\"%(method)s\">Authentication "
-#~ "failed</a>"
-#~ msgstr ""
-#~ "<a href=\"?action=%(action)s\" title=\"%(method)s\">Autenticación "
-#~ "fallida</a>"
-
-#, python-format
-#~ msgid ""
-#~ "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
-#~ "action=%(action)s\" title=\"%(path)s\">visited</a> a page"
-#~ msgstr ""
-#~ "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
-#~ "action=%(action)s\" title=\"%(path)s\">visitó</a> una página"
-
-#, python-format
-#~ msgid ""
-#~ "A user <a href=\"?action=%(action)s\" title=\"%(path)s\">visited</a> a "
-#~ "page"
-#~ msgstr ""
-#~ "Un usuario <a href=\"?action=%(action)s\" title=\"%(path)s\">visitó</a> "
-#~ "una página"
-
-#, python-format
-#~ msgid ""
-#~ "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
-#~ "action=%(action)s\" title=\"%(path)s\">downloaded</a> a document"
-#~ msgstr ""
-#~ "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
-#~ "action=%(action)s\" title=\"%(path)s\">descargado</a> un documento"
-
-#, python-format
-#~ msgid ""
-#~ "A user <a href=\"?action=%(action)s\" title=\"%(path)s\">downloaded</a> a "
-#~ "document"
-#~ msgstr ""
-#~ "Un usuario <a href=\"?action=%(action)s\" title=\"%(path)s\">descargó</a> "
-#~ "un documento"
-
-#~ msgid "from"
-#~ msgstr "desde"
-
-#~ msgid "on"
-#~ msgstr "en"
-
-#~ msgid "Code API Type"
-#~ msgstr "Tipo de código de API"

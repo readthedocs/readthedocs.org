@@ -1,3 +1,51 @@
+Version 9.1.1
+-------------
+
+:Date: December 20, 2022
+
+* `@humitos <https://github.com/humitos>`__: Dependencies: use backtracking pip's resolver (`#9821 <https://github.com/readthedocs/readthedocs.org/pull/9821>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Use sphinx-rtd-theme 1.2.0rc1 (`#9818 <https://github.com/readthedocs/readthedocs.org/pull/9818>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add subset of tests to testing docs (`#9817 <https://github.com/readthedocs/readthedocs.org/pull/9817>`__)
+* `@humitos <https://github.com/humitos>`__: Build details page: normalize/trim command paths (`#9815 <https://github.com/readthedocs/readthedocs.org/pull/9815>`__)
+* `@DelazJ <https://github.com/DelazJ>`__: Add link to the build notifications guide (`#9814 <https://github.com/readthedocs/readthedocs.org/pull/9814>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Break documentation style guide out into its own file (`#9813 <https://github.com/readthedocs/readthedocs.org/pull/9813>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Disable Sphinx mimetype errors on epub (`#9812 <https://github.com/readthedocs/readthedocs.org/pull/9812>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Update security log wording (`#9811 <https://github.com/readthedocs/readthedocs.org/pull/9811>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: configure linkcheck (`#9810 <https://github.com/readthedocs/readthedocs.org/pull/9810>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Fix build 3 warnings (`#9809 <https://github.com/readthedocs/readthedocs.org/pull/9809>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Fix silent, then loud failure after Tox 4 upgrade (`#9803 <https://github.com/readthedocs/readthedocs.org/pull/9803>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Split SSO docs into HowTo/Explanation (Diátaxis) (`#9801 <https://github.com/readthedocs/readthedocs.org/pull/9801>`__)
+* `@juantocamidokura <https://github.com/juantocamidokura>`__: Docs: Remove outdated and misleading Poetry guide (`#9794 <https://github.com/readthedocs/readthedocs.org/pull/9794>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: CI builds: Checkout main branch in a robust way (`#9793 <https://github.com/readthedocs/readthedocs.org/pull/9793>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 9.1.0 (`#9792 <https://github.com/readthedocs/readthedocs.org/pull/9792>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel Localization as Explanation (Diátaxis) (`#9790 <https://github.com/readthedocs/readthedocs.org/pull/9790>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Fix Circle CI builds: Tox 4 compatibility, add external commands to allowlist (`#9789 <https://github.com/readthedocs/readthedocs.org/pull/9789>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Do not build documentation in Circle CI, Read the Docs handles that :100: (`#9788 <https://github.com/readthedocs/readthedocs.org/pull/9788>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Move "Choosing between our two platforms" to Explanation (Diátaxis) (`#9784 <https://github.com/readthedocs/readthedocs.org/pull/9784>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Change "downloadable" to "offline" (`#9782 <https://github.com/readthedocs/readthedocs.org/pull/9782>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Adds missing translation strings (`#9770 <https://github.com/readthedocs/readthedocs.org/pull/9770>`__)
+* `@humitos <https://github.com/humitos>`__: Admin: install `debug_toolbar` (`#9753 <https://github.com/readthedocs/readthedocs.org/pull/9753>`__)
+* `@benjaoming <https://github.com/benjaoming>`__:  Docs: Split up Pull Request Builds into a how-to guide and reference (Diátaxis) (`#9679 <https://github.com/readthedocs/readthedocs.org/pull/9679>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Split Custom Domains as Explanation and How-to Guide (Diátaxis) (`#9676 <https://github.com/readthedocs/readthedocs.org/pull/9676>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Split and relabel VCS integration as explanation and how-to (Diátaxis) (`#9675 <https://github.com/readthedocs/readthedocs.org/pull/9675>`__)
+
+Version 9.1.0
+-------------
+
+**This release contains an important security fix**. See more information `on the GitHub advisory <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-368m-86q9-m99w>`_.
+
+:Date: December 08, 2022
+
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Move "Choosing between our two platforms" to Explanation (Diátaxis) (`#9784 <https://github.com/readthedocs/readthedocs.org/pull/9784>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Abandoned Projects policy: Relax reachability requirement (`#9783 <https://github.com/readthedocs/readthedocs.org/pull/9783>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Change "downloadable" to "offline" (`#9782 <https://github.com/readthedocs/readthedocs.org/pull/9782>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: fix raw directive (`#9778 <https://github.com/readthedocs/readthedocs.org/pull/9778>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9775 <https://github.com/readthedocs/readthedocs.org/pull/9775>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: define default MailerLite setting (`#9769 <https://github.com/readthedocs/readthedocs.org/pull/9769>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Refactor downloadable docs (`#9768 <https://github.com/readthedocs/readthedocs.org/pull/9768>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: fix minor issues (`#9765 <https://github.com/readthedocs/readthedocs.org/pull/9765>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: validate Mastodon link (`#9764 <https://github.com/readthedocs/readthedocs.org/pull/9764>`__)
+
 Version 9.0.0
 -------------
 
