@@ -25,6 +25,11 @@ https://example-project.readthedocs.io/projects/plugin/en/latest/
 .. seealso::
 
    :doc:`/guides/subprojects`
+     Learn how to create and manage subprojects
+
+   :doc:`/guides/intersphinx`
+     Learn how to use references between different Sphinx projects, for instance between subprojects
+
 
 Sharing a custom domain
 -----------------------

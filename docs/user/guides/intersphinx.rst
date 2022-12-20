@@ -14,6 +14,9 @@ While you could just hyperlink directly, there is a better way.
 That is, you could use the ``:ref:`` role to link to sections of other documentation projects.
 Sphinx will ensure that your cross-references to the other project exist and will raise a warning if they are deleted or changed so you can keep your docs up to date.
 
+If you are publishing several Sphinx projects together using Read the Docs' *subprojects* (see :doc:`/subprojects`),
+you should use Intersphinx to reference your subprojects from other projects.
+
 .. note::
 
    You can also use Sphinx's ``linkcheck`` builder to check for broken links.
@@ -48,6 +51,10 @@ And use the ``intersphinx_mapping`` configuration to indicate the name and link 
        "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
    }
 
+.. note::
+
+   If you are using subprojects, you also need to enable the Intersphinx extension on each of the subprojects, too.
+   For each subproject, you need to add the main project and all the other subprojects to ``intersphinx_mapping``.
 
 Now you can use the ``sphinx`` name with a cross-reference role:
 
