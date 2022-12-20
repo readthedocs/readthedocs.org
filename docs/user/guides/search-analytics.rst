@@ -34,5 +34,5 @@ The number of times the query has been registered is displayed in the as the **s
 
 * Try to repeat the search yourself and view the results list to inspect if the results are relevant.
 
-In **Daily search totals**, you can see any trends that might match significant events in your projects publicity.
+In **Daily search totals**, you can see trends that might match special events in your project's publicity.
 If you need more details, click :guilabel:`Download all data`.
