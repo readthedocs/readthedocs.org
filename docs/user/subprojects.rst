@@ -35,19 +35,12 @@ To configure this, one project should be established as the main project.
 This project will be configured with a custom domain.
 Other projects are then added as subprojects to the main project.
 
-If the example project ``foo`` was set up with a custom domain,
-``docs.example.com``, the URLs for projects ``foo`` and ``bar`` would
+If the example project ``example-project`` was set up with a custom domain,
+``docs.example.com``, the URLs for projects ``example-project`` and ``example-project-plugin`` with alias ``plugin`` would
 respectively be at:
 
-* `foo`: https://docs.example.com/en/latest/
-* `bar`: https://docs.example.com/projects/bar/en/latest/
-
-.. note::
-
-   The terms "parent" and "child" are also used,
-   where the main project is the parent and all subprojects are a child.
-   You can **not** have a child of a child,
-   meaning that you cannot add a subproject to a subproject.
+* ``example-project``: https://docs.example.com/en/latest/
+* ``example-project-plugin``: https://docs.example.com/projects/plugin/en/latest/
 
 Using aliases
 -------------
@@ -59,16 +52,16 @@ giving more control over how you want to structure your projects.
 You can set your subproject's project name and :term:`slug` however you want,
 but we suggest prefixing it with the name of the main project.
 
-Typically, a subproject is created with a ``<mainproject>-`` prefix,
-for instance if the main project is called ``foo`` and the subproject is called ``bar``,
-then the subproject's Read the Docs project name will be ``foo-bar``.
+Typically, a subproject is created with a ``$mainproject-`` prefix,
+for instance if the main project is called ``example-project-plugin`` and the subproject is called ``plugin``,
+then the subproject's Read the Docs project name will be ``example-project-plugin``.
 When adding the subproject,
-the alias is set to ``bar`` and the project's URL becomes
-``foo.readthedocs.io/projects/bar``.
+the alias is set to ``plugin`` and the project's URL becomes
+``example-project.readthedocs.io/projects/plugin``.
 
 When you add a subproject,
 the subproject will not be directly available anymore from its own domain.
-For instance, ``subproject.readthedocs.io/`` will redirect to ``mainproject.readthedocs.io/projects/subproject``.
+For instance, ``example-project-plugin.readthedocs.io/`` will redirect to ``example-project.readthedocs.io/projects/plugin``.
 
 Custom domain on subprojects
 ----------------------------
