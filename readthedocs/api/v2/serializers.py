@@ -1,6 +1,9 @@
 """Defines serializers for each of our models."""
 
+import re
+
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
@@ -127,10 +130,40 @@ class VersionAdminSerializer(VersionSerializer):
 class BuildCommandSerializer(serializers.ModelSerializer):
 
     run_time = serializers.ReadOnlyField()
+    command = serializers.SerializerMethodField()
 
     class Meta:
         model = BuildCommandResult
         exclude = []
+
+    def get_command(self, obj):
+        # HACK: remove unreadable paths from the command outputs when returning it from the API.
+        # We could make this change at build level, but we want to avoid undoable issues from now
+        # and hack a small solution to fix the immediate problem.
+        #
+        # This converts:
+        #   $ /usr/src/app/checkouts/readthedocs.org/user_builds/
+        #        <container_hash>/<project_slug>/envs/<version_slug>/bin/python
+        #   $ /home/docs/checkouts/readthedocs.org/user_builds/
+        #        <project_slug>/envs/<version_slug>/bin/python
+        # into
+        #   $ python
+        project_slug = obj.build.version.project.slug
+        version_slug = obj.build.version.slug
+        docroot = settings.DOCROOT.rstrip("/")  # remove trailing '/'
+
+        # Remove Docker hash from DOCROOT when running it locally
+        # DOCROOT contains the Docker container hash (e.g. b7703d1b5854).
+        # We have to remove it from the DOCROOT it self since it changes each time
+        # we spin up a new Docker instance locally.
+        container_hash = "/"
+        if settings.RTD_DOCKER_COMPOSE:
+            docroot = re.sub("/[0-9a-z]+/?$", "", settings.DOCROOT, count=1)
+            container_hash = "/[0-9a-z]+/"
+
+        regex = f"{docroot}{container_hash}{project_slug}/envs/{version_slug}(/bin/)?"
+        command = re.sub(regex, "", obj.command, count=1)
+        return command
 
 
 class BuildSerializer(serializers.ModelSerializer):
