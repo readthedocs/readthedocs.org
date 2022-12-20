@@ -6,7 +6,7 @@ from unittest import mock
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.http import QueryDict
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 from rest_framework import status
@@ -303,17 +303,20 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['success'], True)
         self.assertEqual(build['docs_url'], dashboard_url)
 
+    @override_settings(DOCROOT="/home/docs/checkouts/readthedocs.org/user_builds")
     def test_response_finished_and_success(self):
         """The ``view docs`` attr should return a link to the docs."""
         client = APIClient()
         client.login(username='super', password='test')
         project = get(
             Project,
-            language='en',
+            language="en",
+            slug="myproject",
             main_language_project=None,
         )
         version = get(
             Version,
+            slug="myversion",
             project=project,
             built=True,
             uploaded=True,
@@ -323,6 +326,12 @@ class APIBuildTests(TestCase):
             project=project,
             version=version,
             state='finished',
+            exit_code=0,
+        )
+        buildcommandresult = get(
+            BuildCommandResult,
+            build=build,
+            command="/home/docs/checkouts/readthedocs.org/user_builds/myproject/envs/myversion/bin/python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
             exit_code=0,
         )
         resp = client.get('/api/v2/build/{build}/'.format(build=build.pk))
@@ -337,6 +346,11 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['exit_code'], 0)
         self.assertEqual(build['success'], True)
         self.assertEqual(build['docs_url'], docs_url)
+        # Verify the path is trimmed
+        self.assertEqual(
+            build["commands"][0]["command"],
+            "python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
+        )
 
     def test_response_finished_and_fail(self):
         """The ``view docs`` attr should return a link to the dashboard."""
