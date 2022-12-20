@@ -433,7 +433,8 @@ class ProjectRelationshipForm(forms.ModelForm):
 
     class Meta:
         model = ProjectRelationship
-        fields = '__all__'
+        fields = "__all__"
+        labels = {"child": _("Subproject")}
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project')
