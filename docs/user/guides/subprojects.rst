@@ -30,7 +30,7 @@ Immediately after adding the subproject, it will be visible from the link displa
 Editing a subproject
 --------------------
 
-You can edit a subproject at any time by clicking :guilabel:`📝️📝️📝️` in the list of subprojects.
+You can edit a subproject at any time by clicking :guilabel:`📝️` in the list of subprojects.
 On the following page, it's possible to both change the alias and source project.
 Click :guilabel:`Update subproject` to save your changes.
 
