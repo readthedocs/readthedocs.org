@@ -245,7 +245,7 @@ This helps ensure that all external links are still valid and readers aren't lin
        python: "3.10"
      jobs:
        pre_build:
-         - python -m sphinx -b linkcheck docs/ _build/linkcheck
+         - python -m sphinx -b linkcheck -D linkcheck_timeout=1 docs/ _build/linkcheck
 
 
 Support Git LFS (Large File Storage)

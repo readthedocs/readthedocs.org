@@ -12,6 +12,7 @@ have a look at our :doc:`/tutorial/index`.
 .. toctree::
    :maxdepth: 1
 
+   Connect your git repository <git-integrations>
    Manage Custom Domains <custom-domains>
    Enable Canonical URLs <canonical-urls>
    technical-docs-seo-guide
@@ -23,3 +24,6 @@ have a look at our :doc:`/tutorial/index`.
    importing-private-repositories
    Setup Build Notifications <build-notifications>
    Configure Pull Request Builds <pull-requests>
+   setup-single-sign-on-github-gitlab-bitbucket
+   setup-single-sign-on-google-email
+   manage-read-the-docs-teams
