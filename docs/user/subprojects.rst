@@ -13,14 +13,10 @@ This is useful for:
 * Projects that document and release several packages or extensions
 * Organizations or projects that want to have a common search function for several sets of documentation
 
-For example, a parent project, ``example-project`` is set up with a subproject, ``plugin``. The
-documentation for ``example-project`` will be available at:
+For a main project ``example-project``, a subproject ``example-project-plugin`` can be made available as follows:
 
-https://example-project.readthedocs.io/en/latest/
-
-The documentation for ``plugin`` will be available under this same path:
-
-https://example-project.readthedocs.io/projects/plugin/en/latest/
+* Main project: https://example-project.readthedocs.io/en/latest/
+* Subproject: https://example-project.readthedocs.io/projects/plugin/en/latest/
 
 .. seealso::
 
