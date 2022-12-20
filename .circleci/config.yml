@@ -42,7 +42,7 @@ jobs:
       - run: git submodule sync
       - run: git submodule update --init
       - run: git fetch origin main  # needed for comparisson in pre-commit
-      # Meaning of below line: If a "main" branch does not exist, then create one.
+      # If a "main" branch does not exist, we create one.
       - run: git rev-parse --verify main 2>/dev/null || git branch -f --track main origin/main
       - run: pip install --user 'tox<5'
       - run: tox -e pre-commit
