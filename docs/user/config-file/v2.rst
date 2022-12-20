@@ -803,7 +803,9 @@ Schema
 
 You can see the complete schema
 `here <https://github.com/readthedocs/readthedocs.org/blob/main/readthedocs/rtd_tests/fixtures/spec/v2/schema.json>`_.
+This schema is available at `Schema Store`_, use it with your favorite editor for validation and autocompletion.
 
+.. _Schema Store: https://www.schemastore.org/
 
 Legacy ``build`` specification
 ------------------------------
