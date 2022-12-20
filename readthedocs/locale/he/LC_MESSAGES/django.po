@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-29 03:27+0000\n"
+"POT-Creation-Date: 2022-12-20 08:43+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019,2022\n"
 "Language-Team: Hebrew (http://www.transifex.com/readthedocs/readthedocs/"
@@ -144,18 +144,14 @@ msgid "Download"
 msgstr "הורדה"
 
 #: audit/models.py:83
-#, fuzzy
-#| msgid "Authentication success"
 msgid "Authentication"
-msgstr "האימות הצליח"
+msgstr "אימות"
 
 #: audit/models.py:86
 msgid "Authentication failure"
 msgstr "האימות נכשל"
 
 #: audit/models.py:89
-#, fuzzy
-#| msgid "Log Out"
 msgid "Log out"
 msgstr "יציאה"
 
@@ -165,22 +161,16 @@ msgid "Invitation sent"
 msgstr "נשלחה הזמנה"
 
 #: audit/models.py:95
-#, fuzzy
-#| msgid "Invitation request"
 msgid "Invitation revoked"
-msgstr "בקשת הזמנה"
+msgstr "ההזמנה נשללה"
 
 #: audit/models.py:98
-#, fuzzy
-#| msgid "Invitation expired"
 msgid "Invitation accepted"
-msgstr "תוקף ההזמנה פג"
+msgstr "ההזמנה התקבלה"
 
 #: audit/models.py:101
-#, fuzzy
-#| msgid "Invitation expired"
 msgid "Invitation declined"
-msgstr "תוקף ההזמנה פג"
+msgstr "ההזמנה נדחתה"
 
 #: audit/models.py:117 core/models.py:21 gold/models.py:35
 #: projects/models.py:125
@@ -256,43 +246,39 @@ msgstr "סיסמה משותפת"
 
 #: audit/templates/audit/list_logs.html:16
 msgid "User authenticated"
-msgstr ""
+msgstr "משתמש מאומת"
 
 #: audit/templates/audit/list_logs.html:20
 msgid "User failed to authenticate"
-msgstr ""
+msgstr "אימות המשתמש נכשל"
 
 #: audit/templates/audit/list_logs.html:24
 msgid "User logged out"
-msgstr ""
+msgstr "משתמש יצא"
 
 #: audit/templates/audit/list_logs.html:28
 msgid "User visited a page"
-msgstr ""
+msgstr "משתמש ביקר בעמוד"
 
 #: audit/templates/audit/list_logs.html:32
 msgid "User downloaded a document"
-msgstr ""
+msgstr "משתמש הוריד מסמך"
 
 #: audit/templates/audit/list_logs.html:36
-#, fuzzy
-#| msgid "Create an Organization"
 msgid "User sent an invitation"
-msgstr "יצירת ארגון"
+msgstr "משתמש שלח הזמנה"
 
 #: audit/templates/audit/list_logs.html:40
 msgid "User revoked an invitation"
-msgstr ""
+msgstr "משתמש שלל הזמנה"
 
 #: audit/templates/audit/list_logs.html:44
-#, fuzzy
-#| msgid "Create an Organization"
 msgid "User accepted an invitation"
-msgstr "יצירת ארגון"
+msgstr "משתמש קיבל הזמנה"
 
 #: audit/templates/audit/list_logs.html:48
 msgid "User declined an invitation"
-msgstr ""
+msgstr "משתמש דחה הזמנה"
 
 #: audit/templates/audit/list_logs.html:55
 #: templates/core/build_list_detailed.html:21
@@ -310,48 +296,38 @@ msgstr ""
 
 #: audit/templates/audit/list_logs.html:66
 msgid "anonymous"
-msgstr ""
+msgstr "אלמוני"
 
 #: audit/templates/audit/list_logs.html:73
 #: audit/templates/audit/list_logs.html:94
-#, fuzzy
-#| msgid "project"
 msgid "project:"
-msgstr "מיזם"
+msgstr "מיזם:"
 
 #: audit/templates/audit/list_logs.html:78
-#, fuzzy
-#| msgid "Manpage"
 msgid "page:"
-msgstr "עמוד Man"
+msgstr "עמוד:"
 
 #: audit/templates/audit/list_logs.html:84
-#, fuzzy
-#| msgid "To user"
 msgid "to user:"
-msgstr "למשתמש"
+msgstr "למשתמש:"
 
 #: audit/templates/audit/list_logs.html:87
 msgid "to email:"
-msgstr ""
+msgstr "לדוא״ל"
 
 #: audit/templates/audit/list_logs.html:99
 #: audit/templates/audit/list_logs.html:106
 #: audit/templates/audit/list_logs.html:109
-#, fuzzy
-#| msgid "organization"
 msgid "organization:"
-msgstr "ארגון"
+msgstr "ארגון:"
 
 #: audit/templates/audit/list_logs.html:103
-#, fuzzy
-#| msgid "team"
 msgid "team:"
-msgstr "צוות"
+msgstr "צוות:"
 
 #: audit/templates/audit/list_logs.html:116
 msgid "IP:"
-msgstr ""
+msgstr "IP:"
 
 #: audit/templates/audit/list_logs.html:123
 msgid "No activity logged yet"
@@ -986,6 +962,10 @@ msgid ""
 "properly."
 msgstr ""
 
+#: doc_builder/exceptions.py:102
+msgid "Symlinks are not fully supported"
+msgstr ""
+
 #: gold/forms.py:52
 msgid "No project found."
 msgstr "לא נמצא מיזם."
@@ -1243,7 +1223,7 @@ msgid "Invitation pending"
 msgstr "הזמנה ממתינה"
 
 #: invitations/templates/invitations/includes/invitation_list.html:28
-#: templates/profiles/private/token_list.html:40
+#: templates/profiles/private/token_list.html:45
 msgid "Revoke"
 msgstr "שלילה"
 
@@ -1264,7 +1244,7 @@ msgstr "תוקף ההזמנה שלך פג."
 
 #: invitations/templates/invitations/invitation_detail.html:24
 msgid "Ask the admin of the organization to invite you again."
-msgstr ""
+msgstr "יש לבקש מהנהלת הארגון להזמין אותך שוב."
 
 #: invitations/templates/invitations/invitation_detail.html:26
 msgid "Ask the admin of the project to invite you again."
@@ -1504,10 +1484,8 @@ msgid "Stripe customer"
 msgstr "לקוח Stripe"
 
 #: organizations/models.py:110
-#, fuzzy
-#| msgid "Manage subscription"
 msgid "Stripe subscription"
-msgstr "ניהול מינוי"
+msgstr ""
 
 #: organizations/models.py:123
 msgid "organization"
@@ -2025,14 +2003,18 @@ msgstr ""
 "מצאנו יותר מ־conf.py אחד ולא ברור לנו באיזה מהם להשתמש. נא לציין את הקובץ "
 "הנכון תחת לשונית ההגדרות המתקדמות במסך ניהול המיזם."
 
-#: projects/exceptions.py:31
+#: projects/exceptions.py:28
+msgid "The file {} doesn't exist. Make sure it's a valid file path."
+msgstr ""
+
+#: projects/exceptions.py:36
 msgid ""
 "There was a problem connecting to your repository, ensure that your "
 "repository URL is correct."
 msgstr ""
 "אירעה שגיאה בעת הניסיון להתחבר למאגר שלך, נא לוודא שכתובת המאגר שלך נכונה."
 
-#: projects/exceptions.py:35
+#: projects/exceptions.py:40
 msgid ""
 "There was a problem connecting to your repository, ensure that your "
 "repository URL is correct and your repository is public. Private "
@@ -2041,23 +2023,23 @@ msgstr ""
 "אירעה תקלה בעת הניסיון להתחבר למאגר שלך, נא לוודא שכתובת המאגר שלך נכונה "
 "ושהמאגר שלך ציבורי. אין תמיכה במאגרים פרטיים."
 
-#: projects/exceptions.py:40
+#: projects/exceptions.py:45
 msgid ""
 "One or more submodule URLs are not valid: {}, git/ssh URL schemas for "
 "submodules are not supported."
 msgstr ""
 
-#: projects/exceptions.py:44
+#: projects/exceptions.py:49
 msgid ""
 "You can not have two versions with the name latest or stable. Ensure you "
 "don't have both a branch and a tag with this name."
 msgstr ""
 
-#: projects/exceptions.py:48
+#: projects/exceptions.py:53
 msgid "Failed to checkout revision: {}"
 msgstr "אחזור המהדורה נכשל: {}"
 
-#: projects/exceptions.py:51
+#: projects/exceptions.py:56
 msgid ""
 "There was a problem cloning your repository. Please check the command output "
 "for more information."
@@ -3013,10 +2995,8 @@ msgid "This query param is required"
 msgstr "משתנה שאילתה זו נחוץ"
 
 #: search/api/v3/views.py:68
-#, fuzzy
-#| msgid "This query param is required"
 msgid "This query parameter is required"
-msgstr "משתנה שאילתה זו נחוץ"
+msgstr ""
 
 #: search/models.py:33
 msgid "Query"
@@ -3026,67 +3006,67 @@ msgstr "שאילתה"
 msgid "Total results"
 msgstr "סך כל התוצאות"
 
-#: settings/base.py:408
+#: settings/base.py:409
 msgid "Catalan"
 msgstr "קטלאנית"
 
-#: settings/base.py:409
+#: settings/base.py:410
 msgid "English"
 msgstr "אנגלי"
 
-#: settings/base.py:410
+#: settings/base.py:411
 msgid "Spanish"
 msgstr "ספרדית"
 
-#: settings/base.py:411
+#: settings/base.py:412
 msgid "Brazilian Portuguese"
 msgstr "פורטוגלית ברזילאית"
 
-#: settings/base.py:412
+#: settings/base.py:413
 msgid "Norwegian Bokmål"
 msgstr "נורווגית ספרותית"
 
-#: settings/base.py:413
+#: settings/base.py:414
 msgid "French"
 msgstr "צרפתית"
 
-#: settings/base.py:414
+#: settings/base.py:415
 msgid "Russian"
 msgstr "רוסית"
 
-#: settings/base.py:415
+#: settings/base.py:416
 msgid "German"
 msgstr "גרמנית"
 
-#: settings/base.py:416
+#: settings/base.py:417
 msgid "Galician"
 msgstr "גליסית"
 
-#: settings/base.py:417
+#: settings/base.py:418
 msgid "Vietnamese"
 msgstr "וייטנאמית"
 
-#: settings/base.py:418
+#: settings/base.py:419
 msgid "Simplified Chinese"
 msgstr "סינית מפושטת"
 
-#: settings/base.py:419
+#: settings/base.py:420
 msgid "Traditional Chinese"
 msgstr "סינית מסורתית"
 
-#: settings/base.py:420
+#: settings/base.py:421
 msgid "Japanese"
 msgstr "יפנית"
 
-#: settings/base.py:421
+#: settings/base.py:422
 msgid "Ukrainian"
 msgstr "אוקראינית"
 
-#: settings/base.py:422
+#: settings/base.py:423
 msgid "Italian"
 msgstr "איטלקית"
 
-#: settings/base.py:423
+#: settings/base.py:424
 msgid "Korean"
 msgstr "קוריאנית"
 
@@ -4031,11 +4011,19 @@ msgstr ""
 "מיזם Read the Docs מפשט את הליך התיעוד של תוכנה על ידי יצירת אוטומציה "
 "לבנייה, חלוקה לגרסאות ואירוח המסמכים שלך עבורך."
 
+#: templates/homepage.html:58
+msgid "Free docs hosting for open source"
+msgstr ""
+
 #: templates/homepage.html:60
 msgid ""
 "We will host your documentation for free, forever. There are no tricks. We "
 "help over 100,000 open source projects share their docs, including a custom "
 "domain and theme."
+msgstr ""
+
+#: templates/homepage.html:69
+msgid "Always up to date"
 msgstr ""
 
 #: templates/homepage.html:71
@@ -4045,12 +4033,24 @@ msgid ""
 "so your code and documentation are never out of sync."
 msgstr ""
 
+#: templates/homepage.html:84
+#, fuzzy
+#| msgid "Download all data"
+msgid "Downloadable formats"
+msgstr "להוריד את כל הנתונים"
+
 #: templates/homepage.html:86
 msgid ""
 "We build and host your docs for the web, but they are also viewable as PDFs, "
 "as single page HTML, and for eReaders. No additional configuration is "
 "required."
 msgstr ""
+
+#: templates/homepage.html:94
+#, fuzzy
+#| msgid "Public versions"
+msgid "Multiple versions"
+msgstr "גרסאות ציבוריות"
 
 #: templates/homepage.html:96
 msgid ""
@@ -4121,6 +4121,8 @@ msgid ""
 "Hosting for the project is graciously provided by <a href=\"https://aws."
 "amazon.com/\">AWS</a> and <a href=\"https://cloudflare.com/\">Cloudflare</a>."
 msgstr ""
+"המיזם מתארח באדיבות <a href=\"https://aws.amazon.com/\">AWS</a> ו־<a "
+"href=\"https://cloudflare.com/\">Cloudflare</a>."
 
 #: templates/notifications/send_notification_form.html:6
 msgid "Send Email"
@@ -4246,12 +4248,19 @@ msgid ""
 msgstr ""
 
 #: templates/profiles/private/advertising_profile.html:41
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You can <strong>go ad-free</strong> by becoming a <a "
+#| "href=\"%(gold_detail)s\">Gold member</a> or <a "
+#| "href=\"%(donate_url)s\">Supporter</a> of Read the Docs</a>."
 msgid ""
 "You can <strong>go ad-free</strong> by becoming a <a "
 "href=\"%(gold_detail)s\">Gold member</a> or <a "
-"href=\"%(donate_url)s\">Supporter</a> of Read the Docs</a>."
+"href=\"%(donate_url)s\">Supporter</a> of Read the Docs."
 msgstr ""
+"אפשר <strong>להשבית את הפרסומות</strong> על ידי רכישת <a "
+"href=\"%(gold_detail)s\">חברות זהב</a> או <a href=\"%(donate_url)s\">תמיכה</"
+"a> ב־Read the Docs</a>."
 
 #: templates/profiles/private/advertising_profile.html:49
 msgid "Update advertisement preference"
@@ -4293,11 +4302,19 @@ msgid ""
 "%(days_limit)s days."
 msgstr ""
 
-#: templates/profiles/private/token_list.html:20
+#: templates/profiles/private/token_list.html:13
+msgid ""
+"Personal Access Token are tokens that allow you to use the Read the Docs "
+"APIv3 being authenticated as yourself. See <a href=\"https://docs."
+"readthedocs.org/page/api/v3.html\">APIv3 documentation</a> for more "
+"information."
+msgstr ""
+
+#: templates/profiles/private/token_list.html:25
 msgid "Generate API Token"
 msgstr "יצירת אסימון API"
 
-#: templates/profiles/private/token_list.html:49
+#: templates/profiles/private/token_list.html:54
 msgid "No API Tokens currently configured."
 msgstr "לא מוגדרים אסימוני API כרגע."
 
@@ -4402,6 +4419,13 @@ msgstr "הוספה"
 #: templates/projects/project_edit_base.html:27
 msgid "Environment Variables"
 msgstr "משתנים סביבתיים"
+
+#: templates/projects/environmentvariable_list.html:15
+msgid ""
+"Environment variables allow you to change the way that your build behaves. "
+"Take into account that these environment variables are available to all "
+"build steps."
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:22
 msgid "Add Environment Variable"
@@ -5293,25 +5317,16 @@ msgid "Files"
 msgstr "קבצים"
 
 #: templates/search/elastic_search.html:42
-#, fuzzy
-#| msgid "Search all docs"
 msgid "Search all"
-msgstr "חיפוש בכל המסמכים"
+msgstr ""
 
 #: templates/search/elastic_search.html:105
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "            %(count)s results for `%(query)s`\n"
-#| "          "
+#, python-format
 msgid ""
 "\n"
 "            %(count)s results for <code>%(query)s</code>\n"
 "          "
 msgstr ""
-"\n"
-"            %(count)s תוצאות לחיפוש אחר `%(query)s`\n"
-"          "
 
 #: templates/search/elastic_search.html:197
 msgid "No results found."
@@ -5362,66 +5377,3 @@ msgstr ""
 msgid ""
 "You currently have no social network accounts connected to this account."
 msgstr "אין לך חשבונות ברשתות חברתיות שמחוברים לחשבון זה."
-
-#, python-format
-#~ msgid ""
-#~ "<a href=\"?action=%(action)s\" title=\"%(method)s\">Authenticated</a>"
-#~ msgstr "<a href=\"?action=%(action)s\" title=\"%(method)s\">מאומת</a>"
-
-#, python-format
-#~ msgid ""
-#~ "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
-#~ "action=%(action)s\" title=\"%(method)s\">authenticated</a>"
-#~ msgstr ""
-#~ "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
-#~ "action=%(action)s\" title=\"%(method)s\">מאומתים</a>"
-
-#, python-format
-#~ msgid ""
-#~ "User <a href=\"?action=%(action)s\" title=\"%(method)s\">authenticated</a>"
-#~ msgstr "משתמש <a href=\"?action=%(action)s\" title=\"%(method)s\">מאומת</a>"
-
-#, python-format
-#~ msgid ""
-#~ "<a href=\"?action=%(action)s\" title=\"%(method)s\">Authentication "
-#~ "failed</a>"
-#~ msgstr "<a href=\"?action=%(action)s\" title=\"%(method)s\">האימות נכשל</a>"
-
-#, python-format
-#~ msgid ""
-#~ "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
-#~ "action=%(action)s\" title=\"%(path)s\">visited</a> a page"
-#~ msgstr ""
-#~ "עמוד <a href=\"?action=%(action)s\" title=\"%(path)s\">זכה לביקור</a> של "
-#~ "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a>"
-
-#, python-format
-#~ msgid ""
-#~ "A user <a href=\"?action=%(action)s\" title=\"%(path)s\">visited</a> a "
-#~ "page"
-#~ msgstr ""
-#~ "משתמש <a href=\"?action=%(action)s\" title=\"%(path)s\">ביקר</a> בעמוד"
-
-#, python-format
-#~ msgid ""
-#~ "<a href=\"?user=%(user)s\"> <code>%(user)s</code> </a> <a href=\"?"
-#~ "action=%(action)s\" title=\"%(path)s\">downloaded</a> a document"
-#~ msgstr ""
-#~ "מסמך <a href=\"?action=%(action)s\" title=\"%(path)s\">נמשך</a> על ידי <a "
-#~ "href=\"?user=%(user)s\"> <code>%(user)s</code> </a>"
-
-#, python-format
-#~ msgid ""
-#~ "A user <a href=\"?action=%(action)s\" title=\"%(path)s\">downloaded</a> a "
-#~ "document"
-#~ msgstr ""
-#~ "משתמש <a href=\"?action=%(action)s\" title=\"%(path)s\">הוריד</a> מסמך"
-
-#~ msgid "from"
-#~ msgstr "מתוך"
-
-#~ msgid "on"
-#~ msgstr "ב־"
-
-#~ msgid "Code API Type"
-#~ msgstr "סוג API קוד"
