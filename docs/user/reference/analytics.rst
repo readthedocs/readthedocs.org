@@ -10,7 +10,9 @@ with full respect of the privacy of the visitor.
 Traffic Analytics
 -----------------
 
-Read the Docs aggregates simple statistics about visits to your documentation.
+Read the Docs aggregates statistics about visits to your documentation.
+This is mainly information about how often pages are viewed,
+and which return a `404 Not Found` error code. 
 
 Traffic Analytics lets you see *which* documents your users are reading.
 This allows you to understand how your documentation is being used,
