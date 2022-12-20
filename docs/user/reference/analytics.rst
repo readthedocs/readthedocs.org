@@ -25,7 +25,7 @@ Learn more in :doc:`/analytics`.
 Search Analytics
 ----------------
 
-When someone visits your documentation using a search engine,
+When someone visits your documentation and uses the built-in :ref:`server-side search <server-side-search:Server Side Search>` feature,
 Read the Docs will collect analytics on their search term.
 
 Those are aggregated into a simple view of the

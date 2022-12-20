@@ -3,4 +3,36 @@ How To Use Search Analytics
 
 In this guide, you can learn to use Read the Docs' built-in search analytics for your documentation project.
 
-TBC
+To see a list of the top queries and an overview from the last month,
+go to the :guilabel:`Admin` tab of your project,
+and then click on :guilabel:`Search Analytics`.
+
+.. figure:: /_static/images/search-analytics-demo.png
+   :width: 50%
+   :align: center
+   :alt: Search analytics demo
+
+   How the search analytics page looks.
+
+In **Top queries in the past 30 days**,
+you see all the latest searches ordered by their popularity.
+The list itself is often longer than what meets the eye,
+Scroll downwards on the list itself to see more results.
+
+Understanding your analytics
+----------------------------
+
+In **Top queries in the past 30 days**, you can see the most popular terms that users have searched for.
+Next to the search query, the number of actual **results** for that query is shown.
+The number of times the query has been registered is displayed in the as the **searches** number.
+
+* If you see a search term that doesn't have any results,
+  you could apply that term in documentation articles or create new ones.
+
+* If a search term is often used but the documentation article exists,
+  it can also indicate that it's hard to navigate to the article.
+
+* Try to repeat the search yourself and view the results list to inspect if the results are relevant.
+
+In **Daily search totals**, you can see any trends that might match significant events in your projects publicity.
+If you need more details, click :guilabel:`Download all data`.

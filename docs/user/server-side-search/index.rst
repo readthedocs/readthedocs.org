@@ -65,23 +65,19 @@ API
    Integrate our search as you like.
    See :doc:`/server-side-search/api`.
 
+Analytics
+   Know what your users are searching for.
+   See :doc:`/guides/search-analytics`
+
 .. _"full-text search": https://docs.readthedocs.io/en/latest/search.html?q=%22full-text+search%22
 .. _"project:docs project:dev search": https://docs.readthedocs.io/en/latest/search.html?q=project:docs+project:dev+search
-
-Search analytics
-----------------
-
-Know what your users are looking for in your docs.
-To see a list of the top queries and an overview from the last month,
-go to the :guilabel:`Admin` tab of your project,
-and then click on :guilabel:`Search Analytics`.
 
 .. figure:: /_static/images/search-analytics-demo.png
    :width: 50%
    :align: center
    :alt: Search analytics demo
 
-   Search analytics demo
+   Search analytics demo. Read more in :doc:`/guides/search-analytics`.
 
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 
