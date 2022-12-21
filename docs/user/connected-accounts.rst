@@ -1,28 +1,43 @@
-Connecting Your VCS Account
-===========================
+Connecting your Git repository
+==============================
+
+In this article, we explain how connecting your Read the Docs account to one of the supported Git providers
+automatically configures your Git repository and your Read the Docs project.
 
 If you are going to import repositories from GitHub, Bitbucket, or GitLab,
-you should connect your Read the Docs account to your repository host first.
+we recommend that you connect your Read the Docs account to your repository provider.
+This is already done in cases where your sign-up for Read the Docs was handled through your Git provider.
+If you have signed up to Read the Docs with your email address,
+you can add the connection to the Git provider afterwards.
+
 Connecting your account allows for:
 
-* Easier importing of your repositories
-* Automatically configure your repository :doc:`/integrations`
+* Easy import of your repositories
+* Automatic configuration of your repository :doc:`/integrations`
   which allow Read the Docs to build your docs on every change to your repository
-* Log into Read the Docs with your GitHub, Bitbucket, or GitLab credentials
+* Logging into Read the Docs with your GitHub, Bitbucket, or GitLab credentials
 
-If you signed up or logged in to Read the Docs with your GitHub, Bitbucket, or GitLab
-credentials, you're all done. Your account is connected.
+.. seealso::
 
-To connect a social account, go to your :guilabel:`<Username dropdown>` > :guilabel:`Settings` > :guilabel:`Connected Services`.
-From here, you'll be able to connect to your GitHub, Bitbucket or GitLab
-account. This process will ask you to authorize a connection to Read the Docs,
-that allows us to read information about and clone your repositories.
+   :doc:`/guides/connecting-git-account`
+     Here are the steps to connect your Read the Docs account to your Git repository provider.
+
+   :ref:`intro/import-guide:Manually import your docs`
+     Using a different provider?
+     Read the Docs still supports other providers such as Gitea or GitHub Enterprise.
+     In fact, any Git repository URL can be configured manually.
+
+
+.. tip::
+
+   A single Read the Docs account can connect to many different Git providers.
+   This means that you can gather all your documentation projects under the same roof.
 
 
 Permissions for connected accounts
 ----------------------------------
 
-Read the Docs does not generally ask for write permission to your repositories' code
+Read the Docs does not generally ask for *write* permission to your repository code
 (with one exception detailed below)
 and since we only connect to public repositories we don't need special permissions to read them.
 However, we do need permissions for authorizing your account
@@ -100,6 +115,14 @@ depending on where the project you are trying to access has permissions from.
 
 Bitbucket
 ~~~~~~~~~
+
+..
+    Read your account information
+    Read your repositories
+    Administer your repositories
+    Read your team membership information
+    Read and modify your repositories' webhooks
+
 
 For similar reasons to those above for GitHub, we request permissions for:
 
