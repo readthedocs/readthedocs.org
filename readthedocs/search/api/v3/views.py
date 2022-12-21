@@ -58,6 +58,16 @@ class SearchAPI(APIv3Settings, GenericAPIView):
     # So we need to increase the rate limit.
     throttle_classes = (SearchUserRateThrottle, SearchAnonRateThrottle)
 
+    @property
+    def description(self):
+        """
+        Get the view description.
+
+        Force the description to always be the docstring of this class,
+        even if it's subclassed.
+        """
+        return SearchAPI.__doc__
+
     def get_view_name(self):
         return "Search API V3"
 
