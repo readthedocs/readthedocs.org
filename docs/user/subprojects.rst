@@ -3,7 +3,7 @@ Subprojects: host multiple projects on a single domain
 
 In this article, you can learn more about how several documentation projects can be combined and presented to the reader on the same website.
 
-Read the Docs projects can be configured to make other *subprojects* available on the website of the *main project*.
+Read the Docs can be configured to make other *projects* available on the website of the *main project* as **subprojects**.
 This allows for documentation projects to share a search index and a namespace or custom domain,
 but still be maintained independently.
 
@@ -31,8 +31,7 @@ Sharing a custom domain
 -----------------------
 
 Projects and subprojects can be used to share a custom domain.
-To configure this, one project should be established as the main project.
-This project will be configured with a custom domain.
+To configure this, one project should be established as the main project and configured with a custom domain.
 Other projects are then added as subprojects to the main project.
 
 If the example project ``example-project`` was set up with a custom domain,
@@ -45,16 +44,16 @@ respectively be at:
 Using aliases
 -------------
 
-You can choose an alias for the subproject when it is created.
-This allows you to override the URL that is used to access it,
+Adding an alias for the subproject allows you to override the URL that is used to access it,
 giving more control over how you want to structure your projects.
+You can choose an alias for the subproject when it is created.
 
 You can set your subproject's project name and :term:`slug` however you want,
 but we suggest prefixing it with the name of the main project.
 
 Typically, a subproject is created with a ``$mainproject-`` prefix,
-for instance if the main project is called ``example-project-plugin`` and the subproject is called ``plugin``,
-then the subproject's Read the Docs project name will be ``example-project-plugin``.
+for instance if the main project is called ``example-project`` and the subproject is called ``plugin``,
+then the subproject's Read the Docs project :term:`slug` will be ``example-project-plugin``.
 When adding the subproject,
 the alias is set to ``plugin`` and the project's URL becomes
 ``example-project.readthedocs.io/projects/plugin``.

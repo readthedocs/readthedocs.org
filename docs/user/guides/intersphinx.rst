@@ -53,7 +53,7 @@ And use the ``intersphinx_mapping`` configuration to indicate the name and link 
 
 .. note::
 
-   If you are using subprojects, you also need to enable the Intersphinx extension on each of the subprojects, too.
+   If you are using Read the Docs' subprojects, you also need to enable the Intersphinx extension on each of the subprojects.
    For each subproject, you need to add the main project and all the other subprojects to ``intersphinx_mapping``.
 
 Now you can use the ``sphinx`` name with a cross-reference role:
