@@ -59,7 +59,7 @@
           "properties": {
             "image": {
               "title": "Image",
-              "description": "Deprecated in favor of build.os.\n\nThe build docker image to be used.",
+              "description": "DEPRECATED: use build.os instead.\n\nThe build docker image to be used.",
               "enum": [
                 "stable",
                 "latest"
@@ -241,7 +241,7 @@
       "properties": {
         "version": {
           "title": "Version",
-          "description": "Deprecated in favor of build.tools.python.\n\nThe Python version (this depends on the build image).",
+          "description": "DEPRECATED: use build.tools.python instead.\n\nThe Python version to activate for your build (availability of Python versions depend on the build image).",
           "type": "string",
           "enum": [
             "2",
