@@ -218,7 +218,7 @@
             },
             "commands": {
               "title": "Build commands",
-              "description": "Override the whole build process with custom commands. None of the commands from build.jobs will be executed.",
+              "description": "Override the whole build process with custom commands. When using this option, none of the commands from build.jobs will be executed.",
               "type": "array",
               "items": {
                 "title": "Custom commands",
