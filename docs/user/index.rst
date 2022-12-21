@@ -82,6 +82,7 @@ to help you create fantastic documentation for your project.
    /custom-domains
    /pull-requests
    /downloadable-documentation
+   /commercial/organizations
 
 .. toctree::
    :maxdepth: 2
