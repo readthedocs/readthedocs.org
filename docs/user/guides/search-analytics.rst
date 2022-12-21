@@ -1,4 +1,4 @@
-How To Use Search Analytics
+How to use search analytics
 ===========================
 
 In this guide, you can learn to use Read the Docs' built-in search analytics for your documentation project.
