@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-29 03:27+0000\n"
+"POT-Creation-Date: 2022-12-20 08:43+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Michal, 2020\n"
 "Language-Team: Polish (http://www.transifex.com/readthedocs/readthedocs/"
@@ -151,20 +151,16 @@ msgid "Download"
 msgstr ""
 
 #: audit/models.py:83
-#, fuzzy
-#| msgid "Documentation"
 msgid "Authentication"
-msgstr "Dokumentacja"
+msgstr ""
 
 #: audit/models.py:86
 msgid "Authentication failure"
 msgstr ""
 
 #: audit/models.py:89
-#, fuzzy
-#| msgid "Log Out"
 msgid "Log out"
-msgstr "Wyloguj"
+msgstr ""
 
 #: audit/models.py:92 organizations/views/private.py:104
 #: organizations/views/private.py:169 projects/views/private.py:475
@@ -311,16 +307,12 @@ msgstr ""
 
 #: audit/templates/audit/list_logs.html:73
 #: audit/templates/audit/list_logs.html:94
-#, fuzzy
-#| msgid "Project"
 msgid "project:"
-msgstr "Projekt"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:78
-#, fuzzy
-#| msgid "Manpage"
 msgid "page:"
-msgstr "Strona podręcznika"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:84
 msgid "to user:"
@@ -333,10 +325,8 @@ msgstr ""
 #: audit/templates/audit/list_logs.html:99
 #: audit/templates/audit/list_logs.html:106
 #: audit/templates/audit/list_logs.html:109
-#, fuzzy
-#| msgid "Organization"
 msgid "organization:"
-msgstr "Organizacja"
+msgstr ""
 
 #: audit/templates/audit/list_logs.html:103
 msgid "team:"
@@ -966,6 +956,10 @@ msgid ""
 "properly."
 msgstr ""
 
+#: doc_builder/exceptions.py:102
+msgid "Symlinks are not fully supported"
+msgstr ""
+
 #: gold/forms.py:52
 msgid "No project found."
 msgstr ""
@@ -1218,7 +1212,7 @@ msgid "Invitation pending"
 msgstr ""
 
 #: invitations/templates/invitations/includes/invitation_list.html:28
-#: templates/profiles/private/token_list.html:40
+#: templates/profiles/private/token_list.html:45
 msgid "Revoke"
 msgstr ""
 
@@ -1471,10 +1465,8 @@ msgid "Stripe customer"
 msgstr ""
 
 #: organizations/models.py:110
-#, fuzzy
-#| msgid "Description"
 msgid "Stripe subscription"
-msgstr "Opis"
+msgstr ""
 
 #: organizations/models.py:123
 msgid "organization"
@@ -1982,7 +1974,11 @@ msgid ""
 "Admin."
 msgstr ""
 
-#: projects/exceptions.py:31
+#: projects/exceptions.py:28
+msgid "The file {} doesn't exist. Make sure it's a valid file path."
+msgstr ""
+
+#: projects/exceptions.py:36
 msgid ""
 "There was a problem connecting to your repository, ensure that your "
 "repository URL is correct."
@@ -1990,30 +1986,30 @@ msgstr ""
 "Wystąpił problem z połączeniem z twoim repozytorium, upewnij się, że adres "
 "URL repozytorium jest poprawny."
 
-#: projects/exceptions.py:35
+#: projects/exceptions.py:40
 msgid ""
 "There was a problem connecting to your repository, ensure that your "
 "repository URL is correct and your repository is public. Private "
 "repositories are not supported."
 msgstr ""
 
-#: projects/exceptions.py:40
+#: projects/exceptions.py:45
 msgid ""
 "One or more submodule URLs are not valid: {}, git/ssh URL schemas for "
 "submodules are not supported."
 msgstr ""
 
-#: projects/exceptions.py:44
+#: projects/exceptions.py:49
 msgid ""
 "You can not have two versions with the name latest or stable. Ensure you "
 "don't have both a branch and a tag with this name."
 msgstr ""
 
-#: projects/exceptions.py:48
+#: projects/exceptions.py:53
 msgid "Failed to checkout revision: {}"
 msgstr ""
 
-#: projects/exceptions.py:51
+#: projects/exceptions.py:56
 msgid ""
 "There was a problem cloning your repository. Please check the command output "
 "for more information."
@@ -2947,67 +2943,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:408
+#: settings/base.py:409
 msgid "Catalan"
 msgstr "Kataloński"
 
-#: settings/base.py:409
+#: settings/base.py:410
 msgid "English"
 msgstr "angielski"
 
-#: settings/base.py:410
+#: settings/base.py:411
 msgid "Spanish"
 msgstr "hiszpański"
 
-#: settings/base.py:411
+#: settings/base.py:412
 msgid "Brazilian Portuguese"
 msgstr ""
 
-#: settings/base.py:412
+#: settings/base.py:413
 msgid "Norwegian Bokmål"
 msgstr "norweski (bokmål)"
 
-#: settings/base.py:413
+#: settings/base.py:414
 msgid "French"
 msgstr "francuski"
 
-#: settings/base.py:414
+#: settings/base.py:415
 msgid "Russian"
 msgstr "rosyjski"
 
-#: settings/base.py:415
+#: settings/base.py:416
 msgid "German"
 msgstr "niemiecki"
 
-#: settings/base.py:416
+#: settings/base.py:417
 msgid "Galician"
 msgstr "galicyjski"
 
-#: settings/base.py:417
+#: settings/base.py:418
 msgid "Vietnamese"
 msgstr "wietnamski"
 
-#: settings/base.py:418
+#: settings/base.py:419
 msgid "Simplified Chinese"
 msgstr "Chiński uproszczony"
 
-#: settings/base.py:419
+#: settings/base.py:420
 msgid "Traditional Chinese"
 msgstr "Tradycyjny chiński"
 
-#: settings/base.py:420
+#: settings/base.py:421
 msgid "Japanese"
 msgstr "Japoński"
 
-#: settings/base.py:421
+#: settings/base.py:422
 msgid "Ukrainian"
 msgstr "Ukraiński"
 
-#: settings/base.py:422
+#: settings/base.py:423
 msgid "Italian"
 msgstr "włoski"
 
-#: settings/base.py:423
+#: settings/base.py:424
 msgid "Korean"
 msgstr "koreański"
 
@@ -3929,11 +3925,19 @@ msgid ""
 "versioning, and hosting of your docs for you."
 msgstr ""
 
+#: templates/homepage.html:58
+msgid "Free docs hosting for open source"
+msgstr ""
+
 #: templates/homepage.html:60
 msgid ""
 "We will host your documentation for free, forever. There are no tricks. We "
 "help over 100,000 open source projects share their docs, including a custom "
 "domain and theme."
+msgstr ""
+
+#: templates/homepage.html:69
+msgid "Always up to date"
 msgstr ""
 
 #: templates/homepage.html:71
@@ -3943,12 +3947,24 @@ msgid ""
 "so your code and documentation are never out of sync."
 msgstr ""
 
+#: templates/homepage.html:84
+#, fuzzy
+#| msgid "Downloads"
+msgid "Downloadable formats"
+msgstr "Pobrania"
+
 #: templates/homepage.html:86
 msgid ""
 "We build and host your docs for the web, but they are also viewable as PDFs, "
 "as single page HTML, and for eReaders. No additional configuration is "
 "required."
 msgstr ""
+
+#: templates/homepage.html:94
+#, fuzzy
+#| msgid "Single version"
+msgid "Multiple versions"
+msgstr "Wersja pojedyncza"
 
 #: templates/homepage.html:96
 msgid ""
@@ -4141,7 +4157,7 @@ msgstr ""
 msgid ""
 "You can <strong>go ad-free</strong> by becoming a <a "
 "href=\"%(gold_detail)s\">Gold member</a> or <a "
-"href=\"%(donate_url)s\">Supporter</a> of Read the Docs</a>."
+"href=\"%(donate_url)s\">Supporter</a> of Read the Docs."
 msgstr ""
 
 #: templates/profiles/private/advertising_profile.html:49
@@ -4184,11 +4200,19 @@ msgid ""
 "%(days_limit)s days."
 msgstr ""
 
-#: templates/profiles/private/token_list.html:20
+#: templates/profiles/private/token_list.html:13
+msgid ""
+"Personal Access Token are tokens that allow you to use the Read the Docs "
+"APIv3 being authenticated as yourself. See <a href=\"https://docs."
+"readthedocs.org/page/api/v3.html\">APIv3 documentation</a> for more "
+"information."
+msgstr ""
+
+#: templates/profiles/private/token_list.html:25
 msgid "Generate API Token"
 msgstr ""
 
-#: templates/profiles/private/token_list.html:49
+#: templates/profiles/private/token_list.html:54
 msgid "No API Tokens currently configured."
 msgstr ""
 
@@ -4285,6 +4309,13 @@ msgstr "Dodaj"
 #: templates/projects/project_edit_base.html:27
 msgid "Environment Variables"
 msgstr "Zmienne środowiskowe"
+
+#: templates/projects/environmentvariable_list.html:15
+msgid ""
+"Environment variables allow you to change the way that your build behaves. "
+"Take into account that these environment variables are available to all "
+"build steps."
+msgstr ""
 
 #: templates/projects/environmentvariable_list.html:22
 msgid "Add Environment Variable"
@@ -5142,10 +5173,8 @@ msgid "Files"
 msgstr ""
 
 #: templates/search/elastic_search.html:42
-#, fuzzy
-#| msgid "Search"
 msgid "Search all"
-msgstr "Szukaj"
+msgstr ""
 
 #: templates/search/elastic_search.html:105
 #, python-format
