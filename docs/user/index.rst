@@ -82,6 +82,8 @@ to help you create fantastic documentation for your project.
    /custom-domains
    /pull-requests
    /downloadable-documentation
+   /single_version
+   /science
    /commercial/organizations
 
 .. toctree::
@@ -93,7 +95,6 @@ to help you create fantastic documentation for your project.
    /guides/authors
    /guides/administrators
    /guides/developers
-   /science
    /examples
 
 
@@ -233,7 +234,6 @@ out of your documentation and Read the Docs.
    :caption: Advanced features
 
    subprojects
-   single_version
    flyout-menu
    feature-flags
 
