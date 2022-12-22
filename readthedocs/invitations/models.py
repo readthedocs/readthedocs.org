@@ -207,7 +207,7 @@ class Invitation(TimeStampedModel):
 
     @property
     def object_type(self):
-        return self.content_type.name
+        return self.content_type.model
 
     @property
     def object_name(self):
