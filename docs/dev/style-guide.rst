@@ -43,7 +43,7 @@ Content
   use the ``doc`` role and not a hyperlink.
 * If you are cross-referencing to a section within our website,
   use the ``ref`` role with the label from the `autosectionlabel extension <http://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html>`__.
-* Use ``<abstract concept>`` and ``<variable>`` as placeholders in code and URLs. For instance.
+* Use ``<abstract concept>`` and ``<variable>`` as placeholders in code and URLs. For instance:
 
   * ``https://<slug>.readthedocs.io``
   * ``:guilabel:`<your username>` dropdown``
