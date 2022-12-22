@@ -137,6 +137,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 
 
 class BuildCommandReadOnlySerializer(BuildCommandSerializer):
+
     """
     Serializer used on GETs to trimm the commands' path.
 
@@ -185,8 +186,10 @@ class BuildSerializer(serializers.ModelSerializer):
     - It doesn't display internal fields (builder, _config)
     - It's read-only for multiple fields (commands, project_slug, etc)
 
-    Staff users should use either BuildAdminSerializer for write operations (e.g. builders hitting the API),
-    or BuildAdminReadOnlySerializer for read-only actions (e.g. dashboard retrieving build details)
+    Staff users should use either:
+
+    - BuildAdminSerializer for write operations (e.g. builders hitting the API),
+    - BuildAdminReadOnlySerializer for read-only actions (e.g. dashboard retrieving build details)
     """
 
     commands = BuildCommandReadOnlySerializer(many=True, read_only=True)
@@ -227,6 +230,7 @@ class BuildAdminSerializer(BuildSerializer):
 
 
 class BuildAdminReadOnlySerializer(BuildAdminSerializer):
+
     """
     Build serializer to retrieve Build objects from the dashboard.
 
