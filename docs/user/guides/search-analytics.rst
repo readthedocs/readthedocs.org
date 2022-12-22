@@ -28,13 +28,13 @@ The number of times the query has been used in a search is displayed as the **se
 
 * If you see a search term that doesn't have any results,
   you could apply that term in documentation articles or create new ones.
-  This is a great way to understand missing gaps in your documentation. 
+  This is a great way to understand missing gaps in your documentation.
 
 * If a search term is often used but the documentation article exists,
   it can also indicate that it's hard to navigate to the article.
 
 * Repeat the search yourself and inspect the results to see if they are relevant.
-  You can add keywords to various pages that you want to show up for searches on that page. 
+  You can add keywords to various pages that you want to show up for searches on that page.
 
 In **Daily search totals**, you can see trends that might match special events in your project's publicity.
 If you wish to analyze these numbers in details, click :guilabel:`Download all data`
