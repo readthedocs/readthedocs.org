@@ -22,8 +22,8 @@ from readthedocs.storage import build_commands_storage
 
 from ..permissions import APIPermission, APIRestrictedPermission, IsOwner
 from ..serializers import (
+    BuildAdminReadOnlySerializer,
     BuildAdminSerializer,
-    BuildAdminUISerializer,
     BuildCommandSerializer,
     BuildSerializer,
     DomainSerializer,
@@ -239,10 +239,10 @@ class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
         if self.request.user.is_staff:
             # Logic copied from `UserSelectViewSet.get_serializer_class`
             # and extended to check for GET method
-            if self.request.method == "GET":
-                return BuildAdminUISerializer
-            return BuildAdminSerializer
-        return BuildSerializer
+            if self.request.action in ["list", "retrieve"]:
+                return BuildAdminReadOnlySerializer  # Staff read-onlyl
+            return BuildAdminSerializer  # Staff write-only
+        return BuildSerializer  # Non-staff
 
     @decorators.action(
         detail=False,

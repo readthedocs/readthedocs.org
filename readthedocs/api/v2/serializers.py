@@ -136,7 +136,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
         exclude = []
 
 
-class BuildCommandUISerializer(BuildCommandSerializer):
+class BuildCommandReadOnlySerializer(BuildCommandSerializer):
     """
     Serializer used on GETs to trimm the commands' path.
 
@@ -176,9 +176,20 @@ class BuildCommandUISerializer(BuildCommandSerializer):
 
 class BuildSerializer(serializers.ModelSerializer):
 
-    """Build serializer for user display, doesn't display internal fields."""
+    """
+    Build serializer for user display.
 
-    commands = BuildCommandUISerializer(many=True, read_only=True)
+    This is the default serializer for Build objects over read-only operations from regular users.
+    Take into account that:
+
+    - It doesn't display internal fields (builder, _config)
+    - It's read-only for multiple fields (commands, project_slug, etc)
+
+    Staff users should use either BuildAdminSerializer for write operations (e.g. builders hitting the API),
+    or BuildAdminReadOnlySerializer for read-only actions (e.g. dashboard retrieving build details)
+    """
+
+    commands = BuildCommandReadOnlySerializer(many=True, read_only=True)
     project_slug = serializers.ReadOnlyField(source='project.slug')
     version_slug = serializers.ReadOnlyField(source='get_version_slug')
     docs_url = serializers.SerializerMethodField()
@@ -201,7 +212,12 @@ class BuildSerializer(serializers.ModelSerializer):
 
 class BuildAdminSerializer(BuildSerializer):
 
-    """Build serializer for display to admin users and build instances."""
+    """
+    Build serializer to update Build objects from build instances.
+
+    It allows write operations on `commands` and display fields (e.g. builder)
+    that are allowed for admin purposes only.
+    """
 
     commands = BuildCommandSerializer(many=True, read_only=True)
 
@@ -210,8 +226,15 @@ class BuildAdminSerializer(BuildSerializer):
         exclude = ('_config',)
 
 
-class BuildAdminUISerializer(BuildAdminSerializer):
-    commands = BuildCommandUISerializer(many=True, read_only=True)
+class BuildAdminReadOnlySerializer(BuildAdminSerializer):
+    """
+    Build serializer to retrieve Build objects from the dashboard.
+
+    It uses `BuildCommandReadOnlySerializer` to automatically parse the command
+    and trim the useless path.
+    """
+
+    commands = BuildCommandReadOnlySerializer(many=True, read_only=True)
 
 
 class SearchIndexSerializer(serializers.Serializer):
