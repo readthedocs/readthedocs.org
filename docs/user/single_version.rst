@@ -1,10 +1,11 @@
 Single version documentation
 ----------------------------
 
-*Single version* documentation lets you serve your documentation direct from ``https://docs.example.com`` or ``https://example.readthedocs.io``.
+*Single version* documentation lets you serve your documentation at the top level of your domain,
+for example ``https://docs.example.com/`` or ``https://example.readthedocs.io/``.
 
-By default, all documentation served by Read the Docs has a root of ``/<language>/<version>/``.
-But, if you enable the *single version* option for a project, its documentation will instead be served at ``/``.
+By default, all documentation served by Read the Docs has a standard path of ``/<language>/<version>/``.
+Documentation can be served at ``/`` if you enable the *single version* option for a project. 
 
 .. warning:: This means you can't have translations or multiple versions for your documentation.
 
@@ -12,6 +13,7 @@ Having a single version of a documentation project can be considered the better 
 in cases where there should only always exist one unambiguous copy of your project.
 
 For example, a research project may wish to *only* expose readers to their latest list of publications and research data.
+Similarly, a :abbr:`SaaS (Software as a Service)` application might only ever have one version live. 
 
 You can see a live example of this at http://www.contribution-guide.org
 
