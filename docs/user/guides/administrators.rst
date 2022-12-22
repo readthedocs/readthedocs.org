@@ -24,3 +24,6 @@ have a look at our :doc:`/tutorial/index`.
    Setup Build Notifications <build-notifications>
    subprojects
    Configure Pull Request Builds <pull-requests>
+   setup-single-sign-on-github-gitlab-bitbucket
+   setup-single-sign-on-google-email
+   manage-read-the-docs-teams

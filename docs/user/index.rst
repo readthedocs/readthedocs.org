@@ -83,6 +83,8 @@ to help you create fantastic documentation for your project.
    /pull-requests
    /downloadable-documentation
    /subprojects
+   /single_version
+   /science
 
 .. toctree::
    :maxdepth: 2
@@ -93,7 +95,6 @@ to help you create fantastic documentation for your project.
    /guides/authors
    /guides/administrators
    /guides/developers
-   /science
    /examples
 
 
@@ -125,7 +126,7 @@ and some of the core features of Read the Docs.
   :doc:`/user-defined-redirects` |
   :doc:`/security-log`
 
-* **Connecting with GitHub, BitBucket, or GitLab**:
+* **Connecting with GitHub, Bitbucket, or GitLab**:
   :doc:`Connecting your VCS account </connected-accounts>`
 
 * **Read the Docs build process**:
@@ -232,7 +233,6 @@ out of your documentation and Read the Docs.
    :glob:
    :caption: Advanced features
 
-   single_version
    flyout-menu
    feature-flags
 

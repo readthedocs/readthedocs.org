@@ -239,7 +239,7 @@ class BitbucketService(Service):
 
     def get_provider_data(self, project, integration):
         """
-        Gets provider data from BitBucket Webhooks API.
+        Gets provider data from Bitbucket Webhooks API.
 
         :param project: project
         :type project: Project

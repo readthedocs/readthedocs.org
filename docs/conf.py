@@ -70,9 +70,9 @@ templates_path = ["_templates"]
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "9.1.0"
+version = "9.1.1"
 release = version
-exclude_patterns = ["_build", "shared"]
+exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
 intersphinx_timeout = 3  # 3 seconds timeout
 intersphinx_mapping = {
