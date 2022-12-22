@@ -167,7 +167,7 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
         container_hash = "/"
         if settings.RTD_DOCKER_COMPOSE:
             docroot = re.sub("/[0-9a-z]+/?$", "", settings.DOCROOT, count=1)
-            container_hash = "/[0-9a-z]+/"
+            container_hash = "/([0-9a-z]+/)?"
 
         regex = f"{docroot}{container_hash}{project_slug}/envs/{version_slug}(/bin/)?"
         command = re.sub(regex, "", obj.command, count=1)
