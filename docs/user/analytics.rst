@@ -1,4 +1,4 @@
-How To Use Traffic Analytics
+How to use traffic analytics
 ============================
 
 In this guide, you can learn to use Read the Docs' built-in traffic analytics for your documentation project.

@@ -1,4 +1,4 @@
-Analytics for Search and Traffic
+Analytics for search and traffic
 ================================
 
 Read the Docs supports analytics for search and traffic.
@@ -7,7 +7,7 @@ we collect data about the vist and the referer
 with full respect of the privacy of the visitor.
 
 
-Traffic Analytics
+Traffic analytics
 -----------------
 
 Read the Docs aggregates statistics about visits to your documentation.

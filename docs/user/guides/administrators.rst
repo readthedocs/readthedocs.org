@@ -16,7 +16,7 @@ have a look at our :doc:`/tutorial/index`.
    Manage Custom Domains <custom-domains>
    Enable Canonical URLs <canonical-urls>
    technical-docs-seo-guide
-   Use Traffic Analytics </analytics>
+   Use traffic analytics </analytics>
    manage-translations-sphinx
    hiding-a-version
    deprecating-content
