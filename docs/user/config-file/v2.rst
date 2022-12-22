@@ -314,7 +314,7 @@ Python, Node.js, Rust, and Go.
      os: ubuntu-22.04
      tools:
        python: "3.11"
-       nodejs: "19"
+       nodejs: "18"
        rust: "1.64"
        golang: "1.19"
 
