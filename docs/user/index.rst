@@ -82,6 +82,7 @@ to help you create fantastic documentation for your project.
    /custom-domains
    /pull-requests
    /downloadable-documentation
+   /subprojects
    /single_version
    /science
 
@@ -232,7 +233,6 @@ out of your documentation and Read the Docs.
    :glob:
    :caption: Advanced features
 
-   subprojects
    flyout-menu
    feature-flags
 

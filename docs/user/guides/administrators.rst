@@ -22,6 +22,7 @@ have a look at our :doc:`/tutorial/index`.
    pdf-non-ascii-languages
    importing-private-repositories
    Setup Build Notifications <build-notifications>
+   subprojects
    Configure Pull Request Builds <pull-requests>
    setup-single-sign-on-github-gitlab-bitbucket
    setup-single-sign-on-google-email
