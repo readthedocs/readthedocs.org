@@ -145,9 +145,12 @@ How-to Guides
 
   * Can this how-to contain recommendations and practical advice without breaking the how-to format?
   * Can this how-to be expanded with relevant troubleshooting?
-  * Worst-case: Is this how-to describing a task that's so trivial and self-evident that we might as well remove it?
+  * Worst-case:
+    Is this how-to describing a task that's so trivial and self-evident
+    that we might as well remove it?
 
-* Consider if an animation can be embedded: `Here is an article about 'gif-to-video' <https://www.smashingmagazine.com/2018/11/gif-to-video/#replace-animated-gifs-with-video-in-the-browser>`__
+* Consider if an animation can be embedded:
+  `Here is an article about 'gif-to-video' <https://www.smashingmagazine.com/2018/11/gif-to-video/#replace-animated-gifs-with-video-in-the-browser>`__
 
 Reference
 ^^^^^^^^^
