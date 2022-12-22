@@ -139,7 +139,7 @@ class BuildCommandSerializer(serializers.ModelSerializer):
 class BuildCommandReadOnlySerializer(BuildCommandSerializer):
 
     """
-    Serializer used on GETs to trimm the commands' path.
+    Serializer used on GETs to trim the commands' path.
 
     Remove unreadable paths from the command outputs when returning it from the API.
     We could make this change at build level, but we want to avoid undoable issues from now

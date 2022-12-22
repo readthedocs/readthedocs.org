@@ -238,10 +238,10 @@ class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
         """
         if self.request.user.is_staff:
             # Logic copied from `UserSelectViewSet.get_serializer_class`
-            # and extended to check for GET method
-            if self.action in ["list", "retrieve"]:
-                return BuildAdminReadOnlySerializer  # Staff read-onlyl
-            return BuildAdminSerializer  # Staff write-only
+            # and extended to choose serializer from self.action
+            if self.action not in ["list", "retrieve"]:
+                return BuildAdminSerializer  # Staff write-only
+            return BuildAdminReadOnlySerializer  # Staff read-only
         return BuildSerializer  # Non-staff
 
     @decorators.action(
