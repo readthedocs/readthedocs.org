@@ -3,11 +3,11 @@ Organizations
 
 .. include:: /shared/admonition-rtd-business.rst
 
-In this article, we explain how the *organization* feature on Read the Docs allows you to manage access to your projects.
-On Read the Docs for Business, your account is linked to an *organization*, whereby you can define both individual and common read and write access to your projects or collections of projects.
+In this article, we explain how the *organizations* feature on Read the Docs allows you to manage access to your projects.
+On |com_brand|, your account is linked to an *organization*.
+Organizations allow you to define both individual and team permissions for your projects.
 
 In this article, we use ACME Corporation as our example organization.
-
 ACME has a few people inside their organization,
 some who need full access and some who just need access to one project.
 
