@@ -43,6 +43,10 @@ Content
   use the ``doc`` role and not a hyperlink.
 * If you are cross-referencing to a section within our website,
   use the ``ref`` role with the label from the `autosectionlabel extension <http://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html>`__.
+* Use ``<abstract concept>`` and ``<variable>`` as placeholders in code and URLs. For instance.
+
+  * ``https://<slug>.readthedocs.io``
+  * ``:guilabel:`<your username>` dropdown``
 
 Word List
 ---------
@@ -67,3 +71,95 @@ but even more importantly,
 it helps and includes readers by giving them quick and easy access to terms that they may be unfamiliar with.
 
 Use an external link or Intersphinx reference when a term is clearly defined elsewhere.
+
+Cross-references
+----------------
+
+We like to cross-reference other articles with a definition list inside a ``seealso::`` admonition box.
+It looks like this:
+
+.. code-block:: rst
+
+   .. seealso::
+
+      :doc:`/other/documentation/article`
+        You can learn more about <concept> in this (how-to/description/section/article)
+
+Diátaxis Framework
+------------------
+
+We apply the methodology and concepts of the Diátaxis Framework.
+This means that *both content and navigation path* for all sections should fit a single category of the 4 Diátaxis categories:
+
+* Tutorial
+* Explanation
+* How-to
+* Reference
+
+.. seealso::
+
+   `https://diataxis.fr/ <https://diataxis.fr/>`__
+     The official website of Diátaxis is the main resource.
+     It's best to check this out before guessing what the 4 categories mean.
+
+.. warning:: **Avoid minimal changes**
+
+   If your change has a high coherence with another proposed or planned change,
+   propose the changes in the same PR.
+
+   By multi-tasking on several articles about the same topic,
+   such as an explanation *and* a how-to,
+   you can easily design your content to end up in the right place *Diátaxis-wise*.
+   This is great for the author and the reviewers
+   and it saves coordination work.
+
+   Minimal or isolated changes generally raise more questions and concerns
+   than changes that seek to address a larger perspective.
+
+Explanation
+^^^^^^^^^^^
+
+* Introduce the scope: **“This article introduces ...”**
+  (write this as the very first thing,
+  then consider rewriting it or turning it into an internal comment afterwards).
+* Cross-reference the related How-to Guide.
+  Put a ``seealso::`` somewhere visible.
+  It should likely be placed right after the introduction,
+  and if the article is very short, maybe at the bottom.
+* Consider adding an Examples section
+* Can you add screenshots or diagrams?
+
+How-to Guides
+^^^^^^^^^^^^^
+
+* Title should begin with **“How to ...”**,
+  but navigation titles should not contain the “How to” part.
+* Introduce the scope: **“In this guide, we will…”**
+* Cross-reference related explanation.
+  Put a ``seealso::`` somewhere visible,
+  It should likely be placed right after the introduction
+  and if the article is very short, maybe at the bottom.
+* Try to avoid a “trivial” how-to,
+  i.e. a step-by-step guide that just states what is on a page without further information.
+  You can ask questions like:
+
+  * Can this how-to contain recommendations and practical advice without breaking the how-to format?
+  * Can this how-to be expanded with relevant troubleshooting?
+  * Worst-case: Is this how-to describing a task that's so trivial and self-evident that we might as well remove it?
+
+* Consider if an animation can be embedded: `Here is an article about 'gif-to-video' <https://www.smashingmagazine.com/2018/11/gif-to-video/#replace-animated-gifs-with-video-in-the-browser>`__
+
+Reference
+^^^^^^^^^
+
+We have not started organizing the Reference section yet,
+guidelines pending.
+
+Tutorial
+^^^^^^^^
+
+.. note:: We don’t really have tutorials targeted in the systematic refactor, so this checklist isn’t very important right now.
+
+* Cross-reference related explanation and how-to.
+* Make sure absolutely no explanation
+* **Refactor other resources** so you can use references instead of disturbing the flow of the tutorial.
