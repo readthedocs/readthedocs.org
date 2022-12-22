@@ -83,6 +83,7 @@ to help you create fantastic documentation for your project.
    /pull-requests
    /downloadable-documentation
    /single_version
+   /science
 
 .. toctree::
    :maxdepth: 2
@@ -93,7 +94,6 @@ to help you create fantastic documentation for your project.
    /guides/authors
    /guides/administrators
    /guides/developers
-   /science
    /examples
 
 

@@ -1,5 +1,9 @@
-Read the Docs for Science
-=========================
+Documentation in scientific and academic publishing
+===================================================
+
+On this page, we explore some of the many tools and practices that *software* documentation and *academic* writing share.
+If you are working within the field of science or academia,
+this page can be used as an introduction.
 
 .. 2022-08-10
 .. Notes about this section:
@@ -20,7 +24,6 @@ Documentation and technical writing are broad fields.
 Their tools and practices have grown relevant to most scientific activities.
 This includes building publications, books, educational resources, interactive data science, resources for data journalism and full-scale websites for research projects and courses.
 
-Let's explore the overlap of features for software documentation and academic writing.
 Here's a brief overview of some :doc:`features <features>` that people in science and academic writing love about Read the Docs:
 
 .. dropdown:: 🪄 Easy to use
