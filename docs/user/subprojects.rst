@@ -51,7 +51,7 @@ You can choose an alias for the subproject when it is created.
 You can set your subproject's project name and :term:`slug` however you want,
 but we suggest prefixing it with the name of the main project.
 
-Typically, a subproject is created with a ``$mainproject-`` prefix,
+Typically, a subproject is created with a ``<mainproject>-`` prefix,
 for instance if the main project is called ``example-project`` and the subproject is called ``plugin``,
 then the subproject's Read the Docs project :term:`slug` will be ``example-project-plugin``.
 When adding the subproject,
