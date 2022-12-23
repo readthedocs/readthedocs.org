@@ -833,7 +833,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version_type=self.data.version.type,
             )
             try:
-                build_media_storage.sync_directory(from_path, to_path)
+                if self.data.project.has_feature(Feature.USE_RCLONE):
+                    build_media_storage.rclone_sync(from_path, to_path)
+                else:
+                    build_media_storage.sync_directory(from_path, to_path)
             except Exception:
                 # Ideally this should just be an IOError
                 # but some storage backends unfortunately throw other errors

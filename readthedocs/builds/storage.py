@@ -1,3 +1,4 @@
+from functools import cached_property
 from pathlib import Path
 
 import structlog
@@ -7,6 +8,7 @@ from django.core.files.storage import FileSystemStorage
 from storages.utils import get_available_overwrite_name, safe_join
 
 from readthedocs.core.utils.filesystem import safe_open
+from readthedocs.storage.rclone import RClone
 
 log = structlog.get_logger(__name__)
 
@@ -152,6 +154,14 @@ class BuildMediaStorageMixin:
                 filepath = self.join(destination, filename)
                 log.debug('Deleting file from media storage.', filepath=filepath)
                 self.delete(filepath)
+
+    @cached_property
+    def _rclone(self):
+        return RClone()
+
+    def rclone_sync(self, source, destination):
+        """Sync a directory recursively to storage using rclone sync."""
+        return self._rclone.sync(source, destination)
 
     def join(self, directory, filepath):
         return safe_join(directory, filepath)
