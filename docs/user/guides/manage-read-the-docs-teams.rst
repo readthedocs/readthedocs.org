@@ -43,4 +43,4 @@ You can manage teams more easily using our :doc:`Single Sign-On </commercial/sin
 .. seealso::
 
    :doc:`/commercial/organizations`
-     General information about the *organization* feature.
+     General information about the *organizations* feature.
