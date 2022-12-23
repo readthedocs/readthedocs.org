@@ -82,6 +82,9 @@ to help you create fantastic documentation for your project.
    /custom-domains
    /pull-requests
    /downloadable-documentation
+   /subprojects
+   /single_version
+   /science
    /commercial/organizations
 
 .. toctree::
@@ -93,7 +96,6 @@ to help you create fantastic documentation for your project.
    /guides/authors
    /guides/administrators
    /guides/developers
-   /science
    /examples
 
 
@@ -104,6 +106,7 @@ to help you create fantastic documentation for your project.
    :glob:
 
    api/index
+   reference/features
 
 
 Read the Docs feature overview
@@ -150,7 +153,6 @@ and some of the core features of Read the Docs.
    /versions
    /hosting
    /server-side-search/index
-   /analytics
    /security-log
 
    /connected-accounts
@@ -185,6 +187,7 @@ and how to write successful documentation.
   :doc:`/guides/manage-translations-sphinx` |
   :doc:`/guides/private-submodules` |
   :doc:`Configure Pull Request Builds </guides/pull-requests>` |
+  :doc:`Use Traffic Analytics </analytics>` |
   :doc:`/guides/build-notifications` |
   :doc:`More guides for administrators </guides/administrators>`
 
@@ -194,6 +197,7 @@ and how to write successful documentation.
   :doc:`/guides/reproducible-builds` |
   :doc:`/guides/embedding-content` |
   :doc:`/guides/conda` |
+  :doc:`Use Traffic Analytics </analytics>` |
   :doc:`/guides/build-notifications` |
   :doc:`More guides for developers and designers </guides/developers>`
 
@@ -232,8 +236,6 @@ out of your documentation and Read the Docs.
    :glob:
    :caption: Advanced features
 
-   subprojects
-   single_version
    flyout-menu
    feature-flags
 
