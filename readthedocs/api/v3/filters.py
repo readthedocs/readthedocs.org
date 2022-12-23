@@ -7,16 +7,16 @@ from readthedocs.projects.models import Project
 
 
 class ProjectFilter(filters.FilterSet):
-    name = filters.CharFilter(lookup_expr='icontains')
-    slug = filters.CharFilter(lookup_expr='icontains')
+    name = filters.CharFilter(lookup_expr="icontains")
+    slug = filters.CharFilter(lookup_expr="icontains")
 
     class Meta:
         model = Project
         fields = [
-            'name',
-            'slug',
-            'language',
-            'programming_language',
+            "name",
+            "slug",
+            "language",
+            "programming_language",
         ]
 
 
