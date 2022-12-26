@@ -57,11 +57,6 @@ Sentry
 Support
 -------
 
-Intercom, Inc.
-    Dashboard user reporting and analytics. Data collected can include user
-    information like email address and IP address. This is only used on our
-    application dashboard and is not used on documentation sites.
-
 FrontApp, Inc.
     Customer email support service. Can have access to user data, including user
     email and IP address, and stores communications related to user data.
