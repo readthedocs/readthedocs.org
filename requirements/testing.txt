@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.37
+boto3==1.26.41
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.37
+botocore==1.29.41
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -112,7 +112,7 @@ django==3.2.16
     #   django-taggit
     #   djangorestframework
     #   jsonfield
-django-allauth==0.51.0
+django-allauth==0.52.0
     # via -r requirements/pip.txt
 django-annoying==0.10.6
     # via -r requirements/pip.txt
@@ -186,7 +186,7 @@ elasticsearch-dsl==7.4.0
     #   django-elasticsearch-dsl
 exceptiongroup==1.1.0
     # via pytest
-filelock==3.8.2
+filelock==3.9.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -194,7 +194,7 @@ gitdb==4.0.10
     # via
     #   -r requirements/pip.txt
     #   gitpython
-gitpython==3.1.29
+gitpython==3.1.30
     # via -r requirements/pip.txt
 idna==3.4
     # via
@@ -248,7 +248,7 @@ packaging==22.0
     #   dparse
     #   pytest
     #   sphinx
-platformdirs==2.6.0
+platformdirs==2.6.2
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -270,7 +270,7 @@ pyjwt[crypto]==2.6.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pyquery==1.4.3
+pyquery==2.0.0
     # via -r requirements/pip.txt
 pytest==7.2.0
     # via

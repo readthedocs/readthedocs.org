@@ -14,9 +14,9 @@ babel==2.11.0
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.26.37
+boto3==1.26.41
     # via django-storages
-botocore==1.29.37
+botocore==1.29.41
     # via
     #   boto3
     #   s3transfer
@@ -73,7 +73,7 @@ django==3.2.16
     #   django-taggit
     #   djangorestframework
     #   jsonfield
-django-allauth==0.51.0
+django-allauth==0.52.0
     # via -r requirements/pip.in
 django-annoying==0.10.6
     # via -r requirements/pip.in
@@ -141,11 +141,11 @@ elasticsearch-dsl==7.4.0
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
-filelock==3.8.2
+filelock==3.9.0
     # via virtualenv
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.29
+gitpython==3.1.30
     # via -r requirements/pip.in
 idna==3.4
     # via requests
@@ -179,7 +179,7 @@ packaging==22.0
     #   docker
     #   dparse
     #   sphinx
-platformdirs==2.6.0
+platformdirs==2.6.2
     # via virtualenv
 prompt-toolkit==3.0.36
     # via click-repl
@@ -191,7 +191,7 @@ pygments==2.13.0
     #   sphinx
 pyjwt[crypto]==2.6.0
     # via django-allauth
-pyquery==1.4.3
+pyquery==2.0.0
     # via -r requirements/pip.in
 python-dateutil==2.8.2
     # via
