@@ -4,11 +4,18 @@ Connecting your Git repository
 In this article, we explain how connecting your Read the Docs account to one of the supported Git providers
 automatically configures your Git repository and your Read the Docs project.
 
+✅️ Signed up with your Git provider?
+  If you signed up or logged in to Read the Docs with your GitHub, Bitbucket, or GitLab
+  credentials, you're all done. Your account is connected and the integration explained
+  below is enabled.
+⬇️ Signed up with your email address?
+  If you have signed up to Read the Docs with your email address,
+  you can add the connection to the Git provider afterwards.
+  Read more about how it works below.
+
+
 If you are going to import repositories from GitHub, Bitbucket, or GitLab,
 we recommend that you connect your Read the Docs account to your repository provider.
-This is already done in cases where your sign-up for Read the Docs was handled through your Git provider.
-If you have signed up to Read the Docs with your email address,
-you can add the connection to the Git provider afterwards.
 
 Connecting your account allows for:
 
@@ -16,6 +23,7 @@ Connecting your account allows for:
 * Automatic configuration of your repository :doc:`/integrations`
   which allow Read the Docs to build your docs on every change to your repository
 * Logging into Read the Docs with your GitHub, Bitbucket, or GitLab credentials
+
 
 .. seealso::
 
