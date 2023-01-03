@@ -1,6 +1,9 @@
 version: 2
 
-formats: all
+# Disabled until we can ignore warnings in ePub
+# https://github.com/readthedocs/readthedocs.org/issues/9816
+formats:
+  - pdf
 
 sphinx:
   configuration: docs/conf.py
