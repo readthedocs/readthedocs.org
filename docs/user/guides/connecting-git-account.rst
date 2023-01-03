@@ -14,3 +14,9 @@ To connect a social account, go to your :guilabel:`<Username dropdown>` > :guila
 From here, you'll be able to connect to your GitHub, Bitbucket or GitLab
 account. This process will ask you to authorize a connection to Read the Docs,
 that allows us to read information about and clone your repositories.
+
+
+.. seealso::
+
+   :doc:`/connected-accounts`
+     Learn about the permissions required for connecting accounts and the benefits of the OAuth integration.
