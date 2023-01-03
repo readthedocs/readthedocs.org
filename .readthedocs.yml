@@ -4,6 +4,7 @@ version: 2
 # https://github.com/readthedocs/readthedocs.org/issues/9816
 formats:
   - pdf
+  - htmlzip
 
 sphinx:
   configuration: docs/conf.py
