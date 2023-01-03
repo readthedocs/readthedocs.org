@@ -85,6 +85,28 @@ It looks like this:
       :doc:`/other/documentation/article`
         You can learn more about <concept> in this (how-to/description/section/article)
 
+Headlines
+---------
+
+Sphinx is very relaxed about how headlines are applied and will digest different notations.
+We try to stick to the following:
+
+.. code-block:: rst
+
+   Header 1
+   ========
+
+   Header 2
+   --------
+
+   Header 3
+   ~~~~~~~~
+
+   Header 4
+   ^^^^^^^^
+
+In the above, ``Header 1`` is the title of the article.
+
 Diátaxis Framework
 ------------------
 
@@ -117,7 +139,7 @@ This means that *both content and navigation path* for all sections should fit a
    than changes that seek to address a larger perspective.
 
 Explanation
-^^^^^^^^^^^
+~~~~~~~~~~~
 
 * Introduce the scope: **“This article introduces ...”**
   (write this as the very first thing,
@@ -130,7 +152,7 @@ Explanation
 * Can you add screenshots or diagrams?
 
 How-to Guides
-^^^^^^^^^^^^^
+~~~~~~~~~~~~~
 
 * Title should begin with **“How to ...”**,
   but navigation titles should not contain the “How to” part.
@@ -153,13 +175,13 @@ How-to Guides
   `Here is an article about 'gif-to-video' <https://www.smashingmagazine.com/2018/11/gif-to-video/#replace-animated-gifs-with-video-in-the-browser>`__
 
 Reference
-^^^^^^^^^
+~~~~~~~~~
 
 We have not started organizing the Reference section yet,
 guidelines pending.
 
 Tutorial
-^^^^^^^^
+~~~~~~~~
 
 .. note:: We don’t really have tutorials targeted in the systematic refactor, so this checklist isn’t very important right now.
 
