@@ -124,16 +124,9 @@ depending on where the project you are trying to access has permissions from.
 Bitbucket
 ~~~~~~~~~
 
-..
-    Read your account information
-    Read your repositories
-    Administer your repositories
-    Read your team membership information
-    Read and modify your repositories' webhooks
-
-
 For similar reasons to those above for GitHub, we request permissions for:
 
+* Administing your repositories (to add a read-only deployment key)
 * Reading your account information including your email address
 * Read access to your team memberships
 * Read access to your repositories
