@@ -39,15 +39,15 @@ Content
 * Do not break the content across multiple lines at 80 characters,
   but rather break them on semantic meaning (e.g. periods or commas).
   Read more about this `here <https://rhodesmill.org/brandon/2012/one-sentence-per-line/>`_.
-* If you are cross-referencing to a different page within our website,
+* If you are :ref:`cross-referencing <style-guide:Cross-references>` to a different page within our website,
   use the ``doc`` role and not a hyperlink.
-* If you are cross-referencing to a section within our website,
+* If you are :ref:`cross-referencing <style-guide:Cross-references>` to a section within our website,
   use the ``ref`` role with the label from the `autosectionlabel extension <http://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html>`__.
 * Use ``<abstract concept>`` and ``<variable>`` as placeholders in code and URLs. For instance:
 
   * ``https://<slug>.readthedocs.io``
   * ``:guilabel:`<your username>` dropdown``
-* Make sure that **all bullet list items end with a period**, and don't mix periods with no periods.   
+* Make sure that **all bullet list items end with a period**, and don't mix periods with no periods.
 
 
 Word List
@@ -77,6 +77,10 @@ Use an external link or Intersphinx reference when a term is clearly defined els
 Cross-references
 ----------------
 
+Cross-references are great to have as :ref:`inline links <style-guide:Cross-references>`.
+Because of sphinx-hoverxref_,
+inline links also have a nice tooltip displayed.
+
 We like to cross-reference other articles with a definition list inside a ``seealso::`` admonition box.
 It looks like this:
 
@@ -86,6 +90,8 @@ It looks like this:
 
       :doc:`/other/documentation/article`
         You can learn more about <concept> in this (how-to/description/section/article)
+
+.. _sphinx-hoverxref: https://sphinx-hoverxref.readthedocs.io/
 
 Headlines
 ---------
