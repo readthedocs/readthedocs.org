@@ -85,6 +85,7 @@ to help you create fantastic documentation for your project.
    /subprojects
    /single_version
    /science
+   /commercial/organizations
 
 .. toctree::
    :maxdepth: 2
