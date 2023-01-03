@@ -2,6 +2,7 @@
 
 var constants = require('./constants');
 var rtddata = require('./rtd-data');
+const { createDomNode } = require('./utils');
 
 var rtd;
 
@@ -27,47 +28,51 @@ function inject_ads_client() {
  *  Creates a div where the ad could go
  */
 function create_ad_placement() {
-    var selector = null;
-    var class_name;         // Used for theme specific CSS customizations
-    var style_name;
+    var class_name = "";  // Used for theme specific CSS customizations
+    var style_name = "";
     var ad_type = "readthedocs-sidebar";
-    var element;
-    var offset;
 
-    if ($(EXPLICIT_PLACEMENT_SELECTOR).length > 0) {
-        $(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-publisher", "readthedocs");
-        $(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-manual", "true");
-        if ($(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-type") !== "image" && $(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-type") !== "text") {
-            $(EXPLICIT_PLACEMENT_SELECTOR).attr("data-ea-type", "readthedocs-sidebar");
+    let placement = document.querySelector(EXPLICIT_PLACEMENT_SELECTOR);
+    if (placement) {
+        placement.setAttribute("data-ea-publisher", "readthedocs")
+        placement.setAttribute("data-ea-manual", "true");
+        let ea_type = placement.getAttribute("data-ea-type");
+        if (ea_type !== "image" && ea_type !== "text") {
+            placement.setAttribute("data-ea-type", "readthedocs-sidebar");
         }
-        return $(EXPLICIT_PLACEMENT_SELECTOR);
-    } else if ($(OLD_EXPLICIT_PLACEMENT_SELECTOR).length > 0) {
-        selector = OLD_EXPLICIT_PLACEMENT_SELECTOR;
+        return placement;
+    }
+
+    placement = document.querySelector(OLD_EXPLICIT_PLACEMENT_SELECTOR);
+    if (placement) {
         if (rtd.is_rtd_like_theme()) {
             class_name = 'ethical-rtd ethical-dark-theme';
         } else {
             class_name = 'ethical-alabaster';
         }
     } else if (rtd.is_mkdocs_builder() && rtd.is_rtd_like_theme()) {
-        selector = 'nav.wy-nav-side';
+        placement = document.querySelector('nav.wy-nav-side');
         class_name = 'ethical-rtd ethical-dark-theme';
     } else if (rtd.is_rtd_like_theme()) {
-        selector = 'nav.wy-nav-side > div.wy-side-scroll';
+        placement = document.querySelector('nav.wy-nav-side > div.wy-side-scroll');
         class_name = 'ethical-rtd ethical-dark-theme';
     } else if (rtd.is_alabaster_like_theme()) {
-        selector = 'div.sphinxsidebar > div.sphinxsidebarwrapper';
+        placement = document.querySelector('div.sphinxsidebar > div.sphinxsidebarwrapper');
         class_name = 'ethical-alabaster';
     }
 
-    if (selector) {
+    if (placement) {
         // Determine if this element would be above the fold
         // If this is off screen, instead create an ad in the footer
         // Assumes the ad would be ~200px high
-        element = $("<div />").appendTo(selector);
-        offset = element.offset();
-        if (!offset || (offset.top - window.scrollY + 200) > window.innerHeight) {
+        let aux_element = createDomNode("div");
+        placement.appendChild(aux_element);
+        let position = aux_element.getBoundingClientRect()
+        if ((position.top + 200) > window.innerHeight) {
             if (rtd.is_rtd_like_theme()) {
-                selector = $('<div />').insertAfter('footer hr');
+                placement = createDomNode("div");
+                let rtd_footer = document.querySelector('footer hr');
+                rtd_footer.insertAfter(placement)
                 class_name = 'ethical-rtd';
 
                 // Use the stickybox placement 25% of the time during rollout
@@ -77,21 +82,23 @@ function create_ad_placement() {
                     ad_type = 'image';
                 }
             } else if (rtd.is_alabaster_like_theme()) {
-                selector = 'div.bodywrapper .body';
+                placement = document.querySelector('div.bodywrapper .body');
                 class_name = 'ethical-alabaster';
             }
         }
-        element.remove();
+        aux_element.remove();
 
         // Add the element where the ad will go
-        return $('<div />')
-            .attr("id", "rtd-sidebar")
-            .attr("data-ea-publisher", "readthedocs")
-            .attr("data-ea-type", ad_type)
-            .attr("data-ea-manual", "true")
-            .attr("data-ea-style", style_name)
-            .addClass(class_name)
-            .appendTo(selector);
+        let ad_div = createDomNode("div", {
+          "id": 'rtd-sidebar',
+          "data-ea-publisher": "readthedocs",
+          "data-ea-type": ad_type,
+          "data-ea-manual": "true",
+          "data-ea-style": style_name,
+          "class": class_name,
+        });
+        placement.appendChild(ad_div)
+        return ad_div;
     }
 
     return null;
@@ -137,14 +144,20 @@ function adblock_nag(placement) {
     // Place an ad block nag into the sidebar
     var unblock_url = 'https://docs.readthedocs.io/en/latest/advertising/ad-blocking.html#allowing-ethical-ads';
     var ad_free_url = 'https://readthedocs.org/sustainability/';
-    var container = null;
 
     if (placement) {
-        container = placement.attr('class', 'keep-us-sustainable');
+        let container = placement.setAttribute('class', 'keep-us-sustainable');
+        let paragraph = createDomNode("p");
+        paragraph.innerText = 'Support Read the Docs!';
+        container.appendChild(paragraph);
+        
+        paragraph = createDomNode("p");
+        paragraph.innerHTML = 'Please help keep us sustainable by <a href="' + unblock_url + '">allowing our Ethical Ads in your ad blocker</a> or <a href="' + ad_free_url + '">go ad-free</a> by subscribing.';
+        container.appendChild(paragraph);
 
-        $('<p />').text('Support Read the Docs!').appendTo(container);
-        $('<p />').html('Please help keep us sustainable by <a href="' + unblock_url + '">allowing our Ethical Ads in your ad blocker</a> or <a href="' + ad_free_url + '">go ad-free</a> by subscribing.').appendTo(container);
-        $('<p />').text('Thank you! \u2764\ufe0f').appendTo(container);
+        paragraph = createDomNode("p");
+        paragraph.innerText = 'Thank you! \u2764\ufe0f';
+        container.appendChild(paragraph);
     }
 }
 
@@ -181,13 +194,13 @@ function init() {
 
             // Set the keyword, campaign data, and publisher
             if (data.keywords) {
-                placement.attr("data-ea-keywords", data.keywords.join("|"));
+                placement.setAttribute("data-ea-keywords", data.keywords.join("|"));
             }
             if (data.campaign_types) {
-                placement.attr("data-ea-campaign-types", data.campaign_types.join("|"));
+                placement.setAttribute("data-ea-campaign-types", data.campaign_types.join("|"));
             }
             if (data.publisher) {
-                placement.attr("data-ea-publisher", data.publisher);
+                placement.setAttribute("data-ea-publisher", data.publisher);
             }
 
             if (typeof ethicalads !== "undefined") {
