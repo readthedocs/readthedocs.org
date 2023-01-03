@@ -73,19 +73,22 @@ class ProjectRelationship(models.Model):
     """
     Project to project relationship.
 
-    This is used for subprojects
+    This is used for subprojects.
+
+    Terminology: We should say main project and subproject.
+    Saying "child" and "parent" only has internal, technical value.
     """
 
     parent = models.ForeignKey(
-        'projects.Project',
-        verbose_name=_('Parent'),
-        related_name='subprojects',
+        "projects.Project",
+        verbose_name=_("Main project"),
+        related_name="subprojects",
         on_delete=models.CASCADE,
     )
     child = models.ForeignKey(
-        'projects.Project',
-        verbose_name=_('Child'),
-        related_name='superprojects',
+        "projects.Project",
+        verbose_name=_("Subproject"),
+        related_name="superprojects",
         on_delete=models.CASCADE,
     )
     alias = models.SlugField(
