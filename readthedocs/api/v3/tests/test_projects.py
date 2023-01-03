@@ -59,7 +59,6 @@ class ProjectsEndpointTests(APIEndpointMixin):
                 "name": "63dadecd5323d789cafe09f01cda85fd",
             },
         )
-        print(response.request)
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(
             response.json(),
