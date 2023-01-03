@@ -1,6 +1,8 @@
 How to manage Read the Docs teams
 =================================
 
+.. include:: /shared/admonition-rtd-business.rst
+
 Read the Docs uses teams within an organization to group users and provide permissions to projects.
 This guide will cover how to do team management,
 including adding and removing people from teams.
@@ -38,4 +40,7 @@ Automating this process
 
 You can manage teams more easily using our :doc:`Single Sign-On </commercial/single-sign-on>` features.
 
-.. seealso:: Our infomation on :doc:`/commercial/organizations`.
+.. seealso::
+
+   :doc:`/commercial/organizations`
+     General information about the *organizations* feature.

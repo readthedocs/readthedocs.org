@@ -23,13 +23,13 @@ Below is an example YAML file which shows the most common configuration options:
 
          # Set the version of Python and other tools you might need
          build:
-           os: ubuntu-20.04
+           os: ubuntu-22.04
            tools:
-             python: "3.9"
+             python: "3.11"
              # You can also specify other tool versions:
-             # nodejs: "16"
-             # rust: "1.55"
-             # golang: "1.17"
+             # nodejs: "19"
+             # rust: "1.64"
+             # golang: "1.19"
 
          # Build documentation in the docs/ directory with Sphinx
          sphinx:
@@ -57,9 +57,9 @@ Below is an example YAML file which shows the most common configuration options:
 
          # Set the version of Python and other tools you might need
          build:
-           os: ubuntu-20.04
+           os: ubuntu-22.04
            tools:
-             python: "3.9"
+             python: "3.11"
 
          mkdocs:
            configuration: mkdocs.yml
@@ -201,7 +201,6 @@ Example:
    version: 2
 
    python:
-     version: "3.7"
      install:
        - requirements: docs/requirements.txt
        - requirements: requirements.txt
@@ -249,7 +248,6 @@ Example:
    version: 2
 
    python:
-     version: "3.7"
      install:
        - method: pip
          path: .
@@ -313,12 +311,12 @@ Python, Node.js, Rust, and Go.
    version: 2
 
    build:
-     os: ubuntu-20.04
+     os: ubuntu-22.04
      tools:
-       python: "3.9"
-       nodejs: "16"
-       rust: "1.55"
-       golang: "1.17"
+       python: "3.11"
+       nodejs: "18"
+       rust: "1.64"
+       golang: "1.19"
 
 build.os
 ````````
@@ -381,6 +379,7 @@ Node.js version to use.
    - ``14``
    - ``16``
    - ``18``
+   - ``19``
 
 build.tools.rust
 ````````````````
@@ -391,6 +390,7 @@ Rust version to use.
 :Options:
    - ``1.55``
    - ``1.61``
+   - ``1.64``
 
 build.tools.golang
 ``````````````````
@@ -401,6 +401,7 @@ Go version to use.
 :Options:
    - ``1.17``
    - ``1.18``
+   - ``1.19``
 
 build.apt_packages
 ``````````````````
@@ -444,7 +445,7 @@ See :doc:`/build-customization` for more details.
    build:
      os: ubuntu-22.04
      tools:
-       python: "3.10"
+       python: "3.11"
      jobs:
        pre_create_environment:
          - echo "Command run at 'pre_create_environment' step"
@@ -489,7 +490,7 @@ The ``_readthedocs/html`` directory (relative to the checkout's path) will be up
    build:
      os: ubuntu-22.04
      tools:
-       python: "3.10"
+       python: "3.11"
      commands:
        - pip install pelican
        - pelican --settings docs/pelicanconf.py --output _readthedocs/html/ docs/
@@ -803,7 +804,9 @@ Schema
 
 You can see the complete schema
 `here <https://github.com/readthedocs/readthedocs.org/blob/main/readthedocs/rtd_tests/fixtures/spec/v2/schema.json>`_.
+This schema is available at `Schema Store`_, use it with your favorite editor for validation and autocompletion.
 
+.. _Schema Store: https://www.schemastore.org/
 
 Legacy ``build`` specification
 ------------------------------
