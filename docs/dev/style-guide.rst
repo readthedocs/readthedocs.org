@@ -47,6 +47,8 @@ Content
 
   * ``https://<slug>.readthedocs.io``
   * ``:guilabel:`<your username>` dropdown``
+* Make sure that **all bullet list items end with a period**, and don't mix periods with no periods.   
+
 
 Word List
 ---------
@@ -148,7 +150,7 @@ Explanation
   Put a ``seealso::`` somewhere visible.
   It should likely be placed right after the introduction,
   and if the article is very short, maybe at the bottom.
-* Consider adding an Examples section
+* Consider adding an Examples section.
 * Can you add screenshots or diagrams?
 
 How-to Guides
@@ -186,5 +188,5 @@ Tutorial
 .. note:: We don’t really have tutorials targeted in the systematic refactor, so this checklist isn’t very important right now.
 
 * Cross-reference related explanation and how-to.
-* Make sure absolutely no explanation
+* Try not to explain things too much, and instead link to the explanation content.
 * **Refactor other resources** so you can use references instead of disturbing the flow of the tutorial.
