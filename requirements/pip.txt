@@ -8,15 +8,15 @@ alabaster==0.7.12
     # via sphinx
 amqp==5.1.1
     # via kombu
-asgiref==3.5.2
+asgiref==3.6.0
     # via django
 babel==2.11.0
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.26.32
+boto3==1.26.37
     # via django-storages
-botocore==1.29.32
+botocore==1.29.37
     # via
     #   boto3
     #   s3transfer
@@ -107,7 +107,7 @@ django-polymorphic==3.1.0
     # via -r requirements/pip.in
 django-simple-history==3.0.0
     # via -r requirements/pip.in
-django-storages[boto3]==1.13.1
+django-storages[boto3]==1.13.2
     # via -r requirements/pip.in
 django-structlog==2.2.0
     # via -r requirements/pip.in

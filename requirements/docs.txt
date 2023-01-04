@@ -12,7 +12,7 @@ amqp==5.1.1
     # via
     #   -r requirements/pip.txt
     #   kombu
-asgiref==3.5.2
+asgiref==3.6.0
     # via
     #   -r requirements/pip.txt
     #   django
@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.32
+boto3==1.26.37
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.32
+botocore==1.29.37
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -148,7 +148,7 @@ django-polymorphic==3.1.0
     # via -r requirements/pip.txt
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
-django-storages[boto3]==1.13.1
+django-storages[boto3]==1.13.2
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
