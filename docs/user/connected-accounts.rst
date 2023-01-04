@@ -35,7 +35,7 @@ Connecting your account allows for:
 .. tip::
 
    A single Read the Docs account can connect to many different Git providers.
-   This means that you can gather all your documentation projects under the same roof.
+   This allows you to have a single login for all your various identities.
 
 
 How does the connection work?
