@@ -279,6 +279,8 @@ class BaseMkdocs(BaseBuilder):
                 None if self.project.analytics_disabled else settings.GLOBAL_ANALYTICS_CODE
             ),
             'user_analytics_code': analytics_code,
+            'proxied_static_path': self.project.proxied_static_path,
+            'proxied_api_host': self.project.proxied_api_host,
         }
 
         data_ctx = {

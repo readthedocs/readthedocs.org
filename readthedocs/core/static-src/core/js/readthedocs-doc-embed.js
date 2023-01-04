@@ -5,6 +5,7 @@ const footer = require('./doc-embed/footer.js');
 const sphinx = require('./doc-embed/sphinx');
 const search = require('./doc-embed/search');
 const { domReady } = require('./doc-embed/utils');
+const rtddata = require('./doc-embed/rtd-data');
 
 /*
  * Inject JQuery if isn't present already.
@@ -19,11 +20,10 @@ function injectJQuery(init) {
         return
     }
     console.debug("JQuery not found. Injecting.");
-    var script = document.createElement("script");
+    let rtd = rtddata.get()
+    let script = document.createElement("script");
     script.type = "text/javascript";
-    script.src = "https://code.jquery.com/jquery-3.6.3.min.js";
-    script.integrity = "sha512-STof4xm1wgkfm7heWqFJVn58Hm3EtS31XFaagaa8VMReCXAkQnJZ+jEy8PCC/iT18dFy95WcExNHFTqLyp72eQ==";
-    script.crossOrigin = "anonymous";
+    script.src = rtd.proxied_static_path + "javascript/jquery/jquery-2.0.3.min.js";
     script.onload = init;
     document.head.appendChild(script);
 }
