@@ -18,7 +18,7 @@ function injectJQuery(init) {
         init()
         return
     }
-    console.log("JQuery not found. Injecting.");
+    console.debug("JQuery not found. Injecting.");
     var script = document.createElement("script");
     script.type = "text/javascript";
     script.src = "https://code.jquery.com/jquery-3.6.3.min.js";
@@ -31,6 +31,7 @@ function injectJQuery(init) {
 
 (function () {
     domReady(function () {
+        // Block on jQuery loading before we run any of our code.
         injectJQuery(function() {
             footer.init();
             sphinx.init();
