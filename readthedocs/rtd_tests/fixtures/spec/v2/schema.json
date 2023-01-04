@@ -1,5 +1,5 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$comment": "https://docs.readthedocs.io/en/stable/config-file/index.html",
   "title": "Read the Docs",
   "description": "Read the Docs configuration file.",
@@ -59,12 +59,13 @@
           "properties": {
             "image": {
               "title": "Image",
-              "description": "The build docker image to be used.",
+              "description": "DEPRECATED: use build.os instead.\n\nThe build docker image to be used.",
               "enum": [
                 "stable",
                 "latest"
               ],
-              "default": "latest"
+              "default": "latest",
+              "deprecated": true
             },
             "apt_packages": {
               "title": "APT Packages",
@@ -214,6 +215,15 @@
                 "type": "string"
               },
               "default": []
+            },
+            "commands": {
+              "title": "Build commands",
+              "description": "Override the whole build process with custom commands. When using this option, none of the commands from build.jobs will be executed.",
+              "type": "array",
+              "items": {
+                "title": "Custom commands",
+                "type": "string"
+              }
             }
           },
           "required": [
@@ -231,7 +241,7 @@
       "properties": {
         "version": {
           "title": "Version",
-          "description": "The Python version (this depends on the build image).",
+          "description": "DEPRECATED: use build.tools.python instead.\n\nThe Python version to activate for your build (availability of Python versions depend on the build image).",
           "type": "string",
           "enum": [
             "2",
@@ -245,7 +255,8 @@
             "3.7",
             "3.8"
           ],
-          "default": "3"
+          "default": "3",
+          "deprecated": true
         },
         "system_packages": {
           "title": "System Packages",
