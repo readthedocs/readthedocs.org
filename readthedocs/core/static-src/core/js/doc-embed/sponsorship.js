@@ -105,6 +105,7 @@ function create_ad_placement() {
 }
 
 function detect_adblock() {
+    // TODO: migrate this!
     // Status codes are not correctly reported on JSONP requests
     // So we resort to different ways to detect adblockers
     var detected = false;
@@ -175,59 +176,58 @@ function init() {
     // Inject ads
     inject_ads_client();
 
-    $.ajax({
-        url: rtd.api_host + "/api/v2/sustainability/data/",
-        crossDomain: true,
-        xhrFields: {
-            withCredentials: true,
-        },
-        dataType: "jsonp",
-        data: {
-            format: "jsonp",
-            project: rtd.project,
-        },
-        success: function (data) {
-            if (!placement || data.ad_free) {
-                // No valid placement or project/user is ad free
-                return;
-            }
+    let get_data = {
+        project: rtd.project,
+    }
+    let api_url = rtd.api_host + "/api/v2/sustainability/data/?" + new URLSearchParams(get_data).toString();
+    fetch(api_url, {method: 'GET', 'credentials': 'include'})
+    .then(response => {
+        if(!response.ok) {
+            throw new Error();
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (!placement || data.ad_free) {
+            // No valid placement or project/user is ad free
+            return;
+        }
 
-            // Set the keyword, campaign data, and publisher
-            if (data.keywords) {
-                placement.setAttribute("data-ea-keywords", data.keywords.join("|"));
-            }
-            if (data.campaign_types) {
-                placement.setAttribute("data-ea-campaign-types", data.campaign_types.join("|"));
-            }
-            if (data.publisher) {
-                placement.setAttribute("data-ea-publisher", data.publisher);
-            }
+        // Set the keyword, campaign data, and publisher
+        if (data.keywords) {
+            placement.setAttribute("data-ea-keywords", data.keywords.join("|"));
+        }
+        if (data.campaign_types) {
+            placement.setAttribute("data-ea-campaign-types", data.campaign_types.join("|"));
+        }
+        if (data.publisher) {
+            placement.setAttribute("data-ea-publisher", data.publisher);
+        }
 
-            if (typeof ethicalads !== "undefined") {
-                // Trigger ad request
-                ethicalads.load();
-            } else if (!rtd.ad_free && detect_adblock()) {
-                // Ad client prevented from loading - check ad blockers
-                adblock_admonition();
-                adblock_nag(placement);
-            } else {
-                // The ad client hasn't loaded yet which could happen due to a variety of issues
-                // Add an event listener for it to load
-                document.getElementById("ethicaladsjs").addEventListener("load", function () {
-                    if (typeof ethicalads !== "undefined") {
-                        ethicalads.load();
-                    }
-                });
-            }
-        },
-        error: function () {
-            console.error('Error loading Read the Docs user and project information');
+        if (typeof ethicalads !== "undefined") {
+            // Trigger ad request
+            ethicalads.load();
+        } else if (!rtd.ad_free && detect_adblock()) {
+            // Ad client prevented from loading - check ad blockers
+            adblock_admonition();
+            adblock_nag(placement);
+        } else {
+            // The ad client hasn't loaded yet which could happen due to a variety of issues
+            // Add an event listener for it to load
+            document.getElementById("ethicaladsjs").addEventListener("load", function () {
+                if (typeof ethicalads !== "undefined") {
+                    ethicalads.load();
+                }
+            });
+        }
+    })
+    .catch(error => {
+        console.error('Error loading Read the Docs user and project information');
 
-            if (!rtd.ad_free && detect_adblock()) {
-                adblock_admonition();
-                adblock_nag(placement);
-            }
-        },
+        if (!rtd.ad_free && detect_adblock()) {
+            adblock_admonition();
+            adblock_nag(placement);
+        }
     });
 }
 
