@@ -28,11 +28,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.41
+boto3==1.26.42
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.41
+botocore==1.29.42
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -72,7 +72,7 @@ click-repl==0.2.0
     # via
     #   -r requirements/pip.txt
     #   celery
-cryptography==38.0.4
+cryptography==39.0.0
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -115,7 +115,7 @@ django==3.2.16
     #   django-taggit
     #   djangorestframework
     #   jsonfield
-django-allauth==0.52.0
+django-allauth==0.51.0
     # via -r requirements/pip.txt
 django-annoying==0.10.6
     # via -r requirements/pip.txt
@@ -209,7 +209,7 @@ imagesize==1.4.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
-ipython==8.7.0
+ipython==8.8.0
     # via -r requirements/deploy.in
 jedi==0.18.2
     # via ipython
@@ -262,7 +262,7 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-pillow==9.3.0
+pillow==9.4.0
     # via -r requirements/deploy.in
 platformdirs==2.6.2
     # via
@@ -283,7 +283,7 @@ pycparser==2.21
     # via
     #   -r requirements/pip.txt
     #   cffi
-pygments==2.13.0
+pygments==2.14.0
     # via
     #   -r requirements/pip.txt
     #   ipython
@@ -338,7 +338,7 @@ s3transfer==0.6.0
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.11
+selectolax==0.3.12
     # via -r requirements/pip.txt
 sentry-sdk==1.12.1
     # via structlog-sentry
