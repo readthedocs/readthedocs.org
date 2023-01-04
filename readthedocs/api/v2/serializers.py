@@ -1,6 +1,9 @@
 """Defines serializers for each of our models."""
 
+import re
+
 from allauth.socialaccount.models import SocialAccount
+from django.conf import settings
 from rest_framework import serializers
 
 from readthedocs.builds.models import Build, BuildCommandResult, Version
