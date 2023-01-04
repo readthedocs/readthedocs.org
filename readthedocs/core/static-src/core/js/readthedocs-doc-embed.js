@@ -16,8 +16,8 @@ const rtddata = require('./doc-embed/rtd-data');
 */
 function injectJQuery(init) {
     if (window.jQuery) {
-        init()
-        return
+        init();
+        return;
     }
     console.debug("JQuery not found. Injecting.");
     let rtd = rtddata.get();
@@ -26,6 +26,7 @@ function injectJQuery(init) {
     script.src = rtd.proxied_static_path + "vendor/jquery.js";
     script.onload = function () {
         // Set jQuery to its expected globals.
+        /* eslint-disable global-require */
         window.$ = require("jquery");
         window.jQuery = window.$;
         init();
@@ -37,11 +38,11 @@ function injectJQuery(init) {
 (function () {
     domReady(function () {
         // Block on jQuery loading before we run any of our code.
-        injectJQuery(function() {
+        injectJQuery(function () {
             footer.init();
             sphinx.init();
             search.init();
             sponsorship.init();
-        })
+        });
     });
 }());
