@@ -19,10 +19,10 @@ we recommend that you connect your Read the Docs account to your repository prov
 
 Connecting your account allows for:
 
-* Easy import of your repositories
-* Automatic configuration of your repository :doc:`/integrations`
+* Easy import of your repositories.
+* Automatic configuration of your repository :doc:`/integrations`.
   which allow Read the Docs to build your docs on every change to your repository
-* Logging into Read the Docs with your GitHub, Bitbucket, or GitLab credentials
+* Logging into Read the Docs with your GitHub, Bitbucket, or GitLab credentials.
 
 
 .. seealso::
