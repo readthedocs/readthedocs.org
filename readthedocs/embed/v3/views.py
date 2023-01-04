@@ -1,6 +1,7 @@
 """Views for the EmbedAPI v3 app."""
 
 import re
+import urllib.parse
 from urllib.parse import urlparse
 
 import requests
@@ -95,6 +96,10 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             storage_path,
             relative_filename,
         )
+
+        # Decode encoded URLs (e.g. convert %20 into a whitespace)
+        file_path = urllib.parse.unquote(file_path)
+
         try:
             with build_media_storage.open(file_path) as fd:  # pylint: disable=invalid-name
                 return fd.read()
