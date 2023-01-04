@@ -20,11 +20,16 @@ function injectJQuery(init) {
         return
     }
     console.debug("JQuery not found. Injecting.");
-    let rtd = rtddata.get()
+    let rtd = rtddata.get();
     let script = document.createElement("script");
     script.type = "text/javascript";
-    script.src = rtd.proxied_static_path + "javascript/jquery/jquery-2.0.3.min.js";
-    script.onload = init;
+    script.src = rtd.proxied_static_path + "vendor/jquery.js";
+    script.onload = function () {
+        // Set jQuery to its expected globals.
+        window.$ = require("jquery");
+        window.jQuery = window.$;
+        init();
+    };
     document.head.appendChild(script);
 }
 
