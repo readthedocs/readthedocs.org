@@ -39,7 +39,7 @@ Connecting your account allows for:
 .. tip::
 
    A single Read the Docs account can connect to many different Git providers.
-   This means that you can gather all your documentation projects under the same roof.
+   This allows you to have a single login for all your various identities. 
 
 
 Permissions for connected accounts
@@ -126,7 +126,7 @@ Bitbucket
 
 For similar reasons to those above for GitHub, we request permissions for:
 
-* Administing your repositories (to add a read-only deployment key)
+* Administering your repositories (to add a read-only deployment key)
 * Reading your account information including your email address
 * Read access to your team memberships
 * Read access to your repositories
