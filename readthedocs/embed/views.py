@@ -2,7 +2,6 @@
 
 import json
 import re
-import urllib.parse
 
 import structlog
 from django.template.defaultfilters import slugify
@@ -205,8 +204,6 @@ def _get_doc_content(project, version, doc):
         storage_path,
         f'{doc}.fjson'.lstrip('/'),
     )
-    # Decode encoded URLs (e.g. convert %20 into a whitespace)
-    file_path = urllib.parse.unquote(file_path)
     try:
         with build_media_storage.open(file_path) as file:
             return json.load(file)
