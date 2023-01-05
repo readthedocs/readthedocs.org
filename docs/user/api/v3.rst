@@ -186,6 +186,8 @@ Projects list
             }]
         }
 
+    :query string name: return projects with matching name
+    :query string slug: return projects with matching slug
     :query string language: language code as ``en``, ``es``, ``ru``, etc.
     :query string programming_language: programming language code as ``py``, ``js``, etc.
 
