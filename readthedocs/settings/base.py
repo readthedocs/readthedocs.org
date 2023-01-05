@@ -701,11 +701,16 @@ class CommunityBaseSettings(Settings):
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
+
+    # Make email verification mandatory.
+    # Users won't be able to login until they verify the email address.
     ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-    ACCOUNT_ACTIVATION_DAYS = 7
+    ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_STORE_TOKENS = True
+
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
             'SCOPE': [
