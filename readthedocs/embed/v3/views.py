@@ -91,14 +91,15 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             include_file=False,
             version_type=version.type,
         )
+
+        # Decode encoded URLs (e.g. convert %20 into a whitespace)
+        filename = urllib.parse.unquote(filename)
+
         relative_filename = filename.lstrip("/")
         file_path = build_media_storage.join(
             storage_path,
             relative_filename,
         )
-
-        # Decode encoded URLs (e.g. convert %20 into a whitespace)
-        file_path = urllib.parse.unquote(file_path)
 
         try:
             with build_media_storage.open(file_path) as fd:  # pylint: disable=invalid-name
