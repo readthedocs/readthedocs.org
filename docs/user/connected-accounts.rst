@@ -41,9 +41,8 @@ Connecting your account allows for:
 How does the connection work?
 -----------------------------
 
-Read the Docs uses OAuth 2.
-When you login to Read the Docs with GitHub, Bitbucket or GitLab,
-you are asked to grant permissions for Read the Docs to perform a number of actions on your behalf.
+Read the Docs uses `OAuth`_ to connect to your account at GitHub, Bitbucket or GitLab,
+You are asked to grant permissions for Read the Docs to perform a number of actions on your behalf.
 
 At the same time, we use this process for authentication (login)
 since we trust that GitHub, Bitbucket or GitLab have verified your user account and email address.
@@ -55,10 +54,7 @@ Using the secret token,
 we can automatically configure the repository that you select in the :doc:`project import <intro/import-guide>`.
 We also use the token to send back build statuses and preview URLs for :doc:`pull requests </pull-requests>`.
 
-.. seealso::
-
-  :doc:`intro/import-guide`
-    Read more about how manual and automatic documentation import works.
+.. _OAuth: https://en.wikipedia.org/wiki/OAuth
 
 .. note::
 
