@@ -54,13 +54,21 @@ function Organization(instance, view) {
     self.id = ko.observable(instance.id);
     self.name = ko.observable(instance.name);
     self.slug = ko.observable(instance.slug);
-    self.provider_name = ko.observable(instance.vcs_provider);
+    self.provider = ko.observable(instance.vcs_provider);
     self.active = ko.observable(instance.active);
     self.avatar_url = ko.observable(
         append_url_params(instance.avatar_url, {size: 32})
     );
     self.display_name = ko.computed(function () {
-        return `${self.name() || self.slug()} (${self.provider_name()} Organization)`;
+        var provider = self.provider();
+        var org_alias = 'Organisation';
+
+        if (provider === 'gitlab') {
+            org_alias = 'Group';
+        } else if (provider === 'bitbucket') {
+            org_alias = 'Workspace';
+        }
+        return `${provider}/${self.name() || self.slug()} (${org_alias})`;
     });
     self.filter_id = ko.computed(function () {
         return self.id();
@@ -79,14 +87,13 @@ function Account(instance, view) {
     var self = this;
     self.id = ko.observable(instance.id);
     self.username = ko.observable(instance.username);
-    self.provider_name = ko.observable(instance.provider.name);
     self.active = ko.observable(instance.active);
     self.avatar_url = ko.observable(
         append_url_params(instance.avatar_url, {size: 32})
     );
     self.provider = ko.observable(instance.provider);
     self.display_name = ko.computed(function () {
-        return `${self.username()} (${self.provider_name()})`;
+        return `${self.provider().id}/${self.username()}`;
     });
     self.filter_id = ko.computed(function () {
         return self.provider().id;
