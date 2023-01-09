@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.42
+boto3==1.26.45
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.42
+botocore==1.29.45
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -69,7 +69,7 @@ click-repl==0.2.0
     # via
     #   -r requirements/pip.txt
     #   celery
-coverage[toml]==7.0.3
+coverage[toml]==7.0.4
     # via pytest-cov
 cryptography==39.0.0
     # via
@@ -79,7 +79,7 @@ cssselect==1.2.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
-cython==0.29.32
+cython==0.29.33
     # via
     #   -r requirements/pip.txt
     #   selectolax
@@ -204,7 +204,7 @@ imagesize==1.4.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
-iniconfig==1.1.1
+iniconfig==2.0.0
     # via pytest
 jinja2==3.1.2
     # via
@@ -233,13 +233,13 @@ markupsafe==2.1.1
     # via
     #   -r requirements/pip.txt
     #   jinja2
-mercurial==6.3.1
+mercurial==6.3.2
     # via -r requirements/testing.in
 oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.3
+orjson==3.8.4
     # via -r requirements/pip.txt
 packaging==22.0
     # via
