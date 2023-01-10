@@ -9,7 +9,7 @@
 # Jonas Obrist <ojiidotch@gmail.com>, 2012
 # Justman10000, 2022
 # Justman10000, 2022
-# Justman10000, 2022
+# Justman10000, 2022-2023
 # e57e0b6693d8a26d2bd54bd8ef3c1815, 2014,2017
 # f82ebdce6c7af46e12742407f341268c_9e4b487, 2020
 # Max Klingmann <max@mklingmann.com>, 2015
@@ -21,9 +21,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-03 17:03+0000\n"
+"POT-Creation-Date: 2023-01-10 08:58+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
-"Last-Translator: Justman10000, 2022\n"
+"Last-Translator: Justman10000, 2022-2023\n"
 "Language-Team: German (http://www.transifex.com/readthedocs/readthedocs/"
 "language/de/)\n"
 "Language: de\n"
@@ -33,7 +33,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: analytics/models.py:69 builds/models.py:605 projects/models.py:1375
-#: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:255
+#: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:257
 msgid "Version"
 msgstr "Version"
 
@@ -122,7 +122,7 @@ msgstr "Dokumente durchsuchen"
 msgid "Hosted by"
 msgstr "Bereitgestellt von"
 
-#: api/v2/templates/restapi/footer.html:136 templates/base.html:227
+#: api/v2/templates/restapi/footer.html:136 templates/base.html:229
 msgid "Privacy Policy"
 msgstr "Datenschutz-Bestimmungen"
 
@@ -906,6 +906,10 @@ msgid ""
 "Please try again later. If this problem persists, report this error to us "
 "with your build id ({build_id})."
 msgstr ""
+"Es existierte ein Problem mit Read the Docs beim Erstellen Ihrer "
+"Dokumentation. Bitte versuchen Sie es später noch einmal. Wenn dieses "
+"Problem weiterhin besteht, melden Sie uns diesen Fehler mit Ihrer Build-ID "
+"({build_id})."
 
 #: doc_builder/exceptions.py:36
 msgid ""
@@ -924,10 +928,14 @@ msgid ""
 "No \"{BUILD_COMMANDS_OUTPUT_PATH_HTML}\" folder was created during this "
 "build."
 msgstr ""
+"Bei diesem Build wurde kein Ordner \"{BUILD_COMMANDS_OUTPUT_PATH_HTML}\" "
+"erstellt."
 
 #: doc_builder/exceptions.py:46
 msgid "This build was manually skipped using a command exit code."
 msgstr ""
+"Dieser Build wurde unter Verwendung eines Befehls-Exit-Codes manuell "
+"übersprungen."
 
 #: doc_builder/exceptions.py:51
 msgid "Builds for this project are temporarily disabled"
@@ -942,27 +950,32 @@ msgstr "Problem in der Konfiguration Ihres Projekts. {exception}"
 #, python-brace-format
 msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
 msgstr ""
+"Gleichzeitigkeitsgrenze erreicht ({limit}), erneuter Versuch in 5 Minuten."
 
 #: doc_builder/exceptions.py:65
 msgid "Build cancelled by user."
-msgstr ""
+msgstr "Vom Benutzer abgebrochene Erstellung."
 
 #: doc_builder/exceptions.py:71
 #, python-brace-format
 msgid "Problem parsing MkDocs YAML configuration. {exception}"
-msgstr ""
+msgstr "Problem beim Parsen der MkDocs YAML-Konfiguration. {Ausnahme}"
 
 #: doc_builder/exceptions.py:75
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file has to be a string "
 "with relative or absolute path."
 msgstr ""
+"Die Konfiguration \"docs_dir\" aus Ihrer MkDocs YAML-Konfigurationsdatei "
+"muss ein String mit relativem oder absolutem Pfad sein."
 
 #: doc_builder/exceptions.py:80
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file does not contain a "
 "valid path."
 msgstr ""
+"Die Konfiguration \"docs_dir\" aus Ihrer MkDocs YAML-Konfigurationsdatei "
+"enthält keinen gültigen Pfad."
 
 #: doc_builder/exceptions.py:85
 #, python-brace-format
@@ -970,10 +983,14 @@ msgid ""
 "The \"{config}\" config from your MkDocs YAML config file has to be a list "
 "of relative paths."
 msgstr ""
+"Die \"{config}\"-Konfiguration aus Ihrer MkDocs YAML-Konfigurationsdatei "
+"muss eine Liste relativer Pfade sein."
 
 #: doc_builder/exceptions.py:90
 msgid "Please make sure the MkDocs YAML configuration file is not empty."
 msgstr ""
+"Bitte stellen Sie sicher, dass die MkDocs YAML-Konfigurationsdatei nicht "
+"leer ist."
 
 #: doc_builder/exceptions.py:94
 msgid ""
@@ -981,10 +998,13 @@ msgid ""
 "https://www.mkdocs.org/user-guide/configuration/ to configure the file "
 "properly."
 msgstr ""
+"Ihre MkDocs YAML-Konfigurationsdatei ist falsch. Bitte folgen Sie dem "
+"Benutzerhandbuch https://www.mkdocs.org/user-guide/configuration/, um die "
+"Datei richtig zu konfigurieren."
 
 #: doc_builder/exceptions.py:102
 msgid "Symlinks are not fully supported"
-msgstr ""
+msgstr "Symlinks werden nicht vollständig unterstützt"
 
 #: gold/forms.py:52
 msgid "No project found."
@@ -1251,24 +1271,24 @@ msgstr ""
 
 #: invitations/models.py:117
 msgid "Expiration date"
-msgstr ""
+msgstr "Ablaufdatum"
 
 #: invitations/templates/invitations/includes/invitation_list.html:19
 msgid "Invitation expired"
-msgstr ""
+msgstr "Einladung abgelaufen"
 
 #: invitations/templates/invitations/includes/invitation_list.html:21
 msgid "Invitation pending"
-msgstr ""
+msgstr "Einladung ausstehend"
 
 #: invitations/templates/invitations/includes/invitation_list.html:28
 #: templates/profiles/private/token_list.html:45
 msgid "Revoke"
-msgstr ""
+msgstr "Widerrufen"
 
 #: invitations/templates/invitations/invitation_detail.html:5
 msgid "Invitation request"
-msgstr ""
+msgstr "Einladung anfordern"
 
 #: invitations/templates/invitations/invitation_detail.html:12
 #, python-format
@@ -1279,15 +1299,15 @@ msgstr ""
 
 #: invitations/templates/invitations/invitation_detail.html:22
 msgid "Your invitation has expired."
-msgstr ""
+msgstr "Ihre Einladung ist abgelaufen."
 
 #: invitations/templates/invitations/invitation_detail.html:24
 msgid "Ask the admin of the organization to invite you again."
-msgstr ""
+msgstr "Bitten Sie den Administrator der Organisation, Sie erneut einzuladen."
 
 #: invitations/templates/invitations/invitation_detail.html:26
 msgid "Ask the admin of the project to invite you again."
-msgstr ""
+msgstr "Bitten Sie den Administrator des Projekts, Sie erneut einzuladen."
 
 #: invitations/templates/invitations/invitation_detail.html:31
 #, python-format
@@ -1295,18 +1315,20 @@ msgid ""
 "This invitation will expire in <span "
 "title=\"%(expiration_date)s\">%(valid_until)s</span>."
 msgstr ""
+"Diese Einladung läuft ab in <span "
+"title=\"%(expiration_date)s\">%(valid_until)s</span>."
 
 #: invitations/templates/invitations/invitation_detail.html:39
 msgid "Accept"
-msgstr ""
+msgstr "Akzeptieren"
 
 #: invitations/templates/invitations/invitation_detail.html:40
 msgid "Decline"
-msgstr ""
+msgstr "Ablehnen"
 
 #: notifications/forms.py:29
 msgid "Notification"
-msgstr ""
+msgstr "Benachrichtigung"
 
 #: oauth/models.py:28 oauth/models.py:116 organizations/models.py:235
 msgid "Users"
@@ -1319,7 +1341,7 @@ msgstr "Benutzer"
 msgid "Name"
 msgstr "Name"
 
-#: oauth/models.py:34 templates/base.html:156
+#: oauth/models.py:34 templates/base.html:158
 msgid "Email"
 msgstr "E-Mail"
 
@@ -1423,6 +1445,11 @@ msgid ""
 "href=\"{{ url_connect_account }}\">{{ provider_name }} account</a> is "
 "connected to Read the Docs."
 msgstr ""
+"Konnte keinen {{ provider_name }} Build-Statusbericht für {{ project.name }} "
+"senden. Stellen Sie sicher, dass Sie über die richtigen {{ provider_name }} "
+"Repository-Berechtigungen verfügen</a> und Ihr <a "
+"href=\"{{ url_connect_account }}\">{{ provider_name }} Konto</a> mit Read "
+"the Docs verbunden ist."
 
 #: oauth/services/base.py:23
 #, python-brace-format
@@ -1512,7 +1539,7 @@ msgstr ""
 
 #: organizations/models.py:89
 msgid "Maximum concurrent builds allowed for this organization"
-msgstr ""
+msgstr "Maximal zulässige gleichzeitige Builds für diese Organisation"
 
 #: organizations/models.py:95
 msgid "Stripe customer ID"
@@ -1537,15 +1564,15 @@ msgstr ""
 
 #: organizations/models.py:249
 msgid "Access"
-msgstr ""
+msgstr "Zugang"
 
 #: organizations/models.py:266
 msgid "team"
 msgstr ""
 
-#: organizations/models.py:303 templates/base.html:192
+#: organizations/models.py:303 templates/base.html:194
 msgid "Team"
-msgstr ""
+msgstr "Team"
 
 #: organizations/models.py:309
 msgid "Hash"
@@ -1557,7 +1584,7 @@ msgstr ""
 
 #: organizations/models.py:311
 msgid "Total"
-msgstr ""
+msgstr "Insgesamt"
 
 #: organizations/templates/organizations/admin/base.html:12
 #: organizations/templates/organizations/admin/organization_edit.html:9
@@ -1565,7 +1592,7 @@ msgstr ""
 #: templates/profiles/base_profile_edit.html:48
 #: templates/projects/domain_list.html:39
 msgid "Details"
-msgstr ""
+msgstr "Details"
 
 #: organizations/templates/organizations/admin/base.html:14
 #: templates/profiles/base_profile_edit.html:52
@@ -1596,7 +1623,7 @@ msgstr "Für immer löschen"
 
 #: organizations/templates/organizations/admin/organization_edit.html:5
 msgid "Edit Organization"
-msgstr ""
+msgstr "Organisation bearbeiten"
 
 #: organizations/templates/organizations/admin/organization_edit.html:15
 #: projects/forms.py:257 redirects/templates/redirects/redirect_form.html:80
@@ -1616,37 +1643,37 @@ msgstr "oder"
 
 #: organizations/templates/organizations/admin/organization_edit.html:18
 msgid "Delete organization"
-msgstr ""
+msgstr "Organisation löschen"
 
 #: organizations/templates/organizations/admin/owners_edit.html:5
 msgid "Edit Organization Owners"
-msgstr ""
+msgstr "Organisationseigentümer bearbeiten"
 
 #: organizations/templates/organizations/admin/owners_edit.html:13
 msgid "Owners have full access to this Organization"
-msgstr ""
+msgstr "Die Eigentümer verfügen über vollen Zugang zu dieser Organisation"
 
 #: organizations/templates/organizations/admin/owners_edit.html:48
 #: organizations/templates/organizations/admin/owners_edit.html:52
 #: organizations/templates/organizations/team_list.html:51
 msgid "Add Owner"
-msgstr ""
+msgstr "Besitzer hinzufügen"
 
 #: organizations/templates/organizations/base.html:18
 #: organizations/templates/organizations/base_team.html:19
 msgid "Organizations"
-msgstr ""
+msgstr "Organisationen"
 
 #: organizations/templates/organizations/base.html:32
 #: organizations/templates/organizations/team_list.html:7
 msgid "Teams"
-msgstr ""
+msgstr "Teams"
 
 #: organizations/templates/organizations/base.html:34
 #: organizations/templates/organizations/member_list.html:7
 #: organizations/templates/organizations/team_detail.html:40
 msgid "Members"
-msgstr ""
+msgstr "Mitglieder"
 
 #: organizations/templates/organizations/base.html:37
 #: templates/core/header.html:29 templates/projects/project_edit.html:13
@@ -1656,7 +1683,7 @@ msgstr "Einstellungen"
 
 #: organizations/templates/organizations/includes/team_member_list.html:25
 msgid "invite pending"
-msgstr ""
+msgstr "Einladung ausstehend"
 
 #: organizations/templates/organizations/includes/team_member_list.html:34
 msgid "This team doesn't have any members"
@@ -2033,16 +2060,23 @@ msgid ""
 "specify the correct file under the Advanced settings tab in the project's "
 "Admin."
 msgstr ""
+"Wir haben mehr als eine conf.py gefunden und sind nicht sicher, welche wir "
+"verwenden sollen. Bitte geben Sie die richtige Datei auf der Registerkarte "
+"Erweiterte Einstellungen in der Projektverwaltung an."
 
 #: projects/exceptions.py:28
 msgid "The file {} doesn't exist. Make sure it's a valid file path."
 msgstr ""
+"Die Datei {} existiert nicht. Stellen Sie sicher, dass es sich um einen "
+"gültigen Dateipfad handelt."
 
 #: projects/exceptions.py:36
 msgid ""
 "There was a problem connecting to your repository, ensure that your "
 "repository URL is correct."
 msgstr ""
+"Es existierte ein Problem bei der Verbindung zu Ihrem Repository. "
+"Vergewissern Sie sich, dass die URL Ihres Repositorys korrekt ist."
 
 #: projects/exceptions.py:40
 msgid ""
@@ -2067,6 +2101,9 @@ msgid ""
 "You can not have two versions with the name latest or stable. Ensure you "
 "don't have both a branch and a tag with this name."
 msgstr ""
+"Sie können nicht über zwei Versionen mit dem Namen latest oder stable "
+"verfügen. Stellen Sie sicher, dass Sie nicht sowohl über einen Zweig als "
+"auch über ein Tag mit diesem Namen verfügen."
 
 #: projects/exceptions.py:53
 msgid "Failed to checkout revision: {}"
@@ -2152,11 +2189,11 @@ msgstr ""
 
 #: projects/forms.py:188
 msgid "Length of each tag must be less than or equal to 100 characters."
-msgstr ""
+msgstr "Die Länge der einzelnen Tags darf nicht mehr als 100 Zeichen betragen."
 
 #: projects/forms.py:247
 msgid "Global settings"
-msgstr ""
+msgstr "Globale Einstellungen"
 
 #: projects/forms.py:251
 msgid "Default settings"
@@ -2164,7 +2201,7 @@ msgstr "Standardeinstellungen"
 
 #: projects/forms.py:295
 msgid "To build from pull requests you need a "
-msgstr ""
+msgstr "Um aus Pull Requests zu bauen, benötigen Sie eine"
 
 #: projects/forms.py:306
 msgid ""
@@ -2185,15 +2222,16 @@ msgstr ""
 #, python-brace-format
 msgid "There is already a \"{lang}\" translation for the {proj} project."
 msgstr ""
+"Es existiert bereits eine \"{lang}\" Übersetzung für das Projekt {proj}."
 
 #: projects/forms.py:493
 #, python-format
 msgid "User %(username)s is already a maintainer"
-msgstr ""
+msgstr "Der Benutzer %(username)s ist bereits ein Maintainer"
 
 #: projects/forms.py:572
 msgid "The payload must be a valid JSON object."
-msgstr ""
+msgstr "Die Nutzlast muss ein gültiges JSON-Objekt sein."
 
 #: projects/forms.py:751
 msgid "Only one domain can be canonical at a time."
@@ -2201,31 +2239,31 @@ msgstr "Es kann immer nur eine Domain kanonisch sein."
 
 #: projects/forms.py:858
 msgid "Variable name can't start with __ (double underscore)"
-msgstr ""
+msgstr "Der Variablenname darf nicht mit __ (doppelter Unterstrich) beginnen"
 
 #: projects/forms.py:862
 msgid "Variable name can't start with READTHEDOCS"
-msgstr ""
+msgstr "Variablenname kann nicht mit READTHEDOCS beginnen"
 
 #: projects/forms.py:867
 msgid "There is already a variable with this name for this project"
-msgstr ""
+msgstr "Es existiert bereits eine Variable mit diesem Namen für dieses Projekt"
 
 #: projects/forms.py:872
 msgid "Variable name can't contain spaces"
-msgstr ""
+msgstr "Variablenname darf keine Leerzeichen enthalten"
 
 #: projects/forms.py:876
 msgid "Only letters, numbers and underscore are allowed"
-msgstr ""
+msgstr "Nur Buchstaben, Zahlen und Unterstriche sind erlaubt"
 
 #: projects/models.py:84
 msgid "Main project"
-msgstr ""
+msgstr "Hauptprojekt"
 
 #: projects/models.py:90
 msgid "Subproject"
-msgstr ""
+msgstr "Unterprojekt"
 
 #: projects/models.py:95
 msgid "Alias"
@@ -2353,7 +2391,7 @@ msgstr ""
 
 #: projects/models.py:244
 msgid "Should builds from pull requests be public?"
-msgstr ""
+msgstr "Sollten Builds aus Pull Requests öffentlich sein?"
 
 #: projects/models.py:249
 msgid "CDN Enabled"
@@ -2407,7 +2445,7 @@ msgstr "Alternative Buildschlangen ID"
 
 #: projects/models.py:298
 msgid "Maximum concurrent builds allowed for this project"
-msgstr ""
+msgstr "Maximal erlaubte gleichzeitige Builds für dieses Projekt"
 
 #: projects/models.py:303
 msgid "Allow paid advertising"
@@ -2562,7 +2600,7 @@ msgstr ""
 
 #: projects/models.py:1387 sphinx_domains/models.py:44
 msgid "Build id"
-msgstr ""
+msgstr "Build ID"
 
 #: projects/models.py:1390
 msgid "Page search rank"
@@ -2574,11 +2612,11 @@ msgstr ""
 
 #: projects/models.py:1492
 msgid "Build triggered"
-msgstr ""
+msgstr "Bauen ausgelöst"
 
 #: projects/models.py:1493
 msgid "Build passed"
-msgstr ""
+msgstr "Bauen bestanden"
 
 #: projects/models.py:1510
 msgid "URL"
@@ -2606,6 +2644,10 @@ msgid ""
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
 "reference\">the docs</a> for available substitutions."
 msgstr ""
+"JSON-Nutzdaten, die an den Webhook gesendet werden sollen. Schauen Sie in <a "
+"href=\"https://docs.readthedocs.io/page/build-notifications.html#variable-"
+"substitutions-reference\">der Dokumentation</a> nach, welche Ersetzungen "
+"möglich sind."
 
 #: projects/models.py:1636 sphinx_domains/models.py:47
 msgid "Domain"
@@ -2683,6 +2725,8 @@ msgstr ""
 #: projects/models.py:1867
 msgid "Use Docker image labelled as `testing` to build the docs"
 msgstr ""
+"Verwenden Sie das Docker-Image mit der Bezeichnung `Testing`, um die "
+"Dokumentation zu erstellen."
 
 #: projects/models.py:1871
 msgid "Try alternative method of posting large data"
@@ -2690,7 +2734,7 @@ msgstr ""
 
 #: projects/models.py:1875
 msgid "Clean all files used in the build process"
-msgstr ""
+msgstr "Bereinigen Sie alle im Bauprozess verwendeten Dateien"
 
 #: projects/models.py:1879
 msgid "Upgrade conda before creating the environment"
@@ -2718,7 +2762,7 @@ msgstr ""
 
 #: projects/models.py:1898
 msgid "Limit the amount of concurrent builds"
-msgstr ""
+msgstr "Begrenzen Sie die Anzahl der gleichzeitigen Builds"
 
 #: projects/models.py:1902
 msgid ""
@@ -2730,6 +2774,7 @@ msgstr ""
 #: projects/models.py:1906
 msgid "Use Docker gVisor runtime to create build container."
 msgstr ""
+"Verwenden Sie Docker gVisor runtime, um einen Build-Container zu erstellen."
 
 #: projects/models.py:1910
 msgid "Record 404s page views."
@@ -2821,17 +2866,21 @@ msgstr ""
 
 #: projects/models.py:1988
 msgid "Use \"-j auto\" when calling sphinx-build"
-msgstr ""
+msgstr "Verwenden Sie \"-j auto\" beim Aufruf von sphinx-build"
 
 #: projects/models.py:1992
 msgid "Use regular sphinx builders instead of custom RTD builders"
 msgstr ""
+"Verwendung von regulären Sphinx-Buildern anstelle von benutzerdefinierten "
+"RTD-Buildern"
 
 #: projects/models.py:1997
 msgid ""
 "Cancel triggered/running builds when a new one with same project/version "
 "arrives"
 msgstr ""
+"Ausgelöste/ausgeführte Builds abbrechen, wenn ein neuer Build mit demselben "
+"Projekt/derselben Version eintrifft"
 
 #: projects/models.py:2002
 msgid "Do not create index.md or README.rst if the project does not have one."
@@ -2882,6 +2931,9 @@ msgid ""
 "This build was terminated due to inactivity. If you continue to encounter "
 "this error, file a support request with and reference this build id ({})."
 msgstr ""
+"Dieser Build wurde aufgrund von Inaktivität beendet. Wenn dieser Fehler "
+"weiterhin auftritt, stellen Sie eine Support-Anfrage mit Verweis auf diese "
+"Build-ID ({})."
 
 #: projects/validators.py:15
 msgid "Enter a valid plain or internationalized domain name value"
@@ -3212,7 +3264,7 @@ msgstr ""
 
 #: subscriptions/models.py:118
 msgid "Concurrent builds"
-msgstr ""
+msgstr "Gleichzeitige Builds"
 
 #: subscriptions/models.py:119
 msgid "Single sign on (SSO) with Google"
@@ -3534,19 +3586,19 @@ msgstr ""
 msgid "Read the Docs Archive"
 msgstr "Read the Docs Archiv"
 
-#: templates/base.html:107
+#: templates/base.html:109
 msgid "Close notification"
 msgstr ""
 
-#: templates/base.html:142
+#: templates/base.html:144
 msgid "Stay Updated"
 msgstr "Bleiben Sie auf dem Laufenden"
 
-#: templates/base.html:146
+#: templates/base.html:148
 msgid "Blog"
 msgstr ""
 
-#: templates/base.html:150
+#: templates/base.html:152
 msgid ""
 "Sign up for our newsletter to get our latest blog updates delivered to your "
 "inbox weekly."
@@ -3554,71 +3606,71 @@ msgstr ""
 "Melden Sie sich für unseren Newsletter an, um unsere neuesten Blog-Updates "
 "wöchentlich in Ihren Posteingang zu erhalten."
 
-#: templates/base.html:163
+#: templates/base.html:165
 msgid "Subscribe"
 msgstr "Abbonieren"
 
-#: templates/base.html:171
+#: templates/base.html:173
 msgid "Thank you!"
 msgstr ""
 
-#: templates/base.html:172
+#: templates/base.html:174
 msgid "You have successfully joined our subscriber list."
 msgstr "Sie sind erfolgreich unserer Abonnentenliste beigetreten."
 
-#: templates/base.html:185
+#: templates/base.html:187
 msgid "Resources"
 msgstr "Ressourcen"
 
-#: templates/base.html:189
+#: templates/base.html:191
 msgid "Tutorial"
 msgstr ""
 
-#: templates/base.html:195
+#: templates/base.html:197
 msgid "Documentation"
 msgstr ""
 
-#: templates/base.html:198
+#: templates/base.html:200
 msgid "Going Ad-free"
 msgstr ""
 
-#: templates/base.html:201
+#: templates/base.html:203
 msgid "Site Support"
 msgstr ""
 
-#: templates/base.html:204
+#: templates/base.html:206
 msgid "Site Status"
 msgstr ""
 
-#: templates/base.html:211
+#: templates/base.html:213
 msgid "Company"
 msgstr "Unternehmen"
 
-#: templates/base.html:215
+#: templates/base.html:217
 msgid "Jobs"
 msgstr ""
 
-#: templates/base.html:218
+#: templates/base.html:220
 msgid "Advertise with Us"
 msgstr "Werben Sie mit uns"
 
-#: templates/base.html:221
+#: templates/base.html:223
 msgid "Read the Docs for Business"
 msgstr "Read the Docs für Untrernehmen"
 
-#: templates/base.html:224
+#: templates/base.html:226
 msgid "Branding & Media Kit"
 msgstr "Branding- und Media-Kit"
 
-#: templates/base.html:230
+#: templates/base.html:232
 msgid "Terms of Service"
 msgstr "Nutzungsbedingungen"
 
-#: templates/base.html:251
+#: templates/base.html:253
 msgid "Read the Docs, Inc & contributors"
 msgstr "Read the Docs, Inc & Mitwirkende"
 
-#: templates/base.html:274
+#: templates/base.html:276
 msgid "Change Language"
 msgstr "Sprache wählen"
 
@@ -3628,7 +3680,7 @@ msgstr "Filter"
 
 #: templates/builds/build_detail.html:36
 msgid "Cancel build"
-msgstr ""
+msgstr "Build abbrechen"
 
 #: templates/builds/build_detail.html:44
 msgid "Completed"
@@ -3673,7 +3725,7 @@ msgstr "Build fertiggestellt"
 
 #: templates/builds/build_detail.html:148
 msgid "Build cancelled"
-msgstr ""
+msgstr "Bauen abgebrochen"
 
 #: templates/builds/build_detail.html:157
 #, python-format
@@ -3694,6 +3746,11 @@ msgid ""
 "the recommended way to configure your documentation builds. You can declare "
 "dependencies, set up submodules, and many other great features."
 msgstr ""
+"<strong>Konfigurieren Sie Ihre Dokumentations-Builds!</strong> Es wird "
+"empfohlen, eine <a href=\"%(config_file_link)s\">.readthedocs.yaml</a> Datei "
+"zu Ihrem Projekt hinzuzufügen, um Ihre Dokumentations-Builds zu "
+"konfigurieren. Sie können Abhängigkeiten deklarieren, Submodule festlegen "
+"und viele andere großartige Funktionen nutzen."
 
 #: templates/builds/build_detail.html:181
 #, python-format
@@ -3706,7 +3763,7 @@ msgstr ""
 
 #: templates/builds/build_detail.html:193
 msgid "Show full build output"
-msgstr ""
+msgstr "Vollständige Build-Ausgabe anzeigen"
 
 #: templates/builds/build_detail.html:199
 msgid "Build Output"
@@ -3727,7 +3784,7 @@ msgstr "Buildfehler"
 #: templates/builds/build_detail.html:232
 #, python-format
 msgid "<a href=\"%(url)s\">Report any build issues here</a>."
-msgstr ""
+msgstr "<a href=\"%(url)s\">Berichten Sie hier über Build-Probleme</a>."
 
 #: templates/builds/build_detail.html:257
 msgid "Command time:"
@@ -3810,7 +3867,7 @@ msgstr "Es existieren keine neueren Aktivitäten"
 
 #: templates/core/build_list_detailed.html:7
 msgid "This build is still waiting to be built"
-msgstr ""
+msgstr "Dieser Build wartet noch immer darauf, gebaut zu werden"
 
 #: templates/core/build_list_detailed.html:7
 msgid "Passed"
@@ -3832,7 +3889,7 @@ msgstr "Version %(slug)s (%(type)s)"
 
 #: templates/core/build_list_detailed.html:29
 msgid "No builds found"
-msgstr ""
+msgstr "Keine Builds gefunden"
 
 #: templates/core/email/base.html:78
 msgid "Hello,"
@@ -3925,7 +3982,7 @@ msgstr ""
 
 #: templates/core/project_detail_right.html:41
 msgid "Currently Building"
-msgstr ""
+msgstr "Derzeitiger Build"
 
 #: templates/core/project_detail_right.html:44
 #: templates/projects/project_dashboard_base.html:83
@@ -3997,7 +4054,7 @@ msgstr "Keine Downloads für dieses Projekt."
 
 #: templates/core/project_list_detailed.html:28
 msgid "No builds"
-msgstr ""
+msgstr "Keine Builds"
 
 #: templates/core/project_list_detailed.html:36
 #: templates/core/project_list_featured.html:15
@@ -4093,7 +4150,7 @@ msgstr ""
 
 #: templates/homepage.html:58
 msgid "Free docs hosting for open source"
-msgstr ""
+msgstr "Kostenfreies Hosting von Dokumentationen für Quelloffen"
 
 #: templates/homepage.html:60
 msgid ""
@@ -4108,7 +4165,7 @@ msgstr ""
 
 #: templates/homepage.html:69
 msgid "Always up to date"
-msgstr ""
+msgstr "Immer auf dem neuesten Stand"
 
 #: templates/homepage.html:71
 msgid ""
@@ -4122,7 +4179,7 @@ msgstr ""
 
 #: templates/homepage.html:84
 msgid "Downloadable formats"
-msgstr ""
+msgstr "Herunterladbare Formate"
 
 #: templates/homepage.html:86
 msgid ""
@@ -4130,10 +4187,13 @@ msgid ""
 "as single page HTML, and for eReaders. No additional configuration is "
 "required."
 msgstr ""
+"Wir erstellen und hosten Ihre Dokumentationen für das Web, sie sind jedoch "
+"zudem als PDFs, als einseitige HTML-Dateien und für eReader anzeigbar. Es "
+"ist keine zusätzliche Konfiguration erforderlich."
 
 #: templates/homepage.html:94
 msgid "Multiple versions"
-msgstr ""
+msgstr "Mehrere Versionen"
 
 #: templates/homepage.html:96
 msgid ""
@@ -4367,6 +4427,9 @@ msgid ""
 "href=\"%(gold_detail)s\">Gold member</a> or <a "
 "href=\"%(donate_url)s\">Supporter</a> of Read the Docs."
 msgstr ""
+"Sie können <strong>werbefrei werden</strong>, indem Sie <a "
+"href=\"%(gold_detail)s\">Gold-Mitglied</a> oder <a "
+"href=\"%(donate_url)s\">Unterstützer</a> von Read the Docs werden."
 
 #: templates/profiles/private/advertising_profile.html:49
 msgid "Update advertisement preference"
@@ -4422,6 +4485,10 @@ msgid ""
 "readthedocs.org/page/api/v3.html\">APIv3 documentation</a> for more "
 "information."
 msgstr ""
+"Personal Access Token sind Token, mit denen Sie die Read the Docs APIv3 "
+"verwenden können, wenn Sie als Sie selbst authentifiziert sind. Weitere "
+"Informationen finden Sie in der <a href=\"https://docs.readthedocs.org/page/"
+"api/v3.html\">APIv3-Dokumentation</a>."
 
 #: templates/profiles/private/token_list.html:25
 msgid "Generate API Token"
@@ -4543,6 +4610,9 @@ msgid ""
 "Take into account that these environment variables are available to all "
 "build steps."
 msgstr ""
+"Mit Umgebungsvariablen können Sie das Verhalten Ihres Builds ändern. "
+"Berücksichtigen Sie, dass diese Umgebungsvariablen für alle Build-Schritte "
+"verfügbar sind."
 
 #: templates/projects/environmentvariable_list.html:22
 msgid "Add Environment Variable"
@@ -4748,7 +4818,7 @@ msgstr "reStructuredText Primer"
 
 #: templates/projects/onboard_detail.html:8
 msgid "Start building your documentation"
-msgstr ""
+msgstr "Beginnen Sie mit der Erstellung Ihrer Dokumentation"
 
 #: templates/projects/onboard_detail.html:10
 msgid ""
@@ -4786,7 +4856,7 @@ msgstr ""
 
 #: templates/projects/onboard_detail.html:46
 msgid "Your documentation failed to build"
-msgstr ""
+msgstr "Ihre Dokumentation konnte nicht erstellt werden"
 
 #: templates/projects/onboard_detail.html:50
 msgid ""
@@ -4795,10 +4865,14 @@ msgid ""
 "href=\"http://docs.readthedocs.io/page/faq.html\">problems frequently "
 "encountered</a> during builds."
 msgstr ""
+"Es gab ein Problem bei der Erstellung Ihrer Dokumentation. Sie können in der "
+"Ausgabe des Builds sehen, was schief gelaufen ist. Wenn Sie weitere Hilfe "
+"benötigen, sehen Sie sich einige der Probleme an, die häufig bei Builds "
+"auftreten."
 
 #: templates/projects/onboard_detail.html:59
 msgid "View build output"
-msgstr ""
+msgstr "Build-Ausgabe ansehen"
 
 #: templates/projects/onboard_detail.html:65
 msgid "Your documentation is building"
@@ -4809,6 +4883,8 @@ msgid ""
 "You'll be able to view your documentation in a minute or two, once your "
 "project is done building."
 msgstr ""
+"Sie können Ihre Dokumentation in ein oder zwei Minuten einsehen, sobald Ihr "
+"Projekt fertiggestellt ist."
 
 #: templates/projects/onboard_import.html:5
 msgid "Ready to share your documentation"
@@ -4821,6 +4897,11 @@ msgid ""
 "importing one. Not sure how to start documenting your project? Check out the "
 "<a href=\"%(tutorial_url)s\">Tutorial</a> to learn how."
 msgstr ""
+"Sie verfügen zwar noch nicht über ein Projekt, können jedoch mit der "
+"Erstellung der Dokumentation beginnen, indem Sie eines importieren. Sie "
+"wissen nicht, wie Sie mit der Dokumentation Ihres Projekts beginnen sollen? "
+"Sehen Sie sich das <a href=\"%(tutorial_url)s\">Tutorial</a> an, um zu "
+"erfahren, wie es geht."
 
 #: templates/projects/onboard_import.html:19
 #, python-format
@@ -5400,6 +5481,9 @@ msgid ""
 "as your main project. <a href=\"https://docs.readthedocs.io/en/stable/"
 "subprojects.html\">Learn more</a>."
 msgstr ""
+"Durch die Verwendung von Unterprojekten können Sie mehrere Projekte aus "
+"derselben Domain wie Ihr Hauptprojekt bedienen. <a href=\"https://docs."
+"readthedocs.io/en/stable/subprojects.html\">Erfahren Sie mehr</a>."
 
 #: templates/projects/projectrelationship_form.html:28
 msgid "Update subproject"
