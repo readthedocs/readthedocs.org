@@ -2,7 +2,7 @@ Sub-Processor List
 ==================
 
 :Effective: April 16, 2021
-:Last updated: April 16, 2021
+:Last updated: December 27, 2022
 
 Read the Docs for Business uses services from the following sub-processors to
 provide documentation hosting services. This document supplements :doc:`our Data
@@ -56,11 +56,6 @@ Sentry
 
 Support
 -------
-
-Intercom, Inc.
-    Dashboard user reporting and analytics. Data collected can include user
-    information like email address and IP address. This is only used on our
-    application dashboard and is not used on documentation sites.
 
 FrontApp, Inc.
     Customer email support service. Can have access to user data, including user

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-03 17:03+0000\n"
+"POT-Creation-Date: 2023-01-10 08:58+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Sigmund Petersen <sigmund.petersen@gmail.com>, 2018\n"
 "Language-Team: Norwegian Bokmål (http://www.transifex.com/readthedocs/"
@@ -21,7 +21,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: analytics/models.py:69 builds/models.py:605 projects/models.py:1375
-#: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:255
+#: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:257
 msgid "Version"
 msgstr "Versjon"
 
@@ -110,7 +110,7 @@ msgstr ""
 msgid "Hosted by"
 msgstr ""
 
-#: api/v2/templates/restapi/footer.html:136 templates/base.html:227
+#: api/v2/templates/restapi/footer.html:136 templates/base.html:229
 msgid "Privacy Policy"
 msgstr ""
 
@@ -1262,7 +1262,7 @@ msgstr "Brukere"
 msgid "Name"
 msgstr "Navn"
 
-#: oauth/models.py:34 templates/base.html:156
+#: oauth/models.py:34 templates/base.html:158
 msgid "Email"
 msgstr "Epost"
 
@@ -1476,7 +1476,7 @@ msgstr ""
 msgid "team"
 msgstr ""
 
-#: organizations/models.py:303 templates/base.html:192
+#: organizations/models.py:303 templates/base.html:194
 msgid "Team"
 msgstr ""
 
@@ -3387,89 +3387,89 @@ msgstr ""
 msgid "Read the Docs Archive"
 msgstr "Read The Docs-arkiv"
 
-#: templates/base.html:107
+#: templates/base.html:109
 msgid "Close notification"
 msgstr ""
 
-#: templates/base.html:142
+#: templates/base.html:144
 msgid "Stay Updated"
 msgstr ""
 
-#: templates/base.html:146
+#: templates/base.html:148
 msgid "Blog"
 msgstr ""
 
-#: templates/base.html:150
+#: templates/base.html:152
 msgid ""
 "Sign up for our newsletter to get our latest blog updates delivered to your "
 "inbox weekly."
 msgstr ""
 
-#: templates/base.html:163
+#: templates/base.html:165
 msgid "Subscribe"
 msgstr ""
 
-#: templates/base.html:171
+#: templates/base.html:173
 msgid "Thank you!"
 msgstr ""
 
-#: templates/base.html:172
+#: templates/base.html:174
 msgid "You have successfully joined our subscriber list."
 msgstr ""
 
-#: templates/base.html:185
+#: templates/base.html:187
 msgid "Resources"
 msgstr ""
 
-#: templates/base.html:189
+#: templates/base.html:191
 msgid "Tutorial"
 msgstr ""
 
-#: templates/base.html:195
+#: templates/base.html:197
 msgid "Documentation"
 msgstr ""
 
-#: templates/base.html:198
+#: templates/base.html:200
 msgid "Going Ad-free"
 msgstr ""
 
-#: templates/base.html:201
+#: templates/base.html:203
 msgid "Site Support"
 msgstr ""
 
-#: templates/base.html:204
+#: templates/base.html:206
 msgid "Site Status"
 msgstr ""
 
-#: templates/base.html:211
+#: templates/base.html:213
 msgid "Company"
 msgstr ""
 
-#: templates/base.html:215
+#: templates/base.html:217
 msgid "Jobs"
 msgstr ""
 
-#: templates/base.html:218
+#: templates/base.html:220
 msgid "Advertise with Us"
 msgstr ""
 
-#: templates/base.html:221
+#: templates/base.html:223
 msgid "Read the Docs for Business"
 msgstr ""
 
-#: templates/base.html:224
+#: templates/base.html:226
 msgid "Branding & Media Kit"
 msgstr ""
 
-#: templates/base.html:230
+#: templates/base.html:232
 msgid "Terms of Service"
 msgstr ""
 
-#: templates/base.html:251
+#: templates/base.html:253
 msgid "Read the Docs, Inc & contributors"
 msgstr ""
 
-#: templates/base.html:274
+#: templates/base.html:276
 msgid "Change Language"
 msgstr ""
 

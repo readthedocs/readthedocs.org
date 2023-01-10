@@ -14,9 +14,9 @@ babel==2.11.0
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.26.37
+boto3==1.26.45
     # via django-storages
-botocore==1.29.37
+botocore==1.29.45
     # via
     #   boto3
     #   s3transfer
@@ -42,11 +42,11 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.2.0
     # via celery
-cryptography==38.0.4
+cryptography==39.0.0
     # via pyjwt
 cssselect==1.2.0
     # via pyquery
-cython==0.29.32
+cython==0.29.33
     # via selectolax
 defusedxml==0.7.1
     # via python3-openid
@@ -141,11 +141,11 @@ elasticsearch-dsl==7.4.0
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
-filelock==3.8.2
+filelock==3.9.0
     # via virtualenv
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.29
+gitpython==3.1.30
     # via -r requirements/pip.in
 idna==3.4
     # via requests
@@ -171,7 +171,7 @@ markupsafe==2.1.1
     # via jinja2
 oauthlib==3.2.2
     # via requests-oauthlib
-orjson==3.8.3
+orjson==3.8.4
     # via -r requirements/pip.in
 packaging==22.0
     # via
@@ -179,19 +179,19 @@ packaging==22.0
     #   docker
     #   dparse
     #   sphinx
-platformdirs==2.6.0
+platformdirs==2.6.2
     # via virtualenv
 prompt-toolkit==3.0.36
     # via click-repl
 pycparser==2.21
     # via cffi
-pygments==2.13.0
+pygments==2.14.0
     # via
     #   -r requirements/pip.in
     #   sphinx
 pyjwt[crypto]==2.6.0
     # via django-allauth
-pyquery==1.4.3
+pyquery==2.0.0
     # via -r requirements/pip.in
 python-dateutil==2.8.2
     # via
@@ -231,7 +231,7 @@ requests-toolbelt==0.10.1
     # via -r requirements/pip.in
 s3transfer==0.6.0
     # via boto3
-selectolax==0.3.11
+selectolax==0.3.12
     # via -r requirements/pip.in
 six==1.16.0
     # via
