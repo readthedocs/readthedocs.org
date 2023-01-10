@@ -119,9 +119,9 @@ You can use this approach to cancel builds that you don't want to complete based
    `the Unix implementation does this automatically <https://tldp.org/LDP/abs/html/exitcodes.html>`_
    for exit codes greater than 255.
 
-   .. code-block:: python
+   .. code-block:: pycon
 
-      >>> sum(list('skip'.encode('ascii')))
+      >>> sum(list("skip".encode("ascii")))
       439
       >>> 439 % 256
       183
