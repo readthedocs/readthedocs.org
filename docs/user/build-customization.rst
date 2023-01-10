@@ -330,6 +330,7 @@ Take a look at the following example:
          - pip install poetry
          # Tell poetry to not use a virtual environment
          - poetry config virtualenvs.create false
+       post_install:
          # Install dependencies with 'docs' dependency group
          # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
          - poetry install --with docs
