@@ -6,12 +6,11 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.core.utils.filesystem import safe_copytree
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML, GENERIC
+from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Feature
 from readthedocs.projects.signals import after_build, before_build, before_vcs
@@ -362,16 +361,9 @@ class BuildDirector:
                         record=False,
                     )
 
-        # Copy files to artifacts path so they are uploaded to S3
-        target = self.data.project.artifact_path(
-            version=self.data.version.slug,
-            type_=GENERIC,
-        )
-        artifacts_path = os.path.join(cwd, BUILD_COMMANDS_OUTPUT_PATH_HTML)
-        if not os.path.exists(artifacts_path):
+        html_output_path = os.path.join(cwd, BUILD_COMMANDS_OUTPUT_PATH_HTML)
+        if not os.path.exists(html_output_path):
             raise BuildUserError(BuildUserError.BUILD_COMMANDS_WITHOUT_OUTPUT)
-
-        safe_copytree(artifacts_path, target)
 
         # Update the `Version.documentation_type` to match the doctype defined
         # by the config file. When using `build.commands` it will be `GENERIC`
@@ -536,8 +528,6 @@ class BuildDirector:
             self.data.version.documentation_type = builder.get_final_doctype()
 
         success = builder.build()
-        builder.move()
-
         return success
 
     def get_vcs_env_vars(self):

@@ -46,10 +46,6 @@ class BaseMkdocs(BaseBuilder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.yaml_file = self.get_yaml_config()
-        self.old_artifact_path = os.path.join(
-            os.path.dirname(self.yaml_file),
-            self.build_dir,
-        )
 
         # README: historically, the default theme was ``readthedocs`` but in
         # https://github.com/rtfd/readthedocs.org/pull/4556 we change it to
@@ -343,9 +339,8 @@ class BaseMkdocs(BaseBuilder):
 
 class MkdocsHTML(BaseMkdocs):
 
-    type = 'mkdocs'
-    builder = 'build'
-    build_dir = '_build/html'
+    builder = "build"
+    build_dir = "_readthedocs/html"
 
 
 # TODO: find a better way to integrate with MkDocs.

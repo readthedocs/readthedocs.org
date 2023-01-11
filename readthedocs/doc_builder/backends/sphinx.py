@@ -3,8 +3,11 @@ Sphinx_ backend for building docs.
 
 .. _Sphinx: http://www.sphinx-doc.org/
 """
+
 import itertools
 import os
+import shutil
+import tempfile
 import zipfile
 from glob import glob
 from pathlib import Path
@@ -18,13 +21,13 @@ from requests.exceptions import ConnectionError
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
-from readthedocs.core.utils.filesystem import safe_copytree, safe_open, safe_rmtree
+from readthedocs.core.utils.filesystem import safe_open, safe_rmtree
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
 from readthedocs.projects.models import Feature
 from readthedocs.projects.utils import safe_write
 
-from ..base import BaseBuilder, restoring_chdir
+from ..base import BaseBuilder
 from ..constants import PDF_RE
 from ..environments import BuildCommand, DockerBuildCommand
 from ..exceptions import BuildUserError
@@ -37,6 +40,8 @@ class BaseSphinx(BaseBuilder):
 
     """The parent for most sphinx builders."""
 
+    sphinx_doctrees_dir = "_build/doctrees"
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.config_file = self.config.sphinx.configuration
@@ -48,16 +53,8 @@ class BaseSphinx(BaseBuilder):
                     self.project_path,
                     self.config_file,
                 )
-            self.old_artifact_path = os.path.join(
-                os.path.dirname(self.config_file),
-                self.sphinx_build_dir,
-            )
         except ProjectConfigurationError:
-            docs_dir = self.docs_dir()
-            self.old_artifact_path = os.path.join(
-                docs_dir,
-                self.sphinx_build_dir,
-            )
+            pass
 
     def _write_config(self, master_doc='index'):
         """Create ``conf.py`` if it doesn't exist."""
@@ -264,7 +261,6 @@ class BaseSphinx(BaseBuilder):
         )
 
     def build(self):
-        self.clean()
         project = self.project
         build_command = [
             *self.get_sphinx_cmd(),
@@ -273,22 +269,34 @@ class BaseSphinx(BaseBuilder):
             *self.sphinx_parallel_arg(),
         ]
         if self.config.sphinx.fail_on_warning:
-            build_command.extend(['-W', '--keep-going'])
-        build_command.extend([
-            '-b',
-            self.sphinx_builder,
-            '-d',
-            '_build/doctrees',
-            '-D',
-            'language={lang}'.format(lang=project.language),
-            '.',
-            self.sphinx_build_dir,
-        ])
+            build_command.extend(["-W", "--keep-going"])
+        build_command.extend(
+            [
+                "-b",
+                self.sphinx_builder,
+                "-d",
+                self.sphinx_doctrees_dir,
+                "-D",
+                f"language={project.language}",
+                # Execute the command at the clone directory,
+                # but use `docs/` instead of `.` for the Sphinx path
+                os.path.dirname(
+                    os.path.relpath(
+                        self.config_file,
+                        self.project_path,
+                    ),
+                ),
+                self.sphinx_build_dir,
+            ]
+        )
         cmd_ret = self.run(
             *build_command,
-            cwd=os.path.dirname(self.config_file),
             bin_path=self.python_env.venv_bin(),
+            cwd=self.project_path,
         )
+
+        self._post_build()
+
         return cmd_ret.successful
 
     def get_sphinx_cmd(self):
@@ -337,8 +345,10 @@ class BaseSphinx(BaseBuilder):
 
 
 class HtmlBuilder(BaseSphinx):
-    type = 'sphinx'
-    sphinx_build_dir = '_build/html'
+    # Build directory is relative to the path where ``sphinx-build`` command is executed from.
+    # Currently, we are executing it form the project's path
+    # (from inside where the repository was clonned)
+    sphinx_build_dir = "_readthedocs/html"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -346,31 +356,8 @@ class HtmlBuilder(BaseSphinx):
         if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
             self.sphinx_builder = 'html'
 
-    def move(self, **__):
-        super().move()
-        # Copy JSON artifacts to its own directory
-        # to keep compatibility with the older builder.
-        json_path = os.path.abspath(
-            os.path.join(self.old_artifact_path, '..', 'json'),
-        )
-        json_path_target = self.project.artifact_path(
-            version=self.version.slug,
-            type_='sphinx_search',
-        )
-        if os.path.exists(json_path):
-            if os.path.exists(json_path_target):
-                safe_rmtree(json_path_target)
-            log.debug('Copying json on the local filesystem')
-            safe_copytree(
-                json_path,
-                json_path_target,
-            )
-        else:
-            log.warning('Not moving json because the build dir is unknown.',)
-
 
 class HtmlDirBuilder(HtmlBuilder):
-    type = 'sphinx_htmldir'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -380,7 +367,6 @@ class HtmlDirBuilder(HtmlBuilder):
 
 
 class SingleHtmlBuilder(HtmlBuilder):
-    type = 'sphinx_singlehtml'
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -390,65 +376,62 @@ class SingleHtmlBuilder(HtmlBuilder):
 
 
 class LocalMediaBuilder(BaseSphinx):
-    type = 'sphinx_localmedia'
     sphinx_builder = 'readthedocssinglehtmllocalmedia'
-    sphinx_build_dir = '_build/localmedia'
+    sphinx_build_dir = "_readthedocs/htmlzip"
 
-    @restoring_chdir
-    def move(self, **__):
-        if not os.path.exists(self.old_artifact_path):
-            log.warning('Not moving localmedia because the build dir is unknown.')
-            return
-
-        log.debug('Creating zip file from path.', path=self.old_artifact_path)
+    def _post_build(self):
+        """Internal post build to create the ZIP file from the HTML output."""
+        sphinx_build_dir = os.path.join(self.project_path, self.sphinx_build_dir)
+        temp_zip_file = tempfile.mktemp(suffix=".zip")
         target_file = os.path.join(
-            self.target,
-            '{}.zip'.format(self.project.slug),
+            sphinx_build_dir,
+            f"{self.project.slug}.zip",
         )
-        if not os.path.exists(self.target):
-            os.makedirs(self.target)
-        if os.path.exists(target_file):
-            os.remove(target_file)
 
-        # Create a <slug>.zip file
-        os.chdir(self.old_artifact_path)
-        archive = zipfile.ZipFile(target_file, 'w')
-        for root, __, files in os.walk('.'):
+        archive = zipfile.ZipFile(temp_zip_file, "w")
+        for root, __, files in os.walk(sphinx_build_dir):
             for fname in files:
                 to_write = os.path.join(root, fname)
                 archive.write(
                     filename=to_write,
                     arcname=os.path.join(
-                        '{}-{}'.format(self.project.slug, self.version.slug),
-                        to_write,
+                        f"{self.project.slug}-{self.version.slug}",
+                        os.path.relpath(
+                            to_write,
+                            sphinx_build_dir,
+                        ),
                     ),
                 )
         archive.close()
 
+        safe_rmtree(sphinx_build_dir)
+        os.makedirs(sphinx_build_dir)
+        shutil.move(temp_zip_file, target_file)
+
 
 class EpubBuilder(BaseSphinx):
 
-    type = 'sphinx_epub'
-    sphinx_builder = 'epub'
-    sphinx_build_dir = '_build/epub'
+    sphinx_builder = "epub"
+    sphinx_build_dir = "_readthedocs/epub"
 
-    def move(self, **__):
-        from_globs = glob(os.path.join(self.old_artifact_path, '*.epub'))
-        if not os.path.exists(self.target):
-            os.makedirs(self.target)
-        if from_globs:
-            from_file = from_globs[0]
-            to_file = os.path.join(
-                self.target,
-                '{}.epub'.format(self.project.slug),
-            )
-            self.run(
-                'mv',
-                '-f',
-                from_file,
-                to_file,
-                cwd=self.project_path,
-            )
+    def _post_build(self):
+        """Internal post build to cleanup EPUB output directory and leave only one .epub file."""
+        sphinx_build_dir = os.path.join(self.project_path, self.sphinx_build_dir)
+        temp_epub_file = tempfile.mktemp(suffix=".epub")
+        target_file = os.path.join(
+            sphinx_build_dir,
+            f"{self.project.slug}.epub",
+        )
+
+        epub_sphinx_filepaths = glob(os.path.join(sphinx_build_dir, "*.epub"))
+        if epub_sphinx_filepaths:
+            # NOTE: we currently support only one .epub per version
+            epub_filepath = epub_sphinx_filepaths[0]
+
+            shutil.move(epub_filepath, temp_epub_file)
+            safe_rmtree(sphinx_build_dir)
+            os.makedirs(sphinx_build_dir)
+            shutil.move(temp_epub_file, target_file)
 
 
 class LatexBuildCommand(BuildCommand):
@@ -479,30 +462,36 @@ class PdfBuilder(BaseSphinx):
 
     """Builder to generate PDF documentation."""
 
-    type = 'sphinx_pdf'
-    sphinx_build_dir = '_build/latex'
+    sphinx_build_dir = "_readthedocs/pdf"
+    sphinx_builder = "latex"
     pdf_file_name = None
 
     def build(self):
-        self.clean()
-        cwd = os.path.dirname(self.config_file)
-
-        # Default to this so we can return it always.
         self.run(
             *self.get_sphinx_cmd(),
-            '-b',
-            'latex',
+            # New arguments for standardization
+            "-T",
+            "-E",
             *self.sphinx_parallel_arg(),
-            '-D',
-            'language={lang}'.format(lang=self.project.language),
-            '-d',
-            '_build/doctrees',
-            '.',
-            '_build/latex',
-            cwd=cwd,
+            "-b",
+            self.sphinx_builder,
+            "-d",
+            self.sphinx_doctrees_dir,
+            "-D",
+            f"language={self.project.language}",
+            # Execute the command at the clone directory,
+            # but use `docs/` instead of `.` for the Sphinx path
+            os.path.dirname(
+                os.path.relpath(
+                    self.config_file,
+                    self.project_path,
+                ),
+            ),
+            self.sphinx_build_dir,
+            cwd=self.project_path,
             bin_path=self.python_env.venv_bin(),
         )
-        latex_cwd = os.path.join(cwd, '_build', 'latex')
+        latex_cwd = os.path.join(self.project_path, self.sphinx_build_dir)
         tex_files = glob(os.path.join(latex_cwd, '*.tex'))
 
         if not tex_files:
@@ -512,9 +501,12 @@ class PdfBuilder(BaseSphinx):
         # Build PDF with ``latexmk`` if Sphinx supports it, otherwise fallback
         # to ``pdflatex`` to support old versions
         if self.venv_sphinx_supports_latexmk():
-            return self._build_latexmk(cwd, latex_cwd)
+            success = self._build_latexmk(self.project_path, latex_cwd)
+        else:
+            success = self._build_pdflatex(tex_files, latex_cwd)
 
-        return self._build_pdflatex(tex_files, latex_cwd)
+        self._post_build()
+        return success
 
     def _build_latexmk(self, cwd, latex_cwd):
         # These steps are copied from the Makefile generated by Sphinx >= 1.6
@@ -632,40 +624,20 @@ class PdfBuilder(BaseSphinx):
             pdf_commands.append(cmd_ret)
         return all(cmd.successful for cmd in pdf_commands)
 
-    def move(self, **__):
-        if not os.path.exists(self.target):
-            os.makedirs(self.target)
-
-        exact = os.path.join(
-            self.old_artifact_path,
-            '{}.pdf'.format(self.project.slug),
-        )
-        exact_upper = os.path.join(
-            self.old_artifact_path,
-            '{}.pdf'.format(self.project.slug.capitalize()),
+    def _post_build(self):
+        """Internal post build to cleanup PDF output directory and leave only one .pdf file."""
+        # TODO: merge this with ePUB since it's pretty much the same
+        sphinx_build_dir = os.path.join(self.project_path, self.sphinx_build_dir)
+        temp_pdf_file = tempfile.mktemp(suffix=".pdf")
+        target_file = os.path.join(
+            sphinx_build_dir,
+            self.pdf_file_name,
         )
 
-        if self.pdf_file_name and os.path.exists(self.pdf_file_name):
-            from_file = self.pdf_file_name
-        if os.path.exists(exact):
-            from_file = exact
-        elif os.path.exists(exact_upper):
-            from_file = exact_upper
-        else:
-            from_globs = glob(os.path.join(self.old_artifact_path, '*.pdf'))
-            if from_globs:
-                from_file = max(from_globs, key=os.path.getmtime)
-            else:
-                from_file = None
-        if from_file:
-            to_file = os.path.join(
-                self.target,
-                '{}.pdf'.format(self.project.slug),
-            )
-            self.run(
-                'mv',
-                '-f',
-                from_file,
-                to_file,
-                cwd=self.project_path,
-            )
+        # NOTE: we currently support only one .pdf per version
+        pdf_sphinx_filepath = os.path.join(sphinx_build_dir, self.pdf_file_name)
+        if os.path.exists(pdf_sphinx_filepath):
+            shutil.move(pdf_sphinx_filepath, temp_pdf_file)
+            safe_rmtree(sphinx_build_dir)
+            os.makedirs(sphinx_build_dir)
+            shutil.move(temp_pdf_file, target_file)

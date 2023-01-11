@@ -4,6 +4,7 @@ Tasks related to projects.
 This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
+import os
 import signal
 import socket
 from collections import defaultdict
@@ -800,32 +801,52 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         # HTML media
         if html:
-            types_to_copy.append(('html', self.data.config.doctype))
+            types_to_copy.append("html")
 
         # Search media (JSON)
         if search:
-            types_to_copy.append(('json', 'sphinx_search'))
+            types_to_copy.append("json")
 
         if localmedia:
-            types_to_copy.append(('htmlzip', 'sphinx_localmedia'))
+            types_to_copy.append("htmlzip")
         else:
             types_to_delete.append('htmlzip')
 
         if pdf:
-            types_to_copy.append(('pdf', 'sphinx_pdf'))
+            types_to_copy.append("pdf")
         else:
             types_to_delete.append('pdf')
 
         if epub:
-            types_to_copy.append(('epub', 'sphinx_epub'))
+            types_to_copy.append("epub")
         else:
             types_to_delete.append('epub')
 
-        for media_type, build_type in types_to_copy:
+        for media_type in types_to_copy:
+            # NOTE: here is where we get the correct FROM path to upload
             from_path = self.data.version.project.artifact_path(
                 version=self.data.version.slug,
-                type_=build_type,
+                type_=media_type,
             )
+
+            # Check if there are multiple files on source directories.
+            # These output format does not support multiple files yet.
+            # In case multiple files are found, the upload for this format is not performed.
+            #
+            # TODO: we should fail the build for these cases and clearly communicate this.
+            # to the user. To do this, we need to call this method (``store_build_artifacts``)
+            # since the ``execute`` method.
+            # It will allow us to just `raise BuildUserError` and handle it at
+            # Celery `on_failure` handler.
+            if media_type in ("htmlzip", "epub", "pdf"):
+                if len(os.listdir(from_path)) > 1:
+                    log.exception(
+                        "Multiple files are not supported for this format. "
+                        "Skipping this output format.",
+                        output_format=media_type,
+                    )
+                continue
+
             to_path = self.data.version.project.get_storage_path(
                 type_=media_type,
                 version_slug=self.data.version.slug,
