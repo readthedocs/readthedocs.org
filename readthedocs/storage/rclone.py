@@ -8,11 +8,13 @@ import os
 import subprocess
 
 import structlog
+from django.utils._os import safe_join as safe_join_fs
+from storages.utils import safe_join
 
 log = structlog.get_logger(__name__)
 
 
-class RClone:
+class BaseRClone:
 
     """
     RClone base class.
@@ -24,8 +26,7 @@ class RClone:
     This base class allows you to use the local file system as remote.
 
     :param remote_type: You can see the full list of supported providers at
-     https://rclone.org/#providers. Defaults to use the local filesystem
-     (https://rclone.org/local/).
+     https://rclone.org/#providers.
     :param rclone_bin: Binary name or path to the rclone binary.
      Defaults to ``rclone``.
     :param default_options: Options passed to the rclone command.
@@ -33,16 +34,21 @@ class RClone:
      Useful to pass secrets to the command, since all arguments and options will be logged.
     """
 
-    remote_type = "local"
+    remote_type = None
     rclone_bin = "rclone"
     default_options = [
-        #  Number of file transfers to run in parallel.
+        # Number of file transfers to run in parallel.
         "--transfers=8",
         # Skip based on checksum (if available) & size, not mod-time & size.
         "--checksum",
         "--verbose",
     ]
     env_vars = {}
+
+    # pylint: disable=no-self-use
+    def _build_target_path(self, path):
+        """Build the final target path for the remote."""
+        return path
 
     def build_target(self, path):
         """
@@ -54,6 +60,7 @@ class RClone:
 
         :param path: Path to the remote target.
         """
+        path = self._build_target_path(path)
         return f":{self.remote_type}:{path}"
 
     def execute(self, action, args, options=None):
@@ -74,7 +81,6 @@ class RClone:
             *args,
         ]
         env = os.environ.copy()
-        # env = {}
         env.update(self.env_vars)
         log.info("Executing rclone command.", command=command)
         log.debug("env", env=env)
@@ -102,11 +108,31 @@ class RClone:
         :params source: Local path to the source directory.
         :params destination: Remote path to the destination directory.
         """
-        # TODO: check if source can be a symlink.
         return self.execute("sync", args=[source, self.build_target(destination)])
 
 
-class RCloneS3Remote(RClone):
+class RCloneLocal(BaseRClone):
+
+    """
+    RClone remote implementation for the local file system.
+
+    Used for local testing only.
+
+    See https://rclone.org/local/.
+
+    :param location: Root directory where the files will be stored.
+    """
+
+    remote_type = "local"
+
+    def __init__(self, location):
+        self.location = location
+
+    def _build_target_path(self, path):
+        return safe_join_fs(self.location, path)
+
+
+class RCloneS3Remote(BaseRClone):
 
     """
     RClone remote implementation for S3.
@@ -139,11 +165,6 @@ class RCloneS3Remote(RClone):
         acl=None,
         endpoint=None,
     ):
-        super().__init__()
-
-        # When using minion, the region is set to None.
-        region = region or ""
-
         # rclone S3 options passed as env vars.
         # https://rclone.org/s3/#standard-options.
         self.env_vars = {
@@ -159,7 +180,6 @@ class RCloneS3Remote(RClone):
             self.env_vars["RCLONE_S3_ENDPOINT"] = endpoint
         self.bucket_name = bucket_name
 
-    def build_target(self, path):
+    def _build_target_path(self, path):
         """Overridden to prepend the bucket name to the path."""
-        path = f"{self.bucket_name}/{path}"
-        return super().build_target(path)
+        return safe_join(self.bucket_name, path)

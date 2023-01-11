@@ -8,7 +8,7 @@ from django.core.files.storage import FileSystemStorage
 from storages.utils import get_available_overwrite_name, safe_join
 
 from readthedocs.core.utils.filesystem import safe_open
-from readthedocs.storage.rclone import RClone
+from readthedocs.storage.rclone import RCloneLocal
 
 log = structlog.get_logger(__name__)
 
@@ -157,10 +157,15 @@ class BuildMediaStorageMixin:
 
     @cached_property
     def _rclone(self):
-        return RClone()
+        raise NotImplementedError
 
     def rclone_sync(self, source, destination):
         """Sync a directory recursively to storage using rclone sync."""
+        if destination in ("", "/"):
+            raise SuspiciousFileOperation("Syncing all storage cannot be right")
+
+        # TODO: borrow the symlink check from #9890 when merged.
+        # self._check_suspicious_path(source)
         return self._rclone.sync(source, destination)
 
     def join(self, directory, filepath):
@@ -196,6 +201,10 @@ class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
                 location = settings.PRODUCTION_MEDIA_ARTIFACTS
 
         super().__init__(location)
+
+    @cached_property
+    def _rclone(self):
+        return RCloneLocal(location=self.location)
 
     def get_available_name(self, name, max_length=None):
         """

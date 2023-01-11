@@ -22,7 +22,6 @@ from .mixins import OverrideHostnameMixin, S3PrivateBucketMixin
 
 
 class S3BuildMediaStorageMixin(BuildMediaStorageMixin, S3Boto3Storage):
-
     @cached_property
     def _rclone(self):
         provider = "AWS"
@@ -35,7 +34,7 @@ class S3BuildMediaStorageMixin(BuildMediaStorageMixin, S3Boto3Storage):
             bucket_name=self.bucket_name,
             access_key_id=self.access_key,
             secret_acces_key=self.secret_key,
-            region=self.region_name,
+            region=self.region_name or "",
             acl=self.default_acl,
             endpoint=self.endpoint_url,
             provider=provider,
