@@ -180,11 +180,11 @@ class BuildDirector:
 
         self.run_build_job("pre_build")
 
-        self.data.outcomes["html"] = self.build_html()
-        self.data.outcomes["search"] = self.is_type_sphinx()
-        self.data.outcomes["localmedia"] = self.build_htmlzip()
-        self.data.outcomes["pdf"] = self.build_pdf()
-        self.data.outcomes["epub"] = self.build_epub()
+        # Build all formats
+        self.build_html()
+        self.build_htmlzip()
+        self.build_pdf()
+        self.build_epub()
 
         self.run_build_job("post_build")
 
@@ -368,9 +368,6 @@ class BuildDirector:
         # Update the `Version.documentation_type` to match the doctype defined
         # by the config file. When using `build.commands` it will be `GENERIC`
         self.data.version.documentation_type = self.data.config.doctype
-
-        # Mark HTML as the only outcome available for this type of builder
-        self.data.outcomes["html"] = True
 
     def install_build_tools(self):
         """

@@ -7,7 +7,6 @@ rebuilding documentation.
 import os
 import signal
 import socket
-from collections import defaultdict
 from dataclasses import dataclass, field
 
 import structlog
@@ -109,8 +108,6 @@ class TaskData:
 
     # Dictionary returned from the API.
     build: dict = field(default_factory=dict)
-    # If HTML, PDF, ePub, etc formats were built.
-    outcomes: dict = field(default_factory=lambda: defaultdict(lambda: False))
     # Build data for analytics (telemetry).
     build_data: dict = field(default_factory=dict)
 
@@ -515,28 +512,38 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build['success'] = False
 
     def on_success(self, retval, task_id, args, kwargs):
-        html = self.data.outcomes['html']
-        search = self.data.outcomes['search']
-        localmedia = self.data.outcomes['localmedia']
-        pdf = self.data.outcomes['pdf']
-        epub = self.data.outcomes['epub']
-
         time_before_store_build_artifacts = timezone.now()
         # Store build artifacts to storage (local or cloud storage)
-        self.store_build_artifacts(
-            html=html,
-            search=search,
-            localmedia=localmedia,
-            pdf=pdf,
-            epub=epub,
-        )
+        #
+        # TODO: move ``store_build_artifacts`` inside ``execute`` so we can
+        # handle exceptions properly on ``on_failure``
+        self.store_build_artifacts()
         log.info(
             "Store build artifacts finished.",
             time=(timezone.now() - time_before_store_build_artifacts).seconds,
         )
 
-        # NOTE: we are updating the db version instance *only* when
         # HTML are built successfully.
+        html = os.path.exists(
+            self.data.project.artifact_path(
+                version=self.data.version.slug, type_="html"
+            )
+        )
+        localmedia = os.path.exists(
+            self.data.project.artifact_path(
+                version=self.data.version.slug, type_="htmlzip"
+            )
+        )
+        pdf = os.path.exists(
+            self.data.project.artifact_path(version=self.data.version.slug, type_="pdf")
+        )
+        epub = os.path.exists(
+            self.data.project.artifact_path(
+                version=self.data.version.slug, type_="epub"
+            )
+        )
+
+        # NOTE: we are updating the db version instance *only* when
         if html:
             try:
                 api_v2.version(self.data.version.pk).patch(
@@ -768,14 +775,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.project.has_valid_clone = True
         self.data.version.project.has_valid_clone = True
 
-    def store_build_artifacts(
-            self,
-            html=False,
-            localmedia=False,
-            search=False,
-            pdf=False,
-            epub=False,
-    ):
+    def store_build_artifacts(self):
         """
         Save build artifacts to "storage" using Django's storage API.
 
@@ -783,12 +783,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         such as S3, Azure storage or Google Cloud Storage.
 
         Remove build artifacts of types not included in this build (PDF, ePub, zip only).
-
-        :param html: whether to save HTML output
-        :param localmedia: whether to save localmedia (htmlzip) output
-        :param search: whether to save search artifacts
-        :param pdf: whether to save PDF output
-        :param epub: whether to save ePub output
         """
         log.info('Writing build artifacts to media storage')
         # NOTE: I don't remember why we removed this state from the Build
@@ -799,28 +793,18 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         types_to_copy = []
         types_to_delete = []
 
-        # HTML media
-        if html:
-            types_to_copy.append("html")
-
-        # Search media (JSON)
-        if search:
-            types_to_copy.append("json")
-
-        if localmedia:
-            types_to_copy.append("htmlzip")
-        else:
-            types_to_delete.append('htmlzip')
-
-        if pdf:
-            types_to_copy.append("pdf")
-        else:
-            types_to_delete.append('pdf')
-
-        if epub:
-            types_to_copy.append("epub")
-        else:
-            types_to_delete.append('epub')
+        artifact_types = ("html", "json", "htmlzip", "pdf", "epub")
+        for artifact_type in artifact_types:
+            if os.path.exists(
+                self.data.project.artifact_path(
+                    version=self.data.version.slug,
+                    type_=artifact_type,
+                )
+            ):
+                types_to_copy.append(artifact_type)
+            # Never delete HTML nor JSON (search index)
+            elif artifact_type not in ("html", "json"):
+                types_to_delete.append(artifact_type)
 
         for media_type in types_to_copy:
             # NOTE: here is where we get the correct FROM path to upload
