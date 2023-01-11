@@ -49,7 +49,6 @@ Content
   * ``:guilabel:`<your username>` dropdown``
 * Make sure that **all bullet list items end with a period**, and don't mix periods with no periods.
 
-
 Word List
 ---------
 
@@ -60,6 +59,14 @@ We have a specific way that we write common words:
   We avoid "host" and "platform" because they are slightly more ambiguous.
 * ``open source`` should be lower case, unless you are definitely referring to `OSI's Open Source Definition <https://opensource.org/osd>`.
 * ``Git`` should be upper case, except when referring to the command, when it should be written as `:program:\`git\``.
+
+Substitutions
+-------------
+
+The following substitutions are used in our documentation to guarantee consistency and make it easy to apply future changes.
+
+* ``|org_brand|`` - used for mentioning of |org_brand|
+* ``|com_brand|`` - used for mentioning of |com_brand|
 
 Glossary
 --------
