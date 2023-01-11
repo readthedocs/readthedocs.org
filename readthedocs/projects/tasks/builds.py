@@ -829,7 +829,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                         "Skipping this output format.",
                         output_format=media_type,
                     )
-                continue
+                    continue
 
             to_path = self.data.version.project.get_storage_path(
                 type_=media_type,
