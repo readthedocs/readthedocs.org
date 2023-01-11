@@ -65,8 +65,8 @@ Substitutions
 
 The following substitutions are used in our documentation to guarantee consistency and make it easy to apply future changes.
 
-* ``|org_brand|`` - used for mentioning of |org_brand|
-* ``|com_brand|`` - used for mentioning of |com_brand|
+* ``|org_brand|`` is used for mentioning of |org_brand|
+* ``|com_brand|`` is used for mentioning of |com_brand|
 
 Glossary
 --------
