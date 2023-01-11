@@ -38,6 +38,8 @@ class RClone:
     default_options = [
         #  Number of file transfers to run in parallel.
         "--transfers=8",
+        # Skip based on checksum (if available) & size, not mod-time & size.
+        "--checksum",
         "--verbose",
     ]
     env_vars = {}
@@ -80,7 +82,7 @@ class RClone:
             command,
             capture_output=True,
             env=env,
-            # TODO: Fail or let the called decide what to do?
+            # TODO: Fail or let the caller decide what to do?
             check=True,
         )
         log.debug(
