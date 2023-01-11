@@ -67,6 +67,8 @@ The following substitutions are used in our documentation to guarantee consisten
 
 * ``|org_brand|`` is used for mentioning of |org_brand|
 * ``|com_brand|`` is used for mentioning of |com_brand|
+* ``|git_providers_and|`` is used to mention currently support Git providers with "and". Example: |git_providers_and|
+* ``|git_providers_or|`` is used to mention currently support Git providers with "or". Example: |git_providers_or|
 
 Glossary
 --------
