@@ -1,5 +1,5 @@
-How to connect your Read the Docs account to your Git repository
-================================================================
+How to connect your Read the Docs account to your Git provider
+==============================================================
 
 In this how-to,
 you are shown the steps to connect an account on GitHub, Bitbucket, or GitLab with your Read the Docs account.
@@ -36,3 +36,18 @@ Now your connection is ready and you will be able to import and configure Git re
    :doc:`/connected-accounts`
      Learn about what a connected account with your Git provider is used for
      and the permissions required for connecting accounts.
+
+Removing a connection
+---------------------
+
+You may at any time delete the connection from Read the Docs.
+Delete the connection makes Read the Docs forget the immediate access,
+but you should also disable our OAuth Application from your Git provider.
+
+* On GitHub, navigate to `Authorized OAuth Apps`_.
+* On Bitbucket, navigate to `Application Authorizations`_.
+* On GitLab, navigat to `Applications`_
+
+.. _Authorized OAuth Apps: https://github.com/settings/applications
+.. _Application Authorizations: https://bitbucket.org/account/settings/app-authorizations/
+.. _Applications: https://gitlab.com/-/profile/applications
