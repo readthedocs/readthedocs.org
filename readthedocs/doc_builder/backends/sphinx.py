@@ -5,7 +5,6 @@ Sphinx_ backend for building docs.
 """
 import itertools
 import os
-import zipfile
 from glob import glob
 from pathlib import Path
 
@@ -410,20 +409,22 @@ class LocalMediaBuilder(BaseSphinx):
         if os.path.exists(target_file):
             os.remove(target_file)
 
+        # Move the directory into a temporal directory,
+        # so we can rename the directory for zip to use
+        # that prefix when zipping the files.
+        result = self.run("mktemp", "--directory")
+        tmp_dir = Path(result.output.strip())
+        dirname = f"{self.project.slug}-{self.version.slug}"
+        self.run("mv", self.old_artifact_path, str(tmp_dir / dirname))
         # Create a <slug>.zip file
-        os.chdir(self.old_artifact_path)
-        archive = zipfile.ZipFile(target_file, 'w')
-        for root, __, files in os.walk('.'):
-            for fname in files:
-                to_write = os.path.join(root, fname)
-                archive.write(
-                    filename=to_write,
-                    arcname=os.path.join(
-                        '{}-{}'.format(self.project.slug, self.version.slug),
-                        to_write,
-                    ),
-                )
-        archive.close()
+        self.run(
+            "zip",
+            "--recurse-paths",  # Include all files and directories.
+            "--symlinks",  # Don't resolve symlinks.
+            target_file,
+            dirname,
+            cwd=str(tmp_dir),
+        )
 
 
 class EpubBuilder(BaseSphinx):
