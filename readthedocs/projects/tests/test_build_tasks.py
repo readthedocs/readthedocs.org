@@ -661,6 +661,27 @@ class TestBuildTask(BuildEnvironmentBase):
                     bin_path=mock.ANY,
                 ),
                 mock.call(
+                    "zip",
+                    "-r",
+                    "/tmp/project-latest.zip",
+                    "_readthedocs/htmlzip",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "rm", "-r", "_readthedocs/htmlzip", cwd=mock.ANY, record=False
+                ),
+                mock.call(
+                    "mkdir", "-p", "_readthedocs/htmlzip", cwd=mock.ANY, record=False
+                ),
+                mock.call(
+                    "mv",
+                    "/tmp/project-latest.zip",
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
                     mock.ANY,
                     "-m",
                     "sphinx",
@@ -677,6 +698,8 @@ class TestBuildTask(BuildEnvironmentBase):
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 ),
+                # NOTE: pdf `mv` commands and others are not here because the
+                # PDF resulting file is not found in the process (`_post_build`)
                 mock.call(
                     mock.ANY,
                     "-c",
@@ -703,6 +726,24 @@ class TestBuildTask(BuildEnvironmentBase):
                     "_readthedocs/epub",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
+                ),
+                mock.call(
+                    "mv",
+                    mock.ANY,
+                    "/tmp/project-latest.epub",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call("rm", "-r", "_readthedocs/epub", cwd=mock.ANY, record=False),
+                mock.call(
+                    "mkdir", "-p", "_readthedocs/epub", cwd=mock.ANY, record=False
+                ),
+                mock.call(
+                    "mv",
+                    "/tmp/project-latest.epub",
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
                 ),
                 # FIXME: I think we are hitting this issue here:
                 # https://github.com/pytest-dev/pytest-mock/issues/234
