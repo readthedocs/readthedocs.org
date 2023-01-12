@@ -6,9 +6,6 @@ Sphinx_ backend for building docs.
 
 import itertools
 import os
-import shutil
-import tempfile
-import zipfile
 from glob import glob
 from pathlib import Path
 
@@ -21,7 +18,7 @@ from requests.exceptions import ConnectionError
 
 from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
-from readthedocs.core.utils.filesystem import safe_open, safe_rmtree
+from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
 from readthedocs.projects.models import Feature
@@ -382,31 +379,26 @@ class LocalMediaBuilder(BaseSphinx):
     def _post_build(self):
         """Internal post build to create the ZIP file from the HTML output."""
         sphinx_build_dir = os.path.join(self.project_path, self.sphinx_build_dir)
-        temp_zip_file = tempfile.mktemp(suffix=".zip")
+        temp_zip_file = f"/tmp/{self.project.slug}-{self.version.slug}.zip"
         target_file = os.path.join(
             sphinx_build_dir,
             f"{self.project.slug}.zip",
         )
 
-        archive = zipfile.ZipFile(temp_zip_file, "w")
-        for root, __, files in os.walk(sphinx_build_dir):
-            for fname in files:
-                to_write = os.path.join(root, fname)
-                archive.write(
-                    filename=to_write,
-                    arcname=os.path.join(
-                        f"{self.project.slug}-{self.version.slug}",
-                        os.path.relpath(
-                            to_write,
-                            sphinx_build_dir,
-                        ),
-                    ),
-                )
-        archive.close()
-
-        safe_rmtree(sphinx_build_dir)
-        os.makedirs(sphinx_build_dir)
-        shutil.move(temp_zip_file, target_file)
+        # FIXME: ``arcname`` is invalid with this command still, but it's close
+        self.run(
+            "zip",
+            "-r",
+            temp_zip_file,
+            self.sphinx_build_dir,
+            cwd=self.project_path,
+            record=False,
+        )
+        self.run("rm", "-r", self.sphinx_build_dir, cwd=self.project_path, record=False)
+        self.run(
+            "mkdir", "-p", self.sphinx_build_dir, cwd=self.project_path, record=False
+        )
+        self.run("mv", temp_zip_file, target_file, cwd=self.project_path, record=False)
 
 
 class EpubBuilder(BaseSphinx):
@@ -417,7 +409,7 @@ class EpubBuilder(BaseSphinx):
     def _post_build(self):
         """Internal post build to cleanup EPUB output directory and leave only one .epub file."""
         sphinx_build_dir = os.path.join(self.project_path, self.sphinx_build_dir)
-        temp_epub_file = tempfile.mktemp(suffix=".epub")
+        temp_epub_file = f"/tmp/{self.project.slug}-{self.version.slug}.epub"
         target_file = os.path.join(
             sphinx_build_dir,
             f"{self.project.slug}.epub",
@@ -428,10 +420,22 @@ class EpubBuilder(BaseSphinx):
             # NOTE: we currently support only one .epub per version
             epub_filepath = epub_sphinx_filepaths[0]
 
-            shutil.move(epub_filepath, temp_epub_file)
-            safe_rmtree(sphinx_build_dir)
-            os.makedirs(sphinx_build_dir)
-            shutil.move(temp_epub_file, target_file)
+            self.run(
+                "mv", epub_filepath, temp_epub_file, cwd=self.project_path, record=False
+            )
+            self.run(
+                "rm", "-r", self.sphinx_build_dir, cwd=self.project_path, record=False
+            )
+            self.run(
+                "mkdir",
+                "-p",
+                self.sphinx_build_dir,
+                cwd=self.project_path,
+                record=False,
+            )
+            self.run(
+                "mv", temp_epub_file, target_file, cwd=self.project_path, record=False
+            )
 
 
 class LatexBuildCommand(BuildCommand):
@@ -633,7 +637,7 @@ class PdfBuilder(BaseSphinx):
 
         # TODO: merge this with ePUB since it's pretty much the same
         sphinx_build_dir = os.path.join(self.project_path, self.sphinx_build_dir)
-        temp_pdf_file = tempfile.mktemp(suffix=".pdf")
+        temp_pdf_file = f"/tmp/{self.project.slug}-{self.version.slug}.pdf"
         target_file = os.path.join(
             sphinx_build_dir,
             self.pdf_file_name,
@@ -642,7 +646,23 @@ class PdfBuilder(BaseSphinx):
         # NOTE: we currently support only one .pdf per version
         pdf_sphinx_filepath = os.path.join(sphinx_build_dir, self.pdf_file_name)
         if os.path.exists(pdf_sphinx_filepath):
-            shutil.move(pdf_sphinx_filepath, temp_pdf_file)
-            safe_rmtree(sphinx_build_dir)
-            os.makedirs(sphinx_build_dir)
-            shutil.move(temp_pdf_file, target_file)
+            self.run(
+                "mv",
+                pdf_sphinx_filepath,
+                temp_pdf_file,
+                cwd=self.project_path,
+                record=False,
+            )
+            self.run(
+                "rm", "-r", self.sphinx_build_dir, cwd=self.project_path, record=False
+            )
+            self.run(
+                "mkdir",
+                "-p",
+                self.sphinx_build_dir,
+                cwd=self.project_path,
+                record=False,
+            )
+            self.run(
+                "mv", temp_pdf_file, target_file, cwd=self.project_path, record=False
+            )
