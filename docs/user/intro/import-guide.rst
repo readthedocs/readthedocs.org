@@ -33,7 +33,7 @@ these properties, and then click **Next** to
 Manually import your docs
 -------------------------
 
-If you have not :ref:`connected a Git provider account <guides/connecting-git-account:How to connect your Read the Docs account to your Git repository>`,
+If you have not :doc:`connected a Git provider account </guides/connecting-git-account>`,
 you will need to select **Import Manually**
 and enter the information for your repository yourself. You will also need to
 manually configure the webhook for your repository as well. When importing your
