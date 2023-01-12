@@ -626,6 +626,11 @@ class PdfBuilder(BaseSphinx):
 
     def _post_build(self):
         """Internal post build to cleanup PDF output directory and leave only one .pdf file."""
+
+        if not self.pdf_file_name:
+            log.info("PDF file was not generated/found.")
+            return
+
         # TODO: merge this with ePUB since it's pretty much the same
         sphinx_build_dir = os.path.join(self.project_path, self.sphinx_build_dir)
         temp_pdf_file = tempfile.mktemp(suffix=".pdf")

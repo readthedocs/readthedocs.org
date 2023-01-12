@@ -297,14 +297,8 @@ class TestBuildTask(BuildEnvironmentBase):
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    @mock.patch("readthedocs.doc_builder.backends.sphinx.PdfBuilder._post_build")
-    @mock.patch("readthedocs.doc_builder.backends.sphinx.LocalMediaBuilder._post_build")
-    @mock.patch("readthedocs.doc_builder.backends.sphinx.EpubBuilder._post_build")
     def test_successful_build(
         self,
-        epub_post_build,
-        htmlzip_post_build,
-        pdf_post_build,
         load_yaml_config,
         clean_build,
         send_notifications,
@@ -548,14 +542,8 @@ class TestBuildTask(BuildEnvironmentBase):
         }
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    @mock.patch("readthedocs.doc_builder.backends.sphinx.PdfBuilder._post_build")
-    @mock.patch("readthedocs.doc_builder.backends.sphinx.LocalMediaBuilder._post_build")
-    @mock.patch("readthedocs.doc_builder.backends.sphinx.EpubBuilder._post_build")
     def test_build_commands_executed(
         self,
-        epub_post_build,
-        htmlzip_post_build,
-        pdf_post_build,
         load_yaml_config,
     ):
         load_yaml_config.return_value = self._config_file(
