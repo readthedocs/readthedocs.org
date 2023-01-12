@@ -65,8 +65,8 @@ Substitutions
 
 The following substitutions are used in our documentation to guarantee consistency and make it easy to apply future changes.
 
-* ``|org_brand|`` is used for mentioning of |org_brand|
-* ``|com_brand|`` is used for mentioning of |com_brand|
+* ``|org_brand|`` is used for mentioning of .org: Example: |org_brand|
+* ``|com_brand|`` is used for mentioning of .com. Example: |com_brand|
 * ``|git_providers_and|`` is used to mention currently support Git providers with "and". Example: |git_providers_and|
 * ``|git_providers_or|`` is used to mention currently support Git providers with "or". Example: |git_providers_or|
 
