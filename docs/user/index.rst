@@ -81,6 +81,7 @@ to help you create fantastic documentation for your project.
    /integrations
    /custom-domains
    /pull-requests
+   /connected-accounts
    /downloadable-documentation
    /subprojects
    /single_version
@@ -154,8 +155,6 @@ and some of the core features of Read the Docs.
    /hosting
    /server-side-search/index
    /security-log
-
-   /connected-accounts
 
    /builds
    /build-customization
