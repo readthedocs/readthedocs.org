@@ -58,7 +58,6 @@ using_rtd_theme = (
     ) or 'html_theme' not in globals()
 )
 if using_rtd_theme:
-    theme = importlib.import_module('{{ html_theme_import }}')
     html_theme = '{{ html_theme }}'
     html_style = None
     html_theme_options = {}
