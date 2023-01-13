@@ -104,6 +104,33 @@ It looks like this:
 
 .. _sphinx-hoverxref: https://sphinx-hoverxref.readthedocs.io/
 
+
+Differentiating .org and .com
+-----------------------------
+
+When there are differences on .org and .com,
+you can use a ``note::`` admonition box with a definition list.
+Notice the use of :ref:`substitutions <style-guide:Substitutions>` in the example:
+
+.. code-block:: rst
+
+   .. note::
+
+      |org_brand|
+         You need to be *maintainer* of a subproject in order to choose it from your main project.
+
+      |com_brand|
+         You need to have *admin access* to the subproject in order to choose it from your main project.
+
+If the contents aren't suitable for a ``note::``, you can also use ``tabs::``.
+We are using `sphinx-tabs`_,
+however since `sphinx-design`_ also provides tabs,
+it should be noted that we don't use that feature of sphinx-design.
+
+.. _sphinx-tabs: https://github.com/executablebooks/sphinx-tabs/
+.. _sphinx-design: https://github.com/executablebooks/sphinx-design/
+
+
 Headlines
 ---------
 
