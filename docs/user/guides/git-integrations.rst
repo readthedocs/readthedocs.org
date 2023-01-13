@@ -10,14 +10,30 @@ In this guide, you will find the simple steps to integrating your Read the Docs 
    If something fails, you can still setup the integration manually.
 
 
+
+..
+  The following references were supposed to go inside tabs, which is
+  supported here:
+  https://github.com/readthedocs/readthedocs.org/pull/9675/files#diff-3f9d42f7636de1c3a557a6c7aa047b0eb45790e30eef04eea9eaff08318b75ce
+
+  But because of otherwise harmless warnings in ePub builds, we save this
+  as something that we can fix later once we can ignore those warnings or
+  sphinx-tabs or sphinx-design can avoid triggering the warning.
+
+  Refs comment from @humitos:
+  https://github.com/readthedocs/readthedocs.org/issues/9816#issuecomment-1369913128
+
+.. _webhook-integration-github:
+.. _webhook-integration-bitbucket:
+.. _webhook-integration-gitlab:
+
 Provider-specific instructions
 ------------------------------
+
 
 .. tabs::
 
    .. tab:: GitHub
-
-      .. _webhook-integration-github:
 
       * Go to the :guilabel:`Settings` page for your **GitHub project**
       * Click :guilabel:`Webhooks` > :guilabel:`Add webhook`
@@ -40,8 +56,6 @@ Provider-specific instructions
 
    .. tab:: Bitbucket
 
-      .. _webhook-integration-bitbucket:
-
       * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` > :guilabel:`Add webhook` page for your project
       * For **URL**, use the URL of the integration on Read the Docs,
         found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
@@ -49,8 +63,6 @@ Provider-specific instructions
       * Finish by clicking **Save**
 
    .. tab:: GitLab
-
-      .. _webhook-integration-gitlab:
 
       * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your GitLab project
       * For **URL**, use the URL of the integration on **Read the Docs project**,

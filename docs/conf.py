@@ -70,7 +70,7 @@ templates_path = ["_templates"]
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "9.1.1"
+version = "9.1.3"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
@@ -176,9 +176,12 @@ hoverxref_role_types = {
     "term": "tooltip",  # for glossaries
 }
 
+# See dev/style_guide.rst for documentation
 rst_epilog = """
 .. |org_brand| replace:: Read the Docs Community
 .. |com_brand| replace:: Read the Docs for Business
+.. |git_providers_and| replace:: GitHub, Bitbucket, and GitLab
+.. |git_providers_or| replace:: GitHub, Bitbucket, or GitLab
 """
 
 # Activate autosectionlabel plugin
