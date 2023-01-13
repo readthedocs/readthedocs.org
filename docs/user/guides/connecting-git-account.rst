@@ -2,16 +2,16 @@ How to connect your Read the Docs account to your Git provider
 ==============================================================
 
 In this how to article,
-you are shown the steps to connect an account on GitHub, Bitbucket, or GitLab with your Read the Docs account.
+you are shown the steps to connect an account on |git_providers_or| with your Read the Docs account.
 This is relevant if you have signed up for Read the Docs with your email
 or if you have signed up using a Git provider account and want to connect additional providers.
 
-If you are going to import repositories from GitHub, Bitbucket, or GitLab,
+If you are going to import repositories from |git_providers_or|,
 you should connect your Read the Docs account to your Git provider first.
 
 .. note::
 
-   If you signed up or logged in to Read the Docs with your GitHub, Bitbucket, or GitLab credentials,
+   If you signed up or logged in to Read the Docs with your |git_providers_or| credentials,
    you're all done. Your account is connected ✅️.
    You only need this how-to if you want to connect additional Git providers.
 
@@ -22,7 +22,7 @@ Adding a connection
 To connect your Read the Docs account with a Git provider,
 go to the main login menu: :guilabel:`<Username dropdown>` > :guilabel:`Settings` > :guilabel:`Connected Services`.
 
-From here, you'll be able to connect to your GitHub, Bitbucket or GitLab
+From here, you'll be able to connect to your |git_providers_or|
 account. This process will ask you to authorize an integration with Read the Docs.
 
 .. figure:: /img/oauth_github_dialog.png

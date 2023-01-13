@@ -5,7 +5,7 @@ In this article, we explain how connecting your Read the Docs account to one of 
 automatically configures your Git repository and your Read the Docs project.
 
 ✅️ Signed up with your Git provider?
-  If you signed up or logged in to Read the Docs with your GitHub, Bitbucket, or GitLab
+  If you signed up or logged in to Read the Docs with your |git_providers_or|
   credentials, you're all done. Your account is connected.
   The permissions that are granted are :ref:`explained below <connected-accounts:Permissions for connected accounts>`.
 ⬇️ Signed up with your email address?
@@ -13,7 +13,7 @@ automatically configures your Git repository and your Read the Docs project.
   you can add the connection to the Git provider afterwards.
   See: :doc:`/guides/connecting-git-account`
 
-If you are going to import repositories from GitHub, Bitbucket, or GitLab,
+If you are going to import repositories from |git_providers_or|,
 we recommend that you connect your Read the Docs account to your Git provider.
 
 Connecting your account allows for:
@@ -21,7 +21,7 @@ Connecting your account allows for:
 * Easy import of your repositories.
 * Automatic configuration of your repository :doc:`/integrations`.
   which allow Read the Docs to build your docs on every change to your repository
-* Logging into Read the Docs with your GitHub, Bitbucket, or GitLab credentials.
+* Logging into Read the Docs with your |git_providers_or| credentials.
 
 
 .. seealso::
@@ -41,11 +41,11 @@ Connecting your account allows for:
 How does the connection work?
 -----------------------------
 
-Read the Docs uses `OAuth`_ to connect to your account at GitHub, Bitbucket or GitLab,
+Read the Docs uses `OAuth`_ to connect to your account at |git_providers_or|,
 You are asked to grant permissions for Read the Docs to perform a number of actions on your behalf.
 
 At the same time, we use this process for authentication (login)
-since we trust that GitHub, Bitbucket or GitLab have verified your user account and email address.
+since we trust that |git_providers_or| have verified your user account and email address.
 
 By granting Read the Docs the requested permissions,
 we are issued a secret OAuth token from your Git provider.
