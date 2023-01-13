@@ -1,22 +1,70 @@
-How to connect your Read the Docs account to your Git repository
-================================================================
+How to connect your Read the Docs account to your Git provider
+==============================================================
+
+In this how to article,
+you are shown the steps to connect an account on GitHub, Bitbucket, or GitLab with your Read the Docs account.
+This is relevant if you have signed up for Read the Docs with your email
+or if you have signed up using a Git provider account and want to connect additional providers.
 
 If you are going to import repositories from GitHub, Bitbucket, or GitLab,
-you should connect your Read the Docs account to your repository host first.
+you should connect your Read the Docs account to your Git provider first.
 
 .. note::
 
    If you signed up or logged in to Read the Docs with your GitHub, Bitbucket, or GitLab credentials,
    you're all done. Your account is connected ✅️.
+   You only need this how-to if you want to connect additional Git providers.
 
-To connect a social account, go to your :guilabel:`<Username dropdown>` > :guilabel:`Settings` > :guilabel:`Connected Services`.
+
+Adding a connection
+-------------------
+
+To connect your Read the Docs account with a Git provider,
+go to the main login menu: :guilabel:`<Username dropdown>` > :guilabel:`Settings` > :guilabel:`Connected Services`.
 
 From here, you'll be able to connect to your GitHub, Bitbucket or GitLab
-account. This process will ask you to authorize a connection to Read the Docs,
-that allows us to read information about and clone your repositories.
+account. This process will ask you to authorize an integration with Read the Docs.
 
+.. figure:: /img/oauth_github_dialog.png
+   :width: 300px
+   :align: center
+   :alt: Screenshot of example OAuth dialog on GitHub
+
+   An example of how your OAuth dialog on GitHub may look.
+
+After approving the request,
+you will be taken back to Read the Docs.
+You will now see the account appear in the list of connected services.
+
+.. figure:: /img/screenshot_connected_services.png
+   :width: 600px
+   :align: center
+   :alt: Screenshot of Read the Docs "Connected Services" page with multiple services connected
+
+   Connected Services [#f1]_ [#f2]_ shows the list of Git providers that
+
+Now your connection is ready and you will be able to import and configure Git repositories with just a few clicks.
 
 .. seealso::
 
    :doc:`/connected-accounts`
-     Learn about the permissions required for connecting accounts and the benefits of the OAuth integration.
+     Learn about what a connected account with your Git provider is used for
+     and the permissions required for connecting accounts.
+
+Removing a connection
+---------------------
+
+You may at any time delete the connection from Read the Docs.
+Delete the connection makes Read the Docs forget the immediate access,
+but you should also disable our OAuth Application from your Git provider.
+
+* On GitHub, navigate to `Authorized OAuth Apps`_.
+* On Bitbucket, navigate to `Application Authorizations`_.
+* On GitLab, navigat to `Applications`_
+
+.. _Authorized OAuth Apps: https://github.com/settings/applications
+.. _Application Authorizations: https://bitbucket.org/account/settings/app-authorizations/
+.. _Applications: https://gitlab.com/-/profile/applications
+
+.. [#f1] `Connected Services on readthedocs.org <https://readthedocs.org/accounts/social/connections/>`_
+.. [#f2] `Connected Services on readthedocs.com <https://readthedocs.com/accounts/social/connections/>`_
