@@ -4,8 +4,8 @@ Development Installation
 .. meta::
    :description lang=en: Install a local development instance of Read the Docs with our step by step guide.
 
-These are development setup and :ref:`standards <install:Core team standards>` that are followed to by the core development team. If you are a contributor to Read the Docs,
-it might a be a good idea to follow these guidelines as well.
+These are development setup and :ref:`standards <install:Core team standards>` that are followed to by the core development team.
+If you are a contributor to Read the Docs, it might a be a good idea to follow these guidelines as well.
 
 Requirements
 ------------
@@ -175,7 +175,9 @@ you can use ``celery.contrib.rdb``:
 
 .. code-block:: python
 
-    from celery.contrib import rdb; rdb.set_trace()
+    from celery.contrib import rdb
+
+    rdb.set_trace()
 
 When the breakpoint is hit, the Celery worker will pause on the breakpoint and
 will alert you on STDOUT of a port to connect to. You can open a shell into the container
@@ -222,6 +224,17 @@ For others, the webhook will simply fail to connect when there are new commits t
 Troubleshooting
 ---------------
 
+.. warning::
+
+    The environment is developed and mainly tested on Docker Compose v1.x.
+    If you are running Docker Compose 2.x, please make sure you have ``COMPOSE_COMPATIBILITY=true`` set.
+    This is automatically loaded via the ``.env`` file.
+    If you want to ensure that the file is loaded, run:
+
+    .. code-block:: console
+
+        source .env
+
 Builds fail with a generic error
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -264,6 +277,7 @@ you have to follow these steps:
       docker tag readthedocs/build:ubuntu-22.04-2022.03.15 readthedocs/build:ubuntu-22.04
 
 Once this is done, you should be able to trigger a new build on that project and it should succeed.
+
 
 Core team standards
 -------------------

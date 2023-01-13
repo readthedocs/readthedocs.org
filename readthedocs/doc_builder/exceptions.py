@@ -42,6 +42,11 @@ class BuildUserError(BuildBaseException):
     )
 
 
+class BuildUserSkip(BuildUserError):
+    message = gettext_noop("This build was manually skipped using a command exit code.")
+    state = BUILD_STATE_CANCELLED
+
+
 class ProjectBuildsSkippedError(BuildUserError):
     message = gettext_noop('Builds for this project are temporarily disabled')
 
@@ -90,3 +95,16 @@ class MkDocsYAMLParseError(BuildUserError):
         'Please follow the user guide https://www.mkdocs.org/user-guide/configuration/ '
         'to configure the file properly.',
     )
+
+
+# TODO: improve messages for symlink errors with a more detailed error and include the `filepath`.
+class UnsupportedSymlinkFileError(BuildUserError):
+    message = gettext_noop("Symlinks are not fully supported")
+
+
+class FileIsNotRegularFile(UnsupportedSymlinkFileError):
+    pass
+
+
+class SymlinkOutsideBasePath(UnsupportedSymlinkFileError):
+    pass

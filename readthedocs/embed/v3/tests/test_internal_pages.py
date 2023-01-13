@@ -78,3 +78,20 @@ class TestEmbedAPIv3InternalPages:
             'content': content,
             'external': False,
         }
+
+    @pytest.mark.sphinx("html", srcdir=srcdir, freshenv=False)
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.open")
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.exists")
+    def test_s3_storage_decoded_filename(
+        self, storage_exists, storage_open, app, client
+    ):
+        storage_exists.return_value = True
+        storage_open.side_effect = self._mock_open('<div id="section">content</div>')
+
+        params = {
+            "url": "https://project.readthedocs.io/en/latest/My%20Spaced%20File.html#section",
+        }
+        response = client.get(self.api_url, params)
+        assert response.status_code == 200
+
+        storage_open.assert_called_once_with("html/project/latest/My Spaced File.html")

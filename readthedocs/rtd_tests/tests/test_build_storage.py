@@ -2,10 +2,9 @@ import os
 import shutil
 import tempfile
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from readthedocs.builds.storage import BuildMediaFileSystemStorage
-
 
 files_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'files')
 
@@ -40,15 +39,18 @@ class TestBuildMediaStorage(TestCase):
     def test_copy_directory(self):
         self.assertFalse(self.storage.exists('files/test.html'))
 
-        self.storage.copy_directory(files_dir, 'files')
-        self.assertTrue(self.storage.exists('files/test.html'))
-        self.assertTrue(self.storage.exists('files/conf.py'))
-        self.assertTrue(self.storage.exists('files/api.fjson'))
-        self.assertTrue(self.storage.exists('files/api/index.html'))
+        with override_settings(DOCROOT=files_dir):
+            self.storage.copy_directory(files_dir, "files")
+        self.assertTrue(self.storage.exists("files/test.html"))
+        self.assertTrue(self.storage.exists("files/conf.py"))
+        self.assertTrue(self.storage.exists("files/api.fjson"))
+        self.assertTrue(self.storage.exists("files/api/index.html"))
+        self.assertFalse(self.storage.exists("files/test-symlink.html"))
+        self.assertFalse(self.storage.exists("files/dir-symlink"))
 
     def test_sync_directory(self):
         tmp_files_dir = os.path.join(tempfile.mkdtemp(), 'files')
-        shutil.copytree(files_dir, tmp_files_dir)
+        shutil.copytree(files_dir, tmp_files_dir, symlinks=True)
         storage_dir = 'files'
 
         tree = [
@@ -57,7 +59,8 @@ class TestBuildMediaStorage(TestCase):
             'conf.py',
             'test.html',
         ]
-        self.storage.sync_directory(tmp_files_dir, storage_dir)
+        with override_settings(DOCROOT=tmp_files_dir):
+            self.storage.sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
         tree = [
@@ -66,7 +69,8 @@ class TestBuildMediaStorage(TestCase):
             'test.html',
         ]
         os.remove(os.path.join(tmp_files_dir, 'api.fjson'))
-        self.storage.sync_directory(tmp_files_dir, storage_dir)
+        with override_settings(DOCROOT=tmp_files_dir):
+            self.storage.sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
         tree = [
@@ -76,14 +80,16 @@ class TestBuildMediaStorage(TestCase):
             'test.html',
         ]
         shutil.rmtree(os.path.join(tmp_files_dir, 'api'))
-        self.storage.sync_directory(tmp_files_dir, storage_dir)
+        with override_settings(DOCROOT=tmp_files_dir):
+            self.storage.sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
     def test_delete_directory(self):
-        self.storage.copy_directory(files_dir, 'files')
-        dirs, files = self.storage.listdir('files')
-        self.assertEqual(dirs, ['api'])
-        self.assertCountEqual(files, ['api.fjson', 'conf.py', 'test.html'])
+        with override_settings(DOCROOT=files_dir):
+            self.storage.copy_directory(files_dir, "files")
+        dirs, files = self.storage.listdir("files")
+        self.assertEqual(dirs, ["api"])
+        self.assertCountEqual(files, ["api.fjson", "conf.py", "test.html"])
 
         self.storage.delete_directory('files/')
         _, files = self.storage.listdir('files')
@@ -97,7 +103,8 @@ class TestBuildMediaStorage(TestCase):
         self.assertEqual(files, [])
 
     def test_walk(self):
-        self.storage.copy_directory(files_dir, 'files')
+        with override_settings(DOCROOT=files_dir):
+            self.storage.copy_directory(files_dir, "files")
 
         output = list(self.storage.walk('files'))
         self.assertEqual(len(output), 2)

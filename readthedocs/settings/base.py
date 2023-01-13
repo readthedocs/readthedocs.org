@@ -45,6 +45,28 @@ class CommunityBaseSettings(Settings):
 
     # Debug settings
     DEBUG = True
+    RTD_FORCE_SHOW_DEBUG_TOOLBAR = False
+
+    @property
+    def DEBUG_TOOLBAR_CONFIG(self):
+        def _show_debug_toolbar(request):
+            return request.environ.get('SERVER_NAME', None) != 'testserver' and self.SHOW_DEBUG_TOOLBAR
+
+        return {
+            'SHOW_TOOLBAR_CALLBACK': _show_debug_toolbar,
+        }
+
+    @property
+    def SHOW_DEBUG_TOOLBAR(self):
+        """
+        Show django-debug-toolbar on DEBUG or if it's forced by RTD_FORCE_SHOW_DEBUG_TOOLBAR.
+
+        This will show the debug toolbar on:
+
+          - Docker local instance
+          - web-extra production instance
+        """
+        return self.DEBUG or self.RTD_FORCE_SHOW_DEBUG_TOOLBAR
 
     # Domains and URLs
     RTD_IS_PRODUCTION = False
@@ -228,6 +250,9 @@ class CommunityBaseSettings(Settings):
             apps.append('readthedocsext.spamfighting')
         if self.RTD_EXT_THEME_ENABLED:
             apps.append('readthedocsext.theme')
+        if self.SHOW_DEBUG_TOOLBAR:
+            apps.append('debug_toolbar')
+
         return apps
 
     @property
@@ -246,24 +271,31 @@ class CommunityBaseSettings(Settings):
     def USE_PROMOS(self):  # noqa
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
-    MIDDLEWARE = (
-        'readthedocs.core.middleware.NullCharactersMiddleware',
-        'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
-        'django.middleware.locale.LocaleMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.security.SecurityMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'dj_pagination.middleware.PaginationMiddleware',
-        'corsheaders.middleware.CorsMiddleware',
-        'csp.middleware.CSPMiddleware',
-        'readthedocs.core.middleware.ReferrerPolicyMiddleware',
-        'simple_history.middleware.HistoryRequestMiddleware',
-        'readthedocs.core.logs.ReadTheDocsRequestMiddleware',
-        'django_structlog.middlewares.CeleryMiddleware',
-    )
+    @property
+    def MIDDLEWARE(self):
+        middlewares = [
+            'readthedocs.core.middleware.NullCharactersMiddleware',
+            'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
+            'django.middleware.locale.LocaleMiddleware',
+            'django.middleware.common.CommonMiddleware',
+            'django.middleware.security.SecurityMiddleware',
+            'django.middleware.csrf.CsrfViewMiddleware',
+            'django.middleware.clickjacking.XFrameOptionsMiddleware',
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+            'django.contrib.messages.middleware.MessageMiddleware',
+            'dj_pagination.middleware.PaginationMiddleware',
+            'corsheaders.middleware.CorsMiddleware',
+            'csp.middleware.CSPMiddleware',
+            'readthedocs.core.middleware.ReferrerPolicyMiddleware',
+            'simple_history.middleware.HistoryRequestMiddleware',
+            'readthedocs.core.logs.ReadTheDocsRequestMiddleware',
+            'django_structlog.middlewares.CeleryMiddleware',
+        ]
+        if self.SHOW_DEBUG_TOOLBAR:
+            middlewares.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+        return middlewares
+
+
 
     AUTHENTICATION_BACKENDS = (
         # Needed to login by username in Django admin, regardless of `allauth`
@@ -319,6 +351,7 @@ class CommunityBaseSettings(Settings):
     STATICFILES_FINDERS = [
         'readthedocs.core.static.SelectiveFileSystemFinder',
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+        'readthedocs.core.finders.DebugToolbarFinder',
     ]
     PYTHON_MEDIA = False
 
@@ -580,11 +613,11 @@ class CommunityBaseSettings(Settings):
             'python': {
                 '2.7': '2.7.18',
                 '3.6': '3.6.15',
-                '3.7': '3.7.13',
-                '3.8': '3.8.13',
-                '3.9': '3.9.13',
-                '3.10': '3.10.4',
-                '3.11': '3.11.0b3',
+                '3.7': '3.7.15',
+                '3.8': '3.8.15',
+                '3.9': '3.9.15',
+                '3.10': '3.10.8',
+                '3.11': '3.11.0',
                 'pypy3.7': 'pypy3.7-7.3.9',
                 'pypy3.8': 'pypy3.8-7.3.9',
                 'pypy3.9': 'pypy3.9-7.3.9',
@@ -592,22 +625,25 @@ class CommunityBaseSettings(Settings):
                 'mambaforge-4.10': 'mambaforge-4.10.3-10',
             },
             'nodejs': {
-                '14': '14.19.3',
-                '16': '16.15.0',
-                '18': '18.2.0',
+                '14': '14.20.1',
+                '16': '16.18.0',
+                '18': '18.11.0',
+                '19': '19.0.0',
             },
             'rust': {
                 '1.55': '1.55.0',
                 '1.61': '1.61.0',
+                '1.64': '1.64.0',
             },
             'golang': {
-                '1.17': '1.17.10',
-                '1.18': '1.18.2',
+                '1.17': '1.17.13',
+                '1.18': '1.18.7',
+                '1.19': '1.19.2',
             },
         },
     }
     # Always point to the latest stable release.
-    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.10']
+    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.11']
 
     def _get_docker_memory_limit(self):
         try:
@@ -939,6 +975,8 @@ class CommunityBaseSettings(Settings):
 
     # MailerLite API for newsletter signups
     MAILERLITE_API_SUBSCRIBERS_URL = 'https://api.mailerlite.com/api/v2/subscribers'
+    MAILERLITE_API_ONBOARDING_GROUP_ID = None
+    MAILERLITE_API_ONBOARDING_GROUP_URL = None
     MAILERLITE_API_KEY = None
 
     RTD_EMBED_API_EXTERNAL_DOMAINS = [

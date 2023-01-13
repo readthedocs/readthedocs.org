@@ -103,7 +103,9 @@ class VersionQuerySetBase(models.QuerySet):
             if user.is_superuser:
                 queryset = self.all()
             else:
-                queryset = self._add_from_user_projects(queryset, user)
+                queryset = self._add_from_user_projects(
+                    queryset, user, admin=True, member=True
+                )
         if project:
             queryset = queryset.filter(project=project)
         if only_active:

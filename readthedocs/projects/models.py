@@ -52,7 +52,13 @@ from readthedocs.search.parsers import GenericParser, MkDocsParser, SphinxParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
-from .constants import MEDIA_TYPE_EPUB, MEDIA_TYPE_HTMLZIP, MEDIA_TYPE_PDF, MEDIA_TYPES
+from .constants import (
+    DOWNLOADABLE_MEDIA_TYPES,
+    MEDIA_TYPE_EPUB,
+    MEDIA_TYPE_HTMLZIP,
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPES,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -67,19 +73,22 @@ class ProjectRelationship(models.Model):
     """
     Project to project relationship.
 
-    This is used for subprojects
+    This is used for subprojects.
+
+    Terminology: We should say main project and subproject.
+    Saying "child" and "parent" only has internal, technical value.
     """
 
     parent = models.ForeignKey(
-        'projects.Project',
-        verbose_name=_('Parent'),
-        related_name='subprojects',
+        "projects.Project",
+        verbose_name=_("Main project"),
+        related_name="subprojects",
         on_delete=models.CASCADE,
     )
     child = models.ForeignKey(
-        'projects.Project',
-        verbose_name=_('Child'),
-        related_name='superprojects',
+        "projects.Project",
+        verbose_name=_("Subproject"),
+        related_name="superprojects",
         on_delete=models.CASCADE,
     )
     alias = models.SlugField(
@@ -442,7 +451,7 @@ class Project(models.Model):
         help_text=_('This project has been successfully cloned'),
     )
 
-    tags = TaggableManager(blank=True)
+    tags = TaggableManager(blank=True, ordering=["name"])
     history = ExtraHistoricalRecords()
     objects = ProjectQuerySet.as_manager()
 
@@ -566,16 +575,22 @@ class Project(models.Model):
         :return: the path to an item in storage
             (can be used with ``storage.url`` to get the URL)
         """
+        if type_ not in MEDIA_TYPES:
+            raise ValueError("Invalid content type.")
+
+        if include_file and type_ not in DOWNLOADABLE_MEDIA_TYPES:
+            raise ValueError("Invalid content type for downloadable file.")
+
         type_dir = type_
         # Add `external/` prefix for external versions
         if version_type == EXTERNAL:
             type_dir = f'{EXTERNAL}/{type_}'
 
-        folder_path = '{}/{}/{}'.format(
-            type_dir,
-            self.slug,
-            version_slug,
-        )
+        # Version slug may come from an unstrusted input,
+        # so we use join to avoid any path traversal.
+        # All other values are already validated.
+        folder_path = build_media_storage.join(f"{type_dir}/{self.slug}", version_slug)
+
         if include_file:
             extension = type_.replace('htmlzip', 'zip')
             return '{}/{}.{}'.format(
@@ -775,6 +790,9 @@ class Project(models.Model):
 
     @property
     def clean_repo(self):
+        # NOTE: this method is used only when the project is going to be clonned.
+        # It probably makes sense to do a data migrations and force "Import Project"
+        # form to validate it's an HTTPS URL when importing new ones
         if self.repo.startswith('http://github.com'):
             return self.repo.replace('http://github.com', 'https://github.com')
         return self.repo
@@ -801,47 +819,6 @@ class Project(models.Model):
     def artifact_path(self, type_, version=LATEST):
         """The path to the build html docs in the project."""
         return os.path.join(self.doc_path, 'artifacts', version, type_)
-
-    def full_build_path(self, version=LATEST):
-        """The path to the build html docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'html')
-
-    def full_latex_path(self, version=LATEST):
-        """The path to the build LaTeX docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'latex')
-
-    def full_epub_path(self, version=LATEST):
-        """The path to the build epub docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'epub')
-
-    # There is currently no support for building man/dash formats, but we keep
-    # the support there for existing projects. They might have already existing
-    # legacy builds.
-
-    def full_man_path(self, version=LATEST):
-        """The path to the build man docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'man')
-
-    def full_dash_path(self, version=LATEST):
-        """The path to the build dash docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'dash')
-
-    def full_json_path(self, version=LATEST):
-        """The path to the build json docs in the project."""
-        json_path = os.path.join(self.conf_dir(version), '_build', 'json')
-        return json_path
-
-    def full_singlehtml_path(self, version=LATEST):
-        """The path to the build singlehtml docs in the project."""
-        return os.path.join(self.conf_dir(version), '_build', 'singlehtml')
-
-    def rtd_build_path(self, version=LATEST):
-        """The destination path where the built docs are copied."""
-        return os.path.join(self.doc_path, 'rtd-builds', version)
-
-    def static_metadata_path(self):
-        """The path to the static metadata JSON settings file."""
-        return os.path.join(self.doc_path, 'metadata.json')
 
     def conf_file(self, version=LATEST):
         """Find a ``conf.py`` file in the project checkout."""
@@ -1315,6 +1292,10 @@ class Project(models.Model):
             .exclude(pk=self.pk)
         )
         return queryset
+
+    @property
+    def organization(self):
+        return self.organizations.first()
 
 
 class APIProject(Project):

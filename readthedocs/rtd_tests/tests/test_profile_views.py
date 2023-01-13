@@ -181,36 +181,44 @@ class ProfileViewsTest(TestCase):
 
         self.assertEqual(AuditLog.objects.count(), 48)
 
+        queryset = AuditLog.objects.filter(
+            log_user_id=self.user.pk,
+            action__in=[AuditLog.AUTHN, AuditLog.AUTHN_FAILURE, AuditLog.LOGOUT],
+        )
+
         # Show logs from the current user
-        # and for authn/authn_failure events only.
+        # and for authn/authn_failure/logout events only.
         resp = self.client.get(reverse('profiles_security_log'))
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 12)
+        self.assertQuerysetEqual(auditlogs, queryset)
 
         # Show logs filtered by project.
         resp = self.client.get(reverse('profiles_security_log') + '?project=project')
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 4)
+        auditlogs = resp.context_data["object_list"]
+        self.assertQuerysetEqual(auditlogs, queryset.filter(log_project_slug="project"))
 
         # Show logs filtered by IP.
-        resp = self.client.get(reverse('profiles_security_log') + '?ip=10.10.10.2')
+        ip = "10.10.10.2"
+        resp = self.client.get(reverse("profiles_security_log") + f"?ip={ip}")
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 6)
+        self.assertQuerysetEqual(auditlogs, queryset.filter(ip=ip))
 
         # Show logs filtered by action.
         resp = self.client.get(reverse('profiles_security_log') + '?action=authentication')
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 6)
+        self.assertQuerysetEqual(auditlogs, queryset.filter(action=AuditLog.AUTHN))
 
         # Show logs filtered by action.
         resp = self.client.get(reverse('profiles_security_log') + '?action=authentication-failure')
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 6)
+        auditlogs = resp.context_data["object_list"]
+        self.assertQuerysetEqual(
+            auditlogs, queryset.filter(action=AuditLog.AUTHN_FAILURE)
+        )
 
         # Show logs filtered by invalid values.
         for filter in ['ip', 'project']:
@@ -223,4 +231,4 @@ class ProfileViewsTest(TestCase):
         resp = self.client.get(reverse('profiles_security_log') + '?action=invalid')
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 12)
+        self.assertQuerysetEqual(auditlogs, queryset)

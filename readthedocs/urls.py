@@ -90,7 +90,8 @@ organization_urls = [
 api_urls = [
     re_path(r'^api/v2/', include('readthedocs.api.v2.urls')),
     # Keep `search_api` at root level, so the test does not fail for other API
-    re_path(r"^api/v2/search/$", include("readthedocs.search.api.v2.urls")),
+    path("api/v2/search/", include("readthedocs.search.api.v2.urls")),
+    path("api/v3/search/", include("readthedocs.search.api.v3.urls")),
     # Deprecated
     re_path(r'^api/v1/embed/', include('readthedocs.embed.urls')),
     re_path(r'^api/v2/embed/', include('readthedocs.embed.urls')),
@@ -164,7 +165,7 @@ if settings.READ_THE_DOCS_EXTENSIONS:
 if settings.ALLOW_ADMIN:
     groups.append(admin_urls)
 
-if settings.DEBUG:
+if settings.SHOW_DEBUG_TOOLBAR:
     import debug_toolbar
 
     debug_urls += [

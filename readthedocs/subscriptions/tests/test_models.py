@@ -1,10 +1,10 @@
-from datetime import datetime
-
 import django_dynamic_fixture as fixture
 from django.test import TestCase, override_settings
 from django.utils import timezone
+from django_dynamic_fixture import get
 from django_dynamic_fixture.ddf import BadDataError
-from stripe import Subscription as StripeSubscription
+from djstripe import models as djstripe
+from djstripe.enums import SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.models import Plan, Subscription
@@ -50,32 +50,28 @@ class SubscriptionTests(TestCase):
 
     def test_update(self):
         """Test update from stripe."""
-        stripe_subscription = StripeSubscription.construct_from(
-            {
-                'id': 'sub_foo',
-                'status': 'active',
-                'current_period_start': 120778389,
-                'current_period_end': 123456789,
-                'trial_end': 1475437877,
-                "items": {
-                    "object": "list",
-                    "data": [
-                        {
-                            "id": "si_KOcEsHCktPUedU",
-                            "object": "subscription_item",
-                            "price": {
-                                "id": "advanced",
-                            },
-                        },
-                    ],
-                },
-            },
-            None,
+        start_date = timezone.now()
+        end_date = timezone.now() + timezone.timedelta(days=30)
+        stripe_subscription = get(
+            djstripe.Subscription,
+            id="sub_foo",
+            status=SubscriptionStatus.active,
+            current_period_start=start_date,
+            current_period_end=end_date,
+            trial_end=end_date,
         )
+        price = get(djstripe.Price, id="advanced")
+        get(
+            djstripe.SubscriptionItem,
+            id="si_KOcEsHCktPUedU",
+            price=price,
+            subscription=stripe_subscription,
+        )
+
         subscription = fixture.get(
             Subscription,
-            stripe_id='sub_foo',
-            status='trialing',
+            stripe_id=stripe_subscription.id,
+            status=SubscriptionStatus.trialing,
         )
         Subscription.objects.update_from_stripe(
             rtd_subscription=subscription,
@@ -85,33 +81,16 @@ class SubscriptionTests(TestCase):
         self.assertEqual(subscription.status, 'active')
         self.assertEqual(
             subscription.end_date,
-            timezone.make_aware(datetime.fromtimestamp(123456789)),
+            end_date,
         )
         self.assertEqual(
             subscription.trial_end_date,
-            timezone.make_aware(datetime.fromtimestamp(1475437877)),
+            end_date,
         )
 
         # Cancel event
-        stripe_subscription = StripeSubscription.construct_from(
-            {
-                'id': 'sub_foo',
-                'status': 'unpaid',
-                "items": {
-                    "object": "list",
-                    "data": [
-                        {
-                            "id": "si_KOcEsHCktPUedU",
-                            "object": "subscription_item",
-                            "price": {
-                                "id": "advanced",
-                            },
-                        },
-                    ],
-                },
-            },
-            None,
-        )
+        stripe_subscription.status = SubscriptionStatus.unpaid
+        stripe_subscription.save()
         Subscription.objects.update_from_stripe(
             rtd_subscription=subscription,
             stripe_subscription=stripe_subscription,
@@ -120,34 +99,33 @@ class SubscriptionTests(TestCase):
         self.assertEqual(subscription.status, 'unpaid')
         self.assertEqual(
             subscription.trial_end_date,
-            timezone.make_aware(datetime.fromtimestamp(1475437877)),
+            end_date,
         )
 
     def test_replace_subscription(self):
         """Test update from stripe."""
-        stripe_subscription = StripeSubscription.construct_from(
-            {
-                'id': 'sub_bar',
-                'status': 'active',
-                "items": {
-                    "object": "list",
-                    "data": [
-                        {
-                            "id": "si_KOcEsHCktPUedU",
-                            "object": "subscription_item",
-                            "price": {
-                                "id": "advanced",
-                            },
-                        },
-                    ],
-                },
-            },
-            None,
+        start_date = timezone.now()
+        end_date = timezone.now() + timezone.timedelta(days=30)
+        stripe_subscription = get(
+            djstripe.Subscription,
+            id="sub_bar",
+            status=SubscriptionStatus.active,
+            current_period_start=start_date,
+            current_period_end=end_date,
+            trial_end=end_date,
         )
+        price = get(djstripe.Price, id="advanced")
+        get(
+            djstripe.SubscriptionItem,
+            id="si_KOcEsHCktPUedU",
+            price=price,
+            subscription=stripe_subscription,
+        )
+
         subscription = fixture.get(
             Subscription,
             stripe_id='sub_foo',
-            status='trialing',
+            status=SubscriptionStatus.trialing,
         )
         Subscription.objects.update_from_stripe(
             rtd_subscription=subscription,
