@@ -1,7 +1,7 @@
 How to connect your Read the Docs account to your Git provider
 ==============================================================
 
-In this how-to,
+In this how to article,
 you are shown the steps to connect an account on GitHub, Bitbucket, or GitLab with your Read the Docs account.
 This is relevant if you have signed up for Read the Docs with your email
 or if you have signed up using a Git provider account and want to connect additional providers.
