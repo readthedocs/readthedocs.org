@@ -87,6 +87,7 @@ to help you create fantastic documentation for your project.
    /single_version
    /science
    /commercial/organizations
+   /automatic-redirects
 
 .. toctree::
    :maxdepth: 2
@@ -239,7 +240,6 @@ out of your documentation and Read the Docs.
    feature-flags
 
    user-defined-redirects
-   automatic-redirects
 
    automation-rules
    canonical-urls
