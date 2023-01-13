@@ -22,6 +22,7 @@ from readthedocs.storage import build_commands_storage
 
 from ..permissions import APIPermission, APIRestrictedPermission, IsOwner
 from ..serializers import (
+    BuildAdminReadOnlySerializer,
     BuildAdminSerializer,
     BuildCommandSerializer,
     BuildSerializer,
@@ -224,10 +225,24 @@ class VersionViewSet(DisableListEndpoint, UserSelectViewSet):
 class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
-    serializer_class = BuildSerializer
-    admin_serializer_class = BuildAdminSerializer
     model = Build
     filterset_fields = ('project__slug', 'commit')
+
+    def get_serializer_class(self):
+        """
+        Return the proper serializer for UI and Admin.
+
+        This ViewSet has a sligtly different pattern since we want to
+        pre-process the `command` field before returning it to the user, and we
+        also want to have a specific serializer for admins.
+        """
+        if self.request.user.is_staff:
+            # Logic copied from `UserSelectViewSet.get_serializer_class`
+            # and extended to choose serializer from self.action
+            if self.action not in ["list", "retrieve"]:
+                return BuildAdminSerializer  # Staff write-only
+            return BuildAdminReadOnlySerializer  # Staff read-only
+        return BuildSerializer  # Non-staff
 
     @decorators.action(
         detail=False,

@@ -69,10 +69,11 @@ templates_path = ["_templates"]
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "9.1.0"
+version = "9.1.3"
 release = version
 exclude_patterns = ["_build", "shared"]
 default_role = "obj"
+intersphinx_timeout = 3  # 3 seconds timeout
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.10/", None),
     "django": (
@@ -191,6 +192,9 @@ notfound_context = {
 <p>Try using the search box or go to the homepage.</p>
 """,
 }
+linkcheck_retries = 2
+linkcheck_timeout = 1
+linkcheck_workers = 10
 linkcheck_ignore = [
     r"http://127\.0\.0\.1",
     r"http://localhost",
@@ -206,3 +210,6 @@ linkcheck_ignore = [
     # This page is under login
     r"https://readthedocs\.org/accounts/gold",
 ]
+
+# Disable epub mimetype warnings
+suppress_warnings = ["epub.unknown_project_files"]

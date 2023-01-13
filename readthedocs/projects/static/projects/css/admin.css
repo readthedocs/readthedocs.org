@@ -29,3 +29,6 @@
 #content .module-list.automation-rules .automation-rule button.automation-rule-down:before {
   content: "\f063";
 }
+.connected-services ul.socialaccount_providers li button.socialaccount-provider {
+  float: none;
+}
