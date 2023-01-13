@@ -63,7 +63,7 @@ Among all the multiple versions of docs,
 you can choose which is the "default" version for RTD to display,
 which usually corresponds to the git branch of the most recent official release from your project.
 
-Are "Permalinks" possible?
+Are "permalinks" possible?
 --------------------------
 
 You might be familiar with permalinks from blogging.
@@ -123,8 +123,8 @@ They are intended to be easy and short for people to type.
 You can reach these docs at https://docs.rtfd.io.
 
 
-Supported Top-Level Redirects
------------------------------
+Other top-Level redirects (legacy)
+----------------------------------
 
 .. note:: These "implicit" redirects are supported for legacy reasons.
           We will not be adding support for any more magic redirects.
