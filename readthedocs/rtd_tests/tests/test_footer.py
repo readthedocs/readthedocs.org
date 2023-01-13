@@ -330,7 +330,7 @@ class TestVersionCompareFooter(TestCase):
 
     def setUp(self):
         call_command("fixtures_projects")
-        self.pip = Project.objects.get(slug='pip')
+        self.pip = Project.objects.get(slug="pip")
         self.pip.versions.update(built=True)
         self.pip.show_version_warning = True
         self.pip.save()

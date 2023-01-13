@@ -25,7 +25,7 @@ class ImportedFileTests(TestCase):
 
     def setUp(self):
         call_command("fixtures_projects")
-        self.project = Project.objects.get(slug='pip')
+        self.project = Project.objects.get(slug="pip")
         self.version = self.project.versions.first()
 
         self.test_dir = os.path.join(base_dir, 'files')

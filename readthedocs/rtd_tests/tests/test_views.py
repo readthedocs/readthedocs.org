@@ -234,7 +234,7 @@ class BuildViewTests(TestCase):
     fixtures = ["eric"]
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
+        self.client.login(username="eric", password="test")
         call_command("fixtures_projects")
         self.pip = Project.objects.get(slug="pip")
         self.user = User.objects.get(username="eric")

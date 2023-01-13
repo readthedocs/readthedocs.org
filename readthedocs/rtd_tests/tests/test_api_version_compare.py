@@ -15,7 +15,7 @@ class VersionCompareTests(TestCase):
 
     def test_not_highest(self):
         project = Project.objects.get(slug='read-the-docs')
-        version = project.versions.get(slug='0.2.1')
+        version = project.versions.get(slug="0.2.1")
 
         data = get_version_compare_data(project, version)
         self.assertEqual(data['is_highest'], False)

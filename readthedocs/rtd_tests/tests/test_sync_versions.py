@@ -24,7 +24,7 @@ class TestSyncVersions(TestCase):
 
     def setUp(self):
         call_command("fixtures_projects")
-        self.user = User.objects.get(username='eric')
+        self.user = User.objects.get(username="eric")
         self.client.force_login(self.user)
         self.pip = Project.objects.get(slug='pip')
 

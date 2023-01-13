@@ -62,7 +62,7 @@ class BuildModelTests(TestCase):
             Build,
             project=self.project,
             version=self.version,
-            _config={'version': 1},
+            _config={"version": 1},
         )
         build_two = get(
             Build,

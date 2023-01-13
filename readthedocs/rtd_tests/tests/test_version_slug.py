@@ -31,7 +31,7 @@ class VersionSlugFieldTests(TestCase):
 
     def setUp(self):
         call_command("fixtures_projects")
-        self.pip = Project.objects.get(slug='pip')
+        self.pip = Project.objects.get(slug="pip")
 
     def test_saving(self):
         version = Version.objects.create(

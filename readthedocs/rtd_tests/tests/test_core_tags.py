@@ -31,7 +31,7 @@ class CoreTagsTests(TestCase):
         self.pip_latest_document_page_url = url_base.format(version='/en/latest/document.html')
 
         self.client.login(username='eric', password='test')
-        self.pip = Project.objects.get(slug='pip')
+        self.pip = Project.objects.get(slug="pip")
         self.pip_fr = Project.objects.create(name='PIP-FR', slug='pip-fr', language='fr', main_language_project=self.pip)
 
     def test_project_only(self):

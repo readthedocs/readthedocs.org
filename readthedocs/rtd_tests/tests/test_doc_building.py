@@ -91,7 +91,7 @@ class TestDockerBuildEnvironment(TestCase):
 
     def setUp(self):
         call_command("fixtures_projects")
-        self.project = Project.objects.get(slug='pip')
+        self.project = Project.objects.get(slug="pip")
         self.version = Version(slug='foo', verbose_name='foobar')
         self.project.versions.add(self.version, bulk=False)
 

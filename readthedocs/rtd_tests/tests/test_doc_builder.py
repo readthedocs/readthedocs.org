@@ -108,7 +108,7 @@ class SphinxBuilderTest(TestCase):
             python_env=python_env,
         )
 
-        base_sphinx.config_file = os.path.join(tmp_dir, 'config.py')
+        base_sphinx.config_file = os.path.join(tmp_dir, "config.py")
         params = base_sphinx.get_config_params()
         self.assertEqual(params['current_version'], '123')
         self.assertEqual(params['version'], self.version)

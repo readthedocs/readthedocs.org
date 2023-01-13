@@ -13,9 +13,9 @@ class VersionMixin:
     fixtures = ["eric"]
 
     def setUp(self):
-        self.client.login(username='eric', password='test')
+        self.client.login(username="eric", password="test")
         call_command("fixtures_projects")
-        self.pip = Project.objects.get(slug='pip')
+        self.pip = Project.objects.get(slug="pip")
         # Create a External Version. ie: pull/merge request Version.
         self.external_version = get(
             Version,
