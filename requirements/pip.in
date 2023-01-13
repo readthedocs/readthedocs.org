@@ -44,7 +44,11 @@ redis==3.5.3
 
 celery
 
-django-allauth
+# 0.52.0 requires creating a new email template:
+#  templates/account/email/acccount_already_exists_message.html
+# See https://github.com/readthedocs/readthedocs.org/pull/9853#discussion_r1060496492
+django-allauth==0.51.0
+
 requests-oauthlib
 
 GitPython

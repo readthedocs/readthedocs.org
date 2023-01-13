@@ -67,7 +67,9 @@
   <script src="{% static 'vendor/jquery-migrate.js' %}"></script>
   <script src="{% static 'vendor/jquery-ui.js' %}"></script>
   <script >
-    require('jquery');
+    // Set jQuery to its expected globals.
+    window.$ = require('jquery');
+    window.jQuery = window.$;
   </script>
 
   <script src="{% static 'javascript/base.js' %}"></script>
