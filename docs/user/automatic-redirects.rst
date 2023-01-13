@@ -2,7 +2,8 @@ Automatic redirects and incoming links
 ======================================
 
 Read the Docs makes it easier to create and manage incoming links by redirecting certain URLs automatically.
-This is an overview of the set of redirects that are fully supported and will work into the future.
+This article explains the redirects that are automatically active for all Read the Docs projects and how they are useful.
+Automatic redirects on Read the Docs are supported long-term.
 
 Redirecting to a page
 ---------------------
@@ -85,6 +86,11 @@ Good practice ✅
 * Use ``/en/latest/path/to/page.html`` if you want to be specific about the language.
 * If you move a page that likely has incoming references, :doc:`create a redirect rule </user-defined-redirects>`.
 * Links from other Sphinx projects should use :doc:`intersphinx </guides/intersphinx>`.
+* Use minimal page slugs that do not attract renaming suggestions.
+* When possible,
+  keep original file names rather than going for low-impact URL renaming.
+  Renaming an article's title is great for the reader and great for SEO,
+  but this does not have to involve the URL.
 
 Questionable practice 🟡
 ~~~~~~~~~~~~~~~~~~~~~~~~
