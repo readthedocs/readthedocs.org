@@ -1,3 +1,20 @@
+Version 9.2.0
+-------------
+
+:Date: January 16, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9898 <https://github.com/readthedocs/readthedocs.org/pull/9898>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: UI updates to Connected Accounts (`#9891 <https://github.com/readthedocs/readthedocs.org/pull/9891>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Replace DPA text with link to our presigned DPA (`#9883 <https://github.com/readthedocs/readthedocs.org/pull/9883>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.1.3 (`#9881 <https://github.com/readthedocs/readthedocs.org/pull/9881>`__)
+* `@sethfischer <https://github.com/sethfischer>`__: Docs: correct Python console block type (`#9880 <https://github.com/readthedocs/readthedocs.org/pull/9880>`__)
+* `@sethfischer <https://github.com/sethfischer>`__: Docs: update build customization Poetry example (`#9879 <https://github.com/readthedocs/readthedocs.org/pull/9879>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embedded JS: Conditionally inject jQuery (`#9861 <https://github.com/readthedocs/readthedocs.org/pull/9861>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPI: decode filepath before open them from S3 storage (`#9860 <https://github.com/readthedocs/readthedocs.org/pull/9860>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Additions to style guide - placeholders, seealso::, Diátaxis and new word list entry (`#9840 <https://github.com/readthedocs/readthedocs.org/pull/9840>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel and move explanation and how-tos around OAuth (Diátaxis) (`#9834 <https://github.com/readthedocs/readthedocs.org/pull/9834>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Split Custom Domains as Explanation and How-to Guide (Diátaxis) (`#9676 <https://github.com/readthedocs/readthedocs.org/pull/9676>`__)
+
 Version 9.1.3
 -------------
 
