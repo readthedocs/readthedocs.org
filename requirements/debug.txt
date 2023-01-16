@@ -52,7 +52,7 @@ stack-data==0.6.2
     # via ipython
 tomli==2.0.1
     # via ipdb
-traitlets==5.8.0
+traitlets==5.8.1
     # via
     #   ipython
     #   matplotlib-inline
