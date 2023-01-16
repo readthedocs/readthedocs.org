@@ -134,7 +134,7 @@ class TestBuildMediaStorage(TestCase):
             "test.html",
         ]
         with override_settings(DOCROOT=tmp_files_dir):
-            self.storage.rclone_sync(tmp_files_dir, storage_dir)
+            self.storage.rclone_sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
         tree = [
@@ -144,7 +144,7 @@ class TestBuildMediaStorage(TestCase):
         ]
         (tmp_files_dir / "api.fjson").unlink()
         with override_settings(DOCROOT=tmp_files_dir):
-            self.storage.rclone_sync(tmp_files_dir, storage_dir)
+            self.storage.rclone_sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
         tree = [
@@ -153,7 +153,7 @@ class TestBuildMediaStorage(TestCase):
         ]
         shutil.rmtree(tmp_files_dir / "api")
         with override_settings(DOCROOT=tmp_files_dir):
-            self.storage.rclone_sync(tmp_files_dir, storage_dir)
+            self.storage.rclone_sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
     @pytest.mark.skip(
@@ -166,7 +166,7 @@ class TestBuildMediaStorage(TestCase):
 
         with override_settings(DOCROOT=tmp_dir):
             with pytest.raises(SuspiciousFileOperation, match="symbolic link"):
-                self.storage.rclone_sync(tmp_symlink_dir, "files")
+                self.storage.rclone_sync_directory(tmp_symlink_dir, "files")
 
     @pytest.mark.skip(
         "Waiting for https://github.com/readthedocs/readthedocs.org/pull/9890"
@@ -178,4 +178,4 @@ class TestBuildMediaStorage(TestCase):
 
         with override_settings(DOCROOT=tmp_docroot):
             with pytest.raises(SuspiciousFileOperation, match="outside the docroot"):
-                self.storage.rclone_sync(tmp_dir, "files")
+                self.storage.rclone_sync_directory(tmp_dir, "files")

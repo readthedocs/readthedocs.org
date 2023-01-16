@@ -159,7 +159,7 @@ class BuildMediaStorageMixin:
     def _rclone(self):
         raise NotImplementedError
 
-    def rclone_sync(self, source, destination):
+    def rclone_sync_directory(self, source, destination):
         """Sync a directory recursively to storage using rclone sync."""
         if destination in ("", "/"):
             raise SuspiciousFileOperation("Syncing all storage cannot be right")

@@ -31,13 +31,15 @@ class BaseRClone:
      Defaults to ``rclone``.
     :param default_options: Options passed to the rclone command.
     :parm env_vars: Environment variables used when executing the rclone command.
-     Useful to pass secrets to the command, since all arguments and options will be logged.
+     Useful to pass secrets to the ``rclone`  command, since all arguments and
+     options will be logged.
     """
 
     remote_type = None
     rclone_bin = "rclone"
     default_options = [
         # Number of file transfers to run in parallel.
+        # Default value is 4.
         "--transfers=8",
         # Skip based on checksum (if available) & size, not mod-time & size.
         "--checksum",
@@ -46,13 +48,13 @@ class BaseRClone:
     env_vars = {}
 
     # pylint: disable=no-self-use
-    def _build_target_path(self, path):
-        """Build the final target path for the remote."""
+    def _get_target_path(self, path):
+        """Get the final target path for the remote."""
         return path
 
-    def build_target(self, path):
+    def get_target(self, path):
         """
-        Build the proper target using the current remote type.
+        Get the proper target using the current remote type.
 
         We start the remote with `:` to create it on the fly,
         instead of having to create a configuration file.
@@ -60,21 +62,21 @@ class BaseRClone:
 
         :param path: Path to the remote target.
         """
-        path = self._build_target_path(path)
+        path = self._get_target_path(path)
         return f":{self.remote_type}:{path}"
 
-    def execute(self, action, args, options=None):
+    def execute(self, subcommand, args, options=None):
         """
         Execute an rclone subcommand.
 
-        :param action: Name of the subcommand.
+        :param subcommand: Name of the subcommand.
         :param list args: List of positional arguments passed the to command.
         :param list options: List of options passed to the command.
         """
         options = options or []
         command = [
             self.rclone_bin,
-            action,
+            subcommand,
             *self.default_options,
             *options,
             "--",
@@ -108,7 +110,7 @@ class BaseRClone:
         :params source: Local path to the source directory.
         :params destination: Remote path to the destination directory.
         """
-        return self.execute("sync", args=[source, self.build_target(destination)])
+        return self.execute("sync", args=[source, self.get_target(destination)])
 
 
 class RCloneLocal(BaseRClone):
@@ -128,7 +130,7 @@ class RCloneLocal(BaseRClone):
     def __init__(self, location):
         self.location = location
 
-    def _build_target_path(self, path):
+    def _get_target_path(self, path):
         return safe_join_fs(self.location, path)
 
 
@@ -180,6 +182,6 @@ class RCloneS3Remote(BaseRClone):
             self.env_vars["RCLONE_S3_ENDPOINT"] = endpoint
         self.bucket_name = bucket_name
 
-    def _build_target_path(self, path):
+    def _get_target_path(self, path):
         """Overridden to prepend the bucket name to the path."""
         return safe_join(self.bucket_name, path)

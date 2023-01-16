@@ -834,7 +834,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
             try:
                 if self.data.project.has_feature(Feature.USE_RCLONE):
-                    build_media_storage.rclone_sync(from_path, to_path)
+                    build_media_storage.rclone_sync_directory(from_path, to_path)
                 else:
                     build_media_storage.sync_directory(from_path, to_path)
             except Exception:
