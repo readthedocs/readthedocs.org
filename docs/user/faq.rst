@@ -12,8 +12,8 @@ Frequently Asked Questions
 .. Old reference
 .. _My project isn't building correctly:
 
-Why is my project "failing"?
-----------------------------
+Why does my project have status "failing"?
+------------------------------------------
 
 Projects have the status "failing" because something in the build process has failed.
 This can be because the project is not correctly configured,
