@@ -14,6 +14,7 @@ from djstripe.enums import SubscriptionStatus
 from vanilla import DetailView, GenericView
 
 from readthedocs.organizations.views.base import OrganizationMixin
+from readthedocs.subscriptions.constants import TERMINAL_STRIPE_STATUS
 from readthedocs.subscriptions.forms import PlanForm
 from readthedocs.subscriptions.models import Plan
 from readthedocs.subscriptions.utils import get_or_create_stripe_customer
@@ -62,7 +63,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
         stripe_subscription = self.get_object()
         if (
             not stripe_subscription
-            or stripe_subscription.status != SubscriptionStatus.canceled
+            or stripe_subscription.status not in TERMINAL_STRIPE_STATUS
         ):
             raise Http404()
 
@@ -113,6 +114,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["terminal_stripe_status"] = TERMINAL_STRIPE_STATUS
         stripe_subscription = self.get_object()
         if stripe_subscription:
             context[
