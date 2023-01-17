@@ -97,7 +97,7 @@ to help you create fantastic documentation for your project.
    /guides/administrators
    /guides/developers
    /examples
-   Frequently Asked Questions </faq>
+   /faq
 
 
 .. toctree::
@@ -141,6 +141,7 @@ and some of the core features of Read the Docs.
 
 * **Troubleshooting**:
   :doc:`/support` |
+  :doc:`/faq`
 
 .. toctree::
    :maxdepth: 1
