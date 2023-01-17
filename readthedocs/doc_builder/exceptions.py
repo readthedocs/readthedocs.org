@@ -66,6 +66,12 @@ class BuildCancelled(BuildUserError):
     state = BUILD_STATE_CANCELLED
 
 
+class PDFNotFound(BuildUserError):
+    message = gettext_noop(
+        'PDF file was not generated/found in "_readthedocs/pdf" output directory.'
+    )
+
+
 class MkDocsYAMLParseError(BuildUserError):
     GENERIC_WITH_PARSE_EXCEPTION = gettext_noop(
         'Problem parsing MkDocs YAML configuration. {exception}',
