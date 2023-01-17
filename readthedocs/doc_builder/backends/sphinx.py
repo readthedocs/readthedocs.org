@@ -38,6 +38,8 @@ class BaseSphinx(BaseBuilder):
 
     """The parent for most sphinx builders."""
 
+    # Sphinx reads and parses all source files before it can write
+    # an output file, the parsed source files are cached as "doctree pickles".
     sphinx_doctrees_dir = "_build/doctrees"
 
     # Output directory relative to where the repository was cloned
@@ -500,7 +502,6 @@ class PdfBuilder(BaseSphinx):
     def build(self):
         self.run(
             *self.get_sphinx_cmd(),
-            # New arguments for standardization
             "-T",
             "-E",
             *self.sphinx_parallel_arg(),
@@ -526,7 +527,7 @@ class PdfBuilder(BaseSphinx):
 
         tex_files = glob(os.path.join(self.absolute_output_dir, '*.tex'))
         if not tex_files:
-            raise BuildUserError('No TeX files were found')
+            raise BuildUserError("No TeX files were found.")
 
         # Run LaTeX -> PDF conversions
         # Build PDF with ``latexmk`` if Sphinx supports it, otherwise fallback
