@@ -18,6 +18,7 @@ from slumber.exceptions import HttpClientError
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
+    ARTIFACT_TYPES,
     BUILD_FINAL_STATES,
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
@@ -28,6 +29,7 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
+    UNDELETABLE_ARTIFACT_TYPES,
 )
 from readthedocs.builds.models import APIVersion, Build
 from readthedocs.builds.signals import build_complete
@@ -793,8 +795,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         types_to_copy = []
         types_to_delete = []
 
-        artifact_types = ("html", "json", "htmlzip", "pdf", "epub")
-        for artifact_type in artifact_types:
+        for artifact_type in ARTIFACT_TYPES:
             if os.path.exists(
                 self.data.project.artifact_path(
                     version=self.data.version.slug,
@@ -803,7 +804,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             ):
                 types_to_copy.append(artifact_type)
             # Never delete HTML nor JSON (search index)
-            elif artifact_type not in ("html", "json"):
+            elif artifact_type not in UNDELETABLE_ARTIFACT_TYPES:
                 types_to_delete.append(artifact_type)
 
         for media_type in types_to_copy:
