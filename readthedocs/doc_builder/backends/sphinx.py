@@ -525,7 +525,7 @@ class PdfBuilder(BaseSphinx):
             bin_path=self.python_env.venv_bin(),
         )
 
-        tex_files = glob(os.path.join(self.absolute_output_dir, '*.tex'))
+        tex_files = glob(os.path.join(self.absolute_output_dir, "*.tex"))
         if not tex_files:
             raise BuildUserError("No TeX files were found.")
 
