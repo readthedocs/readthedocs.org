@@ -9,11 +9,16 @@ Frequently Asked Questions
   Formulate them as a question and an answer.
   Consider that the answer is best as a reference to another place in the documentation.
 
+
+Building and publishing your project
+------------------------------------
+
+
 .. Old reference
 .. _My project isn't building correctly:
 
 Why does my project have status "failing"?
-------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Projects have the status "failing" because something in the build process has failed.
 This can be because the project is not correctly configured,
@@ -41,7 +46,7 @@ you can use an important word or message from the error to search for a solution
 .. _Help, my build passed but my documentation page is 404 Not Found!:
 
 My build says "passed" but I get a 404 page - why?
---------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This often happens because you don't have an `index.html` file being generated.
 
@@ -56,12 +61,76 @@ Make sure you have one of the following files at the top level of your documenta
    you can navigate to a specific page that you know is part of the documentation build,
    for example `/en/latest/README.html`.
 
+.. Old reference
+.. _I get import errors on libraries that depend on C modules:
+
+Why do I get import errors from libraries depending on C modules?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+
+   Another use case for this is when you have a module with a C extension.
+
+This happens because the build system does not have the dependencies for
+building your project, such as C libraries needed by some Python packages (e.g.
+``libevent`` or ``mysql``). For libraries that cannot be :ref:`installed via apt
+<config-file/v2:build.apt_packages>` in the builder there is another way to
+successfully build the documentation despite missing dependencies.
+
+With Sphinx you can use the built-in `autodoc_mock_imports`_ for mocking. If
+such libraries are installed via ``setup.py``, you also will need to remove all
+the C-dependent libraries from your ``install_requires`` in the RTD environment.
+
+.. _autodoc_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
+
+Where do I need to put my docs for RTD to find it?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Read the Docs will crawl your project looking for a ``conf.py``. Where it finds the ``conf.py``,
+it will run ``sphinx-build`` in that directory.
+So as long as you only have one set of sphinx documentation in your project, it should Just Work.
+
+You can specify an exact path to your documentation using a Read the Docs :doc:`config-file/index`.
+
+How can I avoid search results having a deprecated version of my docs?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If readers search something related to your docs in Google, it will probably return the most relevant version of your documentation.
+It may happen that this version is already deprecated and you want to stop Google indexing it as a result,
+and start suggesting the latest (or newer) one.
+
+To accomplish this, you can add a ``robots.txt`` file to your documentation's root so it ends up served at the root URL of your project
+(for example, https://yourproject.readthedocs.io/robots.txt).
+We have documented how to set this up in our :ref:`hosting:Custom robots.txt Pages` docs.
+
+
+How do I change the version slug of my project?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We don't support allowing folks to change the slug for their versions.
+But you can rename the branch/tag to achieve this.
+If that isn't enough,
+you can request the change sending an email to support@readthedocs.org.
+
+
+What commit of Read the Docs is in production?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We deploy readthedocs.org from the ``rel`` branch in our GitHub repository.
+You can see the latest commits that have been deployed by looking on GitHub: https://github.com/readthedocs/readthedocs.org/commits/rel
+
+We also keep an up-to-date :doc:`changelog </changelog>`.
+
+
+
+Additional features and configuration
+-------------------------------------
 
 .. Old reference
 .. _My documentation requires additional dependencies:
 
 How do I add additional software dependencies for my documentation?
--------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For most Python dependencies,
 you can can specify a requirements file which details your dependencies.
@@ -94,7 +163,7 @@ You can also set your project documentation to install your Python project itsel
 .. _My project requires some additional settings:
 
 Can I have access to additional features or settings?
------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If this is just a dependency issue,
 see :ref:`faq:My documentation requires additional dependencies`.
@@ -104,32 +173,8 @@ To enable these settings,
 please send an email to support@readthedocs.org and we will change the settings for the project.
 Read more about these settings :doc:`here <feature-flags>`.
 
-
-.. Old reference
-.. _I get import errors on libraries that depend on C modules:
-
-Why do I get import errors from libraries depending on C modules?
------------------------------------------------------------------
-
-.. note::
-
-   Another use case for this is when you have a module with a C extension.
-
-This happens because the build system does not have the dependencies for
-building your project, such as C libraries needed by some Python packages (e.g.
-``libevent`` or ``mysql``). For libraries that cannot be :ref:`installed via apt
-<config-file/v2:build.apt_packages>` in the builder there is another way to
-successfully build the documentation despite missing dependencies.
-
-With Sphinx you can use the built-in `autodoc_mock_imports`_ for mocking. If
-such libraries are installed via ``setup.py``, you also will need to remove all
-the C-dependent libraries from your ``install_requires`` in the RTD environment.
-
-.. _autodoc_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
-
-
 How do I change behavior when building with Read the Docs?
-----------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When RTD builds your project, it sets the :envvar:`READTHEDOCS` environment
 variable to the string ``'True'``. So within your Sphinx :file:`conf.py` file, you
@@ -150,9 +195,41 @@ environment, and will be set to ``True`` when building on RTD::
     {% endif %}
 
 
+I want comments in my docs
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+RTD doesn't have explicit support for this.
+That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on RTD.
+
+.. _Disqus: https://disqus.com/
+.. _sphinxcontrib-disqus: https://pypi.python.org/pypi/sphinxcontrib-disqus
+
+Can I remove advertising from my documentation?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+See :ref:`Opting out of advertising <advertising/ethical-advertising:Opting Out>`.
+
+
+How do I change my project slug (the URL your docs are served at)?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+We don't support allowing folks to change the slug for their project.
+You can update the name which is shown on the site,
+but not the actual URL that documentation is served.
+
+The main reason for this is that all existing URLs to the content will break.
+You can delete and re-create the project with the proper name to get a new slug,
+but you really shouldn't do this if you have existing inbound links,
+as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
+
+If that isn't enough,
+you can request the change sending an email to support@readthedocs.org.
+
+Big projects
+------------
 
 How do I host multiple projects on one custom domain?
------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We support the concept of subprojects, which allows multiple projects to share a
 single domain. If you add a subproject to a project, that documentation will
@@ -172,19 +249,18 @@ You can add subprojects in the project admin dashboard.
 
 For details on custom domains, see our documentation on :doc:`/custom-domains`.
 
+How do I support multiple languages of documentation?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Where do I need to put my docs for RTD to find it?
---------------------------------------------------
+See the section on :doc:`localization`.
 
-Read the Docs will crawl your project looking for a ``conf.py``. Where it finds the ``conf.py``,
-it will run ``sphinx-build`` in that directory.
-So as long as you only have one set of sphinx documentation in your project, it should Just Work.
 
-You can specify an exact path to your documentation using a Read the Docs :doc:`config-file/index`.
 
+Sphinx
+------
 
 I want to use the Blue/Default Sphinx theme
--------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We think that our theme is badass,
 and better than the default for many reasons.
@@ -196,61 +272,23 @@ The value of this doesn't matter, and can be set to ``/default.css`` for default
 
 
 I want to use the Read the Docs theme locally
----------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There is a repository for that: https://github.com/readthedocs/sphinx_rtd_theme.
 Simply follow the instructions in the README.
 
 
 Image scaling doesn't work in my documentation
------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Image scaling in docutils depends on PIL. PIL is installed in the system that RTD runs on. However, if you are using the virtualenv building option, you will likely need to include PIL in your requirements for your project.
 
 
-I want comments in my docs
---------------------------
-
-RTD doesn't have explicit support for this.
-That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on RTD.
-
-.. _Disqus: https://disqus.com/
-.. _sphinxcontrib-disqus: https://pypi.python.org/pypi/sphinxcontrib-disqus
-
-
-How do I support multiple languages of documentation?
------------------------------------------------------
-
-See the section on :doc:`localization`.
-
-
-Does Read the Docs work well with "legible" docstrings?
--------------------------------------------------------
-
-Yes. One criticism of Sphinx is that its annotated docstrings are too
-dense and difficult for humans to read. In response, many projects
-have adopted customized docstring styles that are simultaneously
-informative and legible. The
-`NumPy <https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard>`__
-and
-`Google <https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings>`__
-styles are two popular docstring formats.  Fortunately, the default
-Read the Docs theme handles both formats just fine, provided
-your ``conf.py`` specifies an appropriate Sphinx extension that
-knows how to convert your customized docstrings.  Two such extensions
-are `numpydoc <https://github.com/numpy/numpydoc>`_ and
-`napoleon <http://sphinxcontrib-napoleon.readthedocs.io>`_. Only
-``napoleon`` is able to handle both docstring formats. Its default
-output more closely matches the format of standard Sphinx annotations,
-and as a result, it tends to look a bit better with the default theme.
-
-.. note::
-
-   To use these extensions you need to specify the dependencies on your project
-   by following this :ref:`guide <guides/reproducible-builds:using a configuration file>`.
+Python
+------
 
 Can I document a Python package that is not at the root of my repository?
--------------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Yes. The most convenient way to access a Python package for example via
 `Sphinx's autoapi`_ in your documentation is to use the *Install your project
@@ -278,9 +316,34 @@ using a Read the Docs :doc:`config-file/index`.
 .. _Sphinx's autoapi: http://sphinx-doc.org/ext/autodoc.html
 .. _pip requirements file: https://pip.pypa.io/en/stable/user_guide.html#requirements-files
 
+Does Read the Docs work well with "legible" docstrings?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Yes. One criticism of Sphinx is that its annotated docstrings are too
+dense and difficult for humans to read. In response, many projects
+have adopted customized docstring styles that are simultaneously
+informative and legible. The
+`NumPy <https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard>`__
+and
+`Google <https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings>`__
+styles are two popular docstring formats.  Fortunately, the default
+Read the Docs theme handles both formats just fine, provided
+your ``conf.py`` specifies an appropriate Sphinx extension that
+knows how to convert your customized docstrings.  Two such extensions
+are `numpydoc <https://github.com/numpy/numpydoc>`_ and
+`napoleon <http://sphinxcontrib-napoleon.readthedocs.io>`_. Only
+``napoleon`` is able to handle both docstring formats. Its default
+output more closely matches the format of standard Sphinx annotations,
+and as a result, it tends to look a bit better with the default theme.
+
+.. note::
+
+   To use these extensions you need to specify the dependencies on your project
+   by following this :ref:`guide <guides/reproducible-builds:using a configuration file>`.
+
 
 I need to install a package in a environment with pinned versions
------------------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To ensure proper installation of a Python package, the ``pip`` :ref:`install method <config-file/v2:python.install>` will automatically upgrade every dependency to its most recent version in case they aren't pinned by the package definition.
 If instead you'd like to pin your dependencies outside the package, you can add this line to your requirements or environment file (if you are using Conda).
@@ -297,7 +360,7 @@ In your Conda environment file (``environment.yml``)::
 
 
 Can I use Anaconda Project and ``anaconda-project.yml``?
---------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Yes. With ``anaconda-project>=0.8.4`` you can use the `Anaconda Project`_ configuration
 file ``anaconda-project.yaml`` (or ``anaconda-project.yml``) directly in place of a
@@ -314,60 +377,13 @@ in the ``.readthedocs.yaml`` config file if it contains::
 .. _Anaconda Project: https://anaconda-project.readthedocs.io/en/latest/
 
 
-How can I avoid search results having a deprecated version of my docs?
-----------------------------------------------------------------------
-
-If readers search something related to your docs in Google, it will probably return the most relevant version of your documentation.
-It may happen that this version is already deprecated and you want to stop Google indexing it as a result,
-and start suggesting the latest (or newer) one.
-
-To accomplish this, you can add a ``robots.txt`` file to your documentation's root so it ends up served at the root URL of your project
-(for example, https://yourproject.readthedocs.io/robots.txt).
-We have documented how to set this up in our :ref:`hosting:Custom robots.txt Pages` docs.
 
 
-Can I remove advertising from my documentation?
------------------------------------------------
-
-See :ref:`Opting out of advertising <advertising/ethical-advertising:Opting Out>`.
-
-
-How do I change my project slug (the URL your docs are served at)?
-------------------------------------------------------------------
-
-We don't support allowing folks to change the slug for their project.
-You can update the name which is shown on the site,
-but not the actual URL that documentation is served.
-
-The main reason for this is that all existing URLs to the content will break.
-You can delete and re-create the project with the proper name to get a new slug,
-but you really shouldn't do this if you have existing inbound links,
-as it `breaks the internet <http://www.w3.org/Provider/Style/URI.html>`_.
-
-If that isn't enough,
-you can request the change sending an email to support@readthedocs.org.
-
-
-How do I change the version slug of my project?
------------------------------------------------
-
-We don't support allowing folks to change the slug for their versions.
-But you can rename the branch/tag to achieve this.
-If that isn't enough,
-you can request the change sending an email to support@readthedocs.org.
-
-
-What commit of Read the Docs is in production?
-----------------------------------------------
-
-We deploy readthedocs.org from the ``rel`` branch in our GitHub repository.
-You can see the latest commits that have been deployed by looking on GitHub: https://github.com/readthedocs/readthedocs.org/commits/rel
-
-We also keep an up-to-date :doc:`changelog </changelog>`.
-
+Other documentation frameworks
+------------------------------
 
 How can I deploy Jupyter Book projects on Read the Docs?
---------------------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 According to `its own documentation <https://jupyterbook.org/>`_,
 
