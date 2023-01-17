@@ -218,7 +218,7 @@ That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be
 Can I remove advertising from my documentation?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-See :ref:`Opting out of advertising <advertising/ethical-advertising:Opting Out>`.
+Yes. See :ref:`Opting out of advertising <advertising/ethical-advertising:Opting Out>`.
 
 
 How do I change my project slug (the URL your docs are served at)?
@@ -263,6 +263,7 @@ For details on custom domains, see our documentation on :doc:`/custom-domains`.
 How do I support multiple languages of documentation?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Read the Docs supports multiple languages.
 See the section on :doc:`localization`.
 
 
@@ -285,8 +286,14 @@ The value of this doesn't matter, and can be set to ``/default.css`` for default
 I want to use the Read the Docs theme locally
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-There is a repository for that: https://github.com/readthedocs/sphinx_rtd_theme.
-Simply follow the instructions in the README.
+Read the Docs automatically applies the sphinx-rtd-theme to projects that do not have a defined theme.
+If you build a Sphinx project locally,
+you should specify that you are using sphinx-rtd-theme.
+
+.. seealso::
+
+   `sphinx-rtd-theme documentation <https://sphinx-rtd-theme.readthedocs.io/en/stable/installing.html>`_
+     See the official documentation for instructions to enable it in your Sphinx theme.
 
 
 Image scaling doesn't work in my documentation
