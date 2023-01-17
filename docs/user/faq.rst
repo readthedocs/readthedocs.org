@@ -1,53 +1,100 @@
 Frequently Asked Questions
 ==========================
 
-My project isn't building correctly
------------------------------------
+.. contents::
+   :local:
+
+..
+  Frequently asked questions should be questions that actually got asked.
+  Formulate them as a question and an answer.
+  Consider that the answer is best as a reference to another place in the documentation.
+
+.. Old reference
+.. _My project isn't building correctly:
+
+Why is my project "failing"?
+----------------------------
+
+Projects have the status "failing" because something in the build process has failed.
+This can be because the project is not correctly configured,
+because the contents of the Git repository cannot be built,
+or in the most rare cases because a system that Read the Docs connects to is not working.
 
 First, you should check out the Builds tab of your project.
-That records all of the build attempts that RTD has made to build your project.
-If you see ``ImportError`` messages for custom Python modules,
-see our section on :ref:`faq:My documentation requires additional dependencies`.
+By clicking on the failing step,
+you will be able to see details that can lead to resolutions to your build error.
 
-If you are still seeing errors because of C library dependencies,
-please see :ref:`faq:I get import errors on libraries that depend on C modules`.
+If the solution is not self-evident,
+you can use an important word or message from the error to search for a solution.
+
+.. seealso::
+
+   :doc:`/build-troubleshooting`
+      Common errors and solutions for build failures.
+
+   Other FAQ entries
+      * :ref:`faq:My documentation requires additional dependencies`
+      * :ref:`faq:I get import errors on libraries that depend on C modules`
 
 
-Help, my build passed but my documentation page is 404 Not Found!
------------------------------------------------------------------
+.. Old reference
+.. _Help, my build passed but my documentation page is 404 Not Found!:
+
+My build says "passed" but I get a 404 page - why?
+--------------------------------------------------
 
 This often happens because you don't have an `index.html` file being generated.
-Make sure you have one of the following files:
 
-    * `index.rst`
-    * `index.md`
+Make sure you have one of the following files at the top level of your documentation source:
 
-At the top level of your built documentation,
-otherwise we aren't able to serve a "default" index page.
+    * `index.rst` (Sphinx)
+    * `index.md` (MkDocs or Sphinx with MyST)
 
-To test if your docs actually built correctly,
-you can navigate to a specific page (`/en/latest/README.html` for example).
+.. tip::
 
-
-My documentation requires additional dependencies
--------------------------------------------------
-
-For most Python dependencies, you can can specify a requirements file
-which details your dependencies. See our guide on :ref:`guides/reproducible-builds:using a configuration file`.
-You can also set your project documentation to install your project itself
-as a dependency.
-
-Your build may depend on extensions that require additional system packages to
-be installed. If you are using a :doc:`Configuration File <config-file/v2>` you
-can :ref:`add libraries with apt <config-file/v2:build.apt_packages>` to the
-Ubuntu-based builder .
-
-If your project or its dependencies rely on C libraries that cannot be installed
-this way, see :ref:`faq:I get import errors on libraries that depend on C modules`.
+   To test if your docs actually built correctly,
+   you can navigate to a specific page that you know is part of the documentation build,
+   for example `/en/latest/README.html`.
 
 
-My project requires some additional settings
---------------------------------------------
+.. Old reference
+.. _My documentation requires additional dependencies:
+
+How do I add additional software dependencies for my documentation?
+-------------------------------------------------------------------
+
+For most Python dependencies,
+you can can specify a requirements file which details your dependencies.
+You can also set your project documentation to install your Python project itself as a dependency.
+
+.. seealso::
+
+   :doc:`/builds`
+     An overview of the build process.
+
+   :doc:`/guides/reproducible-builds`
+     General information about adding dependencies and best-practices for maintaining them.
+
+   :doc:`/build-customization`
+     How to customize your builds, for example if you need to build with different tools from Sphinx or
+     if you need to add additional packages for the Ubuntu-based builder.
+
+   :doc:`Configuration File <config-file/v2>`
+     Reference for the main configuration file, `.readthedocs.yaml`
+
+   :ref:`build.apt_packages <config-file/v2:build.apt_packages>`
+     Reference for adding Debian packages with apt for the Ubuntu-based builders
+
+   Other FAQ entries
+      * :ref:`faq:My documentation requires additional dependencies`
+      * :ref:`faq:I get import errors on libraries that depend on C modules`
+
+
+.. Old reference
+.. _My project requires some additional settings:
+
+Can I have access to additional features or settings?
+-----------------------------------------------------
 
 If this is just a dependency issue,
 see :ref:`faq:My documentation requires additional dependencies`.
@@ -58,8 +105,11 @@ please send an email to support@readthedocs.org and we will change the settings 
 Read more about these settings :doc:`here <feature-flags>`.
 
 
-I get import errors on libraries that depend on C modules
----------------------------------------------------------
+.. Old reference
+.. _I get import errors on libraries that depend on C modules:
+
+Why do I get import errors from libraries depending on C modules?
+-----------------------------------------------------------------
 
 .. note::
 
