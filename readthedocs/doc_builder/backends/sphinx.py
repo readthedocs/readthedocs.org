@@ -283,21 +283,22 @@ class BaseSphinx(BaseBuilder):
                 self.sphinx_doctrees_dir,
                 "-D",
                 f"language={project.language}",
-                # Execute the command at the clone directory,
-                # but use `docs/` instead of `.` for the Sphinx path
-                os.path.dirname(
-                    os.path.relpath(
-                        self.config_file,
-                        self.project_path,
-                    ),
+                # Sphinx's source directory (SOURCEDIR).
+                # We are executing this command at the location of the `conf.py` file (CWD).
+                # TODO: ideally we should execute it from where the repository was clonned,
+                # but that could lead unexpected behavior to some users:
+                # https://github.com/readthedocs/readthedocs.org/pull/9888#issuecomment-1384649346
+                ".",
+                # Sphinx's output build directory (OUTPUTDIR)
+                os.path.relpath(
+                    self.absolute_output_dir, os.path.dirname(self.config_file)
                 ),
-                self.sphinx_build_dir,
             ]
         )
         cmd_ret = self.run(
             *build_command,
             bin_path=self.python_env.venv_bin(),
-            cwd=self.project_path,
+            cwd=os.path.dirname(self.config_file),
         )
 
         self._post_build()
@@ -494,16 +495,17 @@ class PdfBuilder(BaseSphinx):
             self.sphinx_doctrees_dir,
             "-D",
             f"language={self.project.language}",
-            # Execute the command at the clone directory,
-            # but use `docs/` instead of `.` for the Sphinx path
-            os.path.dirname(
-                os.path.relpath(
-                    self.config_file,
-                    self.project_path,
-                ),
+            # Sphinx's source directory (SOURCEDIR).
+            # We are executing this command at the location of the `conf.py` file (CWD).
+            # TODO: ideally we should execute it from where the repository was clonned,
+            # but that could lead unexpected behavior to some users:
+            # https://github.com/readthedocs/readthedocs.org/pull/9888#issuecomment-1384649346
+            ".",
+            # Sphinx's output build directory (OUTPUTDIR)
+            os.path.relpath(
+                self.absolute_output_dir, os.path.dirname(self.config_file)
             ),
-            self.sphinx_build_dir,
-            cwd=self.project_path,
+            cwd=os.path.dirname(self.config_file),
             bin_path=self.python_env.venv_bin(),
         )
 
