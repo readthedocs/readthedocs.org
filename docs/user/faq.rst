@@ -168,27 +168,38 @@ Can I have access to additional features or settings?
 If this is just a dependency issue,
 see :ref:`faq:My documentation requires additional dependencies`.
 
-Read the Docs offers some settings which can be used for a variety of purposes.
+Read the Docs offers some settings (feature flags) which can be used for a variety of purposes.
 To enable these settings,
 please send an email to support@readthedocs.org and we will change the settings for the project.
-Read more about these settings :doc:`here <feature-flags>`.
+
+.. seealso::
+
+   :doc:`/feature-flags`
+     Reference of all Feature Flags that can be requested.
+
 
 How do I change behavior when building with Read the Docs?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When RTD builds your project, it sets the :envvar:`READTHEDOCS` environment
 variable to the string ``'True'``. So within your Sphinx :file:`conf.py` file, you
-can vary the behavior based on this. For example::
+can vary the behavior based on this. For example:
+
+.. code-block:: python
 
     import os
-    on_rtd = os.environ.get('READTHEDOCS') == 'True'
+
+    on_rtd = os.environ.get("READTHEDOCS") == "True"
     if on_rtd:
-        html_theme = 'default'
+        html_theme = "default"
     else:
-        html_theme = 'nature'
+        html_theme = "nature"
 
 The :envvar:`READTHEDOCS` variable is also available in the Sphinx build
-environment, and will be set to ``True`` when building on RTD::
+environment, and will be set to ``True`` when building on RTD:
+
+
+.. code-block:: jinja
 
     {% if READTHEDOCS %}
     Woo
