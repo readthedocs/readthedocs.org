@@ -90,9 +90,8 @@ to help you create fantastic documentation for your project.
 
 .. toctree::
    :maxdepth: 2
-   :hidden:
    :caption: How-to Guides
-   :glob:
+   :titlesonly:
 
    /guides/authors
    /guides/administrators
@@ -163,7 +162,6 @@ and some of the core features of Read the Docs.
    /badges
 
    /support
-   /faq
 
 
 How-to Guides
