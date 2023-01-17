@@ -394,20 +394,35 @@ class LocalMediaBuilder(BaseSphinx):
             )
         )
 
-        # FIXME: ``arcname`` is invalid with this command still, but it's close
+        # Move the directory into a temporal directory,
+        # so we can rename the directory for zip to use
+        # that prefix when zipping the files (arcname).
+        mktemp = self.run("mktemp", "--directory", record=False)
+        tmp_dir = Path(mktemp.output.strip())
+        dirname = f"{self.project.slug}-{self.version.slug}"
         self.run(
-            "zip",
-            "-r",
-            temp_zip_file,
-            self.sphinx_build_dir,
+            "mv",
+            self.relative_output_dir,
+            str(tmp_dir / dirname),
             cwd=self.project_path,
             record=False,
         )
-        self.run("rm", "-r", self.sphinx_build_dir, cwd=self.project_path, record=False)
         self.run(
-            "mkdir", "-p", self.sphinx_build_dir, cwd=self.project_path, record=False
+            "mkdir",
+            "--parents",
+            self.relative_output_dir,
+            cwd=self.project_path,
+            record=False,
         )
-        self.run("mv", temp_zip_file, target_file, cwd=self.project_path, record=False)
+        self.run(
+            "zip",
+            "--recurse-paths",  # Include all files and directories.
+            "--symlinks",  # Don't resolve symlinks.
+            target_file,
+            dirname,
+            cwd=str(tmp_dir),
+            record=False,
+        )
 
 
 class EpubBuilder(BaseSphinx):
