@@ -6,7 +6,7 @@ Sub-Processor List
 
 Read the Docs for Business uses services from the following sub-processors to
 provide documentation hosting services. This document supplements :doc:`our Data
-Processing Agreement <index>` and may be separately updated on a periodic basis.
+Processing Addendum <index>` and may be separately updated on a periodic basis.
 A sub-processor is a third party data processor who has or potentially will have
 access to or will process personal data.
 
