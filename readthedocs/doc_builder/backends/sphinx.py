@@ -44,7 +44,7 @@ class BaseSphinx(BaseBuilder):
 
     # Output directory relative to where the repository was cloned
     # (e.g. "_readthedocs/<format>")
-    relative_output_dir = ""
+    relative_output_dir = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
