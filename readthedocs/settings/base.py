@@ -373,6 +373,7 @@ class CommunityBaseSettings(Settings):
     STATICFILES_FINDERS = [
         'readthedocs.core.static.SelectiveFileSystemFinder',
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+        'readthedocs.core.finders.DebugToolbarFinder',
     ]
     PYTHON_MEDIA = False
 
@@ -996,6 +997,7 @@ class CommunityBaseSettings(Settings):
 
     # MailerLite API for newsletter signups
     MAILERLITE_API_SUBSCRIBERS_URL = 'https://api.mailerlite.com/api/v2/subscribers'
+    MAILERLITE_API_ONBOARDING_GROUP_ID = None
     MAILERLITE_API_ONBOARDING_GROUP_URL = None
     MAILERLITE_API_KEY = None
 

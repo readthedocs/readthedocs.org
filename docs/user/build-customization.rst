@@ -119,9 +119,9 @@ You can use this approach to cancel builds that you don't want to complete based
    `the Unix implementation does this automatically <https://tldp.org/LDP/abs/html/exitcodes.html>`_
    for exit codes greater than 255.
 
-   .. code-block:: python
+   .. code-block:: pycon
 
-      >>> sum(list('skip'.encode('ascii')))
+      >>> sum(list("skip".encode("ascii")))
       439
       >>> 439 % 256
       183
@@ -139,12 +139,14 @@ Here is an example that cancels builds from pull requests when there are no chan
        python: "3.11"
      jobs:
        post_checkout:
-         # Cancel building pull requests when there aren't changed in the docs directory.
+         # Cancel building pull requests when there aren't changed in the docs directory or YAML file.
+         # You can add any other files or directories that you'd like here as well,
+         # like your docs requirements file, or other files that will change your docs build.
          #
          # If there are no changes (git diff exits with 0) we force the command to return with 183.
          # This is a special exit code on Read the Docs that will cancel the build immediately.
          - |
-           if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/;
+           if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/ .readthedocs.yaml;
            then
              exit 183;
            fi
@@ -245,7 +247,7 @@ This helps ensure that all external links are still valid and readers aren't lin
        python: "3.10"
      jobs:
        pre_build:
-         - python -m sphinx -b linkcheck docs/ _build/linkcheck
+         - python -m sphinx -b linkcheck -D linkcheck_timeout=1 docs/ _build/linkcheck
 
 
 Support Git LFS (Large File Storage)
@@ -324,12 +326,14 @@ Take a look at the following example:
      jobs:
        post_create_environment:
          # Install poetry
-         # https://python-poetry.org/docs/#osx--linux--bashonwindows-install-instructions
-         - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+         # https://python-poetry.org/docs/#installing-manually
+         - pip install poetry
          # Tell poetry to not use a virtual environment
-         - $HOME/.poetry/bin/poetry config virtualenvs.create false
-         # Install project's dependencies
-         - $HOME/.poetry/bin/poetry install
+         - poetry config virtualenvs.create false
+       post_install:
+         # Install dependencies with 'docs' dependency group
+         # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
+         - poetry install --with docs
 
    sphinx:
      configuration: docs/conf.py
@@ -407,7 +411,7 @@ Read the Docs will automatically index the content of all your HTML files,
 respecting the :ref:`search <config-file/v2:search>` options from your config file.
 
 You can access the search results from the :guilabel:`Search` tab of your project,
-or by using the :ref:`search API <server-side-search:api>`.
+or by using the :doc:`/server-side-search/api`.
 
 .. note::
 
