@@ -1,9 +1,8 @@
 Feature Flags
 =============
 
-Read the Docs offers some additional flag settings
-which are disabled by default for every project
-and can only be enabled by `contacting us through our support form`_
+Read the Docs offers a few additional settings that are otherwise disabled by default.
+These specific settings are called *feature flags* and can only be enabled by `contacting us through our support form`_
 or reaching out to the administrator of your service.
 
 .. _contacting us through our support form: https://docs.readthedocs.io/en/stable/support.html

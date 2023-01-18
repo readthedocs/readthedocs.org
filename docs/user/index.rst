@@ -148,7 +148,6 @@ and some of the core features of Read the Docs.
    :hidden:
    :caption: Features
 
-   /features
    /config-file/index
    /integrations
    /versions
