@@ -304,9 +304,7 @@ class BaseSphinx(BaseBuilder):
                 # https://github.com/readthedocs/readthedocs.org/pull/9888#issuecomment-1384649346
                 ".",
                 # Sphinx's output build directory (OUTPUTDIR)
-                os.path.relpath(
-                    self.absolute_output_dir, os.path.dirname(self.config_file)
-                ),
+                os.path.join("$READTHEDOCS_OUTPUT", "html"),
             ]
         )
         cmd_ret = self.run(
@@ -531,9 +529,7 @@ class PdfBuilder(BaseSphinx):
             # https://github.com/readthedocs/readthedocs.org/pull/9888#issuecomment-1384649346
             ".",
             # Sphinx's output build directory (OUTPUTDIR)
-            os.path.relpath(
-                self.absolute_output_dir, os.path.dirname(self.config_file)
-            ),
+            os.path.join("$READTHEDOCS_OUTPUT", "pdf"),
             cwd=os.path.dirname(self.config_file),
             bin_path=self.python_env.venv_bin(),
         )
