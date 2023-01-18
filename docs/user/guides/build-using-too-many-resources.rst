@@ -1,11 +1,14 @@
 Troubleshooting slow builds
 ===========================
 
-We limit build resources to make sure that users don't overwhelm our build systems.
-If you are running into this issue,
-there are a couple fixes that you might try.
+In case you are waiting a long time for your builds to finish
+or your builds are terminated by Read the Docs,
+you may want to have a look at the most common issues that slow down builds.
 
-.. note:: The current build limits can be found on our :doc:`/builds` page.
+.. note::
+
+   Build resources on Read the Docs are limited to make sure that users don't overwhelm our build systems.
+   The current build limits can be found on our :doc:`/builds` page.
 
 Reduce formats you're building
 ------------------------------
