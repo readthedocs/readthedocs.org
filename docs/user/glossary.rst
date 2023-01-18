@@ -11,6 +11,15 @@ Glossary
       Menu displayed on the documentation, readily accessible for readers, containing the list active versions, links to static downloads, and other useful links.
       Read more in our :doc:`/flyout-menu` page.
 
+   permalink
+      A permalink or "permanent link" is a term commonly used in blogging and in media outlets.
+      It's a URL that is intended to remain unchanged for many years into the future,
+      yielding a hyperlink that is less susceptible to link rot.
+      The term applies to documentation projects,
+      but rather than being a technical feature,
+      it's more about keeping a gentle and long-term management of the documentation structure.
+
+
    pre-defined build jobs
       Commands executed by Read the Docs when performing the build process.
       They cannot be overwritten by the user.

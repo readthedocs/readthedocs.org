@@ -1,22 +1,18 @@
-Automatic redirects and incoming links
-======================================
+Incoming links: Best practices and redirects
+============================================
 
-Read the Docs makes it easier to create and manage incoming links by redirecting certain URLs automatically.
-This article explains the redirects that are automatically active for all Read the Docs projects and how they are useful.
-Automatic redirects on Read the Docs are supported long-term.
+Once you start to publish documentation,
+it will inevitably be referenced in external sources.
 
-Redirecting to a page
----------------------
+Sources of incoming links vary greatly depending on the type of documentation project that is published.
+They can include everything from old emails to GitHub issues, wiki articles, software comments, PDF publications, StackOverflow answers etc.
+Most of these incoming sources are either unmanageable or not in your control.
 
-You can link to a specific page and have it redirect to your default version.
-This is done with the ``/page/`` URL prefix.
-You can reach this page by going to https://docs.readthedocs.io/page/automatic-redirects.html.
+Read the Docs makes it easier to create and manage incoming links by redirecting certain URLs automatically
+and giving you access to define your own redirects.
 
-This allows you to create links on external sources that are always up to date.
-
-Another way to handle this is the ``latest`` version.
-You can set your ``latest`` version to a specific version and just always link to ``latest``.
-You can reach this page by going to https://docs.readthedocs.io/en/latest/automatic-redirects.html.
+In this article,
+we explain how our built-in redirects work and what we consider "best practice" for managing incoming links.
 
 .. seealso::
 
@@ -28,8 +24,28 @@ You can reach this page by going to https://docs.readthedocs.io/en/latest/automa
      you can setup a redirect in place of the old location and choose where users should be redirected.
 
 
-Root URL redirect
------------------
+Built-in redirect rules
+-----------------------
+
+This article explains the redirects that are automatically active for all Read the Docs projects and how they are useful.
+Automatic redirects on Read the Docs are supported long-term.
+
+Page redirects at ``/page/``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can link to a specific page and have it redirect to your default version.
+This is done with the ``/page/`` URL prefix.
+You can reach this page by going to https://docs.readthedocs.io/page/automatic-redirects.html.
+
+This allows you to create links on external sources that are always up to date.
+
+Another way to handle this is the ``latest`` version.
+You can set your ``latest`` version to a specific version and just always link to ``latest``.
+You can reach this page by going to https://docs.readthedocs.io/en/latest/automatic-redirects.html.
+
+
+Root URL redirect at ``/``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A link to the root of your documentation will redirect to the *default version*,
 as set in your project settings.
@@ -63,10 +79,19 @@ Among all the multiple versions of docs,
 you can choose which is the "default" version for RTD to display,
 which usually corresponds to the git branch of the most recent official release from your project.
 
-Are "permalinks" possible?
---------------------------
+Shortlink with ``https://*.rtfd.io``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You might be familiar with permalinks from blogging.
+Links to ``rtfd.io`` are treated the same way as ``readthedocs.io``.
+They redirect the root URL to the default version of the project.
+They are intended to be easy and short for people to type.
+
+You can reach these docs at https://docs.rtfd.io.
+
+Best practice: "permalink" your pages
+-------------------------------------
+
+You might be familiar with :term:`permalinks <permalink>` from blogging.
 The idea is that a blog post receives a unique link as soon as it's published and that the link does not change afterward.
 Incoming sources can reference the blog post even though the blog changes structure or the post title changes.
 
@@ -86,11 +111,14 @@ Good practice ✅
 * Use ``/en/latest/path/to/page.html`` if you want to be specific about the language.
 * If you move a page that likely has incoming references, :doc:`create a redirect rule </user-defined-redirects>`.
 * Links from other Sphinx projects should use :doc:`intersphinx </guides/intersphinx>`.
-* Use minimal page slugs that do not attract renaming suggestions.
+* Use minimal page :term:`slugs <slug>` that do not attract renaming suggestions.
 * When possible,
   keep original file names rather than going for low-impact URL renaming.
   Renaming an article's title is great for the reader and great for SEO,
   but this does not have to involve the URL.
+* Try to get your understanding of ``latest`` and *default version* right from the beginning and ensure you don't change them later on.
+* Keep development versions hidden so people do not find them on search engines by mistake.
+  Publishing documentation at the wrong URL can be costly if the URL starts circulating.
 
 Questionable practice 🟡
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -98,10 +126,8 @@ Questionable practice 🟡
 * Avoid using specific versions in links unless you really mean that users should see that exact version.
   Versions get outdated.
   You can use a :ref:`version warning <versions:Version warning>` to ensure the reader is aware.
-* Keep development versions hidden so people do not find them on search engines by mistake.
 * Avoid using a public ``latest`` for development versions and do not make your *default version* a development branch.
   Publishing development branches can mean that users are reading instructions for unreleased software or draft documentation.
-* Try to get your understanding of ``latest`` and *default version* right from the beginning and ensure you don't change them later on.
 
 .. tip::
 
@@ -112,12 +138,3 @@ Questionable practice 🟡
 
    The default Read the Docs 404 page is designed to be helpful.
    You can also design a custom 404 page, see :ref:`hosting:Custom Not Found (404) Pages`.
-
-Shortlinks: rtfd.io
--------------------
-
-Links to ``readthedocs.io`` are treated the same way as ``readthedocs.io``.
-They redirect the root URL to the default version of the project.
-They are intended to be easy and short for people to type.
-
-You can reach these docs at https://docs.rtfd.io.
