@@ -1,8 +1,11 @@
 Build troubleshooting
 =====================
 
-This section is very specific and may change over time.
-Please help us keep it updated and contribute your own build errors and resolutions.
+
+.. tip::
+
+   Please help us keep this section updated and contribute your own build errors and resolutions.
+   Send in helpful ideas 💡 to support@readthedocs.org.
 
 
 Git errors
@@ -58,7 +61,6 @@ Permission denied (publickey)
    - ``https://github.com/<username>/<repo>/settings/keys``
    - ``https://gitlab.com/<username>/<repo>/-/settings/repository``
    - ``https://bitbucket.org/<username>/<repo>/admin/access-keys/``
-
 
 
 ERROR: Repository not found.
