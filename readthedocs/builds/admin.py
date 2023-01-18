@@ -173,6 +173,8 @@ class VersionAutomationRuleAdmin(PolymorphicParentModelAdmin, admin.ModelAdmin):
         'version_type',
     )
     child_models = (RegexAutomationRule,)
+    search_fields = ('project__slug',)
+    list_filter = ('action', 'version_type')
 
 
 admin.site.register(Build, BuildAdmin)
