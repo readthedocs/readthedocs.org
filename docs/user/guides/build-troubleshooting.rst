@@ -1,5 +1,5 @@
-Build troubleshooting
-=====================
+Troubleshooting build errors
+============================
 
 
 .. tip::

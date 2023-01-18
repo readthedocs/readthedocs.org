@@ -1,5 +1,5 @@
-My Build is Using Too Many Resources
-====================================
+Troubleshooting slow builds
+===========================
 
 We limit build resources to make sure that users don't overwhelm our build systems.
 If you are running into this issue,

@@ -97,7 +97,7 @@ to help you create fantastic documentation for your project.
    /guides/authors
    /guides/administrators
    /guides/developers
-   /guides/build-troubleshooting
+   Troubleshooting </guides/troubleshooting/index>
    /examples
 
 
