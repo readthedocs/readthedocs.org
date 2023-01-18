@@ -2,7 +2,7 @@ Troubleshooting slow builds
 ===========================
 
 In case you are waiting a long time for your builds to finish
-or your builds are terminated by Read the Docs,
+or your builds are terminated by exceeding general resource limits,
 you may want to have a look at the most common issues that slow down builds.
 
 .. note::
