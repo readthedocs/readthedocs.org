@@ -396,6 +396,7 @@ class LocalMediaBuilder(BaseSphinx):
             )
         )
 
+        # **SECURITY CRITICAL: Advisory GHSA-hqwg-gjqw-h5wg**
         # Move the directory into a temporal directory,
         # so we can rename the directory for zip to use
         # that prefix when zipping the files (arcname).
