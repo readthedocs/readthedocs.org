@@ -197,7 +197,8 @@ class TestBuildTask(BuildEnvironmentBase):
             }
         )
 
-        # Create the artifact paths, so it's detected by the builder
+        # Create the artifact paths, so that `store_build_artifacts`
+        # properly runs: https://github.com/readthedocs/readthedocs.org/blob/faa611fad689675f81101ea643770a6b669bf529/readthedocs/projects/tasks/builds.py#L798-L804
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="epub"))
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="pdf"))
