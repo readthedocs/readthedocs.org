@@ -121,24 +121,3 @@ They redirect the root URL to the default version of the project.
 They are intended to be easy and short for people to type.
 
 You can reach these docs at https://docs.rtfd.io.
-
-
-Other top-Level redirects (legacy)
-----------------------------------
-
-.. note:: These "implicit" redirects are supported for legacy reasons.
-          We will not be adding support for any more magic redirects.
-          If you want additional redirects,
-          they should live at a prefix like `Redirecting to a Page`_
-
-The main challenge of URL routing in Read the Docs is handling redirects correctly.
-Both in the interest of redirecting older URLs that are now obsolete,
-and in the interest of handling "logical-looking" URLs (leaving out the lang_slug or version_slug shouldn't result in a 404),
-the following redirects are supported::
-
-    /          -> /en/latest/
-    /en/       -> /en/latest/
-    /latest/   -> /en/latest/
-
-The language redirect will work for any of the defined ``LANGUAGE_CODES`` we support.
-The version redirect will work for supported versions.
