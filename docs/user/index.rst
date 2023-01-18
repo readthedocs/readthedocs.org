@@ -90,6 +90,7 @@ to help you create fantastic documentation for your project.
 
 .. toctree::
    :maxdepth: 2
+   :hidden:
    :caption: How-to Guides
 
    /guides/authors
