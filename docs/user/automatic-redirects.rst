@@ -47,7 +47,7 @@ You can reach this page by going to https://docs.readthedocs.io/en/latest/automa
 Root URL redirect at ``/``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A link to the root of your documentation will redirect to the *default version*,
+A link to the root of your documentation (`<slug>.readthedocs.io/`) will redirect to the  :term:`default version`,
 as set in your project settings.
 
 This works for both readthedocs.io (|org_brand|), readthedocs-hosted.com (|com_brand|), and :doc:`custom domains </custom-domains>`.
@@ -60,8 +60,8 @@ For example::
 .. warning::
 
    This only works for the root URL, not for internal pages.
-   It's designed to redirect people from ``http://pip.readthedocs.io/`` to the default version of your documentation,
-   since serving up a 404 here would be a pretty terrible user experience.
+   It's designed to redirect people from `/` to the default version of your documentation,
+   since serving up a 404 here would be bad user experience.
 
 .. note::
    If the "develop" branch was designated as the default version,
@@ -76,7 +76,7 @@ For example::
    Just like ``http://pip.readthedocs.io/en/develop/`` is the root for your development documentation in English.
 
 Among all the multiple versions of docs,
-you can choose which is the "default" version for RTD to display,
+you can choose which is the "default" version for Read the Docs to display,
 which usually corresponds to the git branch of the most recent official release from your project.
 
 Shortlink with ``https://*.rtfd.io``
@@ -107,8 +107,7 @@ you most likely want users clicking on incoming links to see the latest version 
 Good practice ✅
 ~~~~~~~~~~~~~~~~
 
-* Use ``/page/path/to/page.html`` if you are linking to the page in the default version of the default language.
-* Use ``/en/latest/path/to/page.html`` if you want to be specific about the language.
+* Use `page redirects <Redirecting to a page>`_ if you are linking to the page in the default version of the default language.
 * If you move a page that likely has incoming references, :doc:`create a redirect rule </user-defined-redirects>`.
 * Links from other Sphinx projects should use :doc:`intersphinx </guides/intersphinx>`.
 * Use minimal page :term:`slugs <slug>` that do not attract renaming suggestions.
@@ -136,5 +135,5 @@ Questionable practice 🟡
    it can make the maintainer of the referring website aware that they need to update their link.
    Users will be aware that the documentation still exist but has changed.
 
-   The default Read the Docs 404 page is designed to be helpful.
-   You can also design a custom 404 page, see :ref:`hosting:Custom Not Found (404) Pages`.
+   The default Read the Docs 404 page is designed to be helpful,
+   but you can also design your own, see :ref:`hosting:Custom Not Found (404) Pages`.
