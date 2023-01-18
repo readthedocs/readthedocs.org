@@ -10,6 +10,11 @@ you may want to have a look at the most common issues that slow down builds.
    Build resources on Read the Docs are limited to make sure that users don't overwhelm our build systems.
    The current build limits can be found on our :doc:`/builds` page.
 
+.. tip::
+
+   Please help us keep this section updated and contribute your own performance improvements.
+   Send in helpful ideas 💡 to support@readthedocs.org.
+
 Reduce formats you're building
 ------------------------------
 
