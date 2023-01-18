@@ -61,6 +61,18 @@ class BaseSphinx(BaseBuilder):
                     self.config_file,
                 )
         except ProjectConfigurationError:
+            # NOTE: this exception handling here is weird to me.
+            # We are raising this exception from inside `project.confi_file` when:
+            #  - the repository has multiple config files (none of them with `doc` in its filename)
+            #  - there is no config file at all
+            #
+            # IMO, if there are multiple config files,
+            # the build should fail immediately communicating this to the user.
+            # This can be achived by unhandle the exception here
+            # and leaving `on_failure` Celery handle to deal with it.
+            #
+            # In case there is no config file, we should continue the build
+            # because Read the Docs will automatically create one for it.
             pass
 
     def _write_config(self, master_doc='index'):
