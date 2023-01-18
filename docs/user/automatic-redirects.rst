@@ -33,11 +33,11 @@ Automatic redirects on Read the Docs are supported long-term.
 Page redirects at ``/page/``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can link to a specific page and have it redirect to your default version.
+You can link to a specific page and have it redirect to your default version,
+allowing you to create links on external sources that are always up to date.
 This is done with the ``/page/`` URL prefix.
-You can reach this page by going to https://docs.readthedocs.io/page/automatic-redirects.html.
 
-This allows you to create links on external sources that are always up to date.
+For instance, you can reach the page you are reading now by going to https://docs.readthedocs.io/page/automatic-redirects.html.
 
 Another way to handle this is the ``latest`` version.
 You can set your ``latest`` version to a specific version and just always link to ``latest``.
