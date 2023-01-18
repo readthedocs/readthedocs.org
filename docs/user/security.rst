@@ -2,8 +2,8 @@
 ..    https://readthedocs.org/.well-known/security.txt
 ..    https://readthedocs.org/security/
 
-Security
-========
+Security practice
+=================
 
 Security is very important to us at Read the Docs.
 We follow generally accepted industry standards to protect the personal information

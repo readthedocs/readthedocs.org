@@ -1,5 +1,5 @@
-Policy for Unofficial and Unmaintained Projects
-===============================================
+Unofficial and unmaintained projects policy
+===========================================
 
 This policy describes a process where we take actions against unmaintained_ and unofficial_ forks of project documentation.
 

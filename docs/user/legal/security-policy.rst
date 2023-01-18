@@ -1,4 +1,4 @@
-Security Policy
+Security policy
 ===============
 
 Read the Docs adheres to the following security policies and procedures with

@@ -1,16 +1,20 @@
-Legal Documents and Policies
+============================
+Policies and legal documents
 ============================
 
 Here is some of the fine print used by |org_brand| and |com_brand|:
 
 .. toctree::
-    :glob:
-    :hidden:
+   :maxdepth: 1
 
-    /terms-of-service
-    /privacy-policy
-    security-policy
-    dpa/index
+   /abandoned-projects
+   /unofficial-projects
+   /privacy-policy
+   /legal/security-policy
+   /security
+   /terms-of-service
+   DMCA takedown policy </dmca/index>
+   /legal/dpa/index
 
 :doc:`/terms-of-service`
     The terms of service for using |org_brand| and |com_brand|. You may instead
