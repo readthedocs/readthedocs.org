@@ -7,6 +7,13 @@ Glossary
       `Main page <https://readthedocs.org/dashboard>`_ where you can see all your projects with their build status
       and import a new project.
 
+   default version
+      A documentation has a *default version*, usually understood to be the latest stable version of a project.
+      Most documentation projects will contain both older versions of documentation and the latest development version.
+      The *default version* can be fully configured to point to a specific Git branch or any other released version.
+      In the most common scenario,
+      the default version points to the ``main`` branch of a Git repository since it usually points to the latest stable release.
+
    flyout menu
       Menu displayed on the documentation, readily accessible for readers, containing the list active versions, links to static downloads, and other useful links.
       Read more in our :doc:`/flyout-menu` page.
@@ -18,7 +25,6 @@ Glossary
       The term applies to documentation projects,
       but rather than being a technical feature,
       it's more about keeping a gentle and long-term management of the documentation structure.
-
 
    pre-defined build jobs
       Commands executed by Read the Docs when performing the build process.
