@@ -556,7 +556,7 @@ class PdfBuilder(BaseSphinx):
             # step. I don't know exactly why but most of the documentation that
             # I read differentiate this language from the others. I suppose
             # it's because it mix kanji (Chinese) with its own symbols.
-            pdfs = latex_path.glob('*.pdf')
+            pdfs = Path(self.absolute_output_dir).glob("*.pdf")
 
         for image in itertools.chain(images, pdfs):
             self.run(
