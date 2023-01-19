@@ -18,6 +18,7 @@ from rest_framework.views import APIView
 from readthedocs.builds.constants import (
     EXTERNAL_VERSION_STATE_CLOSED,
     EXTERNAL_VERSION_STATE_OPEN,
+    LATEST,
 )
 from readthedocs.core.signals import webhook_bitbucket, webhook_github, webhook_gitlab
 from readthedocs.core.views.hooks import (
@@ -505,7 +506,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         return None
 
     def _normalize_ref(self, ref):
-        "Remove `ref/(heads|tags)/` from the reference to match a Version on the db."
+        """Remove `ref/(heads|tags)/` from the reference to match a Version on the db."""
         pattern = re.compile(r'^refs/(heads|tags)/')
         return pattern.sub('', ref)
 

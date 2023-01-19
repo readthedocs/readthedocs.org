@@ -195,8 +195,9 @@ class Backend(BaseVCS):
         try:
             code, stdout, stderr = self.run(*cmd)
 
-            # TODO: for those VCS providers that don't tell us the `default_branch` of the repository
-            # in the incoming webhook, we need to get it from the cloned repository itself.
+            # TODO: for those VCS providers that don't tell us the `default_branch`
+            # of the repository in the incoming webhook,
+            # we need to get it from the cloned repository itself.
             #
             # cmd = ['git', 'symbolic-ref', 'refs/remotes/origin/HEAD']
             # _, default_branch, _ = self.run(*cmd)
