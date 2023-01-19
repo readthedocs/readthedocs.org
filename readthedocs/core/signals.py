@@ -1,6 +1,8 @@
 """Signal handling for core app."""
 
+import requests
 import structlog
+from allauth.account.signals import email_confirmed
 from corsheaders import signals
 from django.conf import settings
 from django.db.models.signals import pre_delete
@@ -11,6 +13,7 @@ from simple_history.signals import pre_create_historical_record
 
 from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.models import Version
+from readthedocs.core.models import UserProfile
 from readthedocs.core.unresolver import unresolve
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
@@ -31,6 +34,56 @@ webhook_bitbucket = Signal()
 
 pre_collectstatic = Signal()
 post_collectstatic = Signal()
+
+
+@receiver(email_confirmed)
+def process_email_confirmed(request, email_address, **kwargs):
+    """
+    Steps to take after a users email address is confirmed.
+
+    We currently:
+
+    * Subscribe the user to the mailing list if they set this in their signup.
+    * Add them to a drip campaign for new users in the new user group.
+    """
+
+    # email_address is an object
+    # https://github.com/pennersr/django-allauth/blob/6315e25/allauth/account/models.py#L15
+    user = email_address.user
+    profile = UserProfile.objects.filter(user=user).first()
+    if profile and profile.mailing_list:
+        # TODO: Unsubscribe users if they unset `mailing_list`.
+        log.bind(
+            email=email_address.email,
+            username=user.username,
+        )
+        log.info("Subscribing user to newsletter and onboarding group.")
+
+        # Try subscribing user to a group, then fallback to normal subscription API
+        url = settings.MAILERLITE_API_ONBOARDING_GROUP_URL
+        if not url:
+            url = settings.MAILERLITE_API_SUBSCRIBERS_URL
+
+        payload = {
+            "email": email_address.email,
+            "resubscribe": True,
+        }
+        headers = {
+            "X-MailerLite-ApiKey": settings.MAILERLITE_API_KEY,
+        }
+        try:
+            # TODO: migrate this signal to a Celery task since it has a `requests.post` on it.
+            resp = requests.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=3,  # seconds
+            )
+            resp.raise_for_status()
+        except requests.Timeout:
+            log.warning("Timeout subscribing user to newsletter.")
+        except Exception:  # noqa
+            log.exception("Unknown error subscribing user to newsletter.")
 
 
 def _has_donate_app():
@@ -85,7 +138,7 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
                 return True
 
             project = unresolved.project
-            version_slug = unresolved.version_slug
+            version_slug = unresolved.version.slug
         else:
             project_slug = request.GET.get('project', None)
             version_slug = request.GET.get('version', None)

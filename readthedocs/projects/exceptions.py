@@ -23,6 +23,11 @@ class ProjectConfigurationError(BuildUserError):
     )
 
 
+class UserFileNotFound(BuildUserError):
+
+    FILE_NOT_FOUND = _("The file {} doesn't exist. Make sure it's a valid file path.")
+
+
 class RepositoryError(BuildUserError):
 
     """Failure during repository operation."""
@@ -41,7 +46,8 @@ class RepositoryError(BuildUserError):
         'git/ssh URL schemas for submodules are not supported.'
     )
     DUPLICATED_RESERVED_VERSIONS = _(
-        'You can not have two versions with the name latest or stable.',
+        "You can not have two versions with the name latest or stable."
+        " Ensure you don't have both a branch and a tag with this name."
     )
 
     FAILED_TO_CHECKOUT = _('Failed to checkout revision: {}')

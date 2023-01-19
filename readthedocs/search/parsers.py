@@ -14,7 +14,7 @@ from readthedocs.storage import build_media_storage
 log = structlog.get_logger(__name__)
 
 
-class BaseParser:
+class GenericParser:
 
     # Limit that matches the ``index.mapping.nested_objects.limit`` ES setting.
     max_inner_documents = 10000
@@ -73,6 +73,7 @@ class BaseParser:
         - Try the first ``h1`` node and return its parent
           Usually all sections are neighbors,
           so they are children of the same parent node.
+        - Return the body element itself if all checks above fail.
         """
         body = html.body
         main_node = body.css_first('[role=main]')
@@ -85,11 +86,24 @@ class BaseParser:
 
         # TODO: this could be done in smarter way,
         # checking for common parents between all h nodes.
-        first_header = body.css_first('h1')
+        first_header = body.css_first("h1")
         if first_header:
-            return first_header.parent
+            return self._get_header_container(first_header).parent
 
-        return None
+        return body
+
+    def _get_header_container(self, h_tag):
+        """
+        Get the *real* container of a header tag or title.
+
+        If the parent of the ``h`` tag is a ``header`` tag,
+        then we return the ``header`` tag,
+        since the header tag acts as a container for the title of the section.
+        Otherwise, we return the tag itself.
+        """
+        if h_tag.parent.tag == "header":
+            return h_tag.parent
+        return h_tag
 
     def _parse_content(self, content):
         """Converts all new line characters and multiple spaces to a single space."""
@@ -109,8 +123,6 @@ class BaseParser:
         We can have pages that have content before the first title or that don't have a title,
         we index that content first under the title of the original page.
         """
-        body = self._clean_body(body)
-
         # Index content for pages that don't start with a title.
         # We check for sections till 3 levels to avoid indexing all the content
         # in this step.
@@ -134,7 +146,8 @@ class BaseParser:
             for tag in tags:
                 try:
                     title, id = self._parse_section_title(tag)
-                    content, _ = self._parse_section_content(tag.next, depth=2)
+                    next_tag = self._get_header_container(tag).next
+                    content, _ = self._parse_section_content(next_tag, depth=2)
                     yield {
                         'id': id,
                         'title': title,
@@ -185,10 +198,10 @@ class BaseParser:
         """
         Check if `tag` is a section (linkeable header).
 
-        The tag is a section if it's a ``h`` tag.
+        The tag is a section if it's a ``h`` or a ``header`` tag.
         """
-        is_header_tag = re.match(r'h\d$', tag.tag)
-        return is_header_tag
+        is_h_tag = re.match(r"h\d$", tag.tag)
+        return is_h_tag or tag.tag == "header"
 
     def _parse_section_title(self, tag):
         """
@@ -198,15 +211,7 @@ class BaseParser:
 
         - Get the id from the node itself.
         - Get the id from the parent node.
-
-        Additionally:
-
-        - Removes permalink values
         """
-        nodes_to_be_removed = tag.css('.headerlink')
-        for node in nodes_to_be_removed:
-            node.decompose()
-
         section_id = tag.attributes.get('id', '')
         if not section_id:
             parent = tag.parent
@@ -248,7 +253,7 @@ class BaseParser:
                 contents.append(content)
             next_tag = next_tag.next
 
-        return self._parse_content(''.join(contents)), section_found
+        return self._parse_content("".join(contents)), section_found
 
     def _is_code_section(self, tag):
         """
@@ -307,10 +312,43 @@ class BaseParser:
             'domain_data': {},
         }
         """
-        raise NotImplementedError
+        try:
+            content = self._get_page_content(page)
+            if content:
+                return self._process_content(page, content)
+        except Exception:
+            log.info("Failed to index page.", path=page, exc_info=True)
+        return {
+            "path": page,
+            "title": "",
+            "sections": [],
+            "domain_data": {},
+        }
+
+    def _process_content(self, page, content):
+        """Parses the content into a structured dict."""
+        html = HTMLParser(content)
+        body = self._get_main_node(html)
+        title = ""
+        sections = []
+        if body:
+            body = self._clean_body(body)
+            title = self._get_page_title(body, html) or page
+            sections = self._get_sections(title=title, body=body)
+        else:
+            log.info(
+                "Page doesn't look like it has valid content, skipping.",
+                page=page,
+            )
+        return {
+            "path": page,
+            "title": title,
+            "sections": sections,
+            "domain_data": {},
+        }
 
 
-class SphinxParser(BaseParser):
+class SphinxParser(GenericParser):
 
     """
     Parser for Sphinx generated html pages.
@@ -384,17 +422,22 @@ class SphinxParser(BaseParser):
 
         if 'body' in data:
             try:
-                body = HTMLParser(data['body'])
+                body = self._clean_body(HTMLParser(data["body"]))
                 sections = self._get_sections(title=title, body=body.body)
             except Exception:
                 log.info('Unable to index sections.', path=fjson_path)
 
-            try:
-                # Create a new html object, since the previous one could have been modified.
-                body = HTMLParser(data['body'])
-                domain_data = self._generate_domains_data(body)
-            except Exception:
-                log.info('Unable to index domains.', path=fjson_path)
+            # XXX: Don't index domains while we migrate the ID type of the sphinx domains table.
+            # https://github.com/readthedocs/readthedocs.org/pull/9482.
+            from readthedocs.projects.models import Feature
+
+            if not self.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
+                try:
+                    # Create a new html object, since the previous one could have been modified.
+                    body = HTMLParser(data["body"])
+                    domain_data = self._generate_domains_data(body)
+                except Exception:
+                    log.info("Unable to index domains.", path=fjson_path)
         else:
             log.info('Unable to index content.', path=fjson_path)
 
@@ -429,7 +472,15 @@ class SphinxParser(BaseParser):
         We already index those in another step.
         """
         body = super()._clean_body(body)
-        nodes_to_be_removed = self._get_sphinx_domains(body)
+        # XXX: Don't exclude domains from the general search
+        # while we migrate the ID type of the sphinx domains table
+        # https://github.com/readthedocs/readthedocs.org/pull/9482.
+        nodes_to_be_removed = []
+        from readthedocs.projects.models import Feature
+
+        if not self.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
+            nodes_to_be_removed = self._get_sphinx_domains(body)
+
         # TODO: see if we really need to remove these
         # remove `Table of Contents` elements
         nodes_to_be_removed += body.css('.toctree-wrapper') + body.css('.contents.local.topic')
@@ -494,11 +545,10 @@ class SphinxParser(BaseParser):
     def _parse_domain_tag(self, tag):
         """Returns the text from the description tag of the domain."""
 
-        # remove the 'dl', 'dt' and 'dd' tags from it
-        # because all the 'dd' and 'dt' tags are inside 'dl'
-        # and all 'dl' tags are already captured.
-        nodes_to_be_removed = tag.css('dl') + tag.css('dt') + tag.css('dd')
-        for node in nodes_to_be_removed:
+        # Remove all nested domains,
+        # since they are already parsed separately.
+        nested_domains = self._get_sphinx_domains(tag)
+        for node in nested_domains:
             if tag != node:
                 node.decompose()
 
@@ -506,57 +556,15 @@ class SphinxParser(BaseParser):
         return docstring
 
 
-class MkDocsParser(BaseParser):
+class MkDocsParser(GenericParser):
 
     """
     MkDocs parser.
 
-    Index from the json index file or directly from the html content.
+    Index using the json index file instead of the html content.
     """
 
     def parse(self, page):
-        # Avoid circular import
-        from readthedocs.projects.models import Feature
-        if self.project.has_feature(Feature.INDEX_FROM_HTML_FILES):
-            return self.parse_from_html(page)
-        return self.parse_from_index_file(page)
-
-    def parse_from_html(self, page):
-        try:
-            content = self._get_page_content(page)
-            if content:
-                return self._process_content(page, content)
-        except Exception as e:
-            log.info('Failed to index page.', path=page, exception=str(e))
-        return {
-            'path': page,
-            'title': '',
-            'sections': [],
-            'domain_data': {},
-        }
-
-    def _process_content(self, page, content):
-        """Parses the content into a structured dict."""
-        html = HTMLParser(content)
-        body = self._get_main_node(html)
-        title = ""
-        sections = []
-        if body:
-            title = self._get_page_title(body, html) or page
-            sections = self._get_sections(title=title, body=body)
-        else:
-            log.info(
-                "Page doesn't look like it has valid content, skipping.",
-                page=page,
-            )
-        return {
-            'path': page,
-            'title': title,
-            'sections': sections,
-            'domain_data': {},
-        }
-
-    def parse_from_index_file(self, page):
         storage_path = self.project.get_storage_path(
             type_='html',
             version_slug=self.version.slug,

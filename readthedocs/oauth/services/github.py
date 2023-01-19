@@ -44,8 +44,9 @@ class GitHubService(Service):
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub repositories')
             raise SyncServiceError(
-                'Could not sync your GitHub repositories, '
-                'try reconnecting your account'
+                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                    provider=self.vcs_provider_slug
+                )
             )
         return remote_repositories
 
@@ -76,8 +77,9 @@ class GitHubService(Service):
         except (TypeError, ValueError):
             log.warning('Error syncing GitHub organizations')
             raise SyncServiceError(
-                'Could not sync your GitHub organizations, '
-                'try reconnecting your account'
+                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                    provider=self.vcs_provider_slug
+                )
             )
 
         return remote_organizations, remote_repositories
@@ -98,10 +100,23 @@ class GitHubService(Service):
             (fields['private'] is False and privacy == 'public'),
         ]):
 
-            repo, _ = RemoteRepository.objects.get_or_create(
+            repo, created = RemoteRepository.objects.get_or_create(
                 remote_id=str(fields["id"]),
                 vcs_provider=self.vcs_provider_slug,
             )
+
+            # TODO: For debugging: https://github.com/readthedocs/readthedocs.org/pull/9449.
+            if created:
+                _old_remote_repository = RemoteRepository.objects.filter(
+                    full_name=fields["full_name"], vcs_provider=self.vcs_provider_slug
+                ).first()
+                if _old_remote_repository:
+                    log.warning(
+                        "GitHub repository created with different remote_id but exact full_name.",
+                        fields=fields,
+                        old_remote_repository=_old_remote_repository.__dict__,
+                        imported=_old_remote_repository.projects.exists(),
+                    )
 
             owner_type = fields["owner"]["type"]
             organization = None
@@ -474,6 +489,18 @@ class GitHubService(Service):
             if resp.status_code in [401, 403, 404]:
                 log.info('GitHub project does not exist or user does not have permissions.')
                 return False
+
+            if (
+                resp.status_code == 422
+                and "No commit found for SHA" in resp.json()["message"]
+            ):
+                # This happens when the user force-push a branch or similar
+                # that changes the Git history and SHA does not exist anymore.
+                #
+                # We return ``True`` here because otherwise our logic will try
+                # with different users. However, all of them will fail since
+                # it's not a permission issue.
+                return True
 
             try:
                 debug_data = resp.json()

@@ -1,6 +1,5 @@
 """An abstraction over virtualenv and Conda environments."""
 
-import codecs
 import copy
 import itertools
 import os
@@ -11,8 +10,10 @@ import yaml
 from readthedocs.config import PIP, SETUPTOOLS, ParseError
 from readthedocs.config import parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
+from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.loader import get_builder_class
+from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Feature
 
 log = structlog.get_logger(__name__)
@@ -169,13 +170,23 @@ class Virtualenv(PythonEnvironment):
             *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
         )
 
-        requirements = [
-            'mock==1.0.1',
-            'pillow==5.4.1',
-            'alabaster>=0.7,<0.8,!=0.7.5',
-            'commonmark==0.8.1',
-            'recommonmark==0.5.0',
-        ]
+        requirements = []
+
+        # Unpin Pillow on newer Python versions to avoid re-compiling
+        # https://pillow.readthedocs.io/en/stable/installation.html#python-support
+        if self.config.python.version in ("2.7", "3.4", "3.5", "3.6", "3.7"):
+            requirements.append("pillow==5.4.1")
+        else:
+            requirements.append("pillow")
+
+        requirements.extend(
+            [
+                "mock==1.0.1",
+                "alabaster>=0.7,<0.8,!=0.7.5",
+                "commonmark==0.9.1",
+                "recommonmark==0.5.0",
+            ]
+        )
 
         if self.config.doctype == 'mkdocs':
             requirements.append(
@@ -190,25 +201,27 @@ class Virtualenv(PythonEnvironment):
                 ),
             )
         else:
-            requirements.extend([
-                self.project.get_feature_value(
-                    Feature.USE_SPHINX_LATEST,
-                    positive='sphinx',
-                    negative='sphinx<2',
-                ),
-                # If defaulting to Sphinx 2+, we need to push the latest theme
-                # release as well. `<0.5.0` is not compatible with Sphinx 2+
-                self.project.get_feature_value(
-                    Feature.USE_SPHINX_LATEST,
-                    positive='sphinx-rtd-theme',
-                    negative='sphinx-rtd-theme<0.5',
-                ),
-                self.project.get_feature_value(
-                    Feature.USE_SPHINX_RTD_EXT_LATEST,
-                    positive='readthedocs-sphinx-ext',
-                    negative='readthedocs-sphinx-ext<2.2',
-                ),
-            ])
+            requirements.extend(
+                [
+                    self.project.get_feature_value(
+                        Feature.USE_SPHINX_LATEST,
+                        positive="sphinx",
+                        negative="sphinx<2",
+                    ),
+                    # If defaulting to Sphinx 2+, we need to push the latest theme
+                    # release as well. `<0.5.0` is not compatible with Sphinx 2+
+                    self.project.get_feature_value(
+                        Feature.USE_SPHINX_LATEST,
+                        positive="sphinx-rtd-theme",
+                        negative="sphinx-rtd-theme<0.5",
+                    ),
+                    self.project.get_feature_value(
+                        Feature.USE_SPHINX_RTD_EXT_LATEST,
+                        positive="readthedocs-sphinx-ext",
+                        negative="readthedocs-sphinx-ext<2.3",
+                    ),
+                ]
+            )
             if not self.project.has_feature(Feature.USE_SPHINX_LATEST):
                 requirements.extend(["jinja2<3.1.0"])
 
@@ -382,14 +395,22 @@ class Conda(PythonEnvironment):
         See https://github.com/readthedocs/readthedocs.org/pull/5631
         """
         try:
-            inputfile = codecs.open(
+            # Allow symlinks, but only the ones that resolve inside the base directory.
+            inputfile = safe_open(
                 os.path.join(
                     self.checkout_path,
                     self.config.conda.environment,
                 ),
-                encoding='utf-8',
-                mode='r',
+                "r",
+                allow_symlinks=True,
+                base_path=self.checkout_path,
             )
+            if not inputfile:
+                raise UserFileNotFound(
+                    UserFileNotFound.FILE_NOT_FOUND.format(
+                        self.config.conda.environment
+                    )
+                )
             environment = parse_yaml(inputfile)
         except IOError:
             log.warning(
@@ -417,14 +438,22 @@ class Conda(PythonEnvironment):
             dependencies.extend(conda_requirements)
             environment.update({'dependencies': dependencies})
             try:
-                outputfile = codecs.open(
+                # Allow symlinks, but only the ones that resolve inside the base directory.
+                outputfile = safe_open(
                     os.path.join(
                         self.checkout_path,
                         self.config.conda.environment,
                     ),
-                    encoding='utf-8',
-                    mode='w',
+                    "w",
+                    allow_symlinks=True,
+                    base_path=self.checkout_path,
                 )
+                if not outputfile:
+                    raise UserFileNotFound(
+                        UserFileNotFound.FILE_NOT_FOUND.format(
+                            self.config.conda.environment
+                        )
+                    )
                 yaml.safe_dump(environment, outputfile)
             except IOError:
                 log.warning(

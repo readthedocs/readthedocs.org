@@ -15,15 +15,15 @@ class DockerBaseSettings(CommunityDevSettings):
     DOCKER_LIMITS = {'memory': '1g', 'time': 900}
     USE_SUBDOMAIN = True
 
-    PRODUCTION_DOMAIN = 'community.dev.readthedocs.io'
-    PUBLIC_DOMAIN = 'community.dev.readthedocs.io'
+    PRODUCTION_DOMAIN = os.environ.get('RTD_PRODUCTION_DOMAIN', 'devthedocs.org')
+    PUBLIC_DOMAIN = os.environ.get('RTD_PUBLIC_DOMAIN', 'devthedocs.org')
     PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
 
     SLUMBER_API_HOST = 'http://web:8000'
     SLUMBER_USERNAME = 'admin'
     SLUMBER_PASSWORD = 'admin'
 
-    RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
+    RTD_EXTERNAL_VERSION_DOMAIN = 'build.devthedocs.org'
 
     STATIC_URL = '/static/'
 
@@ -48,6 +48,13 @@ class DockerBaseSettings(CommunityDevSettings):
     ADSERVER_API_KEY = None
     ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
 
+    @property
+    def DOCROOT(self):
+        # Add an extra directory level using the container's hostname.
+        # This allows us to run development environment with multiple builders (`--scale-build=2` or more),
+        # and avoid the builders overwritting each others when building the same project/version
+        return os.path.join(super().DOCROOT, socket.gethostname())
+
     # New templates
     @property
     def RTD_EXT_THEME_DEV_SERVER_ENABLED(self):
@@ -56,7 +63,7 @@ class DockerBaseSettings(CommunityDevSettings):
     @property
     def RTD_EXT_THEME_DEV_SERVER(self):
         if self.RTD_EXT_THEME_DEV_SERVER_ENABLED:
-            return "http://assets.community.dev.readthedocs.io:10001"
+            return "http://assets.devthedocs.org:10001"
 
     # Enable auto syncing elasticsearch documents
     ELASTICSEARCH_DSL_AUTOSYNC = 'SEARCH' in os.environ
@@ -132,14 +139,6 @@ class DockerBaseSettings(CommunityDevSettings):
             },
         }
 
-    def show_debug_toolbar(request):
-        from django.conf import settings
-        return settings.DEBUG
-
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': show_debug_toolbar,
-    }
-
     ACCOUNT_EMAIL_VERIFICATION = "none"
     SESSION_COOKIE_DOMAIN = None
     CACHES = {
@@ -173,8 +172,8 @@ class DockerBaseSettings(CommunityDevSettings):
     S3_BUILD_ENVIRONMENT_STORAGE_BUCKET = 'envs'
     S3_BUILD_TOOLS_STORAGE_BUCKET = 'build-tools'
     S3_STATIC_STORAGE_BUCKET = 'static'
-    S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'
-    S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'
+    S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
+    S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
 
     AWS_S3_ENCRYPTION = False
     AWS_S3_SECURE_URLS = False

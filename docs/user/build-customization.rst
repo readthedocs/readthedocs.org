@@ -12,6 +12,8 @@ and also how to override the build process completely:
 `Override the build process`_
     If you want full control over your build. This option supports any tool that generates HTML as part of the build.
 
+.. contents:: Table of contents
+   :local:
 
 Extend the build process
 ------------------------
@@ -71,11 +73,12 @@ There are some caveats to knowing when using user-defined jobs:
 * Environment variables are expanded in the commands (see :doc:`environment-variables`)
 * Each command is executed in a new shell process, so modifications done to the shell environment do not persist between commands
 * Any command returning non-zero exit code will cause the build to fail immediately
+  (note there is a special exit code to `cancel the build <cancel-build-based-on-a-condition>`_)
 * ``build.os`` and ``build.tools`` are required when using ``build.jobs``
 
 
-Examples
-++++++++
+``build.jobs`` examples
++++++++++++++++++++++++
 
 We've included some common examples where using :ref:`config-file/v2:build.jobs` will be useful.
 These examples may require some adaptation for each projects' use case,
@@ -100,6 +103,70 @@ To avoid this, it's possible to unshallow the clone done by Read the Docs:
      jobs:
        post_checkout:
          - git fetch --unshallow
+
+
+Cancel build based on a condition
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When a command exits with code ``183``,
+Read the Docs will cancel the build immediately.
+You can use this approach to cancel builds that you don't want to complete based on some conditional logic.
+
+.. note:: Why 183 was chosen for the exit code?
+
+   It's the word "skip" encoded in ASCII.
+   Then it's taken the 256 modulo of it because
+   `the Unix implementation does this automatically <https://tldp.org/LDP/abs/html/exitcodes.html>`_
+   for exit codes greater than 255.
+
+   .. code-block:: pycon
+
+      >>> sum(list("skip".encode("ascii")))
+      439
+      >>> 439 % 256
+      183
+
+
+Here is an example that cancels builds from pull requests when there are no changes to the ``docs/`` folder compared to the ``origin/main`` branch:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.11"
+     jobs:
+       post_checkout:
+         # Cancel building pull requests when there aren't changed in the docs directory or YAML file.
+         # You can add any other files or directories that you'd like here as well,
+         # like your docs requirements file, or other files that will change your docs build.
+         #
+         # If there are no changes (git diff exits with 0) we force the command to return with 183.
+         # This is a special exit code on Read the Docs that will cancel the build immediately.
+         - |
+           if [ "$READTHEDOCS_VERSION_TYPE" = "external" ] && git diff --quiet origin/main -- docs/ .readthedocs.yaml;
+           then
+             exit 183;
+           fi
+
+
+This other example shows how to cancel a build if the commit message contains ``skip ci`` on it:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.11"
+     jobs:
+       post_checkout:
+         # Use `git log` to check if the latest commit contains "skip ci",
+         # in that case exit the command with 183 to cancel the build
+         - (git --no-pager log --pretty="tformat:%s -- %b" -1 | grep -viq "skip ci") || exit 183
 
 
 Generate documentation from annotated sources with Doxygen
@@ -180,7 +247,7 @@ This helps ensure that all external links are still valid and readers aren't lin
        python: "3.10"
      jobs:
        pre_build:
-         - python -m sphinx -b linkcheck docs/ _build/linkcheck
+         - python -m sphinx -b linkcheck -D linkcheck_timeout=1 docs/ _build/linkcheck
 
 
 Support Git LFS (Large File Storage)
@@ -239,13 +306,46 @@ To setup it, you need to define the version of Node.js to use and install the de
          - npm install -g jsdoc
 
 
+Install dependencies with Poetry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Projects managed with `Poetry <https://python-poetry.org/>`__,
+can use the ``post_create_environment`` user-defined job to use Poetry for installing Python dependencies.
+Take a look at the following example:
+
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.10"
+     jobs:
+       post_create_environment:
+         # Install poetry
+         # https://python-poetry.org/docs/#installing-manually
+         - pip install poetry
+         # Tell poetry to not use a virtual environment
+         - poetry config virtualenvs.create false
+       post_install:
+         # Install dependencies with 'docs' dependency group
+         # https://python-poetry.org/docs/managing-dependencies/#dependency-groups
+         - poetry install --with docs
+
+   sphinx:
+     configuration: docs/conf.py
+
+
 Override the build process
 --------------------------
 
 .. warning::
 
    This feature is in a *beta phase* and could suffer incompatible changes or even removed completely in the near feature.
-   It does not yet support some of the Read the Docs' features like the :term:`flyout menu`, search and ads.
+   It does not yet support some of the Read the Docs' features like the :term:`flyout menu`, and ads.
    However, we do plan to support these features in the future.
    Use this feature at your own risk.
 
@@ -254,8 +354,23 @@ If your project requires full control of the build process,
 and :ref:`extending the build process <build-customization:extend the build process>` is not enough,
 all the commands executed during builds can be overridden using the :ref:`config-file/v2:build.commands` configuration file key.
 
-For example, if your project uses `Pelican <https://blog.getpelican.com/>`_ instead of Sphinx for its documentation,
-your project could use the following configuration file:
+As Read the Docs does not have control over the build process,
+you are responsible for running all the commands required to install requirements and build your project properly.
+Once the build process finishes, the contents of the ``_readthedocs/html/`` directory will be hosted.
+
+
+``build.commands`` examples
++++++++++++++++++++++++++++
+
+This section contains some examples that showcase what is possible with :ref:`config-file/v2:build.commands`.
+Note that you may need to modify and adapt these examples depending on your needs.
+
+
+Pelican
+~~~~~~~
+
+`Pelican <https://blog.getpelican.com/>`__ is a well-known static site generator that's commonly used for blogs and landing pages.
+If you are building your project with Pelican you could use a configuration file similar to the following:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -270,6 +385,36 @@ your project could use the following configuration file:
        - pelican --settings docs/pelicanconf.py --output _readthedocs/html/ docs/
 
 
-As Read the Docs does not have control over the build process,
-you are responsible for running all the commands required to install requirements and build the documentation properly.
-Once the build process finishes, the ``_readthedocs/html/`` folder will be hosted.
+Docsify
+~~~~~~~
+
+`Docsify <https://docsify.js.org/>`__ generates documentation websites on the fly, without the need to build static HTML.
+These projects can be built using a configuration file like this:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       nodejs: "16"
+     commands:
+       - mkdir --parents _readthedocs/html/
+       - cp --recursive docs/* _readthedocs/html/
+
+
+Search support
+++++++++++++++
+
+Read the Docs will automatically index the content of all your HTML files,
+respecting the :ref:`search <config-file/v2:search>` options from your config file.
+
+You can access the search results from the :guilabel:`Search` tab of your project,
+or by using the :doc:`/server-side-search/api`.
+
+.. note::
+
+   In order for Read the Docs to index your HTML files correctly,
+   they should follow some of the conventions described
+   at :doc:`rtd-dev:search-integration`.

@@ -11,6 +11,7 @@ from functools import lru_cache
 from django.conf import settings
 
 from readthedocs.config.utils import list_to_dict, to_dict
+from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.projects.constants import GENERIC
 
 from .find import find_one
@@ -262,6 +263,12 @@ class BuildConfigBase:
     @property
     def using_build_tools(self):
         return isinstance(self.build, BuildWithTools)
+
+    @property
+    def is_using_conda(self):
+        if self.using_build_tools:
+            return self.python_interpreter in ("conda", "mamba")
+        return self.conda is not None
 
     @property
     def python_interpreter(self):
@@ -1374,7 +1381,11 @@ def load(path, env_config):
 
     if not filename:
         raise ConfigFileNotFound(path)
-    with open(filename, 'r') as configuration_file:
+
+    # Allow symlinks, but only the ones that resolve inside the base directory.
+    with safe_open(
+        filename, "r", allow_symlinks=True, base_path=path
+    ) as configuration_file:
         try:
             config = parse(configuration_file.read())
         except ParseError as error:

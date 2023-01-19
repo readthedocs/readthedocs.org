@@ -199,13 +199,14 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
     def _get_csv_data(self):
         current_timezone = settings.TIME_ZONE
         values = [
-            (f'Date ({current_timezone})', 'created'),
-            ('User', 'log_user_username'),
-            ('Project', 'log_project_slug'),
-            ('Organization', 'log_organization_slug'),
-            ('Action', 'action'),
-            ('IP', 'ip'),
-            ('Browser', 'browser'),
+            (f"Date ({current_timezone})", "created"),
+            ("User", "log_user_username"),
+            ("Project", "log_project_slug"),
+            ("Organization", "log_organization_slug"),
+            ("Action", "action"),
+            ("IP", "ip"),
+            ("Browser", "browser"),
+            ("Extra data", "data"),
         ]
         data = self.get_queryset().values_list(*[value for _, value in values])
 
@@ -241,7 +242,7 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
         start_date = self._get_start_date()
         queryset = AuditLog.objects.filter(
             user=user,
-            action__in=[AuditLog.AUTHN, AuditLog.AUTHN_FAILURE],
+            action__in=[action for action, _ in UserSecurityLogFilter.allowed_actions],
             created__gte=start_date,
         )
         return queryset

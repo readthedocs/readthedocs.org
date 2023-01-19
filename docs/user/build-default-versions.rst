@@ -58,7 +58,8 @@ mock:
   ``1.0.1`` (could be removed in the future).
 
 pillow:
-  ``5.4.1`` (could be removed in the future).
+  ``5.4.1`` when using Python 2.7, 3.4, 3.5, 3.6, 3.7. Otherwise, its latest version
+  (could be removed in the future).
 
 alabaster:
   ``0.7.x`` (could be removed in the future).

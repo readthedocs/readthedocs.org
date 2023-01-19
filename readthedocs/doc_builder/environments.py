@@ -30,8 +30,9 @@ from .constants import (
     DOCKER_SOCKET,
     DOCKER_TIMEOUT_EXIT_CODE,
     DOCKER_VERSION,
+    RTD_SKIP_BUILD_EXIT_CODE,
 )
-from .exceptions import BuildAppError, BuildUserError
+from .exceptions import BuildAppError, BuildUserError, BuildUserSkip
 
 log = structlog.get_logger(__name__)
 
@@ -458,9 +459,9 @@ class BaseEnvironment:
                 msg = "Command failed"
                 build_output = ""
                 if build_cmd.output:
-                    build_output += "\n".join(build_cmd.output.split("\n")[10:])
-                    build_output += "\n ..Output Truncated.."
                     build_output += "\n".join(build_cmd.output.split("\n")[:10])
+                    build_output += "\n ..Output Truncated.. \n"
+                    build_output += "\n".join(build_cmd.output.split("\n")[-10:])
                 log.warning(
                     msg,
                     command=build_cmd.get_command(),
@@ -468,6 +469,8 @@ class BaseEnvironment:
                     project_slug=self.project.slug if self.project else '',
                     version_slug=self.version.slug if self.version else '',
                 )
+            elif build_cmd.exit_code == RTD_SKIP_BUILD_EXIT_CODE:
+                raise BuildUserSkip()
             else:
                 # TODO: for now, this still outputs a generic error message
                 # that is the same across all commands. We could improve this
@@ -730,8 +733,8 @@ class DockerBuildEnvironment(BuildEnvironment):
             from pathlib import Path
             binds = {
                 settings.RTD_DOCKER_COMPOSE_VOLUME: {
-                    'bind': str(Path(self.project.doc_path).parent),
-                    'mode': 'rw',
+                    "bind": str(Path(settings.DOCROOT).parent),
+                    "mode": "rw",
                 },
             }
         else:

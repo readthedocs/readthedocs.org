@@ -2,11 +2,8 @@ import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 
-from readthedocs.organizations.models import (
-    Organization,
-    OrganizationOwner,
-    Team,
-)
+from readthedocs.invitations.models import Invitation
+from readthedocs.organizations.models import Organization, OrganizationOwner, Team
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import create_user
 
@@ -76,17 +73,20 @@ class OrganizationAccessMixin:
         self.assertResponse(
             '/organizations/mozilla/owners/add/',
             method=self.client.post,
-            data={'owner': 'tester'},
+            data={"username_or_email": "tester"},
             status_code=302,
         )
         if self.is_admin():
+            invitation = Invitation.objects.for_object(self.organization).first()
+            invitation.redeem()
             self.assertEqual(self.organization.owners.count(), 2)
         else:
+            self.assertFalse(Invitation.objects.for_object(self.organization).exists())
             self.assertEqual(self.organization.owners.count(), 1)
         self.assertResponse(
             '/organizations/mozilla/owners/delete/',
             method=self.client.post,
-            data={'owner': 'tester'},
+            data={"user": "tester"},
             status_code=404,
         )
         if self.is_admin():
@@ -100,10 +100,12 @@ class OrganizationAccessMixin:
         self.assertResponse(
             '/organizations/mozilla/owners/add/',
             method=self.client.post,
-            data={'owner': 'tester'},
+            data={"username_or_email": "tester"},
             status_code=302,
         )
         if self.is_admin():
+            invitation = Invitation.objects.for_object(self.organization).first()
+            invitation.redeem()
             self.assertEqual(self.organization.owners.count(), 2)
             owner = OrganizationOwner.objects.get(
                 organization=self.organization,

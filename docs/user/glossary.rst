@@ -8,8 +8,8 @@ Glossary
       and import a new project.
 
    flyout menu
-      Menu displayed on the documentation, readily accessible for readers, containing the list active versions,
-      links to the static downloads, and other useful information.
+      Menu displayed on the documentation, readily accessible for readers, containing the list active versions, links to static downloads, and other useful links.
+      Read more in our :doc:`/flyout-menu` page.
 
    pre-defined build jobs
       Commands executed by Read the Docs when performing the build process.
@@ -26,7 +26,10 @@ Glossary
       Another name for :term:`project home`.
 
    slug
-      The lower case & hyphenated name of your project that is used in URL's. You can find this on the project :guilabel:`Overview` section of your documentation under ``Project Slug``.
+      A unique identifier for a project or version. This value comes from the
+      project or version name, which is reduced to lowercase letters, numbers,
+      and hypens. You can retreive your project or version slugs from
+      :doc:`our API <api/v3>`.
 
    root URL
       Home URL of your documentation without the ``/<lang>`` and ``/<version>`` segments.

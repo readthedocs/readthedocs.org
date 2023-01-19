@@ -1,6 +1,7 @@
 """Embed utils."""
 
 from urllib.parse import urlparse
+
 from pyquery import PyQuery as PQ  # noqa
 
 
@@ -15,13 +16,13 @@ def recurse_while_none(element):
     return {element.text: href}
 
 
-def clean_links(obj, url, html_raw_response=False):
+def clean_references(obj, url, html_raw_response=False):
     """
-    Rewrite (internal) links to make them absolute.
+    Rewrite (internal) links (href) and images (src) to make them absolute.
 
-    1. external links are not changed
+    1. external links/images are not changed
     2. prepend URL to links that are just fragments (e.g. #section)
-    3. prepend URL (without filename) to internal relative links
+    3. prepend URL (without filename) to internal relative links/images
     """
 
     # TODO: do not depend on PyQuery
@@ -30,23 +31,25 @@ def clean_links(obj, url, html_raw_response=False):
     if url is None:
         return obj
 
-    for link in obj.find('a'):
+    for tag in obj.find("a") + obj.find("img"):
         base_url = urlparse(url)
-        # We need to make all internal links, to be absolute
-        href = link.attrib['href']
-        parsed_href = urlparse(href)
+        attribute = "href" if tag.tag == "a" else "src"
+        value = tag.attrib[attribute]
+
+        # We need to make all internal links/images, to be absolute
+        parsed_href = urlparse(value)
         if parsed_href.scheme or parsed_href.path.startswith('/'):
-            # don't change external links
+            # don't change external links/images
             continue
 
-        if not parsed_href.path and parsed_href.fragment:
-            # href="#section-link"
-            new_href = base_url.geturl() + href
-            link.attrib['href'] = new_href
+        if tag.tag == "a" and not parsed_href.path and parsed_href.fragment:
+            # It's a link pointing to a specific section inside the target ``href="#section-link"``
+            cleaned_value = base_url.geturl() + value
+            tag.attrib[attribute] = cleaned_value
             continue
 
         if not base_url.path.endswith('/'):
-            # internal relative link
+            # internal relative link/image
             # href="../../another.html" and ``base_url`` is not HTMLDir
             # (e.g. /en/latest/deep/internal/section/page.html)
             # we want to remove the trailing filename (page.html) and use the rest as base URL
@@ -55,11 +58,11 @@ def clean_links(obj, url, html_raw_response=False):
 
             # remove the filename (page.html) from the original document URL (base_url) and,
             path, _ = base_url.path.rsplit('/', 1)
-            # append the value of href (../../another.html) to the base URL.
+            # append the value of href/src (../../another.html) to the base URL.
             base_url = base_url._replace(path=path + '/')
 
-        new_href = base_url.geturl() + href
-        link.attrib['href'] = new_href
+        cleaned_value = base_url.geturl() + value
+        tag.attrib[attribute] = cleaned_value
 
     if html_raw_response:
         return obj.outerHtml()
