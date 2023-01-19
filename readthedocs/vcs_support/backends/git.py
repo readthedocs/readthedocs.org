@@ -194,6 +194,23 @@ class Backend(BaseVCS):
 
         try:
             code, stdout, stderr = self.run(*cmd)
+
+            # TODO: for those VCS providers that don't tell us the `default_branch` of the repository
+            # in the incoming webhook, we need to get it from the cloned repository itself.
+            #
+            # cmd = ['git', 'symbolic-ref', 'refs/remotes/origin/HEAD']
+            # _, default_branch, _ = self.run(*cmd)
+            # default_branch = default_branch.replace('refs/remotes/origin/', '')
+            #
+            # The idea is to hit the APIv2 here to update the `latest` version with
+            # the `default_branch` we just got from the repository itself,
+            # after clonning it.
+            # However, we don't know the PK for the version we want to update.
+            #
+            # api_v2.version(pk).patch(
+            #     {'default_branch': default_branch}
+            # )
+
             return code, stdout, stderr
         except RepositoryError:
             raise RepositoryError(RepositoryError.CLONE_ERROR())

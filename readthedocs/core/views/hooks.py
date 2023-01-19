@@ -40,7 +40,7 @@ def _build_version(project, slug, already_built=()):
     return None
 
 
-def build_branches(project, branch_list, default_branch):
+def build_branches(project, branch_list):
     """
     Build the branches for a specific project.
 
@@ -52,15 +52,6 @@ def build_branches(project, branch_list, default_branch):
     not_building = set()
     for branch in branch_list:
         versions = project.versions_from_branch_name(branch)
-
-        if branch == default_branch:
-            # When the branch wanted to be build is the "Default branch" of the repository,
-            # we want to build the "Latest" version (``identifier=None``) on Read the Docs.
-            #
-            # NOTE: we kept the old versions query as well because there are
-            # old projects that don't have any version with ``identifier=None``
-            versions = project.versions.filter(identifier=None) | versions
-
         for version in versions:
             log.debug(
                 'Processing.',

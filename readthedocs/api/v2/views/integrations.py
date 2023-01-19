@@ -175,7 +175,7 @@ class WebhookMixin:
             )
         return integration
 
-    def get_response_push(self, project, branches, default_branch):
+    def get_response_push(self, project, branches):
         """
         Build branches on push events and return API response.
 
@@ -192,7 +192,7 @@ class WebhookMixin:
         :param branches: List of branch names to build
         :type branches: list(str)
         """
-        to_build, not_building = build_branches(project, branches, default_branch)
+        to_build, not_building = build_branches(project, branches)
         if not_building:
             log.info(
                 'Skipping project branches.',
@@ -279,6 +279,30 @@ class WebhookMixin:
             "project": project.slug,
             "versions": [version_closed] if version_closed else [],
         }
+
+    def update_default_branch(self, default_branch):
+        """
+        Update the `Version.identifer` for `latest` with the VCS's `default_branch`.
+
+        The VCS's `default_branch` is the branch cloned when there is no specific branch specified
+        (e.g. `git clone <URL>`).
+
+        Some VCS providers (GitHub and GitLab) send the `default_branch` via incoming webhooks.
+        We use that data to update our database and keep it in sync.
+
+        This solves the problem about "changing the default branch in GitHub"
+        and also importing repositories with a different `default_branch` than `main` manually:
+        https://github.com/readthedocs/readthedocs.org/issues/9367
+
+        In case the user already selected a `default-branch` from the "Advanced settings",
+        it does not override it.
+        """
+        if not self.project.default_branch:
+            (
+                self.project.versions.filter(slug=LATEST).update(
+                    identifier=default_branch
+                )
+            )
 
 
 class GitHubWebhookView(WebhookMixin, APIView):
@@ -417,6 +441,12 @@ class GitHubWebhookView(WebhookMixin, APIView):
             event=event,
         )
 
+        # Always update `latest` branch to point to the default branch in the repository
+        # even if the event is not gonna be handled. This helps us to keep our db in sync.
+        default_branch = self.data.get("repository", {}).get("default_branch", None)
+        if default_branch:
+            self.update_default_branch(default_branch)
+
         if event == GITHUB_PING:
             return {"detail": "Webhook configured correctly"}
 
@@ -467,14 +497,15 @@ class GitHubWebhookView(WebhookMixin, APIView):
         # Trigger a build for all branches in the push
         if event == GITHUB_PUSH:
             try:
-                branches = [self._normalize_ref(self.data['ref'])]
-                return self.get_response_push(self.project, branches, default_branch)
+                branch = self._normalize_ref(self.data["ref"])
+                return self.get_response_push(self.project, [branch])
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
 
         return None
 
     def _normalize_ref(self, ref):
+        "Remove `ref/(heads|tags)/` from the reference to match a Version on the db."
         pattern = re.compile(r'^refs/(heads|tags)/')
         return pattern.sub('', ref)
 
@@ -568,6 +599,13 @@ class GitLabWebhookView(WebhookMixin, APIView):
             data=self.request.data,
             event=event,
         )
+
+        # Always update `latest` branch to point to the default branch in the repository
+        # even if the event is not gonna be handled. This helps us to keep our db in sync.
+        default_branch = self.data.get("project", {}).get("default_branch", None)
+        if default_branch:
+            self.update_default_branch(default_branch)
+
         # Handle push events and trigger builds
         if event in (GITLAB_PUSH, GITLAB_TAG_PUSH):
             data = self.request.data
@@ -583,9 +621,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
                 return self.sync_versions_response(self.project)
             # Normal push to master
             try:
-                default_branch = data["project"]["default_branch"]
-                branches = [self._normalize_ref(data["ref"])]
-                return self.get_response_push(self.project, branches, default_branch)
+                branch = self._normalize_ref(data["ref"])
+                return self.get_response_push(self.project, [branch])
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
 
@@ -661,6 +698,11 @@ class BitbucketWebhookView(WebhookMixin, APIView):
             data=self.request.data,
             event=event,
         )
+
+        # NOTE: we can't call `self.update_default_branch` here because
+        # BitBucket does not tell us what is the `default_branch` for a
+        # repository in these incoming webhooks.
+
         if event == BITBUCKET_PUSH:
             try:
                 data = self.request.data
@@ -677,9 +719,9 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 # we don't trigger the sync versions, because that
                 # will be triggered with the normal push.
                 if branches:
-                    # FIXME: Bitbucket does not tell us what's the default branch of this repository
                     return self.get_response_push(
-                        self.project, branches, default_branch=None
+                        self.project,
+                        branches,
                     )
                 log.debug("Triggered sync_versions.")
                 return self.sync_versions_response(self.project)
@@ -759,9 +801,7 @@ class APIWebhookView(WebhookMixin, APIView):
             )
             if isinstance(branches, str):
                 branches = [branches]
-
-            # FIXME: find out what should be the default branch here
-            return self.get_response_push(self.project, branches, default_branch=None)
+            return self.get_response_push(self.project, branches)
         except TypeError:
             raise ParseError('Invalid request')
 

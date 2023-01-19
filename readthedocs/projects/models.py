@@ -480,6 +480,10 @@ class Project(models.Model):
                 raise Exception(_('Model must have slug'))
         super().save(*args, **kwargs)
 
+        # Update `Version.identifier` for `latest` with the default branch the use has selected,
+        # even if it's `None` (meaning to match the `default_branch` of the repository)
+        self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
+
         try:
             if not self.versions.filter(slug=LATEST).exists():
                 self.versions.create_latest()
