@@ -6,6 +6,7 @@ Here is some of the fine print used by |org_brand| and |com_brand|:
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
 
    /abandoned-projects
    /unofficial-projects
@@ -15,6 +16,12 @@ Here is some of the fine print used by |org_brand| and |com_brand|:
    /terms-of-service
    DMCA takedown policy </dmca/index>
    /legal/dpa/index
+
+:doc:`/abandoned-projects`
+    Our policy of taking action on abandoned projects.
+
+:doc:`/unofficial-projects`
+    Our policy of taking action on unofficial and unmaintained projects.
 
 :doc:`/terms-of-service`
     The terms of service for using |org_brand| and |com_brand|. You may instead
@@ -27,6 +34,12 @@ Here is some of the fine print used by |org_brand| and |com_brand|:
 :doc:`/legal/security-policy`
     Our policies around application and infrastructure security.
 
+:doc:`/security`
+    How we respond to security incidents and how you report a security issue.
+
 :doc:`/legal/dpa/index`
     For GDPR and CCPA compliance, we provide a data processing addendum for
     |com_brand| customers.
+
+:doc:`/dmca/index`
+    Our process for taking down content based on DMCA requests and how to submit requests.
