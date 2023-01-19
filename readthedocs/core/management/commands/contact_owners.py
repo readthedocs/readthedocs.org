@@ -29,17 +29,26 @@ class Command(BaseCommand):
 
       django-admin contact_owners --email email.md
 
-    Email and send an ephemeral (disappears after shown once) notification to all owners of the "readthedocs" organization::
+    Email and send an ephemeral (disappears after shown once) notification
+    to all owners of the "readthedocs" organization::
 
-      django-admin contact_owners --email email.md --notification notification.md --organization readthedocs
+      django-admin contact_owners
+        --email email.md
+        --notification notification.md
+        --organization readthedocs
 
     Send a sticky notifications to multiple users::
 
-      django-admin contact_owners --notification notification.md --sticky --usernames usernames.txt
+      django-admin contact_owners
+        --notification notification.md
+        --sticky
+        --usernames usernames.txt
 
     * ``usernames.txt`` is a text file containing one username per line.
-    * ``notifications.md`` is a Markdown file containing the message to be included in the notification.
-    * ``email.md`` is a Markdown file with the first line as the subject, and the rest is the content.
+    * ``notifications.md`` is a Markdown file containing the message
+       to be included in the notification.
+    * ``email.md`` is a Markdown file with the first line as the subject,
+      and the rest is the content.
       Note that ``user`` and ``domain`` are available in the context.
 
     .. code:: markdown
