@@ -817,8 +817,13 @@ class Project(models.Model):
         return doc_base
 
     def artifact_path(self, type_, version=LATEST):
-        """The path to the build html docs in the project."""
-        return os.path.join(self.doc_path, 'artifacts', version, type_)
+        """
+        The path to the build docs output for the project.
+
+        :param type_: one of `html`, `json`, `htmlzip`, `pdf`, `epub`.
+        :param version: slug of the version.
+        """
+        return os.path.join(self.checkout_path(version=version), "_readthedocs", type_)
 
     def conf_file(self, version=LATEST):
         """Find a ``conf.py`` file in the project checkout."""

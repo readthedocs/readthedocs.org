@@ -6,12 +6,11 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.core.utils.filesystem import safe_copytree
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
-from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML, GENERIC
+from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import Feature
 from readthedocs.projects.signals import after_build, before_build, before_vcs
@@ -181,11 +180,11 @@ class BuildDirector:
 
         self.run_build_job("pre_build")
 
-        self.data.outcomes["html"] = self.build_html()
-        self.data.outcomes["search"] = self.is_type_sphinx()
-        self.data.outcomes["localmedia"] = self.build_htmlzip()
-        self.data.outcomes["pdf"] = self.build_pdf()
-        self.data.outcomes["epub"] = self.build_epub()
+        # Build all formats
+        self.build_html()
+        self.build_htmlzip()
+        self.build_pdf()
+        self.build_epub()
 
         self.run_build_job("post_build")
 
@@ -362,23 +361,13 @@ class BuildDirector:
                         record=False,
                     )
 
-        # Copy files to artifacts path so they are uploaded to S3
-        target = self.data.project.artifact_path(
-            version=self.data.version.slug,
-            type_=GENERIC,
-        )
-        artifacts_path = os.path.join(cwd, BUILD_COMMANDS_OUTPUT_PATH_HTML)
-        if not os.path.exists(artifacts_path):
+        html_output_path = os.path.join(cwd, BUILD_COMMANDS_OUTPUT_PATH_HTML)
+        if not os.path.exists(html_output_path):
             raise BuildUserError(BuildUserError.BUILD_COMMANDS_WITHOUT_OUTPUT)
-
-        safe_copytree(artifacts_path, target)
 
         # Update the `Version.documentation_type` to match the doctype defined
         # by the config file. When using `build.commands` it will be `GENERIC`
         self.data.version.documentation_type = self.data.config.doctype
-
-        # Mark HTML as the only outcome available for this type of builder
-        self.data.outcomes["html"] = True
 
     def install_build_tools(self):
         """
@@ -536,8 +525,6 @@ class BuildDirector:
             self.data.version.documentation_type = builder.get_final_doctype()
 
         success = builder.build()
-        builder.move()
-
         return success
 
     def get_vcs_env_vars(self):
