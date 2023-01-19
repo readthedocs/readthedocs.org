@@ -1,7 +1,7 @@
 Server Side Search Integration
 ==============================
 
-Read the Docs provides :doc:`server side search (SSS) <rtd:server-side-search>`
+Read the Docs provides :doc:`server side search (SSS) <rtd:server-side-search/index>`
 in replace of the default search engine of your site.
 To accomplish this, Read the Docs parses the content directly from your HTML pages [*]_.
 

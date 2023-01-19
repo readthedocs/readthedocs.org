@@ -1,6 +1,5 @@
 """An abstraction over virtualenv and Conda environments."""
 
-import codecs
 import copy
 import itertools
 import os
@@ -11,8 +10,10 @@ import yaml
 from readthedocs.config import PIP, SETUPTOOLS, ParseError
 from readthedocs.config import parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
+from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.loader import get_builder_class
+from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Feature
 
 log = structlog.get_logger(__name__)
@@ -394,14 +395,22 @@ class Conda(PythonEnvironment):
         See https://github.com/readthedocs/readthedocs.org/pull/5631
         """
         try:
-            inputfile = codecs.open(
+            # Allow symlinks, but only the ones that resolve inside the base directory.
+            inputfile = safe_open(
                 os.path.join(
                     self.checkout_path,
                     self.config.conda.environment,
                 ),
-                encoding='utf-8',
-                mode='r',
+                "r",
+                allow_symlinks=True,
+                base_path=self.checkout_path,
             )
+            if not inputfile:
+                raise UserFileNotFound(
+                    UserFileNotFound.FILE_NOT_FOUND.format(
+                        self.config.conda.environment
+                    )
+                )
             environment = parse_yaml(inputfile)
         except IOError:
             log.warning(
@@ -429,14 +438,22 @@ class Conda(PythonEnvironment):
             dependencies.extend(conda_requirements)
             environment.update({'dependencies': dependencies})
             try:
-                outputfile = codecs.open(
+                # Allow symlinks, but only the ones that resolve inside the base directory.
+                outputfile = safe_open(
                     os.path.join(
                         self.checkout_path,
                         self.config.conda.environment,
                     ),
-                    encoding='utf-8',
-                    mode='w',
+                    "w",
+                    allow_symlinks=True,
+                    base_path=self.checkout_path,
                 )
+                if not outputfile:
+                    raise UserFileNotFound(
+                        UserFileNotFound.FILE_NOT_FOUND.format(
+                            self.config.conda.environment
+                        )
+                    )
                 yaml.safe_dump(environment, outputfile)
             except IOError:
                 log.warning(

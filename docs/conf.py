@@ -69,10 +69,11 @@ templates_path = ["_templates"]
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "8.8.1"
+version = "9.2.0"
 release = version
-exclude_patterns = ["_build"]
+exclude_patterns = ["_build", "shared"]
 default_role = "obj"
+intersphinx_timeout = 3  # 3 seconds timeout
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.10/", None),
     "django": (
@@ -131,10 +132,6 @@ man_pages = [
     )
 ]
 
-exclude_patterns = [
-    # 'api' # needed for ``make gettext`` to not die.
-]
-
 language = "en"
 
 locale_dirs = [
@@ -175,9 +172,12 @@ hoverxref_role_types = {
     "term": "tooltip",  # for glossaries
 }
 
+# See dev/style_guide.rst for documentation
 rst_epilog = """
 .. |org_brand| replace:: Read the Docs Community
 .. |com_brand| replace:: Read the Docs for Business
+.. |git_providers_and| replace:: GitHub, Bitbucket, and GitLab
+.. |git_providers_or| replace:: GitHub, Bitbucket, or GitLab
 """
 
 # Activate autosectionlabel plugin
@@ -195,6 +195,9 @@ notfound_context = {
 <p>Try using the search box or go to the homepage.</p>
 """,
 }
+linkcheck_retries = 2
+linkcheck_timeout = 1
+linkcheck_workers = 10
 linkcheck_ignore = [
     r"http://127\.0\.0\.1",
     r"http://localhost",
@@ -210,3 +213,6 @@ linkcheck_ignore = [
     # This page is under login
     r"https://readthedocs\.org/accounts/gold",
 ]
+
+# Disable epub mimetype warnings
+suppress_warnings = ["epub.unknown_project_files"]

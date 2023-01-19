@@ -168,11 +168,14 @@ class TestStripeEventHandlers(TestCase):
             status=SubscriptionStatus.canceled,
         )
 
+        self.assertIsNone(self.organization.stripe_subscription)
         event_handlers.checkout_completed(event=event)
 
         subscription.refresh_from_db()
+        self.organization.refresh_from_db()
         self.assertEqual(subscription.stripe_id, stripe_subscription.id)
         self.assertEqual(subscription.status, SubscriptionStatus.active)
+        self.assertEqual(self.organization.stripe_subscription, stripe_subscription)
 
     @mock.patch("readthedocs.subscriptions.event_handlers.cancel_stripe_subscription")
     def test_cancel_trial_subscription_after_trial_has_ended(
