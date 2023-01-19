@@ -183,6 +183,48 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
         )
 
+    def test_infinite_redirect(self):
+        host = "project.dev.readthedocs.io"
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/install.html",
+        )
+        with pytest.raises(Http404):
+            self.client.get(
+                "/en/latest/install.html",
+                HTTP_HOST=host,
+            )
+
+        with pytest.raises(Http404):
+            self.client.get(
+                "/en/latest/install.html?foo=bar",
+                HTTP_HOST=host,
+            )
+
+    def test_infinite_redirect_changing_protocol(self):
+        host = "project.dev.readthedocs.io"
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/install.html",
+            to_url=f"https://{host}/en/latest/install.html",
+        )
+        with pytest.raises(Http404):
+            self.client.get(
+                "/en/latest/install.html",
+                HTTP_HOST=host,
+            )
+
+        with pytest.raises(Http404):
+            self.client.get(
+                "/en/latest/install.html?foo=bar",
+                HTTP_HOST=host,
+            )
+
     def test_redirect_prefix_infinite(self):
         """
         Avoid infinite redirects.
@@ -258,7 +300,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             'http://project.dev.readthedocs.io/en/latest/tutorial/install.html',
         )
 
-    def test_redirect_with_query_params(self):
+    def test_redirect_with_query_params_from_url(self):
         self._storage_exists([
             '/media/html/project/latest/tutorial/install.html',
         ])
@@ -276,6 +318,38 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         self.assertEqual(
             r['Location'],
             'http://project.dev.readthedocs.io/en/latest/tutorial/install.html?foo=bar',
+        )
+
+    def test_redirect_with_query_params_to_url(self):
+        self._storage_exists(
+            [
+                "/media/html/project/latest/tutorial/install.html",
+            ]
+        )
+        Redirect.objects.create(
+            project=self.project,
+            redirect_type="page",
+            from_url="/install.html",
+            to_url="/tutorial/install.html?query=one",
+        )
+        r = self.client.get(
+            "/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html?query=one",
+        )
+
+        r = self.client.get(
+            "/install.html?query=two",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html?query=two&query=one",
         )
 
     def test_redirect_exact(self):
@@ -298,6 +372,24 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         self.assertEqual(
             r['Location'],
             'http://project.dev.readthedocs.io/en/latest/tutorial/install.html',
+        )
+
+    def test_redirect_exact_looks_like_version(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/versions.json",
+            to_url="/en/latest/versions.json",
+        )
+        r = self.client.get(
+            "/en/versions.json",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/versions.json",
         )
 
     def test_redirect_exact_with_rest(self):
@@ -590,6 +682,7 @@ class UserForcedRedirectTests(BaseDocServing):
         self.assertEqual(r.status_code, 404)
 
     def test_infinite_redirect(self):
+        host = "project.dev.readthedocs.io"
         fixture.get(
             Redirect,
             project=self.project,
@@ -600,6 +693,34 @@ class UserForcedRedirectTests(BaseDocServing):
         )
         r = self.client.get(
             "/en/latest/install.html",
+            HTTP_HOST=host,
+        )
+        self.assertEqual(r.status_code, 200)
+
+        r = self.client.get(
+            "/en/latest/install.html?foo=bar",
+            HTTP_HOST=host,
+        )
+        self.assertEqual(r.status_code, 200)
+
+    def test_infinite_redirect_changing_protocol(self):
+        host = "project.dev.readthedocs.io"
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/install.html",
+            to_url=f"https://{host}/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST=host,
+        )
+        self.assertEqual(r.status_code, 200)
+
+        r = self.client.get(
+            "/en/latest/install.html?foo=bar",
             HTTP_HOST="project.dev.readthedocs.io",
         )
         self.assertEqual(r.status_code, 200)
@@ -810,7 +931,6 @@ class UserForcedRedirectTests(BaseDocServing):
             r["Location"],
             "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
         )
-
 
 @override_settings(
     PYTHON_MEDIA=True,

@@ -21,7 +21,7 @@ To setup your custom domain, follow these steps:
 
 #. Go the :guilabel:`Admin` tab of your project.
 #. Click on :guilabel:`Domains`.
-#. Enter your domain.
+#. Enter the domain where you want to serve the documentation from (e.g. ``docs.example.com``).
 #. Mark the :guilabel:`Canonical` option if you want use this domain
    as your :doc:`canonical domain </canonical-urls>`.
 #. Click on :guilabel:`Add`.
@@ -109,6 +109,14 @@ this can cause a delay in validating because there is an exponential back-off in
 .. tip::
 
     Loading the domain details in the Read the Docs dashboard and saving the domain again will force a revalidation.
+
+The validation process period has ended
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+After you add a new custom domain, you have 30 days to complete the configuration.
+Once that period has ended, we will stop trying to validate your domain.
+If you still want to complete the configuration,
+go to your domain and click on :guilabel:`Save` to restart the process.
 
 Migrating from GitBook
 ~~~~~~~~~~~~~~~~~~~~~~

@@ -1,8 +1,9 @@
-var rtddata = require('./rtd-data');
+const rtddata = require('./rtd-data');
+const { createDomNode } = require('./utils');
 
 
 function init(data) {
-    var rtd = rtddata.get();
+    let rtd = rtddata.get();
 
     /// Out of date message
 
@@ -10,26 +11,22 @@ function init(data) {
         return;
     }
 
-    var currentURL = window.location.pathname.replace(rtd['version'], data.slug);
-    var warning = $(
-        '<div class="admonition warning"> ' +
-        '<p class="first admonition-title">Note</p> ' +
+    let currentURL = window.location.pathname.replace(rtd['version'], data.slug);
+    let warning = createDomNode('div', {class: 'admonition warning'});
+    let link = createDomNode('a', {href: currentURL});
+    link.innerText = data.slug;
+    warning.innerHTML = '<p class="first admonition-title">Note</p> ' +
         '<p class="last"> ' +
         'You are not reading the most recent version of this documentation. ' +
-        '<a href="#"></a> is the latest version available.' +
-        '</p>' +
-        '</div>');
+        link.outerHTML +
+        ' is the latest version available.' +
+        '</p>';
 
-    warning
-      .find('a')
-      .attr('href', currentURL)
-      .text(data.slug);
-
-    var selectors = ['[role=main]', 'main', 'div.body', 'div.document'];
-    for (var i = 0; i < selectors.length; i += 1) {
-        var body = $(selectors[i]);
-        if (body.length) {
-            body.prepend(warning);
+    let selectors = ['[role=main]', 'main', 'div.body', 'div.document'];
+    for (let selector of selectors) {
+        let element = document.querySelector(selector);
+        if (element !== null) {
+            element.prepend(warning);
             break;
         }
     }

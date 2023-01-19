@@ -1,8 +1,13 @@
 {% extends "profiles/base_profile_edit.html" %}
 
-{% load i18n %}
+{% load i18n static %}
 
 {% block title %}{% trans "Connected Services" %}{% endblock %}
+
+{% block extra_links %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "projects/css/admin.css" %}" />
+{% endblock %}
 
 {% block edit_content_header %} {% trans "Connected Services" %} {% endblock %}
 
@@ -12,6 +17,25 @@
 
   <div class="module connected-services">
     <div class="module-wrapper">
+
+      <p class="help_text">
+        {% blocktrans trimmed %}
+          On this page,
+          you can manage the integration with your Git provider(s) that enables automatic import and configuration of your repositories.
+          <a href="https://docs.readthedocs.io/en/stable/connected-accounts.html" target="_blank">Read our documentation page about connecting Git providers.</a>
+        {% endblocktrans %}
+      </p>
+
+      <ul class="socialaccount_providers">
+        {% include "socialaccount/snippets/provider_list.html" with process="connect" next="" %}
+      </ul>
+
+    </div>
+  </div>
+  <div class="module connected-services">
+    <div class="module-wrapper">
+      <h3>{% trans "Active connections" %}</h3>
+
       <p>
         {% blocktrans trimmed %}
           The following services are currently connected to your account:
@@ -74,13 +98,22 @@
         {% endif %}
 
       </div>
+
+      {% if form.accounts %}
+        <p class="help_text">
+          {% blocktrans trimmed %}
+            Note: If you press the <strong>Disconnect</strong> button to disconnect a service,
+            you should also visit your Git Provider in order to
+            delete the OAuth connection of Read the Docs.
+            On GitHub, this is located in <code>Settings > Applications > Authorized OAuth Apps</code>.
+          {% endblocktrans %}
+        </p>
+      {% endif %}
+
+    {% include "socialaccount/snippets/login_extra.html" %}
+
     </div>
+
   </div>
-
-  <ul class="socialaccount_providers">
-    {% include "socialaccount/snippets/provider_list.html" with process="connect" next="" %}
-  </ul>
-
-  {% include "socialaccount/snippets/login_extra.html" %}
 
 {% endblock %}

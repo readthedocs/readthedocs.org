@@ -4,8 +4,8 @@ Development Installation
 .. meta::
    :description lang=en: Install a local development instance of Read the Docs with our step by step guide.
 
-These are development setup and :ref:`standards <install:Core team standards>` that are followed to by the core development team. If you are a contributor to Read the Docs,
-it might a be a good idea to follow these guidelines as well.
+These are development setup and :ref:`standards <install:Core team standards>` that are followed to by the core development team.
+If you are a contributor to Read the Docs, it might a be a good idea to follow these guidelines as well.
 
 Requirements
 ------------
@@ -65,15 +65,13 @@ Set up your environment
 
       inv docker.up  --init  # --init is only needed the first time
 
-#. Go to http://community.dev.readthedocs.io to access your local instance of Read the Docs.
-   Because HSTS is enabled on ``*.readthedocs.io`` and because some browsers have HTTPS-only modes enabled, you should potentially use a fresh private/incognito session.
+#. Go to http://devthedocs.org to access your local instance of Read the Docs.
 
 
 Check that everything works
 ---------------------------
 
-#. Visit http://community.dev.readthedocs.io
-   (if your browser automatically redirect to ``https://``, use a private/incognito session)
+#. Visit http://devthedocs.org
 
 #. Login as ``admin`` /  ``admin`` and verify that the project list appears.
 
@@ -177,7 +175,9 @@ you can use ``celery.contrib.rdb``:
 
 .. code-block:: python
 
-    from celery.contrib import rdb; rdb.set_trace()
+    from celery.contrib import rdb
+
+    rdb.set_trace()
 
 When the breakpoint is hit, the Celery worker will pause on the breakpoint and
 will alert you on STDOUT of a port to connect to. You can open a shell into the container
@@ -213,16 +213,27 @@ For others, the webhook will simply fail to connect when there are new commits t
     Configuring an OAuth consumer for local development on Bitbucket
 
 * Configure the applications on GitHub, Bitbucket, and GitLab.
-  For each of these, the callback URI is ``http://community.dev.readthedocs.io/accounts/<provider>/login/callback/``
+  For each of these, the callback URI is ``http://devthedocs.org/accounts/<provider>/login/callback/``
   where ``<provider>`` is one of ``github``, ``gitlab``, or ``bitbucket_oauth2``.
   When setup, you will be given a "Client ID" (also called an "Application ID" or just "Key") and a "Secret".
 * Take the "Client ID" and "Secret" for each service and enter it in your local Django admin at:
-  ``http://community.dev.readthedocs.io/admin/socialaccount/socialapp/``.
+  ``http://devthedocs.org/admin/socialaccount/socialapp/``.
   Make sure to apply it to the "Site".
 
 
 Troubleshooting
 ---------------
+
+.. warning::
+
+    The environment is developed and mainly tested on Docker Compose v1.x.
+    If you are running Docker Compose 2.x, please make sure you have ``COMPOSE_COMPATIBILITY=true`` set.
+    This is automatically loaded via the ``.env`` file.
+    If you want to ensure that the file is loaded, run:
+
+    .. code-block:: console
+
+        source .env
 
 Builds fail with a generic error
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -266,6 +277,7 @@ you have to follow these steps:
       docker tag readthedocs/build:ubuntu-22.04-2022.03.15 readthedocs/build:ubuntu-22.04
 
 Once this is done, you should be able to trigger a new build on that project and it should succeed.
+
 
 Core team standards
 -------------------

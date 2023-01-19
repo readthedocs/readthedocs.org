@@ -140,13 +140,27 @@ PREDEFINED_MATCH_ARGS_VALUES = {
 }
 
 BUILD_STATUS_NORMAL = 'normal'
-BUILD_STATUS_DUPLICATED = 'duplicated'
 BUILD_STATUS_CHOICES = (
     (BUILD_STATUS_NORMAL, 'Normal'),
-    (BUILD_STATUS_DUPLICATED, 'Duplicated'),
 )
 
 
 MAX_BUILD_COMMAND_SIZE = 1000000  # This keeps us under Azure's upload limit
 
 LOCK_EXPIRE = 60 * 180  # Lock expires in 3 hours
+
+# All artifact types supported by Read the Docs.
+# They match the output directory (`_readthedocs/<artifact type>`)
+ARTIFACT_TYPES = (
+    "html",
+    "json",
+    "htmlzip",
+    "pdf",
+    "epub",
+)
+# Artifacts that are not deleted when uploading to the storage,
+# even if they weren't re-built in the build process.
+UNDELETABLE_ARTIFACT_TYPES = (
+    "html",
+    "json",
+)

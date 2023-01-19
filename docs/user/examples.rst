@@ -28,6 +28,10 @@ Sphinx and MkDocs examples
      - MkDocs
      - `[Git] <https://github.com/readthedocs-examples/example-mkdocs-basic/>`__ `[Rendered] <https://example-mkdocs-basic.readthedocs.io/en/latest/>`__
      - Basic example of using MkDocs
+   * - Jupyter Book
+     - Jupyter Book and Sphinx
+     - `[Git] <https://github.com/readthedocs-examples/example-jupyter-book/>`__ `[Rendered] <https://example-jupyter-book.readthedocs.io/>`__
+     - Jupyter Book with popular integrations configured
 
 
 Real-life examples

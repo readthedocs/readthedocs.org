@@ -427,12 +427,17 @@ class SphinxParser(GenericParser):
             except Exception:
                 log.info('Unable to index sections.', path=fjson_path)
 
-            try:
-                # Create a new html object, since the previous one could have been modified.
-                body = HTMLParser(data['body'])
-                domain_data = self._generate_domains_data(body)
-            except Exception:
-                log.info('Unable to index domains.', path=fjson_path)
+            # XXX: Don't index domains while we migrate the ID type of the sphinx domains table.
+            # https://github.com/readthedocs/readthedocs.org/pull/9482.
+            from readthedocs.projects.models import Feature
+
+            if not self.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
+                try:
+                    # Create a new html object, since the previous one could have been modified.
+                    body = HTMLParser(data["body"])
+                    domain_data = self._generate_domains_data(body)
+                except Exception:
+                    log.info("Unable to index domains.", path=fjson_path)
         else:
             log.info('Unable to index content.', path=fjson_path)
 
@@ -467,7 +472,15 @@ class SphinxParser(GenericParser):
         We already index those in another step.
         """
         body = super()._clean_body(body)
-        nodes_to_be_removed = self._get_sphinx_domains(body)
+        # XXX: Don't exclude domains from the general search
+        # while we migrate the ID type of the sphinx domains table
+        # https://github.com/readthedocs/readthedocs.org/pull/9482.
+        nodes_to_be_removed = []
+        from readthedocs.projects.models import Feature
+
+        if not self.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
+            nodes_to_be_removed = self._get_sphinx_domains(body)
+
         # TODO: see if we really need to remove these
         # remove `Table of Contents` elements
         nodes_to_be_removed += body.css('.toctree-wrapper') + body.css('.contents.local.topic')
@@ -532,11 +545,10 @@ class SphinxParser(GenericParser):
     def _parse_domain_tag(self, tag):
         """Returns the text from the description tag of the domain."""
 
-        # remove the 'dl', 'dt' and 'dd' tags from it
-        # because all the 'dd' and 'dt' tags are inside 'dl'
-        # and all 'dl' tags are already captured.
-        nodes_to_be_removed = tag.css('dl') + tag.css('dt') + tag.css('dd')
-        for node in nodes_to_be_removed:
+        # Remove all nested domains,
+        # since they are already parsed separately.
+        nested_domains = self._get_sphinx_domains(tag)
+        for node in nested_domains:
             if tag != node:
                 node.decompose()
 

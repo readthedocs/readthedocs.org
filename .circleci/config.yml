@@ -18,7 +18,7 @@ jobs:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-      - run: pip install --user tox
+      - run: pip install --user 'tox<5'
       - run: tox -e py310
       - codecov/upload
 
@@ -29,7 +29,7 @@ jobs:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-      - run: pip install --user tox
+      - run: pip install --user 'tox<4'
       - run: tox -c tox.embedapi.ini
 
   checks:
@@ -41,19 +41,16 @@ jobs:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
-      - run: pip install --user tox
+      - run: pip install --user 'tox<5'
+      - run: tox -e pre-commit
+      - run: tox -e migrations
+      - run: tox -e lint
       - run: scripts/circle/install_node.sh
       - run:
           name: Add node to the path
           command: |
             echo 'export PATH=~/.nvm/versions/node/v${NODE_VERSION}/bin:$PATH' >> $BASH_ENV
             source $BASH_ENV
-      - run: tox -e migrations
-      - run: tox -e pre-commit
-      - run: tox -e lint
-      - run: tox -e docs-lint
-      - run: tox -e docs
-      - run: tox -e docs-dev
       - run: tox -e eslint
 
 workflows:

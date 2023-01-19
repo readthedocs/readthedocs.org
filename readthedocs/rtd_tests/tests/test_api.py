@@ -3,11 +3,13 @@ import datetime
 import json
 from unittest import mock
 
+import dateutil
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.http import QueryDict
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -40,7 +42,6 @@ from readthedocs.api.v2.views.task_views import get_status_data
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_TRIGGERED,
-    BUILD_STATUS_DUPLICATED,
     EXTERNAL,
     EXTERNAL_VERSION_STATE_CLOSED,
     LATEST,
@@ -105,7 +106,6 @@ class APIBuildTests(TestCase):
             project=self.project,
             version=self.version,
             state=BUILD_STATE_CLONING,
-            status=BUILD_STATUS_DUPLICATED,
             success=False,
             output='Output',
             error='Error',
@@ -305,17 +305,20 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['success'], True)
         self.assertEqual(build['docs_url'], dashboard_url)
 
+    @override_settings(DOCROOT="/home/docs/checkouts/readthedocs.org/user_builds")
     def test_response_finished_and_success(self):
         """The ``view docs`` attr should return a link to the docs."""
         client = APIClient()
         client.login(username='super', password='test')
         project = get(
             Project,
-            language='en',
+            language="en",
+            slug="myproject",
             main_language_project=None,
         )
         version = get(
             Version,
+            slug="myversion",
             project=project,
             built=True,
             uploaded=True,
@@ -325,6 +328,12 @@ class APIBuildTests(TestCase):
             project=project,
             version=version,
             state='finished',
+            exit_code=0,
+        )
+        buildcommandresult = get(
+            BuildCommandResult,
+            build=build,
+            command="/home/docs/checkouts/readthedocs.org/user_builds/myproject/envs/myversion/bin/python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
             exit_code=0,
         )
         resp = client.get('/api/v2/build/{build}/'.format(build=build.pk))
@@ -339,6 +348,11 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['exit_code'], 0)
         self.assertEqual(build['success'], True)
         self.assertEqual(build['docs_url'], docs_url)
+        # Verify the path is trimmed
+        self.assertEqual(
+            build["commands"][0]["command"],
+            "python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
+        )
 
     def test_response_finished_and_fail(self):
         """The ``view docs`` attr should return a link to the dashboard."""
@@ -462,16 +476,18 @@ class APIBuildTests(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         build = resp.data
-        now = datetime.datetime.utcnow()
+        now = timezone.now()
+        start_time = now - datetime.timedelta(seconds=5)
+        end_time = now
         resp = client.post(
             '/api/v2/command/',
             {
-                'build': build['id'],
-                'command': 'echo test',
-                'description': 'foo',
-                'exit_code': 0,
-                'start_time': str(now - datetime.timedelta(seconds=5)),
-                'end_time': str(now),
+                "build": build["id"],
+                "command": "echo test",
+                "description": "foo",
+                "exit_code": 0,
+                "start_time": start_time,
+                "end_time": end_time,
             },
             format='json',
         )
@@ -479,9 +495,17 @@ class APIBuildTests(TestCase):
         resp = client.get('/api/v2/build/%s/' % build['id'])
         self.assertEqual(resp.status_code, 200)
         build = resp.data
-        self.assertEqual(len(build['commands']), 1)
-        self.assertEqual(build['commands'][0]['run_time'], 5)
-        self.assertEqual(build['commands'][0]['description'], 'foo')
+        self.assertEqual(len(build["commands"]), 1)
+        self.assertEqual(build["commands"][0]["command"], "echo test")
+        self.assertEqual(build["commands"][0]["run_time"], 5)
+        self.assertEqual(build["commands"][0]["description"], "foo")
+        self.assertEqual(build["commands"][0]["exit_code"], 0)
+        self.assertEqual(
+            dateutil.parser.parse(build["commands"][0]["start_time"]), start_time
+        )
+        self.assertEqual(
+            dateutil.parser.parse(build["commands"][0]["end_time"]), end_time
+        )
 
     def test_get_raw_log_success(self):
         project = Project.objects.get(pk=1)

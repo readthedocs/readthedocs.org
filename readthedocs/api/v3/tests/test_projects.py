@@ -3,8 +3,8 @@ from unittest import mock
 import django_dynamic_fixture as fixture
 from django.urls import reverse
 
-from readthedocs.projects.models import Project
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.projects.models import Project
 
 from .mixins import APIEndpointMixin
 
@@ -21,6 +21,48 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertDictEqual(
             response.json(),
             self._get_response_dict('projects-list'),
+        )
+
+    def test_projects_list_filter_full_hit(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(
+            reverse("projects-list"),
+            data={
+                "name": self.project.name,
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(
+            response.json(),
+            self._get_response_dict("projects-list"),
+        )
+
+    def test_projects_list_filter_partial_hit(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(
+            reverse("projects-list"),
+            data={
+                "name": self.project.name[0:3],
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(
+            response.json(),
+            self._get_response_dict("projects-list"),
+        )
+
+    def test_projects_list_filter_miss(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(
+            reverse("projects-list"),
+            data={
+                "name": "63dadecd5323d789cafe09f01cda85fd",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertDictEqual(
+            response.json(),
+            self._get_response_dict("projects-list-empty"),
         )
 
     def test_own_projects_detail(self):
@@ -118,8 +160,9 @@ class ProjectsEndpointTests(APIEndpointMixin):
                 'url': 'https://github.com/rtfd/template',
                 'type': 'git',
             },
-            'homepage': 'http://template.readthedocs.io/',
-            'programming_language': 'py',
+            "homepage": "http://template.readthedocs.io/",
+            "programming_language": "py",
+            "tags": ["test tag", "template tag"],
         }
 
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
@@ -131,12 +174,13 @@ class ProjectsEndpointTests(APIEndpointMixin):
 
         project = query.first()
         self.assertIsNone(project.remote_repository)
-        self.assertEqual(project.name, 'Test Project')
-        self.assertEqual(project.slug, 'test-project')
-        self.assertEqual(project.repo, 'https://github.com/rtfd/template')
-        self.assertEqual(project.language, 'en')
-        self.assertEqual(project.programming_language, 'py')
-        self.assertEqual(project.project_url, 'http://template.readthedocs.io/')
+        self.assertEqual(project.name, "Test Project")
+        self.assertEqual(project.slug, "test-project")
+        self.assertEqual(project.repo, "https://github.com/rtfd/template")
+        self.assertEqual(project.language, "en")
+        self.assertEqual(project.programming_language, "py")
+        self.assertEqual(project.project_url, "http://template.readthedocs.io/")
+        self.assertEqual(list(project.tags.names()), ["template tag", "test tag"])
         self.assertIn(self.me, project.users.all())
         self.assertEqual(project.builds.count(), 1)
 
@@ -243,15 +287,16 @@ class ProjectsEndpointTests(APIEndpointMixin):
                 'url': 'https://bitbucket.com/rtfd/updated-repository',
                 'type': 'hg',
             },
-            'language': 'es',
-            'programming_language': 'js',
-            'homepage': 'https://updated-homepage.org',
-            'default_version': 'stable',
-            'default_branch': 'updated-default-branch',
-            'analytics_code': 'UA-XXXXXX',
-            'show_version_warning': False,
-            'single_version': True,
-            "external_builds_enabled": True
+            "language": "es",
+            "programming_language": "js",
+            "homepage": "https://updated-homepage.org",
+            "tags": ["updated tag", "test tag"],
+            "default_version": "stable",
+            "default_branch": "updated-default-branch",
+            "analytics_code": "UA-XXXXXX",
+            "show_version_warning": False,
+            "single_version": True,
+            "external_builds_enabled": True,
         }
 
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
@@ -267,16 +312,19 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 204)
 
         self.project.refresh_from_db()
-        self.assertEqual(self.project.name, 'Updated name')
-        self.assertEqual(self.project.slug, 'project')
-        self.assertEqual(self.project.repo, 'https://bitbucket.com/rtfd/updated-repository')
-        self.assertEqual(self.project.repo_type, 'hg')
-        self.assertEqual(self.project.language, 'es')
-        self.assertEqual(self.project.programming_language, 'js')
-        self.assertEqual(self.project.project_url, 'https://updated-homepage.org')
-        self.assertEqual(self.project.default_version, 'stable')
-        self.assertEqual(self.project.default_branch, 'updated-default-branch')
-        self.assertEqual(self.project.analytics_code, 'UA-XXXXXX')
+        self.assertEqual(self.project.name, "Updated name")
+        self.assertEqual(self.project.slug, "project")
+        self.assertEqual(
+            self.project.repo, "https://bitbucket.com/rtfd/updated-repository"
+        )
+        self.assertEqual(self.project.repo_type, "hg")
+        self.assertEqual(self.project.language, "es")
+        self.assertEqual(self.project.programming_language, "js")
+        self.assertEqual(self.project.project_url, "https://updated-homepage.org")
+        self.assertEqual(list(self.project.tags.names()), ["test tag", "updated tag"])
+        self.assertEqual(self.project.default_version, "stable")
+        self.assertEqual(self.project.default_branch, "updated-default-branch")
+        self.assertEqual(self.project.analytics_code, "UA-XXXXXX")
         self.assertEqual(self.project.show_version_warning, False)
         self.assertEqual(self.project.single_version, True)
         self.assertEqual(self.project.external_builds_enabled, True)
@@ -287,7 +335,8 @@ class ProjectsEndpointTests(APIEndpointMixin):
             'repository': {
                 'url': 'https://github.com/rtfd/updated-repository',
             },
-            'default_branch': 'updated-default-branch',
+            "default_branch": "updated-default-branch",
+            "tags": ["partial tags", "updated"],
         }
 
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
@@ -303,10 +352,13 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 204)
 
         self.project.refresh_from_db()
-        self.assertEqual(self.project.name, 'Updated name')
-        self.assertEqual(self.project.slug, 'project')
-        self.assertEqual(self.project.repo, 'https://github.com/rtfd/updated-repository')
-        self.assertNotEqual(self.project.default_version, 'updated-default-branch')
+        self.assertEqual(self.project.name, "Updated name")
+        self.assertEqual(self.project.slug, "project")
+        self.assertEqual(
+            self.project.repo, "https://github.com/rtfd/updated-repository"
+        )
+        self.assertEqual(list(self.project.tags.names()), ["partial tags", "updated"])
+        self.assertNotEqual(self.project.default_version, "updated-default-branch")
 
     def test_partial_update_others_project(self):
         data = {

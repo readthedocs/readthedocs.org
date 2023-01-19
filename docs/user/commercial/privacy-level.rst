@@ -1,9 +1,7 @@
 Project Privacy Level
 ---------------------
 
-.. note::
-
-   This feature only exists on `Read the Docs for Business <https://readthedocs.com/>`__.
+.. include:: /shared/admonition-rtd-business.rst
 
 By default, only users that belong to your organization can see the dashboard of your project and its builds.
 If you want users outside your organization and anonymous users to be able to see the dashboard of your project,

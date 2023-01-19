@@ -51,6 +51,7 @@ class SphinxBuilderTest(TestCase):
 
         BaseSphinx.type = 'base'
         BaseSphinx.sphinx_build_dir = tempfile.mkdtemp()
+        BaseSphinx.relative_output_dir = "_readthedocs/"
 
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -202,7 +203,8 @@ class SphinxBuilderTest(TestCase):
             python_env=python_env,
         )
         try:
-            base_sphinx.append_conf()
+            with override_settings(DOCROOT=tmp_dir):
+                base_sphinx.append_conf()
         except Exception:
             pytest.fail('Exception was generated when append_conf called.')
 
@@ -257,7 +259,8 @@ class SphinxBuilderTest(TestCase):
             python_env=python_env,
         )
         with pytest.raises(ProjectConfigurationError):
-            base_sphinx.append_conf()
+            with override_settings(DOCROOT=tmp_docs_dir):
+                base_sphinx.append_conf()
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_use_sphinx_builders(self, load_config):
@@ -395,7 +398,8 @@ class MkdocsBuilderTest(TestCase):
                     'site_name': self.project.name,
                     'docs_dir': tmpdir,
                 }
-                builder.append_conf()
+                with override_settings(DOCROOT=tmpdir):
+                    builder.append_conf()
 
             mock_yaml.dump.assert_called_once_with(
                 {
@@ -421,7 +425,8 @@ class MkdocsBuilderTest(TestCase):
                     'theme': 'customtheme',
                     'docs_dir': tmpdir,
                 }
-                builder.append_conf()
+                with override_settings(DOCROOT=tmpdir):
+                    builder.append_conf()
 
             mock_yaml.dump.assert_called_once_with(
                 {
@@ -452,7 +457,8 @@ class MkdocsBuilderTest(TestCase):
             build_env=self.build_env,
             python_env=python_env,
         )
-        self.searchbuilder.append_conf()
+        with override_settings(DOCROOT=tmpdir):
+            self.searchbuilder.append_conf()
 
         run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
 
@@ -512,7 +518,8 @@ class MkdocsBuilderTest(TestCase):
             build_env=self.build_env,
             python_env=python_env,
         )
-        self.searchbuilder.append_conf()
+        with override_settings(DOCROOT=tmpdir):
+            self.searchbuilder.append_conf()
 
         run.assert_called_with("cat", "mkdocs.yml", cwd=mock.ANY)
 
@@ -574,7 +581,8 @@ class MkdocsBuilderTest(TestCase):
             build_env=self.build_env,
             python_env=python_env,
         )
-        builder.append_conf()
+        with override_settings(DOCROOT=tmpdir):
+            builder.append_conf()
 
         run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
 
@@ -636,7 +644,8 @@ class MkdocsBuilderTest(TestCase):
                 open(yaml_file, 'w'),
             )
             with self.assertRaises(MkDocsYAMLParseError):
-                self.searchbuilder.append_conf()
+                with override_settings(DOCROOT=tmpdir):
+                    self.searchbuilder.append_conf()
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -663,7 +672,8 @@ class MkdocsBuilderTest(TestCase):
             },
             open(yaml_file, 'w'),
         )
-        builder.append_conf()
+        with override_settings(DOCROOT=tmpdir):
+            builder.append_conf()
         config = yaml_load_safely(open(yaml_file))
 
         self.assertEqual(
@@ -708,7 +718,8 @@ class MkdocsBuilderTest(TestCase):
             build_env=self.build_env,
             python_env=python_env,
         )
-        self.searchbuilder.append_conf()
+        with override_settings(DOCROOT=tmpdir):
+            self.searchbuilder.append_conf()
 
         run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
 
@@ -744,7 +755,8 @@ class MkdocsBuilderTest(TestCase):
             build_env=self.build_env,
             python_env=python_env,
         )
-        self.searchbuilder.append_conf()
+        with override_settings(DOCROOT=tmpdir):
+            self.searchbuilder.append_conf()
 
         generate_rtd_data.assert_called_with(
             docs_dir='docs',
@@ -781,7 +793,8 @@ class MkdocsBuilderTest(TestCase):
             python_env=python_env,
         )
         with self.assertRaises(MkDocsYAMLParseError):
-            self.searchbuilder.append_conf()
+            with override_settings(DOCROOT=tmpdir):
+                self.searchbuilder.append_conf()
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -810,7 +823,8 @@ class MkdocsBuilderTest(TestCase):
             build_env=self.build_env,
             python_env=python_env,
         )
-        self.searchbuilder.append_conf()
+        with override_settings(DOCROOT=tmpdir):
+            self.searchbuilder.append_conf()
 
         run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
 
@@ -856,7 +870,8 @@ class MkdocsBuilderTest(TestCase):
         with self.assertRaisesMessage(
                 MkDocsYAMLParseError, MkDocsYAMLParseError.EMPTY_CONFIG
         ):
-            self.searchbuilder.append_conf()
+            with override_settings(DOCROOT=tmpdir):
+                self.searchbuilder.append_conf()
 
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_yaml_config_not_returns_dict(self, checkout_path):
@@ -882,4 +897,5 @@ class MkdocsBuilderTest(TestCase):
         with self.assertRaisesMessage(
                 MkDocsYAMLParseError, MkDocsYAMLParseError.CONFIG_NOT_DICT
         ):
-            self.searchbuilder.append_conf()
+            with override_settings(DOCROOT=tmpdir):
+                self.searchbuilder.append_conf()

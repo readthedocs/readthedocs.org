@@ -1,6 +1,10 @@
 from unittest import mock
 
-from corsheaders.middleware import CorsMiddleware
+from corsheaders.middleware import (
+    ACCESS_CONTROL_ALLOW_CREDENTIALS,
+    ACCESS_CONTROL_ALLOW_ORIGIN,
+    CorsMiddleware,
+)
 from django.conf import settings
 from django.http import HttpResponse
 from django.test import TestCase, override_settings
@@ -73,7 +77,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://my.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertIn('Access-Control-Allow-Origin', resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
     def test_dont_allow_linked_domain_from_private_version(self):
         self.version.privacy_level = PRIVATE
@@ -84,7 +89,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://my.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertNotIn('Access-Control-Allow-Origin', resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
     def test_allowed_api_public_version_from_another_domain(self):
         request = self.factory.get(
@@ -93,7 +99,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://docs.another.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertIn('Access-Control-Allow-Origin', resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
         request = self.factory.get(
             self.url,
@@ -101,7 +108,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://another.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertIn('Access-Control-Allow-Origin', resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
     def test_not_allowed_api_private_version_from_another_domain(self):
         self.version.privacy_level = PRIVATE
@@ -112,7 +120,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://docs.another.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertNotIn('Access-Control-Allow-Origin', resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
         request = self.factory.get(
             self.url,
@@ -120,7 +129,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://another.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertNotIn('Access-Control-Allow-Origin', resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
     def test_valid_subproject(self):
         self.assertTrue(
@@ -135,7 +145,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://my.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertIn('Access-Control-Allow-Origin', resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
     def test_embed_api_private_version_linked_domain(self):
         self.version.privacy_level = PRIVATE
@@ -146,7 +157,25 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://my.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertNotIn('Access-Control-Allow-Origin', resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+
+    def test_embed_api_external_url(self):
+        request = self.factory.get(
+            "/api/v2/embed/",
+            {"url": "https://pip.readthedocs.io/en/latest/index.hml"},
+            HTTP_ORIGIN="http://my.valid.domain",
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn("Access-Control-Allow-Origin", resp)
+
+        request = self.factory.get(
+            "/api/v2/embed/",
+            {"url": "https://docs.example.com/en/latest/index.hml"},
+            HTTP_ORIGIN="http://my.valid.domain",
+        )
+        resp = self.middleware.process_response(request, {})
+        self.assertIn("Access-Control-Allow-Origin", resp)
 
     @mock.patch('readthedocs.core.signals._has_donate_app')
     def test_sustainability_endpoint_allways_allowed(self, has_donate_app):
@@ -157,7 +186,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://invalid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertIn('Access-Control-Allow-Origin', resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
         request = self.factory.get(
             '/api/v2/sustainability/',
@@ -165,7 +195,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://my.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertIn('Access-Control-Allow-Origin', resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
     @mock.patch('readthedocs.core.signals._has_donate_app')
     def test_sustainability_endpoint_no_ext(self, has_donate_app):
@@ -176,7 +207,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://invalid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertNotIn('Access-Control-Allow-Origin', resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
         request = self.factory.get(
             '/api/v2/sustainability/',
@@ -184,7 +216,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://my.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertNotIn('Access-Control-Allow-Origin', resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
     def test_apiv2_endpoint_not_allowed(self):
         request = self.factory.get(
@@ -193,7 +226,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://invalid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertNotIn('Access-Control-Allow-Origin', resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
         # This also doesn't work on registered domains.
         request = self.factory.get(
@@ -202,7 +236,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://my.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertNotIn('Access-Control-Allow-Origin', resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
         # Or from our public domain.
         request = self.factory.get(
@@ -211,7 +246,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://docs.readthedocs.io/',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertNotIn('Access-Control-Allow-Origin', resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
         # POST is not allowed
         request = self.factory.post(
@@ -220,7 +256,8 @@ class TestCORSMiddleware(TestCase):
             HTTP_ORIGIN='http://my.valid.domain',
         )
         resp = self.middleware.process_response(request, {})
-        self.assertNotIn('Access-Control-Allow-Origin', resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
 
 
 class TestSessionMiddleware(TestCase):

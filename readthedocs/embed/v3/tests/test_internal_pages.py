@@ -42,18 +42,17 @@ class TestEmbedAPIv3InternalPages:
             yield read_mock
         return f
 
-    def _patch_storage_open(self, storage_mock, content):
-        storage_mock.exists.return_value = True
-        storage_mock.open.side_effect = self._mock_open(content)
-
-    @pytest.mark.sphinx('html', srcdir=srcdir, freshenv=True)
-    @mock.patch('readthedocs.embed.v3.views.build_media_storage')
-    def test_default_main_section(self, build_media_storage, app, client):
+    @pytest.mark.sphinx("html", srcdir=srcdir, freshenv=True)
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.open")
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.exists")
+    def test_default_main_section(self, storage_exists, storage_open, app, client):
         app.build()
         path = app.outdir / 'index.html'
         assert path.exists() is True
         content = open(path).read()
-        self._patch_storage_open(build_media_storage, content)
+
+        storage_exists.return_value = True
+        storage_open.side_effect = self._mock_open(content)
 
         params = {
             'url': 'https://project.readthedocs.io/en/latest/',
@@ -79,3 +78,20 @@ class TestEmbedAPIv3InternalPages:
             'content': content,
             'external': False,
         }
+
+    @pytest.mark.sphinx("html", srcdir=srcdir, freshenv=False)
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.open")
+    @mock.patch("readthedocs.embed.v3.views.build_media_storage.exists")
+    def test_s3_storage_decoded_filename(
+        self, storage_exists, storage_open, app, client
+    ):
+        storage_exists.return_value = True
+        storage_open.side_effect = self._mock_open('<div id="section">content</div>')
+
+        params = {
+            "url": "https://project.readthedocs.io/en/latest/My%20Spaced%20File.html#section",
+        }
+        response = client.get(self.api_url, params)
+        assert response.status_code == 200
+
+        storage_open.assert_called_once_with("html/project/latest/My Spaced File.html")

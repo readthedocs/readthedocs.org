@@ -3,16 +3,18 @@
 
 from django.conf import settings
 from django.contrib import messages
+from django.http import HttpResponseBadRequest
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from vanilla import CreateView, DeleteView, ListView, UpdateView
+from vanilla import CreateView, DeleteView, FormView, ListView, UpdateView
 
 from readthedocs.audit.filters import OrganizationSecurityLogFilter
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.forms import (
     OrganizationSignupForm,
     OrganizationTeamProjectForm,
@@ -48,7 +50,7 @@ class CreateOrganizationSignup(PrivateViewMixin, OrganizationView, CreateView):
 
         .. note::
 
-            This method is overriden here from
+            This method is overridden here from
             ``OrganizationView.get_success_url`` because that method
             redirects to Organization's Edit page.
         """
@@ -97,14 +99,25 @@ class EditOrganizationOwners(PrivateViewMixin, OrganizationOwnerView, ListView):
         return context
 
 
-class AddOrganizationOwner(PrivateViewMixin, OrganizationOwnerView, CreateView):
-    template_name = 'organizations/admin/owners_edit.html'
-    success_message = _('Owner added')
+class AddOrganizationOwner(PrivateViewMixin, OrganizationOwnerView, FormView):
+    template_name = "organizations/admin/owners_edit.html"
+    success_message = _("Invitation sent")
+
+    def form_valid(self, form):
+        # Manually calling to save, since this isn't a ModelFormView.
+        form.save()
+        return super().form_valid(form)
 
 
 class DeleteOrganizationOwner(PrivateViewMixin, OrganizationOwnerView, DeleteView):
     success_message = _('Owner removed')
     http_method_names = ['post']
+
+    def post(self, request, *args, **kwargs):
+        if self._is_last_user():
+            return HttpResponseBadRequest(_("User is the last owner, can't be removed"))
+        messages.success(self.request, self.success_message)
+        return super().post(request, *args, **kwargs)
 
 
 # Team views
@@ -146,12 +159,16 @@ class UpdateOrganizationTeamProject(PrivateViewMixin, OrganizationTeamView, Upda
     template_name = 'organizations/team_project_edit.html'
 
 
-class AddOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView, CreateView):
-    success_message = _('Member added to team')
+class AddOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView, FormView):
     template_name = 'organizations/team_member_create.html'
 
     def form_valid(self, form):
-        form.instance.send_add_notification(self.request)
+        # Manually calling to save, since this isn't a ModelFormView.
+        result = form.save()
+        if isinstance(result, Invitation):
+            messages.success(self.request, _("Invitation sent"))
+        else:
+            messages.success(self.request, _("Member added to team"))
         return super().form_valid(form)
 
 
@@ -161,10 +178,6 @@ class DeleteOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView,
 
     def post(self, request, *args, **kwargs):
         """Hack to show messages on delete."""
-        # Linter doesn't like declaring `self.object` outside `__init__`.
-        self.object = self.get_object()  # noqa
-        if self.object.invite:
-            self.object.invite.delete()
         resp = super().post(request, *args, **kwargs)
         messages.success(self.request, self.success_message)
         return resp
@@ -187,14 +200,15 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
         organization = self.get_organization()
         current_timezone = settings.TIME_ZONE
         values = [
-            (f'Date ({current_timezone})', 'created'),
-            ('User', 'log_user_username'),
-            ('Project', 'log_project_slug'),
-            ('Organization', 'log_organization_slug'),
-            ('Action', 'action'),
-            ('Resource', 'resource'),
-            ('IP', 'ip'),
-            ('Browser', 'browser'),
+            (f"Date ({current_timezone})", "created"),
+            ("User", "log_user_username"),
+            ("Project", "log_project_slug"),
+            ("Organization", "log_organization_slug"),
+            ("Action", "action"),
+            ("Resource", "resource"),
+            ("IP", "ip"),
+            ("Browser", "browser"),
+            ("Extra data", "data"),
         ]
         data = self.get_queryset().values_list(*[value for _, value in values])
 
@@ -247,10 +261,7 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
         queryset = AuditLog.objects.filter(
             log_organization_id=organization.id,
             action__in=[
-                AuditLog.AUTHN,
-                AuditLog.AUTHN_FAILURE,
-                AuditLog.PAGEVIEW,
-                AuditLog.DOWNLOAD,
+                action for action, _ in OrganizationSecurityLogFilter.allowed_actions
             ],
             created__gte=start_date,
         )

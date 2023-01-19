@@ -15,15 +15,15 @@ class DockerBaseSettings(CommunityDevSettings):
     DOCKER_LIMITS = {'memory': '1g', 'time': 900}
     USE_SUBDOMAIN = True
 
-    PRODUCTION_DOMAIN = os.environ.get('RTD_PRODUCTION_DOMAIN', 'community.dev.readthedocs.io')
-    PUBLIC_DOMAIN = PRODUCTION_DOMAIN
+    PRODUCTION_DOMAIN = os.environ.get('RTD_PRODUCTION_DOMAIN', 'devthedocs.org')
+    PUBLIC_DOMAIN = os.environ.get('RTD_PUBLIC_DOMAIN', 'devthedocs.org')
     PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
 
     SLUMBER_API_HOST = 'http://web:8000'
     SLUMBER_USERNAME = 'admin'
     SLUMBER_PASSWORD = 'admin'
 
-    RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
+    RTD_EXTERNAL_VERSION_DOMAIN = 'build.devthedocs.org'
 
     STATIC_URL = '/static/'
 
@@ -63,7 +63,7 @@ class DockerBaseSettings(CommunityDevSettings):
     @property
     def RTD_EXT_THEME_DEV_SERVER(self):
         if self.RTD_EXT_THEME_DEV_SERVER_ENABLED:
-            return "http://assets.community.dev.readthedocs.io:10001"
+            return "http://assets.devthedocs.org:10001"
 
     # Enable auto syncing elasticsearch documents
     ELASTICSEARCH_DSL_AUTOSYNC = 'SEARCH' in os.environ
@@ -138,14 +138,6 @@ class DockerBaseSettings(CommunityDevSettings):
                 "PORT": "",
             },
         }
-
-    def show_debug_toolbar(request):
-        from django.conf import settings
-        return settings.DEBUG
-
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': show_debug_toolbar,
-    }
 
     ACCOUNT_EMAIL_VERIFICATION = "none"
     SESSION_COOKIE_DOMAIN = None
