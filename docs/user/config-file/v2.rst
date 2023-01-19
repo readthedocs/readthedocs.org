@@ -938,3 +938,10 @@ These settings aren't supported via the configuration file.
 * ``Show versions warning``
 * ``Privacy level``
 * ``Analytics code``
+
+
+Previous version: v1
+--------------------
+
+Version 1 is deprecated and using it is discouraged,
+view its reference here :doc:`/config-file/v2`.

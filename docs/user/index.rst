@@ -87,6 +87,7 @@ to help you create fantastic documentation for your project.
    /single_version
    /science
    /commercial/organizations
+   /config-file/index
 
 .. toctree::
    :maxdepth: 2
@@ -108,6 +109,7 @@ to help you create fantastic documentation for your project.
 
    api/index
    reference/features
+   /config-file/v2
 
 
 Read the Docs feature overview
@@ -149,7 +151,6 @@ and some of the core features of Read the Docs.
    :caption: Features
 
    /features
-   /config-file/index
    /integrations
    /versions
    /hosting

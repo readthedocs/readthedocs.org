@@ -1,9 +1,17 @@
-Configuration File
-==================
+Configuring your project with "Configuration as Code"
+=====================================================
 
-In addition to using the admin panel of your project to configure your project,
-you can use a configuration file in the root of your project.
-The configuration file should be named ``.readthedocs.yaml``.
+You can configure your Read the Docs project by adding a special file ``.readthedocs.yaml`` to your Git repository.
+The file can contain a number of settings that are not accessible through the Read the Docs website.
+
+The recommended way to configure a project is therefore also through ``.readthedocs.yaml``.
+
+"Configuration as Code" is a concept whereby the configuration or settings of software is maintained in a Git repository as *code*.
+Alternatively, configurations are often added and managed inside the software's own UI,
+making it hard to track changes, and reproduce and copy behavior to other projects.
+
+Because of its fragility and uniqueness,
+the alternative to "Configuration as Code" is also often referred to as snowflake ❄️ configuration.
 
 .. note::
 
