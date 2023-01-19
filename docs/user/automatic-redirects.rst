@@ -1,3 +1,7 @@
+.. old reference
+
+.. _Automatic Redirects:
+
 Incoming links: Best practices and redirects
 ============================================
 
