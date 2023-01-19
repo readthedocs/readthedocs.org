@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("projects", "0090_dont_allow_ips_on_domains"),
+        ("projects", "0094_auto_20221221_1045"),
     ]
 
     operations = [
