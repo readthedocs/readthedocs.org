@@ -4,6 +4,9 @@ Policies and legal documents
 
 Here is some of the fine print used by |org_brand| and |com_brand|:
 
+.. File locations are a bit odd here because of legacy.
+.. We will move files to new locations and create redirects in a later refactor
+
 .. toctree::
    :maxdepth: 1
    :hidden:
