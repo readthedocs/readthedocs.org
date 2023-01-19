@@ -40,6 +40,16 @@ class URLAccessMixin:
     def get_url_path_ctx(self):
         return {}
 
+    def _test_cache_poisoning(self, path):
+        # Test for cache poisoning in URLs,
+        # to avoid problems like GHSA-7fcx-wwr3-99jv.
+        original_path = path
+        if not path.endswith("/"):
+            path += "/"
+        path += "lib.js"
+        r = self.client.head(path)
+        self.assertNotEqual(r.status_code, 200, f"Path vulnerable to cache poisoning. path={original_path}")
+
     def assertResponse(self, path, name=None, method=None, data=None, **kwargs):
         self.login()
         if method is None:
@@ -82,6 +92,8 @@ class URLAccessMixin:
                      value=resp_val,
                  )),
             )
+
+        self._test_cache_poisoning(path)
         return response
 
     def _test_context(self, response):
