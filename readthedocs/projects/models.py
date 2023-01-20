@@ -1807,6 +1807,7 @@ class Feature(models.Model):
     # may be added by other packages
     ALLOW_DEPRECATED_WEBHOOKS = "allow_deprecated_webhooks"
     DONT_OVERWRITE_SPHINX_CONTEXT = "dont_overwrite_sphinx_context"
+    SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
     DONT_SHALLOW_CLONE = "dont_shallow_clone"
@@ -1857,6 +1858,12 @@ class Feature(models.Model):
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
                 'Do not overwrite context vars in conf.py with Read the Docs context',
+            ),
+        ),
+        (
+            SKIP_SPHINX_HTML_THEME_PATH,
+            _(
+                "On Sphinx < 6, do not define html_theme_path",
             ),
         ),
         (

@@ -18,6 +18,15 @@ This helps users to pin dependencies on conda and to improve build time.
 
 ``DONT_OVERWRITE_SPHINX_CONTEXT``: :featureflags:`DONT_OVERWRITE_SPHINX_CONTEXT`
 
+``SKIP_SPHINX_HTML_THEME_PATH``: :featureflags:`SKIP_SPHINX_HTML_THEME_PATH`
+
+When using sphinx-rtd-theme, ``html_theme_path`` is defined automatically in ``conf.py`` for older versions of Sphinx.
+All projects created after January 2023 and projects using Sphinx 6+ skips the definition and do not need this feature flag.
+
+If you need to explicitly block ``html_theme_path`` from being defined,
+please state *why* you need this feature flag enabled,
+as we will have to consider this a potential bug.
+
 ``DONT_CREATE_INDEX``: :featureflags:`DONT_CREATE_INDEX`
 
 When Read the Docs detects that your project doesn't have an ``index.md`` or ``README.rst``,
