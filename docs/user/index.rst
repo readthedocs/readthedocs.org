@@ -87,7 +87,6 @@ to help you create fantastic documentation for your project.
    /single_version
    /science
    /commercial/organizations
-   /server-side-search/index
 
 .. toctree::
    :maxdepth: 2
