@@ -93,6 +93,10 @@ class NoManifestS3StaticStorage(
     this way we can get the URL of any file in that bucket, even hashed ones.
     """
 
+    # Root path of the nginx internal redirect
+    # that will serve files from this storage.
+    internal_redirect_root_path = "proxito-static"
+
 
 class S3BuildEnvironmentStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3Boto3Storage):
 

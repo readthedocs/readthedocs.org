@@ -29,7 +29,10 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.models import Domain, Feature, Project
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.redirects.models import Redirect
-from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
+from readthedocs.rtd_tests.storage import (
+    BuildMediaFileSystemStorageTest,
+    StaticFileSystemStorageTest,
+)
 from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 
 from .base import BaseDocServing
@@ -1181,7 +1184,7 @@ class TestAdditionalDocViews(BaseDocServing):
 
     @mock.patch(
         "readthedocs.proxito.views.mixins.staticfiles_storage",
-        new=BuildMediaFileSystemStorageTest(),
+        new=StaticFileSystemStorageTest(),
     )
     def test_serve_static_files(self):
         resp = self.client.get(
@@ -1225,7 +1228,7 @@ class TestAdditionalDocViews(BaseDocServing):
 # backend will set it for the whole test suite).
 @mock.patch(
     "readthedocs.proxito.views.mixins.staticfiles_storage",
-    new=BuildMediaFileSystemStorageTest(),
+    new=StaticFileSystemStorageTest(),
 )
 class TestCDNCache(BaseDocServing):
 

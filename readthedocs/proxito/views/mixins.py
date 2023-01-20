@@ -14,6 +14,8 @@ from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 from slugify import slugify as unicode_slugify
 
+from readthedocs.analytics.tasks import analytics_event
+from readthedocs.analytics.utils import get_client_ip
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.core.resolver import resolve
@@ -30,6 +32,11 @@ class InvalidPathError(Exception):
     """An invalid path was passed to storage."""
 
 
+class StorageFileNotFound(Exception):
+
+    """The file wasn't found in the storage backend."""
+
+
 class ServeDocsMixin:
 
     """Class implementing all the logic to serve a document."""
@@ -41,7 +48,9 @@ class ServeDocsMixin:
         Serve a documentation file.
 
         :param check_if_exists: If `True` we check if the file exists before trying
-         to serve it.
+         to serve it. This will raisen an exception if the file doesn't exists.
+         Useful to make sure were are serving a file that exists in storage,
+         checking if the file exists will make one additional request to the storage.
         """
         base_storage_path = project.get_storage_path(
             type_=MEDIA_TYPE_HTML,
@@ -60,7 +69,7 @@ class ServeDocsMixin:
         storage_path = build_media_storage.join(base_storage_path, filename.lstrip("/"))
 
         if check_if_exists and not build_media_storage.exists(storage_path):
-            return None
+            raise StorageFileNotFound
 
         self._track_pageview(
             project=project,
@@ -94,6 +103,16 @@ class ServeDocsMixin:
             request=request,
             download=True,
         )
+
+        # Send media download to analytics - sensitive data is anonymized
+        analytics_event.delay(
+            event_category="Build Media",
+            event_action=f"Download {type_}",
+            event_label=str(version),
+            ua=request.headers.get("User-Agent"),
+            uip=get_client_ip(request),
+        )
+
         response = self._serve_file(
             request=request,
             storage_path=storage_path,
@@ -129,13 +148,10 @@ class ServeDocsMixin:
         if settings.PYTHON_MEDIA:
             return self._serve_file_from_python(request, storage_url, storage_backend)
 
-        if storage_backend == build_media_storage:
-            root_path = "proxito"
-        elif storage_backend == staticfiles_storage:
-            root_path = "proxito-static"
-        else:
-            raise ValueError("Invalid storage backend.")
-        return self._serve_file_from_nginx(storage_url, root_path=root_path)
+        return self._serve_file_from_nginx(
+            storage_url,
+            root_path=storage_backend.internal_redirect_root_path,
+        )
 
     def _get_storage_url(self, request, storage_path, storage_backend):
         """

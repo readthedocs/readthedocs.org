@@ -19,8 +19,6 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
 from taggit.models import Tag
 
-from readthedocs.analytics.tasks import analytics_event
-from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
@@ -362,15 +360,6 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
                 project__slug=project_slug,
                 slug=version_slug,
             )
-
-        # Send media download to analytics - sensitive data is anonymized
-        analytics_event.delay(
-            event_category='Build Media',
-            event_action=f'Download {type_}',
-            event_label=str(version),
-            ua=request.headers.get("User-Agent"),
-            uip=get_client_ip(request),
-        )
 
         return self._serve_dowload(
             request=request,

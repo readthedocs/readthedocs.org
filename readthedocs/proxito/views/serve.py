@@ -26,7 +26,12 @@ from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
 from .decorators import map_project_slug
-from .mixins import InvalidPathError, ServeDocsMixin, ServeRedirectMixin
+from .mixins import (
+    InvalidPathError,
+    ServeDocsMixin,
+    ServeRedirectMixin,
+    StorageFileNotFound,
+)
 from .utils import _get_project_data_from_request
 
 log = structlog.get_logger(__name__)  # noqa
@@ -486,17 +491,21 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             project_slug=project.slug,
             version_slug=version.slug,
         )
-        response = self._serve_docs(
-            request=request,
-            project=project,
-            version=version,
-            filename="robots.txt",
-            check_if_exists=True,
-        )
-        if response:
+
+        try:
+            response = self._serve_docs(
+                request=request,
+                project=project,
+                version=version,
+                filename="robots.txt",
+                check_if_exists=True,
+            )
             log.info('Serving custom robots.txt file.')
             return response
+        except StorageFileNotFound:
+            pass
 
+        # Serve default robots.txt
         sitemap_url = '{scheme}://{domain}/sitemap.xml'.format(
             scheme='https',
             domain=project.subdomain(),
