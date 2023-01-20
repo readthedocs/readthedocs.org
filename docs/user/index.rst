@@ -106,8 +106,10 @@ to help you create fantastic documentation for your project.
    :caption: Reference
    :glob:
 
-   api/index
-   reference/features
+   /api/index
+   /server-side-search/api
+   /reference/features
+   /server-side-search/syntax
 
 
 Read the Docs feature overview
@@ -153,7 +155,6 @@ and some of the core features of Read the Docs.
    /integrations
    /versions
    /hosting
-   /server-side-search/index
    /security-log
 
    /builds
