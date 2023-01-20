@@ -728,8 +728,11 @@ class CommunityBaseSettings(Settings):
     }
 
     # CORS
-    # So cookies can be included in cross-domain requests where needed (eg. sustainability API).
-    CORS_ALLOW_CREDENTIALS = True
+    # Don't allow sending cookies in cross-domain requests, this is so we can
+    # relax our CORS headers for more views, but at the same time not opening
+    # users to CSRF attacks. The sustainability API is the only view that requires
+    # cookies to be send cross-site, we override that for that view only.
+    CORS_ALLOW_CREDENTIALS = False
     CORS_ALLOW_HEADERS = (
         'x-requested-with',
         'content-type',
