@@ -7,3 +7,4 @@ Features
    :maxdepth: 1
 
    analytics
+   /server-side-search/index

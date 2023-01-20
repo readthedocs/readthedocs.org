@@ -1,12 +1,11 @@
 """Base classes for Builders."""
 
 import os
-import shutil
 from functools import wraps
 
 import structlog
 
-from readthedocs.core.utils.filesystem import safe_copytree, safe_open, safe_rmtree
+from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.projects.models import Feature
 
 log = structlog.get_logger(__name__)
@@ -27,15 +26,9 @@ def restoring_chdir(fn):
 
 class BaseBuilder:
 
-    """
-    The Base for all Builders. Defines the API for subclasses.
-
-    Expects subclasses to define ``old_artifact_path``, which points at the
-    directory where artifacts should be copied from.
-    """
+    """The Base for all Builders. Defines the API for subclasses."""
 
     ignore_patterns = []
-    old_artifact_path = None
 
     def __init__(self, build_env, python_env):
         self.build_env = build_env
@@ -44,10 +37,6 @@ class BaseBuilder:
         self.project = build_env.project
         self.config = python_env.config if python_env else None
         self.project_path = self.project.checkout_path(self.version.slug)
-        self.target = self.project.artifact_path(
-            version=self.version.slug,
-            type_=self.type,
-        )
 
     def get_final_doctype(self):
         """Some builders may have a different doctype at build time."""
@@ -60,27 +49,8 @@ class BaseBuilder:
         """Do the actual building of the documentation."""
         raise NotImplementedError
 
-    def move(self, **__):
-        """Move the generated documentation to its artifact directory."""
-        if os.path.exists(self.old_artifact_path):
-            if os.path.exists(self.target):
-                safe_rmtree(self.target)
-            log.debug('Copying output type on the local filesystem.', output_type=self.type)
-            log.debug('Ignoring patterns.', patterns=self.ignore_patterns)
-            safe_copytree(
-                self.old_artifact_path,
-                self.target,
-                ignore=shutil.ignore_patterns(*self.ignore_patterns),
-            )
-        else:
-            log.warning('Not moving docs because the build dir is unknown.')
-
-    def clean(self, **__):
-        """Clean the path where documentation will be built."""
-        # NOTE: this shouldn't be needed. We are always CLEAN_AFTER_BUILD now
-        if os.path.exists(self.old_artifact_path):
-            safe_rmtree(self.old_artifact_path)
-            log.info('Removing old artifact path.', path=self.old_artifact_path)
+    def _post_build(self):
+        """Execute extra steps (e.g. create ZIP, rename PDF, etc) after building if required."""
 
     def docs_dir(self, docs_dir=None, **__):
         """Handle creating a custom docs_dir if it doesn't exist."""

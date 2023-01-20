@@ -7,11 +7,6 @@ If you are using :doc:`/commercial/index` you will need to replace
 https://readthedocs.org/ with https://readthedocs.com/ in all the URLs used in the following examples.
 Check :ref:`server-side-search/api:authentication and authorization` if you are using private versions.
 
-.. contents:: Table of contents
-   :local:
-   :backlinks: none
-   :depth: 3
-
 API V3
 ------
 
