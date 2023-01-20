@@ -239,8 +239,6 @@ out of your documentation and Read the Docs.
    flyout-menu
    feature-flags
 
-   user-defined-redirects
-
    automation-rules
    canonical-urls
 
