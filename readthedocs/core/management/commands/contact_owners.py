@@ -67,7 +67,8 @@ class Command(BaseCommand):
     .. note::
 
        If you need to extend the behavior or add a new use case,
-       we recommend creating a simple script file that re-use the methods and functions from this command.
+       we recommend creating a simple script file that re-use the methods
+       and functions from this command.
        This is an example to contact Domain owners:
        https://gist.github.com/humitos/3e08ed4763a9312f5c0a9a997ea95a42
     """
