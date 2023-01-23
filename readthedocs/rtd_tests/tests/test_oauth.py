@@ -576,7 +576,7 @@ class GitHubOAuthTests(TestCase):
 
 class BitbucketOAuthTests(TestCase):
 
-    fixtures = ['eric']
+    fixtures = ["eric"]
 
     def setUp(self):
         call_command("fixtures_projects")
@@ -1032,7 +1032,7 @@ class BitbucketOAuthTests(TestCase):
 
 class GitLabOAuthTests(TestCase):
 
-    fixtures = ['eric']
+    fixtures = ["eric"]
 
     repo_response_data = {
         'lfs_enabled': True,

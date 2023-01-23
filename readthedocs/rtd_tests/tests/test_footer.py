@@ -326,7 +326,7 @@ class TestFooterHTML(BaseTestFooterHTML, TestCase):
 )
 class TestVersionCompareFooter(TestCase):
 
-    fixtures = ['eric']
+    fixtures = ["eric"]
 
     def setUp(self):
         call_command("fixtures_projects")

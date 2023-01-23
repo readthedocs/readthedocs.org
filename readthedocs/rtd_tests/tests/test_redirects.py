@@ -14,7 +14,7 @@ from readthedocs.redirects.models import Redirect
 # These tests could be removed completely in the near future.
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False, APPEND_SLASH=False)
 class RedirectTests(TestCase):
-    fixtures = ['eric']
+    fixtures = ["eric"]
 
     def setUp(self):
         call_command("fixtures_projects")
@@ -68,7 +68,7 @@ class RedirectTests(TestCase):
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class RedirectAppTests(TestCase):
-    fixtures = ['eric']
+    fixtures = ["eric"]
 
     def setUp(self):
         call_command("fixtures_projects")
@@ -108,7 +108,7 @@ class CustomRedirectTests(TestCase):
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class RedirectBuildTests(TestCase):
-    fixtures = ['eric']
+    fixtures = ["eric"]
 
     def setUp(self):
         call_command("fixtures_projects")
@@ -134,7 +134,7 @@ class RedirectBuildTests(TestCase):
 
 @override_settings(PUBLIC_DOMAIN='readthedocs.org', USE_SUBDOMAIN=False)
 class GetFullPathTests(TestCase):
-    fixtures = ['eric']
+    fixtures = ["eric"]
 
     def setUp(self):
         call_command("fixtures_projects")

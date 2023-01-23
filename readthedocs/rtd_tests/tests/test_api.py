@@ -671,8 +671,7 @@ class APIBuildTests(TestCase):
 
 
 class APITests(TestCase):
-    fixtures = ['eric.json']
-
+    fixtures = ["eric.json"]
 
     def setUp(self):
         call_command("fixtures_projects")
@@ -852,8 +851,7 @@ class APIImportTests(TestCase):
 
     """Import API endpoint tests."""
 
-    fixtures = ['eric.json']
-
+    fixtures = ["eric.json"]
 
     def setUp(self):
         call_command("fixtures_projects")
@@ -931,7 +929,7 @@ class IntegrationsTests(TestCase):
 
     """Integration for webhooks, etc."""
 
-    fixtures = ['eric.json']
+    fixtures = ["eric.json"]
 
     def setUp(self):
         call_command("fixtures_projects")
@@ -2389,9 +2387,8 @@ class IntegrationsTests(TestCase):
 
 
 class APIVersionTests(TestCase):
-    fixtures = ['eric']
+    fixtures = ["eric"]
     maxDiff = None  # So we get an actual diff when it fails
-
 
     def setUp(self):
         call_command("fixtures_projects")

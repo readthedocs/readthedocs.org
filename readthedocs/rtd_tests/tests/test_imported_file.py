@@ -19,7 +19,7 @@ base_dir = os.path.dirname(os.path.dirname(__file__))
 
 
 class ImportedFileTests(TestCase):
-    fixtures = ['eric']
+    fixtures = ["eric"]
 
     storage = get_storage_class(settings.RTD_BUILD_MEDIA_STORAGE)()
 

@@ -20,7 +20,7 @@ from readthedocs.projects.models import Project
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 @mock.patch('readthedocs.builds.tasks.trigger_build', mock.MagicMock())
 class TestSyncVersions(TestCase):
-    fixtures = ['eric']
+    fixtures = ["eric"]
 
     def setUp(self):
         call_command("fixtures_projects")
@@ -940,7 +940,7 @@ class TestSyncVersions(TestCase):
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 @mock.patch('readthedocs.builds.tasks.trigger_build', mock.MagicMock())
 class TestStableVersion(TestCase):
-    fixtures = ['eric']
+    fixtures = ["eric"]
 
     def setUp(self):
         call_command("fixtures_projects")
@@ -1419,7 +1419,7 @@ class TestStableVersion(TestCase):
 @mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
 @mock.patch('readthedocs.builds.tasks.trigger_build', mock.MagicMock())
 class TestLatestVersion(TestCase):
-    fixtures = ['eric']
+    fixtures = ["eric"]
 
     def setUp(self):
         call_command("fixtures_projects")
