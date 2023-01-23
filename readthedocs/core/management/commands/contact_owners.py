@@ -1,8 +1,8 @@
-import structlog
 import sys
 from pathlib import Path
 from pprint import pprint
 
+import structlog
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -48,6 +48,13 @@ class Command(BaseCommand):
 
        By default the command won't send the email/notification (dry-run mode),
        add the ``--production`` flag to actually send the email/notification.
+
+    .. note::
+
+       If you need to extend the behavior or add a new use case,
+       we recommend creating a simple script file that re-use the methods and functions from this command.
+       This is an example to contact Domain owners:
+       https://gist.github.com/humitos/3e08ed4763a9312f5c0a9a997ea95a42
     """
 
     help = 'Send an email or sticky notification from a file (markdown) to all owners.'
