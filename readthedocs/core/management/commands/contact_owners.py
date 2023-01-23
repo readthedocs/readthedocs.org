@@ -116,7 +116,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--usernames",
-            help="Path to a file with the one username per line to filter by.",
+            help="Path to a file with one username per line to filter by.",
         )
 
     def handle(self, *args, **options):
