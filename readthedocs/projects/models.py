@@ -482,7 +482,9 @@ class Project(models.Model):
 
         # Update `Version.identifier` for `latest` with the default branch the user has selected,
         # even if it's `None` (meaning to match the `default_branch` of the repository)
-        log.debug("Updating default branch." slug=LATEST, identifier=self.default_branch)
+        log.debug(
+            "Updating default branch.", slug=LATEST, identifier=self.default_branch
+        )
         self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
 
         try:
