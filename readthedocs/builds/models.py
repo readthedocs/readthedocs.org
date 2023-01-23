@@ -124,7 +124,7 @@ class Version(TimeStampedModel):
     #: or the commit hash (e.g. in Git).
     #: If the this version is pointing to a branch,
     #: then ``identifier`` will contain the branch name.
-    #: NULL value means it will use the VCS default branch cloned.
+    #: `None`/`null` means it will use the VCS default branch.
     identifier = models.CharField(
         _("Identifier"), max_length=255, null=True, blank=True
     )

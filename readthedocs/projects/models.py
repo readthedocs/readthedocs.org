@@ -176,7 +176,7 @@ class Project(models.Model):
         help_text=_('The version of your project that / redirects to'),
     )
     # In default_branch, ``None`` means the backend will use the default branch
-    # clonned for each backend.
+    # cloned for each backend.
     default_branch = models.CharField(
         _('Default branch'),
         max_length=255,
@@ -480,8 +480,9 @@ class Project(models.Model):
                 raise Exception(_('Model must have slug'))
         super().save(*args, **kwargs)
 
-        # Update `Version.identifier` for `latest` with the default branch the use has selected,
+        # Update `Version.identifier` for `latest` with the default branch the user has selected,
         # even if it's `None` (meaning to match the `default_branch` of the repository)
+        log.debug("Updating default branch." slug=LATEST, identifier=self.default_branch)
         self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
 
         try:
