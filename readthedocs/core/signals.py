@@ -14,7 +14,7 @@ from simple_history.signals import pre_create_historical_record
 from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.models import Version
 from readthedocs.core.models import UserProfile
-from readthedocs.core.unresolver import unresolve
+from readthedocs.core.unresolver import UnresolverError, unresolve
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
@@ -130,7 +130,10 @@ def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argumen
     if valid_url:
         url = request.GET.get('url')
         if url:
-            unresolved = unresolve(url)
+            try:
+                unresolved = unresolve(url)
+            except UnresolverError:
+                unresolved = None
             if unresolved is None:
                 # NOTE: Embed APIv3 now supports external sites. In that case
                 # ``unresolve()`` will return None and we want to allow it
