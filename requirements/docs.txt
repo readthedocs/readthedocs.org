@@ -301,7 +301,7 @@ pyyaml==5.4.1
     # via
     #   -r requirements/pip.txt
     #   myst-parser
-readthedocs-sphinx-search==0.1.2
+readthedocs-sphinx-search==0.2.0
     # via -r requirements/docs.in
 redis==3.5.3
     # via -r requirements/pip.txt
