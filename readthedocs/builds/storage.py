@@ -86,6 +86,7 @@ class BuildMediaStorageMixin:
             destination=destination,
         )
         source = Path(source)
+        self._check_suspicious_path(source)
         for filepath in source.iterdir():
             sub_destination = self.join(destination, filepath.name)
 
@@ -104,6 +105,21 @@ class BuildMediaStorageMixin:
                 with safe_open(filepath, "rb") as fd:
                     self.save(sub_destination, fd)
 
+    def _check_suspicious_path(self, path):
+        """Check that the given path isn't a symlink or outside the doc root."""
+        path = Path(path)
+        resolved_path = path.resolve()
+        if path.is_symlink():
+            msg = "Suspicious operation over a symbolic link."
+            log.error(msg, path=str(path), resolved_path=str(resolved_path))
+            raise SuspiciousFileOperation(msg)
+
+        docroot = Path(settings.DOCROOT).absolute()
+        if not path.is_relative_to(docroot):
+            msg = "Suspicious operation outside the docroot directory."
+            log.error(msg, path=str(path), resolved_path=str(resolved_path))
+            raise SuspiciousFileOperation(msg)
+
     def sync_directory(self, source, destination):
         """
         Sync a directory recursively to storage.
@@ -117,12 +133,15 @@ class BuildMediaStorageMixin:
         if destination in ('', '/'):
             raise SuspiciousFileOperation('Syncing all storage cannot be right')
 
+        source = Path(source)
+        self._check_suspicious_path(source)
+
         log.debug(
             'Syncing to media storage.',
-            source=source,
+            source=str(source),
             destination=destination,
         )
-        source = Path(source)
+
         copied_files = set()
         copied_dirs = set()
         for filepath in source.iterdir():

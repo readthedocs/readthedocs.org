@@ -1,12 +1,11 @@
 import sys
 import warnings
-
 from io import StringIO
 
 import structlog
-from structlog.dev import _pad, plain_traceback
-
 from django_structlog.middlewares.request import RequestMiddleware
+from structlog.dev import _pad, plain_traceback
+from structlog.processors import _figure_out_exc_info
 
 
 class ReadTheDocsRequestMiddleware(RequestMiddleware):
@@ -69,8 +68,14 @@ class NewRelicProcessor:
             "line.number": record.lineno,
         }
 
+        # NOTE: For some reason structlog isn't including
+        # the exception in the record.exc_info attribute,
+        # so we need to get it from the event_dict.
+        exc_info = event_dict.pop("exc_info", None)
         if record.exc_info:
             output.update(format_exc_info(record.exc_info))
+        elif exc_info:
+            output.update(format_exc_info(_figure_out_exc_info(exc_info)))
 
         event_dict.update(output)
         return event_dict

@@ -4,9 +4,9 @@ Tasks related to projects.
 This includes fetching repository code, cleaning ``conf.py`` files, and
 rebuilding documentation.
 """
+import os
 import signal
 import socket
-from collections import defaultdict
 from dataclasses import dataclass, field
 
 import structlog
@@ -18,6 +18,7 @@ from slumber.exceptions import HttpClientError
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
+    ARTIFACT_TYPES,
     BUILD_FINAL_STATES,
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
@@ -28,6 +29,7 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
+    UNDELETABLE_ARTIFACT_TYPES,
 )
 from readthedocs.builds.models import APIVersion, Build
 from readthedocs.builds.signals import build_complete
@@ -108,8 +110,6 @@ class TaskData:
 
     # Dictionary returned from the API.
     build: dict = field(default_factory=dict)
-    # If HTML, PDF, ePub, etc formats were built.
-    outcomes: dict = field(default_factory=lambda: defaultdict(lambda: False))
     # Build data for analytics (telemetry).
     build_data: dict = field(default_factory=dict)
 
@@ -514,28 +514,38 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.build['success'] = False
 
     def on_success(self, retval, task_id, args, kwargs):
-        html = self.data.outcomes['html']
-        search = self.data.outcomes['search']
-        localmedia = self.data.outcomes['localmedia']
-        pdf = self.data.outcomes['pdf']
-        epub = self.data.outcomes['epub']
-
         time_before_store_build_artifacts = timezone.now()
         # Store build artifacts to storage (local or cloud storage)
-        self.store_build_artifacts(
-            html=html,
-            search=search,
-            localmedia=localmedia,
-            pdf=pdf,
-            epub=epub,
-        )
+        #
+        # TODO: move ``store_build_artifacts`` inside ``execute`` so we can
+        # handle exceptions properly on ``on_failure``
+        self.store_build_artifacts()
         log.info(
             "Store build artifacts finished.",
             time=(timezone.now() - time_before_store_build_artifacts).seconds,
         )
 
-        # NOTE: we are updating the db version instance *only* when
         # HTML are built successfully.
+        html = os.path.exists(
+            self.data.project.artifact_path(
+                version=self.data.version.slug, type_="html"
+            )
+        )
+        localmedia = os.path.exists(
+            self.data.project.artifact_path(
+                version=self.data.version.slug, type_="htmlzip"
+            )
+        )
+        pdf = os.path.exists(
+            self.data.project.artifact_path(version=self.data.version.slug, type_="pdf")
+        )
+        epub = os.path.exists(
+            self.data.project.artifact_path(
+                version=self.data.version.slug, type_="epub"
+            )
+        )
+
+        # NOTE: we are updating the db version instance *only* when
         if html:
             try:
                 api_v2.version(self.data.version.pk).patch(
@@ -767,14 +777,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.project.has_valid_clone = True
         self.data.version.project.has_valid_clone = True
 
-    def store_build_artifacts(
-            self,
-            html=False,
-            localmedia=False,
-            search=False,
-            pdf=False,
-            epub=False,
-    ):
+    def store_build_artifacts(self):
         """
         Save build artifacts to "storage" using Django's storage API.
 
@@ -782,12 +785,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         such as S3, Azure storage or Google Cloud Storage.
 
         Remove build artifacts of types not included in this build (PDF, ePub, zip only).
-
-        :param html: whether to save HTML output
-        :param localmedia: whether to save localmedia (htmlzip) output
-        :param search: whether to save search artifacts
-        :param pdf: whether to save PDF output
-        :param epub: whether to save ePub output
         """
         log.info('Writing build artifacts to media storage')
         # NOTE: I don't remember why we removed this state from the Build
@@ -798,34 +795,43 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         types_to_copy = []
         types_to_delete = []
 
-        # HTML media
-        if html:
-            types_to_copy.append(('html', self.data.config.doctype))
+        for artifact_type in ARTIFACT_TYPES:
+            if os.path.exists(
+                self.data.project.artifact_path(
+                    version=self.data.version.slug,
+                    type_=artifact_type,
+                )
+            ):
+                types_to_copy.append(artifact_type)
+            # Never delete HTML nor JSON (search index)
+            elif artifact_type not in UNDELETABLE_ARTIFACT_TYPES:
+                types_to_delete.append(artifact_type)
 
-        # Search media (JSON)
-        if search:
-            types_to_copy.append(('json', 'sphinx_search'))
-
-        if localmedia:
-            types_to_copy.append(('htmlzip', 'sphinx_localmedia'))
-        else:
-            types_to_delete.append('htmlzip')
-
-        if pdf:
-            types_to_copy.append(('pdf', 'sphinx_pdf'))
-        else:
-            types_to_delete.append('pdf')
-
-        if epub:
-            types_to_copy.append(('epub', 'sphinx_epub'))
-        else:
-            types_to_delete.append('epub')
-
-        for media_type, build_type in types_to_copy:
+        for media_type in types_to_copy:
+            # NOTE: here is where we get the correct FROM path to upload
             from_path = self.data.version.project.artifact_path(
                 version=self.data.version.slug,
-                type_=build_type,
+                type_=media_type,
             )
+
+            # Check if there are multiple files on source directories.
+            # These output format does not support multiple files yet.
+            # In case multiple files are found, the upload for this format is not performed.
+            #
+            # TODO: we should fail the build for these cases and clearly communicate this.
+            # to the user. To do this, we need to call this method (``store_build_artifacts``)
+            # since the ``execute`` method.
+            # It will allow us to just `raise BuildUserError` and handle it at
+            # Celery `on_failure` handler.
+            if media_type in ("htmlzip", "epub", "pdf"):
+                if len(os.listdir(from_path)) > 1:
+                    log.exception(
+                        "Multiple files are not supported for this format. "
+                        "Skipping this output format.",
+                        output_format=media_type,
+                    )
+                    continue
+
             to_path = self.data.version.project.get_storage_path(
                 type_=media_type,
                 version_slug=self.data.version.slug,
