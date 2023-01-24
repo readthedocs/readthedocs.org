@@ -4,8 +4,26 @@
 Redirects
 =========
 
-.. contents:: Table of contents
-   :local:
+Redirects allow you to address changes in your documentation.
+Over time, we need to rename and move contents around,
+which can lead users to 404 Not Found pages.
+
+While this may be acceptable in some cases,
+wanting to save users from a bad experience is recommended.
+
+`Built-in redirects`_
+    Allows for simple and long-term sharing of external references to your documentation.
+
+`User-defined redirects`_
+    Makes it easier to move contents around (see: )
+
+.. seealso::
+
+   :doc:`/automatic-redirects`
+     Information and tips about creating and handling external references.
+   :doc:`/guides/deprecating-content`
+     A guide to deprecating features and other topics in a documentation.
+
 
 Features
 --------
@@ -23,6 +41,74 @@ Redirect types
 --------------
 
 We offer a few different type of redirects based on what you want to do.
+
+Built-in redirects
+------------------
+
+This article explains the redirects that are automatically active for all Read the Docs projects and how they are useful.
+Automatic redirects on Read the Docs are supported long-term.
+
+Page redirects at ``/page/``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can link to a specific page and have it redirect to your default version,
+allowing you to create links on external sources that are always up to date.
+This is done with the ``/page/`` URL prefix.
+
+For instance, you can reach the page you are reading now by going to https://docs.readthedocs.io/page/automatic-redirects.html.
+
+Another way to handle this is the ``latest`` version.
+You can set your ``latest`` version to a specific version and just always link to ``latest``.
+You can reach this page by going to https://docs.readthedocs.io/en/latest/automatic-redirects.html.
+
+
+Root URL redirect at ``/``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A link to the root of your documentation (`<slug>.readthedocs.io/`) will redirect to the  :term:`default version`,
+as set in your project settings.
+
+This works for both readthedocs.io (|org_brand|), readthedocs-hosted.com (|com_brand|), and :doc:`custom domains </custom-domains>`.
+
+For example::
+
+    docs.readthedocs.io -> docs.readthedocs.io/en/latest/
+    www.pip-installer.org -> www.pip-installer.org/en/latest/
+
+.. warning::
+
+   This only works for the root URL, not for internal pages.
+   It's designed to redirect people from `/` to the default version of your documentation,
+   since serving up a 404 here would be bad user experience.
+
+.. note::
+   If the "develop" branch was designated as the default version,
+   then ``http://pip.readthedocs.io/`` would redirect to ``http://pip.readthedocs.io/en/develop``.
+   But, it's not a universal redirecting solution.
+   So, for example, a link to an internal page like
+   ``http://pip.readthedocs.io/usage.html`` doesn't redirect to ``http://pip.readthedocs.io/en/latest/usage.html``.
+
+   The reasoning behind this is that RTD organizes the URLs for docs so that multiple translations and multiple versions of your docs can be organized logically and consistently for all projects that RTD hosts.
+   For the way that RTD views docs,
+   ``http://pip.readthedocs.io/en/latest/`` is the root directory for your default documentation in English, not ``http://pip.readthedocs.io/``.
+   Just like ``http://pip.readthedocs.io/en/develop/`` is the root for your development documentation in English.
+
+Among all the multiple versions of docs,
+you can choose which is the "default" version for Read the Docs to display,
+which usually corresponds to the git branch of the most recent official release from your project.
+
+Shortlink with ``https://*.rtfd.io``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Links to ``rtfd.io`` are treated the same way as ``readthedocs.io``.
+They redirect the root URL to the default version of the project.
+They are intended to be easy and short for people to type.
+
+You can reach these docs at https://docs.rtfd.io.
+
+
+User-defined redirects
+----------------------
 
 Prefix redirects
 ~~~~~~~~~~~~~~~~
