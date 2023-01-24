@@ -47,10 +47,16 @@ class BaseRClone:
     ]
     env_vars = {}
 
-    # pylint: disable=no-self-use
     def _get_target_path(self, path):
-        """Get the final target path for the remote."""
-        return path
+        """
+        Get the final target path for the remote.
+
+        .. note::
+
+           This doesn't include the remote type,
+           this is just the destination path.
+        """
+        raise NotImplementedError
 
     def get_target(self, path):
         """
@@ -85,16 +91,15 @@ class BaseRClone:
         env = os.environ.copy()
         env.update(self.env_vars)
         log.info("Executing rclone command.", command=command)
-        log.debug("env", env=env)
+        log.debug("Executing rclone commmad.", env=env)
         result = subprocess.run(
             command,
             capture_output=True,
             env=env,
-            # TODO: Fail or let the caller decide what to do?
             check=True,
         )
         log.debug(
-            "Result.",
+            "rclone execution finished.",
             stdout=result.stdout.decode(),
             stderr=result.stderr.decode(),
             exit_code=result.returncode,
@@ -139,7 +144,7 @@ class RCloneS3Remote(BaseRClone):
     """
     RClone remote implementation for S3.
 
-    All secrets will be passed as environ variables.
+    All secrets will be passed as environ variables to the rclone command.
 
     See https://rclone.org/s3/.
 
