@@ -114,7 +114,7 @@ def subscription_canceled(event):
         log.info("Stripe subscription not found.")
         return
 
-    organization = stripe_subscription.customer.rtd_organization
+    organization = getattr(stripe_subscription.customer, "rtd_organization", None)
     if not organization:
         log.error("Subscription isn't attached to an organization")
         return
