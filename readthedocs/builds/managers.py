@@ -49,6 +49,12 @@ class VersionManager(models.Manager):
             'verbose_name': STABLE_VERBOSE_NAME,
             'machine': True,
             'active': True,
+            # TODO: double-check if we still require the `identifier: STABLE` field.
+            # At the time of creation, we don't really know what's the branch/tag identifier
+            # for the STABLE version. It makes sense to be `None`, probably.
+            #
+            # Note that we removed the `identifier: LATEST` from `create_latest` as a way to
+            # use the default branch.
             'identifier': STABLE,
             'type': TAG,
         }
