@@ -2346,8 +2346,12 @@ class IntegrationsTests(TestCase):
                 self.project.slug,
                 integration.pk,
             ),
-            {'token': integration.token, 'branches': default_branch.slug},
-            format='json',
+            {
+                "token": integration.token,
+                "branches": default_branch.slug,
+                "default_branch": "master",
+            },
+            format="json",
         )
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data['build_triggered'])

@@ -757,7 +757,8 @@ class APIWebhookView(WebhookMixin, APIView):
     Expects the following JSON::
 
         {
-            "branches": ["master"]
+            "branches": ["master"],
+            "default_branch": "main"
         }
     """
 
@@ -800,8 +801,13 @@ class APIWebhookView(WebhookMixin, APIView):
                 'branches',
                 [self.project.get_default_branch()],
             )
+            default_branch = self.request.data.get("default_branch", None)
             if isinstance(branches, str):
                 branches = [branches]
+
+            if default_branch and isinstance(default_branch, str):
+                self.update_default_branch(default_branch)
+
             return self.get_response_push(self.project, branches)
         except TypeError:
             raise ParseError('Invalid request')
