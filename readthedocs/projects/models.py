@@ -495,7 +495,6 @@ class Project(models.Model):
         )
         self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
 
-
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects.tasks.utils import clean_project_resources
 
