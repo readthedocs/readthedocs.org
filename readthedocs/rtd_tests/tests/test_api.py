@@ -928,6 +928,7 @@ class IntegrationsTests(TestCase):
             Project,
             build_queue=None,
             external_builds_enabled=True,
+            default_branch="master",
         )
         self.version = get(
             Version, slug='master', verbose_name='master',
