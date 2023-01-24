@@ -367,6 +367,11 @@ class Version(TimeStampedModel):
     @property
     def identifier_friendly(self):
         """Return display friendly identifier."""
+        if not self.identifier:
+            # Text shown to user when we don't know yet what's the ``identifier`` for this version.
+            # This usually happens when we haven't pulled the ``default_branch`` for LATEST.
+            return "Unknown yet"
+
         if re.match(r'^[0-9a-f]{40}$', self.identifier, re.I):
             return self.identifier[:8]
         return self.identifier
