@@ -2,8 +2,8 @@
 
 .. _Automatic Redirects:
 
-Incoming links: Best practices and redirects
-============================================
+Best practices for linking to your documentation
+================================================
 
 Once you start to publish documentation,
 it will inevitably be referenced in external sources.
