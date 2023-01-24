@@ -192,9 +192,6 @@ class TestBuildMediaStorage(TestCase):
             self.storage.rclone_sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
-    @pytest.mark.skip(
-        "Waiting for https://github.com/readthedocs/readthedocs.org/pull/9890"
-    )
     def test_rclone_sync_source_symlink(self):
         tmp_dir = Path(tempfile.mkdtemp())
         tmp_symlink_dir = Path(tempfile.mkdtemp()) / "files"
@@ -204,9 +201,6 @@ class TestBuildMediaStorage(TestCase):
             with pytest.raises(SuspiciousFileOperation, match="symbolic link"):
                 self.storage.rclone_sync_directory(tmp_symlink_dir, "files")
 
-    @pytest.mark.skip(
-        "Waiting for https://github.com/readthedocs/readthedocs.org/pull/9890"
-    )
     def test_rclone_sync_source_outside_docroot(self):
         tmp_dir = Path(tempfile.mkdtemp())
         tmp_docroot = Path(tempfile.mkdtemp()) / "docroot"

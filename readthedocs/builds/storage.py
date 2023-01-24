@@ -183,8 +183,7 @@ class BuildMediaStorageMixin:
         if destination in ("", "/"):
             raise SuspiciousFileOperation("Syncing all storage cannot be right")
 
-        # TODO: borrow the symlink check from #9890 when merged.
-        # self._check_suspicious_path(source)
+        self._check_suspicious_path(source)
         return self._rclone.sync(source, destination)
 
     def join(self, directory, filepath):
