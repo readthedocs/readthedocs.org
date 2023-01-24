@@ -105,6 +105,7 @@ def finish_inactive_builds():
         & Q(date__gt=timezone.now() - datetime.timedelta(days=1))
     )
 
+    projects_finished = set()
     builds_finished = 0
     builds = Build.objects.filter(query)[:50]
     for build in builds:
@@ -127,10 +128,12 @@ def finish_inactive_builds():
         )
         build.save()
         builds_finished += 1
+        projects_finished.add(build.project.slug)
 
     log.info(
         'Builds marked as "Terminated due inactivity".',
         count=builds_finished,
+        project_slugs=projects_finished,
     )
 
 
