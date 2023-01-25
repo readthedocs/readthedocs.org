@@ -62,6 +62,7 @@ if using_rtd_theme:
     html_style = None
     html_theme_options = {}
 
+{% comment %}
 # Legacy behavior for html_theme_path:
 # It is suspected that old builds with sphinx_rtd_theme required an extra
 # definition of html_theme_path in order to work.
@@ -73,9 +74,10 @@ if using_rtd_theme:
 #
 # We need to isolate the old legacy behavior because it causes Sphinx
 # to skip calling the theme's setup(app) so its initialization never happens.
-# This legacy behavior will gradually be sliced out until its deprecated and removed.
+{% endcomment %}
+# This following legacy behavior will gradually be sliced out until its deprecated and removed.
 # Skipped for Sphinx 6+
-# Skipped by Feature flag SKIP_SPHINX_HTML_THEME_PATH
+# Skipped by internal Feature flag SKIP_SPHINX_HTML_THEME_PATH
 # Skipped by all new projects since SKIP_SPHINX_HTML_THEME_PATH's introduction (jan 2023)
 if (
         using_rtd_theme
