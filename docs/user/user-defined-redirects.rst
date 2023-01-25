@@ -1,46 +1,45 @@
 .. old label
 .. _User-defined Redirects:
 
-Redirects
-=========
+Custom and built-in redirects on Read the Docs
+==============================================
 
-Redirects allow you to address changes in your documentation.
-Over time, we need to rename and move contents around,
-which can lead users to 404 Not Found pages.
+Over time, a documentation project may want to rename and move contents around.
+Redirects allow changes in a documentation project to happen without bad user experiences.
 
+If you do not manage URL structures,
+users will eventually encounter 404 File Not Found errors.
 While this may be acceptable in some cases,
-wanting to save users from a bad experience is recommended.
+the bad user experience of a 404 page is usually best to avoid.
 
-`Built-in redirects`_
+`Built-in redirects`_ ⬇️
     Allows for simple and long-term sharing of external references to your documentation.
 
-`User-defined redirects`_
+`User-defined redirects`_ ⬇️
     Makes it easier to move contents around (see: )
 
 .. seealso::
 
+   :doc:`/guides/redirects`
+     This guide shows you how to add redirects with practical examples.
    :doc:`/automatic-redirects`
      Information and tips about creating and handling external references.
    :doc:`/guides/deprecating-content`
      A guide to deprecating features and other topics in a documentation.
 
 
-Features
---------
+Special features
+----------------
 
 - By default, redirects are followed only if the requested page doesn't exist
-  (*404 File Not Found* error), if you need to apply a redirect for files that exist,
-  mark the :guilabel:`Force redirect` option.
+  (*404 File Not Found* error).
+  If you need to apply a redirect for files that exist,
   **This option is only available on some plan levels**.
   Please ask support if you need it for some reason.
 - :ref:`user-defined-redirects:page redirects` and :ref:`user-defined-redirects:exact redirects`
   can redirect to URLs outside Read the Docs,
   just include the protocol in ``To URL``, e.g ``https://example.com``.
 
-Redirect types
---------------
-
-We offer a few different type of redirects based on what you want to do.
 
 Built-in redirects
 ------------------
@@ -238,7 +237,7 @@ Sphinx redirects
 ~~~~~~~~~~~~~~~~
 
 We also support redirects for changing the type of documentation Sphinx is building.
-If you switch between *HTMLDir* and *HTML*, your URL's will change.
+If you switch between *HTMLDir* and *HTML*, your URLs will change.
 A page at ``/en/latest/install.html`` will be served at ``/en/latest/install/``,
 or vice versa.
 The built in redirects for this will handle redirecting users appropriately.
