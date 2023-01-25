@@ -52,7 +52,10 @@
       {% if stripe_subscription.start_date %}
         <dt>{% trans "Signed up" %}:</dt>
         <dd>
-          {{ stripe_subscription.start_date|timesince }} {% trans "ago" %}
+          {# Translators: this is the subscription start date, used here as "4 days ago" or "5 months ago" #}
+          {% blocktrans with time_since_signup=stripe_subscription.start_date|timesince trimmed %}
+            {{ time_since_signup }} ago
+          {% endblocktrans %}
         </dd>
       {% endif %}
 
