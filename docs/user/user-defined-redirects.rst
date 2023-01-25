@@ -1,8 +1,8 @@
 .. old label
 .. _User-defined Redirects:
 
-Redirects
-=========
+Custom and built-in redirects on Read the Docs
+==============================================
 
 Over time, a documentation project may want to rename and move contents around.
 Redirects allow changes in a documentation project to happen without bad user experiences.
@@ -12,10 +12,10 @@ users will eventually encounter 404 File Not Found errors.
 While this may be acceptable in some cases,
 the bad user experience of a 404 page is usually best to avoid.
 
-`Built-in redirects`_
+`Built-in redirects`_ ⬇️
     Allows for simple and long-term sharing of external references to your documentation.
 
-`User-defined redirects`_
+`User-defined redirects`_ ⬇️
     Makes it easier to move contents around (see: )
 
 .. seealso::
@@ -28,8 +28,8 @@ the bad user experience of a 404 page is usually best to avoid.
      A guide to deprecating features and other topics in a documentation.
 
 
-Extra features
---------------
+Special features
+----------------
 
 - By default, redirects are followed only if the requested page doesn't exist
   (*404 File Not Found* error).
@@ -39,20 +39,6 @@ Extra features
 - :ref:`user-defined-redirects:page redirects` and :ref:`user-defined-redirects:exact redirects`
   can redirect to URLs outside Read the Docs,
   just include the protocol in ``To URL``, e.g ``https://example.com``.
-
-Redirect types
---------------
-
-We offer a few different type of redirects based on what you want to do.
-
-.. note::
-
-   Forced redirects
-     By default, redirects are followed only if the requested page doesn't exist
-     (*404 File Not Found* error), if you need to apply a redirect for files that exist,
-     mark the :guilabel:`Force redirect` option.
-     **This option is only available on some plan levels**.
-     Please ask support if you need it for some reason.
 
 
 Built-in redirects

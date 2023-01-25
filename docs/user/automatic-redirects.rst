@@ -24,8 +24,12 @@ we explain how our built-in redirects work and what we consider "best practice" 
      Read more about how to handle versioned documentation and URL structures.
 
    :doc:`/user-defined-redirects`
-     If you delete or move a page,
-     you can setup a redirect in place of the old location and choose where users should be redirected.
+     Overview of all the redirect features available on Read the Docs.
+     Many of the redirect features are useful either for building external links or handling requests to old URLs.
+
+   :doc:`/guides/redirects`
+     How to add a user-defined redirect, step-by-step.
+     Useful if your content changes location!
 
 
 Best practice: "permalink" your pages

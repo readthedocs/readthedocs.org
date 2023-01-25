@@ -1,5 +1,5 @@
-How to setup URL redirects for documentation projects
-=====================================================
+How to use custom URL redirects in documentation projects
+=========================================================
 
 In this guide,
 you will learn the steps necessary to configure your Read the Docs project for redirecting visitors from one location to another.
@@ -18,8 +18,8 @@ A user visiting the *old URL* will automatically end up at the *new URL*.
      If you want to know more about our implementation of redirects,
      you can look up more examples in our reference before continuing with the how-to.
 
-Setting up a redirect
----------------------
+Adding a redirect rule
+----------------------
 
 Redirects are configured in the project dashboard,
 go to :menuselection:`Admin > Redirects`.
@@ -37,11 +37,18 @@ you need to select a :guilabel:`Redirect Type`.
 This is where things get a bit more complicated you need to fill in specific information according to that choice.
 
 Choosing a :guilabel:`Redirect Type`
-------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 There are different types of redirect rules targeting different needs.
 For each choice in :guilabel:`Redirect Type`,
 you can mark the choice in order to experiment with choices in order to **preview** the final rule generated.
+
+.. image:: /img/screenshot_redirects_preview.png
+   :alt: Screenshot of the Redirect "Add Redirect" form
+   :scale: 50%
+   :align: center
+
+Here is a quick overview of the options available in :guilabel:`Redirect Type`:
 
 Prefix redirect
   This option is often relevant when moving a project from a former host to Read the Docs.
@@ -89,7 +96,7 @@ Sphinx HTML => HTMLDir
 
 
 Defining the redirect rule
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 As mentioned before,
 you can pick and choose a :guilabel:`Redirect Type` that fits your redirect need.
@@ -97,7 +104,7 @@ When you have entered a :guilabel:`From URL` and :guilabel:`To URL` and the redi
 you are ready to save the rule.
 
 Saving the redirect
--------------------
+~~~~~~~~~~~~~~~~~~~
 
 The redirect is not activated before you click :guilabel:`Save`.
 Before clicking, you are free to experiment and preview the effects.
@@ -107,8 +114,8 @@ After adding the rule,
 you can add more redirects as needed.
 There are now immediate upper bounds to how many redirect rules a project may define.
 
-Editing and deleting redirects
-------------------------------
+Editing and deleting redirect rules
+-----------------------------------
 
 You can always revisit :menuselection:`Admin > Redirects`.
 in order to delete a rule or edit it.
