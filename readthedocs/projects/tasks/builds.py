@@ -513,48 +513,88 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Update build object
         self.data.build['success'] = False
 
+    def get_valid_artifact_types(self):
+        """
+        Return a list of all the valid artifact types for this build.
+
+        It performs the following checks on each output format type path:
+         - it exists
+         - it is a directory
+         - does not contains more than 1 files (only PDF, HTMLZip, ePUB)
+
+        TODO: remove the limitation of only 1 file.
+        Add support for multiple PDF files in the output directory and
+        grab them by using glob syntaxt between other files that could be garbage.
+        """
+        for artifact_type in ARTIFACT_TYPES:
+            artifact_directory = self.data.project.artifact_path(
+                version=self.data.version.slug,
+                type_=artifact_type,
+            )
+            if not os.path.exists(artifact_directory):
+                # There is no output directory.
+                # Skip this format.
+                continue
+
+            if not os.path.isdir(artifact_directory):
+                log.exception(
+                    "The output path is not a directory.",
+                    output_format=artifact_type,
+                )
+                # TODO: we should raise an exception here, fail the build,
+                # and communicate the error to the user.
+                # We are just skipping this output format for now.
+                #
+                # raise BuildUserError(BuildUserError.BUILD_OUTPUT_IS_NOT_A_DIRECTORY.format(artifact_type))
+                continue
+
+            # Check if there are multiple files on artifact directories.
+            # These output format does not support multiple files yet.
+            # In case multiple files are found, the upload for this format is not performed.
+            #
+            # TODO: we should fail the build for these cases and clearly communicate this.
+            # to the user. To do this, we need to call this method (``store_build_artifacts``)
+            # since the ``execute`` method.
+            # It will allow us to just `raise BuildUserError` and handle it at
+            # Celery `on_failure` handler.
+            if artifact_type in ("htmlzip", "epub", "pdf"):
+                if len(os.listdir(artifact_directory)) > 1:
+                    log.exception(
+                        "Multiple files are not supported for this format. "
+                        "Skipping this output format.",
+                        output_format=artifact_type,
+                    )
+                    continue
+
+            # If all the conditions were met, the artifact is valid
+            valid_artifacts.append(artifact_type)
+
+        return valid_artifacts
+
     def on_success(self, retval, task_id, args, kwargs):
+
+        valid_artifacts = self.get_valid_artifact_types()
         time_before_store_build_artifacts = timezone.now()
         # Store build artifacts to storage (local or cloud storage)
         #
         # TODO: move ``store_build_artifacts`` inside ``execute`` so we can
         # handle exceptions properly on ``on_failure``
-        self.store_build_artifacts()
+        self.store_build_artifacts(valid_artifacts)
         log.info(
             "Store build artifacts finished.",
             time=(timezone.now() - time_before_store_build_artifacts).seconds,
         )
 
-        # HTML are built successfully.
-        html = os.path.exists(
-            self.data.project.artifact_path(
-                version=self.data.version.slug, type_="html"
-            )
-        )
-        localmedia = os.path.exists(
-            self.data.project.artifact_path(
-                version=self.data.version.slug, type_="htmlzip"
-            )
-        )
-        pdf = os.path.exists(
-            self.data.project.artifact_path(version=self.data.version.slug, type_="pdf")
-        )
-        epub = os.path.exists(
-            self.data.project.artifact_path(
-                version=self.data.version.slug, type_="epub"
-            )
-        )
-
         # NOTE: we are updating the db version instance *only* when
-        if html:
+        if "html" in valid_artifacts:
             try:
                 api_v2.version(self.data.version.pk).patch(
                     {
                         "built": True,
                         "documentation_type": self.data.version.documentation_type,
-                        "has_pdf": pdf,
-                        "has_epub": epub,
-                        "has_htmlzip": localmedia,
+                        "has_pdf": "pdf" in valid_artifacts,
+                        "has_epub": "epub" in valid_artifacts,
+                        "has_htmlzip": "htmlzip" in valid_artifacts,
                     }
                 )
             except HttpClientError:
@@ -777,7 +817,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.project.has_valid_clone = True
         self.data.version.project.has_valid_clone = True
 
-    def store_build_artifacts(self):
+    def store_build_artifacts(self, artifacts):
         """
         Save build artifacts to "storage" using Django's storage API.
 
@@ -796,53 +836,19 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         types_to_delete = []
 
         for artifact_type in ARTIFACT_TYPES:
-            artifact_directory = self.data.project.artifact_path(
-                version=self.data.version.slug,
-                type_=artifact_type,
-            )
-            if os.path.isdir(artifact_directory):
-                log.exception(
-                    "Multiple files are not supported for this format. "
-                    "Skipping this output format.",
-                    output_format=media_type,
-                )
-                # TODO: we should raise an exception here, fail the build,
-                # and communicate the error to the user.
-                #
-                # raise BuildUserError(BuildUserError.BUILD_OUTPUT_IS_NOT_A_DIRECTORY.format(artifact_type))
-                continue
-            if os.path.exists(artifact_directory):
+            if artifact_type in artifacts:
                 types_to_copy.append(artifact_type)
             # Never delete HTML nor JSON (search index)
             elif artifact_type not in UNDELETABLE_ARTIFACT_TYPES:
                 types_to_delete.append(artifact_type)
 
+        # Upload formats
         for media_type in types_to_copy:
-            # NOTE: here is where we get the correct FROM path to upload
-            from_path = self.data.version.project.artifact_path(
+            from_path = self.data.project.artifact_path(
                 version=self.data.version.slug,
-                type_=media_type,
+                type_=artifact_type,
             )
-
-            # Check if there are multiple files on source directories.
-            # These output format does not support multiple files yet.
-            # In case multiple files are found, the upload for this format is not performed.
-            #
-            # TODO: we should fail the build for these cases and clearly communicate this.
-            # to the user. To do this, we need to call this method (``store_build_artifacts``)
-            # since the ``execute`` method.
-            # It will allow us to just `raise BuildUserError` and handle it at
-            # Celery `on_failure` handler.
-            if media_type in ("htmlzip", "epub", "pdf"):
-                if len(os.listdir(from_path)) > 1:
-                    log.exception(
-                        "Multiple files are not supported for this format. "
-                        "Skipping this output format.",
-                        output_format=media_type,
-                    )
-                    continue
-
-            to_path = self.data.version.project.get_storage_path(
+            to_path = self.data.project.get_storage_path(
                 type_=media_type,
                 version_slug=self.data.version.slug,
                 include_file=False,
@@ -860,6 +866,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     to_path=to_path,
                 )
 
+        # Delete formats
         for media_type in types_to_delete:
             media_path = self.data.version.project.get_storage_path(
                 type_=media_type,
