@@ -37,6 +37,7 @@ class CommunityProxitoSettingsMixin:
         classes.append('readthedocs.proxito.middleware.ProxitoMiddleware')
 
         middleware_to_remove = (
+            'corsheaders.middleware.CorsMiddleware',
             'csp.middleware.CSPMiddleware',
             'django.middleware.clickjacking.XFrameOptionsMiddleware',
         )
