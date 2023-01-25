@@ -1,3 +1,23 @@
+Version 9.3.0
+-------------
+
+:Date: January 24, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9925 <https://github.com/readthedocs/readthedocs.org/pull/9925>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: FAQ title/question tweak (`#9919 <https://github.com/readthedocs/readthedocs.org/pull/9919>`__)
+* `@stsewd <https://github.com/stsewd>`__: Logs: fix exception logging (`#9912 <https://github.com/readthedocs/readthedocs.org/pull/9912>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add new allauth templates (`#9909 <https://github.com/readthedocs/readthedocs.org/pull/9909>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Move and update FAQ (Diátaxis) (`#9908 <https://github.com/readthedocs/readthedocs.org/pull/9908>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 9.2.0 (`#9905 <https://github.com/readthedocs/readthedocs.org/pull/9905>`__)
+* `@stsewd <https://github.com/stsewd>`__: CORS: don't allow to pass credentials by default (`#9904 <https://github.com/readthedocs/readthedocs.org/pull/9904>`__)
+* `@abe-101 <https://github.com/abe-101>`__: rm mention of docs/requirements.txt from tutorial (`#9902 <https://github.com/readthedocs/readthedocs.org/pull/9902>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9898 <https://github.com/readthedocs/readthedocs.org/pull/9898>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel Server Side Search (`#9897 <https://github.com/readthedocs/readthedocs.org/pull/9897>`__)
+* `@humitos <https://github.com/humitos>`__: Build: standardize output directory for artifacts (`#9888 <https://github.com/readthedocs/readthedocs.org/pull/9888>`__)
+* `@humitos <https://github.com/humitos>`__: Command `contact_owners`: add support to filter by usernames (`#9882 <https://github.com/readthedocs/readthedocs.org/pull/9882>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Park resolutions to common build problems in FAQ (`#9472 <https://github.com/readthedocs/readthedocs.org/pull/9472>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: avoid double deletion (`#9341 <https://github.com/readthedocs/readthedocs.org/pull/9341>`__)
+
 Version 9.2.0
 -------------
 
