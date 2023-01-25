@@ -20,6 +20,9 @@ class CommunityProxitoSettingsMixin:
     # As 'Lax' breaks when the page is embedded in an iframe.
     SESSION_COOKIE_SAMESITE = None
 
+    # We don't need or want to allow cross site requests in proxito.
+    CORS_URLS_ALLOW_ALL_REGEX = []
+
     @property
     def DATABASES(self):
         # This keeps connections to the DB alive,
@@ -37,6 +40,7 @@ class CommunityProxitoSettingsMixin:
         classes.append('readthedocs.proxito.middleware.ProxitoMiddleware')
 
         middleware_to_remove = (
+            # We don't need or want to allow cross site requests in proxito.
             'corsheaders.middleware.CorsMiddleware',
             'csp.middleware.CSPMiddleware',
             'django.middleware.clickjacking.XFrameOptionsMiddleware',

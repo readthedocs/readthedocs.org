@@ -3,11 +3,9 @@
 import requests
 import structlog
 from allauth.account.signals import email_confirmed
-from corsheaders.signals import check_request_enabled
 from django.conf import settings
 from django.db.models.signals import pre_delete
 from django.dispatch import Signal, receiver
-from rest_framework.permissions import SAFE_METHODS
 from simple_history.models import HistoricalRecords
 from simple_history.signals import pre_create_historical_record
 
@@ -17,15 +15,6 @@ from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
-
-ALLOWED_URLS = [
-    "/api/v2/footer_html",
-    "/api/v2/search",
-    "/api/v2/docsearch",
-    "/api/v2/embed",
-    "/api/v3/embed",
-    "/api/v2/sustainability",
-]
 
 webhook_github = Signal()
 webhook_gitlab = Signal()
@@ -83,27 +72,6 @@ def process_email_confirmed(request, email_address, **kwargs):
             log.warning("Timeout subscribing user to newsletter.")
         except Exception:  # noqa
             log.exception("Unknown error subscribing user to newsletter.")
-
-
-@receiver(check_request_enabled)
-def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argument
-    """
-    Decide whether a request should be given CORS access.
-
-    Allow the request if:
-
-    * It's a safe HTTP method
-    * The origin is in ALLOWED_URLS
-
-    :returns: `True` when a request should be given CORS access.
-    """
-    if 'HTTP_ORIGIN' not in request.META or request.method not in SAFE_METHODS:
-        return False
-
-    for url in ALLOWED_URLS:
-        if request.path_info.startswith(url):
-            return True
-    return False
 
 
 @receiver(pre_delete, sender=settings.AUTH_USER_MODEL)
