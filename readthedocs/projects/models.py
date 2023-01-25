@@ -175,8 +175,8 @@ class Project(models.Model):
         default=LATEST,
         help_text=_('The version of your project that / redirects to'),
     )
-    # In default_branch, None means the backend should choose the
-    # appropriate branch. Eg 'master' for git
+    # In default_branch, ``None`` means the backend will use the default branch
+    # cloned for each backend.
     default_branch = models.CharField(
         _('Default branch'),
         max_length=255,
@@ -185,8 +185,7 @@ class Project(models.Model):
         blank=True,
         help_text=_(
             'What branch "latest" points to. Leave empty '
-            'to use the default value for your VCS (eg. '
-            '<code>trunk</code> or <code>master</code>).',
+            "to use the default value for your VCS.",
         ),
     )
     requirements_file = models.CharField(
@@ -480,21 +479,21 @@ class Project(models.Model):
             if not self.slug:
                 raise Exception(_('Model must have slug'))
         super().save(*args, **kwargs)
-        try:
-            latest = self.versions.filter(slug=LATEST).first()
-            default_branch = self.get_default_branch()
-            if latest and latest.identifier != default_branch:
-                latest.identifier = default_branch
-                latest.save()
-        except Exception:
-            log.exception('Failed to update latest identifier')
 
         try:
-            branch = self.get_default_branch()
             if not self.versions.filter(slug=LATEST).exists():
-                self.versions.create_latest(identifier=branch)
+                self.versions.create_latest()
         except Exception:
-            log.exception('Error creating default branches')
+            log.exception("Error creating default branches")
+
+        # Update `Version.identifier` for `latest` with the default branch the user has selected,
+        # even if it's `None` (meaning to match the `default_branch` of the repository)
+        # NOTE: this code is required to be *after* ``create_latest()``.
+        # It has to be updated after creating LATEST originally.
+        log.debug(
+            "Updating default branch.", slug=LATEST, identifier=self.default_branch
+        )
+        self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects.tasks.utils import clean_project_resources
