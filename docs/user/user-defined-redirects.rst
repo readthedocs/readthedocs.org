@@ -47,6 +47,9 @@ Built-in redirects
 This article explains the redirects that are automatically active for all Read the Docs projects and how they are useful.
 Automatic redirects on Read the Docs are supported long-term.
 
+Built-in redirects are especially useful for creating and sharing **incoming links**
+which is discussed indepth in :doc:`/automatic-redirects`.
+
 Page redirects at ``/page/``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

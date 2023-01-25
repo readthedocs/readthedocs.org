@@ -26,13 +26,8 @@ go to :menuselection:`Admin > Redirects`.
 
 .. figure:: /img/screenshot_redirects.png
    :alt: Screenshot of the Redirect admin page
-   :scale: 50%
-   :align: center
 
-   Navigate to the :guilabel:`Redirect` page and you will see an overview of all active rules.
-   In this guide, we go through how to use the :guilabel:`Add Redirect` function.
-
-After navigating to :guilabel:`Add Redirect`,
+After clicking :guilabel:`Add Redirect`,
 you need to select a :guilabel:`Redirect Type`.
 This is where things get a bit more complicated you need to fill in specific information according to that choice.
 
@@ -41,12 +36,10 @@ Choosing a :guilabel:`Redirect Type`
 
 There are different types of redirect rules targeting different needs.
 For each choice in :guilabel:`Redirect Type`,
-you can mark the choice in order to experiment with choices in order to **preview** the final rule generated.
+you can mark the choice in order to experiment and **preview** the final rule generated.
 
-.. image:: /img/screenshot_redirects_preview.png
+.. figure:: /img/screenshot_redirects_preview.png
    :alt: Screenshot of the Redirect "Add Redirect" form
-   :scale: 50%
-   :align: center
 
 Here is a quick overview of the options available in :guilabel:`Redirect Type`:
 
@@ -112,7 +105,7 @@ Your redirect rules is added and effective immediately after saving it.
 
 After adding the rule,
 you can add more redirects as needed.
-There are now immediate upper bounds to how many redirect rules a project may define.
+There are no immediate upper bounds to how many redirect rules a project may define.
 
 Editing and deleting redirect rules
 -----------------------------------

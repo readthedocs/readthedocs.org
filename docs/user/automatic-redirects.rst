@@ -6,7 +6,7 @@ Best practices for linking to your documentation
 ================================================
 
 Once you start to publish documentation,
-it will inevitably be referenced in external sources.
+external sources will inevitably link to specific pages in your documentation.
 
 Sources of incoming links vary greatly depending on the type of documentation project that is published.
 They can include everything from old emails to GitHub issues, wiki articles, software comments, PDF publications, StackOverflow answers etc.
@@ -51,8 +51,8 @@ you most likely want users clicking on incoming links to see the latest version 
 Good practice ✅
 ~~~~~~~~~~~~~~~~
 
-* Use `page redirects <Redirecting to a page>`_ if you are linking to the page in the default version of the default language.
-* If you move a page that likely has incoming references, :doc:`create a redirect rule </user-defined-redirects>`.
+* Use `page redirects <user-defined-redirects:Page redirects>`_ if you are linking to the page in the default version of the default language.
+* If you move a page that likely has incoming references, :doc:`create a custom redirect rule </guides/redirects>`.
 * Links from other Sphinx projects should use :doc:`intersphinx </guides/intersphinx>`.
 * Use minimal page :term:`slugs <slug>` that do not attract renaming suggestions.
 * When possible,
@@ -84,7 +84,7 @@ Questionable practice 🟡
    404 pages are also okay!
      If documentation pages have been removed or moved,
      it can make the maintainer of the referring website aware that they need to update their link.
-     Users will be aware that the documentation still exist but has changed.
+     Users will be aware that the documentation **project** still exists but has changed.
 
      The default Read the Docs 404 page is designed to be helpful,
      but you can also design your own, see :ref:`hosting:Custom Not Found (404) Pages`.
