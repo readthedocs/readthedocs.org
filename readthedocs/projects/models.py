@@ -1849,6 +1849,7 @@ class Feature(models.Model):
     USE_SPHINX_BUILDERS = "use_sphinx_builders"
     CANCEL_OLD_BUILDS = "cancel_old_builds"
     DONT_CREATE_INDEX = "dont_create_index"
+    USE_RCLONE = "use_rclone"
 
     FEATURES = (
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
@@ -2004,6 +2005,10 @@ class Feature(models.Model):
         (
             DONT_CREATE_INDEX,
             _('Do not create index.md or README.rst if the project does not have one.'),
+        ),
+        (
+            USE_RCLONE,
+            _("Use rclone for syncing files to the media storage."),
         ),
     )
 
