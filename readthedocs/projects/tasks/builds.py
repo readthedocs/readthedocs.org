@@ -494,7 +494,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             if self.data.version:
                 version_type = self.data.version.type
 
-            # NOTE: autoflake gets confused here. We need the NOQA for now.
             status = BUILD_STATUS_FAILURE
             if isinstance(exc, BuildUserSkip):
                 # The build was skipped by returning the magic exit code,
@@ -526,6 +525,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         Add support for multiple PDF files in the output directory and
         grab them by using glob syntaxt between other files that could be garbage.
         """
+        valid_artifacts = []
         for artifact_type in ARTIFACT_TYPES:
             artifact_directory = self.data.project.artifact_path(
                 version=self.data.version.slug,
@@ -537,34 +537,31 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 continue
 
             if not os.path.isdir(artifact_directory):
-                log.exception(
+                log.error(
                     "The output path is not a directory.",
                     output_format=artifact_type,
                 )
-                # TODO: we should raise an exception here, fail the build,
-                # and communicate the error to the user.
-                # We are just skipping this output format for now.
-                #
-                # raise BuildUserError(BuildUserError.BUILD_OUTPUT_IS_NOT_A_DIRECTORY.format(artifact_type))
-                continue
+                raise BuildUserError(
+                    BuildUserError.BUILD_OUTPUT_IS_NOT_A_DIRECTORY.format(
+                        artifact_type=artifact_type
+                    )
+                )
 
             # Check if there are multiple files on artifact directories.
             # These output format does not support multiple files yet.
             # In case multiple files are found, the upload for this format is not performed.
-            #
-            # TODO: we should fail the build for these cases and clearly communicate this.
-            # to the user. To do this, we need to call this method (``store_build_artifacts``)
-            # since the ``execute`` method.
-            # It will allow us to just `raise BuildUserError` and handle it at
-            # Celery `on_failure` handler.
             if artifact_type in ("htmlzip", "epub", "pdf"):
                 if len(os.listdir(artifact_directory)) > 1:
-                    log.exception(
+                    log.error(
                         "Multiple files are not supported for this format. "
                         "Skipping this output format.",
                         output_format=artifact_type,
                     )
-                    continue
+                    raise BuildUserError(
+                        BuildUserError.BUILD_OUTPUT_HAS_MULTIPLE_FILES.format(
+                            artifact_type=artifact_type
+                        )
+                    )
 
             # If all the conditions were met, the artifact is valid
             valid_artifacts.append(artifact_type)
@@ -572,20 +569,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         return valid_artifacts
 
     def on_success(self, retval, task_id, args, kwargs):
-
         valid_artifacts = self.get_valid_artifact_types()
-        time_before_store_build_artifacts = timezone.now()
-        # Store build artifacts to storage (local or cloud storage)
-        #
-        # TODO: move ``store_build_artifacts`` inside ``execute`` so we can
-        # handle exceptions properly on ``on_failure``
-        self.store_build_artifacts(valid_artifacts)
-        log.info(
-            "Store build artifacts finished.",
-            time=(timezone.now() - time_before_store_build_artifacts).seconds,
-        )
 
         # NOTE: we are updating the db version instance *only* when
+        # TODO: remove this condition and *always* update the DB Version instance
         if "html" in valid_artifacts:
             try:
                 api_v2.version(self.data.version.pk).patch(
@@ -601,7 +588,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # NOTE: I think we should fail the build if we cannot update
                 # the version at this point. Otherwise, we will have inconsistent data
                 log.exception(
-                    'Updating version failed, skipping file sync.',
+                    "Updating version db object failed. "
+                    'Files are synced in the storage, but "Version" object is not updated',
                 )
 
         # Index search data
@@ -698,10 +686,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         try:
             api_v2.build(self.data.build['id']).patch(self.data.build)
         except Exception:
-            # NOTE: I think we should fail the build if we cannot update it
-            # at this point otherwise, the data will be inconsistent and we
-            # may be serving "new docs" but saying the "build have failed"
-            log.exception('Unable to update build')
+            # NOTE: we are updating the "Build" object on each `state`.
+            # Only if the last update fails, there may be some inconsistency
+            # between the "Build" object in our db and the reality.
+            #
+            # The `state` argument will help us to track this more and understand
+            # at what state our updates are failing and decide what to do.
+            log.exception("Error while updating the build object.", state=state)
 
     def execute(self):
         self.data.build_director = BuildDirector(
@@ -748,6 +739,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     self.data.build_director.build()
             finally:
                 self.data.build_data = self.collect_build_data()
+
+        # At this point, the user's build already succeeded.
+        # However, we cannot use `.on_success()` because we still have to upload the artifacts;
+        # which could fail, and we want to detect that and handle it properly at `.on_failure()`
+        # Store build artifacts to storage (local or cloud storage)
+        self.store_build_artifacts()
 
     def collect_build_data(self):
         """
@@ -817,7 +814,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.data.project.has_valid_clone = True
         self.data.version.project.has_valid_clone = True
 
-    def store_build_artifacts(self, artifacts):
+    def store_build_artifacts(self):
         """
         Save build artifacts to "storage" using Django's storage API.
 
@@ -826,17 +823,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         Remove build artifacts of types not included in this build (PDF, ePub, zip only).
         """
+        time_before_store_build_artifacts = timezone.now()
         log.info('Writing build artifacts to media storage')
-        # NOTE: I don't remember why we removed this state from the Build
-        # object. I'm re-adding it because I think it's useful, but we can
-        # remove it if we want
         self.update_build(state=BUILD_STATE_UPLOADING)
 
+        valid_artifacts = self.get_valid_artifact_types()
         types_to_copy = []
         types_to_delete = []
 
         for artifact_type in ARTIFACT_TYPES:
-            if artifact_type in artifacts:
+            if artifact_type in valid_artifacts:
                 types_to_copy.append(artifact_type)
             # Never delete HTML nor JSON (search index)
             elif artifact_type not in UNDELETABLE_ARTIFACT_TYPES:
@@ -857,14 +853,20 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             try:
                 build_media_storage.sync_directory(from_path, to_path)
             except Exception:
-                # Ideally this should just be an IOError
-                # but some storage backends unfortunately throw other errors
+                # NOTE: the exceptions reported so far are:
+                #  - botocore.exceptions:HTTPClientError
+                #  - botocore.exceptions:ClientError
+                #  - readthedocs.doc_builder.exceptions:BuildCancelled
                 log.exception(
-                    'Error copying to storage (not failing build)',
+                    "Error copying to storage",
                     media_type=media_type,
                     from_path=from_path,
                     to_path=to_path,
                 )
+                # Re-raise the exception to fail the build and handle it
+                # automatically at `on_failure`.
+                # It will clearly communicate the error to the user.
+                raise BuildAppError("Error uploading files to the storage.")
 
         # Delete formats
         for media_type in types_to_delete:
@@ -877,13 +879,21 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             try:
                 build_media_storage.delete_directory(media_path)
             except Exception:
-                # Ideally this should just be an IOError
-                # but some storage backends unfortunately throw other errors
+                # NOTE: I didn't find any log line for this case yet
                 log.exception(
-                    'Error deleting from storage (not failing build)',
+                    "Error deleting files from storage",
                     media_type=media_type,
                     media_path=media_path,
                 )
+                # Re-raise the exception to fail the build and handle it
+                # automatically at `on_failure`.
+                # It will clearly communicate the error to the user.
+                raise BuildAppError("Error deleting files from storage.")
+
+        log.info(
+            "Store build artifacts finished.",
+            time=(timezone.now() - time_before_store_build_artifacts).seconds,
+        )
 
     def send_notifications(self, version_pk, build_pk, event):
         """Send notifications to all subscribers of `event`."""

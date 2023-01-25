@@ -41,7 +41,12 @@ class BuildUserError(BuildBaseException):
         f'No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.'
     )
     BUILD_OUTPUT_IS_NOT_A_DIRECTORY = gettext_noop(
-        'Build output directory for format "{format}" is not a directory.',
+        'Build output directory for format "{artifact_type}" is not a directory.'
+    )
+    BUILD_OUTPUT_HAS_MULTIPLE_FILES = gettext_noop(
+        'Build output directory for format "{artifact_type}" contains multiple files '
+        "and it is not currently supported. "
+        'Please, remove all the files but the "{artifact_type}" your want to upload.'
     )
 
 
