@@ -28,12 +28,12 @@ the bad user experience of a 404 page is usually best to avoid.
      A guide to deprecating features and other topics in a documentation.
 
 
-Features
---------
+Extra features
+--------------
 
 - By default, redirects are followed only if the requested page doesn't exist
-  (*404 File Not Found* error), if you need to apply a redirect for files that exist,
-  mark the :guilabel:`Apply even if the page exists` option.
+  (*404 File Not Found* error).
+  If you need to apply a redirect for files that exist,
   **This option is only available on some plan levels**.
   Please ask support if you need it for some reason.
 - :ref:`user-defined-redirects:page redirects` and :ref:`user-defined-redirects:exact redirects`

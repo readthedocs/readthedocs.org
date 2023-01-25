@@ -78,6 +78,16 @@ Sphinx HTML => HTMLDir
 
   Read more about this option in :ref:`user-defined-redirects:Sphinx redirects`
 
+.. note::
+
+   By default, redirects are followed only if the requested page doesn't exist
+   (*404 File Not Found* error).
+   If you need to apply a redirect for files that exist,
+   you can have a :guilabel:`Apply even if the page exists` option visible.
+   **This option is only available on some plan levels**.
+   Please ask support if you need it for some reason.
+
+
 Defining the redirect rule
 --------------------------
 
