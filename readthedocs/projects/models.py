@@ -1862,7 +1862,7 @@ class Feature(models.Model):
         (
             SKIP_SPHINX_HTML_THEME_PATH,
             _(
-                "On Sphinx < 6, do not define html_theme_path",
+                "Do not define html_theme_path on Sphinx < 6.0",
             ),
         ),
         (
