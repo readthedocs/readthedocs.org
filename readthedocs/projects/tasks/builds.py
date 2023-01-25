@@ -796,12 +796,22 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         types_to_delete = []
 
         for artifact_type in ARTIFACT_TYPES:
-            if os.path.exists(
-                self.data.project.artifact_path(
-                    version=self.data.version.slug,
-                    type_=artifact_type,
+            artifact_directory = self.data.project.artifact_path(
+                version=self.data.version.slug,
+                type_=artifact_type,
+            )
+            if os.path.isdir(artifact_directory):
+                log.exception(
+                    "Multiple files are not supported for this format. "
+                    "Skipping this output format.",
+                    output_format=media_type,
                 )
-            ):
+                # TODO: we should raise an exception here, fail the build,
+                # and communicate the error to the user.
+                #
+                # raise BuildUserError(BuildUserError.BUILD_OUTPUT_IS_NOT_A_DIRECTORY.format(artifact_type))
+                continue
+            if os.path.exists(artifact_directory):
                 types_to_copy.append(artifact_type)
             # Never delete HTML nor JSON (search index)
             elif artifact_type not in UNDELETABLE_ARTIFACT_TYPES:

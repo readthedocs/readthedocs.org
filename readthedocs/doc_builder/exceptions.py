@@ -40,6 +40,9 @@ class BuildUserError(BuildBaseException):
     BUILD_COMMANDS_WITHOUT_OUTPUT = gettext_noop(
         f'No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.'
     )
+    BUILD_OUTPUT_IS_NOT_A_DIRECTORY = gettext_noop(
+        'Build output directory for format "{format}" is not a directory.',
+    )
 
 
 class BuildUserSkip(BuildUserError):
