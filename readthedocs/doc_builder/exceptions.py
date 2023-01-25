@@ -43,6 +43,10 @@ class BuildUserError(BuildBaseException):
     BUILD_OUTPUT_IS_NOT_A_DIRECTORY = gettext_noop(
         'Build output directory for format "{artifact_type}" is not a directory.'
     )
+    BUILD_OUTPUT_HAS_0_FILES = gettext_noop(
+        'Build output directory for format "{artifact_type}" does not contain any files. '
+        "It seems the build process created the directory but did not save any file to it."
+    )
     BUILD_OUTPUT_HAS_MULTIPLE_FILES = gettext_noop(
         'Build output directory for format "{artifact_type}" contains multiple files '
         "and it is not currently supported. "

@@ -551,7 +551,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # These output format does not support multiple files yet.
             # In case multiple files are found, the upload for this format is not performed.
             if artifact_type in ("htmlzip", "epub", "pdf"):
-                if len(os.listdir(artifact_directory)) > 1:
+                artifact_format_files = len(os.listdir(artifact_directory))
+                if artifact_format_files > 1:
                     log.error(
                         "Multiple files are not supported for this format. "
                         "Skipping this output format.",
@@ -559,6 +560,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     )
                     raise BuildUserError(
                         BuildUserError.BUILD_OUTPUT_HAS_MULTIPLE_FILES.format(
+                            artifact_type=artifact_type
+                        )
+                    )
+                elif artifact_format_files == 0:
+                    raise BuildUserError(
+                        BuildUserError.BUILD_OUTPUT_HAS_0_FILES.format(
                             artifact_type=artifact_type
                         )
                     )
@@ -828,6 +835,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         self.update_build(state=BUILD_STATE_UPLOADING)
 
         valid_artifacts = self.get_valid_artifact_types()
+        log.bind(artifacts=valid_artifacts)
+
         types_to_copy = []
         types_to_delete = []
 
@@ -842,7 +851,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         for media_type in types_to_copy:
             from_path = self.data.project.artifact_path(
                 version=self.data.version.slug,
-                type_=artifact_type,
+                type_=media_type,
             )
             to_path = self.data.project.get_storage_path(
                 type_=media_type,
