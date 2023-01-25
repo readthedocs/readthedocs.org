@@ -157,6 +157,8 @@ default_branch
     This is the default branch of the repository
     (ie. the one checked out when cloning the repository without arguments)
 
+    *Optional*
+
 For example, the cURL command to build the ``dev`` branch, using the token
 ``1234``, would be::
 
