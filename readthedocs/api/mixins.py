@@ -83,6 +83,8 @@ class EmbedAPIMixin:
         try:
             return unresolve(url)
         except UnresolverError:
+            # If we were unable to resolve the URL, it
+            # isn't pointing to a valid RTD project.
             return None
 
     @functools.lru_cache(maxsize=1)
