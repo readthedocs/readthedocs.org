@@ -1,17 +1,22 @@
 Automation rules
 ================
 
-Automation rules allow project maintainers to automate actions on new branches and tags on repositories.
-This is a style of :term:`GitOps`,
-meaning that you can control your documentation publishing through Git tags.
+Automation rules allow project maintainers to automate actions on new branches and tags on Git repositories.
+If you are familiar with :term:`GitOps`,
+this might seem familiar.
+The goal of Read the Docs' automation rules is to be able to control versioning through your Git repository
+and avoid duplicating these efforts on Read the Docs.
 
 .. seealso::
 
    :doc:`/guides/automation-rules`
      A practical guide to managing automated versioning of your documentation.
 
-How do they work?
------------------
+   :doc:`/versions`
+     General explanation of how versioning works for documentation projects on Read the Docs
+
+How automation rules work
+-------------------------
 
 When a new tag or branch is pushed to your repository,
 Read the Docs creates a new version.
@@ -25,16 +30,19 @@ the specified action is performed on that version.
    Versions can match multiple rules,
    and all matching actions will be performed on the version.
 
-Predefined matches
-------------------
+Matching a version in Git
+-------------------------
 
-Automation rules support several predefined version matches:
+Predefined matches
+~~~~~~~~~~~~~~~~~~
+
+Automation rules support two predefined version matches:
 
 - **Any version**: All new versions will match the rule.
 - **SemVer versions**: All new versions that follow `semantic versioning <https://semver.org/>`__ will match the rule.
 
 User defined matches
---------------------
+~~~~~~~~~~~~~~~~~~~~
 
 If none of the above predefined matches meet your use case,
 you can use a **Custom match**.
@@ -42,10 +50,11 @@ you can use a **Custom match**.
 The custom match should be a valid `Python regular expression <https://docs.python.org/3/library/re.html>`__.
 Each new version will be tested against this regular expression.
 
-Actions
--------
+Actions for versions
+--------------------
 
-When a rule matches a new version, the specified action is performed on that version.
+When a rule matches a new version,
+the specified action is performed on that version.
 Currently, the following actions are available:
 
 - **Activate version**: Activates and builds the version.
