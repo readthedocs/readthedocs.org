@@ -3,21 +3,27 @@
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-
-BUILD_STATE_TRIGGERED = 'triggered'
-BUILD_STATE_CLONING = 'cloning'
-BUILD_STATE_INSTALLING = 'installing'
-BUILD_STATE_BUILDING = 'building'
-BUILD_STATE_UPLOADING = 'uploading'
-BUILD_STATE_FINISHED = 'finished'
+BUILD_STATE_TRIGGERED = "triggered"
+BUILD_STATE_CLONING = "cloning"
+BUILD_STATE_INSTALLING = "installing"
+BUILD_STATE_BUILDING = "building"
+BUILD_STATE_UPLOADING = "uploading"
+BUILD_STATE_FINISHED = "finished"
+BUILD_STATE_CANCELLED = "cancelled"
 
 BUILD_STATE = (
-    (BUILD_STATE_TRIGGERED, _('Triggered')),
-    (BUILD_STATE_CLONING, _('Cloning')),
-    (BUILD_STATE_INSTALLING, _('Installing')),
-    (BUILD_STATE_BUILDING, _('Building')),
-    (BUILD_STATE_UPLOADING, _('Uploading')),
-    (BUILD_STATE_FINISHED, _('Finished')),
+    (BUILD_STATE_TRIGGERED, _("Triggered")),
+    (BUILD_STATE_CLONING, _("Cloning")),
+    (BUILD_STATE_INSTALLING, _("Installing")),
+    (BUILD_STATE_BUILDING, _("Building")),
+    (BUILD_STATE_UPLOADING, _("Uploading")),
+    (BUILD_STATE_FINISHED, _("Finished")),
+    (BUILD_STATE_CANCELLED, _("Cancelled")),
+)
+
+BUILD_FINAL_STATES = (
+    BUILD_STATE_FINISHED,
+    BUILD_STATE_CANCELLED,
 )
 
 BUILD_TYPES = (
@@ -51,6 +57,12 @@ VERSION_TYPES = (
     (TAG, TAG_TEXT),
     (EXTERNAL, EXTERNAL_TEXT),
     (UNKNOWN, UNKNOWN_TEXT),
+)
+EXTERNAL_VERSION_STATE_OPEN = "open"
+EXTERNAL_VERSION_STATE_CLOSED = "closed"
+EXTERNAL_VERSION_STATES = (
+    (EXTERNAL_VERSION_STATE_OPEN, _("Open")),
+    (EXTERNAL_VERSION_STATE_CLOSED, _("Closed")),
 )
 
 LATEST = settings.RTD_LATEST
@@ -128,11 +140,27 @@ PREDEFINED_MATCH_ARGS_VALUES = {
 }
 
 BUILD_STATUS_NORMAL = 'normal'
-BUILD_STATUS_DUPLICATED = 'duplicated'
 BUILD_STATUS_CHOICES = (
     (BUILD_STATUS_NORMAL, 'Normal'),
-    (BUILD_STATUS_DUPLICATED, 'Duplicated'),
 )
 
 
 MAX_BUILD_COMMAND_SIZE = 1000000  # This keeps us under Azure's upload limit
+
+LOCK_EXPIRE = 60 * 180  # Lock expires in 3 hours
+
+# All artifact types supported by Read the Docs.
+# They match the output directory (`_readthedocs/<artifact type>`)
+ARTIFACT_TYPES = (
+    "html",
+    "json",
+    "htmlzip",
+    "pdf",
+    "epub",
+)
+# Artifacts that are not deleted when uploading to the storage,
+# even if they weren't re-built in the build process.
+UNDELETABLE_ARTIFACT_TYPES = (
+    "html",
+    "json",
+)

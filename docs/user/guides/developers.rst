@@ -14,7 +14,7 @@ or customize the documentation appearance.
    reproducible-builds
    embedding-content
    conda
-   poetry
    remove-edit-buttons
    build-using-too-many-resources
    edit-source-links-sphinx
+   Setup Build Notifications <build-notifications>

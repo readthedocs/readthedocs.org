@@ -1,5 +1,5 @@
-Read the Docs features
-======================
+Main Features
+=============
 
 Read the Docs offers a number of platform features that are possible because we both build and host documentation for you.
 
@@ -26,7 +26,7 @@ we assign you a URL based on your project name.
 You are welcome to use this URL,
 but we also fully support custom domains for all our documentation projects.
 
-Learn more about :doc:`/custom_domains`.
+Learn more about :doc:`/custom-domains`.
 
 Versioned Documentation
 -----------------------
@@ -70,10 +70,10 @@ We offer a number of search features:
 
 * Search across :doc:`subprojects </subprojects>`
 * Search results land on the exact content you were looking for
-* Search across projects you have access to (available on |com_brand|)
-* A full range of :doc:`search operators </guides/advanced-search>` including exact matching and excluding phrases.
+* Search across projects you have access to
+* A full range of :doc:`search operators </server-side-search/syntax>` including exact matching and excluding phrases.
 
-Learn more about :doc:`/server-side-search`.
+Learn more about :doc:`/server-side-search/index`.
 
 Open Source and Customer Focused
 --------------------------------

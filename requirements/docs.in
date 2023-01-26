@@ -1,0 +1,30 @@
+# Packages required to build docs, independent of application dependencies
+
+-r pip.txt
+
+sphinx_rtd_theme==1.2.0rc1
+# Note: Version 3.4.1 of sphinx-tabs requires docutils 0.18 which is yet to be supported by sphinx-rtd-theme
+# Version 3.4.0 has an incompatible Jinja2 version which also blocks sphinx-rtd-theme
+# All-together, we cannot upgrade to Sphinx 5.x before either sphinx-tabs or sphinx-rtd-theme fixes these
+# issues.
+sphinx-tabs==3.3.1
+sphinx-intl==2.0.1
+sphinx-design==0.2.0
+sphinx-multiproject==1.0.0rc1
+readthedocs-sphinx-search==0.1.2
+
+# Test out hoverxref
+git+https://github.com/readthedocs/sphinx-hoverxref
+
+# Docs
+sphinxemoji==0.2.0
+sphinxcontrib-httpdomain==1.8.1
+sphinx-prompt==1.4.0
+sphinx-notfound-page==0.8
+sphinx-autobuild==2021.3.14
+
+# Markdown
+myst_parser==0.17.2
+
+# spinxcontrib-video
+git+https://github.com/readthedocs/sphinxcontrib-video/

@@ -3,11 +3,13 @@ import datetime
 import json
 from unittest import mock
 
+import dateutil
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
 from django.http import QueryDict
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
@@ -16,6 +18,7 @@ from readthedocs.api.v2.views.integrations import (
     GITHUB_CREATE,
     GITHUB_DELETE,
     GITHUB_EVENT_HEADER,
+    GITHUB_PING,
     GITHUB_PULL_REQUEST,
     GITHUB_PULL_REQUEST_CLOSED,
     GITHUB_PULL_REQUEST_OPENED,
@@ -39,8 +42,8 @@ from readthedocs.api.v2.views.task_views import get_status_data
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_TRIGGERED,
-    BUILD_STATUS_DUPLICATED,
     EXTERNAL,
+    EXTERNAL_VERSION_STATE_CLOSED,
     LATEST,
 )
 from readthedocs.builds.models import Build, BuildCommandResult, Version
@@ -89,7 +92,7 @@ class APIBuildTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         build = resp.data
         self.assertEqual(build['state_display'], 'Cloning')
-        self.assertEqual(build['config'], {})
+        self.assertIsNone(build['config'])
 
         resp = client.get('/api/v2/build/%s/' % build['id'])
         self.assertEqual(resp.status_code, 200)
@@ -103,7 +106,6 @@ class APIBuildTests(TestCase):
             project=self.project,
             version=self.version,
             state=BUILD_STATE_CLONING,
-            status=BUILD_STATUS_DUPLICATED,
             success=False,
             output='Output',
             error='Error',
@@ -303,17 +305,20 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['success'], True)
         self.assertEqual(build['docs_url'], dashboard_url)
 
+    @override_settings(DOCROOT="/home/docs/checkouts/readthedocs.org/user_builds")
     def test_response_finished_and_success(self):
         """The ``view docs`` attr should return a link to the docs."""
         client = APIClient()
         client.login(username='super', password='test')
         project = get(
             Project,
-            language='en',
+            language="en",
+            slug="myproject",
             main_language_project=None,
         )
         version = get(
             Version,
+            slug="myversion",
             project=project,
             built=True,
             uploaded=True,
@@ -323,6 +328,12 @@ class APIBuildTests(TestCase):
             project=project,
             version=version,
             state='finished',
+            exit_code=0,
+        )
+        buildcommandresult = get(
+            BuildCommandResult,
+            build=build,
+            command="/home/docs/checkouts/readthedocs.org/user_builds/myproject/envs/myversion/bin/python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
             exit_code=0,
         )
         resp = client.get('/api/v2/build/{build}/'.format(build=build.pk))
@@ -337,6 +348,11 @@ class APIBuildTests(TestCase):
         self.assertEqual(build['exit_code'], 0)
         self.assertEqual(build['success'], True)
         self.assertEqual(build['docs_url'], docs_url)
+        # Verify the path is trimmed
+        self.assertEqual(
+            build["commands"][0]["command"],
+            "python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
+        )
 
     def test_response_finished_and_fail(self):
         """The ``view docs`` attr should return a link to the dashboard."""
@@ -460,16 +476,18 @@ class APIBuildTests(TestCase):
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
         build = resp.data
-        now = datetime.datetime.utcnow()
+        now = timezone.now()
+        start_time = now - datetime.timedelta(seconds=5)
+        end_time = now
         resp = client.post(
             '/api/v2/command/',
             {
-                'build': build['id'],
-                'command': 'echo test',
-                'description': 'foo',
-                'exit_code': 0,
-                'start_time': str(now - datetime.timedelta(seconds=5)),
-                'end_time': str(now),
+                "build": build["id"],
+                "command": "echo test",
+                "description": "foo",
+                "exit_code": 0,
+                "start_time": start_time,
+                "end_time": end_time,
             },
             format='json',
         )
@@ -477,9 +495,17 @@ class APIBuildTests(TestCase):
         resp = client.get('/api/v2/build/%s/' % build['id'])
         self.assertEqual(resp.status_code, 200)
         build = resp.data
-        self.assertEqual(len(build['commands']), 1)
-        self.assertEqual(build['commands'][0]['run_time'], 5)
-        self.assertEqual(build['commands'][0]['description'], 'foo')
+        self.assertEqual(len(build["commands"]), 1)
+        self.assertEqual(build["commands"][0]["command"], "echo test")
+        self.assertEqual(build["commands"][0]["run_time"], 5)
+        self.assertEqual(build["commands"][0]["description"], "foo")
+        self.assertEqual(build["commands"][0]["exit_code"], 0)
+        self.assertEqual(
+            dateutil.parser.parse(build["commands"][0]["start_time"]), start_time
+        )
+        self.assertEqual(
+            dateutil.parser.parse(build["commands"][0]["end_time"]), end_time
+        )
 
     def test_get_raw_log_success(self):
         project = Project.objects.get(pk=1)
@@ -801,7 +827,7 @@ class APITests(TestCase):
             max_concurrent_builds=None,
             main_language_project=None,
         )
-        for state in ('triggered', 'building', 'cloning', 'finished'):
+        for state in ("triggered", "building", "cloning", "finished", "cancelled"):
             get(
                 Build,
                 project=project,
@@ -902,6 +928,7 @@ class IntegrationsTests(TestCase):
             Project,
             build_queue=None,
             external_builds_enabled=True,
+            default_branch="master",
         )
         self.version = get(
             Version, slug='master', verbose_name='master',
@@ -920,9 +947,13 @@ class IntegrationsTests(TestCase):
             "number": 2,
             "pull_request": {
                 "head": {
-                    "sha": self.commit
-                }
-            }
+                    "sha": self.commit,
+                    "ref": "source_branch",
+                },
+                "base": {
+                    "ref": "master",
+                },
+            },
         }
         self.gitlab_merge_request_payload = {
             "object_kind": GITLAB_MERGE_REQUEST,
@@ -931,7 +962,9 @@ class IntegrationsTests(TestCase):
                 "last_commit": {
                     "id": self.commit
                 },
-                "action": "open"
+                "action": "open",
+                "source_branch": "source_branch",
+                "target_branch": "master",
             },
         }
         self.gitlab_payload = {
@@ -1077,6 +1110,22 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
         sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
+
+    @mock.patch("readthedocs.core.views.hooks.sync_repository_task")
+    def test_github_ping_event(self, sync_repository_task, trigger_build):
+        client = APIClient()
+
+        headers = {GITHUB_EVENT_HEADER: GITHUB_PING}
+        resp = client.post(
+            "/api/v2/webhook/github/{}/".format(self.project.slug),
+            self.github_payload,
+            format="json",
+            **headers,
+        )
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertDictEqual(resp.data, {"detail": "Webhook configured correctly"})
+        trigger_build.assert_not_called()
+        sync_repository_task.assert_not_called()
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_github_create_event(self, sync_repository_task, trigger_build):
@@ -1236,12 +1285,12 @@ class IntegrationsTests(TestCase):
             manager=EXTERNAL
         ).get(verbose_name=pull_request_number)
 
-        # External version should be inactive.
-        self.assertFalse(external_version.active)
+        self.assertTrue(external_version.active)
+        self.assertEqual(external_version.state, EXTERNAL_VERSION_STATE_CLOSED)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deactivated'])
-        self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        self.assertTrue(resp.data["closed"])
+        self.assertEqual(resp.data["project"], self.project.slug)
+        self.assertEqual(resp.data["versions"], [version.verbose_name])
         core_trigger_build.assert_not_called()
 
     def test_github_pull_request_no_action(self, trigger_build):
@@ -1525,6 +1574,14 @@ class IntegrationsTests(TestCase):
             **headers
         )
         self.assertTrue(resp.json()['versions_synced'])
+
+    def test_github_get_external_version_data(self, trigger_build):
+        view = GitHubWebhookView(data=self.github_pull_request_payload)
+        version_data = view.get_external_version_data()
+        self.assertEqual(version_data.id, "2")
+        self.assertEqual(version_data.commit, self.commit)
+        self.assertEqual(version_data.source_branch, "source_branch")
+        self.assertEqual(version_data.base_branch, "master")
 
     def test_gitlab_webhook_for_branches(self, trigger_build):
         """GitLab webhook API."""
@@ -1924,12 +1981,12 @@ class IntegrationsTests(TestCase):
             manager=EXTERNAL
         ).get(verbose_name=merge_request_number)
 
-        # External version should be inactive.
-        self.assertFalse(external_version.active)
+        self.assertTrue(external_version.active)
+        self.assertEqual(external_version.state, EXTERNAL_VERSION_STATE_CLOSED)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deactivated'])
-        self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        self.assertTrue(resp.data["closed"])
+        self.assertEqual(resp.data["project"], self.project.slug)
+        self.assertEqual(resp.data["versions"], [version.verbose_name])
         core_trigger_build.assert_not_called()
 
     @mock.patch('readthedocs.core.utils.trigger_build')
@@ -1969,11 +2026,12 @@ class IntegrationsTests(TestCase):
         ).get(verbose_name=merge_request_number)
 
         # external version should be deleted
-        self.assertFalse(external_version.active)
+        self.assertTrue(external_version.active)
+        self.assertEqual(external_version.state, EXTERNAL_VERSION_STATE_CLOSED)
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertTrue(resp.data['version_deactivated'])
-        self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [version.verbose_name])
+        self.assertTrue(resp.data["closed"])
+        self.assertEqual(resp.data["project"], self.project.slug)
+        self.assertEqual(resp.data["versions"], [version.verbose_name])
         core_trigger_build.assert_not_called()
 
     def test_gitlab_merge_request_no_action(self, trigger_build):
@@ -2040,6 +2098,14 @@ class IntegrationsTests(TestCase):
         )
 
         self.assertEqual(resp.status_code, 400)
+
+    def test_gitlab_get_external_version_data(self, trigger_build):
+        view = GitLabWebhookView(data=self.gitlab_merge_request_payload)
+        version_data = view.get_external_version_data()
+        self.assertEqual(version_data.id, "2")
+        self.assertEqual(version_data.commit, self.commit)
+        self.assertEqual(version_data.source_branch, "source_branch")
+        self.assertEqual(version_data.base_branch, "master")
 
     def test_bitbucket_webhook(self, trigger_build):
         """Bitbucket webhook API."""
@@ -2281,8 +2347,12 @@ class IntegrationsTests(TestCase):
                 self.project.slug,
                 integration.pk,
             ),
-            {'token': integration.token, 'branches': default_branch.slug},
-            format='json',
+            {
+                "token": integration.token,
+                "branches": default_branch.slug,
+                "default_branch": "master",
+            },
+            format="json",
         )
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data['build_triggered'])
@@ -2337,46 +2407,46 @@ class APIVersionTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         version_data = {
-            'type': 'tag',
-            'verbose_name': '0.8',
-            'built': False,
-            'id': 18,
-            'active': True,
-            'project': {
-                'analytics_code': None,
-                'analytics_disabled': False,
-                'canonical_url': 'http://readthedocs.org/docs/pip/en/latest/',
-                'cdn_enabled': False,
-                'conf_py_file': '',
-                'container_image': None,
-                'container_mem_limit': None,
-                'container_time_limit': None,
-                'default_branch': None,
-                'default_version': 'latest',
-                'description': '',
-                'documentation_type': 'sphinx',
-                'environment_variables': {},
-                'enable_epub_build': True,
-                'enable_pdf_build': True,
-                'features': ['allow_deprecated_webhooks'],
-                'has_valid_clone': False,
-                'has_valid_webhook': False,
-                'id': 6,
-                'install_project': False,
-                'language': 'en',
-                'max_concurrent_builds': None,
-                'name': 'Pip',
-                'programming_language': 'words',
-                'python_interpreter': 'python3',
-                'repo': 'https://github.com/pypa/pip',
-                'repo_type': 'git',
-                'requirements_file': None,
-                'show_advertising': True,
-                'skip': False,
-                'slug': 'pip',
-                'use_system_packages': False,
-                'users': [1],
-                'urlconf': None,
+            "type": "tag",
+            "verbose_name": "0.8",
+            "built": False,
+            "id": 18,
+            "active": True,
+            "project": {
+                "analytics_code": None,
+                "analytics_disabled": False,
+                "canonical_url": "http://readthedocs.org/docs/pip/en/latest/",
+                "cdn_enabled": False,
+                "conf_py_file": "",
+                "container_image": None,
+                "container_mem_limit": None,
+                "container_time_limit": None,
+                "default_branch": None,
+                "default_version": "latest",
+                "description": "",
+                "documentation_type": "sphinx",
+                "environment_variables": {},
+                "enable_epub_build": True,
+                "enable_pdf_build": True,
+                "features": ["allow_deprecated_webhooks"],
+                "has_valid_clone": False,
+                "has_valid_webhook": False,
+                "id": 6,
+                "install_project": False,
+                "language": "en",
+                "max_concurrent_builds": None,
+                "name": "Pip",
+                "programming_language": "words",
+                "python_interpreter": "python3",
+                "repo": "https://github.com/pypa/pip",
+                "repo_type": "git",
+                "requirements_file": None,
+                "show_advertising": True,
+                "skip": False,
+                "slug": "pip",
+                "use_system_packages": False,
+                "users": [1],
+                "urlconf": None,
             },
             'privacy_level': 'public',
             'downloads': {},

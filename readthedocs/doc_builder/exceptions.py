@@ -1,9 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Exceptions raised when building documentation."""
 
 from django.utils.translation import gettext_noop
-from readthedocs.builds.constants import BUILD_STATUS_DUPLICATED
+
+from readthedocs.builds.constants import BUILD_STATE_CANCELLED
+from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 
 
 class BuildBaseException(Exception):
@@ -37,6 +37,14 @@ class BuildUserError(BuildBaseException):
         "To resolve this error, double check your project configuration and installed "
         "dependencies are correct and have not changed recently."
     )
+    BUILD_COMMANDS_WITHOUT_OUTPUT = gettext_noop(
+        f'No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.'
+    )
+
+
+class BuildUserSkip(BuildUserError):
+    message = gettext_noop("This build was manually skipped using a command exit code.")
+    state = BUILD_STATE_CANCELLED
 
 
 class ProjectBuildsSkippedError(BuildUserError):
@@ -53,10 +61,15 @@ class BuildMaxConcurrencyError(BuildUserError):
     message = gettext_noop('Concurrency limit reached ({limit}), retrying in 5 minutes.')
 
 
-class DuplicatedBuildError(BuildUserError):
-    message = gettext_noop('Duplicated build.')
-    exit_code = 1
-    status = BUILD_STATUS_DUPLICATED
+class BuildCancelled(BuildUserError):
+    message = gettext_noop('Build cancelled by user.')
+    state = BUILD_STATE_CANCELLED
+
+
+class PDFNotFound(BuildUserError):
+    message = gettext_noop(
+        'PDF file was not generated/found in "_readthedocs/pdf" output directory.'
+    )
 
 
 class MkDocsYAMLParseError(BuildUserError):
@@ -76,7 +89,7 @@ class MkDocsYAMLParseError(BuildUserError):
 
     INVALID_EXTRA_CONFIG = gettext_noop(
         'The "{config}" config from your MkDocs YAML config file has to be a '
-        'a list of relative paths.',
+        'list of relative paths.',
     )
 
     EMPTY_CONFIG = gettext_noop(
@@ -88,3 +101,16 @@ class MkDocsYAMLParseError(BuildUserError):
         'Please follow the user guide https://www.mkdocs.org/user-guide/configuration/ '
         'to configure the file properly.',
     )
+
+
+# TODO: improve messages for symlink errors with a more detailed error and include the `filepath`.
+class UnsupportedSymlinkFileError(BuildUserError):
+    message = gettext_noop("Symlinks are not fully supported")
+
+
+class FileIsNotRegularFile(UnsupportedSymlinkFileError):
+    pass
+
+
+class SymlinkOutsideBasePath(UnsupportedSymlinkFileError):
+    pass

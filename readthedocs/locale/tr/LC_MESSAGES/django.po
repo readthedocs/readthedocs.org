@@ -1,0 +1,5390 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Translators:
+# Alper Pekdemir <pekdemira@gmail.com>, 2018
+# BouRock, 2020
+msgid ""
+msgstr ""
+"Project-Id-Version: readthedocs\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-01-24 10:32+0000\n"
+"PO-Revision-Date: 2012-10-03 11:28+0000\n"
+"Last-Translator: BouRock, 2020\n"
+"Language-Team: Turkish (http://www.transifex.com/readthedocs/readthedocs/"
+"language/tr/)\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: analytics/models.py:69 builds/models.py:605 projects/models.py:1380
+#: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:257
+msgid "Version"
+msgstr "Sürüm"
+
+#: analytics/models.py:76
+msgid "Path relative to the version."
+msgstr ""
+
+#: analytics/models.py:80
+msgid "Full path including the version and language parts."
+msgstr ""
+
+#: analytics/models.py:88
+msgid "HTTP status code"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:18
+msgid "Languages"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:42
+#: templates/core/project_bar_base.html:48
+#: templates/core/project_details.html:17
+msgid "Versions"
+msgstr "Sürümler"
+
+#: api/v2/templates/restapi/footer.html:55
+#: api/v2/templates/restapi/footer.html:75
+#: templates/core/project_bar_base.html:42
+#: templates/projects/project_downloads.html:22
+msgid "Downloads"
+msgstr "İndirilenler"
+
+#: api/v2/templates/restapi/footer.html:67
+msgid "On Read the Docs"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:69
+msgid "Project Home"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
+#: templates/core/project_bar_base.html:46
+msgid "Builds"
+msgstr "Oluşturmalar"
+
+#: api/v2/templates/restapi/footer.html:84
+msgid "On GitHub"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:86
+#: api/v2/templates/restapi/footer.html:105
+msgid "View"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:90
+#: api/v2/templates/restapi/footer.html:98
+#: api/v2/templates/restapi/footer.html:109
+#: redirects/templates/redirects/redirect_list.html:45
+#: templates/core/project_details.html:41
+#: templates/projects/project_version_list.html:49
+#: templates/projects/webhook_list.html:39
+msgid "Edit"
+msgstr "Düzenle"
+
+#: api/v2/templates/restapi/footer.html:96
+msgid "On Bitbucket"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:103
+msgid "On GitLab"
+msgstr ""
+
+#. Translators: This is about starting a search
+#: api/v2/templates/restapi/footer.html:118
+#: templates/core/project_bar_base.html:44
+#: templates/search/elastic_search.html:80
+#: templates/search/elastic_search.html:92
+msgid "Search"
+msgstr "Ara"
+
+#: api/v2/templates/restapi/footer.html:123
+msgid "Search docs"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:134
+msgid "Hosted by"
+msgstr ""
+
+#: api/v2/templates/restapi/footer.html:136 templates/base.html:229
+msgid "Privacy Policy"
+msgstr "Gizlilik İlkesi"
+
+#: api/v3/serializers.py:496
+#, python-brace-format
+msgid "Invalid project name \"{0}\": no slug generated."
+msgstr ""
+
+#: api/v3/serializers.py:500
+#, python-brace-format
+msgid "Project with slug \"{0}\" already exists."
+msgstr ""
+
+#: api/v3/serializers.py:706
+#, python-brace-format
+msgid "Project with {slug_name}={value} is not valid as subproject"
+msgstr ""
+
+#: api/v3/serializers.py:714 projects/forms.py:465
+msgid "A subproject with this alias already exists"
+msgstr ""
+
+#: audit/models.py:77
+msgid "Page view"
+msgstr ""
+
+#: audit/models.py:80
+#: organizations/templates/organizations/security_log.html:43
+#: templates/profiles/private/security_log.html:29
+msgid "Download"
+msgstr ""
+
+#: audit/models.py:83
+msgid "Authentication"
+msgstr ""
+
+#: audit/models.py:86
+msgid "Authentication failure"
+msgstr ""
+
+#: audit/models.py:89
+msgid "Log out"
+msgstr ""
+
+#: audit/models.py:92 organizations/views/private.py:104
+#: organizations/views/private.py:169 projects/views/private.py:475
+msgid "Invitation sent"
+msgstr ""
+
+#: audit/models.py:95
+msgid "Invitation revoked"
+msgstr ""
+
+#: audit/models.py:98
+msgid "Invitation accepted"
+msgstr ""
+
+#: audit/models.py:101
+msgid "Invitation declined"
+msgstr ""
+
+#: audit/models.py:117 core/models.py:21 gold/models.py:35
+#: projects/models.py:128
+msgid "User"
+msgstr "Kullanıcı"
+
+#: audit/models.py:124
+msgid "User ID"
+msgstr ""
+
+#: audit/models.py:130 core/forms.py:55
+msgid "Username"
+msgstr "Kullanıcı adı"
+
+#: audit/models.py:139 builds/models.py:110 builds/models.py:599
+#: projects/models.py:1374 redirects/models.py:57
+msgid "Project"
+msgstr "Proje"
+
+#: audit/models.py:146
+msgid "Project ID"
+msgstr ""
+
+#: audit/models.py:152
+msgid "Project slug"
+msgstr ""
+
+#: audit/models.py:161 oauth/models.py:122 subscriptions/models.py:175
+msgid "Organization"
+msgstr "Kuruluş"
+
+#: audit/models.py:167
+msgid "Organization ID"
+msgstr ""
+
+#: audit/models.py:173
+msgid "Organization slug"
+msgstr ""
+
+#: audit/models.py:181 builds/models.py:1109
+msgid "Action"
+msgstr ""
+
+#: audit/models.py:186
+msgid "Auth backend"
+msgstr ""
+
+#: audit/models.py:192 core/history.py:78
+msgid "IP address"
+msgstr ""
+
+#: audit/models.py:198 core/history.py:84
+msgid "Browser user-agent"
+msgstr ""
+
+#: audit/models.py:206
+msgid "Resource"
+msgstr ""
+
+#: audit/models.py:215
+msgid ""
+"Extra data about the log entry. Its structure depends on the type of log "
+"entry."
+msgstr ""
+
+#: audit/models.py:260
+msgid "shared link"
+msgstr ""
+
+#: audit/models.py:261
+msgid "shared password"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:16
+msgid "User authenticated"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:20
+msgid "User failed to authenticate"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:24
+msgid "User logged out"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:28
+msgid "User visited a page"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:32
+msgid "User downloaded a document"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:36
+msgid "User sent an invitation"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:40
+msgid "User revoked an invitation"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:44
+msgid "User accepted an invitation"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:48
+msgid "User declined an invitation"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:55
+#: templates/core/build_list_detailed.html:21
+#: templates/core/project_list_detailed.html:26
+#: templates/projects/integration_webhook_detail.html:91
+#: templates/projects/project_dashboard_base.html:74
+#: templates/projects/webhook_form.html:55
+#, python-format
+msgid "%(date)s ago"
+msgstr "%(date)s önce"
+
+#: audit/templates/audit/list_logs.html:62
+msgid "actor:"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:66
+msgid "anonymous"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:73
+#: audit/templates/audit/list_logs.html:94
+msgid "project:"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:78
+msgid "page:"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:84
+msgid "to user:"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:87
+msgid "to email:"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:99
+#: audit/templates/audit/list_logs.html:106
+#: audit/templates/audit/list_logs.html:109
+msgid "organization:"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:103
+msgid "team:"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:116
+msgid "IP:"
+msgstr ""
+
+#: audit/templates/audit/list_logs.html:123
+msgid "No activity logged yet"
+msgstr ""
+
+#: builds/constants.py:15
+msgid "Triggered"
+msgstr "Tetiklendi"
+
+#: builds/constants.py:16
+msgid "Cloning"
+msgstr "Kopyalanıyor"
+
+#: builds/constants.py:17
+msgid "Installing"
+msgstr "Yükleniyor"
+
+#: builds/constants.py:18
+msgid "Building"
+msgstr "Oluşturuluyor"
+
+#: builds/constants.py:19
+msgid "Uploading"
+msgstr ""
+
+#: builds/constants.py:20
+msgid "Finished"
+msgstr "Tamamlandı"
+
+#: builds/constants.py:21 templates/core/build_list_detailed.html:7
+msgid "Cancelled"
+msgstr ""
+
+#: builds/constants.py:30
+msgid "HTML"
+msgstr "HTML"
+
+#: builds/constants.py:31
+msgid "PDF"
+msgstr "PDF"
+
+#: builds/constants.py:32
+msgid "Epub"
+msgstr "Epub"
+
+#: builds/constants.py:36
+msgid "Manpage"
+msgstr "Manpage"
+
+#: builds/constants.py:37
+msgid "Dash"
+msgstr "Tire"
+
+#: builds/constants.py:46
+msgid "External"
+msgstr ""
+
+#: builds/constants.py:49
+msgid "Branch"
+msgstr "Dal"
+
+#: builds/constants.py:51
+msgid "Tag"
+msgstr "Etiket"
+
+#: builds/constants.py:53 projects/constants.py:402
+msgid "Unknown"
+msgstr "Bilinmiyor"
+
+#: builds/constants.py:64
+msgid "Open"
+msgstr ""
+
+#: builds/constants.py:65
+msgid "Closed"
+msgstr ""
+
+#: builds/constants.py:132
+msgid "Any version"
+msgstr ""
+
+#: builds/constants.py:133
+msgid "SemVer versions"
+msgstr ""
+
+#: builds/constants.py:134
+msgid "Custom match"
+msgstr ""
+
+#: builds/filters.py:18 builds/models.py:145 redirects/models.py:23
+msgid "Active"
+msgstr "Etkin"
+
+#: builds/filters.py:19
+msgid "Build finished"
+msgstr ""
+
+#: builds/filters.py:20 projects/models.py:1499
+#: templates/builds/build_detail.html:143
+msgid "Build failed"
+msgstr "Oluşturma başarısız oldu"
+
+#: builds/filters.py:26 builds/models.py:147 builds/models.py:621
+msgid "State"
+msgstr "Durum"
+
+#: builds/filters.py:28 projects/filters.py:147 projects/filters.py:157
+msgid "Any"
+msgstr ""
+
+#: builds/forms.py:45
+msgid "States"
+msgstr ""
+
+#: builds/forms.py:54 projects/filters.py:145
+msgid "Privacy"
+msgstr ""
+
+#: builds/forms.py:75
+#, python-brace-format
+msgid "{version} is the default version of the project, it should be active."
+msgstr "{version}, projenin varsayılan sürümüdür, etkin olmalıdır."
+
+#: builds/forms.py:168
+msgid "Custom match should not be empty."
+msgstr ""
+
+#: builds/forms.py:175
+msgid "Invalid Python regular expression."
+msgstr ""
+
+#: builds/models.py:98 projects/models.py:1462 projects/models.py:1630
+msgid "created"
+msgstr ""
+
+#: builds/models.py:103 projects/models.py:1467
+msgid "modified"
+msgstr ""
+
+#: builds/models.py:115 builds/models.py:611 sphinx_domains/models.py:59
+#: subscriptions/models.py:134
+msgid "Type"
+msgstr "Tür"
+
+#: builds/models.py:126
+msgid "Identifier"
+msgstr "Tanımlayıcı"
+
+#: builds/models.py:132
+msgid "Verbose Name"
+msgstr "Ayrıntılı Adı"
+
+#: builds/models.py:139 oauth/models.py:32 organizations/models.py:52
+#: projects/models.py:133 subscriptions/models.py:35
+msgid "Slug"
+msgstr "Başlık Bilgisi"
+
+#: builds/models.py:144
+msgid "Supported"
+msgstr "Destekleniyor"
+
+#: builds/models.py:152
+msgid "State of the PR/MR associated to this version."
+msgstr ""
+
+#: builds/models.py:154
+msgid "Built"
+msgstr "Oluşturuldu"
+
+#: builds/models.py:155
+msgid "Uploaded"
+msgstr "Gönderildi"
+
+#: builds/models.py:157 projects/models.py:395
+msgid "Privacy Level"
+msgstr "Gizlilik Seviyesi"
+
+#: builds/models.py:161
+msgid "Level of privacy for this Version."
+msgstr "Bu Sürüm için gizlilik seviyesi."
+
+#: builds/models.py:164
+msgid "Hidden"
+msgstr ""
+
+#: builds/models.py:166
+msgid "Hide this version from the version (flyout) menu and search results?"
+msgstr ""
+
+#: builds/models.py:168
+msgid "Machine Created"
+msgstr "Makine Oluşturuldu"
+
+#: builds/models.py:171
+msgid "Has PDF"
+msgstr ""
+
+#: builds/models.py:172
+msgid "Has ePub"
+msgstr ""
+
+#: builds/models.py:173
+msgid "Has HTML Zip"
+msgstr ""
+
+#: builds/models.py:176 projects/models.py:206
+msgid "Documentation type"
+msgstr "Belgelendirme türü"
+
+#: builds/models.py:181
+msgid "Type of documentation the version was built with."
+msgstr ""
+
+#: builds/models.py:197
+#, python-brace-format
+msgid "Version {version} of {project} ({pk})"
+msgstr "{project} projesinin sürümü {version} ({pk})"
+
+#: builds/models.py:633
+msgid "Status"
+msgstr ""
+
+#: builds/models.py:640 integrations/models.py:147
+msgid "Date"
+msgstr "Tarih"
+
+#: builds/models.py:641
+msgid "Success"
+msgstr "Başarılı"
+
+#: builds/models.py:646
+msgid "Setup"
+msgstr "Kurulum"
+
+#: builds/models.py:647
+msgid "Setup error"
+msgstr "Kurulum hatası"
+
+#: builds/models.py:648
+msgid "Output"
+msgstr "Çıktı"
+
+#: builds/models.py:649 templates/builds/build_detail.html:224
+msgid "Error"
+msgstr "Hata"
+
+#: builds/models.py:650
+msgid "Exit code"
+msgstr "Çıkış kodu"
+
+#: builds/models.py:655 projects/models.py:1391 sphinx_domains/models.py:43
+msgid "Commit"
+msgstr "İşle"
+
+#: builds/models.py:661
+msgid "Version slug"
+msgstr ""
+
+#: builds/models.py:667
+msgid "Version name"
+msgstr ""
+
+#: builds/models.py:673 builds/models.py:1122
+msgid "Version type"
+msgstr ""
+
+#: builds/models.py:680
+msgid "Configuration used in the build"
+msgstr "Oluşturmada kullanılan yapılandırma"
+
+#: builds/models.py:685
+msgid "Build Length"
+msgstr "Oluşturma Uzunluğu"
+
+#: builds/models.py:688
+msgid "Builder"
+msgstr "Oluşturucu"
+
+#: builds/models.py:695
+msgid "Cold Storage"
+msgstr "Uzak Depolama"
+
+#: builds/models.py:701
+msgid "Celery task id"
+msgstr ""
+
+#: builds/models.py:812
+#, python-brace-format
+msgid "Build {project} for {usernames} ({pk})"
+msgstr "{usernames} için {project} projesini oluştur ({pk})"
+
+#: builds/models.py:1020
+msgid "Build"
+msgstr "Oluştur"
+
+#: builds/models.py:1025
+msgid "Command"
+msgstr "Komut"
+
+#: builds/models.py:1026 builds/models.py:1086 oauth/models.py:135
+#: organizations/models.py:66 projects/models.py:135 subscriptions/models.py:30
+#: subscriptions/models.py:137 templates/core/project_details.html:78
+msgid "Description"
+msgstr "Tanım"
+
+#: builds/models.py:1027
+msgid "Command output"
+msgstr "Komut çıktısı"
+
+#: builds/models.py:1028
+msgid "Command exit code"
+msgstr "Komut çıkış kodu"
+
+#: builds/models.py:1030
+msgid "Start time"
+msgstr "Başlama zamanı"
+
+#: builds/models.py:1031
+msgid "End time"
+msgstr "Bitiş zamanı"
+
+#: builds/models.py:1041
+#, python-brace-format
+msgid "Build command {pk} for build {build}"
+msgstr "{build} oluşturması için oluşturma komutu {pk}"
+
+#: builds/models.py:1065
+msgid "Activate version"
+msgstr ""
+
+#: builds/models.py:1066
+msgid "Hide version"
+msgstr ""
+
+#: builds/models.py:1067
+msgid "Make version public"
+msgstr ""
+
+#: builds/models.py:1068
+msgid "Make version private"
+msgstr ""
+
+#: builds/models.py:1069
+msgid "Set version as default"
+msgstr ""
+
+#: builds/models.py:1070
+msgid "Delete version (on branch/tag deletion)"
+msgstr ""
+
+#: builds/models.py:1082
+msgid "Rule priority"
+msgstr ""
+
+#: builds/models.py:1083
+msgid "A lower number (0) means a higher priority"
+msgstr ""
+
+#: builds/models.py:1092
+msgid "Match argument"
+msgstr ""
+
+#: builds/models.py:1093
+msgid "Value used for the rule to match the version"
+msgstr ""
+
+#: builds/models.py:1097
+msgid "Predefined match argument"
+msgstr ""
+
+#: builds/models.py:1099
+msgid ""
+"Match argument defined by us, it is used if is not None, otherwise match_arg "
+"will be used."
+msgstr ""
+
+#: builds/models.py:1110
+msgid "Action to apply to matching versions"
+msgstr ""
+
+#: builds/models.py:1115
+msgid "Action argument"
+msgstr ""
+
+#: builds/models.py:1116
+msgid "Value used for the action to perfom an operation"
+msgstr ""
+
+#: builds/models.py:1123
+msgid "Type of version the rule should be applied to"
+msgstr ""
+
+#: builds/models.py:1347
+msgid "Matched rule"
+msgstr ""
+
+#: builds/tasks.py:570
+#, python-brace-format
+msgid "Failed: {project[name]} ({commit})"
+msgstr "Başarısız olan: {project[name]} ({commit})"
+
+#: builds/tasks.py:575
+#, python-brace-format
+msgid "Failed: {project[name]} ({version[verbose_name]})"
+msgstr "Başarısız olan: {project[name]} ({version[verbose_name]})"
+
+#: core/admin.py:40
+msgid "user projects"
+msgstr "kullanıcı projeleri"
+
+#: core/admin.py:48
+msgid "has active project"
+msgstr "etkin projeye sahip"
+
+#: core/admin.py:49
+msgid "has built project"
+msgstr "proje oluşturmuş"
+
+#: core/admin.py:50
+msgid "has project with recent builds"
+msgstr "son oluşturmaları olan projeye sahip"
+
+#: core/forms.py:18
+msgid "First name"
+msgstr "Adınız"
+
+#: core/forms.py:19
+msgid "Last name"
+msgstr "Soyadınız"
+
+#: core/forms.py:56
+msgid "Please type your username to confirm."
+msgstr "Onaylamak için lütfen kullanıcı adınızı yazın."
+
+#: core/forms.py:67
+msgid "Username does not match!"
+msgstr "Kullanıcı adı eşleşmiyor!"
+
+#: core/history.py:66
+msgid "ID"
+msgstr ""
+
+#: core/history.py:72
+msgid "username"
+msgstr ""
+
+#: core/models.py:26
+msgid "Homepage"
+msgstr "Anasayfa"
+
+#: core/models.py:30
+msgid "See paid advertising"
+msgstr "Ücretli reklamlara bakın"
+
+#: core/models.py:31
+msgid "If unchecked, you will still see community ads."
+msgstr "Eğer işaretlenmediyse, hala topluluk reklamlarını göreceksiniz."
+
+#: core/models.py:38
+msgid "Subscribe to our mailing list, and get helpful onboarding suggestions."
+msgstr ""
+
+#: core/models.py:43
+msgid "Whitelisted"
+msgstr "Beyaz listede"
+
+#: core/models.py:44
+msgid "Banned"
+msgstr "Yasaklandı"
+
+#: core/models.py:51
+#, python-format
+msgid "%(username)s's profile"
+msgstr "%(username)s kullanıcısının profili"
+
+#: core/templates/core/dns-404.html:6
+msgid "Maze Found - Invalid Host"
+msgstr "Labirent Bulundu - Geçersiz Anamakine"
+
+#: core/templates/core/dns-404.html:20
+msgid "404 - Invalid Host"
+msgstr "404 - Geçersiz Anamakine"
+
+#: core/templates/core/dns-404.html:21
+#, python-format
+msgid "The host \"%(host)s\" is unknown to Read the Docs"
+msgstr "Anamakine \"%(host)s\", Read the Docs için bilinmiyor"
+
+#: core/templates/core/dns-404.html:25
+#, python-format
+msgid ""
+"If you control this domain and believe this is in error, please review our "
+"<a href=\"%(docsurl)s\">custom domain documentation</a>. In the past, we "
+"allowed custom domains to point to us without configuring the domain in the "
+"Read the Docs dashboard and we attempted to intelligently guess the correct "
+"project based on DNS settings. Now, we believe that explicit is better than "
+"implicit. Below are some steps to help you get your domain working again:"
+msgstr ""
+"Bu etki alanını denetlerseniz ve bunun hatalı olduğuna inanıyorsanız, lütfen "
+"<a href=\"%(docsurl)s\">özel etki alanı belgelendirmenizi</a> gözden "
+"geçirin. Geçmişte, Read the Docs'ta etki alanını yapılandırmadan özel etki "
+"alanlarının bizi işaret etmesine izin verdik ve DNS ayarlarına dayalı olarak "
+"doğru projeyi akıllıca tahmin etmeye çalıştık. Şimdi, açık halinin örtük "
+"halinden daha iyi olduğuna inanıyoruz. Etki alanınızın tekrar çalışmasını "
+"sağlamak için bazı adımlar aşağıda verilmiştir:"
+
+#: core/templates/core/dns-404.html:38
+msgid "Ensure you have a CNAME record pointing to <code>readthedocs.io</code>"
+msgstr ""
+"<code>readthedocs.io</code> adresini işaret eden bir CNAME kaydınız "
+"olduğundan emin olun"
+
+#: core/templates/core/dns-404.html:39
+msgid ""
+"Add your desired domain in the Read the Docs dashboard for your project "
+"(under Your Project &gt;&gt; Admin &gt;&gt; Domains)"
+msgstr ""
+"Projeniz için Read the Docs panelinde istediğiniz etki alanını ekleyin "
+"(Projeniz &gt;&gt; Yönetici &gt;&gt; Etki Alanları altında)"
+
+#: doc_builder/director.py:66
+#, python-brace-format
+msgid "Repository type \"{repo_type}\" unknown"
+msgstr "Depo türü \"{repo_type}\" bilinmiyor"
+
+#: doc_builder/environments.py:341
+msgid ""
+"\n"
+"\n"
+"Command killed due to timeout or excessive memory consumption\n"
+msgstr ""
+
+#: doc_builder/environments.py:347
+msgid "Command exited abnormally"
+msgstr "Komuttan anormal olarak çıkıldı"
+
+#: doc_builder/environments.py:637
+msgid "A build environment is currently running for this version"
+msgstr "Bu sürüm için şu anda bir oluşturma ortamı çalışıyor"
+
+#: doc_builder/environments.py:797
+msgid "Build exited due to time out"
+msgstr "Zaman aşımından dolayı oluşturmadan çıkıldı"
+
+#: doc_builder/environments.py:802
+msgid "Build exited due to excessive memory consumption"
+msgstr "Aşırı bellek tüketiminden dolayı oluşturmadan çıkıldı"
+
+#: doc_builder/environments.py:808
+#, python-brace-format
+msgid "Build exited due to unknown error: {0}"
+msgstr "Bilinmeyen hatadan dolayı oluşturmadan çıkıldı: {0}"
+
+#: doc_builder/exceptions.py:27
+#, python-brace-format
+msgid ""
+"There was a problem with Read the Docs while building your documentation. "
+"Please try again later. If this problem persists, report this error to us "
+"with your build id ({build_id})."
+msgstr ""
+
+#: doc_builder/exceptions.py:36
+msgid ""
+"We encountered a problem with a command while building your project. To "
+"resolve this error, double check your project configuration and installed "
+"dependencies are correct and have not changed recently."
+msgstr ""
+
+#: doc_builder/exceptions.py:41
+#, python-brace-format
+msgid ""
+"No \"{BUILD_COMMANDS_OUTPUT_PATH_HTML}\" folder was created during this "
+"build."
+msgstr ""
+
+#: doc_builder/exceptions.py:46
+msgid "This build was manually skipped using a command exit code."
+msgstr ""
+
+#: doc_builder/exceptions.py:51
+msgid "Builds for this project are temporarily disabled"
+msgstr "Bu proje için oluşturmalar geçici olarak etkisizleştirildi"
+
+#: doc_builder/exceptions.py:56
+#, python-brace-format
+msgid "Problem in your project's configuration. {exception}"
+msgstr "Projenizin yapılandırmasında sorun var. {exception}"
+
+#: doc_builder/exceptions.py:61
+#, python-brace-format
+msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
+msgstr ""
+
+#: doc_builder/exceptions.py:65
+msgid "Build cancelled by user."
+msgstr ""
+
+#: doc_builder/exceptions.py:71
+msgid ""
+"PDF file was not generated/found in \"_readthedocs/pdf\" output directory."
+msgstr ""
+
+#: doc_builder/exceptions.py:77
+#, python-brace-format
+msgid "Problem parsing MkDocs YAML configuration. {exception}"
+msgstr "MkDocs YAML yapılandırmasını ayrıştırmada sorun var. {exception}"
+
+#: doc_builder/exceptions.py:81
+msgid ""
+"The \"docs_dir\" config from your MkDocs YAML config file has to be a string "
+"with relative or absolute path."
+msgstr ""
+"MkDocs YAML yapılandırma dosyanızdaki \"docs_dir\" yapılandırması, göreceli "
+"ya da tam yolu olan bir dizgi olmak zorundadır."
+
+#: doc_builder/exceptions.py:86
+msgid ""
+"The \"docs_dir\" config from your MkDocs YAML config file does not contain a "
+"valid path."
+msgstr ""
+
+#: doc_builder/exceptions.py:91
+#, python-brace-format
+msgid ""
+"The \"{config}\" config from your MkDocs YAML config file has to be a list "
+"of relative paths."
+msgstr ""
+
+#: doc_builder/exceptions.py:96
+msgid "Please make sure the MkDocs YAML configuration file is not empty."
+msgstr ""
+
+#: doc_builder/exceptions.py:100
+msgid ""
+"Your MkDocs YAML config file is incorrect. Please follow the user guide "
+"https://www.mkdocs.org/user-guide/configuration/ to configure the file "
+"properly."
+msgstr ""
+
+#: doc_builder/exceptions.py:108
+msgid "Symlinks are not fully supported"
+msgstr ""
+
+#: gold/forms.py:52
+msgid "No project found."
+msgstr "Bulunan proje yok."
+
+#: gold/forms.py:54
+msgid "This project is already Ad-Free."
+msgstr ""
+
+#: gold/models.py:30 organizations/models.py:33 organizations/models.py:218
+#: organizations/models.py:292 projects/models.py:122
+#: subscriptions/models.py:24 subscriptions/models.py:126
+msgid "Publication date"
+msgstr "Yayımlanma tarihi"
+
+#: gold/models.py:31 organizations/models.py:34 organizations/models.py:219
+#: organizations/models.py:293 projects/models.py:123 projects/models.py:1393
+#: subscriptions/models.py:25 subscriptions/models.py:127
+#: subscriptions/models.py:183
+msgid "Modified date"
+msgstr "Değiştirilme tarihi"
+
+#: gold/models.py:41 gold/templates/gold/subscription_detail.html:87
+msgid "Level"
+msgstr "Seviye"
+
+#: gold/models.py:48 organizations/models.py:39 organizations/models.py:229
+#: organizations/templates/organizations/team_detail.html:49
+#: organizations/templates/organizations/team_project_edit.html:13
+#: templates/core/project_bar.html:7 templates/core/project_bar_base.html:20
+#: templates/projects/project_dashboard_base.html:56
+#: templates/search/elastic_search.html:32
+#: templates/search/elastic_search.html:38
+msgid "Projects"
+msgstr "Projeler"
+
+#: gold/templates/gold/projects.html:7 gold/templates/gold/projects.html:12
+msgid "Gold Projects"
+msgstr ""
+
+#: gold/templates/gold/projects.html:14
+msgid ""
+"Gold members may completely remove advertising for all visitors to their "
+"projects."
+msgstr ""
+
+#: gold/templates/gold/projects.html:20
+#: gold/templates/gold/subscription_detail.html:53
+msgid ""
+"For small businesses or personal projects, we ask for $5 per month to remove "
+"ads from a project."
+msgstr ""
+
+#: gold/templates/gold/projects.html:21
+#: gold/templates/gold/subscription_detail.html:54
+msgid ""
+"For corporate supported open source projects, we ask for a $50 membership in "
+"order to cover our support and operations costs."
+msgstr ""
+
+#: gold/templates/gold/projects.html:24
+msgid "Ad-free projects"
+msgstr ""
+
+#: gold/templates/gold/projects.html:39
+msgid "Remove Ad-Free Status"
+msgstr ""
+
+#: gold/templates/gold/projects.html:39
+#: organizations/templates/organizations/includes/member_list.html:21
+#: organizations/templates/organizations/includes/team_member_list.html:12
+#: organizations/templates/organizations/team_delete.html:22
+#: templates/account/email.html:38 templates/projects/domain_list.html:40
+#: templates/projects/environmentvariable_list.html:45
+#: templates/projects/project_notifications.html:66
+#: templates/projects/project_translations.html:50
+#: templates/projects/project_users.html:34
+msgid "Remove"
+msgstr "Kaldır"
+
+#: gold/templates/gold/projects.html:47
+msgid "No projects are currently ad-free."
+msgstr ""
+
+#: gold/templates/gold/projects.html:56
+msgid "Make a project ad-free"
+msgstr ""
+
+#: gold/templates/gold/projects.html:59
+msgid "Choose which project you would like to make ad-free."
+msgstr ""
+
+#: gold/templates/gold/projects.html:64
+msgid "Make Project Ad-Free"
+msgstr ""
+
+#: gold/templates/gold/projects.html:69
+#, python-format
+msgid ""
+"You can't make any more projects ad-free with your current Gold membership "
+"of %(gold_level)s. You can either increase the level of your membership or "
+"change which projects you make ad-free."
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:35
+msgid "Read the Docs Gold Membership"
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:38
+msgid ""
+"Supporting Read the Docs lets us work more on features that people love. "
+"Your money will go directly to maintenance and development of the product."
+msgstr ""
+"Read the Docs'u desteklemek, insanların sevdiği özellikler üzerinde daha "
+"fazla çalışmamıza olanak tanır. Paranız doğrudan ürünün bakımına ve "
+"geliştirilmesine gidecek."
+
+#: gold/templates/gold/subscription_detail.html:46
+msgid ""
+"Becoming a Gold member makes Read the Docs ad-free when you are logged-in. "
+"Gold members may also completely remove advertising for all visitors to "
+"their projects."
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:58
+msgid ""
+"If you are a company using Read the Docs, please consider <a href=\"https://"
+"readthedocs.com/\">Read the Docs for Business</a>. This will help us cover "
+"our costs, and provide you with a better experience on the site."
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:67
+#, python-format
+msgid ""
+"For any questions about our Gold membership program, please <a href=\"mailto:"
+"rev@readthedocs.org?subject=Gold%%20membership%%20questions\">email us</a>."
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:75
+msgid "Your gold membership"
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:81
+msgid "Thanks for supporting Read the Docs! It really means a lot to us."
+msgstr ""
+"Read the Docs'u desteklediğiniz için teşekkürler! Bizim için çok şey ifade "
+"ediyor."
+
+#: gold/templates/gold/subscription_detail.html:93
+msgid "Manage subscription"
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:96
+msgid "Gold projects"
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:97
+msgid "Choose projects you would like to make ad-free."
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:100
+msgid "Select Projects"
+msgstr "Projeleri Seç"
+
+#: gold/templates/gold/subscription_detail.html:104
+msgid "Become a Gold member"
+msgstr ""
+
+#: gold/templates/gold/subscription_detail.html:112
+#: templates/account/signup.html:10 templates/account/signup.html:46
+msgid "Sign Up"
+msgstr "Kaydol"
+
+#: gold/views.py:188 subscriptions/views.py:176
+msgid ""
+"There was an error connecting to Stripe, please try again in a few minutes"
+msgstr ""
+
+#: integrations/models.py:150 integrations/models.py:158
+msgid "Request headers"
+msgstr "İstenen üstbilgiler"
+
+#: integrations/models.py:155
+msgid "Request body"
+msgstr "İstenen gövde"
+
+#: integrations/models.py:163
+msgid "Response body"
+msgstr "Yanıtlanan gövde"
+
+#: integrations/models.py:166
+msgid "Status code"
+msgstr "Durum kodu"
+
+#: integrations/models.py:176
+#, python-brace-format
+msgid "Exchange {0}"
+msgstr "{0} değiştir"
+
+#: integrations/models.py:274
+msgid "GitHub incoming webhook"
+msgstr "GitHub gelen web kancası"
+
+#: integrations/models.py:275
+msgid "Bitbucket incoming webhook"
+msgstr "Bitbucket gelen web kancası"
+
+#: integrations/models.py:276
+msgid "GitLab incoming webhook"
+msgstr "GitLab gelen web kancası"
+
+#: integrations/models.py:277
+msgid "Generic API incoming webhook"
+msgstr "Genel API gelen web kancası"
+
+#: integrations/models.py:288
+msgid "Integration type"
+msgstr "Bütünleştirme türü"
+
+#: integrations/models.py:293
+msgid "Provider data"
+msgstr "Sağlayıcı verileri"
+
+#: integrations/models.py:302
+msgid "Secret used to validate the payload of the webhook"
+msgstr ""
+
+#: integrations/models.py:324
+#, python-brace-format
+msgid "{0} for {1}"
+msgstr "{1} için {0}"
+
+#: invitations/models.py:100
+msgid "From user"
+msgstr ""
+
+#: invitations/models.py:106
+msgid "To user"
+msgstr ""
+
+#: invitations/models.py:112 organizations/models.py:59
+#: organizations/models.py:308
+msgid "E-mail"
+msgstr ""
+
+#: invitations/models.py:117
+msgid "Expiration date"
+msgstr ""
+
+#: invitations/templates/invitations/includes/invitation_list.html:19
+msgid "Invitation expired"
+msgstr ""
+
+#: invitations/templates/invitations/includes/invitation_list.html:21
+msgid "Invitation pending"
+msgstr ""
+
+#: invitations/templates/invitations/includes/invitation_list.html:28
+#: templates/profiles/private/token_list.html:45
+msgid "Revoke"
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:5
+msgid "Invitation request"
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:12
+#, python-format
+msgid ""
+"<a href=\"%(requestor_url)s\">%(requestor_name)s</a> has invited you to join "
+"the <code>%(target_name)s</code> %(target_type)s."
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:22
+msgid "Your invitation has expired."
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:24
+msgid "Ask the admin of the organization to invite you again."
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:26
+msgid "Ask the admin of the project to invite you again."
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:31
+#, python-format
+msgid ""
+"This invitation will expire in <span "
+"title=\"%(expiration_date)s\">%(valid_until)s</span>."
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:39
+msgid "Accept"
+msgstr ""
+
+#: invitations/templates/invitations/invitation_detail.html:40
+msgid "Decline"
+msgstr ""
+
+#: notifications/forms.py:29
+msgid "Notification"
+msgstr "Bildirim"
+
+#: oauth/models.py:28 oauth/models.py:116 organizations/models.py:235
+msgid "Users"
+msgstr "Kullanıcılar"
+
+#: oauth/models.py:33 oauth/models.py:128 organizations/models.py:50
+#: organizations/models.py:242 projects/filters.py:30 projects/filters.py:114
+#: projects/models.py:132 projects/models.py:1385 sphinx_domains/models.py:51
+#: subscriptions/models.py:28
+msgid "Name"
+msgstr "Adı"
+
+#: oauth/models.py:34 templates/base.html:158
+msgid "Email"
+msgstr "E-posta"
+
+#: oauth/models.py:36
+msgid "Avatar image URL"
+msgstr "Avatar resim URL'si"
+
+#: oauth/models.py:42
+msgid "URL to organization page"
+msgstr "Kuruluş sayfası URL'si"
+
+#: oauth/models.py:53 oauth/models.py:182
+msgid "VCS provider"
+msgstr ""
+
+#: oauth/models.py:93 oauth/models.py:245
+msgid "Connected account"
+msgstr "Bağlı hesap"
+
+#: oauth/models.py:130
+msgid "Full Name"
+msgstr "Tam Adı"
+
+#: oauth/models.py:138
+msgid "Description of the project"
+msgstr "Projenin tanımı"
+
+#: oauth/models.py:141
+msgid "Owner avatar image URL"
+msgstr "Sahibinin avatar resim URL'si"
+
+#: oauth/models.py:148
+msgid "SSH URL"
+msgstr "SSH URL"
+
+#: oauth/models.py:154
+msgid "Repository clone URL"
+msgstr "Depo kopya URL'si"
+
+#: oauth/models.py:161
+msgid "HTML URL"
+msgstr "HTML URL"
+
+#: oauth/models.py:163
+msgid "Private repository"
+msgstr "Özel depo"
+
+#: oauth/models.py:165
+msgid "vcs"
+msgstr "vcs"
+
+#: oauth/models.py:171
+msgid "Default branch of the repository"
+msgstr ""
+
+#: oauth/models.py:249
+msgid "Has admin privilege"
+msgstr "Yönetici yetkisine sahip"
+
+#: oauth/notifications.py:16
+msgid "Webhook successfully added."
+msgstr "Web kancası başarılı olarak eklendi."
+
+#: oauth/notifications.py:19
+msgid ""
+"Could not add webhook for {{ project.name }}. Make sure <a "
+"href=\"{{ url_docs_webhook }}\">you have the correct {{ provider.name }} "
+"permissions</a>."
+msgstr ""
+"{{ project.name }} için web kancası eklenemedi. <a "
+"href=\"{{ url_docs_webhook }}\">Doğru {{ provider.name }} izinlerine sahip "
+"olduğunuzdan</a> emin olun."
+
+#: oauth/notifications.py:22
+msgid ""
+"Could not add webhook for {{ project.name }}. Please <a "
+"href=\"{{ url_connect_account }}\">connect your {{ provider.name }} account</"
+"a>."
+msgstr ""
+"{{ project.name }} için web kancası eklenemedi. Lütfen <a "
+"href=\"{{ url_connect_account }}\">{{ provider.name }} hesabınızı bağlayın</"
+"a>."
+
+#: oauth/notifications.py:44
+msgid ""
+"The project {{ project.name }} doesn't have a valid webhook set up, commits "
+"won't trigger new builds for this project. See <a "
+"href='{{ url_integrations }}'>the project integrations</a> for more "
+"information."
+msgstr ""
+"{{ project.name }} projesinde geçerli bir web kancası ayarlaması yok, "
+"işlemeler bu proje için yeni oluşturmaları tetiklemeyecek. Daha fazla bilgi "
+"için <a href='{{ url_integrations }}'>proje bütünleştirmelerine</a> bakın."
+
+#: oauth/notifications.py:65
+msgid ""
+"Could not send {{ provider_name }} build status report for {{ project."
+"name }}. Make sure you have the correct {{ provider_name }} repository "
+"permissions</a> and your <a "
+"href=\"{{ url_connect_account }}\">{{ provider_name }} account</a> is "
+"connected to Read the Docs."
+msgstr ""
+
+#: oauth/services/base.py:23
+#, python-brace-format
+msgid ""
+"Our access to your following accounts was revoked: {provider}. Please, "
+"reconnect them from your social account connections."
+msgstr ""
+
+#: oauth/utils.py:54
+msgid "Webhook activated"
+msgstr "Web kancası etkinleştirildi"
+
+#: oauth/utils.py:62
+msgid ""
+"Webhook activation failed. Make sure you have the necessary permissions."
+msgstr ""
+"Web kancası etkinleştirme başarısız oldu. Gerekli izinlere sahip "
+"olduğunuzdan emin olun."
+
+#: organizations/constants.py:9
+msgid "Read-only"
+msgstr ""
+
+#: organizations/constants.py:10 templates/core/project_bar_base.html:51
+#: templates/profiles/base_profile.html:29
+#: templates/profiles/base_profile_edit.html:31
+msgid "Admin"
+msgstr "Yönetici"
+
+#: organizations/forms.py:41 organizations/forms.py:96
+msgid "Organization Name"
+msgstr ""
+
+#: organizations/forms.py:42 organizations/forms.py:97
+msgid "Billing Email"
+msgstr ""
+
+#: organizations/forms.py:48
+msgid "Site URL"
+msgstr ""
+
+#: organizations/forms.py:71
+msgid "Invalid organization name: no slug generated"
+msgstr ""
+
+#: organizations/forms.py:74
+#, python-format
+msgid "Organization %(name)s already exists"
+msgstr ""
+
+#: organizations/forms.py:132 organizations/forms.py:218 projects/forms.py:474
+msgid "Email address or username"
+msgstr ""
+
+#: organizations/forms.py:148 organizations/forms.py:253 projects/forms.py:489
+#, python-format
+msgid "User %(username)s does not exist"
+msgstr ""
+
+#: organizations/forms.py:153
+#, python-format
+msgid "User %(username)s is already an owner"
+msgstr ""
+
+#: organizations/forms.py:177
+msgid "Team already exists"
+msgstr ""
+
+#: organizations/forms.py:259
+msgid "User is already a team member"
+msgstr ""
+
+#: organizations/models.py:44
+#: organizations/templates/organizations/admin/base.html:13
+msgid "Owners"
+msgstr ""
+
+#: organizations/models.py:72 templates/core/project_detail_right.html:61
+msgid "Home Page"
+msgstr "Ana Sayfa"
+
+#: organizations/models.py:79
+msgid "Disabled"
+msgstr ""
+
+#: organizations/models.py:84
+msgid "Artifacts Cleaned"
+msgstr ""
+
+#: organizations/models.py:89
+msgid "Maximum concurrent builds allowed for this organization"
+msgstr ""
+
+#: organizations/models.py:95
+msgid "Stripe customer ID"
+msgstr ""
+
+#: organizations/models.py:102
+msgid "Stripe customer"
+msgstr ""
+
+#: organizations/models.py:110
+msgid "Stripe subscription"
+msgstr ""
+
+#: organizations/models.py:123
+msgid "organization"
+msgstr ""
+
+#: organizations/models.py:207
+#, python-brace-format
+msgid "{org} owner {owner}"
+msgstr ""
+
+#: organizations/models.py:249
+msgid "Access"
+msgstr ""
+
+#: organizations/models.py:266
+msgid "team"
+msgstr ""
+
+#: organizations/models.py:303 templates/base.html:194
+msgid "Team"
+msgstr "Takım"
+
+#: organizations/models.py:309
+msgid "Hash"
+msgstr ""
+
+#: organizations/models.py:310
+msgid "Count"
+msgstr ""
+
+#: organizations/models.py:311
+msgid "Total"
+msgstr ""
+
+#: organizations/templates/organizations/admin/base.html:12
+#: organizations/templates/organizations/admin/organization_edit.html:9
+#: organizations/templates/organizations/base.html:31
+#: templates/profiles/base_profile_edit.html:48
+#: templates/projects/domain_list.html:39
+msgid "Details"
+msgstr "Ayrıntılar"
+
+#: organizations/templates/organizations/admin/base.html:14
+#: templates/profiles/base_profile_edit.html:52
+#: templates/profiles/private/security_log.html:6
+#: templates/profiles/private/security_log.html:10
+msgid "Security Log"
+msgstr ""
+
+#: organizations/templates/organizations/admin/organization_delete.html:5
+#: organizations/templates/organizations/admin/organization_delete.html:11
+msgid "Delete Organization"
+msgstr ""
+
+#: organizations/templates/organizations/admin/organization_delete.html:13
+msgid ""
+"\n"
+"        Deleting this organization will also remove all the organization's\n"
+"        teams, users, projects, and built documentation.  Are you sure that "
+"it\n"
+"        is safe to remove this organization?\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/admin/organization_delete.html:23
+#: templates/projects/project_delete.html:24
+msgid "Delete forever"
+msgstr "Kalıcı sil"
+
+#: organizations/templates/organizations/admin/organization_edit.html:5
+msgid "Edit Organization"
+msgstr ""
+
+#: organizations/templates/organizations/admin/organization_edit.html:15
+#: projects/forms.py:257 redirects/templates/redirects/redirect_form.html:80
+#: templates/builds/regexautomationrule_form.html:28
+#: templates/projects/environmentvariable_form.html:20
+#: templates/projects/project_edit.html:22
+#: templates/projects/project_version_submit.html:4
+#: templates/projects/webhook_form.html:38
+msgid "Save"
+msgstr "Kaydet"
+
+#. Translators: The 'or' here is in between 'Save' and 'Delete organization'.
+#: organizations/templates/organizations/admin/organization_edit.html:17
+#: templates/core/home-header.html:19
+msgid "or"
+msgstr "ya da"
+
+#: organizations/templates/organizations/admin/organization_edit.html:18
+msgid "Delete organization"
+msgstr ""
+
+#: organizations/templates/organizations/admin/owners_edit.html:5
+msgid "Edit Organization Owners"
+msgstr ""
+
+#: organizations/templates/organizations/admin/owners_edit.html:13
+msgid "Owners have full access to this Organization"
+msgstr ""
+
+#: organizations/templates/organizations/admin/owners_edit.html:48
+#: organizations/templates/organizations/admin/owners_edit.html:52
+#: organizations/templates/organizations/team_list.html:51
+msgid "Add Owner"
+msgstr ""
+
+#: organizations/templates/organizations/base.html:18
+#: organizations/templates/organizations/base_team.html:19
+msgid "Organizations"
+msgstr ""
+
+#: organizations/templates/organizations/base.html:32
+#: organizations/templates/organizations/team_list.html:7
+msgid "Teams"
+msgstr ""
+
+#: organizations/templates/organizations/base.html:34
+#: organizations/templates/organizations/member_list.html:7
+#: organizations/templates/organizations/team_detail.html:40
+msgid "Members"
+msgstr ""
+
+#: organizations/templates/organizations/base.html:37
+#: templates/core/header.html:29 templates/projects/project_edit.html:13
+#: templates/projects/project_edit_base.html:17
+msgid "Settings"
+msgstr "Ayarlar"
+
+#: organizations/templates/organizations/includes/team_member_list.html:25
+msgid "invite pending"
+msgstr ""
+
+#: organizations/templates/organizations/includes/team_member_list.html:34
+msgid "This team doesn't have any members"
+msgstr ""
+
+#: organizations/templates/organizations/member_list.html:26
+#, python-format
+msgid ""
+"\n"
+"            This is a list of all the team members and owners inside your "
+"organization.\n"
+"            To invite members, <a href=\"%(invite_url)s\">invite them to a "
+"team</a>\n"
+"          "
+msgstr ""
+
+#: organizations/templates/organizations/onboard/base.html:24
+#: templates/projects/import_base.html:27
+msgid "Next"
+msgstr "Sonraki"
+
+#: organizations/templates/organizations/onboard/base.html:26
+#: templates/projects/import_base.html:29
+msgid "Finish"
+msgstr "Bitti"
+
+#: organizations/templates/organizations/onboard/base.html:30
+#: templates/projects/import_base.html:33
+msgid "Previous"
+msgstr "Önceki"
+
+#: organizations/templates/organizations/onboard/invite.html:4
+#: organizations/templates/organizations/onboard/organization.html:4
+#: organizations/templates/organizations/onboard/organization.html:7
+#: organizations/templates/organizations/onboard/plan.html:4
+#: organizations/templates/organizations/onboard/team.html:4
+#: organizations/templates/organizations/organization_create.html:5
+#: organizations/templates/organizations/organization_create.html:10
+msgid "Create an Organization"
+msgstr ""
+
+#: organizations/templates/organizations/onboard/invite.html:7
+msgid "Invite your Company"
+msgstr ""
+
+#: organizations/templates/organizations/onboard/invite.html:11
+msgid ""
+"\n"
+"        Finally, if you'd like to <b>invite your company to join you</b>,\n"
+"        invite some members to share documentation with below.\n"
+"        More members can be invited to your team later,\n"
+"        in the organization admin dashboard.\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/onboard/organization.html:11
+msgid ""
+"\n"
+"        Before you can add a project or build documentation,\n"
+"        we will help you create an organization.\n"
+"        Access to your documentation is limited to <b>only those inside your "
+"organization</b>,\n"
+"        or inside a team with access.\n"
+"        We'll help set up a team shortly,\n"
+"        <b>start by entering your organization details</b>.\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/onboard/team.html:7
+msgid "Create a Team"
+msgstr ""
+
+#: organizations/templates/organizations/organization_create.html:23
+msgid "Get Started"
+msgstr ""
+
+#: organizations/templates/organizations/organization_create.html:33
+msgid ""
+"\n"
+"          To start building documentation, we will first help you create an\n"
+"          organization.\n"
+"        "
+msgstr ""
+
+#: organizations/templates/organizations/organization_create.html:42
+msgid ""
+"\n"
+"            Access to your documentation is limited to\n"
+"            <b>only those inside your organization</b>, or inside a team "
+"with access.\n"
+"          "
+msgstr ""
+
+#: organizations/templates/organizations/organization_create.html:50
+msgid ""
+"\n"
+"            No need to decide now, you can pick a plan that fits your "
+"organization\n"
+"            after a <b>30 day trial</b>.\n"
+"          "
+msgstr ""
+
+#: organizations/templates/organizations/organization_detail.html:69
+#: organizations/templates/organizations/team_list.html:69
+msgid "There are no teams currently established."
+msgstr ""
+
+#: organizations/templates/organizations/organization_invite.html:5
+#: organizations/templates/organizations/organization_invite.html:9
+msgid "Invite Members"
+msgstr ""
+
+#: organizations/templates/organizations/organization_invite.html:13
+msgid "Invite members to "
+msgstr ""
+
+#: organizations/templates/organizations/organization_invite.html:20
+msgid "Let them in"
+msgstr ""
+
+#: organizations/templates/organizations/security_log.html:6
+#: organizations/templates/organizations/security_log.html:10
+msgid "Organization Security Log"
+msgstr ""
+
+#: organizations/templates/organizations/security_log.html:19
+#, python-format
+msgid ""
+"The <a href=\"%(docs_url)s\">organization security log</a> allows you to see "
+"what has happened recently in your organization."
+msgstr ""
+
+#: organizations/templates/organizations/security_log.html:25
+#, python-format
+msgid ""
+"Showing logs from the last %(days_limit)s days. You can upgrade your plan to "
+"increase the time period that is stored."
+msgstr ""
+
+#: organizations/templates/organizations/security_log.html:30
+msgid "Showing logs from all time."
+msgstr ""
+
+#: organizations/templates/organizations/team_create.html:7
+#: organizations/templates/organizations/team_create.html:14
+#: organizations/templates/organizations/team_create.html:18
+#: organizations/templates/organizations/team_list.html:45
+msgid "Add Team"
+msgstr ""
+
+#: organizations/templates/organizations/team_delete.html:5
+#: organizations/templates/organizations/team_delete.html:11
+#: organizations/templates/organizations/team_edit.html:21
+msgid "Delete Team"
+msgstr ""
+
+#: organizations/templates/organizations/team_delete.html:13
+msgid ""
+"\n"
+"        Deleting this team will revoke access for users that were in the "
+"team.\n"
+"        Are you sure that it is safe to remove these users?\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/team_detail.html:14
+#: organizations/templates/organizations/team_edit.html:7
+#: organizations/templates/organizations/team_edit.html:14
+msgid "Edit Team"
+msgstr ""
+
+#: organizations/templates/organizations/team_detail.html:19
+msgid "Manage Projects"
+msgstr ""
+
+#: organizations/templates/organizations/team_detail.html:24
+#: organizations/templates/organizations/team_member_create.html:11
+msgid "Invite Member"
+msgstr ""
+
+#: organizations/templates/organizations/team_edit.html:18
+msgid "Update Team"
+msgstr ""
+
+#: organizations/templates/organizations/team_member_create.html:5
+msgid "Add Team Member"
+msgstr ""
+
+#: organizations/templates/organizations/team_member_create.html:15
+msgid "Add Member"
+msgstr ""
+
+#: organizations/templates/organizations/team_project_edit.html:5
+msgid "Team's Projects"
+msgstr ""
+
+#: organizations/templates/organizations/team_project_edit.html:15
+msgid ""
+"\n"
+"        Select the projects that you would like this team to have access "
+"to.\n"
+"      "
+msgstr ""
+
+#: organizations/templates/organizations/team_project_edit.html:22
+msgid "Update Projects"
+msgstr ""
+
+#: organizations/templates/organizations/verify_email.html:5
+#: organizations/templates/organizations/verify_email.html:10
+#: templates/account/email/email_confirmation_subject.txt:3
+msgid "Verify your email address"
+msgstr "E-posta adresinizi doğrulayın"
+
+#: organizations/views/private.py:113
+msgid "Owner removed"
+msgstr ""
+
+#: organizations/views/private.py:118
+msgid "User is the last owner, can't be removed"
+msgstr ""
+
+#: organizations/views/private.py:126
+msgid "Team added"
+msgstr ""
+
+#: organizations/views/private.py:136
+msgid "Team deleted"
+msgstr ""
+
+#: organizations/views/private.py:153
+msgid "Team updated"
+msgstr ""
+
+#: organizations/views/private.py:158
+msgid "Team projects updated"
+msgstr ""
+
+#: organizations/views/private.py:171
+msgid "Member added to team"
+msgstr ""
+
+#: organizations/views/private.py:176
+msgid "Member removed from team"
+msgstr ""
+
+#: profiles/views.py:72
+msgid "You have successfully deleted your account"
+msgstr ""
+
+#: profiles/views.py:127
+msgid "Updated your advertising preferences"
+msgstr "Reklam tercihleriniz güncellendi"
+
+#: projects/admin.py:127
+msgid "Yes"
+msgstr "Evet"
+
+#: projects/admin.py:128
+msgid "No"
+msgstr ""
+
+#: projects/admin.py:157
+msgid "Not spam (1-{})"
+msgstr ""
+
+#: projects/admin.py:163
+msgid "Don't show Ads ({}-{})"
+msgstr ""
+
+#: projects/admin.py:170
+msgid "Deny on robots ({}-{})"
+msgstr ""
+
+#: projects/admin.py:177
+msgid "Don't show dashboard ({}-{})"
+msgstr ""
+
+#: projects/admin.py:184
+msgid "Don't serve docs ({}-{})"
+msgstr ""
+
+#: projects/admin.py:191
+msgid "Delete project (>={})"
+msgstr ""
+
+#: projects/constants.py:21
+msgid "Sphinx Html"
+msgstr "Sphinx Html"
+
+#: projects/constants.py:22
+msgid "Mkdocs"
+msgstr ""
+
+#: projects/constants.py:23
+msgid "Sphinx HtmlDir"
+msgstr "Sphinx HtmlDizini"
+
+#: projects/constants.py:24
+msgid "Sphinx Single Page HTML"
+msgstr "Sphinx Tek Sayfa HTML"
+
+#: projects/constants.py:27
+msgid "Mkdocs Html Pages"
+msgstr ""
+
+#: projects/constants.py:28
+msgid "Generic"
+msgstr ""
+
+#: projects/constants.py:79
+msgid "Live"
+msgstr "Canlı"
+
+#: projects/constants.py:80
+msgid "Deleted"
+msgstr "Silindi"
+
+#: projects/constants.py:89
+msgid "Git"
+msgstr "Git"
+
+#: projects/constants.py:90
+msgid "Subversion"
+msgstr "Subversion"
+
+#: projects/constants.py:91
+msgid "Mercurial"
+msgstr "Mercurial"
+
+#: projects/constants.py:92
+msgid "Bazaar"
+msgstr "Bazaar"
+
+#: projects/constants.py:99 projects/models.py:2067
+msgid "Public"
+msgstr "Ortak"
+
+#: projects/constants.py:100
+msgid "Private"
+msgstr "Özel"
+
+#: projects/constants.py:111
+msgid "CPython 2.x"
+msgstr "CPython 2.x"
+
+#: projects/constants.py:112
+msgid "CPython 3.x"
+msgstr "CPython 3.x"
+
+#: projects/constants.py:399
+msgid "Valid and active"
+msgstr ""
+
+#: projects/constants.py:400
+msgid "Invalid"
+msgstr ""
+
+#: projects/constants.py:401
+msgid "Pending"
+msgstr ""
+
+#: projects/exceptions.py:15
+msgid ""
+"A configuration file was not found. Make sure you have a conf.py file in "
+"your repository."
+msgstr ""
+"Yapılandırma dosyası bulunamadı. Deponuzda bir conf.py dosyası olduğundan "
+"emin olun."
+
+#: projects/exceptions.py:20
+msgid ""
+"We found more than one conf.py and are not sure which one to use. Please, "
+"specify the correct file under the Advanced settings tab in the project's "
+"Admin."
+msgstr ""
+"Birden fazla conf.py dosyası bulduk ve hangisini kullanacağımızdan emin "
+"değiliz. Lütfen, projenin Yönetici bölümünde Gelişmiş Ayarlar sekmesinin "
+"altında doğru dosyayı belirtin."
+
+#: projects/exceptions.py:28
+msgid "The file {} doesn't exist. Make sure it's a valid file path."
+msgstr ""
+
+#: projects/exceptions.py:36
+msgid ""
+"There was a problem connecting to your repository, ensure that your "
+"repository URL is correct."
+msgstr ""
+"Deponuza bağlanırken bir sorun oldu, depo URL'nizin doğru olduğundan emin "
+"olun."
+
+#: projects/exceptions.py:40
+msgid ""
+"There was a problem connecting to your repository, ensure that your "
+"repository URL is correct and your repository is public. Private "
+"repositories are not supported."
+msgstr ""
+"Deponuza bağlanırken bir sorun oldu, depo URL'nizin doğru olduğundan ve "
+"deponuzun ortak olarak ayarlı olduğundan emin olun. Özel depolar "
+"desteklenmez."
+
+#: projects/exceptions.py:45
+msgid ""
+"One or more submodule URLs are not valid: {}, git/ssh URL schemas for "
+"submodules are not supported."
+msgstr ""
+
+#: projects/exceptions.py:49
+msgid ""
+"You can not have two versions with the name latest or stable. Ensure you "
+"don't have both a branch and a tag with this name."
+msgstr ""
+
+#: projects/exceptions.py:53
+msgid "Failed to checkout revision: {}"
+msgstr "Düzeltmeyi kullanıma alma başarısız: {}"
+
+#: projects/exceptions.py:56
+msgid ""
+"There was a problem cloning your repository. Please check the command output "
+"for more information."
+msgstr ""
+
+#: projects/filters.py:31 projects/filters.py:80
+msgid "Name (descending)"
+msgstr ""
+
+#: projects/filters.py:32 projects/filters.py:83
+msgid "Most recently built"
+msgstr ""
+
+#: projects/filters.py:33 projects/filters.py:84
+msgid "Least recently built"
+msgstr ""
+
+#: projects/filters.py:81
+msgid "Most recently modified"
+msgstr ""
+
+#: projects/filters.py:82
+msgid "Least recently modified"
+msgstr ""
+
+#: projects/filters.py:85
+msgid "Most frequently built"
+msgstr ""
+
+#: projects/filters.py:86
+msgid "Least frequently built"
+msgstr ""
+
+#: projects/filters.py:113 projects/filters.py:162
+msgid "Sort by"
+msgstr ""
+
+#: projects/filters.py:132
+msgid "Hidden versions"
+msgstr ""
+
+#: projects/filters.py:133
+msgid "Visible versions"
+msgstr ""
+
+#: projects/filters.py:137
+msgid "Public versions"
+msgstr ""
+
+#: projects/filters.py:138
+msgid "Private versions"
+msgstr ""
+
+#: projects/filters.py:154
+msgid "Visibility"
+msgstr ""
+
+#: projects/filters.py:163
+msgid "Relevance"
+msgstr ""
+
+#: projects/forms.py:102
+msgid "Edit advanced project options"
+msgstr "Gelişmiş proje seçeneklerini düzenle"
+
+#: projects/forms.py:125
+msgid "Invalid project name, a project already exists with that name"
+msgstr "Geçersiz proje adı, bir proje zaten bu adla var"
+
+#: projects/forms.py:129
+msgid "Invalid project name"
+msgstr "Geçersiz proje adı"
+
+#: projects/forms.py:147
+msgid "Repository invalid"
+msgstr "Depo geçersiz"
+
+#: projects/forms.py:188
+msgid "Length of each tag must be less than or equal to 100 characters."
+msgstr "Her etiketin uzunluğu 100 karakterden az veya eşit olmak zorundadır."
+
+#: projects/forms.py:247
+msgid "Global settings"
+msgstr ""
+
+#: projects/forms.py:251
+msgid "Default settings"
+msgstr ""
+
+#: projects/forms.py:295
+msgid "To build from pull requests you need a "
+msgstr ""
+
+#: projects/forms.py:306
+msgid ""
+"To build from pull requests your repository's webhook needs to send pull "
+"request events. "
+msgstr ""
+
+#: projects/forms.py:354
+msgid ""
+"Your configuration file is invalid, make sure it contains conf.py in it."
+msgstr ""
+"Yapılandırma dosyanız geçersiz, conf.py dosyasını içerdiğinden emin olun."
+
+#: projects/forms.py:402
+#, python-brace-format
+msgid "There is already a \"{lang}\" translation for the {proj} project."
+msgstr "{proj} projesi için zaten bir \"{lang}\" çevirisi var."
+
+#: projects/forms.py:493
+#, python-format
+msgid "User %(username)s is already a maintainer"
+msgstr ""
+
+#: projects/forms.py:572
+msgid "The payload must be a valid JSON object."
+msgstr ""
+
+#: projects/forms.py:751
+msgid "Only one domain can be canonical at a time."
+msgstr ""
+
+#: projects/forms.py:858
+msgid "Variable name can't start with __ (double underscore)"
+msgstr "Değişken adı __ (çift alt çizgi) ile başlayamaz"
+
+#: projects/forms.py:862
+msgid "Variable name can't start with READTHEDOCS"
+msgstr "Değişken adı READTHEDOCS ile başlayamaz"
+
+#: projects/forms.py:867
+msgid "There is already a variable with this name for this project"
+msgstr "Bu proje için bu ada sahip bir değişken zaten var"
+
+#: projects/forms.py:872
+msgid "Variable name can't contain spaces"
+msgstr "Değişken adı boşluklar içeremez"
+
+#: projects/forms.py:876
+msgid "Only letters, numbers and underscore are allowed"
+msgstr "Sadece harflere, sayılara ve alt çizgiye izin verilir"
+
+#: projects/models.py:84
+msgid "Main project"
+msgstr ""
+
+#: projects/models.py:90
+msgid "Subproject"
+msgstr ""
+
+#: projects/models.py:95
+msgid "Alias"
+msgstr "Kod adı"
+
+#: projects/models.py:137
+msgid "Short description of this project"
+msgstr ""
+
+#: projects/models.py:140
+msgid "Repository URL"
+msgstr "Depo URL'si"
+
+#: projects/models.py:143
+msgid "Hosted documentation repository URL"
+msgstr "Barındırılan belgelendirme deposu URL'si"
+
+#: projects/models.py:147
+msgid "Repository type"
+msgstr "Depo türü"
+
+#: projects/models.py:153
+msgid "Project homepage"
+msgstr "Proje anasayfası"
+
+#: projects/models.py:155
+msgid "The project's homepage"
+msgstr "Projenin anasayfası"
+
+#: projects/models.py:158
+msgid "Canonical URL"
+msgstr "Kurallı URL"
+
+#: projects/models.py:160
+msgid "URL that documentation is expected to serve from"
+msgstr "Belgelendirmenin sunulmasının beklendiği URL"
+
+#: projects/models.py:163
+msgid "Single version"
+msgstr "Tek sürüm"
+
+#: projects/models.py:166
+msgid ""
+"A single version site has no translations and only your \"latest\" version, "
+"served at the root of the domain. Use this with caution, only turn it on if "
+"you will <b>never</b> have multiple versions of your docs."
+msgstr ""
+"Tek bir sürüm sitesinde çeviri yoktur ve sadece etki alanının kökünde "
+"sunulan \"en son\" sürümünüz vardır. Bunu dikkatli kullanın, bunu sadece "
+"belgelerinizin birden çok sürümü <b>hiçbir zaman</b> olmayacaksa açın."
+
+#: projects/models.py:173
+msgid "Default version"
+msgstr "Varsayılan sürüm"
+
+#: projects/models.py:176
+msgid "The version of your project that / redirects to"
+msgstr "Projenizin / işaretinin yönlendirdiği sürümü"
+
+#: projects/models.py:181
+msgid "Default branch"
+msgstr "Varsayılan dal"
+
+#: projects/models.py:187
+msgid ""
+"What branch \"latest\" points to. Leave empty to use the default value for "
+"your VCS (eg. <code>trunk</code> or <code>master</code>)."
+msgstr ""
+"Hangi dalı \"en son\" olarak işaret ettiği. VCS'nizin (örn. <code>trunk</"
+"code> veya <code>master</code>) varsayılan değerini kullanmak için boş "
+"bırakın."
+
+#: projects/models.py:193
+msgid "Requirements file"
+msgstr "Gereksinimler dosyası"
+
+#: projects/models.py:199
+msgid ""
+"A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
+"files\">pip requirements file</a> needed to build your documentation. Path "
+"from the root of your project."
+msgstr ""
+"Belgelendirmenizi oluşturmak için bir <a href=\"https://pip.pypa.io/en/"
+"latest/user_guide.html#requirements-files\">pip gereksinimler dosyası</a> "
+"gerekir. Projenizin kök dizininden gelen yol."
+
+#: projects/models.py:211
+msgid ""
+"Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
+"en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
+"info on sphinx builders</a>."
+msgstr ""
+
+#: projects/models.py:217
+msgid "Documentation URL Configuration"
+msgstr ""
+
+#: projects/models.py:223
+msgid ""
+"Supports the following keys: $language, $version, $subproject, $filename. An "
+"example: `$language/$version/$filename`."
+msgstr ""
+
+#: projects/models.py:230
+msgid "Build pull requests for this project"
+msgstr ""
+
+#: projects/models.py:233
+msgid ""
+"More information in <a href=\"https://docs.readthedocs.io/page/guides/"
+"autobuild-docs-for-pull-requests.html\">our docs</a>."
+msgstr ""
+
+#: projects/models.py:237
+msgid "Privacy level of Pull Requests"
+msgstr ""
+
+#: projects/models.py:244
+msgid "Should builds from pull requests be public?"
+msgstr ""
+
+#: projects/models.py:249
+msgid "CDN Enabled"
+msgstr "CDN Etkinleştirildi"
+
+#: projects/models.py:251
+msgid "Analytics code"
+msgstr "Çözümleme kodu"
+
+#: projects/models.py:256
+msgid ""
+"Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow "
+"down your page loads."
+msgstr ""
+"Google Analytics İzleme Kimliği (ör. <code>UA-22345342-1</code>). Bu, sayfa "
+"yüklemelerinizi yavaşlatabilir."
+
+#: projects/models.py:262
+msgid "Disable Analytics"
+msgstr ""
+
+#: projects/models.py:266
+msgid ""
+"Disable Google Analytics completely for this project (requires rebuilding "
+"documentation)"
+msgstr ""
+
+#: projects/models.py:271
+msgid "Alternative container image"
+msgstr "Alternatif kapsayıcı resmi"
+
+#: projects/models.py:277
+msgid "Container memory limit"
+msgstr "Kapsayıcı bellek sınırı"
+
+#: projects/models.py:282
+msgid ""
+"Memory limit in Docker format -- example: <code>512m</code> or <code>1g</"
+"code>"
+msgstr ""
+"Docker biçiminde bellek sınırı -- örnek: <code>512m</code> veya <code>1g</"
+"code>"
+
+#: projects/models.py:287
+msgid "Container time limit in seconds"
+msgstr "Saniye olarak kapsayıcı zaman sınırı"
+
+#: projects/models.py:292
+msgid "Alternate build queue id"
+msgstr "Alternatif oluşturma kuyruğu kimliği"
+
+#: projects/models.py:298
+msgid "Maximum concurrent builds allowed for this project"
+msgstr ""
+
+#: projects/models.py:303
+msgid "Allow paid advertising"
+msgstr "Ücretli reklamlara izin verin"
+
+#: projects/models.py:305
+msgid "If unchecked, users will still see community ads."
+msgstr ""
+"Eğer işaretlenmediyse, kullanıcılar hala topluluk reklamlarını görecek."
+
+#: projects/models.py:308
+msgid "Ad-free"
+msgstr "Reklamsız"
+
+#: projects/models.py:313
+msgid "Is spam?"
+msgstr ""
+
+#: projects/models.py:316
+msgid "Manually marked as (not) spam"
+msgstr ""
+
+#: projects/models.py:319
+msgid "Show version warning"
+msgstr "Sürüm uyarısını göster"
+
+#: projects/models.py:321
+msgid "Show warning banner in non-stable nor latest versions."
+msgstr "Kararlı olmayan ne de en son sürümlerde uyarı afişi göster."
+
+#: projects/models.py:326
+msgid "Enable EPUB build"
+msgstr "EPUB oluşturmayı etkinleştir"
+
+#: projects/models.py:329
+msgid "Create a EPUB version of your documentation with each build."
+msgstr "Her oluşturma ile belgelendirmenizin bir EPUB sürümünü oluşturun."
+
+#: projects/models.py:333
+msgid "Enable PDF build"
+msgstr "PDF oluşturmayı etkinleştir"
+
+#: projects/models.py:336
+msgid "Create a PDF version of your documentation with each build."
+msgstr "Her oluşturma ile belgelendirmenizin bir PDF sürümünü oluşturun."
+
+#: projects/models.py:342 projects/models.py:1390
+msgid "Path"
+msgstr "Yol"
+
+#: projects/models.py:346
+msgid "The directory where <code>conf.py</code> lives"
+msgstr "<code>conf.py</code> dosyasının bulunduğu dizin"
+
+#: projects/models.py:351
+msgid "Python configuration file"
+msgstr "Python yapılandırma dosyası"
+
+#: projects/models.py:356
+msgid ""
+"Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</"
+"code>). Leave blank if you want us to find it for you."
+msgstr ""
+"Proje kök dizininden <code>conf.py</code> dosyasına giden yol (ör. "
+"<code>docs/conf.py</code>). Sizin için bulmamızı istiyorsanız boş bırakın."
+
+#: projects/models.py:362
+msgid "Featured"
+msgstr "Öne Çıkanlar"
+
+#: projects/models.py:363
+msgid "Skip"
+msgstr "Atla"
+
+#: projects/models.py:365
+msgid "Install Project"
+msgstr "Projeyi yükle"
+
+#: projects/models.py:367
+msgid ""
+"Install your project inside a virtualenv using <code>setup.py install</code>"
+msgstr ""
+"<code>setup.py install</code> kullanarak projenizi bir sanal ortam içine "
+"yükleyin"
+
+#: projects/models.py:376
+msgid "Python Interpreter"
+msgstr "Python Yorumlayıcı"
+
+#: projects/models.py:381
+msgid "The Python interpreter used to create the virtual environment."
+msgstr "Python yorumlayıcısı sanal ortamı oluşturmak için kullanılır."
+
+#: projects/models.py:387
+msgid "Use system packages"
+msgstr "Sistem paketlerini kullan"
+
+#: projects/models.py:389
+msgid "Give the virtual environment access to the global site-packages dir."
+msgstr "Genel site paketleri dizinine sanal ortam erişimi verin."
+
+#: projects/models.py:400
+msgid "Should the project dashboard be public?"
+msgstr ""
+
+#: projects/models.py:407
+msgid "Related projects"
+msgstr "İlgili projeler"
+
+#: projects/models.py:415 templates/search/elastic_search.html:57
+msgid "Language"
+msgstr "Dil"
+
+#: projects/models.py:419
+msgid ""
+"The language the project documentation is rendered in. Note: this affects "
+"your project's URL."
+msgstr ""
+"Proje belgelendirmede işlenen dil. Not: bu, projenizin URL'sini etkiler."
+
+#: projects/models.py:427
+msgid "Programming Language"
+msgstr "Programlama Dili"
+
+#: projects/models.py:431
+msgid "The primary programming language the project is written in."
+msgstr "Projenin yazıldığı birincil programlama dili."
+
+#: projects/models.py:447
+msgid "This project has been built with a webhook"
+msgstr "Bu proje bir web kancası ile oluşturuldu"
+
+#: projects/models.py:451
+msgid "This project has been successfully cloned"
+msgstr "Bu proje başarılı olarak kopyalandı"
+
+#: projects/models.py:471
+msgid "project"
+msgstr ""
+
+#: projects/models.py:481
+msgid "Model must have slug"
+msgstr "Model başlık bilgisine sahip olmak zorundadır"
+
+#: projects/models.py:1272
+msgid "Subproject nesting is not supported"
+msgstr "Alt proje iç içe geçme desteklenmiyor"
+
+#: projects/models.py:1392 sphinx_domains/models.py:44
+msgid "Build id"
+msgstr ""
+
+#: projects/models.py:1395
+msgid "Page search rank"
+msgstr ""
+
+#: projects/models.py:1400
+msgid "Ignore this file from operations like indexing"
+msgstr ""
+
+#: projects/models.py:1497
+msgid "Build triggered"
+msgstr ""
+
+#: projects/models.py:1498
+msgid "Build passed"
+msgstr ""
+
+#: projects/models.py:1515
+msgid "URL"
+msgstr ""
+
+#: projects/models.py:1517
+msgid "URL to send the webhook to"
+msgstr "Web kancasının göndereceği URL"
+
+#: projects/models.py:1520
+msgid "Secret used to sign the payload of the webhook"
+msgstr ""
+
+#: projects/models.py:1528
+msgid "Events to subscribe"
+msgstr ""
+
+#: projects/models.py:1531
+msgid "JSON payload"
+msgstr ""
+
+#: projects/models.py:1533
+msgid ""
+"JSON payload to send to the webhook. Check <a href=\"https://docs."
+"readthedocs.io/page/build-notifications.html#variable-substitutions-"
+"reference\">the docs</a> for available substitutions."
+msgstr ""
+
+#: projects/models.py:1641 sphinx_domains/models.py:47
+msgid "Domain"
+msgstr "Etki Alanı"
+
+#: projects/models.py:1648
+msgid "This domain was auto-created"
+msgstr ""
+
+#: projects/models.py:1652
+msgid "This domain is a CNAME for the project"
+msgstr ""
+
+#: projects/models.py:1657
+msgid "This domain is the primary one where the documentation is served from"
+msgstr ""
+
+#: projects/models.py:1661
+msgid "Use HTTPS"
+msgstr "HTTPS kullan"
+
+#: projects/models.py:1663
+msgid "Always use HTTPS for this domain"
+msgstr "Bu etki alanı için her zaman HTTPS kullan"
+
+#: projects/models.py:1667
+msgid "Number of times this domain has been hit"
+msgstr "Bu etki alanına kaç kez uğrandığının sayısı"
+
+#: projects/models.py:1672 templates/projects/domain_form.html:49
+msgid "SSL certificate status"
+msgstr ""
+
+#: projects/models.py:1681
+msgid "Skip validation process."
+msgstr ""
+
+#: projects/models.py:1687
+msgid "Start date of the validation process."
+msgstr ""
+
+#: projects/models.py:1698
+msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
+msgstr ""
+
+#: projects/models.py:1702
+msgid ""
+"If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
+msgstr ""
+
+#: projects/models.py:1706
+msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
+msgstr ""
+
+#: projects/models.py:1855
+msgid "Allow deprecated webhook views"
+msgstr "Kullanım dışı web kancası görünümlerine izin ver"
+
+#: projects/models.py:1859
+msgid "Do not overwrite context vars in conf.py with Read the Docs context"
+msgstr ""
+"Read the Docs bağlamı olan conf.py içindeki bağlam değişkenlerinin üzerine "
+"yazma"
+
+#: projects/models.py:1864
+msgid "Use Read the Docs theme for MkDocs as default theme"
+msgstr "Varsayılan tema olarak MkDocs için Read the Docs temasını kullan"
+
+#: projects/models.py:1868
+msgid "Do not shallow clone when cloning git repos"
+msgstr "Git depoları kopyalanırken basit kopyalama yapma"
+
+#: projects/models.py:1872
+msgid "Use Docker image labelled as `testing` to build the docs"
+msgstr ""
+"Belgeleri oluşturmak için `testing` olarak etiketlenmiş Docker imajını kullan"
+
+#: projects/models.py:1876
+msgid "Try alternative method of posting large data"
+msgstr "Büyük verilerin yazımı için alternatif yöntem dene"
+
+#: projects/models.py:1880
+msgid "Clean all files used in the build process"
+msgstr ""
+
+#: projects/models.py:1884
+msgid "Upgrade conda before creating the environment"
+msgstr ""
+
+#: projects/models.py:1888
+msgid "Append Read the Docs core requirements to environment.yml file"
+msgstr ""
+
+#: projects/models.py:1893
+msgid ""
+"Pass all versions (including private) into the html context when building "
+"with Sphinx"
+msgstr ""
+
+#: projects/models.py:1899
+msgid ""
+"Cache the environment (virtualenv, conda, pip cache, repository) in storage"
+msgstr ""
+
+#: projects/models.py:1903
+msgid "Limit the amount of concurrent builds"
+msgstr ""
+
+#: projects/models.py:1907
+msgid ""
+"CDN support for a project's public versions when privacy levels are enabled."
+msgstr ""
+
+#: projects/models.py:1911
+msgid "Use Docker gVisor runtime to create build container."
+msgstr ""
+
+#: projects/models.py:1915
+msgid "Record 404s page views."
+msgstr ""
+
+#: projects/models.py:1919
+msgid "Allow forced redirects."
+msgstr ""
+
+#: projects/models.py:1923
+msgid "Disable all page views"
+msgstr ""
+
+#: projects/models.py:1927
+msgid "Disable indexing of sphinx domains"
+msgstr ""
+
+#: projects/models.py:1933
+msgid "Skip syncing branches"
+msgstr ""
+
+#: projects/models.py:1937
+msgid "Skip syncing tags"
+msgstr ""
+
+#: projects/models.py:1941
+msgid "Skip sync versions task"
+msgstr ""
+
+#: projects/models.py:1945
+msgid "Always run pip install --upgrade"
+msgstr "Her zaman pip install --upgrade komutunu çalıştır"
+
+#: projects/models.py:1946
+msgid "Use new pip resolver"
+msgstr ""
+
+#: projects/models.py:1949
+msgid "Don't install the latest version of pip"
+msgstr ""
+
+#: projects/models.py:1951
+msgid "Use latest version of Sphinx"
+msgstr "Sphinx'in en son sürümünü kullan"
+
+#: projects/models.py:1954
+msgid "Install mkdocs 0.17.3 by default"
+msgstr ""
+
+#: projects/models.py:1956
+msgid "Use latest version of MkDocs"
+msgstr ""
+
+#: projects/models.py:1959
+msgid "Use latest version of the Read the Docs Sphinx extension"
+msgstr ""
+
+#: projects/models.py:1965
+msgid "Disable server side search"
+msgstr ""
+
+#: projects/models.py:1969
+msgid "Enable server side search for MkDocs projects"
+msgstr ""
+
+#: projects/models.py:1973
+msgid "Default to fuzzy search for simple search queries"
+msgstr ""
+
+#: projects/models.py:1977
+msgid ""
+"Index content directly from html files instead or relying in other sources"
+msgstr ""
+
+#: projects/models.py:1983
+msgid ""
+"List packages installed in the environment (\"pip list\" or \"conda list\") "
+"on build's output"
+msgstr ""
+
+#: projects/models.py:1989
+msgid ""
+"Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions"
+msgstr ""
+
+#: projects/models.py:1993
+msgid "Use \"-j auto\" when calling sphinx-build"
+msgstr ""
+
+#: projects/models.py:1997
+msgid "Use regular sphinx builders instead of custom RTD builders"
+msgstr ""
+
+#: projects/models.py:2002
+msgid ""
+"Cancel triggered/running builds when a new one with same project/version "
+"arrives"
+msgstr ""
+
+#: projects/models.py:2007
+msgid "Do not create index.md or README.rst if the project does not have one."
+msgstr ""
+
+#: projects/models.py:2018
+msgid "Feature identifier"
+msgstr "Özellik tanımlayıcısı"
+
+#: projects/models.py:2023
+msgid "Date feature was added"
+msgstr "Tarih özelliği eklendi"
+
+#: projects/models.py:2029
+msgid "Default all past projects to True"
+msgstr ""
+
+#: projects/models.py:2033
+msgid "Default all future projects to True"
+msgstr ""
+
+#: projects/models.py:2055
+msgid "Name of the environment variable"
+msgstr "Ortam değişkeninin adı"
+
+#: projects/models.py:2059
+msgid "Value of the environment variable"
+msgstr "Ortam değişkeninin değeri"
+
+#: projects/models.py:2064
+msgid "Project where this variable will be used"
+msgstr "Bu değişkenin kullanılacağı proje"
+
+#: projects/models.py:2070
+msgid "Expose this environment variable in PR builds?"
+msgstr ""
+
+#: projects/notifications.py:27
+msgid ""
+"Your primary email address is not verified. Please <a "
+"href=\"{{account_email_url}}\">verify it here</a>."
+msgstr ""
+"Birincil e-posta adresiniz doğrulanmadı. Lütfen <a "
+"href=\"{{account_email_url}}\">buradan doğrulayın</a>."
+
+#: projects/tasks/utils.py:124
+msgid ""
+"This build was terminated due to inactivity. If you continue to encounter "
+"this error, file a support request with and reference this build id ({})."
+msgstr ""
+"Bu oluşturma, etkin olmamadan dolayı sonlandırıldı. Eğer bu hatayla "
+"karşılaşmaya devam ederseniz, bu oluşturma kimliği ({}) ile ve bunu kaynak "
+"göstererek bir destek isteği gönderin."
+
+#: projects/validators.py:15
+msgid "Enter a valid plain or internationalized domain name value"
+msgstr "Geçerli bir düz veya uluslararası yapılan etki alanı adı değeri girin"
+
+#: projects/validators.py:27
+msgid "The domain name can't be an IP address."
+msgstr ""
+
+#: projects/validators.py:56
+msgid "Invalid character in the URL"
+msgstr "URL'de geçersiz karakter"
+
+#: projects/validators.py:77
+msgid "Invalid scheme for URL"
+msgstr "URL için geçersiz şema"
+
+#: projects/views/private.py:150 projects/views/private.py:160
+msgid "Project settings updated"
+msgstr "Proje ayarları güncellendi"
+
+#: projects/views/private.py:169
+msgid "Project deleted"
+msgstr "Proje silindi"
+
+#: projects/views/private.py:387
+#, python-brace-format
+msgid ""
+"There is a problem with your {service} account, try reconnecting your "
+"account on your <a href=\"{url}\">connected services page</a>."
+msgstr ""
+"{service} hesabınızla ilgili bir sorun var, <a href=\"{url}\">bağlı "
+"hizmetler sayfanızda</a> hesabınızı yeniden bağlamayı deneyin."
+
+#: projects/views/private.py:509
+#, python-brace-format
+msgid "{username} is the last owner, can't be removed"
+msgstr ""
+
+#: projects/views/private.py:975
+msgid "Project has been opted out from advertisement support"
+msgstr "Proje reklam desteğinden çekildi"
+
+#: redirects/models.py:18
+msgid "301 - Permanent Redirect"
+msgstr "301 - Kalıcı Yönlendirme"
+
+#: redirects/models.py:19
+msgid "302 - Temporary Redirect"
+msgstr "302 - Geçici Yönlendirme"
+
+#: redirects/models.py:24
+msgid "Inactive"
+msgstr "Etkin değil"
+
+#: redirects/models.py:28
+msgid "Prefix Redirect"
+msgstr "Önek Yönlendirme"
+
+#: redirects/models.py:29
+msgid "Page Redirect"
+msgstr "Sayfa Yönlendirme"
+
+#: redirects/models.py:30
+msgid "Exact Redirect"
+msgstr "Tam Yönlendirme"
+
+#: redirects/models.py:31
+msgid "Sphinx HTMLDir -> HTML"
+msgstr "Sphinx HTMLDizini -> HTML"
+
+#: redirects/models.py:32
+msgid "Sphinx HTML -> HTMLDir"
+msgstr "Sphinx HTML -> HTMLDizini"
+
+#: redirects/models.py:41
+msgid ""
+"Absolute path, excluding the domain. Example: <b>/docs/</b>  or <b>/install."
+"html</b>"
+msgstr ""
+"Etki alanı hariç, tam yol. Örnek: <b>/docs/</b> veya <b>/install.html</b>"
+
+#: redirects/models.py:45
+msgid "Absolute or relative URL. Example: <b>/tutorial/install.html</b>"
+msgstr "Tam veya göreceli URL. Örnek: <b>/tutorial/install.html</b>"
+
+#: redirects/models.py:48
+msgid "The type of redirect you wish to use."
+msgstr "Kullanmak istediğiniz yönlendirme türü."
+
+#: redirects/models.py:63
+msgid "Redirect Type"
+msgstr "Yönlendirme Türü"
+
+#: redirects/models.py:70
+msgid "From URL"
+msgstr "URL'den"
+
+#: redirects/models.py:88
+msgid "To URL"
+msgstr "URL'ye"
+
+#: redirects/models.py:95
+msgid "Force redirect"
+msgstr ""
+
+#: redirects/models.py:98
+msgid "Apply the redirect even if the page exists."
+msgstr ""
+
+#: redirects/models.py:102
+msgid "HTTP Status"
+msgstr "HTTP Durumu"
+
+#: redirects/models.py:114
+msgid "redirect"
+msgstr "yönlendirme"
+
+#: redirects/models.py:115
+msgid "redirects"
+msgstr "yönlendirme"
+
+#: redirects/models.py:131
+msgid "Redirect: {}"
+msgstr "Yönlendirme: {}"
+
+#: redirects/templates/redirects/redirect_form.html:5
+msgid "Redirect"
+msgstr ""
+
+#: redirects/templates/redirects/redirect_form.html:8
+#: redirects/templates/redirects/redirect_list.html:5
+#: redirects/templates/redirects/redirect_list.html:8
+#: templates/projects/project_edit_base.html:23
+msgid "Redirects"
+msgstr "Yönlendirmeler"
+
+#: redirects/templates/redirects/redirect_form.html:72
+#: redirects/templates/redirects/redirect_list.html:12
+#, python-format
+msgid ""
+"Add redirects for your project. This allows you to fix links to old pages "
+"that are 404ing. <a href=\"%(docs_url)s\">Learn more</a>."
+msgstr ""
+
+#: redirects/templates/redirects/redirect_form.html:88
+#: templates/builds/regexautomationrule_form.html:34
+#: templates/projects/webhook_form.html:44
+msgid "Delete"
+msgstr "Sil"
+
+#: redirects/templates/redirects/redirect_list.html:22
+msgid "Add Redirect"
+msgstr ""
+
+#: redirects/templates/redirects/redirect_list.html:53
+msgid "No redirects found."
+msgstr ""
+
+#: search/api/pagination.py:74
+msgid "Invalid page"
+msgstr ""
+
+#: search/api/v2/views.py:74
+msgid "This query param is required"
+msgstr ""
+
+#: search/api/v3/views.py:78
+msgid "This query parameter is required"
+msgstr ""
+
+#: search/models.py:33
+msgid "Query"
+msgstr ""
+
+#: search/models.py:37
+msgid "Total results"
+msgstr ""
+
+#: settings/base.py:409
+msgid "Catalan"
+msgstr "Katalanca"
+
+#: settings/base.py:410
+msgid "English"
+msgstr "İngilizce"
+
+#: settings/base.py:411
+msgid "Spanish"
+msgstr "İspanyolca"
+
+#: settings/base.py:412
+msgid "Brazilian Portuguese"
+msgstr "Brezilya Portekizcesi"
+
+#: settings/base.py:413
+msgid "Norwegian Bokmål"
+msgstr "Norveççe Bokmål"
+
+#: settings/base.py:414
+msgid "French"
+msgstr "Fransızca"
+
+#: settings/base.py:415
+msgid "Russian"
+msgstr "Rusça"
+
+#: settings/base.py:416
+msgid "German"
+msgstr "Almanca"
+
+#: settings/base.py:417
+msgid "Galician"
+msgstr "Galiçyaca"
+
+#: settings/base.py:418
+msgid "Vietnamese"
+msgstr "Vietnamca"
+
+#: settings/base.py:419
+msgid "Simplified Chinese"
+msgstr "Basitleştirilmiş Çince"
+
+#: settings/base.py:420
+msgid "Traditional Chinese"
+msgstr "Geleneksel Çince"
+
+#: settings/base.py:421
+msgid "Japanese"
+msgstr "Japonca"
+
+#: settings/base.py:422
+msgid "Ukrainian"
+msgstr "Ukraynaca"
+
+#: settings/base.py:423
+msgid "Italian"
+msgstr "İtalyanca"
+
+#: settings/base.py:424
+msgid "Korean"
+msgstr "Korece"
+
+#: sphinx_domains/models.py:55
+msgid "Display Name"
+msgstr ""
+
+#: sphinx_domains/models.py:63
+msgid "Type Display"
+msgstr ""
+
+#: sphinx_domains/models.py:68
+msgid "Doc Name"
+msgstr ""
+
+#: sphinx_domains/models.py:72
+msgid "Doc Display"
+msgstr ""
+
+#: sphinx_domains/models.py:77
+msgid "Anchor"
+msgstr ""
+
+#: subscriptions/forms.py:24
+#, python-brace-format
+msgid ""
+"Check our <a href=\"{pricing_page}\">pricing page</a> for more information "
+"about each plan."
+msgstr ""
+
+#: subscriptions/models.py:36
+msgid "Stripe ID"
+msgstr ""
+
+#: subscriptions/models.py:37
+msgid "Price"
+msgstr ""
+
+#: subscriptions/models.py:38
+msgid "Trial"
+msgstr ""
+
+#: subscriptions/models.py:43
+msgid "For organizations"
+msgstr ""
+
+#: subscriptions/models.py:51
+msgid "Published"
+msgstr ""
+
+#: subscriptions/models.py:110
+msgid "Custom domain"
+msgstr ""
+
+#: subscriptions/models.py:111
+msgid "CDN public documentation"
+msgstr ""
+
+#: subscriptions/models.py:112
+msgid "Custom SSL configuration"
+msgstr ""
+
+#: subscriptions/models.py:113
+msgid "Support SLA"
+msgstr ""
+
+#: subscriptions/models.py:114
+msgid "Private documentation"
+msgstr ""
+
+#: subscriptions/models.py:115
+msgid "Embed content via API"
+msgstr ""
+
+#: subscriptions/models.py:116
+msgid "Search analytics"
+msgstr ""
+
+#: subscriptions/models.py:117
+msgid "Pageview analytics"
+msgstr ""
+
+#: subscriptions/models.py:118
+msgid "Concurrent builds"
+msgstr ""
+
+#: subscriptions/models.py:119
+msgid "Single sign on (SSO) with Google"
+msgstr ""
+
+#: subscriptions/models.py:120
+msgid "Custom URLs"
+msgstr ""
+
+#: subscriptions/models.py:121
+msgid "Audit logs"
+msgstr ""
+
+#: subscriptions/models.py:122
+msgid "Record every page view"
+msgstr ""
+
+#: subscriptions/models.py:135
+msgid "Numeric value"
+msgstr ""
+
+#: subscriptions/models.py:169
+#: subscriptions/templates/subscriptions/subscription_detail.html:31
+msgid "Plan"
+msgstr ""
+
+#: subscriptions/models.py:179
+msgid "Locked plan"
+msgstr ""
+
+#: subscriptions/models.py:181
+msgid "Locked plan for custom contracts"
+msgstr ""
+
+#: subscriptions/models.py:188
+msgid "Stripe subscription ID"
+msgstr ""
+
+#: subscriptions/models.py:193
+msgid "Subscription status"
+msgstr ""
+
+#: subscriptions/models.py:194
+msgid "Start date"
+msgstr ""
+
+#: subscriptions/models.py:196
+msgid "End date"
+msgstr ""
+
+#: subscriptions/models.py:202
+msgid "Trial end date"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:7
+msgid "Organization Subscription"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:19
+#, python-format
+msgid ""
+"You are currently on a trial. Please choose a <a "
+"href=\"%(pricing_url)s\">paid plan</a> that fits your organization prior to "
+"the end of your trial. Upgrade your account by clicking on <strong>Manage "
+"Subscription</strong> below."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:42
+msgid "Plan Features:"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:53
+msgid "Signed up"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:55
+msgid "ago"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:59
+msgid "Subscription Status"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:65
+msgid "Trial ends"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:70
+msgid "Subscription ends"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:81
+msgid "Manage Subscription"
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:85
+msgid ""
+"Use the button above to see past invoices, change your plan, and update your "
+"billing information."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:93
+#, python-format
+msgid ""
+"<strong>You don't currently have an active subscription</strong>. You must "
+"create a subscription for a <a href=\"%(pricing_url)s\">paid plan</a> that "
+"fits your organization to continue using Read the Docs for Business."
+msgstr ""
+
+#: subscriptions/templates/subscriptions/subscription_detail.html:101
+msgid "Create Subscription"
+msgstr ""
+
+#: subscriptions/views.py:40
+msgid "Your plan has been upgraded!"
+msgstr ""
+
+#: subscriptions/views.py:98
+msgid ""
+"There was an error connecting to Stripe, please try again in a few minutes."
+msgstr ""
+
+#: templates/401.html:6 templates/404.html:6
+msgid "Maze Found"
+msgstr "Labirent Bulundu"
+
+#: templates/404.html:19
+msgctxt "404 page"
+msgid ""
+"This is a 404 error page. The link you have followed or the URL that you "
+"entered does not exist. It might be that the documentation has been updated, "
+"or this page has been removed."
+msgstr ""
+
+#: templates/404.html:21
+msgid "this site"
+msgstr ""
+
+#: templates/404.html:21
+#, python-format
+msgctxt "404 page"
+msgid "Back to the front page of %(site_name)s"
+msgstr ""
+
+#: templates/429.html:6
+msgid "Too many requests"
+msgstr ""
+
+#: templates/500.html:5
+msgid "Server Error"
+msgstr "Sunucu Hatası"
+
+#: templates/account/email.html:5 templates/account/email.html:9
+#: templates/profiles/base_profile_edit.html:51
+msgid "Change Email"
+msgstr "E-postayı Değiştir"
+
+#: templates/account/email.html:13
+msgid "The following email addresses are associated with your account:"
+msgstr "Aşağıdaki e-posta adresleri hesabınızla ilişkilendirildi:"
+
+#: templates/account/email.html:26
+msgid "Verified"
+msgstr "Doğrulandı"
+
+#: templates/account/email.html:28
+msgid "Unverified"
+msgstr "Doğrulanmadı"
+
+#: templates/account/email.html:30
+msgid "Primary"
+msgstr "Birincil"
+
+#: templates/account/email.html:36
+msgid "Make Primary"
+msgstr "Birincil Yap"
+
+#: templates/account/email.html:37
+msgid "Re-send Verification"
+msgstr "Doğrulamayı Yeniden Gönder"
+
+#: templates/account/email.html:46
+msgid "Warning:"
+msgstr "Uyarı:"
+
+#: templates/account/email.html:46
+msgid ""
+"You currently do not have any email address set up. You should really add an "
+"email address so you can receive notifications, reset your password, etc."
+msgstr ""
+"Şu anda ayarlanmış herhangi bir e-posta adresiniz yok. Bildirimleri "
+"alabilmeniz, parolanızı sıfırlayabilmeniz, vb. için gerçekten bir e-posta "
+"adresi eklemelisiniz."
+
+#: templates/account/email.html:50
+msgid "Add E-mail Address"
+msgstr "E-posta Adresi ekle"
+
+#: templates/account/email.html:55
+msgid "Add E-mail"
+msgstr "E-posta ekle"
+
+#: templates/account/email.html:64
+msgid "Do you really want to remove the selected email address?"
+msgstr "Gerçekten seçilen e-posta adresini kaldırmak istiyor musunuz?"
+
+#: templates/account/email/email_confirmation_message.html:7
+#: templates/account/email/email_confirmation_message.txt:6
+msgid ""
+"To verify your email address and finish setting up your account, please go "
+"to:"
+msgstr ""
+"E-posta adresinizi doğrulamak ve hesabınızı ayarlamayı tamamlamak için "
+"lütfen şu adrese gidin:"
+
+#: templates/account/email/email_confirmation_message.html:15
+#: templates/account/email/email_confirmation_message.txt:10
+msgid ""
+"If you did not sign up for an account with Read the Docs, you can disregard "
+"this email."
+msgstr ""
+"Eğer Read the Docs ile bir hesaba kaydolmadıysanız, bu e-postayı göz ardı "
+"edebilirsiniz."
+
+#: templates/account/email/password_reset_key_message.html:7
+#: templates/account/email/password_reset_key_message.txt:6
+msgid ""
+"A request has been made to reset your Read the Docs password. To confirm "
+"this reset request, please go to:"
+msgstr ""
+"Read the Docs parolanızı sıfırlamak için bir istekte bulunuldu. Bu sıfırlama "
+"isteğini onaylamak için lütfen şu adrese gidin:"
+
+#: templates/account/email/password_reset_key_message.html:15
+#: templates/account/email/password_reset_key_message.txt:10
+msgid ""
+"If you did not request to reset your password, you can disregard this email."
+msgstr ""
+"Eğer parolanızı sıfırlamak için istekte bulunmadıysanız, bu e-postayı göz "
+"ardı edebilirsiniz."
+
+#: templates/account/email/password_reset_key_subject.txt:3
+msgid "Password reset"
+msgstr "Parola sıfırlama"
+
+#: templates/account/login.html:6 templates/account/login.html:12
+#: templates/account/login.html:23
+msgid "Sign In"
+msgstr "Giriş Yap"
+
+#: templates/account/login.html:14
+#, python-format
+msgid ""
+"If you have not created an account yet, then please <a "
+"href=\"%(signup_url)s\">sign up</a> first."
+msgstr ""
+"Henüz bir hesap oluşturmadıysanız, o zaman lütfen önce <a "
+"href=\"%(signup_url)s\">kaydolun</a>."
+
+#: templates/account/login.html:27
+#, python-format
+msgid ""
+"If you forgot your password, <a href=\"%(password_reset_url)s\">reset it.</a>"
+msgstr ""
+"Eğer parolanızı unuttuysanız, <a href=\"%(password_reset_url)s\">sıfırlayın."
+"</a>"
+
+#: templates/account/login.html:31 templates/account/signup.html:52
+msgid "Or"
+msgstr "Veya"
+
+#: templates/account/password_change.html:5
+#: templates/account/password_change.html:9
+#: templates/account/password_change.html:15
+#: templates/profiles/base_profile_edit.html:50
+msgid "Change Password"
+msgstr "Parolayı Değiştir"
+
+#. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
+#: templates/account/signup.html:5 templates/core/home-header.html:17
+msgid "Sign up"
+msgstr "Kaydol"
+
+#: templates/account/signup.html:13
+#, python-format
+msgid ""
+"Already have an account? Then please <a href=\"%(login_url)s\">sign in</a>."
+msgstr ""
+"Zaten bir hesabınız var mı? O zaman lütfen <a href=\"%(login_url)s\">giriş "
+"yapın</a>."
+
+#: templates/account/signup.html:19
+#, python-format
+msgid ""
+"You have been invited to join the organization \"%(organization_name)s\" at "
+"Read the Docs."
+msgstr ""
+
+#: templates/account/signup.html:25
+msgid "You have been invited to join an organization at Read the Docs."
+msgstr ""
+
+#: templates/account/signup.html:33
+msgid ""
+"Sign up using the following provider. If you don't have an account with this "
+"provider, please contact your organization owner and ask about this."
+msgstr ""
+
+#: templates/account/signup.html:48
+msgid ""
+"By signing up, you agree to our <a href=\"https://docs.readthedocs.io/page/"
+"terms-of-service.html\">Terms of Service</a> and <a href=\"https://docs."
+"readthedocs.io/page/privacy-policy.html\">Privacy Policy</a>."
+msgstr ""
+
+#: templates/archive/index.html:5
+msgid "Read the Docs Archive"
+msgstr "Read the Docs Arşivi"
+
+#: templates/base.html:109
+msgid "Close notification"
+msgstr ""
+
+#: templates/base.html:144
+msgid "Stay Updated"
+msgstr "Güncel Kalın"
+
+#: templates/base.html:148
+msgid "Blog"
+msgstr "Blog"
+
+#: templates/base.html:152
+msgid ""
+"Sign up for our newsletter to get our latest blog updates delivered to your "
+"inbox weekly."
+msgstr ""
+"En son blog güncellemelerimizi haftalık olarak gelen kutunuza teslim almak "
+"için bültenimize kaydolun."
+
+#: templates/base.html:165
+msgid "Subscribe"
+msgstr "Abone Ol"
+
+#: templates/base.html:173
+msgid "Thank you!"
+msgstr ""
+
+#: templates/base.html:174
+msgid "You have successfully joined our subscriber list."
+msgstr ""
+
+#: templates/base.html:187
+msgid "Resources"
+msgstr ""
+
+#: templates/base.html:191
+msgid "Tutorial"
+msgstr ""
+
+#: templates/base.html:197
+msgid "Documentation"
+msgstr "Belgelendirme"
+
+#: templates/base.html:200
+msgid "Going Ad-free"
+msgstr ""
+
+#: templates/base.html:203
+msgid "Site Support"
+msgstr ""
+
+#: templates/base.html:206
+msgid "Site Status"
+msgstr ""
+
+#: templates/base.html:213
+msgid "Company"
+msgstr ""
+
+#: templates/base.html:217
+msgid "Jobs"
+msgstr ""
+
+#: templates/base.html:220
+msgid "Advertise with Us"
+msgstr "Bizimle Reklam Verin"
+
+#: templates/base.html:223
+msgid "Read the Docs for Business"
+msgstr ""
+
+#: templates/base.html:226
+msgid "Branding & Media Kit"
+msgstr ""
+
+#: templates/base.html:232
+msgid "Terms of Service"
+msgstr ""
+
+#: templates/base.html:253
+msgid "Read the Docs, Inc & contributors"
+msgstr "Read the Docs, Inc ve katkıda bulunanları"
+
+#: templates/base.html:276
+msgid "Change Language"
+msgstr "Dili Değiştir"
+
+#: templates/base_filter.html:14 templates/core/filter_bar.html:8
+msgid "Filter"
+msgstr "Süz"
+
+#: templates/builds/build_detail.html:36
+msgid "Cancel build"
+msgstr ""
+
+#: templates/builds/build_detail.html:44
+msgid "Completed"
+msgstr "Tamamlanma"
+
+#: templates/builds/build_detail.html:49
+msgid "Build took"
+msgstr "Oluşturmanın aldığı süre"
+
+#: templates/builds/build_detail.html:53
+msgid "seconds"
+msgstr "saniye"
+
+#: templates/builds/build_detail.html:59
+msgid "Built on"
+msgstr "Oluşturulma"
+
+#: templates/builds/build_detail.html:67
+msgid "View docs"
+msgstr "Belgeleri görüntüle"
+
+#: templates/builds/build_detail.html:75
+msgid "View raw"
+msgstr "Ham görüntüle"
+
+#: templates/builds/build_detail.html:98
+#, python-format
+msgid "Build #%(build_id)s"
+msgstr "Oluşturma #%(build_id)s"
+
+#: templates/builds/build_detail.html:108
+#, python-format
+msgid ""
+"\n"
+"            <b>%(external_version_name)s</b>\n"
+"          "
+msgstr ""
+
+#: templates/builds/build_detail.html:138
+msgid "Build completed"
+msgstr "Oluşturma tamamlandı"
+
+#: templates/builds/build_detail.html:148
+msgid "Build cancelled"
+msgstr ""
+
+#: templates/builds/build_detail.html:157
+#, python-format
+msgid ""
+"Don't want <em>setup.py install</em> called? Change the <strong>Install "
+"Project</strong> setting in your <a href=\"%(advanced_url)s\">advanced "
+"settings</a>."
+msgstr ""
+"<em>Setup.py install</em> komutunu çağırmak istemiyor musunuz? <a "
+"href=\"%(advanced_url)s\">Gelişmiş ayarlarınızda</a> <strong>Proje yükle</"
+"strong> ayarını değiştirin."
+
+#: templates/builds/build_detail.html:167
+#, python-format
+msgid ""
+"<strong>Configure your documentation builds!</strong> Adding a <a "
+"href=\"%(config_file_link)s\">.readthedocs.yaml</a> file to your project is "
+"the recommended way to configure your documentation builds. You can declare "
+"dependencies, set up submodules, and many other great features."
+msgstr ""
+
+#: templates/builds/build_detail.html:181
+#, python-format
+msgid ""
+"<strong>The <code>\"build.commands\"</code> feature is in beta, and could "
+"have backwards incompatible changes while in beta.</strong> Read more at <a "
+"href=\"%(config_file_link)s\">our documentation</a> to find out its "
+"limitations and potential issues."
+msgstr ""
+
+#: templates/builds/build_detail.html:193
+msgid "Show full build output"
+msgstr "Tam oluşturma çıktısını göster"
+
+#: templates/builds/build_detail.html:199
+msgid "Build Output"
+msgstr "Oluşturma Çıktısı"
+
+#: templates/builds/build_detail.html:203
+msgid "Setup Output"
+msgstr "Kurulum Çıktısı"
+
+#: templates/builds/build_detail.html:208
+msgid "Environment Standard Error"
+msgstr "Ortam Standart Hatası"
+
+#: templates/builds/build_detail.html:214
+msgid "Build Errors"
+msgstr "Oluşturma Hataları"
+
+#: templates/builds/build_detail.html:232
+#, python-format
+msgid "<a href=\"%(url)s\">Report any build issues here</a>."
+msgstr ""
+"<a href=\"%(url)s\">Herhangi bir oluşturma sorununu burada bildirin</a>."
+
+#: templates/builds/build_detail.html:257
+msgid "Command time:"
+msgstr "Komut süresi:"
+
+#: templates/builds/build_detail.html:262
+msgid "Return"
+msgstr "Geri dön"
+
+#: templates/builds/build_list.html:37
+msgid "Build Version:"
+msgstr "Sürümü Oluştur:"
+
+#: templates/builds/build_list.html:53
+msgid "Recent Builds"
+msgstr "Son Oluşturmalar"
+
+#: templates/builds/regexautomationrule_form.html:6
+#: templates/builds/regexautomationrule_form.html:11
+msgid "Automation Rule"
+msgstr ""
+
+#: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
+#: templates/projects/tag_list.html:7
+msgid "Popular tags"
+msgstr "Popüler etiketler"
+
+#: templates/builds/versionautomationrule_list.html:6
+#: templates/builds/versionautomationrule_list.html:15
+#: templates/projects/project_edit_base.html:28
+msgid "Automation Rules"
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:20
+msgid ""
+"Automate actions on new branches and tags. Check the <a href=\"https://docs."
+"readthedocs.io/page/automation-rules.html\">documentation on automation "
+"rules</a> for more information."
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:32
+msgid "Add Rule"
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:54
+#: templates/builds/versionautomationrule_list.html:55
+msgid "Move up"
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:65
+#: templates/builds/versionautomationrule_list.html:66
+msgid "Move down"
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:76
+msgid "No automation rules are currently configured."
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:85
+#: templates/projects/integration_webhook_detail.html:83
+#: templates/projects/webhook_form.html:47
+msgid "Recent Activity"
+msgstr "Son Etkinlik"
+
+#: templates/builds/versionautomationrule_list.html:91
+#, python-format
+msgid ""
+"%(type)s \"%(version)s\" matched the pattern <span>\"%(pattern)s\"</span>, "
+"and the action <a href=\"%(url)s\">%(action)s</a> was performed %(date)s ago."
+msgstr ""
+
+#: templates/builds/versionautomationrule_list.html:101
+#: templates/projects/integration_webhook_detail.html:99
+#: templates/projects/webhook_form.html:63
+msgid "There is no recent activity"
+msgstr "Son etkinlik yok"
+
+#: templates/core/build_list_detailed.html:7
+msgid "This build is still waiting to be built"
+msgstr ""
+
+#: templates/core/build_list_detailed.html:7
+msgid "Passed"
+msgstr "Geçti"
+
+#: templates/core/build_list_detailed.html:7
+msgid "Failed"
+msgstr "Başarısız Oldu"
+
+#: templates/core/build_list_detailed.html:11
+#, python-format
+msgid "%(external_version_name)s"
+msgstr ""
+
+#: templates/core/build_list_detailed.html:16
+#, python-format
+msgid "version %(slug)s (%(type)s)"
+msgstr "sürüm %(slug)s (%(type)s)"
+
+#: templates/core/build_list_detailed.html:29
+msgid "No builds found"
+msgstr "Bulunan oluşturmalar yok"
+
+#: templates/core/email/base.html:78
+msgid "Hello,"
+msgstr ""
+
+#: templates/core/email/base.html:91
+msgid "Keep documenting,"
+msgstr "Belgelemeye devam edin,"
+
+#: templates/core/email/base.html:92
+msgid "Read the Docs"
+msgstr "Read the Docs"
+
+#: templates/core/filter_list.html:12
+msgid "No objects found"
+msgstr "Bulunan nesneler yok."
+
+#: templates/core/header.html:28
+msgid "My Projects"
+msgstr "Projelerim"
+
+#: templates/core/header.html:30
+msgid "Support"
+msgstr "Destek"
+
+#: templates/core/header.html:33
+msgid "Log Out"
+msgstr "Oturumu Kapat"
+
+#: templates/core/header.html:41
+msgid "Log In"
+msgstr "Oturum Aç"
+
+#: templates/core/home-header.html:10
+msgid "Create, host, and browse documentation."
+msgstr "Belgelendirme oluşturun, barındırın ve gözatın."
+
+#: templates/core/home-header.html:19
+msgid "Log in"
+msgstr "Oturum aç"
+
+#: templates/core/project_bar_base.html:12
+#: templates/core/project_list_detailed.html:34
+#: templates/core/project_list_featured.html:13
+#: templates/projects/project_version_list.html:53
+msgid "View Docs"
+msgstr "Belgeleri Görüntüle"
+
+#: templates/core/project_bar_base.html:31
+#, python-format
+msgid ""
+"Your project is currently disabled for abuse of the system. Please make sure "
+"it isn't using unreasonable amounts of resources or triggering lots of "
+"builds in a short amount of time. Please <a href=\"mailto:"
+"%(SUPPORT_EMAIL)s\">contact support</a> to get your project re-enabled."
+msgstr ""
+
+#: templates/core/project_bar_base.html:40
+msgid "Overview"
+msgstr "Genel Bakış"
+
+#: templates/core/project_detail_right.html:9
+msgid "Repository"
+msgstr "Depo"
+
+#: templates/core/project_detail_right.html:21
+msgid "Used in URL's and in code to represent the project name"
+msgstr "Proje adını temsil etmek için URL'lerde ve kodda kullanılır"
+
+#: templates/core/project_detail_right.html:22
+msgid "Project Slug"
+msgstr "Proje Başlık Bilgisi"
+
+#: templates/core/project_detail_right.html:29
+msgid "Last Built"
+msgstr "Son Oluşturma"
+
+#: templates/core/project_detail_right.html:36
+msgid "passed"
+msgstr "geçti"
+
+#: templates/core/project_detail_right.html:38
+msgid "failed"
+msgstr "başarısız oldu"
+
+#: templates/core/project_detail_right.html:41
+msgid "Currently Building"
+msgstr "Şu Anda Oluşturulan"
+
+#: templates/core/project_detail_right.html:44
+#: templates/projects/project_dashboard_base.html:83
+msgid "No builds yet"
+msgstr "Henüz oluşturmalar yok"
+
+#: templates/core/project_detail_right.html:51
+#: templates/projects/project_edit_base.html:22
+#: templates/projects/project_users.html:9
+msgid "Maintainers"
+msgstr "Bakımcılar"
+
+#: templates/core/project_detail_right.html:69
+msgid "Badge"
+msgstr "Rozet"
+
+#: templates/core/project_detail_right.html:79
+msgid "Tags"
+msgstr "Etiketler"
+
+#: templates/core/project_detail_right.html:87
+msgid "Project has no tags."
+msgstr "Projenin hiç etiketi yok."
+
+#: templates/core/project_detail_right.html:90
+#, python-format
+msgid "Add some in your <a href=\"%(edit_url)s\">project settings</a>."
+msgstr "<a href=\"%(edit_url)s\">Proje ayarlarınıza</a> biraz ekleyin."
+
+#: templates/core/project_detail_right.html:100
+msgid "Short URLs"
+msgstr "Kısa URL'ler"
+
+#: templates/core/project_detail_right.html:111
+#: templates/projects/project_edit_base.html:24
+#: templates/projects/project_translations.html:12
+msgid "Translations"
+msgstr "Çeviriler"
+
+#: templates/core/project_detail_right.html:122
+msgid "Sub Projects"
+msgstr "Alt Projeler"
+
+#: templates/core/project_detail_right.html:132
+msgid "Default Version"
+msgstr "Varsayılan Sürüm"
+
+#: templates/core/project_detail_right.html:135
+msgid "'latest' Version"
+msgstr "'en son' Sürüm"
+
+#: templates/core/project_details.html:49
+#: templates/projects/project_version_list.html:64
+msgid "No active versions."
+msgstr "Etkin sürümler yok."
+
+#: templates/core/project_details.html:60
+msgid "Build a version"
+msgstr "Bir sürüm oluştur"
+
+#: templates/core/project_details.html:69
+msgctxt "Build is a verb"
+msgid "Build version"
+msgstr "Sürüm oluştur"
+
+#: templates/core/project_downloads.html:31
+msgid "No downloads for this project."
+msgstr "Bu proje için indirmeler yok."
+
+#: templates/core/project_list_detailed.html:28
+msgid "No builds"
+msgstr "Oluşturmalar yok"
+
+#: templates/core/project_list_detailed.html:36
+#: templates/core/project_list_featured.html:15
+msgid "No Docs"
+msgstr "Belgeler yok"
+
+#: templates/core/project_list_detailed.html:44
+#: templates/core/project_list_featured.html:23
+msgid "No projects found"
+msgstr "Bulunan projeler yok"
+
+#: templates/core/widesearchbar.html:4
+msgid "Search all the docs"
+msgstr "Tüm belgelerde ara"
+
+#: templates/core/widesearchbar.html:12
+msgid "Search Read the Docs"
+msgstr "Read the Docs'da ara"
+
+#. Translators: This is about starting a search
+#: templates/core/widesearchbar.html:16
+msgid "Let's do this."
+msgstr "Hadi bunu yapalım."
+
+#: templates/flagging/flag_confirm.html:6
+#: templates/flagging/flag_confirm.html:11
+msgid "Confirm flagging"
+msgstr "İşaretlemeyi onayla"
+
+#: templates/flagging/flag_confirm.html:17
+msgid "What you are saying:"
+msgstr "Ne diyorsunuz:"
+
+#: templates/flagging/flag_confirm.html:21
+#, python-format
+msgid ""
+"Are you sure you want to flag \"%(object)s\" as \"%(flag_type.title)s\"?"
+msgstr ""
+"\"%(flag_type.title)s\" olarak \"%(object)s\" nesnesini işaretlemek "
+"istediğinize emin misiniz?"
+
+#: templates/flagging/flag_confirm.html:23
+#, python-format
+msgid "Yes, this is %(title)s"
+msgstr "Evet, bu %(title)s"
+
+#: templates/flagging/flag_confirm.html:24
+msgid "cancel"
+msgstr "iptal"
+
+#: templates/flagging/flag_success.html:6
+#: templates/flagging/flag_success.html:11
+msgid "Flagging successful"
+msgstr "İşaretleme başarılı"
+
+#: templates/flagging/flag_success.html:16
+#, python-format
+msgid "You have successfully flagged \"%(object)s\" as \"%(flag_type.title)s\""
+msgstr ""
+"\"%(flag_type.title)s\" olarak \"%(object)s\" nesnesini başarılı olarak "
+"işaretlediniz"
+
+#: templates/flagging/flag_success.html:18
+msgid "Thank you for contributing to the quality of this site!"
+msgstr "Bu sitenin kalitesine katkıda bulunduğunuz için teşekkür ederiz!"
+
+#: templates/homepage.html:9
+msgid ""
+"Read the Docs simplifies technical documentation by automating building, "
+"versioning, and hosting for you. Build up-to-date documentation for the web, "
+"print, and offline use on every version control push automatically."
+msgstr ""
+"Read the Docs, sizin için oluşturmayı, çeşitlendirmeyi otomatikleştirerek ve "
+"barındırarak teknik belgelendirmeyi basitleştirir. Her sürüm denetimine "
+"otomatik olarak yollamada, web, yazdırma ve çevrimdışı kullanım için güncel "
+"belgelendirme oluşturun."
+
+#: templates/homepage.html:12
+msgid "Home"
+msgstr "Giriş"
+
+#: templates/homepage.html:46
+msgid "Technical documentation lives here"
+msgstr "Teknik belgelendirme burada bulunur"
+
+#: templates/homepage.html:48
+msgid ""
+"Read the Docs simplifies software documentation by automating building, "
+"versioning, and hosting of your docs for you."
+msgstr ""
+"Read the Docs, sizin için belgelerinizi oluşturmayı, çeşitlendirmeyi "
+"otomatikleştirerek ve barındırarak yazılım belgelendirmeyi basitleştirir."
+
+#: templates/homepage.html:58
+msgid "Free docs hosting for open source"
+msgstr ""
+
+#: templates/homepage.html:60
+msgid ""
+"We will host your documentation for free, forever. There are no tricks. We "
+"help over 100,000 open source projects share their docs, including a custom "
+"domain and theme."
+msgstr ""
+
+#: templates/homepage.html:69
+msgid "Always up to date"
+msgstr ""
+
+#: templates/homepage.html:71
+msgid ""
+"Whenever you push code to your favorite version control service, whether "
+"that is GitHub, BitBucket, or GitLab, we will automatically build your docs "
+"so your code and documentation are never out of sync."
+msgstr ""
+
+#: templates/homepage.html:84
+msgid "Downloadable formats"
+msgstr ""
+
+#: templates/homepage.html:86
+msgid ""
+"We build and host your docs for the web, but they are also viewable as PDFs, "
+"as single page HTML, and for eReaders. No additional configuration is "
+"required."
+msgstr ""
+
+#: templates/homepage.html:94
+msgid "Multiple versions"
+msgstr ""
+
+#: templates/homepage.html:96
+msgid ""
+"We can host and build multiple versions of your docs so having a 1.0 version "
+"of your docs and a 2.0 version of your docs is as easy as having a separate "
+"branch or tag in your version control system."
+msgstr ""
+"Belgelerinizin birden çok sürümünü barındırabilir ve oluşturabiliriz, "
+"böylece belgelerinizin 1.0 ve 2.0 sürümüne sahip olmak sürüm denetim "
+"sisteminizde ayrı bir dala veya etikete sahip olmak kadar kolaydır."
+
+#: templates/homepage.html:109
+msgid "Read the Tutorial"
+msgstr ""
+
+#: templates/homepage.html:123
+msgid "Featured Projects"
+msgstr "Öne Çıkan Projeler"
+
+#: templates/homepage.html:137
+msgid "About Read the Docs"
+msgstr ""
+
+#: templates/homepage.html:140
+msgid ""
+"Read the Docs has grown substantially since its beginning as a weekend "
+"project and is closing in on being a top-1000 site on the internet. Today, "
+"we:"
+msgstr ""
+
+#: templates/homepage.html:148
+msgid ""
+"<ul class=\"donate-about\"> <li>Serve over <b>55 million pages</b> of "
+"documentation a month</li> <li>Serve over <b>40 TB</b> of documentation a "
+"month</li> <li>Host over <b>80,000 open source projects</b> and support over "
+"<b>100,000 users</b></li> <li>Are supported by a <a href=\"https://docs."
+"readthedocs.io/en/latest/team.html\">very small team</a> of dedicated "
+"engineers</li> </ul>"
+msgstr ""
+
+#: templates/homepage.html:160
+msgid "Read the Docs is funded by the community"
+msgstr "Read the Docs, topluluk tarafından finanse edilir"
+
+#: templates/homepage.html:166
+#, python-format
+msgid ""
+"We fund our operations through <a href=\"https://www.ethicalads.io/"
+"advertisers/?ref=rtd\">advertising</a>, corporate-hosted documentation with "
+"<a href=\"https://readthedocs.com\">Read the Docs for Business</a>, <a "
+"href=\"%(donate_url)s\">donations</a>, and we are supported by a number of "
+"generous <a href=\"https://docs.readthedocs.io/page/sponsors."
+"html\">sponsors</a>."
+msgstr ""
+
+#: templates/homepage.html:175
+msgid ""
+"Read the Docs is open source and community supported. It depends on users "
+"like you to contribute to development, support, and operations. You can "
+"learn more about how to <a href=\"https://docs.readthedocs.io/page/"
+"contribute.html\">contribute</a> in our docs. Thanks so much to our "
+"wonderful <a href=\"https://docs.readthedocs.io/page/team.html\">team</a> "
+"who helps us run the site. Read the Docs wouldn't be possible without them."
+msgstr ""
+
+#: templates/homepage.html:185
+msgid ""
+"Hosting for the project is graciously provided by <a href=\"https://aws."
+"amazon.com/\">AWS</a> and <a href=\"https://cloudflare.com/\">Cloudflare</a>."
+msgstr ""
+
+#: templates/notifications/send_notification_form.html:6
+msgid "Send Email"
+msgstr "E-posta Gönder"
+
+#: templates/notifications/send_notification_form.html:9
+msgid "An email message will be sent to the following email addresses:"
+msgstr "Aşağıdaki e-posta adreslerine bir e-posta iletisi gönderilecektir:"
+
+#: templates/notifications/send_notification_form.html:21
+#, python-format
+msgid "And 1 other recipient."
+msgid_plural "And %(counter)s other recipients..."
+msgstr[0] "Ve 1 diğer alıcı."
+msgstr[1] "Ve %(counter)s diğer alıcı..."
+
+#: templates/notifications/send_notification_form.html:32
+msgid "Specify the email content you wish to send:"
+msgstr "Göndermek istediğiniz e-posta içeriğini belirtin:"
+
+#: templates/notifications/send_notification_form.html:41
+msgid "Send Messages"
+msgstr "İletileri Gönder"
+
+#: templates/pagination/pagination.html:6
+#: templates/pagination/pagination.html:8
+#: templates/projects/project_import.html:185
+#: templates/projects/project_import.html:191
+msgid "previous"
+msgstr "önceki"
+
+#: templates/pagination/pagination.html:22
+#: templates/pagination/pagination.html:24
+#: templates/projects/project_import.html:195
+#: templates/projects/project_import.html:201
+msgid "next"
+msgstr "sonraki"
+
+#: templates/post_commit.html:5
+msgid "Build Started"
+msgstr "Oluşturma Başlatıldı"
+
+#: templates/post_commit.html:10
+#, python-format
+msgid "%(project)s is now building."
+msgstr "%(project)s şimdi oluşturuluyor."
+
+#. Translators: 'it' refers the current project being built.
+#: templates/post_commit.html:12
+#, python-format
+msgid "Check it out <a href=\"%(project_url)s\">over here</a>."
+msgstr "<a href=\"%(project_url)s\">Tam buradan</a> bir göz atın."
+
+#: templates/post_commit.html:14
+msgid ""
+"This is a post-commit hook. Set it up in your project admin to POST here, "
+"for us to update your doc changes automatically."
+msgstr ""
+"Bu bir yazı işle kancasıdır. Belge değişikliklerinizi otomatik olarak "
+"güncellememiz için burada proje yöneticinizde POST'a ayarlayın."
+
+#: templates/profiles/base_profile.html:27
+#: templates/profiles/base_profile_edit.html:30
+msgid "Profile"
+msgstr "Profil"
+
+#: templates/profiles/base_profile_edit.html:49
+#: templates/socialaccount/connections.html:5
+#: templates/socialaccount/connections.html:12
+msgid "Connected Services"
+msgstr "Bağlı Hizmetler"
+
+#: templates/profiles/base_profile_edit.html:53
+#: templates/profiles/private/token_list.html:5
+#: templates/profiles/private/token_list.html:9
+msgid "API Tokens"
+msgstr ""
+
+#: templates/profiles/base_profile_edit.html:54
+#: templates/profiles/private/delete_account.html:5
+#: templates/profiles/private/delete_account.html:9
+#: templates/profiles/private/delete_account.html:68
+msgid "Delete Account"
+msgstr "Hesabı sil"
+
+#: templates/profiles/base_profile_edit.html:55
+msgid "Gold Membership"
+msgstr ""
+
+#: templates/profiles/base_profile_edit.html:57
+#: templates/projects/project_edit_base.html:34
+msgid "Advertising"
+msgstr "Reklam"
+
+#: templates/profiles/private/advertising_profile.html:5
+#: templates/profiles/private/advertising_profile.html:9
+msgid "Set advertising preferences"
+msgstr "Reklam tercihlerini ayarla"
+
+#: templates/profiles/private/advertising_profile.html:15
+msgid ""
+"Since you are a Gold member or Supporter, you are <strong>ad-free</strong> "
+"for as long as you are logged-in. Thank you for supporting Read the Docs."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:22
+#: templates/projects/project_advertising.html:16
+msgid ""
+"Read the Docs is an open source project. In order to maintain service, we "
+"rely on both the support of our users, and from sponsor support."
+msgstr ""
+"Read the Docs açık kaynak bir projedir. Hizmeti sürdürmek için hem "
+"kullanıcılarımızın desteğine hem de sponsor desteğine güveniyoruz."
+
+#: templates/profiles/private/advertising_profile.html:30
+msgid ""
+"For more details on advertising on Read the Docs including the privacy "
+"protections we have in place for users and community advertising we run on "
+"behalf of the open source community, see <a href=\"https://docs.readthedocs."
+"io/page/advertising/ethical-advertising.html\">our documentation</a>."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:41
+#, python-format
+msgid ""
+"You can <strong>go ad-free</strong> by becoming a <a "
+"href=\"%(gold_detail)s\">Gold member</a> or <a "
+"href=\"%(donate_url)s\">Supporter</a> of Read the Docs."
+msgstr ""
+
+#: templates/profiles/private/advertising_profile.html:49
+msgid "Update advertisement preference"
+msgstr "Reklam tercihini güncelle"
+
+#: templates/profiles/private/delete_account.html:15
+msgid ""
+"<strong>All projects where you are the only owner will be deleted.</strong> "
+"If you want to keep a project, add another owner or transfer ownership. The "
+"following projects and all their documentation will be deleted."
+msgstr ""
+
+#: templates/profiles/private/delete_account.html:34
+msgid ""
+"<strong>All organizations and its projects where you are the only owner will "
+"be deleted.</strong> If you want to keep an organization, add another owner "
+"or transfer ownership. The following organizations and all their projects "
+"will be deleted."
+msgstr ""
+
+#: templates/profiles/private/delete_account.html:66
+msgid "Be careful! This can not be undone!"
+msgstr "Dikkatli olun! Bu geri alınamaz!"
+
+#: templates/profiles/private/edit_profile.html:5
+#: templates/profiles/private/edit_profile.html:9
+msgid "Edit your profile"
+msgstr "Profilinizi düzenleyin"
+
+#: templates/profiles/private/edit_profile.html:14
+msgid "OK, save it!"
+msgstr "TAMAM, kaydet!"
+
+#: templates/profiles/private/security_log.html:15
+#, python-format
+msgid ""
+"The <a href=\"%(docs_url)s\">user security log</a> allows you to see what "
+"has happened recently in your account. Showing logs from the last "
+"%(days_limit)s days."
+msgstr ""
+
+#: templates/profiles/private/token_list.html:13
+msgid ""
+"Personal Access Token are tokens that allow you to use the Read the Docs "
+"APIv3 being authenticated as yourself. See <a href=\"https://docs."
+"readthedocs.org/page/api/v3.html\">APIv3 documentation</a> for more "
+"information."
+msgstr ""
+
+#: templates/profiles/private/token_list.html:25
+msgid "Generate API Token"
+msgstr ""
+
+#: templates/profiles/private/token_list.html:54
+msgid "No API Tokens currently configured."
+msgstr ""
+
+#: templates/profiles/public/profile_detail.html:6
+#, python-format
+msgid "%(user)s's profile"
+msgstr "%(user)s kullanıcısının profili"
+
+#: templates/projects/domain_confirm_delete.html:5
+#: templates/projects/domain_form.html:5 templates/projects/domain_list.html:5
+msgid "Edit Domains"
+msgstr "Etki Alanlarını Düzenle"
+
+#: templates/projects/domain_confirm_delete.html:13
+msgid "Confirm Delete"
+msgstr "Silmeyi onayla"
+
+#: templates/projects/domain_confirm_delete.html:18
+msgid "Confirm"
+msgstr "Onayla"
+
+#: templates/projects/domain_form.html:16
+msgid "Domain Details"
+msgstr ""
+
+#: templates/projects/domain_form.html:18
+msgid "Create Domain"
+msgstr "Etki Alanı Oluştur"
+
+#: templates/projects/domain_form.html:33
+#, python-format
+msgid ""
+"To configure this domain add a CNAME record in your DNS pointing your custom "
+"domain to <code>%(cname_target)s</code>."
+msgstr ""
+
+#: templates/projects/domain_form.html:41
+msgid ""
+"The validation process period has ended. Save the domain to restart the "
+"process."
+msgstr ""
+
+#: templates/projects/domain_form.html:61
+msgid "Save Domain"
+msgstr ""
+
+#: templates/projects/domain_form.html:63
+msgid "Saving the domain will revalidate the SSL certificate"
+msgstr ""
+
+#: templates/projects/domain_list.html:12
+#: templates/projects/project_edit_base.html:21
+msgid "Domains"
+msgstr "Etki Alanları"
+
+#: templates/projects/domain_list.html:18
+#, python-format
+msgid ""
+"This project is a subproject of <a "
+"href=\"%(superproject_url)s\">%(superproject)s</a>, its documentation will "
+"always be served from the <code>%(domain)s</code> domain. <a href=\"https://"
+"docs.readthedocs.io/page/subprojects.html#custom-domain-on-"
+"subprojects\">Learn more</a>."
+msgstr ""
+
+#: templates/projects/domain_list.html:26
+#, python-format
+msgid ""
+"Configuring a custom domain allows you to serve your documentation from a "
+"domain other than \"%(default_domain)s\". <a href=\"%(docs_url)s\">Learn "
+"more</a>."
+msgstr ""
+
+#: templates/projects/domain_list.html:33
+msgid "Existing Domains"
+msgstr "Varolan Etki Alanları"
+
+#: templates/projects/domain_list.html:48
+msgid "Add new domain"
+msgstr ""
+
+#: templates/projects/domain_list.html:56
+#: templates/projects/project_import.html:170
+#: templates/projects/project_notifications.html:79
+#: templates/projects/project_translations.html:71
+#: templates/projects/project_users.html:53
+msgid "Add"
+msgstr "Ekle"
+
+#: templates/projects/environmentvariable_form.html:5
+#: templates/projects/environmentvariable_form.html:12
+#: templates/projects/environmentvariable_list.html:5
+#: templates/projects/environmentvariable_list.html:12
+#: templates/projects/project_edit_base.html:27
+msgid "Environment Variables"
+msgstr "Ortam Değişkenleri"
+
+#: templates/projects/environmentvariable_list.html:15
+msgid ""
+"Environment variables allow you to change the way that your build behaves. "
+"Take into account that these environment variables are available to all "
+"build steps."
+msgstr ""
+
+#: templates/projects/environmentvariable_list.html:22
+msgid "Add Environment Variable"
+msgstr "Ortam Değişkeni ekle"
+
+#: templates/projects/environmentvariable_list.html:36
+msgid "public"
+msgstr ""
+
+#: templates/projects/environmentvariable_list.html:38
+msgid "private"
+msgstr ""
+
+#: templates/projects/environmentvariable_list.html:53
+msgid "No environment variables are currently configured."
+msgstr "Şu anda yapılandırılmış ortam değişkenleri yok."
+
+#: templates/projects/import_base.html:4
+msgid "Add a Project"
+msgstr "Bir Proje ekle"
+
+#: templates/projects/import_basics.html:5
+msgid "Project Details"
+msgstr "Proje Ayrıntıları"
+
+#: templates/projects/import_basics.html:8
+msgid ""
+"To import a project, start by entering a few details about your repository. "
+"You can set additional configuration options for your documentation in a <a "
+"href=\"https://docs.readthedocs.io/en/stable/config-file/v2.html\">."
+"readthedocs.yml</a> file."
+msgstr ""
+
+#: templates/projects/import_extra.html:5
+msgid "Project Extra Details"
+msgstr "Proje Fazladan Ayrıntıları"
+
+#: templates/projects/import_extra.html:8
+msgid "Here are a few more project options that you may need to configure."
+msgstr "İşte yapılandırmanız gerekebilir birkaç proje seçeneği daha."
+
+#: templates/projects/includes/feature_disabled.html:5
+#, python-format
+msgid ""
+"This is a beta feature, it can be enabled by <a "
+"href=\"%(support_url)s\">contacting support</a>."
+msgstr ""
+
+#. Translators: After 'Flag this project as' follows either 'Inappropriate', 'Spam' and/or 'Duplicate'
+#: templates/projects/includes/flagging.html:7
+msgid "Flag this project as"
+msgstr "Bu projeyi şu olarak işaretle"
+
+#: templates/projects/includes/flagging.html:8
+msgid "Inappropriate"
+msgstr "Uygunsuz"
+
+#: templates/projects/includes/flagging.html:9
+msgid "Spam"
+msgstr "İstenmeyen"
+
+#: templates/projects/includes/flagging.html:10
+msgid "Duplicate"
+msgstr "Kopya"
+
+#: templates/projects/integration_exchange_detail.html:5
+#: templates/projects/integration_form.html:5
+#: templates/projects/integration_form.html:12
+#: templates/projects/integration_list.html:5
+#: templates/projects/integration_list.html:12
+#: templates/projects/project_edit_base.html:26
+msgid "Integrations"
+msgstr "Bütünleştirmeler"
+
+#: templates/projects/integration_exchange_detail.html:12
+#: templates/projects/webhook_exchange_detail.html:10
+msgid "Exchange"
+msgstr "Değiştirme"
+
+#: templates/projects/integration_form.html:21
+#: templates/projects/integration_list.html:20
+msgid "Add integration"
+msgstr "Bütünleştirme ekle"
+
+#: templates/projects/integration_generic_webhook_detail.html:7
+msgid "The following parameters are configured for this integration:"
+msgstr "Bu bütünleştirme için aşağıdaki parametreler yapılandırıldı:"
+
+#: templates/projects/integration_generic_webhook_detail.html:14
+msgid "Token"
+msgstr "Belirteç"
+
+#: templates/projects/integration_list.html:38
+msgid "No integrations are currently configured."
+msgstr "Şu anda yapılandırılmış bütünleştirmeler yok."
+
+#: templates/projects/integration_webhook_detail.html:5
+msgid "Integration"
+msgstr "Bütünleştirme"
+
+#: templates/projects/integration_webhook_detail.html:13
+#, python-format
+msgid "Integration - %(type)s"
+msgstr "Bütünleştirme - %(type)s"
+
+#: templates/projects/integration_webhook_detail.html:21
+msgid ""
+"This integration is being managed automatically by Read the Docs. If it "
+"isn't functioning correctly, try re-syncing the webhook:"
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:42
+msgid ""
+"This integration is not managed by Read the Docs currently. If this "
+"integration is not functioning correctly, you can try re-syncing it. "
+"Otherwise you'll need to update the configuration on your repository. You "
+"can use the following address to manually configure this webhook."
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:52
+msgid ""
+"To manually configure this webhook with your provider, use the following "
+"address:"
+msgstr ""
+"Bu web kancasını sağlayıcınızla el ile yapılandırmak için aşağıdaki adresi "
+"kullanın:"
+
+#: templates/projects/integration_webhook_detail.html:67
+msgid ""
+"For more information on manually configuring a webhook, refer to <a "
+"href=\"https://docs.readthedocs.io/page/webhooks.html\"> our webhook "
+"documentation </a>"
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:79
+msgid "Resync webhook"
+msgstr "Web kancasını yeniden eşitle"
+
+#: templates/projects/integration_webhook_detail.html:108
+msgid "Delete webhook"
+msgstr "Web kancasını sil"
+
+#: templates/projects/legend.html:4
+msgid "External Links"
+msgstr "Harici Bağlantılar"
+
+#: templates/projects/legend.html:5
+msgid "Link text"
+msgstr "Bağlantı metni"
+
+#: templates/projects/legend.html:7
+msgid "Internal Links"
+msgstr "Dahili Bağlantılar"
+
+#: templates/projects/legend.html:10
+msgid "Bold"
+msgstr "Kalın"
+
+#: templates/projects/legend.html:11
+msgid "text to bold"
+msgstr "kalın metin"
+
+#: templates/projects/legend.html:13
+msgid "Emphasized"
+msgstr "Vurgulanmış"
+
+#: templates/projects/legend.html:14
+msgid "text to emphasize"
+msgstr "vurgulanan metin"
+
+#: templates/projects/legend.html:16
+msgid "Lists"
+msgstr "Listeler"
+
+#: templates/projects/legend.html:19 templates/projects/legend.html:20
+#: templates/projects/legend.html:23 templates/projects/legend.html:24
+msgid "Item"
+msgstr "Öğe"
+
+#: templates/projects/legend.html:28
+msgid "Source Code"
+msgstr "Kaynak Kodu"
+
+#: templates/projects/legend.html:30
+msgid "e.g. Check out this code"
+msgstr "örn. Bu koda göz at"
+
+#: templates/projects/legend.html:31
+msgid "actual code indented"
+msgstr "girintili asıl kod"
+
+#: templates/projects/legend.html:34
+msgid "reStructuredText Primer"
+msgstr "reStructuredText Primer"
+
+#: templates/projects/onboard_detail.html:8
+msgid "Start building your documentation"
+msgstr "Belgelendirmenizi oluşturmaya başlayın"
+
+#: templates/projects/onboard_detail.html:10
+msgid ""
+"This project has not been built yet. Try building the latest version now, or "
+"if you would like to build a specific version, select the version below and "
+"your documentation build will be triggered."
+msgstr ""
+"Bu proje henüz oluşturulmadı. Şimdi en son sürümü oluşturmayı deneyin ya da "
+"belirli bir sürümü oluşturmak isterseniz, aşağıdaki sürümü seçin ve "
+"belgelendirme oluşturmanız tetiklenecektir."
+
+#: templates/projects/onboard_detail.html:21
+msgid "Build latest version"
+msgstr "En son sürümü oluştur"
+
+#: templates/projects/onboard_detail.html:29
+msgid "Your documentation is ready to use"
+msgstr "Belgelendirmeniz kullanıma hazır"
+
+#: templates/projects/onboard_detail.html:33
+msgid ""
+"Your documentation has been built. Ensure your documentation is kept up to "
+"date with every commit to your repository, by <a href=\"http://docs."
+"readthedocs.io/page/webhooks.html\">setting up a webhook</a>."
+msgstr ""
+
+#: templates/projects/onboard_detail.html:41
+msgid "View your documentation"
+msgstr "Belgelendirmenizi görüntüleyin"
+
+#: templates/projects/onboard_detail.html:46
+msgid "Your documentation failed to build"
+msgstr "Belgelendirmenizi oluşturma başarısız oldu"
+
+#: templates/projects/onboard_detail.html:50
+msgid ""
+"There was a problem building your documentation, you can see what went wrong "
+"in the build output. If you need more help, check out some of the <a "
+"href=\"http://docs.readthedocs.io/page/faq.html\">problems frequently "
+"encountered</a> during builds."
+msgstr ""
+
+#: templates/projects/onboard_detail.html:59
+msgid "View build output"
+msgstr "Oluşturma çıktısını görüntüle"
+
+#: templates/projects/onboard_detail.html:65
+msgid "Your documentation is building"
+msgstr "Belgelendirmeniz oluşturuluyor"
+
+#: templates/projects/onboard_detail.html:68
+msgid ""
+"You'll be able to view your documentation in a minute or two, once your "
+"project is done building."
+msgstr ""
+"Projenizin oluşturulması tamamlandığında, belgelendirmenizi bir veya iki "
+"dakika içinde görüntüleyebileceksiniz."
+
+#: templates/projects/onboard_import.html:5
+msgid "Ready to share your documentation"
+msgstr "Belgelendirmeniz paylaşmaya hazır"
+
+#: templates/projects/onboard_import.html:10
+#, python-format
+msgid ""
+"You don't have any projects yet, but you can start building documentation by "
+"importing one. Not sure how to start documenting your project? Check out the "
+"<a href=\"%(tutorial_url)s\">Tutorial</a> to learn how."
+msgstr ""
+
+#: templates/projects/onboard_import.html:19
+#, python-format
+msgid ""
+"In a hurry? <a href=\"%(template_project_url)s\">Fork our template project</"
+"a> on Github, and <a href=\"%(projects_import_url)s\">import it</a>."
+msgstr ""
+
+#: templates/projects/onboard_import.html:25
+#: templates/projects/project_dashboard_base.html:53
+msgid "Import a Project"
+msgstr "Bir Projeyi içe aktar"
+
+#: templates/projects/project_advanced.html:8
+msgid "Edit Advanced Project Settings"
+msgstr "Gelişmiş Proje Ayarlarını Düzenle"
+
+#: templates/projects/project_advanced.html:13
+#: templates/projects/project_edit_base.html:18
+msgid "Advanced Settings"
+msgstr "Gelişmiş Ayarlar"
+
+#: templates/projects/project_advanced_settings_helptext.html:3
+#, python-format
+msgid ""
+"These settings can be configured using a <a "
+"href=\"%(config_file_link)s\">configuration file</a>. That's the recommended "
+"way to set up your project. <strong>Settings listed here are ignored when "
+"using a configuration file.</strong"
+msgstr ""
+
+#: templates/projects/project_advertising.html:5
+#: templates/projects/project_advertising.html:12
+msgid "Documentation Advertising"
+msgstr "Belgelendirme Reklamı"
+
+#: templates/projects/project_advertising.html:24
+msgid ""
+"We will periodically run advertisements on built documentation pages for "
+"sponsors, however we have strict guidelines on advertisements:"
+msgstr ""
+"Düzenli olarak sponsorlar için oluşturulan belgelendirme sayfalarında reklam "
+"yayınlayacağız, ancak reklamlar üzerine katı kurallarımız var:"
+
+#: templates/projects/project_advertising.html:32
+msgid "We don't give sponsors access to user information."
+msgstr ""
+
+#: templates/projects/project_advertising.html:37
+msgid "We only report the number of impressions and number of ad clicks."
+msgstr ""
+
+#: templates/projects/project_advertising.html:42
+msgid ""
+"We only allow and image and text ads which we host ourselves. There are no "
+"advertiser-supplied scripts running on Read the Docs."
+msgstr ""
+
+#: templates/projects/project_advertising.html:50
+msgid ""
+"For more details on advertising on Read the Docs including the privacy "
+"protections we have in place for users and <a href=\"https://docs."
+"readthedocs.io/page/advertising/ethical-advertising.html#community-"
+"ads\">community advertising</a> we run on behalf of the open source "
+"community, see <a href=\"https://docs.readthedocs.io/page/advertising/"
+"ethical-advertising.html\">our documentation</a>."
+msgstr ""
+
+#: templates/projects/project_advertising.html:59
+msgid "Opting out"
+msgstr "Çekilme"
+
+#: templates/projects/project_advertising.html:63
+#, python-format
+msgid ""
+"In addition to the advertising preferences we have for <a "
+"href=\"%(ads_preferences_url)s\">individual users</a>, we have multiple ways "
+"for projects to opt out of advertising on Read the Docs."
+msgstr ""
+
+#: templates/projects/project_advertising.html:71
+msgid ""
+"If you are part of a company that uses Read the Docs to host documentation "
+"for a commercial product, please consider <a href=\"https://readthedocs.com/"
+"\">Read the Docs for Business</a> which offers a completely ad-free "
+"experience, private repositories, private documentation, additional build "
+"resources, and dedicated support."
+msgstr ""
+
+#: templates/projects/project_advertising.html:81
+#, python-format
+msgid ""
+"By becoming a <a href=\"%(gold_detail)s\">Gold member</a> to Read the Docs, "
+"you may remove advertising from your projects for all visitors."
+msgstr ""
+
+#: templates/projects/project_advertising.html:88
+msgid ""
+"Project owners can <a href=\"#removing-paid-advertising\">opt out of paid "
+"advertisements</a> for their projects. Readers will still see community ads "
+"for open source projects and conferences."
+msgstr ""
+
+#: templates/projects/project_advertising.html:96
+#, python-format
+msgid ""
+"If you would like to completely remove advertising from your open source "
+"project, but both Read the Docs for Business and our Gold memberships don't "
+"seem like the right fit, please <a href=\"mailto:ads@readthedocs.org?"
+"subject=Alternatives%%20to%%20advertising\">get in touch</a> to discuss "
+"alternatives to advertising."
+msgstr ""
+
+#: templates/projects/project_advertising.html:113
+msgid ""
+"If you are a company hosting commercial documentation on our community site, "
+"we do not allow removing paid advertisements on your documentation. Please "
+"consider Read the Docs for Business or a Gold membership."
+msgstr ""
+
+#: templates/projects/project_advertising.html:122
+msgid "Update advertising preference"
+msgstr ""
+
+#: templates/projects/project_create.html:6
+msgid "Create a new project"
+msgstr "Yeni bir proje oluştur"
+
+#: templates/projects/project_create.html:9
+msgid "Create a New Project"
+msgstr "Yeni bir Proje Oluştur"
+
+#: templates/projects/project_create.html:14
+msgid ""
+"Create new documentation here. If you already have docs in a public "
+"repository,"
+msgstr ""
+"Burada yeni belgelendirme oluşturun. Eğer ortak bir depoda zaten "
+"belgeleriniz varsa,"
+
+#: templates/projects/project_create.html:15
+msgid "import an existing project"
+msgstr "varolan bir projeyi içe aktarın"
+
+#: templates/projects/project_create.html:19
+msgid "Create"
+msgstr "Oluştur"
+
+#: templates/projects/project_dashboard_base.html:6
+msgid "Project Dashboard"
+msgstr "Proje Paneli"
+
+#: templates/projects/project_dashboard_base.html:20
+msgid "Important Versions"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:77
+msgid "passing"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:79
+msgid "failing"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:112
+msgid "Search all docs"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:125
+#: templates/projects/project_dashboard_base.html:134
+msgid "Connect your Accounts"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:128
+msgid ""
+"Have a GitHub account? Connect your account and import your existing "
+"projects automatically."
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:144
+msgid "Learn More"
+msgstr ""
+
+#: templates/projects/project_dashboard_base.html:146
+#, python-format
+msgid ""
+"Check out the <a href=\"%(rtd_docs_url)s\">documentation for Read the Docs</"
+"a>. It contains lots of information about how to get the most out of RTD."
+msgstr ""
+
+#: templates/projects/project_delete.html:4
+#: templates/projects/project_delete.html:6
+#, python-format
+msgid "Delete %(name)s?"
+msgstr "%(name)s silinsin mi?"
+
+#: templates/projects/project_delete.html:13
+#, python-format
+msgid ""
+"This project <a href=\"%(subproject_url)s\">has subprojects</a> under it. "
+"Deleting this project will make them to become regular projects. This will "
+"break the URLs of all its subprojects and they will be served normally as "
+"other projects."
+msgstr ""
+
+#: templates/projects/project_delete.html:21
+#: templates/projects/project_resync_webhook.html:9
+msgid "You sure?"
+msgstr "Emin misiniz?"
+
+#: templates/projects/project_edit.html:8
+msgid "Edit Project"
+msgstr "Projeyi Düzenle"
+
+#: templates/projects/project_edit.html:18
+#, python-format
+msgid ""
+"You can change how your project is built in your <a "
+"href=\"%(advanced_url)s\">Advanced Settings</a>."
+msgstr ""
+"Projenizi <a href=\"%(advanced_url)s\">Gelişmiş Ayarlar</a>'ınızda nasıl "
+"oluşturulduysa değiştirebilirsiniz."
+
+#: templates/projects/project_edit.html:23
+msgctxt "The 'or' is in between 'Save' and 'Delete project'"
+msgid "or"
+msgstr "ya da"
+
+#: templates/projects/project_edit.html:24
+msgid "Delete project"
+msgstr "Projeyi sil"
+
+#: templates/projects/project_edit_base.html:20
+msgid "Edit Versions"
+msgstr ""
+
+#: templates/projects/project_edit_base.html:25
+#: templates/projects/projectrelationship_form.html:5
+#: templates/projects/projectrelationship_form.html:12
+#: templates/projects/projectrelationship_list.html:5
+#: templates/projects/projectrelationship_list.html:12
+msgid "Subprojects"
+msgstr "Alt Projeler"
+
+#: templates/projects/project_edit_base.html:29
+#: templates/projects/webhook_exchange_detail.html:5
+#: templates/projects/webhook_form.html:5
+#: templates/projects/webhook_form.html:11
+#: templates/projects/webhook_list.html:5
+#: templates/projects/webhook_list.html:10
+msgid "Webhooks"
+msgstr ""
+
+#: templates/projects/project_edit_base.html:30
+#: templates/projects/project_notifications.html:5
+#: templates/projects/project_notifications.html:12
+msgid "Email Notifications"
+msgstr ""
+
+#: templates/projects/project_edit_base.html:31
+#: templates/projects/project_traffic_analytics.html:6
+#: templates/projects/project_traffic_analytics.html:11
+msgid "Traffic Analytics"
+msgstr ""
+
+#: templates/projects/project_edit_base.html:32
+#: templates/projects/projects_search_analytics.html:6
+#: templates/projects/projects_search_analytics.html:11
+msgid "Search Analytics"
+msgstr ""
+
+#: templates/projects/project_import.html:6
+msgid "Import a Remote Repository"
+msgstr "Bir Uzak Depoyu İçe Aktar"
+
+#: templates/projects/project_import.html:51
+msgid "There was an error with your request:"
+msgstr "İsteğiniz ile ilgili bir hata oldu:"
+
+#: templates/projects/project_import.html:64
+msgid "Refresh your accounts"
+msgstr "Hesaplarınızı yenileyin"
+
+#: templates/projects/project_import.html:73
+msgid "Import a Repository"
+msgstr "Bir Depoyu İçe Aktar"
+
+#: templates/projects/project_import.html:79
+msgid ""
+"We're only showing public repositories. For private projects and other "
+"features, please use <a href=\"https://readthedocs.com/\">Read the Docs for "
+"Business</a>."
+msgstr ""
+
+#: templates/projects/project_import.html:97
+#, python-format
+msgid ""
+"No remote repositories found, try <a href=\"#\" %(binding)s>refreshing your "
+"accounts</a>."
+msgstr ""
+"Bulunan uzak depo yok, <a href=\"#\" %(binding)s>hesaplarınızı yenilemeyi</"
+"a> deneyin."
+
+#: templates/projects/project_import.html:104
+msgid ""
+"You don't currently have any connected accounts. Connect your account to be "
+"able to easily set up projects."
+msgstr ""
+"Şu anda bağlı hesaplarınız yok. Projeleri kolayca ayarlayabilmek için "
+"hesabınızı bağlayın."
+
+#: templates/projects/project_import.html:143
+msgid "This repository requires admin access to import"
+msgstr "Bu depo, içe aktarmak için yönetici erişimi gerektirir"
+
+#: templates/projects/project_import.html:152
+msgid "Locked"
+msgstr "Kilitli"
+
+#: templates/projects/project_import.html:161
+msgid "This repository has already been imported"
+msgstr "Bu depo zaten içe aktarıldı"
+
+#: templates/projects/project_import.html:162
+msgctxt "verb, action to see in detail"
+msgid "\"View\""
+msgstr "\"Görüntüle\""
+
+#: templates/projects/project_import.html:214
+msgid ""
+"You can import your project manually if it isn't listed here or connected to "
+"one of your accounts."
+msgstr ""
+"Burada listelenmemişse veya hesaplarınızdan birine bağlı değilse projenizi "
+"el ile içe aktarabilirsiniz."
+
+#: templates/projects/project_import.html:221
+msgid "Import Manually"
+msgstr "El İle İçe Aktar"
+
+#: templates/projects/project_import.html:228
+msgid "Filter repositories"
+msgstr "Depoları süz"
+
+#: templates/projects/project_list.html:7
+#: templates/projects/project_list.html:13
+#, python-format
+msgid "Projects tagged with %(tag)s"
+msgstr "%(tag)s ile etiketlenen projeler"
+
+#: templates/projects/project_list.html:24
+msgid "Browse projects"
+msgstr "Projelere gözat"
+
+#: templates/projects/project_notifications.html:16
+msgid "Configure email notifications to be sent on build failures."
+msgstr ""
+
+#: templates/projects/project_notifications.html:22
+#, python-format
+msgid ""
+"Webhooks have been moved to its own page. Go to the <a "
+"href=\"%(webhooks_url)s\">Webhooks tab</a> if you are looking for your "
+"webhooks."
+msgstr ""
+
+#: templates/projects/project_notifications.html:30
+msgid "Existing Notifications"
+msgstr "Varolan Bildirimler"
+
+#: templates/projects/project_notifications.html:54
+msgid "Remove Notifications"
+msgstr "Bildirimleri Kaldır"
+
+#: templates/projects/project_notifications.html:72
+msgid "New Email Notifications"
+msgstr "Yeni E-posta Bildirimleri"
+
+#: templates/projects/project_notifications.html:74
+msgid "Add an email address to notify"
+msgstr "Bildirmek için bir e-posta adresi ekleyin"
+
+#: templates/projects/project_resync_webhook.html:12
+msgid "Resync"
+msgstr "Yeniden eşitle"
+
+#: templates/projects/project_traffic_analytics.html:21
+msgid "Top viewed pages in the past 30 days"
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:34
+#: templates/projects/project_traffic_analytics.html:66
+#: templates/projects/projects_search_analytics.html:36
+msgid "No data available."
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:44
+msgid "Daily pageview totals"
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:48
+#: templates/projects/projects_search_analytics.html:52
+msgid "Download all data"
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:52
+msgid "Not Found (404) pages"
+msgstr ""
+
+#: templates/projects/project_traffic_analytics.html:75
+msgid ""
+"\n"
+"    * The way that we track 404 pages is on our backend hosting.\n"
+"    It's possible the number of times each page is viewed is undercounted "
+"because of caching in the browser or in a CDN.\n"
+"    "
+msgstr ""
+
+#: templates/projects/project_translations.html:5
+msgid "Edit Translations"
+msgstr "Çevirileri Düzenle"
+
+#: templates/projects/project_translations.html:16
+msgid "To add a translation to your project, select a project below."
+msgstr "Projenize bir çeviri eklemek için aşağıda bir proje seçin."
+
+#: templates/projects/project_translations.html:23
+#, python-format
+msgid ""
+"This project is already configured as the <code>%(language)s</code> "
+"translation of \"%(main_project)s\". Nested translations are not supported."
+msgstr ""
+"Bu proje zaten \"%(main_project)s\" projesinin <code>%(language)s</code> "
+"çevirisi olarak yapılandırıldı. İç içe çeviriler desteklenmez."
+
+#: templates/projects/project_translations.html:31
+#, python-format
+msgid "View translations of \"%(main_project)s\"."
+msgstr "\"%(main_project)s\" çevirilerini görüntüleyin."
+
+#: templates/projects/project_translations.html:36
+msgid "Existing Translations"
+msgstr "Varolan Çeviriler"
+
+#: templates/projects/project_translations.html:58
+msgid "No translations are currently configured"
+msgstr ""
+
+#: templates/projects/project_translations.html:67
+msgid "Choose which project you would like to add as a translation."
+msgstr "Bir çeviri olarak eklemek istediğiniz projeyi seçin."
+
+#: templates/projects/project_users.html:6
+msgid "Edit Maintainers"
+msgstr "Bakımcıları Düzenle"
+
+#: templates/projects/project_users.html:13
+msgid ""
+"This allows you to add maintainers to your project. It gives them admin "
+"access to the project, so be careful!"
+msgstr ""
+"Bu, projenize bakımcı eklemenizi sağlar. Bu onlara projeye yönetici erişimi "
+"verir, bu yüzden dikkatli olun!"
+
+#: templates/projects/project_users.html:49
+msgid "Add maintainer"
+msgstr ""
+
+#: templates/projects/project_version_detail.html:16
+#, python-format
+msgid "%(version_name)s"
+msgstr "%(version_name)s"
+
+#: templates/projects/project_version_detail.html:28
+msgid ""
+"This version is inactive but its documentation is still available online. "
+"You can <a href=\"#\" onclick=\"document.forms['version_delete_html']."
+"submit();\">delete this version's documentation</a> if you want to remove it "
+"completely."
+msgstr ""
+
+#: templates/projects/project_version_list.html:24
+msgid "Active Versions"
+msgstr "Etkin Sürümler"
+
+#: templates/projects/project_version_list.html:81
+msgid "Activate a version"
+msgstr ""
+
+#: templates/projects/project_version_list.html:82
+msgid ""
+"Active versions are built whenever new code is pushed to that branch or tag."
+msgstr ""
+
+#: templates/projects/project_version_list.html:93
+msgid "Filter Inactive Versions"
+msgstr ""
+
+#: templates/projects/project_version_list.html:122
+msgid "Activate"
+msgstr ""
+
+#: templates/projects/project_version_list.html:130
+msgid "No versions found"
+msgstr ""
+
+#: templates/projects/project_version_list.html:144
+#, python-format
+msgid ""
+"Showing the first %(max_inactive_versions)s of "
+"%(total_inactive_versions_count)s inactive versions.</a>."
+msgstr ""
+
+#: templates/projects/project_version_states_help_text.html:4
+#, python-format
+msgid "Learn more about states <a href=\"%(docs_link)s\">here</a>."
+msgstr ""
+
+#: templates/projects/projectrelationship_form.html:16
+msgid ""
+"Using subprojects allows you to serve multiple projects from the same domain "
+"as your main project. <a href=\"https://docs.readthedocs.io/en/stable/"
+"subprojects.html\">Learn more</a>."
+msgstr ""
+
+#: templates/projects/projectrelationship_form.html:28
+msgid "Update subproject"
+msgstr "Alt projeyi güncelle"
+
+#: templates/projects/projectrelationship_form.html:35
+msgid "Delete subproject"
+msgstr "Alt projeyi sil"
+
+#: templates/projects/projectrelationship_form.html:44
+#: templates/projects/projectrelationship_list.html:41
+msgid "Add subproject"
+msgstr "Alt proje ekle"
+
+#: templates/projects/projectrelationship_list.html:16
+msgid ""
+"Subprojects are projects hosted from the same URL as their parent project. "
+"This is useful for organizing multiple projects under a custom domain."
+msgstr ""
+"Alt projeler, üst projeleriyle aynı URL'den barındırılan projelerdir. Bu, "
+"özel bir etki alanı altında birden çok proje düzenlemek için yararlıdır."
+
+#: templates/projects/projectrelationship_list.html:24
+#, python-format
+msgid ""
+"This project is already configured as a subproject of %(project)s. Nested "
+"subprojects are not currently supported."
+msgstr ""
+"Bu proje zaten %(project)s projesinin bir alt projesi olarak yapılandırıldı. "
+"İç içe olan alt projeler şu anda desteklenmiyor."
+
+#: templates/projects/projectrelationship_list.html:31
+#, python-format
+msgid "View subprojects of %(project)s"
+msgstr "%(project)s projesinin alt projelerini görüntüle"
+
+#: templates/projects/projectrelationship_list.html:79
+msgid "No subprojects are currently configured"
+msgstr "Şu anda yapılandırılmış alt projeler yok"
+
+#: templates/projects/projects_search_analytics.html:21
+msgid "Top queries in the past 30 days"
+msgstr ""
+
+#: templates/projects/projects_search_analytics.html:46
+msgid "Daily search totals"
+msgstr ""
+
+#: templates/projects/samples/getting_started.rst.html:3
+msgid "Here's a place to describe how to get up and running with your project"
+msgstr ""
+"Burası, projenizin nasıl ayarlanacağının ve çalıştırılacağının anlatıldığı "
+"bir yerdir"
+
+#: templates/projects/samples/installation.rst.html:3
+#, python-format
+msgid "Here is where you can describe how to install %(name)s"
+msgstr "Burası nasıl %(name)s yükleyebileceğinizi açıklayabildiğiniz yerdir"
+
+#: templates/projects/webhook_form.html:16
+#, python-format
+msgid ""
+"We’ll send a <code>POST</code> request to the URL with the JSON payload "
+"below on the selected events. Check <a href=\"%(docs_url)s\">our docs</a> "
+"for more information."
+msgstr ""
+
+#: templates/projects/webhook_form.html:25
+#, python-format
+msgid ""
+"This webhook was created from our old implementation and doesn't have a "
+"custom payload. Check <a href=\"%(docs_url)s\">our docs</a> for the payload "
+"description or edit the payload to set a custom one."
+msgstr ""
+
+#: templates/projects/webhook_list.html:18
+msgid "Add Webhook"
+msgstr ""
+
+#: templates/projects/webhook_list.html:47
+msgid "No webhooks found."
+msgstr ""
+
+#: templates/search/elastic_search.html:6
+#, python-format
+msgid ""
+"\n"
+"    Search: %(query)s\n"
+"  "
+msgstr ""
+
+#: templates/search/elastic_search.html:30
+msgid "Object Type"
+msgstr ""
+
+#: templates/search/elastic_search.html:34
+msgid "Files"
+msgstr "Dosyalar"
+
+#: templates/search/elastic_search.html:42
+msgid "Search all"
+msgstr ""
+
+#: templates/search/elastic_search.html:105
+#, python-format
+msgid ""
+"\n"
+"            %(count)s results for <code>%(query)s</code>\n"
+"          "
+msgstr ""
+
+#: templates/search/elastic_search.html:197
+msgid "No results found."
+msgstr ""
+
+#: templates/security.html:5
+msgid "Security"
+msgstr "Güvenlik"
+
+#: templates/security.html:9
+msgid "Security at Read the Docs"
+msgstr "Read the Docs'da Güvenlik"
+
+#: templates/security.html:11
+msgid ""
+"For more details on security at Read the Docs or to report a security issue, "
+"please see our <a href=\"https://docs.readthedocs.io/page/security."
+"html\">security policy</a>."
+msgstr ""
+
+#: templates/socialaccount/authentication_error.html:5
+#: templates/socialaccount/authentication_error.html:8
+msgid "Social Network Login Failure"
+msgstr "Sosyal Ağ Oturum Açma Hatası"
+
+#: templates/socialaccount/authentication_error.html:10
+msgid ""
+"An error occurred while attempting to login via your social network account."
+msgstr ""
+"Sosyal ağ hesabınız aracılığıyla oturum açmaya çalışırken bir hata meydana "
+"geldi."
+
+#: templates/socialaccount/connections.html:22
+msgid ""
+"On this page, you can manage the integration with your Git provider(s) that "
+"enables automatic import and configuration of your repositories. <a "
+"href=\"https://docs.readthedocs.io/en/stable/connected-accounts.html\" "
+"target=\"_blank\">Read our documentation page about connecting Git providers."
+"</a>"
+msgstr ""
+
+#: templates/socialaccount/connections.html:37
+msgid "Active connections"
+msgstr ""
+
+#: templates/socialaccount/connections.html:40
+msgid "The following services are currently connected to your account:"
+msgstr "Aşağıdaki hizmetler şu anda hesabınıza bağlıdır:"
+
+#: templates/socialaccount/connections.html:72
+msgid "Disconnect"
+msgstr "Bağlantıyı kes"
+
+#: templates/socialaccount/connections.html:79
+msgid ""
+"The API version this connection uses is no longer supported, please "
+"reconnect your Bitbucket account."
+msgstr ""
+"Bu bağlantının kullandığı API sürümü artık desteklenmiyor, lütfen Bitbucket "
+"hesabınızı yeniden bağlayın."
+
+#: templates/socialaccount/connections.html:95
+msgid ""
+"You currently have no social network accounts connected to this account."
+msgstr "Şu anda bu hesaba bağlı hiçbir sosyal ağ hesabınız yok."
+
+#: templates/socialaccount/connections.html:104
+msgid ""
+"Note: If you press the <strong>Disconnect</strong> button to disconnect a "
+"service, you should also visit your Git Provider in order to delete the "
+"OAuth connection of Read the Docs. On GitHub, this is located in "
+"<code>Settings > Applications > Authorized OAuth Apps</code>."
+msgstr ""

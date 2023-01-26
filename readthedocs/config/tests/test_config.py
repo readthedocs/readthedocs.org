@@ -1,11 +1,12 @@
 import os
-from django.conf import settings
 import re
 import textwrap
 from collections import OrderedDict
 from unittest.mock import DEFAULT, patch
 
 import pytest
+from django.conf import settings
+from django.test import override_settings
 from pytest import raises
 
 from readthedocs.config import (
@@ -33,6 +34,7 @@ from readthedocs.config.config import (
 )
 from readthedocs.config.models import (
     Build,
+    BuildJobs,
     BuildWithTools,
     Conda,
     PythonInstall,
@@ -79,7 +81,8 @@ def test_load_no_config_file(tmpdir, files):
     apply_fs(tmpdir, files)
     base = str(tmpdir)
     with raises(ConfigFileNotFound) as e:
-        load(base, {})
+        with override_settings(DOCROOT=tmpdir):
+            load(base, {})
     assert e.value.code == CONFIG_FILE_REQUIRED
 
 
@@ -91,13 +94,15 @@ def test_load_empty_config_file(tmpdir):
     )
     base = str(tmpdir)
     with raises(ConfigError):
-        load(base, {})
+        with override_settings(DOCROOT=tmpdir):
+            load(base, {})
 
 
 def test_minimal_config(tmpdir):
     apply_fs(tmpdir, yaml_config_dir)
     base = str(tmpdir)
-    build = load(base, {})
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {})
     assert isinstance(build, BuildConfigV1)
 
 
@@ -110,7 +115,8 @@ def test_load_version1(tmpdir):
         },
     )
     base = str(tmpdir)
-    build = load(base, {})
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {})
     assert isinstance(build, BuildConfigV1)
 
 
@@ -123,7 +129,8 @@ def test_load_version2(tmpdir):
         },
     )
     base = str(tmpdir)
-    build = load(base, {})
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {})
     assert isinstance(build, BuildConfigV2)
 
 
@@ -137,7 +144,8 @@ def test_load_unknow_version(tmpdir):
     )
     base = str(tmpdir)
     with raises(ConfigError) as excinfo:
-        load(base, {})
+        with override_settings(DOCROOT=tmpdir):
+            load(base, {})
     assert excinfo.value.code == VERSION_INVALID
 
 
@@ -158,7 +166,8 @@ def test_load_raise_exception_invalid_syntax(tmpdir):
     )
     base = str(tmpdir)
     with raises(ConfigError) as excinfo:
-        load(base, {})
+        with override_settings(DOCROOT=tmpdir):
+            load(base, {})
     assert excinfo.value.code == CONFIG_SYNTAX_INVALID
 
 
@@ -175,13 +184,15 @@ def test_yaml_extension(tmpdir):
         },
     )
     base = str(tmpdir)
-    config = load(base, {})
+    with override_settings(DOCROOT=tmpdir):
+        config = load(base, {})
     assert isinstance(config, BuildConfigV1)
 
 
 def test_build_config_has_source_file(tmpdir):
     base = str(apply_fs(tmpdir, yaml_config_dir))
-    build = load(base, {})
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {})
     assert build.source_file == os.path.join(base, 'readthedocs.yml')
 
 
@@ -195,7 +206,8 @@ def test_build_config_has_list_with_single_empty_value(tmpdir):
             ),
         },
     ))
-    build = load(base, {})
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {})
     assert isinstance(build, BuildConfigV1)
     assert build.formats == []
 
@@ -681,7 +693,8 @@ def test_load_calls_validate(tmpdir):
     apply_fs(tmpdir, yaml_config_dir)
     base = str(tmpdir)
     with patch.object(BuildConfigV1, 'validate') as build_validate:
-        load(base, {})
+        with override_settings(DOCROOT=tmpdir):
+            load(base, {})
         assert build_validate.call_count == 1
 
 
@@ -1011,6 +1024,140 @@ class TestBuildConfigV2:
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'python.version'
+
+    def test_commands_build_config(self):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.8"},
+                    "commands": ["pip install pelican", "pelican content"],
+                },
+            },
+        )
+        build.validate()
+        assert isinstance(build.build, BuildWithTools)
+        assert build.build.commands == ["pip install pelican", "pelican content"]
+
+    def test_commands_build_config_invalid_command(self):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.8"},
+                    "commands": "command as string",
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.commands"
+
+    def test_commands_build_config_invalid_no_os(self):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "commands": ["pip install pelican", "pelican content"],
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.commands"
+
+    def test_commands_build_config_invalid_no_tools(self):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "commands": ["pip install pelican", "pelican content"],
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.tools"
+
+    @pytest.mark.parametrize("value", ["", None, "pre_invalid"])
+    def test_jobs_build_config_invalid_jobs(self, value):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.8"},
+                    "jobs": {value: ["echo 1234", "git fetch --unshallow"]},
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.jobs"
+
+    @pytest.mark.parametrize("value", ["", None, "echo 123", 42])
+    def test_jobs_build_config_invalid_job_commands(self, value):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.8"},
+                    "jobs": {
+                        "pre_install": value,
+                    },
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.jobs.pre_install"
+
+    def test_jobs_build_config(self):
+        build = self.get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.8"},
+                    "jobs": {
+                        "pre_checkout": ["echo pre_checkout"],
+                        "post_checkout": ["echo post_checkout"],
+                        "pre_system_dependencies": ["echo pre_system_dependencies"],
+                        "post_system_dependencies": ["echo post_system_dependencies"],
+                        "pre_create_environment": ["echo pre_create_environment"],
+                        "post_create_environment": ["echo post_create_environment"],
+                        "pre_install": ["echo pre_install", "echo `date`"],
+                        "post_install": ["echo post_install"],
+                        "pre_build": [
+                            "echo pre_build",
+                            'sed -i -e "s|{VERSION}|${READTHEDOCS_VERSION_NAME}|g"',
+                        ],
+                        "post_build": ["echo post_build"],
+                    },
+                },
+            },
+        )
+        build.validate()
+        assert isinstance(build.build, BuildWithTools)
+        assert isinstance(build.build.jobs, BuildJobs)
+        assert build.build.jobs.pre_checkout == ["echo pre_checkout"]
+        assert build.build.jobs.post_checkout == ["echo post_checkout"]
+        assert build.build.jobs.pre_system_dependencies == [
+            "echo pre_system_dependencies"
+        ]
+        assert build.build.jobs.post_system_dependencies == [
+            "echo post_system_dependencies"
+        ]
+        assert build.build.jobs.pre_create_environment == [
+            "echo pre_create_environment"
+        ]
+        assert build.build.jobs.post_create_environment == [
+            "echo post_create_environment"
+        ]
+        assert build.build.jobs.pre_install == ["echo pre_install", "echo `date`"]
+        assert build.build.jobs.post_install == ["echo post_install"]
+        assert build.build.jobs.pre_build == [
+            "echo pre_build",
+            'sed -i -e "s|{VERSION}|${READTHEDOCS_VERSION_NAME}|g"',
+        ]
+        assert build.build.jobs.post_build == ["echo post_build"]
 
     @pytest.mark.parametrize(
         'value',
@@ -2296,6 +2443,19 @@ class TestBuildConfigV2:
                         'version': '16',
                         'full_version': settings.RTD_DOCKER_BUILD_SETTINGS['tools']['nodejs']['16'],
                     },
+                },
+                "commands": [],
+                "jobs": {
+                    "pre_checkout": [],
+                    "post_checkout": [],
+                    "pre_system_dependencies": [],
+                    "post_system_dependencies": [],
+                    "pre_create_environment": [],
+                    "post_create_environment": [],
+                    "pre_install": [],
+                    "post_install": [],
+                    "pre_build": [],
+                    "post_build": [],
                 },
                 'apt_packages': [],
             },

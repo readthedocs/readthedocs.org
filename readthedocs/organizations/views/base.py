@@ -1,13 +1,13 @@
 """Base classes for organization views."""
-
 from functools import lru_cache
 
 from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 
+from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.forms import (
     OrganizationForm,
     OrganizationOwnerForm,
@@ -180,14 +180,23 @@ class OrganizationOwnerView(SuccessMessageMixin, OrganizationMixin):
         )
 
     def get_form(self, data=None, files=None, **kwargs):
-        kwargs['organization'] = self.get_organization()
+        kwargs["organization"] = self.get_organization()
+        kwargs["request"] = self.request
         return self.form_class(data, files, **kwargs)
+
+    def _get_invitations(self):
+        return Invitation.objects.for_object(self.get_organization())
+
+    def _is_last_user(self):
+        return self.get_queryset().count() <= 1
 
     def get_context_data(self, **kwargs):
         """Add list of related objects from queryset to context data."""
         context = super().get_context_data(**kwargs)
-        context['owners'] = [orgowner.owner for orgowner in self.get_queryset()]
-        context['owner_objs'] = self.get_queryset()
+        context["owners"] = [orgowner.owner for orgowner in self.get_queryset()]
+        context["owner_objs"] = self.get_queryset()
+        context["is_last_user"] = self._is_last_user()
+        context["invitations"] = self._get_invitations()
         return context
 
     def get_success_url(self):
@@ -195,13 +204,6 @@ class OrganizationOwnerView(SuccessMessageMixin, OrganizationMixin):
             'organization_owners',
             args=[self.get_organization().slug],
         )
-
-    def form_valid(self, form):
-        """On form valid, save owner and associate view's organization."""
-        owner = form.save(commit=False)
-        owner.organization = self.get_organization()
-        owner.save()
-        return HttpResponseRedirect(self.get_success_url())
 
 
 class OrganizationTeamView(SuccessMessageMixin, OrganizationTeamMixin):
@@ -243,24 +245,24 @@ class OrganizationTeamMemberView(SuccessMessageMixin, OrganizationTeamMixin):
     def get_object(self):
         return self.get_queryset().get(pk=self.kwargs['member'])
 
+    def _get_invitations(self):
+        return Invitation.objects.for_object(self.get_team())
+
     def get_form(self, data=None, files=None, **kwargs):
-        kwargs['team'] = self.get_team()
+        kwargs["team"] = self.get_team()
+        kwargs["request"] = self.request
         return self.form_class(data, files, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['team'] = self.get_team()
+        context["team"] = self.get_team()
+        context["invitations"] = self._get_invitations()
         return context
 
-    def form_valid(self, form):
-        form.instance.team = self.get_team()
-        return super().form_valid(form)
-
     def get_success_url(self):
+        organization = self.get_organization()
+        team = self.get_team()
         return reverse_lazy(
             'organization_team_detail',
-            args=[
-                self.get_organization().slug,
-                self.object.team.slug,
-            ],
+            args=[organization.slug, team.slug],
         )

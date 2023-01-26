@@ -3,11 +3,13 @@ import urllib
 
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
+from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify
@@ -456,22 +458,36 @@ class ProjectLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
-class ProjectCreateSerializerBase(FlexFieldsModelSerializer):
+class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
 
     """Serializer used to Import a Project."""
 
     repository = RepositorySerializer(source='*')
     homepage = serializers.URLField(source='project_url', required=False)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Project
         fields = (
-            'name',
-            'language',
-            'programming_language',
-            'repository',
-            'homepage',
+            "name",
+            "language",
+            "programming_language",
+            "repository",
+            "homepage",
+            "tags",
         )
+
+    def _validate_remote_repository(self, data):
+        """
+        Validate connection between `Project` and `RemoteRepository`.
+
+        We don't do anything in community, but we do ensure this relationship
+        is posible before creating the `Project` on commercial when the
+        organization has VCS SSO enabled.
+
+        If we cannot ensure the relationship here, this method should raise a
+        `ValidationError`.
+        """
 
     def validate_name(self, value):
         potential_slug = slugify(value)
@@ -485,12 +501,42 @@ class ProjectCreateSerializerBase(FlexFieldsModelSerializer):
             )
         return value
 
+    def validate(self, data):  # pylint: disable=arguments-differ
+        repo = data.get('repo')
+        try:
+            # We are looking for an exact match of the repository URL entered
+            # by the user and any of the known URLs (ssh, clone, html) we have
+            # in our database for this remote repository.
+            #
+            # If the `RemoteRepository` is found, we save it to link with
+            # `Project` object after performing its creating.
+            query = Q(ssh_url=repo) | Q(clone_url=repo) | Q(html_url=repo)
+            remote_repository = RemoteRepository.objects.get(query)
+            data.update({
+                'remote_repository': remote_repository,
+            })
+        except RemoteRepository.DoesNotExist:
+            self._validate_remote_repository(data)
+
+        return data
+
+    def create(self, validated_data):
+        remote_repository = validated_data.pop('remote_repository', None)
+        project = super().create(validated_data)
+
+        # Link the Project with the RemoteRepository if we found it.
+        if remote_repository:
+            project.remote_repository = remote_repository
+            project.save()
+
+        return project
+
 
 class ProjectCreateSerializer(SettingsOverrideObject):
     _default_class = ProjectCreateSerializerBase
 
 
-class ProjectUpdateSerializerBase(FlexFieldsModelSerializer):
+class ProjectUpdateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
 
     """Serializer used to modify a Project once imported."""
 
@@ -499,17 +545,18 @@ class ProjectUpdateSerializerBase(FlexFieldsModelSerializer):
         source='project_url',
         required=False,
     )
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Project
         fields = (
             # Settings
-            'name',
-            'repository',
-            'language',
-            'programming_language',
-            'homepage',
-
+            "name",
+            "repository",
+            "language",
+            "programming_language",
+            "homepage",
+            "tags",
             # Advanced Settings -> General Settings
             'default_version',
             'default_branch',
@@ -536,7 +583,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     .. note::
 
        When using organizations, projects don't have the concept of users.
-       But we have organization.users.
+       But we have organization.owners.
     """
 
     homepage = serializers.SerializerMethodField()
@@ -548,9 +595,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     translation_of = serializers.SerializerMethodField()
     default_branch = serializers.CharField(source='get_default_branch')
     tags = serializers.StringRelatedField(many=True)
-
-    if not settings.RTD_ALLOW_ORGANIZATIONS:
-        users = UserSerializer(many=True)
+    users = UserSerializer(many=True)
 
     _links = ProjectLinksSerializer(source='*')
 
@@ -580,13 +625,10 @@ class ProjectSerializer(FlexFieldsModelSerializer):
 
             # NOTE: ``expandable_fields`` must not be included here. Otherwise,
             # they will be tried to be rendered and fail
-            # 'users',
             # 'active_versions',
-
-            '_links',
+            "_links",
+            "users",
         ]
-        if not settings.RTD_ALLOW_ORGANIZATIONS:
-            fields.append('users')
 
         expandable_fields = {
             # NOTE: this has to be a Model method, can't be a
@@ -611,6 +653,15 @@ class ProjectSerializer(FlexFieldsModelSerializer):
                 },
             ),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # When using organizations, projects don't have the concept of users.
+        # But we have organization.owners.
+        # Set here instead of at the class level,
+        # so is easier to test.
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            self.fields.pop("users", None)
 
     def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``

@@ -1,12 +1,13 @@
 """Build and Version QuerySet classes."""
 import datetime
-import structlog
 
+import structlog
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
 from readthedocs.builds.constants import (
+    BUILD_STATE_CANCELLED,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     EXTERNAL,
@@ -102,7 +103,9 @@ class VersionQuerySetBase(models.QuerySet):
             if user.is_superuser:
                 queryset = self.all()
             else:
-                queryset = self._add_from_user_projects(queryset, user)
+                queryset = self._add_from_user_projects(
+                    queryset, user, admin=True, member=True
+                )
         if project:
             queryset = queryset.filter(project=project)
         if only_active:
@@ -204,9 +207,9 @@ class BuildQuerySet(models.QuerySet):
         """
         limit_reached = False
         query = Q(
-            project__slug=project.slug,
+            project=project,
             # Limit builds to 5 hours ago to speed up the query
-            date__gte=timezone.now() - datetime.timedelta(hours=5),
+            date__gt=timezone.now() - datetime.timedelta(hours=5),
         )
 
         if project.main_language_project:
@@ -225,15 +228,24 @@ class BuildQuerySet(models.QuerySet):
             query |= Q(project__in=organization.projects.all())
 
         concurrent = (
-            self.filter(query)
-            .exclude(state__in=[BUILD_STATE_TRIGGERED, BUILD_STATE_FINISHED])
-        ).distinct().count()
+            (
+                self.filter(query).exclude(
+                    state__in=[
+                        BUILD_STATE_TRIGGERED,
+                        BUILD_STATE_FINISHED,
+                        BUILD_STATE_CANCELLED,
+                    ]
+                )
+            )
+            .distinct()
+            .count()
+        )
 
         max_concurrent = Project.objects.max_concurrent_builds(project)
         log.info(
             'Concurrent builds.',
             project_slug=project.slug,
-            concurent=concurrent,
+            concurrent=concurrent,
             max_concurrent=max_concurrent,
         )
         if concurrent >= max_concurrent:

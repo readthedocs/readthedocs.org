@@ -9,17 +9,40 @@ in our Docker Development environment.
 
 # Disable abstract method because we are not overriding all the methods
 # pylint: disable=abstract-method
+from functools import cached_property
+
 from django.conf import settings
-from django.contrib.staticfiles.storage import ManifestFilesMixin
 from django.core.exceptions import ImproperlyConfigured
-from storages.backends.s3boto3 import S3Boto3Storage
+from storages.backends.s3boto3 import S3Boto3Storage, S3ManifestStaticStorage
 
 from readthedocs.builds.storage import BuildMediaStorageMixin
+from readthedocs.storage.rclone import RCloneS3Remote
 
 from .mixins import OverrideHostnameMixin, S3PrivateBucketMixin
 
 
-class S3BuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, S3Boto3Storage):
+class S3BuildMediaStorageMixin(BuildMediaStorageMixin, S3Boto3Storage):
+    @cached_property
+    def _rclone(self):
+        provider = "AWS"
+        # If a custom endpoint URL is given and
+        # we are running in DEBUG mode, use minio as provider.
+        if self.endpoint_url and settings.DEBUG:
+            provider = "minio"
+
+        return RCloneS3Remote(
+            bucket_name=self.bucket_name,
+            access_key_id=self.access_key,
+            secret_acces_key=self.secret_key,
+            region=self.region_name or "",
+            acl=self.default_acl,
+            endpoint=self.endpoint_url,
+            provider=provider,
+        )
+
+
+# pylint: disable=too-many-ancestors
+class S3BuildMediaStorage(OverrideHostnameMixin, S3BuildMediaStorageMixin):
 
     """An AWS S3 Storage backend for build artifacts."""
 
@@ -52,13 +75,7 @@ class S3BuildCommandsStorage(S3PrivateBucketMixin, S3Boto3Storage):
             )
 
 
-class S3StaticStorage(OverrideHostnameMixin, ManifestFilesMixin, S3Boto3Storage):
-
-    """
-    An AWS S3 Storage backend for static media.
-
-    * Uses Django's ManifestFilesMixin to have unique file paths (eg. core.a6f5e2c.css)
-    """
+class S3StaticStorageMixin:
 
     bucket_name = getattr(settings, 'S3_STATIC_STORAGE_BUCKET', None)
     override_hostname = getattr(settings, 'S3_STATIC_STORAGE_OVERRIDE_HOSTNAME', None)
@@ -77,7 +94,31 @@ class S3StaticStorage(OverrideHostnameMixin, ManifestFilesMixin, S3Boto3Storage)
         self.querystring_auth = False
 
 
-class S3BuildEnvironmentStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3Boto3Storage):
+# pylint: disable=too-many-ancestors
+class S3StaticStorage(
+    S3StaticStorageMixin, OverrideHostnameMixin, S3ManifestStaticStorage, S3Boto3Storage
+):
+
+    """
+    An AWS S3 Storage backend for static media.
+
+    * Uses Django's ManifestFilesMixin to have unique file paths (eg. core.a6f5e2c.css)
+    """
+
+
+class NoManifestS3StaticStorage(
+    S3StaticStorageMixin, OverrideHostnameMixin, S3Boto3Storage
+):
+
+    """
+    Storage backend for static files used outside Django's static files.
+
+    This is the same as S3StaticStorage, but without inheriting from S3ManifestStaticStorage,
+    this way we can get the URL of any file in that bucket, even hashed ones.
+    """
+
+
+class S3BuildEnvironmentStorage(S3PrivateBucketMixin, S3BuildMediaStorageMixin):
 
     bucket_name = getattr(settings, 'S3_BUILD_ENVIRONMENT_STORAGE_BUCKET', None)
 
@@ -91,7 +132,7 @@ class S3BuildEnvironmentStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3
             )
 
 
-class S3BuildToolsStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3Boto3Storage):
+class S3BuildToolsStorage(S3PrivateBucketMixin, S3BuildMediaStorageMixin):
 
     bucket_name = getattr(settings, 'S3_BUILD_TOOLS_STORAGE_BUCKET', None)
 

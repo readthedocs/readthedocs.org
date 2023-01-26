@@ -46,16 +46,22 @@ To target a specific environment:
 
 .. prompt:: bash
 
-   tox -e py38
+   tox -e py310
+
+To run a subset of tests:
+
+.. prompt:: bash
+
+   tox -e py310 -- -k test_celery
 
 The ``tox`` configuration has the following environments configured. You can
 target a single environment to limit the test suite:
 
-py38
-    Run our test suite using Python 3.8
+py310
+    Run our test suite using Python 3.10
 
-py38-debug
-    Same as ``py38``, but there are some useful debugging tools available in the environment.
+py310-debug
+    Same as ``py310``, but there are some useful debugging tools available in the environment.
 
 lint
     Run code linting using `Prospector`_. This currently runs `pylint`_,

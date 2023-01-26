@@ -2,17 +2,17 @@ Read the Docs tutorial
 ======================
 
 In this tutorial you will create a documentation project on Read the Docs
-by importing an Sphinx project from a GitHub repository,
+by importing a Sphinx project from a GitHub repository,
 tailor its configuration, and explore several useful features of the platform.
 
 The tutorial is aimed at people interested in learning
 how to use Read the Docs to host their documentation projects.
 You will fork a fictional software library
 similar to the one developed in the :doc:`official Sphinx tutorial <sphinx:tutorial/index>`.
-No prior experience with Sphinx is required,
+No prior experience with Sphinx is required
 and you can follow this tutorial without having done the Sphinx one.
 
-The only things you will need to follow are
+The only things you will need are
 a web browser, an Internet connection, and a GitHub account
 (you can `register for a free account <https://github.com/signup>`_ if you don't have one).
 You will use Read the Docs Community, which means that the project will be public.
@@ -50,8 +50,7 @@ and it contains the following files:
 
 ``docs/``
   Directory holding all the Sphinx documentation sources,
-  including some required dependencies in ``docs/requirements.txt``,
-  the Sphinx configuration ``docs/source/conf.py``,
+  including the Sphinx configuration ``docs/source/conf.py``
   and the root document ``docs/source/index.rst`` written in reStructuredText.
 
 .. figure:: /_static/images/tutorial/github-template.png
@@ -97,8 +96,8 @@ By now, you should have two email notifications:
 * Another one from Read the Docs, prompting you to "verify your email
   address". Click on the link to finalize the process.
 
-Finally, you created your account on Read the Docs
-and are ready to import your first project.
+Once done, your Read the Docs account is created
+and ready to import your first project.
 
 Welcome!
 
@@ -299,7 +298,7 @@ This has several advantages:
 - Some configurations are only available using the config file.
 
 Read the Docs works without this configuration
-by :ref:`making some decisions on your behalf <builds:Default versions of dependencies>`.
+by :ref:`making some decisions on your behalf <build-default-versions:Default versions of dependencies>`.
 For example, what Python version to use, how to install the requirements, and others.
 
 .. tip::
@@ -353,8 +352,8 @@ Making warnings more visible
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you navigate to your HTML documentation,
-you will notice that the index page looks correct,
-but actually the API section is empty.
+you will notice that the index page looks correct
+but the API section is empty.
 This is a very common issue with Sphinx,
 and the reason is stated in the build logs.
 On the build page you opened before,
@@ -467,7 +466,7 @@ For that, first navigate to your GitHub repository, click on the branch selector
 type ``1.0.x``, and click on "Create branch: 1.0.x from 'main'"
 (more information `on their documentation`__).
 
-__  https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository
+__ https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository
 
 Next, go to your :term:`project home`, click on the :guilabel:`Versions` button,
 and under "Active Versions" you will see two entries:
@@ -626,7 +625,7 @@ Browsing Search Analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Apart from traffic analytics, Read the Docs also offers the possibility
-to inspect :ref:`what search terms your readers use <server-side-search:Search Analytics>`
+to inspect :ref:`what search terms your readers use <server-side-search/index:Search Analytics>`
 on your documentation.
 This can inform decisions on what areas to reinforce,
 or what parts of your project are less understood or more difficult to find.
@@ -670,6 +669,7 @@ and Read the Docs:
 - To make the most of the documentation generators that are supported,
   you can read the :doc:`Sphinx tutorial <sphinx:tutorial/index>`
   or the `MkDocs User Guide <https://www.mkdocs.org/user-guide/>`_.
+- Display example projects and read the source code in :doc:`/examples`.
 - Whether you are a documentation author, a project administrator, a developer, or a designer,
   you can follow our how-to guides that cover specific tasks,
   available under :doc:`/guides/index`.

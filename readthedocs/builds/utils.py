@@ -1,20 +1,24 @@
 """Utilities for the builds app."""
-from time import monotonic
-
 from contextlib import contextmanager
+from time import monotonic
 
 from django.core.cache import cache
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import (
+    EXTERNAL,
+    GENERIC_EXTERNAL_VERSION_NAME,
+    GITHUB_EXTERNAL_VERSION_NAME,
+    GITLAB_EXTERNAL_VERSION_NAME,
+)
 from readthedocs.projects.constants import (
     BITBUCKET_REGEXS,
+    GITHUB_BRAND,
     GITHUB_PULL_REQUEST_URL,
     GITHUB_REGEXS,
+    GITLAB_BRAND,
     GITLAB_MERGE_REQUEST_URL,
     GITLAB_REGEXS,
 )
-
-LOCK_EXPIRE = 60 * 180  # Lock expires in 3 hours
 
 
 def get_github_username_repo(url):
@@ -79,23 +83,41 @@ def get_vcs_url(*, project, version_type, version_name):
     return project.repo.replace('git://', 'https://').replace('.git', '') + url
 
 
+def external_version_name(build_or_version):
+    """Returns a string identifying the external build/version's nature."""
+    if not build_or_version.is_external:
+        return None
+
+    project = build_or_version.project
+
+    if project.git_provider_name == GITHUB_BRAND:
+        return GITHUB_EXTERNAL_VERSION_NAME
+
+    if project.git_provider_name == GITLAB_BRAND:
+        return GITLAB_EXTERNAL_VERSION_NAME
+
+    # TODO: Add External Version Name for BitBucket.
+    return GENERIC_EXTERNAL_VERSION_NAME
+
+
 @contextmanager
-def memcache_lock(lock_id, oid):
+def memcache_lock(lock_id, lock_expire, app_identifier):
     """
     Create a lock using django's cache for running a celery task.
 
     From http://docs.celeryproject.org/en/latest/tutorials/task-cookbook.html#cookbook-task-serial
     """
-    timeout_at = monotonic() + LOCK_EXPIRE - 3
+    timeout_at = monotonic() + lock_expire - 3
     # cache.add fails if the key already exists
-    status = cache.add(lock_id, oid, LOCK_EXPIRE)
+    status = cache.add(lock_id, app_identifier, lock_expire)
     try:
         yield status
     finally:
         # memcache delete is very slow, but we have to use it to take
         # advantage of using add() for atomic locking
-        if monotonic() < timeout_at:
+        if monotonic() < timeout_at and status:
             # don't release the lock if we exceeded the timeout
             # to lessen the chance of releasing an expired lock
-            # owned by someone else.
+            # owned by someone else
+            # also don't release the lock if we didn't acquire it
             cache.delete(lock_id)

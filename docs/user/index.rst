@@ -4,13 +4,19 @@ Read the Docs: Documentation Simplified
 .. meta::
    :description lang=en: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.
 
+.. Adds a hidden link for the purpose of validating Read the Docs' Mastodon profile
+.. raw:: html
+
+   <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
+
 `Read the Docs`_ simplifies software documentation
 by building, versioning, and hosting of your docs, automatically.
-Think of it as *Continuous Documentation*.
+This enables many "docs like code" workflows,
+keeping your code & documentation as close as possible.
 
 Never out of sync |:arrows_counterclockwise:|
     Whenever you push code to your favorite version control system,
-    whether that is Git, Mercurial, Bazaar, or Subversion,
+    whether that is Git or Mercurial,
     Read the Docs will automatically build your docs
     so your code and documentation are always up-to-date.
     Read more about :doc:`/integrations`.
@@ -46,8 +52,7 @@ to help you create fantastic documentation for your project.
 * **Getting started**:
   :doc:`With Sphinx </intro/getting-started-with-sphinx>` |
   :doc:`With MkDocs </intro/getting-started-with-mkdocs>` |
-  :doc:`Feature Overview </features>` |
-  :doc:`/choosing-a-site` | :doc:`/glossary`
+  :doc:`/choosing-a-site`
 
 * **Importing your existing documentation**:
   :doc:`Import guide </intro/import-guide>`
@@ -61,11 +66,8 @@ to help you create fantastic documentation for your project.
    /tutorial/index
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
-
    /intro/import-guide
-   /features
    /choosing-a-site
-   /glossary
 
 
 Read the Docs feature overview
@@ -75,12 +77,13 @@ Learn more about configuring your automated documentation builds
 and some of the core features of Read the Docs.
 
 * **Overview of core features**:
+  :doc:`/features` |
   :doc:`/integrations` |
-  :doc:`/custom_domains` |
+  :doc:`/custom-domains` |
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
   :doc:`/hosting` |
-  :doc:`/server-side-search` |
+  :doc:`/server-side-search/index` |
   :doc:`/analytics` |
   :doc:`/pull-requests` |
   :doc:`/build-notifications` |
@@ -93,6 +96,7 @@ and some of the core features of Read the Docs.
 * **Read the Docs build process**:
   :doc:`Configuration reference </config-file/index>` |
   :doc:`Build process </builds>` |
+  :doc:`Build customization </build-customization>` |
   :doc:`/environment-variables` |
   :doc:`/badges`
 
@@ -103,15 +107,16 @@ and some of the core features of Read the Docs.
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: Feature Overview
+   :caption: Features
 
+   /features
    /config-file/index
    /integrations
-   /custom_domains
+   /custom-domains
    /versions
    /downloadable-documentation
    /hosting
-   /server-side-search
+   /server-side-search/index
    /analytics
    /pull-requests
    /build-notifications
@@ -120,6 +125,8 @@ and some of the core features of Read the Docs.
    /connected-accounts
 
    /builds
+   /build-customization
+   /build-troubleshooting
    /environment-variables
    /badges
 
@@ -130,7 +137,7 @@ and some of the core features of Read the Docs.
 How-to Guides
 -------------
 
-These guides will help walk you through specific use cases
+These guides will help you walk through specific use cases
 related to Read the Docs itself, documentation tools like Sphinx and MkDocs
 and how to write successful documentation.
 
@@ -143,8 +150,8 @@ and how to write successful documentation.
 * **For project administrators**:
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
-  :doc:`/guides/advanced-search` |
   :doc:`/guides/private-submodules` |
+  :doc:`/guides/build-notifications` |
   :doc:`More guides for administrators </guides/administrators>`
 
 * **For developers and designers**:
@@ -153,6 +160,7 @@ and how to write successful documentation.
   :doc:`/guides/reproducible-builds` |
   :doc:`/guides/embedding-content` |
   :doc:`/guides/conda` |
+  :doc:`/guides/build-notifications` |
   :doc:`More guides for developers and designers </guides/developers>`
 
 .. toctree::
@@ -163,6 +171,8 @@ and how to write successful documentation.
  /guides/authors
  /guides/administrators
  /guides/developers
+ /science
+ /examples
 
 Advanced features of Read the Docs
 ----------------------------------
@@ -174,6 +184,7 @@ out of your documentation and Read the Docs.
 * **Advanced project configuration**:
   :doc:`subprojects` |
   :doc:`Single version docs <single_version>` |
+  :doc:`flyout-menu` |
   :doc:`feature-flags`
 
 * **Multi-language documentation**:
@@ -199,6 +210,7 @@ out of your documentation and Read the Docs.
 
    subprojects
    single_version
+   flyout-menu
    feature-flags
 
    localization
@@ -207,6 +219,7 @@ out of your documentation and Read the Docs.
    automatic-redirects
 
    automation-rules
+   canonical-urls
 
 
    api/index
@@ -241,8 +254,10 @@ of Read the Docs and the larger software documentation ecosystem.
 * **Policies & Process**:
   :doc:`security` |
   :doc:`DMCA takedown policy <dmca/index>` |
-  :doc:`Policy for abandoned projects <abandoned-projects>` |
+  :doc:`/abandoned-projects` |
+  :doc:`/unofficial-projects` |
   :doc:`Release notes & changelog <changelog>`
+
 
 * **The people and philosophy behind Read the Docs**:
   :doc:`About Us </about>` |
@@ -260,8 +275,9 @@ of Read the Docs and the larger software documentation ecosystem.
   :doc:`Data processing agreement <legal/dpa/index>`
 
 * **Getting involved with Read the Docs**:
-  :doc:`Developer Documentation <rtd-dev:index>` |
-  :doc:`/gsoc`
+  :doc:`/glossary` |
+  :doc:`/gsoc` |
+  :doc:`Developer Documentation <rtd-dev:index>`
 
 
 .. toctree::
@@ -272,6 +288,7 @@ of Read the Docs and the larger software documentation ecosystem.
    security
    dmca/index
    abandoned-projects
+   unofficial-projects
    changelog
 
    about
@@ -285,4 +302,5 @@ of Read the Docs and the larger software documentation ecosystem.
    legal/index
 
    Developer Documentation <https://dev.readthedocs.io>
+   glossary
    gsoc

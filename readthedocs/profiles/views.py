@@ -12,26 +12,17 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from rest_framework.authtoken.models import Token
-from vanilla import (
-    CreateView,
-    DeleteView,
-    DetailView,
-    FormView,
-    ListView,
-    UpdateView,
-)
+from vanilla import CreateView, DeleteView, DetailView, FormView, ListView, UpdateView
 
 from readthedocs.audit.filters import UserSecurityLogFilter
 from readthedocs.audit.models import AuditLog
-from readthedocs.core.forms import (
-    UserAdvertisingForm,
-    UserDeleteForm,
-    UserProfileForm,
-)
+from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm, UserProfileForm
 from readthedocs.core.history import set_change_reason
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.organizations.models import Organization
+from readthedocs.projects.models import Project
 from readthedocs.projects.utils import get_csv_file
 
 
@@ -94,6 +85,13 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
         kwargs['instance'] = self.get_object()
         kwargs['initial'] = {'username': ''}
         return super().get_form(data, files, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        context["projects_to_be_deleted"] = Project.objects.single_owner(user)
+        context["organizations_to_be_deleted"] = Organization.objects.single_owner(user)
+        return context
 
     def get_success_url(self):
         return reverse('homepage')
@@ -201,13 +199,14 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
     def _get_csv_data(self):
         current_timezone = settings.TIME_ZONE
         values = [
-            (f'Date ({current_timezone})', 'created'),
-            ('User', 'log_user_username'),
-            ('Project', 'log_project_slug'),
-            ('Organization', 'log_organization_slug'),
-            ('Action', 'action'),
-            ('IP', 'ip'),
-            ('Browser', 'browser'),
+            (f"Date ({current_timezone})", "created"),
+            ("User", "log_user_username"),
+            ("Project", "log_project_slug"),
+            ("Organization", "log_organization_slug"),
+            ("Action", "action"),
+            ("IP", "ip"),
+            ("Browser", "browser"),
+            ("Extra data", "data"),
         ]
         data = self.get_queryset().values_list(*[value for _, value in values])
 
@@ -243,7 +242,7 @@ class UserSecurityLogView(PrivateViewMixin, ListView):
         start_date = self._get_start_date()
         queryset = AuditLog.objects.filter(
             user=user,
-            action__in=[AuditLog.AUTHN, AuditLog.AUTHN_FAILURE],
+            action__in=[action for action, _ in UserSecurityLogFilter.allowed_actions],
             created__gte=start_date,
         )
         return queryset

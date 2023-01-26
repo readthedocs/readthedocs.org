@@ -36,7 +36,7 @@ class TestProjectSearch:
         results, _ = self._get_search_result(
             url=self.url,
             client=client,
-            search_params={ 'q': project.name },
+            search_params={"q": project.name, "type": "project"},
         )
 
         assert len(results) == 1
@@ -52,7 +52,7 @@ class TestProjectSearch:
         results, facets = self._get_search_result(
             url=self.url,
             client=client,
-            search_params={ 'q': project.name },
+            search_params={"q": project.name, "type": "project"},
         )
 
         lang_facets = facets['language']
@@ -66,8 +66,8 @@ class TestProjectSearch:
     def test_search_project_filter_language(self, client, project):
         """Test that searching project filtered according to language."""
         # Create a project in bn and add it as a translation
-        translate = get(Project, language='bn', name=project.name)
-        search_params = { 'q': project.name, 'language': 'bn' }
+        translate = get(Project, language="bn", name=project.name)
+        search_params = {"q": project.name, "language": "bn", "type": "project"}
 
         results, facets = self._get_search_result(
             url=self.url,
@@ -206,65 +206,6 @@ class TestPageSearch:
             # Make it lower because our search is case insensitive
             assert word.lower() in query.lower()
 
-    def test_file_search_have_correct_role_name_facets(self, client):
-        """Test that searching files should result all role_names."""
-
-        # searching for 'celery' to test that
-        # correct role_names are displayed
-        results, facets = self._get_search_result(
-            url=self.url,
-            client=client,
-            search_params={ 'q': 'celery', 'type': 'file' }
-        )
-        assert len(results) >= 1
-        role_name_facets = facets['role_name']
-        role_name_facets_str = [facet[0] for facet in role_name_facets]
-        expected_role_names = ['py:class', 'py:function', 'py:method']
-        assert sorted(expected_role_names) == sorted(role_name_facets_str)
-        for facet in role_name_facets:
-            assert facet[2] == False  # because none of the facets are applied
-
-    def test_file_search_filter_role_name(self, client):
-        """Test that searching files filtered according to role_names."""
-
-        search_params = { 'q': 'celery', 'type': 'file' }
-        # searching without the filter
-        results, facets = self._get_search_result(
-            url=self.url,
-            client=client,
-            search_params=search_params
-        )
-        assert len(results) >= 2  # there are > 1 results without the filter
-        role_name_facets = facets['role_name']
-        for facet in role_name_facets:
-            assert facet[2] == False  # because none of the facets are applied
-
-        confval_facet = 'py:class'
-        # checking if 'py:class' facet is present in results
-        assert confval_facet in [facet[0] for facet in role_name_facets]
-
-        # filtering with role_name=py:class
-        search_params['role_name'] = confval_facet
-        new_results, new_facets = self._get_search_result(
-            url=self.url,
-            client=client,
-            search_params=search_params
-        )
-        new_role_names_facets = new_facets['role_name']
-        # All results from domains  should have role_name='py:class'.
-        assert len(new_results) == 1
-        first_result = new_results[0]
-        blocks = first_result['blocks']
-        for block in blocks:
-            assert block['type'] == 'domain'
-            assert block['role'] == confval_facet
-
-        for facet in new_role_names_facets:
-            if facet[0] == confval_facet:
-                assert facet[2] == True  # because 'py:class' filter is active
-            else:
-                assert facet[2] == False
-
     @pytest.mark.parametrize('data_type', DATA_TYPES_VALUES)
     @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
     def test_file_search_case_insensitive(self, client, project, case, data_type):
@@ -319,13 +260,15 @@ class TestPageSearch:
             client=client,
             search_params={ 'q': query, 'type': 'file' })
 
-        # there must be only 1 result
-        # because the phrase is present in
-        # only one project
-        assert len(results) == 1
-        assert results[0]['project'] == 'kuma'
-        assert results[0]['domain'] == 'http://readthedocs.org'
-        assert results[0]['path'] == '/docs/kuma/en/latest/documentation.html'
+        # There are two results,
+        # one from each version of the "kuma" project.
+        assert len(results) == 2
+        assert results[0]["version"] == {"slug": "stable"}
+        assert results[1]["version"] == {"slug": "latest"}
+        for result in results:
+            assert result["project"] == {"alias": None, "slug": "kuma"}
+            assert result["domain"] == "http://readthedocs.org"
+            assert result["path"].endswith("/documentation.html")
 
         blocks = results[0]['blocks']
         assert len(blocks) == 1
@@ -337,35 +280,14 @@ class TestPageSearch:
         for word in highlighted_words:
             assert word.lower() in query.lower()
 
-    def test_file_search_have_correct_project_facets(self, client, all_projects):
-        """Test that file search have correct project facets in results"""
-
-        # `environment` word is present both in `kuma` and `docs` files
-        # so search with this phrase
-        query = 'environment'
-        results, facets = self._get_search_result(
-            url=self.url,
-            client=client,
-            search_params={ 'q': query, 'type': 'file' },
-        )
-        # There should be 2 search result
-        assert len(results) == 2
-        project_facets = facets['project']
-        project_facets_str = [facet[0] for facet in project_facets]
-        assert len(project_facets_str) == 2
-
-        # kuma and pipeline should be there
-        assert sorted(project_facets_str) == sorted(['kuma', 'docs'])
-
     def test_file_search_filter_by_project(self, client):
         """Test that search result are filtered according to project."""
 
         # `environment` word is present both in `kuma` and `docs` files
         # so search with this phrase but filter through `kuma` project
         search_params = {
-            'q': 'environment',
-            'type': 'file',
-            'project': 'kuma'
+            "q": "project:kuma environment",
+            "type": "file",
         }
         results, facets = self._get_search_result(
             url=self.url,
@@ -378,11 +300,10 @@ class TestPageSearch:
         # There should be 1 search result as we have filtered
         assert len(results) == 1
         # kuma should should be there only
-        assert 'kuma' == results[0]['project']
+        assert {"alias": None, "slug": "kuma"} == results[0]["project"]
 
-        # But there should be 2 projects in the project facets
-        # as the query is present in both projects
-        assert sorted(resulted_project_facets) == sorted(['kuma', 'docs'])
+        # The projects we search is the only one included in the final results.
+        assert resulted_project_facets == ["kuma"]
 
     @pytest.mark.xfail(reason='Versions are not showing correctly! Fixme while rewrite!')
     def test_file_search_show_versions(self, client, all_projects, es_index, settings):
@@ -412,30 +333,24 @@ class TestPageSearch:
         assert sorted(project_versions) == sorted(version_facets_str)
 
     def test_file_search_subprojects(self, client, all_projects, es_index):
-        """
-        TODO: File search should return results from subprojects also.
-
-        This is currently disabled because the UX around it is weird.
-        You filter by a project, and get results for multiple.
-        """
         project = all_projects[0]
         subproject = all_projects[1]
         # Add another project as subproject of the project
-        project.add_subproject(subproject)
+        project.add_subproject(subproject, alias="subproject")
 
         # Now search with subproject content but explicitly filter by the parent project
         query = get_search_query_from_project_file(project_slug=subproject.slug)
         search_params = {
-            'q': query,
-            'type': 'file',
-            'project': project.slug,
+            "q": f"subprojects:{project.slug} {query}",
+            "type": "file",
         }
         results, _ = self._get_search_result(
             url=self.url,
             client=client,
             search_params=search_params,
         )
-        assert len(results) == 0
+        assert len(results) == 1
+        assert results[0]["project"] == {"alias": "subproject", "slug": subproject.slug}
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_search_only_projects_owned_by_the_user(self, client, all_projects):
@@ -451,15 +366,8 @@ class TestPageSearch:
         )
         assert len(results) > 0
 
-        other_projects = [
-            project.slug
-            for project in all_projects
-            if project.slug != 'docs'
-        ]
-
         for result in results:
-            assert result['project'] == 'docs'
-            assert result['project'] not in other_projects
+            assert result["project"] == {"alias": None, "slug": "docs"}
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_search_no_owned_projects(self, client, all_projects):

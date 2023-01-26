@@ -1,7 +1,7 @@
-from itertools import zip_longest
 import os
 import tempfile
 import uuid
+from itertools import zip_longest
 from unittest import mock
 from unittest.mock import Mock, PropertyMock, patch
 
@@ -255,7 +255,7 @@ class TestBuildCommand(TestCase):
         cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR 1>&2'])
         cmd.run()
         self.assertEqual(cmd.output, 'FOOBAR')
-        self.assertIsNone(cmd.error)
+        self.assertEqual(cmd.error, "")
 
     def test_sanitize_output(self):
         cmd = BuildCommand(['/bin/bash', '-c', 'echo'])
@@ -368,9 +368,9 @@ class TestPythonEnvironment(TestCase):
         self.build_env_mock = Mock()
 
         self.base_requirements = [
-            'mock',
-            'pillow',
-            'alabaster',
+            "pillow",
+            "mock",
+            "alabaster",
         ]
         self.base_conda_requirements = [
             'mock',
@@ -395,7 +395,7 @@ class TestPythonEnvironment(TestCase):
         for arg, arg_mock in zip_longest(args, args_mock):
             if arg is not mock.ANY:
                 self.assertIsNotNone(arg_mock)
-                self.assertTrue(arg_mock.startswith(arg))
+                self.assertTrue(arg_mock.startswith(arg), arg)
 
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_install_core_requirements_sphinx(self, checkout_path):
@@ -407,11 +407,12 @@ class TestPythonEnvironment(TestCase):
         )
         python_env.install_core_requirements()
         requirements_sphinx = [
-            'commonmark',
-            'recommonmark',
-            'sphinx',
-            'sphinx-rtd-theme',
-            'readthedocs-sphinx-ext',
+            "commonmark",
+            "recommonmark",
+            "sphinx",
+            "sphinx-rtd-theme",
+            "readthedocs-sphinx-ext",
+            "jinja2<3.1.0",
         ]
 
         self.assertEqual(self.build_env_mock.run.call_count, 2)
@@ -444,12 +445,13 @@ class TestPythonEnvironment(TestCase):
         )
         python_env.install_core_requirements()
         requirements_sphinx = [
-            'commonmark',
-            'recommonmark',
-            'sphinx',
-            'sphinx-rtd-theme',
-            'readthedocs-sphinx-ext',
-            'setuptools<58.3.0',
+            "commonmark",
+            "recommonmark",
+            "sphinx",
+            "sphinx-rtd-theme",
+            "readthedocs-sphinx-ext",
+            "jinja2<3.1.0",
+            "setuptools<58.3.0",
         ]
 
         self.assertEqual(self.build_env_mock.run.call_count, 2)

@@ -30,6 +30,13 @@ $(document).ready(function () {
 {% block content %}
   <div class="build build-detail" id="build-detail">
 
+    {% if build.state != "finished" and build.state != "cancelled" and request.user|is_admin:project %}
+    <form method="post" action="{% url "builds_detail" build.version.project.slug build.pk %}">
+      {% csrf_token %}
+      <input type="submit" value="{% trans "Cancel build" %}">
+    </form>
+    {% endif %}
+
     <!-- Build meta data -->
     <ul class="build-meta">
       <div data-bind="visible: finished()">
@@ -131,9 +138,14 @@ $(document).ready(function () {
         {% trans "Build completed" %}
       </span>
       <span class="build-state-failed"
-            data-bind="visible: finished() && !success()"
+            data-bind="visible: finished() && !success() && !cancelled()"
             style="display: none;">
-        {% trans "Build failed" %}
+          {% trans "Build failed" %}
+      </span>
+      <span class="build-state-cancelled"
+            data-bind="visible: finished() && !success() && cancelled()"
+            style="display: none;">
+        {% trans "Build cancelled" %}
       </span>
     </div>
 
@@ -161,6 +173,17 @@ $(document).ready(function () {
           </p>
         </div>
       {% endif %}
+    {% endif %}
+
+    {% if build.finished and build.config.build.commands %}
+    <div class="build-ideas">
+      <p>
+        {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/build-customization.html#override-the-build-process" %}
+        <strong>The <code>"build.commands"</code> feature is in beta, and could have backwards incompatible changes while in beta.</strong>
+        Read more at <a href="{{ config_file_link }}">our documentation</a> to find out its limitations and potential issues.
+        {% endblocktrans %}
+      </p>
+    </div>
     {% endif %}
 
     {% if build.output %}

@@ -10,7 +10,6 @@ from celery.schedules import crontab
 
 from readthedocs.core.logs import shared_processors
 from readthedocs.core.settings import Settings
-from readthedocs.projects.constants import CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH
 
 
 try:
@@ -46,6 +45,28 @@ class CommunityBaseSettings(Settings):
 
     # Debug settings
     DEBUG = True
+    RTD_FORCE_SHOW_DEBUG_TOOLBAR = False
+
+    @property
+    def DEBUG_TOOLBAR_CONFIG(self):
+        def _show_debug_toolbar(request):
+            return request.environ.get('SERVER_NAME', None) != 'testserver' and self.SHOW_DEBUG_TOOLBAR
+
+        return {
+            'SHOW_TOOLBAR_CALLBACK': _show_debug_toolbar,
+        }
+
+    @property
+    def SHOW_DEBUG_TOOLBAR(self):
+        """
+        Show django-debug-toolbar on DEBUG or if it's forced by RTD_FORCE_SHOW_DEBUG_TOOLBAR.
+
+        This will show the debug toolbar on:
+
+          - Docker local instance
+          - web-extra production instance
+        """
+        return self.DEBUG or self.RTD_FORCE_SHOW_DEBUG_TOOLBAR
 
     # Domains and URLs
     RTD_IS_PRODUCTION = False
@@ -76,7 +97,7 @@ class CommunityBaseSettings(Settings):
     SESSION_COOKIE_DOMAIN = 'readthedocs.org'
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
-    SESSION_SAVE_EVERY_REQUEST = True
+    SESSION_SAVE_EVERY_REQUEST = False
 
     @property
     def SESSION_COOKIE_SAMESITE(self):
@@ -90,7 +111,7 @@ class CommunityBaseSettings(Settings):
 
     # CSRF
     CSRF_COOKIE_HTTPONLY = True
-    CSRF_COOKIE_AGE = 30 * 24 * 60 * 60
+    CSRF_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
 
     # Security & X-Frame-Options Middleware
     # https://docs.djangoproject.com/en/1.11/ref/middleware/#django.middleware.security.SecurityMiddleware
@@ -106,16 +127,10 @@ class CommunityBaseSettings(Settings):
     CSP_FRAME_ANCESTORS = ("'none'",)
     CSP_OBJECT_SRC = ("'none'",)
     CSP_REPORT_URI = None
-    CSP_REPORT_ONLY = True  # Set to false to enable CSP in blocking mode
+    CSP_REPORT_ONLY = False
     CSP_EXCLUDE_URL_PREFIXES = (
         "/admin/",
     )
-
-    # Permissions Policy
-    # https://github.com/adamchainz/django-permissions-policy
-    PERMISSIONS_POLICY = {
-        "interest-cohort": [],
-    }
 
     # Read the Docs
     READ_THE_DOCS_EXTENSIONS = ext
@@ -131,10 +146,20 @@ class CommunityBaseSettings(Settings):
     RTD_ANALYTICS_DEFAULT_RETENTION_DAYS = 30 * 3
     RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS = 30 * 3
 
+    # Number of days the validation process for a domain will be retried.
+    RTD_CUSTOM_DOMAINS_VALIDATION_PERIOD = 30
+
+    # Keep BuildData models on database during this time
+    RTD_TELEMETRY_DATA_RETENTION_DAYS = 30 * 6  # 180 days / 6 months
+
+    # Number of days an invitation is valid.
+    RTD_INVITATIONS_EXPIRATION_DAYS = 15
+
     # Database and API hitting settings
     DONT_HIT_API = False
     DONT_HIT_DB = True
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
+    DATABASE_ROUTERS = ['readthedocs.core.db.MapAppsRouter']
 
     USER_MATURITY_DAYS = 7
 
@@ -182,6 +207,7 @@ class CommunityBaseSettings(Settings):
             'django_filters',
             'polymorphic',
             'simple_history',
+            'djstripe',
 
             # our apps
             'readthedocs.projects',
@@ -205,6 +231,9 @@ class CommunityBaseSettings(Settings):
             'readthedocs.sphinx_domains',
             'readthedocs.search',
             'readthedocs.embed',
+            'readthedocs.telemetry',
+            'readthedocs.domains',
+            'readthedocs.invitations',
 
             # allauth
             'allauth',
@@ -221,6 +250,9 @@ class CommunityBaseSettings(Settings):
             apps.append('readthedocsext.spamfighting')
         if self.RTD_EXT_THEME_ENABLED:
             apps.append('readthedocsext.theme')
+        if self.SHOW_DEBUG_TOOLBAR:
+            apps.append('debug_toolbar')
+
         return apps
 
     @property
@@ -239,24 +271,31 @@ class CommunityBaseSettings(Settings):
     def USE_PROMOS(self):  # noqa
         return 'readthedocsext.donate' in self.INSTALLED_APPS
 
-    MIDDLEWARE = (
-        'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
-        'django.middleware.locale.LocaleMiddleware',
-        'django.middleware.common.CommonMiddleware',
-        'django.middleware.security.SecurityMiddleware',
-        'django.middleware.csrf.CsrfViewMiddleware',
-        'django.middleware.clickjacking.XFrameOptionsMiddleware',
-        'django.contrib.auth.middleware.AuthenticationMiddleware',
-        'django.contrib.messages.middleware.MessageMiddleware',
-        'dj_pagination.middleware.PaginationMiddleware',
-        'corsheaders.middleware.CorsMiddleware',
-        'csp.middleware.CSPMiddleware',
-        'readthedocs.core.middleware.ReferrerPolicyMiddleware',
-        'django_permissions_policy.PermissionsPolicyMiddleware',
-        'simple_history.middleware.HistoryRequestMiddleware',
-        'readthedocs.core.logs.ReadTheDocsRequestMiddleware',
-        'django_structlog.middlewares.CeleryMiddleware',
-    )
+    @property
+    def MIDDLEWARE(self):
+        middlewares = [
+            'readthedocs.core.middleware.NullCharactersMiddleware',
+            'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
+            'django.middleware.locale.LocaleMiddleware',
+            'django.middleware.common.CommonMiddleware',
+            'django.middleware.security.SecurityMiddleware',
+            'django.middleware.csrf.CsrfViewMiddleware',
+            'django.middleware.clickjacking.XFrameOptionsMiddleware',
+            'django.contrib.auth.middleware.AuthenticationMiddleware',
+            'django.contrib.messages.middleware.MessageMiddleware',
+            'dj_pagination.middleware.PaginationMiddleware',
+            'corsheaders.middleware.CorsMiddleware',
+            'csp.middleware.CSPMiddleware',
+            'readthedocs.core.middleware.ReferrerPolicyMiddleware',
+            'simple_history.middleware.HistoryRequestMiddleware',
+            'readthedocs.core.logs.ReadTheDocsRequestMiddleware',
+            'django_structlog.middlewares.CeleryMiddleware',
+        ]
+        if self.SHOW_DEBUG_TOOLBAR:
+            middlewares.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+        return middlewares
+
+
 
     AUTHENTICATION_BACKENDS = (
         # Needed to login by username in Django admin, regardless of `allauth`
@@ -312,6 +351,7 @@ class CommunityBaseSettings(Settings):
     STATICFILES_FINDERS = [
         'readthedocs.core.static.SelectiveFileSystemFinder',
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+        'readthedocs.core.finders.DebugToolbarFinder',
     ]
     PYTHON_MEDIA = False
 
@@ -321,6 +361,7 @@ class CommunityBaseSettings(Settings):
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_TOOLS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
+    RTD_STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
     @property
     def TEMPLATES(self):
@@ -400,13 +441,6 @@ class CommunityBaseSettings(Settings):
     CELERYD_PREFETCH_MULTIPLIER = 1
     CELERY_CREATE_MISSING_QUEUES = True
 
-    BROKER_TRANSPORT_OPTIONS = {
-        'queue_order_strategy': 'priority',
-        # We use 0 here because some things still put a task in the queue with no priority
-        # I don't fully understand why, but this seems to solve it.
-        'priority_steps': [0, CELERY_LOW, CELERY_MEDIUM, CELERY_HIGH],
-    }
-
     CELERY_DEFAULT_QUEUE = 'celery'
     CELERYBEAT_SCHEDULE = {
         'quarter-finish-inactive-builds': {
@@ -429,24 +463,46 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },
+        'every-day-delete-old-buildata-models': {
+            'task': 'readthedocs.telemetry.tasks.delete_old_build_data',
+            'schedule': crontab(minute=0, hour=2),
+            'options': {'queue': 'web'},
+        },
+        'weekly-delete-old-personal-audit-logs': {
+            'task': 'readthedocs.audit.tasks.delete_old_personal_audit_logs',
+            'schedule': crontab(day_of_week='wednesday', minute=0, hour=7),
+            'options': {'queue': 'web'},
+        },
         'every-day-resync-sso-organization-users': {
             'task': 'readthedocs.oauth.tasks.sync_remote_repositories_organizations',
             'schedule': crontab(minute=0, hour=4),
             'options': {'queue': 'web'},
         },
-        'hourly-archive-builds': {
-            'task': 'readthedocs.builds.tasks.archive_builds',
-            'schedule': crontab(minute=30),
+        'quarter-archive-builds': {
+            'task': 'readthedocs.builds.tasks.archive_builds_task',
+            'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
             'kwargs': {
                 'days': 1,
+                'limit': 500,
+                'delete': True,
             },
         },
         'every-day-delete-inactive-external-versions': {
-            'task': 'readthedocs.builds.tasks.delete_inactive_external_versions',
+            'task': 'readthedocs.builds.tasks.delete_closed_external_versions',
             'schedule': crontab(minute=0, hour=1),
             'options': {'queue': 'web'},
         },
+        'every-day-resync-remote-repositories': {
+            'task': 'readthedocs.oauth.tasks.sync_active_users_remote_repositories',
+            'schedule': crontab(minute=30, hour=2),
+            'options': {'queue': 'web'},
+        },
+        'every-day-email-pending-custom-domains': {
+            'task': 'readthedocs.domains.tasks.email_pending_custom_domains',
+            'schedule': crontab(minute=0, hour=3),
+            'options': {'queue': 'web'},
+        }
     }
 
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
@@ -550,34 +606,44 @@ class CommunityBaseSettings(Settings):
         # Mapping of build.os options to docker image.
         'os': {
             'ubuntu-20.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-20.04',
+            'ubuntu-22.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-22.04',
         },
         # Mapping of build.tools options to specific versions.
         'tools': {
             'python': {
                 '2.7': '2.7.18',
                 '3.6': '3.6.15',
-                '3.7': '3.7.12',
-                '3.8': '3.8.12',
-                '3.9': '3.9.7',
-                '3.10': '3.10.0',
-                'pypy3.7': 'pypy3.7-7.3.5',
+                '3.7': '3.7.15',
+                '3.8': '3.8.15',
+                '3.9': '3.9.15',
+                '3.10': '3.10.8',
+                '3.11': '3.11.0',
+                'pypy3.7': 'pypy3.7-7.3.9',
+                'pypy3.8': 'pypy3.8-7.3.9',
+                'pypy3.9': 'pypy3.9-7.3.9',
                 'miniconda3-4.7': 'miniconda3-4.7.12',
                 'mambaforge-4.10': 'mambaforge-4.10.3-10',
             },
             'nodejs': {
-                '14': '14.17.6',
-                '16': '16.9.1',
+                '14': '14.20.1',
+                '16': '16.18.0',
+                '18': '18.11.0',
+                '19': '19.0.0',
             },
             'rust': {
                 '1.55': '1.55.0',
+                '1.61': '1.61.0',
+                '1.64': '1.64.0',
             },
             'golang': {
-                '1.17': '1.17.1',
+                '1.17': '1.17.13',
+                '1.18': '1.18.7',
+                '1.19': '1.19.2',
             },
         },
     }
     # Always point to the latest stable release.
-    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.10']
+    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.11']
 
     def _get_docker_memory_limit(self):
         try:
@@ -639,6 +705,7 @@ class CommunityBaseSettings(Settings):
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
     ACCOUNT_ACTIVATION_DAYS = 7
     SOCIALACCOUNT_AUTO_SIGNUP = False
+    SOCIALACCOUNT_STORE_TOKENS = True
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
             'SCOPE': [
@@ -661,8 +728,11 @@ class CommunityBaseSettings(Settings):
     }
 
     # CORS
-    # So cookies can be included in cross-domain requests where needed (eg. sustainability API).
-    CORS_ALLOW_CREDENTIALS = True
+    # Don't allow sending cookies in cross-domain requests, this is so we can
+    # relax our CORS headers for more views, but at the same time not opening
+    # users to CSRF attacks. The sustainability API is the only view that requires
+    # cookies to be send cross-site, we override that for that view only.
+    CORS_ALLOW_CREDENTIALS = False
     CORS_ALLOW_HEADERS = (
         'x-requested-with',
         'content-type',
@@ -687,7 +757,8 @@ class CommunityBaseSettings(Settings):
 
     # Organization settings
     RTD_ALLOW_ORGANIZATIONS = False
-    ORG_DEFAULT_SUBSCRIPTION_PLAN_SLUG = 'trial-v2-monthly'
+    RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE = 'trial-v2-monthly'
+    RTD_ORG_TRIAL_PERIOD_DAYS = 30
 
     # Elasticsearch settings.
     ES_HOSTS = ['search:9200']
@@ -753,8 +824,29 @@ class CommunityBaseSettings(Settings):
     TAGGIT_TAGS_FROM_STRING = 'readthedocs.projects.tag_utils.rtd_parse_tags'
 
     # Stripe
+    # Existing values we use
     STRIPE_SECRET = None
     STRIPE_PUBLISHABLE = None
+
+    # DJStripe values -- **CHANGE THESE IN PRODUCTION**
+    STRIPE_LIVE_SECRET_KEY = None
+    STRIPE_TEST_SECRET_KEY = "sk_test_x" # A default so the `checks` don't fail
+    DJSTRIPE_WEBHOOK_SECRET = None
+    STRIPE_LIVE_MODE = False  # Change to True in production
+    # This is less optimal than setting the webhook secret
+    # However, the app won't start without the secret
+    # with this setting set to the default
+    DJSTRIPE_WEBHOOK_VALIDATION = "retrieve_event"
+
+    # These values shouldn't need to change..
+    DJSTRIPE_FOREIGN_KEY_TO_FIELD = "id"
+    DJSTRIPE_USE_NATIVE_JSONFIELD = True  # We recommend setting to True for new installations
+
+    # Disable adding djstripe metadata to the Customer objects.
+    # We are managing the subscriber relationship by ourselves,
+    # since we have subscriptions attached to an organization or gold user
+    # we can't make use of the DJSTRIPE_SUBSCRIBER_MODEL setting.
+    DJSTRIPE_SUBSCRIBER_CUSTOMER_KEY = None
 
     # Do Not Track support
     DO_NOT_TRACK_ENABLED = False
@@ -886,6 +978,8 @@ class CommunityBaseSettings(Settings):
 
     # MailerLite API for newsletter signups
     MAILERLITE_API_SUBSCRIBERS_URL = 'https://api.mailerlite.com/api/v2/subscribers'
+    MAILERLITE_API_ONBOARDING_GROUP_ID = None
+    MAILERLITE_API_ONBOARDING_GROUP_URL = None
     MAILERLITE_API_KEY = None
 
     RTD_EMBED_API_EXTERNAL_DOMAINS = [

@@ -1,17 +1,64 @@
 Environment Variables
 =====================
 
-Read the Docs provides a way to define environment variables for your project to be used in the build process.
-They will be exposed to all the commands executed when building your documentation.
+Read the Docs supports two types of environment variables in project builds:
 
-For example, it may happen that your documentation depends on an authenticated service to be built properly.
-In this case, you will require some secrets to access these services.
+* `Default environment variables`_
+* `User-defined environment variables`_
 
-To define an environment variable, you need to
+Both are merged together during the build process and are exposed to all of the executed commands. There are two exceptions for user-defined environment variables however:
+
+* User-defined variables are not available during the checkout step of the :doc:`build process </builds>`
+* User-defined variables that are not marked as public will not be available in :doc:`pull request builds </pull-requests>`
+
+Default environment variables
+-----------------------------
+
+Read the Docs builders set the following environment variables automatically for each documentation build:
+
+.. envvar:: READTHEDOCS
+
+    Whether the build is running inside Read the Docs.
+
+    :Default: ``True``
+
+.. envvar:: READTHEDOCS_VERSION
+
+    The :term:`slug` of the version being built, such as ``latest``, ``stable``,
+    or a branch name like ``feature-1234``. For :doc:`pull request builds </pull-requests>`,
+    the value will be the pull request number.
+
+.. envvar:: READTHEDOCS_VERSION_NAME
+
+    The verbose name of the version being built, such as ``latest``, ``stable``,
+    or a branch name like ``feature/1234``.
+
+.. envvar:: READTHEDOCS_VERSION_TYPE
+
+    The type of the version being built.
+
+    :Values: ``branch``, ``tag``, ``external`` (for :doc:`pull request builds </pull-requests>`), or ``unknown``
+
+.. envvar:: READTHEDOCS_PROJECT
+
+    The :term:`slug` of the project being built. For example, ``my-example-project``.
+
+.. envvar:: READTHEDOCS_LANGUAGE
+
+    The locale name, or the identifier for the locale, for the project being built.
+    This value comes from the project's configured language.
+
+    :Examples: ``en``, ``it``, ``de_AT``, ``es``, ``pt_BR``
+
+User-defined environment variables
+----------------------------------
+
+If extra environment variables are needed in the build process (like an API token),
+you can define them from the project's settings page:
 
 #. Go to your project's :guilabel:`Admin` > :guilabel:`Environment Variables`
 #. Click on :guilabel:`Add Environment Variable`
-#. Fill the ``Name`` and ``Value`` (your secret)
+#. Fill the ``Name`` and ``Value``
 #. Check the :guilabel:`Public` option if you want to expose this environment variable
    to :doc:`builds from pull requests </pull-requests>`.
 
@@ -29,20 +76,34 @@ To define an environment variable, you need to
 
 After adding an environment variable,
 you can read it from your build process,
-for example in your Sphinx's ``conf.py`` file:
+for example in your Sphinx's configuration file:
 
 .. code-block:: python
+   :caption: conf.py
 
-   # conf.py
    import os
    import requests
 
    # Access to our custom environment variables
-   username = os.environ.get('USERNAME')
-   password = os.environ.get('PASSWORD')
+   username = os.environ.get("USERNAME")
+   password = os.environ.get("PASSWORD")
 
    # Request a username/password protected URL
    response = requests.get(
-       'https://httpbin.org/basic-auth/username/password',
+       "https://httpbin.org/basic-auth/username/password",
        auth=(username, password),
    )
+
+You can also use any of these variables from :term:`user-defined build jobs` in your project's configuration file:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: ubuntu-22.04
+     tools:
+       python: 3.10
+     jobs:
+       post_install:
+         - curl -u ${USERNAME}:${PASSWORD} https://httpbin.org/basic-auth/username/password

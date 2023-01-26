@@ -15,7 +15,7 @@ from readthedocs.projects.constants import (
     SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import Feature, HTMLFile, Project
-from readthedocs.search.api import PageSearchAPIView
+from readthedocs.search.api.v2.views import PageSearchAPIView
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.tests.utils import (
     DOMAIN_FIELDS,
@@ -342,9 +342,9 @@ class BaseTestDocumentSearch:
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 404
 
-    @mock.patch.object(PageSearchAPIView, '_get_all_projects_data', dict)
+    @mock.patch.object(PageSearchAPIView, "_get_projects_to_search", list)
     def test_get_all_projects_returns_empty_results(self, api_client, project):
-        """If there is a case where `_get_all_projects` returns empty, we could be querying all projects."""
+        """If there is a case where `_get_projects_to_search` returns empty, we could be querying all projects."""
 
         # `documentation` word is present both in `kuma` and `docs` files
         # and not in `pipeline`, so search with this phrase but filter through project

@@ -34,7 +34,7 @@ pip.rtd.io/_/api/*
 """
 
 from django.conf import settings
-from django.conf.urls import include, re_path
+from django.urls import include, path, re_path
 from django.views import defaults
 
 from readthedocs.constants import pattern_opts
@@ -46,8 +46,9 @@ from readthedocs.proxito.views.serve import (
     ServePageRedirect,
     ServeRobotsTXT,
     ServeSitemapXML,
+    ServeStaticFiles,
 )
-from readthedocs.proxito.views.utils import proxito_404_page_handler, fast_404
+from readthedocs.proxito.views.utils import fast_404, proxito_404_page_handler
 
 DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
 
@@ -64,12 +65,12 @@ proxied_urls = [
     # /_/downloads/<lang>/<ver>/<type>/
     re_path(
         (
-            r'^{DOC_PATH_PREFIX}downloads/'
-            r'(?P<lang_slug>{lang_slug})/'
-            r'(?P<version_slug>{version_slug})/'
-            r'(?P<type_>[-\w]+)/$'.format(
-                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
-                **pattern_opts)
+            r"^{DOC_PATH_PREFIX}downloads/"
+            r"(?P<lang_slug>{lang_slug})/"
+            r"(?P<version_slug>{version_slug})/"
+            r"(?P<type_>{downloadable_type})/$".format(
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX, **pattern_opts
+            )
         ),
         ProjectDownloadMedia.as_view(same_domain_url=True),
         name='project_download_media',
@@ -78,13 +79,13 @@ proxied_urls = [
     # /_/downloads/<alias>/<lang>/<ver>/<type>/
     re_path(
         (
-            r'^{DOC_PATH_PREFIX}downloads/'
-            r'(?P<subproject_slug>{project_slug})/'
-            r'(?P<lang_slug>{lang_slug})/'
-            r'(?P<version_slug>{version_slug})/'
-            r'(?P<type_>[-\w]+)/$'.format(
-                DOC_PATH_PREFIX=DOC_PATH_PREFIX,
-                **pattern_opts)
+            r"^{DOC_PATH_PREFIX}downloads/"
+            r"(?P<subproject_slug>{project_slug})/"
+            r"(?P<lang_slug>{lang_slug})/"
+            r"(?P<version_slug>{version_slug})/"
+            r"(?P<type_>{downloadable_type})/$".format(
+                DOC_PATH_PREFIX=DOC_PATH_PREFIX, **pattern_opts
+            )
         ),
         ProjectDownloadMedia.as_view(same_domain_url=True),
         name='project_download_media',
@@ -105,6 +106,13 @@ proxied_urls = [
             DOC_PATH_PREFIX=DOC_PATH_PREFIX,
         ),
         include('readthedocs.api.v3.proxied_urls'),
+    ),
+    # Serve static files
+    # /_/static/file.js
+    path(
+        f"{DOC_PATH_PREFIX}static/<path:filename>",
+        ServeStaticFiles.as_view(),
+        name="proxito_static_files",
     ),
 ]
 

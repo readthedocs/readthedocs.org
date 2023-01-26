@@ -1,34 +1,31 @@
 """Views for the EmbedAPI v3 app."""
 
 import re
+import urllib.parse
 from urllib.parse import urlparse
+
 import requests
-
 import structlog
-
-from selectolax.parser import HTMLParser
-
 from django.conf import settings
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
-from django.utils.functional import cached_property
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from selectolax.parser import HTMLParser
 
-from readthedocs.api.v2.mixins import CachedResponseMixin
-from readthedocs.core.unresolver import unresolve
+from readthedocs.api.mixins import CDNCacheTagsMixin, EmbedAPIMixin
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.embed.utils import clean_links
+from readthedocs.embed.utils import clean_references
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.storage import build_media_storage
 
 log = structlog.get_logger(__name__)
 
 
-class EmbedAPIBase(CachedResponseMixin, APIView):
+class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     # pylint: disable=line-too-long
     # pylint: disable=no-self-use
@@ -51,12 +48,11 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
     permission_classes = [AllowAny]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
-    @cached_property
-    def unresolved_url(self):
-        url = self.request.GET.get('url')
-        if not url:
-            return None
-        return unresolve(url)
+    @property
+    def external(self):
+        # NOTE: ``readthedocs.core.unresolver.unresolve`` returns ``None`` when
+        # it can't find the project in our database
+        return self.unresolved_url is None
 
     def _download_page_content(self, url):
         # Sanitize the URL before requesting it
@@ -95,10 +91,16 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             include_file=False,
             version_type=version.type,
         )
+
+        # Decode encoded URLs (e.g. convert %20 into a whitespace)
+        filename = urllib.parse.unquote(filename)
+
+        relative_filename = filename.lstrip("/")
         file_path = build_media_storage.join(
             storage_path,
-            filename,
+            relative_filename,
         )
+
         try:
             with build_media_storage.open(file_path) as fd:  # pylint: disable=invalid-name
                 return fd.read()
@@ -107,12 +109,12 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
 
         return None
 
-    def _get_content_by_fragment(self, url, fragment, external, doctool, doctoolversion):
-        if external:
+    def _get_content_by_fragment(self, url, fragment, doctool, doctoolversion):
+        if self.external:
             page_content = self._download_page_content(url)
         else:
             project = self.unresolved_url.project
-            version_slug = self.unresolved_url.version_slug
+            version_slug = self.unresolved_url.version.slug
             filename = self.unresolved_url.filename
             page_content = self._get_page_content_from_storage(project, version_slug, filename)
 
@@ -155,6 +157,44 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             return
 
         if doctool == 'sphinx':
+            # Handle manual reference special cases
+            # See https://github.com/readthedocs/sphinx-hoverxref/issues/199
+            if node.tag == "span" and not node.text():
+                if any(
+                    [
+                        # docutils <0.18
+                        all(
+                            [
+                                node.parent.tag == "div",
+                                "section" in node.parent.attributes.get("class", []),
+                            ]
+                        ),
+                        # docutils >=0.18
+                        all(
+                            [
+                                node.parent.tag == "section",
+                                node.parent.attributes.get("id", None),
+                            ]
+                        ),
+                    ]
+                ):
+                    # Sphinx adds an empty ``<span id="my-reference"></span>``
+                    # HTML tag when using manual references (``..
+                    # _my-reference:``). Then, when users refer to it via
+                    # ``:ref:`my-referece``` the API will return the empty
+                    # span. If the parent node is a section, we have to return
+                    # the parent node that will have the content expected.
+
+                    # Structure:
+                    # <section id="ref-section">
+                    # <span id="ref-manual"></span>
+                    # <h2>Ref Section<a class="headerlink" href="#ref-section">¶</a></h2>
+                    # <p>This is a reference to
+                    # <a class="reference internal" href="#ref-manual"><span>Ref Section</span></a>.
+                    # </p>
+                    # </section>
+                    node = node.parent
+
             # Handle ``dt`` special cases
             if node.tag == 'dt':
                 if any([
@@ -240,10 +280,7 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        # NOTE: ``readthedocs.core.unresolver.unresolve`` returns ``None`` when
-        # it can't find the project in our database
-        external = self.unresolved_url is None
-        if external:
+        if self.external:
             for allowed_domain in settings.RTD_EMBED_API_EXTERNAL_DOMAINS:
                 if re.match(allowed_domain, domain):
                     break
@@ -284,7 +321,6 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
             content_requested = self._get_content_by_fragment(
                 url,
                 fragment,
-                external,
                 doctool,
                 doctoolversion,
             )
@@ -330,28 +366,30 @@ class EmbedAPIBase(CachedResponseMixin, APIView):
         # Sanitize the URL before requesting it
         sanitized_url = urlparse(url)._replace(fragment='', query='').geturl()
         # Make links from the content to be absolute
-        content = clean_links(
+        content = clean_references(
             content_requested,
             sanitized_url,
             html_raw_response=True,
         )
 
         response = {
-            'url': url,
-            'fragment': fragment if fragment else None,
-            'content': content,
-            'external': external,
+            "url": url,
+            "fragment": fragment if fragment else None,
+            "content": content,
+            "external": self.external,
         }
         log.info(
-            'EmbedAPI successful response.',
-            project_slug=self.unresolved_url.project.slug if not external else None,
-            domain=domain if external else None,
+            "EmbedAPI successful response.",
+            project_slug=self.unresolved_url.project.slug
+            if not self.external
+            else None,
+            domain=domain if self.external else None,
             doctool=doctool,
             doctoolversion=doctoolversion,
             url=url,
-            referer=request.META.get('HTTP_REFERER'),
-            external=external,
-            hoverxref_version=request.META.get('HTTP_X_HOVERXREF_VERSION'),
+            referer=request.headers.get("Referer"),
+            external=self.external,
+            hoverxref_version=request.headers.get("X-Hoverxref-Version"),
         )
         return Response(response)
 

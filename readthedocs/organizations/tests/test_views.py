@@ -2,7 +2,6 @@ import csv
 import itertools
 from unittest import mock
 
-from allauth.account.views import SignupView
 from django.contrib.auth.models import User
 from django.core.cache import cache
 from django.test import TestCase
@@ -13,13 +12,8 @@ from django_dynamic_fixture import get
 
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.utils import slugify
-from readthedocs.organizations.models import (
-    Organization,
-    Team,
-    TeamInvite,
-    TeamMember,
-)
-from readthedocs.organizations.views import public as public_views
+from readthedocs.invitations.models import Invitation
+from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 
@@ -111,34 +105,46 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
 
         # Adding an already owner.
         for username in [self.owner.username, self.owner.email]:
-            resp = self.client.post(url, data={'owner': username})
-            form = resp.context_data['form']
+            resp = self.client.post(url, data={"username_or_email": username})
+            form = resp.context_data["form"]
             self.assertFalse(form.is_valid())
-            self.assertIn('is already an owner', form.errors['owner'][0])
+            self.assertIn("is already an owner", form.errors["username_or_email"][0])
 
         # Unknown user.
-        resp = self.client.post(url, data={'owner': 'non-existent'})
-        form = resp.context_data['form']
+        resp = self.client.post(url, data={"username_or_email": "non-existent"})
+        form = resp.context_data["form"]
         self.assertFalse(form.is_valid())
-        self.assertIn('does not exist', form.errors['owner'][0])
+        self.assertIn("does not exist", form.errors["username_or_email"][0])
 
         # From an unverified email.
-        resp = self.client.post(url, data={'owner': user.email})
-        form = resp.context_data['form']
+        resp = self.client.post(url, data={"username_or_email": user.email})
+        form = resp.context_data["form"]
         self.assertFalse(form.is_valid())
-        self.assertIn('does not exist', form.errors['owner'][0])
+        self.assertIn("does not exist", form.errors["username_or_email"][0])
 
         # Using a username.
         self.assertFalse(user in self.organization.owners.all())
-        resp = self.client.post(url, data={'owner': user.username})
+        resp = self.client.post(url, data={"username_or_email": user.username})
         self.assertEqual(resp.status_code, 302)
-        self.assertTrue(user in self.organization.owners.all())
+        qs = Invitation.objects.for_object(self.organization)
+        self.assertEqual(qs.count(), 1)
+        invitation = qs.first()
+        self.assertEqual(invitation.from_user, self.owner)
+        self.assertEqual(invitation.to_user, user)
+        self.assertEqual(invitation.to_email, None)
+        self.assertNotIn(user, self.organization.owners.all())
 
         # Using an email.
         self.assertFalse(user_b in self.organization.owners.all())
-        resp = self.client.post(url, data={'owner': user_b.email})
+        resp = self.client.post(url, data={"username_or_email": user_b.email})
         self.assertEqual(resp.status_code, 302)
-        self.assertTrue(user_b in self.organization.owners.all())
+
+        self.assertEqual(qs.count(), 2)
+        invitation = qs.last()
+        self.assertEqual(invitation.from_user, self.owner)
+        self.assertEqual(invitation.to_user, user_b)
+        self.assertEqual(invitation.to_email, None)
+        self.assertNotIn(user_b, self.organization.owners.all())
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
@@ -187,6 +193,7 @@ class OrganizationSecurityLogTests(TestCase):
             '10.10.10.2',
         ]
         users = [self.owner, self.member, self.another_owner, self.another_member]
+        projects = [self.project, self.project_b, self.another_project]
         AuditLog.objects.all().delete()
         for action, ip, user in itertools.product(actions, ips, users):
             get(
@@ -195,7 +202,7 @@ class OrganizationSecurityLogTests(TestCase):
                 action=action,
                 ip=ip,
             )
-            for project in [self.project, self.project_b, self.another_project]:
+            for project in projects:
                 get(
                     AuditLog,
                     user=user,
@@ -204,22 +211,25 @@ class OrganizationSecurityLogTests(TestCase):
                     ip=ip,
                 )
 
-        self.url = reverse('organization_security_log', args=[self.organization.slug])
+        self.url = reverse("organization_security_log", args=[self.organization.slug])
+        self.queryset = AuditLog.objects.filter(
+            log_organization_id=self.organization.pk
+        )
 
     def test_list_security_logs(self):
-        self.assertEqual(AuditLog.objects.count(), 160)
-
         # Show logs for self.organization only.
         resp = self.client.get(self.url)
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 64)
+        self.assertQuerysetEqual(auditlogs, self.queryset)
 
         # Show logs filtered by project.
         resp = self.client.get(self.url + '?project=project')
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 32)
+        auditlogs = resp.context_data["object_list"]
+        self.assertQuerysetEqual(
+            auditlogs, self.queryset.filter(log_project_slug="project")
+        )
 
         resp = self.client.get(self.url + '?project=another-project')
         self.assertEqual(resp.status_code, 200)
@@ -227,23 +237,26 @@ class OrganizationSecurityLogTests(TestCase):
         self.assertEqual(auditlogs.count(), 0)
 
         # Show logs filtered by IP.
-        resp = self.client.get(self.url + '?ip=10.10.10.2')
+        ip = "10.10.10.2"
+        resp = self.client.get(self.url + f"?ip={ip}")
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 32)
+        self.assertQuerysetEqual(auditlogs, self.queryset.filter(ip=ip))
 
         # Show logs filtered by action.
         for action in [AuditLog.AUTHN, AuditLog.AUTHN_FAILURE, AuditLog.PAGEVIEW, AuditLog.DOWNLOAD]:
             resp = self.client.get(self.url + f'?action={action}')
             self.assertEqual(resp.status_code, 200)
             auditlogs = resp.context_data['object_list']
-            self.assertEqual(auditlogs.count(), 16)
+            self.assertQuerysetEqual(auditlogs, self.queryset.filter(action=action))
 
         # Show logs filtered by user.
         resp = self.client.get(self.url + '?user=member')
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 16)
+        auditlogs = resp.context_data["object_list"]
+        self.assertQuerysetEqual(
+            auditlogs, self.queryset.filter(log_user_username="member")
+        )
 
     @mock.patch('django.utils.timezone.now')
     def test_filter_by_date(self, now_mock):
@@ -274,17 +287,21 @@ class OrganizationSecurityLogTests(TestCase):
         resp = self.client.get(self.url + '?date_before=2021-03-9')
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 16)
+        self.assertQuerysetEqual(auditlogs, self.queryset.filter(action=AuditLog.AUTHN))
 
         resp = self.client.get(self.url + '?date_after=2021-03-11')
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 16)
+        auditlogs = resp.context_data["object_list"]
+        self.assertQuerysetEqual(
+            auditlogs, self.queryset.filter(action=AuditLog.AUTHN_FAILURE)
+        )
 
         resp = self.client.get(self.url + '?date_after=2021-01-01&date_before=2021-03-10')
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 48)
+        auditlogs = resp.context_data["object_list"]
+        self.assertQuerysetEqual(
+            auditlogs, self.queryset.exclude(action=AuditLog.AUTHN_FAILURE)
+        )
 
     def test_download_csv(self):
         self.assertEqual(AuditLog.objects.count(), 160)
@@ -302,7 +319,11 @@ class OrganizationSecurityLogTests(TestCase):
         ]
         csv_data = list(csv.reader(content))
         # All records + the header.
-        self.assertEqual(len(csv_data), 64 + 1)
+        self.assertEqual(
+            len(csv_data),
+            AuditLog.objects.filter(log_organization_id=self.organization.pk).count()
+            + 1,
+        )
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
@@ -318,133 +339,11 @@ class OrganizationInviteViewTests(RequestFactoryTestMixin, TestCase):
         )
         self.team = get(Team, organization=self.organization)
 
-    def tearDown(self):
-        cache.clear()
-
-    def test_redemption_by_authed_user(self):
-        user = get(User)
-        invite = get(
-            TeamInvite, email=user.email, team=self.team,
-            organization=self.organization,
-        )
-        team_member = get(
-            TeamMember,
-            invite=invite,
-            member=None,
-            team=self.team,
-        )
-
-        req = self.request(
-            'get',
-            '/organizations/invite/{}/redeem'.format(invite.hash),
-            user=user,
-        )
-        view = public_views.UpdateOrganizationTeamMember.as_view()
-        view(req, hash=invite.hash)
-
-        ret_teammember = TeamMember.objects.get(member=user)
-        self.assertIsNone(ret_teammember.invite)
-        self.assertEqual(ret_teammember, team_member)
-        with self.assertRaises(TeamInvite.DoesNotExist):
-            TeamInvite.objects.get(pk=invite.pk)
-
-    def test_redemption_by_unauthed_user(self):
-        """Redemption on triggers on user signup."""
-        email = 'non-existant-9238723@example.com'
-        with self.assertRaises(User.DoesNotExist):
-            User.objects.get(email=email)
-        invite = get(
-            TeamInvite, email=email, team=self.team,
-            organization=self.organization,
-        )
-        team_member = get(
-            TeamMember,
-            invite=invite,
-            member=None,
-            team=self.team,
-        )
-
-        req = self.request(
-            'get',
-            '/organizations/invite/{}/redeem'.format(invite.hash),
-        )
-        view = public_views.UpdateOrganizationTeamMember.as_view()
-        view(req, hash=invite.hash)
-
-        self.assertEqual(team_member.invite, invite)
-        self.assertIsNone(team_member.member)
-        self.assertEqual(req.session['invite'], invite.pk)
-        self.assertEqual(req.session['invite:allow_signup'], True)
-        self.assertEqual(req.session['invite:email'], email)
-
-        # This cookie makes the EmailAddress be verified after signing up with
-        # the same email address the user was invited. This is done
-        # automatically by django-allauth
-        self.assertEqual(req.session['account_verified_email'], email)
-
-        session = req.session
-
-        # Test signup view
-        req = self.request(
-            'post',
-            '/accounts/signup',
-            data={
-                'username': 'test-92867',
-                'email': email,
-                'password1': 'password',
-                'password2': 'password',
-                'confirmation_key': 'foo',
-            },
-            session=session,
-        )
-        resp = SignupView.as_view()(req)
-
+    def test_redirect(self):
+        token = "123345"
+        resp = self.client.get(reverse("organization_invite_redeem", args=[token]))
         self.assertEqual(resp.status_code, 302)
-
-        ret_teammember = TeamMember.objects.get(member__email=email)
-        self.assertIsNone(ret_teammember.invite)
-        self.assertEqual(ret_teammember, team_member)
-        with self.assertRaises(TeamInvite.DoesNotExist):
-            TeamInvite.objects.get(pk=invite.pk)
-
-        self.assertTrue(
-            User.objects.get(email=email)
-            .emailaddress_set.filter(verified=True)
-            .exists()
-        )
-
-    def test_redemption_by_dulpicate_user(self):
-        user = get(User)
-        invite = get(
-            TeamInvite, email=user.email, team=self.team,
-            organization=self.organization,
-        )
-        team_member_a = get(
-            TeamMember,
-            invite=None,
-            member=user,
-            team=self.team,
-        )
-        team_member_b = get(
-            TeamMember,
-            invite=invite,
-            member=None,
-            team=self.team,
-        )
-        self.assertEqual(TeamMember.objects.filter(member=user).count(), 1)
-
-        req = self.request(
-            'get',
-            '/organizations/invite/{}/redeem'.format(invite.hash),
-            user=user,
-        )
-        view = public_views.UpdateOrganizationTeamMember.as_view()
-        view(req, hash=invite.hash)
-
-        self.assertEqual(TeamMember.objects.filter(member=user).count(), 1)
-        self.assertEqual(TeamMember.objects.filter(invite=invite).count(), 0)
-        with self.assertRaises(TeamInvite.DoesNotExist):
-            TeamInvite.objects.get(pk=invite.pk)
+        self.assertEqual(resp["location"], reverse("invitations_redeem", args=[token]))
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)

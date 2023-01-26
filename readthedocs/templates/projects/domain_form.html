@@ -36,6 +36,15 @@
       {% endblocktrans %}
     </p>
 
+    {% if not domain.skip_validation and not domain.is_valid and domain.validation_process_expired %}
+      <p class="help_text">
+        {% blocktrans trimmed %}
+        The validation process period has ended.
+        Save the domain to restart the process.
+        {% endblocktrans %}
+      </p>
+    {% endif %}
+
     <p>
       <strong>{% trans 'SSL certificate status' %}: </strong>
       <span>{{ domain.domainssl.status }}</span>
@@ -49,7 +58,7 @@
   {% endif %}
   <form method="post" action="{{ action_url }}">{% csrf_token %}
     {{ form.as_p }}
-    <input type="submit" value="{% trans "Save Domain" %}" {% if not enabled %}disabled{% endif %}>
+    <input type="submit" value="{% trans "Save Domain" %}" {% if not enabled or superproject %}disabled{% endif %}>
     {% if domain.domainssl %}
       <p class="help-block">{% trans 'Saving the domain will revalidate the SSL certificate' %}</p>
     {% endif %}

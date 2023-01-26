@@ -1,6 +1,5 @@
-import requests_mock
 import django_dynamic_fixture as fixture
-
+import requests_mock
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.urls import reverse
@@ -42,8 +41,17 @@ class GoldStripeWebhookTests(TestCase):
                 "id": "sub_a1b2c3",
                 "object": "subscription",
                 "customer": "cus_a1b2c3",
-                "plan": {
-                    "id": "v1-org-15"
+                "items": {
+                    "object": "list",
+                    "data": [
+                        {
+                            "id": "si_DmHJtdglVs7RlD",
+                            "object": "subscription_item",
+                            "price": {
+                                "id": "v1-org-15"
+                            }
+                        }
+                    ]
                 }
             }
         },
@@ -63,8 +71,15 @@ class GoldStripeWebhookTests(TestCase):
             'id': 'sub_a1b2c3',
             'object': 'subscription',
             'customer': 'cus_a1b2c3',
-            'plan': {
-                'id': 'v1-org-15'
+            "items": {
+                "object": "list",
+                "data": [
+                    {
+                        "id": "si_DmHJtdglVs7RlD",
+                        "object": "subscription_item",
+                        "price": {"id": "v1-org-15"},
+                    }
+                ],
             },
         }
         mock_request.get('https://api.stripe.com/v1/subscriptions/sub_a1b2c3', json=payload)
