@@ -134,9 +134,6 @@ man_pages = [
 
 language = "en"
 
-locale_dirs = [
-    f"{docset}/locale/",
-]
 gettext_compact = False
 
 html_theme = "sphinx_rtd_theme"

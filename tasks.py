@@ -29,6 +29,8 @@ namespace.add_collection(
     name='docker',
 )
 
+# This task is not currently used.
+# We keep it around in case we decide to translate the documentation
 @task
 def docs(ctx, regenerate_config=False, push=False):
     """Pull and push translations to Transifex for our docs"""
