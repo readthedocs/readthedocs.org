@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("builds", "0039_migrate_config_data.py"),
+        ("builds", "0046_identifier_null"),
     ]
 
     operations = [
