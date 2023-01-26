@@ -44,6 +44,11 @@ class BaseRClone:
         # Skip based on checksum (if available) & size, not mod-time & size.
         "--checksum",
         "--verbose",
+        # Retry some times before failing
+        # (3 is the default, but making it explicit here)
+        "--retries=3",
+        # Wait 1 second between each retry
+        "--retries-sleep=1",
     ]
     env_vars = {}
 
