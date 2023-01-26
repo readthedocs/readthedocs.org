@@ -290,7 +290,9 @@ class Version(TimeStampedModel):
             .only('_config')
             .first()
         )
-        return last_build.config
+        if last_build:
+            return last_build.config
+        return None
 
     @property
     def commit_name(self):
