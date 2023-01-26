@@ -241,7 +241,6 @@ out of your documentation and Read the Docs.
    user-defined-redirects
    automatic-redirects
 
-   automation-rules
    canonical-urls
 
 

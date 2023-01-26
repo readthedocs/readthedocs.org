@@ -1,16 +1,14 @@
-Automation Rules
+Automation rules
 ================
 
 Automation rules allow project maintainers to automate actions on new branches and tags on repositories.
+This is a style of :term:`GitOps`,
+meaning that you can control your documentation publishing through Git tags.
 
-Creating an automation rule
----------------------------
+.. seealso::
 
-#. Go to your project dashboard
-#. Click :guilabel:`Admin` > :guilabel:`Automation Rules`
-#. Click on :guilabel:`Add Rule`
-#. Fill in the fields
-#. Click :guilabel:`Save`
+   :doc:`/guides/automation-rules`
+     A practical guide to managing automated versioning of your documentation.
 
 How do they work?
 -----------------
@@ -82,11 +80,8 @@ Currently, the following actions are available:
 Order
 -----
 
-The order your rules are listed in  :guilabel:`Admin` > :guilabel:`Automation Rules` matters.
-Each action will be performed in that order,
-so first rules have a higher priority.
-
-You can change the order using the up and down arrow buttons.
+When a new webhook event is received from your Git provider,
+All rules with a successful match will have their action triggered in the order they appear on the :guilabel:`Automation Rules` page.
 
 .. note::
 

@@ -11,6 +11,15 @@ Glossary
       Menu displayed on the documentation, readily accessible for readers, containing the list active versions, links to static downloads, and other useful links.
       Read more in our :doc:`/flyout-menu` page.
 
+   GitOps
+      A popular term,
+      denoting the use of code, branches and tags maintained in Git in order to automate building, testing, and deployment.
+      GitOps is often used for infrastructure such as maintaining the configuration code for infrastructure in Git.
+      In terms of documentation,
+      GitOps is applicable for Read the Docs,
+      as the configuration for building documentation is stored in ``.readthedocs.yaml``,
+      and rules for publication of documentation can be :doc:`fully automated </automation-rules>`.
+
    pre-defined build jobs
       Commands executed by Read the Docs when performing the build process.
       They cannot be overwritten by the user.
