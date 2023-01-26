@@ -21,6 +21,7 @@ class Migration(migrations.Migration):
                     ("building", "Building"),
                     ("uploading", "Uploading"),
                     ("finished", "Finished"),
+                    ("cancelled", "Cancelled"),
                 ],
                 default="triggered",
                 max_length=55,
