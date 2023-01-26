@@ -6,13 +6,25 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('builds', '0039_migrate_config_data.py'),
+        ("builds", "0039_migrate_config_data.py"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='build',
-            name='state',
-            field=models.CharField(choices=[('triggered', 'Triggered'), ('cloning', 'Cloning'), ('installing', 'Installing'), ('building', 'Building'), ('uploading', 'Uploading'), ('finished', 'Finished')], default='triggered', max_length=55, verbose_name='State'),
+            model_name="build",
+            name="state",
+            field=models.CharField(
+                choices=[
+                    ("triggered", "Triggered"),
+                    ("cloning", "Cloning"),
+                    ("installing", "Installing"),
+                    ("building", "Building"),
+                    ("uploading", "Uploading"),
+                    ("finished", "Finished"),
+                ],
+                default="triggered",
+                max_length=55,
+                verbose_name="State",
+            ),
         ),
     ]
