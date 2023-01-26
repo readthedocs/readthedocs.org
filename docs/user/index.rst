@@ -154,7 +154,6 @@ and some of the core features of Read the Docs.
    /config-file/index
    /integrations
    /versions
-   /hosting
    /security-log
 
    /builds

@@ -8,3 +8,4 @@ Features
 
    analytics
    /server-side-search/index
+   Special hosting features </hosting>
