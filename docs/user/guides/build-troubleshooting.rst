@@ -1,12 +1,7 @@
 Troubleshooting build errors
 ============================
 
-
-.. tip::
-
-   Please help us keep this section updated and contribute your own build errors and resolutions.
-   Send in helpful comments or ideas 💡 to support@readthedocs.org
-   or contribute directly by clicking :guilabel:`Edit on GitHub` in the top right corner of this page.
+.. include:: /shared/contribute_to_troubleshooting.rst
 
 
 Git errors

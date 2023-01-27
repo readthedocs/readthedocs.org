@@ -5,16 +5,10 @@ In case you are waiting a long time for your builds to finish
 or your builds are terminated by exceeding general resource limits,
 this troubleshooting guide will help you resolve some of the most common issues causing slow builds.
 
-.. note::
+Build resources on Read the Docs are limited to make sure that users don't overwhelm our build systems.
+The current build limits can be found on our :ref:`Build resources reference <builds:Build resources>`.
 
-   Build resources on Read the Docs are limited to make sure that users don't overwhelm our build systems.
-   The current build limits can be found on our :doc:`/builds` page.
-
-.. tip::
-
-   Please help us keep this section updated and contribute your own performance improvements.
-   Send in your helpful comments or ideas 💡 to support@readthedocs.org
-   or contribute directly by clicking :guilabel:`Edit on GitHub` in the top right corner of this page.
+.. include:: /shared/contribute_to_troubleshooting.rst
 
 Reduce formats you're building
 ------------------------------
