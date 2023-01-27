@@ -48,7 +48,7 @@ class BaseRClone:
         # (3 is the default, but making it explicit here)
         "--retries=3",
         # Wait 1 second between each retry
-        "--retries-sleep=1",
+        "--retries-sleep=1s",
     ]
     env_vars = {}
 
