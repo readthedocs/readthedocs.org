@@ -298,7 +298,6 @@ of Read the Docs and the larger software documentation ecosystem.
 
 * **Getting involved with Read the Docs**:
   :doc:`/glossary` |
-  :doc:`/gsoc` |
   :doc:`Developer Documentation <rtd-dev:index>`
 
 
@@ -325,4 +324,3 @@ of Read the Docs and the larger software documentation ecosystem.
 
    Developer Documentation <https://dev.readthedocs.io>
    glossary
-   gsoc
