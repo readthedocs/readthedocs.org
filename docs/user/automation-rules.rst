@@ -59,18 +59,29 @@ When a rule matches a new version,
 the specified action is performed on that version.
 Currently, the following actions are available:
 
-- **Activate version**: Activates and builds the version.
-- **Hide version**: Hides the version. If the version is not active, activates it and builds the version.
+Activate version
+  Activates and builds the version.
+
+Hide version
+  Hides the version. If the version is not active, activates it and builds the version.
   See :ref:`versions:Version States`.
-- **Make version public**: Sets the version's privacy level to public.
+
+Make version public
+  Sets the version's privacy level to public.
   See :ref:`versions:privacy levels`.
-- **Make version private**: Sets the version's privacy level to private.
+
+Make version private
+  Sets the version's privacy level to private.
   See :ref:`versions:privacy levels`.
-- **Set version as default**: Sets the version as default,
+
+Set version as default
+  Sets the version as default,
   i.e. the version of your project that `/` redirects to.
   See more in :ref:`automatic-redirects:Root URL`.
   It also activates and builds the version.
-- **Delete version**: When a branch or tag is deleted from your repository,
+
+Delete version
+  When a branch or tag is deleted from your repository,
   Read the Docs will delete it *only if isn't active*.
   This action allows you to delete *active* versions when a branch or tag is deleted from your repository.
 

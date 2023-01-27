@@ -43,9 +43,12 @@ In the :guilabel:`Automation Rule` form, you need to fill in 4 fields:
    You can choose between *Tag* or *Branch*,
    denoting *Git tag* or *Git branch*.
 
-#. Finally, choose the :guilabel:`Version type`.
-   You can choose between *Tag* or *Branch*,
-   denoting *Git tag* or *Git branch*.
+#. Finally, choose the :guilabel:`Action`:
+
+   * :ref:`Activate version <automation-rules:Actions for versions>`
+   * :ref:`Hide version <automation-rules:Actions for versions>`
+   * :ref:`Set version as default <automation-rules:Actions for versions>`
+   * :ref:`Delete version (on branch/tag deletion) <automation-rules:Actions for versions>`
 
 
 Now your rule is ready and you can press :guilabel:`Save`.
@@ -53,11 +56,15 @@ The rule takes effect immediately when a new version is discovered.
 
 .. tip::
 
-   You can test if your rule works without leaving any traces:
-   If you are using Git tags in order to create new versions,
-   create a Git tag that matches the rule and check if your automation action is triggered.
-   After the experiment,
-   you can delete the Read the Docs version and the Git tag.
+   Examples of common usage
+     See :ref:`the list of examples <automation-rules:Examples>` for rules that are commonly used.
+
+   Want to test if your rule works?
+     You can test if your rule works in a few minutes without disturbing your readers:
+     If you are using Git tags in order to create new versions,
+     create a Git tag that matches the rule and check if your automation action is triggered.
+     After the experiment,
+     you can delete the Read the Docs version and the Git tag.
 
 
 .. _Python regex format: https://docs.python.org/3/library/re.html
