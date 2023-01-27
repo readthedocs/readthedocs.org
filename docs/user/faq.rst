@@ -34,7 +34,7 @@ you can use an important word or message from the error to search for a solution
 
 .. seealso::
 
-   :doc:`/build-troubleshooting`
+   :doc:`/guides/build-troubleshooting`
       Common errors and solutions for build failures.
 
    Other FAQ entries

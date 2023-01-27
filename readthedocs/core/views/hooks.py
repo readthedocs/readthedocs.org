@@ -52,7 +52,6 @@ def build_branches(project, branch_list):
     not_building = set()
     for branch in branch_list:
         versions = project.versions_from_branch_name(branch)
-
         for version in versions:
             log.debug(
                 'Processing.',

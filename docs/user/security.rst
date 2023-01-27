@@ -2,8 +2,8 @@
 ..    https://readthedocs.org/.well-known/security.txt
 ..    https://readthedocs.org/security/
 
-Security
-========
+Security reports
+================
 
 Security is very important to us at Read the Docs.
 We follow generally accepted industry standards to protect the personal information
@@ -16,20 +16,10 @@ we are committed to responsible reporting and disclosure of security issues.
    :backlinks: none
    :depth: 1
 
+.. seealso::
 
-Account security
-----------------
-
-* All traffic is encrypted in transit so your login is protected.
-* Read the Docs stores only one-way hashes of all passwords.
-  Nobody at Read the Docs has access to your passwords.
-* Account login is protected from brute force attacks with rate limiting.
-* While most projects and docs on Read the Docs are public,
-  we treat your private repositories and private documentation as confidential
-  and Read the Docs employees may only view them
-  with your explicit permission in response to your support requests,
-  or when required for security purposes.
-* You can read more about account privacy in our :doc:`privacy-policy`.
+   :doc:`/legal/security-policy`
+      Read our policy for security, which we base our security handling and reporting on.
 
 Supported versions
 ------------------

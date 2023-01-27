@@ -56,7 +56,7 @@ traitlets==5.8.1
     # via
     #   ipython
     #   matplotlib-inline
-wcwidth==0.2.5
+wcwidth==0.2.6
     # via prompt-toolkit
 wmctrl==0.4
     # via pdbpp
