@@ -1,7 +1,7 @@
 Feature Flags
 =============
 
-.. **Please don't add more stuff here**. We want to move user-facing options to the config file. 
+.. **Please don't add more stuff here**. We want to move user-facing options to the config file.
 
 Read the Docs offers a few additional settings that are otherwise disabled by default.
 These specific settings are called *feature flags* and can only be enabled by `contacting us through our support form`_
