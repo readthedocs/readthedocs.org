@@ -6,22 +6,17 @@ this is powered by Elasticsearch_.
 You can search all projects at https://readthedocs.org/search/,
 or search only on your project from the :guilabel:`Search` tab of your project.
 
-.. contents:: Table of contents
-   :local:
-   :backlinks: none
-   :depth: 3
+.. seealso::
 
-.. toctree::
-   :maxdepth: 2
-   :glob:
-   :hidden:
-
-   *
+   :doc:`/server-side-search/syntax`
+     Syntax options for searching Read the Docs projects
+   :doc:`/server-side-search/api`
+     Reference to the Server Side Search API
 
 Search features
 ---------------
 
-We offer a number of benefits compared to other documentation hosts:
+Read the Docs has the following search features:
 
 Search across :doc:`subprojects </subprojects>`
    Subprojects allow you to host multiple discrete projects on a single domain.
