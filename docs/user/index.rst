@@ -96,6 +96,7 @@ to help you create fantastic documentation for your project.
    /guides/authors
    /guides/administrators
    /guides/developers
+   Troubleshooting </guides/troubleshooting/index>
    /examples
    /faq
 
@@ -159,7 +160,6 @@ and some of the core features of Read the Docs.
 
    /builds
    /build-customization
-   /build-troubleshooting
    /environment-variables
 
    /support
