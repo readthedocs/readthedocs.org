@@ -30,7 +30,8 @@ RUN apt-get -y install \
         netcat \
         telnet \
         lsb-release \
-        npm
+        npm \
+        rclone
 
 # Gets the MinIO mc client used to add buckets upon initialization
 # If this client should have issues running inside this image, it is also

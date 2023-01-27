@@ -92,13 +92,13 @@ to help you create fantastic documentation for your project.
    :maxdepth: 2
    :hidden:
    :caption: How-to Guides
-   :glob:
 
    /guides/authors
    /guides/administrators
    /guides/developers
    Troubleshooting </guides/troubleshooting/index>
    /examples
+   /faq
 
 
 .. toctree::
@@ -107,8 +107,10 @@ to help you create fantastic documentation for your project.
    :caption: Reference
    :glob:
 
-   api/index
-   reference/features
+   /api/index
+   /server-side-search/api
+   /reference/features
+   /server-side-search/syntax
 
 
 Read the Docs feature overview
@@ -142,7 +144,7 @@ and some of the core features of Read the Docs.
 
 * **Troubleshooting**:
   :doc:`/support` |
-  :doc:`Frequently asked questions </faq>`
+  :doc:`/faq`
 
 .. toctree::
    :maxdepth: 1
@@ -154,16 +156,13 @@ and some of the core features of Read the Docs.
    /integrations
    /versions
    /hosting
-   /server-side-search/index
    /security-log
 
    /builds
    /build-customization
    /environment-variables
-   /badges
 
    /support
-   /faq
 
 
 How-to Guides
@@ -298,7 +297,6 @@ of Read the Docs and the larger software documentation ecosystem.
 
 * **Getting involved with Read the Docs**:
   :doc:`/glossary` |
-  :doc:`/gsoc` |
   :doc:`Developer Documentation <rtd-dev:index>`
 
 
@@ -325,4 +323,3 @@ of Read the Docs and the larger software documentation ecosystem.
 
    Developer Documentation <https://dev.readthedocs.io>
    glossary
-   gsoc

@@ -20,8 +20,12 @@ urlpatterns = [
         ProjectTagIndex.as_view(),
         name='projects_tag_detail',
     ),
+    # Match all URLs from projects that have an underscore in the slug,
+    # and redirect them replacing the underscore with a dash (`-`).
     re_path(
-        r'^(?P<invalid_project_slug>{project_slug}_{project_slug})/'.format(**pattern_opts),
+        r"^(?P<invalid_project_slug>{project_slug}_{project_slug})/".format(
+            **pattern_opts
+        ),
         public.project_redirect,
         name='project_redirect',
     ),
