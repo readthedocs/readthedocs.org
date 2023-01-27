@@ -9,3 +9,4 @@ Features
    analytics
    /server-side-search/index
    /automation-rules
+   /badges

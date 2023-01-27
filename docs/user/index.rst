@@ -161,7 +161,6 @@ and some of the core features of Read the Docs.
    /build-customization
    /build-troubleshooting
    /environment-variables
-   /badges
 
    /support
 
@@ -297,7 +296,6 @@ of Read the Docs and the larger software documentation ecosystem.
 
 * **Getting involved with Read the Docs**:
   :doc:`/glossary` |
-  :doc:`/gsoc` |
   :doc:`Developer Documentation <rtd-dev:index>`
 
 
@@ -324,4 +322,3 @@ of Read the Docs and the larger software documentation ecosystem.
 
    Developer Documentation <https://dev.readthedocs.io>
    glossary
-   gsoc
