@@ -111,6 +111,7 @@ to help you create fantastic documentation for your project.
    /server-side-search/api
    /reference/features
    /server-side-search/syntax
+   /reference/policies
 
 
 Read the Docs feature overview
@@ -304,10 +305,6 @@ of Read the Docs and the larger software documentation ecosystem.
    :hidden:
    :caption: About Read the Docs
 
-   security
-   dmca/index
-   abandoned-projects
-   unofficial-projects
    changelog
 
    about
@@ -317,8 +314,6 @@ of Read the Docs and the larger software documentation ecosystem.
 
    advertising/index
    sponsors
-
-   legal/index
 
    Developer Documentation <https://dev.readthedocs.io>
    glossary
