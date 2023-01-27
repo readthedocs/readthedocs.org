@@ -1,40 +1,72 @@
-How to create new versions automatically
-========================================
+How to manage versions automatically
+====================================
 
-Versioning documentation to align with the project that it documents does not have to be a manual chore.
-If you are already versioning your Git repository,
-you may define your own rules that can publish your documentation with the same version that you have already specified in Git.
+In this guide,
+we show you how to define rules to automate creation of new versions on Read the Docs,
+using your Git repository's version logic.
+Automating your versioning on Read the Docs means you only have to handle your versioning logic in Git.
 
+.. seealso::
 
-How do they work?
------------------
+   :doc:`/versions`
+     Learn more about versioning of documentation in general.
 
-When a new tag or branch is pushed to your repository,
-Read the Docs creates a new version.
-
-All rules are evaluated for this version, in the order they are listed.
-If the version matches the version type and the pattern in the rule,
-the specified action is performed on that version.
-
-.. note::
-
-   Versions can match multiple rules,
-   and all matching actions will be performed on the version.
+   :doc:`/automation-rules`
+     Reference for all different rules and actions possible with automation.
 
 Adding a new rule
 -----------------
 
-#. Go to your project dashboard
-#. Click :guilabel:`Admin` > :guilabel:`Automation Rules`
-#. Click on :guilabel:`Add Rule`
-#. Fill in the fields
-#. Click :guilabel:`Save`
+#. Navigate to :menuselection:`Admin --> Automation Rules`.
+#. Click on :guilabel:`Add Rule` and you will see the following form.
 
+.. image:: /img/screenshot_automation_rules_add.png
+   :alt: Screenshot of the "Add Rule" form
+
+In the :guilabel:`Automation Rule` form, you need to fill in 4 fields:
+
+#. Enter a :guilabel:`Description` that you can refer to later.
+   For example, entering "Create new stable version" is a good title,
+   as it explains the intention of the rule.
+   You might have different rules for unstable versions (pre-releases).
+
+#. Choose a :guilabel:`Match`,
+   which is the pattern you wish to detect in either a Git branch or tag.
+
+   * :ref:`Any version <automation-rules:Predefined matches>` matches all values.
+   * :ref:`SemVer versions <automation-rules:Predefined matches>` matches only values that have the `SemVer`_ format.
+   * :ref:`Custom match <automation-rules:User defined matches>` matches your own pattern (entered below).
+     If you choose this option,
+     a field :guilabel:`Custom match` will automatically appear below the drop-down where you can add a regular expression in `Python regex format`_.
+
+#. Choose a :guilabel:`Version type`.
+   You can choose between *Tag* or *Branch*,
+   denoting *Git tag* or *Git branch*.
+
+#. Finally, choose the :guilabel:`Version type`.
+   You can choose between *Tag* or *Branch*,
+   denoting *Git tag* or *Git branch*.
+
+
+Now your rule is ready and you can press :guilabel:`Save`.
+The rule takes effect immediately when a new version is discovered.
+
+.. tip::
+
+   You can test if your rule works without leaving any traces:
+   If you are using Git tags in order to create new versions,
+   create a Git tag that matches the rule and check if your automation action is triggered.
+   After the experiment,
+   you can delete the Read the Docs version and the Git tag.
+
+
+.. _Python regex format: https://docs.python.org/3/library/re.html
+.. _SemVer: https://semver.org/
 
 Ordering your rules
 -------------------
 
-The order your rules are listed in  :guilabel:`Admin` > :guilabel:`Automation Rules` matters.
+The order your rules are listed in  :menuselection:`Admin --> Automation Rules` matters.
 Each action will be performed in that order,
 so first rules have a higher priority.
 

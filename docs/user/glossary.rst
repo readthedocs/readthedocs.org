@@ -18,7 +18,7 @@ Glossary
       In terms of documentation,
       GitOps is applicable for Read the Docs,
       as the configuration for building documentation is stored in ``.readthedocs.yaml``,
-      and rules for publication of documentation can be :doc:`fully automated </automation-rules>`.
+      and rules for publication of documentation can be :doc:`automated </automation-rules>`.
 
    pre-defined build jobs
       Commands executed by Read the Docs when performing the build process.
@@ -37,7 +37,7 @@ Glossary
    slug
       A unique identifier for a project or version. This value comes from the
       project or version name, which is reduced to lowercase letters, numbers,
-      and hypens. You can retreive your project or version slugs from
+      and hyphens. You can retrieve your project or version slugs from
       :doc:`our API <api/v3>`.
 
    subproject

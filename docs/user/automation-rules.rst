@@ -19,11 +19,13 @@ How automation rules work
 -------------------------
 
 When a new tag or branch is pushed to your repository,
-Read the Docs creates a new version.
+Read the Docs receives a callback to its Webhook.
+This triggers the creation of a new version.
 
-All rules are evaluated for this version, in the order they are listed.
-If the version matches the version type and the pattern in the rule,
-the specified action is performed on that version.
+All rules are evaluated for this version,
+in the order they are listed.
+If the version **matches** the version type and the pattern in the rule,
+the specified **action** is performed on that version.
 
 .. note::
 
