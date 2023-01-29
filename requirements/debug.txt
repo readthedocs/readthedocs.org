@@ -20,7 +20,7 @@ fancycompleter==0.9.1
     # via pdbpp
 ipdb==0.13.11
     # via -r requirements/debug.in
-ipython==8.8.0
+ipython==8.9.0
     # via ipdb
 jedi==0.18.2
     # via ipython
