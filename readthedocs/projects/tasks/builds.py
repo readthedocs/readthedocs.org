@@ -19,6 +19,7 @@ from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
     ARTIFACT_TYPES,
+    ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT,
     BUILD_FINAL_STATES,
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
@@ -550,7 +551,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # Check if there are multiple files on artifact directories.
             # These output format does not support multiple files yet.
             # In case multiple files are found, the upload for this format is not performed.
-            if artifact_type in ("htmlzip", "epub", "pdf"):
+            if artifact_type in ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT:
                 artifact_format_files = len(os.listdir(artifact_directory))
                 if artifact_format_files > 1:
                     log.error(
