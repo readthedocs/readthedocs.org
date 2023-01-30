@@ -2,7 +2,15 @@ Read the Docs for Business subscription management
 ==================================================
 
 We want to make it easy to manage your billing information.
-You can manage or cancel subscriptions from the :guilabel:`Settings > Subscriptions` page of the :term:`dashboard`.
+All :doc:`organization owners </commercial/subscriptions>` can manage the subscription for that organization.
+It's easy in this dashboard to achieve a number of common tasks:
+
+* Update your credit card information.
+* Upgrade, downgrade, or cancel your plan.
+* View, download, and pay invoices.
+* Add additional tax (VAT/EIN) or contact email addresses on your invoices.
+
+You can always find our most up to date pricing information on our `pricing page <https://about.readthedocs.com/pricing/>`_.
 
 Managing your subscription
 --------------------------
@@ -31,6 +39,18 @@ and then not charged again.
 as email is an insecure method of verifying a user's identity.**
 If you email us about this,
 we require you to verify your identity by logging into your Read the Docs account and submitting an official support request there.
+
+Billing information
+-------------------
+
+We provide both monthly and annual subscriptions for all plans.
+Annual plans are given a 2 month discount compared to monthly billing.
+We only support credit card billing for our Basic & Advanced plans.
+For our Pro & Enterprise users, we support invoice-based and PO billing.
+
+.. tip::
+    We recommend paying by credit card for all users,
+    as this greatly simplifies the billing process.
 
 Discounts & Credits
 -------------------
