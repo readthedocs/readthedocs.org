@@ -3,7 +3,7 @@ Read the Docs for Business subscription management
 
 We want to make it easy to manage your billing information.
 All :doc:`organization owners </commercial/subscriptions>` can manage the subscription for that organization.
-It's easy in this dashboard to achieve a number of common tasks:
+It's easy to achieve a number of common tasks in this dashboard:
 
 * Update your credit card information.
 * Upgrade, downgrade, or cancel your plan.
@@ -31,11 +31,11 @@ This action will take you to the Stripe billing portal where you can manage your
 Cancelling your subscription
 ----------------------------
 
-Cancelling your subscription can be done in the same way as the above instructions.
-You will be billed for the remainder of the current billing period,
-and then not charged again.
+Cancelling your subscription can be done following the instructions in `Managing your subscription`_.
+Your subscription will remain active for the remainder of the current billing period,
+and will not renew for the next billing period.
 
-**We can not cancel subscriptions just by sending us an email,
+**We can not cancel subscriptions through an email request,
 as email is an insecure method of verifying a user's identity.**
 If you email us about this,
 we require you to verify your identity by logging into your Read the Docs account and submitting an official support request there.
@@ -45,22 +45,22 @@ Billing information
 
 We provide both monthly and annual subscriptions for all plans.
 Annual plans are given a 2 month discount compared to monthly billing.
-We only support credit card billing for our Basic & Advanced plans.
-For our Pro & Enterprise users, we support invoice-based and PO billing.
+We only support credit card billing for our Basic and Advanced plans.
+For our Pro and Enterprise users, we support invoice-based and PO billing.
 
 .. tip::
     We recommend paying by credit card for all users,
     as this greatly simplifies the billing process.
 
-Discounts & Credits
--------------------
+Discounts and credits
+---------------------
 
 We do not generally discount our software.
-We provide a ad-supported service to the community with |org_brand|,
+We provide an ad-supported service to the community with |org_brand|,
 but we do have one standard discount that we offer.
 
-Non-profit & Academic Organizations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Non-profit and academic organizations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Our community hosting,
 provided for free and open source projects,
