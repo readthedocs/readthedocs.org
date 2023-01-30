@@ -410,7 +410,7 @@ toml==0.10.2
     # via
     #   -r requirements/pip.txt
     #   dparse
-traitlets==5.8.1
+traitlets==5.9.0
     # via
     #   ipython
     #   matplotlib-inline
