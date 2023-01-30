@@ -1257,7 +1257,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "build",
                     "--clean",
                     "--site-dir",
-                    "_readthedocs/html",
+                    "../_readthedocs/html",
                     "--config-file",
                     "docs/mkdocs.yaml",
                     "--strict",  # fail on warning flag
