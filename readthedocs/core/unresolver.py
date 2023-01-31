@@ -372,14 +372,15 @@ class Unresolver:
         domain_object = (
             Domain.objects.filter(domain=domain).select_related("project").first()
         )
-        if domain_object:
-            log.debug("Custom domain.", domain=domain)
-            return domain_object.project, domain_object, None
+        if not domain_object:
+            log.info("Invalid domain.", domain=domain)
+            raise InvalidCustomDomainError()
 
-        log.info("Invalid domain.", domain=domain)
-        raise InvalidCustomDomainError()
+        log.debug("Custom domain.", domain=domain)
+        return domain_object.project, domain_object, None
 
     def _resolve_project_slug(self, slug):
+        """Get the project from the slug or raise an exception if not found."""
         try:
             return Project.objects.get(slug=slug)
         except Project.DoesNotExist:
