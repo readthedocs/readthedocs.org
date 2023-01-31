@@ -152,7 +152,6 @@ class DockerBaseSettings(CommunityDevSettings):
     CELERY_RESULT_BACKEND = "redis://cache:6379/0"
     CELERY_RESULT_SERIALIZER = "json"
     CELERY_ALWAYS_EAGER = False
-    CELERY_TASK_IGNORE_RESULT = False
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 

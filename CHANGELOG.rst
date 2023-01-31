@@ -1,3 +1,52 @@
+Version 9.3.1
+-------------
+
+:Date: January 30, 2023
+
+* `@ericholscher <https://github.com/ericholscher>`__: Add documentation page on Commercial subscriptions (`#9963 <https://github.com/readthedocs/readthedocs.org/pull/9963>`__)
+* `@humitos <https://github.com/humitos>`__: MkDocs builder: use proper relative path for `--site-dir` (`#9962 <https://github.com/readthedocs/readthedocs.org/pull/9962>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9960 <https://github.com/readthedocs/readthedocs.org/pull/9960>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: reduce complexity (`#9956 <https://github.com/readthedocs/readthedocs.org/pull/9956>`__)
+* `@humitos <https://github.com/humitos>`__: Build: rclone retries when uploading artifacts (`#9954 <https://github.com/readthedocs/readthedocs.org/pull/9954>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel badges as feature reference (Diátaxis) (`#9951 <https://github.com/readthedocs/readthedocs.org/pull/9951>`__)
+* `@humitos <https://github.com/humitos>`__: Build: improve `concurent` queryset (`#9950 <https://github.com/readthedocs/readthedocs.org/pull/9950>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Make the GSOC page orphaned (Diátaxis) (`#9949 <https://github.com/readthedocs/readthedocs.org/pull/9949>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: ignore task results (`#9944 <https://github.com/readthedocs/readthedocs.org/pull/9944>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Translations: a few copy issues and translator requests (`#9937 <https://github.com/readthedocs/readthedocs.org/pull/9937>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.3.0 (`#9929 <https://github.com/readthedocs/readthedocs.org/pull/9929>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: log slugs when at least one of their builds was finished (`#9928 <https://github.com/readthedocs/readthedocs.org/pull/9928>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel pages to new top-level "Reference/Policies and legal documents" (Diátaxis) (`#9916 <https://github.com/readthedocs/readthedocs.org/pull/9916>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Move Main Features and Feature Flags to "Reference/Features" (Diátaxis) (`#9915 <https://github.com/readthedocs/readthedocs.org/pull/9915>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Add new section "How-to / Troubleshooting" and move 2 existing troubleshooting pages (`#9914 <https://github.com/readthedocs/readthedocs.org/pull/9914>`__)
+* `@stsewd <https://github.com/stsewd>`__: Logs: fix exception logging (`#9912 <https://github.com/readthedocs/readthedocs.org/pull/9912>`__)
+* `@stsewd <https://github.com/stsewd>`__: CORS: don't allow to pass credentials by default (`#9904 <https://github.com/readthedocs/readthedocs.org/pull/9904>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: CI: Add option `--show-diff-on-failure`  to pre-commit (`#9893 <https://github.com/readthedocs/readthedocs.org/pull/9893>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build storage: add additional checks for the source dir (`#9890 <https://github.com/readthedocs/readthedocs.org/pull/9890>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use rclone for sync (`#9842 <https://github.com/readthedocs/readthedocs.org/pull/9842>`__)
+* `@humitos <https://github.com/humitos>`__: Git backend: make `default_branch` to point to VCS' default branch (`#9424 <https://github.com/readthedocs/readthedocs.org/pull/9424>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: avoid double deletion (`#9341 <https://github.com/readthedocs/readthedocs.org/pull/9341>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make Build models default to `triggered` (`#8031 <https://github.com/readthedocs/readthedocs.org/pull/8031>`__)
+
+Version 9.3.0
+-------------
+
+:Date: January 24, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9925 <https://github.com/readthedocs/readthedocs.org/pull/9925>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: FAQ title/question tweak (`#9919 <https://github.com/readthedocs/readthedocs.org/pull/9919>`__)
+* `@stsewd <https://github.com/stsewd>`__: Logs: fix exception logging (`#9912 <https://github.com/readthedocs/readthedocs.org/pull/9912>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add new allauth templates (`#9909 <https://github.com/readthedocs/readthedocs.org/pull/9909>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Move and update FAQ (Diátaxis) (`#9908 <https://github.com/readthedocs/readthedocs.org/pull/9908>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 9.2.0 (`#9905 <https://github.com/readthedocs/readthedocs.org/pull/9905>`__)
+* `@stsewd <https://github.com/stsewd>`__: CORS: don't allow to pass credentials by default (`#9904 <https://github.com/readthedocs/readthedocs.org/pull/9904>`__)
+* `@abe-101 <https://github.com/abe-101>`__: rm mention of docs/requirements.txt from tutorial (`#9902 <https://github.com/readthedocs/readthedocs.org/pull/9902>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9898 <https://github.com/readthedocs/readthedocs.org/pull/9898>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel Server Side Search (`#9897 <https://github.com/readthedocs/readthedocs.org/pull/9897>`__)
+* `@humitos <https://github.com/humitos>`__: Build: standardize output directory for artifacts (`#9888 <https://github.com/readthedocs/readthedocs.org/pull/9888>`__)
+* `@humitos <https://github.com/humitos>`__: Command `contact_owners`: add support to filter by usernames (`#9882 <https://github.com/readthedocs/readthedocs.org/pull/9882>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Park resolutions to common build problems in FAQ (`#9472 <https://github.com/readthedocs/readthedocs.org/pull/9472>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: avoid double deletion (`#9341 <https://github.com/readthedocs/readthedocs.org/pull/9341>`__)
+
 Version 9.2.0
 -------------
 

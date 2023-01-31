@@ -18,6 +18,8 @@ jobs:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
+      - run: sudo apt update
+      - run: sudo apt install -y rclone
       - run: pip install --user 'tox<5'
       - run: tox -e py310
       - codecov/upload
