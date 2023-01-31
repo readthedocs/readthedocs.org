@@ -1,0 +1,38 @@
+Environment variables
+=====================
+
+Read the Docs builders set the following environment variables automatically for each documentation build:
+
+.. envvar:: READTHEDOCS
+
+    Whether the build is running inside Read the Docs.
+
+    :Default: ``True``
+
+.. envvar:: READTHEDOCS_VERSION
+
+    The :term:`slug` of the version being built, such as ``latest``, ``stable``,
+    or a branch name like ``feature-1234``. For :doc:`pull request builds </pull-requests>`,
+    the value will be the pull request number.
+
+.. envvar:: READTHEDOCS_VERSION_NAME
+
+    The verbose name of the version being built, such as ``latest``, ``stable``,
+    or a branch name like ``feature/1234``.
+
+.. envvar:: READTHEDOCS_VERSION_TYPE
+
+    The type of the version being built.
+
+    :Values: ``branch``, ``tag``, ``external`` (for :doc:`pull request builds </pull-requests>`), or ``unknown``
+
+.. envvar:: READTHEDOCS_PROJECT
+
+    The :term:`slug` of the project being built. For example, ``my-example-project``.
+
+.. envvar:: READTHEDOCS_LANGUAGE
+
+    The locale name, or the identifier for the locale, for the project being built.
+    This value comes from the project's configured language.
+
+    :Examples: ``en``, ``it``, ``de_AT``, ``es``, ``pt_BR``

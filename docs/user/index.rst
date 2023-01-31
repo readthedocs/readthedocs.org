@@ -80,6 +80,7 @@ to help you create fantastic documentation for your project.
    /build-notifications
    /integrations
    /custom-domains
+   /environment-variables
    /pull-requests
    /connected-accounts
    /downloadable-documentation
