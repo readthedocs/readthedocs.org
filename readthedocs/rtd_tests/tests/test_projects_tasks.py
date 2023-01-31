@@ -25,14 +25,12 @@ class SendBuildStatusTests(TestCase):
             self.external_build.id,
             self.external_build.commit,
             BUILD_STATUS_SUCCESS,
-            link_to_build=False,
         )
 
         send_build_status.delay.assert_called_once_with(
             self.external_build.id,
             self.external_build.commit,
             BUILD_STATUS_SUCCESS,
-            link_to_build=False,
         )
 
     @patch('readthedocs.projects.tasks.utils.send_build_status')
@@ -42,7 +40,6 @@ class SendBuildStatusTests(TestCase):
             self.internal_build.id,
             self.external_build.commit,
             BUILD_STATUS_SUCCESS,
-            link_to_build=False,
         )
 
         send_build_status.delay.assert_not_called()

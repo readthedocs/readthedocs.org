@@ -508,10 +508,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 build_pk=self.data.build['id'],
                 commit=self.data.build_commit,
                 status=status,
-                # Fix bug where we were generating relative links to the version
-                # with ``get_absolute_url``.
-                # https://github.com/readthedocs/readthedocs.org/issues/9791
-                link_to_build=True,
             )
 
         # Update build object
@@ -628,7 +624,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 build_pk=self.data.build['id'],
                 commit=self.data.build_commit,
                 status=BUILD_STATUS_SUCCESS,
-                link_to_build=False,  # Link to HTML on success...
             )
 
         # Update build object

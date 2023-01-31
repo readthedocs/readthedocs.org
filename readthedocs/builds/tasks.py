@@ -261,7 +261,6 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
                     build_pk=last_build.pk,
                     commit=last_build.commit,
                     status=status,
-                    link_to_build=True,  # Unset the link to the docs if it was set.
                 )
         except Exception:
             log.exception(
@@ -377,7 +376,7 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     default_retry_delay=60,
     queue='web'
 )
-def send_build_status(build_pk, commit, status, link_to_build=False):
+def send_build_status(build_pk, commit, status):
     """
     Send Build Status to Git Status API for project external versions.
 
@@ -389,7 +388,6 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
     :param build_pk: Build primary key
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
-    :param link_to_build: If true, link to the build page regardless the state.
     """
     # TODO: Send build status for BitBucket.
     build = Build.objects.filter(pk=build_pk).first()
@@ -433,7 +431,6 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                     build=build,
                     commit=commit,
                     state=status,
-                    link_to_build=link_to_build,
                 )
 
                 if success:
@@ -451,7 +448,9 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                 # to send successful build status
                 for service in services:
                     success = service.send_build_status(
-                        build, commit, status, link_to_build=link_to_build
+                        build,
+                        commit,
+                        status,
                     )
                     if success:
                         log.debug(
