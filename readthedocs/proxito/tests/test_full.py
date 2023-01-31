@@ -390,6 +390,30 @@ class TestDocServingBackends(BaseDocServing):
             )
             self.assertEqual(resp.status_code, 404)
 
+    @override_settings(PYTHON_MEDIA=False)
+    def test_filename_with_parent_paths(self):
+        """
+        Ensure the project, version, and language match the request
+
+        See GHSA-5w8m-r7jm-mhp9 for more information.
+        """
+        relative_paths = [
+            # Retarget version, lang and version, and project
+            "/en/latest/../target/awesome.html",
+            "/en/latest/../../en/target/awesome.html",
+            "/en/latest/../../../someproject/en/target/awesome.html",
+            # Same, but with Windows path separators
+            "/en/latest/..\\../en/target/awesome.html",
+            "/en/latest/..\\..\\../someproject/en/target/awesome.html",
+            "/en/latest/..\\../someproject/en/target/awesome.html",
+            "/en/latest/..\\\\../en/target/awesome.html",
+            "/en/latest/..\\\\..\\\\../someproject/en/target/awesome.html",
+            "/en/latest/..\\\\../someproject/en/target/awesome.html",
+        ]
+        for _path in relative_paths:
+            resp = self.client.get(_path, HTTP_HOST="project.dev.readthedocs.io")
+            self.assertEqual(resp.status_code, 400)
+
     @mock.patch.object(ServeDocsMixin, '_is_audit_enabled')
     def test_track_html_files_only(self, is_audit_enabled):
         is_audit_enabled.return_value = False

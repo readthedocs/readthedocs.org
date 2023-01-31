@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
+from django.core.exceptions import BadRequest
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve as url_resolve
@@ -239,7 +240,13 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         )
 
         # If ``filename`` is empty, serve from ``/``
-        path = build_media_storage.join(storage_path, filename.lstrip('/'))
+        try:
+            path = build_media_storage.join(storage_path, filename.lstrip("/"))
+        except ValueError:
+            # We expect this exception from the django storages safe_join
+            # function, when the filename resolves to a higher relative path.
+            # The request is malicious or malformed in this case.
+            raise BadRequest("Invalid URL")
         # Handle our backend storage not supporting directory indexes,
         # so we need to append index.html when appropriate.
         if path[-1] == '/':
