@@ -1,4 +1,5 @@
 import os
+import pathlib
 from unittest import mock
 
 import django_dynamic_fixture as fixture
@@ -200,8 +201,14 @@ class TestBuildTask(BuildEnvironmentBase):
         # Create the artifact paths, so that `store_build_artifacts`
         # properly runs: https://github.com/readthedocs/readthedocs.org/blob/faa611fad689675f81101ea643770a6b669bf529/readthedocs/projects/tasks/builds.py#L798-L804
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
-        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="epub"))
-        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="pdf"))
+        for f in ("epub", "pdf"):
+            os.makedirs(self.project.artifact_path(version=self.version.slug, type_=f))
+            pathlib.Path(
+                os.path.join(
+                    self.project.artifact_path(version=self.version.slug, type_=f),
+                    f"{self.project.slug}.{f}",
+                )
+            ).touch()
 
         self._trigger_update_docs_task()
 
@@ -322,11 +329,14 @@ class TestBuildTask(BuildEnvironmentBase):
         # Create the artifact paths, so it's detected by the builder
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="json"))
-        os.makedirs(
-            self.project.artifact_path(version=self.version.slug, type_="htmlzip")
-        )
-        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="epub"))
-        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="pdf"))
+        for f in ("htmlzip", "epub", "pdf"):
+            os.makedirs(self.project.artifact_path(version=self.version.slug, type_=f))
+            pathlib.Path(
+                os.path.join(
+                    self.project.artifact_path(version=self.version.slug, type_=f),
+                    f"{self.project.slug}.{f}",
+                )
+            ).touch()
 
         self._trigger_update_docs_task()
 
