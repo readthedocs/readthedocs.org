@@ -112,6 +112,7 @@ to help you create fantastic documentation for your project.
    /reference/features
    /server-side-search/syntax
    /reference/policies
+   /reference/environment-variables
 
 
 Read the Docs feature overview
@@ -141,6 +142,7 @@ and some of the core features of Read the Docs.
   :doc:`Build process </builds>` |
   :doc:`Build customization </build-customization>` |
   :doc:`/environment-variables` |
+  :doc:`/reference/environment-variables` |
   :doc:`/badges`
 
 * **Troubleshooting**:
@@ -160,7 +162,6 @@ and some of the core features of Read the Docs.
 
    /builds
    /build-customization
-   /environment-variables
 
    /support
 
