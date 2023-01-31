@@ -295,10 +295,19 @@ class BaseMkdocs(BaseBuilder):
             '-m',
             'mkdocs',
             self.builder,
-            '--clean',
-            '--site-dir',
-            self.build_dir,
-            '--config-file',
+            "--clean",
+            # ``site_dir`` is relative to where the mkdocs.yaml file is
+            # https://www.mkdocs.org/user-guide/configuration/#site_dir
+            # Example:
+            #
+            #  when ``--config-file=docs/mkdocs.yml``,
+            # it must be ``--site-dir=../_readthedocs/html``
+            "--site-dir",
+            os.path.join(
+                os.path.relpath(self.project_path, os.path.dirname(self.yaml_file)),
+                self.build_dir,
+            ),
+            "--config-file",
             os.path.relpath(self.yaml_file, self.project_path),
         ]
         if self.config.mkdocs.fail_on_warning:

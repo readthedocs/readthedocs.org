@@ -1,7 +1,10 @@
 import os
 import shutil
 import tempfile
+from pathlib import Path
 
+import pytest
+from django.core.exceptions import SuspiciousFileOperation
 from django.test import TestCase, override_settings
 
 from readthedocs.builds.storage import BuildMediaFileSystemStorage
@@ -84,6 +87,42 @@ class TestBuildMediaStorage(TestCase):
             self.storage.sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
+    def test_sync_directory_source_symlink(self):
+        tmp_dir = Path(tempfile.mkdtemp())
+        tmp_symlink_dir = Path(tempfile.mkdtemp()) / "files"
+        tmp_symlink_dir.symlink_to(tmp_dir)
+
+        with override_settings(DOCROOT=tmp_dir):
+            with pytest.raises(SuspiciousFileOperation, match="symbolic link"):
+                self.storage.sync_directory(tmp_symlink_dir, "files")
+
+    def test_copy_directory_source_symlink(self):
+        tmp_dir = Path(tempfile.mkdtemp())
+        tmp_symlink_dir = Path(tempfile.mkdtemp()) / "files"
+        tmp_symlink_dir.symlink_to(tmp_dir)
+
+        with override_settings(DOCROOT=tmp_dir):
+            with pytest.raises(SuspiciousFileOperation, match="symbolic link"):
+                self.storage.copy_directory(tmp_symlink_dir, "files")
+
+    def test_sync_directory_source_outside_docroot(self):
+        tmp_dir = Path(tempfile.mkdtemp())
+        tmp_docroot = Path(tempfile.mkdtemp()) / "docroot"
+        tmp_docroot.mkdir()
+
+        with override_settings(DOCROOT=tmp_docroot):
+            with pytest.raises(SuspiciousFileOperation, match="outside the docroot"):
+                self.storage.sync_directory(tmp_dir, "files")
+
+    def test_copy_directory_source_outside_docroot(self):
+        tmp_dir = Path(tempfile.mkdtemp())
+        tmp_docroot = Path(tempfile.mkdtemp()) / "docroot"
+        tmp_docroot.mkdir()
+
+        with override_settings(DOCROOT=tmp_docroot):
+            with pytest.raises(SuspiciousFileOperation, match="outside the docroot"):
+                self.storage.copy_directory(tmp_dir, "files")
+
     def test_delete_directory(self):
         with override_settings(DOCROOT=files_dir):
             self.storage.copy_directory(files_dir, "files")
@@ -118,3 +157,55 @@ class TestBuildMediaStorage(TestCase):
         self.assertEqual(top, 'files/api')
         self.assertCountEqual(dirs, [])
         self.assertCountEqual(files, ['index.html'])
+
+    def test_rclone_sync(self):
+        tmp_files_dir = Path(tempfile.mkdtemp()) / "files"
+        shutil.copytree(files_dir, tmp_files_dir, symlinks=True)
+        storage_dir = "files"
+
+        tree = [
+            ("api", ["index.html"]),
+            "api.fjson",
+            "conf.py",
+            "test.html",
+        ]
+        with override_settings(DOCROOT=tmp_files_dir):
+            self.storage.rclone_sync_directory(tmp_files_dir, storage_dir)
+        self.assertFileTree(storage_dir, tree)
+
+        tree = [
+            ("api", ["index.html"]),
+            "conf.py",
+            "test.html",
+        ]
+        (tmp_files_dir / "api.fjson").unlink()
+        with override_settings(DOCROOT=tmp_files_dir):
+            self.storage.rclone_sync_directory(tmp_files_dir, storage_dir)
+        self.assertFileTree(storage_dir, tree)
+
+        tree = [
+            "conf.py",
+            "test.html",
+        ]
+        shutil.rmtree(tmp_files_dir / "api")
+        with override_settings(DOCROOT=tmp_files_dir):
+            self.storage.rclone_sync_directory(tmp_files_dir, storage_dir)
+        self.assertFileTree(storage_dir, tree)
+
+    def test_rclone_sync_source_symlink(self):
+        tmp_dir = Path(tempfile.mkdtemp())
+        tmp_symlink_dir = Path(tempfile.mkdtemp()) / "files"
+        tmp_symlink_dir.symlink_to(tmp_dir)
+
+        with override_settings(DOCROOT=tmp_dir):
+            with pytest.raises(SuspiciousFileOperation, match="symbolic link"):
+                self.storage.rclone_sync_directory(tmp_symlink_dir, "files")
+
+    def test_rclone_sync_source_outside_docroot(self):
+        tmp_dir = Path(tempfile.mkdtemp())
+        tmp_docroot = Path(tempfile.mkdtemp()) / "docroot"
+        tmp_docroot.mkdir()
+
+        with override_settings(DOCROOT=tmp_docroot):
+            with pytest.raises(SuspiciousFileOperation, match="outside the docroot"):
+                self.storage.rclone_sync_directory(tmp_dir, "files")
