@@ -4,6 +4,7 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
+from django.core.exceptions import BadRequest
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve as url_resolve
@@ -234,6 +235,35 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         # Check user permissions and return an unauthed response if needed
         if not self.allowed_user(request, final_project, version_slug):
             return self.get_unauthed_response(request, final_project)
+
+        storage_path = final_project.get_storage_path(
+            type_="html",
+            version_slug=version_slug,
+            include_file=False,
+            version_type=self.version_type,
+        )
+
+        # If ``filename`` is empty, serve from ``/``
+        try:
+            path = build_media_storage.join(storage_path, filename.lstrip("/"))
+        except ValueError:
+            # We expect this exception from the django storages safe_join
+            # function, when the filename resolves to a higher relative path.
+            # The request is malicious or malformed in this case.
+            raise BadRequest("Invalid URL")
+        # Handle our backend storage not supporting directory indexes,
+        # so we need to append index.html when appropriate.
+        if path[-1] == "/":
+            # We need to add the index.html before ``storage.url`` since the
+            # Signature and Expire time is calculated per file.
+            path += "index.html"
+
+        # NOTE: calling ``.url`` will remove the trailing slash
+        storage_url = build_media_storage.url(path, http_method=request.method)
+
+        # URL without scheme and domain to perform an NGINX internal redirect
+        parsed_url = urlparse(storage_url)._replace(scheme="", netloc="")
+        parsed_url.geturl()
 
         return self._serve_docs(
             request=request,
