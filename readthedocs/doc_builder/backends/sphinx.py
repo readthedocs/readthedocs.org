@@ -331,38 +331,6 @@ class BaseSphinx(BaseBuilder):
             return ['-j', 'auto']
         return []
 
-    def venv_sphinx_supports_latexmk(self):
-        """
-        Check if ``sphinx`` from the user's venv supports ``latexmk``.
-
-        If the version of ``sphinx`` is greater or equal to 1.6.1 it returns
-        ``True`` and ``False`` otherwise.
-
-        See: https://www.sphinx-doc.org/en/master/changes.html#release-1-6-1-released-may-16-2017
-        """
-
-        command = [
-            self.python_env.venv_bin(filename='python'),
-            '-c',
-            (
-                '"'
-                'import sys; '
-                'import sphinx; '
-                'sys.exit(0 if sphinx.version_info >= (1, 6, 1) else 1)'
-                '"'
-            ),
-        ]
-
-        cmd_ret = self.run(
-            *command,
-            bin_path=self.python_env.venv_bin(),
-            cwd=self.project_path,
-            escape_command=False,  # used on DockerBuildCommand
-            shell=True,  # used on BuildCommand
-            record=False,
-        )
-        return cmd_ret.exit_code == 0
-
 
 class HtmlBuilder(BaseSphinx):
     relative_output_dir = "_readthedocs/html"
@@ -543,12 +511,7 @@ class PdfBuilder(BaseSphinx):
             raise BuildUserError("No TeX files were found.")
 
         # Run LaTeX -> PDF conversions
-        # Build PDF with ``latexmk`` if Sphinx supports it, otherwise fallback
-        # to ``pdflatex`` to support old versions
-        if self.venv_sphinx_supports_latexmk():
-            success = self._build_latexmk(self.project_path)
-        else:
-            success = self._build_pdflatex(tex_files)
+        success = self._build_latexmk(self.project_path)
 
         self._post_build()
         return success
@@ -619,59 +582,6 @@ class PdfBuilder(BaseSphinx):
         self.pdf_file_name = f'{self.project.slug}.pdf'
 
         return cmd_ret.successful
-
-    def _build_pdflatex(self, tex_files):
-        pdflatex_cmds = [
-            ['pdflatex', '-interaction=nonstopmode', tex_file]
-            for tex_file in tex_files
-        ]  # yapf: disable
-        makeindex_cmds = [
-            [
-                "makeindex",
-                "-s",
-                "python.ist",
-                "{}.idx".format(
-                    os.path.splitext(
-                        os.path.relpath(tex_file, self.absolute_output_dir)
-                    )[0],
-                ),
-            ]
-            for tex_file in tex_files
-        ]  # yapf: disable
-
-        if self.build_env.command_class == DockerBuildCommand:
-            latex_class = DockerLatexBuildCommand
-        else:
-            latex_class = LatexBuildCommand
-        pdf_commands = []
-        for cmd in pdflatex_cmds:
-            cmd_ret = self.build_env.run_command_class(
-                cls=latex_class,
-                cmd=cmd,
-                cwd=self.absolute_output_dir,
-                warn_only=True,
-            )
-            pdf_commands.append(cmd_ret)
-        for cmd in makeindex_cmds:
-            cmd_ret = self.build_env.run_command_class(
-                cls=latex_class,
-                cmd=cmd,
-                cwd=self.absolute_output_dir,
-                warn_only=True,
-            )
-            pdf_commands.append(cmd_ret)
-        for cmd in pdflatex_cmds:
-            cmd_ret = self.build_env.run_command_class(
-                cls=latex_class,
-                cmd=cmd,
-                cwd=self.absolute_output_dir,
-                warn_only=True,
-            )
-            pdf_match = PDF_RE.search(cmd_ret.output)
-            if pdf_match:
-                self.pdf_file_name = pdf_match.group(1).strip()
-            pdf_commands.append(cmd_ret)
-        return all(cmd.successful for cmd in pdf_commands)
 
     def _post_build(self):
         """Internal post build to cleanup PDF output directory and leave only one .pdf file."""
