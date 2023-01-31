@@ -386,7 +386,11 @@ class DockerBuildCommand(BuildCommand):
 
     def _escape_command(self, cmd):
         r"""Escape the command by prefixing suspicious chars with `\`."""
-        return self.bash_escape_re.sub(r'\\\1', cmd)
+        command = self.bash_escape_re.sub(r"\\\1", cmd)
+
+        # HACK: avoid escaping `$READTHEDOCS_OUTPUT` variable
+        command = command.replace("\\$READTHEDOCS_OUTPUT", "$READTHEDOCS_OUTPUT")
+        return command
 
 
 class BaseEnvironment:
