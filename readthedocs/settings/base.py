@@ -749,6 +749,7 @@ class CommunityBaseSettings(Settings):
         'HEAD',
     ]
 
+    # URLs to allow CORS to read from unauthed.
     CORS_URLS_ALLOW_ALL_REGEX = [
         r"^/api/v2/footer_html",
         r"^/api/v2/search",
