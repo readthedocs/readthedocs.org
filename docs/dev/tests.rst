@@ -48,6 +48,12 @@ To target a specific environment:
 
    tox -e py310
 
+To run a subset of tests:
+
+.. prompt:: bash
+
+   tox -e py310 -- -k test_celery
+
 The ``tox`` configuration has the following environments configured. You can
 target a single environment to limit the test suite:
 

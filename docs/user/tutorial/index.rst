@@ -50,8 +50,7 @@ and it contains the following files:
 
 ``docs/``
   Directory holding all the Sphinx documentation sources,
-  including some required dependencies in ``docs/requirements.txt``,
-  the Sphinx configuration ``docs/source/conf.py``,
+  including the Sphinx configuration ``docs/source/conf.py``
   and the root document ``docs/source/index.rst`` written in reStructuredText.
 
 .. figure:: /_static/images/tutorial/github-template.png

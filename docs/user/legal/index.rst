@@ -24,5 +24,5 @@ Here is some of the fine print used by |org_brand| and |com_brand|:
     Our policies around application and infrastructure security.
 
 :doc:`/legal/dpa/index`
-    For GDPR and CCPA compliance, we provide a data privacy agreement for
+    For GDPR and CCPA compliance, we provide a data processing addendum for
     |com_brand| customers.

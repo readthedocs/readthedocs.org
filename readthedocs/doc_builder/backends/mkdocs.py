@@ -46,10 +46,6 @@ class BaseMkdocs(BaseBuilder):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.yaml_file = self.get_yaml_config()
-        self.old_artifact_path = os.path.join(
-            os.path.dirname(self.yaml_file),
-            self.build_dir,
-        )
 
         # README: historically, the default theme was ``readthedocs`` but in
         # https://github.com/rtfd/readthedocs.org/pull/4556 we change it to
@@ -278,7 +274,9 @@ class BaseMkdocs(BaseBuilder):
             'global_analytics_code': (
                 None if self.project.analytics_disabled else settings.GLOBAL_ANALYTICS_CODE
             ),
-            'user_analytics_code': analytics_code,
+            "user_analytics_code": analytics_code,
+            "proxied_static_path": self.project.proxied_static_path,
+            "proxied_api_host": self.project.proxied_api_host,
         }
 
         data_ctx = {
@@ -297,10 +295,19 @@ class BaseMkdocs(BaseBuilder):
             '-m',
             'mkdocs',
             self.builder,
-            '--clean',
-            '--site-dir',
-            self.build_dir,
-            '--config-file',
+            "--clean",
+            # ``site_dir`` is relative to where the mkdocs.yaml file is
+            # https://www.mkdocs.org/user-guide/configuration/#site_dir
+            # Example:
+            #
+            #  when ``--config-file=docs/mkdocs.yml``,
+            # it must be ``--site-dir=../_readthedocs/html``
+            "--site-dir",
+            os.path.join(
+                os.path.relpath(self.project_path, os.path.dirname(self.yaml_file)),
+                self.build_dir,
+            ),
+            "--config-file",
             os.path.relpath(self.yaml_file, self.project_path),
         ]
         if self.config.mkdocs.fail_on_warning:
@@ -341,9 +348,8 @@ class BaseMkdocs(BaseBuilder):
 
 class MkdocsHTML(BaseMkdocs):
 
-    type = 'mkdocs'
-    builder = 'build'
-    build_dir = '_build/html'
+    builder = "build"
+    build_dir = "_readthedocs/html"
 
 
 # TODO: find a better way to integrate with MkDocs.

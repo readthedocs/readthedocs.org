@@ -51,6 +51,7 @@ class SphinxBuilderTest(TestCase):
 
         BaseSphinx.type = 'base'
         BaseSphinx.sphinx_build_dir = tempfile.mkdtemp()
+        BaseSphinx.relative_output_dir = "_readthedocs/"
 
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
     @patch('readthedocs.projects.models.Project.checkout_path')

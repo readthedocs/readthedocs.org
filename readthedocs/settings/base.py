@@ -434,6 +434,7 @@ class CommunityBaseSettings(Settings):
     CELERY_ALWAYS_EAGER = True
     CELERYD_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
     CELERY_SEND_TASK_ERROR_EMAILS = False
+    CELERY_IGNORE_RESULT = True
     CELERYD_HIJACK_ROOT_LOGGER = False
     # This stops us from pre-fetching a task that then sits around on the builder
     CELERY_ACKS_LATE = True
@@ -728,8 +729,11 @@ class CommunityBaseSettings(Settings):
     }
 
     # CORS
-    # So cookies can be included in cross-domain requests where needed (eg. sustainability API).
-    CORS_ALLOW_CREDENTIALS = True
+    # Don't allow sending cookies in cross-domain requests, this is so we can
+    # relax our CORS headers for more views, but at the same time not opening
+    # users to CSRF attacks. The sustainability API is the only view that requires
+    # cookies to be send cross-site, we override that for that view only.
+    CORS_ALLOW_CREDENTIALS = False
     CORS_ALLOW_HEADERS = (
         'x-requested-with',
         'content-type',
