@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.54
+boto3==1.26.59
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.54
+botocore==1.29.59
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -381,7 +381,7 @@ sphinx-rtd-theme==1.2.0rc1
     # via -r requirements/docs.in
 sphinx-tabs==3.3.1
     # via -r requirements/docs.in
-sphinxcontrib-applehelp==1.0.3
+sphinxcontrib-applehelp==1.0.4
     # via
     #   -r requirements/pip.txt
     #   sphinx
@@ -465,7 +465,7 @@ wcwidth==0.2.6
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.4.2
+websocket-client==1.5.0
     # via
     #   -r requirements/pip.txt
     #   docker
