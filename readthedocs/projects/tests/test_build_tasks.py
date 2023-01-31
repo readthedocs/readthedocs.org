@@ -720,16 +720,6 @@ class TestBuildTask(BuildEnvironmentBase):
                 # PDF resulting file is not found in the process (`_post_build`)
                 mock.call(
                     mock.ANY,
-                    "-c",
-                    '"import sys; import sphinx; sys.exit(0 if sphinx.version_info >= (1, 6, 1) else 1)"',
-                    bin_path=mock.ANY,
-                    cwd=mock.ANY,
-                    escape_command=False,
-                    shell=True,
-                    record=False,
-                ),
-                mock.call(
-                    mock.ANY,
                     "-m",
                     "sphinx",
                     "-T",
