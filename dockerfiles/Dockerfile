@@ -30,7 +30,8 @@ RUN apt-get -y install \
         netcat \
         telnet \
         lsb-release \
-        npm
+        npm \
+        rclone
 
 # Gets the MinIO mc client used to add buckets upon initialization
 # If this client should have issues running inside this image, it is also
@@ -53,7 +54,6 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 WORKDIR /tmp
 
 COPY requirements/pip.txt pip.txt
-COPY requirements/debug.txt debug.txt
 COPY requirements/docker.txt docker.txt
 RUN pip3 install --no-cache-dir -r docker.txt
 
