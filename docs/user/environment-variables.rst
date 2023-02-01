@@ -4,13 +4,17 @@ Configuring environment variables
 =================================
 
 Read the Docs allows you to define your own environment variables to be used in the build process.
-This is useful for adding your project's build secrets,
-in case your build needs to access API tokens.
+This is useful for adding build secrets such as API tokens.
 
-In many cases,
-it is also easier or more feasible to define your build's environment variables using the Read the Docs :term:`dashboard` interface in
-:menuselection:`Admin --> Environment variables`
-rather than the ``.readthedocs.yaml`` :doc:`configuration file </config-file/index>`.
+.. The following paragraph is difficult to balance.
+.. We should ideally support environment variables in the Config File,
+.. but as long as it's not supported then people can add environment variables in different ways.
+.. Using the Dashboard is a good approach
+.. but adding an environment variable with ``ENV=123 command --flag`` is possibly better.
+
+Environment variables are defined in the :term:`dashboard` interface in :menuselection:`Admin --> Environment variables`.
+In cases where the environment variable isn't a secret,
+there are also :ref:`environment-variables:alternative approaches`.
 
 Environment variables are configured and managed for your projects entire build `with 2 exceptions <Environment variables and build environments>`_.
 
@@ -43,3 +47,25 @@ Pull Request builds
 
 Alternative approaches
 ----------------------
+
+In some scenarios, it's more feasible to define your build's environment variables using the ``.readthedocs.yaml`` :doc:`configuration file </config-file/index>`.
+Using the :term:`dashboard` for administering environment variables may not be the right fit if you already know that you want to manage environment variables *as code*.
+
+Consider the following scenario:
+
+* The environment variable **is not** a secret.
+* The environment variable is used just once for a custom command.
+
+In this case, you can define the environment variable using :doc:`/build-customization`.
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "3.11"
+     jobs:
+       post_build:
+         - EXAMPLE_ENVIRONMENT_VARIABLE=foobar command --flag
