@@ -49,7 +49,8 @@ You can expect:
 * We will respond acknowledging your email typically within one business day.
 * We will follow up if and when we have confirmed the issue with a timetable for the fix.
 * We will notify you when the issue is fixed.
-* We will create a `GitHub advisory`_ and publish it when the issue has been fixed.
+* We will create a `GitHub advisory`_ and publish it when the issue has been fixed
+  and deployed in our platforms.
 
 .. _GitHub advisory: https://github.com/readthedocs/readthedocs.org/security/advisories
 
