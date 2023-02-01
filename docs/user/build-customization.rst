@@ -70,7 +70,7 @@ In that case, a config file similar to this one can be used:
 There are some caveats to knowing when using user-defined jobs:
 
 * The current working directory is at the root of your project's cloned repository
-* Environment variables are expanded in the commands (see :doc:`/reference/environment-variables`)
+* Environment variables are expanded for each individual command (see :doc:`/reference/environment-variables`)
 * Each command is executed in a new shell process, so modifications done to the shell environment do not persist between commands
 * Any command returning non-zero exit code will cause the build to fail immediately
   (note there is a special exit code to `cancel the build <cancel-build-based-on-a-condition>`_)
