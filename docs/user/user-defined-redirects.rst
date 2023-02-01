@@ -48,8 +48,10 @@ This section explains the redirects that are automatically active for all projec
 Built-in redirects are especially useful for creating and sharing incoming links,
 which is discussed indepth in :doc:`/automatic-redirects`.
 
+.. _page_redirects:
+
 Page redirects at ``/page/``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can link to a specific page and have it redirect to your default version,
 allowing you to create links on external sources that are always up to date.
@@ -76,9 +78,10 @@ For example::
 
 .. warning::
 
-   This only works for the root URL, not for internal pages.
-   It's designed to redirect people from `/` to the default version of your documentation,
-   since serving up a 404 here would be bad user experience.
+   You cannot use the root redirect to reference specific pages.
+   ``/`` *only* redirects to the default version,
+   whereas ``/some/page.html`` will *not* redirect to ``/en/latest/some/page.html``.
+   Instead, use :ref:`page_redirects`.
 
 You can choose which is the :term:`default version` for Read the Docs to display.
 This usually corresponds to the most recent official release from your project.
