@@ -318,7 +318,7 @@ class Conda(PythonEnvironment):
     .. _Conda: https://conda.io/docs/
     """
 
-    # pylint disable=arguments-differ
+    # pylint: disable=arguments-differ
     def venv_bin(self, filename=None):
         return super().venv_bin(filename=filename, conda=True)
 
