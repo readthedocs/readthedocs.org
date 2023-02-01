@@ -98,11 +98,9 @@ class Unresolver:
         """
         parsed = urlparse(url)
         domain = self.get_domain_from_host(parsed.netloc)
-        (
-            parent_project,
-            domain_object,
-            external_version_slug,
-        ) = self.unresolve_domain(domain)
+        parent_project, domain_object, external_version_slug = self.unresolve_domain(
+            domain
+        )
 
         current_project, version, filename = self._unresolve_path(
             parent_project=parent_project,
