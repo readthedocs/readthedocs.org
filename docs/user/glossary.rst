@@ -1,12 +1,15 @@
 Glossary
 ========
 
+This page includes a number of terms that we use in our documentation,
+so that you have a reference for how we're using them.
+
 .. glossary::
 
    dashboard
       `Main page <https://readthedocs.org/dashboard>`_ where you can see all your projects with their build status
       and import a new project.
-   
+
    Docs as Code
       A term used to describe the workflow of keeping documentation in a Git repository,
       along with source code.
