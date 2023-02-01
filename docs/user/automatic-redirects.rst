@@ -35,7 +35,7 @@ we explain how our built-in redirects work and what we consider "best practice" 
 Best practice: "permalink" your pages
 -------------------------------------
 
-You might be familiar with :term:`permalinks <permalink>` from blogging.
+You might be familiar with the concept of `permalinks`_ from blogging.
 The idea is that a blog post receives a unique link as soon as it's published and that the link does not change afterward.
 Incoming sources can reference the blog post even though the blog changes structure or the post title changes.
 
@@ -48,10 +48,12 @@ Firstly, you should know that a *permalink* does not really exist in documentati
 As a documentation owner,
 you most likely want users clicking on incoming links to see the latest version of the page.
 
+.. _permalinks: https://en.wikipedia.org/wiki/Permalink
+
 Good practice ✅
 ~~~~~~~~~~~~~~~~
 
-* Use `page redirects <user-defined-redirects:Page redirects>`_ if you are linking to the page in the default version of the default language. This allows links to continue working even if those defaults change. 
+* Use `page redirects <user-defined-redirects:Page redirects>`_ if you are linking to the page in the default version of the default language. This allows links to continue working even if those defaults change.
 * If you move a page that likely has incoming references, :doc:`create a custom redirect rule </guides/redirects>`.
 * Links to other Sphinx projects should use :doc:`intersphinx </guides/intersphinx>`.
 * Use minimal filenames that don't require renaming often.
