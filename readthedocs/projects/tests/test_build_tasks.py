@@ -294,7 +294,9 @@ class TestBuildTask(BuildEnvironmentBase):
                 "bin",
             ),
             PUBLIC_TOKEN="a1b2c3",
-            READTHEDOCS_VIRTUALENV_PATH=f"/usr/src/app/checkouts/readthedocs.org/user_builds/{self.project.slug}/envs/{self.version.slug}",
+            # Local and Circle are different values.
+            # We only check it's present, but not its value.
+            READTHEDOCS_VIRTUALENV_PATH=mock.ANY,
         )
         if not external:
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
