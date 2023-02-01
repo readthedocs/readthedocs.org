@@ -15,8 +15,8 @@ You will then see the form for adding an environment variable:
 .. image:: /img/screenshot_environment_variables.png
    :alt: Screenshot of the form for adding an environment variable
 
-#. Fill the :guilabel:`Name`, this is the name of your variable, for instance ``SECRET_TOKEN`` or ``PIP_EXTRA_INDEX_URL``.
-#. Fill in :guilabel:`Value` with the value, for instance a secret token or a build configuration.
+#. Fill in the :guilabel:`Name` field, this is the name of your variable, for instance ``SECRET_TOKEN`` or ``PIP_EXTRA_INDEX_URL``.
+#. Fill in the :guilabel:`Value` field with the environment variable's value, for instance a secret token or a build configuration.
 #. Check the :guilabel:`Public` option if you want to expose this environment variable
    to :doc:`builds from pull requests </pull-requests>`.
 
