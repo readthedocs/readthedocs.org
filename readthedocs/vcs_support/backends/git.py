@@ -313,7 +313,7 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        _, stdout, _ = self.run('git', 'rev-parse', 'HEAD', record=False)
+        _, stdout, _ = self.run("git", "rev-parse", "HEAD", record=False)
         return stdout.strip()
 
     @property
