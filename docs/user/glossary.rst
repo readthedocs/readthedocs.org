@@ -8,11 +8,8 @@ Glossary
       and import a new project.
 
    default version
-      A documentation has a *default version*, usually understood to be the latest stable version of a project.
-      Most documentation projects will contain both older versions of documentation and the latest development version.
-      The *default version* can be fully configured to point to a specific Git branch or any other released version.
-      In the most common scenario,
-      the default version points to the ``main`` branch of a Git repository since it usually points to the latest stable release.
+      Projects have a *default version*, usually the latest stable version of a project.
+      The *default version* is the URL that is redirected to when a users loads the `/` URL for your project.
 
    flyout menu
       Menu displayed on the documentation, readily accessible for readers, containing the list active versions, links to static downloads, and other useful links.

@@ -9,8 +9,8 @@ Once you start to publish documentation,
 external sources will inevitably link to specific pages in your documentation.
 
 Sources of incoming links vary greatly depending on the type of documentation project that is published.
-They can include everything from old emails to GitHub issues, wiki articles, software comments, PDF publications, StackOverflow answers etc.
-Most of these incoming sources are either unmanageable or not in your control.
+They can include everything from old emails to GitHub issues, wiki articles, software comments, PDF publications, or StackOverflow answers.
+Most of these incoming sources are not in your control.
 
 Read the Docs makes it easier to create and manage incoming links by redirecting certain URLs automatically
 and giving you access to define your own redirects.
@@ -51,17 +51,17 @@ you most likely want users clicking on incoming links to see the latest version 
 Good practice ✅
 ~~~~~~~~~~~~~~~~
 
-* Use `page redirects <user-defined-redirects:Page redirects>`_ if you are linking to the page in the default version of the default language.
+* Use `page redirects <user-defined-redirects:Page redirects>`_ if you are linking to the page in the default version of the default language. This allows links to continue working even if those defaults change. 
 * If you move a page that likely has incoming references, :doc:`create a custom redirect rule </guides/redirects>`.
-* Links from other Sphinx projects should use :doc:`intersphinx </guides/intersphinx>`.
-* Use minimal page :term:`slugs <slug>` that do not attract renaming suggestions.
+* Links to other Sphinx projects should use :doc:`intersphinx </guides/intersphinx>`.
+* Use minimal filenames that don't require renaming often.
 * When possible,
   keep original file names rather than going for low-impact URL renaming.
   Renaming an article's title is great for the reader and great for SEO,
   but this does not have to involve the URL.
-* Try to get your understanding of ``latest`` and *default version* right from the beginning and ensure you don't change them later on.
-* Keep development versions hidden so people do not find them on search engines by mistake.
-  Publishing documentation at the wrong URL can be costly if the URL starts circulating.
+* Establish your understanding of the *latest* and *default version* of your documentation at the beginning. Changing their meaning is very disruptive to incoming links.
+* Keep development versions :ref:`hidden <Versioned Documentation:Hidden>` so people do not find them on search engines by mistake.
+  This is the best way to ensure that nobody links to URLs that are intended for development purposes.
 * Use a :ref:`version warning <versions:Version warning>` to ensure the reader is aware in case they are reading an old (archived) version.
 
 .. tip::
@@ -74,7 +74,7 @@ Good practice ✅
 Questionable practice 🟡
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-* Avoid using specific versions in links unless you really intend users to see that exact version.
+* Avoid using specific versions in links unless users need that exact version.
   Versions get outdated.
 * Avoid using a public ``latest`` for development versions and do not make your *default version* a development branch.
   Publishing development branches can mean that users are reading instructions for unreleased software or draft documentation.

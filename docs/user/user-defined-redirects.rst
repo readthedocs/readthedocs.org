@@ -44,10 +44,8 @@ Special features
 Built-in redirects
 ------------------
 
-This article explains the redirects that are automatically active for all Read the Docs projects and how they are useful.
-Automatic redirects on Read the Docs are supported long-term.
-
-Built-in redirects are especially useful for creating and sharing **incoming links**
+This section explains the redirects that are automatically active for all projects and how they are useful.
+Built-in redirects are especially useful for creating and sharing incoming links,
 which is discussed indepth in :doc:`/automatic-redirects`.
 
 Page redirects at ``/page/``
@@ -74,8 +72,7 @@ This works for both readthedocs.io (|org_brand|), readthedocs-hosted.com (|com_b
 
 For example::
 
-    docs.readthedocs.io -> docs.readthedocs.io/en/latest/
-    www.pip-installer.org -> www.pip-installer.org/en/latest/
+    docs.readthedocs.io -> docs.readthedocs.io/en/stable/
 
 .. warning::
 
@@ -83,27 +80,13 @@ For example::
    It's designed to redirect people from `/` to the default version of your documentation,
    since serving up a 404 here would be bad user experience.
 
-.. note::
-   If the "develop" branch was designated as the default version,
-   then ``http://pip.readthedocs.io/`` would redirect to ``http://pip.readthedocs.io/en/develop``.
-   But, it's not a universal redirecting solution.
-   So, for example, a link to an internal page like
-   ``http://pip.readthedocs.io/usage.html`` doesn't redirect to ``http://pip.readthedocs.io/en/latest/usage.html``.
+You can choose which is the :term:`default version` for Read the Docs to display.
+This usually corresponds to the most recent official release from your project.
 
-   The reasoning behind this is that RTD organizes the URLs for docs so that multiple translations and multiple versions of your docs can be organized logically and consistently for all projects that RTD hosts.
-   For the way that RTD views docs,
-   ``http://pip.readthedocs.io/en/latest/`` is the root directory for your default documentation in English, not ``http://pip.readthedocs.io/``.
-   Just like ``http://pip.readthedocs.io/en/develop/`` is the root for your development documentation in English.
-
-Among all the multiple versions of docs,
-you can choose which is the "default" version for Read the Docs to display,
-which usually corresponds to the git branch of the most recent official release from your project.
-
-Shortlink with ``https://*.rtfd.io``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Shortlink with ``https://<slug>.rtfd.io``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Links to ``rtfd.io`` are treated the same way as ``readthedocs.io``.
-They redirect the root URL to the default version of the project.
 They are intended to be easy and short for people to type.
 
 You can reach these docs at https://docs.rtfd.io.

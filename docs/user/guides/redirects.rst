@@ -4,9 +4,8 @@ How to use custom URL redirects in documentation projects
 In this guide,
 you will learn the steps necessary to configure your Read the Docs project for redirecting visitors from one location to another.
 
-These user-defined redirects are handled at the HTTP-level,
-which means that a reader will not notice anything in their browser.
-A user visiting the *old URL* will automatically end up at the *new URL*.
+User-defined redirects are issued by our servers when a reader visits an *old URL*,
+which means that the reader is automatically redirected to a *new URL*.
 
 .. seealso::
 
@@ -85,7 +84,7 @@ Sphinx HTML => HTMLDir
    If you need to apply a redirect for files that exist,
    you can have a :guilabel:`Apply even if the page exists` option visible.
    **This option is only available on some plan levels**.
-   Please ask support if you need it for some reason.
+   Please ask support to enable it for you.
 
 
 Defining the redirect rule
