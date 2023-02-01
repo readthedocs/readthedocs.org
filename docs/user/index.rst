@@ -96,6 +96,7 @@ to help you create fantastic documentation for your project.
    /guides/authors
    /guides/administrators
    /guides/developers
+   Troubleshooting </guides/troubleshooting/index>
    /examples
    /faq
 
@@ -110,6 +111,7 @@ to help you create fantastic documentation for your project.
    /server-side-search/api
    /reference/features
    /server-side-search/syntax
+   /reference/policies
 
 
 Read the Docs feature overview
@@ -150,7 +152,6 @@ and some of the core features of Read the Docs.
    :hidden:
    :caption: Features
 
-   /features
    /config-file/index
    /integrations
    /versions
@@ -158,9 +159,7 @@ and some of the core features of Read the Docs.
 
    /builds
    /build-customization
-   /build-troubleshooting
    /environment-variables
-   /badges
 
    /support
 
@@ -297,7 +296,6 @@ of Read the Docs and the larger software documentation ecosystem.
 
 * **Getting involved with Read the Docs**:
   :doc:`/glossary` |
-  :doc:`/gsoc` |
   :doc:`Developer Documentation <rtd-dev:index>`
 
 
@@ -306,10 +304,6 @@ of Read the Docs and the larger software documentation ecosystem.
    :hidden:
    :caption: About Read the Docs
 
-   security
-   dmca/index
-   abandoned-projects
-   unofficial-projects
    changelog
 
    about
@@ -320,8 +314,5 @@ of Read the Docs and the larger software documentation ecosystem.
    advertising/index
    sponsors
 
-   legal/index
-
    Developer Documentation <https://dev.readthedocs.io>
    glossary
-   gsoc
