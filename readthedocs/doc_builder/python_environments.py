@@ -96,7 +96,7 @@ class PythonEnvironment:
         :param filename: If specified, add this filename to the path return
         :returns: Path to virtualenv bin or filename in virtualenv bin
         """
-        parts = [self.venv_path(), 'bin']
+        parts = ["$READTHEDOCS_VIRTUALENV_PATH", "bin"]
         if filename is not None:
             parts.append(filename)
         return os.path.join(*parts)
@@ -109,9 +109,6 @@ class Virtualenv(PythonEnvironment):
 
     .. _virtualenv: https://virtualenv.pypa.io/
     """
-
-    def venv_path(self):
-        return os.path.join(self.project.doc_path, 'envs', self.version.slug)
 
     def setup_base(self):
         """
@@ -133,9 +130,7 @@ class Virtualenv(PythonEnvironment):
             cli_args.append('--system-site-packages')
 
         # Append the positional destination argument
-        cli_args.append(
-            self.venv_path(),
-        )
+        cli_args.append("$READTHEDOCS_VIRTUALENV_PATH")
 
         self.build_env.run(
             self.config.python_interpreter,
@@ -167,7 +162,9 @@ class Virtualenv(PythonEnvironment):
         )
         cmd = pip_install_cmd + [pip_version, 'setuptools<58.3.0']
         self.build_env.run(
-            *cmd, bin_path=self.venv_bin(), cwd=self.checkout_path
+            *cmd,
+            bin_path=self.venv_bin(),
+            cwd=self.checkout_path,
         )
 
         requirements = []
@@ -318,9 +315,6 @@ class Conda(PythonEnvironment):
     .. _Conda: https://conda.io/docs/
     """
 
-    def venv_path(self):
-        return os.path.join(self.project.doc_path, 'conda', self.version.slug)
-
     def conda_bin_name(self):
         """
         Decide whether use ``mamba`` or ``conda`` to create the environment.
@@ -354,9 +348,6 @@ class Conda(PythonEnvironment):
         )
 
     def setup_base(self):
-        conda_env_path = os.path.join(self.project.doc_path, 'conda')
-        os.path.join(conda_env_path, self.version.slug)
-
         if self.project.has_feature(Feature.UPDATE_CONDA_STARTUP):
             self._update_conda_startup()
 
