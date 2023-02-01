@@ -56,11 +56,13 @@ class Backend(BaseVCS):
         """Clone or update the repository."""
         super().update()
         self.make_clean_working_dir()
-        self.clone()
+        code, stdout, stderr = self.clone()
 
         # A fetch is always required to get external versions properly
         if self.version_type == EXTERNAL:
-            self.fetch()
+            code, stdout, stderr = self.fetch()
+
+        return code, stdout, stderr
 
     @property
     def _repo(self):
