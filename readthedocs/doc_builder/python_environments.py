@@ -89,7 +89,7 @@ class PythonEnvironment:
                 bin_path=self.venv_bin(),
             )
 
-    def venv_bin(self, filename=None):
+    def venv_bin(self, filename=None, conda=False):
         """
         Return path to the virtualenv bin path, or a specific binary.
 
@@ -97,6 +97,9 @@ class PythonEnvironment:
         :returns: Path to virtualenv bin or filename in virtualenv bin
         """
         parts = ["$READTHEDOCS_VIRTUALENV_PATH", "bin"]
+        if conda:
+            parts = ["$CONDA_ENVS_PATH", "$CONDA_DEFAULT_ENV", "bin"]
+
         if filename is not None:
             parts.append(filename)
         return os.path.join(*parts)
@@ -314,6 +317,9 @@ class Conda(PythonEnvironment):
 
     .. _Conda: https://conda.io/docs/
     """
+
+    def venv_bin(self, filename=None):
+        return super().venv_bin(filename=filename, conda=True)
 
     def conda_bin_name(self):
         """
