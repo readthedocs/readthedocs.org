@@ -37,12 +37,16 @@ When a :doc:`build process </builds>` is started,
 The two sets of environment variables are merged together during the build process and are exposed to all of the executed commands,
 with pre-defined variables taking precedence over custom environment variables.
 
-There are two noteworthy exceptions for custom environment variables however:
+There are two noteworthy exceptions for *custom environment variables*:
 
 Build checkout step
   Custom environment variables are **not** available during the checkout step of the :doc:`build process </builds>`
 Pull Request builds
   Custom environment variables that are not marked as :guilabel:`Public` will not be available in :doc:`pull request builds </pull-requests>`
+
+.. the presence of this section is intended to evolve into a better explanation
+.. with a few more scenarios,
+.. once there is better options for environment variables in config files
 
 Alternative approaches
 ----------------------
@@ -53,9 +57,12 @@ Using the :term:`dashboard` for administering environment variables may not be t
 Consider the following scenario:
 
 * The environment variable **is not** a secret.
+
+  **and**
 * The environment variable is used just once for a custom command.
 
-In this case, you can define the environment variable using :doc:`/build-customization`.
+In this case, you can define the environment variable *as code* using :doc:`/build-customization`.
+The following example shows how a non-secret single-purpose environment variable can also be used.
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
