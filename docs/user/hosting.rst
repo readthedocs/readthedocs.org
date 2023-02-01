@@ -10,8 +10,8 @@ some of which may be customized.
 
 .. seealso::
 
-   :doc:`/reference/features`
-     For a full list of Read the Docs features, see the features reference page.
+   :doc:`Feature reference </reference/features>`
+    A complete list of our features.
 
 Overview of hosting features
 ----------------------------
@@ -23,15 +23,17 @@ Subdomain support
   For :doc:`/commercial/index` the subdomain looks like ``<slug>.readthedocs-hosted.com``.
 
 Custom domain support
-  Documentation projects may also define their own domains.
+  Documentation projects can also use their own domains.
   A project may define multiple domains,
-  as well as define which is the *canonical domain*.
+  as well as define the *canonical domain* where all other domains will redirect.
 
   ⏩️ :doc:`Read more </custom-domains>`
 
 Multiple documentation versions
-  The built-in URL structure of Read the Docs is pre-defined to allow for multiple versions and translations to be hosted.
-  You can also switch off this mechanism with :doc:`Single-Version projects </single_version>`.
+   We allow for multiple versions and translations to be hosted,
+   integrated nicely into the URL of your documentation.
+  If you only have 1 version and translation,
+  we support :doc:`single version projects </single_version>`.
 
   ⏩️ :doc:`Read more </automatic-redirects>`
 
