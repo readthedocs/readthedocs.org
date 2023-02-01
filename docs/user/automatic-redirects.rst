@@ -53,7 +53,7 @@ you most likely want users clicking on incoming links to see the latest version 
 Good practice ✅
 ~~~~~~~~~~~~~~~~
 
-* Use `page redirects <user-defined-redirects:Page redirects>`_ if you are linking to the page in the default version of the default language. This allows links to continue working even if those defaults change.
+* Use `page redirects <user-defined-redirects:Page redirects>`_ if you are linking to the page in the :term:`default version` of the default language. This allows links to continue working even if those defaults change.
 * If you move a page that likely has incoming references, :doc:`create a custom redirect rule </guides/redirects>`.
 * Links to other Sphinx projects should use :doc:`intersphinx </guides/intersphinx>`.
 * Use minimal filenames that don't require renaming often.
@@ -61,7 +61,7 @@ Good practice ✅
   keep original file names rather than going for low-impact URL renaming.
   Renaming an article's title is great for the reader and great for SEO,
   but this does not have to involve the URL.
-* Establish your understanding of the *latest* and *default version* of your documentation at the beginning. Changing their meaning is very disruptive to incoming links.
+* Establish your understanding of the *latest* and *:term:`default version`* of your documentation at the beginning. Changing their meaning is very disruptive to incoming links.
 * Keep development versions :ref:`hidden <Versioned Documentation:Hidden>` so people do not find them on search engines by mistake.
   This is the best way to ensure that nobody links to URLs that are intended for development purposes.
 * Use a :ref:`version warning <versions:Version warning>` to ensure the reader is aware in case they are reading an old (archived) version.
