@@ -1,12 +1,9 @@
-.. old label
-.. _Documentation Hosting Features:
+Documentation hosting features
+==============================
 
-Hosting features provided by Read the Docs
-==========================================
-
-This article provides a quick overview and reference to how documentation is *hosted* on Read the Docs.
-Hosting is optimized with documentation in mind and a number of special features are provided,
-some of which may be customized.
+This page provides a quick overview of the *hosting features* on Read the Docs.
+These features are designed especially with documentation in mind,
+and several of the features can be customized for specific project needs.
 
 .. seealso::
 
@@ -68,7 +65,7 @@ Automatic and custom robots.txt
 Private documentation
   It is possible to host private documentation on Read the Docs for Business.
 
-  ⬇️ :doc:`Read more </commercial/sharing>`
+  ⏩️ :doc:`Read more </commercial/sharing>`
 
 
 Content Delivery Network (CDN) and caching
