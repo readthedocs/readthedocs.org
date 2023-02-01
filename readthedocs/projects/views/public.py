@@ -4,7 +4,6 @@ import hashlib
 import mimetypes
 import os
 from collections import OrderedDict
-from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
@@ -20,8 +19,6 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
 from taggit.models import Tag
 
-from readthedocs.analytics.tasks import analytics_event
-from readthedocs.analytics.utils import get_client_ip
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
@@ -33,7 +30,6 @@ from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.proxito.views.utils import _get_project_data_from_request
-from readthedocs.storage import build_media_storage
 
 from ..constants import PRIVATE
 from .base import ProjectOnboardMixin, ProjectSpamMixin
@@ -365,31 +361,11 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
                 slug=version_slug,
             )
 
-        # Send media download to analytics - sensitive data is anonymized
-        analytics_event.delay(
-            event_category='Build Media',
-            event_action=f'Download {type_}',
-            event_label=str(version),
-            ua=request.headers.get("User-Agent"),
-            uip=get_client_ip(request),
-        )
-
-        storage_path = version.project.get_storage_path(
+        return self._serve_dowload(
+            request=request,
+            project=version.project,
+            version=version,
             type_=type_,
-            version_slug=version_slug,
-            version_type=version.type,
-        )
-
-        # URL without scheme and domain to perform an NGINX internal redirect
-        url = build_media_storage.url(storage_path)
-        url = urlparse(url)._replace(scheme='', netloc='').geturl()
-
-        return self._serve_docs(
-            request,
-            final_project=version.project,
-            version_slug=version.slug,
-            path=url,
-            download=True,
         )
 
 
