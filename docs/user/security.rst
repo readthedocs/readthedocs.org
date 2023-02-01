@@ -49,8 +49,9 @@ You can expect:
 * We will respond acknowledging your email typically within one business day.
 * We will follow up if and when we have confirmed the issue with a timetable for the fix.
 * We will notify you when the issue is fixed.
-* We will add the issue to our :ref:`security issue archive <security:Security issue archive>`.
+* We will create a `GitHub advisory`_ and publish it when the issue has been fixed.
 
+.. _GitHub advisory: https://github.com/readthedocs/readthedocs.org/security/advisories
 
 PGP key
 -------

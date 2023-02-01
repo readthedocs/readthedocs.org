@@ -50,6 +50,11 @@ Version 9.3.0
 Version 9.2.0
 -------------
 
+**This release contains two security fixes. For more information, see our GitHub advisories:**
+
+- `GHSA-7fcx-wwr3-99jv <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-7fcx-wwr3-99jv>`__
+- `GHSA-hqwg-gjqw-h5wg <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-hqwg-gjqw-h5wg>`__
+
 :Date: January 16, 2023
 
 * `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9898 <https://github.com/readthedocs/readthedocs.org/pull/9898>`__)
