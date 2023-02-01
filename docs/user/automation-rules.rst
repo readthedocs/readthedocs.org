@@ -80,7 +80,7 @@ Make version private
   See :ref:`versions:Privacy levels`.
 
 Set version as default
-  Sets the version as the :term:`default version`.
+  Sets the version as the default version.
   It also activates and builds the version.
   See :ref:`automatic-redirects:Root URL`.
 
@@ -104,7 +104,7 @@ Order
 
 When a new Read the Docs version is created,
 all rules with a successful match will have their action triggered,
- in the order they appear on the :guilabel:`Automation Rules` page.
+in the order they appear on the :guilabel:`Automation Rules` page.
 
 Examples
 --------
