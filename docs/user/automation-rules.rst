@@ -1,10 +1,10 @@
 Automation rules
 ================
 
-Automation rules allow project maintainers to automate actions on new branches and tags on Git repositories.
+Automation rules allow project maintainers to automate actions on new branches and tags in Git repositories.
 If you are familiar with :term:`GitOps`,
 this might seem familiar.
-The goal of Read the Docs' automation rules is to be able to control versioning through your Git repository
+The goal of automation rules is to be able to control versioning through your Git repository
 and avoid duplicating these efforts on Read the Docs.
 
 .. seealso::
@@ -13,27 +13,32 @@ and avoid duplicating these efforts on Read the Docs.
      A practical guide to managing automated versioning of your documentation.
 
    :doc:`/versions`
-     General explanation of how versioning works for documentation projects on Read the Docs
+     General explanation of how versioning works on Read the Docs
 
 How automation rules work
 -------------------------
 
 When a new tag or branch is pushed to your repository,
-Read the Docs receives a callback to its Webhook.
-This triggers the creation of a new version.
+Read the Docs receives a webhook.
+We then create a new Read the Docs *version* that matches your new Git *tag or branch*.
 
-All rules are evaluated for this version,
+All automation rules are evaluated for this version,
 in the order they are listed.
 If the version **matches** the version type and the pattern in the rule,
 the specified **action** is performed on that version.
 
+.. _TODO: A diagram would be great here in the future, but probably too much for this refactor.
+
 .. note::
 
-   Versions can match multiple rules,
+   Versions can match multiple automation rules,
    and all matching actions will be performed on the version.
 
 Matching a version in Git
 -------------------------
+
+We have a couple predefined ways to match against versions that are created,
+and you can also define your own.
 
 Predefined matches
 ~~~~~~~~~~~~~~~~~~
@@ -43,8 +48,8 @@ Automation rules support two predefined version matches:
 - **Any version**: All new versions will match the rule.
 - **SemVer versions**: All new versions that follow `semantic versioning <https://semver.org/>`__ will match the rule.
 
-User defined matches
-~~~~~~~~~~~~~~~~~~~~
+Custom matches
+~~~~~~~~~~~~~~
 
 If none of the above predefined matches meet your use case,
 you can use a **Custom match**.
@@ -55,7 +60,7 @@ Each new version will be tested against this regular expression.
 Actions for versions
 --------------------
 
-When a rule matches a new version,
+When an automation rule matches a new version,
 the specified action is performed on that version.
 Currently, the following actions are available:
 
@@ -64,50 +69,42 @@ Activate version
 
 Hide version
   Hides the version. If the version is not active, activates it and builds the version.
-  See :ref:`versions:Version States`.
+  See :ref:`versions:Version states`.
 
 Make version public
   Sets the version's privacy level to public.
-  See :ref:`versions:privacy levels`.
+  See :ref:`versions:Privacy levels`.
 
 Make version private
   Sets the version's privacy level to private.
-  See :ref:`versions:privacy levels`.
+  See :ref:`versions:Privacy levels`.
 
 Set version as default
-  Sets the version as default,
-  i.e. the version of your project that `/` redirects to.
-  See more in :ref:`automatic-redirects:Root URL`.
+  Sets the version as the :term:`default version`.
   It also activates and builds the version.
+  See :ref:`automatic-redirects:Root URL`.
 
 Delete version
   When a branch or tag is deleted from your repository,
   Read the Docs will delete it *only if isn't active*.
   This action allows you to delete *active* versions when a branch or tag is deleted from your repository.
 
-  .. note::
+There are a couple caveats to these rules that are useful:
 
-     The default version isn't deleted even if it matches a rule.
-     You can use the ``Set version as default`` action to change the default version
-     before deleting the current one.
-
-
-.. note::
-
-   If your versions follow :pep:`440`,
-   Read the Docs activates and builds the version if it's greater than the current stable version.
-   The stable version is also automatically updated at the same time.
-   See more in :doc:`versions`.
+*   The default version isn't deleted even if it matches a rule.
+    You can use the ``Set version as default`` action to change the default version
+    before deleting the current one.
+*   If your versions follow :pep:`440`,
+    Read the Docs activates and builds the version if it's greater than the current stable version.
+    The stable version is also automatically updated at the same time.
+    See more in :doc:`versions`.
 
 Order
 -----
 
-When a new webhook event is received from your Git provider,
-All rules with a successful match will have their action triggered in the order they appear on the :guilabel:`Automation Rules` page.
-
-.. note::
-
-   New rules are added at the end (lower priority).
+When a new Read the Docs version is created,
+all rules with a successful match will have their action triggered,
+ in the order they appear on the :guilabel:`Automation Rules` page.
 
 Examples
 --------

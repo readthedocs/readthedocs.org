@@ -6,19 +6,24 @@ Glossary
    dashboard
       `Main page <https://readthedocs.org/dashboard>`_ where you can see all your projects with their build status
       and import a new project.
+   
+   Docs as Code
+      A term used to describe the workflow of keeping documentation in a Git repository,
+      along with source code.
+      Popular in the open source software movement,
+      and used by many technology companies.
 
    flyout menu
       Menu displayed on the documentation, readily accessible for readers, containing the list active versions, links to static downloads, and other useful links.
       Read more in our :doc:`/flyout-menu` page.
 
    GitOps
-      A popular term,
-      denoting the use of code, branches and tags maintained in Git in order to automate building, testing, and deployment.
-      GitOps is often used for infrastructure such as maintaining the configuration code for infrastructure in Git.
+      Denotes the use of code maintained in Git to automate building, testing, and deployment of infrastructure.
       In terms of documentation,
       GitOps is applicable for Read the Docs,
       as the configuration for building documentation is stored in ``.readthedocs.yaml``,
       and rules for publication of documentation can be :doc:`automated </automation-rules>`.
+      Similar to :term:`Docs as Code`.
 
    pre-defined build jobs
       Commands executed by Read the Docs when performing the build process.
