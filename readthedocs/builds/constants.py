@@ -164,3 +164,11 @@ UNDELETABLE_ARTIFACT_TYPES = (
     "html",
     "json",
 )
+# Artifacts that expect one and only one file in the output directory.
+# NOTE: currently, this is a limitation that we are consider to remove
+# https://github.com/readthedocs/readthedocs.org/issues/9931#issuecomment-1403415757
+ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT = (
+    "htmlzip",
+    "epub",
+    "pdf",
+)
