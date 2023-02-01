@@ -275,6 +275,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "READTHEDOCS_VERSION_NAME": self.version.verbose_name,
             "READTHEDOCS_PROJECT": self.project.slug,
             "READTHEDOCS_LANGUAGE": self.project.language,
+            "READTHEDOCS_VIRTUALENV_PATH": "/usr/src/app/checkouts/readthedocs.org/user_builds/project/envs/latest",
         }
 
         self._trigger_update_docs_task()
