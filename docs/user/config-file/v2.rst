@@ -144,6 +144,8 @@ Example:
    At the moment, only Sphinx supports additional formats.
    ``pdf``, ``epub``, and ``htmlzip`` output is not yet supported when using MkDocs.
 
+   With :doc:`builds from pull requests </pull-requests>`, only HTML formats are generated. Other formats are resource intensive and will be built after merging.
+
 python
 ~~~~~~
 

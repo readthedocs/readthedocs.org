@@ -13,6 +13,7 @@ from django.shortcuts import render
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 from slugify import slugify as unicode_slugify
+from django.core.exceptions import BadRequest
 
 from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
@@ -66,7 +67,13 @@ class ServeDocsMixin:
 
         # If the filename starts with `/`, the join will fail,
         # so we strip it before joining it.
-        storage_path = build_media_storage.join(base_storage_path, filename.lstrip("/"))
+        try:
+            storage_path = build_media_storage.join(base_storage_path, filename.lstrip("/"))
+        except ValueError:
+            # We expect this exception from the django storages safe_join
+            # function, when the filename resolves to a higher relative path.
+            # The request is malicious or malformed in this case.
+            raise BadRequest("Invalid URL")
 
         if check_if_exists and not build_media_storage.exists(storage_path):
             raise StorageFileNotFound

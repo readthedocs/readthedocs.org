@@ -750,6 +750,16 @@ class CommunityBaseSettings(Settings):
         'HEAD',
     ]
 
+    # URLs to allow CORS to read from unauthed.
+    CORS_URLS_ALLOW_ALL_REGEX = [
+        r"^/api/v2/footer_html",
+        r"^/api/v2/search",
+        r"^/api/v2/docsearch",
+        r"^/api/v2/embed",
+        r"^/api/v3/embed",
+        r"^/api/v2/sustainability",
+    ]
+
     # RTD Settings
     ALLOW_PRIVATE_REPOS = False
     DEFAULT_PRIVACY_LEVEL = 'public'
