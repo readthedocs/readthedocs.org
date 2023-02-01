@@ -85,11 +85,11 @@ We support CDNs on both of our sites:
       we are able to provide a CDN to all the projects that we host.
       This service is graciously sponsored by `Cloudflare`_.
 
-      We bust the cache on the CDN when the following actions happen:
+      We invalidate and refresh the cache on the CDN when the following actions happen:
 
-      * Your Project is saved
-      * Your Domain is saved
-      * A new version is built
+      * Your Project is saved.
+      * Your Domain is saved.
+      * A new version is built.
 
 
    .. tab:: |com_brand|
@@ -100,19 +100,17 @@ We support CDNs on both of our sites:
 
       We invalidate and refresh the cache on the CDN when the following actions happen:
 
-      * Your project is saved
-      * Your domain is saved
-      * A version or branch is built
+      * Your project is saved.
+      * Your domain is saved.
+      * A version or branch is built.
 
 .. _Cloudflare: https://www.cloudflare.com/
 
 Built-in content
 ----------------
 
-A number of content files can be said to be "built-in",
-since they are automatically generated and hosted together with your site.
-
-They are also possible to customize.
+A number of content files are automatically generated and hosted together with your site.
+You can read more about these files and how to customize them in this section.
 
 Custom Not Found (404) pages
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
