@@ -4,6 +4,7 @@ from urllib.parse import parse_qsl, urlencode, urlparse
 
 import structlog
 from django.conf import settings
+from django.core.exceptions import BadRequest
 from django.http import (
     HttpResponse,
     HttpResponsePermanentRedirect,
@@ -13,7 +14,6 @@ from django.shortcuts import render
 from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 from slugify import slugify as unicode_slugify
-from django.core.exceptions import BadRequest
 
 from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
@@ -68,7 +68,9 @@ class ServeDocsMixin:
         # If the filename starts with `/`, the join will fail,
         # so we strip it before joining it.
         try:
-            storage_path = build_media_storage.join(base_storage_path, filename.lstrip("/"))
+            storage_path = build_media_storage.join(
+                base_storage_path, filename.lstrip("/")
+            )
         except ValueError:
             # We expect this exception from the django storages safe_join
             # function, when the filename resolves to a higher relative path.
