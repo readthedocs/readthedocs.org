@@ -5,10 +5,11 @@ import structlog
 from django.conf import settings
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
-from storages.utils import get_available_overwrite_name, safe_join
+from storages.utils import get_available_overwrite_name
 
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.storage.rclone import RCloneLocal
+from readthedocs.storage.utils import safe_join
 
 log = structlog.get_logger(__name__)
 
