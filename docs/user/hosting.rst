@@ -46,24 +46,24 @@ Content Delivery Network (CDN)
   Documentation projects are by nature static HTML pages and assets.
   Hence contents are delivered through a speedy distributed cloud proxy.
 
-  ⬇️ `Read more <Content Delivery Network (CDN) and caching>`__
+  ⬇️ :ref:`Read more <hosting:Content Delivery Network (CDN) and caching>`
 
 Sitemaps
   Sitemaps are generated and hosted automatically,
   improving search engine crawling.
 
-  ⬇️ `Read more <Sitemaps>`__
+  ⬇️ :ref:`Read more <hosting:Sitemaps>`
 
 Custom 404s
   A 404 page is provided by default. It may be replaced with a projects own 404 page.
 
-  ⬇️ `Read more <Custom Not Found (404) pages>`__
+  ⬇️ :ref:`Read more <hosting:Custom Not Found (404) pages>`
 
 Automatic and custom robots.txt
   `robots.txt`_ files allow you to customize how your documentation is indexed in search engines.
   We automatically generate one for you, but you can also customize it.
 
-  ⬇️ `Read more <Custom robots.txt>`__
+  ⬇️ :ref:`Read more <hosting:Custom robots.txt>`
 
 
 Content Delivery Network (CDN) and caching
