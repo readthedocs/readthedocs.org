@@ -65,6 +65,11 @@ Automatic and custom robots.txt
 
   ⬇️ :ref:`Read more <hosting:Custom robots.txt>`
 
+Private documentation
+  It is possible to host private documentation on Read the Docs for Business.
+
+  ⬇️ :doc:`Read more </commercial/sharing>`
+
 
 Content Delivery Network (CDN) and caching
 ------------------------------------------
