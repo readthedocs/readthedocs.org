@@ -5,7 +5,7 @@ import re
 import git
 import structlog
 from django.core.exceptions import ValidationError
-from git.exc import BadName, InvalidGitRepositoryError, NoSuchPathError
+from git.exc import BadName
 from gitdb.util import hex_to_bin
 
 from readthedocs.builds.constants import EXTERNAL
@@ -61,13 +61,6 @@ class Backend(BaseVCS):
         # A fetch is always required to get external versions properly
         if self.version_type == EXTERNAL:
             self.fetch()
-
-    def repo_exists(self):
-        try:
-            self._repo
-        except (InvalidGitRepositoryError, NoSuchPathError):
-            return False
-        return True
 
     @property
     def _repo(self):
@@ -179,6 +172,8 @@ class Backend(BaseVCS):
 
     def clone(self):
         """Clones the repository."""
+        # TODO: use `--branch=` argument here to clone only the required branch for the build.
+        # See https://github.com/readthedocs/readthedocs.org/issues/9736
         cmd = ['git', 'clone', '--no-single-branch']
 
         if self.use_shallow_clone():
