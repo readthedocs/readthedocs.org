@@ -30,8 +30,8 @@ Custom domain support
   ⏩️ :doc:`Read more </custom-domains>`
 
 Multiple documentation versions
-   We allow for multiple versions and translations to be hosted,
-   integrated nicely into the URL of your documentation.
+  We allow for multiple versions and translations to be hosted,
+  integrated nicely into the URL of your documentation.
   If you only have 1 version and translation,
   we support :doc:`single version projects </single_version>`.
 
