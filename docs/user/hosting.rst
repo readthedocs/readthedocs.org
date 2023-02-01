@@ -10,7 +10,7 @@ some of which may be customized.
 
 .. seealso::
 
-   :doc:`Feature reference </reference/features>`
+   :doc:`/reference/features`
     A complete list of our features.
 
 Overview of hosting features

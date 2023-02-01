@@ -1,6 +1,6 @@
-========
-Features
-========
+=================
+Feature reference
+=================
 
 
 .. The TOC here will be refactored once we reorganize the files in docs/user/.
