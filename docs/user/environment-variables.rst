@@ -16,7 +16,7 @@ Environment variables are defined in the :term:`dashboard` interface in :menusel
 In cases where the environment variable isn't a secret,
 there are also :ref:`environment-variables:alternative approaches`.
 
-Environment variables are configured and managed for your projects entire build `with 2 exceptions <Environment variables and build environments>`_.
+Environment variables are configured and managed for a project's entire build environment `with 2 exceptions <Environment variables and build environments>`_.
 
 .. seealso::
 
