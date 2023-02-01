@@ -34,8 +34,7 @@ Environment variables and build process
 
 When a :doc:`build process </builds>` is started,
 :doc:`pre-defined environment variables </reference/environment-variables>` and custom environment variables are added *at each step* of the build process.
-
-The two layers are merged together during the build process and are exposed to all of the executed commands,
+The two sets of environment variables are merged together during the build process and are exposed to all of the executed commands,
 with pre-defined variables taking precedence over custom environment variables.
 
 There are two noteworthy exceptions for custom environment variables however:
