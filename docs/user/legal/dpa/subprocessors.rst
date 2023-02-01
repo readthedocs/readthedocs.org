@@ -2,11 +2,11 @@ Sub-Processor List
 ==================
 
 :Effective: April 16, 2021
-:Last updated: April 16, 2021
+:Last updated: December 27, 2022
 
 Read the Docs for Business uses services from the following sub-processors to
 provide documentation hosting services. This document supplements :doc:`our Data
-Processing Agreement <index>` and may be separately updated on a periodic basis.
+Processing Addendum <index>` and may be separately updated on a periodic basis.
 A sub-processor is a third party data processor who has or potentially will have
 access to or will process personal data.
 
@@ -14,7 +14,7 @@ access to or will process personal data.
     Previous versions of this document, as well as the change history to this
     document, are available `on GitHub`_
 
-.. _on GitHub: https://github.com/readthedocs/readthedocs.org/commits/master/docs/legal/dpa/subprocessors.rst
+.. _on GitHub: https://github.com/readthedocs/readthedocs.org/commits/main/docs/legal/dpa/subprocessors.rst
 
 Infrastructure
 --------------
@@ -36,7 +36,7 @@ Sendgrid, Inc.
 
 Google Analytics
     Website analtyics for dashboard and documentation sites.
-    
+
 Stripe Inc.
     Subscription payment provider. Data collected can include user data necessary
     to process payment transactions, however this data is not processed directly
@@ -56,11 +56,6 @@ Sentry
 
 Support
 -------
-
-Intercom, Inc.
-    Dashboard user reporting and analytics. Data collected can include user
-    information like email address and IP address. This is only used on our
-    application dashboard and is not used on documentation sites.
 
 FrontApp, Inc.
     Customer email support service. Can have access to user data, including user

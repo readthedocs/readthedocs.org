@@ -27,7 +27,7 @@ class Backend(BaseVCS):
 
     def update(self):
         super().update()
-        self.co()
+        return self.co()
 
     def co(self, identifier=None):
         self.make_clean_working_dir()
@@ -37,7 +37,7 @@ class Backend(BaseVCS):
             url = self.repo_url
         retcode, out, err = self.run('svn', 'checkout', url, '.')
         if retcode != 0:
-            raise RepositoryError
+            raise RepositoryError(RepositoryError.CLONE_ERROR())
         return retcode, out, err
 
     @property

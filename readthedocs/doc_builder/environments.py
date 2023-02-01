@@ -1,6 +1,5 @@
 """Documentation Builder Environments."""
 
-import structlog
 import os
 import re
 import subprocess
@@ -8,6 +7,7 @@ import sys
 import uuid
 from datetime import datetime
 
+import structlog
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 from docker import APIClient
@@ -30,11 +30,9 @@ from .constants import (
     DOCKER_SOCKET,
     DOCKER_TIMEOUT_EXIT_CODE,
     DOCKER_VERSION,
+    RTD_SKIP_BUILD_EXIT_CODE,
 )
-from .exceptions import (
-    BuildAppError,
-    BuildUserError,
-)
+from .exceptions import BuildAppError, BuildUserError, BuildUserSkip
 
 log = structlog.get_logger(__name__)
 
@@ -60,20 +58,22 @@ class BuildCommand(BuildCommandResultMixin):
         or ``user``. Defaults to ``RTD_DOCKER_USER``.
     :param build_env: build environment to use to execute commands
     :param bin_path: binary path to add to PATH resolution
+    :param demux: Return stdout and stderr separately.
     :param kwargs: allow to subclass this class and extend it
     """
 
     def __init__(
-            self,
-            command,
-            cwd=None,
-            shell=False,
-            environment=None,
-            user=None,
-            build_env=None,
-            bin_path=None,
-            record_as_success=False,
-            **kwargs,
+        self,
+        command,
+        cwd=None,
+        shell=False,
+        environment=None,
+        user=None,
+        build_env=None,
+        bin_path=None,
+        record_as_success=False,
+        demux=False,
+        **kwargs,
     ):
         self.command = command
         self.shell = shell
@@ -91,6 +91,7 @@ class BuildCommand(BuildCommandResultMixin):
 
         self.bin_path = bin_path
         self.record_as_success = record_as_success
+        self.demux = demux
         self.exit_code = None
 
         # NOTE: `self.build_env` is not available when instantiating this class
@@ -150,13 +151,14 @@ class BuildCommand(BuildCommandResultMixin):
             if self.shell:
                 command = self.get_command()
 
+            stderr = subprocess.PIPE if self.demux else subprocess.STDOUT
             proc = subprocess.Popen(
                 command,
                 shell=self.shell,
                 cwd=self.cwd,
                 stdin=None,
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
+                stderr=stderr,
                 env=environment,
             )
             cmd_stdout, cmd_stderr = proc.communicate()
@@ -193,7 +195,7 @@ class BuildCommand(BuildCommandResultMixin):
             # https://code.djangoproject.com/ticket/28201
             sanitized = sanitized.replace('\x00', '')
         except (TypeError, AttributeError):
-            sanitized = None
+            sanitized = ""
 
         # Chunk the output data to be less than ``DATA_UPLOAD_MAX_MEMORY_SIZE``
         output_length = len(output) if output else 0
@@ -305,8 +307,17 @@ class DockerBuildCommand(BuildCommand):
                 stderr=True,
             )
 
-            cmd_output = client.exec_start(exec_id=exec_cmd['Id'], stream=False)
-            self.output = self.sanitize_output(cmd_output)
+            out = client.exec_start(
+                exec_id=exec_cmd["Id"], stream=False, demux=self.demux
+            )
+            cmd_stdout = ""
+            cmd_stderr = ""
+            if self.demux:
+                cmd_stdout, cmd_stderr = out
+            else:
+                cmd_stdout = out
+            self.output = self.sanitize_output(cmd_stdout)
+            self.error = self.sanitize_output(cmd_stderr)
             cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
             self.exit_code = cmd_ret['ExitCode']
 
@@ -445,14 +456,21 @@ class BaseEnvironment:
 
         if build_cmd.failed:
             if warn_only:
-                msg = 'Command {cmd} failed'.format(cmd=build_cmd.get_command())
+                msg = "Command failed"
+                build_output = ""
                 if build_cmd.output:
-                    msg += ':\n{out}'.format(out=build_cmd.output)
+                    build_output += "\n".join(build_cmd.output.split("\n")[:10])
+                    build_output += "\n ..Output Truncated.. \n"
+                    build_output += "\n".join(build_cmd.output.split("\n")[-10:])
                 log.warning(
                     msg,
+                    command=build_cmd.get_command(),
+                    output=build_output,
                     project_slug=self.project.slug if self.project else '',
                     version_slug=self.version.slug if self.version else '',
                 )
+            elif build_cmd.exit_code == RTD_SKIP_BUILD_EXIT_CODE:
+                raise BuildUserSkip()
             else:
                 # TODO: for now, this still outputs a generic error message
                 # that is the same across all commands. We could improve this
@@ -557,12 +575,15 @@ class DockerBuildEnvironment(BuildEnvironment):
     container_time_limit = DOCKER_LIMITS.get('time')
 
     def __init__(self, *args, **kwargs):
-        container_image = kwargs.pop('container_image', None)
-
+        container_image = kwargs.pop("container_image", None)
+        self.use_gvisor = kwargs.pop("use_gvisor", False)
         super().__init__(*args, **kwargs)
         self.client = None
         self.container = None
         self.container_name = self.get_container_name()
+
+        if self.project.has_feature(Feature.DOCKER_GVISOR_RUNTIME):
+            self.use_gvisor = True
 
         # Decide what Docker image to use, based on priorities:
         # Use the Docker image set by our feature flag: ``testing`` or,
@@ -649,7 +670,10 @@ class DockerBuildEnvironment(BuildEnvironment):
                 container_id=self.container_id,
             )
         except DockerAPIError:
-            log.exception(
+            # Logging this as warning because it usually happens due memory
+            # limit or build timeout. In those cases, the container is not
+            # running and can't be killed
+            log.warning(
                 'Unable to kill container.',
                 container_id=self.container_id,
             )
@@ -709,8 +733,8 @@ class DockerBuildEnvironment(BuildEnvironment):
             from pathlib import Path
             binds = {
                 settings.RTD_DOCKER_COMPOSE_VOLUME: {
-                    'bind': str(Path(self.project.doc_path).parent),
-                    'mode': 'rw',
+                    "bind": str(Path(settings.DOCROOT).parent),
+                    "mode": "rw",
                 },
             }
         else:
@@ -790,10 +814,12 @@ class DockerBuildEnvironment(BuildEnvironment):
         """Create docker container."""
         client = self.get_client()
         try:
+            docker_runtime = "runsc" if self.use_gvisor else None
             log.info(
                 'Creating Docker container.',
                 container_image=self.container_image,
                 container_id=self.container_id,
+                docker_runtime=docker_runtime,
             )
             self.container = client.create_container(
                 image=self.container_image,
@@ -808,6 +834,7 @@ class DockerBuildEnvironment(BuildEnvironment):
                 host_config=self.get_container_host_config(),
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
+                runtime=docker_runtime,
             )
             client.start(container=self.container_id)
         except (DockerAPIError, ConnectionError) as e:

@@ -1,10 +1,10 @@
-import shutil
 import os
-
+import shutil
 from unittest import mock
 
 from django.conf import settings
 
+from readthedocs.api.v2.serializers import VersionAdminSerializer
 from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
 from readthedocs.projects.constants import MKDOCS
 
@@ -52,6 +52,11 @@ class BuildEnvironmentMocker:
         # self.patches['builder.pdf.run'] = mock.patch(
         #     'readthedocs.doc_builder.backends.sphinx.PdfBuilder.build',
         # )
+
+        self.patches["builder.pdf.PdfBuilder.pdf_file_name"] = mock.patch(
+            "readthedocs.doc_builder.backends.sphinx.PdfBuilder.pdf_file_name",
+            "project-slug.pdf",
+        )
 
         self.patches['builder.pdf.LatexBuildCommand.run'] = mock.patch(
             'readthedocs.doc_builder.backends.sphinx.LatexBuildCommand.run',
@@ -170,18 +175,7 @@ class BuildEnvironmentMocker:
 
         self.requestsmock.get(
             f'{settings.SLUMBER_API_HOST}/api/v2/version/{self.version.pk}/',
-            json={
-                'pk': self.version.pk,
-                'slug': self.version.slug,
-                'project': {
-                    'id': self.project.pk,
-                    'slug': self.project.slug,
-                    'language': self.project.language,
-                    'repo_type': self.project.repo_type,
-                },
-                'downloads': [],
-                'type': self.version.type,
-            },
+            json=lambda requests, context: VersionAdminSerializer(self.version).data,
             headers=headers,
         )
 
@@ -192,7 +186,7 @@ class BuildEnvironmentMocker:
 
         self.requestsmock.get(
             f'{settings.SLUMBER_API_HOST}/api/v2/build/{self.build.pk}/',
-            json={
+            json=lambda request, context: {
                 'id': self.build.pk,
                 'state': BUILD_STATE_TRIGGERED,
                 'commit': self.build.commit,
@@ -212,7 +206,7 @@ class BuildEnvironmentMocker:
 
         self.requestsmock.get(
             f'{settings.SLUMBER_API_HOST}/api/v2/build/concurrent/?project__slug={self.project.slug}',
-            json={
+            json=lambda request, context: {
                 'limit_reached': False,
                 'max_concurrent': settings.RTD_MAX_CONCURRENT_BUILDS,
                 'concurrent': 0,
@@ -222,7 +216,7 @@ class BuildEnvironmentMocker:
 
         self.requestsmock.get(
             f'{settings.SLUMBER_API_HOST}/api/v2/project/{self.project.pk}/active_versions/',
-            json={
+            json=lambda request, context: {
                 'versions': [
                     {
                         'id': self.version.pk,

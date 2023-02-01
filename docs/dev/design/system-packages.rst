@@ -54,7 +54,7 @@ Using ``docker exec``
 ---------------------
 
 Currently we use ``docker exec`` to execute commands in a running container.
-This command also allows to pass a user which is used to run the commands (#8058_).
+This command also allows to pass a user which is used to run the commands (`#8058`_).
 We can run the ``apt`` commands in our current containers using a super user momentarily.
 
 .. _#8058: https://github.com/readthedocs/readthedocs.org/pull/8058

@@ -27,11 +27,16 @@ class AuditLogManager(models.Manager):
             AuditLog.DOWNLOAD,
             AuditLog.AUTHN,
             AuditLog.LOGOUT,
+            AuditLog.INVITATION_SENT,
+            AuditLog.INVITATION_ACCEPTED,
+            AuditLog.INVITATION_REVOKED,
         )
         if action in actions_requiring_user and (not user or not request):
-            raise TypeError(f'A user and a request is required for the {action} action.')
-        if action in (AuditLog.PAGEVIEW, AuditLog.DOWNLOAD) and 'project' not in kwargs:
-            raise TypeError(f'A project is required for the {action} action.')
+            raise TypeError(
+                f"A user and a request are required for the {action} action."
+            )
+        if action in (AuditLog.PAGEVIEW, AuditLog.DOWNLOAD) and "project" not in kwargs:
+            raise TypeError(f"A project is required for the {action} action.")
 
         # Don't save anonymous users.
         if user and user.is_anonymous:
@@ -66,18 +71,45 @@ class AuditLog(TimeStampedModel):
     and the deleted user/project/organization can be accessed via the ``log_*`` attributes.
     """
 
-    PAGEVIEW = 'pageview'
-    DOWNLOAD = 'download'
-    AUTHN = 'authentication'
-    AUTHN_FAILURE = 'authentication-failure'
-    LOGOUT = 'log-out'
+    # pylint: disable=too-many-instance-attributes
+
+    PAGEVIEW = "pageview"
+    PAGEVIEW_TEXT = _("Page view")
+
+    DOWNLOAD = "download"
+    DOWNLOAD_TEXT = _("Download")
+
+    AUTHN = "authentication"
+    AUTHN_TEXT = _("Authentication")
+
+    AUTHN_FAILURE = "authentication-failure"
+    AUTHN_FAILURE_TEXT = _("Authentication failure")
+
+    LOGOUT = "log-out"
+    LOGOUT_TEXT = _("Log out")
+
+    INVITATION_SENT = "invitation-sent"
+    INVITATION_SENT_TEXT = _("Invitation sent")
+
+    INVITATION_REVOKED = "invitation-revoked"
+    INVITATION_REVOKED_TEXT = _("Invitation revoked")
+
+    INVITATION_ACCEPTED = "invitation-accepted"
+    INVITATION_ACCEPTED_TEXT = _("Invitation accepted")
+
+    INVITATION_DECLINED = "invitation-declined"
+    INVITATION_DECLINED_TEXT = _("Invitation declined")
 
     CHOICES = (
-        (PAGEVIEW, 'Page view'),
-        (DOWNLOAD, 'Download'),
-        (AUTHN, 'Authentication'),
-        (AUTHN_FAILURE, 'Authentication failure'),
-        (LOGOUT, 'Log out'),
+        (PAGEVIEW, PAGEVIEW_TEXT),
+        (DOWNLOAD, DOWNLOAD_TEXT),
+        (AUTHN, AUTHN_TEXT),
+        (AUTHN_FAILURE, AUTHN_FAILURE_TEXT),
+        (LOGOUT, LOGOUT_TEXT),
+        (INVITATION_SENT, INVITATION_SENT_TEXT),
+        (INVITATION_REVOKED, INVITATION_REVOKED_TEXT),
+        (INVITATION_ACCEPTED, INVITATION_ACCEPTED_TEXT),
+        (INVITATION_DECLINED, INVITATION_DECLINED_TEXT),
     )
 
     user = models.ForeignKey(
@@ -176,6 +208,13 @@ class AuditLog(TimeStampedModel):
         blank=True,
         null=True,
     )
+    data = models.JSONField(
+        null=True,
+        blank=True,
+        help_text=_(
+            "Extra data about the log entry. Its structure depends on the type of log entry."
+        ),
+    )
 
     objects = AuditLogManager()
 
@@ -196,7 +235,17 @@ class AuditLog(TimeStampedModel):
         if self.organization:
             self.log_organization_id = self.organization.id
             self.log_organization_slug = self.organization.slug
+
+        self._truncate_browser()
+
         super().save(**kwargs)
+
+    def _truncate_browser(self):
+        browser_max_length = self._meta.get_field("browser").max_length
+        if self.browser and len(self.browser) > browser_max_length:
+            suffix = " - Truncated"
+            truncated_at = browser_max_length - len(suffix)
+            self.browser = self.browser[:truncated_at] + suffix
 
     def auth_backend_display(self):
         """

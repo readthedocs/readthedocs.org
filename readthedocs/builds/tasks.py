@@ -3,7 +3,6 @@ from io import BytesIO
 
 import requests
 import structlog
-from celery import Task
 from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
@@ -23,6 +22,8 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_PENDING,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
+    EXTERNAL_VERSION_STATE_CLOSED,
+    LOCK_EXPIRE,
     MAX_BUILD_COMMAND_SIZE,
     TAG,
 )
@@ -178,79 +179,75 @@ class TaskRouter:
         return version
 
 
-class ArchiveBuilds(Task):
-
-    """Task to archive old builds to cold storage."""
-
-    name = __name__ + '.archive_builds'
-
-    def run(self, *args, **kwargs):
-        if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
-            return
-
-        lock_id = '{0}-lock'.format(self.name)
-        days = kwargs.get('days', 14)
-        limit = kwargs.get('limit', 2000)
-        delete = kwargs.get('delete', True)
-
-        with memcache_lock(lock_id, self.app.oid) as acquired:
-            if acquired:
-                archive_builds_task(days=days, limit=limit, delete=delete)
-            else:
-                log.warning('Archive Builds Task still locked')
-
-
-def archive_builds_task(days=14, limit=200, include_cold=False, delete=False):
+@app.task(queue='web', bind=True)
+def archive_builds_task(self, days=14, limit=200, delete=False):
     """
-    Find stale builds and remove build paths.
+    Task to archive old builds to cold storage.
 
     :arg days: Find builds older than `days` days.
-    :arg include_cold: If True, include builds that are already in cold storage
     :arg delete: If True, deletes BuildCommand objects after archiving them
     """
-    max_date = timezone.now() - timezone.timedelta(days=days)
-    queryset = Build.objects.exclude(commands__isnull=True)
-    if not include_cold:
-        queryset = queryset.exclude(cold_storage=True)
+    if not settings.RTD_SAVE_BUILD_COMMANDS_TO_STORAGE:
+        return
 
-    queryset = (
-        queryset
-        .filter(date__lt=max_date)
-        .prefetch_related('commands')
-        .only('date', 'cold_storage')
-        [:limit]
-    )
+    lock_id = '{0}-lock'.format(self.name)
+    with memcache_lock(lock_id, LOCK_EXPIRE, self.app.oid) as acquired:
+        if not acquired:
+            log.warning('Archive Builds Task still locked')
+            return False
 
-    for build in queryset:
-        commands = BuildCommandSerializer(build.commands, many=True).data
-        if commands:
-            for cmd in commands:
-                if len(cmd['output']) > MAX_BUILD_COMMAND_SIZE:
-                    cmd['output'] = cmd['output'][-MAX_BUILD_COMMAND_SIZE:]
-                    cmd['output'] = "... (truncated) ...\n\nCommand output too long. Truncated to last 1MB.\n\n" + cmd['output']  # noqa
-                    log.warning('Truncating build command for build.', build_id=build.id)
-            output = BytesIO(json.dumps(commands).encode('utf8'))
-            filename = '{date}/{id}.json'.format(date=str(build.date.date()), id=build.id)
-            try:
-                build_commands_storage.save(name=filename, content=output)
-                build.cold_storage = True
-                build.save()
-                if delete:
-                    build.commands.all().delete()
-            except IOError:
-                log.exception('Cold Storage save failure')
+        max_date = timezone.now() - timezone.timedelta(days=days)
+        queryset = (
+            Build.objects
+            .exclude(cold_storage=True)
+            .filter(date__lt=max_date)
+            .prefetch_related('commands')
+            .only('date', 'cold_storage')
+            [:limit]
+        )
+
+        for build in queryset:
+            commands = BuildCommandSerializer(build.commands, many=True).data
+            if commands:
+                for cmd in commands:
+                    if len(cmd["output"]) > MAX_BUILD_COMMAND_SIZE:
+                        cmd["output"] = cmd["output"][-MAX_BUILD_COMMAND_SIZE:]
+                        cmd["output"] = (
+                            "\n\n"
+                            "... (truncated) ..."
+                            "\n\n"
+                            "Command output too long. Truncated to last 1MB."
+                            "\n\n" + cmd["output"]
+                        )  # noqa
+                        log.debug(
+                            "Truncating build command for build.", build_id=build.id
+                        )
+                output = BytesIO(json.dumps(commands).encode("utf8"))
+                filename = "{date}/{id}.json".format(
+                    date=str(build.date.date()), id=build.id
+                )
+                try:
+                    build_commands_storage.save(name=filename, content=output)
+                    if delete:
+                        build.commands.all().delete()
+                except IOError:
+                    log.exception('Cold Storage save failure')
+                    continue
+
+            build.cold_storage = True
+            build.save()
 
 
 @app.task(queue='web')
-def delete_inactive_external_versions(limit=200, days=30 * 3):
+def delete_closed_external_versions(limit=200, days=30 * 3):
     """
-    Delete external versions that have been marked as inactive after ``days``.
+    Delete external versions that have been marked as closed after ``days``.
 
     The commit status is updated to link to the build page, as the docs are removed.
     """
     days_ago = timezone.now() - timezone.timedelta(days=days)
     queryset = Version.external.filter(
-        active=False,
+        state=EXTERNAL_VERSION_STATE_CLOSED,
         modified__lte=days_ago,
     )[:limit]
     for version in queryset:
@@ -545,8 +542,6 @@ class BuildNotificationSender:
 
     def send_email(self, email):
         """Send email notifications for build failures."""
-        # We send only what we need from the Django model objects here to avoid
-        # serialization problems in the ``readthedocs.core.tasks.send_email_task``
         protocol = 'http' if settings.DEBUG else 'https'
         context = {
             'version': {

@@ -1,0 +1,22 @@
+{% extends "core/email/common.html" %}
+{% block content %}
+{% url "projects_domains_edit" domain.project.slug domain.pk as domain_url %}
+<p>
+  The configuration of your custom domain <a href="{{ production_uri }}{{ domain_url }}">{{ domain.domain }}</a> is pending.
+  Make sure to follow the step from our <a href="https://docs.readthedocs.io/page/custom-domains.html">documentation</a> to complete the process.
+</p>
+
+{% if not domain.validation_process_expired %}
+<p>
+  If you don't complete the configuration,
+  we will stop trying to validate your domain in
+  <span title="{{ domain.validation_process_expiration_date|date }}">{{ domain.validation_process_expiration_date|timeuntil }}</span>.
+</p>
+{% else %}
+<p>
+  The validation period for this domain has ended.
+  If you want to restart the process,
+  go to <a href="{{ production_uri }}{{ domain_url }}">your domain</a> and click on <code>Save</code>.
+</p>
+{% endif %}
+{% endblock %}

@@ -1,15 +1,14 @@
 """Allauth overrides."""
 
 import json
-import structlog
 
+import structlog
 from allauth.account.adapter import DefaultAccountAdapter
-from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.encoding import force_str
 
 from readthedocs.core.utils import send_email
-from readthedocs.organizations.models import TeamMember
+from readthedocs.invitations.models import Invitation
 
 log = structlog.get_logger(__name__)
 
@@ -53,19 +52,15 @@ class AccountAdapter(DefaultAccountAdapter):
         )
 
     def save_user(self, request, user, form, commit=True):
-        """Override default account signup to link user to correct team."""
+        """Override default account signup to redeem invitations at sign-up."""
         user = super().save_user(request, user, form)
-        if not settings.RTD_ALLOW_ORGANIZATIONS:
-            return
 
-        invite_id = request.session.get('invite')
-        if invite_id:
-            try:
-                teammember = TeamMember.objects.get(invite__pk=invite_id)
-                teammember.member = user
-                teammember.save()
-                teammember.invite.delete()
-            except TeamMember.DoesNotExist:
-                log.error(
-                    "Didn't find member related to invite, not adding to team",
-                )
+        invitation_pk = request.session.get("invitation:pk")
+        if invitation_pk:
+            invitation = Invitation.objects.pending().filter(pk=invitation_pk).first()
+            if invitation:
+                log.info("Redeeming invitation at sign-up", invitation_pk=invitation_pk)
+                invitation.redeem(user, request=request)
+                invitation.delete()
+            else:
+                log.info("Invitation not found", invitation_pk=invitation_pk)

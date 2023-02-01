@@ -835,18 +835,25 @@ div.project-import-remote button.remote-sync:before {
     content: "\f021";
 }
 
-a.socialaccount-provider.github:before {
+button.socialaccount-provider {
+    padding: 6px 10px 6px 10px;
+    font-size: 16px;
+    margin: 10px 5px 10px 0px;
+    line-height: 24px;
+}
+
+button.socialaccount-provider.github:before {
     font-family: FontAwesome;
     content: "\f09b";
 }
 
-a.socialaccount-provider.gitlab:before {
+button.socialaccount-provider.gitlab:before {
     font-family: FontAwesome;
     content: "\f296";
 }
 
-a.socialaccount-provider.bitbucket:before,
-a.socialaccount-provider.bitbucket_oauth2:before {
+button.socialaccount-provider.bitbucket:before,
+button.socialaccount-provider.bitbucket_oauth2:before {
     font-family: FontAwesome;
     content: "\f171";
 }

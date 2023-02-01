@@ -1,8 +1,7 @@
 Organizations
 -------------
 
-.. note::
-    This feature only exists on `Read the Docs for Business <https://readthedocs.com/>`_.
+.. include:: /shared/admonition-rtd-business.rst
 
 Organizations allow you to segment who has access to what projects in your company.
 Your company will be represented as an Organization,

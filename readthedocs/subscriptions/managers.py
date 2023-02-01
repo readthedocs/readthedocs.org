@@ -1,14 +1,11 @@
 """Subscriptions managers."""
 
-from datetime import datetime
-
 import structlog
 from django.conf import settings
 from django.db import models
-from django.utils import timezone
 
 from readthedocs.core.history import set_change_reason
-from readthedocs.subscriptions.utils import get_or_create_stripe_customer
+from readthedocs.subscriptions.utils import get_or_create_stripe_subscription
 
 log = structlog.get_logger(__name__)
 
@@ -33,7 +30,10 @@ class SubscriptionManager(models.Manager):
             return organization.subscription
 
         from readthedocs.subscriptions.models import Plan
-        plan = Plan.objects.filter(slug=settings.ORG_DEFAULT_SUBSCRIPTION_PLAN_SLUG).first()
+
+        plan = Plan.objects.filter(
+            stripe_id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
+        ).first()
         # This should happen only on development.
         if not plan:
             log.warning(
@@ -42,25 +42,16 @@ class SubscriptionManager(models.Manager):
             )
             return None
 
-        stripe_customer = get_or_create_stripe_customer(organization)
-        stripe_subscription = stripe_customer.subscriptions.create(
-            plan=plan.stripe_id,
-            trial_period_days=plan.trial,
-        )
+        stripe_subscription = get_or_create_stripe_subscription(organization)
+
         return self.create(
             plan=plan,
             organization=organization,
             stripe_id=stripe_subscription.id,
             status=stripe_subscription.status,
-            start_date=timezone.make_aware(
-                datetime.fromtimestamp(int(stripe_subscription.start)),
-            ),
-            end_date=timezone.make_aware(
-                datetime.fromtimestamp(int(stripe_subscription.current_period_end)),
-            ),
-            trial_end_date=timezone.make_aware(
-                datetime.fromtimestamp(int(stripe_subscription.trial_end)),
-            ),
+            start_date=stripe_subscription.start_date,
+            end_date=stripe_subscription.current_period_end,
+            trial_end_date=stripe_subscription.trial_end,
         )
 
     def update_from_stripe(self, *, rtd_subscription, stripe_subscription):
@@ -75,26 +66,9 @@ class SubscriptionManager(models.Manager):
         # subscription is ``canceled``. I'm assuming that ``current_period_end``
         # will have the same value than ``ended_at``
         # https://stripe.com/docs/api/subscriptions/object?lang=python#subscription_object-current_period_end
-        start_date = getattr(stripe_subscription, 'current_period_start', None)
-        end_date = getattr(stripe_subscription, 'current_period_end', None)
-
-        try:
-            start_date = timezone.make_aware(
-                datetime.fromtimestamp(start_date),
-            )
-            end_date = timezone.make_aware(
-                datetime.fromtimestamp(end_date),
-            )
-        except TypeError:
-            log.error(
-                'Stripe subscription invalid date.',
-                start_date=start_date,
-                end_date=end_date,
-                stripe_subscription=stripe_subscription.id,
-            )
-            start_date = None
-            end_date = None
-            trial_end_date = None
+        start_date = stripe_subscription.current_period_start
+        end_date = stripe_subscription.current_period_end
+        log.bind(stripe_subscription=stripe_subscription.id)
 
         rtd_subscription.status = stripe_subscription.status
 
@@ -109,49 +83,26 @@ class SubscriptionManager(models.Manager):
             rtd_subscription.stripe_id = stripe_subscription.id
 
         # Update trial end date if it's present
-        trial_end_date = getattr(stripe_subscription, 'trial_end', None)
+        trial_end_date = stripe_subscription.trial_end
         if trial_end_date:
-            try:
-                trial_end_date = timezone.make_aware(
-                    datetime.fromtimestamp(trial_end_date),
-                )
-                rtd_subscription.trial_end_date = trial_end_date
-            except TypeError:
-                log.error(
-                    'Stripe subscription trial end date invalid. ',
-                    trial_end_date=trial_end_date,
-                    stripe_subscription=stripe_subscription.id,
-                )
+            rtd_subscription.trial_end_date = trial_end_date
 
         # Update the plan in case it was changed from the Portal.
-        # Try our best to match a plan that is not custom. This mostly just
-        # updates the UI now that we're using the Stripe Portal. A miss here
-        # just won't update the UI, but this shouldn't happen for most users.
-        from readthedocs.subscriptions.models import Plan
-        try:
-            plan = (
-                Plan.objects
-                # Exclude "custom" here, as we historically reused Stripe plan
-                # id for custom plans. We don't have a better attribute to
-                # filter on here.
-                .exclude(slug__contains='custom')
-                .exclude(name__icontains='Custom')
-                .get(stripe_id=stripe_subscription.plan.id)
-            )
-            rtd_subscription.plan = plan
-        except (Plan.DoesNotExist, Plan.MultipleObjectsReturned):
-            log.error(
-                'Plan lookup failed, skipping plan update.',
-                stripe_subscription=stripe_subscription.id,
-                stripe_plan=stripe_subscription.plan.id,
-            )
+        # This mostly just updates the UI now that we're using the Stripe Portal.
+        # A miss here just won't update the UI, but this shouldn't happen for most users.
+        # NOTE: Previously we were using stripe_subscription.plan,
+        # but that attribute is deprecated, and it's null if the subscription has more than
+        # one item, we have a couple of subscriptions that have more than
+        # one item, so we use the first that is found in our DB.
+        for stripe_item in stripe_subscription.items.prefetch_related("price").all():
+            plan = self._get_plan(stripe_item.price)
+            if plan:
+                rtd_subscription.plan = plan
+                break
+        else:
+            log.error("Plan not found, skipping plan update.")
 
-        if stripe_subscription.status == 'canceled':
-            # Remove ``stripe_id`` when canceled so the customer can
-            # re-subscribe using our form.
-            rtd_subscription.stripe_id = None
-
-        elif stripe_subscription.status == 'active' and end_date:
+        if stripe_subscription.status == "active" and end_date:
             # Save latest active date (end_date) to notify owners about their subscription
             # is ending and disable this organization after N days of unpaid. We check for
             # ``active`` here because Stripe will continue sending updates for the
@@ -187,6 +138,28 @@ class SubscriptionManager(models.Manager):
         set_change_reason(rtd_subscription, change_reason)
         rtd_subscription.save()
         return rtd_subscription
+
+    # pylint: disable=no-self-use
+    def _get_plan(self, stripe_price):
+        from readthedocs.subscriptions.models import Plan
+
+        try:
+            plan = (
+                Plan.objects
+                # Exclude "custom" here, as we historically reused Stripe plan
+                # id for custom plans. We don't have a better attribute to
+                # filter on here.
+                .exclude(slug__contains="custom")
+                .exclude(name__icontains="Custom")
+                .get(stripe_id=stripe_price.id)
+            )
+            return plan
+        except (Plan.DoesNotExist, Plan.MultipleObjectsReturned):
+            log.info(
+                "Plan lookup failed.",
+                stripe_price=stripe_price.id,
+            )
+        return None
 
 
 class PlanFeatureManager(models.Manager):

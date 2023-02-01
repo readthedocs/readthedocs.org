@@ -8,6 +8,7 @@
 .cache
 .coverage
 .coverage.*
+coverage.xml
 .idea
 .vagrant
 .vscode
@@ -54,6 +55,7 @@ private_*
 readthedocs/htmlcov
 tags
 .python-version
+.tool-versions
 *.pyo
 .pytest_cache/
 scripts/travis/elasticsearch*
@@ -66,6 +68,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.direnv/
+.envrc
 
 dev.db-journal
 /readthedocs/settings/build_docker.py

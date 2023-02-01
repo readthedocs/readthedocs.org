@@ -17,7 +17,10 @@ class Backend(BaseVCS):
 
     def clone(self):
         self.make_clean_working_dir()
-        self.run('bzr', 'checkout', self.repo_url, '.')
+        try:
+            self.run("bzr", "checkout", self.repo_url, ".")
+        except RepositoryError:
+            raise RepositoryError(RepositoryError.CLONE_ERROR())
 
     @property
     def tags(self):
@@ -66,6 +69,9 @@ class Backend(BaseVCS):
 
     def checkout(self, identifier=None):
         super().checkout()
+
+        if not identifier:
+            return self.up()
 
         try:
             code, stdout, stderr = self.run('bzr', 'switch', identifier)

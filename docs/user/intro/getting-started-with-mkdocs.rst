@@ -54,7 +54,6 @@ You can make changes to your Markdown files and your docs will automatically reb
 
 .. figure:: /_static/images/first-steps/mkdocs-hello-world.png
    :figwidth: 500px
-   :target: /_static/images/first-steps/mkdocs-hello-world.png
    :align: center
 
    Your MkDocs project is built
@@ -62,12 +61,17 @@ You can make changes to your Markdown files and your docs will automatically reb
 Once you have your documentation in a public repository such as GitHub, Bitbucket, or GitLab,
 you can start using Read the Docs by :doc:`importing your docs </intro/import-guide>`.
 
-.. _install MkDocs: https://www.mkdocs.org/#installation
+.. _install MkDocs: https://www.mkdocs.org/user-guide/installation/
 
 .. warning::
 
    We strongly recommend to :ref:`pin the MkDocs version <guides/reproducible-builds:pinning dependencies>`
    used for your project to build the docs to avoid potential future incompatibilities.
+
+Get inspired!
+-------------
+
+You might learn more and find the first ingredients for starting your own documentation project by looking at :doc:`/examples` - view live example renditions and copy & paste from the accompanying source code.
 
 External resources
 ------------------

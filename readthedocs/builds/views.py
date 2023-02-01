@@ -1,9 +1,9 @@
 """Views for builds app."""
 
-import structlog
 import textwrap
 from urllib.parse import urlparse
 
+import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -14,10 +14,15 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 from requests.utils import quote
 
+from readthedocs.builds.constants import (
+    BUILD_FINAL_STATES,
+    BUILD_STATE_CANCELLED,
+    BUILD_STATE_TRIGGERED,
+)
 from readthedocs.builds.filters import BuildListFilter
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
-from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils import cancel_build, trigger_build
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.models import Project
 
@@ -126,9 +131,13 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
     def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
         context = super().get_context_data(**kwargs)
 
-        active_builds = self.get_queryset().exclude(
-            state='finished',
-        ).values('id')
+        active_builds = (
+            self.get_queryset()
+            .exclude(
+                state__in=BUILD_FINAL_STATES,
+            )
+            .values("id")
+        )
 
         context['project'] = self.project
         context['active_builds'] = active_builds
@@ -147,6 +156,20 @@ class BuildList(BuildBase, BuildTriggerMixin, ListView):
 class BuildDetail(BuildBase, DetailView):
 
     pk_url_kwarg = 'build_pk'
+
+    @method_decorator(login_required)
+    def post(self, request, project_slug, build_pk):
+        project = get_object_or_404(Project, slug=project_slug)
+        build = get_object_or_404(project.builds, pk=build_pk)
+
+        if not AdminPermission.is_admin(request.user, project):
+            return HttpResponseForbidden()
+
+        cancel_build(build)
+
+        return HttpResponseRedirect(
+            reverse('builds_detail', args=[project.slug, build.pk]),
+        )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -1,6 +1,6 @@
 import copy
 import mimetypes
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import parse_qsl, urlencode, urlparse
 
 import structlog
 from django.conf import settings
@@ -17,12 +17,9 @@ from slugify import slugify as unicode_slugify
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.core.resolver import resolve
-from readthedocs.proxito.constants import (
-    REDIRECT_CANONICAL_CNAME,
-    REDIRECT_HTTPS,
-)
+from readthedocs.proxito.constants import REDIRECT_CANONICAL_CNAME, REDIRECT_HTTPS
 from readthedocs.redirects.exceptions import InfiniteRedirectException
-from readthedocs.storage import build_media_storage
+from readthedocs.storage import build_media_storage, staticfiles_storage
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -48,7 +45,7 @@ class ServeDocsMixin:
         shouldn't do this in production, but I don't want to force a check for
         ``DEBUG``.
 
-        If ``download`` and ``version_slug`` are passed, when serving via NGINX
+        If ``download`` and ``version_slug`` are passed,
         the HTTP header ``Content-Disposition`` is added with the proper
         filename (e.g. "pip-pypa-io-en-latest.pdf" or "pip-pypi-io-en-v2.0.pdf"
         or "docs-celeryproject-org-kombu-en-stable.pdf")
@@ -60,21 +57,25 @@ class ServeDocsMixin:
             request=request,
             download=download,
         )
-
         if settings.PYTHON_MEDIA:
-            return self._serve_docs_python(
-                request,
-                final_project=final_project,
-                path=path,
-            )
+            response = self._serve_file_from_python(request, path, build_media_storage)
+        else:
+            response = self._serve_file_from_nginx(path, root_path="proxito")
 
-        return self._serve_docs_nginx(
-            request,
-            final_project=final_project,
-            version_slug=version_slug,
-            path=path,
-            download=download,
-        )
+        # Set the filename of the download.
+        if download:
+            filename_ext = urlparse(path).path.rsplit(".", 1)[-1]
+            domain = unicode_slugify(final_project.subdomain().replace(".", "-"))
+            if final_project.is_subproject:
+                alias = final_project.alias
+                filename = f"{domain}-{alias}-{final_project.language}-{version_slug}.{filename_ext}"  # noqa
+            else:
+                filename = (
+                    f"{domain}-{final_project.language}-{version_slug}.{filename_ext}"
+                )
+            response["Content-Disposition"] = f"filename={filename}"
+
+        return response
 
     def _track_pageview(self, project, path, request, download):
         """Create an audit log of the page view if audit is enabled."""
@@ -99,31 +100,26 @@ class ServeDocsMixin:
         """
         return False
 
-    def _serve_docs_python(self, request, final_project, path):
-        """
-        Serve docs from Python.
+    def _serve_static_file(self, request, path):
+        if settings.PYTHON_MEDIA:
+            return self._serve_file_from_python(request, path, staticfiles_storage)
+        return self._serve_file_from_nginx(path, root_path="proxito-static")
 
-        .. warning:: Don't do this in production!
+    def _serve_file_from_nginx(self, path, root_path):
         """
-        log.debug('Django serve.', path=path, project_slug=final_project.slug)
-
-        root_path = build_media_storage.path('')
-        # Serve from Python
-        return serve(request, path, root_path)
-
-    def _serve_docs_nginx(self, request, final_project, version_slug, path, download):
-        """
-        Serve docs from nginx.
+        Serve a file from nginx.
 
         Returns a response with ``X-Accel-Redirect``, which will cause nginx to
         serve it directly as an internal redirect.
-        """
 
+        :param path: The path of the file to serve.
+        :param root_path: The root path of the internal redirect.
+        """
         original_path = copy.copy(path)
-        if not path.startswith('/proxito/'):
+        if not path.startswith(f"/{root_path}/"):
             if path[0] == '/':
                 path = path[1:]
-            path = f'/proxito/{path}'
+            path = f"/{root_path}/{path}"
 
         log.debug(
             'Nginx serve.',
@@ -147,19 +143,19 @@ class ServeDocsMixin:
         x_accel_redirect = iri_to_uri(path)
         response['X-Accel-Redirect'] = x_accel_redirect
 
-        if download:
-            filename_ext = urlparse(path).path.rsplit('.', 1)[-1]
-            domain = unicode_slugify(final_project.subdomain().replace('.', '-'))
-            if final_project.is_subproject:
-                alias = final_project.alias
-                filename = f'{domain}-{alias}-{final_project.language}-{version_slug}.{filename_ext}'  # noqa
-            else:
-                filename = f'{domain}-{final_project.language}-{version_slug}.{filename_ext}'
-            response['Content-Disposition'] = f'filename={filename}'
-
         # Needed to strip any GET args, etc.
         response.proxito_path = urlparse(path).path
         return response
+
+    def _serve_file_from_python(self, request, path, storage):
+        """
+        Serve a file from Python.
+
+        .. warning:: Don't use this in production!
+        """
+        log.debug("Django serve.", path=path)
+        root_path = storage.path("")
+        return serve(request, path, root_path)
 
     def _serve_401(self, request, project):
         res = render(request, '401.html')
@@ -190,29 +186,44 @@ class ServeDocsMixin:
 
 
 class ServeRedirectMixin:
-
-    def system_redirect(self, request, final_project, lang_slug, version_slug, filename):
+    def system_redirect(
+        self, request, final_project, version_slug, filename, is_external_version=False
+    ):
         """
         Return a redirect that is defined by RTD instead of the user.
 
         This is normally used for `/` and `/page/*` redirects.
+
+        :param request: Request object.
+        :param final_project: The current project being served.
+        :param version_slug: The current version slug being served.
+        :param filename: The filename being served.
+        :param external: If the version is from a pull request preview.
         """
         urlparse_result = urlparse(request.get_full_path())
-        if hasattr(request, 'external_domain'):
-            log.debug('Request is external')
         to = resolve(
             project=final_project,
             version_slug=version_slug,
             filename=filename,
             query_params=urlparse_result.query,
-            external=hasattr(request, 'external_domain'),
+            external=is_external_version,
         )
-        log.info('System Redirect.', host=request.get_host(), from_url=filename, to_url=to)
+        log.debug(
+            "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
+        )
         resp = HttpResponseRedirect(to)
         resp['X-RTD-Redirect'] = 'system'
         return resp
 
-    def canonical_redirect(self, request, final_project, version_slug, filename):
+    def canonical_redirect(
+        self,
+        request,
+        final_project,
+        version_slug,
+        filename,
+        redirect_type=None,
+        is_external_version=False,
+    ):
         """
         Return a redirect to the canonical domain including scheme.
 
@@ -226,11 +237,17 @@ class ServeRedirectMixin:
         - Redirect from a subproject domain to the main domain
           https://subproject.rtd.io/en/latest/foo -> https://main.rtd.io/projects/subproject/en/latest/foo  # noqa
           https://subproject.rtd.io/en/latest/foo -> https://docs.test.com/projects/subproject/en/latest/foo  # noqa
+
+        :param request: Request object.
+        :param final_project: The current project being served.
+        :param version_slug: The current version slug being served.
+        :param filename: The filename being served.
+        :param redirect_type: The type of canonical redirect (https, canonical-cname, subproject-main-domain)
+        :param external: If the version is from a pull request preview.
         """
         from_url = request.build_absolute_uri()
         parsed_from = urlparse(from_url)
 
-        redirect_type = getattr(request, 'canonicalize', None)
         if redirect_type == REDIRECT_HTTPS:
             to = parsed_from._replace(scheme='https').geturl()
         else:
@@ -239,7 +256,7 @@ class ServeRedirectMixin:
                 version_slug=version_slug,
                 filename=filename,
                 query_params=parsed_from.query,
-                external=hasattr(request, 'external_domain'),
+                external=is_external_version,
             )
             # When a canonical redirect is done, only change the domain.
             if redirect_type == REDIRECT_CANONICAL_CNAME:
@@ -259,10 +276,12 @@ class ServeRedirectMixin:
 
         log.info('Canonical Redirect.', host=request.get_host(), from_url=filename, to_url=to)
         resp = HttpResponseRedirect(to)
-        resp['X-RTD-Redirect'] = getattr(request, 'canonicalize', 'unknown')
+        resp["X-RTD-Redirect"] = redirect_type or "unknown"
         return resp
 
-    def get_redirect(self, project, lang_slug, version_slug, filename, full_path):
+    def get_redirect(
+        self, project, lang_slug, version_slug, filename, full_path, forced_only=False
+    ):
         """
         Check for a redirect for this project that matches ``full_path``.
 
@@ -274,6 +293,7 @@ class ServeRedirectMixin:
             version_slug=version_slug,
             path=filename,
             full_path=full_path,
+            forced_only=forced_only,
         )
         return redirect_path, http_status
 
@@ -284,11 +304,17 @@ class ServeRedirectMixin:
         :returns: redirect response with the correct path
         :rtype: HttpResponseRedirect or HttpResponsePermanentRedirect
         """
-
-        schema, netloc, path, params, query, fragments = urlparse(proxito_path)
         # `proxito_path` doesn't include query params.
-        query = urlparse(request.get_full_path()).query
-        new_path = urlunparse((schema, netloc, redirect_path, params, query, fragments))
+        query_list = parse_qsl(
+            urlparse(request.get_full_path()).query,
+            keep_blank_values=True,
+        )
+
+        # Combine the query params from the original request with the ones from the redirect.
+        redirect_parsed = urlparse(redirect_path)
+        query_list.extend(parse_qsl(redirect_parsed.query, keep_blank_values=True))
+        query = urlencode(query_list)
+        new_path = redirect_parsed._replace(query=query).geturl()
 
         # Re-use the domain and protocol used in the current request.
         # Redirects shouldn't change the domain, version or language.
@@ -301,7 +327,14 @@ class ServeRedirectMixin:
             http_status_code=http_status,
         )
 
-        if request.build_absolute_uri(proxito_path) == new_path:
+        new_path_parsed = urlparse(new_path)
+        old_path_parsed = urlparse(request.build_absolute_uri(proxito_path))
+        # Check explicitly only the path and hostname, since a different
+        # protocol or query parameters could lead to a infinite redirect.
+        if (
+            new_path_parsed.hostname == old_path_parsed.hostname
+            and new_path_parsed.path == old_path_parsed.path
+        ):
             # check that we do have a response and avoid infinite redirect
             log.warning(
                 'Infinite Redirect: FROM URL is the same than TO URL.',

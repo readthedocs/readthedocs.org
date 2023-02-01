@@ -1,11 +1,11 @@
 """Base classes for VCS backends."""
-import structlog
 import os
-import shutil
 
-from readthedocs.doc_builder.exceptions import BuildUserError
+import structlog
+
+from readthedocs.core.utils.filesystem import safe_rmtree
+from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
 from readthedocs.projects.exceptions import RepositoryError
-
 
 log = structlog.get_logger(__name__)
 
@@ -81,7 +81,7 @@ class BaseVCS:
 
     def make_clean_working_dir(self):
         """Ensures that the working dir exists and is empty."""
-        shutil.rmtree(self.working_dir, ignore_errors=True)
+        safe_rmtree(self.working_dir, ignore_errors=True)
         self.check_working_dir()
 
     def update(self):
@@ -101,9 +101,16 @@ class BaseVCS:
 
         try:
             build_cmd = self.environment.run(*cmd, **kwargs)
+        except BuildCancelled:
+            # Catch ``BuildCancelled`` here and re raise it. Otherwise, if we
+            # raise a ``RepositoryError`` then the ``on_failure`` method from
+            # Celery won't treat this problem as a ``BuildCancelled`` issue.
+            raise BuildCancelled
         except BuildUserError as e:
             # Re raise as RepositoryError to handle it properly from outside
-            raise RepositoryError(str(e))
+            if hasattr(e, "message"):
+                raise RepositoryError(e.message)
+            raise RepositoryError
 
         # Return a tuple to keep compatibility
         return (build_cmd.exit_code, build_cmd.output, build_cmd.error)

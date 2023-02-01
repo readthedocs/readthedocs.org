@@ -44,9 +44,9 @@ Use this URL when setting up a new integration with your provider -- these steps
 GitHub
 ~~~~~~
 
-* Go to the :guilabel:`Settings` page for your project
+* Go to the :guilabel:`Settings` page for your **GitHub project**
 * Click :guilabel:`Webhooks` > :guilabel:`Add webhook`
-* For **Payload URL**, use the URL of the integration on Read the Docs,
+* For **Payload URL**, use the URL of the integration on your **Read the Docs project**,
   found on the project's :guilabel:`Admin` > :guilabel:`Integrations` page.
   You may need to prepend *https://* to the URL.
 * For **Content type**, both *application/json* and
@@ -60,9 +60,6 @@ GitHub
 You can verify if the webhook is working at the bottom of the GitHub page under **Recent Deliveries**.
 If you see a Response 200, then the webhook is correctly configured.
 For a 403 error, it's likely that the Payload URL is incorrect.
-
-GitHub will emit an initial HTTP request (`X-GitHub-Event: ping`) upon creating the webhook and you may notice that the Read the Docs responds with `{"detail":"Unhandled webhook event"}` – this is normal and expected.
-Push changes to your repository and webhooks will work from this point.
 
 .. note:: The webhook token, intended for the GitHub **Secret** field, is not yet implemented.
 
@@ -82,10 +79,11 @@ Bitbucket
 GitLab
 ~~~~~~
 
-* Go to the :guilabel:`Settings` > :guilabel:`Integrations` page for your project
-* For **URL**, use the URL of the integration on Read the Docs,
+* Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your GitLab project
+* For **URL**, use the URL of the integration on **Read the Docs project**,
   found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
-* Leave the default **Push events** selected and mark **Tag push events** also
+* Leave the default **Push events** selected,
+  additionally mark **Tag push events** and **Merge request events**.
 * Finish by clicking **Add Webhook**
 
 Gitea
@@ -108,7 +106,7 @@ On Read the Docs:
 On your Gitea instance:
 
 * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your project on your Gitea instance
-* Create a new webhook of type "Gitea" 
+* Create a new webhook of type "Gitea"
 * For **URL**, use the URL of the integration on Read the Docs,
   found on the :guilabel:`Admin` > :guilabel:`Integrations` page
 * Leave the default **HTTP Method** as POST
@@ -155,10 +153,17 @@ token
     The integration token found on the project's **Integrations** dashboard page
     (:guilabel:`Admin` > :guilabel:`Integrations`).
 
+default_branch
+    This is the default branch of the repository
+    (ie. the one checked out when cloning the repository without arguments)
+
+    *Optional*
+
 For example, the cURL command to build the ``dev`` branch, using the token
 ``1234``, would be::
 
-    curl -X POST -d "branches=dev" -d "token=1234" https://readthedocs.org/api/v2/webhook/example-project/1/
+    curl -X POST -d "branches=dev" -d "token=1234" -d "default_branch=main"
+    https://readthedocs.org/api/v2/webhook/example-project/1/
 
 A command like the one above could be called from a cron job or from a hook
 inside Git_, Subversion_, Mercurial_, or Bazaar_.
@@ -197,7 +202,7 @@ Payload validation
 
 If your project was imported through a connected account,
 we create a secret for every integration that offers a way to verify that a webhook request is legitimate.
-Currently, `GitHub <https://developer.github.com/webhooks/securing/>`__ and `GitLab <https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#secret-token>`__
+Currently, `GitHub <https://developer.github.com/webhooks/securing/>`__ and `GitLab <https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#validate-payloads-by-using-a-secret-token>`__
 offer a way to check this.
 
 Troubleshooting

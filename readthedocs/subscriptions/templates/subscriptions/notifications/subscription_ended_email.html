@@ -1,3 +1,5 @@
+{% extends "core/email/common.html" %}
+{% block content %}
 <p>The subscription period for <b>{{ organization.name }}<b> has ended. If
 you'd like to continue using Read the Docs to manage your
 documentation, please renew the subscription for your organization soon.</p>
@@ -14,3 +16,4 @@ documentation, please renew the subscription for your organization soon.</p>
     <a href="{{ production_uri }}{% url 'support' %}">Get in touch with us</a>
     and let us know what problems you're having.
 </p>
+{% endblock %}

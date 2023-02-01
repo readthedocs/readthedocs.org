@@ -11,10 +11,13 @@ from functools import lru_cache
 from django.conf import settings
 
 from readthedocs.config.utils import list_to_dict, to_dict
+from readthedocs.core.utils.filesystem import safe_open
+from readthedocs.projects.constants import GENERIC
 
 from .find import find_one
 from .models import (
     Build,
+    BuildJobs,
     BuildTool,
     BuildWithTools,
     Conda,
@@ -179,6 +182,7 @@ class BuildConfigBase:
     def __init__(self, env_config, raw_config, source_file):
         self.env_config = env_config
         self._raw_config = copy.deepcopy(raw_config)
+        self.source_config = copy.deepcopy(raw_config)
         self.source_file = source_file
         if os.path.isdir(self.source_file):
             self.base_path = self.source_file
@@ -259,6 +263,12 @@ class BuildConfigBase:
     @property
     def using_build_tools(self):
         return isinstance(self.build, BuildWithTools)
+
+    @property
+    def is_using_conda(self):
+        if self.using_build_tools:
+            return self.python_interpreter in ("conda", "mamba")
+        return self.conda is not None
 
     @property
     def python_interpreter(self):
@@ -751,6 +761,10 @@ class BuildConfigV2(BuildConfigBase):
             conda['environment'] = validate_path(environment, self.base_path)
         return conda
 
+    # NOTE: I think we should rename `BuildWithTools` to `BuildWithOs` since
+    # `os` is the main and mandatory key that makes the diference
+    #
+    # NOTE: `build.jobs` can't be used without using `build.os`
     def validate_build_config_with_tools(self):
         """
         Validates the build object (new format).
@@ -769,6 +783,27 @@ class BuildConfigV2(BuildConfigBase):
             for tool in tools.keys():
                 validate_choice(tool, self.settings['tools'].keys())
 
+        jobs = {}
+        with self.catch_validation_error("build.jobs"):
+            # FIXME: should we use `default={}` or kept the `None` here and
+            # shortcircuit the rest of the logic?
+            jobs = self.pop_config("build.jobs", default={})
+            validate_dict(jobs)
+            # NOTE: besides validating that each key is one of the expected
+            # ones, we could validate the value of each of them is a list of
+            # commands. However, I don't think we should validate the "command"
+            # looks like a real command.
+            for job in jobs.keys():
+                validate_choice(
+                    job,
+                    BuildJobs.__slots__,
+                )
+
+        commands = []
+        with self.catch_validation_error("build.commands"):
+            commands = self.pop_config("build.commands", default=[])
+            validate_list(commands)
+
         if not tools:
             self.error(
                 key='build.tools',
@@ -779,6 +814,26 @@ class BuildConfigV2(BuildConfigBase):
                 ),
                 code=CONFIG_REQUIRED,
             )
+
+        if commands and jobs:
+            self.error(
+                key="build.commands",
+                message="The keys build.jobs and build.commands can't be used together.",
+                code=INVALID_KEYS_COMBINATION,
+            )
+
+        build["jobs"] = {}
+        for job, job_commands in jobs.items():
+            with self.catch_validation_error(f"build.jobs.{job}"):
+                build["jobs"][job] = [
+                    validate_string(job_command)
+                    for job_command in validate_list(job_commands)
+                ]
+
+        build["commands"] = []
+        for command in commands:
+            with self.catch_validation_error("build.commands"):
+                build["commands"].append(validate_string(command))
 
         build['tools'] = {}
         for tool, version in tools.items():
@@ -1263,7 +1318,9 @@ class BuildConfigV2(BuildConfigBase):
             return BuildWithTools(
                 os=build['os'],
                 tools=tools,
-                apt_packages=build['apt_packages'],
+                jobs=BuildJobs(**build["jobs"]),
+                commands=build["commands"],
+                apt_packages=build["apt_packages"],
             )
         return Build(**build)
 
@@ -1296,6 +1353,9 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def doctype(self):
+        if "commands" in self._config["build"] and self._config["build"]["commands"]:
+            return GENERIC
+
         if self.mkdocs:
             return 'mkdocs'
         return self.sphinx.builder
@@ -1321,7 +1381,11 @@ def load(path, env_config):
 
     if not filename:
         raise ConfigFileNotFound(path)
-    with open(filename, 'r') as configuration_file:
+
+    # Allow symlinks, but only the ones that resolve inside the base directory.
+    with safe_open(
+        filename, "r", allow_symlinks=True, base_path=path
+    ) as configuration_file:
         try:
             config = parse(configuration_file.read())
         except ParseError as error:

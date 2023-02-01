@@ -1,18 +1,20 @@
 import datetime
 import os
-import shutil
 
-
-from celery.worker.request import Request
 import structlog
-
+from celery.worker.request import Request
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
+from readthedocs.builds.constants import (
+    BUILD_FINAL_STATES,
+    BUILD_STATE_CANCELLED,
+    EXTERNAL,
+)
 from readthedocs.builds.models import Build
 from readthedocs.builds.tasks import send_build_status
+from readthedocs.core.utils.filesystem import safe_rmtree
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -31,7 +33,7 @@ def clean_build(version):
 
     log.info('Removing directories.', directories=del_dirs)
     for path in del_dirs:
-        shutil.rmtree(path, ignore_errors=True)
+        safe_rmtree(path, ignore_errors=True)
 
 
 @app.task(queue='web')
@@ -83,11 +85,11 @@ def finish_inactive_builds():
     """
     Finish inactive builds.
 
-    A build is consider inactive if it's not in ``FINISHED`` state and it has been
+    A build is consider inactive if it's not in a final state and it has been
     "running" for more time that the allowed one (``Project.container_time_limit``
     or ``DOCKER_LIMITS['time']`` plus a 20% of it).
 
-    These inactive builds will be marked as ``success`` and ``FINISHED`` with an
+    These inactive builds will be marked as ``success`` and ``CANCELLED`` with an
     ``error`` to be communicated to the user.
     """
     # TODO similar to the celery task time limit, we can't infer this from
@@ -98,10 +100,13 @@ def finish_inactive_builds():
     time_limit = 7200 + 300
     delta = datetime.timedelta(seconds=time_limit)
     query = (
-        ~Q(state=BUILD_STATE_FINISHED) & Q(date__lte=timezone.now() - delta)
+        ~Q(state__in=BUILD_FINAL_STATES)
+        & Q(date__lt=timezone.now() - delta)
+        & Q(date__gt=timezone.now() - datetime.timedelta(days=1))
     )
 
-    builds_finished = 0
+    projects_finished = set()
+    builds_finished = []
     builds = Build.objects.filter(query)[:50]
     for build in builds:
 
@@ -110,23 +115,26 @@ def finish_inactive_builds():
                 seconds=int(build.project.container_time_limit),
             )
             if build.date + custom_delta > timezone.now():
-                # Do not mark as FINISHED builds with a custom time limit that wasn't
+                # Do not mark as CANCELLED builds with a custom time limit that wasn't
                 # expired yet (they are still building the project version)
                 continue
 
         build.success = False
-        build.state = BUILD_STATE_FINISHED
+        build.state = BUILD_STATE_CANCELLED
         build.error = _(
             'This build was terminated due to inactivity. If you '
             'continue to encounter this error, file a support '
             'request with and reference this build id ({}).'.format(build.pk),
         )
         build.save()
-        builds_finished += 1
+        builds_finished.append(build.pk)
+        projects_finished.add(build.project.slug)
 
     log.info(
         'Builds marked as "Terminated due inactivity".',
-        count=builds_finished,
+        count=len(builds_finished),
+        project_slugs=projects_finished,
+        build_pks=builds_finished,
     )
 
 

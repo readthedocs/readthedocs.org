@@ -89,8 +89,8 @@
     "slug": "project",
     "subproject_of": null,
     "tags": [
-        "tag",
         "project",
+        "tag",
         "test"
     ],
     "translation_of": null,

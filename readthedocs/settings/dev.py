@@ -18,7 +18,11 @@ class CommunityDevSettings(CommunityBaseSettings):
             'default': {
                 'ENGINE': 'django.db.backends.sqlite3',
                 'NAME': os.path.join(self.SITE_ROOT, 'dev.db'),
-            }
+            },
+            'telemetry': {
+                'ENGINE': 'django.db.backends.sqlite3',
+                'NAME': os.path.join(self.SITE_ROOT, 'telemetry.dev.db'),
+            },
         }
 
     DONT_HIT_DB = False
@@ -36,7 +40,6 @@ class CommunityDevSettings(CommunityBaseSettings):
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
     CELERY_RESULT_SERIALIZER = 'json'
     CELERY_ALWAYS_EAGER = True
-    CELERY_TASK_IGNORE_RESULT = False
 
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
@@ -61,19 +64,6 @@ class CommunityDevSettings(CommunityBaseSettings):
         # Allow Sphinx and other tools to create loggers
         logging['disable_existing_loggers'] = False
         return logging
-
-    @property
-    def INSTALLED_APPS(self):
-        apps = super().INSTALLED_APPS
-        apps.append('debug_toolbar')
-        return apps
-
-    @property
-    def MIDDLEWARE(self):
-        middlewares = list(super().MIDDLEWARE)
-        middlewares.insert(0, 'debug_toolbar.middleware.DebugToolbarMiddleware')
-        return middlewares
-
 
 CommunityDevSettings.load_settings(__name__)
 

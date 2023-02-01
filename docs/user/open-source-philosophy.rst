@@ -2,7 +2,7 @@ Read the Docs Open Source Philosophy
 -------------------------------------
 
 Read the Docs is open source software.
-We have `licensed <https://github.com/readthedocs/readthedocs.org/blob/master/LICENSE>`_ the code base as MIT,
+We have `licensed <https://github.com/readthedocs/readthedocs.org/blob/main/LICENSE>`_ the code base as MIT,
 which provides almost no restrictions on the use of the code.
 
 However,
@@ -49,4 +49,3 @@ and we want to spend it on the mission that we set out to originally support.
 If you feel strongly about installing Read the Docs internal to a company,
 we will happily link to third party resources on this topic.
 Please open an issue with a proposal if you want to take on this task.
-

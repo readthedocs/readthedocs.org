@@ -1,9 +1,9 @@
 """OAuth utility functions."""
 
 import json
-import structlog
 import re
 
+import structlog
 from allauth.socialaccount.providers.bitbucket_oauth2.views import (
     BitbucketOAuth2Adapter,
 )
@@ -15,13 +15,8 @@ from readthedocs.builds import utils as build_utils
 from readthedocs.integrations.models import Integration
 
 from ..constants import BITBUCKET
-from ..models import (
-    RemoteOrganization,
-    RemoteRepository,
-    RemoteRepositoryRelation,
-)
+from ..models import RemoteOrganization, RemoteRepository, RemoteRepositoryRelation
 from .base import Service, SyncServiceError
-
 
 log = structlog.get_logger(__name__)
 
@@ -43,7 +38,8 @@ class BitbucketService(Service):
         # Get user repos
         try:
             repos = self.paginate(
-                'https://bitbucket.org/api/2.0/repositories/?role=member',
+                "https://bitbucket.org/api/2.0/repositories/",
+                role="member",
             )
             for repo in repos:
                 remote_repository = self.create_repository(repo)
@@ -52,8 +48,9 @@ class BitbucketService(Service):
         except (TypeError, ValueError):
             log.warning('Error syncing Bitbucket repositories')
             raise SyncServiceError(
-                'Could not sync your Bitbucket repositories, '
-                'try reconnecting your account'
+                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                    provider=self.vcs_provider_slug
+                )
             )
 
         # Because privileges aren't returned with repository data, run query
@@ -61,7 +58,8 @@ class BitbucketService(Service):
         # existing repositories.
         try:
             resp = self.paginate(
-                'https://bitbucket.org/api/2.0/repositories/?role=admin',
+                "https://bitbucket.org/api/2.0/repositories/",
+                role="admin",
             )
             admin_repo_relations = (
                 RemoteRepositoryRelation.objects.filter(
@@ -88,7 +86,8 @@ class BitbucketService(Service):
 
         try:
             workspaces = self.paginate(
-                'https://api.bitbucket.org/2.0/workspaces/?role=member',
+                "https://api.bitbucket.org/2.0/workspaces/",
+                role="member",
             )
             for workspace in workspaces:
                 remote_organization = self.create_organization(workspace)
@@ -106,8 +105,9 @@ class BitbucketService(Service):
         except ValueError:
             log.warning('Error syncing Bitbucket organizations')
             raise SyncServiceError(
-                'Could not sync your Bitbucket workspace repositories, '
-                'try reconnecting your account',
+                SyncServiceError.INVALID_OR_REVOKED_ACCESS_TOKEN.format(
+                    provider=self.vcs_provider_slug
+                )
             )
 
         return remote_organizations, remote_repositories

@@ -137,8 +137,15 @@ Requests can be submitted to: support@readthedocs.com
 Request Archive
 ---------------
 
-Currently, Read the Docs has not received any takedown requests.
+For better transparency into copyright ownership and the DMCA takedown process,
+Read the Docs maintains this archive of previous DMCA takedown requests. This is
+modeled after `GitHub's DMCA archive`__.
 
-..
-    * :download:`Some Company, Inc <archive/2017-01-22.txt>`
+__ https://github.com/github/dmca
 
+The following DMCA takedown requests have been submitted:
+
+.. toctree::
+    :glob:
+
+    archive/*

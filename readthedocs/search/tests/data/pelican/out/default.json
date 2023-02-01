@@ -1,0 +1,34 @@
+[
+  {
+    "path": "index.html",
+    "title": "Pelican Development Blog",
+    "sections": [
+      {
+        "id": "banner",
+        "title": "Pelican Development Blog",
+        "content": ""
+      },
+      {
+        "id": "",
+        "title": "Pelican 4.7 released",
+        "content": "Fri 01 October 2021 By Pelican Contributors In news. Pelican 4.7 is now available. This new release includes the following enhancements, fixes, and tweaks: Improve default theme rendering on mobile and other small screen devices (#2914) For more info, please refer to the release page."
+      },
+      {
+        "id": "upgrading-from-previous-releases",
+        "title": "Upgrading from previous releases",
+        "content": "Upgrading from Pelican 4.6.x should be smooth and require few (if any) changes to your environment. If you run into problems, please see the How to Get Help section of the documentation, and we will update this post with any upgrade tips contributed by the Pelican community."
+      },
+      {
+        "id": "",
+        "title": "links",
+        "content": "Pelican Docs Support Pelican Justin Mayer"
+      },
+      {
+        "id": "",
+        "title": "follow",
+        "content": "atom feed @getpelican @jmayer github"
+      }
+    ],
+    "domain_data": {}
+  }
+]
