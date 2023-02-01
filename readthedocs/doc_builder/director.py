@@ -577,6 +577,9 @@ class BuildDirector:
                         self.data.version.slug,
                         "bin",
                     ),
+                    "READTHEDOCS_VIRTUALENV_PATH": os.path.join(
+                        self.data.project.doc_path, "envs", self.data.version.slug
+                    ),
                 }
             )
 
