@@ -297,7 +297,6 @@ class DockerBuildCommand(BuildCommand):
             container_id=self.build_env.container_id,
             command=self.get_command(),
             cwd=self.cwd,
-            environment=self._environment,
         )
 
         self.start_time = datetime.utcnow()
