@@ -35,7 +35,7 @@ Multiple documentation versions
   If you only have 1 version and translation,
   we support :doc:`single version projects </single_version>`.
 
-  ⏩️ :doc:`Read more </automatic-redirects>`
+  ⏩️ :doc:`Read more </versions>`
 
 Redirect support
   Projects may define their own custom URL redirects rules that trigger in the HTTP layer.
