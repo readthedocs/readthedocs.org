@@ -27,13 +27,18 @@ You will then see the form for adding an environment variable:
       In other words,
       do not use this option if your environment variable is a secret.
 
-Finally, click on :guilabel:`Save`.
-Your custom environment variable is immediately active for all future builds.
-
 .. note::
 
    Once you create an environment variable,
    you won't be able to edit or view its value in the :term:`dashboard`.
+
+
+Finally, click on :guilabel:`Save`.
+Your custom environment variable is immediately active for all future builds
+and you are ready to start using it.
+
+In the next sections,
+you can see a few examples of using environment variables. ⬇️
 
 Accessing environment variables in code
 ---------------------------------------
