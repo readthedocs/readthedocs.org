@@ -1,7 +1,7 @@
 Environment variables
 =====================
 
-Read the Docs builders set the following environment variables automatically for each documentation build:
+All :doc:`build processes </builds>` have the following environment variables automatically defined and available for each build step:
 
 .. envvar:: READTHEDOCS
 
