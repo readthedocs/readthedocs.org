@@ -60,6 +60,9 @@ class UnresolvedURL:
 
 
 class OriginType(Enum):
+
+    """From where the custom domain was resolved."""
+
     custom_domain = auto()
     public_domain = auto()
     external_domain = auto()
@@ -344,8 +347,7 @@ class Unresolver:
         Unresolve domain by extracting relevant information from it.
 
         :param str domain: Domain to extract the information from.
-        :returns: A tuple with: the project, domain object, and the
-         external version slug if the domain is from an external version.
+        :returns: A UnresolvedDomain object.
         """
         public_domain = self.get_domain_from_host(settings.PUBLIC_DOMAIN)
         external_domain = self.get_domain_from_host(
@@ -416,18 +418,14 @@ class Unresolver:
 
     def unresolve_domain_from_request(self, request):
         """
-        Take the request and map the host to the proper project.
+        Unresolve domain by extracting relevant information from the request.
 
-        We check, in order:
+        We first check if the ``X-RTD-Slug`` header has been set for explicit
+        project mapping, otherwise we unresolve by calling `self.unresolve_domain`
+        on the host.
 
-        * The ``HTTP_X_RTD_SLUG`` host header for explicit Project mapping
-            - This sets ``request.rtdheader`` True
-        * The ``PUBLIC_DOMAIN`` where we can use the subdomain as the project name
-            - This sets ``request.subdomain`` True
-        * The hostname without port information, which maps to ``Domain`` objects
-            - This sets ``request.cname`` True
-        * The domain is the canonical one and using HTTPS if supported
-            - This sets ``request.canonicalize`` with the value as the reason
+        :param request: Request to extract the information from.
+        :returns: A UnresolvedDomain object.
         """
         # Explicit Project slug being passed in.
         header_project_slug = request.headers.get("X-RTD-Slug", "").lower()

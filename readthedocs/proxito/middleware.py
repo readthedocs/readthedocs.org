@@ -169,7 +169,18 @@ class ProxitoMiddleware(MiddlewareMixin):
             response.headers.setdefault('CDN-Cache-Control', 'private')
 
     def _set_request_attributes(self, request, unresolved_domain):
-        # TODO: Set the unresolved_domain in the request instead of each of these.
+        """
+        Set attributes in the request from the unresolved domain.
+
+        - If the project was extracted from the ``X-RTD-Slug`` header,
+          we set ``request.rtdheader`` to `True`.
+        - If the project was extracted from the public domain,
+          we set ``request.subdomain`` to `True`.
+        - If the project was extracted from a custom domain,
+          we set ``request.cname`` to `True`.
+        - If the domain needs to redirect, set the canonicalize attribute accordingly.
+        """
+        # TODO: Set the unresolved domain in the request instead of each of these attributes.
         origin = unresolved_domain.origin
         project = unresolved_domain.project
         if origin == OriginType.http_header:
@@ -223,22 +234,22 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         try:
             unresolved_domain = unresolver.unresolve_domain_from_request(request)
-        except SuspiciousHostnameError as e:
-            log.warning("Weird variation on our hostname.", domain=e.domain)
+        except SuspiciousHostnameError as exc:
+            log.warning("Weird variation on our hostname.", domain=exc.domain)
             return render(
                 request,
                 "core/dns-404.html",
-                context={"host": e.domain},
+                context={"host": exc.domain},
                 status=400,
             )
         except (InvalidSubdomainError, InvalidExternalDomainError):
             log.debug("Invalid project set on the subdomain.")
             raise Http404
-        except InvalidCustomDomainError as e:
+        except InvalidCustomDomainError as exc:
             # Some person is CNAMEing to us without configuring a domain - 404.
-            log.debug("CNAME 404.", domain=e.domain)
+            log.debug("CNAME 404.", domain=exc.domain)
             return render(
-                request, "core/dns-404.html", context={"host": e.domain}, status=404
+                request, "core/dns-404.html", context={"host": exc.domain}, status=404
             )
 
         self._set_request_attributes(request, unresolved_domain)
