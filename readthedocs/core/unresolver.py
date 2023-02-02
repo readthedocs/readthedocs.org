@@ -76,6 +76,22 @@ class UnresolvedDomain:
     domain: Domain = None
     external_version_slug: str = None
 
+    @property
+    def is_from_custom_domain(self):
+        return self.origin == OriginType.custom_domain
+
+    @property
+    def is_from_public_domain(self):
+        return self.origin == OriginType.public_domain
+
+    @property
+    def is_from_http_header(self):
+        return self.origin == OriginType.http_header
+
+    @property
+    def is_from_external_domain(self):
+        return self.origin == OriginType.external_domain
+
 
 class Unresolver:
     # This pattern matches:
@@ -131,7 +147,7 @@ class Unresolver:
         )
 
         # Make sure we are serving the external version from the subdomain.
-        if unresolved_domain.origin == OriginType.external_domain and version:
+        if unresolved_domain.is_from_external_domain and version:
             if unresolved_domain.external_version_slug != version.slug:
                 log.warning(
                     "Invalid version for external domain.",
@@ -161,7 +177,7 @@ class Unresolver:
             filename=filename,
             parsed_url=parsed,
             domain=unresolved_domain.domain,
-            external=unresolved_domain.origin == OriginType.external_domain,
+            external=unresolved_domain.is_from_external_domain,
         )
 
     @staticmethod
