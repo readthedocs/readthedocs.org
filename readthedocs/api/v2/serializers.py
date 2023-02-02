@@ -174,6 +174,8 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
         regex = f"{docroot}{container_hash}{project_slug}/envs/{version_slug}(/bin/)?"
         command = re.sub(regex, "", command, count=1)
 
+        # Remove explicit variable names we use to run commands,
+        # since users don't care about these. 
         regex = r"^\$READTHEDOCS_VIRTUALENV_PATH/bin/"
         command = re.sub(regex, "", command, count=1)
 
