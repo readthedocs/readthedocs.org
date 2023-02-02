@@ -204,3 +204,6 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     # This allows us to have CORS work well in dev
     CORS_ORIGIN_ALLOW_ALL = True
+
+
+DockerBaseSettings.load_settings(__name__)
