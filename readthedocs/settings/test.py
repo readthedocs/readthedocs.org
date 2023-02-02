@@ -13,6 +13,7 @@ class CommunityTestSettings(CommunityBaseSettings):
 
     # A bunch of our tests check this value in a returned URL/Domain
     PRODUCTION_DOMAIN = 'readthedocs.org'
+    DONT_HIT_DB = False
 
     # Disable password validators on tests
     AUTH_PASSWORD_VALIDATORS = []
