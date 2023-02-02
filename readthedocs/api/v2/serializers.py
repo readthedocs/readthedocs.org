@@ -175,7 +175,7 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
         command = re.sub(regex, "", command, count=1)
 
         # Remove explicit variable names we use to run commands,
-        # since users don't care about these. 
+        # since users don't care about these.
         regex = r"^\$READTHEDOCS_VIRTUALENV_PATH/bin/"
         command = re.sub(regex, "", command, count=1)
 
