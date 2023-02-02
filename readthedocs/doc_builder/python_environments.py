@@ -89,20 +89,17 @@ class PythonEnvironment:
                 bin_path=self.venv_bin(),
             )
 
-    def venv_bin(self, filename=None, conda=False):
+    def venv_bin(self, prefixes, filename=None):
         """
         Return path to the virtualenv bin path, or a specific binary.
 
         :param filename: If specified, add this filename to the path return
+        :param prefix: List of path prefixes to include in the resulting path
         :returns: Path to virtualenv bin or filename in virtualenv bin
         """
-        parts = ["$READTHEDOCS_VIRTUALENV_PATH", "bin"]
-        if conda:
-            parts = ["$CONDA_ENVS_PATH", "$CONDA_DEFAULT_ENV", "bin"]
-
         if filename is not None:
-            parts.append(filename)
-        return os.path.join(*parts)
+            prefixes.append(filename)
+        return os.path.join(*prefixes)
 
 
 class Virtualenv(PythonEnvironment):
@@ -112,6 +109,11 @@ class Virtualenv(PythonEnvironment):
 
     .. _virtualenv: https://virtualenv.pypa.io/
     """
+
+    # pylint: disable=arguments-differ
+    def venv_bin(self, filename=None):
+        prefixes = ["$READTHEDOCS_VIRTUALENV_PATH", "bin"]
+        super().venv_bin(prefixes, filename=filename)
 
     def setup_base(self):
         """
@@ -320,7 +322,8 @@ class Conda(PythonEnvironment):
 
     # pylint: disable=arguments-differ
     def venv_bin(self, filename=None):
-        return super().venv_bin(filename=filename, conda=True)
+        prefixes = ["$CONDA_ENVS_PATH", "$CONDA_DEFAULT_ENV", "bin"]
+        return super().venv_bin(prefixes, filename=filename)
 
     def conda_bin_name(self):
         """
