@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from enum import Enum, auto
 from urllib.parse import ParseResult, urlparse
 
 import structlog
@@ -17,19 +18,24 @@ class UnresolverError(Exception):
     pass
 
 
-class SuspiciousHostnameError(UnresolverError):
+class DomainError(UnresolverError):
+    def __init__(self, domain):
+        self.domain = domain
+
+
+class SuspiciousHostnameError(DomainError):
     pass
 
 
-class InvalidSubdomainError(UnresolverError):
+class InvalidSubdomainError(DomainError):
     pass
 
 
-class InvalidExternalDomainError(UnresolverError):
+class InvalidExternalDomainError(DomainError):
     pass
 
 
-class InvalidCustomDomainError(UnresolverError):
+class InvalidCustomDomainError(DomainError):
     pass
 
 
@@ -51,6 +57,21 @@ class UnresolvedURL:
     parsed_url: ParseResult = None
     domain: Domain = None
     external: bool = False
+
+
+class OriginType(Enum):
+    custom_domain = auto()
+    public_domain = auto()
+    external_domain = auto()
+    http_header = auto()
+
+
+@dataclass(slots=True)
+class UnresolvedDomain:
+    origin: OriginType
+    project: Project
+    domain: Domain = None
+    external_version_slug: str = None
 
 
 class Unresolver:
@@ -98,19 +119,17 @@ class Unresolver:
         """
         parsed = urlparse(url)
         domain = self.get_domain_from_host(parsed.netloc)
-        parent_project, domain_object, external_version_slug = self.unresolve_domain(
-            domain
-        )
+        unresolved_domain = self.unresolve_domain(domain)
 
         current_project, version, filename = self._unresolve_path(
-            parent_project=parent_project,
+            parent_project=unresolved_domain.project,
             path=parsed.path,
-            external_version_slug=external_version_slug,
+            external_version_slug=unresolved_domain.external_version_slug,
         )
 
         # Make sure we are serving the external version from the subdomain.
-        if external_version_slug and version:
-            if external_version_slug != version.slug:
+        if unresolved_domain.origin == OriginType.external_domain and version:
+            if unresolved_domain.external_version_slug != version.slug:
                 log.warning(
                     "Invalid version for external domain.",
                     domain=domain,
@@ -133,13 +152,13 @@ class Unresolver:
             filename += "index.html"
 
         return UnresolvedURL(
-            parent_project=parent_project,
-            project=current_project or parent_project,
+            parent_project=unresolved_domain.project,
+            project=current_project or unresolved_domain.project,
             version=version,
             filename=filename,
             parsed_url=parsed,
-            domain=domain_object,
-            external=bool(external_version_slug),
+            domain=unresolved_domain.domain,
+            external=unresolved_domain.origin == OriginType.external_domain,
         )
 
     @staticmethod
@@ -341,12 +360,15 @@ class Unresolver:
             if public_domain == root_domain:
                 project_slug = subdomain
                 log.debug("Public domain.", domain=domain)
-                return self._resolve_project_slug(project_slug), None, None
+                return UnresolvedDomain(
+                    origin=OriginType.public_domain,
+                    project=self._resolve_project_slug(project_slug, domain),
+                )
 
             # NOTE: This can catch some possibly valid domains (docs.readthedocs.io.com)
             # for example, but these might be phishing, so let's block them for now.
             log.warning("Weird variation of our domain.", domain=domain)
-            raise SuspiciousHostnameError()
+            raise SuspiciousHostnameError(domain=domain)
 
         # Serve PR builds on external_domain host.
         if external_domain in domain:
@@ -354,17 +376,21 @@ class Unresolver:
                 try:
                     project_slug, version_slug = subdomain.rsplit("--", maxsplit=1)
                     log.debug("External versions domain.", domain=domain)
-                    return self._resolve_project_slug(project_slug), None, version_slug
+                    return UnresolvedDomain(
+                        origin=OriginType.external_domain,
+                        project=self._resolve_project_slug(project_slug, domain),
+                        external_version_slug=version_slug,
+                    )
                 except ValueError:
                     log.info(
                         "Invalid format of external versions domain.", domain=domain
                     )
-                    raise InvalidExternalDomainError()
+                    raise InvalidExternalDomainError(domain=domain)
 
             # NOTE: This can catch some possibly valid domains (docs.readthedocs.build.com)
             # for example, but these might be phishing, so let's block them for now.
             log.warning("Weird variation of our domain.", domain=domain)
-            raise SuspiciousHostnameError()
+            raise SuspiciousHostnameError(domain=domain)
 
         # Custom domain.
         domain_object = (
@@ -372,17 +398,21 @@ class Unresolver:
         )
         if not domain_object:
             log.info("Invalid domain.", domain=domain)
-            raise InvalidCustomDomainError()
+            raise InvalidCustomDomainError(domain=domain)
 
         log.debug("Custom domain.", domain=domain)
-        return domain_object.project, domain_object, None
+        return UnresolvedDomain(
+            origin=OriginType.custom_domain,
+            project=domain_object.project,
+            domain=domain_object,
+        )
 
-    def _resolve_project_slug(self, slug):
+    def _resolve_project_slug(self, slug, domain):
         """Get the project from the slug or raise an exception if not found."""
         try:
             return Project.objects.get(slug=slug)
         except Project.DoesNotExist:
-            raise InvalidSubdomainError()
+            raise InvalidSubdomainError(domain=domain)
 
 
 unresolver = Unresolver()
