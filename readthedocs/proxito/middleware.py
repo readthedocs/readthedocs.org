@@ -22,45 +22,13 @@ from readthedocs.core.unresolver import (
     InvalidSubdomainError,
     OriginType,
     SuspiciousHostnameError,
-    UnresolvedDomain,
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.models import Domain, Project, ProjectRelationship
+from readthedocs.projects.models import Domain, ProjectRelationship
 from readthedocs.proxito import constants
 
 log = structlog.get_logger(__name__)
-
-
-def map_host_to_project(request):
-    """
-    Take the request and map the host to the proper project.
-
-    We check, in order:
-
-    * The ``HTTP_X_RTD_SLUG`` host header for explicit Project mapping
-        - This sets ``request.rtdheader`` True
-    * The ``PUBLIC_DOMAIN`` where we can use the subdomain as the project name
-        - This sets ``request.subdomain`` True
-    * The hostname without port information, which maps to ``Domain`` objects
-        - This sets ``request.cname`` True
-    * The domain is the canonical one and using HTTPS if supported
-        - This sets ``request.canonicalize`` with the value as the reason
-    """
-
-    host = unresolver.get_domain_from_host(request.get_host())
-
-    # Explicit Project slug being passed in.
-    header_project_slug = request.headers.get("X-RTD-Slug", "").lower()
-    if header_project_slug:
-        project = Project.objects.filter(slug=header_project_slug).first()
-        if project:
-            log.info(
-                "Setting project based on X_RTD_SLUG header.", project_slug=project.slug
-            )
-            return UnresolvedDomain(origin=OriginType.http_header, project=project)
-
-    return unresolver.unresolve_domain(host)
 
 
 class ProxitoMiddleware(MiddlewareMixin):
@@ -254,7 +222,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             return None
 
         try:
-            unresolved_domain = map_host_to_project(request)
+            unresolved_domain = unresolver.unresolve_domain_from_request(request)
         except SuspiciousHostnameError as e:
             log.warning("Weird variation on our hostname.", domain=e.domain)
             return render(
