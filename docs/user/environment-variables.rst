@@ -52,7 +52,8 @@ Read the Docs builders set the following environment variables automatically for
 
 .. envvar:: READTHEDOCS_VIRTUALENV_PATH
 
-    Path where Read the Docs created the virtualenv for this build.
+    Path for the :ref:`virtualenv that was created for this build <builds:Understanding what's going on>`.
+    Only exists for builds using Virtualenv and not Conda.
 
     :Example: ``/home/docs/checkouts/readthedocs.org/user_builds/project/envs/version``
 
