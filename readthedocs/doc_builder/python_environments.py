@@ -113,7 +113,7 @@ class Virtualenv(PythonEnvironment):
     # pylint: disable=arguments-differ
     def venv_bin(self, filename=None):
         prefixes = ["$READTHEDOCS_VIRTUALENV_PATH", "bin"]
-        super().venv_bin(prefixes, filename=filename)
+        return super().venv_bin(prefixes, filename=filename)
 
     def setup_base(self):
         """
