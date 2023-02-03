@@ -215,7 +215,17 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
                     parent_node = node.parent
                     if 'glossary' in node.parent.attributes.get('class'):
-                        next_node = node.next
+                        it = node.traverse()  # iterate through child and next nodes
+                        more = True
+                        while more:
+                            next_node = next(it, None)
+                            more = next_node is not None
+                            # TODO Do we need to support terms with missing descriptions?
+                            #  This will not produce correct results in this case.
+
+                            # Stop at the next 'dd' node, which is the description
+                            if more and next_node.tag == 'dd':
+                                more = False
 
                     elif 'citation' in node.parent.attributes.get('class'):
                         next_node = node.next.next
