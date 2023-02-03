@@ -3,12 +3,16 @@ from pathlib import Path
 
 import structlog
 from django.conf import settings
+from django.contrib.staticfiles.storage import (
+    StaticFilesStorage as BaseStaticFilesStorage,
+)
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
-from storages.utils import get_available_overwrite_name, safe_join
+from storages.utils import get_available_overwrite_name
 
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.storage.rclone import RCloneLocal
+from readthedocs.storage.utils import safe_join
 
 log = structlog.get_logger(__name__)
 
@@ -25,6 +29,10 @@ class BuildMediaStorageMixin:
 
     See: https://docs.djangoproject.com/en/1.11/ref/files/storage
     """
+
+    # Root path of the nginx internal redirect
+    # that will serve files from this storage.
+    internal_redirect_root_path = "proxito"
 
     @staticmethod
     def _dirpath(path):
@@ -260,3 +268,10 @@ class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
         https://docs.djangoproject.com/en/2.2/ref/files/storage/#django.core.files.storage.Storage.url
         """
         return super().url(name)
+
+
+class StaticFilesStorage(BaseStaticFilesStorage):
+
+    # Root path of the nginx internal redirect
+    # that will serve files from this storage.
+    internal_redirect_root_path = "proxito-static"

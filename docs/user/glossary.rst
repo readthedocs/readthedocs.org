@@ -7,6 +7,10 @@ Glossary
       `Main page <https://readthedocs.org/dashboard>`_ where you can see all your projects with their build status
       and import a new project.
 
+   default version
+      Projects have a *default version*, usually the latest stable version of a project.
+      The *default version* is the URL that is redirected to when a users loads the `/` URL for your project.
+
    flyout menu
       Menu displayed on the documentation, readily accessible for readers, containing the list active versions, links to static downloads, and other useful links.
       Read more in our :doc:`/flyout-menu` page.
