@@ -1,5 +1,5 @@
-Security log and auditing
-=========================
+How to use the security logs
+============================
 
 Security logs allow you to audit what has happened recently in your organization or account.
 This feature is quite important for many security compliance programs,
