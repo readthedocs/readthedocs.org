@@ -19,7 +19,6 @@ from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
-from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.models import Feature
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
@@ -347,24 +346,14 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
         # Secondly, try to serve the 404 page for the default version
         # (project.get_default_version())
-        version = (
-            Version.objects.filter(project=final_project, slug=version_slug)
-            .only("documentation_type")
-            .first()
-        )
         versions = []
-        if version:
-            versions.append((version.slug, version.documentation_type))
+        if Version.objects.filter(project=final_project, slug=version_slug).exists():
+            versions.append(version_slug)
         default_version_slug = final_project.get_default_version()
         if default_version_slug != version_slug:
-            default_version_doc_type = (
-                Version.objects.filter(project=final_project, slug=default_version_slug)
-                .values_list('documentation_type', flat=True)
-                .first()
-            )
-            versions.append((default_version_slug, default_version_doc_type))
+            versions.append(default_version_slug)
 
-        for version_slug_404, doc_type_404 in versions:
+        for version_slug_404 in versions:
             if not self.allowed_user(request, final_project, version_slug_404):
                 continue
 
@@ -374,11 +363,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 include_file=False,
                 version_type=self.version_type,
             )
-            tryfiles = ['404.html']
-            # SPHINX_HTMLDIR is the only builder
-            # that could output a 404/index.html file.
-            if doc_type_404 == SPHINX_HTMLDIR:
-                tryfiles.append('404/index.html')
+            tryfiles = ["404.html", "404/index.html"]
             for tryfile in tryfiles:
                 storage_filename_path = build_media_storage.join(storage_root_path, tryfile)
                 if build_media_storage.exists(storage_filename_path):
