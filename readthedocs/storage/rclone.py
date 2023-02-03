@@ -9,7 +9,8 @@ import subprocess
 
 import structlog
 from django.utils._os import safe_join as safe_join_fs
-from storages.utils import safe_join
+
+from readthedocs.storage.utils import safe_join
 
 log = structlog.get_logger(__name__)
 
@@ -44,6 +45,11 @@ class BaseRClone:
         # Skip based on checksum (if available) & size, not mod-time & size.
         "--checksum",
         "--verbose",
+        # Retry some times before failing
+        # (3 is the default, but making it explicit here)
+        "--retries=3",
+        # Wait 1 second between each retry
+        "--retries-sleep=1s",
     ]
     env_vars = {}
 

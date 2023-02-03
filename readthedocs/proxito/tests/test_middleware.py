@@ -1,4 +1,5 @@
 # Copied from test_middleware.py
+from unittest import mock
 
 import pytest
 from django.http import HttpRequest
@@ -11,6 +12,7 @@ from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.proxito.middleware import ProxitoMiddleware
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
+from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 from readthedocs.rtd_tests.utils import create_user
 
 
@@ -310,8 +312,9 @@ class MiddlewareURLConfTests(TestCase):
             'Inserted RTD Footer',
         )
 
-    @override_settings(
-        RTD_STATICFILES_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest"
+    @mock.patch(
+        "readthedocs.proxito.views.mixins.staticfiles_storage",
+        new=BuildMediaFileSystemStorageTest(),
     )
     def test_middleware_urlconf_subpath_static_files(self):
         resp = self.client.get(

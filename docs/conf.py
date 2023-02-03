@@ -14,7 +14,6 @@ for more information read https://sphinx-multiproject.readthedocs.io/.
 import os
 import sys
 
-import sphinx_rtd_theme
 from multiproject.utils import get_project
 
 sys.path.insert(0, os.path.abspath(".."))
@@ -70,7 +69,7 @@ templates_path = ["_templates"]
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "9.3.0"
+version = "9.3.1"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
@@ -144,7 +143,7 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static", f"{docset}/_static"]
 html_css_files = ["css/custom.css", "css/sphinx_prompt_css.css"]
 html_js_files = ["js/expand_tabs.js"]
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
 html_logo = "img/logo.svg"
 html_theme_options = {
     "logo_only": True,

@@ -87,6 +87,7 @@ to help you create fantastic documentation for your project.
    /single_version
    /science
    /commercial/organizations
+   /automatic-redirects
 
 .. toctree::
    :maxdepth: 2
@@ -96,6 +97,7 @@ to help you create fantastic documentation for your project.
    /guides/authors
    /guides/administrators
    /guides/developers
+   Troubleshooting </guides/troubleshooting/index>
    /examples
    /faq
 
@@ -110,6 +112,7 @@ to help you create fantastic documentation for your project.
    /server-side-search/api
    /reference/features
    /server-side-search/syntax
+   /reference/policies
 
 
 Read the Docs feature overview
@@ -150,7 +153,6 @@ and some of the core features of Read the Docs.
    :hidden:
    :caption: Features
 
-   /features
    /config-file/index
    /integrations
    /versions
@@ -159,7 +161,6 @@ and some of the core features of Read the Docs.
 
    /builds
    /build-customization
-   /build-troubleshooting
    /environment-variables
 
    /support
@@ -236,10 +237,6 @@ out of your documentation and Read the Docs.
 
    flyout-menu
    feature-flags
-
-   user-defined-redirects
-   automatic-redirects
-
    canonical-urls
 
 
@@ -304,10 +301,6 @@ of Read the Docs and the larger software documentation ecosystem.
    :hidden:
    :caption: About Read the Docs
 
-   security
-   dmca/index
-   abandoned-projects
-   unofficial-projects
    changelog
 
    about
@@ -317,8 +310,6 @@ of Read the Docs and the larger software documentation ecosystem.
 
    advertising/index
    sponsors
-
-   legal/index
 
    Developer Documentation <https://dev.readthedocs.io>
    glossary

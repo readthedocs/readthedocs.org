@@ -1,7 +1,7 @@
 .. This is linked from the footer of readthedocs.org
 .. and from the version (flyout) menu on docs sites
 
-Privacy Policy
+Privacy policy
 ==============
 
 Effective date: **September  30, 2019**
