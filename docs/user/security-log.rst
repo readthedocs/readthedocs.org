@@ -10,6 +10,11 @@ so that you can confirm this access was from the intended person.
 Security logs are only visible to organization owners.
 You can invite other team members as owners.
 
+.. seealso::
+
+   :doc:`/legal/security-policy`
+     General information and reference about how security is handled on Read the Docs.
+
 User security log
 -----------------
 
@@ -31,9 +36,7 @@ This log is useful to validate that no unauthorized logins have occured on your 
 Organization security log
 -------------------------
 
-.. note::
-
-   This feature exists only on :doc:`/commercial/index`.
+.. include:: /shared/admonition-rtd-business.rst
 
 The length of log storage varies with your plan,
 check our `pricing page <https://readthedocs.com/pricing/>`__ for more details.
