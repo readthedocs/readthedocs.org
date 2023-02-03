@@ -14,10 +14,12 @@ Automating your versioning on Read the Docs means you only have to handle your v
    :doc:`/automation-rules`
      Reference for all different rules and actions possible with automation.
 
-Adding a new rule
------------------
+Adding a new Automation Rule
+----------------------------
 
-#. Navigate to :menuselection:`Admin --> Automation Rules`.
+First you need to go to the Automation Rule creation page:
+
+#. Navigate to :menuselection:`<Project Detail> --> Admin --> Automation Rules`.
 #. Click on :guilabel:`Add Rule` and you will see the following form.
 
 .. image:: /img/screenshot_automation_rules_add.png
@@ -28,7 +30,6 @@ In the :guilabel:`Automation Rule` form, you need to fill in 4 fields:
 #. Enter a :guilabel:`Description` that you can refer to later.
    For example, entering "Create new stable version" is a good title,
    as it explains the intention of the rule.
-   You might have different rules for unstable versions (pre-releases).
 
 #. Choose a :guilabel:`Match`,
    which is the pattern you wish to detect in either a Git branch or tag.
@@ -52,7 +53,8 @@ In the :guilabel:`Automation Rule` form, you need to fill in 4 fields:
 
 
 Now your rule is ready and you can press :guilabel:`Save`.
-The rule takes effect immediately when a new version is discovered.
+The rule takes effect immediately when a new version is created,
+but does not apply to old versions.
 
 .. tip::
 
@@ -60,12 +62,10 @@ The rule takes effect immediately when a new version is discovered.
      See :ref:`the list of examples <automation-rules:Examples>` for rules that are commonly used.
 
    Want to test if your rule works?
-     You can test if your rule works in a few minutes without disturbing your readers:
-     If you are using Git tags in order to create new versions,
-     create a Git tag that matches the rule and check if your automation action is triggered.
+     If you are using Git in order to create new versions,
+     create a Git tag or branch that matches the rule and check if your automation action is triggered.
      After the experiment,
-     you can delete the Read the Docs version and the Git tag.
-
+     you can delete both from Git and Read the Docs.
 
 .. _Python regex format: https://docs.python.org/3/library/re.html
 .. _SemVer: https://semver.org/
@@ -75,7 +75,7 @@ Ordering your rules
 
 The order your rules are listed in  :menuselection:`Admin --> Automation Rules` matters.
 Each action will be performed in that order,
-so first rules have a higher priority.
+so earlier rules have a higher priority.
 
 You can change the order using the up and down arrow buttons.
 
