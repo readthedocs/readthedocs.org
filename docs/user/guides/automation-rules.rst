@@ -14,12 +14,12 @@ Automating your versioning on Read the Docs means you only have to handle your v
    :doc:`/automation-rules`
      Reference for all different rules and actions possible with automation.
 
-Adding a new Automation Rule
+Adding a new automation rule
 ----------------------------
 
-First you need to go to the Automation Rule creation page:
+First you need to go to the automation rule creation page:
 
-#. Navigate to :menuselection:`<Project Detail> --> Admin --> Automation Rules`.
+#. Navigate to :menuselection:`Admin --> Automation Rules`.
 #. Click on :guilabel:`Add Rule` and you will see the following form.
 
 .. image:: /img/screenshot_automation_rules_add.png
