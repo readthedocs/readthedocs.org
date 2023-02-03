@@ -80,7 +80,7 @@ Make version private
   See :ref:`versions:Privacy levels`.
 
 Set version as default
-  Sets the version as the default version.
+  Sets the version as the :term:`default version`.
   It also activates and builds the version.
   See :ref:`automatic-redirects:Root URL`.
 
@@ -91,7 +91,7 @@ Delete version
 
 There are a couple caveats to these rules that are useful:
 
-*   The default version isn't deleted even if it matches a rule.
+*   The :term:`default version` isn't deleted even if it matches a rule.
     You can use the ``Set version as default`` action to change the default version
     before deleting the current one.
 *   If your versions follow :pep:`440`,
