@@ -224,7 +224,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                             #  This will not produce correct results in this case.
 
                             # Stop at the next 'dd' node, which is the description
-                            if more and next_node.tag == 'dd':
+                            if more and next_node.tag == "dd":
                                 more = False
 
                     elif 'citation' in node.parent.attributes.get('class'):
