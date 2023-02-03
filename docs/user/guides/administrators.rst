@@ -30,4 +30,3 @@ have a look at our :doc:`/tutorial/index`.
    setup-single-sign-on-google-email
    manage-read-the-docs-teams
    redirects
-   /security-log

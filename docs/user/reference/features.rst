@@ -18,3 +18,4 @@ Features
    /server-side-search/index
    /user-defined-redirects
    /badges
+   /security-log
