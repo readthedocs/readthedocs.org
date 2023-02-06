@@ -40,7 +40,8 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         request = self.request(method='get', path=self.url, HTTP_HOST=domain)
         res = self.run_middleware(request)
         self.assertIsNone(res)
-        self.assertEqual(request.cname, True)
+        self.assertTrue(request.unresolved_domain.is_from_custom_domain)
+        self.assertEqual(request.unresolved_domain.project, self.pip)
         self.assertEqual(request.host_project_slug, 'pip')
 
     def test_proper_cname_https_upgrade(self):
@@ -137,7 +138,8 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         get(Domain, project=self.pip, domain='docs.random.com')
         request = self.request(method='get', path=self.url, HTTP_HOST='docs.RANDOM.COM')
         self.run_middleware(request)
-        self.assertEqual(request.cname, True)
+        self.assertTrue(request.unresolved_domain.is_from_custom_domain)
+        self.assertEqual(request.unresolved_domain.project, self.pip)
         self.assertEqual(request.host_project_slug, 'pip')
 
     def test_invalid_cname(self):
@@ -167,7 +169,8 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             method='get', path=self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='pip'
         )
         self.run_middleware(request)
-        self.assertEqual(request.rtdheader, True)
+        self.assertTrue(request.unresolved_domain.is_from_http_header)
+        self.assertEqual(request.unresolved_domain.project, self.pip)
         self.assertEqual(request.host_project_slug, 'pip')
 
     def test_request_header_uppercase(self):
@@ -176,7 +179,8 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         )
         self.run_middleware(request)
 
-        self.assertEqual(request.rtdheader, True)
+        self.assertTrue(request.unresolved_domain.is_from_http_header)
+        self.assertEqual(request.unresolved_domain.project, self.pip)
         self.assertEqual(request.host_project_slug, 'pip')
 
     def test_long_bad_subdomain(self):
