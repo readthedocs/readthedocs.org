@@ -65,7 +65,7 @@ def map_project_slug(view_func):
     ):
         if project is None:
             # Get the project from the request if it can't be found in the URL
-            unresolved_domain = getattr(request, "unresolved_domain", None)
+            unresolved_domain = request.unresolved_domain
             if unresolved_domain and not project_slug:
                 log.debug(
                     'Inserting project slug from request.',

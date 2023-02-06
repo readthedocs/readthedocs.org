@@ -73,7 +73,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         if cache_tags:
             response['Cache-Tag'] = ','.join(cache_tags)
 
-        unresolved_domain = getattr(request, "unresolved_domain", None)
+        unresolved_domain = request.unresolved_domain
         if unresolved_domain:
             origin_to_description = {
                 OriginType.http_header: "rtdheader",
@@ -97,7 +97,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         The headers added come from ``projects.models.HTTPHeader`` associated
         with the ``Domain`` object.
         """
-        unresolved_domain = getattr(request, "unresolved_domain", None)
+        unresolved_domain = request.unresolved_domain
         if unresolved_domain and unresolved_domain.is_from_custom_domain:
             response_headers = [header.lower() for header in response.headers.keys()]
             domain = unresolved_domain.domain
@@ -135,7 +135,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             return response
 
         hsts_header_values = []
-        unresolved_domain = getattr(request, "unresolved_domain", None)
+        unresolved_domain = request.unresolved_domain
         if (
             settings.PUBLIC_DOMAIN_USES_HTTPS
             and unresolved_domain
@@ -193,12 +193,8 @@ class ProxitoMiddleware(MiddlewareMixin):
         request.unresolved_domain = unresolved_domain
         # TODO: Use the unresolved domain in the request instead of each of these attributes.
         project = unresolved_domain.project
-        if unresolved_domain.is_from_http_header:
-            request.rtdheader = True
-        elif unresolved_domain.is_from_custom_domain:
+        if unresolved_domain.is_from_custom_domain:
             domain = unresolved_domain.domain
-            request.cname = True
-            request.domain = domain
             if domain.https and not request.is_secure():
                 # Redirect HTTP -> HTTPS (302) for this custom domain.
                 log.debug("Proxito CNAME HTTPS Redirect.", domain=domain.domain)
@@ -225,10 +221,11 @@ class ProxitoMiddleware(MiddlewareMixin):
                     project_slug=project.slug,
                 )
                 request.canonicalize = constants.REDIRECT_SUBPROJECT_MAIN_DOMAIN
-        else:
-            raise NotImplementedError
 
     def process_request(self, request):  # noqa
+        # Initialize our custom request attributes.
+        request.unresolved_domain = None
+
         skip = any(
             request.path.startswith(reverse(view))
             for view in self.skip_views
