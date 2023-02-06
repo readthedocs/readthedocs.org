@@ -14,9 +14,9 @@ babel==2.11.0
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.26.59
+boto3==1.26.64
     # via django-storages
-botocore==1.29.59
+botocore==1.29.64
     # via
     #   boto3
     #   s3transfer
@@ -56,7 +56,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.6.3
     # via -r requirements/pip.in
-django==3.2.16
+django==3.2.17
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -87,7 +87,7 @@ django-csp==3.7
     # via -r requirements/pip.in
 django-debug-toolbar==3.8.1
     # via -r requirements/pip.in
-django-elasticsearch-dsl==7.2.2
+django-elasticsearch-dsl==7.3
     # via -r requirements/pip.in
 django-extensions==3.2.1
     # via -r requirements/pip.in
@@ -133,7 +133,7 @@ drf-extensions==0.7.1
     # via -r requirements/pip.in
 drf-flex-fields==1.0.0
     # via -r requirements/pip.in
-elasticsearch==7.17.8
+elasticsearch==7.17.9
     # via
     #   -r requirements/pip.in
     #   elasticsearch-dsl
@@ -255,7 +255,7 @@ sphinxcontrib-applehelp==1.0.4
     # via sphinx
 sphinxcontrib-devhelp==1.0.2
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.0
+sphinxcontrib-htmlhelp==2.0.1
     # via sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
@@ -300,8 +300,9 @@ virtualenv==20.17.1
     # via -r requirements/pip.in
 wcwidth==0.2.6
     # via prompt-toolkit
-websocket-client==1.5.0
+websocket-client==1.5.1
     # via docker
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
+# setuptools
