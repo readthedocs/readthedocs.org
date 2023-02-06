@@ -20,7 +20,7 @@ from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.constants import SPHINX_HTMLDIR
-from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Feature, ProjectRelationship
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
@@ -41,36 +41,44 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
     def get(self,
             request,
-            project_slug=None,
             subproject_slug=None,
-            version_slug=None,
             filename='',
-    ):  # noqa
+    ):
+        unresolved_domain = request.unresolved_domain
+        project = unresolved_domain.project
 
-        version_slug = self.get_version_from_host(request, version_slug)
-        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
-            request,
-            project_slug=project_slug,
-            subproject_slug=subproject_slug,
-            lang_slug=None,
-            version_slug=version_slug,
-            filename=filename,
-        )
+        # Use the project from the domain, or use the subproject slug.
+        if subproject_slug:
+            project = self._get_subproject(project, subproject_slug)
 
-        if self._is_cache_enabled(final_project):
+        # Get the default version from the current project,
+        # or the version from the external domain.
+        if unresolved_domain.is_from_external_domain:
+            version_slug = unresolved_domain.external_version_slug
+        else:
+            version_slug = project.get_default_version()
+
+        # Set the version slug on the request so we can use it in middleware.
+        request.path_project_slug = project.slug
+
+        if self._is_cache_enabled(project):
             # All requests from this view can be cached.
             # This is since the final URL will check for authz.
             self.cache_request = True
 
-        is_external = getattr(request, "external_domain", False)
-
         return self.system_redirect(
             request=request,
-            final_project=final_project,
+            final_project=project,
             version_slug=version_slug,
             filename=filename,
-            is_external_version=is_external,
+            is_external_version=unresolved_domain.is_from_external_domain,
         )
+
+    def _get_subproject(self, project, subproject_slug):
+        relationship = ProjectRelationship.objects.filter(parent=project).filter(alias=subproject_slug).first()
+        if relationship:
+            return relationship.child
+        raise Http404('Invalid subproject slug')
 
 
 class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
