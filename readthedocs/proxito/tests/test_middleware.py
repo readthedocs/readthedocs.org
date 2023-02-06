@@ -42,7 +42,6 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.assertIsNone(res)
         self.assertTrue(request.unresolved_domain.is_from_custom_domain)
         self.assertEqual(request.unresolved_domain.project, self.pip)
-        self.assertEqual(request.host_project_slug, 'pip')
 
     def test_proper_cname_https_upgrade(self):
         cname = 'docs.random.com'
@@ -140,7 +139,6 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.run_middleware(request)
         self.assertTrue(request.unresolved_domain.is_from_custom_domain)
         self.assertEqual(request.unresolved_domain.project, self.pip)
-        self.assertEqual(request.host_project_slug, 'pip')
 
     def test_invalid_cname(self):
         self.assertFalse(Domain.objects.filter(domain='my.host.com').exists())
@@ -152,8 +150,8 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
     def test_proper_subdomain(self):
         request = self.request(method='get', path=self.url, HTTP_HOST='pip.dev.readthedocs.io')
         self.run_middleware(request)
-        self.assertEqual(request.subdomain, True)
-        self.assertEqual(request.host_project_slug, 'pip')
+        self.assertTrue(request.unresolved_domain.is_from_public_domain)
+        self.assertEqual(request.unresolved_domain.project, self.pip)
 
     @override_settings(PUBLIC_DOMAIN='foo.bar.readthedocs.io')
     def test_subdomain_different_length(self):
@@ -161,8 +159,8 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             method='get', path=self.url, HTTP_HOST='pip.foo.bar.readthedocs.io'
         )
         self.run_middleware(request)
-        self.assertEqual(request.subdomain, True)
-        self.assertEqual(request.host_project_slug, 'pip')
+        self.assertTrue(request.unresolved_domain.is_from_public_domain)
+        self.assertEqual(request.unresolved_domain.project, self.pip)
 
     def test_request_header(self):
         request = self.request(
@@ -171,7 +169,6 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.run_middleware(request)
         self.assertTrue(request.unresolved_domain.is_from_http_header)
         self.assertEqual(request.unresolved_domain.project, self.pip)
-        self.assertEqual(request.host_project_slug, 'pip')
 
     def test_request_header_uppercase(self):
         request = self.request(
@@ -181,7 +178,6 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
         self.assertTrue(request.unresolved_domain.is_from_http_header)
         self.assertEqual(request.unresolved_domain.project, self.pip)
-        self.assertEqual(request.host_project_slug, 'pip')
 
     def test_long_bad_subdomain(self):
         domain = 'www.pip.dev.readthedocs.io'

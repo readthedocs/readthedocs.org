@@ -182,16 +182,10 @@ class ProxitoMiddleware(MiddlewareMixin):
         """
         Set attributes in the request from the unresolved domain.
 
-        - If the project was extracted from the ``X-RTD-Slug`` header,
-          we set ``request.rtdheader`` to `True`.
-        - If the project was extracted from the public domain,
-          we set ``request.subdomain`` to `True`.
-        - If the project was extracted from a custom domain,
-          we set ``request.cname`` to `True`.
+        - Set ``request.unresolved_domain`` to the unresolved domain.
         - If the domain needs to redirect, set the canonicalize attribute accordingly.
         """
         request.unresolved_domain = unresolved_domain
-        # TODO: Use the unresolved domain in the request instead of each of these attributes.
         project = unresolved_domain.project
         if unresolved_domain.is_from_custom_domain:
             domain = unresolved_domain.domain
@@ -199,11 +193,7 @@ class ProxitoMiddleware(MiddlewareMixin):
                 # Redirect HTTP -> HTTPS (302) for this custom domain.
                 log.debug("Proxito CNAME HTTPS Redirect.", domain=domain.domain)
                 request.canonicalize = constants.REDIRECT_HTTPS
-        elif unresolved_domain.is_from_external_domain:
-            request.external_domain = True
-            request.host_version_slug = unresolved_domain.external_version_slug
         elif unresolved_domain.is_from_public_domain:
-            request.subdomain = True
             canonical_domain = (
                 Domain.objects.filter(project=project)
                 .filter(canonical=True, https=True)
@@ -285,9 +275,6 @@ class ProxitoMiddleware(MiddlewareMixin):
             'Proxito Project.',
             project_slug=project.slug,
         )
-
-        # Otherwise set the slug on the request
-        request.host_project_slug = project.slug
 
         # This is hacky because Django wants a module for the URLConf,
         # instead of also accepting string

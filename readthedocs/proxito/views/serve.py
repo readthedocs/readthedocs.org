@@ -62,7 +62,8 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             # This is since the final URL will check for authz.
             self.cache_request = True
 
-        is_external = getattr(request, "external_domain", False)
+        unresolved_domain = request.unresolved_domain
+        is_external = unresolved_domain and unresolved_domain.is_from_external_domain
 
         return self.system_redirect(
             request=request,
@@ -101,7 +102,9 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             filename=filename,
         )
         version = final_project.versions.filter(slug=version_slug).first()
-        is_external = getattr(request, "external_domain", False)
+
+        unresolved_domain = request.unresolved_domain
+        is_external = unresolved_domain and unresolved_domain.is_from_external_domain
 
         log.bind(
             project_slug=final_project.slug,
