@@ -53,6 +53,12 @@ class PythonEnvironment:
         :param install: A install object from the config module.
         :type install: readthedocs.config.models.PythonInstall
         """
+        # NOTE: `venv_bin` requires `prefixes`.
+        # However, it's overwritten in the subclasses and
+        # it forces passing the `prefixes=` attribute.
+        # I'm not sure how to solve this, so I'm skipping this check for now.
+        # pylint: disable=no-value-for-parameter
+
         if install.method == PIP:
             # Prefix ./ so pip installs from a local path rather than pypi
             local_path = (
@@ -94,7 +100,7 @@ class PythonEnvironment:
         Return path to the virtualenv bin path, or a specific binary.
 
         :param filename: If specified, add this filename to the path return
-        :param prefix: List of path prefixes to include in the resulting path
+        :param prefixes: List of path prefixes to include in the resulting path
         :returns: Path to virtualenv bin or filename in virtualenv bin
         """
         if filename is not None:
