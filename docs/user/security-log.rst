@@ -19,7 +19,7 @@ User security log
 -----------------
 
 We store a user security log for the latest 90 days of activity.
-This log is useful to validate that no unauthorized logins have occurred on your user account.
+This log is useful to validate that no unauthorized events have occurred.
 
 The security log tracks the following events:
 
@@ -36,7 +36,7 @@ Organization security log
 .. include:: /shared/admonition-rtd-business.rst
 
 The length of log storage varies with your plan,
-check our `pricing page <https://readthedocs.com/pricing/>`__ for more details.
+check our `pricing page <https://about.readthedocs.com/pricing/>`__ for more details.
 Your organization security log is a great place to check periodically to ensure there hasn't been unauthorized access to your organization.
 
 Organization logs track the following events:
