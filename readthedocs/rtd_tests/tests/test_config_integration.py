@@ -97,9 +97,9 @@ class LoadConfigTests(TestCase):
             expected_env_config.update(img_settings)
 
         load_config.assert_called_once_with(
-                path=mock.ANY,
-                env_config=expected_env_config,
-                config_file='',
+            path=mock.ANY,
+            env_config=expected_env_config,
+            config_file="",
         )
         self.assertEqual(config.python.version, '3')
 

@@ -352,20 +352,20 @@ class Project(models.Model):
         default='',
         blank=True,
         help_text=_(
-            'Path from project root to <code>conf.py</code> file '
-            '(ex. <code>docs/conf.py</code>). '
-            'Leave blank if you want us to find it for you.',
+            "Path from project root to <code>conf.py</code> file "
+            "(ex. <code>docs/conf.py</code>). "
+            "Leave blank if you want us to find it for you.",
         ),
     )
     rtd_conf_file = models.CharField(
-        _('.readthedocs.yml configuration file'),
+        _(".readthedocs.yml configuration file"),
         max_length=255,
-        default='',
+        default="",
         blank=True,
         help_text=_(
-            'Path from project root to <code>.readthedocs.yml</code> file '
-            '(ex. <code>docs/.readthedocs.yml</code>). '
-            'Leave blank if you want us to find it for you.',
+            "Path from project root to <code>.readthedocs.yml</code> file "
+            "(ex. <code>docs/.readthedocs.yml</code>). "
+            "Leave blank if you want us to find it for you.",
         ),
     )
 

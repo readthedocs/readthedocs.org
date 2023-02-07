@@ -1377,12 +1377,14 @@ def load(path, env_config, config_file=None):
     the version of the configuration a build object would be load and validated,
     ``BuildConfigV1`` is the default.
     """
-    if config_file is None or config_file == '':
+    if config_file is None or config_file == "":
         filename = find_one(path, CONFIG_FILENAME_REGEX)
     else:
         filename = os.path.join(path, config_file)
         if not os.path.exists(filename):
-            raise ConfigError(f".readthedocs.yml not found at {config_file}", CONFIG_FILE_REQUIRED)
+            raise ConfigError(
+                f".readthedocs.yml not found at {config_file}", CONFIG_FILE_REQUIRED
+            )
 
     if not filename:
         raise ConfigFileNotFound(path)

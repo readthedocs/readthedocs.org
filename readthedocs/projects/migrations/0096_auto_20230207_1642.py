@@ -6,18 +6,30 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('projects', '0095_default_branch_helptext'),
+        ("projects", "0095_default_branch_helptext"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalproject',
-            name='rtd_conf_file',
-            field=models.CharField(blank=True, default='', help_text='Path from project root to <code>.readthedocs.yml</code> file (ex. <code>docs/.readthedocs.yml</code>). Leave blank if you want us to find it for you.', max_length=255, verbose_name='.readthedocs.yml configuration file'),
+            model_name="historicalproject",
+            name="rtd_conf_file",
+            field=models.CharField(
+                blank=True,
+                default="",
+                help_text="Path from project root to <code>.readthedocs.yml</code> file (ex. <code>docs/.readthedocs.yml</code>). Leave blank if you want us to find it for you.",
+                max_length=255,
+                verbose_name=".readthedocs.yml configuration file",
+            ),
         ),
         migrations.AddField(
-            model_name='project',
-            name='rtd_conf_file',
-            field=models.CharField(blank=True, default='', help_text='Path from project root to <code>.readthedocs.yml</code> file (ex. <code>docs/.readthedocs.yml</code>). Leave blank if you want us to find it for you.', max_length=255, verbose_name='.readthedocs.yml configuration file'),
+            model_name="project",
+            name="rtd_conf_file",
+            field=models.CharField(
+                blank=True,
+                default="",
+                help_text="Path from project root to <code>.readthedocs.yml</code> file (ex. <code>docs/.readthedocs.yml</code>). Leave blank if you want us to find it for you.",
+                max_length=255,
+                verbose_name=".readthedocs.yml configuration file",
+            ),
         ),
     ]
