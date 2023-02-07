@@ -99,8 +99,6 @@ django-gravatar2==1.4.4
     # via -r requirements/pip.in
 django-ipware==4.0.2
     # via django-structlog
-django-kombu==0.9.4
-    # via -r requirements/pip.in
 django-messages-extends==0.6.3
     # via -r requirements/pip.in
 django-polymorphic==3.1.0
