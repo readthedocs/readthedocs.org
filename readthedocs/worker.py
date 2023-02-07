@@ -1,5 +1,8 @@
 """Celery worker application instantiation."""
 
+# PR to test changes that don't include `doc/` (exit 183) are
+# marked as success on GH check
+
 import os
 
 from celery import Celery
