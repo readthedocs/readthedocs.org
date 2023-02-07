@@ -130,3 +130,5 @@ django-structlog==2.2.0
 
 structlog
 dparse
+
+gunicorn

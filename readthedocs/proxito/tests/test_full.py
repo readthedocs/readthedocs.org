@@ -29,7 +29,10 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.models import Domain, Feature, Project
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.redirects.models import Redirect
-from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
+from readthedocs.rtd_tests.storage import (
+    BuildMediaFileSystemStorageTest,
+    StaticFileSystemStorageTest,
+)
 from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 
 from .base import BaseDocServing
@@ -471,7 +474,17 @@ class TestDocServingBackends(BaseDocServing):
 @override_settings(
     PYTHON_MEDIA=False,
     PUBLIC_DOMAIN='readthedocs.io',
-    RTD_BUILD_MEDIA_STORAGE='readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest',
+)
+# We are overriding the storage class instead of using RTD_BUILD_MEDIA_STORAGE,
+# since the setting is evaluated just once (first test to use the storage
+# backend will set it for the whole test suite).
+@mock.patch(
+    "readthedocs.proxito.views.mixins.build_media_storage",
+    new=BuildMediaFileSystemStorageTest(),
+)
+@mock.patch(
+    "readthedocs.proxito.views.serve.build_media_storage",
+    new=BuildMediaFileSystemStorageTest(),
 )
 class TestAdditionalDocViews(BaseDocServing):
     # Test that robots.txt and sitemap.xml work
@@ -806,8 +819,10 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         storage_exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/404.html'),
-                mock.call('html/project/latest/404.html'),
+                mock.call("html/project/fancy-version/404.html"),
+                mock.call("html/project/fancy-version/404/index.html"),
+                mock.call("html/project/latest/404.html"),
+                mock.call("html/project/latest/404/index.html"),
             ]
         )
 
@@ -835,8 +850,10 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         storage_exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/404.html'),
-                mock.call('html/project/latest/404.html'),
+                mock.call("html/project/fancy-version/404.html"),
+                mock.call("html/project/fancy-version/404/index.html"),
+                mock.call("html/project/latest/404.html"),
+                mock.call("html/project/latest/404/index.html"),
             ]
         )
 
@@ -895,10 +912,12 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         storage_exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/not-found/index.html'),
-                mock.call('html/project/fancy-version/not-found/README.html'),
-                mock.call('html/project/fancy-version/404.html'),
-                mock.call('html/project/latest/404.html')
+                mock.call("html/project/fancy-version/not-found/index.html"),
+                mock.call("html/project/fancy-version/not-found/README.html"),
+                mock.call("html/project/fancy-version/404.html"),
+                mock.call("html/project/fancy-version/404/index.html"),
+                mock.call("html/project/latest/404.html"),
+                mock.call("html/project/latest/404/index.html"),
             ]
         )
 
@@ -925,11 +944,12 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         storage_exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/not-found/index.html'),
-                mock.call('html/project/fancy-version/not-found/README.html'),
-                mock.call('html/project/fancy-version/404.html'),
-                mock.call('html/project/latest/404.html'),
-                mock.call('html/project/latest/404/index.html'),
+                mock.call("html/project/fancy-version/not-found/index.html"),
+                mock.call("html/project/fancy-version/not-found/README.html"),
+                mock.call("html/project/fancy-version/404.html"),
+                mock.call("html/project/fancy-version/404/index.html"),
+                mock.call("html/project/latest/404.html"),
+                mock.call("html/project/latest/404/index.html"),
             ]
         )
 
@@ -1193,8 +1213,9 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         self.assertEqual(response.status_code, 404)
 
-    @override_settings(
-        RTD_STATICFILES_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest"
+    @mock.patch(
+        "readthedocs.proxito.views.mixins.staticfiles_storage",
+        new=StaticFileSystemStorageTest(),
     )
     def test_serve_static_files(self):
         resp = self.client.get(
@@ -1213,10 +1234,7 @@ class TestAdditionalDocViews(BaseDocServing):
             resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
         )
 
-    @override_settings(
-        RTD_STATICFILES_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest"
-    )
-    @mock.patch("readthedocs.proxito.views.serve.staticfiles_storage")
+    @mock.patch("readthedocs.proxito.views.mixins.staticfiles_storage")
     def test_serve_invalid_static_file(self, staticfiles_storage):
         staticfiles_storage.url.side_effect = Exception
         paths = ["../", "foo/../bar"]
@@ -1235,6 +1253,13 @@ class TestAdditionalDocViews(BaseDocServing):
     ALLOW_PRIVATE_REPOS=True,
     PUBLIC_DOMAIN='dev.readthedocs.io',
     PUBLIC_DOMAIN_USES_HTTPS=True,
+)
+# We are overriding the storage class instead of using RTD_BUILD_MEDIA_STORAGE,
+# since the setting is evaluated just once (first test to use the storage
+# backend will set it for the whole test suite).
+@mock.patch(
+    "readthedocs.proxito.views.mixins.staticfiles_storage",
+    new=StaticFileSystemStorageTest(),
 )
 class TestCDNCache(BaseDocServing):
 

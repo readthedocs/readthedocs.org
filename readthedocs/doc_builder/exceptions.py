@@ -40,6 +40,18 @@ class BuildUserError(BuildBaseException):
     BUILD_COMMANDS_WITHOUT_OUTPUT = gettext_noop(
         f'No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.'
     )
+    BUILD_OUTPUT_IS_NOT_A_DIRECTORY = gettext_noop(
+        'Build output directory for format "{artifact_type}" is not a directory.'
+    )
+    BUILD_OUTPUT_HAS_0_FILES = gettext_noop(
+        'Build output directory for format "{artifact_type}" does not contain any files. '
+        "It seems the build process created the directory but did not save any file to it."
+    )
+    BUILD_OUTPUT_HAS_MULTIPLE_FILES = gettext_noop(
+        'Build output directory for format "{artifact_type}" contains multiple files '
+        "and it is not currently supported. "
+        'Please, remove all the files but the "{artifact_type}" your want to upload.'
+    )
 
 
 class BuildUserSkip(BuildUserError):
