@@ -347,7 +347,8 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             project=final_project, slug=version_slug
         ).first()
 
-        # If there are no redirect, try to serve the custom 404 of the current version (version_slug)
+        # If there are no redirect,
+        # try to serve the custom 404 of the current version (version_slug)
         # Then, try to serve the custom 404 page for the default version
         # (project.get_default_version())
         versions = []
