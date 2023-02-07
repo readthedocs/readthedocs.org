@@ -343,15 +343,27 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 # Continue with our normal 404 handling in this case
                 pass
 
-        # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
-        # Secondly, try to serve the 404 page for the default version
+        version = Version.objects.filter(
+            project=final_project, slug=version_slug
+        ).first()
+
+        # If there are no redirect, try to serve the custom 404 of the current version (version_slug)
+        # Then, try to serve the custom 404 page for the default version
         # (project.get_default_version())
         versions = []
-        if Version.objects.filter(project=final_project, slug=version_slug).exists():
+        if version:
             versions.append(version_slug)
         default_version_slug = final_project.get_default_version()
         if default_version_slug != version_slug:
             versions.append(default_version_slug)
+
+        # Register 404 pages into our database for user's analytics
+        self._register_broken_link(
+            project=final_project,
+            version=version,
+            path=filename,
+            full_path=proxito_path,
+        )
 
         for version_slug_404 in versions:
             if not self.allowed_user(request, final_project, version_slug_404):
@@ -374,23 +386,11 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     )
                     resp = HttpResponse(build_media_storage.open(storage_filename_path).read())
                     resp.status_code = 404
-                    self._register_broken_link(
-                        project=final_project,
-                        version_slug=version_slug_404,
-                        path=filename,
-                        full_path=proxito_path,
-                    )
                     return resp
 
-        self._register_broken_link(
-            project=final_project,
-            version_slug=version_slug,
-            path=filename,
-            full_path=proxito_path,
-        )
         raise Http404('No custom 404 page found.')
 
-    def _register_broken_link(self, project, version_slug, path, full_path):
+    def _register_broken_link(self, project, version, path, full_path):
         try:
             if not project.has_feature(Feature.RECORD_404_PAGE_VIEWS):
                 return
@@ -407,7 +407,6 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 )
                 return
 
-            version = project.versions.filter(slug=version_slug).first()
             # If the path isn't attached to a version
             # it should be the same as the full_path,
             # otherwise it would be empty.
