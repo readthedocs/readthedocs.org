@@ -44,7 +44,7 @@ Organization logs track the following events:
 
 - Authentication on documentation pages from your organization.
 - User accesses a documentation page from your organization (**Enterprise plans only**).
-- User accesses downloads documentation pages (**Enterprise plans only**).
+- User accesses a documentation's downloadable formats (**Enterprise plans only**).
 - Invitations to organization teams are sent, revoked or accepted.
 
 Authentication failures and successes are both tracked.
