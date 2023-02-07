@@ -29,4 +29,5 @@ have a look at our :doc:`/tutorial/index`.
    setup-single-sign-on-github-gitlab-bitbucket
    setup-single-sign-on-google-email
    manage-read-the-docs-teams
+   automation-rules
    redirects

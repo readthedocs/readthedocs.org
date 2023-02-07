@@ -237,8 +237,6 @@ out of your documentation and Read the Docs.
 
    flyout-menu
    feature-flags
-
-   automation-rules
    canonical-urls
 
 

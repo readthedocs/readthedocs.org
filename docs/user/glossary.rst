@@ -1,6 +1,9 @@
 Glossary
 ========
 
+This page includes a number of terms that we use in our documentation,
+so that you have a reference for how we're using them.
+
 .. glossary::
 
    dashboard
@@ -11,9 +14,23 @@ Glossary
       Projects have a *default version*, usually the latest stable version of a project.
       The *default version* is the URL that is redirected to when a users loads the `/` URL for your project.
 
+   Docs as Code
+      A term used to describe the workflow of keeping documentation in a Git repository,
+      along with source code.
+      Popular in the open source software movement,
+      and used by many technology companies.
+
    flyout menu
       Menu displayed on the documentation, readily accessible for readers, containing the list active versions, links to static downloads, and other useful links.
       Read more in our :doc:`/flyout-menu` page.
+
+   GitOps
+      Denotes the use of code maintained in Git to automate building, testing, and deployment of infrastructure.
+      In terms of documentation,
+      GitOps is applicable for Read the Docs,
+      as the configuration for building documentation is stored in ``.readthedocs.yaml``,
+      and rules for publication of documentation can be :doc:`automated </automation-rules>`.
+      Similar to :term:`Docs as Code`.
 
    pre-defined build jobs
       Commands executed by Read the Docs when performing the build process.
@@ -32,7 +49,7 @@ Glossary
    slug
       A unique identifier for a project or version. This value comes from the
       project or version name, which is reduced to lowercase letters, numbers,
-      and hypens. You can retreive your project or version slugs from
+      and hyphens. You can retrieve your project or version slugs from
       :doc:`our API <api/v3>`.
 
    subproject
