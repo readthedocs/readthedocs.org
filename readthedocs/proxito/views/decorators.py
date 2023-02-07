@@ -1,6 +1,7 @@
-import structlog
 from functools import wraps
 
+import structlog
+from django.db.models import Q
 from django.http import Http404
 
 from readthedocs.projects.models import Project, ProjectRelationship
@@ -25,26 +26,20 @@ def map_subproject_slug(view_func):
             # Try to fetch by subproject alias first, otherwise we might end up
             # redirected to an unrelated project.
             # Depends on a project passed into kwargs
-            rel = ProjectRelationship.objects.filter(
-                parent=kwargs['project'],
-                alias=subproject_slug,
-            ).first()
+            rel = (
+                ProjectRelationship.objects.filter(parent=kwargs["project"])
+                .filter(Q(alias=subproject_slug) | Q(child__slug=subproject_slug))
+                .first()
+            )
             if rel:
                 subproject = rel.child
             else:
-                rel = ProjectRelationship.objects.filter(
-                    parent=kwargs['project'],
-                    child__slug=subproject_slug,
-                ).first()
-                if rel:
-                    subproject = rel.child
-                else:
-                    log.warning(
-                        'The slug is not subproject of project.',
-                        subproject_slug=subproject_slug,
-                        project_slug=kwargs['project'].slug,
-                    )
-                    raise Http404('Invalid subproject slug')
+                log.warning(
+                    "The slug is not subproject of project.",
+                    subproject_slug=subproject_slug,
+                    project_slug=kwargs["project"].slug,
+                )
+                raise Http404("Invalid subproject slug")
         return view_func(request, subproject=subproject, *args, **kwargs)
 
     return inner_view

@@ -5,7 +5,12 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
-from readthedocs.core.unresolver import unresolve
+from readthedocs.core.unresolver import (
+    InvalidCustomDomainError,
+    InvalidExternalDomainError,
+    SuspiciousHostnameError,
+    unresolve,
+)
 from readthedocs.projects.models import Domain, Project
 from readthedocs.rtd_tests.tests.test_resolver import ResolverBase
 
@@ -261,9 +266,16 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.filename, None)
 
     def test_malformed_external_version(self):
-        parts = unresolve("https://pip-latest.dev.readthedocs.build/en/latest/")
-        self.assertEqual(parts, None)
+        with pytest.raises(InvalidExternalDomainError):
+            unresolve("https://pip-latest.dev.readthedocs.build/en/latest/")
 
     def test_unresolver_unknown_host(self):
-        parts = unresolve("https://random.stuff.com/en/latest/")
-        self.assertEqual(parts, None)
+        with pytest.raises(InvalidCustomDomainError):
+            unresolve("https://random.stuff.com/en/latest/")
+
+    def test_unresolver_suspicious_hostname(self):
+        with pytest.raises(SuspiciousHostnameError):
+            unresolve("https://readthedocs.io.phishing.com/en/latest/")
+
+        with pytest.raises(SuspiciousHostnameError):
+            unresolve("https://dev.readthedocs.build.phishing.com/en/latest/")
