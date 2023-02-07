@@ -1369,7 +1369,7 @@ class BuildConfigV2(BuildConfigBase):
         return Search(**self._config['search'])
 
 
-def load(path, env_config):
+def load(path, env_config, config_file=None):
     """
     Load a project configuration and the top-most build config for a given path.
 
@@ -1377,7 +1377,12 @@ def load(path, env_config):
     the version of the configuration a build object would be load and validated,
     ``BuildConfigV1`` is the default.
     """
-    filename = find_one(path, CONFIG_FILENAME_REGEX)
+    if config_file is None or config_file == '':
+        filename = find_one(path, CONFIG_FILENAME_REGEX)
+    else:
+        filename = os.path.join(path, config_file)
+        if not os.path.exists(filename):
+            raise ConfigError(f".readthedocs.yml not found at {config_file}", CONFIG_FILE_REQUIRED)
 
     if not filename:
         raise ConfigFileNotFound(path)

@@ -357,6 +357,17 @@ class Project(models.Model):
             'Leave blank if you want us to find it for you.',
         ),
     )
+    rtd_conf_file = models.CharField(
+        _('.readthedocs.yml configuration file'),
+        max_length=255,
+        default='',
+        blank=True,
+        help_text=_(
+            'Path from project root to <code>.readthedocs.yml</code> file '
+            '(ex. <code>docs/.readthedocs.yml</code>). '
+            'Leave blank if you want us to find it for you.',
+        ),
+    )
 
     featured = models.BooleanField(_('Featured'), default=False)
     skip = models.BooleanField(_('Skip'), default=False)

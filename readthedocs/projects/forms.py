@@ -207,6 +207,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'single_version',
             'external_builds_enabled',
             'external_builds_privacy_level',
+            'rtd_conf_file',
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -353,6 +354,17 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
                 _(
                     'Your configuration file is invalid, make sure it contains '
                     'conf.py in it.',
+                ),
+            )  # yapf: disable
+        return filename
+
+    def clean_rtd_conf_file(self):
+        filename = self.cleaned_data.get('rtd_conf_file', '').strip()
+        if filename and '.readthedocs.yml' not in filename:
+            raise forms.ValidationError(
+                _(
+                    'Your configuration file is invalid, make sure it contains '
+                    '.readthedocs.yml in it.',
                 ),
             )  # yapf: disable
         return filename

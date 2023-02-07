@@ -56,6 +56,7 @@ def load_yaml_config(version):
         config = load_config(
             path=checkout_path,
             env_config=env_config,
+            config_file=project.rtd_conf_file,
         )
     except ConfigFileNotFound:
         # Default to use v1 with some defaults from the web interface

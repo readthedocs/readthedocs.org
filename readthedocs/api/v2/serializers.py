@@ -93,6 +93,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             'show_advertising',
             'environment_variables',
             'max_concurrent_builds',
+            'rtd_conf_file',
         )
 
 
