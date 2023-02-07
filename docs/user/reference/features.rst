@@ -19,3 +19,4 @@ Features
    /automation-rules
    /user-defined-redirects
    /badges
+   /security-log
