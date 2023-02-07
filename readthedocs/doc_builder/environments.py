@@ -387,8 +387,15 @@ class DockerBuildCommand(BuildCommand):
         r"""Escape the command by prefixing suspicious chars with `\`."""
         command = self.bash_escape_re.sub(r"\\\1", cmd)
 
-        # HACK: avoid escaping `$READTHEDOCS_OUTPUT` variable
-        command = command.replace("\\$READTHEDOCS_OUTPUT", "$READTHEDOCS_OUTPUT")
+        # HACK: avoid escaping variables that we need to use in the commands
+        not_escape_variables = (
+            "READTHEDOCS_OUTPUT",
+            "READTHEDOCS_VIRTUALENV_PATH",
+            "CONDA_ENVS_PATH",
+            "CONDA_DEFAULT_ENV",
+        )
+        for variable in not_escape_variables:
+            command = command.replace(f"\\${variable}", f"${variable}")
         return command
 
 

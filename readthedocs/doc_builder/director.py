@@ -559,6 +559,7 @@ class BuildDirector:
         if self.data.config.conda is not None:
             env.update(
                 {
+                    # NOTE: should these be prefixed with "READTHEDOCS_"?
                     "CONDA_ENVS_PATH": os.path.join(
                         self.data.project.doc_path, "conda"
                     ),
@@ -579,6 +580,9 @@ class BuildDirector:
                         "envs",
                         self.data.version.slug,
                         "bin",
+                    ),
+                    "READTHEDOCS_VIRTUALENV_PATH": os.path.join(
+                        self.data.project.doc_path, "envs", self.data.version.slug
                     ),
                 }
             )
