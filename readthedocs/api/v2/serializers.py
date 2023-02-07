@@ -170,8 +170,17 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
             docroot = re.sub("/[0-9a-z]+/?$", "", settings.DOCROOT, count=1)
             container_hash = "/([0-9a-z]+/)?"
 
+        command = obj.command
         regex = f"{docroot}{container_hash}{project_slug}/envs/{version_slug}(/bin/)?"
-        command = re.sub(regex, "", obj.command, count=1)
+        command = re.sub(regex, "", command, count=1)
+
+        # Remove explicit variable names we use to run commands,
+        # since users don't care about these.
+        regex = r"^\$READTHEDOCS_VIRTUALENV_PATH/bin/"
+        command = re.sub(regex, "", command, count=1)
+
+        regex = r"^\$CONDA_ENVS_PATH/\\$CONDA_DEFAULT_ENV/bin/"
+        command = re.sub(regex, "", command, count=1)
         return command
 
 
