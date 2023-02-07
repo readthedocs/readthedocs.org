@@ -483,7 +483,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
 
         # NOTE: why we wouldn't have `self.data.build_commit` here?
-        # This attribute is set when we get it after clonning the repository
+        # This attribute is set when we get it after cloning the repository
         #
         # Oh, I think this is to differentiate a task triggered with
         # `Build.commit` than a one triggered just with the `Version` to build
