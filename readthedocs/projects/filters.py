@@ -80,8 +80,8 @@ class ProjectSortOrderingFilter(OrderingFilter):
             (f'-{self.SORT_NAME}', _('Name (descending)')),
             (f'-{self.SORT_MODIFIED_DATE}', _('Most recently modified')),
             (self.SORT_MODIFIED_DATE, _('Least recently modified')),
-            (self.SORT_BUILD_DATE, _('Most recently built')),
-            (f'-{self.SORT_BUILD_DATE}', _('Least recently built')),
+            (f'-{self.SORT_BUILD_DATE}', _('Most recently built')),
+            (self.SORT_BUILD_DATE, _('Least recently built')),
             (f'-{self.SORT_BUILD_COUNT}', _('Most frequently built')),
             (self.SORT_BUILD_COUNT, _('Least frequently built')),
         ]
