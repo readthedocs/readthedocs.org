@@ -152,8 +152,6 @@ django-ipware==4.0.2
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-django-kombu==0.9.4
-    # via -r requirements/pip.txt
 django-messages-extends==0.6.3
     # via -r requirements/pip.txt
 django-polymorphic==3.1.0
