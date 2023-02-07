@@ -1,5 +1,4 @@
 import structlog
-
 from django.db.models import Count, F, Max
 from django.forms.widgets import HiddenInput
 from django.utils.translation import gettext_lazy as _
@@ -76,14 +75,14 @@ class ProjectSortOrderingFilter(OrderingFilter):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.extra['choices'] = [
-            (f'-{self.SORT_NAME}', _('Name (descending)')),
-            (f'-{self.SORT_MODIFIED_DATE}', _('Most recently modified')),
-            (self.SORT_MODIFIED_DATE, _('Least recently modified')),
-            (f'-{self.SORT_BUILD_DATE}', _('Most recently built')),
-            (self.SORT_BUILD_DATE, _('Least recently built')),
-            (f'-{self.SORT_BUILD_COUNT}', _('Most frequently built')),
-            (self.SORT_BUILD_COUNT, _('Least frequently built')),
+        self.extra["choices"] = [
+            (f"-{self.SORT_NAME}", _("Name (descending)")),
+            (f"-{self.SORT_MODIFIED_DATE}", _("Most recently modified")),
+            (self.SORT_MODIFIED_DATE, _("Least recently modified")),
+            (f"-{self.SORT_BUILD_DATE}", _("Most recently built")),
+            (self.SORT_BUILD_DATE, _("Least recently built")),
+            (f"-{self.SORT_BUILD_COUNT}", _("Most frequently built")),
+            (self.SORT_BUILD_COUNT, _("Least frequently built")),
         ]
 
     def filter(self, qs, value):
