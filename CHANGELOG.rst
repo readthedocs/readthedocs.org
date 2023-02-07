@@ -1,3 +1,30 @@
+Version 9.4.0
+-------------
+
+:Date: February 07, 2023
+
+* `@agjohnson <https://github.com/agjohnson>`__: Fix ordering of filter for most recently built project (`#9992 <https://github.com/readthedocs/readthedocs.org/pull/9992>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9987 <https://github.com/readthedocs/readthedocs.org/pull/9987>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: always check `404/index.hmtml` (`#9983 <https://github.com/readthedocs/readthedocs.org/pull/9983>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove outdated and complex code and dependencies (`#9981 <https://github.com/readthedocs/readthedocs.org/pull/9981>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: save one queryset (`#9980 <https://github.com/readthedocs/readthedocs.org/pull/9980>`__)
+* `@humitos <https://github.com/humitos>`__: Common: update `common/` submodule (`#9979 <https://github.com/readthedocs/readthedocs.org/pull/9979>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: simplify all the settings removing a whole old layer (`dev`) (`#9978 <https://github.com/readthedocs/readthedocs.org/pull/9978>`__)
+* `@humitos <https://github.com/humitos>`__: Development: use `gunicorn` for `web` and `proxito` (`#9977 <https://github.com/readthedocs/readthedocs.org/pull/9977>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: match stripe customer description with org name (`#9976 <https://github.com/readthedocs/readthedocs.org/pull/9976>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update security docs (`#9973 <https://github.com/readthedocs/readthedocs.org/pull/9973>`__)
+* `@humitos <https://github.com/humitos>`__: Management commands: remove unused ones (`#9972 <https://github.com/readthedocs/readthedocs.org/pull/9972>`__)
+* `@humitos <https://github.com/humitos>`__: Build: expose `READTHEDOCS_VIRTUALENV_PATH` variable (`#9971 <https://github.com/readthedocs/readthedocs.org/pull/9971>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove custom CORS logic (`#9945 <https://github.com/readthedocs/readthedocs.org/pull/9945>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: refactor middleware (`#9933 <https://github.com/readthedocs/readthedocs.org/pull/9933>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Remove html_theme_path from conf.py (`#9923 <https://github.com/readthedocs/readthedocs.org/pull/9923>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel Automatic Redirects as "Incoming links: Best practices and redirects" (Diátaxis) (`#9896 <https://github.com/readthedocs/readthedocs.org/pull/9896>`__)
+* `@mwtoews <https://github.com/mwtoews>`__: Docs: add warning that pull requests only build HTML and not other formats (`#9892 <https://github.com/readthedocs/readthedocs.org/pull/9892>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix status reporting on PRs with the magic exit code (`#9807 <https://github.com/readthedocs/readthedocs.org/pull/9807>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: refactor doc serving (`#9726 <https://github.com/readthedocs/readthedocs.org/pull/9726>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Do not assign html_theme_path (`#9654 <https://github.com/readthedocs/readthedocs.org/pull/9654>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Switch to universal analytics (`#3495 <https://github.com/readthedocs/readthedocs.org/pull/3495>`__)
+
 Version 9.3.1
 -------------
 
