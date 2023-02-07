@@ -361,7 +361,7 @@ class CommunityBaseSettings(Settings):
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_TOOLS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
-    RTD_STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    RTD_STATICFILES_STORAGE = 'readthedocs.builds.storage.StaticFilesStorage'
 
     @property
     def TEMPLATES(self):
@@ -748,6 +748,16 @@ class CommunityBaseSettings(Settings):
         'GET',
         'OPTIONS',
         'HEAD',
+    ]
+
+    # URLs to allow CORS to read from unauthed.
+    CORS_URLS_ALLOW_ALL_REGEX = [
+        r"^/api/v2/footer_html",
+        r"^/api/v2/search",
+        r"^/api/v2/docsearch",
+        r"^/api/v2/embed",
+        r"^/api/v3/embed",
+        r"^/api/v2/sustainability",
     ]
 
     # RTD Settings
