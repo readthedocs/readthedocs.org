@@ -23,8 +23,9 @@ This log is useful to validate that no unauthorized events have occurred.
 
 The security log tracks the following events:
 
-- Authentication on the dashboard
-- Authentication on documentation pages (:doc:`/commercial/index` only)
+- Authentication on the dashboard.
+- Authentication on documentation pages (:doc:`/commercial/index` only).
+- When invitations to manage a project are sent, accepted, revoked or declined.
 
 Authentication failures and successes are both tracked.
 
@@ -41,8 +42,10 @@ Your organization security log is a great place to check periodically to ensure 
 
 Organization logs track the following events:
 
-- Authentication on documentation pages from your organization
-- User access to every documentation page from your organization (**Enterprise plans only**)
+- Authentication on documentation pages from your organization.
+- User accesses a documentation page from your organization (**Enterprise plans only**).
+- User accesses downloads documentation pages (**Enterprise plans only**).
+- Invitations to organization teams are sent, revoked or accepted.
 
 Authentication failures and successes are both tracked.
 
