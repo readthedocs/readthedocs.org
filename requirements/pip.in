@@ -70,7 +70,6 @@ orjson
 # Utils
 django-gravatar2
 pytz
-django-kombu
 
 # We cannot upgrade it until dj-stripe fixes this issue
 # https://github.com/dj-stripe/dj-stripe/issues/1842
