@@ -376,7 +376,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     resp.status_code = 404
                     self._register_broken_link(
                         project=final_project,
-                        version=version,
+                        version_slug=version_slug_404,
                         path=filename,
                         full_path=proxito_path,
                     )
@@ -384,16 +384,18 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
         self._register_broken_link(
             project=final_project,
-            version=version,
+            version_slug=version_slug,
             path=filename,
             full_path=proxito_path,
         )
         raise Http404('No custom 404 page found.')
 
-    def _register_broken_link(self, project, version, path, full_path):
+    def _register_broken_link(self, project, version_slug, path, full_path):
         try:
             if not project.has_feature(Feature.RECORD_404_PAGE_VIEWS):
                 return
+
+            version = project.versions.get(slug=version_slug)
 
             # This header is set from Cloudflare,
             # it goes from 0 to 100, 0 being low risk,
