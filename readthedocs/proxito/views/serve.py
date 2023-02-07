@@ -395,8 +395,6 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             if not project.has_feature(Feature.RECORD_404_PAGE_VIEWS):
                 return
 
-            version = project.versions.get(slug=version_slug)
-
             # This header is set from Cloudflare,
             # it goes from 0 to 100, 0 being low risk,
             # and values above 10 are bots/spammers.
@@ -409,6 +407,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 )
                 return
 
+            version = project.versions.filter(slug=version_slug).first()
             # If the path isn't attached to a version
             # it should be the same as the full_path,
             # otherwise it would be empty.
