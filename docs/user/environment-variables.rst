@@ -16,7 +16,7 @@ Environment variables are defined in the :term:`dashboard` interface in :menusel
 Environment variables are configured and managed for a project's entire build process `with 2 exceptions <Environment variables and build environments>`_.
 
 Aside from storing secrets,
-there are :ref:`other patterns <environment-variables:Other patterns>` that take advantage of environment variables,
+there are :ref:`other patterns <environment-variables:Patterns of using environment variables>` that take advantage of environment variables,
 for instance to reuse the same *monorepo* configuration in multiple documentation projects.
 In cases where the environment variable isn't a secret,
 you should also be aware of the :ref:`alternatives to environment variables <environment-variables:Alternatives to environment variables>`.
@@ -51,8 +51,15 @@ Pull Request builds
 .. with a few more scenarios,
 .. once there is better options for environment variables in config files
 
-Other patterns
---------------
+Patterns of using environment variables
+---------------------------------------
+
+Aside from storing secrets,
+environment variables are also useful if you need to make either your :doc:`.readthedocs.yaml </config-file/v2>` or the commands called in the :doc:`build process </builds>`
+behave depending on :doc:`pre-defined environment variables </reference/environment-variables>` or your own custom environment variables.
+
+Example: Multiple projects from the same Git repo
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you have the need to build multiple documentation websites from the same Git repository,
 you can use an environment variable to configure the behavior of your :doc:`build commands </build-customization>`
@@ -64,6 +71,7 @@ the following configuration code decides whether to build the *user* or *develop
 This is defined by the ``PROJECT`` environment variable:
 
 .. code-block:: python
+   :caption: Read the Docs' conf.py [1]_ is used to build 2 documentation projects.
 
    from multiproject.utils import get_project
 
@@ -88,6 +96,7 @@ This is defined by the ``PROJECT`` environment variable:
    docset = get_project(multiproject_projects)
 
 .. _sphinx-multiproject: https://sphinx-multiproject.readthedocs.io/
+.. [1] https://github.com/readthedocs/readthedocs.org/blob/main/docs/conf.py
 
 Alternatives to environment variables
 -------------------------------------
