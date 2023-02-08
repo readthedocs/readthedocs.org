@@ -1,7 +1,7 @@
 .. _Environment Variables:
 
-Configuring environment variables
-=================================
+Understanding environment variables
+===================================
 
 Read the Docs allows you to define your own environment variables to be used in the build process.
 This is useful for adding build secrets such as API tokens.
@@ -13,10 +13,13 @@ This is useful for adding build secrets such as API tokens.
 .. but adding an environment variable with ``ENV=123 command --flag`` is possibly better.
 
 Environment variables are defined in the :term:`dashboard` interface in :menuselection:`Admin --> Environment variables`.
-In cases where the environment variable isn't a secret,
-there are also :ref:`environment-variables:alternative approaches`.
-
 Environment variables are configured and managed for a project's entire build process `with 2 exceptions <Environment variables and build environments>`_.
+
+Aside from storing secrets,
+there are :ref:`other patterns <environment-variables:Other patterns>` that take advantage of environment variables,
+for instance to reuse the same *monorepo* configuration in multiple documentation projects.
+In cases where the environment variable isn't a secret,
+you should also be aware of the :ref:`alternatives to environment variables <environment-variables:Alternatives to environment variables>`.
 
 .. seealso::
 
@@ -48,8 +51,46 @@ Pull Request builds
 .. with a few more scenarios,
 .. once there is better options for environment variables in config files
 
-Alternative approaches
-----------------------
+Other patterns
+--------------
+
+If you have the need to build multiple documentation websites from the same Git repository,
+you can use an environment variable to configure the behavior of your :doc:`build commands </build-customization>`
+or Sphinx ``conf.py`` file.
+
+An example of this is found in *the documentation project that you are looking at now*.
+Using the Sphinx extension `sphinx-multiproject`_,
+the following configuration code decides whether to build the *user* or *developer* documentation.
+This is defined by the ``PROJECT`` environment variable:
+
+.. code-block:: python
+
+   from multiproject.utils import get_project
+
+   # (...)
+
+   multiproject_projects = {
+       "user": {
+           "use_config_file": False,
+           "config": {
+               "project": "Read the Docs user documentation",
+           },
+       },
+       "dev": {
+           "use_config_file": False,
+           "config": {
+               "project": "Read the Docs developer documentation",
+           },
+       },
+   }
+
+
+   docset = get_project(multiproject_projects)
+
+.. _sphinx-multiproject: https://sphinx-multiproject.readthedocs.io/
+
+Alternatives to environment variables
+-------------------------------------
 
 In some scenarios, it's more feasible to define your build's environment variables using the ``.readthedocs.yaml`` :doc:`configuration file </config-file/index>`.
 Using the :term:`dashboard` for administering environment variables may not be the right fit if you already know that you want to manage environment variables *as code*.
