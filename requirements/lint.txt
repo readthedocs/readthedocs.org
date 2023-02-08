@@ -31,11 +31,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.64
+boto3==1.26.65
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.64
+botocore==1.29.65
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -104,6 +104,7 @@ django==3.2.17
     #   dj-stripe
     #   django-allauth
     #   django-annoying
+    #   django-cors-headers
     #   django-csp
     #   django-debug-toolbar
     #   django-extensions
@@ -121,7 +122,7 @@ django-annoying==0.10.6
     # via -r requirements/pip.txt
 django-autoslug==1.9.8
     # via -r requirements/pip.txt
-django-cors-middleware==1.4.0
+django-cors-headers==3.13.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
@@ -454,7 +455,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.17.1
+virtualenv==20.18.0
     # via -r requirements/pip.txt
 wcwidth==0.2.6
     # via

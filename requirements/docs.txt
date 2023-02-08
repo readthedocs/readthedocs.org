@@ -57,7 +57,7 @@ pygments==2.14.0
     #   sphinx-tabs
 pytz==2022.7.1
     # via babel
-pyyaml==5.4.1
+pyyaml==6.0
     # via myst-parser
 readthedocs-sphinx-search==0.1.2
     # via -r requirements/docs.in

@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring
 
 import os
+import re
 import subprocess
 import socket
 
@@ -742,7 +743,7 @@ class CommunityBaseSettings(Settings):
     # NOTE: We don't use `CORS_ALLOW_ALL_ORIGINS=True`,
     # since that will set the `Access-Control-Allow-Origin` header to `*`,
     # we won't be able to pass credentials fo the sustainability API with that value.
-    CORS_ALLOWED_ORIGIN_REGEXES = [".*"]
+    CORS_ALLOWED_ORIGIN_REGEXES = [re.compile(".+")]
     CORS_ALLOW_HEADERS = list(default_headers) + [
         'x-hoverxref-version',
     ]
@@ -753,16 +754,20 @@ class CommunityBaseSettings(Settings):
         'HEAD',
     ]
 
-    # TODO: missing to migrate https://github.com/adamchainz/django-cors-headers/issues/830.
     # URLs to allow CORS to read from unauthed.
-    CORS_URLS_ALLOW_ALL_REGEX = [
-        r"^/api/v2/footer_html",
-        r"^/api/v2/search",
-        r"^/api/v2/docsearch",
-        r"^/api/v2/embed",
-        r"^/api/v3/embed",
-        r"^/api/v2/sustainability",
-    ]
+    CORS_URLS_REGEX = re.compile(
+        r"""
+        ^(
+            /api/v2/footer_html
+            |/api/v2/search
+            |/api/v2/docsearch
+            |/api/v2/embed
+            |/api/v3/embed
+            |/api/v2/sustainability
+        )
+        """,
+        re.VERBOSE,
+    )
 
     # RTD Settings
     ALLOW_PRIVATE_REPOS = False
