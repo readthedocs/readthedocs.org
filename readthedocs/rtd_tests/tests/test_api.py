@@ -334,7 +334,7 @@ class APIBuildTests(TestCase):
         buildcommandresult = get(
             BuildCommandResult,
             build=build,
-            command="/home/docs/checkouts/readthedocs.org/user_builds/myproject/envs/myversion/bin/python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
+            command="python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
             exit_code=0,
         )
         resp = client.get('/api/v2/build/{build}/'.format(build=build.pk))

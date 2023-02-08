@@ -16,5 +16,7 @@ Features
    analytics
    /feature-flags
    /server-side-search/index
+   /automation-rules
    /user-defined-redirects
    /badges
+   /security-log

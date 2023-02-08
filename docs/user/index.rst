@@ -160,7 +160,6 @@ and some of the core features of Read the Docs.
    /integrations
    /versions
    /hosting
-   /security-log
 
    /builds
    /build-customization
@@ -239,8 +238,6 @@ out of your documentation and Read the Docs.
 
    flyout-menu
    feature-flags
-
-   automation-rules
    canonical-urls
 
 

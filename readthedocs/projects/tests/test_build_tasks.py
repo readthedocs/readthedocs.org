@@ -294,6 +294,9 @@ class TestBuildTask(BuildEnvironmentBase):
                 "bin",
             ),
             PUBLIC_TOKEN="a1b2c3",
+            # Local and Circle are different values.
+            # We only check it's present, but not its value.
+            READTHEDOCS_VIRTUALENV_PATH=mock.ANY,
         )
         if not external:
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
@@ -716,18 +719,9 @@ class TestBuildTask(BuildEnvironmentBase):
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 ),
+                mock.call("cat", "latexmkrc", cwd=mock.ANY),
                 # NOTE: pdf `mv` commands and others are not here because the
                 # PDF resulting file is not found in the process (`_post_build`)
-                mock.call(
-                    mock.ANY,
-                    "-c",
-                    '"import sys; import sphinx; sys.exit(0 if sphinx.version_info >= (1, 6, 1) else 1)"',
-                    bin_path=mock.ANY,
-                    cwd=mock.ANY,
-                    escape_command=False,
-                    shell=True,
-                    record=False,
-                ),
                 mock.call(
                     mock.ANY,
                     "-m",
