@@ -11,6 +11,7 @@ Features
 
 .. toctree::
    :maxdepth: 1
+   :glob:
 
    ../features
    analytics
@@ -20,3 +21,7 @@ Features
    /user-defined-redirects
    /badges
    /security-log
+   /commercial/organizations
+   /commercial/privacy-level
+   /commercial/sharing
+   /commercial/single-sign-on
