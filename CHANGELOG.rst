@@ -1,3 +1,59 @@
+Version 9.4.0
+-------------
+
+:Date: February 07, 2023
+
+* `@agjohnson <https://github.com/agjohnson>`__: Fix ordering of filter for most recently built project (`#9992 <https://github.com/readthedocs/readthedocs.org/pull/9992>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9987 <https://github.com/readthedocs/readthedocs.org/pull/9987>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: always check `404/index.hmtml` (`#9983 <https://github.com/readthedocs/readthedocs.org/pull/9983>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove outdated and complex code and dependencies (`#9981 <https://github.com/readthedocs/readthedocs.org/pull/9981>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: save one queryset (`#9980 <https://github.com/readthedocs/readthedocs.org/pull/9980>`__)
+* `@humitos <https://github.com/humitos>`__: Common: update `common/` submodule (`#9979 <https://github.com/readthedocs/readthedocs.org/pull/9979>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: simplify all the settings removing a whole old layer (`dev`) (`#9978 <https://github.com/readthedocs/readthedocs.org/pull/9978>`__)
+* `@humitos <https://github.com/humitos>`__: Development: use `gunicorn` for `web` and `proxito` (`#9977 <https://github.com/readthedocs/readthedocs.org/pull/9977>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: match stripe customer description with org name (`#9976 <https://github.com/readthedocs/readthedocs.org/pull/9976>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update security docs (`#9973 <https://github.com/readthedocs/readthedocs.org/pull/9973>`__)
+* `@humitos <https://github.com/humitos>`__: Management commands: remove unused ones (`#9972 <https://github.com/readthedocs/readthedocs.org/pull/9972>`__)
+* `@humitos <https://github.com/humitos>`__: Build: expose `READTHEDOCS_VIRTUALENV_PATH` variable (`#9971 <https://github.com/readthedocs/readthedocs.org/pull/9971>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove custom CORS logic (`#9945 <https://github.com/readthedocs/readthedocs.org/pull/9945>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: refactor middleware (`#9933 <https://github.com/readthedocs/readthedocs.org/pull/9933>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Remove html_theme_path from conf.py (`#9923 <https://github.com/readthedocs/readthedocs.org/pull/9923>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel Automatic Redirects as "Incoming links: Best practices and redirects" (Diátaxis) (`#9896 <https://github.com/readthedocs/readthedocs.org/pull/9896>`__)
+* `@mwtoews <https://github.com/mwtoews>`__: Docs: add warning that pull requests only build HTML and not other formats (`#9892 <https://github.com/readthedocs/readthedocs.org/pull/9892>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix status reporting on PRs with the magic exit code (`#9807 <https://github.com/readthedocs/readthedocs.org/pull/9807>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: refactor doc serving (`#9726 <https://github.com/readthedocs/readthedocs.org/pull/9726>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Do not assign html_theme_path (`#9654 <https://github.com/readthedocs/readthedocs.org/pull/9654>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Switch to universal analytics (`#3495 <https://github.com/readthedocs/readthedocs.org/pull/3495>`__)
+
+Version 9.3.1
+-------------
+
+:Date: January 30, 2023
+
+* `@ericholscher <https://github.com/ericholscher>`__: Add documentation page on Commercial subscriptions (`#9963 <https://github.com/readthedocs/readthedocs.org/pull/9963>`__)
+* `@humitos <https://github.com/humitos>`__: MkDocs builder: use proper relative path for `--site-dir` (`#9962 <https://github.com/readthedocs/readthedocs.org/pull/9962>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9960 <https://github.com/readthedocs/readthedocs.org/pull/9960>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: reduce complexity (`#9956 <https://github.com/readthedocs/readthedocs.org/pull/9956>`__)
+* `@humitos <https://github.com/humitos>`__: Build: rclone retries when uploading artifacts (`#9954 <https://github.com/readthedocs/readthedocs.org/pull/9954>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel badges as feature reference (Diátaxis) (`#9951 <https://github.com/readthedocs/readthedocs.org/pull/9951>`__)
+* `@humitos <https://github.com/humitos>`__: Build: improve `concurent` queryset (`#9950 <https://github.com/readthedocs/readthedocs.org/pull/9950>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Make the GSOC page orphaned (Diátaxis) (`#9949 <https://github.com/readthedocs/readthedocs.org/pull/9949>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: ignore task results (`#9944 <https://github.com/readthedocs/readthedocs.org/pull/9944>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Translations: a few copy issues and translator requests (`#9937 <https://github.com/readthedocs/readthedocs.org/pull/9937>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.3.0 (`#9929 <https://github.com/readthedocs/readthedocs.org/pull/9929>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: log slugs when at least one of their builds was finished (`#9928 <https://github.com/readthedocs/readthedocs.org/pull/9928>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel pages to new top-level "Reference/Policies and legal documents" (Diátaxis) (`#9916 <https://github.com/readthedocs/readthedocs.org/pull/9916>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Move Main Features and Feature Flags to "Reference/Features" (Diátaxis) (`#9915 <https://github.com/readthedocs/readthedocs.org/pull/9915>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Add new section "How-to / Troubleshooting" and move 2 existing troubleshooting pages (`#9914 <https://github.com/readthedocs/readthedocs.org/pull/9914>`__)
+* `@stsewd <https://github.com/stsewd>`__: Logs: fix exception logging (`#9912 <https://github.com/readthedocs/readthedocs.org/pull/9912>`__)
+* `@stsewd <https://github.com/stsewd>`__: CORS: don't allow to pass credentials by default (`#9904 <https://github.com/readthedocs/readthedocs.org/pull/9904>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: CI: Add option `--show-diff-on-failure`  to pre-commit (`#9893 <https://github.com/readthedocs/readthedocs.org/pull/9893>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build storage: add additional checks for the source dir (`#9890 <https://github.com/readthedocs/readthedocs.org/pull/9890>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use rclone for sync (`#9842 <https://github.com/readthedocs/readthedocs.org/pull/9842>`__)
+* `@humitos <https://github.com/humitos>`__: Git backend: make `default_branch` to point to VCS' default branch (`#9424 <https://github.com/readthedocs/readthedocs.org/pull/9424>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: avoid double deletion (`#9341 <https://github.com/readthedocs/readthedocs.org/pull/9341>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make Build models default to `triggered` (`#8031 <https://github.com/readthedocs/readthedocs.org/pull/8031>`__)
+
 Version 9.3.0
 -------------
 
@@ -20,6 +76,11 @@ Version 9.3.0
 
 Version 9.2.0
 -------------
+
+**This release contains two security fixes. For more information, see our GitHub advisories:**
+
+- `GHSA-7fcx-wwr3-99jv <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-7fcx-wwr3-99jv>`__
+- `GHSA-hqwg-gjqw-h5wg <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-hqwg-gjqw-h5wg>`__
 
 :Date: January 16, 2023
 

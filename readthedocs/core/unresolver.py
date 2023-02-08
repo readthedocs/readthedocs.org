@@ -13,6 +13,26 @@ from readthedocs.projects.models import Domain, Project
 log = structlog.get_logger(__name__)
 
 
+class UnresolverError(Exception):
+    pass
+
+
+class SuspiciousHostnameError(UnresolverError):
+    pass
+
+
+class InvalidSubdomainError(UnresolverError):
+    pass
+
+
+class InvalidExternalDomainError(UnresolverError):
+    pass
+
+
+class InvalidCustomDomainError(UnresolverError):
+    pass
+
+
 @dataclass(slots=True)
 class UnresolvedURL:
 
@@ -78,17 +98,9 @@ class Unresolver:
         """
         parsed = urlparse(url)
         domain = self.get_domain_from_host(parsed.netloc)
-        (
-            parent_project_slug,
-            domain_object,
-            external_version_slug,
-        ) = self.unresolve_domain(domain)
-        if not parent_project_slug:
-            return None
-
-        parent_project = Project.objects.filter(slug=parent_project_slug).first()
-        if not parent_project:
-            return None
+        parent_project, domain_object, external_version_slug = self.unresolve_domain(
+            domain
+        )
 
         current_project, version, filename = self._unresolve_path(
             parent_project=parent_project,
@@ -308,14 +320,12 @@ class Unresolver:
         """
         return host.lower().split(":")[0]
 
-    # TODO: make this a private method once
-    # proxito uses the unresolve method directly.
     def unresolve_domain(self, domain):
         """
         Unresolve domain by extracting relevant information from it.
 
         :param str domain: Domain to extract the information from.
-        :returns: A tuple with: the project slug, domain object, and the
+        :returns: A tuple with: the project, domain object, and the
          external version slug if the domain is from an external version.
         """
         public_domain = self.get_domain_from_host(settings.PUBLIC_DOMAIN)
@@ -331,34 +341,48 @@ class Unresolver:
             if public_domain == root_domain:
                 project_slug = subdomain
                 log.debug("Public domain.", domain=domain)
-                return project_slug, None, None
+                return self._resolve_project_slug(project_slug), None, None
 
-            # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com)
-            # for example, but these might be phishing, so let's ignore them for now.
+            # NOTE: This can catch some possibly valid domains (docs.readthedocs.io.com)
+            # for example, but these might be phishing, so let's block them for now.
             log.warning("Weird variation of our domain.", domain=domain)
-            return None, None, None
+            raise SuspiciousHostnameError()
 
         # Serve PR builds on external_domain host.
-        if external_domain == root_domain:
-            try:
-                project_slug, version_slug = subdomain.rsplit("--", maxsplit=1)
-                log.debug("External versions domain.", domain=domain)
-                return project_slug, None, version_slug
-            except ValueError:
-                log.info("Invalid format of external versions domain.", domain=domain)
-                return None, None, None
+        if external_domain in domain:
+            if external_domain == root_domain:
+                try:
+                    project_slug, version_slug = subdomain.rsplit("--", maxsplit=1)
+                    log.debug("External versions domain.", domain=domain)
+                    return self._resolve_project_slug(project_slug), None, version_slug
+                except ValueError:
+                    log.info(
+                        "Invalid format of external versions domain.", domain=domain
+                    )
+                    raise InvalidExternalDomainError()
+
+            # NOTE: This can catch some possibly valid domains (docs.readthedocs.build.com)
+            # for example, but these might be phishing, so let's block them for now.
+            log.warning("Weird variation of our domain.", domain=domain)
+            raise SuspiciousHostnameError()
 
         # Custom domain.
         domain_object = (
             Domain.objects.filter(domain=domain).select_related("project").first()
         )
-        if domain_object:
-            log.debug("Custom domain.", domain=domain)
-            project_slug = domain_object.project.slug
-            return project_slug, domain_object, False
+        if not domain_object:
+            log.info("Invalid domain.", domain=domain)
+            raise InvalidCustomDomainError()
 
-        log.info("Invalid domain.", domain=domain)
-        return None, None, None
+        log.debug("Custom domain.", domain=domain)
+        return domain_object.project, domain_object, None
+
+    def _resolve_project_slug(self, slug):
+        """Get the project from the slug or raise an exception if not found."""
+        try:
+            return Project.objects.get(slug=slug)
+        except Project.DoesNotExist:
+            raise InvalidSubdomainError()
 
 
 unresolver = Unresolver()

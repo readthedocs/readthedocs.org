@@ -4,7 +4,7 @@ import structlog
 from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 
-from readthedocs.core.unresolver import unresolve
+from readthedocs.core.unresolver import UnresolverError, unresolve
 from readthedocs.core.utils import get_cache_tag
 from readthedocs.projects.models import Project
 
@@ -80,7 +80,12 @@ class EmbedAPIMixin:
         url = self.request.GET.get("url")
         if not url:
             return None
-        return unresolve(url)
+        try:
+            return unresolve(url)
+        except UnresolverError:
+            # If we were unable to resolve the URL, it
+            # isn't pointing to a valid RTD project.
+            return None
 
     @functools.lru_cache(maxsize=1)
     def _get_project(self):

@@ -41,6 +41,7 @@ from readthedocs.api.v2.views.integrations import (
 from readthedocs.api.v2.views.task_views import get_status_data
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
+    BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
     EXTERNAL,
     EXTERNAL_VERSION_STATE_CLOSED,
@@ -333,7 +334,7 @@ class APIBuildTests(TestCase):
         buildcommandresult = get(
             BuildCommandResult,
             build=build,
-            command="/home/docs/checkouts/readthedocs.org/user_builds/myproject/envs/myversion/bin/python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
+            command="python -m pip install --upgrade --no-cache-dir pip setuptools<58.3.0",
             exit_code=0,
         )
         resp = client.get('/api/v2/build/{build}/'.format(build=build.pk))
@@ -510,17 +511,23 @@ class APIBuildTests(TestCase):
     def test_get_raw_log_success(self):
         project = Project.objects.get(pk=1)
         version = project.versions.first()
-        build = get(Build, project=project, version=version, builder='foo')
-        get(
-            BuildCommandResult,
-            build=build,
-            command='python setup.py install',
-            output='Installing dependencies...',
+        build = get(
+            Build,
+            project=project,
+            version=version,
+            builder="foo",
+            state=BUILD_STATE_FINISHED,
         )
         get(
             BuildCommandResult,
             build=build,
-            command='git checkout master',
+            command="python setup.py install",
+            output="Installing dependencies...",
+        )
+        get(
+            BuildCommandResult,
+            build=build,
+            command="git checkout master",
             output='Switched to branch "master"',
         )
         client = APIClient()
@@ -598,14 +605,19 @@ class APIBuildTests(TestCase):
         project = Project.objects.get(pk=1)
         version = project.versions.first()
         build = get(
-            Build, project=project, version=version,
-            builder='foo', success=False, exit_code=1,
+            Build,
+            project=project,
+            version=version,
+            builder="foo",
+            success=False,
+            exit_code=1,
+            state=BUILD_STATE_FINISHED,
         )
         get(
             BuildCommandResult,
             build=build,
-            command='python setup.py install',
-            output='Installing dependencies...',
+            command="python setup.py install",
+            output="Installing dependencies...",
             exit_code=1,
         )
         get(
@@ -928,6 +940,7 @@ class IntegrationsTests(TestCase):
             Project,
             build_queue=None,
             external_builds_enabled=True,
+            default_branch="master",
         )
         self.version = get(
             Version, slug='master', verbose_name='master',
@@ -2346,8 +2359,12 @@ class IntegrationsTests(TestCase):
                 self.project.slug,
                 integration.pk,
             ),
-            {'token': integration.token, 'branches': default_branch.slug},
-            format='json',
+            {
+                "token": integration.token,
+                "branches": default_branch.slug,
+                "default_branch": "master",
+            },
+            format="json",
         )
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data['build_triggered'])
@@ -2402,46 +2419,46 @@ class APIVersionTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
         version_data = {
-            'type': 'tag',
-            'verbose_name': '0.8',
-            'built': False,
-            'id': 18,
-            'active': True,
-            'project': {
-                'analytics_code': None,
-                'analytics_disabled': False,
-                'canonical_url': 'http://readthedocs.org/docs/pip/en/latest/',
-                'cdn_enabled': False,
-                'conf_py_file': '',
-                'container_image': None,
-                'container_mem_limit': None,
-                'container_time_limit': None,
-                'default_branch': None,
-                'default_version': 'latest',
-                'description': '',
-                'documentation_type': 'sphinx',
-                'environment_variables': {},
-                'enable_epub_build': True,
-                'enable_pdf_build': True,
-                'features': ['allow_deprecated_webhooks'],
-                'has_valid_clone': False,
-                'has_valid_webhook': False,
-                'id': 6,
-                'install_project': False,
-                'language': 'en',
-                'max_concurrent_builds': None,
-                'name': 'Pip',
-                'programming_language': 'words',
-                'python_interpreter': 'python3',
-                'repo': 'https://github.com/pypa/pip',
-                'repo_type': 'git',
-                'requirements_file': None,
-                'show_advertising': True,
-                'skip': False,
-                'slug': 'pip',
-                'use_system_packages': False,
-                'users': [1],
-                'urlconf': None,
+            "type": "tag",
+            "verbose_name": "0.8",
+            "built": False,
+            "id": 18,
+            "active": True,
+            "project": {
+                "analytics_code": None,
+                "analytics_disabled": False,
+                "canonical_url": "http://readthedocs.org/docs/pip/en/latest/",
+                "cdn_enabled": False,
+                "conf_py_file": "",
+                "container_image": None,
+                "container_mem_limit": None,
+                "container_time_limit": None,
+                "default_branch": None,
+                "default_version": "latest",
+                "description": "",
+                "documentation_type": "sphinx",
+                "environment_variables": {},
+                "enable_epub_build": True,
+                "enable_pdf_build": True,
+                "features": ["allow_deprecated_webhooks"],
+                "has_valid_clone": False,
+                "has_valid_webhook": False,
+                "id": 6,
+                "install_project": False,
+                "language": "en",
+                "max_concurrent_builds": None,
+                "name": "Pip",
+                "programming_language": "words",
+                "python_interpreter": "python3",
+                "repo": "https://github.com/pypa/pip",
+                "repo_type": "git",
+                "requirements_file": None,
+                "show_advertising": True,
+                "skip": False,
+                "slug": "pip",
+                "use_system_packages": False,
+                "users": [1],
+                "urlconf": None,
             },
             'privacy_level': 'public',
             'downloads': {},

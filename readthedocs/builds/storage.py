@@ -1,12 +1,18 @@
+from functools import cached_property
 from pathlib import Path
 
 import structlog
 from django.conf import settings
+from django.contrib.staticfiles.storage import (
+    StaticFilesStorage as BaseStaticFilesStorage,
+)
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
-from storages.utils import get_available_overwrite_name, safe_join
+from storages.utils import get_available_overwrite_name
 
 from readthedocs.core.utils.filesystem import safe_open
+from readthedocs.storage.rclone import RCloneLocal
+from readthedocs.storage.utils import safe_join
 
 log = structlog.get_logger(__name__)
 
@@ -23,6 +29,10 @@ class BuildMediaStorageMixin:
 
     See: https://docs.djangoproject.com/en/1.11/ref/files/storage
     """
+
+    # Root path of the nginx internal redirect
+    # that will serve files from this storage.
+    internal_redirect_root_path = "proxito"
 
     @staticmethod
     def _dirpath(path):
@@ -172,6 +182,18 @@ class BuildMediaStorageMixin:
                 log.debug('Deleting file from media storage.', filepath=filepath)
                 self.delete(filepath)
 
+    @cached_property
+    def _rclone(self):
+        raise NotImplementedError
+
+    def rclone_sync_directory(self, source, destination):
+        """Sync a directory recursively to storage using rclone sync."""
+        if destination in ("", "/"):
+            raise SuspiciousFileOperation("Syncing all storage cannot be right")
+
+        self._check_suspicious_path(source)
+        return self._rclone.sync(source, destination)
+
     def join(self, directory, filepath):
         return safe_join(directory, filepath)
 
@@ -205,6 +227,10 @@ class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
                 location = settings.PRODUCTION_MEDIA_ARTIFACTS
 
         super().__init__(location)
+
+    @cached_property
+    def _rclone(self):
+        return RCloneLocal(location=self.location)
 
     def get_available_name(self, name, max_length=None):
         """
@@ -242,3 +268,10 @@ class BuildMediaFileSystemStorage(BuildMediaStorageMixin, FileSystemStorage):
         https://docs.djangoproject.com/en/2.2/ref/files/storage/#django.core.files.storage.Storage.url
         """
         return super().url(name)
+
+
+class StaticFilesStorage(BaseStaticFilesStorage):
+
+    # Root path of the nginx internal redirect
+    # that will serve files from this storage.
+    internal_redirect_root_path = "proxito-static"
