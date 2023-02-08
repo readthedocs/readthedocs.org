@@ -1,36 +1,25 @@
-Technical Documentation Search Engine Optimization (SEO) Guide
-==============================================================
+Search Engine Optimization (SEO) for documentation projects
+===========================================================
 
 .. meta::
     :description lang=en:
-        Looking to optimize your Sphinx documentation for search engines?
+        Looking to optimize your documentation project for search engines?
         This SEO guide will help your docs be better understood by both people and crawlers
         as well as help you rank higher in search engine results.
 
+This article explains how documentation can be optimized to appear in search results,
+ultimately increasing traffic to your docs.
 
-This guide will help you optimize your documentation for search engines
-with the goal of increasing traffic to your docs.
-While you optimize your docs to make them more crawler friendly for search engine spiders,
+While you optimize your docs to make them more friendly for search engine spiders/crawlers,
 it's important to keep in mind that your ultimate goal is to make your docs
-more discoverable for your users.
-**You're trying to make sure that when a user types a question into a search engine
-that is answerable by your documentation, that your docs appear in the results.**
+more :term:`discoverable <discoverability>` for your users.
 
-This guide isn't meant to be your only resource on SEO,
-and there's a lot of SEO topics not covered here.
-For additional reading, please see the
-:ref:`external resources <guides/technical-docs-seo-guide:External resources>` section.
+.. seealso::
 
-While many of the topics here apply to all forms of technical documentation,
-this guide will focus on Sphinx, which is the most common
-documentation authoring tool on Read the Docs,
-as well as improvements provided by Read the Docs itself.
-
-
-.. contents:: Table of contents
-   :local:
-   :backlinks: none
-   :depth: 3
+   This guide isn't meant to be your only resource on SEO,
+   and there's a lot of SEO topics not covered here.
+   For additional reading, please see the
+   :ref:`external resources <guides/technical-docs-seo-guide:External resources>` section.
 
 
 SEO Basics
@@ -80,8 +69,8 @@ generates static HTML and the performance is typically decent
 relative to most of the internet.
 
 
-Optimizing your docs for search engine spiders
-----------------------------------------------
+Best practices for documentation SEO
+------------------------------------
 
 Once a crawler or spider finds your site, it will follow links and redirects
 in an attempt to find any and all pages on your site.
@@ -92,30 +81,47 @@ which we'll discuss shortly,
 the most important thing is making sure the spider can follow links on your site
 and get to all your pages.
 
-Avoid orphan pages
-~~~~~~~~~~~~~~~~~~
+Avoid orphan pages ✅️
+~~~~~~~~~~~~~~~~~~~~~~
 
 Sphinx calls pages that don't have links to them "orphans"
 and will throw a warning while building documentation that contains an orphan
 unless the warning is silenced with the :ref:`orphan directive <sphinx:metadata>`:
 
-::
+.. tabs::
 
-    $ make html
-    sphinx-build -b html -d _build/doctrees . _build/html
-    Running Sphinx v1.8.5
-    ...
-    checking consistency... /path/to/file.rst: WARNING: document isn't included in any toctree
-    done
-    ...
-    build finished with problems, 1 warning.
+   .. tab:: Sphinx
 
-You can make all Sphinx warnings into errors during your build process
-by setting ``SPHINXOPTS = -W --keep-going`` in your Sphinx Makefile.
+        Sphinx will warn you when a page isn't referenced by the remaining documentation.
+        We recommend failing your builds whenever Sphinx warns you,
+        using the ``fail_on_warnings`` option in :ref:`.readthedocs.yaml <config-file/v2:sphinx>`.
+
+        Here is an example of a warning of an unreferenced page::
+
+            $ make html
+            sphinx-build -b html -d _build/doctrees . _build/html
+            Running Sphinx v1.8.5
+            ...
+            checking consistency... /path/to/file.rst: WARNING: document isn't included in any toctree
+            done
+            ...
+            build finished with problems, 1 warning.
+
+   .. tab:: MkDocs
+
+      MkDocs automatically includes all ``.md`` files in the main navigation 💯️.
+      So it does not need to report back about unreferenced files.
+      You have to go out of your way and install a plugin,
+      if you want to hide files from the navigation.
+      If you do want to scan your documentation for unreferenced files and images,
+      a plugin like `mkdocs-unused-files`_ does the job.
 
 
-Avoid uncrawlable content
-~~~~~~~~~~~~~~~~~~~~~~~~~
+.. _mkdocs-unused-files: https://github.com/wilhelmer/mkdocs-unused-files
+
+
+Avoid uncrawlable content ✅️
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 While typically this isn't a problem with technical documentation,
 try to avoid content that is "hidden" from search engines.
@@ -125,20 +131,47 @@ For example, if you do have a video in your docs,
 make sure the rest of that page describes the content of the video.
 
 When using images, make sure to set the image alt text or set a caption on figures.
-For Sphinx, the image and figure directives support this:
 
-.. sourcecode:: rst
+.. tabs::
 
-    .. image:: your-image.png
-        :alt: A description of this image
+   .. tab:: Sphinx
 
-    .. figure:: your-image.png
+        For Sphinx, the image and figure directives support both alt texts and captions:
 
-        A caption for this figure
+        .. code-block:: rst
+
+            .. image:: your-image.png
+                :alt: A description of this image
+
+            .. figure:: your-image.png
+
+                A caption for this figure
+
+   .. tab:: MkDocs
+
+        The Markdown syntax fundamentally prescribes an alt text for images:
+
+        .. code-block:: md
+
+           ![Image alt text](https://dummyimage.com/600x400/){ width="300" }
+
+        If you want to use figures and captions,
+        Markdown and MkDocs do not have a built-in feature.
+        Instead,
+        you can use markdown extensions such as `md-in-html`_ to allow the necessary HTML structures for including figures:
+
+        .. code-block:: md
+
+           <figure markdown>
+              ![Image alt text](https://dummyimage.com/600x400/){ width="300" }
+              <figcaption>Image caption</figcaption>
+           </figure>
+
+.. _md-in-html: https://python-markdown.github.io/extensions/md_in_html/
 
 
-Redirects
-~~~~~~~~~
+Redirects ✅️
+~~~~~~~~~~~~~
 
 Redirects tell search engines when content has moved.
 For example, if this guide moved from ``guides/technical-docs-seo-guide.html`` to ``guides/sphinx-seo-guide.html``,
@@ -152,8 +185,8 @@ that should cover all the different cases such as redirecting a certain page for
 or redirecting one version to another.
 
 
-Canonical URLs
-~~~~~~~~~~~~~~
+Canonical URLs ✅️
+~~~~~~~~~~~~~~~~~~
 
 Anytime very similar content is hosted at multiple URLs,
 it is pretty important to set a canonical URL.
@@ -167,8 +200,8 @@ under :guilabel:`Admin` > :guilabel:`Domains`
 in the Read the Docs dashboard.
 
 
-Use a robots.txt file
-~~~~~~~~~~~~~~~~~~~~~
+Use a robots.txt file ✅️
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A ``robots.txt`` file is readable by crawlers
 and lives at the root of your site (eg. https://docs.readthedocs.io/robots.txt).
@@ -186,8 +219,8 @@ See the `Google's documentation on robots.txt <https://support.google.com/webmas
 for additional details.
 
 
-Use a sitemap.xml file
-~~~~~~~~~~~~~~~~~~~~~~
+Use a sitemap.xml file ✅️
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A sitemap is a file readable by crawlers that contains a list of pages
 and other files on your site and some metadata or relationships about them
@@ -202,8 +235,8 @@ We have a small separate guide on :ref:`sitemaps <hosting:Sitemaps>`.
 See the `Google docs on building a sitemap <https://support.google.com/webmasters/answer/183668>`_.
 
 
-Use meta tags
-~~~~~~~~~~~~~
+Use meta tags ✅️
+~~~~~~~~~~~~~~~~~
 
 Using a meta description allows you to customize how your pages
 look in search engine result pages.
