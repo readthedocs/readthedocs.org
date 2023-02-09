@@ -16,7 +16,7 @@ so that you have a reference for how we're using them.
 
    discoverability
       A documentation page is said to be *discoverable* when a user that needs it can find it through various methods:
-      Navigation, searching and cross-references from other pages are the
+      Navigation, in-docs searching, cross-references from other pages, and search engine optimization are the most typical ways of making content *discoverable*.
 
    Docs as Code
       A term used to describe the workflow of keeping documentation in a Git repository,
