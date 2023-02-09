@@ -107,9 +107,8 @@ dj-pagination
 # Version comparison stuff
 packaging
 
-# django-cors-middleware==1.5.0 fails with
-# AttributeError: 'dict' object has no attribute 'has_header'
-django-cors-middleware==1.4.0
+# Allow cross-site requests to some of our APIs.
+django-cors-headers
 
 # User agent parsing - used for analytics purposes
 user-agents
