@@ -94,6 +94,8 @@ meaning that no other pages or navigation have a link to them.
 
 Search engine crawlers will not discover pages that aren't referenced.
 
+.. TODO: Create a "generic" tab?
+
 .. tabs::
 
    .. tab:: Sphinx
@@ -139,6 +141,8 @@ For example, if you do have a video in your docs,
 make sure the rest of that page describes the content of the video.
 
 When using images, make sure to set the image alt text or set a caption on figures.
+
+.. TODO: Create a "generic" tab?
 
 .. tabs::
 
