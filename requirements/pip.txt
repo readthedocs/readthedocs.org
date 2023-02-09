@@ -212,7 +212,7 @@ pytz==2022.7.1
     #   djangorestframework
 pyyaml==5.4.1
     # via -r requirements/pip.in
-redis==3.5.3
+redis==4.5.1
     # via django-redis
 regex==2022.10.31
     # via -r requirements/pip.in
