@@ -110,10 +110,9 @@ unless the warning is silenced with the :ref:`orphan directive <sphinx:metadata>
    .. tab:: MkDocs
 
       MkDocs automatically includes all ``.md`` files in the main navigation 💯️.
-      So it does not need to report back about unreferenced files.
-      You have to go out of your way and install a plugin,
-      if you want to hide files from the navigation.
-      If you do want to scan your documentation for unreferenced files and images,
+      This makes sure that all files are discoverable by default,
+      however there are configurations that allow for unlinked files in various ways.
+      If you want to scan your documentation for unreferenced files and images,
       a plugin like `mkdocs-unused-files`_ does the job.
 
 
@@ -149,13 +148,13 @@ When using images, make sure to set the image alt text or set a caption on figur
 
    .. tab:: MkDocs
 
-        The Markdown syntax fundamentally prescribes an alt text for images:
+        The Markdown syntax defines an alt text for images:
 
         .. code-block:: md
 
            ![Image alt text](https://dummyimage.com/600x400/){ width="300" }
 
-        If you want to use figures and captions,
+        Though HTML supports figures and captions,
         Markdown and MkDocs do not have a built-in feature.
         Instead,
         you can use markdown extensions such as `md-in-html`_ to allow the necessary HTML structures for including figures:
