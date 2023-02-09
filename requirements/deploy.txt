@@ -110,6 +110,7 @@ django==3.2.17
     #   django-filter
     #   django-formtools
     #   django-polymorphic
+    #   django-redis
     #   django-storages
     #   django-structlog
     #   django-taggit
@@ -146,6 +147,8 @@ django-ipware==4.0.2
 django-messages-extends==0.6.3
     # via -r requirements/pip.txt
 django-polymorphic==3.1.0
+    # via -r requirements/pip.txt
+django-redis==5.2.0
     # via -r requirements/pip.txt
 django-redis-cache==3.0.1
     # via -r requirements/deploy.in
@@ -313,6 +316,7 @@ pyyaml==5.4.1
 redis==3.5.3
     # via
     #   -r requirements/pip.txt
+    #   django-redis
     #   django-redis-cache
 regex==2022.10.31
     # via -r requirements/pip.txt
