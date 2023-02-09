@@ -1,10 +1,10 @@
-About Read the Docs for Business
-================================
+About |com_brand|
+=================
 
 .. this page is currently moving towards becoming "About Read the Docs for Business"
 .. rather than an index of features.
 
-We offer *Read the Docs for Business*
+We offer *|com_brand|*
 for building and hosting commercial documentation.
 
 Our commercial solutions are provided as a set of subscriptions that are paid and managed through an online interface.
@@ -12,25 +12,29 @@ In order to get started quickly and easily, a `trial option <https://about.readt
 
 .. seealso::
 
-   `about.readthedocs.com <https://about.readthedocs.com/about/>`__
-      A general presentation of our features is available on our landing pages, and the
+   `Read the Docs website: Features <https://about.readthedocs.com/about/>`__
+      A general presentation of our features is available on our website, and the
       `pricing page <https://about.readthedocs.com/pricing/>`__ lists all details and features for each subscription level.
+
+   `Read the Docs website: Company presentation <https://about.readthedocs.com/company/>`__
+      Information about the company running Read the Docs, including our mission, team, and community.
+
 
 Commercial documentation solutions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In addition to providing the same features as Read the Docs for Community,
-commercial subscriptions to Read the Docs adds additional features based on the same platform.
+In addition to providing the same features as |org_brand|,
+commercial subscriptions to Read the Docs add additional features based on the same software platform but on a separate infrastructure.
 
 .. figure:: /img/community_in_business.png
    :align: center
    :scale: 50%
 
-   Read the Docs Community and Business are a combined system:
-   All features developed for community benefit the business solution, and a lot of solutions developed for Business
-   are implemented for community
+   Read the Docs for Community and Business are a combined system:
+   All features developed for community benefit the business solution, and a lot of solutions developed for business
+   are implemented for community.
 
-The following list is a high-level overview of the areas covered by Read the Docs for Business.
+The following list is a high-level overview of the areas covered by |com_brand|.
 If you want exact details, please refer to the `pricing page <https://about.readthedocs.com/pricing/>`__ of the public site.
 
 Private repositories and private documentation
