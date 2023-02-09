@@ -23,6 +23,10 @@ astroid==2.4.1
     #   pylint-celery
     #   pylint-flask
     #   requirements-detector
+async-timeout==4.0.2
+    # via
+    #   -r requirements/pip.txt
+    #   redis
 babel==2.11.0
     # via
     #   -r requirements/pip.txt
@@ -337,7 +341,7 @@ pyyaml==5.4.1
     # via
     #   -r requirements/pip.txt
     #   prospector
-redis==3.5.3
+redis==4.5.1
     # via
     #   -r requirements/pip.txt
     #   django-redis

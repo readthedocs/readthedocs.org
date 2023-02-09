@@ -10,6 +10,8 @@ amqp==5.1.1
     # via kombu
 asgiref==3.6.0
     # via django
+async-timeout==4.0.2
+    # via redis
 babel==2.11.0
     # via sphinx
 billiard==3.6.4.0

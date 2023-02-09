@@ -18,6 +18,10 @@ asgiref==3.6.0
     #   django
 asttokens==2.2.1
     # via stack-data
+async-timeout==4.0.2
+    # via
+    #   -r requirements/pip.txt
+    #   redis
 babel==2.11.0
     # via
     #   -r requirements/pip.txt
@@ -150,8 +154,6 @@ django-polymorphic==3.1.0
     # via -r requirements/pip.txt
 django-redis==5.2.0
     # via -r requirements/pip.txt
-django-redis-cache==3.0.1
-    # via -r requirements/deploy.in
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
 django-storages[boto3]==1.13.2
@@ -313,11 +315,10 @@ pytz==2022.7.1
     #   djangorestframework
 pyyaml==5.4.1
     # via -r requirements/pip.txt
-redis==3.5.3
+redis==4.5.1
     # via
     #   -r requirements/pip.txt
     #   django-redis
-    #   django-redis-cache
 regex==2022.10.31
     # via -r requirements/pip.txt
 requests==2.28.2

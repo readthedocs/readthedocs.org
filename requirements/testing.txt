@@ -16,6 +16,10 @@ asgiref==3.6.0
     # via
     #   -r requirements/pip.txt
     #   django
+async-timeout==4.0.2
+    # via
+    #   -r requirements/pip.txt
+    #   redis
 attrs==22.2.0
     # via pytest
 babel==2.11.0
@@ -310,7 +314,7 @@ pyyaml==5.4.1
     # via
     #   -r requirements/pip.txt
     #   yamale
-redis==3.5.3
+redis==4.5.1
     # via
     #   -r requirements/pip.txt
     #   django-redis

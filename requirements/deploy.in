@@ -3,7 +3,6 @@
 -r pip.txt
 
 psycopg2
-django-redis-cache
 
 # For resizing images
 pillow

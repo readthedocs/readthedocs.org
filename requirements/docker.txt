@@ -18,6 +18,10 @@ asgiref==3.6.0
     #   django
 asttokens==2.2.1
     # via stack-data
+async-timeout==4.0.2
+    # via
+    #   -r requirements/pip.txt
+    #   redis
 babel==2.11.0
     # via
     #   -r requirements/pip.txt
@@ -340,7 +344,7 @@ pytz==2022.7.1
     #   djangorestframework
 pyyaml==5.4.1
     # via -r requirements/pip.txt
-redis==3.5.3
+redis==4.5.1
     # via
     #   -r requirements/pip.txt
     #   django-redis
