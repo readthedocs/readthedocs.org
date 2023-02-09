@@ -11,20 +11,26 @@ Cross site requests are allowed for the following endpoints:
 
 Except for the sustainability API, all of the above endpoints
 don't allow you to pass credentials in cross-site requests.
-This means you can make use of those APIs to get information from public versions only.
+In other words, these API endpoints allow you to access **public information only**.
+
+On a technical level, this is achieved by implementing the CORS_ standard,
+which is supported by all major browsers.
+We implement it such way that it strictly match the intention of the API endpoint.
+
+.. _CORS: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
 
 Cookies
 -------
 
-For |org_brand| our session cookies have the ``SameSite`` attribute set to ``None``,
+On |org_brand|, our session cookies have the ``SameSite`` attribute set to ``None``,
 this means they can be sent in cross site requests.
 This is needed for our sustainability API only,
 to not show ads if the current user is a :ref:`Gold User <advertising/ad-blocking:Going ad-free>`.
 All resources in |org_brand| are public, you don't need to pass cookies to make use
 of our allowed APIs from other sites.
 
-For |com_brand| our session cookies have the ``SameSite`` attribute set to ``Lax``,
-this means they can't be included in cross site requests.
+On |com_brand|, our session cookies have the ``SameSite`` attribute set to ``Lax``.
+This means that browsers will not include them in cross site requests.
 If you need to have access to versions that the current user has permissions over,
 you can make use of our proxied APIs, they can be accessed from docs domains with the `/_/` prefix.
 For example, you can make use of our search API from `<your-docs-domain>/_/api/v2/search/`.
