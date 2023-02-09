@@ -85,18 +85,23 @@ which we'll discuss shortly,
 the most important thing is making sure the spider can follow links on your site
 and get to all your pages.
 
-Avoid orphan pages ✅️
-~~~~~~~~~~~~~~~~~~~~~~
+Avoid unlinked pages ✅️
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-Sphinx calls pages that don't have links to them "orphans"
-and will throw a warning while building documentation that contains an orphan
-unless the warning is silenced with the :ref:`orphan directive <sphinx:metadata>`:
+When building your documentation,
+you should ensure that pages aren't *unlinked* or *orphaned*,
+meaning that no other pages or navigation have a link to them.
+
+Search engine crawlers will not discover pages that aren't referenced.
 
 .. tabs::
 
    .. tab:: Sphinx
 
-        Sphinx will warn you when a page isn't referenced by the remaining documentation.
+        Sphinx calls pages that don't have links to them "orphans"
+        and will throw a warning while building documentation that contains an orphan
+        unless the warning is silenced with the :ref:`orphan directive <sphinx:metadata>`.
+
         We recommend failing your builds whenever Sphinx warns you,
         using the ``fail_on_warnings`` option in :ref:`.readthedocs.yaml <config-file/v2:sphinx>`.
 
