@@ -29,7 +29,7 @@ Multiple versions |:card_index_dividers:|
 
 Open Source and User Focused |:heartbeat:|
     Our code is free and `open source <https://github.com/readthedocs/>`_.
-    :doc:`Our company </about>` is bootstrapped and 100% user focused.
+    :doc:`Our company </about/index>` is bootstrapped and 100% user focused.
     |org_brand| hosts documentation for over 100,000 large
     and small open source projects,
     in almost every human and computer language.
@@ -108,11 +108,14 @@ to help you create fantastic documentation for your project.
    :caption: Reference
    :glob:
 
+   /reference/features
+   /glossary
    /api/index
    /server-side-search/api
-   /reference/features
    /server-side-search/syntax
-   /reference/policies
+   changelog
+   Developer Documentation <https://dev.readthedocs.io>
+   /about/index
 
 
 Read the Docs feature overview
@@ -147,22 +150,6 @@ and some of the core features of Read the Docs.
 * **Troubleshooting**:
   :doc:`/support` |
   :doc:`/faq`
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Features
-
-   /config-file/index
-   /integrations
-   /versions
-   /hosting
-
-   /builds
-   /build-customization
-   /environment-variables
-
-   /support
 
 
 How-to Guides
@@ -228,16 +215,6 @@ out of your documentation and Read the Docs.
 * **Extending Read the Docs**:
   :doc:`REST API <api/index>`
 
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :glob:
-   :caption: Advanced features
-
-   flyout-menu
-   feature-flags
-   canonical-urls
-
 
 
 Read the Docs for Business
@@ -276,7 +253,7 @@ of Read the Docs and the larger software documentation ecosystem.
 
 
 * **The people and philosophy behind Read the Docs**:
-  :doc:`About Us </about>` |
+  :doc:`About Us </about/index>` |
   :doc:`Team <team>` |
   :doc:`Open source philosophy <open-source-philosophy>` |
   :doc:`Our story <story>`
@@ -293,22 +270,3 @@ of Read the Docs and the larger software documentation ecosystem.
 * **Getting involved with Read the Docs**:
   :doc:`/glossary` |
   :doc:`Developer Documentation <rtd-dev:index>`
-
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: About Read the Docs
-
-   changelog
-
-   about
-   team
-   open-source-philosophy
-   story
-
-   advertising/index
-   sponsors
-
-   Developer Documentation <https://dev.readthedocs.io>
-   glossary

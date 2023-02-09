@@ -1,10 +1,24 @@
 About Read the Docs
 ===================
 
+
+.. toctree::
+   :caption: Additional commercial features
+   :hidden:
+
+   /reference/policies
+   /advertising/index
+   /story
+   /sponsors
+   /open-source-philosophy
+   /team
+   /support
+
+
 Read the Docs is a C Corporation registered in Oregon.
 Our bootstrapped company is owned and fully controlled by the founders,
 and fully funded by our customers and advertisers.
-This allows us to **focus 100% on our users**. 
+This allows us to **focus 100% on our users**.
 
 We have two main sources of revenue:
 

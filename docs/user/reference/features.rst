@@ -14,9 +14,19 @@ Features
 
    ../features
    analytics
-   /feature-flags
    /server-side-search/index
    /automation-rules
    /user-defined-redirects
    /badges
    /security-log
+   /config-file/index
+   /integrations
+   /versions
+   /hosting
+
+   /builds
+   /build-customization
+   /environment-variables
+   /flyout-menu
+   /canonical-urls
+   /feature-flags
