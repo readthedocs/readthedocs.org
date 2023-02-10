@@ -86,7 +86,6 @@ to help you create fantastic documentation for your project.
    /subprojects
    /single_version
    /science
-   /commercial/organizations
    /automatic-redirects
    /guides/technical-docs-seo-guide
 
@@ -253,14 +252,6 @@ Read the Docs has a commercial offering with improved support and additional fea
   :doc:`Sharing externally <commercial/sharing>`
 
 
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Read the Docs for Business
-   :glob:
-
-   commercial/*
-
 The Read the Docs project and organization
 ------------------------------------------
 
@@ -304,6 +295,7 @@ of Read the Docs and the larger software documentation ecosystem.
    changelog
 
    about
+   /commercial/index
    team
    open-source-philosophy
    story

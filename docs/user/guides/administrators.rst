@@ -30,3 +30,4 @@ have a look at our :doc:`/tutorial/index`.
    manage-read-the-docs-teams
    automation-rules
    redirects
+   Managing your Read the Docs for Business subscription </commercial/subscriptions>
