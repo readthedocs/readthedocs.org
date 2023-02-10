@@ -7,60 +7,50 @@ Feature reference
 Hosting features
 ----------------
 
-Custom domain support
+⏩️ :doc:`/custom-domains`
   Documentation projects can use their own domain name.
   A project may define multiple domains,
   as well as define the *canonical domain* where all other domains will redirect.
 
-  ⏩️ :doc:`/custom-domains`
 
-Multiple documentation versions
+⏩️ :doc:`/versions`
   We support multiple versions and translations,
   integrated nicely into the URL of your documentation.
   This is served at ``/en/latest/`` by default.
   If you only have 1 version and translation,
   we also support :doc:`single version projects </single_version>` served at ``/``.
 
-  ⏩️ :doc:`/versions`
 
-Custom URL redirects
+⏩️ :doc:`/user-defined-redirects`
   Projects may define their own custom URL redirects,
   with advanced functionality like folder redirects.
 
-  ⏩️ :doc:`/user-defined-redirects`
-
-Content Delivery Network (CDN)
+⬇️ :doc:`/reference/cdn`
   Documentation projects are primarily static HTML pages along with media files.
   This allows us to cache them with our CDN,
   making them *load faster* for your users.
 
-  ⬇️ :doc:`/reference/cdn`
 
-Sitemaps
+⬇️ :doc:`/reference/sitemaps`
   Sitemaps are generated and hosted automatically,
   improving search engine optimization.
   This helps your users find content more effectively on your site.
 
-  ⬇️ :doc:`/reference/sitemaps`
 
-Custom ``404s Not Found`` pages
+⬇️ :doc:`/reference/404-not-found`
   A 404 page is served when we can't find a page on your site.
   We provide a default 404 page,
   but you can also customize it.
 
-  ⬇️ :doc:`/reference/404-not-found`
 
-Custom robots.txt
+⬇️ :doc:`/reference/robots`
   `robots.txt` files allow you to customize how your documentation is indexed in search engines.
   We provide a default robots.txt file,
   but you can also customize it.
 
-  ⬇️ :doc:`/reference/robots`
 
-Private documentation
+⬇️ :doc:`/reference/robots`
   It is possible to host private and password protected documentation on Read the Docs for Business.
-
-  ⏩️ :doc:`/commercial/sharing`
 
 .. The TOC here will be refactored once we reorganize the files in docs/user/.
 .. Probably, all feature reference should be in this directory!
