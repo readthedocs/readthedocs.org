@@ -56,7 +56,7 @@ Advertising-free
     All commercially hosted documentation is always ad-free.
 
 Business features
-    A number of extra features exist specifically for business needs, such as
+    Enjoy additional functionality specifically for companies, such as
     organization support with team management, single-sign on, and audit logging.
 
     .. seealso::
