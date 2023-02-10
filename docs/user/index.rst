@@ -110,14 +110,14 @@ to help you create fantastic documentation for your project.
    :glob:
 
    /reference/features
-   /glossary
    /api/index
    /server-side-search/api
    /server-side-search/syntax
+   /reference/environment-variables
    changelog
    Developer Documentation <https://dev.readthedocs.io>
    /about/index
-   /reference/environment-variables
+   /glossary
 
 
 Read the Docs feature overview
