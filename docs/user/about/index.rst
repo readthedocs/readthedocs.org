@@ -3,9 +3,9 @@ About Read the Docs
 
 
 .. toctree::
-   :caption: Additional commercial features
    :hidden:
 
+   /commercial/index
    /reference/policies
    /advertising/index
    /story

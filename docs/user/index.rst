@@ -80,14 +80,15 @@ to help you create fantastic documentation for your project.
    /build-notifications
    /integrations
    /custom-domains
+   /environment-variables
    /pull-requests
    /connected-accounts
    /downloadable-documentation
    /subprojects
    /single_version
    /science
-   /commercial/organizations
    /automatic-redirects
+   /guides/technical-docs-seo-guide
 
 .. toctree::
    :maxdepth: 2
@@ -116,6 +117,7 @@ to help you create fantastic documentation for your project.
    changelog
    Developer Documentation <https://dev.readthedocs.io>
    /about/index
+   /reference/environment-variables
 
 
 Read the Docs feature overview
@@ -145,6 +147,7 @@ and some of the core features of Read the Docs.
   :doc:`Build process </builds>` |
   :doc:`Build customization </build-customization>` |
   :doc:`/environment-variables` |
+  :doc:`/reference/environment-variables` |
   :doc:`/badges`
 
 * **Troubleshooting**:
@@ -228,14 +231,6 @@ Read the Docs has a commercial offering with improved support and additional fea
   :doc:`Project Privacy Level <commercial/privacy-level>` |
   :doc:`Sharing externally <commercial/sharing>`
 
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Read the Docs for Business
-   :glob:
-
-   commercial/*
 
 The Read the Docs project and organization
 ------------------------------------------

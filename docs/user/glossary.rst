@@ -14,6 +14,10 @@ so that you have a reference for how we're using them.
       Projects have a *default version*, usually the latest stable version of a project.
       The *default version* is the URL that is redirected to when a users loads the `/` URL for your project.
 
+   discoverability
+      A documentation page is said to be *discoverable* when a user that needs it can find it through various methods:
+      Navigation, search, and links from other pages are the most typical ways of making content *discoverable*.
+
    Docs as Code
       A term used to describe the workflow of keeping documentation in a Git repository,
       along with source code.

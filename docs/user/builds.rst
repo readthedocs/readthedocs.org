@@ -16,7 +16,7 @@ It also allows you customize the steps of the build process.
 .. note::
 
    All the steps are run inside a Docker container with the image the project defines in :ref:`config-file/v2:build.os`,
-   and all the :doc:`/environment-variables` defined are exposed to them.
+   and all the :doc:`pre-defined environment variables </reference/environment-variables>` and :doc:`custom environment variables </environment-variables>` defined are exposed to them.
 
 
 The following are the pre-defined jobs executed by Read the Docs:

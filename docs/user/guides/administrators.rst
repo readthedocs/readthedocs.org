@@ -16,7 +16,6 @@ have a look at our :doc:`/tutorial/index`.
    Connect your Read the Docs account to your Git repository <connecting-git-account>
    Manage Custom Domains <custom-domains>
    Enable Canonical URLs <canonical-urls>
-   technical-docs-seo-guide
    Use traffic analytics </analytics>
    manage-translations-sphinx
    hiding-a-version
@@ -29,5 +28,7 @@ have a look at our :doc:`/tutorial/index`.
    setup-single-sign-on-github-gitlab-bitbucket
    setup-single-sign-on-google-email
    manage-read-the-docs-teams
+   Use custom environment variables <environment-variables>
    automation-rules
    redirects
+   Managing your Read the Docs for Business subscription </commercial/subscriptions>
