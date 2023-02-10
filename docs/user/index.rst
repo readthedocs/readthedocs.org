@@ -80,13 +80,15 @@ to help you create fantastic documentation for your project.
    /build-notifications
    /integrations
    /custom-domains
+   /environment-variables
    /pull-requests
    /connected-accounts
    /downloadable-documentation
    /subprojects
    /single_version
    /science
-   /commercial/organizations
+   /automatic-redirects
+   /guides/technical-docs-seo-guide
 
 .. toctree::
    :maxdepth: 2
@@ -112,6 +114,7 @@ to help you create fantastic documentation for your project.
    /reference/features
    /server-side-search/syntax
    /reference/policies
+   /reference/environment-variables
 
 
 Read the Docs feature overview
@@ -140,6 +143,7 @@ and some of the core features of Read the Docs.
   :doc:`Build process </builds>` |
   :doc:`Build customization </build-customization>` |
   :doc:`/environment-variables` |
+  :doc:`/reference/environment-variables` |
   :doc:`/badges`
 
 * **Troubleshooting**:
@@ -154,11 +158,9 @@ and some of the core features of Read the Docs.
    /config-file/index
    /integrations
    /versions
-   /security-log
 
    /builds
    /build-customization
-   /environment-variables
 
    /support
 
@@ -234,11 +236,6 @@ out of your documentation and Read the Docs.
 
    flyout-menu
    feature-flags
-
-   user-defined-redirects
-   automatic-redirects
-
-   automation-rules
    canonical-urls
 
 
@@ -254,14 +251,6 @@ Read the Docs has a commercial offering with improved support and additional fea
   :doc:`Project Privacy Level <commercial/privacy-level>` |
   :doc:`Sharing externally <commercial/sharing>`
 
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Read the Docs for Business
-   :glob:
-
-   commercial/*
 
 The Read the Docs project and organization
 ------------------------------------------
@@ -306,6 +295,7 @@ of Read the Docs and the larger software documentation ecosystem.
    changelog
 
    about
+   /commercial/index
    team
    open-source-philosophy
    story

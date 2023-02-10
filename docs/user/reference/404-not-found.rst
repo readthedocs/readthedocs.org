@@ -2,23 +2,23 @@
 =======================
 
 If you want your project to use a custom or branded ``404 Not Found`` page,
-you can put a ``404.html`` at the top level of your project's HTML output.
+you can put a ``404.html`` or ``404/index.html`` at the top level of your project's HTML output.
 
 How it works
 ------------
 
 When our servers return a ``404 Not Found`` error,
-we check if there is a ``404.html`` in the root of your project's output.
+we check if there is a ``404.html`` or ``404/index.html`` in the root of your project's output.
 
 The following locations are checked, in order:
 
-* ``/404.html`` in the *current* documentation version.
-* ``/404.html`` in the  *default* documentation version.
+* ``/404.html`` or ``404/index.html`` in the *current* documentation version.
+* ``/404.html`` or ``404/index.html`` in the  *default* documentation version.
 
 Tool Integration
 ----------------
 
-Documentation tools will have different ways of generating a ``404.html`` file.
+Documentation tools will have different ways of generating a ``404.html`` or ``404/index.html`` file.
 We have examples for some of the most popular tools below.
 
 .. tabs::

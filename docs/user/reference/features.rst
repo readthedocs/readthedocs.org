@@ -60,14 +60,21 @@ Hosting features
 
 .. toctree::
    :maxdepth: 1
-   :hidden:
+   :glob:
 
    ../features
    analytics
    /feature-flags
    /server-side-search/index
+   /automation-rules
+   /user-defined-redirects
    /badges
    /reference/cdn
    /reference/404-not-found
    /reference/robots
    /reference/sitemaps
+   /security-log
+   /commercial/organizations
+   /commercial/privacy-level
+   /commercial/sharing
+   /commercial/single-sign-on

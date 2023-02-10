@@ -144,6 +144,8 @@ Example:
    At the moment, only Sphinx supports additional formats.
    ``pdf``, ``epub``, and ``htmlzip`` output is not yet supported when using MkDocs.
 
+   With :doc:`builds from pull requests </pull-requests>`, only HTML formats are generated. Other formats are resource intensive and will be built after merging.
+
 python
 ~~~~~~
 
@@ -854,8 +856,10 @@ The Docker image used for building the docs.
 Each image support different Python versions and has different packages installed,
 as defined here:
 
-* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`stable`
-* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_: :buildpyversions:`latest`
+* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_:
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``pypy3.5``
+* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_:
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``, ``pypy3.5``
 
 python.version (legacy)
 ```````````````````````
