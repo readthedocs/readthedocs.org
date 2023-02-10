@@ -115,7 +115,7 @@ to help you create fantastic documentation for your project.
    /server-side-search/syntax
    /reference/environment-variables
    changelog
-   Developer Documentation <https://dev.readthedocs.io>
+   Developer Documentation 🔗 <https://dev.readthedocs.io>
    /about/index
    /glossary
 
