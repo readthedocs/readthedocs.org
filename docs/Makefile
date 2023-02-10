@@ -7,7 +7,7 @@
 # (except for '--keep-going', failing fast is prefered on local builds)
 # We also remove '-E' to reduce the time of rebuilding reference indexes
 # on each build.
-SPHINXOPTS    = -T -W
+SPHINXOPTS    = -T -j auto -W
 SPHINXBUILD   = sphinx-build
 PAPER         =
 PROJECT       ?= user
