@@ -8,17 +8,17 @@ It also defines a set of :doc:`default environment variables </reference/environ
 These are useful for different purposes:
 
 * Custom environment variables are useful for adding build secrets such as API tokens.
-* Default environment variables are useful for varying your build specifically for Read the Docs or specific types of builds on Read the Docs. 
+* Default environment variables are useful for varying your build specifically for Read the Docs or specific types of builds on Read the Docs.
 
-.. The following paragraph is difficult to balance.
+.. The following introduction is difficult to balance.
 .. We should ideally support environment variables in the Config File,
 .. but as long as it's not supported then people can add environment variables in different ways.
 .. Using the Dashboard is a good approach
-.. but adding an environment variable with ``ENV=123 command --flag`` is possibly better.
+.. but adding an environment variable with ``ENV=123 command --flag`` in the build process is possibly better.
 
 Custom environment variables are defined in the :term:`dashboard` interface in :menuselection:`Admin --> Environment variables`.
 Environment variables are defined for a project's entire build process,
-`with 2 important exceptions <Environment variables and build environments>`_.
+:ref:`with 2 important exceptions <custom_env_var_exceptions>`.
 
 Aside from storing secrets,
 there are :ref:`other patterns <environment-variables:Patterns of using environment variables>` that take advantage of environment variables,
@@ -45,6 +45,8 @@ When a :doc:`build process </builds>` is started,
 :doc:`pre-defined environment variables </reference/environment-variables>` and custom environment variables are added *at each step* of the build process.
 The two sets of environment variables are merged together during the build process and are exposed to all of the executed commands,
 with pre-defined variables taking precedence over custom environment variables.
+
+.. _custom_env_var_exceptions:
 
 There are two noteworthy exceptions for *custom environment variables*:
 
