@@ -4,7 +4,11 @@ Understanding environment variables
 ===================================
 
 Read the Docs allows you to define your own environment variables to be used in the build process.
-This is useful for adding build secrets such as API tokens.
+It also defines a set of :doc:`default environment variables </reference/environment-variables>` with information about your build.
+These are useful for different purposes:
+
+* Custom environment variables are useful for adding build secrets such as API tokens.
+* Default environment variables are useful for varying your build specifically for Read the Docs or specific types of builds on Read the Docs. 
 
 .. The following paragraph is difficult to balance.
 .. We should ideally support environment variables in the Config File,
@@ -12,13 +16,15 @@ This is useful for adding build secrets such as API tokens.
 .. Using the Dashboard is a good approach
 .. but adding an environment variable with ``ENV=123 command --flag`` is possibly better.
 
-Environment variables are defined in the :term:`dashboard` interface in :menuselection:`Admin --> Environment variables`.
-Environment variables are configured and managed for a project's entire build process `with 2 exceptions <Environment variables and build environments>`_.
+Custom environment variables are defined in the :term:`dashboard` interface in :menuselection:`Admin --> Environment variables`.
+Environment variables are defined for a project's entire build process,
+`with 2 important exceptions <Environment variables and build environments>`_.
 
 Aside from storing secrets,
 there are :ref:`other patterns <environment-variables:Patterns of using environment variables>` that take advantage of environment variables,
-for instance to reuse the same *monorepo* configuration in multiple documentation projects.
+like reusing the same *monorepo* configuration in multiple documentation projects.
 In cases where the environment variable isn't a secret,
+like a build tool flag,
 you should also be aware of the :ref:`alternatives to environment variables <environment-variables:Alternatives to environment variables>`.
 
 .. seealso::

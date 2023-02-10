@@ -22,10 +22,10 @@ You will then see the form for adding an environment variable:
 
    .. warning::
 
-      If you mark this option, any user that can create a pull request
+      If you make your environment variable **public**, any user that can create a pull request
       on your repository will be able to see the value of this environment variable.
       In other words,
-      do not use this option if your environment variable is a secret.
+      **do not use this option if your environment variable is a secret.**
 
 .. note::
 
@@ -37,8 +37,7 @@ Finally, click on :guilabel:`Save`.
 Your custom environment variable is immediately active for all future builds
 and you are ready to start using it.
 
-In the next sections,
-you can see a few examples of using environment variables. ⬇️
+Keep reading for a few examples of using environment variables. ⬇️
 
 Accessing environment variables in code
 ---------------------------------------
