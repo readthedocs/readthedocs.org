@@ -12,7 +12,7 @@ Custom domain support
   A project may define multiple domains,
   as well as define the *canonical domain* where all other domains will redirect.
 
-  ⏩️ :doc:`Read more </custom-domains>`
+  ⏩️ :doc:`/custom-domains`
 
 Multiple documentation versions
   We support multiple versions and translations,
@@ -21,46 +21,46 @@ Multiple documentation versions
   If you only have 1 version and translation,
   we also support :doc:`single version projects </single_version>` served at ``/``.
 
-  ⏩️ :doc:`Read more </versions>`
+  ⏩️ :doc:`/versions`
 
 Custom URL redirects
   Projects may define their own custom URL redirects,
   with advanced functionality like folder redirects.
 
-  ⏩️ :doc:`Read more </user-defined-redirects>`
+  ⏩️ :doc:`/user-defined-redirects`
 
 Content Delivery Network (CDN)
   Documentation projects are primarily static HTML pages along with media files.
   This allows us to cache them with our CDN,
   making them *load faster* for your users.
 
-  ⬇️ :ref:`Read more <hosting:Content Delivery Network (CDN) and caching>`
+  ⬇️ :doc:`/reference/cdn`
 
 Sitemaps
   Sitemaps are generated and hosted automatically,
   improving search engine optimization.
   This helps your users find content more effectively on your site.
 
-  ⬇️ :ref:`Read more <hosting:Sitemaps>`
+  ⬇️ :doc:`/reference/sitemaps`
 
 Custom ``404s Not Found`` pages
   A 404 page is served when we can't find a page on your site.
   We provide a default 404 page,
   but you can also customize it.
 
-  ⬇️ :ref:`Read more <hosting:Custom Not Found (404) pages>`
+  ⬇️ :doc:`/reference/404-not-found`
 
 Custom robots.txt
-  `robots.txt`_ files allow you to customize how your documentation is indexed in search engines.
+  `robots.txt` files allow you to customize how your documentation is indexed in search engines.
   We provide a default robots.txt file,
   but you can also customize it.
 
-  ⬇️ :ref:`Read more <hosting:Custom robots.txt>`
+  ⬇️ :doc:`/reference/robots`
 
 Private documentation
   It is possible to host private and password protected documentation on Read the Docs for Business.
 
-  ⏩️ :doc:`Read more </commercial/sharing>`
+  ⏩️ :doc:`/commercial/sharing`
 
 .. The TOC here will be refactored once we reorganize the files in docs/user/.
 .. Probably, all feature reference should be in this directory!
@@ -68,18 +68,16 @@ Private documentation
 .. In fact, this whole page will become a proper index page with more explanation of what sort of reference can
 .. be found.
 
-
-
 .. toctree::
    :maxdepth: 1
+   :hidden:
 
    ../features
    analytics
    /feature-flags
    /server-side-search/index
-   Special hosting features </hosting>
    /badges
    /reference/cdn
-   /reference/custom-404
+   /reference/404-not-found
    /reference/robots
    /reference/sitemaps

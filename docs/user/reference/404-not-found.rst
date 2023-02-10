@@ -1,5 +1,5 @@
-Custom ``404 Not Found`` pages
-==============================
+``404 Not Found`` pages
+=======================
 
 If you want your project to use a custom or branded ``404 Not Found`` page,
 you can put a ``404.html`` at the top level of your project's HTML output.

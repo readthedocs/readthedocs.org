@@ -1,5 +1,5 @@
-Sitemaps
-========
+``sitemap.xml``  support
+========================
 
 `Sitemaps <https://www.sitemaps.org/>`__ allow you to inform search engines about URLs that are available for crawling.
 This helps make your content more discoverable,
