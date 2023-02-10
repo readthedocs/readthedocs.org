@@ -35,6 +35,12 @@ We have examples for some of the most popular tools below.
       Sphinx uses `html_extra_path`_ option to add static files to the output.
       You need to create a ``404.html`` file and put it under the path defined in ``html_extra_path``.
 
+      If you are using the ``DirHTML`` builder,
+      no further steps are required.
+      Sphinx will automatically apply the ``<page-name>/index.html`` folder structure to your 404 page:
+      ``404/index.html``.
+      Read the Docs also detects 404 pages named this way.
+
    .. tab:: MkDocs
 
       MkDocs automatically generates a ``404.html`` which Read the Docs will use.
