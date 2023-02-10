@@ -47,7 +47,7 @@ All :doc:`build processes </builds>` have the following environment variables au
 .. seealso::
 
    :doc:`/environment-variables`
-      Learn how environment variables are used in the build process.
+      General information about how environment variables are used in the build process.
 
    :doc:`/guides/environment-variables`
-      In addition to pre-defined environment variables, you can also define your own.
+      Learn how to define your own custom environment variables, in addition to the pre-defined ones.
