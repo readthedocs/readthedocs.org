@@ -14,7 +14,7 @@ While you optimize your docs to make them more friendly for search engine spider
 it's important to keep in mind that your ultimate goal is to make your docs
 more :term:`discoverable <discoverability>` for your users.
 
-By following :ref:`best practices for SEO <guides/technical-docs-seo-guide:Best practices for documentation SEO>`,
+By following :ref:`our best practices for SEO <guides/technical-docs-seo-guide:Best practices for documentation SEO>`,
 you can ensure that when a user types a question into a search engine,
 they can get the answers from your documentation in the search results.
 
@@ -89,10 +89,10 @@ Avoid unlinked pages ✅️
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 When building your documentation,
-you should ensure that pages aren't *unlinked* or *orphaned*,
+you should ensure that pages aren't *unlinked*,
 meaning that no other pages or navigation have a link to them.
 
-Search engine crawlers will not discover pages that aren't referenced.
+Search engine crawlers will not discover pages that aren't linked from somewhere else on your site.
 
 .. TODO: Create a "generic" tab?
 
