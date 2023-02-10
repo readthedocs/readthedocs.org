@@ -13,10 +13,10 @@ In order to get started quickly and easily, a `trial option <https://about.readt
 .. seealso::
 
    `Read the Docs website: Features <https://about.readthedocs.com/about/>`__
-      A general presentation of our features is available on our website, and the
-      `pricing page <https://about.readthedocs.com/pricing/>`__ lists all details and features for each subscription level.
+      A high-level overview of platform features is available on our website, and the
+      `pricing page <https://about.readthedocs.com/pricing/>`__ has a feature breakdown by subscription level.
 
-   `Read the Docs website: Company presentation <https://about.readthedocs.com/company/>`__
+   `Read the Docs website: Company <https://about.readthedocs.com/company/>`__
       Information about the company running Read the Docs, including our mission, team, and community.
 
 
@@ -24,18 +24,18 @@ Commercial documentation solutions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 In addition to providing the same features as |org_brand|,
-commercial subscriptions to Read the Docs add additional features based on the same software platform but on a separate infrastructure.
+commercial subscriptions to Read the Docs add additional features and run on separate infrastructure.
 
 .. figure:: /img/community_in_business.png
    :align: center
    :scale: 50%
 
    Read the Docs for Community and Business are a combined system:
-   All features developed for community benefit the business solution, and a lot of solutions developed for business
-   are implemented for community.
+   All features developed for community benefit the business solution, and most solutions developed for business users
+   are implemented for the community.
 
 The following list is a high-level overview of the areas covered by |com_brand|.
-If you want exact details, please refer to the `pricing page <https://about.readthedocs.com/pricing/>`__ of the public site.
+If you want a full feature breakdown, please refer to our `pricing page <https://about.readthedocs.com/pricing/>`__.
 
 Private repositories and private documentation
     The largest difference between the community solution and our commercial offering
@@ -48,7 +48,7 @@ Additional build resources
     of CPU, memory, disk, or networking resources?
     Commercial subscriptions offer more resources
     which results in faster documentation build times.
-    Resources can be increased further for very demanding projects.
+    We can also customize builders, such as with a GPU or multiple CPUs.
 
 Priority support
     We have a dedicated support team that responds to support requests during business hours.
@@ -66,5 +66,3 @@ Business features
        - :doc:`/commercial/single-sign-on`
        - :doc:`/security-log`
 
-.. _readthedocs.org: https://readthedocs.org
-.. _readthedocs.com: https://readthedocs.com
