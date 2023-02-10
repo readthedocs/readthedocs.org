@@ -4,8 +4,7 @@ About |com_brand|
 .. this page is currently moving towards becoming "About Read the Docs for Business"
 .. rather than an index of features.
 
-We offer *|com_brand|*
-for building and hosting commercial documentation.
+We offer |com_brand| for building and hosting commercial documentation.
 
 Our commercial solutions are provided as a set of subscriptions that are paid and managed through an online interface.
 In order to get started quickly and easily, a `trial option <https://about.readthedocs.com/pricing/>`__ is provided free of charge.
@@ -65,4 +64,3 @@ Business features
        - :doc:`/commercial/organizations`
        - :doc:`/commercial/single-sign-on`
        - :doc:`/security-log`
-
