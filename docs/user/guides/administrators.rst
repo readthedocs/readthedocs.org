@@ -28,6 +28,7 @@ have a look at our :doc:`/tutorial/index`.
    setup-single-sign-on-github-gitlab-bitbucket
    setup-single-sign-on-google-email
    manage-read-the-docs-teams
+   Use custom environment variables <environment-variables>
    automation-rules
    redirects
    Managing your Read the Docs for Business subscription </commercial/subscriptions>
