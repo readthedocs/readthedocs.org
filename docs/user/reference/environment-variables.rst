@@ -9,16 +9,16 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     :Default: ``True``
 
+.. envvar:: READTHEDOCS_PROJECT
+
+    The :term:`slug` of the project being built. For example, ``my-example-project``.
+
 .. envvar:: READTHEDOCS_LANGUAGE
 
     The locale name, or the identifier for the locale, for the project being built.
     This value comes from the project's configured language.
 
     :Examples: ``en``, ``it``, ``de_AT``, ``es``, ``pt_BR``
-
-.. envvar:: READTHEDOCS_PROJECT
-
-    The :term:`slug` of the project being built. For example, ``my-example-project``.
 
 .. envvar:: READTHEDOCS_VERSION
 
@@ -37,14 +37,17 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     :Values: ``branch``, ``tag``, ``external`` (for :doc:`pull request builds </pull-requests>`), or ``unknown``
 
-    The locale name, or the identifier for the locale, for the project being built.
-    This value comes from the project's configured language.
-
-    :Examples: ``en``, ``it``, ``de_AT``, ``es``, ``pt_BR``
-
 .. envvar:: READTHEDOCS_VIRTUALENV_PATH
 
     Path for the :ref:`virtualenv that was created for this build <builds:Understanding what's going on>`.
     Only exists for builds using Virtualenv and not Conda.
 
     :Example: ``/home/docs/checkouts/readthedocs.org/user_builds/project/envs/version``
+
+.. seealso::
+
+   :doc:`/environment-variables`
+      Learn how environment variables are used in the build process.
+
+   :doc:`/guides/environment-variables`
+      In addition to pre-defined environment variables, you can also define your own.
