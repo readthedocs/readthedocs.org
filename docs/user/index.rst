@@ -88,6 +88,7 @@ to help you create fantastic documentation for your project.
    /science
    /commercial/organizations
    /automatic-redirects
+   /guides/technical-docs-seo-guide
 
 .. toctree::
    :maxdepth: 2
