@@ -1,9 +1,9 @@
-``sitemap.xml``  support
-========================
+``sitemap.xml`` support
+=======================
 
 `Sitemaps <https://www.sitemaps.org/>`__ allow you to inform search engines about URLs that are available for crawling.
-This helps make your content more discoverable,
-and improve your Search Engine Optimization (SEO).
+This makes your content more :term:`discoverable <discoverability>`,
+and improves your :doc:`Search Engine Optimization (SEO) </guides/technical-docs-seo-guide>`.
 
 How it works
 ------------
@@ -16,10 +16,9 @@ It contains information such as:
 * How important this URL is in relation to other URLs in the site.
 * What translations are available for a page.
 
-Read the Docs automatically generates a sitemap for your project,
-to improve results when performing a search on these search engines.
+Read the Docs automatically generates a ``sitemap.xml`` for your project,
 
-By default our Sitemap includes:
+By default the sitemap includes:
 
 * Each version of your documentation and when it was last updated, sorted by version number.
 
@@ -31,8 +30,6 @@ Custom ``sitemap.xml``
 
 If you need a custom sitemap,
 please let us know by contacting :doc:`/support`.
-It's on our long term roadmap,
-but hearing that users want it is a great way to have us prioritize it.
 
 .. _semantic versioning: https://semver.org/
 .. _GitHub issue #5391: https://github.com/readthedocs/readthedocs.org/issues/5391

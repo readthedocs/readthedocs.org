@@ -15,7 +15,7 @@ The following locations are checked, in order:
 * ``/404.html`` or ``404/index.html`` in the *current* documentation version.
 * ``/404.html`` or ``404/index.html`` in the  *default* documentation version.
 
-Tool Integration
+Tool integration
 ----------------
 
 Documentation tools will have different ways of generating a ``404.html`` or ``404/index.html`` file.

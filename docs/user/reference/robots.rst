@@ -9,13 +9,19 @@ It's useful for:
 * Disallowing any indexing of your documentation
 
 Read the Docs automatically generates one for you with a configuration that works for most projects.
-By default, the automatically created ``robots.txt``:abbr:
+By default, the automatically created ``robots.txt``:
 
 * Hides versions which are set to :ref:`versions:Hidden` from being indexed.
 * Allows indexing of all other versions.
 
-.. warning:: ``robots.txt`` files are respected by search engines, but they are not a guarantee that your documentation will not be indexed.
-   Search engines may choose to ignore your ``robots.txt`` file and index your documentation anyway.
+.. warning::
+
+   ``robots.txt`` files are respected by most search engines,
+   but they aren't a guarantee that your pages will not be indexed.
+   Search engines may choose to ignore your ``robots.txt`` file,
+   and index your docs anyway.
+   
+   If you require *private* documentation, please see :doc:`/commercial/sharing`.
 
 How it works
 ------------
@@ -26,7 +32,7 @@ This is because the ``robots.txt`` file is served at the top-level of your domai
 so we must choose a version to find the file in.
 The **default version** is the best place to look for it.
 
-Tool Integration
+Tool integration
 ----------------
 
 Documentation tools will have different ways of generating a ``robots.txt`` file.

@@ -25,31 +25,31 @@ Hosting features
   Projects may define their own custom URL redirects,
   with advanced functionality like folder redirects.
 
-⬇️ :doc:`/reference/cdn`
+⏩️ :doc:`/reference/cdn`
   Documentation projects are primarily static HTML pages along with media files.
   This allows us to cache them with our CDN,
   making them *load faster* for your users.
 
 
-⬇️ :doc:`/reference/sitemaps`
+⏩️ :doc:`/reference/sitemaps`
   Sitemaps are generated and hosted automatically,
   improving search engine optimization.
   This helps your users find content more effectively on your site.
 
 
-⬇️ :doc:`/reference/404-not-found`
+⏩️ :doc:`/reference/404-not-found`
   A 404 page is served when we can't find a page on your site.
   We provide a default 404 page,
   but you can also customize it.
 
 
-⬇️ :doc:`/reference/robots`
+⏩️ :doc:`/reference/robots`
   `robots.txt` files allow you to customize how your documentation is indexed in search engines.
   We provide a default robots.txt file,
   but you can also customize it.
 
 
-⬇️ :doc:`/reference/robots`
+⏩️ :doc:`/commerical/sharing`
   It is possible to host private and password protected documentation on Read the Docs for Business.
 
 .. The TOC here will be refactored once we reorganize the files in docs/user/.
