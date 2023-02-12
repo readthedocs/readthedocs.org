@@ -28,11 +28,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.65
+boto3==1.26.69
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.65
+botocore==1.29.69
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -77,7 +77,7 @@ click-repl==0.2.0
     #   celery
 colorama==0.4.6
     # via tox
-cryptography==39.0.0
+cryptography==39.0.1
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -222,7 +222,7 @@ imagesize==1.4.1
     #   sphinx
 ipdb==0.13.11
     # via -r requirements/docker.in
-ipython==8.9.0
+ipython==8.10.0
     # via ipdb
 jedi==0.18.2
     # via ipython
@@ -263,7 +263,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.5
+orjson==3.8.6
     # via -r requirements/pip.txt
 packaging==23.0
     # via
@@ -283,7 +283,7 @@ pickleshare==0.7.5
     # via ipython
 pillow==9.4.0
     # via -r requirements/docker.in
-platformdirs==2.6.2
+platformdirs==3.0.0
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -471,7 +471,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.18.0
+virtualenv==20.19.0
     # via
     #   -r requirements/pip.txt
     #   tox
