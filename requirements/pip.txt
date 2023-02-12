@@ -14,9 +14,9 @@ babel==2.11.0
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.26.65
+boto3==1.26.69
     # via django-storages
-botocore==1.29.65
+botocore==1.29.69
     # via
     #   boto3
     #   s3transfer
@@ -42,7 +42,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.2.0
     # via celery
-cryptography==39.0.0
+cryptography==39.0.1
     # via pyjwt
 cssselect==1.2.0
     # via pyquery
@@ -172,7 +172,7 @@ markupsafe==2.1.2
     # via jinja2
 oauthlib==3.2.2
     # via requests-oauthlib
-orjson==3.8.5
+orjson==3.8.6
     # via -r requirements/pip.in
 packaging==23.0
     # via
@@ -180,7 +180,7 @@ packaging==23.0
     #   docker
     #   dparse
     #   sphinx
-platformdirs==2.6.2
+platformdirs==3.0.0
     # via virtualenv
 prompt-toolkit==3.0.36
     # via click-repl
@@ -295,7 +295,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.18.0
+virtualenv==20.19.0
     # via -r requirements/pip.in
 wcwidth==0.2.6
     # via prompt-toolkit
