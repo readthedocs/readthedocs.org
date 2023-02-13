@@ -60,8 +60,10 @@ class BaseSphinx(BaseBuilder):
         # directory. How is that? The directory is mounted into a different
         # location inside the container:
         #
-        #  1. path in the host: /home/docs/checkouts/readthedocs.org/user_builds/<project>/
-        #  2. path in the container: /usr/src/app/checkouts/readthedocs.org/user_builds/b9cbc24c8841/test-builds/
+        #  1. path in the host:
+        #       /home/docs/checkouts/readthedocs.org/user_builds/<project>/
+        #  2. path in the container:
+        #       /usr/src/app/checkouts/readthedocs.org/user_builds/b9cbc24c8841/test-builds/
         #
         # Besides, the variable `$READTHEDOCS_OUTPUT` is not defined in the
         # host, so we have to expand it using the full host's path. This
