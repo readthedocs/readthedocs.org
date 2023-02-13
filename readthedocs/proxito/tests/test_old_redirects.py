@@ -16,6 +16,7 @@ from django.test.utils import override_settings
 from django.urls import Resolver404
 
 from readthedocs.builds.models import Version
+from readthedocs.projects.models import Feature
 from readthedocs.redirects.models import Redirect
 
 from .base import BaseDocServing
@@ -513,6 +514,11 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             from_url='/install.html',
             to_url='/tutorial/install.html',
         )
+        fixture.get(
+            Feature,
+            feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER,
+            projects=[self.project],
+        )
         r = self.client.get(
             '/install.html',
             HTTP_HOST='docs.project.io',
@@ -849,6 +855,11 @@ class UserForcedRedirectTests(BaseDocServing):
             from_url="/install.html",
             to_url="/tutorial/install.html",
             force=True,
+        )
+        fixture.get(
+            Feature,
+            feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER,
+            projects=[self.project],
         )
         r = self.client.get(
             "/en/latest/install.html",
