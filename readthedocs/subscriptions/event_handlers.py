@@ -114,6 +114,8 @@ def subscription_canceled(event):
         log.info("Stripe subscription not found.")
         return
 
+    # Using `getattr` to avoid the `RelatedObjectDoesNotExist` exception
+    # when the subscription doesn't have an organization attached to it.
     organization = getattr(stripe_subscription.customer, "rtd_organization", None)
     if not organization:
         log.error("Subscription isn't attached to an organization")
