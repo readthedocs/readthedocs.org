@@ -20,7 +20,6 @@ from readthedocs.core.unresolver import (
     InvalidCustomDomainError,
     InvalidExternalDomainError,
     InvalidSubdomainError,
-    OriginType,
     SuspiciousHostnameError,
     unresolver,
 )

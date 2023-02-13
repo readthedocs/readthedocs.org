@@ -19,7 +19,6 @@ from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
-from readthedocs.projects.constants import SPHINX_HTMLDIR
 from readthedocs.projects.models import Feature
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
@@ -307,7 +306,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 )
                 log.debug("Trying index filename.")
                 if build_media_storage.exists(storage_filename_path):
-                    log.info("Redirecting to index file.")
+                    log.info("Redirecting to index file.", tryfile=tryfile)
                     # Use urlparse so that we maintain GET args in our redirect
                     parts = urlparse(proxito_path)
                     if tryfile == "README.html":
@@ -345,27 +344,30 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 # Continue with our normal 404 handling in this case
                 pass
 
-        # If that doesn't work, attempt to serve the 404 of the current version (version_slug)
-        # Secondly, try to serve the 404 page for the default version
+        version = Version.objects.filter(
+            project=final_project, slug=version_slug
+        ).first()
+
+        # If there are no redirect,
+        # try to serve the custom 404 of the current version (version_slug)
+        # Then, try to serve the custom 404 page for the default version
         # (project.get_default_version())
-        version = (
-            Version.objects.filter(project=final_project, slug=version_slug)
-            .only("documentation_type")
-            .first()
-        )
         versions = []
         if version:
-            versions.append((version.slug, version.documentation_type))
+            versions.append(version_slug)
         default_version_slug = final_project.get_default_version()
         if default_version_slug != version_slug:
-            default_version_doc_type = (
-                Version.objects.filter(project=final_project, slug=default_version_slug)
-                .values_list('documentation_type', flat=True)
-                .first()
-            )
-            versions.append((default_version_slug, default_version_doc_type))
+            versions.append(default_version_slug)
 
-        for version_slug_404, doc_type_404 in versions:
+        # Register 404 pages into our database for user's analytics
+        self._register_broken_link(
+            project=final_project,
+            version=version,
+            path=filename,
+            full_path=proxito_path,
+        )
+
+        for version_slug_404 in versions:
             if not self.allowed_user(request, final_project, version_slug_404):
                 continue
 
@@ -375,11 +377,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 include_file=False,
                 version_type=self.version_type,
             )
-            tryfiles = ['404.html']
-            # SPHINX_HTMLDIR is the only builder
-            # that could output a 404/index.html file.
-            if doc_type_404 == SPHINX_HTMLDIR:
-                tryfiles.append('404/index.html')
+            tryfiles = ["404.html", "404/index.html"]
             for tryfile in tryfiles:
                 storage_filename_path = build_media_storage.join(storage_root_path, tryfile)
                 if build_media_storage.exists(storage_filename_path):
@@ -390,20 +388,8 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     )
                     resp = HttpResponse(build_media_storage.open(storage_filename_path).read())
                     resp.status_code = 404
-                    self._register_broken_link(
-                        project=final_project,
-                        version=version,
-                        path=filename,
-                        full_path=proxito_path,
-                    )
                     return resp
 
-        self._register_broken_link(
-            project=final_project,
-            version=version,
-            path=filename,
-            full_path=proxito_path,
-        )
         raise Http404('No custom 404 page found.')
 
     def _register_broken_link(self, project, version, path, full_path):

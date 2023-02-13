@@ -543,6 +543,9 @@ class BuildDirector:
             "READTHEDOCS_VERSION_NAME": self.data.version.verbose_name,
             "READTHEDOCS_PROJECT": self.data.project.slug,
             "READTHEDOCS_LANGUAGE": self.data.project.language,
+            "READTHEDOCS_OUTPUT": os.path.join(
+                self.data.project.checkout_path(self.data.version.slug), "_readthedocs/"
+            ),
         }
         return env
 
@@ -556,6 +559,7 @@ class BuildDirector:
         if self.data.config.conda is not None:
             env.update(
                 {
+                    # NOTE: should these be prefixed with "READTHEDOCS_"?
                     "CONDA_ENVS_PATH": os.path.join(
                         self.data.project.doc_path, "conda"
                     ),
@@ -576,6 +580,9 @@ class BuildDirector:
                         "envs",
                         self.data.version.slug,
                         "bin",
+                    ),
+                    "READTHEDOCS_VIRTUALENV_PATH": os.path.join(
+                        self.data.project.doc_path, "envs", self.data.version.slug
                     ),
                 }
             )

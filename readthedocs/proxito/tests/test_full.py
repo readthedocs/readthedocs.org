@@ -819,8 +819,10 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         storage_exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/404.html'),
-                mock.call('html/project/latest/404.html'),
+                mock.call("html/project/fancy-version/404.html"),
+                mock.call("html/project/fancy-version/404/index.html"),
+                mock.call("html/project/latest/404.html"),
+                mock.call("html/project/latest/404/index.html"),
             ]
         )
 
@@ -848,8 +850,10 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         storage_exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/404.html'),
-                mock.call('html/project/latest/404.html'),
+                mock.call("html/project/fancy-version/404.html"),
+                mock.call("html/project/fancy-version/404/index.html"),
+                mock.call("html/project/latest/404.html"),
+                mock.call("html/project/latest/404/index.html"),
             ]
         )
 
@@ -908,10 +912,12 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         storage_exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/not-found/index.html'),
-                mock.call('html/project/fancy-version/not-found/README.html'),
-                mock.call('html/project/fancy-version/404.html'),
-                mock.call('html/project/latest/404.html')
+                mock.call("html/project/fancy-version/not-found/index.html"),
+                mock.call("html/project/fancy-version/not-found/README.html"),
+                mock.call("html/project/fancy-version/404.html"),
+                mock.call("html/project/fancy-version/404/index.html"),
+                mock.call("html/project/latest/404.html"),
+                mock.call("html/project/latest/404/index.html"),
             ]
         )
 
@@ -938,11 +944,12 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         storage_exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/not-found/index.html'),
-                mock.call('html/project/fancy-version/not-found/README.html'),
-                mock.call('html/project/fancy-version/404.html'),
-                mock.call('html/project/latest/404.html'),
-                mock.call('html/project/latest/404/index.html'),
+                mock.call("html/project/fancy-version/not-found/index.html"),
+                mock.call("html/project/fancy-version/not-found/README.html"),
+                mock.call("html/project/fancy-version/404.html"),
+                mock.call("html/project/fancy-version/404/index.html"),
+                mock.call("html/project/latest/404.html"),
+                mock.call("html/project/latest/404/index.html"),
             ]
         )
 
