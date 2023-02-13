@@ -10,6 +10,8 @@ amqp==5.1.1
     # via kombu
 asgiref==3.6.0
     # via django
+async-timeout==4.0.2
+    # via redis
 babel==2.11.0
     # via sphinx
 billiard==3.6.4.0
@@ -69,6 +71,7 @@ django==3.2.17
     #   django-filter
     #   django-formtools
     #   django-polymorphic
+    #   django-redis
     #   django-storages
     #   django-structlog
     #   django-taggit
@@ -103,6 +106,8 @@ django-ipware==4.0.2
 django-messages-extends==0.6.3
     # via -r requirements/pip.in
 django-polymorphic==3.1.0
+    # via -r requirements/pip.in
+django-redis==5.2.0
     # via -r requirements/pip.in
 django-simple-history==3.0.0
     # via -r requirements/pip.in
@@ -210,8 +215,8 @@ pytz==2022.7.1
     #   djangorestframework
 pyyaml==5.4.1
     # via -r requirements/pip.in
-redis==3.5.3
-    # via -r requirements/pip.in
+redis==4.5.1
+    # via django-redis
 regex==2022.10.31
     # via -r requirements/pip.in
 requests==2.28.2
