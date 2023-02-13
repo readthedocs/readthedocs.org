@@ -2,6 +2,7 @@
 
 import math
 
+import redis
 import structlog
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
@@ -75,14 +76,15 @@ def cleanup_pidbox_keys():
     https://github.com/readthedocs/readthedocs-ops/issues/1260
 
     """
+    client = redis.from_url(settings.BROKER_URL)
+    keys = client.keys("*reply.celery.pidbox*")
     total_memory = 0
-    keys = app.backend.client.keys("*reply.celery.pidbox*")
     for key in keys:
-        idletime = app.backend.client.object("idletime", key)  # seconds
-        memory = math.ceil(app.backend.client.memory_usage(key) / 1024 / 1024)  # Mb
+        idletime = client.object("idletime", key)  # seconds
+        memory = math.ceil(client.memory_usage(key) / 1024 / 1024)  # Mb
         total_memory += memory
 
         if idletime > (60 * 15):  # 15 minutes
-            app.backend.client.delete([key])
+            client.delete([key])
 
     log.info("Redis pidbox objects.", memory=total_memory, keys=len(keys))
