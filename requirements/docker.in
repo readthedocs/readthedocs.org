@@ -5,8 +5,6 @@
 # https://www.psycopg.org/docs/install.html#psycopg-vs-psycopg-binary
 psycopg2-binary
 
-django-redis-cache
-
 # For resizing images
 pillow
 
@@ -15,7 +13,6 @@ tox
 
 # Used together with structlog to have nicer logs locally
 rich
-
 
 # Useful tools during a debug session.
 datadiff
