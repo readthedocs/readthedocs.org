@@ -61,7 +61,7 @@ class UnresolvedURL:
 
 class DomainSourceType(Enum):
 
-    """From where the custom domain was resolved."""
+    """Where the custom domain was resolved from."""
 
     custom_domain = auto()
     public_domain = auto()
