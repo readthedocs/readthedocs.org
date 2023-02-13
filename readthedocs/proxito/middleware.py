@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
+from django.core.exceptions import SuspiciousOperation
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -24,7 +25,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.models import Domain, Project, ProjectRelationship
+from readthedocs.projects.models import Domain, Feature, Project, ProjectRelationship
 from readthedocs.proxito import constants
 
 log = structlog.get_logger(__name__)  # noqa
@@ -47,15 +48,26 @@ def map_host_to_project(request):  # pylint: disable=too-many-return-statements
     """
 
     host = unresolver.get_domain_from_host(request.get_host())
+    log.bind(host=host)
 
     # Explicit Project slug being passed in.
     if "HTTP_X_RTD_SLUG" in request.META:
         project_slug = request.headers["X-RTD-Slug"].lower()
-        project = Project.objects.filter(slug=project_slug).first()
+        project = Project.objects.filter(
+            slug=project_slug,
+            feature__feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER,
+        ).first()
         if project:
             request.rtdheader = True
-            log.info('Setting project based on X_RTD_SLUG header.', project_slug=project_slug)
+            log.info(
+                "Setting project based on X_RTD_SLUG header.", project_slug=project_slug
+            )
             return project
+        log.warning(
+            "X-RTD-Header passed for project without it enabled.",
+            project_slug=project_slug,
+        )
+        raise SuspiciousOperation("Invalid X-RTD-Slug header.")
 
     try:
         project, domain_object, external_version_slug = unresolver.unresolve_domain(
@@ -248,15 +260,24 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         If privacy levels are enabled and the header isn't already present,
         set the cache level to private.
+        Or if the request was from the `X-RTD-Slug` header,
+        we don't cache the response, since we could be caching a response in another domain.
 
         We use ``CDN-Cache-Control``, to control caching at the CDN level only.
         This doesn't affect caching at the browser level (``Cache-Control``).
 
         See https://developers.cloudflare.com/cache/about/cdn-cache-control.
         """
+        header = "CDN-Cache-Control"
+        # Never trust projects resolving from the X-RTD-Slug header,
+        # we don't want to cache their content on domains from other
+        # projects, see GHSA-mp38-vprc-7hf5.
+        if hasattr(request, "rtdheader"):
+            response.headers[header] = "private"
+
         if settings.ALLOW_PRIVATE_REPOS:
             # Set the key to private only if it hasn't already been set by the view.
-            response.headers.setdefault('CDN-Cache-Control', 'private')
+            response.headers.setdefault(header, "private")
 
     def process_request(self, request):  # noqa
         skip = any(

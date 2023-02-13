@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-07 13:02+0000\n"
+"POT-Creation-Date: 2023-02-13 23:35+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Leandro Regueiro <leandro.regueiro@gmail.com>, 2013\n"
 "Language-Team: Galician (http://www.transifex.com/readthedocs/readthedocs/"
@@ -841,30 +841,30 @@ msgstr ""
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr ""
 
-#: doc_builder/environments.py:341
+#: doc_builder/environments.py:346
 msgid ""
 "\n"
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 msgstr ""
 
-#: doc_builder/environments.py:347
+#: doc_builder/environments.py:352
 msgid "Command exited abnormally"
 msgstr ""
 
-#: doc_builder/environments.py:648
+#: doc_builder/environments.py:653
 msgid "A build environment is currently running for this version"
 msgstr ""
 
-#: doc_builder/environments.py:808
+#: doc_builder/environments.py:813
 msgid "Build exited due to time out"
 msgstr ""
 
-#: doc_builder/environments.py:813
+#: doc_builder/environments.py:818
 msgid "Build exited due to excessive memory consumption"
 msgstr ""
 
-#: doc_builder/environments.py:819
+#: doc_builder/environments.py:824
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr ""
@@ -1950,7 +1950,7 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:99 projects/models.py:2078
+#: projects/constants.py:99 projects/models.py:2084
 msgid "Public"
 msgstr "Público"
 
@@ -2579,205 +2579,209 @@ msgstr ""
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1856
+#: projects/models.py:1858
 msgid "Allow deprecated webhook views"
 msgstr ""
 
-#: projects/models.py:1860
+#: projects/models.py:1862
 msgid "Do not overwrite context vars in conf.py with Read the Docs context"
 msgstr ""
 
-#: projects/models.py:1866
+#: projects/models.py:1868
 msgid "Do not define html_theme_path on Sphinx < 6.0"
 msgstr ""
 
-#: projects/models.py:1871
+#: projects/models.py:1873
 msgid "Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 
-#: projects/models.py:1875
+#: projects/models.py:1877
 msgid "Do not shallow clone when cloning git repos"
 msgstr ""
 
-#: projects/models.py:1879
+#: projects/models.py:1881
 msgid "Use Docker image labelled as `testing` to build the docs"
 msgstr ""
 
-#: projects/models.py:1883
+#: projects/models.py:1885
 msgid "Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1887
+#: projects/models.py:1889
 msgid "Clean all files used in the build process"
 msgstr ""
 
-#: projects/models.py:1891
+#: projects/models.py:1893
 msgid "Upgrade conda before creating the environment"
 msgstr ""
 
-#: projects/models.py:1895
+#: projects/models.py:1897
 msgid "Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1900
+#: projects/models.py:1902
 msgid ""
 "Pass all versions (including private) into the html context when building "
 "with Sphinx"
 msgstr ""
 
-#: projects/models.py:1906
+#: projects/models.py:1908
 msgid ""
 "Cache the environment (virtualenv, conda, pip cache, repository) in storage"
 msgstr ""
 
-#: projects/models.py:1910
+#: projects/models.py:1912
 msgid "Limit the amount of concurrent builds"
 msgstr ""
 
-#: projects/models.py:1914
+#: projects/models.py:1916
 msgid ""
 "CDN support for a project's public versions when privacy levels are enabled."
 msgstr ""
 
-#: projects/models.py:1918
+#: projects/models.py:1920
 msgid "Use Docker gVisor runtime to create build container."
 msgstr ""
 
-#: projects/models.py:1922
+#: projects/models.py:1924
 msgid "Record 404s page views."
 msgstr ""
 
-#: projects/models.py:1926
+#: projects/models.py:1928
 msgid "Allow forced redirects."
 msgstr ""
 
-#: projects/models.py:1930
+#: projects/models.py:1932
 msgid "Disable all page views"
 msgstr ""
 
-#: projects/models.py:1934
+#: projects/models.py:1936
 msgid "Disable indexing of sphinx domains"
 msgstr ""
 
 #: projects/models.py:1940
+msgid "Allow usage of the X-RTD-Slug header"
+msgstr ""
+
+#: projects/models.py:1946
 msgid "Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:1944
+#: projects/models.py:1950
 msgid "Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:1948
+#: projects/models.py:1954
 msgid "Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:1952
+#: projects/models.py:1958
 msgid "Always run pip install --upgrade"
 msgstr ""
 
-#: projects/models.py:1953
+#: projects/models.py:1959
 msgid "Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:1956
+#: projects/models.py:1962
 msgid "Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:1958
+#: projects/models.py:1964
 msgid "Use latest version of Sphinx"
 msgstr ""
 
-#: projects/models.py:1961
+#: projects/models.py:1967
 msgid "Install mkdocs 0.17.3 by default"
 msgstr ""
 
-#: projects/models.py:1963
+#: projects/models.py:1969
 msgid "Use latest version of MkDocs"
 msgstr ""
 
-#: projects/models.py:1966
+#: projects/models.py:1972
 msgid "Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
-#: projects/models.py:1972
+#: projects/models.py:1978
 msgid "Disable server side search"
 msgstr ""
 
-#: projects/models.py:1976
+#: projects/models.py:1982
 msgid "Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:1980
+#: projects/models.py:1986
 msgid "Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:1984
+#: projects/models.py:1990
 msgid ""
 "Index content directly from html files instead or relying in other sources"
 msgstr ""
 
-#: projects/models.py:1990
+#: projects/models.py:1996
 msgid ""
 "List packages installed in the environment (\"pip list\" or \"conda list\") "
 "on build's output"
 msgstr ""
 
-#: projects/models.py:1996
+#: projects/models.py:2002
 msgid ""
 "Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions"
 msgstr ""
 
-#: projects/models.py:2000
+#: projects/models.py:2006
 msgid "Use \"-j auto\" when calling sphinx-build"
 msgstr ""
 
-#: projects/models.py:2004
+#: projects/models.py:2010
 msgid "Use regular sphinx builders instead of custom RTD builders"
 msgstr ""
 
-#: projects/models.py:2009
+#: projects/models.py:2015
 msgid ""
 "Cancel triggered/running builds when a new one with same project/version "
 "arrives"
 msgstr ""
 
-#: projects/models.py:2014
+#: projects/models.py:2020
 msgid "Do not create index.md or README.rst if the project does not have one."
 msgstr ""
 
-#: projects/models.py:2018
+#: projects/models.py:2024
 msgid "Use rclone for syncing files to the media storage."
 msgstr ""
 
-#: projects/models.py:2029
+#: projects/models.py:2035
 msgid "Feature identifier"
 msgstr ""
 
-#: projects/models.py:2034
+#: projects/models.py:2040
 msgid "Date feature was added"
 msgstr ""
 
-#: projects/models.py:2040
+#: projects/models.py:2046
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:2044
+#: projects/models.py:2050
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2066
+#: projects/models.py:2072
 msgid "Name of the environment variable"
 msgstr ""
 
-#: projects/models.py:2070
+#: projects/models.py:2076
 msgid "Value of the environment variable"
 msgstr ""
 
-#: projects/models.py:2075
+#: projects/models.py:2081
 msgid "Project where this variable will be used"
 msgstr ""
 
-#: projects/models.py:2081
+#: projects/models.py:2087
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
@@ -2968,67 +2972,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:409
+#: settings/base.py:411
 msgid "Catalan"
 msgstr ""
 
-#: settings/base.py:410
+#: settings/base.py:412
 msgid "English"
 msgstr "Inglés"
 
-#: settings/base.py:411
+#: settings/base.py:413
 msgid "Spanish"
 msgstr ""
 
-#: settings/base.py:412
+#: settings/base.py:414
 msgid "Brazilian Portuguese"
 msgstr ""
 
-#: settings/base.py:413
+#: settings/base.py:415
 msgid "Norwegian Bokmål"
 msgstr ""
 
-#: settings/base.py:414
+#: settings/base.py:416
 msgid "French"
 msgstr "Francés"
 
-#: settings/base.py:415
+#: settings/base.py:417
 msgid "Russian"
 msgstr ""
 
-#: settings/base.py:416
+#: settings/base.py:418
 msgid "German"
 msgstr ""
 
-#: settings/base.py:417
+#: settings/base.py:419
 msgid "Galician"
 msgstr ""
 
-#: settings/base.py:418
+#: settings/base.py:420
 msgid "Vietnamese"
 msgstr ""
 
-#: settings/base.py:419
+#: settings/base.py:421
 msgid "Simplified Chinese"
 msgstr ""
 
-#: settings/base.py:420
+#: settings/base.py:422
 msgid "Traditional Chinese"
 msgstr ""
 
-#: settings/base.py:421
+#: settings/base.py:423
 msgid "Japanese"
 msgstr ""
 
-#: settings/base.py:422
+#: settings/base.py:424
 msgid "Ukrainian"
 msgstr ""
 
-#: settings/base.py:423
+#: settings/base.py:425
 msgid "Italian"
 msgstr ""
 
-#: settings/base.py:424
+#: settings/base.py:426
 msgid "Korean"
 msgstr ""
 
@@ -4908,11 +4912,9 @@ msgid "This repository has already been imported"
 msgstr ""
 
 #: templates/projects/project_import.html:162
-#, fuzzy
-#| msgid "View Docs"
 msgctxt "verb, action to see in detail"
 msgid "View"
-msgstr "Ver a documentación"
+msgstr ""
 
 #: templates/projects/project_import.html:214
 msgid ""
