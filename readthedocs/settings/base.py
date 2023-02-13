@@ -505,7 +505,12 @@ class CommunityBaseSettings(Settings):
             'task': 'readthedocs.domains.tasks.email_pending_custom_domains',
             'schedule': crontab(minute=0, hour=3),
             'options': {'queue': 'web'},
-        }
+        },
+        'every-15m-delete-pidbox-objects': {
+            'task': 'readthedocs.core.tasks.cleanup_pidbox_keys',
+            'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
     }
 
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
