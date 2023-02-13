@@ -59,7 +59,7 @@ class UnresolvedURL:
     external: bool = False
 
 
-class OriginType(Enum):
+class DomainSourceType(Enum):
 
     """From where the custom domain was resolved."""
 
@@ -71,7 +71,7 @@ class OriginType(Enum):
 
 @dataclass(slots=True)
 class UnresolvedDomain:
-    origin: OriginType
+    source: DomainSourceType
     project: Project
     domain: Domain = None
     external_version_slug: str = None
@@ -131,7 +131,7 @@ class Unresolver:
         )
 
         # Make sure we are serving the external version from the subdomain.
-        if unresolved_domain.origin == OriginType.external_domain and version:
+        if unresolved_domain.source == DomainSourceType.external_domain and version:
             if unresolved_domain.external_version_slug != version.slug:
                 log.warning(
                     "Invalid version for external domain.",
@@ -161,7 +161,7 @@ class Unresolver:
             filename=filename,
             parsed_url=parsed,
             domain=unresolved_domain.domain,
-            external=unresolved_domain.origin == OriginType.external_domain,
+            external=unresolved_domain.source == DomainSourceType.external_domain,
         )
 
     @staticmethod
@@ -363,7 +363,7 @@ class Unresolver:
                 project_slug = subdomain
                 log.debug("Public domain.", domain=domain)
                 return UnresolvedDomain(
-                    origin=OriginType.public_domain,
+                    source=DomainSourceType.public_domain,
                     project=self._resolve_project_slug(project_slug, domain),
                 )
 
@@ -379,7 +379,7 @@ class Unresolver:
                     project_slug, version_slug = subdomain.rsplit("--", maxsplit=1)
                     log.debug("External versions domain.", domain=domain)
                     return UnresolvedDomain(
-                        origin=OriginType.external_domain,
+                        source=DomainSourceType.external_domain,
                         project=self._resolve_project_slug(project_slug, domain),
                         external_version_slug=version_slug,
                     )
@@ -404,7 +404,7 @@ class Unresolver:
 
         log.debug("Custom domain.", domain=domain)
         return UnresolvedDomain(
-            origin=OriginType.custom_domain,
+            source=DomainSourceType.custom_domain,
             project=domain_object.project,
             domain=domain_object,
         )
@@ -436,7 +436,10 @@ class Unresolver:
                     "Setting project based on X_RTD_SLUG header.",
                     project_slug=project.slug,
                 )
-                return UnresolvedDomain(origin=OriginType.http_header, project=project)
+                return UnresolvedDomain(
+                    source=DomainSourceType.http_header,
+                    project=project,
+                )
 
         host = self.get_domain_from_host(request.get_host())
         return unresolver.unresolve_domain(host)

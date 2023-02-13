@@ -17,10 +17,10 @@ from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
 from readthedocs.core.unresolver import (
+    DomainSourceType,
     InvalidCustomDomainError,
     InvalidExternalDomainError,
     InvalidSubdomainError,
-    OriginType,
     SuspiciousHostnameError,
     unresolver,
 )
@@ -181,11 +181,11 @@ class ProxitoMiddleware(MiddlewareMixin):
         - If the domain needs to redirect, set the canonicalize attribute accordingly.
         """
         # TODO: Set the unresolved domain in the request instead of each of these attributes.
-        origin = unresolved_domain.origin
+        source = unresolved_domain.source
         project = unresolved_domain.project
-        if origin == OriginType.http_header:
+        if source == DomainSourceType.http_header:
             request.rtdheader = True
-        elif origin == OriginType.custom_domain:
+        elif source == DomainSourceType.custom_domain:
             domain = unresolved_domain.domain
             request.cname = True
             request.domain = domain
@@ -193,10 +193,10 @@ class ProxitoMiddleware(MiddlewareMixin):
                 # Redirect HTTP -> HTTPS (302) for this custom domain.
                 log.debug("Proxito CNAME HTTPS Redirect.", domain=domain.domain)
                 request.canonicalize = constants.REDIRECT_HTTPS
-        elif origin == OriginType.external_domain:
+        elif source == DomainSourceType.external_domain:
             request.external_domain = True
             request.host_version_slug = unresolved_domain.external_version_slug
-        elif origin == OriginType.public_domain:
+        elif source == DomainSourceType.public_domain:
             request.subdomain = True
             canonical_domain = (
                 Domain.objects.filter(project=project)
