@@ -38,21 +38,17 @@ This allows us to give back to the communities and projects that we support and 
 We are proud about the way we manage our company and products,
 and are glad to have you on board with us in this :doc:`great documentation journey </story>`.
 
-A reference to our organization
+Additional content
 -------------------------------
 
-As a company that works with documentation,
-we enjoy using documentation tools for maintaining most of our information.
-For instance,
-we find that Git and documentation tools are extremely efficient for maintaining policies and legal documents.
+If you want to dive more into more specific information and our policies,
+we've brought most of the most important ones below.   
 
 .. seealso::
 
    `Our website <https://about.readthedocs.com>`__
-      You won't find everything explained here.
-      The most general-purpose information about Read the Docs is available on our main website.
+      Our primary website has general-purpose information about Read the Docs like pricing and feature overviews.
 
-Here is a list of information about our organization that we currently maintain using documentation tools:
 
 ⏩ :doc:`/commercial/index`
    Learn more about how our company provides paid solutions
