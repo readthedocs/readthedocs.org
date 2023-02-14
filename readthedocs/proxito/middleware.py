@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 
 import structlog
 from django.conf import settings
+from django.core.exceptions import SuspiciousOperation
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -21,6 +22,7 @@ from readthedocs.core.unresolver import (
     InvalidCustomDomainError,
     InvalidExternalDomainError,
     InvalidSubdomainError,
+    InvalidXRTDSlugHeader,
     SuspiciousHostnameError,
     unresolver,
 )
@@ -158,15 +160,24 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         If privacy levels are enabled and the header isn't already present,
         set the cache level to private.
+        Or if the request was from the `X-RTD-Slug` header,
+        we don't cache the response, since we could be caching a response in another domain.
 
         We use ``CDN-Cache-Control``, to control caching at the CDN level only.
         This doesn't affect caching at the browser level (``Cache-Control``).
 
         See https://developers.cloudflare.com/cache/about/cdn-cache-control.
         """
+        header = "CDN-Cache-Control"
+        # Never trust projects resolving from the X-RTD-Slug header,
+        # we don't want to cache their content on domains from other
+        # projects, see GHSA-mp38-vprc-7hf5.
+        if hasattr(request, "rtdheader"):
+            response.headers[header] = "private"
+
         if settings.ALLOW_PRIVATE_REPOS:
             # Set the key to private only if it hasn't already been set by the view.
-            response.headers.setdefault('CDN-Cache-Control', 'private')
+            response.headers.setdefault(header, "private")
 
     def _set_request_attributes(self, request, unresolved_domain):
         """
@@ -251,6 +262,8 @@ class ProxitoMiddleware(MiddlewareMixin):
             return render(
                 request, "core/dns-404.html", context={"host": exc.domain}, status=404
             )
+        except InvalidXRTDSlugHeader:
+            raise SuspiciousOperation("Invalid X-RTD-Slug header.")
 
         self._set_request_attributes(request, unresolved_domain)
 
