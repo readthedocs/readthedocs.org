@@ -1,5 +1,5 @@
-Build process
-=============
+Build process overview
+======================
 
 Once a project has been imported and a build is triggered,
 Read the Docs executes a set of :term:`pre-defined jobs <pre-defined build jobs>` to build and upload documentation.

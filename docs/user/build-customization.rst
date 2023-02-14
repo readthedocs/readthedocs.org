@@ -1,5 +1,5 @@
-Build customization
-===================
+Build process customization
+===========================
 
 Read the Docs has a :doc:`well-defined build process </builds>` that works for many projects.
 We also allow customization of builds in primary ways:
