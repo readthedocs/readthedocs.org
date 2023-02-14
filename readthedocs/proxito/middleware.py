@@ -18,7 +18,6 @@ from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
 from readthedocs.core.unresolver import (
-    DomainSourceType,
     InvalidCustomDomainError,
     InvalidExternalDomainError,
     InvalidSubdomainError,
@@ -75,17 +74,13 @@ class ProxitoMiddleware(MiddlewareMixin):
         if cache_tags:
             response['Cache-Tag'] = ','.join(cache_tags)
 
-        if hasattr(request, 'rtdheader'):
-            response['X-RTD-Project-Method'] = 'rtdheader'
-        elif hasattr(request, 'subdomain'):
-            response['X-RTD-Project-Method'] = 'subdomain'
-        elif hasattr(request, 'cname'):
-            response['X-RTD-Project-Method'] = 'cname'
-
-        if hasattr(request, 'external_domain'):
-            response['X-RTD-Version-Method'] = 'domain'
-        else:
-            response['X-RTD-Version-Method'] = 'path'
+        unresolved_domain = request.unresolved_domain
+        if unresolved_domain:
+            response["X-RTD-Project-Method"] = unresolved_domain.source.name
+            if unresolved_domain.is_from_external_domain:
+                response["X-RTD-Version-Method"] = "domain"
+            else:
+                response["X-RTD-Version-Method"] = "path"
 
     def add_user_headers(self, request, response):
         """
@@ -94,19 +89,21 @@ class ProxitoMiddleware(MiddlewareMixin):
         The headers added come from ``projects.models.HTTPHeader`` associated
         with the ``Domain`` object.
         """
-        if hasattr(request, 'domain'):
+        unresolved_domain = request.unresolved_domain
+        if unresolved_domain and unresolved_domain.is_from_custom_domain:
             response_headers = [header.lower() for header in response.headers.keys()]
-            for http_header in request.domain.http_headers.all():
+            domain = unresolved_domain.domain
+            for http_header in domain.http_headers.all():
                 if http_header.name.lower() in response_headers:
                     log.error(
                         'Overriding an existing response HTTP header.',
                         http_header=http_header.name,
-                        domain=request.domain.domain,
+                        domain=domain.domain,
                     )
                 log.info(
                     'Adding custom response HTTP header.',
                     http_header=http_header.name,
-                    domain=request.domain.domain,
+                    domain=domain.domain,
                 )
 
                 if http_header.only_if_secure_request and not request.is_secure():
@@ -129,17 +126,20 @@ class ProxitoMiddleware(MiddlewareMixin):
             # Only set the HSTS header if the request is over HTTPS
             return response
 
-        host = request.get_host().lower().split(':')[0]
-        public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
         hsts_header_values = []
-        if settings.PUBLIC_DOMAIN_USES_HTTPS and public_domain in host:
+        unresolved_domain = request.unresolved_domain
+        if (
+            settings.PUBLIC_DOMAIN_USES_HTTPS
+            and unresolved_domain
+            and unresolved_domain.is_from_public_domain
+        ):
             hsts_header_values = [
                 'max-age=31536000',
                 'includeSubDomains',
                 'preload',
             ]
-        elif hasattr(request, 'domain'):
-            domain = request.domain
+        elif unresolved_domain and unresolved_domain.is_from_custom_domain:
+            domain = unresolved_domain.domain
             # TODO: migrate Domains with HSTS set using these fields to
             # ``HTTPHeader`` and remove this chunk of code from here.
             if domain.hsts_max_age:
@@ -169,10 +169,11 @@ class ProxitoMiddleware(MiddlewareMixin):
         See https://developers.cloudflare.com/cache/about/cdn-cache-control.
         """
         header = "CDN-Cache-Control"
+        unresolved_domain = request.unresolved_domain
         # Never trust projects resolving from the X-RTD-Slug header,
         # we don't want to cache their content on domains from other
         # projects, see GHSA-mp38-vprc-7hf5.
-        if hasattr(request, "rtdheader"):
+        if unresolved_domain and unresolved_domain.is_from_http_header:
             response.headers[header] = "private"
 
         if settings.ALLOW_PRIVATE_REPOS:
@@ -183,32 +184,18 @@ class ProxitoMiddleware(MiddlewareMixin):
         """
         Set attributes in the request from the unresolved domain.
 
-        - If the project was extracted from the ``X-RTD-Slug`` header,
-          we set ``request.rtdheader`` to `True`.
-        - If the project was extracted from the public domain,
-          we set ``request.subdomain`` to `True`.
-        - If the project was extracted from a custom domain,
-          we set ``request.cname`` to `True`.
+        - Set ``request.unresolved_domain`` to the unresolved domain.
         - If the domain needs to redirect, set the canonicalize attribute accordingly.
         """
-        # TODO: Set the unresolved domain in the request instead of each of these attributes.
-        source = unresolved_domain.source
+        request.unresolved_domain = unresolved_domain
         project = unresolved_domain.project
-        if source == DomainSourceType.http_header:
-            request.rtdheader = True
-        elif source == DomainSourceType.custom_domain:
+        if unresolved_domain.is_from_custom_domain:
             domain = unresolved_domain.domain
-            request.cname = True
-            request.domain = domain
             if domain.https and not request.is_secure():
                 # Redirect HTTP -> HTTPS (302) for this custom domain.
                 log.debug("Proxito CNAME HTTPS Redirect.", domain=domain.domain)
                 request.canonicalize = constants.REDIRECT_HTTPS
-        elif source == DomainSourceType.external_domain:
-            request.external_domain = True
-            request.host_version_slug = unresolved_domain.external_version_slug
-        elif source == DomainSourceType.public_domain:
-            request.subdomain = True
+        elif unresolved_domain.is_from_public_domain:
             canonical_domain = (
                 Domain.objects.filter(project=project)
                 .filter(canonical=True, https=True)
@@ -226,10 +213,11 @@ class ProxitoMiddleware(MiddlewareMixin):
                     project_slug=project.slug,
                 )
                 request.canonicalize = constants.REDIRECT_SUBPROJECT_MAIN_DOMAIN
-        else:
-            raise NotImplementedError
 
     def process_request(self, request):  # noqa
+        # Initialize our custom request attributes.
+        request.unresolved_domain = None
+
         skip = any(
             request.path.startswith(reverse(view))
             for view in self.skip_views
@@ -291,9 +279,6 @@ class ProxitoMiddleware(MiddlewareMixin):
             'Proxito Project.',
             project_slug=project.slug,
         )
-
-        # Otherwise set the slug on the request
-        request.host_project_slug = request.slug = project.slug
 
         # This is hacky because Django wants a module for the URLConf,
         # instead of also accepting string
