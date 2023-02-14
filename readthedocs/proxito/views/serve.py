@@ -19,8 +19,9 @@ from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
-from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Domain, Feature, ProjectRelationship
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
+from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
@@ -89,7 +90,6 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         ``subproject_slash`` is used to determine if the subproject URL has a slash,
         so that we can decide if we need to serve docs or add a /.
         """
-
         version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
@@ -139,20 +139,19 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             return spam_response
 
         # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
-        canonicalize_redirect_type = getattr(request, "canonicalize", None)
-        if canonicalize_redirect_type:
+        redirect_type = self._get_canonical_redirect_type(request)
+        if redirect_type:
+            # A canonical redirect can be cached, if we don't have information
+            # about the version, since the final URL will check for authz.
+            if not version and self._is_cache_enabled(final_project):
+                self.cache_request = True
             try:
-                # A canonical redirect can be cached, if we don't have information
-                # about the version, since the final URL will check for authz.
-                if not version and self._is_cache_enabled(final_project):
-                    self.cache_request = True
-
                 return self.canonical_redirect(
                     request=request,
                     final_project=final_project,
                     version_slug=version_slug,
                     filename=filename,
-                    redirect_type=canonicalize_redirect_type,
+                    redirect_type=redirect_type,
                     is_external_version=is_external,
                 )
             except InfiniteRedirectException:
@@ -242,6 +241,39 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             version=version,
             filename=filename,
         )
+
+    def _get_canonical_redirect_type(self, request):
+        """If the current request needs a redirect, return the type of redirect to perform."""
+        unresolved_domain = request.unresolved_domain
+        project = unresolved_domain.project
+        if unresolved_domain.is_from_custom_domain:
+            domain = unresolved_domain.domain
+            if domain.https and not request.is_secure():
+                # Redirect HTTP -> HTTPS (302) for this custom domain.
+                log.debug("Proxito CNAME HTTPS Redirect.", domain=domain.domain)
+                return RedirectType.http_to_https
+
+        if unresolved_domain.is_from_public_domain:
+            canonical_domain = (
+                Domain.objects.filter(project=project)
+                .filter(canonical=True, https=True)
+                .exists()
+            )
+            if canonical_domain:
+                log.debug(
+                    "Proxito Public Domain -> Canonical Domain Redirect.",
+                    project_slug=project.slug,
+                )
+                return RedirectType.to_canonical_domain
+
+        if ProjectRelationship.objects.filter(child=project).exists():
+            log.debug(
+                "Proxito Public Domain -> Subproject Main Domain Redirect.",
+                project_slug=project.slug,
+            )
+            return RedirectType.subproject_to_main_domain
+
+        return None
 
 
 class ServeDocs(SettingsOverrideObject):
