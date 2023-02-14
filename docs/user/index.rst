@@ -49,14 +49,14 @@ Read the Docs: Documentation Simplified
    :caption: Reference 📚
 
    /reference/features
+   /about/index
    /api/index
    /server-side-search/api
    /server-side-search/syntax
    /reference/environment-variables
    changelog
-   Developer Documentation 🔗 <https://dev.readthedocs.io>
-   /about/index
    /glossary
+   Developer Documentation 🔗 <https://dev.readthedocs.io>
 
 .. meta::
    :description lang=en: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.
