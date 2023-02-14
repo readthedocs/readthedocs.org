@@ -519,7 +519,7 @@ class GitHubService(Service):
         except CustomOAuth2Error as e:
             if e.error != "invalid_grant":
                 raise
-            log.info("Invalid GitHub grant for user.")
+            log.info("Invalid GitHub grant for user.", exc_info=True)
 
         return False
 

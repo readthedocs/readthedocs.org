@@ -605,6 +605,6 @@ class GitLabService(Service):
         except CustomOAuth2Error as e:
             if e.error != "invalid_grant":
                 raise
-            log.info("Invalid GitLab grant for user.")
+            log.info("Invalid GitLab grant for user.", exc_info=True)
 
         return False
