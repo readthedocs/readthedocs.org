@@ -178,10 +178,11 @@ class ProxitoMiddleware(MiddlewareMixin):
         See https://developers.cloudflare.com/cache/about/cdn-cache-control.
         """
         header = "CDN-Cache-Control"
+        unresolved_domain = request.unresolved_domain
         # Never trust projects resolving from the X-RTD-Slug header,
         # we don't want to cache their content on domains from other
         # projects, see GHSA-mp38-vprc-7hf5.
-        if hasattr(request, "rtdheader"):
+        if unresolved_domain and unresolved_domain.is_from_http_header:
             response.headers[header] = "private"
 
         if settings.ALLOW_PRIVATE_REPOS:
