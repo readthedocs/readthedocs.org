@@ -49,7 +49,7 @@ Hosting features
   but you can also customize it.
 
 
-⏩️ :doc:`/commerical/sharing`
+⏩️ :doc:`/commercial/sharing`
   It is possible to host private and password protected documentation on Read the Docs for Business.
 
 .. The TOC here will be refactored once we reorganize the files in docs/user/.
