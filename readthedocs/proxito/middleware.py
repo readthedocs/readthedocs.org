@@ -76,16 +76,7 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         unresolved_domain = request.unresolved_domain
         if unresolved_domain:
-            origin_to_description = {
-                OriginType.http_header: "rtdheader",
-                OriginType.custom_domain: "cname",
-                OriginType.public_domain: "subdomain",
-                OriginType.external_domain: "subdomain",
-            }
-            response["X-RTD-Project-Method"] = origin_to_description[
-                unresolved_domain.origin
-            ]
-
+            response["X-RTD-Project-Method"] = unresolved_domain.source.name
             if unresolved_domain.is_from_external_domain:
                 response["X-RTD-Version-Method"] = "domain"
             else:

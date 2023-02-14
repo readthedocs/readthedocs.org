@@ -83,19 +83,19 @@ class UnresolvedDomain:
 
     @property
     def is_from_custom_domain(self):
-        return self.origin == DomainSourceType.custom_domain
+        return self.source == DomainSourceType.custom_domain
 
     @property
     def is_from_public_domain(self):
-        return self.origin == DomainSourceType.public_domain
+        return self.source == DomainSourceType.public_domain
 
     @property
     def is_from_http_header(self):
-        return self.origin == DomainSourceType.http_header
+        return self.source == DomainSourceType.http_header
 
     @property
     def is_from_external_domain(self):
-        return self.origin == DomainSourceType.external_domain
+        return self.source == DomainSourceType.external_domain
 
 
 class Unresolver:

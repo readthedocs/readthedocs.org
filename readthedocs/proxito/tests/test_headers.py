@@ -23,7 +23,7 @@ class ProxitoHeaderTests(BaseDocServing):
         )
         self.assertEqual(r['Cache-Tag'], 'project')
         self.assertEqual(r['X-RTD-Project'], 'project')
-        self.assertEqual(r['X-RTD-Project-Method'], 'subdomain')
+        self.assertEqual(r['X-RTD-Project-Method'], 'public_domain')
         self.assertEqual(r['X-RTD-Domain'], 'project.dev.readthedocs.io')
         self.assertIsNone(r.get('X-RTD-Version'))
         self.assertIsNone(r.get('X-RTD-Path'))
@@ -34,7 +34,7 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r['Cache-Tag'], 'project,project:latest')
         self.assertEqual(r['X-RTD-Domain'], 'project.dev.readthedocs.io')
         self.assertEqual(r['X-RTD-Project'], 'project')
-        self.assertEqual(r['X-RTD-Project-Method'], 'subdomain')
+        self.assertEqual(r['X-RTD-Project-Method'], 'public_domain')
         self.assertEqual(r['X-RTD-Version'], 'latest')
         self.assertEqual(r['X-RTD-version-Method'], 'path')
         self.assertEqual(r['X-RTD-Path'], '/proxito/media/html/project/latest/index.html')
@@ -49,7 +49,7 @@ class ProxitoHeaderTests(BaseDocServing):
         # I think it's not accurate saying that it's `subdomain` the method
         # that we use to get the project slug here, since it was in fact the
         # URL's path but we don't have that feature built
-        self.assertEqual(r['X-RTD-Project-Method'], 'subdomain')
+        self.assertEqual(r['X-RTD-Project-Method'], 'public_domain')
 
         self.assertEqual(r['X-RTD-Version'], 'latest')
         self.assertEqual(r['X-RTD-version-Method'], 'path')
@@ -61,7 +61,7 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r['Cache-Tag'], 'project')
         self.assertEqual(r['X-RTD-Domain'], 'project.dev.readthedocs.io')
         self.assertEqual(r['X-RTD-Project'], 'project')
-        self.assertEqual(r['X-RTD-Project-Method'], 'subdomain')
+        self.assertEqual(r['X-RTD-Project-Method'], 'public_domain')
         self.assertEqual(r['X-RTD-version-Method'], 'path')
         self.assertIsNone(r.get('X-RTD-Version'))
         self.assertIsNone(r.get('X-RTD-Path'))
@@ -78,7 +78,7 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r['Cache-Tag'], 'project,project:latest')
         self.assertEqual(r['X-RTD-Domain'], self.domain.domain)
         self.assertEqual(r['X-RTD-Project'], self.project.slug)
-        self.assertEqual(r['X-RTD-Project-Method'], 'cname')
+        self.assertEqual(r['X-RTD-Project-Method'], 'custom_domain')
         self.assertEqual(r['X-RTD-Version'], 'latest')
         self.assertEqual(r['X-RTD-version-Method'], 'path')
         self.assertEqual(r['X-RTD-Path'], '/proxito/media/html/project/latest/index.html')
