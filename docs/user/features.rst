@@ -88,4 +88,4 @@ Our bootstrapped company is owned and controlled by the founders,
 and fully funded by our customers and advertisers.
 That allows us to focus 100% of our attention on building the best possible product for you.
 
-Learn more :doc:`/about`.
+Learn more :doc:`/about/index`.

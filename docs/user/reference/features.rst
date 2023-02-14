@@ -64,7 +64,6 @@ Hosting features
 
    ../features
    analytics
-   /feature-flags
    /server-side-search/index
    /automation-rules
    /user-defined-redirects
@@ -74,6 +73,17 @@ Hosting features
    /reference/robots
    /reference/sitemaps
    /security-log
+
+   /config-file/index
+   /integrations
+   /versions
+
+   /builds
+   /build-customization
+   /environment-variables
+   /flyout-menu
+   /canonical-urls
+   /feature-flags
    /commercial/organizations
    /commercial/privacy-level
    /commercial/sharing
