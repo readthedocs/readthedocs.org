@@ -42,13 +42,7 @@ Additional content
 -------------------------------
 
 If you want to dive more into more specific information and our policies,
-we've brought most of the most important ones below.   
-
-.. seealso::
-
-   `Our website <https://about.readthedocs.com>`__
-      Our primary website has general-purpose information about Read the Docs like pricing and feature overviews.
-
+we've brought most of the most important ones below.
 
 ⏩ :doc:`/commercial/index`
    Learn more about how our company provides paid solutions
@@ -73,3 +67,8 @@ we've brought most of the most important ones below.
 
 ⏩ :doc:`/support`
    Read this before asking for help: How to get support and where.
+
+.. seealso::
+
+   `Our website <https://about.readthedocs.com>`__
+      Our primary website has general-purpose information about Read the Docs like pricing and feature overviews.
