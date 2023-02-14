@@ -225,7 +225,8 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
                             # Stop at the next 'dd' node, which is the description
                             if iteration >= 5 or (next_node and next_node.tag == "dd"):
-                                iteration = 99  # stop the iteration
+                                break
+                            iteration += 1
 
                     elif 'citation' in node.parent.attributes.get('class'):
                         next_node = node.next.next
