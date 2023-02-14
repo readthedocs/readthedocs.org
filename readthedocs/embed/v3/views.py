@@ -218,14 +218,14 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                         # iterate through child and next nodes
                         traverse = node.traverse()
                         iteration = 0
-                        while iteration < 5 and iteration != "stop":
+                        while iteration < 5:
                             next_node = next(traverse, None)
                             # TODO: Do we need to support terms with missing descriptions?
                             # This will not produce correct results in this case.
 
                             # Stop at the next 'dd' node, which is the description
                             if iteration >= 5 or (next_node and next_node.tag == "dd"):
-                                iteration = "stop"
+                                iteration = 99  # stop the iteration
 
                     elif 'citation' in node.parent.attributes.get('class'):
                         next_node = node.next.next
