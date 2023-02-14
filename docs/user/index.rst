@@ -14,6 +14,18 @@ Read the Docs: Documentation Simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
+   :caption: How-to Guides
+
+   /guides/authors
+   /guides/administrators
+   /guides/developers
+   Troubleshooting </guides/troubleshooting/index>
+   /examples
+   /faq
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
    :caption: Explanation
 
    /choosing-a-site
@@ -30,18 +42,6 @@ Read the Docs: Documentation Simplified
    /subprojects
    /single_version
    /environment-variables
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: How-to Guides
-
-   /guides/authors
-   /guides/administrators
-   /guides/developers
-   Troubleshooting </guides/troubleshooting/index>
-   /examples
-   /faq
 
 .. toctree::
    :maxdepth: 2
