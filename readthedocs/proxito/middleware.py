@@ -22,7 +22,7 @@ from readthedocs.core.unresolver import (
     InvalidCustomDomainError,
     InvalidExternalDomainError,
     InvalidSubdomainError,
-    InvalidXRTDSlugHeader,
+    InvalidXRTDSlugHeaderError,
     SuspiciousHostnameError,
     unresolver,
 )
@@ -262,7 +262,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             return render(
                 request, "core/dns-404.html", context={"host": exc.domain}, status=404
             )
-        except InvalidXRTDSlugHeader:
+        except InvalidXRTDSlugHeaderError:
             raise SuspiciousOperation("Invalid X-RTD-Slug header.")
 
         self._set_request_attributes(request, unresolved_domain)

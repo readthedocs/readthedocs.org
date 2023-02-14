@@ -18,7 +18,7 @@ class UnresolverError(Exception):
     pass
 
 
-class InvalidXRTDSlugHeader(UnresolverError):
+class InvalidXRTDSlugHeaderError(UnresolverError):
 
     pass
 
@@ -455,7 +455,7 @@ class Unresolver:
                 "X-RTD-Header passed for project without it enabled.",
                 project_slug=header_project_slug,
             )
-            raise InvalidXRTDSlugHeader
+            raise InvalidXRTDSlugHeaderError
 
         return unresolver.unresolve_domain(host)
 
