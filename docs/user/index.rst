@@ -14,23 +14,22 @@ Read the Docs: Documentation Simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :glob:
    :caption: Explanation
 
-   /localization
    /choosing-a-site
-   /build-notifications
    /integrations
-   /custom-domains
-   /environment-variables
    /pull-requests
+   /science
+   /automatic-redirects
+   /guides/technical-docs-seo-guide
+   /localization
+   /build-notifications
+   /custom-domains
    /connected-accounts
    /downloadable-documentation
    /subprojects
    /single_version
-   /science
-   /automatic-redirects
-   /guides/technical-docs-seo-guide
+   /environment-variables
 
 .. toctree::
    :maxdepth: 2
@@ -48,7 +47,6 @@ Read the Docs: Documentation Simplified
    :maxdepth: 2
    :hidden:
    :caption: Reference
-   :glob:
 
    /reference/features
    /api/index
