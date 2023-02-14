@@ -77,7 +77,6 @@ Hosting features
    /config-file/index
    /integrations
    /versions
-   /hosting
 
    /builds
    /build-customization
