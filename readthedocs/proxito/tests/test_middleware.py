@@ -2,6 +2,7 @@
 from unittest import mock
 
 import pytest
+from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -9,7 +10,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import Domain, Project, ProjectRelationship
+from readthedocs.projects.models import Domain, Feature, Project, ProjectRelationship
 from readthedocs.proxito.middleware import ProxitoMiddleware
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
@@ -163,6 +164,9 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.assertEqual(request.unresolved_domain.project, self.pip)
 
     def test_request_header(self):
+        get(
+            Feature, feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER, projects=[self.pip]
+        )
         request = self.request(
             method='get', path=self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='pip'
         )
@@ -171,6 +175,9 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.assertEqual(request.unresolved_domain.project, self.pip)
 
     def test_request_header_uppercase(self):
+        get(
+            Feature, feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER, projects=[self.pip]
+        )
         request = self.request(
             method='get', path=self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='PIP'
         )
@@ -178,6 +185,16 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
         self.assertTrue(request.unresolved_domain.is_from_http_header)
         self.assertEqual(request.unresolved_domain.project, self.pip)
+
+    def test_request_header_not_allowed(self):
+        request = self.request(
+            method="get",
+            path=self.url,
+            HTTP_HOST="docs.example.com",
+            HTTP_X_RTD_SLUG="pip",
+        )
+        with pytest.raises(SuspiciousOperation):
+            self.run_middleware(request)
 
     def test_long_bad_subdomain(self):
         domain = 'www.pip.dev.readthedocs.io'

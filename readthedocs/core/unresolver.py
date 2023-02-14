@@ -9,12 +9,17 @@ from django.conf import settings
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.constants import pattern_opts
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain, Feature, Project
 
 log = structlog.get_logger(__name__)
 
 
 class UnresolverError(Exception):
+    pass
+
+
+class InvalidXRTDSlugHeaderError(UnresolverError):
+
     pass
 
 
@@ -443,10 +448,16 @@ class Unresolver:
         :param request: Request to extract the information from.
         :returns: A UnresolvedDomain object.
         """
+        host = self.get_domain_from_host(request.get_host())
+        log.bind(host=host)
+
         # Explicit Project slug being passed in.
         header_project_slug = request.headers.get("X-RTD-Slug", "").lower()
         if header_project_slug:
-            project = Project.objects.filter(slug=header_project_slug).first()
+            project = Project.objects.filter(
+                slug=header_project_slug,
+                feature__feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER,
+            ).first()
             if project:
                 log.info(
                     "Setting project based on X_RTD_SLUG header.",
@@ -456,8 +467,12 @@ class Unresolver:
                     source=DomainSourceType.http_header,
                     project=project,
                 )
+            log.warning(
+                "X-RTD-Header passed for project without it enabled.",
+                project_slug=header_project_slug,
+            )
+            raise InvalidXRTDSlugHeaderError
 
-        host = self.get_domain_from_host(request.get_host())
         return unresolver.unresolve_domain(host)
 
 
