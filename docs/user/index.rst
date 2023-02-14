@@ -128,7 +128,6 @@ and some of the core features of Read the Docs.
   :doc:`/custom-domains` |
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
-  :doc:`/hosting` |
   :doc:`/server-side-search/index` |
   :doc:`/analytics` |
   :doc:`/pull-requests` |
@@ -159,7 +158,6 @@ and some of the core features of Read the Docs.
    /config-file/index
    /integrations
    /versions
-   /hosting
 
    /builds
    /build-customization
