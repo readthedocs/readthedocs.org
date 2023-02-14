@@ -4,7 +4,7 @@ Read the Docs: Documentation Simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: Tutorials
+   :caption: Tutorials 🚀
 
    /tutorial/index
    /intro/getting-started-with-sphinx
@@ -14,7 +14,7 @@ Read the Docs: Documentation Simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: How-to Guides
+   :caption: How-to guides 🪄
 
    /guides/authors
    /guides/administrators
@@ -26,7 +26,7 @@ Read the Docs: Documentation Simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: Explanation
+   :caption: Explanation 💡
 
    /choosing-a-site
    /integrations
@@ -46,7 +46,7 @@ Read the Docs: Documentation Simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: Reference
+   :caption: Reference 📚
 
    /reference/features
    /api/index
