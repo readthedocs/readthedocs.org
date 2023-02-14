@@ -8,6 +8,7 @@ from allauth.socialaccount.models import SocialToken
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
+from oauthlib.oauth2.rfc6749.errors import CustomOAuth2Error
 from requests.exceptions import RequestException
 
 from readthedocs.api.v2.client import api
@@ -515,6 +516,10 @@ class GitHubService(Service):
         # Catch exceptions with request or deserializing JSON
         except (RequestException, ValueError):
             log.exception('GitHub commit status creation failed for project.')
+        except CustomOAuth2Error as e:
+            if e.error != "invalid_grant":
+                raise
+            log.info("Invalid GitHub grant for user.")
 
         return False
 
