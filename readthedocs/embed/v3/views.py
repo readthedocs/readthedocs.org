@@ -137,7 +137,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             return first_header.parent
 
     def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):
-        # pylint: disable=unused-argument
+        # pylint: disable=unused-argument disable=too-many-branches disable=too-many-nested-blocks
         if not page_content:
             return
 
@@ -214,18 +214,18 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                     # </dl>
 
                     parent_node = node.parent
-                    if 'glossary' in node.parent.attributes.get('class'):
-                        it = node.traverse()  # iterate through child and next nodes
-                        more = True
-                        while more:
-                            next_node = next(it, None)
-                            more = next_node is not None
-                            # TODO Do we need to support terms with missing descriptions?
-                            #  This will not produce correct results in this case.
+                    if "glossary" in node.parent.attributes.get("class"):
+                        # iterate through child and next nodes
+                        traverse = node.traverse()
+                        iteration = 0
+                        while iteration < 5 and iteration != "stop":
+                            next_node = next(traverse, None)
+                            # TODO: Do we need to support terms with missing descriptions?
+                            # This will not produce correct results in this case.
 
                             # Stop at the next 'dd' node, which is the description
-                            if more and next_node.tag == "dd":
-                                more = False
+                            if iteration >= 5 or (next_node and next_node.tag == "dd"):
+                                iteration = "stop"
 
                     elif 'citation' in node.parent.attributes.get('class'):
                         next_node = node.next.next
