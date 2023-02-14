@@ -75,7 +75,6 @@ Hosting features
    /security-log
 
    /config-file/index
-   /integrations
    /versions
 
    /builds
