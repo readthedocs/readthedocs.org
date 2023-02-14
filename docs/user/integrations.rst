@@ -6,7 +6,7 @@
        (Perhaps reuse this: https://about.readthedocs.com/images/homepage.png)
 
 
-Building documentation on every Git commit
+Integrations: building docs on each commit
 ==========================================
 
 Read the Docs is a *Continuous Documentation Deployment* platform for your software project.

@@ -24,7 +24,7 @@ Documentation and technical writing are broad fields.
 Their tools and practices have grown relevant to most scientific activities.
 This includes building publications, books, educational resources, interactive data science, resources for data journalism and full-scale websites for research projects and courses.
 
-Here's a brief overview of some :doc:`features <features>` that people in science and academic writing love about Read the Docs:
+Here's a brief overview of some :doc:`features </reference/features>` that people in science and academic writing love about Read the Docs:
 
 .. dropdown:: 🪄 Easy to use
     :open:

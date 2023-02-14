@@ -1,5 +1,5 @@
-Troubleshooting guides
-----------------------
+Guides for troubleshooting problems
+-----------------------------------
 
 In the following guides,
 you can learn how to fix common problems using Read the Docs.

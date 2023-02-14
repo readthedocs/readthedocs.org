@@ -10,6 +10,20 @@ Read the Docs: Documentation Simplified
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
    /intro/import-guide
+   /examples
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Explanation 💡
+
+   /choosing-a-site
+   /integrations
+   /builds
+   /downloadable-documentation
+   /environment-variables
+   /subprojects
+   /localization
 
 .. toctree::
    :maxdepth: 2
@@ -19,29 +33,7 @@ Read the Docs: Documentation Simplified
    /guides/authors
    /guides/administrators
    /guides/developers
-   Troubleshooting </guides/troubleshooting/index>
-   /examples
-   /faq
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Explanation 💡
-
-   /choosing-a-site
-   /integrations
-   /pull-requests
-   /science
-   /automatic-redirects
-   /guides/technical-docs-seo-guide
-   /localization
-   /build-notifications
-   /custom-domains
-   /connected-accounts
-   /downloadable-documentation
-   /subprojects
-   /single_version
-   /environment-variables
+   /guides/troubleshooting/index
 
 .. toctree::
    :maxdepth: 2
@@ -49,13 +41,14 @@ Read the Docs: Documentation Simplified
    :caption: Reference 📚
 
    /reference/features
-   /about/index
-   /api/index
-   /server-side-search/api
+   /config-file/index
+   /build-customization
    /server-side-search/syntax
-   /reference/environment-variables
-   changelog
+   /faq
    /glossary
+   /api/index
+   /changelog
+   /about/index
    Developer Documentation 🔗 <https://dev.readthedocs.io>
 
 .. meta::
@@ -94,7 +87,7 @@ Open Source and User Focused |:heartbeat:|
 
 .. _Read the docs: https://readthedocs.org/
 
-You can find out more about our all the :doc:`/features` in these pages.
+You can find out more about our all the :doc:`features </reference/features>` in these pages.
 
 First steps
 -----------
@@ -121,7 +114,6 @@ Learn more about configuring your automated documentation builds
 and some of the core features of Read the Docs.
 
 * **Overview of core features**:
-  :doc:`/features` |
   :doc:`/custom-domains` |
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
