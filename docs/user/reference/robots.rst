@@ -20,7 +20,7 @@ By default, the automatically created ``robots.txt``:
    but they aren't a guarantee that your pages will not be indexed.
    Search engines may choose to ignore your ``robots.txt`` file,
    and index your docs anyway.
-   
+
    If you require *private* documentation, please see :doc:`/commercial/sharing`.
 
 How it works
