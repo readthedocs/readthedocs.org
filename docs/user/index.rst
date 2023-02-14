@@ -1,6 +1,65 @@
 Read the Docs: Documentation Simplified
 =======================================
 
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Tutorials
+
+   /tutorial/index
+   /intro/getting-started-with-sphinx
+   /intro/getting-started-with-mkdocs
+   /intro/import-guide
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :glob:
+   :caption: Explanation
+
+   /localization
+   /choosing-a-site
+   /build-notifications
+   /integrations
+   /custom-domains
+   /environment-variables
+   /pull-requests
+   /connected-accounts
+   /downloadable-documentation
+   /subprojects
+   /single_version
+   /science
+   /automatic-redirects
+   /guides/technical-docs-seo-guide
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: How-to Guides
+
+   /guides/authors
+   /guides/administrators
+   /guides/developers
+   Troubleshooting </guides/troubleshooting/index>
+   /examples
+   /faq
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Reference
+   :glob:
+
+   /reference/features
+   /api/index
+   /server-side-search/api
+   /server-side-search/syntax
+   /reference/environment-variables
+   changelog
+   Developer Documentation 🔗 <https://dev.readthedocs.io>
+   /about/index
+   /glossary
+
 .. meta::
    :description lang=en: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.
 
@@ -56,69 +115,6 @@ to help you create fantastic documentation for your project.
 
 * **Importing your existing documentation**:
   :doc:`Import guide </intro/import-guide>`
-
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Tutorials
-
-   /tutorial/index
-   /intro/getting-started-with-sphinx
-   /intro/getting-started-with-mkdocs
-   /intro/import-guide
-
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :glob:
-   :caption: Explanation
-
-   /localization
-   /choosing-a-site
-   /build-notifications
-   /integrations
-   /custom-domains
-   /environment-variables
-   /pull-requests
-   /connected-accounts
-   /downloadable-documentation
-   /subprojects
-   /single_version
-   /science
-   /automatic-redirects
-   /guides/technical-docs-seo-guide
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: How-to Guides
-
-   /guides/authors
-   /guides/administrators
-   /guides/developers
-   Troubleshooting </guides/troubleshooting/index>
-   /examples
-   /faq
-
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Reference
-   :glob:
-
-   /reference/features
-   /api/index
-   /server-side-search/api
-   /server-side-search/syntax
-   /reference/environment-variables
-   changelog
-   Developer Documentation 🔗 <https://dev.readthedocs.io>
-   /about/index
-   /glossary
-
 
 Read the Docs feature overview
 ------------------------------
