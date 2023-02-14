@@ -179,7 +179,7 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
         regex = r"^\$READTHEDOCS_VIRTUALENV_PATH/bin/"
         command = re.sub(regex, "", command, count=1)
 
-        regex = r"^\$CONDA_ENVS_PATH/\\$CONDA_DEFAULT_ENV/bin/"
+        regex = r"^\$CONDA_ENVS_PATH/\$CONDA_DEFAULT_ENV/bin/"
         command = re.sub(regex, "", command, count=1)
         return command
 
