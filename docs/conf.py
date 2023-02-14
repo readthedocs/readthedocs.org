@@ -16,16 +16,6 @@ import sys
 
 from multiproject.utils import get_project
 
-sys.path.insert(0, os.path.abspath(".."))
-sys.path.append(os.path.dirname(__file__))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "readthedocs.settings.dev")
-
-# Load Django after sys.path and configuration setup
-# isort: split
-import django
-
-django.setup()
-
 sys.path.append(os.path.abspath("_ext"))
 extensions = [
     "multiproject",
@@ -34,8 +24,6 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinxcontrib.httpdomain",
     "sphinxcontrib.video",
-    "djangodocs",
-    "doc_extensions",
     "sphinx_tabs.tabs",
     "sphinx-prompt",
     "notfound.extension",
@@ -68,7 +56,7 @@ templates_path = ["_templates"]
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "9.3.1"
+version = "9.5.0"
 release = version
 exclude_patterns = ["_build", "shared"]
 default_role = "obj"

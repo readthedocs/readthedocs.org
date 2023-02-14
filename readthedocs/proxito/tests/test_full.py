@@ -819,8 +819,10 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         storage_exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/404.html'),
-                mock.call('html/project/latest/404.html'),
+                mock.call("html/project/fancy-version/404.html"),
+                mock.call("html/project/fancy-version/404/index.html"),
+                mock.call("html/project/latest/404.html"),
+                mock.call("html/project/latest/404/index.html"),
             ]
         )
 
@@ -848,8 +850,10 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         storage_exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/404.html'),
-                mock.call('html/project/latest/404.html'),
+                mock.call("html/project/fancy-version/404.html"),
+                mock.call("html/project/fancy-version/404/index.html"),
+                mock.call("html/project/latest/404.html"),
+                mock.call("html/project/latest/404/index.html"),
             ]
         )
 
@@ -908,10 +912,12 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         storage_exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/not-found/index.html'),
-                mock.call('html/project/fancy-version/not-found/README.html'),
-                mock.call('html/project/fancy-version/404.html'),
-                mock.call('html/project/latest/404.html')
+                mock.call("html/project/fancy-version/not-found/index.html"),
+                mock.call("html/project/fancy-version/not-found/README.html"),
+                mock.call("html/project/fancy-version/404.html"),
+                mock.call("html/project/fancy-version/404/index.html"),
+                mock.call("html/project/latest/404.html"),
+                mock.call("html/project/latest/404/index.html"),
             ]
         )
 
@@ -938,11 +944,12 @@ class TestAdditionalDocViews(BaseDocServing):
         )
         storage_exists.assert_has_calls(
             [
-                mock.call('html/project/fancy-version/not-found/index.html'),
-                mock.call('html/project/fancy-version/not-found/README.html'),
-                mock.call('html/project/fancy-version/404.html'),
-                mock.call('html/project/latest/404.html'),
-                mock.call('html/project/latest/404/index.html'),
+                mock.call("html/project/fancy-version/not-found/index.html"),
+                mock.call("html/project/fancy-version/not-found/README.html"),
+                mock.call("html/project/fancy-version/404.html"),
+                mock.call("html/project/fancy-version/404/index.html"),
+                mock.call("html/project/latest/404.html"),
+                mock.call("html/project/latest/404/index.html"),
             ]
         )
 
@@ -1449,6 +1456,21 @@ class TestCDNCache(BaseDocServing):
         self.assertEqual(resp['Location'], f'https://{self.domain.domain}/projects/subproject/en/latest/')
         self.assertEqual(resp.headers['CDN-Cache-Control'], 'public')
         self.assertEqual(resp.headers['Cache-Tag'], 'subproject,subproject:latest')
+
+    def test_cache_disable_on_rtd_header_resolved_project(self):
+        get(
+            Feature,
+            feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER,
+            projects=[self.project],
+        )
+        resp = self.client.get(
+            "/en/latest/index.html",
+            secure=True,
+            HTTP_HOST="docs.example.com",
+            HTTP_X_RTD_SLUG=self.project.slug,
+        )
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "private")
+        self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest")
 
     def test_cache_on_plan(self):
         self.organization = get(Organization)

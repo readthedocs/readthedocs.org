@@ -118,6 +118,16 @@ class AnalyticsPageViewsTests(TestCase):
         self.tomorrow = timezone.now() + timezone.timedelta(days=1)
         self.yesterday = timezone.now() - timezone.timedelta(days=1)
 
+    def test_invalid_uri(self):
+        assert PageView.objects.all().count() == 0
+        url = (
+            reverse("analytics_api")
+            + f"?project={self.project.slug}&version={self.version.slug}"
+            f"&absolute_uri=https://docs.example.com"
+        )
+        self.client.get(url, HTTP_HOST=self.host)
+        assert PageView.objects.all().count() == 0
+
     def test_increase_page_view_count(self):
         assert (
             PageView.objects.all().count() == 0

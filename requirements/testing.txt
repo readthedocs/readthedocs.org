@@ -16,6 +16,10 @@ asgiref==3.6.0
     # via
     #   -r requirements/pip.txt
     #   django
+async-timeout==4.0.2
+    # via
+    #   -r requirements/pip.txt
+    #   redis
 attrs==22.2.0
     # via pytest
 babel==2.11.0
@@ -26,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.59
+boto3==1.26.69
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.59
+botocore==1.29.69
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -71,7 +75,7 @@ click-repl==0.2.0
     #   celery
 coverage[toml]==7.1.0
     # via pytest-cov
-cryptography==39.0.0
+cryptography==39.0.1
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -95,18 +99,20 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==3.2.16
+django==3.2.17
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
     #   django-allauth
     #   django-annoying
+    #   django-cors-headers
     #   django-csp
     #   django-debug-toolbar
     #   django-extensions
     #   django-filter
     #   django-formtools
     #   django-polymorphic
+    #   django-redis
     #   django-storages
     #   django-structlog
     #   django-taggit
@@ -118,7 +124,7 @@ django-annoying==0.10.6
     # via -r requirements/pip.txt
 django-autoslug==1.9.8
     # via -r requirements/pip.txt
-django-cors-middleware==1.4.0
+django-cors-headers==3.13.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
@@ -128,7 +134,7 @@ django-debug-toolbar==3.8.1
     # via -r requirements/pip.txt
 django-dynamic-fixture==3.1.2
     # via -r requirements/testing.in
-django-elasticsearch-dsl==7.2.2
+django-elasticsearch-dsl==7.3
     # via -r requirements/pip.txt
 django-extensions==3.2.1
     # via -r requirements/pip.txt
@@ -142,11 +148,11 @@ django-ipware==4.0.2
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-django-kombu==0.9.4
-    # via -r requirements/pip.txt
 django-messages-extends==0.6.3
     # via -r requirements/pip.txt
 django-polymorphic==3.1.0
+    # via -r requirements/pip.txt
+django-redis==5.2.0
     # via -r requirements/pip.txt
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
@@ -176,7 +182,7 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.0
     # via -r requirements/pip.txt
-elasticsearch==7.17.8
+elasticsearch==7.17.9
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -241,7 +247,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.5
+orjson==3.8.6
     # via -r requirements/pip.txt
 packaging==23.0
     # via
@@ -250,7 +256,7 @@ packaging==23.0
     #   dparse
     #   pytest
     #   sphinx
-platformdirs==2.6.2
+platformdirs==3.0.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -309,8 +315,10 @@ pyyaml==5.4.1
     # via
     #   -r requirements/pip.txt
     #   yamale
-redis==3.5.3
-    # via -r requirements/pip.txt
+redis==4.5.1
+    # via
+    #   -r requirements/pip.txt
+    #   django-redis
 regex==2022.10.31
     # via -r requirements/pip.txt
 requests==2.28.2
@@ -369,7 +377,7 @@ sphinxcontrib-devhelp==1.0.2
     # via
     #   -r requirements/pip.txt
     #   sphinx
-sphinxcontrib-htmlhelp==2.0.0
+sphinxcontrib-htmlhelp==2.0.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
@@ -431,15 +439,18 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.17.1
+virtualenv==20.19.0
     # via -r requirements/pip.txt
 wcwidth==0.2.6
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.5.0
+websocket-client==1.5.1
     # via
     #   -r requirements/pip.txt
     #   docker
 yamale==2.2.0
     # via -r requirements/testing.in
+
+# The following packages are considered to be unsafe in a requirements file:
+# setuptools
