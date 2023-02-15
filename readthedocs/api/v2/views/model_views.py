@@ -284,7 +284,8 @@ class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
                     json_resp = build_commands_storage.open(storage_path).read()
                     data['commands'] = json.loads(json_resp)
 
-                    # Sanitize commands in the same way than when returning them using the serializer
+                    # Normalize commands in the same way than when returning
+                    # them using the serializer
                     for buildcommand in data["commands"]:
                         buildcommand["command"] = normalize_build_command(
                             buildcommand["command"],
