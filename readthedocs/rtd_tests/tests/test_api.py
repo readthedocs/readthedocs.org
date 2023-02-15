@@ -484,8 +484,20 @@ class APIBuildTests(TestCase):
             '/api/v2/command/',
             {
                 "build": build["id"],
-                "command": "echo test",
-                "description": "foo",
+                "command": "$CONDA_ENVS_PATH/$CONDA_DEFAULT_ENV/bin/python -m sphinx",
+                "description": "Conda and Sphinx command",
+                "exit_code": 0,
+                "start_time": start_time,
+                "end_time": end_time,
+            },
+            format="json",
+        )
+        resp = client.post(
+            "/api/v2/command/",
+            {
+                "build": build["id"],
+                "command": "$READTHEDOCS_VIRTUALENV_PATH/bin/python -m sphinx",
+                "description": "Python and Sphinx command",
                 "exit_code": 0,
                 "start_time": start_time,
                 "end_time": end_time,
@@ -496,16 +508,23 @@ class APIBuildTests(TestCase):
         resp = client.get('/api/v2/build/%s/' % build['id'])
         self.assertEqual(resp.status_code, 200)
         build = resp.data
-        self.assertEqual(len(build["commands"]), 1)
-        self.assertEqual(build["commands"][0]["command"], "echo test")
+        self.assertEqual(len(build["commands"]), 2)
+        self.assertEqual(build["commands"][0]["command"], "python -m sphinx")
         self.assertEqual(build["commands"][0]["run_time"], 5)
-        self.assertEqual(build["commands"][0]["description"], "foo")
+        self.assertEqual(
+            build["commands"][0]["description"], "Conda and Sphinx command"
+        )
         self.assertEqual(build["commands"][0]["exit_code"], 0)
         self.assertEqual(
             dateutil.parser.parse(build["commands"][0]["start_time"]), start_time
         )
         self.assertEqual(
             dateutil.parser.parse(build["commands"][0]["end_time"]), end_time
+        )
+
+        self.assertEqual(build["commands"][1]["command"], "python -m sphinx")
+        self.assertEqual(
+            build["commands"][1]["description"], "Python and Sphinx command"
         )
 
     def test_get_raw_log_success(self):

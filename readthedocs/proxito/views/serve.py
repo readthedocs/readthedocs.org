@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 import structlog
 from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.urls import resolve as url_resolve
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -25,7 +25,6 @@ from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
-from .decorators import map_project_slug
 from .mixins import (
     InvalidPathError,
     ServeDocsMixin,
@@ -38,38 +37,38 @@ log = structlog.get_logger(__name__)  # noqa
 
 
 class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
+    def get(self, request, subproject_slug=None, filename=""):
 
-    def get(self,
-            request,
-            project_slug=None,
-            subproject_slug=None,
-            version_slug=None,
-            filename='',
-    ):  # noqa
+        unresolved_domain = request.unresolved_domain
+        project = unresolved_domain.project
 
-        version_slug = self.get_version_from_host(request, version_slug)
-        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
-            request,
-            project_slug=project_slug,
-            subproject_slug=subproject_slug,
-            lang_slug=None,
-            version_slug=version_slug,
-            filename=filename,
-        )
+        # Use the project from the domain, or use the subproject slug.
+        if subproject_slug:
+            project = get_object_or_404(
+                project.subprojects, alias=subproject_slug
+            ).child
 
-        if self._is_cache_enabled(final_project):
+        # Get the default version from the current project,
+        # or the version from the external domain.
+        if unresolved_domain.is_from_external_domain:
+            version_slug = unresolved_domain.external_version_slug
+        else:
+            version_slug = project.get_default_version()
+
+        if self._is_cache_enabled(project):
             # All requests from this view can be cached.
             # This is since the final URL will check for authz.
             self.cache_request = True
 
-        is_external = request.unresolved_domain.is_from_external_domain
+        # TODO: find a better way to pass this to the middleware.
+        request.path_project_slug = project.slug
 
         return self.system_redirect(
             request=request,
-            final_project=final_project,
+            final_project=project,
             version_slug=version_slug,
             filename=filename,
-            is_external_version=is_external,
+            is_external_version=unresolved_domain.is_from_external_domain,
         )
 
 
@@ -469,16 +468,15 @@ class ServeError404(SettingsOverrideObject):
 
 class ServeRobotsTXTBase(ServeDocsMixin, View):
 
-    @method_decorator(map_project_slug)
     @method_decorator(cache_page(60 * 60))  # 1 hour
-    def get(self, request, project):
+    def get(self, request):
         """
         Serve custom user's defined ``/robots.txt``.
 
         If the user added a ``robots.txt`` in the "default version" of the
         project, we serve it directly.
         """
-
+        project = request.unresolved_domain.project
         # Verify if the project is marked as spam and return a custom robots.txt
         if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
@@ -559,9 +557,8 @@ class ServeRobotsTXT(SettingsOverrideObject):
 
 class ServeSitemapXMLBase(View):
 
-    @method_decorator(map_project_slug)
     @method_decorator(cache_page(60 * 60 * 12))  # 12 hours
-    def get(self, request, project):
+    def get(self, request):
         """
         Generate and serve a ``sitemap.xml`` for a particular ``project``.
 
@@ -619,6 +616,7 @@ class ServeSitemapXMLBase(View):
             changefreqs = ['weekly', 'daily']
             yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
 
+        project = request.unresolved_domain.project
         public_versions = Version.internal.public(
             project=project,
             only_active=True,
@@ -705,12 +703,7 @@ class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
 
     project_cache_tag = "rtd-staticfiles"
 
-    @method_decorator(map_project_slug)
-    def get(self, request, filename, project):
-        # This is needed for the _get_project
-        # method for the CDNCacheTagsMixin class.
-        self.project = project
-
+    def get(self, request, filename):
         try:
             return self._serve_static_file(request=request, filename=filename)
         except InvalidPathError:
@@ -732,7 +725,8 @@ class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
         return tags
 
     def _get_project(self):
-        return getattr(self, "project", None)
+        # Method used by the CDNCacheTagsMixin class.
+        return self.request.unresolved_domain.project
 
     def _get_version(self):
         # This view isn't attached to a version.

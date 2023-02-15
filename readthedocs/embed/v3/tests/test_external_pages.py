@@ -260,9 +260,9 @@ class TestEmbedAPIv3ExternalPages:
             classes = "glossary simple"
 
         if sphinx.version_info >= (3, 5, 0):
-            content = f'<dl class="{classes}">\n<dt id="{fragment}">Read the Docs<a class="headerlink" href="https://docs.project.com/glossary.html#{fragment}" title="Permalink to this term">¶</a></dt><dd><p>Best company ever.</p>\n</dd>\n</dl>'
+            content = f'<dl class="{classes}">\n\n<dt id="{fragment}">Read the Docs<a class="headerlink" href="https://docs.project.com/glossary.html#{fragment}" title="Permalink to this term">¶</a></dt><dd><p>Best company ever.</p>\n</dd>\n</dl>'
         else:
-            content = f'<dl class="{classes}">\n<dt id="{fragment}">Read the Docs</dt><dd><p>Best company ever.</p>\n</dd>\n</dl>'
+            content = f'<dl class="{classes}">\n\n<dt id="{fragment}">Read the Docs</dt><dd><p>Best company ever.</p>\n</dd>\n</dl>'
 
         assert response.json() == {
             'url': url,

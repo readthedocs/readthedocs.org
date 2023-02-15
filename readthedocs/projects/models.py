@@ -951,7 +951,7 @@ class Project(models.Model):
 
     @property
     def git_provider_name(self):
-        """Get the provider name for project. e.g: GitHub, GitLab, BitBucket."""
+        """Get the provider name for project. e.g: GitHub, GitLab, Bitbucket."""
         service = self.git_service_class()
         if service:
             provider = allauth_registry.by_id(service.adapter.provider_id)
