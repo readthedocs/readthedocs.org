@@ -19,7 +19,7 @@ from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
-from readthedocs.projects.models import Domain, Feature, ProjectRelationship
+from readthedocs.projects.models import Domain, Feature
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
@@ -266,7 +266,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 )
                 return RedirectType.to_canonical_domain
 
-        if ProjectRelationship.objects.filter(child=project).exists():
+        if project.is_subproject:
             log.debug(
                 "Proxito Public Domain -> Subproject Main Domain Redirect.",
                 project_slug=project.slug,
