@@ -64,7 +64,7 @@ Feature reference
 
 .. toctree::
    :maxdepth: 1
-   :caption: Hosting features
+   :hidden:
 
    /custom-domains
    /versions
@@ -78,12 +78,16 @@ Feature reference
    /reference/404-not-found
    /reference/robots
 
+.. Move these to the above TOC once they're in the fancy list above
+
+.. toctree::
+   :maxdepth: 1
+
    /server-side-search/index
    /automation-rules
    /badges
    /security-log
    /single_version
-
    /reference/environment-variables
    /flyout-menu
    /canonical-urls

@@ -1,18 +1,6 @@
 About Read the Docs
 ===================
 
-.. toctree::
-   :hidden:
-
-   /commercial/index
-   /reference/policies
-   /advertising/index
-   /story
-   /sponsors
-   /open-source-philosophy
-   /team
-   /support
-
 Read the Docs is a C Corporation registered in Oregon.
 Our bootstrapped company is owned and fully controlled by the founders,
 and fully funded by our customers and advertisers.
@@ -37,9 +25,6 @@ This allows us to give back to the communities and projects that we support and 
 
 We are proud about the way we manage our company and products,
 and are glad to have you on board with us in this :doc:`great documentation journey </story>`.
-
-Additional content
--------------------------------
 
 If you want to dive more into more specific information and our policies,
 we've brought most of the most important ones below.
@@ -68,7 +53,23 @@ we've brought most of the most important ones below.
 ⏩ :doc:`/support`
    Read this before asking for help: How to get support and where.
 
+⏩ :doc:`/glossary`
+   A useful index of terms used in our docs.
+
 .. seealso::
 
    `Our website <https://about.readthedocs.com>`__
       Our primary website has general-purpose information about Read the Docs like pricing and feature overviews.
+
+.. toctree::
+   :hidden:
+
+   /commercial/index
+   /reference/policies
+   /advertising/index
+   /story
+   /sponsors
+   /open-source-philosophy
+   /team
+   /support
+   /glossary

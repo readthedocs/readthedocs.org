@@ -45,7 +45,6 @@ Read the Docs: Documentation Simplified
    /build-customization
    /server-side-search/syntax
    /faq
-   /glossary
    /api/index
    /changelog
    /about/index
