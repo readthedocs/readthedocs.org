@@ -15,7 +15,7 @@ Feature reference
   integrated nicely into the URL of your documentation.
   This is served at ``/en/latest/`` by default.
   If you only have 1 version and translation,
-  we also support :doc:`single version projects </single_version>` served at ``/``.
+  we also support :doc:`single version projects </single-version>` served at ``/``.
 
 ⏩️ :doc:`/pull-requests`
   Your project can be configured to build and host documentation for every new pull request.
@@ -100,4 +100,4 @@ Feature reference
    /reference/environment-variables
    /security-log
    /server-side-search/index
-   /single_version
+   /single-version

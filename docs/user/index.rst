@@ -183,7 +183,7 @@ out of your documentation and Read the Docs.
 
 * **Advanced project configuration**:
   :doc:`subprojects` |
-  :doc:`Single version docs <single_version>` |
+  :doc:`Single version docs <single-version>` |
   :doc:`flyout-menu` |
   :doc:`feature-flags`
 
