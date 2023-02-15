@@ -333,7 +333,7 @@ class ServeRedirectMixin:
         final_project,
         version_slug,
         filename,
-        redirect_type=None,
+        redirect_type,
         is_external_version=False,
     ):
         """
