@@ -262,7 +262,7 @@ def run_automation_rules(project, added_versions, deleted_active_versions):
             rule.run(version)
 
 
-def sanitize_build_command(command, project_slug, version_slug):
+def normalize_build_command(command, project_slug, version_slug):
     """
     Sanitize the build command to be shown to users.
 

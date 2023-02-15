@@ -13,7 +13,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.api.v2.utils import sanitize_build_command
+from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
@@ -286,7 +286,7 @@ class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
 
                     # Sanitize commands in the same way than when returning them using the serializer
                     for buildcommand in data["commands"]:
-                        buildcommand["command"] = sanitize_build_command(
+                        buildcommand["command"] = normalize_build_command(
                             buildcommand["command"],
                             instance.project.slug,
                             instance.version.slug,

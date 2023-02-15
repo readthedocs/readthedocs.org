@@ -4,7 +4,7 @@
 from allauth.socialaccount.models import SocialAccount
 from rest_framework import serializers
 
-from readthedocs.api.v2.utils import sanitize_build_command
+from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, Project
@@ -156,7 +156,7 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
     command = serializers.SerializerMethodField()
 
     def get_command(self, obj):
-        return sanitize_build_command(
+        return normalize_build_command(
             obj.command, obj.build.project.slug, obj.build.version.slug
         )
 
