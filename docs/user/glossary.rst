@@ -7,8 +7,11 @@ so that you have a reference for how we're using them.
 .. glossary::
 
    dashboard
-      `Main page <https://readthedocs.org/dashboard>`_ where you can see all your projects with their build status
-      and import a new project.
+      The "admin" site where Read the Docs projects are managed and configured.
+      This varies for our two properties:
+
+       * |com_brand|: https://readthedocs.com/dashboard/.
+       * |org_brand|: https://readthedocs.org/dashboard/.
 
    default version
       Projects have a *default version*, usually the latest stable version of a project.
