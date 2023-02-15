@@ -17,7 +17,7 @@ Here is some of the fine print used by |org_brand| and |com_brand|:
    /legal/security-policy
    /security
    /terms-of-service
-   DMCA takedown policy </dmca/index>
+   /dmca/index
    /legal/dpa/index
 
 :doc:`/abandoned-projects`

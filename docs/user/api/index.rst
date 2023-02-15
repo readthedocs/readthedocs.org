@@ -12,3 +12,4 @@ from Read the Docs.
 
    v3
    v2
+   /server-side-search/api

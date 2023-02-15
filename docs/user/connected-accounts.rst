@@ -1,5 +1,5 @@
-Connecting your Git repository
-==============================
+How to connect your Git repository
+==================================
 
 In this article, we explain how connecting your Read the Docs account to one of the supported Git providers
 automatically configures your Git repository and your Read the Docs project.
