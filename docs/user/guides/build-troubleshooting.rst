@@ -1,7 +1,7 @@
 Troubleshooting build errors
 ============================
 
-.. include:: /shared/contribute_to_troubleshooting.rst
+.. include:: /shared/contribute-to-troubleshooting.rst
 
 
 Git errors

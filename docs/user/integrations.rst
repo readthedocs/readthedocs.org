@@ -6,8 +6,8 @@
        (Perhaps reuse this: https://about.readthedocs.com/images/homepage.png)
 
 
-Integrations: building docs on each commit
-==========================================
+Continuous Documentation Deployment
+===================================
 
 Read the Docs is a *Continuous Documentation Deployment* platform for your software project.
 Every time you change something in your documentation, Read the Docs will detect your change and build your documentation.

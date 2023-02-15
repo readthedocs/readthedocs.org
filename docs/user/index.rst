@@ -19,7 +19,6 @@ Read the Docs: Documentation Simplified
 
    /choosing-a-site
    /integrations
-   /builds
    /downloadable-documentation
    /environment-variables
    /subprojects
@@ -42,6 +41,7 @@ Read the Docs: Documentation Simplified
 
    /reference/features
    /config-file/index
+   /builds
    /build-customization
    /server-side-search/syntax
    /faq

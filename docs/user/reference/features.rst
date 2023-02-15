@@ -64,7 +64,7 @@ Feature reference
 
 .. toctree::
    :maxdepth: 1
-   :hidden:
+   :caption: Hosting Features
 
    /custom-domains
    /versions
@@ -82,16 +82,22 @@ Feature reference
 
 .. toctree::
    :maxdepth: 1
+   :caption: Business features
 
-   /server-side-search/index
-   /automation-rules
-   /badges
-   /security-log
-   /single_version
-   /reference/environment-variables
-   /flyout-menu
-   /canonical-urls
-   /feature-flags
    /commercial/organizations
    /commercial/privacy-level
    /commercial/single-sign-on
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Additional features
+
+   /automation-rules
+   /badges
+   /canonical-urls
+   /feature-flags
+   /flyout-menu
+   /reference/environment-variables
+   /security-log
+   /server-side-search/index
+   /single_version
