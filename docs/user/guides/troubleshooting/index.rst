@@ -10,5 +10,5 @@ you can learn how to fix common problems using Read the Docs.
 .. toctree::
    :maxdepth: 1
 
-   Build errors <../build-troubleshooting>
-   Slow builds <../build-using-too-many-resources>
+   ../build-troubleshooting
+   ../build-using-too-many-resources

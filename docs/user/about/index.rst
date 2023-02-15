@@ -54,7 +54,7 @@ we've brought most of the most important ones below.
    Read this before asking for help: How to get support and where.
 
 ⏩ :doc:`/glossary`
-   A useful index of terms used in our docs.
+   A useful index of terms used in our docs
 
 .. seealso::
 
