@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring
 
 import os
+import re
 import subprocess
 import socket
 
@@ -9,6 +10,7 @@ import structlog
 from celery.schedules import crontab
 
 from readthedocs.core.logs import shared_processors
+from corsheaders.defaults import default_headers
 from readthedocs.core.settings import Settings
 
 
@@ -277,6 +279,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.core.middleware.NullCharactersMiddleware',
             'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
             'django.middleware.locale.LocaleMiddleware',
+            'corsheaders.middleware.CorsMiddleware',
             'django.middleware.common.CommonMiddleware',
             'django.middleware.security.SecurityMiddleware',
             'django.middleware.csrf.CsrfViewMiddleware',
@@ -284,7 +287,6 @@ class CommunityBaseSettings(Settings):
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'django.contrib.messages.middleware.MessageMiddleware',
             'dj_pagination.middleware.PaginationMiddleware',
-            'corsheaders.middleware.CorsMiddleware',
             'csp.middleware.CSPMiddleware',
             'readthedocs.core.middleware.ReferrerPolicyMiddleware',
             'simple_history.middleware.HistoryRequestMiddleware',
@@ -503,7 +505,12 @@ class CommunityBaseSettings(Settings):
             'task': 'readthedocs.domains.tasks.email_pending_custom_domains',
             'schedule': crontab(minute=0, hour=3),
             'options': {'queue': 'web'},
-        }
+        },
+        'every-15m-delete-pidbox-objects': {
+            'task': 'readthedocs.core.tasks.cleanup_pidbox_keys',
+            'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
     }
 
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
@@ -734,15 +741,17 @@ class CommunityBaseSettings(Settings):
     # users to CSRF attacks. The sustainability API is the only view that requires
     # cookies to be send cross-site, we override that for that view only.
     CORS_ALLOW_CREDENTIALS = False
-    CORS_ALLOW_HEADERS = (
-        'x-requested-with',
-        'content-type',
-        'accept',
-        'origin',
-        'authorization',
+
+    # Allow cross-site requests from any origin,
+    # all information from our allowed endpoits is public.
+    # 
+    # NOTE: We don't use `CORS_ALLOW_ALL_ORIGINS=True`,
+    # since that will set the `Access-Control-Allow-Origin` header to `*`,
+    # we won't be able to pass credentials fo the sustainability API with that value.
+    CORS_ALLOWED_ORIGIN_REGEXES = [re.compile(".+")]
+    CORS_ALLOW_HEADERS = list(default_headers) + [
         'x-hoverxref-version',
-        'x-csrftoken'
-    )
+    ]
     # Additional protection to allow only idempotent methods.
     CORS_ALLOW_METHODS = [
         'GET',
@@ -751,14 +760,19 @@ class CommunityBaseSettings(Settings):
     ]
 
     # URLs to allow CORS to read from unauthed.
-    CORS_URLS_ALLOW_ALL_REGEX = [
-        r"^/api/v2/footer_html",
-        r"^/api/v2/search",
-        r"^/api/v2/docsearch",
-        r"^/api/v2/embed",
-        r"^/api/v3/embed",
-        r"^/api/v2/sustainability",
-    ]
+    CORS_URLS_REGEX = re.compile(
+        r"""
+        ^(
+            /api/v2/footer_html
+            |/api/v2/search
+            |/api/v2/docsearch
+            |/api/v2/embed
+            |/api/v3/embed
+            |/api/v2/sustainability
+        )
+        """,
+        re.VERBOSE,
+    )
 
     # RTD Settings
     ALLOW_PRIVATE_REPOS = False

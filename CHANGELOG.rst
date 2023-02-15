@@ -1,3 +1,35 @@
+Version 9.5.0
+-------------
+
+:Date: February 13, 2023
+
+* `@agjohnson <https://github.com/agjohnson>`__: Bump to latest common (`#10019 <https://github.com/readthedocs/readthedocs.org/pull/10019>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10014 <https://github.com/readthedocs/readthedocs.org/pull/10014>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Very small text update (`#10012 <https://github.com/readthedocs/readthedocs.org/pull/10012>`__)
+* `@sondalex <https://github.com/sondalex>`__: Fix code block indentation in Jupyter user guide (`#10008 <https://github.com/readthedocs/readthedocs.org/pull/10008>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Refactor all business features into feature reference + change "privacy level" page (Diátaxis) (`#10007 <https://github.com/readthedocs/readthedocs.org/pull/10007>`__)
+* `@humitos <https://github.com/humitos>`__: Redis: use `django-redis` and add password (`#10005 <https://github.com/readthedocs/readthedocs.org/pull/10005>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel SEO guide as explanation (Diátaxis) (`#10004 <https://github.com/readthedocs/readthedocs.org/pull/10004>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: cleanup `pidbox` keys (`#10002 <https://github.com/readthedocs/readthedocs.org/pull/10002>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use new maintained django-cors-headers package (`#10000 <https://github.com/readthedocs/readthedocs.org/pull/10000>`__)
+* `@stsewd <https://github.com/stsewd>`__: Document about cross-site request (`#9999 <https://github.com/readthedocs/readthedocs.org/pull/9999>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics API: catch unresolver exceptions (`#9998 <https://github.com/readthedocs/readthedocs.org/pull/9998>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: remove `django-kombu` (`#9996 <https://github.com/readthedocs/readthedocs.org/pull/9996>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.4.0 (`#9994 <https://github.com/readthedocs/readthedocs.org/pull/9994>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix ordering of filter for most recently built project (`#9992 <https://github.com/readthedocs/readthedocs.org/pull/9992>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Refactor security logs as reference (Diátaxis) (`#9985 <https://github.com/readthedocs/readthedocs.org/pull/9985>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: always check `404/index.hmtml` (`#9983 <https://github.com/readthedocs/readthedocs.org/pull/9983>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: save one queryset (`#9980 <https://github.com/readthedocs/readthedocs.org/pull/9980>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: simplify all the settings removing a whole old layer (`dev`) (`#9978 <https://github.com/readthedocs/readthedocs.org/pull/9978>`__)
+* `@humitos <https://github.com/humitos>`__: Build: expose `READTHEDOCS_VIRTUALENV_PATH` variable (`#9971 <https://github.com/readthedocs/readthedocs.org/pull/9971>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove `pdflatex` support (`#9967 <https://github.com/readthedocs/readthedocs.org/pull/9967>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Refactor "Environment variables" into 3 articles (Diátaxis) (`#9966 <https://github.com/readthedocs/readthedocs.org/pull/9966>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Split "Automation rules" into reference and how-to (Diátaxis) (`#9953 <https://github.com/readthedocs/readthedocs.org/pull/9953>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test new readthedocs-sphinx-search release (`#9934 <https://github.com/readthedocs/readthedocs.org/pull/9934>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: use getattr for getting related organization (`#9932 <https://github.com/readthedocs/readthedocs.org/pull/9932>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Allow searching & filtering VersionAutomationRuleAdmin (`#9917 <https://github.com/readthedocs/readthedocs.org/pull/9917>`__)
+* `@humitos <https://github.com/humitos>`__: Build: use environment variable `$READTHEDOCS_OUTPUT` to define output directory (`#9913 <https://github.com/readthedocs/readthedocs.org/pull/9913>`__)
+
 Version 9.4.0
 -------------
 

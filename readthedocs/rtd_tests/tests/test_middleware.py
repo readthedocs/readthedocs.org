@@ -1,7 +1,6 @@
 from corsheaders.middleware import (
     ACCESS_CONTROL_ALLOW_CREDENTIALS,
     ACCESS_CONTROL_ALLOW_ORIGIN,
-    CorsMiddleware,
 )
 from django.conf import settings
 from django.http import HttpResponse
@@ -25,8 +24,6 @@ from readthedocs.rtd_tests.utils import create_user
 class TestCORSMiddleware(TestCase):
 
     def setUp(self):
-        self.factory = RequestFactory()
-        self.middleware = CorsMiddleware()
         self.url = '/api/v2/search'
         self.owner = create_user(username='owner', password='test')
         self.project = get(
@@ -69,66 +66,60 @@ class TestCORSMiddleware(TestCase):
         )
 
     def test_allow_linked_domain_from_public_version(self):
-        request = self.factory.get(
+        resp = self.client.get(
             self.url,
             {'project': self.project.slug, 'version': self.version.slug},
             HTTP_ORIGIN='http://my.valid.domain',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
     def test_linked_domain_from_private_version(self):
         self.version.privacy_level = PRIVATE
         self.version.save()
-        request = self.factory.get(
+        resp = self.client.get(
             self.url,
             {'project': self.project.slug, 'version': self.version.slug},
             HTTP_ORIGIN='http://my.valid.domain',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
     def test_allowed_api_public_version_from_another_domain(self):
-        request = self.factory.get(
+        resp = self.client.get(
             self.url,
             {'project': self.project.slug, 'version': self.version.slug},
             HTTP_ORIGIN='http://docs.another.domain',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
-        request = self.factory.get(
+        resp = self.client.get(
             self.url,
             {'project': self.project.slug, 'version': self.version.slug},
             HTTP_ORIGIN='http://another.valid.domain',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
     def test_api_private_version_from_another_domain(self):
         self.version.privacy_level = PRIVATE
         self.version.save()
-        request = self.factory.get(
+        resp = self.client.get(
             self.url,
             {'project': self.project.slug, 'version': self.version.slug},
             HTTP_ORIGIN='http://docs.another.domain',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
-        request = self.factory.get(
+        resp = self.client.get(
             self.url,
             {'project': self.project.slug, 'version': self.version.slug},
             HTTP_ORIGIN='http://another.valid.domain',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
     def test_valid_subproject(self):
         self.assertTrue(
@@ -137,102 +128,92 @@ class TestCORSMiddleware(TestCase):
                 subprojects__child=self.subproject,
             ).exists(),
         )
-        request = self.factory.get(
+        resp = self.client.get(
             self.url,
             {'project': self.project.slug, 'version': self.version.slug},
             HTTP_ORIGIN='http://my.valid.domain',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
     def test_embed_api_private_version_linked_domain(self):
         self.version.privacy_level = PRIVATE
         self.version.save()
-        request = self.factory.get(
+        resp = self.client.get(
             '/api/v2/embed/',
             {'project': self.project.slug, 'version': self.version.slug},
             HTTP_ORIGIN='http://my.valid.domain',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
     def test_embed_api_external_url(self):
-        request = self.factory.get(
+        resp = self.client.get(
             "/api/v2/embed/",
             {"url": "https://pip.readthedocs.io/en/latest/index.hml"},
             HTTP_ORIGIN="http://my.valid.domain",
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertIn("Access-Control-Allow-Origin", resp)
+        self.assertIn("Access-Control-Allow-Origin", resp.headers)
 
-        request = self.factory.get(
+        resp = self.client.get(
             "/api/v2/embed/",
             {"url": "https://docs.example.com/en/latest/index.hml"},
             HTTP_ORIGIN="http://my.valid.domain",
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertIn("Access-Control-Allow-Origin", resp)
+        self.assertIn("Access-Control-Allow-Origin", resp.headers)
 
     def test_sustainability_endpoint_allways_allowed(self):
-        request = self.factory.get(
+        resp = self.client.get(
             '/api/v2/sustainability/',
             {'project': self.project.slug, 'active': True, 'version': self.version.slug},
             HTTP_ORIGIN='http://invalid.domain',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
-        request = self.factory.get(
+        resp = self.client.get(
             '/api/v2/sustainability/',
             {'project': self.project.slug, 'active': True, 'version': self.version.slug},
             HTTP_ORIGIN='http://my.valid.domain',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
     def test_apiv2_endpoint_not_allowed(self):
-        request = self.factory.get(
+        resp = self.client.get(
             '/api/v2/version/',
             {'project': self.project.slug, 'active': True, 'version': self.version.slug},
             HTTP_ORIGIN='http://invalid.domain',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
         # This also doesn't work on registered domains.
-        request = self.factory.get(
+        resp = self.client.get(
             '/api/v2/version/',
             {'project': self.project.slug, 'active': True, 'version': self.version.slug},
             HTTP_ORIGIN='http://my.valid.domain',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
         # Or from our public domain.
-        request = self.factory.get(
+        resp = self.client.get(
             '/api/v2/version/',
             {'project': self.project.slug, 'active': True, 'version': self.version.slug},
             HTTP_ORIGIN='http://docs.readthedocs.io/',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
         # POST is not allowed
-        request = self.factory.post(
+        resp = self.client.post(
             '/api/v2/version/',
             {'project': self.project.slug, 'active': True, 'version': self.version.slug},
             HTTP_ORIGIN='http://my.valid.domain',
         )
-        resp = self.middleware.process_response(request, {})
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
 
 class TestSessionMiddleware(TestCase):
