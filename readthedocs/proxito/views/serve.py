@@ -24,7 +24,6 @@ from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
-from .decorators import map_project_slug
 from .mixins import (
     InvalidPathError,
     ServeDocsMixin,
@@ -437,16 +436,15 @@ class ServeError404(SettingsOverrideObject):
 
 class ServeRobotsTXTBase(ServeDocsMixin, View):
 
-    @method_decorator(map_project_slug)
     @method_decorator(cache_page(60 * 60))  # 1 hour
-    def get(self, request, project):
+    def get(self, request):
         """
         Serve custom user's defined ``/robots.txt``.
 
         If the user added a ``robots.txt`` in the "default version" of the
         project, we serve it directly.
         """
-
+        project = request.unresolved_domain.project
         # Verify if the project is marked as spam and return a custom robots.txt
         if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
@@ -527,9 +525,8 @@ class ServeRobotsTXT(SettingsOverrideObject):
 
 class ServeSitemapXMLBase(View):
 
-    @method_decorator(map_project_slug)
     @method_decorator(cache_page(60 * 60 * 12))  # 12 hours
-    def get(self, request, project):
+    def get(self, request):
         """
         Generate and serve a ``sitemap.xml`` for a particular ``project``.
 
@@ -587,6 +584,7 @@ class ServeSitemapXMLBase(View):
             changefreqs = ['weekly', 'daily']
             yield from itertools.chain(changefreqs, itertools.repeat('monthly'))
 
+        project = request.unresolved_domain.project
         public_versions = Version.internal.public(
             project=project,
             only_active=True,
@@ -673,12 +671,7 @@ class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
 
     project_cache_tag = "rtd-staticfiles"
 
-    @method_decorator(map_project_slug)
-    def get(self, request, filename, project):
-        # This is needed for the _get_project
-        # method for the CDNCacheTagsMixin class.
-        self.project = project
-
+    def get(self, request, filename):
         try:
             return self._serve_static_file(request=request, filename=filename)
         except InvalidPathError:
@@ -700,7 +693,8 @@ class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
         return tags
 
     def _get_project(self):
-        return getattr(self, "project", None)
+        # Method used by the CDNCacheTagsMixin class.
+        return self.request.unresolved_domain.project
 
     def _get_version(self):
         # This view isn't attached to a version.
