@@ -87,12 +87,12 @@ Read the Docs supports three different mechanisms to cancel a running build:
 
    Once a build was triggered,
    project administrators can go to the build detail page
-   and click :guilabel::`Cancel build`.
+   and click :guilabel:`Cancel build`.
 
 :Automatically:
 
    When Read the Docs detects a push to a version that is already building,
-   it cancels the running build and start a new build using the latest commit.
+   it cancels the running build and starts a new build using the latest commit.
 
 :Programatically:
 
@@ -112,7 +112,7 @@ Build resources
 ---------------
 
 Every build has limited resources assigned to it.
-Generally |com_brand| users get double the build resources,
+Generally, |com_brand| users get double the build resources,
 with the option to increase that.
 
 Our build limits are:

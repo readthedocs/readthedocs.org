@@ -5,8 +5,8 @@ Read the Docs has a :doc:`well-defined build process </builds>` that works for m
 We also allow customization of builds in primary ways:
 
 `Extend the build process`_
-    This is useful if you want to use our deafult build process,
-    but just run additional commands.
+    Keep using the default build process,
+    adding your own commands.
 
 `Override the build process`_
     This option gives you *full control* over your build.
@@ -17,14 +17,14 @@ Extend the build process
 
 In the normal build process,
 the pre-defined jobs ``checkout``, ``system_dependencies``, ``create_environment``, ``install``, ``build`` and ``upload`` are executed.
-Read the Docs also exposes additional ujobs,
-which allow you to customize the build process by running shell commands.
+Read the Docs also exposes these jobs,
+which allows you to customize the build process by adding shell commands.
 
 The jobs where users can customize our default build process are:
 
 .. list-table::
    :header-rows: 1
-   :widths: 25, 75
+   :widths: 25 75
 
    * - Step
      - Customizable jobs
@@ -90,7 +90,7 @@ Unshallow git clone
 
 Read the Docs does not perform a full clone on ``checkout`` job to reduce network data and speed up the build process.
 Because of this, extensions that depend on the full Git history will fail.
-To avoid this, it's possible to unshallow the git clone:
+To avoid this, it's possible to unshallow the :program:`git clone`:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
@@ -362,12 +362,12 @@ Where to put files
 It is your responsibility to generate HTML and other formats of your documentation using :ref:`config-file/v2:build.commands`.
 The contents of the ``_readthedocs/<format>/`` directory will be hosted as part of your documentation.
 
-Supported :ref:`formats <downloadable-documentation:accessing offline formats>` are:
+Supported :ref:`formats <downloadable-documentation:accessing offline formats>` are published if they exist in the following directories:
 
-* ``html``
-* ``htmlzip``
-* ``pdf``
-* ``epub``
+* ``_readthedocs/html/`` (required)
+* ``_readthedocs/htmlzip/``
+* ``_readthedocs/pdf/``
+* ``_readthedocs/epub/``
 
 Search support
 ~~~~~~~~~~~~~~

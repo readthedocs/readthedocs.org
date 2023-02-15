@@ -16,11 +16,14 @@ The Continuous Integration and Continuous Deployment (CI/CD) features are config
 such as GitHub, Bitbucket or GitLab.
 With each change committed to your repository, we are notified by the configured *webhook*.
 
-When we receive that webhook, we match it to a configured *Integration*.
-This allows us to do a couple important things:
+When a receive a *webhook* notification, we match it to a project's *Integration*.
+When a webhook is received, the matching project will then:
 
-* Synchronize your versions based on the latest data in Git.
-* Trigger builds for new commits on a branch that was updated.
+* :doc:`Build </builds>` the latest commit.
+* Synchronize your versions based on the latest tag and branch data in Git.
+* Run your :doc:`automation rules</automation-rules>`.
+* Auto-cancel any currently running builds of the same version.
+* Add a log entry to the integration's :guilabel:`Recent Activity`.
 
 Continuous Documentation for software projects
 ----------------------------------------------
