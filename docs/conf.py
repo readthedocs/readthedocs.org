@@ -207,7 +207,7 @@ linkcheck_ignore = [
 ]
 
 extlinks = {
-    "rtd-issue": ("https://github.com/readthedocs/readthedocs.org/issues/%s", "#"),
+    "rtd-issue": ("https://github.com/readthedocs/readthedocs.org/issues/%s", "#%s"),
 }
 
 # Disable epub mimetype warnings
