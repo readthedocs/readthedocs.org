@@ -97,7 +97,7 @@ Read the Docs supports three different mechanisms to cancel a running build:
 :Programatically:
 
    You can use user-defined commands on ``build.jobs`` or ``build.commands`` (see :doc:`build-customization`)
-   to check for a condition and exit it with the code ``183`` to cancel the running build.
+   to check for your own cancellation condition and then return exit code ``183`` to cancel a build.
    You can exit with the code ``0`` to continue running the build.
 
    When this happens, Read the Docs will notify your Git platform (GitHub/GitLab) that the build succeeded (✅),
