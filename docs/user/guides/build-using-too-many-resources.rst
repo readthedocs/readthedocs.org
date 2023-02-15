@@ -1,11 +1,14 @@
-My Build is Using Too Many Resources
-====================================
+Troubleshooting slow builds
+===========================
 
-We limit build resources to make sure that users don't overwhelm our build systems.
-If you are running into this issue,
-there are a couple fixes that you might try.
+In case you are waiting a long time for your builds to finish
+or your builds are terminated by exceeding general resource limits,
+this troubleshooting guide will help you resolve some of the most common issues causing slow builds.
 
-.. note:: The current build limits can be found on our :doc:`/builds` page.
+Build resources on Read the Docs are limited to make sure that users don't overwhelm our build systems.
+The current build limits can be found on our :ref:`Build resources reference <builds:Build resources>`.
+
+.. include:: /shared/contribute-to-troubleshooting.rst
 
 Reduce formats you're building
 ------------------------------

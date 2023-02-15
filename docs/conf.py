@@ -21,6 +21,7 @@ extensions = [
     "multiproject",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.autodoc",
+    "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.httpdomain",
     "sphinxcontrib.video",
@@ -58,8 +59,9 @@ master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
 version = "9.5.0"
 release = version
-exclude_patterns = ["_build", "shared"]
+exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
+intersphinx_cache_limit = 14  # cache for 2 weeks
 intersphinx_timeout = 3  # 3 seconds timeout
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.10/", None),
@@ -147,8 +149,11 @@ hoverxref_auto_ref = True
 hoverxref_domains = ["py"]
 hoverxref_roles = [
     "option",
-    "doc",  # Documentation pages
-    "term",  # Glossary terms
+    # Documentation pages
+    # Not supported yet: https://github.com/readthedocs/sphinx-hoverxref/issues/18
+    "doc",
+    # Glossary terms
+    "term",
 ]
 hoverxref_role_types = {
     "mod": "modal",  # for Python Sphinx Domain
@@ -200,6 +205,10 @@ linkcheck_ignore = [
     # This page is under login
     r"https://readthedocs\.org/accounts/gold",
 ]
+
+extlinks = {
+    "rtd-issue": ("https://github.com/readthedocs/readthedocs.org/issues/%s", "#%s"),
+}
 
 # Disable epub mimetype warnings
 suppress_warnings = ["epub.unknown_project_files"]

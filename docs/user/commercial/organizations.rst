@@ -1,14 +1,20 @@
-Organizations
--------------
+Organizations: permissions for projects and teams
+-------------------------------------------------
 
 .. include:: /shared/admonition-rtd-business.rst
 
-Organizations allow you to segment who has access to what projects in your company.
-Your company will be represented as an Organization,
-let's use ACME Corporation as our example.
+In this article, we explain how the *organizations* feature on Read the Docs allows you to manage access to your projects.
+On |com_brand|, your account is linked to an *organization*.
+Organizations allow you to define both individual and team permissions for your projects.
 
+In this article, we use ACME Corporation as our example organization.
 ACME has a few people inside their organization,
 some who need full access and some who just need access to one project.
+
+.. seealso::
+
+   :doc:`/guides/manage-read-the-docs-teams`
+     A step-by-step guide to managing teams.
 
 Member Types
 ~~~~~~~~~~~~
