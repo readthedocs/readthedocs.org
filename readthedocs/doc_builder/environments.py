@@ -130,8 +130,6 @@ class BuildCommand(BuildCommandResultMixin):
     # commands, which is not supported anymore
     def run(self):
         """Set up subprocess and execute command."""
-        log.info("Running build command.", command=self.get_command(), cwd=self.cwd)
-
         self.start_time = datetime.utcnow()
         environment = self._environment.copy()
         if 'DJANGO_SETTINGS_MODULE' in environment:
@@ -144,6 +142,13 @@ class BuildCommand(BuildCommandResultMixin):
         if self.bin_path is not None:
             env_paths.insert(0, self.bin_path)
         environment['PATH'] = ':'.join(env_paths)
+
+        log.info(
+            "Running build command.",
+            command=self.get_command(),
+            cwd=self.cwd,
+            environment=environment,
+        )
 
         try:
             # When using ``shell=True`` the command should be flatten

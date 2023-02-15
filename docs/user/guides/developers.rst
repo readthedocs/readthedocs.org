@@ -15,7 +15,6 @@ or customize the documentation appearance.
    embedding-content
    conda
    remove-edit-buttons
-   build-using-too-many-resources
    edit-source-links-sphinx
    Setup Build Notifications <build-notifications>
    Use traffic analytics </analytics>

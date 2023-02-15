@@ -57,10 +57,11 @@ templates_path = ["_templates"]
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "9.4.0"
+version = "9.5.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
+intersphinx_cache_limit = 14  # cache for 2 weeks
 intersphinx_timeout = 3  # 3 seconds timeout
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.10/", None),
@@ -206,7 +207,7 @@ linkcheck_ignore = [
 ]
 
 extlinks = {
-    "rtd-issue": ("https://github.com/readthedocs/readthedocs.org/issues/%s", "#"),
+    "rtd-issue": ("https://github.com/readthedocs/readthedocs.org/issues/%s", "#%s"),
 }
 
 # Disable epub mimetype warnings

@@ -8,7 +8,7 @@ this troubleshooting guide will help you resolve some of the most common issues 
 Build resources on Read the Docs are limited to make sure that users don't overwhelm our build systems.
 The current build limits can be found on our :ref:`Build resources reference <builds:Build resources>`.
 
-.. include:: /shared/contribute_to_troubleshooting.rst
+.. include:: /shared/contribute-to-troubleshooting.rst
 
 Reduce formats you're building
 ------------------------------

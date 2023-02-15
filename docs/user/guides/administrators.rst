@@ -13,6 +13,7 @@ have a look at our :doc:`/tutorial/index`.
    :maxdepth: 1
 
    Connect your git repository <git-integrations>
+   /connected-accounts
    Connect your Read the Docs account to your Git repository <connecting-git-account>
    Manage Custom Domains <custom-domains>
    Enable Canonical URLs <canonical-urls>

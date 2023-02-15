@@ -38,10 +38,7 @@ slumber
 pyyaml==5.4.1
 Pygments
 
-# Downgrade redis to 3.5.3 (latest 3.x release) because pip raises this error:
-# django-redis-cache 2.1.3 depends on redis<4.0
-redis==3.5.3
-
+django-redis
 celery
 
 # 0.52.0 requires creating a new email template:
@@ -107,9 +104,8 @@ dj-pagination
 # Version comparison stuff
 packaging
 
-# django-cors-middleware==1.5.0 fails with
-# AttributeError: 'dict' object has no attribute 'has_header'
-django-cors-middleware==1.4.0
+# Allow cross-site requests to some of our APIs.
+django-cors-headers
 
 # User agent parsing - used for analytics purposes
 user-agents

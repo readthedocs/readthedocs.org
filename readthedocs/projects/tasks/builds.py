@@ -316,6 +316,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         def sigint_received(*args, **kwargs):
             log.warning('SIGINT received. Canceling the build running.')
+
+            # Only allow to cancel the build if it's not already uploading the files.
+            # This is to protect our users to end up with half of the documentation uploaded.
+            # TODO: remove this condition once we implement "Atomic Uploads"
+            if self.data.build["state"] == BUILD_STATE_UPLOADING:
+                log.warning('Ignoring cancelling the build at "Uploading" state.')
+                return
+
             raise BuildCancelled
 
         # Do not send the SIGTERM signal to children (pip is automatically killed when

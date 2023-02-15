@@ -1823,6 +1823,7 @@ class Feature(models.Model):
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     DISABLE_SPHINX_DOMAINS = "disable_sphinx_domains"
+    RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1844,6 +1845,7 @@ class Feature(models.Model):
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
+    # Build related features
     LIST_PACKAGES_INSTALLED_ENV = "list_packages_installed_env"
     VCS_REMOTE_LISTING = "vcs_remote_listing"
     SPHINX_PARALLEL = "sphinx_parallel"
@@ -1932,6 +1934,10 @@ class Feature(models.Model):
         (
             DISABLE_SPHINX_DOMAINS,
             _("Disable indexing of sphinx domains"),
+        ),
+        (
+            RESOLVE_PROJECT_FROM_HEADER,
+            _("Allow usage of the X-RTD-Slug header"),
         ),
 
         # Versions sync related features

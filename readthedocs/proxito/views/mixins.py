@@ -278,14 +278,16 @@ class ServeDocsMixin:
 
     def get_version_from_host(self, request, version_slug):
         # Handle external domain
-        if hasattr(request, 'external_domain'):
+        unresolved_domain = request.unresolved_domain
+        if unresolved_domain and unresolved_domain.is_from_external_domain:
+            external_version_slug = unresolved_domain.external_version_slug
             self.version_type = EXTERNAL
             log.warning(
                 'Using version slug from host.',
                 version_slug=version_slug,
-                host_version=request.host_version_slug,
+                host_version=external_version_slug,
             )
-            version_slug = request.host_version_slug
+            return external_version_slug
         return version_slug
 
     def _spam_response(self, request, project):

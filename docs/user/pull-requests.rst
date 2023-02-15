@@ -2,9 +2,8 @@ Preview Documentation from Pull Requests
 ========================================
 
 Your project can be configured to build and host documentation for every new
-pull request. Previewing changes to your documentation during review makes it
-easier to catch documentation formatting and display issues introduced in pull
-requests.
+pull request. Previewing changes during review makes it
+easier to catch formatting and display issues before they go live.
 
 Features
 --------
