@@ -13,6 +13,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
+from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
@@ -282,6 +283,15 @@ class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
                 try:
                     json_resp = build_commands_storage.open(storage_path).read()
                     data['commands'] = json.loads(json_resp)
+
+                    # Normalize commands in the same way than when returning
+                    # them using the serializer
+                    for buildcommand in data["commands"]:
+                        buildcommand["command"] = normalize_build_command(
+                            buildcommand["command"],
+                            instance.project.slug,
+                            instance.version.slug,
+                        )
                 except Exception:
                     log.exception(
                         'Failed to read build data from storage.',

@@ -34,7 +34,7 @@ you can use an important word or message from the error to search for a solution
 
 .. seealso::
 
-   :doc:`/build-troubleshooting`
+   :doc:`/guides/build-troubleshooting`
       Common errors and solutions for build failures.
 
    Other FAQ entries
@@ -45,8 +45,8 @@ you can use an important word or message from the error to search for a solution
 .. Old reference
 .. _Help, my build passed but my documentation page is 404 Not Found!:
 
-My build says "passed" but I get a 404 page - why?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Why does my project have status "passed" but I get a 404 page?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This often happens because you don't have an `index.html` file being generated.
 

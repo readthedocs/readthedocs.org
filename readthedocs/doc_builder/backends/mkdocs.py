@@ -295,10 +295,10 @@ class BaseMkdocs(BaseBuilder):
             '-m',
             'mkdocs',
             self.builder,
-            '--clean',
-            '--site-dir',
-            self.build_dir,
-            '--config-file',
+            "--clean",
+            "--site-dir",
+            os.path.join("$READTHEDOCS_OUTPUT", "html"),
+            "--config-file",
             os.path.relpath(self.yaml_file, self.project_path),
         ]
         if self.config.mkdocs.fail_on_warning:

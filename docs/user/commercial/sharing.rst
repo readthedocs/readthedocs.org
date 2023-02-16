@@ -1,5 +1,5 @@
-Sharing
-=======
+Private Documentation Sharing
+=============================
 
 .. include:: /shared/admonition-rtd-business.rst
 

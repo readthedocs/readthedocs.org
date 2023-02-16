@@ -119,11 +119,15 @@ class Version(TimeStampedModel):
     )
     # used by the vcs backend
 
-    #: The identifier is the ID for the revision this is version is for. This
-    #: might be the revision number (e.g. in SVN), or the commit hash (e.g. in
-    #: Git). If the this version is pointing to a branch, then ``identifier``
-    #: will contain the branch name.
-    identifier = models.CharField(_('Identifier'), max_length=255)
+    #: The identifier is the ID for the revision this is version is for.
+    #: This might be the revision number (e.g. in SVN),
+    #: or the commit hash (e.g. in Git).
+    #: If the this version is pointing to a branch,
+    #: then ``identifier`` will contain the branch name.
+    #: `None`/`null` means it will use the VCS default branch.
+    identifier = models.CharField(
+        _("Identifier"), max_length=255, null=True, blank=True
+    )
 
     #: This is the actual name that we got for the commit stored in
     #: ``identifier``. This might be the tag or branch name like ``"v1.0.4"``.
@@ -286,7 +290,9 @@ class Version(TimeStampedModel):
             .only('_config')
             .first()
         )
-        return last_build.config
+        if last_build:
+            return last_build.config
+        return None
 
     @property
     def commit_name(self):
@@ -363,6 +369,11 @@ class Version(TimeStampedModel):
     @property
     def identifier_friendly(self):
         """Return display friendly identifier."""
+        if not self.identifier:
+            # Text shown to user when we don't know yet what's the ``identifier`` for this version.
+            # This usually happens when we haven't pulled the ``default_branch`` for LATEST.
+            return "Unknown yet"
+
         if re.match(r'^[0-9a-f]{40}$', self.identifier, re.I):
             return self.identifier[:8]
         return self.identifier
@@ -621,7 +632,7 @@ class Build(models.Model):
         _('State'),
         max_length=55,
         choices=BUILD_STATE,
-        default='finished',
+        default=BUILD_STATE_TRIGGERED,
         db_index=True,
     )
 

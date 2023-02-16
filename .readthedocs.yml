@@ -8,7 +8,6 @@ sphinx:
 
 python:
   install:
-    - requirements: requirements/pip.txt
     - requirements: requirements/docs.txt
 
 build:
