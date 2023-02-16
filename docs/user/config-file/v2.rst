@@ -1,11 +1,15 @@
-Configuration File V2
+Configuration file v2
 =====================
 
 Read the Docs supports configuring your documentation builds with a YAML file.
-The :doc:`configuration file <index>` must be in the root directory of your project
-and be named ``.readthedocs.yaml``.
+It's required to be named ``.readthedocs.yaml`` and be placed in the root of your Git repository.
 
-All options are applied to the version containing this file.
+The file can contain a number of settings that are not accessible through the Read the Docs website.
+
+Because the file is stored in Git,
+the configuration will apply to the exact version that is being built.
+This allows you to store different configurations for different versions of your documentation.
+
 Below is an example YAML file which shows the most common configuration options:
 
 .. tabs::
