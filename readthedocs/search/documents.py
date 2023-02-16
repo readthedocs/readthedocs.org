@@ -74,6 +74,7 @@ class PageDocument(RTDDocTypeMixin, Document):
     # Metadata
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
+    # TODO: review custom logic based con `documentation_type`
     doctype = fields.KeywordField(attr='version.documentation_type')
     path = fields.KeywordField(attr='processed_json.path')
     full_path = fields.KeywordField(attr='path')

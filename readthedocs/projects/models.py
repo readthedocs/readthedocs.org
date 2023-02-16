@@ -1429,6 +1429,7 @@ class HTMLFile(ImportedFile):
     objects = HTMLFileManager()
 
     def get_processed_json(self):
+        # TODO: review custom logic based con `documentation_type`
         if (
             self.version.documentation_type == constants.GENERIC
             or self.project.has_feature(Feature.INDEX_FROM_HTML_FILES)

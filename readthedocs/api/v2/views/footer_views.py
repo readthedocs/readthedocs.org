@@ -155,6 +155,7 @@ class BaseFooterHTML(CDNCacheTagsMixin, APIView):
 
         page_slug = self.request.GET.get('page', '')
         path = ''
+        # TODO: review custom logic based con `documentation_type`
         if page_slug and page_slug != 'index':
             if version.documentation_type in {SPHINX_HTMLDIR, MKDOCS}:
                 path = re.sub('/index$', '', page_slug) + '/'
