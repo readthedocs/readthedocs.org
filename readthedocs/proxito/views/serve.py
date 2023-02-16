@@ -17,6 +17,13 @@ from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path
+from readthedocs.core.unresolver import (
+    InvalidExternalVersionError,
+    TranslationNotFoundError,
+    UnresolvedPathError,
+    VersionNotFoundError,
+    unresolver,
+)
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.models import Domain, Feature
@@ -82,13 +89,17 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             lang_slug=None,
             version_slug=None,
             filename='',
-    ):  # noqa
+        ):
         """
         Take the incoming parsed URL's and figure out what file to serve.
 
         ``subproject_slash`` is used to determine if the subproject URL has a slash,
         so that we can decide if we need to serve docs or add a /.
         """
+        unresolved_domain = request.unresolved_domain
+        if unresolved_domain.project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO):
+            return self.get_using_unresolver(request)
+
         version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
@@ -273,6 +284,125 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             return RedirectType.subproject_to_main_domain
 
         return None
+
+    def get_using_unresolver(self, request):
+        unresolved_domain = request.unresolved_domain
+        # TODO: capture this path in the URL.
+        path = request.path_info
+        try:
+            unresolved = unresolver.unresolve_path(
+                unresolved_domain=unresolved_domain,
+                path=path,
+                append_indexhtml=False,
+            )
+        except (VersionNotFoundError, TranslationNotFoundError):
+            raise Http404
+        except InvalidExternalVersionError:
+            raise Http404
+        except UnresolvedPathError as exc:
+            # This exception happends if the project didn't have an explict version,
+            # this is a ``/ -> /en/latest`` or
+            # ``/projects/subproject/ -> /projects/subproject/en/latest/``  redirect.
+            project = exc.project
+            # A system redirect can be cached if we don't have information
+            # about the version, since the final URL will check for authz.
+            if self._is_cache_enabled(project):
+                self.cache_request = True
+
+            if unresolved_domain.is_from_external_domain:
+                version_slug = unresolved_domain.external_version_slug
+            else:
+                version_slug = None
+
+            return self.system_redirect(
+                request=request,
+                final_project=project,
+                version_slug=version_slug,
+                filename=exc.path,
+                is_external_version=unresolved_domain.is_from_external_domain,
+            )
+
+        project = unresolved.project
+        version = unresolved.version
+        filename = unresolved.filename
+
+        if not version.active:
+            log.warning("Version is not active.")
+            raise Http404("Version is not active.")
+
+        if self._is_cache_enabled(project) and version and not version.is_private:
+            # All public versions can be cached.
+            self.cache_request = True
+
+        log.bind(cache_request=self.cache_request)
+        log.debug("Serving docs.")
+
+        # Verify if the project is marked as spam and return a 401 in that case
+        spam_response = self._spam_response(request, project)
+        if spam_response:
+            return spam_response
+
+        # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
+        redirect_type = self._get_canonical_redirect_type(request)
+        if redirect_type:
+            # A canonical redirect can be cached, if we don't have information
+            # about the version, since the final URL will check for authz.
+            if not version and self._is_cache_enabled(project):
+                self.cache_request = True
+            try:
+                return self.canonical_redirect(
+                    request=request,
+                    final_project=project,
+                    version_slug=version.slug,
+                    filename=filename,
+                    redirect_type=redirect_type,
+                    is_external_version=unresolved.external,
+                )
+            except InfiniteRedirectException:
+                # Don't redirect in this case, since it would break things
+                pass
+
+        # Trailing slash redirect.
+        if filename == "/" and not path.endswith("/"):
+            return self.system_redirect(
+                request=request,
+                final_project=project,
+                version_slug=version.slug,
+                filename=filename,
+                is_external_version=unresolved_domain.is_from_external_domain,
+            )
+
+        redirect_path, http_status = self.get_redirect(
+            project=project,
+            lang_slug=project.language,
+            version_slug=version.slug,
+            filename=unresolved.filename,
+            full_path=request.path,
+            forced_only=True,
+        )
+        if redirect_path and http_status:
+            log.bind(forced_redirect=True)
+            try:
+                return self.get_redirect_response(
+                    request=request,
+                    redirect_path=redirect_path,
+                    proxito_path=request.path,
+                    http_status=http_status,
+                )
+            except InfiniteRedirectException:
+                # Continue with our normal serve.
+                pass
+
+        # Check user permissions and return an unauthed response if needed
+        if not self.allowed_user(request, project, version.slug):
+            return self.get_unauthed_response(request, project)
+
+        return self._serve_docs(
+            request=request,
+            project=project,
+            version=version,
+            filename=unresolved.filename,
+        )
 
 
 class ServeDocs(SettingsOverrideObject):

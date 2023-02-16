@@ -1824,6 +1824,7 @@ class Feature(models.Model):
     DISABLE_PAGEVIEWS = "disable_pageviews"
     DISABLE_SPHINX_DOMAINS = "disable_sphinx_domains"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
+    USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1938,6 +1939,10 @@ class Feature(models.Model):
         (
             RESOLVE_PROJECT_FROM_HEADER,
             _("Allow usage of the X-RTD-Slug header"),
+        ),
+        (
+            USE_UNRESOLVER_WITH_PROXITO,
+            _("Use new unresolver implementation for serving documentation files."),
         ),
 
         # Versions sync related features
