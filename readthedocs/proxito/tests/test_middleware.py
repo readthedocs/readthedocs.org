@@ -11,6 +11,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Domain, Feature, Project, ProjectRelationship
+from readthedocs.proxito.constants import RedirectType
 from readthedocs.proxito.middleware import ProxitoMiddleware
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
@@ -49,32 +50,32 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         get(Domain, project=self.pip, domain=cname, canonical=True, https=True)
 
         for url in (self.url, '/subdir/'):
-            request = self.request(method='get', path=url, HTTP_HOST=cname)
-            res = self.run_middleware(request)
-            self.assertIsNone(res)
-            self.assertTrue(hasattr(request, 'canonicalize'))
-            self.assertEqual(request.canonicalize, 'https')
+            resp = self.client.get(path=url, secure=False, HTTP_HOST=cname)
+            self.assertEqual(resp.status_code, 302)
+            self.assertEqual(resp["location"], f"https://{cname}{url}")
+            self.assertEqual(resp["X-RTD-Redirect"], RedirectType.http_to_https.name)
 
     def test_canonical_cname_redirect(self):
         """Requests to the public domain URL should redirect to the custom domain if the domain is canonical/https."""
         cname = 'docs.random.com'
         domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
 
-        request = self.request(method='get', path=self.url, HTTP_HOST='pip.dev.readthedocs.io')
-        res = self.run_middleware(request)
-        self.assertIsNone(res)
-        self.assertFalse(hasattr(request, 'canonicalize'))
+        resp = self.client.get(self.url, HTTP_HOST="pip.dev.readthedocs.io")
+        # This is the / -> /en/latest/ redirect.
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["X-RTD-Redirect"], RedirectType.system.name)
 
         # Make the domain canonical/https and make sure we redirect
         domain.canonical = True
         domain.https = True
         domain.save()
-        for url in (self.url, '/subdir/'):
-            request = self.request(method='get', path=url, HTTP_HOST='pip.dev.readthedocs.io')
-            res = self.run_middleware(request)
-            self.assertIsNone(res)
-            self.assertTrue(hasattr(request, 'canonicalize'))
-            self.assertEqual(request.canonicalize, 'canonical-cname')
+        for url in (self.url, "/subdir/"):
+            resp = self.client.get(url, HTTP_HOST="pip.dev.readthedocs.io")
+            self.assertEqual(resp.status_code, 302)
+            self.assertEqual(resp["location"], f"https://{cname}{url}")
+            self.assertEqual(
+                resp["X-RTD-Redirect"], RedirectType.to_canonical_domain.name
+            )
 
     def test_subproject_redirect(self):
         """Requests to a subproject should redirect to the domain of the main project."""
@@ -92,25 +93,31 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             child=subproject,
         )
 
-        for url in (self.url, '/subdir/', '/en/latest/'):
-            request = self.request(method='get', path=url, HTTP_HOST='subproject.dev.readthedocs.io')
-            res = self.run_middleware(request)
-            self.assertIsNone(res)
-            self.assertEqual(getattr(request, 'canonicalize', None), 'subproject-main-domain')
+        for url in (self.url, "/subdir/", "/en/latest/"):
+            resp = self.client.get(url, HTTP_HOST="subproject.dev.readthedocs.io")
+            self.assertEqual(resp.status_code, 302)
+            self.assertTrue(
+                resp["location"].startswith(
+                    "http://pip.dev.readthedocs.io/projects/subproject/"
+                )
+            )
+            self.assertEqual(
+                resp["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
+            )
 
         # Using a custom domain in a subproject isn't supported (or shouldn't be!).
         cname = 'docs.random.com'
-        domain = get(
+        get(
             Domain,
             project=subproject,
             domain=cname,
             canonical=True,
             https=True,
         )
-        request = self.request(method='get', path=self.url, HTTP_HOST='subproject.dev.readthedocs.io')
-        res = self.run_middleware(request)
-        self.assertIsNone(res)
-        self.assertEqual(getattr(request, 'canonicalize', None), 'canonical-cname')
+        resp = self.client.get(self.url, HTTP_HOST="subproject.dev.readthedocs.io")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["location"], f"http://pip.dev.readthedocs.io/")
+        self.assertEqual(resp["X-RTD-Redirect"], RedirectType.to_canonical_domain.name)
 
     # We are not canonicalizing custom domains -> public domain for now
     @pytest.mark.xfail(strict=True)
@@ -119,20 +126,16 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         cname = 'docs.random.com'
         domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
 
-        request = self.request(method='get', path=self.url, HTTP_HOST=cname)
-        res = self.run_middleware(request)
-        self.assertIsNone(res)
-        self.assertTrue(hasattr(request, 'canonicalize'))
-        self.assertEqual(request.canonicalize, 'noncanonical-cname')
+        resp = self.client.get(self.url, HTTP_HOST=cname)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp["X-RTD-Redirect"], "noncanonical-cname")
 
         # Make the domain canonical and make sure we don't redirect
         domain.canonical = True
         domain.save()
         for url in (self.url, '/subdir/'):
-            request = self.request(method='get', path=url, HTTP_HOST=cname)
-            res = self.run_middleware(request)
-            self.assertIsNone(res)
-            self.assertFalse(hasattr(request, 'canonicalize'))
+            resp = self.client.get(url, HTTP_HOST=cname)
+            self.assertNotIn("X-RTD-Redirect", resp)
 
     def test_proper_cname_uppercase(self):
         get(Domain, project=self.pip, domain='docs.random.com')

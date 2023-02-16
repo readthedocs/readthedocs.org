@@ -26,8 +26,6 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.models import Domain, ProjectRelationship
-from readthedocs.proxito import constants
 
 log = structlog.get_logger(__name__)
 
@@ -185,34 +183,8 @@ class ProxitoMiddleware(MiddlewareMixin):
         Set attributes in the request from the unresolved domain.
 
         - Set ``request.unresolved_domain`` to the unresolved domain.
-        - If the domain needs to redirect, set the canonicalize attribute accordingly.
         """
         request.unresolved_domain = unresolved_domain
-        project = unresolved_domain.project
-        if unresolved_domain.is_from_custom_domain:
-            domain = unresolved_domain.domain
-            if domain.https and not request.is_secure():
-                # Redirect HTTP -> HTTPS (302) for this custom domain.
-                log.debug("Proxito CNAME HTTPS Redirect.", domain=domain.domain)
-                request.canonicalize = constants.REDIRECT_HTTPS
-        elif unresolved_domain.is_from_public_domain:
-            canonical_domain = (
-                Domain.objects.filter(project=project)
-                .filter(canonical=True, https=True)
-                .exists()
-            )
-            if canonical_domain:
-                log.debug(
-                    "Proxito Public Domain -> Canonical Domain Redirect.",
-                    project_slug=project.slug,
-                )
-                request.canonicalize = constants.REDIRECT_CANONICAL_CNAME
-            elif ProjectRelationship.objects.filter(child=project).exists():
-                log.debug(
-                    "Proxito Public Domain -> Subproject Main Domain Redirect.",
-                    project_slug=project.slug,
-                )
-                request.canonicalize = constants.REDIRECT_SUBPROJECT_MAIN_DOMAIN
 
     def process_request(self, request):  # noqa
         # Initialize our custom request attributes.
