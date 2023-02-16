@@ -44,6 +44,33 @@ class InvalidCustomDomainError(DomainError):
     pass
 
 
+class VersionNotFoundError(UnresolverError):
+    def __init__(self, project, version_slug, filename):
+        self.project = project
+        self.version_slug = version_slug
+        self.filename = filename
+
+
+class TranslationNotFoundError(UnresolverError):
+    def __init__(self, project, language, filename):
+        self.project = project
+        self.language = language
+        self.filename = filename
+
+
+class UnresolvedPathError(UnresolverError):
+    def __init__(self, project, path):
+        self.project = project
+        self.path = path
+
+
+class InvalidExternalVersionError(UnresolverError):
+    def __init__(self, project, version, external_version_slug):
+        self.project = project
+        self.version = version
+        self.external_version_slug = external_version_slug
+
+
 @dataclass(slots=True)
 class UnresolvedURL:
 
@@ -57,9 +84,9 @@ class UnresolvedURL:
     # It can be the same as parent_project.
     project: Project
 
-    version: Version = None
-    filename: str = None
-    parsed_url: ParseResult = None
+    version: Version
+    filename: str
+    parsed_url: ParseResult
     domain: Domain = None
     external: bool = False
 
@@ -76,6 +103,8 @@ class DomainSourceType(Enum):
 
 @dataclass(slots=True)
 class UnresolvedDomain:
+    # The domain that was used to extract the information from.
+    source_domain: str
     source: DomainSourceType
     project: Project
     domain: Domain = None
@@ -141,46 +170,88 @@ class Unresolver:
         :param append_indexhtml: If `True` directories will be normalized
          to end with ``/index.html``.
         """
-        parsed = urlparse(url)
-        domain = self.get_domain_from_host(parsed.netloc)
+        parsed_url = urlparse(url)
+        domain = self.get_domain_from_host(parsed_url.netloc)
         unresolved_domain = self.unresolve_domain(domain)
+        return self._unresolve(
+            unresolved_domain=unresolved_domain,
+            parsed_url=parsed_url,
+            append_indexhtml=append_indexhtml,
+        )
 
+    def unresolve_path(self, unresolved_domain, path, append_indexhtml=True):
+        """
+        Unresolve a path given a unresolved domain.
+
+        This is the same as the unresolve method,
+        but this method takes an unresolved domain
+        from unresolve_domain as input.
+
+        :param unresolved_domain: An UnresolvedDomain object.
+        :param path: Path to unresolve (this shouldn't include the protocol or querystrings).
+        :param append_indexhtml: If `True` directories will be normalized
+         to end with ``/index.html``.
+        """
+        # We don't call unparse() on the path,
+        # since it could be parsed as a full URL if it starts with a protocol.
+        parsed_url = ParseResult(
+            scheme="", netloc="", path=path, params="", query="", fragment=""
+        )
+        return self._unresolve(
+            unresolved_domain=unresolved_domain,
+            parsed_url=parsed_url,
+            append_indexhtml=append_indexhtml,
+        )
+
+    def _unresolve(self, unresolved_domain, parsed_url, append_indexhtml):
+        """
+        The actual unresolver.
+
+        Extracted into a separate method so it can be re-used by
+        the unresolve and unresolve_path methods.
+        """
         current_project, version, filename = self._unresolve_path(
             parent_project=unresolved_domain.project,
-            path=parsed.path,
+            path=parsed_url.path,
             external_version_slug=unresolved_domain.external_version_slug,
         )
 
         # Make sure we are serving the external version from the subdomain.
-        if unresolved_domain.is_from_external_domain and version:
+        if unresolved_domain.is_from_external_domain:
+            domain = unresolved_domain.source_domain
             if unresolved_domain.external_version_slug != version.slug:
                 log.warning(
                     "Invalid version for external domain.",
                     domain=domain,
                     version_slug=version.slug,
                 )
-                version = None
-                filename = None
-            elif not version.is_external:
+                raise InvalidExternalVersionError(
+                    project=current_project,
+                    version=version,
+                    external_version_slug=unresolved_domain.external_version_slug,
+                )
+            if not version.is_external:
                 log.warning(
                     "Attempt of serving a non-external version from RTD_EXTERNAL_VERSION_DOMAIN.",
                     domain=domain,
                     version_slug=version.slug,
                     version_type=version.type,
-                    url=url,
                 )
-                version = None
-                filename = None
+                raise InvalidExternalVersionError(
+                    project=current_project,
+                    version=version,
+                    external_version_slug=unresolved_domain.external_version_slug,
+                )
 
-        if append_indexhtml and filename and filename.endswith("/"):
+        if append_indexhtml and filename.endswith("/"):
             filename += "index.html"
 
         return UnresolvedURL(
             parent_project=unresolved_domain.project,
-            project=current_project or unresolved_domain.project,
+            project=current_project,
             version=version,
             filename=filename,
-            parsed_url=parsed,
+            parsed_url=parsed_url,
             domain=unresolved_domain.domain,
             external=unresolved_domain.is_from_external_domain,
         )
@@ -197,12 +268,10 @@ class Unresolver:
         """
         Try to match a multiversion project.
 
-        If the translation exists, we return a result even if the version doesn't,
-        so the translation is taken as the current project (useful for 404 pages).
+        An exception is raised if we weren't able to find a matching version or language,
+        this exception has the current project (useful for 404 pages).
 
-        :returns: None or a tuple with the current project, version and file.
-         A tuple with only the project means we weren't able to find a version,
-         but the translation was correct.
+        :returns: A tuple with the current project, version and file.
         """
         match = self.multiversion_pattern.match(path)
         if not match:
@@ -216,14 +285,18 @@ class Unresolver:
             project = parent_project
         else:
             project = parent_project.translations.filter(language=language).first()
+            if not project:
+                raise TranslationNotFoundError(
+                    project=parent_project, language=language, filename=file
+                )
 
-        if project:
-            version = project.versions.filter(slug=version_slug).first()
-            if version:
-                return project, version, file
-            return project, None, None
+        version = project.versions.filter(slug=version_slug).first()
+        if not version:
+            raise VersionNotFoundError(
+                project=project, version_slug=version_slug, filename=file
+            )
 
-        return None
+        return project, version, file
 
     def _match_subproject(self, parent_project, path, external_version_slug=None):
         """
@@ -232,12 +305,7 @@ class Unresolver:
         If the subproject exists, we try to resolve the rest of the path
         with the subproject as the canonical project.
 
-        If the subproject exists, we return a result even if version doesn't,
-        so the subproject is taken as the current project (useful for 404 pages).
-
-        :returns: None or a tuple with the current project, version and file.
-         A tuple with only the project means we were able to find the subproject,
-         but we weren't able to resolve the rest of the path.
+        :returns: A tuple with the current project, version and file.
         """
         match = self.subproject_pattern.match(path)
         if not match:
@@ -260,12 +328,7 @@ class Unresolver:
                 check_subprojects=False,
                 external_version_slug=external_version_slug,
             )
-            # If we got a valid response, return that,
-            # otherwise return the current subproject
-            # as the current project without a valid version or path.
-            if response:
-                return response
-            return subproject, None, None
+            return response
         return None
 
     def _match_single_version_project(
@@ -276,21 +339,30 @@ class Unresolver:
 
         By default any path will match. If `external_version_slug` is given,
         that version is used instead of the project's default version.
+
+        An exception is raised if we weren't able to find a matching version,
+        this exception has the current project (useful for 404 pages).
+
+        :returns: A tuple with the current project, version and file.
         """
         file = self._normalize_filename(path)
         if external_version_slug:
+            version_slug = external_version_slug
             version = (
                 parent_project.versions(manager=EXTERNAL)
-                .filter(slug=external_version_slug)
+                .filter(slug=version_slug)
                 .first()
             )
         else:
-            version = parent_project.versions.filter(
-                slug=parent_project.default_version
-            ).first()
-        if version:
-            return parent_project, version, file
-        return parent_project, None, None
+            version_slug = parent_project.default_version
+            version = parent_project.versions.filter(slug=version_slug).first()
+
+        if not version:
+            raise VersionNotFoundError(
+                project=parent_project, version_slug=version_slug, filename=file
+            )
+
+        return parent_project, version, file
 
     def _unresolve_path(
         self, parent_project, path, check_subprojects=True, external_version_slug=None
@@ -352,7 +424,7 @@ class Unresolver:
             if response:
                 return response
 
-        return parent_project, None, None
+        raise UnresolvedPathError(project=parent_project, path=path)
 
     @staticmethod
     def get_domain_from_host(host):
@@ -384,6 +456,7 @@ class Unresolver:
                 project_slug = subdomain
                 log.debug("Public domain.", domain=domain)
                 return UnresolvedDomain(
+                    source_domain=domain,
                     source=DomainSourceType.public_domain,
                     project=self._resolve_project_slug(project_slug, domain),
                 )
@@ -400,6 +473,7 @@ class Unresolver:
                     project_slug, version_slug = subdomain.rsplit("--", maxsplit=1)
                     log.debug("External versions domain.", domain=domain)
                     return UnresolvedDomain(
+                        source_domain=domain,
                         source=DomainSourceType.external_domain,
                         project=self._resolve_project_slug(project_slug, domain),
                         external_version_slug=version_slug,
@@ -425,6 +499,7 @@ class Unresolver:
 
         log.debug("Custom domain.", domain=domain)
         return UnresolvedDomain(
+            source_domain=domain,
             source=DomainSourceType.custom_domain,
             project=domain_object.project,
             domain=domain_object,
@@ -464,6 +539,7 @@ class Unresolver:
                     project_slug=project.slug,
                 )
                 return UnresolvedDomain(
+                    source_domain=host,
                     source=DomainSourceType.http_header,
                     project=project,
                 )
