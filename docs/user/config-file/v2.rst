@@ -294,7 +294,7 @@ Configuration for Conda support.
 conda.environment
 `````````````````
 
-The path to the Conda environment file, relative to the root of the project.
+The path to the Conda `environment file <https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_, relative to the root of the project.
 
 :Type: ``path``
 :Required: ``true``
