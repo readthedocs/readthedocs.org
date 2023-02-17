@@ -150,9 +150,10 @@ you have pinned:
 * top-level dependencies (Sphinx, Sphinx extensions)
 * transitive dependencies (Pytz, Jinja2)
 
-This will ensure your builds don't fail because of a random tool or dependency update.
-You do still need to ensure you're upgrading your dependencies from time to time,
-but you can do it on your own schedule.
+This will protect your builds from failures because of a random tool or dependency update.
+
+You do still need to upgrade your dependencies from time to time,
+but you should do that on your own schedule.
 
 .. seealso::
 
