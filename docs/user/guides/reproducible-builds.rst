@@ -21,13 +21,13 @@ Our config file *provides you per version settings*,
 and *those settings live in your Git repository*.
 
 This allows you to validate changes using :doc:`pull requests </pull-requests>`,
-and ensures versions build the same over time.
+and ensures that all your versions can be rebuilt from a reproducible configuration.
 
 Use a requirements file for Python dependencies
 -----------------------------------------------
 
-We recommend using a Pip :ref:`pip:requirements-file-format` or Conda :ref:`Environment file <config-file/v2:conda.environment>` to pin Python dependencies.
-This allows you to ensure that top-level dependencies and extensions don't change.
+We recommend using a Pip :ref:`requirements file <pip:requirements-file-format>` or Conda :ref:`environment file <config-file/v2:conda.environment>` to pin Python dependencies.
+This ensures that top-level dependencies and extensions don't change.
 
 A configuration file with explicit dependencies looks like this:
 
@@ -140,8 +140,8 @@ and it generates a ``requirements.txt`` file with the full set of transitive dep
       urllib3==1.26.13
           # via requests
 
-Conclusion
------------
+Check list ✅
+-------------
 
 If you followed this guide,
 you have pinned:
@@ -157,7 +157,7 @@ but you can do it on your own schedule.
 .. seealso::
 
    :doc:`/config-file/v2`
-    Configuration File Reference
+    Configuration file reference
    :doc:`/builds`
     Build process information
    :doc:`/build-customization`
