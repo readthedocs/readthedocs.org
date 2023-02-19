@@ -16,9 +16,9 @@ babel==2.11.0
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.26.69
+boto3==1.26.74
     # via django-storages
-botocore==1.29.69
+botocore==1.29.74
     # via
     #   boto3
     #   s3transfer
@@ -58,13 +58,14 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.6.3
     # via -r requirements/pip.in
-django==3.2.17
+django==3.2.18
     # via
     #   -r requirements/pip.in
     #   dj-stripe
     #   django-allauth
     #   django-annoying
     #   django-cors-headers
+    #   django-crispy-forms
     #   django-csp
     #   django-debug-toolbar
     #   django-extensions
@@ -85,7 +86,7 @@ django-autoslug==1.9.8
     # via -r requirements/pip.in
 django-cors-headers==3.13.0
     # via -r requirements/pip.in
-django-crispy-forms==1.14.0
+django-crispy-forms==2.0
     # via -r requirements/pip.in
 django-csp==3.7
     # via -r requirements/pip.in
@@ -149,7 +150,7 @@ filelock==3.9.0
     # via virtualenv
 gitdb==4.0.10
     # via gitpython
-gitpython==3.1.30
+gitpython==3.1.31
     # via -r requirements/pip.in
 gunicorn==20.1.0
     # via -r requirements/pip.in

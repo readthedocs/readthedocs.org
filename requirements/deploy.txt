@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.69
+boto3==1.26.74
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.69
+botocore==1.29.74
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -102,13 +102,14 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==3.2.17
+django==3.2.18
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
     #   django-allauth
     #   django-annoying
     #   django-cors-headers
+    #   django-crispy-forms
     #   django-csp
     #   django-debug-toolbar
     #   django-extensions
@@ -129,7 +130,7 @@ django-autoslug==1.9.8
     # via -r requirements/pip.txt
 django-cors-headers==3.13.0
     # via -r requirements/pip.txt
-django-crispy-forms==1.14.0
+django-crispy-forms==2.0
     # via -r requirements/pip.txt
 django-csp==3.7
     # via -r requirements/pip.txt
@@ -201,7 +202,7 @@ gitdb==4.0.10
     # via
     #   -r requirements/pip.txt
     #   gitpython
-gitpython==3.1.30
+gitpython==3.1.31
     # via -r requirements/pip.txt
 gunicorn==20.1.0
     # via -r requirements/pip.txt
@@ -246,7 +247,7 @@ markupsafe==2.1.2
     #   jinja2
 matplotlib-inline==0.1.6
     # via ipython
-newrelic==8.6.0
+newrelic==8.7.0
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
