@@ -106,7 +106,6 @@ django==3.2.18
     #   django-allauth
     #   django-annoying
     #   django-cors-headers
-    #   django-crispy-forms
     #   django-csp
     #   django-debug-toolbar
     #   django-extensions
@@ -127,7 +126,7 @@ django-autoslug==1.9.8
     # via -r requirements/pip.txt
 django-cors-headers==3.13.0
     # via -r requirements/pip.txt
-django-crispy-forms==2.0
+django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.7
     # via -r requirements/pip.txt
