@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-13 23:35+0000\n"
+"POT-Creation-Date: 2023-02-21 11:31+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Veronika Kabatova <veronicca114@gmail.com>, 2015\n"
 "Language-Team: Slovak (http://www.transifex.com/readthedocs/readthedocs/"
@@ -134,114 +134,114 @@ msgstr ""
 msgid "A subproject with this alias already exists"
 msgstr ""
 
-#: audit/models.py:77
+#: audit/models.py:76
 msgid "Page view"
 msgstr ""
 
-#: audit/models.py:80
+#: audit/models.py:79
 #: organizations/templates/organizations/security_log.html:43
 #: templates/profiles/private/security_log.html:29
 msgid "Download"
 msgstr ""
 
-#: audit/models.py:83
+#: audit/models.py:82
 msgid "Authentication"
 msgstr ""
 
-#: audit/models.py:86
+#: audit/models.py:85
 msgid "Authentication failure"
 msgstr ""
 
-#: audit/models.py:89
+#: audit/models.py:88
 msgid "Log out"
 msgstr ""
 
-#: audit/models.py:92 organizations/views/private.py:104
+#: audit/models.py:91 organizations/views/private.py:104
 #: organizations/views/private.py:169 projects/views/private.py:475
 msgid "Invitation sent"
 msgstr ""
 
-#: audit/models.py:95
+#: audit/models.py:94
 msgid "Invitation revoked"
 msgstr ""
 
-#: audit/models.py:98
+#: audit/models.py:97
 msgid "Invitation accepted"
 msgstr ""
 
-#: audit/models.py:101
+#: audit/models.py:100
 msgid "Invitation declined"
 msgstr ""
 
-#: audit/models.py:117 core/models.py:21 gold/models.py:35
+#: audit/models.py:116 core/models.py:21 gold/models.py:35
 #: projects/models.py:128
 msgid "User"
 msgstr "Používateľ"
 
-#: audit/models.py:124
+#: audit/models.py:123
 msgid "User ID"
 msgstr ""
 
-#: audit/models.py:130 core/forms.py:55
+#: audit/models.py:129 core/forms.py:55
 msgid "Username"
 msgstr ""
 
-#: audit/models.py:139 builds/models.py:110 builds/models.py:610
+#: audit/models.py:138 builds/models.py:110 builds/models.py:610
 #: projects/models.py:1373 redirects/models.py:57
 msgid "Project"
 msgstr "Projekt"
 
-#: audit/models.py:146
+#: audit/models.py:145
 msgid "Project ID"
 msgstr ""
 
-#: audit/models.py:152
+#: audit/models.py:151
 msgid "Project slug"
 msgstr ""
 
-#: audit/models.py:161 oauth/models.py:122 subscriptions/models.py:175
+#: audit/models.py:160 oauth/models.py:122 subscriptions/models.py:175
 msgid "Organization"
 msgstr "Organizácia"
 
-#: audit/models.py:167
+#: audit/models.py:166
 msgid "Organization ID"
 msgstr ""
 
-#: audit/models.py:173
+#: audit/models.py:172
 msgid "Organization slug"
 msgstr ""
 
-#: audit/models.py:181 builds/models.py:1120
+#: audit/models.py:180 builds/models.py:1120
 msgid "Action"
 msgstr ""
 
-#: audit/models.py:186
+#: audit/models.py:185
 msgid "Auth backend"
 msgstr ""
 
-#: audit/models.py:192 core/history.py:78
+#: audit/models.py:191 core/history.py:78
 msgid "IP address"
 msgstr ""
 
-#: audit/models.py:198 core/history.py:84
+#: audit/models.py:197 core/history.py:84
 msgid "Browser user-agent"
 msgstr ""
 
-#: audit/models.py:206
+#: audit/models.py:205
 msgid "Resource"
 msgstr ""
 
-#: audit/models.py:215
+#: audit/models.py:214
 msgid ""
 "Extra data about the log entry. Its structure depends on the type of log "
 "entry."
 msgstr ""
 
-#: audit/models.py:260
+#: audit/models.py:259
 msgid "shared link"
 msgstr ""
 
-#: audit/models.py:261
+#: audit/models.py:260
 msgid "shared password"
 msgstr ""
 
@@ -3971,7 +3971,7 @@ msgstr ""
 #: templates/homepage.html:71
 msgid ""
 "Whenever you push code to your favorite version control service, whether "
-"that is GitHub, BitBucket, or GitLab, we will automatically build your docs "
+"that is GitHub, Bitbucket, or GitLab, we will automatically build your docs "
 "so your code and documentation are never out of sync."
 msgstr ""
 
