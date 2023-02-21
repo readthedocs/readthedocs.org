@@ -16,7 +16,6 @@ Build failed on {{ project.name }}: <em>{{ version.verbose_name }}</em>
   </p>
   {% if build.error %}
     <p>
-      <span style="color: #ff7040;">failed
       <strong>Error:</strong> <em>{{ build.error }}</em>
     </p>
   {% else %}
@@ -48,6 +47,6 @@ Build failed on {{ project.name }}: <em>{{ version.verbose_name }}</em>
   </p>
 
   <p>
-    You can manage your email preferences in the project's <a href="{{ unsubscribe_url }}">notification settings</a>
+    You can manage your email preferences in the project's <a href="{{ unsubscribe_url }}">notification settings</a>.
   </p>
 {% endblock %}
