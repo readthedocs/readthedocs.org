@@ -1,5 +1,6 @@
 import re
 from dataclasses import dataclass
+from enum import Enum, auto
 from urllib.parse import ParseResult, urlparse
 
 import structlog
@@ -8,7 +9,7 @@ from django.conf import settings
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.constants import pattern_opts
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain, Feature, Project
 
 log = structlog.get_logger(__name__)
 
@@ -17,19 +18,29 @@ class UnresolverError(Exception):
     pass
 
 
-class SuspiciousHostnameError(UnresolverError):
+class InvalidXRTDSlugHeaderError(UnresolverError):
+
     pass
 
 
-class InvalidSubdomainError(UnresolverError):
+class DomainError(UnresolverError):
+    def __init__(self, domain):
+        self.domain = domain
+
+
+class SuspiciousHostnameError(DomainError):
     pass
 
 
-class InvalidExternalDomainError(UnresolverError):
+class InvalidSubdomainError(DomainError):
     pass
 
 
-class InvalidCustomDomainError(UnresolverError):
+class InvalidExternalDomainError(DomainError):
+    pass
+
+
+class InvalidCustomDomainError(DomainError):
     pass
 
 
@@ -51,6 +62,40 @@ class UnresolvedURL:
     parsed_url: ParseResult = None
     domain: Domain = None
     external: bool = False
+
+
+class DomainSourceType(Enum):
+
+    """Where the custom domain was resolved from."""
+
+    custom_domain = auto()
+    public_domain = auto()
+    external_domain = auto()
+    http_header = auto()
+
+
+@dataclass(slots=True)
+class UnresolvedDomain:
+    source: DomainSourceType
+    project: Project
+    domain: Domain = None
+    external_version_slug: str = None
+
+    @property
+    def is_from_custom_domain(self):
+        return self.source == DomainSourceType.custom_domain
+
+    @property
+    def is_from_public_domain(self):
+        return self.source == DomainSourceType.public_domain
+
+    @property
+    def is_from_http_header(self):
+        return self.source == DomainSourceType.http_header
+
+    @property
+    def is_from_external_domain(self):
+        return self.source == DomainSourceType.external_domain
 
 
 class Unresolver:
@@ -98,19 +143,17 @@ class Unresolver:
         """
         parsed = urlparse(url)
         domain = self.get_domain_from_host(parsed.netloc)
-        parent_project, domain_object, external_version_slug = self.unresolve_domain(
-            domain
-        )
+        unresolved_domain = self.unresolve_domain(domain)
 
         current_project, version, filename = self._unresolve_path(
-            parent_project=parent_project,
+            parent_project=unresolved_domain.project,
             path=parsed.path,
-            external_version_slug=external_version_slug,
+            external_version_slug=unresolved_domain.external_version_slug,
         )
 
         # Make sure we are serving the external version from the subdomain.
-        if external_version_slug and version:
-            if external_version_slug != version.slug:
+        if unresolved_domain.is_from_external_domain and version:
+            if unresolved_domain.external_version_slug != version.slug:
                 log.warning(
                     "Invalid version for external domain.",
                     domain=domain,
@@ -133,13 +176,13 @@ class Unresolver:
             filename += "index.html"
 
         return UnresolvedURL(
-            parent_project=parent_project,
-            project=current_project or parent_project,
+            parent_project=unresolved_domain.project,
+            project=current_project or unresolved_domain.project,
             version=version,
             filename=filename,
             parsed_url=parsed,
-            domain=domain_object,
-            external=bool(external_version_slug),
+            domain=unresolved_domain.domain,
+            external=unresolved_domain.is_from_external_domain,
         )
 
     @staticmethod
@@ -325,8 +368,7 @@ class Unresolver:
         Unresolve domain by extracting relevant information from it.
 
         :param str domain: Domain to extract the information from.
-        :returns: A tuple with: the project, domain object, and the
-         external version slug if the domain is from an external version.
+        :returns: A UnresolvedDomain object.
         """
         public_domain = self.get_domain_from_host(settings.PUBLIC_DOMAIN)
         external_domain = self.get_domain_from_host(
@@ -341,12 +383,15 @@ class Unresolver:
             if public_domain == root_domain:
                 project_slug = subdomain
                 log.debug("Public domain.", domain=domain)
-                return self._resolve_project_slug(project_slug), None, None
+                return UnresolvedDomain(
+                    source=DomainSourceType.public_domain,
+                    project=self._resolve_project_slug(project_slug, domain),
+                )
 
             # NOTE: This can catch some possibly valid domains (docs.readthedocs.io.com)
             # for example, but these might be phishing, so let's block them for now.
             log.warning("Weird variation of our domain.", domain=domain)
-            raise SuspiciousHostnameError()
+            raise SuspiciousHostnameError(domain=domain)
 
         # Serve PR builds on external_domain host.
         if external_domain in domain:
@@ -354,17 +399,21 @@ class Unresolver:
                 try:
                     project_slug, version_slug = subdomain.rsplit("--", maxsplit=1)
                     log.debug("External versions domain.", domain=domain)
-                    return self._resolve_project_slug(project_slug), None, version_slug
+                    return UnresolvedDomain(
+                        source=DomainSourceType.external_domain,
+                        project=self._resolve_project_slug(project_slug, domain),
+                        external_version_slug=version_slug,
+                    )
                 except ValueError:
                     log.info(
                         "Invalid format of external versions domain.", domain=domain
                     )
-                    raise InvalidExternalDomainError()
+                    raise InvalidExternalDomainError(domain=domain)
 
             # NOTE: This can catch some possibly valid domains (docs.readthedocs.build.com)
             # for example, but these might be phishing, so let's block them for now.
             log.warning("Weird variation of our domain.", domain=domain)
-            raise SuspiciousHostnameError()
+            raise SuspiciousHostnameError(domain=domain)
 
         # Custom domain.
         domain_object = (
@@ -372,17 +421,59 @@ class Unresolver:
         )
         if not domain_object:
             log.info("Invalid domain.", domain=domain)
-            raise InvalidCustomDomainError()
+            raise InvalidCustomDomainError(domain=domain)
 
         log.debug("Custom domain.", domain=domain)
-        return domain_object.project, domain_object, None
+        return UnresolvedDomain(
+            source=DomainSourceType.custom_domain,
+            project=domain_object.project,
+            domain=domain_object,
+        )
 
-    def _resolve_project_slug(self, slug):
+    def _resolve_project_slug(self, slug, domain):
         """Get the project from the slug or raise an exception if not found."""
         try:
             return Project.objects.get(slug=slug)
         except Project.DoesNotExist:
-            raise InvalidSubdomainError()
+            raise InvalidSubdomainError(domain=domain)
+
+    def unresolve_domain_from_request(self, request):
+        """
+        Unresolve domain by extracting relevant information from the request.
+
+        We first check if the ``X-RTD-Slug`` header has been set for explicit
+        project mapping, otherwise we unresolve by calling `self.unresolve_domain`
+        on the host.
+
+        :param request: Request to extract the information from.
+        :returns: A UnresolvedDomain object.
+        """
+        host = self.get_domain_from_host(request.get_host())
+        log.bind(host=host)
+
+        # Explicit Project slug being passed in.
+        header_project_slug = request.headers.get("X-RTD-Slug", "").lower()
+        if header_project_slug:
+            project = Project.objects.filter(
+                slug=header_project_slug,
+                feature__feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER,
+            ).first()
+            if project:
+                log.info(
+                    "Setting project based on X_RTD_SLUG header.",
+                    project_slug=project.slug,
+                )
+                return UnresolvedDomain(
+                    source=DomainSourceType.http_header,
+                    project=project,
+                )
+            log.warning(
+                "X-RTD-Header passed for project without it enabled.",
+                project_slug=header_project_slug,
+            )
+            raise InvalidXRTDSlugHeaderError
+
+        return unresolver.unresolve_domain(host)
 
 
 unresolver = Unresolver()

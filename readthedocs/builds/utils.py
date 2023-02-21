@@ -70,7 +70,7 @@ def get_vcs_url(*, project, version_type, version_name):
                 repo=repo,
                 number=version_name,
             )
-        # TODO: Add VCS URL for BitBucket.
+        # TODO: Add VCS URL for Bitbucket.
         return ''
 
     url = ''
@@ -96,7 +96,7 @@ def external_version_name(build_or_version):
     if project.git_provider_name == GITLAB_BRAND:
         return GITLAB_EXTERNAL_VERSION_NAME
 
-    # TODO: Add External Version Name for BitBucket.
+    # TODO: Add External Version Name for Bitbucket.
     return GENERIC_EXTERNAL_VERSION_NAME
 
 

@@ -897,7 +897,7 @@ class Build(models.Model):
                     number=self.get_version_name(),
                     commit=self.commit
                 )
-            # TODO: Add External Version Commit URL for BitBucket.
+            # TODO: Add External Version Commit URL for Bitbucket.
         else:
             if 'github' in repo_url:
                 user, repo = get_github_username_repo(repo_url)
