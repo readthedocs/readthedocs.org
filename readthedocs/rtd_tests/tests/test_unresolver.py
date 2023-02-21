@@ -298,16 +298,16 @@ class UnResolverTests(ResolverBase):
             unresolve("https://pip--10.dev.readthedocs.build/en/latest/")
         exc = excinfo.value
         self.assertEqual(exc.project, self.pip)
-        self.assertEqual(exc.version, self.version)
+        self.assertEqual(exc.version_slug, "latest")
         self.assertEqual(exc.external_version_slug, "10")
 
     def test_normal_version_in_external_version_subdomain(self):
-        with pytest.raises(InvalidExternalVersionError) as excinfo:
+        with pytest.raises(VersionNotFoundError) as excinfo:
             unresolve("https://pip--latest.dev.readthedocs.build/en/latest/")
         exc = excinfo.value
         self.assertEqual(exc.project, self.pip)
-        self.assertEqual(exc.external_version_slug, "latest")
-        self.assertEqual(exc.version, self.version)
+        self.assertEqual(exc.version_slug, "latest")
+        self.assertEqual(exc.filename, "/")
 
     def test_malformed_external_version(self):
         with pytest.raises(InvalidExternalDomainError):
