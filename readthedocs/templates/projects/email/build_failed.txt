@@ -12,4 +12,6 @@ A good place to start debugging this error is our build troubleshooting guide: h
 
 We also suggest reading our build process overview to get a better sense for how the builds are executed: https://docs.readthedocs.io/page/builds.html
 
+You can unsubscribe from these emails in your notification settings: {{ unsubscribe_url }}.
+
 {% endblock %}
