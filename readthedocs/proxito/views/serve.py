@@ -295,24 +295,54 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 path=path,
                 append_indexhtml=False,
             )
-        except (VersionNotFoundError, TranslationNotFoundError):
-            raise Http404
-        except InvalidExternalVersionError:
+        except (VersionNotFoundError, TranslationNotFoundError, InvalidExternalVersionError) as exc:
+            # TODO: find a better way to pass this to the middleware.
+            request.path_project_slug = exc.project.slug
             raise Http404
         except UnresolvedPathError as exc:
-            # This exception happends if the project didn't have an explict version,
-            # this is a ``/ -> /en/latest`` or
-            # ``/projects/subproject/ -> /projects/subproject/en/latest/``  redirect.
             project = exc.project
-            # A system redirect can be cached if we don't have information
-            # about the version, since the final URL will check for authz.
-            if self._is_cache_enabled(project):
-                self.cache_request = True
-
             if unresolved_domain.is_from_external_domain:
                 version_slug = unresolved_domain.external_version_slug
             else:
                 version_slug = None
+
+            # TODO: find a better way to pass this to the middleware.
+            request.path_project_slug = project.slug
+            request.path_version_slug = version_slug
+
+            # Before doing anything else, we need to check for canonical redirects.
+            redirect_type = self._get_canonical_redirect_type(request)
+            if redirect_type:
+                # A canonical redirect can be cached, if we don't have information
+                # about the version, since the final URL will check for authz.
+                if self._is_cache_enabled(project):
+                    self.cache_request = True
+                try:
+                    return self.canonical_redirect(
+                        request=request,
+                        final_project=project,
+                        version_slug=version_slug,
+                        filename=path,
+                        redirect_type=redirect_type,
+                        is_external_version=unresolved_domain.is_from_external_domain,
+                    )
+                except InfiniteRedirectException:
+                    # Don't redirect in this case, since it would break things
+                    self.cache_request = False
+
+            # If the path is not empty, the path doesn't resolve to a proper file.
+            if exc.path not in ["", "/"]:
+                raise Http404
+
+            # When the path is empty, the project didn't have an explicit version,
+            # so we need to redirect to the default version.
+            # This is `/ -> /en/latest/` or
+            # `/projects/subproject/ -> /projects/subproject/en/latest/`.
+
+            # A system redirect can be cached if we don't have information
+            # about the version, since the final URL will check for authz.
+            if self._is_cache_enabled(project):
+                self.cache_request = True
 
             return self.system_redirect(
                 request=request,
@@ -326,11 +356,15 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         version = unresolved.version
         filename = unresolved.filename
 
+        # TODO: find a better way to pass this to the middleware.
+        request.path_project_slug = project.slug
+        request.path_version_slug = version.slug
+
         if not version.active:
             log.warning("Version is not active.")
             raise Http404("Version is not active.")
 
-        if self._is_cache_enabled(project) and version and not version.is_private:
+        if self._is_cache_enabled(project) and not version.is_private:
             # All public versions can be cached.
             self.cache_request = True
 
@@ -342,13 +376,9 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         if spam_response:
             return spam_response
 
-        # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
+        # Check for canonical redirects before serving the file.
         redirect_type = self._get_canonical_redirect_type(request)
         if redirect_type:
-            # A canonical redirect can be cached, if we don't have information
-            # about the version, since the final URL will check for authz.
-            if not version and self._is_cache_enabled(project):
-                self.cache_request = True
             try:
                 return self.canonical_redirect(
                     request=request,
@@ -363,6 +393,11 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 pass
 
         # Trailing slash redirect.
+        # We don't want to serve documentation at:
+        # - `/en/latest`
+        # - `/projects/subproject/en/latest`
+        # - `/projects/subproject`
+        # These paths need to end with an slash.
         if filename == "/" and not path.endswith("/"):
             return self.system_redirect(
                 request=request,
@@ -372,6 +407,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 is_external_version=unresolved_domain.is_from_external_domain,
             )
 
+        # Check for forced redirects.
         redirect_path, http_status = self.get_redirect(
             project=project,
             lang_slug=project.language,
@@ -393,7 +429,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 # Continue with our normal serve.
                 pass
 
-        # Check user permissions and return an unauthed response if needed
+        # Check user permissions and return an unauthed response if needed.
         if not self.allowed_user(request, project, version.slug):
             return self.get_unauthed_response(request, project)
 
