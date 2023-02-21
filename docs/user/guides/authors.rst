@@ -16,4 +16,9 @@ and :doc:`/intro/getting-started-with-mkdocs`.
    cross-referencing-with-sphinx
    Link to external projects (Intersphinx) <intersphinx>
    jupyter
+   /guides/technical-docs-seo-guide
    Migrate from rST to MyST <migrate-rest-myst>
+   enable-offline-formats
+   Using search analytics <search-analytics>
+   /automatic-redirects
+   /science

@@ -21,7 +21,7 @@ from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.core.resolver import resolve
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
-from readthedocs.proxito.constants import REDIRECT_CANONICAL_CNAME, REDIRECT_HTTPS
+from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage, staticfiles_storage
 
@@ -278,14 +278,16 @@ class ServeDocsMixin:
 
     def get_version_from_host(self, request, version_slug):
         # Handle external domain
-        if hasattr(request, 'external_domain'):
+        unresolved_domain = request.unresolved_domain
+        if unresolved_domain and unresolved_domain.is_from_external_domain:
+            external_version_slug = unresolved_domain.external_version_slug
             self.version_type = EXTERNAL
             log.warning(
                 'Using version slug from host.',
                 version_slug=version_slug,
-                host_version=request.host_version_slug,
+                host_version=external_version_slug,
             )
-            version_slug = request.host_version_slug
+            return external_version_slug
         return version_slug
 
     def _spam_response(self, request, project):
@@ -322,7 +324,7 @@ class ServeRedirectMixin:
             "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
         )
         resp = HttpResponseRedirect(to)
-        resp['X-RTD-Redirect'] = 'system'
+        resp["X-RTD-Redirect"] = RedirectType.system.name
         return resp
 
     def canonical_redirect(
@@ -331,7 +333,7 @@ class ServeRedirectMixin:
         final_project,
         version_slug,
         filename,
-        redirect_type=None,
+        redirect_type,
         is_external_version=False,
     ):
         """
@@ -358,9 +360,12 @@ class ServeRedirectMixin:
         from_url = request.build_absolute_uri()
         parsed_from = urlparse(from_url)
 
-        if redirect_type == REDIRECT_HTTPS:
-            to = parsed_from._replace(scheme='https').geturl()
-        else:
+        if redirect_type == RedirectType.http_to_https:
+            to = parsed_from._replace(scheme="https").geturl()
+        elif redirect_type in [
+            RedirectType.to_canonical_domain,
+            RedirectType.subproject_to_main_domain,
+        ]:
             to = resolve(
                 project=final_project,
                 version_slug=version_slug,
@@ -369,12 +374,14 @@ class ServeRedirectMixin:
                 external=is_external_version,
             )
             # When a canonical redirect is done, only change the domain.
-            if redirect_type == REDIRECT_CANONICAL_CNAME:
+            if redirect_type == RedirectType.to_canonical_domain:
                 parsed_to = urlparse(to)
                 to = parsed_from._replace(
                     scheme=parsed_to.scheme,
                     netloc=parsed_to.netloc,
                 ).geturl()
+        else:
+            raise NotImplementedError
 
         if from_url == to:
             # check that we do have a response and avoid infinite redirect
@@ -386,7 +393,7 @@ class ServeRedirectMixin:
 
         log.info('Canonical Redirect.', host=request.get_host(), from_url=filename, to_url=to)
         resp = HttpResponseRedirect(to)
-        resp["X-RTD-Redirect"] = redirect_type or "unknown"
+        resp["X-RTD-Redirect"] = redirect_type.name
         return resp
 
     def get_redirect(
@@ -458,5 +465,5 @@ class ServeRedirectMixin:
             resp = HttpResponseRedirect(new_path)
 
         # Add a user-visible header to make debugging easier
-        resp['X-RTD-Redirect'] = 'user'
+        resp["X-RTD-Redirect"] = RedirectType.user.name
         return resp

@@ -665,7 +665,7 @@ Here you have some resources to continue learning about documentation
 and Read the Docs:
 
 - You can learn more about the functionality of the platform
-  by going over our :doc:`/features` page.
+  by going over our :doc:`features </reference/features>` page.
 - To make the most of the documentation generators that are supported,
   you can read the :doc:`Sphinx tutorial <sphinx:tutorial/index>`
   or the `MkDocs User Guide <https://www.mkdocs.org/user-guide/>`_.
