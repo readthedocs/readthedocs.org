@@ -6,7 +6,7 @@ from urllib.parse import ParseResult, urlparse
 import structlog
 from django.conf import settings
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.constants import pattern_opts
 from readthedocs.projects.models import Domain, Feature, Project
@@ -65,9 +65,9 @@ class UnresolvedPathError(UnresolverError):
 
 
 class InvalidExternalVersionError(UnresolverError):
-    def __init__(self, project, version, external_version_slug):
+    def __init__(self, project, version_slug, external_version_slug):
         self.project = project
-        self.version = version
+        self.version_slug = version_slug
         self.external_version_slug = external_version_slug
 
 
@@ -216,33 +216,6 @@ class Unresolver:
             external_version_slug=unresolved_domain.external_version_slug,
         )
 
-        # Make sure we are serving the external version from the subdomain.
-        if unresolved_domain.is_from_external_domain:
-            domain = unresolved_domain.source_domain
-            if unresolved_domain.external_version_slug != version.slug:
-                log.warning(
-                    "Invalid version for external domain.",
-                    domain=domain,
-                    version_slug=version.slug,
-                )
-                raise InvalidExternalVersionError(
-                    project=current_project,
-                    version=version,
-                    external_version_slug=unresolved_domain.external_version_slug,
-                )
-            if not version.is_external:
-                log.warning(
-                    "Attempt of serving a non-external version from RTD_EXTERNAL_VERSION_DOMAIN.",
-                    domain=domain,
-                    version_slug=version.slug,
-                    version_type=version.type,
-                )
-                raise InvalidExternalVersionError(
-                    project=current_project,
-                    version=version,
-                    external_version_slug=unresolved_domain.external_version_slug,
-                )
-
         if append_indexhtml and filename.endswith("/"):
             filename += "index.html"
 
@@ -264,7 +237,9 @@ class Unresolver:
             filename = "/" + filename
         return filename
 
-    def _match_multiversion_project(self, parent_project, path):
+    def _match_multiversion_project(
+        self, parent_project, path, external_version_slug=None
+    ):
         """
         Try to match a multiversion project.
 
@@ -290,7 +265,15 @@ class Unresolver:
                     project=parent_project, language=language, filename=file
                 )
 
-        version = project.versions.filter(slug=version_slug).first()
+        if external_version_slug and external_version_slug != version_slug:
+            raise InvalidExternalVersionError(
+                project=project,
+                version_slug=version_slug,
+                external_version_slug=external_version_slug,
+            )
+
+        manager = EXTERNAL if external_version_slug else INTERNAL
+        version = project.versions(manager=manager).filter(slug=version_slug).first()
         if not version:
             raise VersionNotFoundError(
                 project=project, version_slug=version_slug, filename=file
@@ -348,15 +331,14 @@ class Unresolver:
         file = self._normalize_filename(path)
         if external_version_slug:
             version_slug = external_version_slug
-            version = (
-                parent_project.versions(manager=EXTERNAL)
-                .filter(slug=version_slug)
-                .first()
-            )
+            manager = EXTERNAL
         else:
             version_slug = parent_project.default_version
-            version = parent_project.versions.filter(slug=version_slug).first()
+            manager = INTERNAL
 
+        version = (
+            parent_project.versions(manager=manager).filter(slug=version_slug).first()
+        )
         if not version:
             raise VersionNotFoundError(
                 project=parent_project, version_slug=version_slug, filename=file
@@ -400,6 +382,7 @@ class Unresolver:
             response = self._match_multiversion_project(
                 parent_project=parent_project,
                 path=path,
+                external_version_slug=external_version_slug,
             )
             if response:
                 return response
