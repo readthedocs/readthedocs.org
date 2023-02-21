@@ -1,4 +1,4 @@
-Read the Docs Team
+Read the Docs team
 ==================
 
 readthedocs.org is the largest open source documentation hosting service.
@@ -89,7 +89,7 @@ Teams
 
 .. _major-contributors:
 
-Major Contributors
+Major contributors
 ------------------
 
 `The code that powers the Read the Docs platform <https://github.com/readthedocs/readthedocs.org/>`_,

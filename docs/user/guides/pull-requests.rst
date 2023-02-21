@@ -1,4 +1,4 @@
-How To Configure Pull Request Builds
+How to configure pull request builds
 ====================================
 
 In this section, you can learn how to configure :doc:`Pull Request builds </pull-requests>`.

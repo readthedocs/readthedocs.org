@@ -1,5 +1,5 @@
-Removing "Edit on ..." Buttons from Documentation
-=================================================
+How to remove "Edit on ..." buttons from documentation
+======================================================
 
 When building your documentation, Read the Docs automatically adds buttons at
 the top of your documentation and in the versions menu that point readers to your repository to make

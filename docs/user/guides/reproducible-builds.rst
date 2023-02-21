@@ -1,4 +1,4 @@
-Reproducible Builds
+Reproducible builds
 ===================
 
 Your documentation depends on a number of dependencies to be built.

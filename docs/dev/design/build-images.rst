@@ -1,4 +1,4 @@
-Build Images
+Build images
 ============
 
 This document describes how Read the Docs uses the `Docker Images`_ and how they are named.

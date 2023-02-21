@@ -1,4 +1,4 @@
-Custom Domains
+Custom domains
 ==============
 
 You can serve your documentation project from your own domain,

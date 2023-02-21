@@ -1,4 +1,4 @@
-Conda Support
+Conda support
 =============
 
 Read the Docs supports Conda as an environment management tool,
@@ -10,7 +10,7 @@ This work was funded by `Clinical Graphics`_ -- many thanks for their support of
 
 .. _Clinical Graphics: https://www.clinicalgraphics.com/
 
-Activating Conda
+Activating conda
 ----------------
 
 Conda support is available using a :doc:`../config-file/index`, see :ref:`config-file/v2:conda`.

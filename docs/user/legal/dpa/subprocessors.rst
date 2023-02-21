@@ -1,4 +1,4 @@
-Sub-Processor List
+Sub-processor list
 ==================
 
 :Effective: April 16, 2021

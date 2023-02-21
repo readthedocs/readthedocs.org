@@ -1,5 +1,5 @@
-Troubleshooting build errors
-============================
+How to troubleshoote build errors
+=================================
 
 .. include:: /shared/contribute-to-troubleshooting.rst
 

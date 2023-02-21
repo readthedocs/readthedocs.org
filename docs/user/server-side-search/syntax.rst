@@ -1,4 +1,4 @@
-Search Query Syntax
+Search query syntax
 ===================
 
 When searching on Read the Docs with :doc:`Server Side Search </server-side-search/index>`,

@@ -1,4 +1,4 @@
-Read the Docs: Documentation Simplified
+Read the Docs: documentation simplified
 =======================================
 
 .. toctree::
@@ -139,7 +139,7 @@ and some of the core features of Read the Docs.
   :doc:`/faq`
 
 
-How-to Guides
+How-to guides
 -------------
 
 These guides will help you walk through specific use cases

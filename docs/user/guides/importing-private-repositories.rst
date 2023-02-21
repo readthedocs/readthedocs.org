@@ -1,5 +1,5 @@
-Manually Importing Private Repositories
-=======================================
+How to import private repositories
+==================================
 
 .. warning::
 
