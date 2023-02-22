@@ -332,6 +332,17 @@ class TestFullDocServing(BaseDocServing):
         )
 
 
+class ProxitoV2TestFullDocServing(TestFullDocServing):
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
+
+
 class TestDocServingBackends(BaseDocServing):
     # Test that nginx and python backends both work
 
@@ -469,6 +480,17 @@ class TestDocServingBackends(BaseDocServing):
         self.assertEqual(log.project, self.project)
         self.assertEqual(log.resource, url)
         self.assertEqual(log.action, AuditLog.DOWNLOAD)
+
+
+class ProxitoV2TestDocServingBackends(TestDocServingBackends):
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
 
 
 @override_settings(
@@ -1249,6 +1271,17 @@ class TestAdditionalDocViews(BaseDocServing):
             self.assertEqual(resp.status_code, 404)
 
 
+class ProxitoV2TestAdditionalDocViews(TestAdditionalDocViews):
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
+
+
 @override_settings(
     ALLOW_PRIVATE_REPOS=True,
     PUBLIC_DOMAIN='dev.readthedocs.io',
@@ -1495,3 +1528,14 @@ class TestCDNCache(BaseDocServing):
         # Add project to plan, so we're using that to enable CDN
         self.organization.projects.add(self.project)
         self._test_cache_control_header_project(expected_value="public")
+
+
+class ProxitoV2TestCDNCache(TestCDNCache):
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
