@@ -88,13 +88,12 @@ intersphinx_mapping = {
     "jupyter": ("https://docs.jupyter.org/en/latest/", None),
 }
 
-# Do not try to resolve ANY unresolved labels that aren't explicitly prefixed.
-# Meaning that an unresolved :ref:`label_name` isn't resolved in all of the
-# intersphinx doctrees. Only :ref:`mapping:label_name` will get resolved.
+# Intersphinx: Do not try to resolve unresolved labels that aren't explicitly prefixed.
 # The default setting for intersphinx_disabled_reftypes can cause some pretty bad
 # breakage because we have rtd and rtd-dev stable versions in our mappings.
 # Hence, if we refactor labels, we won't see broken references, since the
 # currently active stable mapping keeps resolving.
+# Recommending doing this on all projects with Intersphinx.
 # https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_disabled_reftypes
 intersphinx_disabled_reftypes = ["*"]
 
