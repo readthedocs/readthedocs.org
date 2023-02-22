@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 import structlog
 from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 from django.urls import resolve as url_resolve
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -19,10 +19,14 @@ from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
-from readthedocs.projects.models import Domain, Feature
+from readthedocs.projects.models import Domain, Feature, ProjectRelationship
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
-from readthedocs.proxito.exceptions import ProxitoHttp404, ProxitoProjectPageHttp404
+from readthedocs.proxito.exceptions import (
+    ProxitoHttp404,
+    ProxitoProjectPageHttp404,
+    ProxitoSubProjectHttp404,
+)
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
@@ -44,11 +48,13 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         project = unresolved_domain.project
 
         # Use the project from the domain, or use the subproject slug.
-        # TODO: Do not raise a normal Http404 here, use custom...
         if subproject_slug:
-            project = get_object_or_404(
-                project.subprojects, alias=subproject_slug
-            ).child
+            try:
+                project = project.subprojects.get(alias=subproject_slug).child
+            except ProjectRelationship.DoesNotExist:
+                raise ProxitoSubProjectHttp404(
+                    f"Did not find subproject slug {subproject_slug} for project {project.slug}"
+                )
 
         # Get the default version from the current project,
         # or the version from the external domain.
