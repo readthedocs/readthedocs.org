@@ -477,8 +477,15 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         project, we serve it directly.
         """
         project = request.unresolved_domain.project
+        # Check if project is unlisted
+        if project.unlisted:
+            return render(
+                request,
+                "robots.unlisted.txt",
+                content_type="text/plain",
+            )
         # Verify if the project is marked as spam and return a custom robots.txt
-        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+        elif "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
             if is_robotstxt_denied(project):
                 return render(

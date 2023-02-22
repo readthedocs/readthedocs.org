@@ -359,7 +359,18 @@ class Project(models.Model):
     )
 
     featured = models.BooleanField(_('Featured'), default=False)
+
+    # TODO: What is this for?
     skip = models.BooleanField(_('Skip'), default=False)
+
+    unlisted = models.BooleanField(
+        default=False,
+        verbose_name=_("Unlisted"),
+        help_text=_(
+            "Unlisting a project removes it from search results and asks search engines to remove it via robots.txt"
+        ),
+    )
+
     install_project = models.BooleanField(
         _('Install Project'),
         help_text=_(

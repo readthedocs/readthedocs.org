@@ -48,6 +48,15 @@ class ProjectDocument(RTDDocTypeMixin, Document):
 
     modified_model_field = 'modified_date'
 
+    def get_queryset(self):
+        """
+        Don't include unlisted projects.
+        This will also break in-doc search for these projects,
+        but it's not a priority to find a solution for this as long as "unlisted" projects are
+        understood to be projects with a negative reason for being unlisted.
+        """
+        return super().get_queryset().exclude(unlisted=True)
+
     class Django:
         model = Project
         fields = []
@@ -180,6 +189,7 @@ class PageDocument(RTDDocTypeMixin, Document):
         queryset = (
             queryset
             .exclude(ignore=True)
+            .exclude(project__unlisted=True)
             .select_related('version', 'project')
         )
         return queryset
