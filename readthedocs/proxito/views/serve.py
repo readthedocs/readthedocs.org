@@ -166,7 +166,8 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 )
             except InfiniteRedirectException:
                 # Don't redirect in this case, since it would break things
-                pass
+                # Disable caching, since we failed to redirect.
+                self.cache_request = False
 
         # Handle a / redirect when we aren't a single version
         if all([
@@ -286,6 +287,12 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         return None
 
     def get_using_unresolver(self, request):
+        """
+        Resolve the current request using the new proxito implementation.
+
+        This is basically a copy of the get() method,
+        but adapted to make use of the unresolved to extract the current project, version, and file.
+        """
         unresolved_domain = request.unresolved_domain
         # TODO: capture this path in the URL.
         path = request.path_info
@@ -331,7 +338,8 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                         is_external_version=unresolved_domain.is_from_external_domain,
                     )
                 except InfiniteRedirectException:
-                    # Don't redirect in this case, since it would break things
+                    # Don't redirect in this case, since it would break things.
+                    # Disable caching, since we failed to redirect.
                     self.cache_request = False
 
             # If the path is not empty, the path doesn't resolve to a proper file.
@@ -393,7 +401,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                     is_external_version=unresolved.external,
                 )
             except InfiniteRedirectException:
-                # Don't redirect in this case, since it would break things
+                # Don't redirect in this case, since it would break things.
                 pass
 
         # Trailing slash redirect.
