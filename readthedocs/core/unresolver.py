@@ -107,6 +107,7 @@ class UnresolvedDomain:
     source_domain: str
     source: DomainSourceType
     project: Project
+    # Domain object for custom domains.
     domain: Domain = None
     external_version_slug: str = None
 
@@ -247,6 +248,7 @@ class Unresolver:
         this exception has the current project (useful for 404 pages).
 
         :returns: A tuple with the current project, version and file.
+         Returns `None` if there isn't a total or partial match.
         """
         match = self.multiversion_pattern.match(path)
         if not match:
@@ -289,6 +291,7 @@ class Unresolver:
         with the subproject as the canonical project.
 
         :returns: A tuple with the current project, version and file.
+         Returns `None` if there isn't a total or partial match.
         """
         match = self.subproject_pattern.match(path)
         if not match:
@@ -327,6 +330,7 @@ class Unresolver:
         this exception has the current project (useful for 404 pages).
 
         :returns: A tuple with the current project, version and file.
+         Returns `None` if there isn't a total or partial match.
         """
         file = self._normalize_filename(path)
         if external_version_slug:
