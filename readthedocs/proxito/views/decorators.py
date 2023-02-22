@@ -23,14 +23,14 @@ def map_subproject_slug(view_func):
 
     @wraps(view_func)
     def inner_view(  # noqa
-            request, subproject=None, subproject_slug=None, *args, **kwargs
+        request, project=None, subproject=None, subproject_slug=None, *args, **kwargs
     ):
         if subproject is None and subproject_slug:
             # Try to fetch by subproject alias first, otherwise we might end up
             # redirected to an unrelated project.
             # Depends on a project passed into kwargs
             rel = (
-                ProjectRelationship.objects.filter(parent=kwargs["project"])
+                ProjectRelationship.objects.filter(parent=project)
                 .filter(Q(alias=subproject_slug) | Q(child__slug=subproject_slug))
                 .first()
             )
@@ -40,10 +40,14 @@ def map_subproject_slug(view_func):
                 log.warning(
                     "The slug is not subproject of project.",
                     subproject_slug=subproject_slug,
-                    project_slug=kwargs["project"].slug,
+                    project_slug=project.slug,
+                    project=project,
                 )
                 raise ProxitoSubProjectHttp404(
-                    "Invalid subproject slug", subproject_slug=subproject_slug
+                    "Invalid subproject slug",
+                    project_slug=project.slug,
+                    project=project,
+                    subproject_slug=subproject_slug,
                 )
         return view_func(request, subproject=subproject, *args, **kwargs)
 

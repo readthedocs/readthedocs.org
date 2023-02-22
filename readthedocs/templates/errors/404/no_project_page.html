@@ -6,8 +6,9 @@
 {% block 404_error_message %}
 
   <p>
-    {% blocktrans trimmed with project_slug=project.slug request_path=request.path %}
-      You are browsing the documentation of "{{ project_slug }}". The page you are looking for at <code>{{ request.path }}</code> was not found.
+    {% blocktrans trimmed with request_path=request.path %}
+      You are browsing the documentation of <code>{{ project_slug }}</code>.
+      The page you are looking for at <code>{{ request_path }}</code> was not found.
     {% endblocktrans %}
   </p>
 

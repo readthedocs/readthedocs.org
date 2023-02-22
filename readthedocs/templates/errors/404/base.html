@@ -3,31 +3,23 @@
 {% load i18n %}
 
 {% block title %}
-  {% trans "404 - Maze Found" %}
+  {% trans "404 Not Found" %}
 {% endblock %}
 
 {% block content %}
 
-<h1>{% trans "404 - page not found" %}</h1>
+<h1>{% trans "404 Not Found" %}</h1>
 
 {% block 404_error_message %}
 
-{% endblock %}
-
-{% if project %}
-
-{% elif "_proxito_404_" in request.path %}
-
-{% else %}
-
-{% endif %}
+  <p>{% trans "You have encountered a 404 on Read the Docs. You are either looking for a page that does not exist or a project that has been removed." %}</p>
 
 <pre style="line-height: 1.25; white-space: pre;">
 
-        \          SORRY            /
+        \       What a maze!         /
          \                         /
           \    This page does     /
-           ]   not exist yet.    [    ,'|
+           ]     not exist.      [    ,'|
            ]                     [   /  |
            ]___               ___[ ,'   |
            ]  ]\             /[  [ |:   |
@@ -47,4 +39,7 @@
          /           q,            \
         /                           \
 </pre>
+
+{% endblock %}
+
 {% endblock %}

@@ -46,6 +46,7 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         unresolved_domain = request.unresolved_domain
         project = unresolved_domain.project
+        parent_project = project
 
         # Use the project from the domain, or use the subproject slug.
         if subproject_slug:
@@ -53,7 +54,10 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                 project = project.subprojects.get(alias=subproject_slug).child
             except ProjectRelationship.DoesNotExist:
                 raise ProxitoSubProjectHttp404(
-                    f"Did not find subproject slug {subproject_slug} for project {project.slug}"
+                    f"Did not find subproject slug {subproject_slug} for project {project.slug}",
+                    project=parent_project,
+                    project_slug=parent_project.slug,
+                    subproject_slug=subproject_slug,
                 )
 
         # Get the default version from the current project,

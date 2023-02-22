@@ -1,14 +1,14 @@
 {% extends "errors/404/base.html" %}
 {% load i18n %}
 
-{# project exists but subproject doesn't #}
+{# project exists but version doesn't #}
 
 {% block 404_error_message %}
 
   <p>
     {% blocktrans trimmed with request_path=request.path %}
       You are browsing the documentation of project <code>{{ project_slug }}</code>.
-      The subproject <code>{{ subproject_slug }}</code> you are looking for at <code>{{ request_path }}</code> was not found.
+      The version you are looking for at <code>{{ request_path }}</code> was not found.
     {% endblocktrans %}
   </p>
 

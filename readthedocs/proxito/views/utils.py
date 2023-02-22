@@ -5,7 +5,13 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 from readthedocs.projects.models import Project
-from readthedocs.proxito.exceptions import ProxitoHttp404
+from readthedocs.proxito.exceptions import (
+    ProxitoHttp404,
+    ProxitoProjectHttp404,
+    ProxitoProjectPageHttp404,
+    ProxitoProjectVersionHttp404,
+    ProxitoSubProjectHttp404,
+)
 
 from .decorators import map_project_slug, map_subproject_slug
 
@@ -22,7 +28,9 @@ def fast_404(request, *args, **kwargs):
     return HttpResponse("Not Found.", status=404)
 
 
-def proxito_404_page_handler(request, exception=None, template_name='404.html'):
+def proxito_404_page_handler(
+    request, exception=None, template_name="errors/404/base.html"
+):
     """
     Decide what 404 page return depending if it's an internal NGINX redirect.
 
@@ -36,9 +44,20 @@ def proxito_404_page_handler(request, exception=None, template_name='404.html'):
         log.debug("Displaying a 'fast 404'")
         return fast_404(request, exception, template_name)
 
+    if isinstance(exception, ProxitoProjectVersionHttp404):
+        template_name = "errors/404/no_version.html"
+    elif isinstance(exception, ProxitoSubProjectHttp404):
+        template_name = "errors/404/no_subproject.html"
+    elif isinstance(exception, ProxitoProjectPageHttp404):
+        template_name = "errors/404/no_project_page.html"
+    elif isinstance(exception, ProxitoProjectHttp404):
+        template_name = "errors/404/no_project.html"
+
     project_slug = getattr(exception, "project_slug", None)
-    log.debug(exception)
+    version_slug = getattr(exception, "version_slug", None)
     project = getattr(exception, "project", None)
+    subproject_slug = getattr(exception, "subproject_slug", None)
+
     log.debug(
         "404 page detected a project slug in request.",
         project_slug=project_slug,
@@ -46,7 +65,12 @@ def proxito_404_page_handler(request, exception=None, template_name='404.html'):
     r = render(
         request,
         template_name,
-        context={"project": project, "project_slug": project_slug},
+        context={
+            "project": project,
+            "project_slug": project_slug,
+            "subproject_slug": subproject_slug,
+            "version_slug": version_slug,
+        },
     )
     r.status_code = 404
     return r
