@@ -1,3 +1,0 @@
-# Unlisted project, removing from search indexing
-User-agent: *
-Disallow: /

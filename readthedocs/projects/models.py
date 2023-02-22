@@ -363,11 +363,11 @@ class Project(models.Model):
     # TODO: What is this for?
     skip = models.BooleanField(_('Skip'), default=False)
 
-    unlisted = models.BooleanField(
+    delisted = models.BooleanField(
         default=False,
-        verbose_name=_("Unlisted"),
+        verbose_name=_("Delisted"),
         help_text=_(
-            "Unlisting a project removes it from search results and asks search engines to remove it via robots.txt"
+            "Delisting a project removes it from search results and asks search engines to remove it via robots.txt"
         ),
     )
 

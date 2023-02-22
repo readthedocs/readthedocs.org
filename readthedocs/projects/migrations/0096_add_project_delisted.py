@@ -12,20 +12,20 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name="historicalproject",
-            name="unlisted",
+            name="delisted",
             field=models.BooleanField(
                 default=False,
-                help_text="Unlisting a project removes it from search results and asks search engines to remove it via robots.txt",
-                verbose_name="Unlisted",
+                help_text="Delisting a project removes it from search results and asks search engines to remove it via robots.txt",
+                verbose_name="Delisted",
             ),
         ),
         migrations.AddField(
             model_name="project",
-            name="unlisted",
+            name="delisted",
             field=models.BooleanField(
                 default=False,
-                help_text="Unlisting a project removes it from search results and asks search engines to remove it via robots.txt",
-                verbose_name="Unlisted",
+                help_text="Delisting a project removes it from search results and asks search engines to remove it via robots.txt",
+                verbose_name="Delisted",
             ),
         ),
     ]

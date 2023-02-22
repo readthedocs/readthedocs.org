@@ -50,12 +50,12 @@ class ProjectDocument(RTDDocTypeMixin, Document):
 
     def get_queryset(self):
         """
-        Don't include unlisted projects.
+        Don't include delisted projects.
         This will also break in-doc search for these projects,
-        but it's not a priority to find a solution for this as long as "unlisted" projects are
-        understood to be projects with a negative reason for being unlisted.
+        but it's not a priority to find a solution for this as long as "delisted" projects are
+        understood to be projects with a negative reason for being delisted.
         """
-        return super().get_queryset().exclude(unlisted=True)
+        return super().get_queryset().exclude(delisted=True)
 
     class Django:
         model = Project
@@ -184,12 +184,12 @@ class PageDocument(RTDDocTypeMixin, Document):
         return all_domains
 
     def get_queryset(self):
-        """Don't include ignored files."""
+        """Don't include ignored files and delisted projects."""
         queryset = super().get_queryset()
         queryset = (
             queryset
             .exclude(ignore=True)
-            .exclude(project__unlisted=True)
+            .exclude(project__delisted=True)
             .select_related('version', 'project')
         )
         return queryset

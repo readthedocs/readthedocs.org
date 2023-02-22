@@ -477,11 +477,11 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         project, we serve it directly.
         """
         project = request.unresolved_domain.project
-        # Check if project is unlisted
-        if project.unlisted:
+        # Check if project is delisted
+        if project.delisted:
             return render(
                 request,
-                "robots.unlisted.txt",
+                "robots.delisted.txt",
                 content_type="text/plain",
             )
         # Verify if the project is marked as spam and return a custom robots.txt

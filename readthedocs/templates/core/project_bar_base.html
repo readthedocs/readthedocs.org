@@ -21,8 +21,8 @@
           {% endblock %}
         </span>
         <a href="{{ project.get_absolute_url }}">{{ project }}</a>
-        {% if project.unlisted %}
-          <span class="quiet">{% trans "unlisted" %}</span>
+        {% if project.delisted %}
+          <span class="quiet">{% trans "delisted" %}</span>
         {% endif %}
       </h1>
     </div>
