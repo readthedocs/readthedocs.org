@@ -80,16 +80,16 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
 
 class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
-
-    def get(self,
-            request,
-            project_slug=None,
-            subproject_slug=None,
-            subproject_slash=None,
-            lang_slug=None,
-            version_slug=None,
-            filename='',
-        ):
+    def get(
+        self,
+        request,
+        project_slug=None,
+        subproject_slug=None,
+        subproject_slash=None,
+        lang_slug=None,
+        version_slug=None,
+        filename="",
+    ):
         """
         Take the incoming parsed URL's and figure out what file to serve.
 
@@ -295,7 +295,11 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 path=path,
                 append_indexhtml=False,
             )
-        except (VersionNotFoundError, TranslationNotFoundError, InvalidExternalVersionError) as exc:
+        except (
+            VersionNotFoundError,
+            TranslationNotFoundError,
+            InvalidExternalVersionError,
+        ) as exc:
             # TODO: find a better way to pass this to the middleware.
             request.path_project_slug = exc.project.slug
             raise Http404
