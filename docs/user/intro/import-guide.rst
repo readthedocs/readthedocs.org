@@ -33,7 +33,8 @@ these properties, and then click **Next** to
 Manually import your docs
 -------------------------
 
-If you do not have a connected account, you will need to select **Import Manually**
+If you have not :doc:`connected a Git provider account </guides/connecting-git-account>`,
+you will need to select **Import Manually**
 and enter the information for your repository yourself. You will also need to
 manually configure the webhook for your repository as well. When importing your
 project, you will be asked for the repository URL, along with some other
@@ -52,6 +53,11 @@ webhook if you would like to have new changes trigger builds for your
 project on Read the Docs. Go to your project's :guilabel:`Admin` > :guilabel:`Integrations` page to
 configure a new webhook, or see :ref:`our steps for webhook creation <integrations:Integration Creation>`
 for more information on this process.
+
+.. seealso::
+
+   :doc:`/guides/git-integrations`
+      Once you have imported your git project, use this guide to manually set up basic and additional integration.
 
 .. note::
     The ``Admin`` page can be found at ``https://readthedocs.org/dashboard/<project-slug>/edit/``.

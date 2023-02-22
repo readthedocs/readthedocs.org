@@ -1,3 +1,274 @@
+Version 9.6.0
+-------------
+
+:Date: February 21, 2023
+
+* `@humitos <https://github.com/humitos>`__: Metrics: update URL for latency metric (`#10048 <https://github.com/readthedocs/readthedocs.org/pull/10048>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10045 <https://github.com/readthedocs/readthedocs.org/pull/10045>`__)
+* `@humitos <https://github.com/humitos>`__: Submodule: update common (`#10043 <https://github.com/readthedocs/readthedocs.org/pull/10043>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: unpin `newrelic` (`#10041 <https://github.com/readthedocs/readthedocs.org/pull/10041>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: emojis in TOC captions, FontAwesome on external links in TOC (Diátaxis) (`#10039 <https://github.com/readthedocs/readthedocs.org/pull/10039>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Merge Diataxis into `main`! (`#10034 <https://github.com/readthedocs/readthedocs.org/pull/10034>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Upgrade Sphinx & sphinx_rtd_theme (`#10033 <https://github.com/readthedocs/readthedocs.org/pull/10033>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: use unresolved domain on page redirect view (`#10032 <https://github.com/readthedocs/readthedocs.org/pull/10032>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Refactor Reproducible Builds page (Diátaxis) (`#10030 <https://github.com/readthedocs/readthedocs.org/pull/10030>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: make use un project from unresolved_domain in some views (`#10029 <https://github.com/readthedocs/readthedocs.org/pull/10029>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Refactor the build & build customization pages (Diátaxis) (`#10028 <https://github.com/readthedocs/readthedocs.org/pull/10028>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: move "canonicalizing" logic to docs view (`#10027 <https://github.com/readthedocs/readthedocs.org/pull/10027>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Navigation reorder (Diátaxis) (`#10026 <https://github.com/readthedocs/readthedocs.org/pull/10026>`__)
+* `@humitos <https://github.com/humitos>`__: APIv2: better build command sanitization (`#10025 <https://github.com/readthedocs/readthedocs.org/pull/10025>`__)
+* `@humitos <https://github.com/humitos>`__: Embed API: Glossary terms sharing description (Sphinx) (`#10024 <https://github.com/readthedocs/readthedocs.org/pull/10024>`__)
+* `@humitos <https://github.com/humitos>`__: Builds: ignore cancelling the build at "Uploading" state (`#10006 <https://github.com/readthedocs/readthedocs.org/pull/10006>`__)
+* `@humitos <https://github.com/humitos>`__: Build: expose `READTHEDOCS_VIRTUALENV_PATH` variable (`#9971 <https://github.com/readthedocs/readthedocs.org/pull/9971>`__)
+
+Version 9.5.0
+-------------
+
+:Date: February 13, 2023
+
+* `@agjohnson <https://github.com/agjohnson>`__: Bump to latest common (`#10019 <https://github.com/readthedocs/readthedocs.org/pull/10019>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10014 <https://github.com/readthedocs/readthedocs.org/pull/10014>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Very small text update (`#10012 <https://github.com/readthedocs/readthedocs.org/pull/10012>`__)
+* `@sondalex <https://github.com/sondalex>`__: Fix code block indentation in Jupyter user guide (`#10008 <https://github.com/readthedocs/readthedocs.org/pull/10008>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Refactor all business features into feature reference + change "privacy level" page (Diátaxis) (`#10007 <https://github.com/readthedocs/readthedocs.org/pull/10007>`__)
+* `@humitos <https://github.com/humitos>`__: Redis: use `django-redis` and add password (`#10005 <https://github.com/readthedocs/readthedocs.org/pull/10005>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel SEO guide as explanation (Diátaxis) (`#10004 <https://github.com/readthedocs/readthedocs.org/pull/10004>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: cleanup `pidbox` keys (`#10002 <https://github.com/readthedocs/readthedocs.org/pull/10002>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use new maintained django-cors-headers package (`#10000 <https://github.com/readthedocs/readthedocs.org/pull/10000>`__)
+* `@stsewd <https://github.com/stsewd>`__: Document about cross-site request (`#9999 <https://github.com/readthedocs/readthedocs.org/pull/9999>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics API: catch unresolver exceptions (`#9998 <https://github.com/readthedocs/readthedocs.org/pull/9998>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: remove `django-kombu` (`#9996 <https://github.com/readthedocs/readthedocs.org/pull/9996>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.4.0 (`#9994 <https://github.com/readthedocs/readthedocs.org/pull/9994>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix ordering of filter for most recently built project (`#9992 <https://github.com/readthedocs/readthedocs.org/pull/9992>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Refactor security logs as reference (Diátaxis) (`#9985 <https://github.com/readthedocs/readthedocs.org/pull/9985>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: always check `404/index.hmtml` (`#9983 <https://github.com/readthedocs/readthedocs.org/pull/9983>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: save one queryset (`#9980 <https://github.com/readthedocs/readthedocs.org/pull/9980>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: simplify all the settings removing a whole old layer (`dev`) (`#9978 <https://github.com/readthedocs/readthedocs.org/pull/9978>`__)
+* `@humitos <https://github.com/humitos>`__: Build: expose `READTHEDOCS_VIRTUALENV_PATH` variable (`#9971 <https://github.com/readthedocs/readthedocs.org/pull/9971>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove `pdflatex` support (`#9967 <https://github.com/readthedocs/readthedocs.org/pull/9967>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Refactor "Environment variables" into 3 articles (Diátaxis) (`#9966 <https://github.com/readthedocs/readthedocs.org/pull/9966>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Split "Automation rules" into reference and how-to (Diátaxis) (`#9953 <https://github.com/readthedocs/readthedocs.org/pull/9953>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test new readthedocs-sphinx-search release (`#9934 <https://github.com/readthedocs/readthedocs.org/pull/9934>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: use getattr for getting related organization (`#9932 <https://github.com/readthedocs/readthedocs.org/pull/9932>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Allow searching & filtering VersionAutomationRuleAdmin (`#9917 <https://github.com/readthedocs/readthedocs.org/pull/9917>`__)
+* `@humitos <https://github.com/humitos>`__: Build: use environment variable `$READTHEDOCS_OUTPUT` to define output directory (`#9913 <https://github.com/readthedocs/readthedocs.org/pull/9913>`__)
+
+Version 9.4.0
+-------------
+
+:Date: February 07, 2023
+
+* `@agjohnson <https://github.com/agjohnson>`__: Fix ordering of filter for most recently built project (`#9992 <https://github.com/readthedocs/readthedocs.org/pull/9992>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9987 <https://github.com/readthedocs/readthedocs.org/pull/9987>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: always check `404/index.hmtml` (`#9983 <https://github.com/readthedocs/readthedocs.org/pull/9983>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove outdated and complex code and dependencies (`#9981 <https://github.com/readthedocs/readthedocs.org/pull/9981>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: save one queryset (`#9980 <https://github.com/readthedocs/readthedocs.org/pull/9980>`__)
+* `@humitos <https://github.com/humitos>`__: Common: update `common/` submodule (`#9979 <https://github.com/readthedocs/readthedocs.org/pull/9979>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: simplify all the settings removing a whole old layer (`dev`) (`#9978 <https://github.com/readthedocs/readthedocs.org/pull/9978>`__)
+* `@humitos <https://github.com/humitos>`__: Development: use `gunicorn` for `web` and `proxito` (`#9977 <https://github.com/readthedocs/readthedocs.org/pull/9977>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: match stripe customer description with org name (`#9976 <https://github.com/readthedocs/readthedocs.org/pull/9976>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update security docs (`#9973 <https://github.com/readthedocs/readthedocs.org/pull/9973>`__)
+* `@humitos <https://github.com/humitos>`__: Management commands: remove unused ones (`#9972 <https://github.com/readthedocs/readthedocs.org/pull/9972>`__)
+* `@humitos <https://github.com/humitos>`__: Build: expose `READTHEDOCS_VIRTUALENV_PATH` variable (`#9971 <https://github.com/readthedocs/readthedocs.org/pull/9971>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove custom CORS logic (`#9945 <https://github.com/readthedocs/readthedocs.org/pull/9945>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: refactor middleware (`#9933 <https://github.com/readthedocs/readthedocs.org/pull/9933>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Remove html_theme_path from conf.py (`#9923 <https://github.com/readthedocs/readthedocs.org/pull/9923>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel Automatic Redirects as "Incoming links: Best practices and redirects" (Diátaxis) (`#9896 <https://github.com/readthedocs/readthedocs.org/pull/9896>`__)
+* `@mwtoews <https://github.com/mwtoews>`__: Docs: add warning that pull requests only build HTML and not other formats (`#9892 <https://github.com/readthedocs/readthedocs.org/pull/9892>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix status reporting on PRs with the magic exit code (`#9807 <https://github.com/readthedocs/readthedocs.org/pull/9807>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: refactor doc serving (`#9726 <https://github.com/readthedocs/readthedocs.org/pull/9726>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Do not assign html_theme_path (`#9654 <https://github.com/readthedocs/readthedocs.org/pull/9654>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Switch to universal analytics (`#3495 <https://github.com/readthedocs/readthedocs.org/pull/3495>`__)
+
+Version 9.3.1
+-------------
+
+:Date: January 30, 2023
+
+* `@ericholscher <https://github.com/ericholscher>`__: Add documentation page on Commercial subscriptions (`#9963 <https://github.com/readthedocs/readthedocs.org/pull/9963>`__)
+* `@humitos <https://github.com/humitos>`__: MkDocs builder: use proper relative path for `--site-dir` (`#9962 <https://github.com/readthedocs/readthedocs.org/pull/9962>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9960 <https://github.com/readthedocs/readthedocs.org/pull/9960>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: reduce complexity (`#9956 <https://github.com/readthedocs/readthedocs.org/pull/9956>`__)
+* `@humitos <https://github.com/humitos>`__: Build: rclone retries when uploading artifacts (`#9954 <https://github.com/readthedocs/readthedocs.org/pull/9954>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel badges as feature reference (Diátaxis) (`#9951 <https://github.com/readthedocs/readthedocs.org/pull/9951>`__)
+* `@humitos <https://github.com/humitos>`__: Build: improve `concurent` queryset (`#9950 <https://github.com/readthedocs/readthedocs.org/pull/9950>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Make the GSOC page orphaned (Diátaxis) (`#9949 <https://github.com/readthedocs/readthedocs.org/pull/9949>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: ignore task results (`#9944 <https://github.com/readthedocs/readthedocs.org/pull/9944>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Translations: a few copy issues and translator requests (`#9937 <https://github.com/readthedocs/readthedocs.org/pull/9937>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.3.0 (`#9929 <https://github.com/readthedocs/readthedocs.org/pull/9929>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: log slugs when at least one of their builds was finished (`#9928 <https://github.com/readthedocs/readthedocs.org/pull/9928>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel pages to new top-level "Reference/Policies and legal documents" (Diátaxis) (`#9916 <https://github.com/readthedocs/readthedocs.org/pull/9916>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Move Main Features and Feature Flags to "Reference/Features" (Diátaxis) (`#9915 <https://github.com/readthedocs/readthedocs.org/pull/9915>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Add new section "How-to / Troubleshooting" and move 2 existing troubleshooting pages (`#9914 <https://github.com/readthedocs/readthedocs.org/pull/9914>`__)
+* `@stsewd <https://github.com/stsewd>`__: Logs: fix exception logging (`#9912 <https://github.com/readthedocs/readthedocs.org/pull/9912>`__)
+* `@stsewd <https://github.com/stsewd>`__: CORS: don't allow to pass credentials by default (`#9904 <https://github.com/readthedocs/readthedocs.org/pull/9904>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: CI: Add option `--show-diff-on-failure`  to pre-commit (`#9893 <https://github.com/readthedocs/readthedocs.org/pull/9893>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build storage: add additional checks for the source dir (`#9890 <https://github.com/readthedocs/readthedocs.org/pull/9890>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use rclone for sync (`#9842 <https://github.com/readthedocs/readthedocs.org/pull/9842>`__)
+* `@humitos <https://github.com/humitos>`__: Git backend: make `default_branch` to point to VCS' default branch (`#9424 <https://github.com/readthedocs/readthedocs.org/pull/9424>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: avoid double deletion (`#9341 <https://github.com/readthedocs/readthedocs.org/pull/9341>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make Build models default to `triggered` (`#8031 <https://github.com/readthedocs/readthedocs.org/pull/8031>`__)
+
+Version 9.3.0
+-------------
+
+:Date: January 24, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9925 <https://github.com/readthedocs/readthedocs.org/pull/9925>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: FAQ title/question tweak (`#9919 <https://github.com/readthedocs/readthedocs.org/pull/9919>`__)
+* `@stsewd <https://github.com/stsewd>`__: Logs: fix exception logging (`#9912 <https://github.com/readthedocs/readthedocs.org/pull/9912>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add new allauth templates (`#9909 <https://github.com/readthedocs/readthedocs.org/pull/9909>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Move and update FAQ (Diátaxis) (`#9908 <https://github.com/readthedocs/readthedocs.org/pull/9908>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 9.2.0 (`#9905 <https://github.com/readthedocs/readthedocs.org/pull/9905>`__)
+* `@stsewd <https://github.com/stsewd>`__: CORS: don't allow to pass credentials by default (`#9904 <https://github.com/readthedocs/readthedocs.org/pull/9904>`__)
+* `@abe-101 <https://github.com/abe-101>`__: rm mention of docs/requirements.txt from tutorial (`#9902 <https://github.com/readthedocs/readthedocs.org/pull/9902>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9898 <https://github.com/readthedocs/readthedocs.org/pull/9898>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel Server Side Search (`#9897 <https://github.com/readthedocs/readthedocs.org/pull/9897>`__)
+* `@humitos <https://github.com/humitos>`__: Build: standardize output directory for artifacts (`#9888 <https://github.com/readthedocs/readthedocs.org/pull/9888>`__)
+* `@humitos <https://github.com/humitos>`__: Command `contact_owners`: add support to filter by usernames (`#9882 <https://github.com/readthedocs/readthedocs.org/pull/9882>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Park resolutions to common build problems in FAQ (`#9472 <https://github.com/readthedocs/readthedocs.org/pull/9472>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: avoid double deletion (`#9341 <https://github.com/readthedocs/readthedocs.org/pull/9341>`__)
+
+Version 9.2.0
+-------------
+
+**This release contains two security fixes. For more information, see our GitHub advisories:**
+
+- `GHSA-7fcx-wwr3-99jv <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-7fcx-wwr3-99jv>`__
+- `GHSA-hqwg-gjqw-h5wg <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-hqwg-gjqw-h5wg>`__
+
+:Date: January 16, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9898 <https://github.com/readthedocs/readthedocs.org/pull/9898>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: UI updates to Connected Accounts (`#9891 <https://github.com/readthedocs/readthedocs.org/pull/9891>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Replace DPA text with link to our presigned DPA (`#9883 <https://github.com/readthedocs/readthedocs.org/pull/9883>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.1.3 (`#9881 <https://github.com/readthedocs/readthedocs.org/pull/9881>`__)
+* `@sethfischer <https://github.com/sethfischer>`__: Docs: correct Python console block type (`#9880 <https://github.com/readthedocs/readthedocs.org/pull/9880>`__)
+* `@sethfischer <https://github.com/sethfischer>`__: Docs: update build customization Poetry example (`#9879 <https://github.com/readthedocs/readthedocs.org/pull/9879>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embedded JS: Conditionally inject jQuery (`#9861 <https://github.com/readthedocs/readthedocs.org/pull/9861>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPI: decode filepath before open them from S3 storage (`#9860 <https://github.com/readthedocs/readthedocs.org/pull/9860>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Additions to style guide - placeholders, seealso::, Diátaxis and new word list entry (`#9840 <https://github.com/readthedocs/readthedocs.org/pull/9840>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel and move explanation and how-tos around OAuth (Diátaxis) (`#9834 <https://github.com/readthedocs/readthedocs.org/pull/9834>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Split Custom Domains as Explanation and How-to Guide (Diátaxis) (`#9676 <https://github.com/readthedocs/readthedocs.org/pull/9676>`__)
+
+Version 9.1.3
+-------------
+
+:Date: January 10, 2023
+
+* `@stsewd <https://github.com/stsewd>`__: Explicitly set JQuery globals on main site (`#9877 <https://github.com/readthedocs/readthedocs.org/pull/9877>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9872 <https://github.com/readthedocs/readthedocs.org/pull/9872>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Move reference labels outside of tabs (`#9866 <https://github.com/readthedocs/readthedocs.org/pull/9866>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embedded JS: Conditionally inject jQuery (`#9861 <https://github.com/readthedocs/readthedocs.org/pull/9861>`__)
+* `@humitos <https://github.com/humitos>`__: EmbedAPI: decode filepath before open them from S3 storage (`#9860 <https://github.com/readthedocs/readthedocs.org/pull/9860>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.1.2 (`#9858 <https://github.com/readthedocs/readthedocs.org/pull/9858>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9853 <https://github.com/readthedocs/readthedocs.org/pull/9853>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove intercom from our DPA list (`#9846 <https://github.com/readthedocs/readthedocs.org/pull/9846>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: API: add project name/slug filters (`#9843 <https://github.com/readthedocs/readthedocs.org/pull/9843>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel Organizations as Explanation (Diátaxis) (`#9836 <https://github.com/readthedocs/readthedocs.org/pull/9836>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Add subset of tests to testing docs (`#9817 <https://github.com/readthedocs/readthedocs.org/pull/9817>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Refactor downloadable docs (`#9768 <https://github.com/readthedocs/readthedocs.org/pull/9768>`__)
+
+Version 9.1.2
+-------------
+
+:Date: January 03, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9845 <https://github.com/readthedocs/readthedocs.org/pull/9845>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update common submodule (`#9841 <https://github.com/readthedocs/readthedocs.org/pull/9841>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: update versions on config file page (`#9838 <https://github.com/readthedocs/readthedocs.org/pull/9838>`__)
+* `@stsewd <https://github.com/stsewd>`__: Invitations: fix model name (object_type) (`#9837 <https://github.com/readthedocs/readthedocs.org/pull/9837>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel Organizations as Explanation (Diátaxis) (`#9836 <https://github.com/readthedocs/readthedocs.org/pull/9836>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel "Single version documentation" documentation from feature to explanation (Diátaxis) (`#9835 <https://github.com/readthedocs/readthedocs.org/pull/9835>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel the "Science" page as Explanation (`#9832 <https://github.com/readthedocs/readthedocs.org/pull/9832>`__)
+* `@humitos <https://github.com/humitos>`__: Build details page: normalize/trim command paths (second attempt) (`#9831 <https://github.com/readthedocs/readthedocs.org/pull/9831>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config file: update JSON schema (`#9830 <https://github.com/readthedocs/readthedocs.org/pull/9830>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Label for subproject select renamed "Child" => "Subproject" + help text added (`#9829 <https://github.com/readthedocs/readthedocs.org/pull/9829>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search API V3: fix view description (`#9828 <https://github.com/readthedocs/readthedocs.org/pull/9828>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V2: test that command is actually saved (`#9827 <https://github.com/readthedocs/readthedocs.org/pull/9827>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Removes fetching of main branch (`#9826 <https://github.com/readthedocs/readthedocs.org/pull/9826>`__)
+* `@humitos <https://github.com/humitos>`__: Test: path is trimmed when returned by the API (`#9824 <https://github.com/readthedocs/readthedocs.org/pull/9824>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.1.1 (`#9823 <https://github.com/readthedocs/readthedocs.org/pull/9823>`__)
+* `@humitos <https://github.com/humitos>`__: Dependencies: use backtracking pip's resolver (`#9821 <https://github.com/readthedocs/readthedocs.org/pull/9821>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Split Subprojects in Explanation and How-to (Diátaxis) (`#9785 <https://github.com/readthedocs/readthedocs.org/pull/9785>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Split Traffic Analytics to a How-to guide and a Feature entry (Diátaxis) (`#9677 <https://github.com/readthedocs/readthedocs.org/pull/9677>`__)
+
+Version 9.1.1
+-------------
+
+:Date: December 20, 2022
+
+* `@humitos <https://github.com/humitos>`__: Dependencies: use backtracking pip's resolver (`#9821 <https://github.com/readthedocs/readthedocs.org/pull/9821>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Use sphinx-rtd-theme 1.2.0rc1 (`#9818 <https://github.com/readthedocs/readthedocs.org/pull/9818>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add subset of tests to testing docs (`#9817 <https://github.com/readthedocs/readthedocs.org/pull/9817>`__)
+* `@humitos <https://github.com/humitos>`__: Build details page: normalize/trim command paths (`#9815 <https://github.com/readthedocs/readthedocs.org/pull/9815>`__)
+* `@DelazJ <https://github.com/DelazJ>`__: Add link to the build notifications guide (`#9814 <https://github.com/readthedocs/readthedocs.org/pull/9814>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Break documentation style guide out into its own file (`#9813 <https://github.com/readthedocs/readthedocs.org/pull/9813>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Disable Sphinx mimetype errors on epub (`#9812 <https://github.com/readthedocs/readthedocs.org/pull/9812>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Update security log wording (`#9811 <https://github.com/readthedocs/readthedocs.org/pull/9811>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: configure linkcheck (`#9810 <https://github.com/readthedocs/readthedocs.org/pull/9810>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Fix build 3 warnings (`#9809 <https://github.com/readthedocs/readthedocs.org/pull/9809>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Fix silent, then loud failure after Tox 4 upgrade (`#9803 <https://github.com/readthedocs/readthedocs.org/pull/9803>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Split SSO docs into HowTo/Explanation (Diátaxis) (`#9801 <https://github.com/readthedocs/readthedocs.org/pull/9801>`__)
+* `@juantocamidokura <https://github.com/juantocamidokura>`__: Docs: Remove outdated and misleading Poetry guide (`#9794 <https://github.com/readthedocs/readthedocs.org/pull/9794>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: CI builds: Checkout main branch in a robust way (`#9793 <https://github.com/readthedocs/readthedocs.org/pull/9793>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 9.1.0 (`#9792 <https://github.com/readthedocs/readthedocs.org/pull/9792>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel Localization as Explanation (Diátaxis) (`#9790 <https://github.com/readthedocs/readthedocs.org/pull/9790>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Fix Circle CI builds: Tox 4 compatibility, add external commands to allowlist (`#9789 <https://github.com/readthedocs/readthedocs.org/pull/9789>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Do not build documentation in Circle CI, Read the Docs handles that :100: (`#9788 <https://github.com/readthedocs/readthedocs.org/pull/9788>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Move "Choosing between our two platforms" to Explanation (Diátaxis) (`#9784 <https://github.com/readthedocs/readthedocs.org/pull/9784>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Change "downloadable" to "offline" (`#9782 <https://github.com/readthedocs/readthedocs.org/pull/9782>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Adds missing translation strings (`#9770 <https://github.com/readthedocs/readthedocs.org/pull/9770>`__)
+* `@humitos <https://github.com/humitos>`__: Admin: install `debug_toolbar` (`#9753 <https://github.com/readthedocs/readthedocs.org/pull/9753>`__)
+* `@benjaoming <https://github.com/benjaoming>`__:  Docs: Split up Pull Request Builds into a how-to guide and reference (Diátaxis) (`#9679 <https://github.com/readthedocs/readthedocs.org/pull/9679>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Split Custom Domains as Explanation and How-to Guide (Diátaxis) (`#9676 <https://github.com/readthedocs/readthedocs.org/pull/9676>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Split and relabel VCS integration as explanation and how-to (Diátaxis) (`#9675 <https://github.com/readthedocs/readthedocs.org/pull/9675>`__)
+
+Version 9.1.0
+-------------
+
+**This release contains an important security fix**. See more information `on the GitHub advisory <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-368m-86q9-m99w>`_.
+
+:Date: December 08, 2022
+
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Move "Choosing between our two platforms" to Explanation (Diátaxis) (`#9784 <https://github.com/readthedocs/readthedocs.org/pull/9784>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Abandoned Projects policy: Relax reachability requirement (`#9783 <https://github.com/readthedocs/readthedocs.org/pull/9783>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Change "downloadable" to "offline" (`#9782 <https://github.com/readthedocs/readthedocs.org/pull/9782>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: fix raw directive (`#9778 <https://github.com/readthedocs/readthedocs.org/pull/9778>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9775 <https://github.com/readthedocs/readthedocs.org/pull/9775>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: define default MailerLite setting (`#9769 <https://github.com/readthedocs/readthedocs.org/pull/9769>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Refactor downloadable docs (`#9768 <https://github.com/readthedocs/readthedocs.org/pull/9768>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: fix minor issues (`#9765 <https://github.com/readthedocs/readthedocs.org/pull/9765>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: validate Mastodon link (`#9764 <https://github.com/readthedocs/readthedocs.org/pull/9764>`__)
+
+Version 9.0.0
+-------------
+
+This version upgrades our Search API experience to a v3.
+
+:Date: November 28, 2022
+
+* `@Jean-Maupas <https://github.com/Jean-Maupas>`__: A few text updates (`#9761 <https://github.com/readthedocs/readthedocs.org/pull/9761>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9760 <https://github.com/readthedocs/readthedocs.org/pull/9760>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: 4 diátaxis categories at the top of the navigation sidebar (Diátaxis iteration 0) (`#9758 <https://github.com/readthedocs/readthedocs.org/pull/9758>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Be more explicit where go to in VCS intstructions (`#9757 <https://github.com/readthedocs/readthedocs.org/pull/9757>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Adding a pattern for reusing "Only on Read the Docs for Business" admonition (Diátaxis refactor) (`#9754 <https://github.com/readthedocs/readthedocs.org/pull/9754>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: attach stripe subscription to organizations (`#9751 <https://github.com/readthedocs/readthedocs.org/pull/9751>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: fix parsing of parameters inside sphinx domains (`#9750 <https://github.com/readthedocs/readthedocs.org/pull/9750>`__)
+* `@eltociear <https://github.com/eltociear>`__: Fix typo in private.py (`#9744 <https://github.com/readthedocs/readthedocs.org/pull/9744>`__)
+* `@browniebroke <https://github.com/browniebroke>`__: Docs: update instructions to install deps with Poetry (`#9743 <https://github.com/readthedocs/readthedocs.org/pull/9743>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#9742 <https://github.com/readthedocs/readthedocs.org/pull/9742>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: include all the PyPI packages (`#9737 <https://github.com/readthedocs/readthedocs.org/pull/9737>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: cancel PR builds if there is no documentation changes (`#9734 <https://github.com/readthedocs/readthedocs.org/pull/9734>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: add an example for custom domain input (`#9733 <https://github.com/readthedocs/readthedocs.org/pull/9733>`__)
+* `@humitos <https://github.com/humitos>`__: Release 8.9.0 (`#9732 <https://github.com/readthedocs/readthedocs.org/pull/9732>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add an initial policy for delisting unmaintained projects (`#9731 <https://github.com/readthedocs/readthedocs.org/pull/9731>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Admin: Make `VersionInline` Read-only (`#9697 <https://github.com/readthedocs/readthedocs.org/pull/9697>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: API V3 (`#9625 <https://github.com/readthedocs/readthedocs.org/pull/9625>`__)
+* `@stsewd <https://github.com/stsewd>`__: Audit log: log invitations (`#9607 <https://github.com/readthedocs/readthedocs.org/pull/9607>`__)
+* `@stsewd <https://github.com/stsewd>`__: Design doc: new search API (`#9533 <https://github.com/readthedocs/readthedocs.org/pull/9533>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: `poetry` example on `build.jobs` section (`#9445 <https://github.com/readthedocs/readthedocs.org/pull/9445>`__)
+
 Version 8.9.0
 -------------
 
@@ -4541,7 +4812,7 @@ Version 2.1.5
  * `@stsewd <https://github.com/stsewd>`__: Move project description to the top (`#3510 <https://github.com/readthedocs/readthedocs.org/pull/3510>`__)
  * `@RichardLitt <https://github.com/RichardLitt>`__: Docs: Rename "Good First Bug" to "Good First Issue" (`#3505 <https://github.com/readthedocs/readthedocs.org/pull/3505>`__)
  * `@stsewd <https://github.com/stsewd>`__: Fix regex for getting project and user (`#3501 <https://github.com/readthedocs/readthedocs.org/pull/3501>`__)
- * `@ericholscher <https://github.com/ericholscher>`__: Check to make sure changes exist in BitBucket pushes (`#3480 <https://github.com/readthedocs/readthedocs.org/pull/3480>`__)
+ * `@ericholscher <https://github.com/ericholscher>`__: Check to make sure changes exist in Bitbucket pushes (`#3480 <https://github.com/readthedocs/readthedocs.org/pull/3480>`__)
  * `@andrewgodwin <https://github.com/andrewgodwin>`__: "stable" appearing to track future release branches (`#3268 <https://github.com/readthedocs/readthedocs.org/issues/3268>`__)
  * `@cdeil <https://github.com/cdeil>`__: No module named pip in conda build (`#2827 <https://github.com/readthedocs/readthedocs.org/issues/2827>`__)
  * `@Yaseenh <https://github.com/Yaseenh>`__: building project does not generate new pdf with changes in it (`#2758 <https://github.com/readthedocs/readthedocs.org/issues/2758>`__)
@@ -4558,7 +4829,7 @@ Version 2.1.4
  * `@davidfischer <https://github.com/davidfischer>`__: Small formatting change to the Alabaster footer (`#3491 <https://github.com/readthedocs/readthedocs.org/pull/3491>`__)
  * `@matsen <https://github.com/matsen>`__: Fixing "resetting" misspelling. (`#3487 <https://github.com/readthedocs/readthedocs.org/pull/3487>`__)
  * `@ericholscher <https://github.com/ericholscher>`__: Add David to dev team listing (`#3485 <https://github.com/readthedocs/readthedocs.org/pull/3485>`__)
- * `@ericholscher <https://github.com/ericholscher>`__: Check to make sure changes exist in BitBucket pushes (`#3480 <https://github.com/readthedocs/readthedocs.org/pull/3480>`__)
+ * `@ericholscher <https://github.com/ericholscher>`__: Check to make sure changes exist in Bitbucket pushes (`#3480 <https://github.com/readthedocs/readthedocs.org/pull/3480>`__)
  * `@ericholscher <https://github.com/ericholscher>`__: Use semvar for readthedocs-build to make bumping easier (`#3475 <https://github.com/readthedocs/readthedocs.org/pull/3475>`__)
  * `@davidfischer <https://github.com/davidfischer>`__: Add programming languages (`#3471 <https://github.com/readthedocs/readthedocs.org/pull/3471>`__)
  * `@humitos <https://github.com/humitos>`__: Remove TEMPLATE_LOADERS since it's the default (`#3469 <https://github.com/readthedocs/readthedocs.org/pull/3469>`__)

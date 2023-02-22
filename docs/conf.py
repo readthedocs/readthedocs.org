@@ -14,29 +14,17 @@ for more information read https://sphinx-multiproject.readthedocs.io/.
 import os
 import sys
 
-import sphinx_rtd_theme
 from multiproject.utils import get_project
-
-sys.path.insert(0, os.path.abspath(".."))
-sys.path.append(os.path.dirname(__file__))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "readthedocs.settings.dev")
-
-# Load Django after sys.path and configuration setup
-# isort: split
-import django
-
-django.setup()
 
 sys.path.append(os.path.abspath("_ext"))
 extensions = [
     "multiproject",
     "sphinx.ext.autosectionlabel",
     "sphinx.ext.autodoc",
+    "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.httpdomain",
     "sphinxcontrib.video",
-    "djangodocs",
-    "doc_extensions",
     "sphinx_tabs.tabs",
     "sphinx-prompt",
     "notfound.extension",
@@ -69,10 +57,12 @@ templates_path = ["_templates"]
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "8.9.0"
+version = "9.6.0"
 release = version
-exclude_patterns = ["_build", "shared"]
+exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
+intersphinx_cache_limit = 14  # cache for 2 weeks
+intersphinx_timeout = 3  # 3 seconds timeout
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3.10/", None),
     "django": (
@@ -142,7 +132,7 @@ html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static", f"{docset}/_static"]
 html_css_files = ["css/custom.css", "css/sphinx_prompt_css.css"]
 html_js_files = ["js/expand_tabs.js"]
-html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
 html_logo = "img/logo.svg"
 html_theme_options = {
     "logo_only": True,
@@ -159,8 +149,11 @@ hoverxref_auto_ref = True
 hoverxref_domains = ["py"]
 hoverxref_roles = [
     "option",
-    "doc",  # Documentation pages
-    "term",  # Glossary terms
+    # Documentation pages
+    # Not supported yet: https://github.com/readthedocs/sphinx-hoverxref/issues/18
+    "doc",
+    # Glossary terms
+    "term",
 ]
 hoverxref_role_types = {
     "mod": "modal",  # for Python Sphinx Domain
@@ -171,9 +164,12 @@ hoverxref_role_types = {
     "term": "tooltip",  # for glossaries
 }
 
+# See dev/style_guide.rst for documentation
 rst_epilog = """
 .. |org_brand| replace:: Read the Docs Community
 .. |com_brand| replace:: Read the Docs for Business
+.. |git_providers_and| replace:: GitHub, Bitbucket, and GitLab
+.. |git_providers_or| replace:: GitHub, Bitbucket, or GitLab
 """
 
 # Activate autosectionlabel plugin
@@ -191,6 +187,9 @@ notfound_context = {
 <p>Try using the search box or go to the homepage.</p>
 """,
 }
+linkcheck_retries = 2
+linkcheck_timeout = 1
+linkcheck_workers = 10
 linkcheck_ignore = [
     r"http://127\.0\.0\.1",
     r"http://localhost",
@@ -206,3 +205,10 @@ linkcheck_ignore = [
     # This page is under login
     r"https://readthedocs\.org/accounts/gold",
 ]
+
+extlinks = {
+    "rtd-issue": ("https://github.com/readthedocs/readthedocs.org/issues/%s", "#%s"),
+}
+
+# Disable epub mimetype warnings
+suppress_warnings = ["epub.unknown_project_files"]

@@ -148,3 +148,27 @@ BUILD_STATUS_CHOICES = (
 MAX_BUILD_COMMAND_SIZE = 1000000  # This keeps us under Azure's upload limit
 
 LOCK_EXPIRE = 60 * 180  # Lock expires in 3 hours
+
+# All artifact types supported by Read the Docs.
+# They match the output directory (`_readthedocs/<artifact type>`)
+ARTIFACT_TYPES = (
+    "html",
+    "json",
+    "htmlzip",
+    "pdf",
+    "epub",
+)
+# Artifacts that are not deleted when uploading to the storage,
+# even if they weren't re-built in the build process.
+UNDELETABLE_ARTIFACT_TYPES = (
+    "html",
+    "json",
+)
+# Artifacts that expect one and only one file in the output directory.
+# NOTE: currently, this is a limitation that we are consider to remove
+# https://github.com/readthedocs/readthedocs.org/issues/9931#issuecomment-1403415757
+ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT = (
+    "htmlzip",
+    "epub",
+    "pdf",
+)

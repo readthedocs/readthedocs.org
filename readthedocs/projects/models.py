@@ -73,19 +73,22 @@ class ProjectRelationship(models.Model):
     """
     Project to project relationship.
 
-    This is used for subprojects
+    This is used for subprojects.
+
+    Terminology: We should say main project and subproject.
+    Saying "child" and "parent" only has internal, technical value.
     """
 
     parent = models.ForeignKey(
-        'projects.Project',
-        verbose_name=_('Parent'),
-        related_name='subprojects',
+        "projects.Project",
+        verbose_name=_("Main project"),
+        related_name="subprojects",
         on_delete=models.CASCADE,
     )
     child = models.ForeignKey(
-        'projects.Project',
-        verbose_name=_('Child'),
-        related_name='superprojects',
+        "projects.Project",
+        verbose_name=_("Subproject"),
+        related_name="superprojects",
         on_delete=models.CASCADE,
     )
     alias = models.SlugField(
@@ -172,8 +175,8 @@ class Project(models.Model):
         default=LATEST,
         help_text=_('The version of your project that / redirects to'),
     )
-    # In default_branch, None means the backend should choose the
-    # appropriate branch. Eg 'master' for git
+    # In default_branch, ``None`` means the backend will use the default branch
+    # cloned for each backend.
     default_branch = models.CharField(
         _('Default branch'),
         max_length=255,
@@ -182,8 +185,7 @@ class Project(models.Model):
         blank=True,
         help_text=_(
             'What branch "latest" points to. Leave empty '
-            'to use the default value for your VCS (eg. '
-            '<code>trunk</code> or <code>master</code>).',
+            "to use the default value for your VCS.",
         ),
     )
     requirements_file = models.CharField(
@@ -477,21 +479,21 @@ class Project(models.Model):
             if not self.slug:
                 raise Exception(_('Model must have slug'))
         super().save(*args, **kwargs)
-        try:
-            latest = self.versions.filter(slug=LATEST).first()
-            default_branch = self.get_default_branch()
-            if latest and latest.identifier != default_branch:
-                latest.identifier = default_branch
-                latest.save()
-        except Exception:
-            log.exception('Failed to update latest identifier')
 
         try:
-            branch = self.get_default_branch()
             if not self.versions.filter(slug=LATEST).exists():
-                self.versions.create_latest(identifier=branch)
+                self.versions.create_latest()
         except Exception:
-            log.exception('Error creating default branches')
+            log.exception("Error creating default branches")
+
+        # Update `Version.identifier` for `latest` with the default branch the user has selected,
+        # even if it's `None` (meaning to match the `default_branch` of the repository)
+        # NOTE: this code is required to be *after* ``create_latest()``.
+        # It has to be updated after creating LATEST originally.
+        log.debug(
+            "Updating default branch.", slug=LATEST, identifier=self.default_branch
+        )
+        self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects.tasks.utils import clean_project_resources
@@ -814,8 +816,13 @@ class Project(models.Model):
         return doc_base
 
     def artifact_path(self, type_, version=LATEST):
-        """The path to the build html docs in the project."""
-        return os.path.join(self.doc_path, 'artifacts', version, type_)
+        """
+        The path to the build docs output for the project.
+
+        :param type_: one of `html`, `json`, `htmlzip`, `pdf`, `epub`.
+        :param version: slug of the version.
+        """
+        return os.path.join(self.checkout_path(version=version), "_readthedocs", type_)
 
     def conf_file(self, version=LATEST):
         """Find a ``conf.py`` file in the project checkout."""
@@ -944,7 +951,7 @@ class Project(models.Model):
 
     @property
     def git_provider_name(self):
-        """Get the provider name for project. e.g: GitHub, GitLab, BitBucket."""
+        """Get the provider name for project. e.g: GitHub, GitLab, Bitbucket."""
         service = self.git_service_class()
         if service:
             provider = allauth_registry.by_id(service.adapter.provider_id)
@@ -1799,6 +1806,7 @@ class Feature(models.Model):
     # may be added by other packages
     ALLOW_DEPRECATED_WEBHOOKS = "allow_deprecated_webhooks"
     DONT_OVERWRITE_SPHINX_CONTEXT = "dont_overwrite_sphinx_context"
+    SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
     DONT_SHALLOW_CLONE = "dont_shallow_clone"
@@ -1815,6 +1823,7 @@ class Feature(models.Model):
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     DISABLE_SPHINX_DOMAINS = "disable_sphinx_domains"
+    RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1836,12 +1845,14 @@ class Feature(models.Model):
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
+    # Build related features
     LIST_PACKAGES_INSTALLED_ENV = "list_packages_installed_env"
     VCS_REMOTE_LISTING = "vcs_remote_listing"
     SPHINX_PARALLEL = "sphinx_parallel"
     USE_SPHINX_BUILDERS = "use_sphinx_builders"
     CANCEL_OLD_BUILDS = "cancel_old_builds"
     DONT_CREATE_INDEX = "dont_create_index"
+    USE_RCLONE = "use_rclone"
 
     FEATURES = (
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
@@ -1849,6 +1860,12 @@ class Feature(models.Model):
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
                 'Do not overwrite context vars in conf.py with Read the Docs context',
+            ),
+        ),
+        (
+            SKIP_SPHINX_HTML_THEME_PATH,
+            _(
+                "Do not define html_theme_path on Sphinx < 6.0",
             ),
         ),
         (
@@ -1917,6 +1934,10 @@ class Feature(models.Model):
         (
             DISABLE_SPHINX_DOMAINS,
             _("Disable indexing of sphinx domains"),
+        ),
+        (
+            RESOLVE_PROJECT_FROM_HEADER,
+            _("Allow usage of the X-RTD-Slug header"),
         ),
 
         # Versions sync related features
@@ -1997,6 +2018,10 @@ class Feature(models.Model):
         (
             DONT_CREATE_INDEX,
             _('Do not create index.md or README.rst if the project does not have one.'),
+        ),
+        (
+            USE_RCLONE,
+            _("Use rclone for syncing files to the media storage."),
         ),
     )
 

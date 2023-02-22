@@ -12,11 +12,24 @@ have a look at our :doc:`/tutorial/index`.
 .. toctree::
    :maxdepth: 1
 
-   technical-docs-seo-guide
+   Connect your git repository <git-integrations>
+   /connected-accounts
+   Connect your Read the Docs account to your Git repository <connecting-git-account>
+   Manage Custom Domains <custom-domains>
+   Enable Canonical URLs <canonical-urls>
+   Use traffic analytics </analytics>
    manage-translations-sphinx
-   advanced-search
    hiding-a-version
    deprecating-content
    pdf-non-ascii-languages
    importing-private-repositories
    Setup Build Notifications <build-notifications>
+   subprojects
+   Configure Pull Request Builds <pull-requests>
+   setup-single-sign-on-github-gitlab-bitbucket
+   setup-single-sign-on-google-email
+   manage-read-the-docs-teams
+   Use custom environment variables <environment-variables>
+   automation-rules
+   redirects
+   Managing your Read the Docs for Business subscription </commercial/subscriptions>

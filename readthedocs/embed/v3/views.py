@@ -1,6 +1,7 @@
 """Views for the EmbedAPI v3 app."""
 
 import re
+import urllib.parse
 from urllib.parse import urlparse
 
 import requests
@@ -90,11 +91,16 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             include_file=False,
             version_type=version.type,
         )
+
+        # Decode encoded URLs (e.g. convert %20 into a whitespace)
+        filename = urllib.parse.unquote(filename)
+
         relative_filename = filename.lstrip("/")
         file_path = build_media_storage.join(
             storage_path,
             relative_filename,
         )
+
         try:
             with build_media_storage.open(file_path) as fd:  # pylint: disable=invalid-name
                 return fd.read()
@@ -131,7 +137,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             return first_header.parent
 
     def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):
-        # pylint: disable=unused-argument
+        # pylint: disable=unused-argument disable=too-many-branches disable=too-many-nested-blocks
         if not page_content:
             return
 
@@ -208,8 +214,19 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                     # </dl>
 
                     parent_node = node.parent
-                    if 'glossary' in node.parent.attributes.get('class'):
-                        next_node = node.next
+                    if "glossary" in node.parent.attributes.get("class"):
+                        # iterate through child and next nodes
+                        traverse = node.traverse()
+                        iteration = 0
+                        while iteration < 5:
+                            next_node = next(traverse, None)
+                            # TODO: Do we need to support terms with missing descriptions?
+                            # This will not produce correct results in this case.
+
+                            # Stop at the next 'dd' node, which is the description
+                            if iteration >= 5 or (next_node and next_node.tag == "dd"):
+                                break
+                            iteration += 1
 
                     elif 'citation' in node.parent.attributes.get('class'):
                         next_node = node.next.next

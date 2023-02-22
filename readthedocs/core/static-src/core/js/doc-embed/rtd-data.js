@@ -58,6 +58,7 @@ function get() {
     var defaults = {
         api_host: 'https://readthedocs.org',
         ad_free: false,
+        proxied_static_path: '/_/static/',
     };
 
     Object.assign(config, defaults, window.READTHEDOCS_DATA);

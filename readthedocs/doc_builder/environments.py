@@ -130,8 +130,6 @@ class BuildCommand(BuildCommandResultMixin):
     # commands, which is not supported anymore
     def run(self):
         """Set up subprocess and execute command."""
-        log.info("Running build command.", command=self.get_command(), cwd=self.cwd)
-
         self.start_time = datetime.utcnow()
         environment = self._environment.copy()
         if 'DJANGO_SETTINGS_MODULE' in environment:
@@ -144,6 +142,13 @@ class BuildCommand(BuildCommandResultMixin):
         if self.bin_path is not None:
             env_paths.insert(0, self.bin_path)
         environment['PATH'] = ':'.join(env_paths)
+
+        log.info(
+            "Running build command.",
+            command=self.get_command(),
+            cwd=self.cwd,
+            environment=environment,
+        )
 
         try:
             # When using ``shell=True`` the command should be flatten
@@ -380,7 +385,18 @@ class DockerBuildCommand(BuildCommand):
 
     def _escape_command(self, cmd):
         r"""Escape the command by prefixing suspicious chars with `\`."""
-        return self.bash_escape_re.sub(r'\\\1', cmd)
+        command = self.bash_escape_re.sub(r"\\\1", cmd)
+
+        # HACK: avoid escaping variables that we need to use in the commands
+        not_escape_variables = (
+            "READTHEDOCS_OUTPUT",
+            "READTHEDOCS_VIRTUALENV_PATH",
+            "CONDA_ENVS_PATH",
+            "CONDA_DEFAULT_ENV",
+        )
+        for variable in not_escape_variables:
+            command = command.replace(f"\\${variable}", f"${variable}")
+        return command
 
 
 class BaseEnvironment:

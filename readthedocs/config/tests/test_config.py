@@ -6,6 +6,7 @@ from unittest.mock import DEFAULT, patch
 
 import pytest
 from django.conf import settings
+from django.test import override_settings
 from pytest import raises
 
 from readthedocs.config import (
@@ -80,7 +81,8 @@ def test_load_no_config_file(tmpdir, files):
     apply_fs(tmpdir, files)
     base = str(tmpdir)
     with raises(ConfigFileNotFound) as e:
-        load(base, {})
+        with override_settings(DOCROOT=tmpdir):
+            load(base, {})
     assert e.value.code == CONFIG_FILE_REQUIRED
 
 
@@ -92,13 +94,15 @@ def test_load_empty_config_file(tmpdir):
     )
     base = str(tmpdir)
     with raises(ConfigError):
-        load(base, {})
+        with override_settings(DOCROOT=tmpdir):
+            load(base, {})
 
 
 def test_minimal_config(tmpdir):
     apply_fs(tmpdir, yaml_config_dir)
     base = str(tmpdir)
-    build = load(base, {})
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {})
     assert isinstance(build, BuildConfigV1)
 
 
@@ -111,7 +115,8 @@ def test_load_version1(tmpdir):
         },
     )
     base = str(tmpdir)
-    build = load(base, {})
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {})
     assert isinstance(build, BuildConfigV1)
 
 
@@ -124,7 +129,8 @@ def test_load_version2(tmpdir):
         },
     )
     base = str(tmpdir)
-    build = load(base, {})
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {})
     assert isinstance(build, BuildConfigV2)
 
 
@@ -138,7 +144,8 @@ def test_load_unknow_version(tmpdir):
     )
     base = str(tmpdir)
     with raises(ConfigError) as excinfo:
-        load(base, {})
+        with override_settings(DOCROOT=tmpdir):
+            load(base, {})
     assert excinfo.value.code == VERSION_INVALID
 
 
@@ -159,7 +166,8 @@ def test_load_raise_exception_invalid_syntax(tmpdir):
     )
     base = str(tmpdir)
     with raises(ConfigError) as excinfo:
-        load(base, {})
+        with override_settings(DOCROOT=tmpdir):
+            load(base, {})
     assert excinfo.value.code == CONFIG_SYNTAX_INVALID
 
 
@@ -176,13 +184,15 @@ def test_yaml_extension(tmpdir):
         },
     )
     base = str(tmpdir)
-    config = load(base, {})
+    with override_settings(DOCROOT=tmpdir):
+        config = load(base, {})
     assert isinstance(config, BuildConfigV1)
 
 
 def test_build_config_has_source_file(tmpdir):
     base = str(apply_fs(tmpdir, yaml_config_dir))
-    build = load(base, {})
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {})
     assert build.source_file == os.path.join(base, 'readthedocs.yml')
 
 
@@ -196,7 +206,8 @@ def test_build_config_has_list_with_single_empty_value(tmpdir):
             ),
         },
     ))
-    build = load(base, {})
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {})
     assert isinstance(build, BuildConfigV1)
     assert build.formats == []
 
@@ -682,7 +693,8 @@ def test_load_calls_validate(tmpdir):
     apply_fs(tmpdir, yaml_config_dir)
     base = str(tmpdir)
     with patch.object(BuildConfigV1, 'validate') as build_validate:
-        load(base, {})
+        with override_settings(DOCROOT=tmpdir):
+            load(base, {})
         assert build_validate.call_count == 1
 
 

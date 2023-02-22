@@ -1,8 +1,8 @@
-import structlog
 import sys
 from pathlib import Path
 from pprint import pprint
 
+import structlog
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -29,12 +29,27 @@ class Command(BaseCommand):
 
       django-admin contact_owners --email email.md
 
-    Email and send an ephemeral (disappears after shown once) notification to all owners of the "readthedocs" organization::
+    Email and send an ephemeral (disappears after shown once) notification
+    to all owners of the "readthedocs" organization::
 
-      django-admin contact_owners --email email.md --notification notification.md --organization readthedocs  # noqa
+      django-admin contact_owners
+        --email email.md
+        --notification notification.md
+        --organization readthedocs
 
-    Where ``email.md`` is a markdown file with the first line as the subject, and the rest is the content.
-    ``user`` and ``domain`` are available in the context.
+    Send a sticky notifications to multiple users::
+
+      django-admin contact_owners
+        --notification notification.md
+        --sticky
+        --usernames usernames.txt
+
+    * ``usernames.txt`` is a text file containing one username per line.
+    * ``notifications.md`` is a Markdown file containing the message
+       to be included in the notification.
+    * ``email.md`` is a Markdown file with the first line as the subject,
+      and the rest is the content.
+      Note that ``user`` and ``domain`` are available in the context.
 
     .. code:: markdown
 
@@ -48,9 +63,17 @@ class Command(BaseCommand):
 
        By default the command won't send the email/notification (dry-run mode),
        add the ``--production`` flag to actually send the email/notification.
+
+    .. note::
+
+       If you need to extend the behavior or add a new use case,
+       we recommend creating a simple script file that re-use the methods
+       and functions from this command.
+       This is an example to contact Domain owners:
+       https://gist.github.com/humitos/3e08ed4763a9312f5c0a9a997ea95a42
     """
 
-    help = 'Send an email or sticky notification from a file (markdown) to all owners.'
+    help = "Send an email or sticky notification from a file (Markdown) to users."
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -92,16 +115,24 @@ class Command(BaseCommand):
             '--project',
             help='Project slug to filter by.',
         )
+        parser.add_argument(
+            "--usernames",
+            help="Path to a file with one username per line to filter by.",
+        )
 
     def handle(self, *args, **options):
         if not options['email'] and not options['notification']:
             print("--email or --notification is required.")
             sys.exit(1)
 
-        project = options['project']
-        organization = options['organization']
-        if project and organization:
-            print("--project and --organization can\'t be used together.")
+        project = options["project"]
+        organization = options["organization"]
+        usernames = options["usernames"]
+        if (
+            len([item for item in [project, organization, usernames] if bool(item)])
+            >= 2
+        ):
+            print("--project, --organization and --usernames can't be used together.")
             sys.exit(1)
 
         if project:
@@ -110,12 +141,19 @@ class Command(BaseCommand):
         elif organization:
             organization = Organization.objects.get(slug=organization)
             users = AdminPermission.owners(organization)
+        elif usernames:
+            file = Path(usernames)
+            with file.open() as f:
+                usernames = f.readlines()
+
+            # remove "\n" from lines
+            usernames = [line.strip() for line in usernames]
+
+            users = User.objects.filter(username__in=usernames)
         elif settings.RTD_ALLOW_ORGANIZATIONS:
-            users = (
-                User.objects
-                .filter(organizationowner__organization__disabled=False)
-                .distinct()
-            )
+            users = User.objects.filter(
+                organizationowner__organization__disabled=False
+            ).distinct()
         else:
             users = (
                 User.objects
@@ -124,16 +162,17 @@ class Command(BaseCommand):
             )
 
         print(
-            'len(owners)={} production={} email={} notification={}'.format(
+            "len(owners)={} production={} email={} notification={} sticky={}".format(
                 users.count(),
-                bool(options['production']),
-                options['email'],
-                options['notification'],
+                bool(options["production"]),
+                options["email"],
+                options["notification"],
+                options["sticky"],
             )
         )
 
-        if input('Continue? y/n: ') != 'y':
-            print('Aborting run.')
+        if input("Continue? y/N: ") != "y":
+            print("Aborting run.")
             return
 
         notification_content = ''

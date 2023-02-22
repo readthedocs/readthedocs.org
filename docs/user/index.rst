@@ -1,8 +1,62 @@
 Read the Docs: Documentation Simplified
 =======================================
 
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: 🚀 Tutorials
+
+   /tutorial/index
+   /intro/getting-started-with-sphinx
+   /intro/getting-started-with-mkdocs
+   /intro/import-guide
+   /examples
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: 💡 Explanation
+
+   /choosing-a-site
+   /integrations
+   /downloadable-documentation
+   /environment-variables
+   /subprojects
+   /localization
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: 🪄 How-to guides
+
+   /guides/authors
+   /guides/administrators
+   /guides/developers
+   /guides/troubleshooting/index
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: 📚 Reference
+
+   /reference/features
+   /config-file/index
+   /builds
+   /build-customization
+   /server-side-search/syntax
+   /faq
+   /api/index
+   /changelog
+   /about/index
+   Developer Documentation <https://dev.readthedocs.io>
+
 .. meta::
    :description lang=en: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.
+
+.. Adds a hidden link for the purpose of validating Read the Docs' Mastodon profile
+.. raw:: html
+
+   <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
 
 `Read the Docs`_ simplifies software documentation
 by building, versioning, and hosting of your docs, automatically.
@@ -24,7 +78,7 @@ Multiple versions |:card_index_dividers:|
 
 Open Source and User Focused |:heartbeat:|
     Our code is free and `open source <https://github.com/readthedocs/>`_.
-    :doc:`Our company </about>` is bootstrapped and 100% user focused.
+    :doc:`Our company </about/index>` is bootstrapped and 100% user focused.
     |org_brand| hosts documentation for over 100,000 large
     and small open source projects,
     in almost every human and computer language.
@@ -32,7 +86,7 @@ Open Source and User Focused |:heartbeat:|
 
 .. _Read the docs: https://readthedocs.org/
 
-You can find out more about our all the :doc:`/features` in these pages.
+You can find out more about our all the :doc:`features </reference/features>` in these pages.
 
 First steps
 -----------
@@ -52,19 +106,6 @@ to help you create fantastic documentation for your project.
 * **Importing your existing documentation**:
   :doc:`Import guide </intro/import-guide>`
 
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: First steps
-
-   /tutorial/index
-   /intro/getting-started-with-sphinx
-   /intro/getting-started-with-mkdocs
-   /intro/import-guide
-   /choosing-a-site
-
-
 Read the Docs feature overview
 ------------------------------
 
@@ -72,20 +113,17 @@ Learn more about configuring your automated documentation builds
 and some of the core features of Read the Docs.
 
 * **Overview of core features**:
-  :doc:`/features` |
-  :doc:`/integrations` |
   :doc:`/custom-domains` |
   :doc:`/versions` |
   :doc:`/downloadable-documentation` |
-  :doc:`/hosting` |
-  :doc:`/server-side-search` |
+  :doc:`/server-side-search/index` |
   :doc:`/analytics` |
   :doc:`/pull-requests` |
   :doc:`/build-notifications` |
   :doc:`/user-defined-redirects` |
   :doc:`/security-log`
 
-* **Connecting with GitHub, BitBucket, or GitLab**:
+* **Connecting with GitHub, Bitbucket, or GitLab**:
   :doc:`Connecting your VCS account </connected-accounts>`
 
 * **Read the Docs build process**:
@@ -93,46 +131,18 @@ and some of the core features of Read the Docs.
   :doc:`Build process </builds>` |
   :doc:`Build customization </build-customization>` |
   :doc:`/environment-variables` |
+  :doc:`/reference/environment-variables` |
   :doc:`/badges`
 
 * **Troubleshooting**:
   :doc:`/support` |
-  :doc:`Frequently asked questions </faq>`
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Features
-
-   /features
-   /config-file/index
-   /integrations
-   /custom-domains
-   /versions
-   /downloadable-documentation
-   /hosting
-   /server-side-search
-   /analytics
-   /pull-requests
-   /build-notifications
-   /security-log
-
-   /connected-accounts
-
-   /builds
-   /build-customization
-   /build-troubleshooting
-   /environment-variables
-   /badges
-
-   /support
-   /faq
+  :doc:`/faq`
 
 
 How-to Guides
 -------------
 
-These guides will help walk you through specific use cases
+These guides will help you walk through specific use cases
 related to Read the Docs itself, documentation tools like Sphinx and MkDocs
 and how to write successful documentation.
 
@@ -143,11 +153,14 @@ and how to write successful documentation.
   :doc:`More guides for authors </guides/authors>`
 
 * **For project administrators**:
+  :doc:`Connect Your Git Repository </guides/git-integrations>` |
+  :doc:`Manage Custom Domains </guides/custom-domains>` |
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
-  :doc:`/guides/advanced-search` |
   :doc:`/guides/private-submodules` |
-  Setup Build Notifications <build-notifications> |
+  :doc:`Configure Pull Request Builds </guides/pull-requests>` |
+  :doc:`Use Traffic Analytics </analytics>` |
+  :doc:`/guides/build-notifications` |
   :doc:`More guides for administrators </guides/administrators>`
 
 * **For developers and designers**:
@@ -156,19 +169,10 @@ and how to write successful documentation.
   :doc:`/guides/reproducible-builds` |
   :doc:`/guides/embedding-content` |
   :doc:`/guides/conda` |
-  Setup Build Notifications <build-notifications> |
+  :doc:`Use Traffic Analytics </analytics>` |
+  :doc:`/guides/build-notifications` |
   :doc:`More guides for developers and designers </guides/developers>`
 
-.. toctree::
- :maxdepth: 2
- :hidden:
- :caption: How-to Guides
-
- /guides/authors
- /guides/administrators
- /guides/developers
- /science
- /examples
 
 Advanced features of Read the Docs
 ----------------------------------
@@ -179,7 +183,7 @@ out of your documentation and Read the Docs.
 
 * **Advanced project configuration**:
   :doc:`subprojects` |
-  :doc:`Single version docs <single_version>` |
+  :doc:`Single version docs <single-version>` |
   :doc:`flyout-menu` |
   :doc:`feature-flags`
 
@@ -198,27 +202,7 @@ out of your documentation and Read the Docs.
 * **Extending Read the Docs**:
   :doc:`REST API <api/index>`
 
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :glob:
-   :caption: Advanced features
 
-   subprojects
-   single_version
-   flyout-menu
-   feature-flags
-
-   localization
-
-   user-defined-redirects
-   automatic-redirects
-
-   automation-rules
-   canonical-urls
-
-
-   api/index
 
 Read the Docs for Business
 --------------------------
@@ -232,14 +216,6 @@ Read the Docs has a commercial offering with improved support and additional fea
   :doc:`Sharing externally <commercial/sharing>`
 
 
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Read the Docs for Business
-   :glob:
-
-   commercial/*
-
 The Read the Docs project and organization
 ------------------------------------------
 
@@ -250,12 +226,13 @@ of Read the Docs and the larger software documentation ecosystem.
 * **Policies & Process**:
   :doc:`security` |
   :doc:`DMCA takedown policy <dmca/index>` |
-  :doc:`Policy for abandoned projects <abandoned-projects>` |
+  :doc:`/abandoned-projects` |
+  :doc:`/unofficial-projects` |
   :doc:`Release notes & changelog <changelog>`
 
 
 * **The people and philosophy behind Read the Docs**:
-  :doc:`About Us </about>` |
+  :doc:`About Us </about/index>` |
   :doc:`Team <team>` |
   :doc:`Open source philosophy <open-source-philosophy>` |
   :doc:`Our story <story>`
@@ -271,30 +248,4 @@ of Read the Docs and the larger software documentation ecosystem.
 
 * **Getting involved with Read the Docs**:
   :doc:`/glossary` |
-  :doc:`/gsoc`|
   :doc:`Developer Documentation <rtd-dev:index>`
-
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: About Read the Docs
-
-   security
-   dmca/index
-   abandoned-projects
-   changelog
-
-   about
-   team
-   open-source-philosophy
-   story
-
-   advertising/index
-   sponsors
-
-   legal/index
-
-   Developer Documentation <https://dev.readthedocs.io>
-   glossary
-   gsoc
