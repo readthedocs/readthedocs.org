@@ -19,7 +19,7 @@ and then click on :guilabel:`Traffic Analytics`.
 
    Traffic analytics demo
 
-You can also access to analytics data from :ref:`search results <server-side-search/index:Search Analytics>`.
+You can also access analytics data from :doc:`search results </guides/search-analytics>`.
 
 .. note::
 
