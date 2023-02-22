@@ -87,9 +87,17 @@ intersphinx_mapping = {
     "rtd-dev": ("https://dev.readthedocs.io/en/latest/", None),
     "jupyter": ("https://docs.jupyter.org/en/latest/", None),
 }
-# Redundant in Sphinx 5.0
+
+# Do not try to resolve ANY unresolved labels that aren't explicitly prefixed.
+# Meaning that an unresolved :ref:`label_name` isn't resolved in all of the
+# intersphinx doctrees. Only :ref:`mapping:label_name` will get resolved.
+# The default setting for intersphinx_disabled_reftypes can cause some pretty bad
+# breakage because we have rtd and rtd-dev stable versions in our mappings.
+# Hence, if we refactor labels, we won't see broken references, since the
+# currently active stable mapping keeps resolving.
 # https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_disabled_reftypes
-intersphinx_disabled_reftypes = ["std:doc"]
+intersphinx_disabled_reftypes = ["*"]
+
 myst_enable_extensions = [
     "deflist",
 ]
