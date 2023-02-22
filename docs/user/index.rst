@@ -18,6 +18,7 @@ Read the Docs: Documentation Simplified
    :caption: 💡 Explanation
 
    /choosing-a-site
+   /explanation/documentation-structure
    /integrations
    /downloadable-documentation
    /environment-variables
