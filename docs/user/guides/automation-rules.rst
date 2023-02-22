@@ -36,7 +36,7 @@ In the :guilabel:`Automation Rule` form, you need to fill in 4 fields:
 
    * :ref:`Any version <automation-rules:Predefined matches>` matches all values.
    * :ref:`SemVer versions <automation-rules:Predefined matches>` matches only values that have the `SemVer`_ format.
-   * :ref:`Custom match <automation-rules:User defined matches>` matches your own pattern (entered below).
+   * :ref:`Custom match <automation-rules:Custom matches>` matches your own pattern (entered below).
      If you choose this option,
      a field :guilabel:`Custom match` will automatically appear below the drop-down where you can add a regular expression in `Python regex format`_.
 

@@ -50,7 +50,7 @@ The build process includes the following jobs:
 
    .. tip::
 
-    We strongly recommend :ref:`pinning all the versions <guides/reproducible-builds:pinning dependencies>` required to build the documentation to avoid unexpected build errors.
+    We strongly recommend :doc:`pinning all the versions </guides/reproducible-builds>` required to build the documentation to avoid unexpected build errors.
 
 :build:
 
