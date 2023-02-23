@@ -316,11 +316,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             proxito_path,
             urlconf='readthedocs.proxito.urls',
         )
-        log.debug("Resolved a URL.")
 
         version_slug = kwargs.get('version_slug')
         version_slug = self.get_version_from_host(request, version_slug)
-        log.debug("Getting _get_project_data_from_request.")
         (
             final_project,
             lang_slug,
@@ -334,7 +332,6 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
             filename=kwargs.get('filename', ''),
         )
-        log.debug("Finished _get_project_data_from_request.")
 
         log.bind(
             project_slug=final_project.slug,
