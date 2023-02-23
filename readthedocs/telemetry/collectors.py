@@ -104,7 +104,8 @@ class BuildDataCollector:
 
     def _check_using_old_output_directory(self):
         code, stdout, stderr = self.run(
-            "ls",
+            "test",
+            "-x",
             "_build/html",
             cwd=self.project.checkout_path(self.version.slug),
         )
