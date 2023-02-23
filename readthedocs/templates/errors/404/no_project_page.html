@@ -5,7 +5,7 @@
 
 {% block 404_error_message %}
   {% include "errors/404/include_error_message.html" with not_found_subject="page" %}
-  {% include "errors/404/include_search.html" %}
+  {% include "errors/404/include_search.html" with search_project=project_slug %}
   {% include "errors/404/include_tips.html" %}
 
 {% endblock %}

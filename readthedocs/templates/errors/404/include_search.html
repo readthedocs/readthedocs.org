@@ -3,5 +3,11 @@
 <h2>{% trans "Try searching?" %}</h2>
 
 <section>
-  {% include "core/widesearchbar.html" with form_action="https://readthedocs.org/search/" %}
+  {% if search_project %}
+    {% with "project:"|add:search_project as search_term %}
+      {% include "core/widesearchbar.html" with form_action="https://readthedocs.org/search/" term=search_term %}
+    {% endwith %}
+  {% else %}
+    {% include "core/widesearchbar.html" with form_action="https://readthedocs.org/search/" %}
+  {% endif %}
 </section>
