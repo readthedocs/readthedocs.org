@@ -57,6 +57,7 @@ class SupportView(PrivateViewMixin, TemplateView):
 def server_error_404(request, template_name="errors/404/base.html", exception=None):
     """
     Serves a 404 error message, handling 404 exception types raised throughout the app.
+
     Notice that handling of 404 errors happens elsewhere in views and middleware,
     this view is expected to serve an actual 404 message.
     """

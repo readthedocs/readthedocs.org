@@ -213,14 +213,14 @@ class ProxitoMiddleware(MiddlewareMixin):
                 context={"host": exc.domain},
                 status=400,
             )
-        except (InvalidSubdomainError, InvalidExternalDomainError) as e:
+        except (InvalidSubdomainError, InvalidExternalDomainError) as exc:
             log.debug("Invalid project set on the subdomain.")
             # We pass e.domain as 'project_slug' because we cannot unpack a slug from the
             # domain at this stage. The domain can be a custom domain docs.foobar.tld,
             # in which case 'docs' would be an incorrect slug.
             raise ProxitoProjectHttp404(
-                f"No project found for requested domain {e.domain}.",
-                project_slug=e.domain,
+                f"No project found for requested domain {exc.domain}.",
+                project_slug=exc.domain,
             )
         except InvalidCustomDomainError as exc:
             # Some person is CNAMEing to us without configuring a domain - 404.

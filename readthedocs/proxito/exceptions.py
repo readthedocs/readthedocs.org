@@ -1,4 +1,6 @@
 """
+Exceptions for El Proxito.
+
 This module contains exceptions that may be raised in El Proxito application
 but are handled elsewhere in the Django project.
 
@@ -13,15 +15,13 @@ from django.http.response import Http404
 
 
 class ProxitoHttp404(Http404):
-    """
-    General error class for proxity 404s.
-    """
+
+    """General error class for proxity 404s."""
 
 
 class ProxitoProjectHttp404(ProxitoHttp404):
-    """
-    Raised if a project was not found.
-    """
+
+    """Raised if a project was not found."""
 
     def __init__(self, message, project_slug=None):
         self.project_slug = project_slug
@@ -29,9 +29,8 @@ class ProxitoProjectHttp404(ProxitoHttp404):
 
 
 class ProxitoSubProjectHttp404(ProxitoProjectHttp404):
-    """
-    Raised if a sub-project was not found.
-    """
+
+    """Raised if a subproject was not found."""
 
     def __init__(self, message, project_slug=None, project=None, subproject_slug=None):
         super().__init__(message, project_slug=project_slug)
@@ -40,9 +39,8 @@ class ProxitoSubProjectHttp404(ProxitoProjectHttp404):
 
 
 class ProxitoProjectPageHttp404(ProxitoProjectHttp404):
-    """
-    Raised if a page inside an existing project was not found.
-    """
+
+    """Raised if a page inside an existing project was not found."""
 
     def __init__(self, message, project_slug=None, project=None, subproject_slug=None):
         super().__init__(message, project_slug=project_slug)
@@ -51,6 +49,7 @@ class ProxitoProjectPageHttp404(ProxitoProjectHttp404):
 
 
 class ProxitoProjectVersionHttp404(ProxitoProjectHttp404):
+
     """
     Raised if a version was not found.
 

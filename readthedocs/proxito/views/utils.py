@@ -4,13 +4,7 @@ import structlog
 from django.http import HttpResponse
 
 from readthedocs.projects.models import Project
-from readthedocs.proxito.exceptions import (
-    ProxitoHttp404,
-    ProxitoProjectHttp404,
-    ProxitoProjectPageHttp404,
-    ProxitoProjectVersionHttp404,
-    ProxitoSubProjectHttp404,
-)
+from readthedocs.proxito.exceptions import ProxitoHttp404
 
 from ...core.views import server_error_404
 from .decorators import map_project_slug, map_subproject_slug
