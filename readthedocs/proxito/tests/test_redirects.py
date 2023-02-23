@@ -3,6 +3,8 @@
 import pytest
 from django.test import override_settings
 
+from readthedocs.proxito.constants import RedirectType
+
 from .base import BaseDocServing
 
 
@@ -35,7 +37,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(
             r['Location'], f'https://{self.domain.domain}/en/latest/',
         )
-        self.assertEqual(r['X-RTD-Redirect'], 'system')
+        self.assertEqual(r["X-RTD-Redirect"], RedirectType.system.name)
 
     def test_custom_domain_root_url_no_slash(self):
         self.domain.canonical = True
@@ -46,7 +48,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(
             r['Location'], f'https://{self.domain.domain}/en/latest/',
         )
-        self.assertEqual(r['X-RTD-Redirect'], 'system')
+        self.assertEqual(r["X-RTD-Redirect"], RedirectType.system.name)
 
     def test_single_version_root_url_doesnt_redirect(self):
         self.project.single_version = True
@@ -145,7 +147,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(
             r['Location'], f'https://{self.domain.domain}/',
         )
-        self.assertEqual(r['X-RTD-Redirect'], 'https')
+        self.assertEqual(r["X-RTD-Redirect"], RedirectType.http_to_https.name)
 
         # We should redirect before 404ing
         r = self.client.get('/en/latest/404after302', HTTP_HOST=self.domain.domain)
@@ -153,7 +155,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(
             r['Location'], f'https://{self.domain.domain}/en/latest/404after302',
         )
-        self.assertEqual(r['X-RTD-Redirect'], 'https')
+        self.assertEqual(r["X-RTD-Redirect"], RedirectType.http_to_https.name)
 
     def test_canonicalize_public_domain_to_cname_redirect(self):
         """Redirect to the CNAME if it is canonical."""
@@ -165,7 +167,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(
             r['Location'], f'https://{self.domain.domain}/',
         )
-        self.assertEqual(r['X-RTD-Redirect'], 'canonical-cname')
+        self.assertEqual(r["X-RTD-Redirect"], RedirectType.to_canonical_domain.name)
 
         # We should redirect before 404ing
         r = self.client.get('/en/latest/404after302', HTTP_HOST='project.dev.readthedocs.io')
@@ -173,7 +175,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(
             r['Location'], f'https://{self.domain.domain}/en/latest/404after302',
         )
-        self.assertEqual(r['X-RTD-Redirect'], 'canonical-cname')
+        self.assertEqual(r["X-RTD-Redirect"], RedirectType.to_canonical_domain.name)
 
     def test_translation_redirect(self):
         r = self.client.get('/', HTTP_HOST='translation.dev.readthedocs.io')
@@ -181,7 +183,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(
             r['Location'], f'https://project.dev.readthedocs.io/es/latest/',
         )
-        self.assertEqual(r['X-RTD-Redirect'], 'system')
+        self.assertEqual(r["X-RTD-Redirect"], RedirectType.system.name)
 
     def test_translation_secure_redirect(self):
         r = self.client.get('/', HTTP_HOST='translation.dev.readthedocs.io', secure=True)
@@ -189,7 +191,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(
             r['Location'], f'https://project.dev.readthedocs.io/es/latest/',
         )
-        self.assertEqual(r['X-RTD-Redirect'], 'system')
+        self.assertEqual(r["X-RTD-Redirect"], RedirectType.system.name)
 
     # We are not canonicalizing custom domains -> public domain for now
     @pytest.mark.xfail(strict=True)

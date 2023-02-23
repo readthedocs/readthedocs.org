@@ -294,7 +294,7 @@ Configuration for Conda support.
 conda.environment
 `````````````````
 
-The path to the Conda environment file, relative to the root of the project.
+The path to the Conda `environment file <https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_, relative to the root of the project.
 
 :Type: ``path``
 :Required: ``true``
@@ -429,7 +429,7 @@ We don't currently support PPA's or other custom repositories.
 .. note::
 
    When possible avoid installing Python packages using apt (``python3-numpy`` for example),
-   :ref:`use pip or Conda instead <guides/reproducible-builds:pinning dependencies>`.
+   :doc:`use pip or conda instead </guides/reproducible-builds>`.
 
 
 build.jobs

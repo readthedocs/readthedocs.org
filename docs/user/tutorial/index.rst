@@ -625,7 +625,7 @@ Browsing Search Analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Apart from traffic analytics, Read the Docs also offers the possibility
-to inspect :ref:`what search terms your readers use <server-side-search/index:Search Analytics>`
+to inspect :doc:`what search terms your readers use </guides/search-analytics>`
 on your documentation.
 This can inform decisions on what areas to reinforce,
 or what parts of your project are less understood or more difficult to find.

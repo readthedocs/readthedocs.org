@@ -82,7 +82,7 @@ Make version private
 Set version as default
   Sets the version as the :term:`default version`.
   It also activates and builds the version.
-  See :ref:`automatic-redirects:Root URL`.
+  See :ref:`root_url_redirect`.
 
 Delete version
   When a branch or tag is deleted from your repository,
