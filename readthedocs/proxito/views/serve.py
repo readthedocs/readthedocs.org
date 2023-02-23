@@ -122,7 +122,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         # resolves a project doesn't know if it's resolving a subproject or a normal project
         except ProxitoProjectHttp404 as e:
             if subproject_slug:
-                log.debug("This is actually a subproject")
+                log.debug("Project expected to be a subproject was not found")
                 raise ProxitoSubProjectHttp404(
                     f"Could not find subproject for {subproject_slug}",
                     project_slug=e.project_slug,
@@ -358,7 +358,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             )
         except ProxitoProjectHttp404 as e:
             if subproject_slug:
-                log.debug("This is actually a subproject")
+                log.debug("Project expected to be a subproject was not found")
                 raise ProxitoSubProjectHttp404(
                     f"Could not find subproject for {subproject_slug}",
                     project_slug=e.project_slug,
