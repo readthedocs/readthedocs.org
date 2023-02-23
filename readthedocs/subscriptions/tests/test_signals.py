@@ -37,7 +37,6 @@ class TestSignals(TestCase):
         customer.modify.assert_called_once_with(
             self.stripe_customer.id,
             email=new_email,
-            name=self.organization.name,
         )
 
     @mock.patch("readthedocs.subscriptions.signals.stripe.Customer")
@@ -60,7 +59,6 @@ class TestSignals(TestCase):
         customer.modify.assert_called_once_with(
             self.stripe_customer.id,
             metadata=new_metadata,
-            name=self.organization.name,
         )
 
     @mock.patch("readthedocs.subscriptions.signals.stripe.Customer")
