@@ -32,6 +32,7 @@ class ProxitoSubProjectHttp404(ProxitoProjectHttp404):
     """
     Raised if a sub-project was not found.
     """
+
     def __init__(self, message, project_slug=None, project=None, subproject_slug=None):
         super().__init__(message, project_slug=project_slug)
         self.project = project
