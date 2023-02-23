@@ -55,41 +55,40 @@ class SupportView(PrivateViewMixin, TemplateView):
 
 
 def server_error_404(request, template_name="errors/404/base.html", exception=None):
-    """Generic 404 handler, handling 404 exception types raised throughout the app"""
+    """
+    Serves a 404 error message, handling 404 exception types raised throughout the app.
+    Notice that handling of 404 errors happens elsewhere in views and middleware,
+    this view is expected to serve an actual 404 message.
+    """
 
-    try:
-        log.debug("404 view handler active")
-        log.debug(exception)
-        # Properties are set by ProxitoHttp404. We could also have a look at the
-        # subproject_slug
-        project_slug = getattr(exception, "project_slug", None)
-        version_slug = getattr(exception, "version_slug", None)
-        project = getattr(exception, "project", None)
-        subproject_slug = getattr(exception, "subproject_slug", None)
+    # Properties are set by ProxitoHttp404. We could also have a look at the
+    # subproject_slug
+    project_slug = getattr(exception, "project_slug", None)
+    version_slug = getattr(exception, "version_slug", None)
+    project = getattr(exception, "project", None)
+    subproject_slug = getattr(exception, "subproject_slug", None)
 
-        if isinstance(exception, ProxitoProjectVersionHttp404):
-            template_name = "errors/404/no_version.html"
-        elif isinstance(exception, ProxitoSubProjectHttp404):
-            template_name = "errors/404/no_subproject.html"
-        elif isinstance(exception, ProxitoProjectPageHttp404):
-            template_name = "errors/404/no_project_page.html"
-        elif isinstance(exception, ProxitoProjectHttp404):
-            template_name = "errors/404/no_project.html"
+    if isinstance(exception, ProxitoProjectVersionHttp404):
+        template_name = "errors/404/no_version.html"
+    elif isinstance(exception, ProxitoSubProjectHttp404):
+        template_name = "errors/404/no_subproject.html"
+    elif isinstance(exception, ProxitoProjectPageHttp404):
+        template_name = "errors/404/no_project_page.html"
+    elif isinstance(exception, ProxitoProjectHttp404):
+        template_name = "errors/404/no_project.html"
 
-        r = render(
-            request,
-            template_name,
-            context={
-                "project": project,
-                "project_slug": project_slug,
-                "subproject_slug": subproject_slug,
-                "version_slug": version_slug,
-            },
-        )
-        r.status_code = 404
-        return r
-    except Exception as e:
-        log.debug(e)
+    r = render(
+        request,
+        template_name,
+        context={
+            "project": project,
+            "project_slug": project_slug,
+            "subproject_slug": subproject_slug,
+            "version_slug": version_slug,
+        },
+    )
+    r.status_code = 404
+    return r
 
 
 def server_error_500(request, template_name='500.html'):

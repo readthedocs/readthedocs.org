@@ -2,7 +2,6 @@ import os
 
 import structlog
 from django.http import HttpResponse
-from django.shortcuts import render
 
 from readthedocs.projects.models import Project
 from readthedocs.proxito.exceptions import (
@@ -13,6 +12,7 @@ from readthedocs.proxito.exceptions import (
     ProxitoSubProjectHttp404,
 )
 
+from ...core.views import server_error_404
 from .decorators import map_project_slug, map_subproject_slug
 
 log = structlog.get_logger(__name__)  # noqa
@@ -41,39 +41,12 @@ def proxito_404_page_handler(
     """
 
     if request.resolver_match and request.resolver_match.url_name != 'proxito_404_handler':
-        log.debug("Displaying a 'fast 404'")
         return fast_404(request, exception, template_name)
 
-    if isinstance(exception, ProxitoProjectVersionHttp404):
-        template_name = "errors/404/no_version.html"
-    elif isinstance(exception, ProxitoSubProjectHttp404):
-        template_name = "errors/404/no_subproject.html"
-    elif isinstance(exception, ProxitoProjectPageHttp404):
-        template_name = "errors/404/no_project_page.html"
-    elif isinstance(exception, ProxitoProjectHttp404):
-        template_name = "errors/404/no_project.html"
-
-    project_slug = getattr(exception, "project_slug", None)
-    version_slug = getattr(exception, "version_slug", None)
-    project = getattr(exception, "project", None)
-    subproject_slug = getattr(exception, "subproject_slug", None)
-
-    log.debug(
-        "404 page detected a project slug in request.",
-        project_slug=project_slug,
+    # Serve the general 404 error message
+    return server_error_404(
+        request, exception=None, template_name="errors/404/base.html"
     )
-    r = render(
-        request,
-        template_name,
-        context={
-            "project": project,
-            "project_slug": project_slug,
-            "subproject_slug": subproject_slug,
-            "version_slug": version_slug,
-        },
-    )
-    r.status_code = 404
-    return r
 
 
 @map_project_slug
@@ -112,11 +85,6 @@ def _get_project_data_from_request(
         try:
             final_project = current_project.translations.get(language=lang_slug)
         except Project.DoesNotExist:
-            log.debug(
-                "Raising 404 for language slug",
-                lang_slug=lang_slug,
-                project_slug=current_project.slug,
-            )
             raise ProxitoHttp404(
                 "Did not find translation",
                 project=current_project,
