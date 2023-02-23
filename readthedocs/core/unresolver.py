@@ -407,7 +407,10 @@ class Unresolver:
             if response:
                 return response
 
-        raise UnresolvedPathError(project=parent_project, path=path)
+        raise UnresolvedPathError(
+            project=parent_project,
+            path=self._normalize_filename(path),
+        )
 
     @staticmethod
     def get_domain_from_host(host):

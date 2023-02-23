@@ -343,7 +343,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                     self.cache_request = False
 
             # If the path is not empty, the path doesn't resolve to a proper file.
-            if exc.path not in ["", "/"]:
+            if exc.path != "/":
                 raise Http404
 
             # When the path is empty, the project didn't have an explicit version,
