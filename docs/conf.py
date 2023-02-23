@@ -18,21 +18,22 @@ from multiproject.utils import get_project
 
 sys.path.append(os.path.abspath("_ext"))
 extensions = [
+    "hoverxref.extension",
     "multiproject",
-    "sphinx.ext.autosectionlabel",
+    "myst_parser",
+    "notfound.extension",
+    "sphinx_design",
+    "sphinx_search.extension",
+    "sphinx_tabs.tabs",
+    "sphinx-prompt",
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosectionlabel",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.httpdomain",
     "sphinxcontrib.video",
-    "sphinx_tabs.tabs",
-    "sphinx-prompt",
-    "notfound.extension",
-    "hoverxref.extension",
-    "sphinx_search.extension",
     "sphinxemoji.sphinxemoji",
-    "sphinx_design",
-    "myst_parser",
+    "sphinxext.opengraph",
 ]
 
 multiproject_projects = {
