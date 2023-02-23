@@ -103,7 +103,7 @@ class BuildDataCollector:
         return data
 
     def _check_using_old_output_directory(self):
-        code, _, stderr = self.run(
+        code, _, _ = self.run(
             "test",
             "-x",
             "_build/html",
