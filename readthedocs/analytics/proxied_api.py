@@ -8,12 +8,13 @@ from rest_framework.views import APIView
 
 from readthedocs.analytics.models import PageView
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
+from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.unresolver import UnresolverError, unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project
 
 
-class BaseAnalyticsView(APIView):
+class BaseAnalyticsView(CDNCacheControlMixin, APIView):
 
     """
     Track page views.
@@ -25,6 +26,8 @@ class BaseAnalyticsView(APIView):
     - absolute_uri: Full path with domain.
     """
 
+    # Never cache this view, we always want to hit this endpoint.
+    cache_response = False
     http_method_names = ['get']
     permission_classes = [IsAuthorizedToViewVersion]
 

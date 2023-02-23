@@ -7,9 +7,7 @@ from django.conf import settings
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import resolve as url_resolve
-from django.utils.decorators import method_decorator
 from django.views import View
-from django.views.decorators.cache import cache_page
 
 from readthedocs.analytics.models import PageView
 from readthedocs.api.mixins import CDNCacheTagsMixin
@@ -54,11 +52,6 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             version_slug = unresolved_domain.external_version_slug
         else:
             version_slug = project.get_default_version()
-
-        if self._is_cache_enabled(project):
-            # All requests from this view can be cached.
-            # This is since the final URL will check for authz.
-            self.cache_request = True
 
         # TODO: find a better way to pass this to the middleware.
         request.path_project_slug = project.slug
@@ -125,25 +118,24 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             log.warning("Version does not exist or is not active.")
             raise Http404("Version does not exist or is not active.")
 
-        if self._is_cache_enabled(final_project) and version and not version.is_private:
+        if version:
             # All public versions can be cached.
-            self.cache_request = True
+            self.cache_response = version.is_public
 
-        log.bind(cache_request=self.cache_request)
+        log.bind(cache_response=self.cache_response)
         log.debug('Serving docs.')
 
         # Verify if the project is marked as spam and return a 401 in that case
         spam_response = self._spam_response(request, final_project)
         if spam_response:
+            # If a project was marked as spam,
+            # all of their responses can be cached.
+            self.cache_response = True
             return spam_response
 
         # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
         redirect_type = self._get_canonical_redirect_type(request)
         if redirect_type:
-            # A canonical redirect can be cached, if we don't have information
-            # about the version, since the final URL will check for authz.
-            if not version and self._is_cache_enabled(final_project):
-                self.cache_request = True
             try:
                 return self.canonical_redirect(
                     request=request,
@@ -166,10 +158,6 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 filename == '',
                 not final_project.single_version,
         ]):
-            # A system redirect can be cached if we don't have information
-            # about the version, since the final URL will check for authz.
-            if not version and self._is_cache_enabled(final_project):
-                self.cache_request = True
             return self.system_redirect(
                 request=request,
                 final_project=final_project,
@@ -186,10 +174,6 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 subproject_slug,
                 not subproject_slash,
         ]):
-            # A system redirect can be cached if we don't have information
-            # about the version, since the final URL will check for authz.
-            if not version and self._is_cache_enabled(final_project):
-                self.cache_request = True
             return self.system_redirect(
                 request=request,
                 final_project=final_project,
@@ -468,7 +452,9 @@ class ServeError404(SettingsOverrideObject):
 
 class ServeRobotsTXTBase(ServeDocsMixin, View):
 
-    @method_decorator(cache_page(60 * 60))  # 1 hour
+    # Always cache this view, since it's the same for all users.
+    cache_response = True
+
     def get(self, request):
         """
         Serve custom user's defined ``/robots.txt``.
@@ -557,7 +543,9 @@ class ServeRobotsTXT(SettingsOverrideObject):
 
 class ServeSitemapXMLBase(View):
 
-    @method_decorator(cache_page(60 * 60 * 12))  # 12 hours
+    # Always cache this view, since it's the same for all users.
+    cache_response = True
+
     def get(self, request):
         """
         Generate and serve a ``sitemap.xml`` for a particular ``project``.
@@ -703,15 +691,15 @@ class ServeStaticFiles(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, 
 
     project_cache_tag = "rtd-staticfiles"
 
+    # This view can always be cached,
+    # since these are static files used for all projects.
+    cache_response = True
+
     def get(self, request, filename):
         try:
             return self._serve_static_file(request=request, filename=filename)
         except InvalidPathError:
             raise Http404
-
-    def can_be_cached(self, request):
-        project = self._get_project()
-        return bool(project and self._is_cache_enabled(project))
 
     def _get_cache_tags(self):
         """
