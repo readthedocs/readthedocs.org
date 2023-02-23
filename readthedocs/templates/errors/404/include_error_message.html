@@ -1,0 +1,16 @@
+{% load i18n %}
+<section>
+  <p>
+    {% blocktrans trimmed with request_path=request.path %}
+      You are browsing the documentation of <code>{{ project_slug }}</code>.
+      The {{ not_found_subject }} you are looking for at <code>{{ request_path }}</code> was not found.
+    {% endblocktrans %}
+  </p>
+
+  <p>
+    {% blocktrans trimmed %}
+      Documentation changes over time and pages are moved around.
+      You can try to navigate to <a href="/">the index page</a> of the project and use its navigation or search function to find a similar page.
+    {% endblocktrans %}
+  </p>
+</section>

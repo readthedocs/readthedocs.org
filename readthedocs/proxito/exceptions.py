@@ -38,7 +38,7 @@ class ProxitoSubProjectHttp404(ProxitoProjectHttp404):
         self.subproject_slug = subproject_slug
 
 
-class ProxitoProjectPageHttp404(ProxitoHttp404):
+class ProxitoProjectPageHttp404(ProxitoProjectHttp404):
     """
     Raised if a page inside an existing project was not found.
     """
@@ -49,7 +49,7 @@ class ProxitoProjectPageHttp404(ProxitoHttp404):
         self.subproject_slug = subproject_slug
 
 
-class ProxitoProjectVersionHttp404(ProxitoHttp404):
+class ProxitoProjectVersionHttp404(ProxitoProjectHttp404):
     """
     Raised if a version was not found.
 

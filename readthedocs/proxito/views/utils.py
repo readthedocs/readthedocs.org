@@ -44,9 +44,7 @@ def proxito_404_page_handler(
         return fast_404(request, exception, template_name)
 
     # Serve the general 404 error message
-    return server_error_404(
-        request, exception=None, template_name="errors/404/base.html"
-    )
+    return server_error_404(request, exception=exception, template_name=template_name)
 
 
 @map_project_slug

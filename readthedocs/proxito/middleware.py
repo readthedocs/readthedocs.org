@@ -12,7 +12,6 @@ from urllib.parse import urlparse
 import structlog
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
-from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
@@ -26,6 +25,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
+from readthedocs.proxito.exceptions import ProxitoProjectHttp404
 
 log = structlog.get_logger(__name__)
 
@@ -213,9 +213,15 @@ class ProxitoMiddleware(MiddlewareMixin):
                 context={"host": exc.domain},
                 status=400,
             )
-        except (InvalidSubdomainError, InvalidExternalDomainError):
+        except (InvalidSubdomainError, InvalidExternalDomainError) as e:
             log.debug("Invalid project set on the subdomain.")
-            raise Http404
+            # We pass e.domain as 'project_slug' because we cannot unpack a slug from the
+            # domain at this stage. The domain can be a custom domain docs.foobar.tld,
+            # in which case 'docs' would be an incorrect slug.
+            raise ProxitoProjectHttp404(
+                f"No project found for requested domain {e.domain}.",
+                project_slug=e.domain,
+            )
         except InvalidCustomDomainError as exc:
             # Some person is CNAMEing to us without configuring a domain - 404.
             log.debug("CNAME 404.", domain=exc.domain)

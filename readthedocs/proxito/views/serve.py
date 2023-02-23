@@ -25,6 +25,7 @@ from readthedocs.proxito.constants import RedirectType
 from readthedocs.proxito.exceptions import (
     ProxitoHttp404,
     ProxitoProjectPageHttp404,
+    ProxitoProjectVersionHttp404,
     ProxitoSubProjectHttp404,
 )
 from readthedocs.redirects.exceptions import InfiniteRedirectException
@@ -104,8 +105,8 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
-            project_slug=project_slug,
-            subproject_slug=subproject_slug,
+            project_slug,
+            subproject_slug,
             lang_slug=lang_slug,
             version_slug=version_slug,
             filename=filename,
@@ -326,9 +327,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             filename,
         ) = _get_project_data_from_request(  # noqa
             request,
-            project_slug=kwargs.get('project_slug'),
-            subproject_slug=kwargs.get('subproject_slug'),
-            lang_slug=kwargs.get('lang_slug'),
+            kwargs.get("project_slug"),
+            kwargs.get("subproject_slug"),
+            lang_slug=kwargs.get("lang_slug"),
             version_slug=version_slug,
             filename=kwargs.get('filename', ''),
         )
@@ -373,6 +374,8 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     # TODO: decide if we need to check for infinite redirect here
                     # (from URL == to URL)
                     return HttpResponseRedirect(redirect_url)
+        else:
+            log.debug("No version in request")
 
         # Check and perform redirects on 404 handler
         # NOTE: this redirect check must be done after trying files like
@@ -395,6 +398,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         version = Version.objects.filter(
             project=final_project, slug=version_slug
         ).first()
+        version_found = bool(version)
 
         # If there are no redirect,
         # try to serve the custom 404 of the current version (version_slug)
@@ -438,12 +442,18 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     resp.status_code = 404
                     return resp
 
-        raise ProxitoProjectPageHttp404(
-            "No custom 404 page found.",
-            project=final_project,
-            project_slug=kwargs.get("project_slug"),
-            subproject_slug=kwargs.get("subproject_slug"),
-        )
+        if version_found:
+            raise ProxitoProjectPageHttp404(
+                "Page not found and no custom 404",
+                project=final_project,
+                project_slug=final_project.slug,
+            )
+        else:
+            raise ProxitoProjectVersionHttp404(
+                "Version not found and no custom 404",
+                project=final_project,
+                project_slug=final_project.slug,
+            )
 
     def _register_broken_link(self, project, version, path, full_path):
         try:

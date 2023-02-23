@@ -1,0 +1,7 @@
+{% load i18n %}
+
+<h2>{% trans "Try searching?" %}</h2>
+
+<section>
+  {% include "core/widesearchbar.html" with form_action="https://readthedocs.org/search/" %}
+</section>

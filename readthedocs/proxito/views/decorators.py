@@ -23,8 +23,11 @@ def map_subproject_slug(view_func):
 
     @wraps(view_func)
     def inner_view(  # noqa
-        request, project=None, subproject=None, subproject_slug=None, *args, **kwargs
+        request, subproject=None, subproject_slug=None, *args, **kwargs
     ):
+        # Something not entirely clear is happening when unpacking args and kwargs
+        # so the project is fetched from kwarg dictionary.
+        project = kwargs["project"]
         if subproject is None and subproject_slug:
             # Try to fetch by subproject alias first, otherwise we might end up
             # redirected to an unrelated project.

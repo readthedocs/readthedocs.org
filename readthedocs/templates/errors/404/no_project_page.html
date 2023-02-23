@@ -4,20 +4,8 @@
 {# project exists but page doesn't #}
 
 {% block 404_error_message %}
-
-  <p>
-    {% blocktrans trimmed with request_path=request.path %}
-      You are browsing the documentation of <code>{{ project_slug }}</code>.
-      The page you are looking for at <code>{{ request_path }}</code> was not found.
-    {% endblocktrans %}
-  </p>
-
-  <p>
-    {% blocktrans trimmed %}
-      Documentation changes over time. Pages are moved around. You can try to navigate to <a href="/">the index page</a> of the project and use its navigation or search function to find a similar page.
-    {% endblocktrans %}
-  </p>
-
+  {% include "errors/404/include_error_message.html" with not_found_subject="page" %}
+  {% include "errors/404/include_search.html" %}
   {% include "errors/404/include_tips.html" %}
 
 {% endblock %}
