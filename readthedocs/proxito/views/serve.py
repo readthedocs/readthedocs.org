@@ -24,6 +24,7 @@ from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.proxito.exceptions import (
     ProxitoHttp404,
+    ProxitoProjectHttp404,
     ProxitoProjectPageHttp404,
     ProxitoProjectVersionHttp404,
     ProxitoSubProjectHttp404,
@@ -103,14 +104,31 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         so that we can decide if we need to serve docs or add a /.
         """
         version_slug = self.get_version_from_host(request, version_slug)
-        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
-            request,
-            project_slug,
-            subproject_slug,
-            lang_slug=lang_slug,
-            version_slug=version_slug,
-            filename=filename,
-        )
+        try:
+            (
+                final_project,
+                lang_slug,
+                version_slug,
+                filename,
+            ) = _get_project_data_from_request(  # noqa
+                request,
+                project_slug,
+                subproject_slug,
+                lang_slug=lang_slug,
+                version_slug=version_slug,
+                filename=filename,
+            )
+        # This special treatment of ProxitoProjectHttp404 happens because the decorator that
+        # resolves a project doesn't know if it's resolving a subproject or a normal project
+        except ProxitoProjectHttp404 as e:
+            if subproject_slug:
+                log.debug("This is actually a subproject")
+                raise ProxitoSubProjectHttp404(
+                    f"Could not find subproject for {subproject_slug}",
+                    project_slug=e.project_slug,
+                    subproject_slug=subproject_slug,
+                )
+            raise
         version = final_project.versions.filter(slug=version_slug).first()
 
         is_external = request.unresolved_domain.is_from_external_domain
@@ -320,19 +338,33 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
 
         version_slug = kwargs.get('version_slug')
         version_slug = self.get_version_from_host(request, version_slug)
-        (
-            final_project,
-            lang_slug,
-            version_slug,
-            filename,
-        ) = _get_project_data_from_request(  # noqa
-            request,
-            kwargs.get("project_slug"),
-            kwargs.get("subproject_slug"),
-            lang_slug=kwargs.get("lang_slug"),
-            version_slug=version_slug,
-            filename=kwargs.get('filename', ''),
-        )
+        # This special treatment of ProxitoProjectHttp404 happens because the decorator that
+        # resolves a project doesn't know if it's resolving a subproject or a normal project
+        subproject_slug = kwargs.get("subproject_slug")
+        project_slug = kwargs.get("project_slug")
+        try:
+            (
+                final_project,
+                lang_slug,
+                version_slug,
+                filename,
+            ) = _get_project_data_from_request(  # noqa
+                request,
+                project_slug,
+                subproject_slug,
+                lang_slug=kwargs.get("lang_slug"),
+                version_slug=version_slug,
+                filename=kwargs.get("filename", ""),
+            )
+        except ProxitoProjectHttp404 as e:
+            if subproject_slug:
+                log.debug("This is actually a subproject")
+                raise ProxitoSubProjectHttp404(
+                    f"Could not find subproject for {subproject_slug}",
+                    project_slug=e.project_slug,
+                    subproject_slug=subproject_slug,
+                )
+            raise
 
         log.bind(
             project_slug=final_project.slug,
@@ -447,6 +479,13 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 "Page not found and no custom 404",
                 project=final_project,
                 project_slug=final_project.slug,
+            )
+        elif kwargs.get("subproject_slug"):
+            raise ProxitoSubProjectHttp404(
+                "Subproject not found and no custom 404",
+                project=final_project,
+                project_slug=final_project.slug,
+                subproject_slug=kwargs.get("subproject_slug"),
             )
         else:
             raise ProxitoProjectVersionHttp404(
