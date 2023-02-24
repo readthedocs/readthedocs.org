@@ -366,7 +366,8 @@ class Project(models.Model):
         default=False,
         verbose_name=_("Delisted"),
         help_text=_(
-            "Delisting a project removes it from Read the Docs search indexing and asks external search engines to remove it via robots.txt"
+            "Delisting a project removes it from Read the Docs search indexing and asks external "
+            "search engines to remove it via robots.txt"
         ),
     )
 
