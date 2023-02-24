@@ -360,7 +360,7 @@ class Project(models.Model):
 
     featured = models.BooleanField(_('Featured'), default=False)
 
-    skip = models.BooleanField(_('Skip (disable) building this project'), default=False)
+    skip = models.BooleanField(_("Skip (disable) building this project"), default=False)
 
     delisted = models.BooleanField(
         default=False,
