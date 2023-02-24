@@ -55,7 +55,7 @@ docset = get_project(multiproject_projects)
 
 ogp_site_name = "Read the Docs Documentation"
 ogp_use_first_image = True  # https://github.com/readthedocs/blog/pull/118
-ogp_image = "/_static/img/logo-opengraph.png"
+ogp_image = "https://docs.readthedocs.io/en/stable/_static/img/logo-opengraph.png"
 # Inspired by https://github.com/executablebooks/MyST-Parser/pull/404/
 ogp_custom_meta_tags = [
     '<meta name="twitter:card" content="summary_large_image" />',
