@@ -7,11 +7,13 @@
 
 
 
-Continuous Documentation Deployment
-===================================
+Continuous Documentation
+========================
 
-Read the Docs is a *Continuous Documentation Deployment* platform for your software project.
-Every time you change something in your documentation, Read the Docs will detect your change and build your documentation.
+Read the Docs is a *Continuous Documentation* platform for your software project.
+Every time you change something in your documentation, Read the Docs will automatically detect your changes,
+*build* your documentation,
+and finally *deploy* your documentation for readers to see.
 
 The Continuous Integration and Continuous Deployment (CI/CD) features are configured with your repository provider,
 such as GitHub, Bitbucket or GitLab.
