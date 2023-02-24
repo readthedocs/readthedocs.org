@@ -60,7 +60,8 @@ ogp_image = "/_static/img/logo-opengraph.png"
 ogp_custom_meta_tags = [
     '<meta name="twitter:card" content="summary_large_image" />',
 ]
-
+ogp_enable_meta_description = True
+ogp_description_length = 300
 
 templates_path = ["_templates"]
 
