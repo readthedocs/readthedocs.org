@@ -33,7 +33,7 @@ It has four major parts as summarized by this image:
 We recommend that you read more about Diátaxis in the `documentation <https://diataxis.fr/>`_ for it.
 
 Explaining the structure to your users
--------------------------------------
+--------------------------------------
 
 One of the benefits of Diátaxis is that it's a well-known structure,
 and users might already be familiar with it.
