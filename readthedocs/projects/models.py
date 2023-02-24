@@ -753,7 +753,7 @@ class Project(models.Model):
 
         return ProxitoURLConf
 
-    @property
+    @cached_property
     def is_subproject(self):
         """Return whether or not this project is a subproject."""
         return self.superprojects.exists()

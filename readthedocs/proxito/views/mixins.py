@@ -19,7 +19,8 @@ from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
-from readthedocs.core.resolver import resolve
+from readthedocs.core.resolver import resolve, resolver
+from readthedocs.core.utils.url import join_url_path
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
@@ -331,10 +332,8 @@ class ServeRedirectMixin:
         self,
         request,
         final_project,
-        version_slug,
-        filename,
         redirect_type,
-        is_external_version=False,
+        external_version_slug=None,
     ):
         """
         Return a redirect to the canonical domain including scheme.
@@ -352,34 +351,34 @@ class ServeRedirectMixin:
 
         :param request: Request object.
         :param final_project: The current project being served.
-        :param version_slug: The current version slug being served.
-        :param filename: The filename being served.
         :param redirect_type: The type of canonical redirect (https, canonical-cname, subproject-main-domain)
-        :param external: If the version is from a pull request preview.
+        :param external_version_slug: The version slug if the request is from a pull request preview.
         """
         from_url = request.build_absolute_uri()
         parsed_from = urlparse(from_url)
 
         if redirect_type == RedirectType.http_to_https:
+            # We only need to change the protocol.
             to = parsed_from._replace(scheme="https").geturl()
-        elif redirect_type in [
-            RedirectType.to_canonical_domain,
-            RedirectType.subproject_to_main_domain,
-        ]:
-            to = resolve(
+        elif redirect_type == RedirectType.to_canonical_domain:
+            # We need to change the domain and protocol.
+            canonical_domain = final_project.get_canonical_custom_domain()
+            protocol = "https" if canonical_domain.https else "http"
+            to = parsed_from._replace(
+                scheme=protocol, netloc=canonical_domain.domain
+            ).geturl()
+        elif redirect_type == RedirectType.subproject_to_main_domain:
+            # We need to get the subproject root in the domain of the main
+            # project, and append the current path.
+            project_doc_root = resolver.resolve_root(
                 project=final_project,
-                version_slug=version_slug,
-                filename=filename,
-                query_params=parsed_from.query,
-                external=is_external_version,
+                external_version_slug=external_version_slug,
             )
-            # When a canonical redirect is done, only change the domain.
-            if redirect_type == RedirectType.to_canonical_domain:
-                parsed_to = urlparse(to)
-                to = parsed_from._replace(
-                    scheme=parsed_to.scheme,
-                    netloc=parsed_to.netloc,
-                ).geturl()
+            parsed_doc_root = urlparse(project_doc_root)
+            to = parsed_doc_root._replace(
+                path=join_url_path(parsed_doc_root.path, parsed_from.path),
+                query=parsed_from.query,
+            ).geturl()
         else:
             raise NotImplementedError
 
@@ -391,7 +390,11 @@ class ServeRedirectMixin:
             )
             raise InfiniteRedirectException()
 
-        log.info('Canonical Redirect.', host=request.get_host(), from_url=filename, to_url=to)
+        log.info(
+            "Canonical Redirect.", host=request.get_host(), from_url=from_url, to_url=to
+        )
+        # Canocanical redirects can be cached, since the final URL will check for authz.
+        self.cache_request = True
         resp = HttpResponseRedirect(to)
         resp["X-RTD-Redirect"] = redirect_type.name
         return resp

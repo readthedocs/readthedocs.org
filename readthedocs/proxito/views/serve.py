@@ -89,6 +89,24 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         ``subproject_slash`` is used to determine if the subproject URL has a slash,
         so that we can decide if we need to serve docs or add a /.
         """
+        unresolved_domain = request.unresolved_domain
+        # Handle requests that need canonicalizing,
+        # e.g. HTTP -> HTTPS, redirect to canonical domain, etc.
+        redirect_type = self._get_canonical_redirect_type(request)
+        if redirect_type:
+            # Attach the current project to the request.
+            request.path_project_slug = unresolved_domain.project.slug
+            try:
+                return self.canonical_redirect(
+                    request=request,
+                    final_project=unresolved_domain.project,
+                    external_version_slug=unresolved_domain.external_version_slug,
+                    redirect_type=redirect_type,
+                )
+            except InfiniteRedirectException:
+                # Don't redirect in this case, since it would break things.
+                pass
+
         version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
@@ -100,7 +118,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         )
         version = final_project.versions.filter(slug=version_slug).first()
 
-        is_external = request.unresolved_domain.is_from_external_domain
+        is_external = unresolved_domain.is_from_external_domain
 
         log.bind(
             project_slug=final_project.slug,
@@ -136,26 +154,6 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         spam_response = self._spam_response(request, final_project)
         if spam_response:
             return spam_response
-
-        # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
-        redirect_type = self._get_canonical_redirect_type(request)
-        if redirect_type:
-            # A canonical redirect can be cached, if we don't have information
-            # about the version, since the final URL will check for authz.
-            if not version and self._is_cache_enabled(final_project):
-                self.cache_request = True
-            try:
-                return self.canonical_redirect(
-                    request=request,
-                    final_project=final_project,
-                    version_slug=version_slug,
-                    filename=filename,
-                    redirect_type=redirect_type,
-                    is_external_version=is_external,
-                )
-            except InfiniteRedirectException:
-                # Don't redirect in this case, since it would break things
-                pass
 
         # Handle a / redirect when we aren't a single version
         if all([
@@ -252,6 +250,16 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 log.debug("Proxito CNAME HTTPS Redirect.", domain=domain.domain)
                 return RedirectType.http_to_https
 
+        # Check for subprojects before checking for canonical domains,
+        # so we can redirect to the main domain first.
+        # Custom domains on subprojects are not supported.
+        if project.is_subproject:
+            log.debug(
+                "Proxito Public Domain -> Subproject Main Domain Redirect.",
+                project_slug=project.slug,
+            )
+            return RedirectType.subproject_to_main_domain
+
         if unresolved_domain.is_from_public_domain:
             canonical_domain = (
                 Domain.objects.filter(project=project)
@@ -264,13 +272,6 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                     project_slug=project.slug,
                 )
                 return RedirectType.to_canonical_domain
-
-        if project.is_subproject:
-            log.debug(
-                "Proxito Public Domain -> Subproject Main Domain Redirect.",
-                project_slug=project.slug,
-            )
-            return RedirectType.subproject_to_main_domain
 
         return None
 
