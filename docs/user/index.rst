@@ -18,6 +18,7 @@ Read the Docs: documentation simplified
    :caption: 💡 Explanation
 
    /choosing-a-site
+   /explanation/documentation-structure
    /integrations
    /explanation/methodology
    /explanation/advanced
