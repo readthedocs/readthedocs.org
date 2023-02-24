@@ -15,6 +15,7 @@ class TestSignals(TestCase):
         self.stripe_customer = get(
             djstripe.Customer,
             email=email,
+            name="org",
         )
         self.organization = get(
             Organization,
@@ -46,6 +47,7 @@ class TestSignals(TestCase):
         customer.modify.assert_called_once_with(
             self.stripe_customer.id,
             description=new_name,
+            name=self.organization.name,
         )
 
     @mock.patch("readthedocs.subscriptions.signals.stripe.Customer")
