@@ -1,5 +1,5 @@
-Conda support
-=============
+How to use Conda as your Python environment
+===========================================
 
 Read the Docs supports Conda as an environment management tool,
 along with Virtualenv.

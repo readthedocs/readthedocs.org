@@ -1,5 +1,5 @@
-Search Engine Optimization (SEO) for documentation projects
-===========================================================
+How to do Search Engine Optimization (SEO) for documentation projects
+=====================================================================
 
 .. meta::
     :description lang=en:

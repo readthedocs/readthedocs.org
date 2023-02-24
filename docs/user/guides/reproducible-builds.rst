@@ -1,5 +1,5 @@
-Reproducible builds
-===================
+How to create reproducible builds
+=================================
 
 Your documentation depends on a number of dependencies to be built.
 If your docs don't have reproducible builds,
