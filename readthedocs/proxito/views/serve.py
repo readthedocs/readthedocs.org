@@ -285,7 +285,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         """
         Handler for 404 pages on subdomains.
 
-        This does a couple things:
+        This does a couple of things:
 
         * Handles directory indexing for URLs that don't end in a slash
         * Handles directory indexing for README.html (for now)
@@ -473,17 +473,20 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         """
         Serve custom user's defined ``/robots.txt``.
 
+        If the project is delisted or is a spam project, we force a special robots.txt.
+
         If the user added a ``robots.txt`` in the "default version" of the
         project, we serve it directly.
         """
         project = request.unresolved_domain.project
-        # Check if project is delisted
+
         if project.delisted:
             return render(
                 request,
                 "robots.delisted.txt",
                 content_type="text/plain",
             )
+
         # Verify if the project is marked as spam and return a custom robots.txt
         elif "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
