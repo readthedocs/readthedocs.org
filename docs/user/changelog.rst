@@ -18,7 +18,7 @@ July 23, 2015
 
 * Django 1.8 Support Merged
 
-Code Notes
+Code notes
 ``````````
 
 - Updated Django from `1.6.11` to `1.8.3`.
@@ -35,7 +35,7 @@ Code Notes
 - Added `django.setup()` to `conf.py` to load django properly for doc builds.
 - Added migrations for all apps with models in the `readthedocs/` directory
 
-Deployment Notes
+Deployment notes
 ````````````````
 
 After you have updated the code and installed the new dependencies, you need to run these commands on the server::
@@ -47,7 +47,7 @@ After you have updated the code and installed the new dependencies, you need to 
 Locally I had trouble in a test environment that pip did not update to the specified commit of tastypie. It might be required to use `pip install -U -r requirements/deploy.txt` during deployment.
 
 
-Development Update Notes
+Development update notes
 ````````````````````````
 
 The readthedocs developers need to execute these commands when switching to this branch (or when this got merged into ``main``):

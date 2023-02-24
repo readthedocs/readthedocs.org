@@ -580,7 +580,7 @@ how readers are using your documentation, addressing some common questions like:
 
 Read the Docs offers you some analytics tools to find out the answers.
 
-Browsing Traffic Analytics
+Browsing traffic analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The :doc:`/analytics` view shows the top viewed documentation pages of the past 30 days,
@@ -621,7 +621,7 @@ and click on the :guilabel:`Download all data` button.
 That will prompt you to download a :abbr:`CSV (Comma-Separated Values)` file
 that you can process any way you want.
 
-Browsing Search Analytics
+Browsing search analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Apart from traffic analytics, Read the Docs also offers the possibility

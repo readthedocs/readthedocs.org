@@ -1,4 +1,4 @@
-Allow Installation of System Packages
+Allow installation of system packages
 =====================================
 
 Currently we don't allow executing arbitrary commands in the build process.

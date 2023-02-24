@@ -1,4 +1,4 @@
-Advertising Details
+Advertising details
 ===================
 
 .. NOTE: This document is linked from:

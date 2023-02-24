@@ -29,7 +29,7 @@ You can also access analytics data from :doc:`search results </guides/search-ana
    * On the Commercial one, it goes from 30 to infinite storage
       (check out `the pricing page <https://readthedocs.com/pricing/>`_).
 
-Enabling Google Analytics on your Project
+Enabling Google Analytics on your project
 -----------------------------------------
 
 Read the Docs has native support for Google Analytics.

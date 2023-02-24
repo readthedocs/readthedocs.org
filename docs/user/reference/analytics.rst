@@ -24,7 +24,7 @@ It's also possible to customize your documentation to include other analytics fr
 Learn more in :doc:`/analytics`.
 
 
-Search Analytics
+Search analytics
 ----------------
 
 When someone visits your documentation and uses the built-in :doc:`server side search </server-side-search/index>` feature,

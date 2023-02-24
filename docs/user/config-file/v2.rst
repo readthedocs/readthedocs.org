@@ -1,4 +1,4 @@
-Configuration File V2
+Configuration file v2
 =====================
 
 Read the Docs supports configuring your documentation builds with a YAML file.
