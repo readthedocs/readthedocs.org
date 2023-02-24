@@ -1,16 +1,29 @@
 How to structure your documentation
 ===================================
 
-Structuring your documentation is an important part of the authoring process.
-It's important to think about the reader of the documentation,
-since they are the primary user of documentation.
+A documentation project's ultimate goal is to be read and understood by a reader.
+Readers need to be able to :term:`discover <discoverability>` the information that they need.
+Without an intuitive structure,
+readers either won't find information that they need or get frustrated on the way.
+Having a structure in mind can happen from the very beginning of a documentation project.
+Changing and adapting your structure is often also necessary.
+
+.. tip::
+   Even if your documentation already has a structure,
+   we invite you to keep reading.
+   Changing a documentation structure is hard work,
+   but the rewards are big.
 
 One of the largest benefits of a good structure is that it removes questions that keep authors from writing documentation.
 Starting with a blank page is often the hardest part of documentation,
 so anything we can do to remove this problem is a win.
 
-Recommendations for process
----------------------------
+Choosing a structure
+--------------------
+
+Good news!
+You don't have to invent all of the structure yourself,
+since a lot of experience-based work has been done to come up with a universal documentation structure.
 
 In order to avoid starting with a blank page,
 we recommend a simple process:
