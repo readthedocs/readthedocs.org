@@ -1,13 +1,36 @@
-Choosing between our two platforms
-==================================
+Choosing a dedicated documentation platform
+===========================================
 
-Users often ask what the differences are between |org_brand| and |com_brand|.
+Read the Docs is a *choice* that needs explanation and understanding.
+The reasons behind choosing a dedicated platform for building and deploying your documentation is in fact our *vision* for Read the Docs.
+
+At the same time, users often ask what the differences are between |org_brand| and |com_brand|.
+
+Why choose a dedicated documentation platform?
+----------------------------------------------
+
+It's common to think that documentation is as simple as maintaining some content for a static website. Job done.
+But once you get the full picture of how complex maintaining a documentation site is over time,
+it will make sense to choose a platform that's based on decades of experience in operating documentation tools that have proven their value over the same span of time.
+
+A very straight-forward way to understand Read the Docs is to look at our :doc:`feature reference </reference/features>`.
+All these features ultimately sustain the life-cycle of a documentation project.
+
+.. insert life-cycle diagram.
+
+Differences between Community and Business
+------------------------------------------
 
 While many of our features are available on both of these platforms, there
 are some key differences between our two platforms.
 
-Read the Docs Community
------------------------
+.. seealso::
+
+   `Our website: Comparison of Community and all subscription plans <https://about.readthedocs.org/pricing/>`__
+      Refer to the complete table of features included in all of the Read the Docs solutions available.
+
+|org_brand|
+~~~~~~~~~~~
 
 |org_brand| is exclusively for hosting open source documentation. We support
 open source communities by providing free documentation building and hosting
@@ -25,8 +48,8 @@ Important points:
 
 You can sign up for an account at https://readthedocs.org.
 
-Read the Docs for Business
---------------------------
+|com_brand|
+~~~~~~~~~~~
 
 |com_brand| is meant for companies and users who have more complex requirements
 for their documentation project. This can include commercial projects with
