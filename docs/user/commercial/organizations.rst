@@ -30,7 +30,7 @@ The best way to think about this relationship is:
 .. warning::
 
    Owners, Members and Teams behave differently if you are using
-   :ref:`SSO with VCS provider (GitHub, Bitbucket or GitLab) <commercial/single-sign-on:SSO with VCS provider (GitHub, Bitbucket or GitLab)>`
+   :ref:`sso_git_provider`.
 
 Team types
 ~~~~~~~~~~

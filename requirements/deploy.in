@@ -8,6 +8,9 @@ psycopg2
 pillow
 
 structlog-sentry
-newrelic
+
+# We should unpin this dependency.
+# There is a new 8.x version, but I didn't find the changelog quickly.
+newrelic==7.4.0.172
 
 ipython

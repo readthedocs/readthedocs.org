@@ -74,7 +74,7 @@ Build status is not being reported to your VCS provider
    your account with your VCS provider.
 
 .. seealso::
-   - :ref:`integrations:Debugging webhooks`
+   - :ref:`guides/git-integrations:Debugging webhooks`
    - :ref:`github-permission-troubleshooting`
 
 .. _OAuth App: https://github.com/settings/applications
