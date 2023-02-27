@@ -147,6 +147,7 @@ class ProxitoHeaderTests(BaseDocServing):
 
 
 class ProxitoV2HeaderTests(ProxitoHeaderTests):
+    # TODO: remove this class once the new implementation is the default.
     def setUp(self):
         super().setUp()
         get(

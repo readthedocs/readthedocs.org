@@ -256,6 +256,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
 
 class ProxitoV2MiddlewareTests(MiddlewareTests):
+    # TODO: remove this class once the new implementation is the default.
     def setUp(self):
         super().setUp()
         get(

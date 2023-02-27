@@ -155,6 +155,7 @@ class InternalRedirectTests(BaseDocServing):
 
 
 class ProxitoV2InternalRedirectTests(InternalRedirectTests):
+    # TODO: remove this class once the new implementation is the default.
     def setUp(self):
         super().setUp()
         get(
@@ -662,6 +663,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
 
 
 class ProxitoV2UserRedirectTests(UserRedirectTests):
+    # TODO: remove this class once the new implementation is the default.
     def setUp(self):
         super().setUp()
         get(
@@ -968,6 +970,7 @@ class UserForcedRedirectTests(BaseDocServing):
 
 
 class ProxitoV2UserForcedRedirectTests(UserForcedRedirectTests):
+    # TODO: remove this class once the new implementation is the default.
     def setUp(self):
         super().setUp()
         get(
@@ -1123,6 +1126,7 @@ class UserRedirectCrossdomainTest(BaseDocServing):
 
 
 class ProxitoV2UserRedirectCrossdomainTest(UserRedirectCrossdomainTest):
+    # TODO: remove this class once the new implementation is the default.
     def setUp(self):
         super().setUp()
         get(

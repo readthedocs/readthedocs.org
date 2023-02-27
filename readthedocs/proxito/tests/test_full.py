@@ -333,6 +333,7 @@ class TestFullDocServing(BaseDocServing):
 
 
 class ProxitoV2TestFullDocServing(TestFullDocServing):
+    # TODO: remove this class once the new implementation is the default.
     def setUp(self):
         super().setUp()
         get(
@@ -483,6 +484,7 @@ class TestDocServingBackends(BaseDocServing):
 
 
 class ProxitoV2TestDocServingBackends(TestDocServingBackends):
+    # TODO: remove this class once the new implementation is the default.
     def setUp(self):
         super().setUp()
         get(
@@ -1272,6 +1274,7 @@ class TestAdditionalDocViews(BaseDocServing):
 
 
 class ProxitoV2TestAdditionalDocViews(TestAdditionalDocViews):
+    # TODO: remove this class once the new implementation is the default.
     def setUp(self):
         super().setUp()
         get(
@@ -1531,6 +1534,7 @@ class TestCDNCache(BaseDocServing):
 
 
 class ProxitoV2TestCDNCache(TestCDNCache):
+    # TODO: remove this class once the new implementation is the default.
     def setUp(self):
         super().setUp()
         get(
