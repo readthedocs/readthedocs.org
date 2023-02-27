@@ -16,7 +16,7 @@ For more information about the general ideas,
 look at this document: http://www.gnu.org/software/gettext/manual/html_node/Concepts.html
 
 
-Making Strings Localizable
+Making strings localizable
 --------------------------
 
 Making strings in templates localizable is exceptionally easy. Making strings
@@ -45,7 +45,7 @@ Python gives you a lot of ways to interpolate strings. The best way is to use
 Py3k formatting and kwargs. That's the clearest for localizers.
 
 
-Localization Comments
+Localization comments
 ^^^^^^^^^^^^^^^^^^^^^
 
 Sometimes, it can help localizers to describe where a string comes from,
@@ -70,7 +70,7 @@ Example::
     )
 
 
-Adding Context with msgctxt
+Adding context with msgctxt
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Strings may be the same in English, but different in other languages. English,
@@ -117,7 +117,7 @@ different phrases for, say 0, 1, 2-3, 4-10, >10. That's absolutely fine, and
 gettext makes it possible.
 
 
-Strings in Templates
+Strings in templates
 --------------------
 
 When putting new text into a template, all you need to do is wrap it in a
@@ -221,7 +221,7 @@ If you need to use plurals, import the
     msg = ungettext('Found {0} result', 'Found {0} results', n).format(n)
 
 
-Lazily Translated Strings
+Lazily translated strings
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 You can use :func:`~django.utils.translation.gettext` or
@@ -247,11 +247,11 @@ In case you want to provide context to a lazily-evaluated gettext string, you
 will need to use :func:`~django.utils.translation.pgettext_lazy`.
 
 
-Administrative Tasks
+Administrative tasks
 --------------------
 
 
-Updating Localization Files
+Updating localization files
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 To update the translation source files (eg if you changed or added translatable
@@ -284,7 +284,7 @@ it's silly and not worth it. They are ignored by ``.gitignore``, but please
 make sure you don't forcibly add them to the repository.
 
 
-Transifex Integration
+Transifex integration
 ^^^^^^^^^^^^^^^^^^^^^
 
 To push updated translation source files to Transifex, run ``tx

@@ -50,7 +50,7 @@ The build process includes the following jobs:
 
    .. tip::
 
-    We strongly recommend :ref:`pinning all the versions <guides/reproducible-builds:pinning dependencies>` required to build the documentation to avoid unexpected build errors.
+    We strongly recommend :doc:`pinning all the versions </guides/reproducible-builds>` required to build the documentation to avoid unexpected build errors.
 
 :build:
 
@@ -69,7 +69,7 @@ The build process includes the following jobs:
     If you require additional build steps or customization,
     it's possible to run user-defined commands and :doc:`customize the build process </build-customization>`.
 
-Cancelling Builds
+Cancelling builds
 -----------------
 
 There may be situations where you want to cancel a running build.

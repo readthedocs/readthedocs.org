@@ -561,6 +561,11 @@ class BuildNotificationSender:
                 settings.PRODUCTION_DOMAIN,
                 self.build.get_absolute_url(),
             ),
+            "build_raw": "{}://{}{}".format(
+                protocol,
+                settings.PRODUCTION_DOMAIN,
+                reverse("build-detail", args=[self.build.pk, "txt"]),
+            ),
             'unsubscribe_url': '{}://{}{}'.format(
                 protocol,
                 settings.PRODUCTION_DOMAIN,

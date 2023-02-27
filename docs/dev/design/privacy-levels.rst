@@ -1,4 +1,4 @@
-Privacy Levels
+Privacy levels
 ==============
 
 This document describes how to handle and unify privacy levels
@@ -156,7 +156,7 @@ Public project (community)
   Users didn't want to show this version to their users yet or they were testing something.
   This can be solved with the pull request builder feature and the ``hidden`` setting.
   We migrate those to public with the ``hidden`` setting.
-  If we are worried about leaking anything from the version, we can email users before doing the change. 
+  If we are worried about leaking anything from the version, we can email users before doing the change.
 
 Protected project (community)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

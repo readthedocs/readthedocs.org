@@ -1,7 +1,7 @@
-Site Support
+Site support
 ============
 
-Usage Questions
+Usage questions
 ---------------
 
 If you have questions about how to use Read the Docs, or have an issue that
@@ -17,7 +17,7 @@ Good questions for Stack Overflow would be:
 You might also find the answers you are looking for in our :doc:`documentation guides </guides/index>`.
 These provide step-by-step solutions to common user requirements.
 
-User Support
+User support
 ------------
 
 If you need a specific request for your project or account,
@@ -35,7 +35,7 @@ like more resources, change of the project's slug or username.
         Please fill out the form at https://readthedocs.com/support/,
         and we will reply within 1 business day for most plans.
 
-Bug Reports
+Bug reports
 -----------
 
 If you have an issue with the actual functioning of the site,
@@ -43,7 +43,7 @@ you can file bug reports on our `GitHub issue tracker`_.
 You can also :doc:`contribute <rtd-dev:contribute>` to Read the Docs,
 as the code is open source.
 
-Priority Support
+Priority support
 ----------------
 
 We offer priority support with :doc:`Read the Docs for Business </commercial/index>`

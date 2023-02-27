@@ -1,6 +1,6 @@
 :orphan:
 
-Customizing Advertising
+Customizing advertising
 =======================
 
 .. warning::

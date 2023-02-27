@@ -1,4 +1,4 @@
-Feature Flags
+Feature flags
 =============
 
 .. **Please don't add more stuff here**. We want to move user-facing options to the config file.
@@ -9,7 +9,7 @@ or reaching out to the administrator of your service.
 
 .. _contacting us through our support form: https://docs.readthedocs.io/en/stable/support.html
 
-Available Flags
+Available flags
 ---------------
 
 ``CONDA_APPEND_CORE_REQUIREMENTS``: Append Read the Docs core requirements to environment.yml file.

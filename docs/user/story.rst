@@ -1,7 +1,7 @@
-The Story of Read the Docs
+The story of Read the Docs
 ==========================
 
-Documenting projects is hard, hosting them shouldn’t be. Read the Docs was created to make hosting documentation simple. 
+Documenting projects is hard, hosting them shouldn’t be. Read the Docs was created to make hosting documentation simple.
 
 Read the Docs was `started`_ with a couple main goals in mind. The first goal was
 to encourage people to write documentation, by removing the barrier of entry to
