@@ -123,24 +123,6 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             resp["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
         )
 
-    # We are not canonicalizing custom domains -> public domain for now
-    @pytest.mark.xfail(strict=True)
-    def test_canonical_cname_redirect_public_domain(self):
-        """Requests to a custom domain should redirect to the public domain or canonical domain if not canonical."""
-        cname = 'docs.random.com'
-        domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
-
-        resp = self.client.get(self.url, HTTP_HOST=cname)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp["X-RTD-Redirect"], "noncanonical-cname")
-
-        # Make the domain canonical and make sure we don't redirect
-        domain.canonical = True
-        domain.save()
-        for url in (self.url, '/subdir/'):
-            resp = self.client.get(url, HTTP_HOST=cname)
-            self.assertNotIn("X-RTD-Redirect", resp)
-
     def test_proper_cname_uppercase(self):
         get(Domain, project=self.pip, domain='docs.random.com')
         request = self.request(method='get', path=self.url, HTTP_HOST='docs.RANDOM.COM')
