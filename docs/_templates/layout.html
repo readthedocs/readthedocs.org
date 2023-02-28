@@ -1,5 +1,10 @@
 {% extends "!layout.html" %}
 
+{% block extrahead %}
+  {{ super() }}
+
+  <script defer data-domain="docs.readthedocs.io" src="https://plausible.io/js/script.js"></script>
+{% endblock extrahead %}
 
 {% block document %}
   {{ super() }}
