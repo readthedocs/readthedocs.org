@@ -11,9 +11,9 @@
       {% endblocktrans %}
     </p>
     <p>
-      {% blocktrans trimmed with request_path=request.path %}
+      {% blocktrans trimmed %}
         You are browsing the documentation of <code>{{ project_slug }}</code>.
-        The page you are looking for at <code>{{ request_path }}</code> was not found.
+        The page you are looking for at <code>{{ path_not_found }}</code> was not found.
       {% endblocktrans %}
     </p>
   </section>

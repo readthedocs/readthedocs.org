@@ -46,7 +46,7 @@ class CommunityBaseSettings(Settings):
     DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
     # Debug settings
-    DEBUG = True
+    DEBUG = False
     RTD_FORCE_SHOW_DEBUG_TOOLBAR = False
 
     @property

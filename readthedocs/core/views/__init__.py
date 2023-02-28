@@ -14,6 +14,7 @@ from django.views.generic import TemplateView, View
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.projects.models import Project
 from readthedocs.proxito.exceptions import (
+    ProxitoHttp404,
     ProxitoProjectHttp404,
     ProxitoProjectPageHttp404,
     ProxitoProjectVersionHttp404,
@@ -62,12 +63,22 @@ def server_error_404(request, template_name="errors/404/base.html", exception=No
     this view is expected to serve an actual 404 message.
     """
 
+    context = {}
     # Properties are set by ProxitoHttp404. We could also have a look at the
     # subproject_slug
-    project_slug = getattr(exception, "project_slug", None)
-    version_slug = getattr(exception, "version_slug", None)
-    project = getattr(exception, "project", None)
-    subproject_slug = getattr(exception, "subproject_slug", None)
+    if isinstance(exception, ProxitoHttp404):
+        # These attributes are not guaranteed.
+        context.update(
+            {
+                "project": getattr(exception, "project", None),
+                "project_slug": getattr(exception, "project_slug", None),
+                "subproject_slug": getattr(exception, "subproject_slug", None),
+                "version_slug": getattr(exception, "version_slug", None),
+                "path_not_found": getattr(exception, "proxito_path", None),
+            }
+        )
+
+    context["path_not_found"] = context.get("path_not_found") or request.path
 
     if isinstance(exception, ProxitoProjectVersionHttp404):
         template_name = "errors/404/no_version.html"
@@ -81,12 +92,7 @@ def server_error_404(request, template_name="errors/404/base.html", exception=No
     r = render(
         request,
         template_name,
-        context={
-            "project": project,
-            "project_slug": project_slug,
-            "subproject_slug": subproject_slug,
-            "version_slug": version_slug,
-        },
+        context=context,
     )
     r.status_code = 404
     return r

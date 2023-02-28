@@ -479,6 +479,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 "Page not found and no custom 404",
                 project=final_project,
                 project_slug=final_project.slug,
+                proxito_path=proxito_path,
             )
         elif kwargs.get("subproject_slug"):
             raise ProxitoSubProjectHttp404(
@@ -486,12 +487,14 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 project=final_project,
                 project_slug=final_project.slug,
                 subproject_slug=kwargs.get("subproject_slug"),
+                proxito_path=proxito_path,
             )
         else:
             raise ProxitoProjectVersionHttp404(
                 "Version not found and no custom 404",
                 project=final_project,
                 project_slug=final_project.slug,
+                proxito_path=proxito_path,
             )
 
     def _register_broken_link(self, project, version, path, full_path):

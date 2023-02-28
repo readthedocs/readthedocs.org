@@ -221,6 +221,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             raise ProxitoProjectHttp404(
                 f"No project found for requested domain {exc.domain}.",
                 project_slug=exc.domain,
+                proxito_path=request.path,
             )
         except InvalidCustomDomainError as exc:
             # Some person is CNAMEing to us without configuring a domain - 404.
