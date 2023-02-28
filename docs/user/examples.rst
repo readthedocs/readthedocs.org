@@ -6,7 +6,7 @@ Example projects
 * Want to showcase your own solution?
 
 The following example projects show a rich variety of uses of Read the Docs.
-You can use them for inspiration, for learning and for recipies to start your own documentation projects.
+You can use them for inspiration, for learning and for recipes to start your own documentation projects.
 View the *rendered* version of each project and then head over to the Git source to see how it's done and reuse the code.
 
 Sphinx and MkDocs examples

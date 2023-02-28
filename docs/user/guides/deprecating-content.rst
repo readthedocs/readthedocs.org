@@ -1,5 +1,5 @@
-Deprecating Content
-===================
+How to deprecate content
+========================
 
 When you deprecate a feature from your project,
 you may want to deprecate its docs as well,

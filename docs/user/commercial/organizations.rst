@@ -16,7 +16,7 @@ some who need full access and some who just need access to one project.
    :doc:`/guides/manage-read-the-docs-teams`
      A step-by-step guide to managing teams.
 
-Member Types
+Member types
 ~~~~~~~~~~~~
 
 * **Owners** -- Get full access to both view and edit the Organization and all Projects
@@ -32,7 +32,7 @@ The best way to think about this relationship is:
    Owners, Members and Teams behave differently if you are using
    :ref:`sso_git_provider`.
 
-Team Types
+Team types
 ~~~~~~~~~~
 
 You can create two types of Teams:

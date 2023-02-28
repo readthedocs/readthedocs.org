@@ -1,5 +1,5 @@
-Search Engine Optimization (SEO) for documentation projects
-===========================================================
+How to do Search Engine Optimization (SEO) for documentation projects
+=====================================================================
 
 .. meta::
     :description lang=en:
@@ -26,7 +26,7 @@ they can get the answers from your documentation in the search results.
    :ref:`external resources <guides/technical-docs-seo-guide:External resources>` section.
 
 
-SEO Basics
+SEO basics
 ----------
 
 Search engines like Google and Bing crawl through the internet

@@ -1,4 +1,4 @@
-Getting Started with MkDocs
+Getting started with MkDocs
 ===========================
 
 .. meta::

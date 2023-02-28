@@ -1,4 +1,4 @@
-Importing Your Documentation
+Importing your documentation
 ============================
 
 .. meta::

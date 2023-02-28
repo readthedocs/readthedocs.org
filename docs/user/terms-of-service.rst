@@ -85,7 +85,7 @@ You alone are responsible for your Account and anything that happens while you a
 You are responsible for keeping your Account secure.*
 
 Account controls
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~
 
 Users
     Subject to these Terms, you retain ultimate administrative control over your User Account and the Content within it.

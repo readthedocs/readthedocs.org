@@ -1,4 +1,4 @@
-Frequently Asked Questions
+Frequently asked questions
 ==========================
 
 .. contents::
@@ -142,7 +142,7 @@ You can also set your project documentation to install your Python project itsel
      How to customize your builds, for example if you need to build with different tools from Sphinx or
      if you need to add additional packages for the Ubuntu-based builder.
 
-   :doc:`Configuration File <config-file/v2>`
+   :doc:`/config-file/v2`
      Reference for the main configuration file, `.readthedocs.yaml`
 
    :ref:`build.apt_packages <config-file/v2:build.apt_packages>`

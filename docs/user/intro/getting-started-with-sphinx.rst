@@ -1,4 +1,4 @@
-Getting Started with Sphinx
+Getting started with Sphinx
 ===========================
 
 .. meta::

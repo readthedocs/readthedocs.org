@@ -18,21 +18,22 @@ from multiproject.utils import get_project
 
 sys.path.append(os.path.abspath("_ext"))
 extensions = [
+    "hoverxref.extension",
     "multiproject",
-    "sphinx.ext.autosectionlabel",
+    "myst_parser",
+    "notfound.extension",
+    "sphinx_design",
+    "sphinx_search.extension",
+    "sphinx_tabs.tabs",
+    "sphinx-prompt",
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosectionlabel",
     "sphinx.ext.extlinks",
     "sphinx.ext.intersphinx",
     "sphinxcontrib.httpdomain",
     "sphinxcontrib.video",
-    "sphinx_tabs.tabs",
-    "sphinx-prompt",
-    "notfound.extension",
-    "hoverxref.extension",
-    "sphinx_search.extension",
     "sphinxemoji.sphinxemoji",
-    "sphinx_design",
-    "myst_parser",
+    "sphinxext.opengraph",
 ]
 
 multiproject_projects = {
@@ -52,12 +53,21 @@ multiproject_projects = {
 
 docset = get_project(multiproject_projects)
 
+ogp_site_name = "Read the Docs Documentation"
+ogp_use_first_image = True  # https://github.com/readthedocs/blog/pull/118
+ogp_image = "https://docs.readthedocs.io/en/latest/_static/img/logo-opengraph.png"
+# Inspired by https://github.com/executablebooks/MyST-Parser/pull/404/
+ogp_custom_meta_tags = [
+    '<meta name="twitter:card" content="summary_large_image" />',
+]
+ogp_enable_meta_description = True
+ogp_description_length = 300
 
 templates_path = ["_templates"]
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "9.6.0"
+version = "9.7.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"

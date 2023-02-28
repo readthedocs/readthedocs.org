@@ -40,7 +40,8 @@ from .base import BaseDocServing
 
 @override_settings(
     PYTHON_MEDIA=False,
-    PUBLIC_DOMAIN='dev.readthedocs.io',
+    PUBLIC_DOMAIN="dev.readthedocs.io",
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
 )
 class TestFullDocServing(BaseDocServing):
     # Test the full range of possible doc URL's
@@ -139,9 +140,6 @@ class TestFullDocServing(BaseDocServing):
                 resp['x-accel-redirect'], '/proxito/media/html/project/latest/awesome/index.html',
             )
 
-    @override_settings(
-        RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
-    )
     def test_single_version_external_serving(self):
         self.project.single_version = True
         self.project.save()
@@ -160,9 +158,6 @@ class TestFullDocServing(BaseDocServing):
             resp['x-accel-redirect'], '/proxito/media/external/html/project/10/awesome.html',
         )
 
-    @override_settings(
-        RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
-    )
     def test_external_version_serving(self):
         fixture.get(
             Version,
@@ -172,16 +167,13 @@ class TestFullDocServing(BaseDocServing):
             active=True,
             project=self.project,
         )
-        url = '/awesome.html'
-        host = 'project--10.dev.readthedocs.build'
+        url = "/en/10/awesome.html"
+        host = "project--10.dev.readthedocs.build"
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/external/html/project/10/awesome.html',
         )
 
-    @override_settings(
-        RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
-    )
     def test_external_version_serving_old_slugs(self):
         """
         Test external version serving with projects with `--` in their slug.
@@ -200,8 +192,8 @@ class TestFullDocServing(BaseDocServing):
         self.project.slug = 'test--project'
         self.project.save()
 
-        host = 'test--project--10.dev.readthedocs.build'
-        resp = self.client.get('/awesome.html', HTTP_HOST=host)
+        host = "test--project--10.dev.readthedocs.build"
+        resp = self.client.get("/en/10/awesome.html", HTTP_HOST=host)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/external/html/test--project/10/awesome.html',
         )
@@ -233,10 +225,7 @@ class TestFullDocServing(BaseDocServing):
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 404)
 
-    @override_settings(
-        RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
-    )
-    def test_invalid_domain_for_external_version_serving(self):
+    def test_serve_external_version_on_main_domain(self):
         fixture.get(
             Version,
             verbose_name='10',
@@ -245,10 +234,52 @@ class TestFullDocServing(BaseDocServing):
             active=True,
             project=self.project,
         )
-        url = '/html/project/10/awesome.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/en/10/awesome.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp["X-RTD-Project"], "project")
+        self.assertEqual(resp["X-RTD-Version"], "10")
+
+    def test_serve_non_external_version_on_external_domain(self):
+        fixture.get(
+            Version,
+            verbose_name="10",
+            slug="10",
+            type=EXTERNAL,
+            active=True,
+            project=self.project,
+        )
+        url = "/en/latest/awesome.html"
+        host = "project--10.dev.readthedocs.build"
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp["X-RTD-Project"], "project")
+        self.assertEqual(resp["X-RTD-Version"], "10")
+
+    def test_serve_different_external_version_from_domain(self):
+        fixture.get(
+            Version,
+            verbose_name="10",
+            slug="10",
+            type=EXTERNAL,
+            active=True,
+            project=self.project,
+        )
+        fixture.get(
+            Version,
+            verbose_name="11",
+            slug="11",
+            type=EXTERNAL,
+            active=True,
+            project=self.project,
+        )
+        url = "/en/11/awesome.html"
+        host = "project--10.dev.readthedocs.build"
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(resp["X-RTD-Project"], "project")
+        self.assertEqual(resp["X-RTD-Version"], "10")
 
     def test_invalid_language_for_project_with_versions(self):
         url = '/foo/latest/awesome.html'
@@ -409,6 +440,40 @@ class TestDocServingBackends(BaseDocServing):
             resp = self.client.get(
                 f"/_/downloads/en/latest/{type_}/",
                 HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 404)
+
+    @override_settings(PYTHON_MEDIA=False)
+    def test_download_files_from_external_version(self):
+        fixture.get(
+            Version,
+            verbose_name="10",
+            slug="10",
+            type=EXTERNAL,
+            active=True,
+            project=self.project,
+        )
+        for type_ in DOWNLOADABLE_MEDIA_TYPES:
+            resp = self.client.get(
+                f"/_/downloads/en/10/{type_}/",
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 404)
+
+    @override_settings(PYTHON_MEDIA=False)
+    def test_download_files_from_external_version_from_main_domain(self):
+        fixture.get(
+            Version,
+            verbose_name="10",
+            slug="10",
+            type=EXTERNAL,
+            active=True,
+            project=self.project,
+        )
+        for type_ in DOWNLOADABLE_MEDIA_TYPES:
+            resp = self.client.get(
+                f"/_/downloads/en/latest/{type_}/",
+                HTTP_HOST="project--10.dev.readthedocs.build",
             )
             self.assertEqual(resp.status_code, 404)
 
