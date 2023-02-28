@@ -1,4 +1,4 @@
-Development Installation
+Development installation
 ========================
 
 .. meta::

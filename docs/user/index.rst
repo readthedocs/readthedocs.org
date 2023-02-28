@@ -1,4 +1,4 @@
-Read the Docs: Documentation Simplified
+Read the Docs: documentation simplified
 =======================================
 
 .. toctree::
@@ -139,7 +139,7 @@ and some of the core features of Read the Docs.
   :doc:`/faq`
 
 
-How-to Guides
+How-to guides
 -------------
 
 These guides will help you walk through specific use cases
@@ -153,13 +153,13 @@ and how to write successful documentation.
   :doc:`More guides for authors </guides/authors>`
 
 * **For project administrators**:
-  :doc:`Connect Your Git Repository </guides/git-integrations>` |
-  :doc:`Manage Custom Domains </guides/custom-domains>` |
+  :doc:`/guides/git-integrations` |
+  :doc:`/guides/custom-domains` |
   :doc:`/guides/technical-docs-seo-guide` |
   :doc:`/guides/manage-translations-sphinx` |
   :doc:`/guides/private-submodules` |
-  :doc:`Configure Pull Request Builds </guides/pull-requests>` |
-  :doc:`Use Traffic Analytics </analytics>` |
+  :doc:`/guides/pull-requests` |
+  :doc:`/analytics` |
   :doc:`/guides/build-notifications` |
   :doc:`More guides for administrators </guides/administrators>`
 
@@ -169,7 +169,7 @@ and how to write successful documentation.
   :doc:`/guides/reproducible-builds` |
   :doc:`/guides/embedding-content` |
   :doc:`/guides/conda` |
-  :doc:`Use Traffic Analytics </analytics>` |
+  :doc:`/analytics` |
   :doc:`/guides/build-notifications` |
   :doc:`More guides for developers and designers </guides/developers>`
 
@@ -211,8 +211,8 @@ Read the Docs has a commercial offering with improved support and additional fea
 
 * **Read the Docs for Business**:
   :doc:`Organizations <commercial/organizations>` |
-  :doc:`Single Sign On <commercial/single-sign-on>` |
-  :doc:`Project Privacy Level <commercial/privacy-level>` |
+  :doc:`Single sign on <commercial/single-sign-on>` |
+  :doc:`Project privacy level <commercial/privacy-level>` |
   :doc:`Sharing externally <commercial/sharing>`
 
 
@@ -232,7 +232,7 @@ of Read the Docs and the larger software documentation ecosystem.
 
 
 * **The people and philosophy behind Read the Docs**:
-  :doc:`About Us </about/index>` |
+  :doc:`About us </about/index>` |
   :doc:`Team <team>` |
   :doc:`Open source philosophy <open-source-philosophy>` |
   :doc:`Our story <story>`
@@ -248,4 +248,4 @@ of Read the Docs and the larger software documentation ecosystem.
 
 * **Getting involved with Read the Docs**:
   :doc:`/glossary` |
-  :doc:`Developer Documentation <rtd-dev:index>`
+  :doc:`Developer documentation <rtd-dev:index>`

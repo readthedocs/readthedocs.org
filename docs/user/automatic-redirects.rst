@@ -89,4 +89,4 @@ Questionable practice 🟡
      Users will be aware that the documentation **project** still exists but has changed.
 
      The default Read the Docs 404 page is designed to be helpful,
-     but you can also design your own, see :ref:`hosting:Custom Not Found (404) Pages`.
+     but you can also design your own, see :doc:`/reference/404-not-found`.

@@ -17,6 +17,7 @@ sphinxemoji
 sphinxcontrib-httpdomain
 sphinx-prompt
 sphinx-autobuild
+sphinxext-opengraph
 
 # Markdown
 myst_parser

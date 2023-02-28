@@ -1,4 +1,4 @@
-Configuration File V2
+Configuration file v2
 =====================
 
 Read the Docs supports configuring your documentation builds with a YAML file.
@@ -429,7 +429,7 @@ We don't currently support PPA's or other custom repositories.
 .. note::
 
    When possible avoid installing Python packages using apt (``python3-numpy`` for example),
-   :ref:`use pip or Conda instead <guides/reproducible-builds:pinning dependencies>`.
+   :doc:`use pip or conda instead </guides/reproducible-builds>`.
 
 
 build.jobs

@@ -1,4 +1,4 @@
-Read the Docs Team
+Read the Docs team
 ==================
 
 readthedocs.org is the largest open source documentation hosting service.
@@ -11,31 +11,10 @@ Today we:
 Read the Docs is provided as a free service to the open source community,
 and we hope to maintain a reliable and stable hosting platform for years to come.
 
-Staff
------
+.. seealso::
 
-The members of the Staff work full time on the service,
-and we are also honored to have several :ref:`external contributors <major-contributors>`.
-
-We mainly fund our operations through :doc:`advertising </advertising/index>`
-and corporate-hosted documentation with `Read the Docs for Business <https://readthedocs.com/>`_,
-and we are supported by a number of generous :doc:`sponsors </sponsors>`.
-
-.. rst-class:: team-roster
-
-================================ ============================
-|eric| Eric Holscher             |anthony| Anthony Johnson
-================================ ============================
-*All teams*                      *All teams*
-
-|manuel| Manuel Kaufmann         |santos| Santos Gallegos
-
-Backend, Operations, Support     Backend, Operations, Support
-
-|benjamin| Benjamin Balder Bach
-
-Backend, Operations, Support
-================================ ============================
+   `Our website: Who we are <https://about.readthedocs.com/company/>`__
+     More information about the staff and contributors of Read the Docs.
 
 Teams
 ~~~~~
@@ -55,59 +34,3 @@ Teams
    **Please don't email us personally for support on Read the Docs.**
    You can `use our support form <https://readthedocs.org/support/>`_
    for any issues you may have.
-
-.. _Eric Holscher: https://github.com/ericholscher
-.. _Anthony Johnson: https://github.com/agjohnson
-.. _Manuel Kaufmann: https://github.com/humitos
-.. _Santos Gallegos: https://github.com/stsewd
-.. _Benjamin Balder Bach: https://github.com/benjaoming
-
-.. |eric| image:: https://avatars.githubusercontent.com/u/25510?v=4
-          :width: 100px
-          :alt: Eric Holscher
-          :target: `Eric Holscher`_
-
-.. |anthony| image:: https://avatars.githubusercontent.com/u/1140183?v=4
-             :width: 100px
-             :alt: Anthony Johnson
-             :target: `Anthony Johnson`_
-
-.. |manuel| image:: https://avatars.githubusercontent.com/u/244656?v=4
-            :width: 100px
-            :alt: Manuel Kaufmann
-            :target: `Manuel Kaufmann`_
-
-.. |santos| image:: https://avatars.githubusercontent.com/u/4975310?v=4
-            :width: 100px
-            :alt: Santos Gallegos
-            :target: `Santos Gallegos`_
-
-.. |benjamin| image:: https://avatars.githubusercontent.com/u/374612?v=4
-         :width: 100px
-         :alt: Benjamin Balder Bach
-         :target: `Benjamin Balder Bach`_
-
-.. _major-contributors:
-
-Major Contributors
-------------------
-
-`The code that powers the Read the Docs platform <https://github.com/readthedocs/readthedocs.org/>`_,
-as well as many other related projects in `our GitHub organization <https://github.com/readthedocs>`_,
-are :doc:`open source </open-source-philosophy>`, and therefore
-:doc:`anybody can contribute <rtd-dev:contribute>`.
-
-Our platform code has `over a hundred
-contributors <https://github.com/readthedocs/readthedocs.org/graphs/contributors>`_,
-which makes us extremely proud and thankful.
-In addition, several contributors have performed ongoing maintenance on several subprojects
-over the years:
-
-* `Aaron Carlisle`_ for `our Sphinx theme <https://github.com/readthedocs/sphinx_rtd_theme>`_.
-* `Ashley Whetter`_ for `our autoapi Sphinx extension <https://github.com/readthedocs/sphinx-autoapi>`_.
-
-We know that we're missing a large number of people who have contributed in major ways to our various projects.
-Please let us know if you feel that you should be on this list, and aren't!
-
-.. _Aaron Carlisle: https://github.com/blendify
-.. _Ashley Whetter: https://github.com/AWhetter

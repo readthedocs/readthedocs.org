@@ -1,7 +1,7 @@
-Search Query Syntax
+Search query syntax
 ===================
 
-When searching on Read the Docs with :doc:`Server Side Search </server-side-search/index>`,
+When searching on Read the Docs with :doc:`server side search </server-side-search/index>`,
 you can use some parameters in your query
 in order to search on given projects, versions, or to get more accurate results.
 
