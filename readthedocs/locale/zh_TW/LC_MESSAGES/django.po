@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-21 11:31+0000\n"
+"POT-Creation-Date: 2023-02-28 14:58+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Anthony <aj@ohess.org>, 2022\n"
 "Language-Team: Chinese (Taiwan) (http://www.transifex.com/readthedocs/"
@@ -27,7 +27,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: analytics/models.py:69 builds/models.py:616 projects/models.py:1379
+#: analytics/models.py:69 builds/models.py:616 projects/models.py:1390
 #: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:257
 msgid "Version"
 msgstr "版本"
@@ -49,14 +49,14 @@ msgid "Languages"
 msgstr ""
 
 #: api/v2/templates/restapi/footer.html:42
-#: templates/core/project_bar_base.html:48
+#: templates/core/project_bar_base.html:51
 #: templates/core/project_details.html:17
 msgid "Versions"
 msgstr "版本"
 
 #: api/v2/templates/restapi/footer.html:55
 #: api/v2/templates/restapi/footer.html:75
-#: templates/core/project_bar_base.html:42
+#: templates/core/project_bar_base.html:45
 #: templates/projects/project_downloads.html:22
 msgid "Downloads"
 msgstr "下載"
@@ -70,7 +70,7 @@ msgid "Project Home"
 msgstr ""
 
 #: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
-#: templates/core/project_bar_base.html:46
+#: templates/core/project_bar_base.html:49
 msgid "Builds"
 msgstr "建置"
 
@@ -103,7 +103,7 @@ msgstr ""
 
 #. Translators: This is about starting a search
 #: api/v2/templates/restapi/footer.html:118
-#: templates/core/project_bar_base.html:44
+#: templates/core/project_bar_base.html:47
 #: templates/search/elastic_search.html:80
 #: templates/search/elastic_search.html:92
 msgid "Search"
@@ -193,7 +193,7 @@ msgid "Username"
 msgstr "使用者名稱"
 
 #: audit/models.py:138 builds/models.py:110 builds/models.py:610
-#: projects/models.py:1373 redirects/models.py:57
+#: projects/models.py:1384 redirects/models.py:57
 msgid "Project"
 msgstr "專案"
 
@@ -432,7 +432,7 @@ msgstr "啟用"
 msgid "Build finished"
 msgstr ""
 
-#: builds/filters.py:20 projects/models.py:1498
+#: builds/filters.py:20 projects/models.py:1509
 #: templates/builds/build_detail.html:143
 msgid "Build failed"
 msgstr "建置失敗"
@@ -466,11 +466,11 @@ msgstr ""
 msgid "Invalid Python regular expression."
 msgstr ""
 
-#: builds/models.py:98 projects/models.py:1461 projects/models.py:1629
+#: builds/models.py:98 projects/models.py:1472 projects/models.py:1640
 msgid "created"
 msgstr ""
 
-#: builds/models.py:103 projects/models.py:1466
+#: builds/models.py:103 projects/models.py:1477
 msgid "modified"
 msgstr ""
 
@@ -508,7 +508,7 @@ msgstr "建置"
 msgid "Uploaded"
 msgstr "已上傳"
 
-#: builds/models.py:161 projects/models.py:394
+#: builds/models.py:161 projects/models.py:405
 msgid "Privacy Level"
 msgstr "隱私等級"
 
@@ -585,7 +585,7 @@ msgstr "錯誤"
 msgid "Exit code"
 msgstr "結束代碼"
 
-#: builds/models.py:666 projects/models.py:1390 sphinx_domains/models.py:43
+#: builds/models.py:666 projects/models.py:1401 sphinx_domains/models.py:43
 msgid "Commit"
 msgstr "認可 (Commit)"
 
@@ -731,12 +731,12 @@ msgstr ""
 msgid "Matched rule"
 msgstr ""
 
-#: builds/tasks.py:572
+#: builds/tasks.py:580
 #, python-brace-format
 msgid "Failed: {project[name]} ({commit})"
 msgstr "失敗：{project[name]} ({commit})"
 
-#: builds/tasks.py:577
+#: builds/tasks.py:585
 #, python-brace-format
 msgid "Failed: {project[name]} ({version[verbose_name]})"
 msgstr "失敗：{project[name]} ({version[verbose_name]})"
@@ -1010,7 +1010,7 @@ msgid "Publication date"
 msgstr "發佈日期"
 
 #: gold/models.py:31 organizations/models.py:34 organizations/models.py:219
-#: organizations/models.py:293 projects/models.py:123 projects/models.py:1392
+#: organizations/models.py:293 projects/models.py:123 projects/models.py:1403
 #: subscriptions/models.py:25 subscriptions/models.py:127
 #: subscriptions/models.py:183
 msgid "Modified date"
@@ -1301,7 +1301,7 @@ msgstr "使用者"
 
 #: oauth/models.py:33 oauth/models.py:128 organizations/models.py:50
 #: organizations/models.py:242 projects/filters.py:29 projects/filters.py:113
-#: projects/models.py:132 projects/models.py:1384 sphinx_domains/models.py:51
+#: projects/models.py:132 projects/models.py:1395 sphinx_domains/models.py:51
 #: subscriptions/models.py:28
 msgid "Name"
 msgstr "名稱"
@@ -1427,7 +1427,7 @@ msgstr "Webhook 啟用失敗。請確認是否有足夠權限。"
 msgid "Read-only"
 msgstr ""
 
-#: organizations/constants.py:10 templates/core/project_bar_base.html:51
+#: organizations/constants.py:10 templates/core/project_bar_base.html:54
 #: templates/profiles/base_profile.html:29
 #: templates/profiles/base_profile_edit.html:31
 msgid "Admin"
@@ -1974,7 +1974,7 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:99 projects/models.py:2084
+#: projects/constants.py:99 projects/models.py:2095
 msgid "Public"
 msgstr "公開"
 
@@ -2414,7 +2414,7 @@ msgstr "啟用 PDF 建置"
 msgid "Create a PDF version of your documentation with each build."
 msgstr "為每個建置建立 PDF 版本的文件"
 
-#: projects/models.py:341 projects/models.py:1389
+#: projects/models.py:341 projects/models.py:1400
 msgid "Path"
 msgstr "路徑"
 
@@ -2438,384 +2438,396 @@ msgstr ""
 msgid "Featured"
 msgstr "精選"
 
-#: projects/models.py:362
-msgid "Skip"
-msgstr "跳過"
+#: projects/models.py:363
+msgid "Skip (disable) building this project"
+msgstr ""
 
-#: projects/models.py:364
+#: projects/models.py:367
+#, fuzzy
+#| msgid "Whitelisted"
+msgid "Delisted"
+msgstr "已列入白名單"
+
+#: projects/models.py:369
+msgid ""
+"Delisting a project removes it from Read the Docs search indexing and asks "
+"external search engines to remove it via robots.txt"
+msgstr ""
+
+#: projects/models.py:375
 msgid "Install Project"
 msgstr "安裝專案"
 
-#: projects/models.py:366
+#: projects/models.py:377
 msgid ""
 "Install your project inside a virtualenv using <code>setup.py install</code>"
 msgstr "使用 <code>setup.py install</code> 來在虛擬環境中安裝專案。"
 
-#: projects/models.py:375
+#: projects/models.py:386
 msgid "Python Interpreter"
 msgstr "Python 解譯器"
 
-#: projects/models.py:380
+#: projects/models.py:391
 msgid "The Python interpreter used to create the virtual environment."
 msgstr "用於建立虛擬環境的 Python 解譯器。"
 
-#: projects/models.py:386
+#: projects/models.py:397
 msgid "Use system packages"
 msgstr "使用系統套件"
 
-#: projects/models.py:388
+#: projects/models.py:399
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr "讓虛擬環境可以存取全域 site-packages 目錄。"
 
-#: projects/models.py:399
+#: projects/models.py:410
 msgid "Should the project dashboard be public?"
 msgstr ""
 
-#: projects/models.py:406
+#: projects/models.py:417
 msgid "Related projects"
 msgstr "相關專案"
 
-#: projects/models.py:414 templates/search/elastic_search.html:57
+#: projects/models.py:425 templates/search/elastic_search.html:57
 msgid "Language"
 msgstr "語言"
 
-#: projects/models.py:418
+#: projects/models.py:429
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
 msgstr "專案文件呈現的語言。注意︰該設定將影響專案的網址。"
 
-#: projects/models.py:426
+#: projects/models.py:437
 msgid "Programming Language"
 msgstr "程式語言"
 
-#: projects/models.py:430
+#: projects/models.py:441
 msgid "The primary programming language the project is written in."
 msgstr "撰寫本專案的主要程式語言。"
 
-#: projects/models.py:446
+#: projects/models.py:457
 msgid "This project has been built with a webhook"
 msgstr "該專案已通過 Webhook 建置"
 
-#: projects/models.py:450
+#: projects/models.py:461
 msgid "This project has been successfully cloned"
 msgstr "這個專案已成功複製"
 
-#: projects/models.py:470
+#: projects/models.py:481
 msgid "project"
 msgstr ""
 
-#: projects/models.py:480
+#: projects/models.py:491
 msgid "Model must have slug"
 msgstr "Model 必須有動態資料欄位"
 
-#: projects/models.py:1271
+#: projects/models.py:1282
 msgid "Subproject nesting is not supported"
 msgstr "不支援巢狀子專案"
 
-#: projects/models.py:1391 sphinx_domains/models.py:44
+#: projects/models.py:1402 sphinx_domains/models.py:44
 msgid "Build id"
 msgstr ""
 
-#: projects/models.py:1394
+#: projects/models.py:1405
 msgid "Page search rank"
 msgstr ""
 
-#: projects/models.py:1399
+#: projects/models.py:1410
 msgid "Ignore this file from operations like indexing"
 msgstr ""
 
-#: projects/models.py:1496
+#: projects/models.py:1507
 msgid "Build triggered"
 msgstr ""
 
-#: projects/models.py:1497
+#: projects/models.py:1508
 msgid "Build passed"
 msgstr ""
 
-#: projects/models.py:1514
+#: projects/models.py:1525
 msgid "URL"
 msgstr "網址"
 
-#: projects/models.py:1516
+#: projects/models.py:1527
 msgid "URL to send the webhook to"
 msgstr "要傳送 Webhook 至的網址"
 
-#: projects/models.py:1519
+#: projects/models.py:1530
 msgid "Secret used to sign the payload of the webhook"
 msgstr ""
 
-#: projects/models.py:1527
+#: projects/models.py:1538
 msgid "Events to subscribe"
 msgstr ""
 
-#: projects/models.py:1530
+#: projects/models.py:1541
 msgid "JSON payload"
 msgstr ""
 
-#: projects/models.py:1532
+#: projects/models.py:1543
 msgid ""
 "JSON payload to send to the webhook. Check <a href=\"https://docs."
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
 "reference\">the docs</a> for available substitutions."
 msgstr ""
 
-#: projects/models.py:1640 sphinx_domains/models.py:47
+#: projects/models.py:1651 sphinx_domains/models.py:47
 msgid "Domain"
 msgstr "網域"
 
-#: projects/models.py:1647
+#: projects/models.py:1658
 msgid "This domain was auto-created"
 msgstr ""
 
-#: projects/models.py:1651
+#: projects/models.py:1662
 msgid "This domain is a CNAME for the project"
 msgstr ""
 
-#: projects/models.py:1656
+#: projects/models.py:1667
 msgid "This domain is the primary one where the documentation is served from"
 msgstr ""
 
-#: projects/models.py:1660
+#: projects/models.py:1671
 msgid "Use HTTPS"
 msgstr "使用 HTTPS"
 
-#: projects/models.py:1662
+#: projects/models.py:1673
 msgid "Always use HTTPS for this domain"
 msgstr "永遠為該網域使用 HTTPS"
 
-#: projects/models.py:1666
+#: projects/models.py:1677
 msgid "Number of times this domain has been hit"
 msgstr "該網域的點擊次數"
 
-#: projects/models.py:1671 templates/projects/domain_form.html:49
+#: projects/models.py:1682 templates/projects/domain_form.html:49
 msgid "SSL certificate status"
 msgstr ""
 
-#: projects/models.py:1680
+#: projects/models.py:1691
 msgid "Skip validation process."
 msgstr ""
 
-#: projects/models.py:1686
+#: projects/models.py:1697
 msgid "Start date of the validation process."
 msgstr ""
 
-#: projects/models.py:1697
+#: projects/models.py:1708
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
 msgstr ""
 
-#: projects/models.py:1701
+#: projects/models.py:1712
 msgid ""
 "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1705
+#: projects/models.py:1716
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1858
+#: projects/models.py:1869
 msgid "Allow deprecated webhook views"
 msgstr "允許已被淘汰的 Webhook 檢視"
 
-#: projects/models.py:1862
+#: projects/models.py:1873
 msgid "Do not overwrite context vars in conf.py with Read the Docs context"
 msgstr "不要以 Read the Docs context 來複寫 conf.py 中的 context 變數"
 
-#: projects/models.py:1868
+#: projects/models.py:1879
 msgid "Do not define html_theme_path on Sphinx < 6.0"
 msgstr ""
 
-#: projects/models.py:1873
+#: projects/models.py:1884
 msgid "Use Read the Docs theme for MkDocs as default theme"
 msgstr "使用用於 MkDocs 的 Read the Docs 主題作為預設主題"
 
-#: projects/models.py:1877
+#: projects/models.py:1888
 msgid "Do not shallow clone when cloning git repos"
 msgstr "複製 Git 儲存庫時不要使用淺層複製 (Shallow Clone)"
 
-#: projects/models.py:1881
+#: projects/models.py:1892
 msgid "Use Docker image labelled as `testing` to build the docs"
 msgstr "使用標為 `testing` 的 Docker 鏡像來建置該文件"
 
-#: projects/models.py:1885
+#: projects/models.py:1896
 msgid "Try alternative method of posting large data"
 msgstr "使用替代方法來傳送大型資料"
 
-#: projects/models.py:1889
+#: projects/models.py:1900
 msgid "Clean all files used in the build process"
 msgstr ""
 
-#: projects/models.py:1893
+#: projects/models.py:1904
 msgid "Upgrade conda before creating the environment"
 msgstr ""
 
-#: projects/models.py:1897
+#: projects/models.py:1908
 msgid "Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1902
+#: projects/models.py:1913
 msgid ""
 "Pass all versions (including private) into the html context when building "
 "with Sphinx"
 msgstr ""
 
-#: projects/models.py:1908
+#: projects/models.py:1919
 msgid ""
 "Cache the environment (virtualenv, conda, pip cache, repository) in storage"
 msgstr ""
 
-#: projects/models.py:1912
+#: projects/models.py:1923
 msgid "Limit the amount of concurrent builds"
 msgstr ""
 
-#: projects/models.py:1916
+#: projects/models.py:1927
 msgid ""
 "CDN support for a project's public versions when privacy levels are enabled."
 msgstr ""
 
-#: projects/models.py:1920
+#: projects/models.py:1931
 msgid "Use Docker gVisor runtime to create build container."
 msgstr ""
 
-#: projects/models.py:1924
+#: projects/models.py:1935
 msgid "Record 404s page views."
 msgstr ""
 
-#: projects/models.py:1928
+#: projects/models.py:1939
 msgid "Allow forced redirects."
 msgstr ""
 
-#: projects/models.py:1932
+#: projects/models.py:1943
 msgid "Disable all page views"
 msgstr ""
 
-#: projects/models.py:1936
+#: projects/models.py:1947
 msgid "Disable indexing of sphinx domains"
 msgstr ""
 
-#: projects/models.py:1940
+#: projects/models.py:1951
 msgid "Allow usage of the X-RTD-Slug header"
 msgstr ""
 
-#: projects/models.py:1946
+#: projects/models.py:1957
 msgid "Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:1950
+#: projects/models.py:1961
 msgid "Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:1954
+#: projects/models.py:1965
 msgid "Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:1958
+#: projects/models.py:1969
 msgid "Always run pip install --upgrade"
 msgstr "總是執行 pip install --upgrade"
 
-#: projects/models.py:1959
+#: projects/models.py:1970
 msgid "Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:1962
+#: projects/models.py:1973
 msgid "Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:1964
+#: projects/models.py:1975
 msgid "Use latest version of Sphinx"
 msgstr "使用最新版本的 Sphinx"
 
-#: projects/models.py:1967
+#: projects/models.py:1978
 msgid "Install mkdocs 0.17.3 by default"
 msgstr ""
 
-#: projects/models.py:1969
+#: projects/models.py:1980
 msgid "Use latest version of MkDocs"
 msgstr ""
 
-#: projects/models.py:1972
+#: projects/models.py:1983
 msgid "Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
-#: projects/models.py:1978
+#: projects/models.py:1989
 msgid "Disable server side search"
 msgstr ""
 
-#: projects/models.py:1982
+#: projects/models.py:1993
 msgid "Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:1986
+#: projects/models.py:1997
 msgid "Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:1990
+#: projects/models.py:2001
 msgid ""
 "Index content directly from html files instead or relying in other sources"
 msgstr ""
 
-#: projects/models.py:1996
+#: projects/models.py:2007
 msgid ""
 "List packages installed in the environment (\"pip list\" or \"conda list\") "
 "on build's output"
 msgstr ""
 
-#: projects/models.py:2002
+#: projects/models.py:2013
 msgid ""
 "Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions"
 msgstr ""
 
-#: projects/models.py:2006
+#: projects/models.py:2017
 msgid "Use \"-j auto\" when calling sphinx-build"
 msgstr ""
 
-#: projects/models.py:2010
+#: projects/models.py:2021
 msgid "Use regular sphinx builders instead of custom RTD builders"
 msgstr ""
 
-#: projects/models.py:2015
+#: projects/models.py:2026
 msgid ""
 "Cancel triggered/running builds when a new one with same project/version "
 "arrives"
 msgstr ""
 
-#: projects/models.py:2020
+#: projects/models.py:2031
 msgid "Do not create index.md or README.rst if the project does not have one."
 msgstr ""
 
-#: projects/models.py:2024
+#: projects/models.py:2035
 msgid "Use rclone for syncing files to the media storage."
 msgstr ""
 
-#: projects/models.py:2035
+#: projects/models.py:2046
 msgid "Feature identifier"
 msgstr "功能識別項"
 
-#: projects/models.py:2040
+#: projects/models.py:2051
 msgid "Date feature was added"
 msgstr "已新增日期功能"
 
-#: projects/models.py:2046
+#: projects/models.py:2057
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:2050
+#: projects/models.py:2061
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2072
+#: projects/models.py:2083
 msgid "Name of the environment variable"
 msgstr "環境變數名稱"
 
-#: projects/models.py:2076
+#: projects/models.py:2087
 msgid "Value of the environment variable"
 msgstr "環境變數值"
 
-#: projects/models.py:2081
+#: projects/models.py:2092
 msgid "Project where this variable will be used"
 msgstr "使用該變數的專案"
 
-#: projects/models.py:2087
+#: projects/models.py:2098
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
@@ -3012,67 +3024,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:411
+#: settings/base.py:412
 msgid "Catalan"
 msgstr "加泰隆語"
 
-#: settings/base.py:412
+#: settings/base.py:413
 msgid "English"
 msgstr "英語"
 
-#: settings/base.py:413
+#: settings/base.py:414
 msgid "Spanish"
 msgstr "西班牙語"
 
-#: settings/base.py:414
+#: settings/base.py:415
 msgid "Brazilian Portuguese"
 msgstr "巴西葡萄牙語"
 
-#: settings/base.py:415
+#: settings/base.py:416
 msgid "Norwegian Bokmål"
 msgstr "挪威語"
 
-#: settings/base.py:416
+#: settings/base.py:417
 msgid "French"
 msgstr "法語"
 
-#: settings/base.py:417
+#: settings/base.py:418
 msgid "Russian"
 msgstr "俄語"
 
-#: settings/base.py:418
+#: settings/base.py:419
 msgid "German"
 msgstr "德語"
 
-#: settings/base.py:419
+#: settings/base.py:420
 msgid "Galician"
 msgstr "加利西亞語"
 
-#: settings/base.py:420
+#: settings/base.py:421
 msgid "Vietnamese"
 msgstr "越南語"
 
-#: settings/base.py:421
+#: settings/base.py:422
 msgid "Simplified Chinese"
 msgstr "簡體中文"
 
-#: settings/base.py:422
+#: settings/base.py:423
 msgid "Traditional Chinese"
 msgstr "繁體中文"
 
-#: settings/base.py:423
+#: settings/base.py:424
 msgid "Japanese"
 msgstr "日語"
 
-#: settings/base.py:424
+#: settings/base.py:425
 msgid "Ukrainian"
 msgstr "烏克蘭語"
 
-#: settings/base.py:425
+#: settings/base.py:426
 msgid "Italian"
 msgstr "義大利語"
 
-#: settings/base.py:426
+#: settings/base.py:427
 msgid "Korean"
 msgstr "韓語"
 
@@ -3800,7 +3812,13 @@ msgstr "登入"
 msgid "View Docs"
 msgstr "檢視文件"
 
-#: templates/core/project_bar_base.html:31
+#: templates/core/project_bar_base.html:25
+#, fuzzy
+#| msgid "Whitelisted"
+msgid "delisted"
+msgstr "已列入白名單"
+
+#: templates/core/project_bar_base.html:34
 #, python-format
 msgid ""
 "Your project is currently disabled for abuse of the system. Please make sure "
@@ -3809,7 +3827,7 @@ msgid ""
 "%(SUPPORT_EMAIL)s\">contact support</a> to get your project re-enabled."
 msgstr ""
 
-#: templates/core/project_bar_base.html:40
+#: templates/core/project_bar_base.html:43
 msgid "Overview"
 msgstr "概覽"
 
@@ -5331,3 +5349,6 @@ msgid ""
 "OAuth connection of Read the Docs. On GitHub, this is located in "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
+
+#~ msgid "Skip"
+#~ msgstr "跳過"
