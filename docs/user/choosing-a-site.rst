@@ -1,4 +1,4 @@
-Choosing Between Our Two Platforms
+Choosing between our two platforms
 ==================================
 
 Users often ask what the differences are between |org_brand| and |com_brand|.

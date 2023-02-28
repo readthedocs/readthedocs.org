@@ -1,4 +1,4 @@
-Read the Docs Team
+Read the Docs team
 ==================
 
 readthedocs.org is the largest open source documentation hosting service.

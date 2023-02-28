@@ -1,4 +1,4 @@
-Future Builder
+Future builder
 ==============
 
 .. contents::

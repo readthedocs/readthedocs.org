@@ -15,6 +15,7 @@ Currently, we support two different types of single sign-on:
 
 Users can log out by using the :ref:`Log Out <versions:Logging out>` link in the RTD flyout menu.
 
+.. _sso_git_provider:
 
 Single Sign-on with GitHub, Bitbucket, or GitLab
 ------------------------------------------------
