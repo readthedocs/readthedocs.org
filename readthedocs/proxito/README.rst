@@ -74,7 +74,9 @@ What can/can't be cached?
 
 - ServeRobotsTXT: can be cached, we don't serve a custom robots.txt
   to any user if the default version is private.
+  This view is already cached at the application level.
 - ServeSitemapXML: can be cached. It displays only public versions, for everyone.
+  This view is already cached at the application level.
 - ServeStaticFiles: can be cached, all files are the same for all projects and users.
 - Embed API: can be cached for public versions.
 - Search:
@@ -87,4 +89,3 @@ What can/can't be cached?
   - If the project doesn't have subprojects.
   - All subprojects are public.
 - Analytics API: can't be cached, we want to always hit our serves with this one.
-- Health check view: shouldn't be cached, we want to always hit our serves with this one.
