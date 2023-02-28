@@ -1,4 +1,4 @@
-How to Link to Other Documentation Projects With Intersphinx
+How to link to other documentation projects with Intersphinx
 ============================================================
 
 This section shows you how to maintain references to named sections of other external Sphinx projects.
@@ -51,6 +51,14 @@ And use the ``intersphinx_mapping`` configuration to indicate the name and link 
        "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
    }
 
+   # We recommend adding the following config value.
+   # Sphinx defaults to automatically resolve *unresolved* labels using all your Intersphinx mappings.
+   # This behavior has unintended side-effects, namely that documentations local references can
+   # suddenly resolve to an external location.
+   # See also:
+   # https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_disabled_reftypes
+   intersphinx_disabled_reftypes = ["*"]
+
 .. note::
 
    If you are using Read the Docs' subprojects, you also need to enable the Intersphinx extension on each of the subprojects.
@@ -94,6 +102,7 @@ Result:
    .. prompt:: bash $
 
       python -m sphinx.ext.intersphinx https://www.sphinx-doc.org/en/master/objects.inv
+
 
 Intersphinx in Read the Docs
 ----------------------------

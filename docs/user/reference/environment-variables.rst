@@ -39,7 +39,7 @@ All :doc:`build processes </builds>` have the following environment variables au
 
 .. envvar:: READTHEDOCS_VIRTUALENV_PATH
 
-    Path for the :ref:`virtualenv that was created for this build <builds:Understanding what's going on>`.
+    Path for the :doc:`virtualenv that was created for this build </builds>`.
     Only exists for builds using Virtualenv and not Conda.
 
     :Example: ``/home/docs/checkouts/readthedocs.org/user_builds/project/envs/version``

@@ -1,4 +1,4 @@
-Versioned Documentation
+Versioned documentation
 =======================
 
 Read the Docs supports multiple versions of your repository.
@@ -45,7 +45,7 @@ which are branches that are maintained over time for a specific release number.
 
 .. _PEP 440: https://www.python.org/dev/peps/pep-0440/
 
-Version States
+Version states
 --------------
 
 States define the visibility of a version across the site.

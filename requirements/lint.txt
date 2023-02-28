@@ -35,11 +35,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.74
+boto3==1.26.79
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.74
+botocore==1.29.79
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -108,6 +108,7 @@ django==3.2.18
     #   dj-stripe
     #   django-allauth
     #   django-annoying
+    #   django-cacheops
     #   django-cors-headers
     #   django-csp
     #   django-debug-toolbar
@@ -127,7 +128,9 @@ django-annoying==0.10.6
     # via -r requirements/pip.txt
 django-autoslug==1.9.8
     # via -r requirements/pip.txt
-django-cors-headers==3.13.0
+django-cacheops==6.2
+    # via -r requirements/pip.txt
+django-cors-headers==3.14.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
@@ -203,6 +206,10 @@ flake8==3.8.4
     #   flake8-polyfill
 flake8-polyfill==1.0.2
     # via pep8-naming
+funcy==1.18
+    # via
+    #   -r requirements/pip.txt
+    #   django-cacheops
 gitdb==4.0.10
     # via
     #   -r requirements/pip.txt
@@ -276,7 +283,7 @@ platformdirs==3.0.0
     #   virtualenv
 poetry-semver==0.1.0
     # via requirements-detector
-prompt-toolkit==3.0.36
+prompt-toolkit==3.0.37
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -348,6 +355,7 @@ pyyaml==5.4.1
 redis==4.5.1
     # via
     #   -r requirements/pip.txt
+    #   django-cacheops
     #   django-redis
 regex==2022.10.31
     # via -r requirements/pip.txt
@@ -383,6 +391,7 @@ six==1.16.0
     #   astroid
     #   click-repl
     #   django-annoying
+    #   django-cacheops
     #   django-elasticsearch-dsl
     #   elasticsearch-dsl
     #   python-dateutil

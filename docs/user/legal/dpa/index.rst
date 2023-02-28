@@ -1,5 +1,5 @@
-Data Processing Addendum
-========================
+Data Processing Addendum (DPA)
+==============================
 
 .. toctree::
     :hidden:
@@ -12,5 +12,5 @@ You can complete this by reviewing and accepting the following pre-signed agreem
 `Review the Read the Docs Data Processing Addendum <https://readthedocs.eversign.com/embedded/fa9e5a24917c4440a1770251102a044e>`_
 
 .. seealso::
-   :doc:`Read the Docs Sub-Processor List <subprocessors>`
+   :doc:`Read the Docs sub-processor list <subprocessors>`
       An up-to-date list of the sub-processors we use for hosting services.
