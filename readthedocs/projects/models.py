@@ -362,7 +362,11 @@ class Project(models.Model):
 
     skip = models.BooleanField(_("Skip (disable) building this project"), default=False)
 
+    # null=True can be removed in a later migration
+    # be careful if adding new queries on this, .filter(delisted=False) does not work
+    # but .exclude(delisted=True) does!
     delisted = models.BooleanField(
+        null=True,
         default=False,
         verbose_name=_("Delisted"),
         help_text=_(
