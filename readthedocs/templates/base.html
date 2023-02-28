@@ -58,6 +58,8 @@
   <!-- End Google Analytics -->
   {% endif %}
 
+  <script defer data-domain="{{ PRODUCTION_DOMAIN }}" src="https://plausible.io/js/script.js"></script>
+
   <!-- css -->
   <link rel="stylesheet" href="{% static 'css/core.css' %}">
   {% block extra_links %}{% endblock %}
