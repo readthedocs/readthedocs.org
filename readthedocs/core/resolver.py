@@ -214,28 +214,26 @@ class ResolverBase:
         )
         return urlunparse((protocol, domain, path, '', query_params, ''))
 
-    def _get_root_path(self, project):
+    def _get_path_prefix(self, project):
         """
-        Returns the root path for a project.
+        Returns the path prefix for a project.
 
-        If the project is a subproject, it will return ``/projects/<project-slug>/``.
+        If the project is a subproject, it will return ``/projects/<subproject-alias>/``.
         If the project is a main project, it will return ``/``.
         This will respect the custom urlconf of the project if it's defined.
         """
-        custom_prefix = None
-        if project.urlconf:
-            custom_prefix = project.urlconf.split("$", 1)[0]
-
-        if project.is_subproject:
+        custom_prefix = project.custom_path_prefix
+        parent_relationship = project.get_parent_relationship()
+        if parent_relationship:
             prefix = custom_prefix or "projects"
-            return join_url_path(prefix, project.slug, "/")
+            return join_url_path(prefix, parent_relationship.alias, "/")
 
         prefix = custom_prefix or "/"
         return join_url_path(prefix, "/")
 
-    def resolve_root(self, project, external_version_slug=None):
+    def get_url_prefix(self, project, external_version_slug=None):
         """
-        Get the root URL from where the documentation of ``project`` is served from.
+        Get the URL prefix from where the documentation of ``project`` is served from.
 
         This doesn't include the version or language. For example:
 
@@ -263,7 +261,7 @@ class ResolverBase:
             use_https = settings.PUBLIC_DOMAIN_USES_HTTPS
 
         protocol = "https" if use_https else "http"
-        path = self._get_root_path(project)
+        path = self._get_path_prefix(project)
         return urlunparse((protocol, domain, path, "", "", ""))
 
     def _get_canonical_project_data(self, project):

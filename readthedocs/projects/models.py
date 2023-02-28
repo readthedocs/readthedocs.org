@@ -31,6 +31,7 @@ from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
+from readthedocs.core.utils.url import join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -630,8 +631,8 @@ class Project(models.Model):
         if self.urlconf:
             # Add our proxied api host at the first place we have a $variable
             # This supports both subpaths & normal root hosting
-            url_prefix = self.urlconf.split('$', 1)[0]
-            return '/' + url_prefix.strip('/') + '/_'
+            path_prefix = self.custom_path_prefix
+            return join_url_path(path_prefix, "/_")
         return '/_'
 
     @property
@@ -647,6 +648,17 @@ class Project(models.Model):
     def proxied_static_path(self):
         """Path for static files hosted on the user's doc domain."""
         return f"{self.proxied_api_host}/static/"
+
+    @property
+    def custom_path_prefix(self):
+        """
+        Get the path prefix from the custom urlconf.
+
+        Returns `None` if the project doesn't have a custom urlconf.
+        """
+        if self.urlconf:
+            return self.urlconf.split("$", 1)[0]
+        return None
 
     @property
     def regex_urlconf(self):
@@ -758,7 +770,7 @@ class Project(models.Model):
         """Return whether or not this project is a subproject."""
         return self.superprojects.exists()
 
-    @property
+    @cached_property
     def superproject(self):
         relationship = self.get_parent_relationship()
         if relationship:

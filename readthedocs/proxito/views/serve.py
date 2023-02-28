@@ -90,11 +90,15 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         so that we can decide if we need to serve docs or add a /.
         """
         unresolved_domain = request.unresolved_domain
-        # Handle requests that need canonicalizing,
+        # Handle requests that need canonicalizing first,
         # e.g. HTTP -> HTTPS, redirect to canonical domain, etc.
+        # We run this here to reduce work we need to do on easily cached responses.
+        # It's slower for the end user to have multiple HTTP round trips,
+        # but reduces chances for URL resolving bugs,
+        # and makes caching more effective because we don't care about authz.
         redirect_type = self._get_canonical_redirect_type(request)
         if redirect_type:
-            # Attach the current project to the request.
+            # TODO: find a better way to pass this to the middleware.
             request.path_project_slug = unresolved_domain.project.slug
             try:
                 return self.canonical_redirect(
@@ -104,7 +108,9 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                     redirect_type=redirect_type,
                 )
             except InfiniteRedirectException:
-                # Don't redirect in this case, since it would break things.
+                # ``canonical_redirect`` raises this when it's redirecting back to itself.
+                # We can safely ignore it here because it's logged in ``canonical_redirect``,
+                # and we don't want to issue infinite redirects.
                 pass
 
         version_slug = self.get_version_from_host(request, version_slug)

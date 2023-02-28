@@ -370,13 +370,13 @@ class ServeRedirectMixin:
         elif redirect_type == RedirectType.subproject_to_main_domain:
             # We need to get the subproject root in the domain of the main
             # project, and append the current path.
-            project_doc_root = resolver.resolve_root(
+            project_doc_prefix = resolver.get_url_prefix(
                 project=final_project,
                 external_version_slug=external_version_slug,
             )
-            parsed_doc_root = urlparse(project_doc_root)
-            to = parsed_doc_root._replace(
-                path=join_url_path(parsed_doc_root.path, parsed_from.path),
+            parsed_doc_prefix = urlparse(project_doc_prefix)
+            to = parsed_doc_prefix._replace(
+                path=join_url_path(parsed_doc_prefix.path, parsed_from.path),
                 query=parsed_from.query,
             ).geturl()
         else:
