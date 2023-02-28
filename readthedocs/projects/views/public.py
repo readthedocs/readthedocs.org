@@ -19,7 +19,12 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
 from taggit.models import Tag
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
+from readthedocs.builds.constants import (
+    BUILD_STATE_FINISHED,
+    EXTERNAL,
+    INTERNAL,
+    LATEST,
+)
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.permissions import AdminPermission
@@ -346,17 +351,20 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
             if not self.allowed_user(request, final_project, version_slug):
                 return self.get_unauthed_response(request, final_project)
 
+            is_external = request.unresolved_domain.is_from_external_domain
+            manager = EXTERNAL if is_external else INTERNAL
+
             # We don't use ``.public`` in this filter because the access
             # permission was already granted by ``.allowed_user``
             version = get_object_or_404(
-                final_project.versions,
+                final_project.versions(manager=manager),
                 slug=version_slug,
             )
 
         else:
             # All the arguments come from the URL.
             version = get_object_or_404(
-                Version.objects.public(user=request.user),
+                Version.internal.public(user=request.user),
                 project__slug=project_slug,
                 slug=version_slug,
             )

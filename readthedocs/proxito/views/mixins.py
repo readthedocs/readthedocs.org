@@ -43,6 +43,8 @@ class ServeDocsMixin:
 
     """Class implementing all the logic to serve a document."""
 
+    # We force all storage calls to use internal versions
+    # unless explicitly set to external.
     version_type = INTERNAL
 
     def _serve_docs(self, request, project, version, filename, check_if_exists=False):
@@ -58,7 +60,9 @@ class ServeDocsMixin:
             type_=MEDIA_TYPE_HTML,
             version_slug=version.slug,
             include_file=False,
-            version_type=version.type,
+            # Force to always read from the internal or extrernal storage,
+            # according to the current request.
+            version_type=self.version_type,
         )
 
         # Handle our backend storage not supporting directory indexes,
@@ -104,7 +108,9 @@ class ServeDocsMixin:
         storage_path = project.get_storage_path(
             type_=type_,
             version_slug=version.slug,
-            version_type=version.type,
+            # Force to always read from the internal or extrernal storage,
+            # according to the current request.
+            version_type=self.version_type,
             include_file=True,
         )
         self._track_pageview(
