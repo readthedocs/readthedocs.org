@@ -1,4 +1,4 @@
-Getting Started with MkDocs
+Getting started with MkDocs
 ===========================
 
 .. meta::
@@ -65,7 +65,7 @@ you can start using Read the Docs by :doc:`importing your docs </intro/import-gu
 
 .. warning::
 
-   We strongly recommend to :ref:`pin the MkDocs version <guides/reproducible-builds:pinning dependencies>`
+   We strongly recommend to :doc:`pin the MkDocs version </guides/reproducible-builds>`
    used for your project to build the docs to avoid potential future incompatibilities.
 
 Get inspired!

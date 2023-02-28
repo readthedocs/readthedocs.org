@@ -16,9 +16,9 @@ babel==2.11.0
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.26.74
+boto3==1.26.79
     # via django-storages
-botocore==1.29.74
+botocore==1.29.79
     # via
     #   boto3
     #   s3transfer
@@ -83,7 +83,7 @@ django-annoying==0.10.6
     # via -r requirements/pip.in
 django-autoslug==1.9.8
     # via -r requirements/pip.in
-django-cors-headers==3.13.0
+django-cors-headers==3.14.0
     # via -r requirements/pip.in
 django-crispy-forms==1.14.0
     # via -r requirements/pip.in
@@ -187,7 +187,7 @@ packaging==23.0
     #   sphinx
 platformdirs==3.0.0
     # via virtualenv
-prompt-toolkit==3.0.36
+prompt-toolkit==3.0.37
     # via click-repl
 pycparser==2.21
     # via cffi

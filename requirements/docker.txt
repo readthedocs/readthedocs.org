@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.74
+boto3==1.26.79
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.74
+botocore==1.29.79
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -136,7 +136,7 @@ django-annoying==0.10.6
     # via -r requirements/pip.txt
 django-autoslug==1.9.8
     # via -r requirements/pip.txt
-django-cors-headers==3.13.0
+django-cors-headers==3.14.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
@@ -254,7 +254,7 @@ lxml==4.9.2
     #   pyquery
 markdown==3.4.1
     # via -r requirements/pip.txt
-markdown-it-py==2.1.0
+markdown-it-py==2.2.0
     # via rich
 markupsafe==2.1.2
     # via
@@ -295,7 +295,7 @@ platformdirs==3.0.0
     #   virtualenv
 pluggy==1.0.0
     # via tox
-prompt-toolkit==3.0.36
+prompt-toolkit==3.0.37
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -445,7 +445,7 @@ tomli==2.0.1
     #   ipdb
     #   pyproject-api
     #   tox
-tox==4.4.5
+tox==4.4.6
     # via -r requirements/docker.in
 traitlets==5.9.0
     # via
