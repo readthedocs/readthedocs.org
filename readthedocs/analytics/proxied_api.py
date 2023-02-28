@@ -26,7 +26,8 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
     - absolute_uri: Full path with domain.
     """
 
-    # Never cache this view, we always want to hit this endpoint.
+    # We always want to hit our analytics endpoint,
+    # so we capture all views/interactions.
     cache_response = False
     http_method_names = ['get']
     permission_classes = [IsAuthorizedToViewVersion]

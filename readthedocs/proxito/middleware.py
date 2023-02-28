@@ -166,18 +166,22 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         See https://developers.cloudflare.com/cache/about/cdn-cache-control.
         """
-        cache_header = "CDN-Cache-Control"
+        cdn_cache_header = "CDN-Cache-Control"
         unresolved_domain = request.unresolved_domain
         # Never trust projects resolving from the X-RTD-Slug header,
         # we don't want to cache their content on domains from other
         # projects, see GHSA-mp38-vprc-7hf5.
         if unresolved_domain and unresolved_domain.is_from_http_header:
-            response.headers[cache_header] = "private"
+            response.headers[cdn_cache_header] = "private"
+            # SECURITY: Return early, we never want to cache this response.
             return
 
         # Set the key only if it hasn't already been set by the view.
-        default_cache_level = "private" if settings.ALLOW_PRIVATE_REPOS else "public"
-        response.headers.setdefault(cache_header, default_cache_level)
+        if cdn_cache_header not in response.headers:
+            default_cache_level = (
+                "private" if settings.ALLOW_PRIVATE_REPOS else "public"
+            )
+            response.headers[cdn_cache_header] = default_cache_level
 
     def _set_request_attributes(self, request, unresolved_domain):
         """

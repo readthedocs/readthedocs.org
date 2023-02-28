@@ -37,10 +37,11 @@ class CDNCacheControlMixin:
     users (anonymous and authenticated users), like when the version attached
     to the request is public.
 
-    To explicitly cache a view you can either set the `cache_response` attribute to `True`/`False`,
-    or override the `can_be_cached` method.
-    If set to `None` (default), the cache header won't be set,
-    so the default value can be set by our middleware.
+    To explicitly cache a view you can either set the `cache_response`
+    attribute to `True`/`False`, or override the `can_be_cached` method
+    (which defaults to return the `cache_response` attribute).
+    If set to `None` (default), the cache header won't be set, so the default
+    value can be set by our middleware (public for .org and private for .com).
 
     We use ``CDN-Cache-Control``, to control caching at the CDN level only.
     This doesn't affect caching at the browser level (``Cache-Control``).

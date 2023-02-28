@@ -22,8 +22,9 @@ class NoProjectException(Exception):
 
 
 class HealthCheckView(CDNCacheControlMixin, View):
-
     # Never cache this view, we always want to get the live response from the server.
+    # In production we should configure the health check to hit the LB directly,
+    # but it's useful to be careful here in case of a misconfiguration.
     cache_response = False
 
     def get(self, request, *args, **kwargs):
