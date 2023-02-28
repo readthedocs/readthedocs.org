@@ -13,7 +13,7 @@ from django.views.decorators.cache import cache_page
 
 from readthedocs.analytics.models import PageView
 from readthedocs.api.mixins import CDNCacheTagsMixin
-from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
+from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path
@@ -100,6 +100,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         if unresolved_domain.project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO):
             return self.get_using_unresolver(request)
 
+        original_version_slug = version_slug
         version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
             request,
@@ -109,9 +110,19 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             version_slug=version_slug,
             filename=filename,
         )
-        version = final_project.versions.filter(slug=version_slug).first()
 
-        is_external = request.unresolved_domain.is_from_external_domain
+        is_external = unresolved_domain.is_from_external_domain
+        if (
+            is_external
+            and original_version_slug
+            and original_version_slug != version_slug
+        ):
+            raise Http404("Version doesn't match the version from the domain.")
+
+        manager = EXTERNAL if is_external else INTERNAL
+        version = (
+            final_project.versions(manager=manager).filter(slug=version_slug).first()
+        )
 
         log.bind(
             project_slug=final_project.slug,
@@ -463,7 +474,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         """
         Handler for 404 pages on subdomains.
 
-        This does a couple things:
+        This does a couple of things:
 
         * Handles directory indexing for URLs that don't end in a slash
         * Handles directory indexing for README.html (for now)
@@ -651,12 +662,22 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         """
         Serve custom user's defined ``/robots.txt``.
 
+        If the project is delisted or is a spam project, we force a special robots.txt.
+
         If the user added a ``robots.txt`` in the "default version" of the
         project, we serve it directly.
         """
         project = request.unresolved_domain.project
+
+        if project.delisted:
+            return render(
+                request,
+                "robots.delisted.txt",
+                content_type="text/plain",
+            )
+
         # Verify if the project is marked as spam and return a custom robots.txt
-        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+        elif "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
             if is_robotstxt_denied(project):
                 return render(

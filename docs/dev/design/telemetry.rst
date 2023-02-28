@@ -1,4 +1,4 @@
-Collect Data About Builds
+Collect data about builds
 =========================
 
 We may want to take some decisions in the future about deprecations and supported versions.

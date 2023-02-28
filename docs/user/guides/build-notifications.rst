@@ -1,4 +1,4 @@
-How To Setup Build Notifications and Webhooks
+How to setup build notifications and webhooks
 =============================================
 
 In this guide, you can learn how to setup a number of build notification mechanisms.
@@ -33,7 +33,7 @@ Take these steps to enable build notifications using email:
 
 You should now get notified by email when your builds fail!
 
-Build Status Webhooks
+Build status webhooks
 ---------------------
 
 Read the Docs can also send webhooks when builds are triggered, successful or failed.

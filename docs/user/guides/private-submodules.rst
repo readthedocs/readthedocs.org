@@ -1,5 +1,5 @@
-Using Private Git Submodules
-============================
+How to use private Git submodules
+=================================
 
 .. warning::
 

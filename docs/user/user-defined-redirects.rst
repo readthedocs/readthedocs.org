@@ -63,6 +63,7 @@ Another way to handle this is the ``latest`` version.
 You can set your ``latest`` version to a specific version and just always link to ``latest``.
 You can reach this page by going to https://docs.readthedocs.io/en/latest/automatic-redirects.html.
 
+.. _root_url_redirect:
 
 Root URL redirect at ``/``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~

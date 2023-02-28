@@ -107,6 +107,7 @@ class UnresolvedDomain:
     source_domain: str
     source: DomainSourceType
     project: Project
+    # Domain object for custom domains.
     domain: Domain = None
     external_version_slug: str = None
 
@@ -159,7 +160,7 @@ class Unresolver:
         re.VERBOSE,
     )
 
-    def unresolve(self, url, append_indexhtml=True):
+    def unresolve_url(self, url, append_indexhtml=True):
         """
         Turn a URL into the component parts that our views would use to process them.
 
@@ -210,7 +211,7 @@ class Unresolver:
         Extracted into a separate method so it can be re-used by
         the unresolve and unresolve_path methods.
         """
-        current_project, version, filename = self._unresolve_path(
+        current_project, version, filename = self._unresolve_path_with_parent_project(
             parent_project=unresolved_domain.project,
             path=parsed_url.path,
             external_version_slug=unresolved_domain.external_version_slug,
@@ -247,6 +248,7 @@ class Unresolver:
         this exception has the current project (useful for 404 pages).
 
         :returns: A tuple with the current project, version and file.
+         Returns `None` if there isn't a total or partial match.
         """
         match = self.multiversion_pattern.match(path)
         if not match:
@@ -289,6 +291,7 @@ class Unresolver:
         with the subproject as the canonical project.
 
         :returns: A tuple with the current project, version and file.
+         Returns `None` if there isn't a total or partial match.
         """
         match = self.subproject_pattern.match(path)
         if not match:
@@ -305,7 +308,7 @@ class Unresolver:
             # We use the subproject as the new parent project
             # to resolve the rest of the path relative to it.
             subproject = project_relationship.child
-            response = self._unresolve_path(
+            response = self._unresolve_path_with_parent_project(
                 parent_project=subproject,
                 path=file,
                 check_subprojects=False,
@@ -327,6 +330,7 @@ class Unresolver:
         this exception has the current project (useful for 404 pages).
 
         :returns: A tuple with the current project, version and file.
+         Returns `None` if there isn't a total or partial match.
         """
         file = self._normalize_filename(path)
         if external_version_slug:
@@ -346,7 +350,7 @@ class Unresolver:
 
         return parent_project, version, file
 
-    def _unresolve_path(
+    def _unresolve_path_with_parent_project(
         self, parent_project, path, check_subprojects=True, external_version_slug=None
     ):
         """
@@ -539,4 +543,4 @@ class Unresolver:
 
 
 unresolver = Unresolver()
-unresolve = unresolver.unresolve
+unresolve = unresolver.unresolve_url
