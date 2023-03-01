@@ -314,7 +314,6 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         if unresolved_domain.project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO):
             return self.get_using_unresolver(request, proxito_path)
 
-
         # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
         _, __, kwargs = url_resolve(
             proxito_path,
