@@ -752,7 +752,7 @@ search.ignore
 `````````````
 
 List of paths to ignore and exclude from the search index.
-Paths matched will not be seen in search results.
+Paths matched will not be included in search results.
 
 :Type: ``list`` of patterns
 :Default: ``['search.html', 'search/index.html', '404.html', '404/index.html']``
