@@ -32,6 +32,13 @@ from readthedocs.proxito.exceptions import (
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
+from ...core import unresolver
+from ...core.unresolver import (
+    InvalidExternalVersionError,
+    TranslationNotFoundError,
+    UnresolvedPathError,
+    VersionNotFoundError,
+)
 from .mixins import (
     InvalidPathError,
     ServeDocsMixin,
@@ -337,7 +344,6 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             self.version_type = EXTERNAL
         if unresolved_domain.project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO):
             return self.get_using_unresolver(request, proxito_path)
-
 
         # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
         _, __, kwargs = url_resolve(
