@@ -384,6 +384,8 @@ class Version(TimeStampedModel):
 
     @property
     def is_sphinx_type(self):
+        # TODO: this method should no be required anymore.
+        # I'm not removing it yet because there may be places still using it.
         return self.documentation_type in {SPHINX, SPHINX_HTMLDIR, SPHINX_SINGLEHTML}
 
     @property

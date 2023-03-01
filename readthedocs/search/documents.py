@@ -74,8 +74,6 @@ class PageDocument(RTDDocTypeMixin, Document):
     # Metadata
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
-    # TODO: review custom logic based con `documentation_type`
-    doctype = fields.KeywordField(attr='version.documentation_type')
     path = fields.KeywordField(attr='processed_json.path')
     full_path = fields.KeywordField(attr='path')
     rank = fields.IntegerField()
@@ -128,6 +126,8 @@ class PageDocument(RTDDocTypeMixin, Document):
 
     def prepare_domains(self, html_file):
         """Prepares and returns the values for domains field."""
+        # TODO: remove this method completely. It's not used.
+        # I grepped all the code and I didn't find where it's used.
 
         # XXX: Don't access the sphinx domains table while we migrate the ID type
         # https://github.com/readthedocs/readthedocs.org/pull/9482.

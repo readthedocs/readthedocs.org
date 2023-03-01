@@ -95,13 +95,9 @@ class BuildDataCollector:
         return data
 
     def _get_doctool_name(self):
-        if self.version.is_sphinx_type:
-            return "sphinx"
-
-        if self.version.is_mkdocs_type:
-            return "mkdocs"
-
-        return "generic"
+        # TODO: this data should be communicated from the builder itself homehow.
+        # This is a place where the build contract could be useful.
+        return "unknown"
 
     def _get_doctool(self):
         data = {
@@ -110,6 +106,9 @@ class BuildDataCollector:
             "html_theme": "",
         }
 
+        # TODO: adapt this logic to work with a generic builder. This requires
+        # a build contract that explains how to create the JSON file we are
+        # expecting at this point
         if self._get_doctool_name() != "sphinx":
             return data
 

@@ -365,10 +365,6 @@ class BuildDirector:
         if not os.path.exists(html_output_path):
             raise BuildUserError(BuildUserError.BUILD_COMMANDS_WITHOUT_OUTPUT)
 
-        # Update the `Version.documentation_type` to match the doctype defined
-        # by the config file. When using `build.commands` it will be `GENERIC`
-        self.data.version.documentation_type = self.data.config.doctype
-
     def install_build_tools(self):
         """
         Install all ``build.tools`` defined by the user in the config file.
@@ -597,7 +593,3 @@ class BuildDirector:
         )
 
         return env
-
-    def is_type_sphinx(self):
-        """Is documentation type Sphinx."""
-        return "sphinx" in self.data.config.doctype

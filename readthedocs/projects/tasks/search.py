@@ -127,6 +127,10 @@ def _create_intersphinx_data(version, commit, build):
     :param commit: Commit that updated path
     :param build: Build id
     """
+
+    # TODO: I think this method can be completely removed,
+    # since we said that we don't want to store SphinDomain objects anymore.
+    # I didn't find the issue, but I think we have one.
     if not version.is_sphinx_type:
         return
 
