@@ -63,6 +63,25 @@ class ProxitoProjectPageHttp404(ProxitoProjectHttp404):
         self.subproject_slug = subproject_slug
 
 
+class ProxitoProjectTranslationHttp404(ProxitoProjectHttp404):
+
+    """Raised if a translation of some page was not found."""
+
+    def __init__(
+        self,
+        message,
+        project_slug=None,
+        proxito_path=None,
+        project=None,
+        subproject_slug=None,
+        translation_slug=None,
+    ):
+        super().__init__(message, project_slug=project_slug, proxito_path=proxito_path)
+        self.project = project
+        self.subproject_slug = subproject_slug
+        self.translation_slug = translation_slug
+
+
 class ProxitoProjectVersionHttp404(ProxitoProjectHttp404):
 
     """
