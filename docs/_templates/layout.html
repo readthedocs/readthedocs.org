@@ -3,7 +3,7 @@
 {% block extrahead %}
   {{ super() }}
 
-  <script defer data-domain="docs.readthedocs.io" src="https://plausible.io/js/script.js"></script>
+  <script defer data-domain="{{ plausible_domain }}" src="https://plausible.io/js/script.js"></script>
 {% endblock extrahead %}
 
 {% block document %}

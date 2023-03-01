@@ -160,6 +160,8 @@ html_context = {
     # TODO: remove once we support different rtd config
     # files per project.
     "conf_py_path": f"/docs/{docset}/",
+    # Use to generate the Plausible "data-domain" attribute from the template
+    "plausible_domain": f"{os.environ.get('READTHEDOCS_PROJECT')}.readthedocs.io",
 }
 
 hoverxref_auto_ref = True
