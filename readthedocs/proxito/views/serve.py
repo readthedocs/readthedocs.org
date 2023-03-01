@@ -83,6 +83,29 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         so that we can decide if we need to serve docs or add a /.
         """
         unresolved_domain = request.unresolved_domain
+        # Handle requests that need canonicalizing first,
+        # e.g. HTTP -> HTTPS, redirect to canonical domain, etc.
+        # We run this here to reduce work we need to do on easily cached responses.
+        # It's slower for the end user to have multiple HTTP round trips,
+        # but reduces chances for URL resolving bugs,
+        # and makes caching more effective because we don't care about authz.
+        redirect_type = self._get_canonical_redirect_type(request)
+        if redirect_type:
+            # TODO: find a better way to pass this to the middleware.
+            request.path_project_slug = unresolved_domain.project.slug
+            try:
+                return self.canonical_redirect(
+                    request=request,
+                    final_project=unresolved_domain.project,
+                    external_version_slug=unresolved_domain.external_version_slug,
+                    redirect_type=redirect_type,
+                )
+            except InfiniteRedirectException:
+                # ``canonical_redirect`` raises this when it's redirecting back to itself.
+                # We can safely ignore it here because it's logged in ``canonical_redirect``,
+                # and we don't want to issue infinite redirects.
+                pass
+
         original_version_slug = version_slug
         version_slug = self.get_version_from_host(request, version_slug)
         final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
@@ -144,22 +167,6 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             # all of their responses can be cached.
             self.cache_response = True
             return spam_response
-
-        # Handle requests that need canonicalizing (eg. HTTP -> HTTPS, redirect to canonical domain)
-        redirect_type = self._get_canonical_redirect_type(request)
-        if redirect_type:
-            try:
-                return self.canonical_redirect(
-                    request=request,
-                    final_project=final_project,
-                    version_slug=version_slug,
-                    filename=filename,
-                    redirect_type=redirect_type,
-                    is_external_version=is_external,
-                )
-            except InfiniteRedirectException:
-                # Don't redirect in this case, since it would break things
-                pass
 
         # Handle a / redirect when we aren't a single version
         if all([
@@ -248,6 +255,16 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 log.debug("Proxito CNAME HTTPS Redirect.", domain=domain.domain)
                 return RedirectType.http_to_https
 
+        # Check for subprojects before checking for canonical domains,
+        # so we can redirect to the main domain first.
+        # Custom domains on subprojects are not supported.
+        if project.is_subproject:
+            log.debug(
+                "Proxito Public Domain -> Subproject Main Domain Redirect.",
+                project_slug=project.slug,
+            )
+            return RedirectType.subproject_to_main_domain
+
         if unresolved_domain.is_from_public_domain:
             canonical_domain = (
                 Domain.objects.filter(project=project)
@@ -260,13 +277,6 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                     project_slug=project.slug,
                 )
                 return RedirectType.to_canonical_domain
-
-        if project.is_subproject:
-            log.debug(
-                "Proxito Public Domain -> Subproject Main Domain Redirect.",
-                project_slug=project.slug,
-            )
-            return RedirectType.subproject_to_main_domain
 
         return None
 

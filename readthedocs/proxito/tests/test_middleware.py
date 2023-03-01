@@ -116,8 +116,12 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         )
         resp = self.client.get(self.url, HTTP_HOST="subproject.dev.readthedocs.io")
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp["location"], f"http://pip.dev.readthedocs.io/")
-        self.assertEqual(resp["X-RTD-Redirect"], RedirectType.to_canonical_domain.name)
+        self.assertEqual(
+            resp["location"], f"http://pip.dev.readthedocs.io/projects/subproject/"
+        )
+        self.assertEqual(
+            resp["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
+        )
 
     # We are not canonicalizing custom domains -> public domain for now
     @pytest.mark.xfail(strict=True)
