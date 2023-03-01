@@ -1,6 +1,10 @@
 Version 9.7.0
 -------------
 
+**This release contains one security fix. For more information, see:**
+
+- `GHSA-h4cf-8gv8-4chf <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-h4cf-8gv8-4chf>`__
+
 :Date: February 28, 2023
 
 * `@humitos <https://github.com/humitos>`__: Celery: delete Telemetry data that's at most 3 months older (`#10079 <https://github.com/readthedocs/readthedocs.org/pull/10079>`__)
@@ -49,6 +53,10 @@ Version 9.6.0
 Version 9.5.0
 -------------
 
+**This release contains one security fix. For more information, see:**
+
+- `GHSA-mp38-vprc-7hf5 <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-mp38-vprc-7hf5>`__
+
 :Date: February 13, 2023
 
 * `@agjohnson <https://github.com/agjohnson>`__: Bump to latest common (`#10019 <https://github.com/readthedocs/readthedocs.org/pull/10019>`__)
@@ -80,6 +88,10 @@ Version 9.5.0
 
 Version 9.4.0
 -------------
+
+**This release contains one security fix. For more information, see:**
+
+- `GHSA-5w8m-r7jm-mhp9 <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-5w8m-r7jm-mhp9>`__
 
 :Date: February 07, 2023
 
