@@ -363,7 +363,11 @@ class Project(models.Model):
 
     skip = models.BooleanField(_("Skip (disable) building this project"), default=False)
 
+    # null=True can be removed in a later migration
+    # be careful if adding new queries on this, .filter(delisted=False) does not work
+    # but .exclude(delisted=True) does!
     delisted = models.BooleanField(
+        null=True,
         default=False,
         verbose_name=_("Delisted"),
         help_text=_(
@@ -1784,13 +1788,14 @@ class HTTPHeader(TimeStampedModel, models.Model):
     """
 
     HEADERS_CHOICES = (
-        ('access_control_allow_origin', 'Access-Control-Allow-Origin'),
-        ('access_control_allow_headers', 'Access-Control-Allow-Headers'),
-        ('content_security_policy', 'Content-Security-Policy'),
-        ('feature_policy', 'Feature-Policy'),
-        ('permissions_policy', 'Permissions-Policy'),
-        ('referrer_policy', 'Referrer-Policy'),
-        ('x_frame_options', 'X-Frame-Options'),
+        ("access_control_allow_origin", "Access-Control-Allow-Origin"),
+        ("access_control_allow_headers", "Access-Control-Allow-Headers"),
+        ("content_security_policy", "Content-Security-Policy"),
+        ("feature_policy", "Feature-Policy"),
+        ("permissions_policy", "Permissions-Policy"),
+        ("referrer_policy", "Referrer-Policy"),
+        ("x_frame_options", "X-Frame-Options"),
+        ("x_content_type_options", "X-Content-Type-Options"),
     )
 
     domain = models.ForeignKey(

@@ -330,6 +330,8 @@ class ServeRedirectMixin:
         log.debug(
             "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
         )
+        # All system redirects can be cached, since the final URL will check for authz.
+        self.cache_response = True
         resp = HttpResponseRedirect(to)
         resp["X-RTD-Redirect"] = RedirectType.system.name
         return resp
@@ -399,8 +401,8 @@ class ServeRedirectMixin:
         log.info(
             "Canonical Redirect.", host=request.get_host(), from_url=from_url, to_url=to
         )
-        # Canocanical redirects can be cached, since the final URL will check for authz.
-        self.cache_request = True
+        # All canonical redirects can be cached, since the final URL will check for authz.
+        self.cache_response = True
         resp = HttpResponseRedirect(to)
         resp["X-RTD-Redirect"] = redirect_type.name
         return resp

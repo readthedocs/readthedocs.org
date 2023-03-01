@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.test import TestCase
 
+from readthedocs.builds.constants import LATEST
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Domain, Project
 from readthedocs.proxito.views import serve
@@ -33,6 +34,7 @@ class BaseDocServing(TestCase):
             main_language_project=None,
         )
         self.project.versions.update(privacy_level=PUBLIC)
+        self.version = self.project.versions.get(slug=LATEST)
 
         self.subproject = fixture.get(
             Project,

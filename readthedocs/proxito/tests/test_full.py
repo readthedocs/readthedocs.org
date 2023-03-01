@@ -58,7 +58,8 @@ class TestFullDocServing(BaseDocServing):
         host = '127.0.0.1'
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.json(), {'status': 200})
+        self.assertEqual(resp.json(), {"status": 200})
+        self.assertEqual(resp["CDN-Cache-Control"], "private")
 
     def test_subproject_serving(self):
         url = '/projects/subproject/en/latest/awesome.html'
@@ -397,7 +398,7 @@ class TestDocServingBackends(BaseDocServing):
         )
 
     @override_settings(PYTHON_MEDIA=False)
-    def test_download_files(self):
+    def test_download_files_public_version(self):
         for type_ in DOWNLOADABLE_MEDIA_TYPES:
             resp = self.client.get(
                 f"/_/downloads/en/latest/{type_}/",
@@ -409,6 +410,24 @@ class TestDocServingBackends(BaseDocServing):
                 resp["X-Accel-Redirect"],
                 f"/proxito/media/{type_}/project/latest/project.{extension}",
             )
+            self.assertEqual(resp["CDN-Cache-Control"], "public")
+
+    @override_settings(PYTHON_MEDIA=False, ALLOW_PRIVATE_REPOS=True)
+    def test_download_files_private_version(self):
+        self.version.privacy_level = PRIVATE
+        self.version.save()
+        for type_ in DOWNLOADABLE_MEDIA_TYPES:
+            resp = self.client.get(
+                f"/_/downloads/en/latest/{type_}/",
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 200)
+            extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
+            self.assertEqual(
+                resp["X-Accel-Redirect"],
+                f"/proxito/media/{type_}/project/latest/project.{extension}",
+            )
+            self.assertEqual(resp["CDN-Cache-Control"], "private")
 
     @override_settings(PYTHON_MEDIA=False)
     def test_invalid_download_files(self):
