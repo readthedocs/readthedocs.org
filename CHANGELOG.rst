@@ -1,3 +1,32 @@
+Version 9.7.0
+-------------
+
+**This release contains one security fix. For more information, see:**
+
+- `GHSA-h4cf-8gv8-4chf <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-h4cf-8gv8-4chf>`__
+
+:Date: February 28, 2023
+
+* `@humitos <https://github.com/humitos>`__: Celery: delete Telemetry data that's at most 3 months older (`#10079 <https://github.com/readthedocs/readthedocs.org/pull/10079>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: consider only `PageView` from the last 3 months (`#10078 <https://github.com/readthedocs/readthedocs.org/pull/10078>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: limit `archive_builds_task` query to last 90 day ago (`#10077 <https://github.com/readthedocs/readthedocs.org/pull/10077>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: bugfix when deleting pidbox keys (`#10076 <https://github.com/readthedocs/readthedocs.org/pull/10076>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: use `django-cacheops` to cache some querysets (`#10075 <https://github.com/readthedocs/readthedocs.org/pull/10075>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10072 <https://github.com/readthedocs/readthedocs.org/pull/10072>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Add opengraph (`#10066 <https://github.com/readthedocs/readthedocs.org/pull/10066>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Subscriptions: Set organization name in Stripe (`#10064 <https://github.com/readthedocs/readthedocs.org/pull/10064>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Support delisting of projects (`#10060 <https://github.com/readthedocs/readthedocs.org/pull/10060>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Fix undeclared labels after refactor + fix root causes (`#10059 <https://github.com/readthedocs/readthedocs.org/pull/10059>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Replace duplicate information about staff and contributors with a seealso:: (`#10056 <https://github.com/readthedocs/readthedocs.org/pull/10056>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Use "Sentence case" for titles (`#10055 <https://github.com/readthedocs/readthedocs.org/pull/10055>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make fancy new build failed email (`#10054 <https://github.com/readthedocs/readthedocs.org/pull/10054>`__)
+* `@humitos <https://github.com/humitos>`__:  Metric: define build latency metric  (`#10053 <https://github.com/readthedocs/readthedocs.org/pull/10053>`__)
+* `@humitos <https://github.com/humitos>`__: Revert "Requirements: unpin `newrelic` (#10041)" (`#10052 <https://github.com/readthedocs/readthedocs.org/pull/10052>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.6.0 (`#10050 <https://github.com/readthedocs/readthedocs.org/pull/10050>`__)
+* `@humitos <https://github.com/humitos>`__: Metrics: update URL for latency metric (`#10048 <https://github.com/readthedocs/readthedocs.org/pull/10048>`__)
+* `@humitos <https://github.com/humitos>`__: Build: log usage of old output directory `_build/html` (`#10038 <https://github.com/readthedocs/readthedocs.org/pull/10038>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Pin django-filter (`#2499 <https://github.com/readthedocs/readthedocs.org/pull/2499>`__)
+
 Version 9.6.0
 -------------
 
@@ -23,6 +52,10 @@ Version 9.6.0
 
 Version 9.5.0
 -------------
+
+**This release contains one security fix. For more information, see:**
+
+- `GHSA-mp38-vprc-7hf5 <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-mp38-vprc-7hf5>`__
 
 :Date: February 13, 2023
 
@@ -55,6 +88,10 @@ Version 9.5.0
 
 Version 9.4.0
 -------------
+
+**This release contains one security fix. For more information, see:**
+
+- `GHSA-5w8m-r7jm-mhp9 <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-5w8m-r7jm-mhp9>`__
 
 :Date: February 07, 2023
 
