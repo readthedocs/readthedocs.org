@@ -359,7 +359,22 @@ class Project(models.Model):
     )
 
     featured = models.BooleanField(_('Featured'), default=False)
-    skip = models.BooleanField(_('Skip'), default=False)
+
+    skip = models.BooleanField(_("Skip (disable) building this project"), default=False)
+
+    # null=True can be removed in a later migration
+    # be careful if adding new queries on this, .filter(delisted=False) does not work
+    # but .exclude(delisted=True) does!
+    delisted = models.BooleanField(
+        null=True,
+        default=False,
+        verbose_name=_("Delisted"),
+        help_text=_(
+            "Delisting a project removes it from Read the Docs search indexing and asks external "
+            "search engines to remove it via robots.txt"
+        ),
+    )
+
     install_project = models.BooleanField(
         _('Install Project'),
         help_text=_(
