@@ -20,7 +20,7 @@ from readthedocs.analytics.utils import get_client_ip
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.core.resolver import resolve, resolver
-from readthedocs.core.utils.url import join_url_path
+from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
@@ -382,7 +382,7 @@ class ServeRedirectMixin:
             )
             parsed_doc_prefix = urlparse(project_doc_prefix)
             to = parsed_doc_prefix._replace(
-                path=join_url_path(parsed_doc_prefix.path, parsed_from.path),
+                path=unsafe_join_url_path(parsed_doc_prefix.path, parsed_from.path),
                 query=parsed_from.query,
             ).geturl()
         else:

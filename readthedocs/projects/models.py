@@ -31,7 +31,7 @@ from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
-from readthedocs.core.utils.url import join_url_path
+from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -643,7 +643,7 @@ class Project(models.Model):
             # Add our proxied api host at the first place we have a $variable
             # This supports both subpaths & normal root hosting
             path_prefix = self.custom_path_prefix
-            return join_url_path(path_prefix, "/_")
+            return unsafe_join_url_path(path_prefix, "/_")
         return '/_'
 
     @property
@@ -668,6 +668,8 @@ class Project(models.Model):
         Returns `None` if the project doesn't have a custom urlconf.
         """
         if self.urlconf:
+            # Return the value before the first defined variable,
+            # as that is a prefix and not part of our normal doc patterns.
             return self.urlconf.split("$", 1)[0]
         return None
 

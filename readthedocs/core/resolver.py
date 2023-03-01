@@ -6,7 +6,7 @@ from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.core.utils.url import join_url_path
+from readthedocs.core.utils.url import unsafe_join_url_path
 
 log = structlog.get_logger(__name__)
 
@@ -226,10 +226,10 @@ class ResolverBase:
         parent_relationship = project.get_parent_relationship()
         if parent_relationship:
             prefix = custom_prefix or "projects"
-            return join_url_path(prefix, parent_relationship.alias, "/")
+            return unsafe_join_url_path(prefix, parent_relationship.alias, "/")
 
         prefix = custom_prefix or "/"
-        return join_url_path(prefix, "/")
+        return unsafe_join_url_path(prefix, "/")
 
     def get_url_prefix(self, project, external_version_slug=None):
         """
