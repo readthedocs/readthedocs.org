@@ -30,13 +30,6 @@ from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
-from ...core import unresolver
-from ...core.unresolver import (
-    InvalidExternalVersionError,
-    TranslationNotFoundError,
-    UnresolvedPathError,
-    VersionNotFoundError,
-)
 from .mixins import (
     InvalidPathError,
     ServeDocsMixin,
