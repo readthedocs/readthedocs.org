@@ -14,6 +14,7 @@ import pytest
 from django.http import Http404
 from django.test.utils import override_settings
 from django.urls import Resolver404
+from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Feature
@@ -150,6 +151,18 @@ class InternalRedirectTests(BaseDocServing):
         self.assertEqual(
             r['Location'],
             'http://project.dev.readthedocs.io/en/latest/?foo=bar',
+        )
+
+
+class ProxitoV2InternalRedirectTests(InternalRedirectTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
         )
 
 
@@ -649,6 +662,18 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             )
 
 
+class ProxitoV2UserRedirectTests(UserRedirectTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
+
+
 @override_settings(PUBLIC_DOMAIN="dev.readthedocs.io")
 class UserForcedRedirectTests(BaseDocServing):
     def test_no_forced_redirect(self):
@@ -943,6 +968,19 @@ class UserForcedRedirectTests(BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
         )
 
+
+class ProxitoV2UserForcedRedirectTests(UserForcedRedirectTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
+
+
 @override_settings(
     PYTHON_MEDIA=True,
     PUBLIC_DOMAIN="dev.readthedocs.io",
@@ -1085,3 +1123,15 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             )
             self.assertEqual(r.status_code, 302, url)
             self.assertEqual(r["Location"], expected_location, url)
+
+
+class ProxitoV2UserRedirectCrossdomainTest(UserRedirectCrossdomainTest):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )

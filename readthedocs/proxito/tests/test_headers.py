@@ -1,9 +1,10 @@
 import django_dynamic_fixture as fixture
 from django.test import override_settings
 from django.urls import reverse
+from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.projects.models import Domain, HTTPHeader
+from readthedocs.projects.models import Domain, Feature, HTTPHeader
 
 from .base import BaseDocServing
 
@@ -143,3 +144,15 @@ class ProxitoHeaderTests(BaseDocServing):
         r = self.client.get('/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r["CDN-Cache-Control"], "public")
+
+
+class ProxitoV2HeaderTests(ProxitoHeaderTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
