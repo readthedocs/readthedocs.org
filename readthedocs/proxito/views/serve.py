@@ -463,8 +463,6 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         log.debug('Executing 404 handler.')
 
         unresolved_domain = request.unresolved_domain
-        if unresolved_domain.is_from_external_domain:
-            self.version_type = EXTERNAL
         if unresolved_domain.project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO):
             return self.get_using_unresolver(request, proxito_path)
 
@@ -675,6 +673,11 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         of the unresolver to extract the current project, version, and file.
         """
         unresolved_domain = request.unresolved_domain
+        # We force all storage calls to use the external versions storage,
+        # since we are serving an external version.
+        if unresolved_domain.is_from_external_domain:
+            self.version_type = EXTERNAL
+
         project = None
         version = None
         filename = None
