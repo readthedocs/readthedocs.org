@@ -52,7 +52,6 @@ class VersionNotFoundError(UnresolverError):
 
 
 class TranslationNotFoundError(UnresolverError):
-
     def __init__(self, project, language, filename, version_slug):
         self.project = project
         self.language = language
