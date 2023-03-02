@@ -15,6 +15,13 @@ from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path
+from readthedocs.core.unresolver import (
+    InvalidExternalVersionError,
+    InvalidPathForVersionedProjectError,
+    TranslationNotFoundError,
+    VersionNotFoundError,
+    unresolver,
+)
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
 from readthedocs.projects.models import Domain, Feature
@@ -66,16 +73,16 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
 
 class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
-
-    def get(self,
-            request,
-            project_slug=None,
-            subproject_slug=None,
-            subproject_slash=None,
-            lang_slug=None,
-            version_slug=None,
-            filename='',
-    ):  # noqa
+    def get(
+        self,
+        request,
+        project_slug=None,
+        subproject_slug=None,
+        subproject_slash=None,
+        lang_slug=None,
+        version_slug=None,
+        filename="",
+    ):
         """
         Take the incoming parsed URL's and figure out what file to serve.
 
@@ -105,6 +112,9 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 # We can safely ignore it here because it's logged in ``canonical_redirect``,
                 # and we don't want to issue infinite redirects.
                 pass
+
+        if unresolved_domain.project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO):
+            return self.get_using_unresolver(request)
 
         original_version_slug = version_slug
         version_slug = self.get_version_from_host(request, version_slug)
@@ -279,6 +289,152 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 return RedirectType.to_canonical_domain
 
         return None
+
+    def get_using_unresolver(self, request):
+        """
+        Resolve the current request using the new proxito implementation.
+
+        This is basically a copy of the get() method,
+        but adapted to make use of the unresolved to extract the current project, version, and file.
+        """
+        unresolved_domain = request.unresolved_domain
+        # TODO: We shouldn't use path_info to the get the proxito path,
+        # it should be captured in proxito/urls.py.
+        path = request.path_info
+
+        # We force all storage calls to use the external versions storage,
+        # since we are serving an external version.
+        if unresolved_domain.is_from_external_domain:
+            self.version_type = EXTERNAL
+
+        try:
+            unresolved = unresolver.unresolve_path(
+                unresolved_domain=unresolved_domain,
+                path=path,
+                append_indexhtml=False,
+            )
+        except VersionNotFoundError as exc:
+            # TODO: find a better way to pass this to the middleware.
+            request.path_project_slug = exc.project.slug
+            request.path_version_slug = exc.version_slug
+            raise Http404
+        except InvalidExternalVersionError as exc:
+            # TODO: find a better way to pass this to the middleware.
+            request.path_project_slug = exc.project.slug
+            request.path_version_slug = exc.external_version_slug
+            raise Http404
+        except TranslationNotFoundError as exc:
+            # TODO: find a better way to pass this to the middleware.
+            request.path_project_slug = exc.project.slug
+            raise Http404
+        except InvalidPathForVersionedProjectError as exc:
+            project = exc.project
+            if unresolved_domain.is_from_external_domain:
+                version_slug = unresolved_domain.external_version_slug
+            else:
+                version_slug = None
+
+            # TODO: find a better way to pass this to the middleware.
+            request.path_project_slug = project.slug
+            request.path_version_slug = version_slug
+
+            if exc.path == "/":
+                # When the path is empty, the project didn't have an explicit version,
+                # so we need to redirect to the default version.
+                # This is `/ -> /en/latest/` or
+                # `/projects/subproject/ -> /projects/subproject/en/latest/`.
+                return self.system_redirect(
+                    request=request,
+                    final_project=project,
+                    version_slug=version_slug,
+                    filename=exc.path,
+                    is_external_version=unresolved_domain.is_from_external_domain,
+                )
+
+            raise Http404
+
+        project = unresolved.project
+        version = unresolved.version
+        filename = unresolved.filename
+
+        log.bind(
+            project_slug=project.slug,
+            version_slug=version.slug,
+            filename=filename,
+            external=unresolved_domain.is_from_external_domain,
+        )
+
+        # TODO: find a better way to pass this to the middleware.
+        request.path_project_slug = project.slug
+        request.path_version_slug = version.slug
+
+        if not version.active:
+            log.warning("Version is not active.")
+            raise Http404("Version is not active.")
+
+        # All public versions can be cached.
+        self.cache_response = version.is_public
+
+        log.bind(cache_response=self.cache_response)
+        log.debug("Serving docs.")
+
+        # Verify if the project is marked as spam and return a 401 in that case
+        spam_response = self._spam_response(request, project)
+        if spam_response:
+            # If a project was marked as spam,
+            # all of their responses can be cached.
+            self.cache_response = True
+            return spam_response
+
+        # Trailing slash redirect.
+        # We don't want to serve documentation at:
+        # - `/en/latest`
+        # - `/projects/subproject/en/latest`
+        # - `/projects/subproject`
+        # These paths need to end with an slash.
+        if filename == "/" and not path.endswith("/"):
+            # TODO: We could avoid calling the resolver,
+            # and just redirect to the same path with a slash.
+            return self.system_redirect(
+                request=request,
+                final_project=project,
+                version_slug=version.slug,
+                filename=filename,
+                is_external_version=unresolved_domain.is_from_external_domain,
+            )
+
+        # Check for forced redirects.
+        redirect_path, http_status = self.get_redirect(
+            project=project,
+            lang_slug=project.language,
+            version_slug=version.slug,
+            filename=filename,
+            full_path=request.path,
+            forced_only=True,
+        )
+        if redirect_path and http_status:
+            log.bind(forced_redirect=True)
+            try:
+                return self.get_redirect_response(
+                    request=request,
+                    redirect_path=redirect_path,
+                    proxito_path=request.path,
+                    http_status=http_status,
+                )
+            except InfiniteRedirectException:
+                # Continue with our normal serve.
+                pass
+
+        # Check user permissions and return an unauthed response if needed.
+        if not self.allowed_user(request, project, version.slug):
+            return self.get_unauthed_response(request, project)
+
+        return self._serve_docs(
+            request=request,
+            project=project,
+            version=version,
+            filename=filename,
+        )
 
 
 class ServeDocs(SettingsOverrideObject):

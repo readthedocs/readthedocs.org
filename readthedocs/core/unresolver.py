@@ -58,7 +58,7 @@ class TranslationNotFoundError(UnresolverError):
         self.filename = filename
 
 
-class UnresolvedPathError(UnresolverError):
+class InvalidPathForVersionedProjectError(UnresolverError):
     def __init__(self, project, path):
         self.project = project
         self.path = path
@@ -411,7 +411,10 @@ class Unresolver:
             if response:
                 return response
 
-        raise UnresolvedPathError(project=parent_project, path=path)
+        raise InvalidPathForVersionedProjectError(
+            project=parent_project,
+            path=self._normalize_filename(path),
+        )
 
     @staticmethod
     def get_domain_from_host(host):
