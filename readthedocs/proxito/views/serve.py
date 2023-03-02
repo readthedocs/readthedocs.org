@@ -14,7 +14,7 @@ from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin
-from readthedocs.core.resolver import resolve_path
+from readthedocs.core.resolver import resolve_path, resolver
 from readthedocs.core.unresolver import (
     InvalidExternalVersionError,
     InvalidPathForVersionedProjectError,
@@ -281,7 +281,8 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 .filter(canonical=True, https=True)
                 .exists()
             )
-            if canonical_domain:
+            # For .com we need to check if the project supports custom domains.
+            if canonical_domain and resolver._use_cname(project):
                 log.debug(
                     "Proxito Public Domain -> Canonical Domain Redirect.",
                     project_slug=project.slug,
