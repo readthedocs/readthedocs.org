@@ -9,9 +9,9 @@ from readthedocs.core.unresolver import (
     InvalidCustomDomainError,
     InvalidExternalDomainError,
     InvalidExternalVersionError,
+    InvalidPathForVersionedProjectError,
     SuspiciousHostnameError,
     TranslationNotFoundError,
-    UnresolvedPathError,
     VersionNotFoundError,
     unresolve,
 )
@@ -68,26 +68,26 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.filename, "/foo/index.html")
 
     def test_project_no_version_and_language(self):
-        with pytest.raises(UnresolvedPathError) as excinfo:
+        with pytest.raises(InvalidPathForVersionedProjectError) as excinfo:
             unresolve("https://pip.readthedocs.io/")
         exc = excinfo.value
         self.assertEqual(exc.project, self.pip)
         self.assertEqual(exc.path, "/")
 
-        with pytest.raises(UnresolvedPathError) as excinfo:
+        with pytest.raises(InvalidPathForVersionedProjectError) as excinfo:
             unresolve("https://pip.readthedocs.io/foo/bar")
         exc = excinfo.value
         self.assertEqual(exc.project, self.pip)
         self.assertEqual(exc.path, "/foo/bar")
 
     def test_subproject_no_version_and_language(self):
-        with pytest.raises(UnresolvedPathError) as excinfo:
+        with pytest.raises(InvalidPathForVersionedProjectError) as excinfo:
             unresolve("https://pip.readthedocs.io/projects/sub/")
         exc = excinfo.value
         self.assertEqual(exc.project, self.subproject)
         self.assertEqual(exc.path, "/")
 
-        with pytest.raises(UnresolvedPathError) as excinfo:
+        with pytest.raises(InvalidPathForVersionedProjectError) as excinfo:
             unresolve("https://pip.readthedocs.io/projects/sub/foo/bar")
         exc = excinfo.value
         self.assertEqual(exc.project, self.subproject)

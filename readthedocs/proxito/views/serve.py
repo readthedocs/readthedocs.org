@@ -17,8 +17,8 @@ from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path
 from readthedocs.core.unresolver import (
     InvalidExternalVersionError,
+    InvalidPathForVersionedProjectError,
     TranslationNotFoundError,
-    UnresolvedPathError,
     VersionNotFoundError,
     unresolver,
 )
@@ -298,7 +298,8 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         but adapted to make use of the unresolved to extract the current project, version, and file.
         """
         unresolved_domain = request.unresolved_domain
-        # TODO: capture this path in the URL.
+        # TODO: We shouldn't use path_info to the get the proxito path,
+        # it should be captured in proxito/urls.py.
         path = request.path_info
 
         # We force all storage calls to use the external versions storage,
@@ -326,7 +327,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             # TODO: find a better way to pass this to the middleware.
             request.path_project_slug = exc.project.slug
             raise Http404
-        except UnresolvedPathError as exc:
+        except InvalidPathForVersionedProjectError as exc:
             project = exc.project
             if unresolved_domain.is_from_external_domain:
                 version_slug = unresolved_domain.external_version_slug
@@ -337,21 +338,20 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             request.path_project_slug = project.slug
             request.path_version_slug = version_slug
 
-            # If the path is not empty, the path doesn't resolve to a proper file.
-            if exc.path != "/":
-                raise Http404
+            if exc.path == "/":
+                # When the path is empty, the project didn't have an explicit version,
+                # so we need to redirect to the default version.
+                # This is `/ -> /en/latest/` or
+                # `/projects/subproject/ -> /projects/subproject/en/latest/`.
+                return self.system_redirect(
+                    request=request,
+                    final_project=project,
+                    version_slug=version_slug,
+                    filename=exc.path,
+                    is_external_version=unresolved_domain.is_from_external_domain,
+                )
 
-            # When the path is empty, the project didn't have an explicit version,
-            # so we need to redirect to the default version.
-            # This is `/ -> /en/latest/` or
-            # `/projects/subproject/ -> /projects/subproject/en/latest/`.
-            return self.system_redirect(
-                request=request,
-                final_project=project,
-                version_slug=version_slug,
-                filename=exc.path,
-                is_external_version=unresolved_domain.is_from_external_domain,
-            )
+            raise Http404
 
         project = unresolved.project
         version = unresolved.version
@@ -393,6 +393,8 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         # - `/projects/subproject`
         # These paths need to end with an slash.
         if filename == "/" and not path.endswith("/"):
+            # TODO: We could avoid calling the resolver,
+            # and just redirect to the same path with a slash.
             return self.system_redirect(
                 request=request,
                 final_project=project,
