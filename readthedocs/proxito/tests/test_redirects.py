@@ -83,7 +83,17 @@ class RedirectTests(BaseDocServing):
         r = self.client.get('/', HTTP_HOST='subproject.dev.readthedocs.io')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/en/latest/',
+            r["Location"],
+            "https://project.dev.readthedocs.io/projects/subproject/",
+        )
+
+        r = self.client.get(
+            "/projects/subproject/", HTTP_HOST="project.dev.readthedocs.io"
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
         )
 
         r = self.client.get('/en/latest/', HTTP_HOST='subproject.dev.readthedocs.io')

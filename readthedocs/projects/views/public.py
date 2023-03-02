@@ -27,6 +27,7 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
+from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.filters import ProjectVersionListFilterSet
@@ -307,7 +308,7 @@ def project_downloads(request, project_slug):
     )
 
 
-class ProjectDownloadMediaBase(ServeDocsMixin, View):
+class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
 
     # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
     same_domain_url = False
@@ -360,6 +361,9 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
                 final_project.versions(manager=manager),
                 slug=version_slug,
             )
+
+            # All public versions can be cached.
+            self.cache_response = version.is_public
 
         else:
             # All the arguments come from the URL.

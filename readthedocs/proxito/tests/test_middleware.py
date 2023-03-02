@@ -116,8 +116,12 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         )
         resp = self.client.get(self.url, HTTP_HOST="subproject.dev.readthedocs.io")
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp["location"], f"http://pip.dev.readthedocs.io/")
-        self.assertEqual(resp["X-RTD-Redirect"], RedirectType.to_canonical_domain.name)
+        self.assertEqual(
+            resp["location"], f"http://pip.dev.readthedocs.io/projects/subproject/"
+        )
+        self.assertEqual(
+            resp["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
+        )
 
     # We are not canonicalizing custom domains -> public domain for now
     @pytest.mark.xfail(strict=True)
@@ -252,6 +256,18 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.assertEqual(res.status_code, 302)
         self.assertEqual(
             res['Location'], '/google.com',
+        )
+
+
+class ProxitoV2MiddlewareTests(MiddlewareTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
         )
 
 
