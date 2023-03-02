@@ -463,7 +463,6 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         log.debug('Executing 404 handler.')
 
         unresolved_domain = request.unresolved_domain
-
         if unresolved_domain.is_from_external_domain:
             self.version_type = EXTERNAL
         if unresolved_domain.project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO):
@@ -704,7 +703,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             filename = exc.filename
         except InvalidExternalVersionError as exc:
             project = exc.project
-        except UnresolvedPathError as exc:
+        except InvalidPathForVersionedProjectError as exc:
             project = exc.project
             filename = exc.path
 
