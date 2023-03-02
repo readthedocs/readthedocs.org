@@ -376,6 +376,10 @@ class ProxitoV2TestFullDocServing(TestFullDocServing):
         )
 
 
+@override_settings(
+    PUBLIC_DOMAIN="dev.readthedocs.io",
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
+)
 class TestDocServingBackends(BaseDocServing):
     # Test that nginx and python backends both work
 
