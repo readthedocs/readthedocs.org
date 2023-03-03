@@ -59,7 +59,7 @@ class TranslationNotFoundError(UnresolverError):
         self.version_slug = version_slug
 
 
-class UnresolvedPathError(UnresolverError):
+class InvalidPathForVersionedProjectError(UnresolverError):
     def __init__(self, project, path):
         self.project = project
         self.path = path
@@ -161,7 +161,7 @@ class Unresolver:
         re.VERBOSE,
     )
 
-    def unresolve(self, url, append_indexhtml=True):
+    def unresolve_url(self, url, append_indexhtml=True):
         """
         Turn a URL into the component parts that our views would use to process them.
 
@@ -212,7 +212,7 @@ class Unresolver:
         Extracted into a separate method so it can be re-used by
         the unresolve and unresolve_path methods.
         """
-        current_project, version, filename = self._unresolve_path(
+        current_project, version, filename = self._unresolve_path_with_parent_project(
             parent_project=unresolved_domain.project,
             path=parsed_url.path,
             external_version_slug=unresolved_domain.external_version_slug,
@@ -312,7 +312,7 @@ class Unresolver:
             # We use the subproject as the new parent project
             # to resolve the rest of the path relative to it.
             subproject = project_relationship.child
-            response = self._unresolve_path(
+            response = self._unresolve_path_with_parent_project(
                 parent_project=subproject,
                 path=file,
                 check_subprojects=False,
@@ -354,7 +354,7 @@ class Unresolver:
 
         return parent_project, version, file
 
-    def _unresolve_path(
+    def _unresolve_path_with_parent_project(
         self, parent_project, path, check_subprojects=True, external_version_slug=None
     ):
         """
@@ -415,7 +415,10 @@ class Unresolver:
             if response:
                 return response
 
-        raise UnresolvedPathError(project=parent_project, path=path)
+        raise InvalidPathForVersionedProjectError(
+            project=parent_project,
+            path=self._normalize_filename(path),
+        )
 
     @staticmethod
     def get_domain_from_host(host):
@@ -544,4 +547,4 @@ class Unresolver:
 
 
 unresolver = Unresolver()
-unresolve = unresolver.unresolve
+unresolve = unresolver.unresolve_url

@@ -1,6 +1,3 @@
-.. old label
-.. _User-defined Redirects:
-
 Custom and built-in redirects on Read the Docs
 ==============================================
 
@@ -16,7 +13,7 @@ the bad user experience of a 404 page is usually best to avoid.
     Allows for simple and long-term sharing of external references to your documentation.
 
 `User-defined redirects`_ ⬇️
-    Makes it easier to move contents around (see: )
+    Makes it easier to move contents around
 
 .. seealso::
 
@@ -95,6 +92,8 @@ They are intended to be easy and short for people to type.
 
 You can reach these docs at https://docs.rtfd.io.
 
+.. old label
+.. _User-defined Redirects:
 
 User-defined redirects
 ----------------------
