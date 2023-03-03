@@ -65,6 +65,7 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                     project=parent_project,
                     project_slug=parent_project.slug,
                     subproject_slug=subproject_slug,
+                    proxito_path=request.proxito_path,
                 )
 
         # Get the default version from the current project,
@@ -532,6 +533,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     f"Could not find subproject for {subproject_slug}",
                     project_slug=e.project_slug,
                     subproject_slug=subproject_slug,
+                    proxito_path=proxito_path,
                 )
             raise
 
