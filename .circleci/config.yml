@@ -46,7 +46,6 @@ jobs:
       - run: pip install --user 'tox<5'
       - run: tox -e pre-commit
       - run: tox -e migrations
-      - run: tox -e lint
       - run: scripts/circle/install_node.sh
       - run:
           name: Add node to the path
