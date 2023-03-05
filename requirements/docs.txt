@@ -6,7 +6,7 @@
 #
 alabaster==0.7.13
     # via sphinx
-babel==2.11.0
+babel==2.12.1
     # via
     #   sphinx
     #   sphinx-intl
@@ -48,13 +48,13 @@ markdown-it-py==2.2.0
     #   myst-parser
 markupsafe==2.1.2
     # via jinja2
-matplotlib==3.7.0
+matplotlib==3.7.1
     # via sphinxext-opengraph
-mdit-py-plugins==0.3.4
+mdit-py-plugins==0.3.5
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
-myst-parser==0.18.1
+myst-parser==0.19.1
     # via -r requirements/docs.in
 numpy==1.24.2
     # via
@@ -77,8 +77,6 @@ pyparsing==3.0.9
     # via matplotlib
 python-dateutil==2.8.2
     # via matplotlib
-pytz==2022.7.1
-    # via babel
 pyyaml==6.0
     # via myst-parser
 readthedocs-sphinx-search==0.2.0
@@ -151,8 +149,6 @@ sphinxext-opengraph==0.8.1
     # via -r requirements/docs.in
 tornado==6.2
     # via livereload
-typing-extensions==4.5.0
-    # via myst-parser
 urllib3==1.26.14
     # via requests
 
