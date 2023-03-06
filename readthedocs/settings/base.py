@@ -1061,7 +1061,9 @@ class CommunityBaseSettings(Settings):
             'ops': CACHEOPS_OPS,
             'timeout': CACHEOPS_TIMEOUT,
         },
-        'organizations.planfeature': {
+
+        # readthedocs.subscriptions.*
+        'subscriptions.planfeature': {
             'ops': CACHEOPS_OPS,
             'timeout': CACHEOPS_TIMEOUT,
         },
