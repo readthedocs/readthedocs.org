@@ -26,8 +26,6 @@ from readthedocs.projects.models import Feature
 from readthedocs.projects.utils import safe_write
 
 from ..base import BaseBuilder
-from ..constants import PDF_RE
-from ..environments import BuildCommand, DockerBuildCommand
 from ..exceptions import BuildUserError
 from ..signals import finalize_sphinx_context_data
 
@@ -488,30 +486,6 @@ class EpubBuilder(BaseSphinx):
             )
 
 
-class LatexBuildCommand(BuildCommand):
-
-    """Ignore LaTeX exit code if there was file output."""
-
-    def run(self):
-        super().run()
-        # Force LaTeX exit code to be a little more optimistic. If LaTeX
-        # reports an output file, let's just assume we're fine.
-        if PDF_RE.search(self.output):
-            self.exit_code = 0
-
-
-class DockerLatexBuildCommand(DockerBuildCommand):
-
-    """Ignore LaTeX exit code if there was file output."""
-
-    def run(self):
-        super().run()
-        # Force LaTeX exit code to be a little more optimistic. If LaTeX
-        # reports an output file, let's just assume we're fine.
-        if PDF_RE.search(self.output):
-            self.exit_code = 0
-
-
 class PdfBuilder(BaseSphinx):
 
     """Builder to generate PDF documentation."""
@@ -589,11 +563,6 @@ class PdfBuilder(BaseSphinx):
             cwd=self.absolute_host_output_dir,
         )
 
-        if self.build_env.command_class == DockerBuildCommand:
-            latex_class = DockerLatexBuildCommand
-        else:
-            latex_class = LatexBuildCommand
-
         cmd = [
             'latexmk',
             '-r',
@@ -610,10 +579,8 @@ class PdfBuilder(BaseSphinx):
             '-interaction=nonstopmode',
         ]
 
-        cmd_ret = self.build_env.run_command_class(
-            cls=latex_class,
-            cmd=cmd,
-            warn_only=True,
+        cmd_ret = self.run(
+            *cmd,
             cwd=self.absolute_host_output_dir,
         )
 
