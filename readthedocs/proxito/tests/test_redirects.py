@@ -1,6 +1,5 @@
 # Copied from .org test_redirects
 
-import pytest
 from django.test import override_settings
 
 from readthedocs.proxito.constants import RedirectType
@@ -83,7 +82,17 @@ class RedirectTests(BaseDocServing):
         r = self.client.get('/', HTTP_HOST='subproject.dev.readthedocs.io')
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/en/latest/',
+            r["Location"],
+            "https://project.dev.readthedocs.io/projects/subproject/",
+        )
+
+        r = self.client.get(
+            "/projects/subproject/", HTTP_HOST="project.dev.readthedocs.io"
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
         )
 
         r = self.client.get('/en/latest/', HTTP_HOST='subproject.dev.readthedocs.io')
@@ -192,25 +201,6 @@ class RedirectTests(BaseDocServing):
             r['Location'], f'https://project.dev.readthedocs.io/es/latest/',
         )
         self.assertEqual(r["X-RTD-Redirect"], RedirectType.system.name)
-
-    # We are not canonicalizing custom domains -> public domain for now
-    @pytest.mark.xfail(strict=True)
-    def test_canonicalize_cname_to_public_domain_redirect(self):
-        """Redirect to the public domain if the CNAME is not canonical."""
-        r = self.client.get('/', HTTP_HOST=self.domain.domain)
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/en/latest/',
-        )
-        self.assertEqual(r['X-RTD-Redirect'], 'noncanonical-cname')
-
-        # We should redirect before 404ing
-        r = self.client.get('/en/latest/404after302', HTTP_HOST=self.domain2.domain)
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/en/latest/404after302',
-        )
-        self.assertEqual(r['X-RTD-Redirect'], 'noncanonical-cname')
 
     # Specific Page Redirects
     def test_proper_page_on_subdomain(self):
