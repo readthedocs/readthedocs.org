@@ -19,6 +19,7 @@ def job_status(request, task_id):
     """Retrieve Celery task function state from frontend."""
     # HACK: always poll up to N times and after that return the sync has
     # finished. This is a way to avoid re-enabling Celery result backend for now.
+    # TODO remove this API and RemoteRepo sync UI when we have better auto syncing
     poll_n = cache.get(task_id, 0)
     poll_n += 1
     cache.set(task_id, poll_n, 5 * 60)
