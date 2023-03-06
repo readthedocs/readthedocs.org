@@ -324,14 +324,14 @@ class Project(models.Model):
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(
         _('Enable EPUB build'),
-        default=True,
+        default=False,
         help_text=_(
             'Create a EPUB version of your documentation with each build.',
         ),
     )
     enable_pdf_build = models.BooleanField(
         _('Enable PDF build'),
-        default=True,
+        default=False,
         help_text=_(
             'Create a PDF version of your documentation with each build.',
         ),
