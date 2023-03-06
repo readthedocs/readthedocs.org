@@ -1055,4 +1055,14 @@ class CommunityBaseSettings(Settings):
             'ops': CACHEOPS_OPS,
             'timeout': CACHEOPS_TIMEOUT,
         },
+
+        # readthedocs.organizations.*
+        'organizations.organization': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'organizations.planfeature': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
     }
