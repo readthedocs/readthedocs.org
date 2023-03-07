@@ -218,6 +218,16 @@ class Version(TimeStampedModel):
         return self.privacy_level == PRIVATE
 
     @property
+    def is_public(self):
+        """
+        Check if the version is public (taking external versions into consideration).
+
+        This is basically ``is_private`` negated,
+        ``is_private`` understands both normal and external versions
+        """
+        return not self.is_private
+
+    @property
     def is_external(self):
         return self.type == EXTERNAL
 

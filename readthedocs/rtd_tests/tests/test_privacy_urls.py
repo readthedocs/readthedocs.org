@@ -15,7 +15,6 @@ from readthedocs.builds.models import (
     RegexAutomationRule,
     VersionAutomationRule,
 )
-from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, EnvironmentVariable, Project, WebHook
@@ -450,21 +449,6 @@ class APIMixin(URLAccessMixin):
             'remoteaccount-detail': {'status_code': 404},
             'version-list': {'status_code': 410},
         }
-
-
-class APIUnauthAccessTest(APIMixin, TestCase):
-
-    @mock.patch('readthedocs.api.v2.views.task_views.get_public_task_data')
-    def test_api_urls(self, get_public_task_data):
-        from readthedocs.api.v2.urls import urlpatterns
-        get_public_task_data.side_effect = TaskNoPermission('Nope')
-        self._test_url(urlpatterns)
-
-    def login(self):
-        pass
-
-    def is_admin(self):
-        return False
 
 
 class PublicUserProfileMixin(URLAccessMixin):
