@@ -1,7 +1,8 @@
 # Copied from .org test_redirects
-
 from django.test import override_settings
+from django_dynamic_fixture import get
 
+from readthedocs.projects.models import Feature
 from readthedocs.proxito.constants import RedirectType
 
 from .base import BaseDocServing
@@ -260,3 +261,15 @@ class RedirectTests(BaseDocServing):
         # WARNING
         # The test client strips multiple slashes at the front of the URL
         # Additional tests for this are in ``test_middleware:test_front_slash``
+
+
+class ProxitoV2RedirectTests(RedirectTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
