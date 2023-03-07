@@ -52,6 +52,13 @@ class BuildUserError(BuildBaseException):
         "and it is not currently supported. "
         'Please, remove all the files but the "{artifact_type}" your want to upload.'
     )
+    PDF_COMMAND_FAILED = gettext_noop(
+        "PDF generation failed. "
+        "The build log below contains information on what errors caused the failure."
+        "Our code has recently changed to fail the entire build on PDF errors, "
+        "where we used to pass the build when a PDF was created."
+        "Please contact us if you need help understanding this error."
+    )
 
 
 class BuildUserSkip(BuildUserError):
