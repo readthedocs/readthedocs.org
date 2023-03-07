@@ -579,14 +579,18 @@ class PdfBuilder(BaseSphinx):
             '-interaction=nonstopmode',
         ]
 
-        cmd_ret = self.run(
-            *cmd,
-            cwd=self.absolute_host_output_dir,
-        )
+        try:
+            cmd_ret = self.run(
+                *cmd,
+                cwd=self.absolute_host_output_dir,
+            )
+            self.pdf_file_name = f"{self.project.slug}.pdf"
+            return cmd_ret.successful
 
-        self.pdf_file_name = f'{self.project.slug}.pdf'
-
-        return cmd_ret.successful
+        # Catch the exception and re-raise it with a specific message
+        except BuildUserError:
+            raise BuildUserError(BuildUserError.PDF_COMMAND_FAILED)
+        return False
 
     def _post_build(self):
         """Internal post build to cleanup PDF output directory and leave only one .pdf file."""
