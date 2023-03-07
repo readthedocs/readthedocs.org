@@ -4,7 +4,7 @@ import structlog
 from django.http import HttpResponse
 
 from readthedocs.projects.models import Project
-from readthedocs.proxito.exceptions import ProxitoHttp404
+from readthedocs.proxito.exceptions import ProxitoProjectTranslationHttp404
 
 from ...core.views import server_error_404
 from .decorators import map_project_slug, map_subproject_slug
@@ -44,17 +44,21 @@ def proxito_404_page_handler(
 @map_project_slug
 @map_subproject_slug
 def _get_project_data_from_request(
-        request,
-        project,
-        subproject,
-        lang_slug=None,
-        version_slug=None,
-        filename='',
+    request,
+    project,
+    subproject,
+    lang_slug=None,
+    version_slug=None,
+    filename="",
+    explicit_proxito_path=None,
 ):
     """
     Get the proper project based on the request and URL.
 
     This is used in a few places and so we break out into a utility function.
+
+    :param str explicit_proxito_path: Set when called from the proxito 404 handler and
+      request.path contains additional prefix.
     """
     # Take the most relevant project so far
     current_project = subproject or project
@@ -77,11 +81,12 @@ def _get_project_data_from_request(
         try:
             final_project = current_project.translations.get(language=lang_slug)
         except Project.DoesNotExist:
-            raise ProxitoHttp404(
+            raise ProxitoProjectTranslationHttp404(
                 "Did not find translation",
                 project=current_project,
                 project_slug=current_project.slug,
-                subproject_slug=lang_slug,
+                translation_slug=lang_slug,
+                proxito_path=explicit_proxito_path or request.path,
             )
 
     # Handle single version by grabbing the default version

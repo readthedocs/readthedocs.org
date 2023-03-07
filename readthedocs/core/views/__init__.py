@@ -17,6 +17,7 @@ from readthedocs.proxito.exceptions import (
     ProxitoHttp404,
     ProxitoProjectHttp404,
     ProxitoProjectPageHttp404,
+    ProxitoProjectTranslationHttp404,
     ProxitoProjectVersionHttp404,
     ProxitoSubProjectHttp404,
 )
@@ -79,6 +80,7 @@ def server_error_404(request, template_name="errors/404/base.html", exception=No
                 "project_slug": getattr(exception, "project_slug", None),
                 "subproject_slug": getattr(exception, "subproject_slug", None),
                 "version_slug": getattr(exception, "version_slug", None),
+                "language_slug": getattr(exception, "language_slug", None),
                 "path_not_found": getattr(exception, "proxito_path", None),
             }
         )
@@ -89,6 +91,8 @@ def server_error_404(request, template_name="errors/404/base.html", exception=No
         template_name = "errors/404/no_version.html"
     elif isinstance(exception, ProxitoSubProjectHttp404):
         template_name = "errors/404/no_subproject.html"
+    elif isinstance(exception, ProxitoProjectTranslationHttp404):
+        template_name = "errors/404/no_language.html"
     elif isinstance(exception, ProxitoProjectPageHttp404):
         template_name = "errors/404/no_project_page.html"
     elif isinstance(exception, ProxitoProjectHttp404):

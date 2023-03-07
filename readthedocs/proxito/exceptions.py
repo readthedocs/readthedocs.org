@@ -65,7 +65,12 @@ class ProxitoProjectPageHttp404(ProxitoProjectHttp404):
 
 class ProxitoProjectTranslationHttp404(ProxitoProjectHttp404):
 
-    """Raised if a translation of some page was not found."""
+    """
+    Raised if a translation of a project was not found.
+
+    This means that the project does not exist for requested language.
+    If a page isn't found, raise a ProxitoProjectPageHttp404.
+    """
 
     def __init__(
         self,

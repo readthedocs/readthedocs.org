@@ -525,6 +525,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 lang_slug=kwargs.get("lang_slug"),
                 version_slug=version_slug,
                 filename=kwargs.get("filename", ""),
+                explicit_proxito_path=proxito_path,
             )
         except ProxitoProjectHttp404 as e:
             if subproject_slug:
