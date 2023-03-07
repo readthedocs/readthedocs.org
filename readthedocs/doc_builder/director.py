@@ -330,7 +330,7 @@ class BuildDirector:
 
         commands = getattr(self.data.config.build.jobs, job, [])
         for command in commands:
-            environment.run(*command.split(), escape_command=False, cwd=cwd)
+            environment.run(command, escape_command=False, cwd=cwd)
 
     def run_build_commands(self):
         reshim_commands = (
@@ -344,7 +344,7 @@ class BuildDirector:
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.build_environment
         for command in self.data.config.build.commands:
-            environment.run(*command.split(), escape_command=False, cwd=cwd)
+            environment.run(command, escape_command=False, cwd=cwd)
 
             # Execute ``asdf reshim python`` if the user is installing a
             # package since the package may contain an executable
