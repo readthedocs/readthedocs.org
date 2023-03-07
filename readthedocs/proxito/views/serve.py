@@ -547,7 +547,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         ).first()
         version_found = bool(version)
 
-        # Check if an index file exists, redirect to it if so.
+        # If we were able to resolve to a valid version, it means that the
+        # current file doesn't exist. So we check if we can redirect to its
+        # index file if it exists before doing anything else.
         if version:
             response = self._get_index_file_redirect(
                 request=request,
@@ -575,7 +577,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             try:
                 return self.get_redirect_response(request, redirect_path, proxito_path, http_status)
             except InfiniteRedirectException:
-                # Continue with our normal 404 handling in this case
+                # ``get_redirect_response`` raises this when it's redirecting back to itself.
+                # We can safely ignore it here because it's logged in ``canonical_redirect``,
+                # and we don't want to issue infinite redirects.
                 pass
 
         # Register 404 pages into our database for user's analytics
@@ -586,7 +590,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             full_path=proxito_path,
         )
 
-        response = self._serve_custom_404_page(
+        response = self._get_custom_404_page(
             request=request,
             project=final_project,
             version=version,
@@ -655,7 +659,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 full_path=full_path,
             )
 
-    def _serve_custom_404_page(self, request, project, version=None):
+    def _get_custom_404_page(self, request, project, version=None):
         """
         Try to serve a custom 404 page from this project.
 
@@ -760,6 +764,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         filename = None
         lang_slug = None
         version_slug = None
+        # Try to map the current path to a project/version/filename.
+        # If that fails, we fill the variables with the information we have
+        # available in the exceptions.
         try:
             unresolved = unresolver.unresolve_path(
                 unresolved_domain=unresolved_domain,
@@ -792,9 +799,13 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             version_slug=version_slug,
         )
 
+        # TODO: find a better way to pass this to the middleware.
         request.path_project_slug = project.slug
         request.path_version_slug = version_slug
 
+        # If we were able to resolve to a valid version, it means that the
+        # current file doesn't exist. So we check if we can redirect to its
+        # index file if it exists before doing anything else.
         if version:
             response = self._get_index_file_redirect(
                 request=request,
@@ -823,7 +834,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                     request, redirect_path, path, http_status
                 )
             except InfiniteRedirectException:
-                # Continue with our normal 404 handling in this case
+                # ``get_redirect_response`` raises this when it's redirecting back to itself.
+                # We can safely ignore it here because it's logged in ``canonical_redirect``,
+                # and we don't want to issue infinite redirects.
                 pass
 
         # Register 404 pages into our database for user's analytics
@@ -834,7 +847,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             full_path=path,
         )
 
-        response = self._serve_custom_404_page(
+        response = self._get_custom_404_page(
             request=request,
             project=project,
             version=version,
