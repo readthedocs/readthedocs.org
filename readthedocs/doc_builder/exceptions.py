@@ -54,10 +54,10 @@ class BuildUserError(BuildBaseException):
     )
     PDF_COMMAND_FAILED = gettext_noop(
         "PDF generation failed. "
-        "Please double check the command's output looking for errors and fix them. "
-        "Note it's possible the PDF has been always failing silently in your project, "
-        "but due to latest changes, "
-        "Read the Docs now makes it explicit and fail the whole build."
+        "The build log below contains information on what errors caused the failure." 
+        "Our code has recently changed to fail the entire build on PDF errors, "
+        "where we used to pass the build when a PDF was created."
+        "Please contact us if you need help understanding this error."
     )
 
 
