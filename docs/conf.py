@@ -67,7 +67,7 @@ templates_path = ["_templates"]
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "9.7.0"
+version = "9.8.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
@@ -150,6 +150,9 @@ html_static_path = ["_static", f"{docset}/_static"]
 html_css_files = ["css/custom.css", "css/sphinx_prompt_css.css"]
 html_js_files = ["js/expand_tabs.js"]
 
+if os.environ.get("READTHEDOCS_VERSION_TYPE") == "external":
+    html_js_files.append("js/readthedocs-doc-diff.js")
+
 html_logo = "img/logo.svg"
 html_theme_options = {
     "logo_only": True,
@@ -160,6 +163,8 @@ html_context = {
     # TODO: remove once we support different rtd config
     # files per project.
     "conf_py_path": f"/docs/{docset}/",
+    # Use to generate the Plausible "data-domain" attribute from the template
+    "plausible_domain": f"{os.environ.get('READTHEDOCS_PROJECT')}.readthedocs.io",
 }
 
 hoverxref_auto_ref = True

@@ -27,7 +27,7 @@ async-timeout==4.0.2
     # via
     #   -r requirements/pip.txt
     #   redis
-babel==2.11.0
+babel==2.12.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
@@ -35,11 +35,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.79
+boto3==1.26.84
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.79
+botocore==1.29.84
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -78,7 +78,7 @@ click-repl==0.2.0
     # via
     #   -r requirements/pip.txt
     #   celery
-cryptography==39.0.1
+cryptography==39.0.2
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -186,13 +186,13 @@ dparse==0.6.2
     # via -r requirements/pip.txt
 drf-extensions==0.7.1
     # via -r requirements/pip.txt
-drf-flex-fields==1.0.0
+drf-flex-fields==1.0.1
     # via -r requirements/pip.txt
 elasticsearch==7.17.9
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==7.4.0
+elasticsearch-dsl==7.4.1
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -266,7 +266,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.6
+orjson==3.8.7
     # via -r requirements/pip.txt
 packaging==23.0
     # via
@@ -277,13 +277,13 @@ packaging==23.0
     #   sphinx
 pep8-naming==0.10.0
     # via prospector
-platformdirs==3.0.0
+platformdirs==3.1.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
 poetry-semver==0.1.0
     # via requirements-detector
-prompt-toolkit==3.0.37
+prompt-toolkit==3.0.38
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -344,7 +344,6 @@ python3-openid==3.2.0
 pytz==2022.7.1
     # via
     #   -r requirements/pip.txt
-    #   babel
     #   celery
     #   django
     #   djangorestframework
@@ -477,7 +476,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.19.0
+virtualenv==20.20.0
     # via -r requirements/pip.txt
 wcwidth==0.2.6
     # via
@@ -487,7 +486,7 @@ websocket-client==1.5.1
     # via
     #   -r requirements/pip.txt
     #   docker
-wrapt==1.14.1
+wrapt==1.15.0
     # via astroid
 
 # The following packages are considered to be unsafe in a requirements file:

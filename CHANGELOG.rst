@@ -1,5 +1,39 @@
+Version 9.8.0
+-------------
+
+:Date: March 07, 2023
+
+* `@humitos <https://github.com/humitos>`__: Downloadable artifacts: make PDF and ePub opt-in by default (`#10115 <https://github.com/readthedocs/readthedocs.org/pull/10115>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: cacheops right model (`#10111 <https://github.com/readthedocs/readthedocs.org/pull/10111>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: fix term reference (`#10110 <https://github.com/readthedocs/readthedocs.org/pull/10110>`__)
+* `@humitos <https://github.com/humitos>`__: Development: allow to define the logging level via an env variable (`#10109 <https://github.com/readthedocs/readthedocs.org/pull/10109>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: cheat `job_status` view to return `finished` after 5 polls (`#10107 <https://github.com/readthedocs/readthedocs.org/pull/10107>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: use cacheops for 2 more models (`#10106 <https://github.com/readthedocs/readthedocs.org/pull/10106>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10104 <https://github.com/readthedocs/readthedocs.org/pull/10104>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove unused tests (`#10099 <https://github.com/readthedocs/readthedocs.org/pull/10099>`__)
+* `@stsewd <https://github.com/stsewd>`__: Canonical redirects: check if the project supports custom domains (`#10098 <https://github.com/readthedocs/readthedocs.org/pull/10098>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix .com tests (`#10097 <https://github.com/readthedocs/readthedocs.org/pull/10097>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix migration (`#10096 <https://github.com/readthedocs/readthedocs.org/pull/10096>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Move a reference and remove an empty paranthesis (`#10093 <https://github.com/readthedocs/readthedocs.org/pull/10093>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Update documentation for search.ignore (`#10091 <https://github.com/readthedocs/readthedocs.org/pull/10091>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Fix intersphinx references to myst-parser (updated in myst-parser 0.19) (`#10090 <https://github.com/readthedocs/readthedocs.org/pull/10090>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update changelog with security fixes (`#10088 <https://github.com/readthedocs/readthedocs.org/pull/10088>`__)
+* `@humitos <https://github.com/humitos>`__: Analytics: add Plausible to our dashboard (`#10087 <https://github.com/readthedocs/readthedocs.org/pull/10087>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: add Plausible (`#10086 <https://github.com/readthedocs/readthedocs.org/pull/10086>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: refactor canonical redirects (`#10069 <https://github.com/readthedocs/readthedocs.org/pull/10069>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: simplify caching logic (`#10067 <https://github.com/readthedocs/readthedocs.org/pull/10067>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add X-Content-Type-Options as a custom domain header (`#10062 <https://github.com/readthedocs/readthedocs.org/pull/10062>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito V2 (`#10044 <https://github.com/readthedocs/readthedocs.org/pull/10044>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: adapt unresolver to make it usable for proxito (`#10037 <https://github.com/readthedocs/readthedocs.org/pull/10037>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add beta version of doc diff library for testing (`#9546 <https://github.com/readthedocs/readthedocs.org/pull/9546>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Support the new Google analytics gtag.js (`#7691 <https://github.com/readthedocs/readthedocs.org/pull/7691>`__)
+
 Version 9.7.0
 -------------
+
+**This release contains one security fix. For more information, see:**
+
+- `GHSA-h4cf-8gv8-4chf <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-h4cf-8gv8-4chf>`__
 
 :Date: February 28, 2023
 
@@ -49,6 +83,10 @@ Version 9.6.0
 Version 9.5.0
 -------------
 
+**This release contains one security fix. For more information, see:**
+
+- `GHSA-mp38-vprc-7hf5 <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-mp38-vprc-7hf5>`__
+
 :Date: February 13, 2023
 
 * `@agjohnson <https://github.com/agjohnson>`__: Bump to latest common (`#10019 <https://github.com/readthedocs/readthedocs.org/pull/10019>`__)
@@ -80,6 +118,10 @@ Version 9.5.0
 
 Version 9.4.0
 -------------
+
+**This release contains one security fix. For more information, see:**
+
+- `GHSA-5w8m-r7jm-mhp9 <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-5w8m-r7jm-mhp9>`__
 
 :Date: February 07, 2023
 
