@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import django_dynamic_fixture as fixture
 from unittest import mock
 from django import urls

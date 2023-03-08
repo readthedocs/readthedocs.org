@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Tests For SVN."""
 
 from django.test import TestCase

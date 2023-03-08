@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.test import TestCase, override_settings
 
 from readthedocs.core.utils.extend import (

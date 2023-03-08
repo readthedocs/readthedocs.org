@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """Conditional classes for OAuth services."""
 

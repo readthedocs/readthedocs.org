@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """Add feature for allowing access to deprecated webhook endpoints."""
 
