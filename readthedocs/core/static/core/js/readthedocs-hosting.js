@@ -50,7 +50,10 @@ window.addEventListener("load", (event) => {
         injectExternalVersionWarning();
 
         if (READTHEDOCS_DATA.features.docdiff.enabled === true) {
-            injectDocDiff();
+            if(!window.location.pathname.endsWith("search.html")) {
+                // Avoid injecting doc-diff on search page because it doesn't make sense
+                injectDocDiff();
+            }
         }
     }
     injectOldVersionWarning();
