@@ -1041,6 +1041,10 @@ class CommunityBaseSettings(Settings):
             'ops': CACHEOPS_OPS,
             'timeout': CACHEOPS_TIMEOUT,
         },
+        'projects.feature': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
         'projects.projectrelationship': {
             'ops': CACHEOPS_OPS,
             'timeout': CACHEOPS_TIMEOUT,
@@ -1052,6 +1056,18 @@ class CommunityBaseSettings(Settings):
 
         # readthedocs.builds.*
         'builds.version': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.organizations.*
+        'organizations.organization': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.subscriptions.*
+        'subscriptions.planfeature': {
             'ops': CACHEOPS_OPS,
             'timeout': CACHEOPS_TIMEOUT,
         },
