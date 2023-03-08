@@ -20,3 +20,7 @@ let hosting = document.createElement("script");
 hosting.setAttribute("async", "async");
 hosting.setAttribute("src", "/_/static/core/js/readthedocs-hosting.js");
 document.head.appendChild(hosting);
+
+// TODO: insert search-as-you-type once it becomes a JS library
+// decoupled from Sphinx.
+// See https://github.com/readthedocs/readthedocs-sphinx-search/issues/67

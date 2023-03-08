@@ -1,4 +1,6 @@
 function injectExternalVersionWarning() {
+    // TODO: make all these banners (injected HTML) templates that users can override with their own.
+    // This way, we allow customization of the look&feel without compromising the logic.
     let admonition = `
 <div class="admonition warning">
   <p class="admonition-title">Warning</p>
@@ -38,6 +40,8 @@ function injectOldVersionWarning() {
 </div>
 `;
 
+    // Borrowed and adapted from:
+    // https://github.com/readthedocs/readthedocs.org/blob/7ce98a4d4f34a4c1845dc6e3e0e5112af7c39b0c/readthedocs/core/static-src/core/js/doc-embed/version-compare.js#L1
     let main = document.querySelector('[role=main]');
     let node = document.createElement("div");
     node.innerHTML = admonition;
@@ -46,6 +50,9 @@ function injectOldVersionWarning() {
 
 
 window.addEventListener("load", (event) => {
+    // TODO: use the proxied API here
+    // "repository_url" could be retrived using the API, but there are some CORS issues and design decisions
+    // that it's probably smart to avoid and just rely on a fixed value from the build output :)
     if (READTHEDOCS_DATA.build.external_version === true) {
         injectExternalVersionWarning();
 
@@ -57,6 +64,11 @@ window.addEventListener("load", (event) => {
         }
     }
     else {
+        // TODO: there some data we need from `/api/v2/footer_html/`,
+        // like `is_highest` and `show_version_warning`.
+        // However, this call is happening inside the `readthedocs-doc-embed.js`.
+        // We could make the call again here for now as demo,
+        // but it would be good to refactor that code
         // Inject old version warning only for non-external versions
         injectOldVersionWarning();
     }
