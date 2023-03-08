@@ -1,3 +1,5 @@
+"""Renders with some extra capabilities we require for our own purposes."""
+
 import json
 
 from rest_framework.compat import INDENT_SEPARATORS, LONG_SEPARATORS, SHORT_SEPARATORS

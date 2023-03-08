@@ -1,3 +1,10 @@
+"""
+Read the Docs custom static finders.
+
+NOTE: I think we can probably remove it completely,
+since we are not storing these files anymore inside "media/"
+"""
+
 from django.contrib.staticfiles.finders import FileSystemFinder
 
 
