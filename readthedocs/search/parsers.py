@@ -154,7 +154,38 @@ class GenericParser:
                         'content': content,
                     }
                 except Exception as e:
+                    log.info("Unable to index section.", section=str(e))
+
+        dls = body.css("dl")
+        for dl in dls:
+            dts = dl.css("dt")
+
+            for dt in dts:
+                try:
+                    title, id = self._parse_dt(tag)
+                    next_element = dt.next
+                    # We only index a dt with an accompanying dd
+                    if next_element.tag != "dd":
+                        continue
+                    content, _ = self._parse_section_content(next_element, depth=2)
+                    yield {
+                        "id": id,
+                        "title": title,
+                        "content": content,
+                    }
+                except Exception as e:
                     log.info('Unable to index section.', section=str(e))
+
+    def _parse_dt(self, tag):
+        """
+        Parses a definition term <dt>
+        """
+        section_id = tag.attributes.get("id", "")
+        if not section_id:
+            parent = tag.parent
+            section_id = parent.attributes.get("id", "")
+
+        return self._parse_content(tag.text()), section_id
 
     def _get_sections(self, title, body):
         """Get the first `self.max_inner_documents` sections."""
