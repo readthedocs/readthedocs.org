@@ -2,7 +2,7 @@ Build process customization
 ===========================
 
 Read the Docs has a :doc:`well-defined build process </builds>` that works for many projects.
-We also allow customization of builds in primary ways:
+We also allow customization of builds in two ways:
 
 `Extend the build process`_
     Keep using the default build process,
