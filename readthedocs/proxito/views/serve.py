@@ -442,7 +442,7 @@ class ServeDocs(SettingsOverrideObject):
     _default_class = ServeDocsBase
 
 
-class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
+class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
 
     def get(self, request, proxito_path, template_name='404.html'):
         """
@@ -798,10 +798,11 @@ class ServeError404(SettingsOverrideObject):
     _default_class = ServeError404Base
 
 
-class ServeRobotsTXTBase(ServeDocsMixin, View):
+class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
 
     # Always cache this view, since it's the same for all users.
     cache_response = True
+    project_cache_tag = "robots.txt"
 
     def get(self, request):
         """
@@ -894,15 +895,27 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         ]
         return hidden_paths
 
+    def _get_project(self):
+        # Method used by the CDNCacheTagsMixin class.
+        return self.request.unresolved_domain.project
+
+    def _get_version(self):
+        # Method used by the CDNCacheTagsMixin class.
+        # This view isn't explicitly mapped to a version,
+        # but it can be when we serve a custom robots.txt file.
+        # TODO: refactor how we set cache tags to avoid this.
+        return None
+
 
 class ServeRobotsTXT(SettingsOverrideObject):
     _default_class = ServeRobotsTXTBase
 
 
-class ServeSitemapXMLBase(View):
+class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
 
     # Always cache this view, since it's the same for all users.
     cache_response = True
+    project_cache_tag = "sitemap.xml"
 
     def get(self, request):
         """
@@ -1033,6 +1046,16 @@ class ServeSitemapXMLBase(View):
             context,
             content_type='application/xml',
         )
+
+    def _get_project(self):
+        # Method used by the CDNCacheTagsMixin class.
+        return self.request.unresolved_domain.project
+
+    def _get_version(self):
+        # Method used by the CDNCacheTagsMixin class.
+        # This view isn't explicitly mapped to a version,
+        # TODO: refactor how we set cache tags to avoid this.
+        return None
 
 
 class ServeSitemapXML(SettingsOverrideObject):
