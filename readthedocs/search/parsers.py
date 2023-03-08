@@ -438,7 +438,6 @@ class SphinxParser(GenericParser):
         sections = []
         path = ''
         title = ''
-        domain_data = {}
 
         if 'current_page_name' in data:
             path = data['current_page_name']
@@ -466,21 +465,23 @@ class SphinxParser(GenericParser):
                 try:
                     # Create a new html object, since the previous one could have been modified.
                     body = HTMLParser(data["body"])
-                    domain_data = self._generate_domains_data(body)
+                    # domain_data = self._generate_domains_data(body)
                 except Exception:
                     log.info("Unable to index domains.", path=fjson_path)
         else:
             log.info('Unable to index content.', path=fjson_path)
 
         return {
-            'path': path,
-            'title': title,
-            'sections': sections,
-            'domain_data': domain_data,
+            "path": path,
+            "title": title,
+            "sections": sections,
+            "domain_data": {},  # domain_data,
         }
 
     def _get_sphinx_domains(self, body):
         """
+        REMOVING THIS
+
         Get all nodes that are a sphinx domain.
 
         A Sphinx domain is a <dl> tag which contains <dt> tags with an 'id' attribute,
@@ -507,10 +508,9 @@ class SphinxParser(GenericParser):
         # while we migrate the ID type of the sphinx domains table
         # https://github.com/readthedocs/readthedocs.org/pull/9482.
         nodes_to_be_removed = []
-        from readthedocs.projects.models import Feature
 
-        if not self.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
-            nodes_to_be_removed = self._get_sphinx_domains(body)
+        # if not self.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
+        #     nodes_to_be_removed = self._get_sphinx_domains(body)
 
         # TODO: see if we really need to remove these
         # remove `Table of Contents` elements
@@ -524,6 +524,8 @@ class SphinxParser(GenericParser):
 
     def _generate_domains_data(self, body):
         """
+        REMOVING THIS
+
         Generate sphinx domain objects' docstrings.
 
         Returns a dict with the generated data.
