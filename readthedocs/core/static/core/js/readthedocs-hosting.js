@@ -56,5 +56,8 @@ window.addEventListener("load", (event) => {
             }
         }
     }
-    injectOldVersionWarning();
+    else {
+        // Inject old version warning only for non-external versions
+        injectOldVersionWarning();
+    }
 });
