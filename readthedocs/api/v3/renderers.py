@@ -1,10 +1,6 @@
 import json
 
-from rest_framework.compat import (
-    INDENT_SEPARATORS,
-    LONG_SEPARATORS,
-    SHORT_SEPARATORS,
-)
+from rest_framework.compat import INDENT_SEPARATORS, LONG_SEPARATORS, SHORT_SEPARATORS
 from rest_framework.renderers import JSONRenderer
 
 

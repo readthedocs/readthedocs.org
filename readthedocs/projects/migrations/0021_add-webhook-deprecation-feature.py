@@ -3,7 +3,6 @@
 
 from django.db import migrations
 
-
 FEATURE_ID = 'allow_deprecated_webhooks'
 
 

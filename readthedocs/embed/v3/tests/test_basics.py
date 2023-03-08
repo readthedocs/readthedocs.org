@@ -1,9 +1,7 @@
 import pytest
-
 from django.conf import settings
 from django.core.cache import cache
 from django.urls import reverse
-
 
 
 @pytest.mark.django_db

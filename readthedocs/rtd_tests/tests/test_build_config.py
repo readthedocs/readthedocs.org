@@ -6,7 +6,6 @@ from yamale.validators import DefaultValidators, Validator
 
 from readthedocs.config.tests import utils
 
-
 V2_SCHEMA = path.join(
     path.dirname(__file__),
     '../fixtures/spec/v2/schema.yml',

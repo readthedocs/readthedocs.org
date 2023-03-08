@@ -1,7 +1,7 @@
 from readthedocs.doc_builder.backends.mkdocs import (
+    ProxyPythonName,
     yaml_dump_safely,
     yaml_load_safely,
-    ProxyPythonName
 )
 
 content = '''

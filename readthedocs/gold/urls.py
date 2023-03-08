@@ -6,7 +6,6 @@ from django.conf.urls import re_path
 from readthedocs.gold import views
 from readthedocs.projects.constants import PROJECT_SLUG_REGEX
 
-
 urlpatterns = [
     re_path(
         r'^$',

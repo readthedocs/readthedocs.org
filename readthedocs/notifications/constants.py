@@ -3,7 +3,6 @@
 
 from messages_extends import constants as message_constants
 
-
 TEXT = 'txt'
 HTML = 'html'
 

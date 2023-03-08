@@ -1,9 +1,8 @@
 import gc
 import json
+
 import structlog
-
 from django.db import migrations
-
 
 log = structlog.get_logger(__name__)
 

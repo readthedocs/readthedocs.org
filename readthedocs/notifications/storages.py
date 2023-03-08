@@ -10,7 +10,6 @@ from messages_extends.storages import FallbackStorage, PersistentStorage
 
 from .constants import NON_PERSISTENT_MESSAGE_LEVELS
 
-
 try:
     from django.utils import timezone
 except ImportError:

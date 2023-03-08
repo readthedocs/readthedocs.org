@@ -1,7 +1,6 @@
 
-import pytest
 import django_dynamic_fixture as fixture
-
+import pytest
 
 from readthedocs.builds.models import Build
 from readthedocs.doc_builder.environments import DockerBuildEnvironment

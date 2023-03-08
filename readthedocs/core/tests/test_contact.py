@@ -10,14 +10,13 @@ from readthedocs.notifications.backends import SiteBackend
 User = get_user_model()
 
 class TestContactUsers(TestCase):
-
     def setUp(self):
-        self.user = get(User, username='test', email='one@test.com')
-        self.user_two = get(User, username='test2', email='two@test.com')
-        self.user_three = get(User, username='test3', email='three@test.com')
+        self.user = get(User, username="test", email="one@test.com")
+        self.user_two = get(User, username="test2", email="two@test.com")
+        self.user_three = get(User, username="test3", email="three@test.com")
 
-    @mock.patch('readthedocs.core.utils.contact.send_mail')
-    @mock.patch.object(SiteBackend, 'send')
+    @mock.patch("readthedocs.core.utils.contact.send_mail")
+    @mock.patch.object(SiteBackend, "send")
     def test_contact_users_dryrun(self, send_notification, send_mail):
         self.assertEqual(User.objects.all().count(), 3)
         resp = contact_users(
