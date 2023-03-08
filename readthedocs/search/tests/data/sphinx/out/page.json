@@ -38,8 +38,5 @@
       "title": "Subsub title"
     }
   ],
-  "domain_data": {
-    "test_py_module.test.Foo": "Docstring for class Foo. This text tests for the formatting of docstrings generated from output sphinx.ext.autodoc.",
-    "test_py_module.test.Foo.__init__": "Start the Foo. Parameters: qux (string) – The first argument to initialize class. spam (bool) – Spam me yes or no…"
-  }
+  "domain_data": {}
 }
