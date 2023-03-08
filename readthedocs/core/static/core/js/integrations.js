@@ -15,3 +15,8 @@ let analytics = document.createElement("script");
 analytics.setAttribute("async", "async");
 analytics.setAttribute("src", "/_/static/javascript/readthedocs-analytics.js");
 document.head.appendChild(analytics);
+
+let hosting = document.createElement("script");
+hosting.setAttribute("async", "async");
+hosting.setAttribute("src", "/_/static/core/js/readthedocs-hosting.js");
+document.head.appendChild(hosting);
