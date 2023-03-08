@@ -29,7 +29,13 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: 🪄 How-to guides
 
-   /guides/setup.rst
+   /guides/setup/index
+   /guides/build/index
+   /guides/maintenance/index
+   /guides/content/index
+   /guides/access/index
+   /guides/management/index
+   /guides/best-practice/index
    /guides/troubleshooting/index
 
 .. toctree::
