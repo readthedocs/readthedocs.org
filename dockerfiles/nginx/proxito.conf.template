@@ -88,6 +88,13 @@ server {
         proxy_hide_header Content-Security-Policy;
         set $content_security_policy $upstream_http_content_security_policy;
         add_header Content-Security-Policy $content_security_policy always;
+
+        # Inject our own script dynamically
+        # TODO: decide where is the best place to do this
+        sub_filter '</head>' '<script language="javascript" src="http://devthedocs.org/static/core/js/readthedocs-doc-embed.js"></script>\n</head>';
+        # sub_filter_types text/html;
+        sub_filter_last_modified on;
+        sub_filter_once on;
     }
 
     # Serve 404 pages here
