@@ -11,4 +11,4 @@ class Config(AppConfig):
     verbose_name = _("Builds")
 
     def ready(self):
-        import readthedocs.builds.task  # noqa
+        import readthedocs.builds.tasks  # noqa
