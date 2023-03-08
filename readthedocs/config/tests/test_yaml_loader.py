@@ -35,4 +35,3 @@ def test_yaml_load_safely():
 def test_yaml_dump_safely():
     data = yaml_load_safely(content)
     assert yaml_load_safely(yaml_dump_safely(data)) == data
-
