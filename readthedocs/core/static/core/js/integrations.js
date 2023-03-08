@@ -1,5 +1,8 @@
 // Unique entry point that our servers will inject
 
+// TODO: use `READTHEDOCS_DATA.features.hosting.version` to decide
+// what version of these Javascript libraries we need to inject here.
+// See https://github.com/readthedocs/readthedocs.org/issues/9063#issuecomment-1325483505
 let link = document.createElement("link");
 link.setAttribute("rel", "stylesheet");
 link.setAttribute("type", "text/css");
@@ -24,3 +27,7 @@ document.head.appendChild(hosting);
 // TODO: insert search-as-you-type once it becomes a JS library
 // decoupled from Sphinx.
 // See https://github.com/readthedocs/readthedocs-sphinx-search/issues/67
+
+// TODO: find a way to remove the Sphinx default search, since it duplicates the results sometimes.
+// This removal is currently happening at our Sphinx extension:
+// https://github.com/readthedocs/readthedocs-sphinx-ext/blob/7cc1e60f7dcdeb7af35e3479509a621d5bac0976/readthedocs_ext/readthedocs.py#L239
