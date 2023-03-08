@@ -52,6 +52,13 @@ class BuildUserError(BuildBaseException):
         "and it is not currently supported. "
         'Please, remove all the files but the "{artifact_type}" your want to upload.'
     )
+    BUILD_OUTPUT_OLD_DIRECTORY_USED = gettext_noop(
+        "Your project is outputting files to an old directory ('_build/html') "
+        "when building the docs. "
+        "Note this directory is not used anymore and the result may be unexpected. "
+        "Please, check your build process looking for this directory and replace it by "
+        "the path '$READTHEDOCS_OUTPUT/html' instead."
+    )
     PDF_COMMAND_FAILED = gettext_noop(
         "PDF generation failed. "
         "The build log below contains information on what errors caused the failure."
