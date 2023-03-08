@@ -551,6 +551,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         # If we were able to resolve to a valid version, it means that the
         # current file doesn't exist. So we check if we can redirect to its
         # index file if it exists before doing anything else.
+        # This is /en/latest/foo -> /en/latest/foo/index.html.
         if version:
             response = self._get_index_file_redirect(
                 request=request,
@@ -710,7 +711,15 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         return None
 
     def _get_index_file_redirect(self, request, project, version, filename, full_path):
-        """Check if a file is a directory and redirect to its index/README file."""
+        """
+        Check if a file is a directory and redirect to its index/README file.
+
+        For example:
+
+        - /en/latest/foo -> /en/latest/foo/index.html
+        - /en/latest/foo -> /en/latest/foo/README.html
+        - /en/latest/foo/ -> /en/latest/foo/README.html
+        """
         storage_root_path = project.get_storage_path(
             type_="html",
             version_slug=version.slug,
@@ -757,6 +766,9 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         unresolved_domain = request.unresolved_domain
         # We force all storage calls to use the external versions storage,
         # since we are serving an external version.
+        # The version that results from the unresolve_path() call already is
+        # validated to use the correct manager, this is here to add defense in
+        # depth against serving the wrong version.
         if unresolved_domain.is_from_external_domain:
             self.version_type = EXTERNAL
 
@@ -807,6 +819,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         # If we were able to resolve to a valid version, it means that the
         # current file doesn't exist. So we check if we can redirect to its
         # index file if it exists before doing anything else.
+        # This is /en/latest/foo -> /en/latest/foo/index.html.
         if version:
             response = self._get_index_file_redirect(
                 request=request,
