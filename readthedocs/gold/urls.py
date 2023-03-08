@@ -2,7 +2,6 @@
 """Gold subscription URLs."""
 
 from django.conf.urls import re_path
-from django.views.generic.base import TemplateView
 
 from readthedocs.gold import views
 from readthedocs.projects.constants import PROJECT_SLUG_REGEX

@@ -1,4 +1,3 @@
-from unittest import mock
 
 import pytest
 import django_dynamic_fixture as fixture

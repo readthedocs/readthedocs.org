@@ -4,7 +4,6 @@ from django.conf import settings
 from django.core.cache import cache
 from django.urls import reverse
 
-from .utils import srcdir
 
 
 @pytest.mark.django_db
