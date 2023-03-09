@@ -1,5 +1,5 @@
-Best practice
-=============
+How-to guides: best practice
+============================
 
 
 .. seealso:

@@ -29,14 +29,14 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: 🪄 How-to guides
 
-   /guides/setup/index
-   /guides/build/index
-   /guides/maintenance/index
-   /guides/content/index
-   /guides/access/index
-   /guides/management/index
-   /guides/best-practice/index
-   /guides/troubleshooting/index
+   Project setup and configuration </guides/setup/index>
+   Build process </guides/build/index>
+   Upgrading and maintaining projects </guides/maintenance/index>
+   Content, themes and SEO </guides/content/index>
+   Security and access </guides/access/index>
+   Account management </guides/management/index>
+   Best practice </guides/best-practice/index>
+   Troubleshooting problems </guides/troubleshooting/index>
 
 .. toctree::
    :maxdepth: 2
