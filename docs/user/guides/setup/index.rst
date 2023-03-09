@@ -3,10 +3,15 @@ Project setup and configuration
 
 The following how-to guides help you solve common tasks and challenges in the setup and configuration stages.
 
+⏩️ :doc:`Connect your Read the Docs account to your Git provider </guides/connecting-git-account>`
+    Steps to connect an account on |git_providers_or| with your Read the Docs account
+
+
 .. seealso::
 
    :doc:`/tutorial/index`
       All you need to know to get started.
+
 
 .. toctree::
    :maxdepth: 1
