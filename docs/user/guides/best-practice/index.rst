@@ -10,12 +10,12 @@ we have become familiar with a number of methods that work well and which we con
     Here is a set of best practices explaining and addressing these challenges.
 
 ⏩️ :doc:`Deprecating content </guides/deprecating-content>`
-    Best practice for removing or deprecate documentation content.
+    Best practice for removing or deprecating documentation content.
 
 ⏩️ :doc:`Create reproducible builds </guides/reproducible-builds>`
     Using Sphinx, themes and extensions means that your documentation project needs to fetch a set of dependencies,
     each with a special version.
-    Over time, this often means that documentation projects suddenly start breaking.
+    Over time, using an unspecified version means that documentation projects suddenly start breaking.
     In this guide,
     you learn how to secure your project against sudden breakage.
     **This is one of our most popular guides!**

@@ -4,7 +4,7 @@ How-to guides: upgrading and maintaining projects
 ⏩️ :doc:`Create reproducible builds </guides/reproducible-builds>`
     Using Sphinx, themes and extensions means that your documentation project needs to fetch a set of dependencies,
     each with a special version.
-    Over time, this often means that documentation projects suddenly start breaking.
+    Over time, using an unspecified version means that documentation projects suddenly start breaking.
     In this guide,
     you learn how to secure your project against sudden breakage.
     **This is one of our most popular guides!**
