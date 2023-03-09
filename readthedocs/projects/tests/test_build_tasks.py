@@ -782,6 +782,13 @@ class TestBuildTask(BuildEnvironmentBase):
                     cwd=mock.ANY,
                     record=False,
                 ),
+                mock.call(
+                    "test",
+                    "-x",
+                    "_build/html",
+                    record=False,
+                    cwd=mock.ANY,
+                ),
                 # FIXME: I think we are hitting this issue here:
                 # https://github.com/pytest-dev/pytest-mock/issues/234
                 mock.call("lsb_release", "--description", record=False, demux=True),
@@ -805,14 +812,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "json",
                     record=False,
                     demux=True,
-                ),
-                mock.call(
-                    "test",
-                    "-x",
-                    "_build/html",
-                    record=False,
-                    demux=True,
-                    cwd=mock.ANY,
                 ),
             ]
         )
