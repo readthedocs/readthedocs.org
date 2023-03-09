@@ -173,13 +173,21 @@ class SubscriptionViewTests(TestCase):
         customer_retrieve_mock.assert_not_called()
 
     def test_user_with_canceled_subscription(self):
-        self.subscription.status = 'canceled'
-        self.stripe_subscription.status = SubscriptionStatus.canceled
-        self.stripe_subscription.save()
-        self.subscription.save()
-        resp = self.client.get(reverse('subscription_detail', args=[self.organization.slug]))
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(resp.context["stripe_subscription"], self.stripe_subscription)
-        # The Manage Subscription form isn't shown, but the Subscribe is.
-        self.assertNotContains(resp, 'Manage Subscription')
-        self.assertContains(resp, 'Create Subscription')
+        for status in [
+            SubscriptionStatus.canceled,
+            SubscriptionStatus.incomplete_expired,
+        ]:
+            self.subscription.status = status
+            self.stripe_subscription.status = status
+            self.stripe_subscription.save()
+            self.subscription.save()
+            resp = self.client.get(
+                reverse("subscription_detail", args=[self.organization.slug])
+            )
+            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(
+                resp.context["stripe_subscription"], self.stripe_subscription
+            )
+            # The Manage Subscription form isn't shown, but the Subscribe is.
+            self.assertNotContains(resp, "Manage Subscription")
+            self.assertContains(resp, "Create Subscription")

@@ -26,7 +26,7 @@
       </ul>
     {% endif %}
 
-    {% if stripe_subscription.status != 'canceled' %}
+    {% if stripe_subscription.status not in terminal_stripe_status %}
     <dl>
       <dt>{% trans "Plan" %}:</dt>
       <dd>
