@@ -210,6 +210,62 @@ class SearchAPITest(SearchTestBase):
         self.assertEqual(len(results), 2)
         self.assertEqual(resp.data["query"], "test")
 
+    def test_search_project_this_alias(self):
+        resp = self.get(
+            self.url, data={"q": "project:@this test", "project": "project"}
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        projects = resp.data["projects"]
+        results = resp.data["results"]
+        self.assertEqual(
+            projects, [{"slug": "project", "versions": [{"slug": "latest"}]}]
+        )
+        self.assertEqual(len(results), 1)
+        self.assertEqual(resp.data["query"], "test")
+
+    def test_search_project_and_version_this_alias(self):
+        version = get(Version, slug="v2", project=self.project, active=True, built=True)
+        self.create_index(version)
+
+        resp = self.get(
+            self.url,
+            data={"q": "project:@this test", "project": "project", "version": "v2"},
+        )
+        self.assertEqual(resp.status_code, 200)
+        projects = resp.data["projects"]
+        results = resp.data["results"]
+        self.assertEqual(projects, [{"slug": "project", "versions": [{"slug": "v2"}]}])
+        self.assertEqual(len(results), 1)
+        self.assertEqual(resp.data["query"], "test")
+
+    def test_search_project_this_alias_invalid_project_slug(self):
+        resp = self.get(
+            self.url, data={"q": "project:@this test", "project": "not-found"}
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        projects = resp.data["projects"]
+        results = resp.data["results"]
+        self.assertEqual(projects, [])
+        self.assertEqual(results, [])
+
+    def test_search_project_this_alias_invalid_version_slug(self):
+        resp = self.get(
+            self.url,
+            data={
+                "q": "project:@this test",
+                "project": "project",
+                "version": "not-found",
+            },
+        )
+
+        self.assertEqual(resp.status_code, 200)
+        projects = resp.data["projects"]
+        results = resp.data["results"]
+        self.assertEqual(projects, [])
+        self.assertEqual(results, [])
+
     def test_search_user_me_anonymous_user(self):
         self.client.logout()
         resp = self.get(self.url, data={"q": "user:@me test"})

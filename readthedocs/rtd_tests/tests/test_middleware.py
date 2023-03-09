@@ -215,6 +215,15 @@ class TestCORSMiddleware(TestCase):
         self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
+    def test_search_api_v3(self):
+        resp = self.client.get(
+            "/api/v3/search/",
+            {"q": "project:docs test"},
+            HTTP_ORIGIN="http://my.valid.domain",
+        )
+        self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
+
 
 class TestSessionMiddleware(TestCase):
 

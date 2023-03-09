@@ -77,12 +77,12 @@ class GlobalSearchView(TemplateView):
             language=self.request.GET.get("language"),
         )
         if user_input.type == "file":
-            context.update(self._searh_files())
+            context.update(self._search_files())
         else:
             context.update(self._search_projects(user_input, self.request))
         return context
 
-    def _searh_files(self):
+    def _search_files(self):
         results, facets = [], {}
         search_query = ""
         total_count = 0

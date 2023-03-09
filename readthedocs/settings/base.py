@@ -774,6 +774,7 @@ class CommunityBaseSettings(Settings):
             |/api/v2/docsearch
             |/api/v2/embed
             |/api/v3/embed
+            |/api/v3/search
             |/api/v2/sustainability
         )
         """,

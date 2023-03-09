@@ -18,6 +18,9 @@ API v3
    .. Request
 
    :query q: Search query (see :doc:`/server-side-search/syntax`)
+   :query project: Project slug to be used when a query includes the ``@this`` alias.
+   :query version: Version slug to be used when a query includes the ``@this`` alias,
+    If only the project is given, ``@this`` will use the default version of the project.
    :query page: Jump to a specific page
    :query page_size: Limits the results per page, default is 50
 

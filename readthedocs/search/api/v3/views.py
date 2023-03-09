@@ -1,3 +1,4 @@
+"""View for the search API v3."""
 from functools import cached_property
 
 import structlog
@@ -44,9 +45,15 @@ class SearchAPI(APIv3Settings, GenericAPIView):
     Required query parameters:
 
     - **q**: [Search term](https://docs.readthedocs.io/page/server-side-search/syntax.html).
+    - **project**: Project slug to be used when a query includes the `@this` alias.
+    - **version**: Version slug to be used when a query includes the `@this` alias.
+      If only the project is given, `@this` will use the default version of the project.
 
-    Check our [docs](https://docs.readthedocs.io/page/server-side-search/api.html) for more information.
-    """  # noqa
+    Check our [docs](https://docs.readthedocs.io/page/server-side-search/api.html)
+    for more information.
+    """
+
+    # pylint: enable=line-too-long
 
     http_method_names = ["get"]
     pagination_class = SearchPagination
@@ -84,6 +91,8 @@ class SearchAPI(APIv3Settings, GenericAPIView):
         search_executor = self.search_executor_class(
             request=self.request,
             query=self.request.GET["q"],
+            current_project_slug=self.request.GET.get("project"),
+            current_version_slug=self.request.GET.get("version"),
         )
         return search_executor
 
@@ -113,6 +122,7 @@ class SearchAPI(APIv3Settings, GenericAPIView):
 
         return search
 
+    # pylint: disable=unused-argument
     def get(self, request, *args, **kwargs):
         self._validate_query_params()
         result = self.list()

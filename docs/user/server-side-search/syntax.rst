@@ -59,6 +59,31 @@ user
 
    - ``user:@me test``
 
+Aliases
+~~~~~~~
+
+Some parameters support aliases as their values,
+aliases start with `@`.
+
+Depending on the context of the query, some aliases are available:
+
+@me
+   The current user.
+   This is only available when using the search API while authenticated.
+
+   Examples:
+
+   -  ``user:@me test``
+
+@this
+   The project and version of the current page.
+   This is only available when the current version and project are included in the API call.
+
+   Examples:
+
+   -  ``project:@this test``
+   -  ``subprojects:@this test``
+
 Permissions
 ~~~~~~~~~~~
 

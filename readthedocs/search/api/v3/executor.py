@@ -1,3 +1,4 @@
+"""Parse a search query and execute it."""
 from functools import cached_property
 from itertools import islice
 
@@ -17,6 +18,10 @@ class SearchExecutor:
     :param default_all: If `True` and `arguments_required` is `False`
      we search all projects by default, otherwise we search all projects
      the user has access to.
+    :param current_project_slug: The slug of the current project,
+     this value is uesd when using the `@this` syntax.
+    :param current_version_slug: The slug of the current version,
+     this value is uesd when using the `@this` syntax.
     :param max_projects: The maximum number of projects used in the search.
      This limit is only applied for projects given explicitly,
      not when we default to search all projects.
@@ -29,6 +34,8 @@ class SearchExecutor:
         query,
         arguments_required=True,
         default_all=False,
+        current_project_slug=None,
+        current_version_slug=None,
         max_projects=100
     ):
         self.request = request
@@ -36,6 +43,8 @@ class SearchExecutor:
         self.arguments_required = arguments_required
         self.default_all = default_all
         self.max_projects = max_projects
+        self.current_project_slug = current_project_slug
+        self.current_version_slug = current_version_slug
 
     @cached_property
     def projects(self):
@@ -156,6 +165,7 @@ class SearchExecutor:
             if version and self._has_permission(self.request.user, version):
                 yield subproject, version
 
+    # pylint: disable=no-self-use, unused-argument
     def _has_permission(self, user, version):
         """
         Check if `user` is authorized to access `version`.
@@ -214,7 +224,12 @@ class SearchExecutor:
         return parts[0], None
 
     def _get_project_and_version(self, value):
-        project_slug, version_slug = self._split_project_and_version(value)
+        if value == "@this":
+            project_slug = self.current_project_slug
+            version_slug = self.current_version_slug
+        else:
+            project_slug, version_slug = self._split_project_and_version(value)
+
         project = Project.objects.filter(slug=project_slug).first()
         if not project:
             return None, None
