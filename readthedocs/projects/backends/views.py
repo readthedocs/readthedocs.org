@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """
 Project views loaded by configuration settings.

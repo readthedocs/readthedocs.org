@@ -754,6 +754,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     self.update_build(state=BUILD_STATE_BUILDING)
                     self.data.build_director.build()
             finally:
+                self.data.build_director.check_old_output_directory()
                 self.data.build_data = self.collect_build_data()
 
         # At this point, the user's build already succeeded.
