@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from os import path
 
 import pytest
@@ -6,7 +5,6 @@ import yamale
 from yamale.validators import DefaultValidators, Validator
 
 from readthedocs.config.tests import utils
-
 
 V2_SCHEMA = path.join(
     path.dirname(__file__),

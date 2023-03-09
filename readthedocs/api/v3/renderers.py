@@ -1,10 +1,8 @@
+"""Renders with some extra capabilities we require for our own purposes."""
+
 import json
 
-from rest_framework.compat import (
-    INDENT_SEPARATORS,
-    LONG_SEPARATORS,
-    SHORT_SEPARATORS,
-)
+from rest_framework.compat import INDENT_SEPARATORS, LONG_SEPARATORS, SHORT_SEPARATORS
 from rest_framework.renderers import JSONRenderer
 
 
@@ -25,7 +23,7 @@ class AlphabeticalSortedJSONRenderer(JSONRenderer):
           - sort_keys=True on json.dumps
           - use str instead of six.text_types
 
-        https://github.com/encode/django-rest-framework/blob/master/rest_framework/renderers.py#L89
+        https://github.com/encode/django-rest-framework/blob/b7523f4/rest_framework/renderers.py#L84
         """
         if data is None:
             return bytes()

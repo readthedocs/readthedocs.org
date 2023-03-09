@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 import django.contrib.sites.models
 from django.db import migrations, models

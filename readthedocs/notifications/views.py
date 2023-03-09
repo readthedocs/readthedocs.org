@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """Django views for the notifications app."""
 from django.contrib import admin, messages
