@@ -889,7 +889,6 @@ class TestBuildTask(BuildEnvironmentBase):
             [
                 mock.call("asdf", "install", "python", python_version),
                 mock.call("asdf", "global", "python", python_version),
-                mock.call("asdf", "reshim", "python", record=False),
                 mock.call(
                     "python",
                     "-mpip",
@@ -900,13 +899,10 @@ class TestBuildTask(BuildEnvironmentBase):
                 ),
                 mock.call("asdf", "install", "nodejs", nodejs_version),
                 mock.call("asdf", "global", "nodejs", nodejs_version),
-                mock.call("asdf", "reshim", "nodejs", record=False),
                 mock.call("asdf", "install", "rust", rust_version),
                 mock.call("asdf", "global", "rust", rust_version),
-                mock.call("asdf", "reshim", "rust", record=False),
                 mock.call("asdf", "install", "golang", golang_version),
                 mock.call("asdf", "global", "golang", golang_version),
-                mock.call("asdf", "reshim", "golang", record=False),
                 mock.ANY,
             ]
         )
@@ -988,7 +984,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     record=False,
                 ),
                 mock.call("asdf", "global", "python", python_version),
-                mock.call("asdf", "reshim", "python", record=False),
                 mock.call(
                     "mv",
                     mock.ANY,
@@ -996,7 +991,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     record=False,
                 ),
                 mock.call("asdf", "global", "nodejs", nodejs_version),
-                mock.call("asdf", "reshim", "nodejs", record=False),
                 mock.call(
                     "mv",
                     mock.ANY,
@@ -1004,7 +998,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     record=False,
                 ),
                 mock.call("asdf", "global", "rust", rust_version),
-                mock.call("asdf", "reshim", "rust", record=False),
                 mock.call(
                     "mv",
                     mock.ANY,
@@ -1012,7 +1005,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     record=False,
                 ),
                 mock.call("asdf", "global", "golang", golang_version),
-                mock.call("asdf", "reshim", "golang", record=False),
                 mock.ANY,
             ]
         )
@@ -1046,7 +1038,6 @@ class TestBuildTask(BuildEnvironmentBase):
             [
                 mock.call("asdf", "install", "python", python_version),
                 mock.call("asdf", "global", "python", python_version),
-                mock.call("asdf", "reshim", "python", record=False),
                 mock.call(
                     "python",
                     "-mpip",
@@ -1061,14 +1052,6 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call(
                     "pip install pelican[markdown]",
                     escape_command=False,
-                    cwd=mock.ANY,
-                ),
-                mock.call(
-                    "asdf",
-                    "reshim",
-                    "python",
-                    escape_command=False,
-                    record=False,
                     cwd=mock.ANY,
                 ),
                 mock.call(
@@ -1194,7 +1177,6 @@ class TestBuildTask(BuildEnvironmentBase):
             [
                 mock.call("asdf", "install", "python", "mambaforge-4.10.3-10"),
                 mock.call("asdf", "global", "python", "mambaforge-4.10.3-10"),
-                mock.call("asdf", "reshim", "python", record=False),
                 mock.call(
                     "mamba",
                     "env",

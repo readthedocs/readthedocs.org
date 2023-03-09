@@ -1,3 +1,5 @@
+"""Build process director."""
+
 import os
 import tarfile
 
@@ -357,33 +359,10 @@ class BuildDirector:
             raise BuildUserError(BuildUserError.BUILD_OUTPUT_OLD_DIRECTORY_USED)
 
     def run_build_commands(self):
-        reshim_commands = (
-            {"pip", "install"},
-            {"conda", "create"},
-            {"conda", "install"},
-            {"mamba", "create"},
-            {"mamba", "install"},
-            {"poetry", "install"},
-        )
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.build_environment
         for command in self.data.config.build.commands:
             environment.run(command, escape_command=False, cwd=cwd)
-
-            # Execute ``asdf reshim python`` if the user is installing a
-            # package since the package may contain an executable
-            # See https://github.com/readthedocs/readthedocs.org/pull/9150#discussion_r882849790
-            for reshim_command in reshim_commands:
-                # Convert tuple/list into set to check reshim command is a
-                # subset of the command itself. This is to find ``pip install``
-                # but also ``pip -v install`` and ``python -m pip install``
-                if reshim_command.issubset(command.split()):
-                    environment.run(
-                        *["asdf", "reshim", "python"],
-                        escape_command=False,
-                        cwd=cwd,
-                        record=False,
-                    )
 
         html_output_path = os.path.join(cwd, BUILD_COMMANDS_OUTPUT_PATH_HTML)
         if not os.path.exists(html_output_path):
