@@ -1088,12 +1088,12 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
 
     ACTIONS = (
-        (ACTIVATE_VERSION_ACTION, _('Activate version')),
-        (HIDE_VERSION_ACTION, _('Hide version')),
-        (MAKE_VERSION_PUBLIC_ACTION, _('Make version public')),
-        (MAKE_VERSION_PRIVATE_ACTION, _('Make version private')),
-        (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
-        (DELETE_VERSION_ACTION, _('Delete version')),
+        (ACTIVATE_VERSION_ACTION, _("Activate version")),
+        (HIDE_VERSION_ACTION, _("Hide version")),
+        (MAKE_VERSION_PUBLIC_ACTION, _("Make version public")),
+        (MAKE_VERSION_PRIVATE_ACTION, _("Make version private")),
+        (SET_DEFAULT_VERSION_ACTION, _("Set version as default")),
+        (DELETE_VERSION_ACTION, _("Delete version")),
     )
 
     allowed_actions_on_create = {}
