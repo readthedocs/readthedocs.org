@@ -1394,7 +1394,7 @@ def load(path, env_config, config_file=None):
         if not filename:
             # This exception is current caught higher up and will result in an attempt
             # to load the v1 config schema.
-            raise DefaultConfigFileNotFound(os.path.relpath(filename, path))
+            raise DefaultConfigFileNotFound(path)
     else:
         filename = os.path.join(path, config_file)
         # When a config file is specified and not found, we raise ConfigError
