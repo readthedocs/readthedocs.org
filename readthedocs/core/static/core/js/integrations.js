@@ -1,5 +1,15 @@
 // Unique entry point that our servers will inject
 
+// Load Read the Docs data first
+// This data is generated at build time by the doctool
+fetch("/en/manual-integration-docsify/readthedocs-data.html", {method: 'GET'})
+    .then(response => {
+        return response.text();
+    })
+    .then(text => {
+        document.head.insertAdjacentHTML("beforeend", text);
+    });
+
 // TODO: use `READTHEDOCS_DATA.features.hosting.version` to decide
 // what version of these Javascript libraries we need to inject here.
 // See https://github.com/readthedocs/readthedocs.org/issues/9063#issuecomment-1325483505
