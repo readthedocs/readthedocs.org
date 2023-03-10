@@ -639,8 +639,6 @@ class BuildDirector:
             ),
             "readthedocs-build.yaml",
         )
-        log.warning(yaml_path)
-        data = yaml.safe_load(open(yaml_path, "r"))
 
         try:
             log.warning(yaml_path)
