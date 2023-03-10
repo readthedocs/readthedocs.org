@@ -14,8 +14,8 @@ How-to guides: security and access
     When using an :doc:`organization </commercial/organizations>` on  |com_brand|,
     it's possible to create different teams with custom access levels.
 
-⏩️ :doc:`Import private repositories </guides/importing-private-repositories>`
-    You can grant access to private Git repositories using |com_brand|.
+⏩️ :doc:`Manually import private repositories </guides/importing-private-repositories>`
+    You can grant access to private Git repositories using |com_brand| using a custom process if required.
     Here is how you set it up.
 
 ⏩️ :doc:`Use private Git submodules </guides/private-submodules>`

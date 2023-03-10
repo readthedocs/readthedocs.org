@@ -4,7 +4,7 @@ How-to guides: troubleshooting problems
 In the following guides,
 you can learn how to fix common problems using Read the Docs.
 
-⏩️ :doc:`../build-troubleshooting`
+⏩️ :doc:`/guides/build-troubleshooting`
     A list of common errors and resolutions encountered in the :doc:`build process </builds>`.
 
 ⏩️ :doc:`../build-using-too-many-resources`

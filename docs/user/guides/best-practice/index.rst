@@ -1,5 +1,5 @@
-How-to guides: best practice
-============================
+How-to guides: best practices
+=============================
 
 Over the years,
 we have become familiar with a number of methods that work well and which we consider **best practice**.
@@ -12,20 +12,19 @@ we have become familiar with a number of methods that work well and which we con
 ⏩️ :doc:`Deprecating content </guides/deprecating-content>`
     Best practice for removing or deprecating documentation content.
 
-⏩️ :doc:`Create reproducible builds </guides/reproducible-builds>`
-    Using Sphinx, themes and extensions means that your documentation project needs to fetch a set of dependencies,
-    each with a special version.
-    Over time, using an unspecified version means that documentation projects suddenly start breaking.
+⏩️ :doc:`Creating reproducible builds </guides/reproducible-builds>`
+    Every documentation project has dependencies that are required to build it.
+    Using an unspecified versions of these dependencies means that your project can start breaking.
     In this guide,
-    you learn how to secure your project against sudden breakage.
+    learn how to protect your project against breaking randomly.
     **This is one of our most popular guides!**
 
 ⏩️ :doc:`Search Engine Optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>`
     This article explains how documentation can be optimized to appear in search results,
-    ultimately increasing traffic to your docs.
+    increasing traffic to your docs.
 
-⏩️ :doc:`Hiding a version and keep its documentation online </guides/hiding-a-version>`
-    Learn how you can keep your entire version history online without overwhelming the reader with version choices in the flyout menu.
+⏩️ :doc:`Hiding a version </guides/hiding-a-version>`
+    Learn how you can keep your entire version history online without overwhelming the reader with version choices.
 
 .. toctree::
    :maxdepth: 1
