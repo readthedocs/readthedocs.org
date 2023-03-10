@@ -381,7 +381,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
         # TODO: assert the verb and the path for each API call as well
 
-        # Update build state: clonning
+        # Update build state: cloning
         assert self.requests_mock.request_history[3].json() == {
             "id": 1,
             "state": "cloning",
@@ -396,6 +396,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "state": "installing",
             "commit": "a1b2c3",
             "builder": mock.ANY,
+            "build_config_file": None,
             "error": "",
             # We update the `config` field at the same time we send the
             # `installing` state, to reduce one API call
@@ -440,6 +441,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "id": 1,
             "state": "building",
             "commit": "a1b2c3",
+            "build_config_file": None,
             "config": mock.ANY,
             "builder": mock.ANY,
             "error": "",
@@ -449,6 +451,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "id": 1,
             "state": "uploading",
             "commit": "a1b2c3",
+            "build_config_file": None,
             "config": mock.ANY,
             "builder": mock.ANY,
             "error": "",
@@ -472,6 +475,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "id": 1,
             "state": "finished",
             "commit": "a1b2c3",
+            "build_config_file": None,
             "config": mock.ANY,
             "builder": mock.ANY,
             "length": mock.ANY,

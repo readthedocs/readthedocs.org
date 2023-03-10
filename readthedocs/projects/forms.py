@@ -359,7 +359,8 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         return filename
 
     def clean_build_config_file(self):
-        filename = self.cleaned_data.get("build_config_file", "").strip()
+        filename = self.cleaned_data.get("build_config_file")
+        filename = (filename or "").strip()
         return filename
 
     def get_all_active_versions(self):
