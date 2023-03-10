@@ -691,7 +691,7 @@ class BuildDirector:
             # These can be removed
             "user_analytics_code": None,
             "global_analytics_code": None,
-            "proxied_api_host": settings.DOC_PATH_PREFIX,
+            "proxied_api_host": f"/{settings.DOC_PATH_PREFIX}",
             "subprojects": None,
             # TODO: remove the following ones, they are just my own tests
             # NOTE: eventually, some of these settings should be enabled/disabled by the reader
