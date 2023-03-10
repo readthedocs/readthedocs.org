@@ -1,3 +1,5 @@
+READTHEDOCS_DATA = JSON.parse(document.getElementById('READTHEDOCS_DATA').textContent);
+
 function injectExternalVersionWarning() {
     // TODO: make all these banners (injected HTML) templates that users can override with their own.
     // This way, we allow customization of the look&feel without compromising the logic.
@@ -13,7 +15,7 @@ function injectExternalVersionWarning() {
 </div>
 `;
 
-    let main = document.querySelector('[role=main]');
+    let main = document.querySelector('[role=main]') || document.querySelector('#main');
     let node = document.createElement("div");
     node.innerHTML = admonition;
     main.insertBefore(node, main.firstChild);
@@ -42,7 +44,7 @@ function injectOldVersionWarning() {
 
     // Borrowed and adapted from:
     // https://github.com/readthedocs/readthedocs.org/blob/7ce98a4d4f34a4c1845dc6e3e0e5112af7c39b0c/readthedocs/core/static-src/core/js/doc-embed/version-compare.js#L1
-    let main = document.querySelector('[role=main]');
+    let main = document.querySelector('[role=main]') || document.querySelector('#main');
     let node = document.createElement("div");
     node.innerHTML = admonition;
     main.insertBefore(node, main.firstChild);
