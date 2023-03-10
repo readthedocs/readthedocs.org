@@ -207,7 +207,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             "single_version",
             "external_builds_enabled",
             "external_builds_privacy_level",
-            "rtd_conf_file",
+            "build_config_file",
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -358,15 +358,8 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             )  # yapf: disable
         return filename
 
-    def clean_rtd_conf_file(self):
-        filename = self.cleaned_data.get("rtd_conf_file", "").strip()
-        if filename and ".readthedocs.yml" not in filename:
-            raise forms.ValidationError(
-                _(
-                    "Your configuration file is invalid, make sure it contains "
-                    ".readthedocs.yml in it.",
-                ),
-            )  # yapf: disable
+    def clean_build_config_file(self):
+        filename = self.cleaned_data.get("build_config_file", "").strip()
         return filename
 
     def get_all_active_versions(self):
@@ -391,7 +384,9 @@ class UpdateProjectForm(
         ProjectExtraForm,
 ):
 
-    class Meta:
+    """Basic project settings form for Admin."""
+
+    class Meta:  # noqa
         model = Project
         fields = (
             # Basics
@@ -407,6 +402,7 @@ class UpdateProjectForm(
         )
 
     def clean_language(self):
+        """Ensure that language isn't already active."""
         language = self.cleaned_data['language']
         project = self.instance
         if project:
@@ -540,6 +536,8 @@ class EmailHookForm(forms.Form):
 
 class WebHookForm(forms.ModelForm):
 
+    """Webhook form."""
+
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
@@ -607,6 +605,8 @@ class TranslationBaseForm(forms.Form):
         ) for project in self.get_translation_queryset().all()]
 
     def clean_project(self):
+        """Ensures that selected project is valid as a translation."""
+
         translation_project_slug = self.cleaned_data['project']
 
         # Ensure parent project isn't already itself a translation
@@ -726,6 +726,7 @@ class DomainBaseForm(forms.ModelForm):
         return self.project
 
     def clean_domain(self):
+        """Validates domain."""
         domain = self.cleaned_data['domain'].lower()
         parsed = urlparse(domain)
 
@@ -864,6 +865,7 @@ class EnvironmentVariableForm(forms.ModelForm):
         return self.project
 
     def clean_name(self):
+        """Validate environment variable name chosen."""
         name = self.cleaned_data['name']
         if name.startswith('__'):
             raise forms.ValidationError(

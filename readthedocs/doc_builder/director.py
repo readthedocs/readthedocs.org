@@ -1,3 +1,12 @@
+"""
+The ``director`` module can be seen as the entrypoint of the build process.
+
+It "directs" all of the high-level build jobs:
+
+* checking out the repo
+* setting up the environment
+* fetching instructions etc.
+"""
 import os
 import tarfile
 
@@ -194,17 +203,36 @@ class BuildDirector:
 
     # VCS checkout
     def checkout(self):
-        log.info(
-            "Clonning repository.",
-        )
+        """Checkout Git repo and load build config file."""
+
+        log.info("Cloning repository.")
         self.vcs_repository.update()
 
         identifier = self.data.build_commit or self.data.version.identifier
         log.info("Checking out.", identifier=identifier)
         self.vcs_repository.checkout(identifier)
 
-        self.data.config = load_yaml_config(version=self.data.version)
+        # The director is responsible for understanding which config file to use for a build.
+        # Reproducibility: Build already has a config_file set.
+        non_default_config_file = self.data.build.get("build_config_file", None)
+
+        # This logic can be extended with version-specific config files
+        if not non_default_config_file and self.data.version.project.build_config_file:
+            non_default_config_file = self.data.version.project.build_config_file
+
+        if non_default_config_file:
+            log.info(f"Using a non-default config file {non_default_config_file}.")
+        self.data.config = load_yaml_config(
+            version=self.data.version,
+            config_file=non_default_config_file,
+        )
         self.data.build["config"] = self.data.config.as_dict()
+        self.data.build["build_config_file"] = non_default_config_file
+
+        # Config file was successfully loaded and a custom path was used
+        if non_default_config_file and not self.data.version.build_config_file:
+            self.data.version.build_config_file = non_default_config_file
+            # TODO: Do we call self.data.version.save() here?
 
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)
@@ -357,6 +385,7 @@ class BuildDirector:
             raise BuildUserError(BuildUserError.BUILD_OUTPUT_OLD_DIRECTORY_USED)
 
     def run_build_commands(self):
+        """Runs each build command in the build environment."""
         reshim_commands = (
             {"pip", "install"},
             {"conda", "create"},

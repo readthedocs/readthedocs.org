@@ -33,6 +33,7 @@ class BuildAdmin(admin.ModelAdmin):
         "date",
         "builder",
         "length",
+        "build_config_file",
         "pretty_config",
     )
     readonly_fields = (

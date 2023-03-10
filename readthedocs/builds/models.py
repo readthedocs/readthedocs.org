@@ -65,11 +65,9 @@ from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
     DOCTYPE_CHOICES,
-    GITHUB_BRAND,
     GITHUB_COMMIT_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
     GITHUB_URL,
-    GITLAB_BRAND,
     GITLAB_COMMIT_URL,
     GITLAB_MERGE_REQUEST_COMMIT_URL,
     GITLAB_URL,
@@ -191,6 +189,14 @@ class Version(TimeStampedModel):
     internal = InternalVersionManager.from_queryset(partial(VersionQuerySet, internal_only=True))()
     # Only include EXTERNAL type Versions.
     external = ExternalVersionManager.from_queryset(partial(VersionQuerySet, external_only=True))()
+
+    build_config_file = models.CharField(
+        _("Non-default build configuration file used"),
+        max_length=1024,
+        default=None,
+        blank=True,
+        null=True,
+    )
 
     class Meta:
         unique_together = [('project', 'slug')]
@@ -701,6 +707,13 @@ class Build(models.Model):
         _('Configuration used in the build'),
         null=True,
         blank=True,
+    )
+    build_config_file = models.CharField(
+        _("Non-default build configuration file used"),
+        max_length=1024,
+        default=None,
+        blank=True,
+        null=True,
     )
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)

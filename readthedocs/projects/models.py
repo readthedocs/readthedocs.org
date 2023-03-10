@@ -350,7 +350,7 @@ class Project(models.Model):
     conf_py_file = models.CharField(
         _('Python configuration file'),
         max_length=255,
-        default='',
+        default="",
         blank=True,
         help_text=_(
             "Path from project root to <code>conf.py</code> file "
@@ -358,15 +358,18 @@ class Project(models.Model):
             "Leave blank if you want us to find it for you.",
         ),
     )
-    rtd_conf_file = models.CharField(
-        _(".readthedocs.yml configuration file"),
-        max_length=255,
-        default="",
+
+    build_config_file = models.CharField(
+        _("Build configuration file"),
+        max_length=1024,
+        default=None,
         blank=True,
+        null=True,
         help_text=_(
-            "Path from project root to <code>.readthedocs.yml</code> file "
-            "(ex. <code>docs/.readthedocs.yml</code>). "
-            "Leave blank if you want us to find it for you.",
+            "<strong>Warning: experimental feature</strong>. "
+            "Custom path from repository root to a build configuration file, "
+            "ex. <code>subproject/docs/.readthedocs.yaml</code>. "
+            "Leave blank for default value (<code>.readthedocs.yaml</code>).",
         ),
     )
 
@@ -865,7 +868,7 @@ class Project(models.Model):
         return os.path.join(self.checkout_path(version=version), "_readthedocs", type_)
 
     def conf_file(self, version=LATEST):
-        """Find a ``conf.py`` file in the project checkout."""
+        """Find a Sphinx ``conf.py`` file in the project checkout."""
         if self.conf_py_file:
             conf_path = os.path.join(
                 self.checkout_path(version),

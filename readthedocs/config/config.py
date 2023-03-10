@@ -43,17 +43,18 @@ from .validation import (
 )
 
 __all__ = (
-    'ALL',
-    'load',
-    'BuildConfigV1',
-    'BuildConfigV2',
-    'ConfigError',
-    'ConfigOptionNotSupportedError',
-    'ConfigFileNotFound',
-    'InvalidConfig',
-    'PIP',
-    'SETUPTOOLS',
-    'LATEST_CONFIGURATION_VERSION',
+    "ALL",
+    "load",
+    "BuildConfigV1",
+    "BuildConfigV2",
+    "ConfigError",
+    "ConfigOptionNotSupportedError",
+    "ConfigFileNotFound",
+    "DefaultConfigFileNotFound",
+    "InvalidConfig",
+    "PIP",
+    "SETUPTOOLS",
+    "LATEST_CONFIGURATION_VERSION",
 )
 
 ALL = 'all'
@@ -92,6 +93,17 @@ class ConfigFileNotFound(ConfigError):
     def __init__(self, directory):
         super().__init__(
             f'Configuration file not found in: {directory}',
+            CONFIG_FILE_REQUIRED,
+        )
+
+
+class DefaultConfigFileNotFound(ConfigError):
+
+    """Error when we can't find a configuration file."""
+
+    def __init__(self, directory):
+        super().__init__(
+            f"No default configuration file in: {directory}",
             CONFIG_FILE_REQUIRED,
         )
 
@@ -1377,17 +1389,18 @@ def load(path, env_config, config_file=None):
     the version of the configuration a build object would be load and validated,
     ``BuildConfigV1`` is the default.
     """
-    if config_file is None or config_file == "":
+    if not config_file:
         filename = find_one(path, CONFIG_FILENAME_REGEX)
+        if not filename:
+            # This exception is current caught higher up and will result in an attempt
+            # to load the v1 config schema.
+            raise DefaultConfigFileNotFound(os.path.relpath(filename, path))
     else:
         filename = os.path.join(path, config_file)
+        # When a config file is specified and not found, we raise ConfigError
+        # because ConfigFileNotFound
         if not os.path.exists(filename):
-            raise ConfigError(
-                f".readthedocs.yml not found at {config_file}", CONFIG_FILE_REQUIRED
-            )
-
-    if not filename:
-        raise ConfigFileNotFound(path)
+            raise ConfigFileNotFound(os.path.relpath(filename, path))
 
     # Allow symlinks, but only the ones that resolve inside the base directory.
     with safe_open(

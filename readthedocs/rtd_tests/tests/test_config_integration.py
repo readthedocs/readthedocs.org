@@ -99,7 +99,7 @@ class LoadConfigTests(TestCase):
         load_config.assert_called_once_with(
             path=mock.ANY,
             env_config=expected_env_config,
-            config_file="",
+            config_file=None,
         )
         self.assertEqual(config.python.version, '3')
 
