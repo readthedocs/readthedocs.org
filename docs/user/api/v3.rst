@@ -1291,17 +1291,17 @@ Redirect delete
     :statuscode 204: Redirect deleted successfully
 
 
-Environment Variables
+Environment variables
 ~~~~~~~~~~~~~~~~~~~~~
 
-Environment Variables are variables that you can define for your project.
+Environment variables are variables that you can define for your project.
 These variables are used in the build process when building your documentation.
 They are for example useful to define secrets in a safe way that can be used by your documentation to build properly.
 Environment variables can also be made public, allowing for them to be used in PR builds.
 See :doc:`/environment-variables`.
 
 
-Environment Variable details
+Environment variable details
 ++++++++++++++++++++++++++++
 
 .. http:get:: /api/v3/projects/(str:project_slug)/environmentvariables/(int:environmentvariable_id)/
@@ -1342,7 +1342,7 @@ Environment Variable details
        "name": "ENVVAR"
        }
 
-Environment Variables listing
+Environment variables listing
 +++++++++++++++++++++++++++++
 
 .. http:get:: /api/v3/projects/(str:project_slug)/environmentvariables/
@@ -1377,7 +1377,7 @@ Environment Variables listing
             "results": ["ENVIRONMENTVARIABLE"]
         }
 
-Environment Variable create
+Environment variable create
 +++++++++++++++++++++++++++
 
 .. http:post:: /api/v3/projects/(str:project_slug)/environmentvariables/
@@ -1427,7 +1427,7 @@ Environment Variable create
     :statuscode 201: Environment variable created successfully
 
 
-Environment Variable delete
+Environment variable delete
 +++++++++++++++++++++++++++
 
 .. http:delete:: /api/v3/projects/(str:project_slug)/environmentvariables/(int:environmentvariable_id)/
@@ -1650,14 +1650,14 @@ Organization projects list
        }
 
 
-Remote Organizations
+Remote organizations
 ~~~~~~~~~~~~~~~~~~~~
 
-Remote Organizations are the VCS organizations connected via
-``GitHub``, ``GitLab`` and ``BitBucket``.
+Remote organizations are the VCS organizations connected via
+``GitHub``, ``GitLab`` and ``Bitbucket``.
 
 
-Remote Organization listing
+Remote organization listing
 +++++++++++++++++++++++++++
 
 
@@ -1713,14 +1713,14 @@ Remote Organization listing
     :requestheader Authorization: token to authenticate.
 
 
-Remote Repositories
+Remote repositories
 ~~~~~~~~~~~~~~~~~~~
 
-Remote Repositories are the importable repositories connected via
-``GitHub``, ``GitLab`` and ``BitBucket``.
+Remote repositories are the importable repositories connected via
+``GitHub``, ``GitLab`` and ``Bitbucket``.
 
 
-Remote Repository listing
+Remote repository listing
 +++++++++++++++++++++++++
 
 

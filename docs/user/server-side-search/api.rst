@@ -1,4 +1,4 @@
-Server Side Search API
+Server side search API
 ======================
 
 You can integrate our :doc:`server side search </server-side-search/index>` in your documentation by using our API.
@@ -7,12 +7,7 @@ If you are using :doc:`/commercial/index` you will need to replace
 https://readthedocs.org/ with https://readthedocs.com/ in all the URLs used in the following examples.
 Check :ref:`server-side-search/api:authentication and authorization` if you are using private versions.
 
-.. contents:: Table of contents
-   :local:
-   :backlinks: none
-   :depth: 3
-
-API V3
+API v3
 ------
 
 .. http:get:: /api/v3/search/
@@ -131,7 +126,7 @@ API V3
       }
 
 
-Migrating from API V2
+Migrating from API v2
 ~~~~~~~~~~~~~~~~~~~~~
 
 Instead of using query arguments to specify the project
@@ -171,7 +166,7 @@ To be able to use the user's current session you need to use the API from the do
 This is ``https://docs.readthedocs-hosted.com/_/api/v3/search/``
 for the ``https://docs.readthedocs-hosted.com/`` project, for example.
 
-API V2 (deprecated)
+API v2 (deprecated)
 -------------------
 
 .. note::

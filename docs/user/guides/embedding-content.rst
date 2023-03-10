@@ -1,5 +1,5 @@
-Embedding Content From Your Documentation
-=========================================
+How to embed content from your documentation
+============================================
 
 Read the Docs allows you to embed content from any of the projects we host and specific allowed external domains
 (currently, ``docs.python.org``, ``docs.scipy.org``, ``docs.sympy.org``, ``numpy.org``)

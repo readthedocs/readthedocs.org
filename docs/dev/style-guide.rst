@@ -1,4 +1,4 @@
-Documentation Style Guide
+Documentation style guide
 =========================
 
 This document will serve as the canonical place to define how we write documentation at Read the Docs.
@@ -49,7 +49,7 @@ Content
   * ``:guilabel:`<your username>` dropdown``
 * Make sure that **all bullet list items end with a period**, and don't mix periods with no periods.
 
-Word List
+Word list
 ---------
 
 We have a specific way that we write common words:
@@ -197,7 +197,7 @@ Explanation
 * Consider adding an Examples section.
 * Can you add screenshots or diagrams?
 
-How-to Guides
+How-to guides
 ~~~~~~~~~~~~~
 
 * Title should begin with **“How to ...”**,

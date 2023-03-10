@@ -141,12 +141,6 @@ class Command(BaseCommand):
         elif organization:
             organization = Organization.objects.get(slug=organization)
             users = AdminPermission.owners(organization)
-        elif settings.RTD_ALLOW_ORGANIZATIONS:
-            users = (
-                User.objects
-                .filter(organizationowner__organization__disabled=False)
-                .distinct()
-            )
         elif usernames:
             file = Path(usernames)
             with file.open() as f:
@@ -156,6 +150,10 @@ class Command(BaseCommand):
             usernames = [line.strip() for line in usernames]
 
             users = User.objects.filter(username__in=usernames)
+        elif settings.RTD_ALLOW_ORGANIZATIONS:
+            users = User.objects.filter(
+                organizationowner__organization__disabled=False
+            ).distinct()
         else:
             users = (
                 User.objects

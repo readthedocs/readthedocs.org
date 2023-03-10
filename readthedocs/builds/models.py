@@ -218,6 +218,16 @@ class Version(TimeStampedModel):
         return self.privacy_level == PRIVATE
 
     @property
+    def is_public(self):
+        """
+        Check if the version is public (taking external versions into consideration).
+
+        This is basically ``is_private`` negated,
+        ``is_private`` understands both normal and external versions
+        """
+        return not self.is_private
+
+    @property
     def is_external(self):
         return self.type == EXTERNAL
 
@@ -897,7 +907,7 @@ class Build(models.Model):
                     number=self.get_version_name(),
                     commit=self.commit
                 )
-            # TODO: Add External Version Commit URL for BitBucket.
+            # TODO: Add External Version Commit URL for Bitbucket.
         else:
             if 'github' in repo_url:
                 user, repo = get_github_username_repo(repo_url)

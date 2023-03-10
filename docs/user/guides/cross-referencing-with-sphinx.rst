@@ -29,7 +29,7 @@ with two markup options: reStructuredText and MyST (Markdown).
 - If you are not familiar with reStructuredText,
   check :doc:`sphinx:usage/restructuredtext/basics` for a quick introduction.
 - If you want to learn more about the MyST Markdown dialect,
-  check out :doc:`myst-parser:syntax/syntax`.
+  check out :doc:`myst-parser:syntax/reference`.
 
 .. contents:: Table of contents
    :local:

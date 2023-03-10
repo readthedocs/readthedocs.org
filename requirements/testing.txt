@@ -16,9 +16,13 @@ asgiref==3.6.0
     # via
     #   -r requirements/pip.txt
     #   django
+async-timeout==4.0.2
+    # via
+    #   -r requirements/pip.txt
+    #   redis
 attrs==22.2.0
     # via pytest
-babel==2.11.0
+babel==2.12.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
@@ -26,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.64
+boto3==1.26.84
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.64
+botocore==1.29.84
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -69,9 +73,9 @@ click-repl==0.2.0
     # via
     #   -r requirements/pip.txt
     #   celery
-coverage[toml]==7.1.0
+coverage[toml]==7.2.1
     # via pytest-cov
-cryptography==39.0.0
+cryptography==39.0.2
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -95,18 +99,21 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==3.2.17
+django==3.2.18
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
     #   django-allauth
     #   django-annoying
+    #   django-cacheops
+    #   django-cors-headers
     #   django-csp
     #   django-debug-toolbar
     #   django-extensions
     #   django-filter
     #   django-formtools
     #   django-polymorphic
+    #   django-redis
     #   django-storages
     #   django-structlog
     #   django-taggit
@@ -118,7 +125,9 @@ django-annoying==0.10.6
     # via -r requirements/pip.txt
 django-autoslug==1.9.8
     # via -r requirements/pip.txt
-django-cors-middleware==1.4.0
+django-cacheops==6.2
+    # via -r requirements/pip.txt
+django-cors-headers==3.14.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
@@ -146,6 +155,8 @@ django-messages-extends==0.6.3
     # via -r requirements/pip.txt
 django-polymorphic==3.1.0
     # via -r requirements/pip.txt
+django-redis==5.2.0
+    # via -r requirements/pip.txt
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
 django-storages[boto3]==1.13.2
@@ -172,13 +183,13 @@ dparse==0.6.2
     # via -r requirements/pip.txt
 drf-extensions==0.7.1
     # via -r requirements/pip.txt
-drf-flex-fields==1.0.0
+drf-flex-fields==1.0.1
     # via -r requirements/pip.txt
 elasticsearch==7.17.9
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==7.4.0
+elasticsearch-dsl==7.4.1
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -188,11 +199,15 @@ filelock==3.9.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
+funcy==1.18
+    # via
+    #   -r requirements/pip.txt
+    #   django-cacheops
 gitdb==4.0.10
     # via
     #   -r requirements/pip.txt
     #   gitpython
-gitpython==3.1.30
+gitpython==3.1.31
     # via -r requirements/pip.txt
 gunicorn==20.1.0
     # via -r requirements/pip.txt
@@ -233,13 +248,13 @@ markupsafe==2.1.2
     # via
     #   -r requirements/pip.txt
     #   jinja2
-mercurial==6.3.2
+mercurial==6.3.3
     # via -r requirements/testing.in
 oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.5
+orjson==3.8.7
     # via -r requirements/pip.txt
 packaging==23.0
     # via
@@ -248,13 +263,13 @@ packaging==23.0
     #   dparse
     #   pytest
     #   sphinx
-platformdirs==2.6.2
+platformdirs==3.1.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
 pluggy==1.0.0
     # via pytest
-prompt-toolkit==3.0.36
+prompt-toolkit==3.0.38
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -272,7 +287,7 @@ pyjwt[crypto]==2.6.0
     #   django-allauth
 pyquery==2.0.0
     # via -r requirements/pip.txt
-pytest==7.2.1
+pytest==7.2.2
     # via
     #   -r requirements/testing.in
     #   pytest-cov
@@ -299,7 +314,6 @@ python3-openid==3.2.0
 pytz==2022.7.1
     # via
     #   -r requirements/pip.txt
-    #   babel
     #   celery
     #   django
     #   djangorestframework
@@ -307,8 +321,11 @@ pyyaml==5.4.1
     # via
     #   -r requirements/pip.txt
     #   yamale
-redis==3.5.3
-    # via -r requirements/pip.txt
+redis==4.5.1
+    # via
+    #   -r requirements/pip.txt
+    #   django-cacheops
+    #   django-redis
 regex==2022.10.31
     # via -r requirements/pip.txt
 requests==2.28.2
@@ -341,6 +358,7 @@ six==1.16.0
     #   -r requirements/pip.txt
     #   click-repl
     #   django-annoying
+    #   django-cacheops
     #   django-dynamic-fixture
     #   django-elasticsearch-dsl
     #   elasticsearch-dsl
@@ -429,7 +447,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.17.1
+virtualenv==20.20.0
     # via -r requirements/pip.txt
 wcwidth==0.2.6
     # via

@@ -13,7 +13,12 @@ and :doc:`/intro/getting-started-with-mkdocs`.
 .. toctree::
    :maxdepth: 1
 
-   cross-referencing-with-sphinx
-   Link to external projects (Intersphinx) <intersphinx>
-   jupyter
+   Cross-referencing with Sphinx <cross-referencing-with-sphinx>
+   Link to other projects with Intersphinx <intersphinx>
+   Use Jupyter notebooks in Sphinx <jupyter>
+   Search Engine Optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>
    Migrate from rST to MyST <migrate-rest-myst>
+   Enable offline formats <enable-offline-formats>
+   Use search analytics <search-analytics>
+   Best practices for linking to your documentation </automatic-redirects>
+   /science

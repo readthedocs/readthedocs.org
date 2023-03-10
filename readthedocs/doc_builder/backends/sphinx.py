@@ -26,8 +26,6 @@ from readthedocs.projects.models import Feature
 from readthedocs.projects.utils import safe_write
 
 from ..base import BaseBuilder
-from ..constants import PDF_RE
-from ..environments import BuildCommand, DockerBuildCommand
 from ..exceptions import BuildUserError
 from ..signals import finalize_sphinx_context_data
 
@@ -42,16 +40,53 @@ class BaseSphinx(BaseBuilder):
     # an output file, the parsed source files are cached as "doctree pickles".
     sphinx_doctrees_dir = "_build/doctrees"
 
-    # Output directory relative to where the repository was cloned
-    # (e.g. "_readthedocs/<format>")
+    # Output directory relative to $READTHEDOCS_OUTPUT
+    # (e.g. "html", "htmlzip" or "pdf")
     relative_output_dir = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.config_file = self.config.sphinx.configuration
-        self.absolute_output_dir = os.path.abspath(
-            os.path.join(self.project_path, self.relative_output_dir)
+
+        # We cannot use `$READTHEDOCS_OUTPUT` environment variable for
+        # `absolute_host_output_dir` because it's not defined in the host. So,
+        # we have to re-calculate its value. We will remove this limitation
+        # when we execute the whole building from inside the Docker container
+        # (instead behing a hybrid as it is now)
+        #
+        # We need to have two different paths that point to the exact same
+        # directory. How is that? The directory is mounted into a different
+        # location inside the container:
+        #
+        #  1. path in the host:
+        #       /home/docs/checkouts/readthedocs.org/user_builds/<project>/
+        #  2. path in the container:
+        #       /usr/src/app/checkouts/readthedocs.org/user_builds/b9cbc24c8841/test-builds/
+        #
+        # Besides, the variable `$READTHEDOCS_OUTPUT` is not defined in the
+        # host, so we have to expand it using the full host's path. This
+        # variable cannot be used in cwd= due to a limitation of the Docker API
+        # (I guess) since I received an error when trying that. So, we have to
+        # fully expand it.
+        #
+        # That said, we need:
+        #
+        # * use the path in the host, for all the operations that are done via
+        # Python from the app (e.g. os.path.join, glob.glob, etc)
+        #
+        # * use the path in the container, for all the operations that are
+        # executed inside the container via Docker API using shell commands
+        self.absolute_host_output_dir = os.path.join(
+            os.path.join(
+                self.project.checkout_path(self.version.slug),
+                "_readthedocs/",
+            ),
+            self.relative_output_dir,
         )
+        self.absolute_container_output_dir = os.path.join(
+            "$READTHEDOCS_OUTPUT", self.relative_output_dir
+        )
+
         try:
             if not self.config_file:
                 self.config_file = self.project.conf_file(self.version.slug)
@@ -206,7 +241,7 @@ class BaseSphinx(BaseBuilder):
             'github_version_is_editable': github_version_is_editable,
             'display_github': display_github,
 
-            # BitBucket
+            # Bitbucket
             'bitbucket_user': bitbucket_user,
             'bitbucket_repo': bitbucket_repo,
             'bitbucket_version': remote_version,
@@ -309,9 +344,7 @@ class BaseSphinx(BaseBuilder):
                 # https://github.com/readthedocs/readthedocs.org/pull/9888#issuecomment-1384649346
                 ".",
                 # Sphinx's output build directory (OUTPUTDIR)
-                os.path.relpath(
-                    self.absolute_output_dir, os.path.dirname(self.config_file)
-                ),
+                self.absolute_container_output_dir,
             ]
         )
         cmd_ret = self.run(
@@ -338,7 +371,7 @@ class BaseSphinx(BaseBuilder):
 
 
 class HtmlBuilder(BaseSphinx):
-    relative_output_dir = "_readthedocs/html"
+    relative_output_dir = "html"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -367,18 +400,16 @@ class SingleHtmlBuilder(HtmlBuilder):
 
 class LocalMediaBuilder(BaseSphinx):
     sphinx_builder = 'readthedocssinglehtmllocalmedia'
-    relative_output_dir = "_readthedocs/htmlzip"
+    relative_output_dir = "htmlzip"
 
     def _post_build(self):
         """Internal post build to create the ZIP file from the HTML output."""
-        target_file = os.path.abspath(
-            os.path.join(
-                self.absolute_output_dir,
-                # TODO: shouldn't this name include the name of the version as well?
-                # It seems we were using the project's slug previously.
-                # So, keeping it like that for now until we decide make that adjustment.
-                f"{self.project.slug}.zip",
-            )
+        target_file = os.path.join(
+            self.absolute_container_output_dir,
+            # TODO: shouldn't this name include the name of the version as well?
+            # It seems we were using the project's slug previously.
+            # So, keeping it like that for now until we decide make that adjustment.
+            f"{self.project.slug}.zip",
         )
 
         # **SECURITY CRITICAL: Advisory GHSA-hqwg-gjqw-h5wg**
@@ -390,7 +421,7 @@ class LocalMediaBuilder(BaseSphinx):
         dirname = f"{self.project.slug}-{self.version.slug}"
         self.run(
             "mv",
-            self.relative_output_dir,
+            self.absolute_container_output_dir,
             str(tmp_dir / dirname),
             cwd=self.project_path,
             record=False,
@@ -398,7 +429,7 @@ class LocalMediaBuilder(BaseSphinx):
         self.run(
             "mkdir",
             "--parents",
-            self.relative_output_dir,
+            self.absolute_container_output_dir,
             cwd=self.project_path,
             record=False,
         )
@@ -416,17 +447,19 @@ class LocalMediaBuilder(BaseSphinx):
 class EpubBuilder(BaseSphinx):
 
     sphinx_builder = "epub"
-    relative_output_dir = "_readthedocs/epub"
+    relative_output_dir = "epub"
 
     def _post_build(self):
         """Internal post build to cleanup EPUB output directory and leave only one .epub file."""
         temp_epub_file = f"/tmp/{self.project.slug}-{self.version.slug}.epub"
         target_file = os.path.join(
-            self.absolute_output_dir,
+            self.absolute_container_output_dir,
             f"{self.project.slug}.epub",
         )
 
-        epub_sphinx_filepaths = glob(os.path.join(self.absolute_output_dir, "*.epub"))
+        epub_sphinx_filepaths = glob(
+            os.path.join(self.absolute_host_output_dir, "*.epub")
+        )
         if epub_sphinx_filepaths:
             # NOTE: we currently support only one .epub per version
             epub_filepath = epub_sphinx_filepaths[0]
@@ -437,14 +470,14 @@ class EpubBuilder(BaseSphinx):
             self.run(
                 "rm",
                 "--recursive",
-                self.relative_output_dir,
+                self.absolute_container_output_dir,
                 cwd=self.project_path,
                 record=False,
             )
             self.run(
                 "mkdir",
                 "--parents",
-                self.relative_output_dir,
+                self.absolute_container_output_dir,
                 cwd=self.project_path,
                 record=False,
             )
@@ -453,35 +486,11 @@ class EpubBuilder(BaseSphinx):
             )
 
 
-class LatexBuildCommand(BuildCommand):
-
-    """Ignore LaTeX exit code if there was file output."""
-
-    def run(self):
-        super().run()
-        # Force LaTeX exit code to be a little more optimistic. If LaTeX
-        # reports an output file, let's just assume we're fine.
-        if PDF_RE.search(self.output):
-            self.exit_code = 0
-
-
-class DockerLatexBuildCommand(DockerBuildCommand):
-
-    """Ignore LaTeX exit code if there was file output."""
-
-    def run(self):
-        super().run()
-        # Force LaTeX exit code to be a little more optimistic. If LaTeX
-        # reports an output file, let's just assume we're fine.
-        if PDF_RE.search(self.output):
-            self.exit_code = 0
-
-
 class PdfBuilder(BaseSphinx):
 
     """Builder to generate PDF documentation."""
 
-    relative_output_dir = "_readthedocs/pdf"
+    relative_output_dir = "pdf"
     sphinx_builder = "latex"
     pdf_file_name = None
 
@@ -504,14 +513,12 @@ class PdfBuilder(BaseSphinx):
             # https://github.com/readthedocs/readthedocs.org/pull/9888#issuecomment-1384649346
             ".",
             # Sphinx's output build directory (OUTPUTDIR)
-            os.path.relpath(
-                self.absolute_output_dir, os.path.dirname(self.config_file)
-            ),
+            self.absolute_container_output_dir,
             cwd=os.path.dirname(self.config_file),
             bin_path=self.python_env.venv_bin(),
         )
 
-        tex_files = glob(os.path.join(self.absolute_output_dir, "*.tex"))
+        tex_files = glob(os.path.join(self.absolute_host_output_dir, "*.tex"))
         if not tex_files:
             raise BuildUserError("No TeX files were found.")
 
@@ -526,7 +533,7 @@ class PdfBuilder(BaseSphinx):
         # https://github.com/sphinx-doc/sphinx/blob/master/sphinx/texinputs/Makefile_t
         images = []
         for extension in ("png", "gif", "jpg", "jpeg"):
-            images.extend(Path(self.absolute_output_dir).glob(f"*.{extension}"))
+            images.extend(Path(self.absolute_host_output_dir).glob(f"*.{extension}"))
 
         # FIXME: instead of checking by language here, what we want to check if
         # ``latex_engine`` is ``platex``
@@ -536,13 +543,13 @@ class PdfBuilder(BaseSphinx):
             # step. I don't know exactly why but most of the documentation that
             # I read differentiate this language from the others. I suppose
             # it's because it mix kanji (Chinese) with its own symbols.
-            pdfs = Path(self.absolute_output_dir).glob("*.pdf")
+            pdfs = Path(self.absolute_host_output_dir).glob("*.pdf")
 
         for image in itertools.chain(images, pdfs):
             self.run(
                 'extractbb',
                 image.name,
-                cwd=self.absolute_output_dir,
+                cwd=self.absolute_host_output_dir,
                 record=False,
             )
 
@@ -553,13 +560,8 @@ class PdfBuilder(BaseSphinx):
         self.run(
             'cat',
             rcfile,
-            cwd=self.absolute_output_dir,
+            cwd=self.absolute_host_output_dir,
         )
-
-        if self.build_env.command_class == DockerBuildCommand:
-            latex_class = DockerLatexBuildCommand
-        else:
-            latex_class = LatexBuildCommand
 
         cmd = [
             'latexmk',
@@ -577,16 +579,18 @@ class PdfBuilder(BaseSphinx):
             '-interaction=nonstopmode',
         ]
 
-        cmd_ret = self.build_env.run_command_class(
-            cls=latex_class,
-            cmd=cmd,
-            warn_only=True,
-            cwd=self.absolute_output_dir,
-        )
+        try:
+            cmd_ret = self.run(
+                *cmd,
+                cwd=self.absolute_host_output_dir,
+            )
+            self.pdf_file_name = f"{self.project.slug}.pdf"
+            return cmd_ret.successful
 
-        self.pdf_file_name = f'{self.project.slug}.pdf'
-
-        return cmd_ret.successful
+        # Catch the exception and re-raise it with a specific message
+        except BuildUserError:
+            raise BuildUserError(BuildUserError.PDF_COMMAND_FAILED)
+        return False
 
     def _post_build(self):
         """Internal post build to cleanup PDF output directory and leave only one .pdf file."""
@@ -597,13 +601,19 @@ class PdfBuilder(BaseSphinx):
         # TODO: merge this with ePUB since it's pretty much the same
         temp_pdf_file = f"/tmp/{self.project.slug}-{self.version.slug}.pdf"
         target_file = os.path.join(
-            self.absolute_output_dir,
+            self.absolute_container_output_dir,
             self.pdf_file_name,
         )
 
         # NOTE: we currently support only one .pdf per version
-        pdf_sphinx_filepath = os.path.join(self.absolute_output_dir, self.pdf_file_name)
-        if os.path.exists(pdf_sphinx_filepath):
+        pdf_sphinx_filepath = os.path.join(
+            self.absolute_container_output_dir, self.pdf_file_name
+        )
+        pdf_sphinx_filepath_host = os.path.join(
+            self.absolute_host_output_dir,
+            self.pdf_file_name,
+        )
+        if os.path.exists(pdf_sphinx_filepath_host):
             self.run(
                 "mv",
                 pdf_sphinx_filepath,
@@ -614,14 +624,14 @@ class PdfBuilder(BaseSphinx):
             self.run(
                 "rm",
                 "-r",
-                self.relative_output_dir,
+                self.absolute_container_output_dir,
                 cwd=self.project_path,
                 record=False,
             )
             self.run(
                 "mkdir",
                 "-p",
-                self.relative_output_dir,
+                self.absolute_container_output_dir,
                 cwd=self.project_path,
                 record=False,
             )

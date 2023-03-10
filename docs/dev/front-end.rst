@@ -1,4 +1,4 @@
-Front End Development
+Front-end development
 =====================
 
 Background
@@ -52,7 +52,7 @@ may change, so that assets are compiled before deployment, however as our front
 end assets are in a state of flux, it's easier to keep absolute sources checked
 in.
 
-Getting Started
+Getting started
 ---------------
 
 You will need to follow our :doc:`guide to install a development Read the Docs instance </install>` first.
@@ -72,7 +72,7 @@ make sure to check in both files under ``static`` and ``static-src``,
 and commit those.
 
 
-Making Changes
+Making changes
 --------------
 
 If you are creating a new library, or a new library entry point, make sure to
@@ -93,7 +93,7 @@ If merging several branches with JavaScript changes, it's important to do a
 final post-merge bundle. Follow the steps above to rebundle the libraries, and
 check in any changed libraries.
 
-JavaScript Bundles
+JavaScript bundles
 ------------------
 
 There are several components to our bundling scheme:

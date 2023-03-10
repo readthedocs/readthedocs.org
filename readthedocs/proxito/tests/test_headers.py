@@ -1,9 +1,10 @@
 import django_dynamic_fixture as fixture
 from django.test import override_settings
 from django.urls import reverse
+from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import LATEST
-from readthedocs.projects.models import Domain, HTTPHeader
+from readthedocs.projects.models import Domain, Feature, HTTPHeader
 
 from .base import BaseDocServing
 
@@ -21,23 +22,25 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(
             r['Location'], 'https://project.dev.readthedocs.io/en/latest/',
         )
-        self.assertEqual(r['Cache-Tag'], 'project')
-        self.assertEqual(r['X-RTD-Project'], 'project')
-        self.assertEqual(r['X-RTD-Project-Method'], 'subdomain')
-        self.assertEqual(r['X-RTD-Domain'], 'project.dev.readthedocs.io')
-        self.assertIsNone(r.get('X-RTD-Version'))
-        self.assertIsNone(r.get('X-RTD-Path'))
+        self.assertEqual(r["Cache-Tag"], "project")
+        self.assertEqual(r["X-RTD-Project"], "project")
+        self.assertEqual(r["X-RTD-Project-Method"], "public_domain")
+        self.assertEqual(r["X-RTD-Domain"], "project.dev.readthedocs.io")
+        self.assertIsNone(r.get("X-RTD-Version"))
+        self.assertIsNone(r.get("X-RTD-Path"))
 
     def test_serve_headers(self):
         r = self.client.get('/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'project,project:latest')
-        self.assertEqual(r['X-RTD-Domain'], 'project.dev.readthedocs.io')
-        self.assertEqual(r['X-RTD-Project'], 'project')
-        self.assertEqual(r['X-RTD-Project-Method'], 'subdomain')
-        self.assertEqual(r['X-RTD-Version'], 'latest')
-        self.assertEqual(r['X-RTD-version-Method'], 'path')
-        self.assertEqual(r['X-RTD-Path'], '/proxito/media/html/project/latest/index.html')
+        self.assertEqual(r["Cache-Tag"], "project,project:latest")
+        self.assertEqual(r["X-RTD-Domain"], "project.dev.readthedocs.io")
+        self.assertEqual(r["X-RTD-Project"], "project")
+        self.assertEqual(r["X-RTD-Project-Method"], "public_domain")
+        self.assertEqual(r["X-RTD-Version"], "latest")
+        self.assertEqual(r["X-RTD-version-Method"], "path")
+        self.assertEqual(
+            r["X-RTD-Path"], "/proxito/media/html/project/latest/index.html"
+        )
 
     def test_subproject_serve_headers(self):
         r = self.client.get('/projects/subproject/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
@@ -49,7 +52,7 @@ class ProxitoHeaderTests(BaseDocServing):
         # I think it's not accurate saying that it's `subdomain` the method
         # that we use to get the project slug here, since it was in fact the
         # URL's path but we don't have that feature built
-        self.assertEqual(r['X-RTD-Project-Method'], 'subdomain')
+        self.assertEqual(r["X-RTD-Project-Method"], "public_domain")
 
         self.assertEqual(r['X-RTD-Version'], 'latest')
         self.assertEqual(r['X-RTD-version-Method'], 'path')
@@ -58,13 +61,13 @@ class ProxitoHeaderTests(BaseDocServing):
     def test_404_headers(self):
         r = self.client.get('/foo/bar.html', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 404)
-        self.assertEqual(r['Cache-Tag'], 'project')
-        self.assertEqual(r['X-RTD-Domain'], 'project.dev.readthedocs.io')
-        self.assertEqual(r['X-RTD-Project'], 'project')
-        self.assertEqual(r['X-RTD-Project-Method'], 'subdomain')
-        self.assertEqual(r['X-RTD-version-Method'], 'path')
-        self.assertIsNone(r.get('X-RTD-Version'))
-        self.assertIsNone(r.get('X-RTD-Path'))
+        self.assertEqual(r["Cache-Tag"], "project")
+        self.assertEqual(r["X-RTD-Domain"], "project.dev.readthedocs.io")
+        self.assertEqual(r["X-RTD-Project"], "project")
+        self.assertEqual(r["X-RTD-Project-Method"], "public_domain")
+        self.assertEqual(r["X-RTD-version-Method"], "path")
+        self.assertIsNone(r.get("X-RTD-Version"))
+        self.assertIsNone(r.get("X-RTD-Path"))
 
     def test_custom_domain_headers(self):
         hostname = 'docs.random.com'
@@ -75,13 +78,15 @@ class ProxitoHeaderTests(BaseDocServing):
         )
         r = self.client.get("/en/latest/", HTTP_HOST=hostname)
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'project,project:latest')
-        self.assertEqual(r['X-RTD-Domain'], self.domain.domain)
-        self.assertEqual(r['X-RTD-Project'], self.project.slug)
-        self.assertEqual(r['X-RTD-Project-Method'], 'cname')
-        self.assertEqual(r['X-RTD-Version'], 'latest')
-        self.assertEqual(r['X-RTD-version-Method'], 'path')
-        self.assertEqual(r['X-RTD-Path'], '/proxito/media/html/project/latest/index.html')
+        self.assertEqual(r["Cache-Tag"], "project,project:latest")
+        self.assertEqual(r["X-RTD-Domain"], self.domain.domain)
+        self.assertEqual(r["X-RTD-Project"], self.project.slug)
+        self.assertEqual(r["X-RTD-Project-Method"], "custom_domain")
+        self.assertEqual(r["X-RTD-Version"], "latest")
+        self.assertEqual(r["X-RTD-version-Method"], "path")
+        self.assertEqual(
+            r["X-RTD-Path"], "/proxito/media/html/project/latest/index.html"
+        )
 
     def test_footer_headers(self):
         version = self.project.versions.get(slug=LATEST)
@@ -129,13 +134,25 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r[http_header_secure], http_header_value)
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
-    def test_cache_headers_public_projects(self):
+    def test_cache_headers_public_version_with_private_projects_not_allowed(self):
         r = self.client.get('/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 200)
-        self.assertNotIn('CDN-Cache-Control', r)
+        self.assertEqual(r["CDN-Cache-Control"], "public")
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
-    def test_cache_headers_private_projects(self):
+    def test_cache_headers_public_version_with_private_projects_allowed(self):
         r = self.client.get('/en/latest/', HTTP_HOST='project.dev.readthedocs.io')
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['CDN-Cache-Control'], 'private')
+        self.assertEqual(r["CDN-Cache-Control"], "public")
+
+
+class ProxitoV2HeaderTests(ProxitoHeaderTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )

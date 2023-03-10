@@ -8,13 +8,11 @@ or customize the documentation appearance.
 .. toctree::
    :maxdepth: 1
 
-   private-python-packages
-   private-submodules
-   adding-custom-css
-   reproducible-builds
-   embedding-content
-   conda
-   remove-edit-buttons
-   build-using-too-many-resources
-   edit-source-links-sphinx
-   Setup Build Notifications <build-notifications>
+   Install private python packages <private-python-packages>
+   Use private Git submodules <private-submodules>
+   Add custom CSS or JavaScript to Sphinx documentation <adding-custom-css>
+   Create reproducible builds <reproducible-builds>
+   Embed content from your documentation <embedding-content>
+   Use Conda as your Python environment <conda>
+   Remove "Edit on ..." buttons from documentation <remove-edit-buttons>
+   Add "Edit Source" links on your Sphinx theme <edit-source-links-sphinx>

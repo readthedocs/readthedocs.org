@@ -1,6 +1,6 @@
 :orphan:
 
-Configuration File V1 (Deprecated)
+Configuration file v1 (Deprecated)
 ==================================
 
 Read the Docs has support for configuring builds with a YAML file.

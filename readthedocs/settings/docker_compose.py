@@ -88,7 +88,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     def LOGGING(self):
         logging = super().LOGGING
 
-        logging['handlers']['console']['level'] = 'DEBUG'
+        logging['handlers']['console']['level'] = os.environ.get("RTD_LOGGING_LEVEL", 'INFO')
         logging['formatters']['default']['format'] = '[%(asctime)s] ' + self.LOG_FORMAT
         # Allow Sphinx and other tools to create loggers
         logging['disable_existing_loggers'] = False
@@ -152,14 +152,18 @@ class DockerBaseSettings(CommunityBaseSettings):
     SESSION_COOKIE_DOMAIN = None
     CACHES = {
         'default': {
-            'BACKEND': 'redis_cache.RedisCache',
-            'LOCATION': 'cache:6379',
-        }
+            "BACKEND": "django_redis.cache.RedisCache",
+            'LOCATION': 'redis://cache:6379',
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "PASSWORD": "redispassword",
+            },
+        },
     }
 
-    BROKER_URL = "redis://cache:6379/0"
-    CELERY_RESULT_BACKEND = "redis://cache:6379/0"
-    CELERY_RESULT_SERIALIZER = "json"
+    CACHEOPS_REDIS = f"redis://:{CACHES['default']['OPTIONS']['PASSWORD']}@cache:6379/1"
+    BROKER_URL = f"redis://:{CACHES['default']['OPTIONS']['PASSWORD']}@cache:6379/0"
+
     CELERY_ALWAYS_EAGER = False
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"

@@ -1,4 +1,4 @@
-Configuration File
+Configuration file
 ==================
 
 In addition to using the admin panel of your project to configure your project,

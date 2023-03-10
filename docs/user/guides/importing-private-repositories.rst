@@ -1,5 +1,5 @@
-Manually Importing Private Repositories
-=======================================
+How to import private repositories
+==================================
 
 .. warning::
 
@@ -122,4 +122,4 @@ To build your documentation on every commit,
 you'll need to manually add a webhook, see :doc:`/integrations`.
 If you are using an unsupported integration,
 you may need to setup a custom integration
-using our :ref:`generic webhook <integrations:using the generic api integration>`.
+using our :ref:`generic webhook <webhook-integration-generic>`.

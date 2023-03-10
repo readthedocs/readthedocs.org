@@ -1,60 +1,92 @@
-Automatic Redirects
-===================
+.. old reference
 
-Read the Docs supports redirecting certain URLs automatically.
-This is an overview of the set of redirects that are fully supported and will work into the future.
+.. _Automatic Redirects:
 
-Redirecting to a Page
----------------------
+Best practices for linking to your documentation
+================================================
 
-You can link to a specific page and have it redirect to your default version.
-This is done with the ``/page/`` URL prefix.
-You can reach this page by going to https://docs.readthedocs.io/page/automatic-redirects.html.
+Once you start to publish documentation,
+external sources will inevitably link to specific pages in your documentation.
 
-This allows you to create links that are always up to date.
+Sources of incoming links vary greatly depending on the type of documentation project that is published.
+They can include everything from old emails to GitHub issues, wiki articles, software comments, PDF publications, or StackOverflow answers.
+Most of these incoming sources are not in your control.
 
-Another way to handle this is the ``latest`` version.
-You can set your ``latest`` version to a specific version and just always link to ``latest``.
-You can read more about this in our :doc:`versions </versions>` page.
+Read the Docs makes it easier to create and manage incoming links by redirecting certain URLs automatically
+and giving you access to define your own redirects.
 
-Root URL
---------
+In this article,
+we explain how our built-in redirects work and what we consider "best practice" for managing incoming links.
 
-A link to the root of your documentation will redirect to the *default version*,
-as set in your project settings.
-For example::
+.. seealso::
 
-    docs.readthedocs.io -> docs.readthedocs.io/en/latest/
-    www.pip-installer.org -> www.pip-installer.org/en/latest/
+   :doc:`/versions`
+     Read more about how to handle versioned documentation and URL structures.
 
-This only works for the root URL, not for internal pages. It's designed to redirect people from ``http://pip.readthedocs.io/`` to the default version of your documentation, since serving up a 404 here would be a pretty terrible user experience. (If your "develop" branch was designated as your default version, then it would redirect to ``http://pip.readthedocs.io/en/develop``.) But, it's not a universal redirecting solution. So, for example, a link to an internal page like ``http://pip.readthedocs.io/usage.html`` doesn't redirect to ``http://pip.readthedocs.io/en/latest/usage.html``.
+   :doc:`/user-defined-redirects`
+     Overview of all the redirect features available on Read the Docs.
+     Many of the redirect features are useful either for building external links or handling requests to old URLs.
 
-The reasoning behind this is that RTD organizes the URLs for docs so that multiple translations and multiple versions of your docs can be organized logically and consistently for all projects that RTD hosts. For the way that RTD views docs, ``http://pip.readthedocs.io/en/latest/`` is the root directory for your default documentation in English, not ``http://pip.readthedocs.io/``. Just like ``http://pip.readthedocs.io/en/develop/`` is the root for your development documentation in English.
+   :doc:`/guides/redirects`
+     How to add a user-defined redirect, step-by-step.
+     Useful if your content changes location!
 
-Among all the multiple versions of docs, you can choose which is the "default" version for RTD to display, which usually corresponds to the git branch of the most recent official release from your project.
 
-rtfd.io
-~~~~~~~~
+Best practice: "permalink" your pages
+-------------------------------------
 
-Links to rtfd.io are treated the same way as above.
-They redirect the root URL to the default version of the project.
-They are intended to be easy and short for people to type.
+You might be familiar with the concept of `permalinks`_ from blogging.
+The idea is that a blog post receives a unique link as soon as it's published and that the link does not change afterward.
+Incoming sources can reference the blog post even though the blog changes structure or the post title changes.
 
-You can reach these docs at https://docs.rtfd.io.
+When creating an external link to a specific documentation page,
+chances are that the page is moved as the documentation changes over time.
 
-Supported Top-Level Redirects
------------------------------
+How should a permalink look for a documentation project?
+Firstly, you should know that a *permalink* does not really exist in documentation but it is the result of careful actions to avoid breaking incoming links.
 
-.. note:: These "implicit" redirects are supported for legacy reasons.
-          We will not be adding support for any more magic redirects.
-          If you want additional redirects,
-          they should live at a prefix like `Redirecting to a Page`_
+As a documentation owner,
+you most likely want users clicking on incoming links to see the latest version of the page.
 
-The main challenge of URL routing in Read the Docs is handling redirects correctly. Both in the interest of redirecting older URLs that are now obsolete, and in the interest of handling "logical-looking" URLs (leaving out the lang_slug or version_slug shouldn't result in a 404), the following redirects are supported::
+.. _permalinks: https://en.wikipedia.org/wiki/Permalink
 
-    /          -> /en/latest/
-    /en/       -> /en/latest/
-    /latest/   -> /en/latest/
+Good practice ✅
+~~~~~~~~~~~~~~~~
 
-The language redirect will work for any of the defined ``LANGUAGE_CODES`` we support.
-The version redirect will work for supported versions.
+* Use `page redirects <user-defined-redirects:Page redirects>`_ if you are linking to the page in the :term:`default version` of the default language. This allows links to continue working even if those defaults change.
+* If you move a page that likely has incoming references, :doc:`create a custom redirect rule </guides/redirects>`.
+* Links to other Sphinx projects should use :doc:`intersphinx </guides/intersphinx>`.
+* Use minimal filenames that don't require renaming often.
+* When possible,
+  keep original file names rather than going for low-impact URL renaming.
+  Renaming an article's title is great for the reader and great for SEO,
+  but this does not have to involve the URL.
+* Establish your understanding of the *latest* and :term:`default version` of your documentation at the beginning. Changing their meaning is very disruptive to incoming links.
+* Keep development versions :ref:`hidden <versions:Hidden>` so people do not find them on search engines by mistake.
+  This is the best way to ensure that nobody links to URLs that are intended for development purposes.
+* Use a :ref:`version warning <versions:Version warning>` to ensure the reader is aware in case they are reading an old (archived) version.
+
+.. tip::
+
+   Using Sphinx?
+     If you are using ``:ref:`` for :doc:`cross-referencing </guides/cross-referencing-with-sphinx>`, you may add as many reference labels to a headline as you need,
+     keeping old reference labels. This will make refactoring documentation easier and avoid that external projects
+     referencing your documentation through :doc:`intersphinx </guides/intersphinx>` break.
+
+Questionable practice 🟡
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Avoid using specific versions in links unless users need that exact version.
+  Versions get outdated.
+* Avoid using a public ``latest`` for development versions and do not make your *default version* a development branch.
+  Publishing development branches can mean that users are reading instructions for unreleased software or draft documentation.
+
+.. tip::
+
+   404 pages are also okay!
+     If documentation pages have been removed or moved,
+     it can make the maintainer of the referring website aware that they need to update their link.
+     Users will be aware that the documentation **project** still exists but has changed.
+
+     The default Read the Docs 404 page is designed to be helpful,
+     but you can also design your own, see :doc:`/reference/404-not-found`.

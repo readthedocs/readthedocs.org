@@ -1,39 +1,102 @@
-User-defined Redirects
-======================
+Custom and built-in redirects on Read the Docs
+==============================================
 
-You can set up redirects for a project in your project dashboard's :guilabel:`Redirects` page.
+Over time, a documentation project may want to rename and move contents around.
+Redirects allow changes in a documentation project to happen without bad user experiences.
 
-.. contents:: Table of contents
-   :local:
+If you do not manage URL structures,
+users will eventually encounter 404 File Not Found errors.
+While this may be acceptable in some cases,
+the bad user experience of a 404 page is usually best to avoid.
 
-Quick summary
--------------
+`Built-in redirects`_ ⬇️
+    Allows for simple and long-term sharing of external references to your documentation.
 
-* Go to the :guilabel:`Admin` tab of your project.
-* From the left navigation menu, select :guilabel:`Redirects`.
-* In the form box "Redirect Type" select the type of redirect you want.
-  :ref:`See below <user-defined-redirects:redirect types>` for detail.
-* Depending on the redirect type you select, enter ``From URL`` and/or ``To URL`` as needed.
-* When finished, click the :guilabel:`Add` button.
+`User-defined redirects`_ ⬇️
+    Makes it easier to move contents around
 
-Your redirects will be effective immediately.
+.. seealso::
 
-Features
---------
+   :doc:`/guides/redirects`
+     This guide shows you how to add redirects with practical examples.
+   :doc:`/automatic-redirects`
+     Information and tips about creating and handling external references.
+   :doc:`/guides/deprecating-content`
+     A guide to deprecating features and other topics in a documentation.
+
+
+Special features
+----------------
 
 - By default, redirects are followed only if the requested page doesn't exist
-  (*404 File Not Found* error), if you need to apply a redirect for files that exist,
-  mark the :guilabel:`Force redirect` option.
+  (*404 File Not Found* error).
+  If you need to apply a redirect for files that exist,
   **This option is only available on some plan levels**.
   Please ask support if you need it for some reason.
 - :ref:`user-defined-redirects:page redirects` and :ref:`user-defined-redirects:exact redirects`
   can redirect to URLs outside Read the Docs,
   just include the protocol in ``To URL``, e.g ``https://example.com``.
 
-Redirect types
---------------
 
-We offer a few different type of redirects based on what you want to do.
+Built-in redirects
+------------------
+
+This section explains the redirects that are automatically active for all projects and how they are useful.
+Built-in redirects are especially useful for creating and sharing incoming links,
+which is discussed indepth in :doc:`/automatic-redirects`.
+
+.. _page_redirects:
+
+Page redirects at ``/page/``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can link to a specific page and have it redirect to your default version,
+allowing you to create links on external sources that are always up to date.
+This is done with the ``/page/`` URL prefix.
+
+For instance, you can reach the page you are reading now by going to https://docs.readthedocs.io/page/automatic-redirects.html.
+
+Another way to handle this is the ``latest`` version.
+You can set your ``latest`` version to a specific version and just always link to ``latest``.
+You can reach this page by going to https://docs.readthedocs.io/en/latest/automatic-redirects.html.
+
+.. _root_url_redirect:
+
+Root URL redirect at ``/``
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A link to the root of your documentation (`<slug>.readthedocs.io/`) will redirect to the  :term:`default version`,
+as set in your project settings.
+
+This works for both readthedocs.io (|org_brand|), readthedocs-hosted.com (|com_brand|), and :doc:`custom domains </custom-domains>`.
+
+For example::
+
+    docs.readthedocs.io -> docs.readthedocs.io/en/stable/
+
+.. warning::
+
+   You cannot use the root redirect to reference specific pages.
+   ``/`` *only* redirects to the default version,
+   whereas ``/some/page.html`` will *not* redirect to ``/en/latest/some/page.html``.
+   Instead, use :ref:`page_redirects`.
+
+You can choose which is the :term:`default version` for Read the Docs to display.
+This usually corresponds to the most recent official release from your project.
+
+Shortlink with ``https://<slug>.rtfd.io``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Links to ``rtfd.io`` are treated the same way as ``readthedocs.io``.
+They are intended to be easy and short for people to type.
+
+You can reach these docs at https://docs.rtfd.io.
+
+.. old label
+.. _User-defined Redirects:
+
+User-defined redirects
+----------------------
 
 Prefix redirects
 ~~~~~~~~~~~~~~~~
@@ -163,7 +226,7 @@ Sphinx redirects
 ~~~~~~~~~~~~~~~~
 
 We also support redirects for changing the type of documentation Sphinx is building.
-If you switch between *HTMLDir* and *HTML*, your URL's will change.
+If you switch between *HTMLDir* and *HTML*, your URLs will change.
 A page at ``/en/latest/install.html`` will be served at ``/en/latest/install/``,
 or vice versa.
 The built in redirects for this will handle redirecting users appropriately.

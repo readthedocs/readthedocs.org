@@ -54,6 +54,9 @@ def update_stripe_customer(sender, instance, created, **kwargs):
     if organization.name != stripe_customer.description:
         fields_to_update["description"] = organization.name
 
+    if organization.name != stripe_customer.name:
+        fields_to_update["name"] = organization.name
+
     org_metadata = organization.get_stripe_metadata()
     current_metadata = stripe_customer.metadata or {}
     for key, value in org_metadata.items():

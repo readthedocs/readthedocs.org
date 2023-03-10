@@ -1,5 +1,5 @@
-Sphinx PDFs with Unicode
-========================
+How to support Unicode in Sphinx PDFs
+=====================================
 
 Sphinx offers different `LaTeX engines`_ that have better support for Unicode characters
 and non-European languages like Japanese or Chinese.

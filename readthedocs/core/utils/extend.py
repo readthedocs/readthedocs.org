@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """Patterns for extending Read the Docs."""
 

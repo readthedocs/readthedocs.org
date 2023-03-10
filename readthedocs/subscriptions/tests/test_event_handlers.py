@@ -358,6 +358,35 @@ class TestStripeEventHandlers(TestCase):
         event_handlers.subscription_canceled(event)
         notification_send.assert_called_once()
 
+    @mock.patch(
+        "readthedocs.subscriptions.event_handlers.SubscriptionEndedNotification.send"
+    )
+    def test_subscription_canceled_no_organization_attached(self, notification_send):
+        customer = get(djstripe.Customer)
+
+        start_date = timezone.now()
+        end_date = timezone.now() + timezone.timedelta(days=30)
+        stripe_subscription = get(
+            djstripe.Subscription,
+            id="sub_9LtsU02uvjO6Ed",
+            status=SubscriptionStatus.canceled,
+            current_period_start=start_date,
+            current_period_end=end_date,
+            trial_end=end_date,
+            customer=customer,
+        )
+        event = get(
+            djstripe.Event,
+            data={
+                "object": {
+                    "id": stripe_subscription.id,
+                    "object": "subscription",
+                }
+            },
+        )
+        event_handlers.subscription_canceled(event)
+        notification_send.assert_not_called()
+
     def test_register_events(self):
         def test_func():
             pass

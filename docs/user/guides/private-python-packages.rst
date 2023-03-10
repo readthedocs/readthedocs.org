@@ -1,5 +1,5 @@
-Installing Private Python Packages
-==================================
+How to install private python packages
+======================================
 
 .. warning::
 

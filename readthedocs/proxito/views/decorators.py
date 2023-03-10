@@ -59,17 +59,19 @@ def map_project_slug(view_func):
             request, project=None, project_slug=None, *args, **kwargs
     ):
         if project is None:
-            # Get a slug from the request if it can't be found in the URL
-            if not project_slug:
-                project_slug = getattr(request, 'host_project_slug', None)
+            # Get the project from the request if it can't be found in the URL
+            unresolved_domain = request.unresolved_domain
+            if unresolved_domain and not project_slug:
                 log.debug(
                     'Inserting project slug from request.',
                     project_slug=project_slug,
                 )
-            try:
-                project = Project.objects.get(slug=project_slug)
-            except Project.DoesNotExist:
-                raise Http404('Project does not exist.')
+                project = unresolved_domain.project
+            elif project_slug:
+                try:
+                    project = Project.objects.get(slug=project_slug)
+                except Project.DoesNotExist:
+                    raise Http404("Project does not exist.")
         return view_func(request, project=project, *args, **kwargs)
 
     return inner_view
