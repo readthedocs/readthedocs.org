@@ -7,7 +7,7 @@ you can learn how to fix common problems using Read the Docs.
 ⏩️ :doc:`/guides/build-troubleshooting`
     A list of common errors and resolutions encountered in the :doc:`build process </builds>`.
 
-⏩️ :doc:`../build-using-too-many-resources`
+⏩️ :doc:`/guides/build-using-too-many-resources`
     A list of the most common issues that are slowing down builds.
     Even if you are not facing any immediate performance issues,
     it's always good to be familiar with the most common ones.
@@ -18,5 +18,5 @@ you can learn how to fix common problems using Read the Docs.
 .. toctree::
    :hidden:
 
-   ../build-troubleshooting
-   ../build-using-too-many-resources
+   /guides/build-troubleshooting
+   /guides/build-using-too-many-resources

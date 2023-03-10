@@ -32,4 +32,6 @@ we have become familiar with a number of methods that work well and which we con
 
    Deprecating content </guides/deprecating-content>
    Best practices for linking to your documentation </automatic-redirects>
-   Hide a version and keep its documentation online </guides/hiding-a-version>
+   Creating reproducible builds </guides/reproducible-builds>
+   Search Engine Optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>
+   Hiding a version </guides/hiding-a-version>
