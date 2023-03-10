@@ -26,6 +26,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
+from readthedocs.projects.models import Feature, Project
 
 log = structlog.get_logger(__name__)
 
@@ -278,9 +279,19 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         return None
 
+    def add_hosting_integrations_headers(self, request, response):
+        project_slug = getattr(request, "path_project_slug", "")
+        if project_slug:
+            project = Project.objects.get(slug=project_slug)
+            if project.has_feature(Feature.HOSTING_INTEGRATIONS):
+                response["X-RTD-Hosting-Integrations"] = "true"
+            else:
+                response["X-RTD-Hosting-Integrations"] = "false"
+
     def process_response(self, request, response):  # noqa
         self.add_proxito_headers(request, response)
         self.add_cache_headers(request, response)
         self.add_hsts_headers(request, response)
         self.add_user_headers(request, response)
+        self.add_hosting_integrations_headers(request, response)
         return response

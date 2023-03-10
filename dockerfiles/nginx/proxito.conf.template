@@ -89,6 +89,11 @@ server {
         set $content_security_policy $upstream_http_content_security_policy;
         add_header Content-Security-Policy $content_security_policy always;
 
+        # This header allows us to decide whether or not inject the script at CloudFlare level
+        # Now, I'm injecting it in all the NGINX responses because `sub_filter` is not allowed inside an `if` statement.
+        set $rtd_hosting_integrations $upstream_http_x_rtd_hosting_integrations;
+        add_header X-RTD-Hosting-Integrations $rtd_hosting_integrations always;
+
         # Inject our own script dynamically
         # TODO: decide where is the best place to do this
         sub_filter '</head>' '<script language="javascript" src="http://devthedocs.org/static/core/js/integrations.js"></script>\n</head>';
