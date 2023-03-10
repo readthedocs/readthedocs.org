@@ -1093,7 +1093,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         (MAKE_VERSION_PUBLIC_ACTION, _('Make version public')),
         (MAKE_VERSION_PRIVATE_ACTION, _('Make version private')),
         (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
-        (DELETE_VERSION_ACTION, _('Delete version (on branch/tag deletion)')),
+        (DELETE_VERSION_ACTION, _('Delete version')),
     )
 
     allowed_actions_on_create = {}
@@ -1368,6 +1368,7 @@ class RegexAutomationRule(VersionAutomationRule):
 
 
 class AutomationRuleMatch(TimeStampedModel):
+
     ACTIONS_PAST_TENSE = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
         VersionAutomationRule.HIDE_VERSION_ACTION: _("Version hidden"),
