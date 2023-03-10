@@ -4,7 +4,7 @@ How-to guides: best practices
 Over the years,
 we have become familiar with a number of methods that work well and which we consider **best practice**.
 
-⏩️ :doc:`Best practices for linking to your documentation </automatic-redirects>`
+⏩️ :doc:`Best practices for linking to your documentation </guides/best-practice/links>`
     Documentation changes over time,
     and links and cross-references can become challenging manage for various reasons.
     Here is a set of best practices explaining and addressing these challenges.
@@ -31,7 +31,7 @@ we have become familiar with a number of methods that work well and which we con
    :hidden:
 
    Deprecating content </guides/deprecating-content>
-   Best practices for linking to your documentation </automatic-redirects>
+   Best practices for linking to your documentation </guides/best-practice/links>
    Creating reproducible builds </guides/reproducible-builds>
    Search Engine Optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>
    Hiding a version </guides/hiding-a-version>

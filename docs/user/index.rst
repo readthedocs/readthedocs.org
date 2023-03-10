@@ -159,9 +159,6 @@ out of your documentation and Read the Docs.
 * **Multi-language documentation**:
   :doc:`Translations and localization <localization>`
 
-* **Redirects**:
-  :doc:`Automatic redirects <automatic-redirects>`
-
 * **Versions**
   :doc:`Automation rules <automation-rules>`
 
