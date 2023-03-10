@@ -8,7 +8,7 @@ How-to guides: security and access
 ⏩️ :doc:`Setup Single Sign-On (SSO) with Google Workspace </guides/setup-single-sign-on-google-email>`
     When using an :doc:`organization </commercial/organizations>` on  |com_brand|,
     you can configure SSO for your users to authenticate to Read the Docs.
-    **Separate version for Google Workspace**.
+    This guide is written for Google Workspace.
 
 ⏩️ :doc:`Manage Read the Docs teams </guides/manage-read-the-docs-teams>`
     When using an :doc:`organization </commercial/organizations>` on  |com_brand|,
