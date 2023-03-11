@@ -644,6 +644,10 @@ class BuildDirector:
             log.warning(yaml_path)
             data = yaml.safe_load(open(yaml_path, "r"))
         except Exception:
+
+            # NOTE: skip this work for now until we decide whether or not this YAML file is required
+            return
+
             # TODO: Improve this message
             raise BuildUserError(
                 "The required 'readthedocs-build.yaml' file was not provided."
