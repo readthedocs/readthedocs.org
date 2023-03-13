@@ -59,6 +59,25 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                     ),
                 },
                 "doc_diff": True,
+                "flyout": {
+                    "translations": [],
+                    "versions": [
+                        {
+                            "slug": version.slug,
+                            "url": f"/{project.language}/{version.slug}/",
+                        }
+                        for version in project.versions.filter(active=True)
+                    ],
+                    "downloads": [],
+                    # TODO: get this values properly
+                    "vcs": {
+                        "url": "https://github.com",
+                        "username": "readthedocs",
+                        "repository": "test-builds",
+                        "branch": version.identifier,
+                        "filepath": "/docs/index.rst",
+                    },
+                },
             },
         }
 
