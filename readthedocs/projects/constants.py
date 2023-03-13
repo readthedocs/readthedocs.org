@@ -22,10 +22,10 @@ DOCUMENTATION_CHOICES = (
     (MKDOCS, _('Mkdocs')),
     (SPHINX_HTMLDIR, _('Sphinx HtmlDir')),
     (SPHINX_SINGLEHTML, _('Sphinx Single Page HTML')),
+    (GENERIC, _("Others (generic)")),
 )
 DOCTYPE_CHOICES = DOCUMENTATION_CHOICES + (
     (MKDOCS_HTML, _("Mkdocs Html Pages")),
-    (GENERIC, _("Generic")),
 )
 
 

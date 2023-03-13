@@ -208,9 +208,14 @@ class Project(models.Model):
         choices=constants.DOCUMENTATION_CHOICES,
         default='sphinx',
         help_text=_(
-            'Type of documentation you are building. <a href="'
-            'http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html.'
-            'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
+            "Specify the type of documentation you are building. "
+            "This will make the automatic Read the Docs builder detect your MkDocs or Sphinx "
+            "configuration and  build your project running Read the Docs' default command. "
+            "The Generic builder is only possible to use with a readthedocs.yaml configuration "
+            "file since you need to specify the build command in this case. If you need more "
+            "options, use a "
+            '<a href="https://docs.readthedocs.io/en/stable/config-file/index.html">configuration '
+            "file</a>. "
         ),
     )
     urlconf = models.CharField(
@@ -348,14 +353,14 @@ class Project(models.Model):
         ),
     )
     conf_py_file = models.CharField(
-        _('Python configuration file'),
+        _("Sphinx configuration file"),
         max_length=255,
         default='',
         blank=True,
         help_text=_(
-            'Path from project root to <code>conf.py</code> file '
-            '(ex. <code>docs/conf.py</code>). '
-            'Leave blank if you want us to find it for you.',
+            "Path from project root to your Sphinx configuration file, "
+            "typically named <code>conf.py</code>. "
+            "Leave blank if you want us to find it for you.",
         ),
     )
 
