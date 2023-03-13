@@ -265,13 +265,16 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 log.debug("Proxito CNAME HTTPS Redirect.", domain=domain.domain)
                 return RedirectType.http_to_https
 
+        # Redirect HTTP -> HTTPS (302) for public domains.
         if (
-            unresolved_domain.is_from_public_domain
-            or unresolved_domain.is_from_external_domain
+            (
+                unresolved_domain.is_from_public_domain
+                or unresolved_domain.is_from_external_domain
+            )
+            and settings.PUBLIC_DOMAIN_USES_HTTPS
+            and not request.is_secure()
         ):
-            if settings.PUBLIC_DOMAIN_USES_HTTPS and not request.is_secure():
-                # Redirect HTTP -> HTTPS (302) for public domains.
-                return RedirectType.http_to_https
+            return RedirectType.http_to_https
 
         # Check for subprojects before checking for canonical domains,
         # so we can redirect to the main domain first.
