@@ -186,6 +186,12 @@ class Version(TimeStampedModel):
         ),
     )
 
+    build_data = models.JSONField(
+        _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
+        default=None,
+        null=True,
+    )
+
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
     internal = InternalVersionManager.from_queryset(partial(VersionQuerySet, internal_only=True))()
