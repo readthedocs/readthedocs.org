@@ -802,6 +802,7 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
 
     # Always cache this view, since it's the same for all users.
     cache_response = True
+    # Extra cache tag to invalidate only this view if needed.
     project_cache_tag = "robots.txt"
 
     def get(self, request):
@@ -915,6 +916,7 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
 
     # Always cache this view, since it's the same for all users.
     cache_response = True
+    # Extra cache tag to invalidate only this view if needed.
     project_cache_tag = "sitemap.xml"
 
     def get(self, request):
