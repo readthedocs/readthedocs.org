@@ -1,6 +1,7 @@
 {
   "title": "I Need Secrets (or Environment Variables) in my Build",
   "path": "guides/environment-variables",
+  "domain_data": {},
   "sections": [
     {
       "id": "",
@@ -30,13 +31,37 @@
     {
       "id": "footnotes-and-domains",
       "title": "Footnotes and domains",
-      "content": "1(1,2) A footnote contains body elements, consistently indented by at least 3 spaces. This is the footnote’s second paragraph. 3 This footnote is numbered automatically and anonymously using a label of “#” only."
+      "content": "class test_py_module.test.Foo(qux, spam=False)[source] Docstring for class Foo. This text tests for the formatting of docstrings generated from output sphinx.ext.autodoc. __init__( qux, spam= False) [source] Start the Foo. Parameters: qux (string) – The first argument to initialize class. spam (bool) – Spam me yes or no… 1(1,2) A footnote contains body elements, consistently indented by at least 3 spaces. This is the footnote’s second paragraph. 3 This footnote is numbered automatically and anonymously using a label of “#” only."
     },
     {
       "content": "This is a H3 title. Fig. 4 I'm a figure!",
       "id": "subsub-title",
       "title": "Subsub title"
+    },
+    {
+      "id": "test_py_module.test.Foo",
+      "title": "class test_py_module.test.Foo(qux, spam=False)[source]",
+      "content": "\n        Docstring for class Foo.\n        This text tests for the formatting of docstrings generated from output\n          sphinx.ext.autodoc.\n        \n        \n          \n            __init__(\n            qux, spam=\n              False)\n            \n              [source]\n          \n          \n            Start the Foo.\n            \n              Parameters:\n              \n                \n                  \n                    qux (string) – The first argument to initialize class.\n                  \n                  \n                    spam (bool) – Spam me yes or no…\n                  \n                \n              \n            \n          \n        \n      "
+    },
+    {
+      "id": "test_py_module.test.Foo.__init__",
+      "title": "__init__( qux, spam= False) [source]",
+      "content": "\n            Start the Foo.\n            \n              Parameters:\n              \n                \n                  \n                    qux (string) – The first argument to initialize class.\n                  \n                  \n                    spam (bool) – Spam me yes or no…\n                  \n                \n              \n            \n          "
+    },
+    {
+      "id": "test_py_module.test.Foo.__init__",
+      "title": "__init__( qux, spam= False) [source]",
+      "content": "\n            Start the Foo.\n            \n              Parameters:\n              \n                \n                  \n                    qux (string) – The first argument to initialize class.\n                  \n                  \n                    spam (bool) – Spam me yes or no…\n                  \n                \n              \n            \n          "
+    },
+    {
+      "id": "id6",
+      "title": "1(1,2)",
+      "content": "\n        A footnote contains body elements, consistently indented by at least 3 spaces.\n        This is the footnote’s second paragraph.\n      "
+    },
+    {
+      "id": "id9",
+      "title": "3",
+      "content": "\n        This footnote is numbered automatically and anonymously using a label of “#” only.\n      "
     }
-  ],
-  "domain_data": {}
+  ]
 }

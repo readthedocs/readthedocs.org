@@ -256,6 +256,7 @@ class TestParsers:
 
         parsed_json = page_file.processed_json
         expected_json = json.load(open(data_path / 'sphinx/out/page.json'))
+        print(parsed_json)
         assert parsed_json == expected_json
 
     @mock.patch.object(BuildMediaFileSystemStorage, 'exists')

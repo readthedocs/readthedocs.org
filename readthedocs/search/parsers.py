@@ -156,22 +156,26 @@ class GenericParser:
                 except Exception as e:
                     log.info("Unable to index section.", section=str(e))
 
+        # All terms in dls are treated as sections.
         dls = body.css("dl")
         for dl in dls:
-
             # Select all dts with id defined
             dts = dl.css('dt[id]:not([id=""])')
 
+            # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt
+            # multiple <dt> elements in a row indicate several terms that are
+            # all defined by the immediate next <dd> element.
             for dt in dts:
                 try:
                     title, _id = self._parse_dt(dt)
-                    next_element = dt.next
+                    # https://developer.mozilla.org/en-US/docs/Web/CSS/General_sibling_combinator
+                    dd = dt.css_first("dt ~ dd")
                     # We only index a dt with an id attribute and an accompanying dd
-                    if not _id or next_element.tag != "dd":
+                    if not dd or not _id:
                         continue
 
                     # The content of the <dt> section is the content of the accompanying <dd>
-                    content, _ = self._parse_section_content(next_element, depth=2)
+                    content = dd.text()
                     yield {
                         "id": _id,
                         "title": title,
@@ -468,7 +472,6 @@ class SphinxParser(GenericParser):
                 try:
                     # Create a new html object, since the previous one could have been modified.
                     body = HTMLParser(data["body"])
-                    # domain_data = self._generate_domains_data(body)
                 except Exception:
                     log.info("Unable to index domains.", path=fjson_path)
         else:
@@ -478,7 +481,8 @@ class SphinxParser(GenericParser):
             "path": path,
             "title": title,
             "sections": sections,
-            "domain_data": {},  # domain_data,
+            # this used to contain content from <dl> but this is now handled in a generic parser
+            "domain_data": {},
         }
 
     def _clean_body(self, body):
