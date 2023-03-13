@@ -42,7 +42,19 @@ log = structlog.get_logger(__name__)  # noqa
 
 
 class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
+
+    """
+    Page redirect view.
+
+    This allows users to redirec to the default version of a project.
+    For example:
+
+    - /page/api/index.html -> /en/latest/api/index.html
+    - /projects/subproject/page/index.html -> /projects/subproject/en/latest/api/index.html
+    """
+
     def get(self, request, subproject_slug=None, filename=""):
+        """Handle all page redirects."""
 
         unresolved_domain = request.unresolved_domain
         project = unresolved_domain.project
@@ -73,6 +85,14 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
 
 class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
+
+    """
+    Serve docs view.
+
+    This view serves all the documentation pages,
+    and handles canonical redirects.
+    """
+
     def get(
         self,
         request,
@@ -89,6 +109,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         ``subproject_slash`` is used to determine if the subproject URL has a slash,
         so that we can decide if we need to serve docs or add a /.
         """
+        # pylint: disable=too-many-locals
         unresolved_domain = request.unresolved_domain
         # Handle requests that need canonicalizing first,
         # e.g. HTTP -> HTTPS, redirect to canonical domain, etc.
@@ -282,6 +303,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 .exists()
             )
             # For .com we need to check if the project supports custom domains.
+            # pylint: disable=protected-access
             if canonical_domain and resolver._use_cname(project):
                 log.debug(
                     "Proxito Public Domain -> Canonical Domain Redirect.",
@@ -444,7 +466,13 @@ class ServeDocs(SettingsOverrideObject):
 
 class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
 
-    def get(self, request, proxito_path, template_name='404.html'):
+    """
+    Proxito handler for 404 pages.
+
+    This view is called by an internal nginx redirect when there is a 404.
+    """
+
+    def get(self, request, proxito_path):
         """
         Handler for 404 pages on subdomains.
 
@@ -460,6 +488,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         with the default version and finally, if none of them are found, the Read
         the Docs default page (Maze Found) is rendered by Django and served.
         """
+        # pylint: disable=too-many-locals
         log.bind(proxito_path=proxito_path)
         log.debug('Executing 404 handler.')
 
@@ -800,6 +829,8 @@ class ServeError404(SettingsOverrideObject):
 
 class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
 
+    """Serve robots.txt from the domain's root."""
+
     # Always cache this view, since it's the same for all users.
     cache_response = True
     # Extra cache tag to invalidate only this view if needed.
@@ -824,7 +855,7 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
             )
 
         # Verify if the project is marked as spam and return a custom robots.txt
-        elif "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
             if is_robotstxt_denied(project):
                 return render(
@@ -913,6 +944,8 @@ class ServeRobotsTXT(SettingsOverrideObject):
 
 
 class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
+
+    """Serve sitemap.xml from the domain's root."""
 
     # Always cache this view, since it's the same for all users.
     cache_response = True
