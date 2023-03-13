@@ -145,46 +145,49 @@ class GenericParser:
             tags = body.css(f'h{head_level}')
             for tag in tags:
                 try:
-                    title, id = self._parse_section_title(tag)
+                    title, _id = self._parse_section_title(tag)
                     next_tag = self._get_header_container(tag).next
                     content, _ = self._parse_section_content(next_tag, depth=2)
                     yield {
-                        'id': id,
-                        'title': title,
-                        'content': content,
+                        "id": _id,
+                        "title": title,
+                        "content": content,
                     }
                 except Exception as e:
                     log.info("Unable to index section.", section=str(e))
 
         dls = body.css("dl")
         for dl in dls:
-            dts = dl.css("dt")
+
+            # Select all dts with id defined
+            dts = dl.css('dt[id]:not([id=""])')
 
             for dt in dts:
                 try:
-                    title, id = self._parse_dt(tag)
+                    title, _id = self._parse_dt(dt)
                     next_element = dt.next
-                    # We only index a dt with an accompanying dd
-                    if next_element.tag != "dd":
+                    # We only index a dt with an id attribute and an accompanying dd
+                    if not _id or next_element.tag != "dd":
                         continue
+
+                    # The content of the <dt> section is the content of the accompanying <dd>
                     content, _ = self._parse_section_content(next_element, depth=2)
                     yield {
-                        "id": id,
+                        "id": _id,
                         "title": title,
                         "content": content,
                     }
                 except Exception as e:
-                    log.info('Unable to index section.', section=str(e))
+                    log.info("Unable to index dt section.", section=str(e))
 
     def _parse_dt(self, tag):
         """
-        Parses a definition term <dt>
+        Parses a definition term <dt>.
+
+        If the <dt> does not have an id attribute, it cannot be referenced.
+        This should be understood by the caller.
         """
         section_id = tag.attributes.get("id", "")
-        if not section_id:
-            parent = tag.parent
-            section_id = parent.attributes.get("id", "")
-
         return self._parse_content(tag.text()), section_id
 
     def _get_sections(self, title, body):
@@ -478,23 +481,6 @@ class SphinxParser(GenericParser):
             "domain_data": {},  # domain_data,
         }
 
-    def _get_sphinx_domains(self, body):
-        """
-        REMOVING THIS
-
-        Get all nodes that are a sphinx domain.
-
-        A Sphinx domain is a <dl> tag which contains <dt> tags with an 'id' attribute,
-        dl tags that have the "footnote" class aren't domains.
-        """
-        domains = []
-        dl_tags = body.css("dl:has(dt[id])")
-        for tag in dl_tags:
-            classes = tag.attributes.get("class", "").split()
-            if "footnote" not in classes:
-                domains.append(tag)
-        return domains
-
     def _clean_body(self, body):
         """
         Removes sphinx domain nodes.
@@ -521,59 +507,6 @@ class SphinxParser(GenericParser):
             node.decompose()
 
         return body
-
-    def _generate_domains_data(self, body):
-        """
-        REMOVING THIS
-
-        Generate sphinx domain objects' docstrings.
-
-        Returns a dict with the generated data.
-        The returned dict is in the following form::
-
-            {
-                "domain-id-1": "docstrings for the domain-id-1",
-                "domain-id-2": "docstrings for the domain-id-2",
-            }
-
-        .. note::
-
-           Only the first `self.max_inner_documents` domains are returned.
-        """
-
-        domain_data = {}
-        dl_tags = self._get_sphinx_domains(body)
-        number_of_domains = 0
-
-        for dl_tag in dl_tags:
-
-            dt = dl_tag.css('dt')
-            dd = dl_tag.css('dd')
-
-            # len(dt) should be equal to len(dd)
-            # because these tags go together.
-            for title, desc in zip(dt, dd):
-                try:
-                    id_ = title.attributes.get('id', '')
-                    if id_:
-                        # Create a copy of the node,
-                        # since _parse_domain_tag will modify it.
-                        copy_desc = HTMLParser(desc.html).body.child
-                        docstrings = self._parse_domain_tag(copy_desc)
-                        domain_data[id_] = docstrings
-                        number_of_domains += 1
-                    if number_of_domains >= self.max_inner_documents:
-                        log.warning(
-                            'Limit of inner domains exceeded.',
-                            project_slug=self.project.slug,
-                            version_slug=self.version.slug,
-                            limit=self.max_inner_documents,
-                        )
-                        break
-                except Exception:
-                    log.exception('Error parsing docstring for domains')
-
-        return domain_data
 
     def _parse_domain_tag(self, tag):
         """Returns the text from the description tag of the domain."""
