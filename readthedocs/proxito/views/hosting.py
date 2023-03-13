@@ -62,4 +62,8 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
             },
         }
 
+        # Update this data with the one generated at build time by the doctool
+        if version.build_data:
+            data.update(version.build_data)
+
         return JsonResponse(data, json_dumps_params=dict(indent=4))
