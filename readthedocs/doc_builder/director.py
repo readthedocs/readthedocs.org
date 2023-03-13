@@ -229,11 +229,6 @@ class BuildDirector:
         self.data.build["config"] = self.data.config.as_dict()
         self.data.build["build_config_file"] = non_default_config_file
 
-        # Config file was successfully loaded and a custom path was used
-        if non_default_config_file and not self.data.version.build_config_file:
-            self.data.version.build_config_file = non_default_config_file
-            # TODO: Do we call self.data.version.save() here?
-
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)
 

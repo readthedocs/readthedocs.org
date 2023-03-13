@@ -190,14 +190,6 @@ class Version(TimeStampedModel):
     # Only include EXTERNAL type Versions.
     external = ExternalVersionManager.from_queryset(partial(VersionQuerySet, external_only=True))()
 
-    build_config_file = models.CharField(
-        _("Non-default build configuration file used"),
-        max_length=1024,
-        default=None,
-        blank=True,
-        null=True,
-    )
-
     class Meta:
         unique_together = [('project', 'slug')]
         ordering = ['-verbose_name']
