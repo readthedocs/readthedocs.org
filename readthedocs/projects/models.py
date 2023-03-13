@@ -2061,7 +2061,7 @@ class Feature(models.Model):
         ),
         (
             HOSTING_INTEGRATIONS,
-            _("Inject 'integrations.js' as <script> HTML tag in responses."),
+            _("Inject 'readthedocs-client.js' as <script> HTML tag in responses."),
         ),
     )
 
