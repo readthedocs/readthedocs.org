@@ -35,5 +35,5 @@ def delete_old_build_data():
     days_ago = timezone.now().date() - timezone.timedelta(days=retention_days)
     return BuildData.objects.filter(
         created__lt=days_ago,
-        created__gt=days_ago - timezone.timezone(days=90),
+        created__gt=days_ago - timezone.timedelta(days=90),
     ).delete()
