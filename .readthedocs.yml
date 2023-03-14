@@ -1,6 +1,8 @@
 version: 2
 
-formats: all
+formats:
+  - epub
+  - htmlzip
 
 sphinx:
   configuration: docs/conf.py
