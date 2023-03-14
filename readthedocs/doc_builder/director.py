@@ -330,7 +330,31 @@ class BuildDirector:
 
         commands = getattr(self.data.config.build.jobs, job, [])
         for command in commands:
-            environment.run(*command.split(), escape_command=False, cwd=cwd)
+            environment.run(command, escape_command=False, cwd=cwd)
+
+    def check_old_output_directory(self):
+        """
+        Check if there the directory '_build/html' exists and fail the build if so.
+
+        Read the Docs used to build artifacts into '_build/html' and there are
+        some projects with this path hardcoded in their files. Those builds are
+        having unexpected behavior since we are not using that path anymore.
+
+        In case we detect they are keep using that path, we fail the build
+        explaining this.
+        """
+        command = self.build_environment.run(
+            "test",
+            "-x",
+            "_build/html",
+            cwd=self.data.project.checkout_path(self.data.version.slug),
+            record=False,
+        )
+        if command.exit_code == 0:
+            log.warning(
+                "Directory '_build/html' exists. This may lead to unexpected behavior."
+            )
+            raise BuildUserError(BuildUserError.BUILD_OUTPUT_OLD_DIRECTORY_USED)
 
     def run_build_commands(self):
         reshim_commands = (
@@ -344,7 +368,7 @@ class BuildDirector:
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.build_environment
         for command in self.data.config.build.commands:
-            environment.run(*command.split(), escape_command=False, cwd=cwd)
+            environment.run(command, escape_command=False, cwd=cwd)
 
             # Execute ``asdf reshim python`` if the user is installing a
             # package since the package may contain an executable
