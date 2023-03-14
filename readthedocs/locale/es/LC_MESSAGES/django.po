@@ -26,7 +26,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-07 10:40+0000\n"
+"POT-Creation-Date: 2023-03-14 09:23+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Leonardo J. Caballero G. <leonardocaballero@gmail.com>, "
 "2015,2017-2020,2022\n"
@@ -81,7 +81,7 @@ msgstr "En Read the Docs"
 msgid "Project Home"
 msgstr "Inicio de Proyecto"
 
-#: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
+#: api/v2/templates/restapi/footer.html:72 builds/apps.py:13
 #: templates/core/project_bar_base.html:49
 msgid "Builds"
 msgstr "Compilaciones"
@@ -191,7 +191,7 @@ msgstr ""
 msgid "Invitation declined"
 msgstr ""
 
-#: audit/models.py:116 core/models.py:21 gold/models.py:35
+#: audit/models.py:116 core/models.py:21 gold/models.py:33
 #: projects/models.py:129
 msgid "User"
 msgstr "Usuario"
@@ -961,40 +961,55 @@ msgid ""
 "the \"{artifact_type}\" your want to upload."
 msgstr ""
 
-#: doc_builder/exceptions.py:58
+#: doc_builder/exceptions.py:56
+msgid ""
+"Some files were detected in an unsupported output path, '_build/html'. "
+"Ensure your project is configured to use the output path "
+"'$READTHEDOCS_OUTPUT/html' instead."
+msgstr ""
+
+#: doc_builder/exceptions.py:61
+msgid ""
+"PDF generation failed. The build log below contains information on what "
+"errors caused the failure.Our code has recently changed to fail the entire "
+"build on PDF errors, where we used to pass the build when a PDF was created."
+"Please contact us if you need help understanding this error."
+msgstr ""
+
+#: doc_builder/exceptions.py:70
 msgid "This build was manually skipped using a command exit code."
 msgstr ""
 
-#: doc_builder/exceptions.py:63
+#: doc_builder/exceptions.py:75
 msgid "Builds for this project are temporarily disabled"
 msgstr "Las compilaciones de este proyecto están temporalmente desabilitadas"
 
-#: doc_builder/exceptions.py:68
+#: doc_builder/exceptions.py:80
 #, python-brace-format
 msgid "Problem in your project's configuration. {exception}"
 msgstr "Problema en la configuración de su proyecto. {exception}"
 
-#: doc_builder/exceptions.py:73
+#: doc_builder/exceptions.py:85
 #, python-brace-format
 msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
 msgstr ""
 "Límite de simultaneidad alcanzado ({limit}), reintentando en 5 minutos."
 
-#: doc_builder/exceptions.py:77
+#: doc_builder/exceptions.py:89
 msgid "Build cancelled by user."
 msgstr "Compilación cancelada por el usuario."
 
-#: doc_builder/exceptions.py:83
+#: doc_builder/exceptions.py:95
 msgid ""
 "PDF file was not generated/found in \"_readthedocs/pdf\" output directory."
 msgstr ""
 
-#: doc_builder/exceptions.py:89
+#: doc_builder/exceptions.py:101
 #, python-brace-format
 msgid "Problem parsing MkDocs YAML configuration. {exception}"
 msgstr "Problema al analizar la configuración YAML de MkDocs. {exception}"
 
-#: doc_builder/exceptions.py:93
+#: doc_builder/exceptions.py:105
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file has to be a string "
 "with relative or absolute path."
@@ -1002,7 +1017,7 @@ msgstr ""
 "La configuración \"docs_dir\" de su archivo de configuración YAML de MkDocs "
 "tiene que ser una cadena con una ruta relativa o absoluta."
 
-#: doc_builder/exceptions.py:98
+#: doc_builder/exceptions.py:110
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file does not contain a "
 "valid path."
@@ -1010,7 +1025,7 @@ msgstr ""
 "La configuración \"docs_dir\" de su archivo de configuración YAML de MkDocs "
 "no contiene una ruta válida."
 
-#: doc_builder/exceptions.py:103
+#: doc_builder/exceptions.py:115
 #, python-brace-format
 msgid ""
 "The \"{config}\" config from your MkDocs YAML config file has to be a list "
@@ -1019,12 +1034,12 @@ msgstr ""
 "La configuración \"{config}\" de su archivo de configuración YAML de MkDocs "
 "tiene que ser una lista de rutas relativas."
 
-#: doc_builder/exceptions.py:108
+#: doc_builder/exceptions.py:120
 msgid "Please make sure the MkDocs YAML configuration file is not empty."
 msgstr ""
 "Asegúrese de que el archivo de configuración YAML de MkDocs no esté vacío."
 
-#: doc_builder/exceptions.py:112
+#: doc_builder/exceptions.py:124
 msgid ""
 "Your MkDocs YAML config file is incorrect. Please follow the user guide "
 "https://www.mkdocs.org/user-guide/configuration/ to configure the file "
@@ -1034,36 +1049,36 @@ msgstr ""
 "usuario https://www.mkdocs.org/user-guide/configuration/ para configurar el "
 "archivo correctamente."
 
-#: doc_builder/exceptions.py:120
+#: doc_builder/exceptions.py:132
 msgid "Symlinks are not fully supported"
 msgstr ""
 
-#: gold/forms.py:52
+#: gold/forms.py:51
 msgid "No project found."
 msgstr "No se encontraron proyectos."
 
-#: gold/forms.py:54
+#: gold/forms.py:53
 msgid "This project is already Ad-Free."
 msgstr "Este proyecto ya no tiene publicidad."
 
-#: gold/models.py:30 organizations/models.py:33 organizations/models.py:218
+#: gold/models.py:28 organizations/models.py:33 organizations/models.py:218
 #: organizations/models.py:292 projects/models.py:123
 #: subscriptions/models.py:24 subscriptions/models.py:126
 msgid "Publication date"
 msgstr "Fecha de publicación"
 
-#: gold/models.py:31 organizations/models.py:34 organizations/models.py:219
+#: gold/models.py:29 organizations/models.py:34 organizations/models.py:219
 #: organizations/models.py:293 projects/models.py:124 projects/models.py:1421
 #: subscriptions/models.py:25 subscriptions/models.py:127
 #: subscriptions/models.py:183
 msgid "Modified date"
 msgstr "Fecha de modificación"
 
-#: gold/models.py:41 gold/templates/gold/subscription_detail.html:87
+#: gold/models.py:39 gold/templates/gold/subscription_detail.html:87
 msgid "Level"
 msgstr "Nivel"
 
-#: gold/models.py:48 organizations/models.py:39 organizations/models.py:229
+#: gold/models.py:46 organizations/models.py:39 organizations/models.py:229
 #: organizations/templates/organizations/team_detail.html:49
 #: organizations/templates/organizations/team_project_edit.html:13
 #: templates/core/project_bar.html:7 templates/core/project_bar_base.html:20
@@ -1359,7 +1374,7 @@ msgstr "Aceptar"
 msgid "Decline"
 msgstr "Rechazar"
 
-#: notifications/forms.py:29
+#: notifications/forms.py:28
 msgid "Notification"
 msgstr "Notificación"
 
@@ -3041,7 +3056,7 @@ msgstr "Proyecto donde esta variable será usada"
 msgid "Expose this environment variable in PR builds?"
 msgstr "¿Exponer esta variable de entorno en compilaciones PR?"
 
-#: projects/notifications.py:27
+#: projects/notifications.py:26
 msgid ""
 "Your primary email address is not verified. Please <a "
 "href=\"{{account_email_url}}\">verify it here</a>."

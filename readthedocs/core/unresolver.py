@@ -52,10 +52,12 @@ class VersionNotFoundError(UnresolverError):
 
 
 class TranslationNotFoundError(UnresolverError):
-    def __init__(self, project, language, filename):
+    def __init__(self, project, language, version_slug, filename):
         self.project = project
         self.language = language
         self.filename = filename
+        # The version doesn't exist, so we just have the slug.
+        self.version_slug = version_slug
 
 
 class InvalidPathForVersionedProjectError(UnresolverError):
@@ -264,7 +266,10 @@ class Unresolver:
             project = parent_project.translations.filter(language=language).first()
             if not project:
                 raise TranslationNotFoundError(
-                    project=parent_project, language=language, filename=file
+                    project=parent_project,
+                    language=language,
+                    version_slug=version_slug,
+                    filename=file,
                 )
 
         if external_version_slug and external_version_slug != version_slug:

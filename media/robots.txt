@@ -5,5 +5,5 @@ Disallow: /builds/
 Disallow: /sustainability/click/
 
 # This was hitting our site and causing a lot of issues
-User-agent: AhrefsBot 
+User-agent: AhrefsBot
 Disallow: /

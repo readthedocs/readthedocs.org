@@ -1041,6 +1041,10 @@ class CommunityBaseSettings(Settings):
             'ops': CACHEOPS_OPS,
             'timeout': CACHEOPS_TIMEOUT,
         },
+        'projects.feature': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
         'projects.projectrelationship': {
             'ops': CACHEOPS_OPS,
             'timeout': CACHEOPS_TIMEOUT,
