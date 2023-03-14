@@ -679,8 +679,15 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             version_type=self.version_type,
         )
 
+        tryfiles = ["index.html", "README.html"]
+        # If the path ends with `/`, we already tried to serve
+        # the `/index.html` file, so we only need to test for
+        # the `/README.html` file.
+        if full_path.endswith("/"):
+            tryfiles = ["README.html"]
+
         # First, check for dirhtml with slash
-        for tryfile in ("index.html", "README.html"):
+        for tryfile in tryfiles:
             storage_filename_path = build_media_storage.join(
                 storage_root_path,
                 f"{filename}/{tryfile}".lstrip("/"),
