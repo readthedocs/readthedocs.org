@@ -28,11 +28,18 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
         build = version.builds.last()
 
         # TODO: define how it will be the exact JSON object returned here
+        # NOTE: we could use the APIv3 serializers for some of these objects if we want to keep consistency.
+        # However, those may require some extra db calls that we probably want to avoid.
         data = {
+            "comment": (
+                "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY"
+                " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
+            ),
             "project": {
                 "slug": project.slug,
                 "language": project.language,
                 "repository_url": project.repo,
+                "programming_language": project.programming_language,
             },
             "version": {
                 "slug": version.slug,
@@ -44,7 +51,15 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
             "domains": {
                 "dashboard": settings.PRODUCTION_DOMAIN,
             },
+            "readthedocs": {
+                "analytics": {
+                    "code": settings.GLOBAL_ANALYTICS_CODE,
+                },
+            },
             "features": {
+                "analytics": {
+                    "code": project.analytics_code,
+                },
                 "external_version_warning": {
                     "enabled": True,
                     "query_selector": "[role=main]",
@@ -66,7 +81,7 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                             "slug": version.slug,
                             "url": f"/{project.language}/{version.slug}/",
                         }
-                        for version in project.versions.filter(active=True)
+                        for version in project.versions.filter(active=True).only("slug")
                     ],
                     "downloads": [],
                     # TODO: get this values properly
