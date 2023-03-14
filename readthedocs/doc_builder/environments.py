@@ -310,8 +310,8 @@ class DockerBuildCommand(BuildCommand):
         ] = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
         # Add asdf extra paths
         environment["PATH"] += (
-            ":/home/{settings.RTD_DOCKER_USER}/.asdf/shims"
-            ":/home/{settings.RTD_DOCKER_USER}/.asdf/bin"
+            f":/home/{settings.RTD_DOCKER_USER}/.asdf/shims"
+            f":/home/{settings.RTD_DOCKER_USER}/.asdf/bin"
         )
 
         if settings.RTD_DOCKER_COMPOSE:
