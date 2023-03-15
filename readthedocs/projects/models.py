@@ -729,7 +729,8 @@ class Project(models.Model):
             if parent_project.urlpattern_subproject:
                 subproject_prefix = urlpattern_to_plain_text(parent_project.urlpattern_subproject)
                 # The filename isn't part of the subproject prefix.
-                subproject_prefix = subproject_prefix.replace("{filename}", "")
+                index = subproject_prefix.find("{filename}")
+                subproject_prefix = subproject_prefix[:index]
             else:
                 subproject_prefix = "/projects/{subproject}/"
             prefix = subproject_prefix.format(subproject=parent_project.slug)

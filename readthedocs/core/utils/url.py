@@ -71,15 +71,24 @@ def urlpattern_to_plain_text(urlpattern):
 
     .. note::
 
-       Escaped characters will also be removed, this is fine since we don't
-       allow any of these characters in URL patterns.
-
        To escape a regex instead of removing its characters, use ``re.escape``.
     """
-    return urlpattern.translate({
-        "(": "",
-        ")": "",
-        "?": "",
-        "$": "",
-        "^": "",
-    })
+    remove = {"(", ")", "?", "$", "^"}
+    plain_urlpattern = []
+    is_escaped = False
+    for c in urlpattern:
+        # If the character is escaped, we don't
+        # need to check if it's a special.
+        if is_escaped:
+            is_escaped = False
+            plain_urlpattern.append(c)
+            continue
+
+        if c == "\\":
+            is_escaped = True
+            continue
+
+        if c not in remove:
+            plain_urlpattern.append(c)
+
+    return "".join(plain_urlpattern)
