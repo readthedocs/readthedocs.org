@@ -483,7 +483,8 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
     This view is called by an internal nginx redirect when there is a 404.
     """
 
-    def get(self, request, proxito_path):
+    # pylint: disable=unused-argument
+    def get(self, request, proxito_path, template_name="404.html"):
         """
         Handler for 404 pages on subdomains.
 
