@@ -1,6 +1,7 @@
 """URL handling utilities."""
 
 import re
+
 from readthedocs.constants import pattern_opts
 
 
@@ -45,12 +46,14 @@ def urlpattern_to_regex(urlpattern):
 
         ^/(?P<language>en|es|br)/(?P<version>[a-zA-Z]+)$
     """
-    return re.compile(urlpattern.format(
-        language=f"(?P<language>{pattern_opts['lang_slug']})",
-        version=f"(?P<version>{pattern_opts['version_slug']})",
-        filename=f"(?P<filename>{pattern_opts['filename_slug']})",
-        subproject=f"(?P<subproject>{pattern_opts['project_slug']})",
-    ))
+    return re.compile(
+        urlpattern.format(
+            language=f"(?P<language>{pattern_opts['lang_slug']})",
+            version=f"(?P<version>{pattern_opts['version_slug']})",
+            filename=f"(?P<filename>{pattern_opts['filename_slug']})",
+            subproject=f"(?P<subproject>{pattern_opts['project_slug']})",
+        )
+    )
 
 
 def urlpattern_to_plain_text(urlpattern):

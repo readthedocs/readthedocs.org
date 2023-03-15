@@ -243,7 +243,7 @@ class Unresolver:
         :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
-        pattern = parent_project.compiled_urlpattern or self.multiversion_pattern
+        pattern = parent_project.regex_urlpattern or self.multiversion_pattern
         match = pattern.match(path)
         if not match:
             return None
@@ -290,7 +290,7 @@ class Unresolver:
         :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
-        pattern = parent_project.compiled_urlpattern_subproject or self.subproject_pattern
+        pattern = parent_project.regex_urlpattern_subproject or self.subproject_pattern
         match = pattern.match(path)
         if not match:
             return None
@@ -330,7 +330,7 @@ class Unresolver:
         :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
-        pattern = parent_project.compiled_urlpattern
+        pattern = parent_project.regex_urlpattern
         if pattern:
             match = pattern.match(path)
             if not match:

@@ -6,7 +6,6 @@ from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.core.utils.url import unsafe_join_url_path
 
 log = structlog.get_logger(__name__)
 

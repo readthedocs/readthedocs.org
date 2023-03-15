@@ -186,6 +186,7 @@ docs_urls = [
         ServeDocs.as_view(),
         name='docs_detail_singleversion_subproject',
     ),
+    re_path("^.*$", ServeDocs.as_view()),
 ]
 
 urlpatterns = health_check_urls + proxied_urls + core_urls + docs_urls
