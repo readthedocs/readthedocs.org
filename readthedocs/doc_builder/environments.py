@@ -305,25 +305,29 @@ class DockerBuildCommand(BuildCommand):
         # Create a copy of the environment to update PATH variable
         environment = self._environment.copy()
         # Default PATH variable
-        environment[
-            "PATH"
-        ] = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-        # Add asdf extra paths
-        environment["PATH"] += (
-            f":/home/{settings.RTD_DOCKER_USER}/.asdf/shims"
+        # This default comes from our Docker image:
+        #
+        # $ docker run --user docs -it --rm readthedocs/build:ubuntu-22.04 /bin/bash
+        # docs@bfe702e31cdd:~$ echo $PATH
+        # /home/docs/.asdf/shims:/home/docs/.asdf/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        # docs@bfe702e31cdd:~$
+        asdf_paths = (
+            f"/home/{settings.RTD_DOCKER_USER}/.asdf/shims"
             f":/home/{settings.RTD_DOCKER_USER}/.asdf/bin"
         )
-
         if settings.RTD_DOCKER_COMPOSE:
-            environment["PATH"] += ":/root/.asdf/shims:/root/.asdf/bin"
+            asdf_paths += ":/root/.asdf/shims:/root/.asdf/bin"
+
+        default_paths = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        environment["PATH"] = f"{asdf_paths}:{default_paths}"
 
         # Prepend the BIN_PATH if it's defined
         if self.bin_path:
-            path = environment.get("PATH")
-            bin_path = self._escape_command(self.bin_path)
-            environment["PATH"] = bin_path
-            if path:
-                environment["PATH"] += f":{path}"
+            original_path = environment.get("PATH")
+            escaped_bin_path = self._escape_command(self.bin_path)
+            environment["PATH"] = escaped_bin_path
+            if original_path:
+                environment["PATH"] = f"{escaped_bin_path}:{original_path}"
 
         try:
             exec_cmd = client.exec_create(
