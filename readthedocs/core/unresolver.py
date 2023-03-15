@@ -1,4 +1,3 @@
-import re
 from dataclasses import dataclass
 from enum import Enum, auto
 from urllib.parse import ParseResult, urlparse
@@ -8,7 +7,7 @@ from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
-from readthedocs.constants import pattern_opts
+from readthedocs.core.utils.url import urlpattern_to_regex
 from readthedocs.projects.models import Domain, Feature, Project
 
 log = structlog.get_logger(__name__)
@@ -137,29 +136,21 @@ class Unresolver:
     # - /en/latest
     # - /en/latest/
     # - /en/latest/file/name/
-    multiversion_pattern = re.compile(
-        r"""
-        ^/(?P<language>{lang_slug})  # Must have the language slug.
-        (/((?P<version>{version_slug})(/(?P<file>{filename_slug}))?)?)?$  # Optionally a version followed by a file.  # noqa
-        """.format(
-            **pattern_opts
-        ),
-        re.VERBOSE,
+    multiversion_pattern = urlpattern_to_regex(
+        # The path must have a language slug,
+        # optionally a version slug followed by a filename.
+        "^/{language}(/({version}(/{filename})?)?)?$"
     )
 
     # This pattern matches:
     # - /projects/subproject
     # - /projects/subproject/
     # - /projects/subproject/file/name/
-    subproject_pattern = re.compile(
-        r"""
-        ^/projects/  # Must have the `projects` prefix.
-        (?P<project>{project_slug}+)  # Followed by the subproject alias.
-        (/(?P<file>{filename_slug}))?$  # Optionally a filename, which will be recursively resolved.
-        """.format(
-            **pattern_opts
-        ),
-        re.VERBOSE,
+    subproject_pattern = urlpattern_to_regex(
+        # The path must have the `projects` prefix,
+        # followed by the subproject alias,
+        # optionally a filename, which will be recursively resolved.
+        "/projects/{subproject}(/{filename})?$"
     )
 
     def unresolve_url(self, url, append_indexhtml=True):
@@ -249,16 +240,17 @@ class Unresolver:
         An exception is raised if we weren't able to find a matching version or language,
         this exception has the current project (useful for 404 pages).
 
-        :returns: A tuple with the current project, version and file.
+        :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
-        match = self.multiversion_pattern.match(path)
+        pattern = parent_project.compiled_urlpattern or self.multiversion_pattern
+        match = pattern.match(path)
         if not match:
             return None
 
         language = match.group("language")
         version_slug = match.group("version")
-        file = self._normalize_filename(match.group("file"))
+        filename = self._normalize_filename(match.group("filename"))
 
         if parent_project.language == language:
             project = parent_project
@@ -269,7 +261,7 @@ class Unresolver:
                     project=parent_project,
                     language=language,
                     version_slug=version_slug,
-                    filename=file,
+                    filename=filename,
                 )
 
         if external_version_slug and external_version_slug != version_slug:
@@ -283,10 +275,10 @@ class Unresolver:
         version = project.versions(manager=manager).filter(slug=version_slug).first()
         if not version:
             raise VersionNotFoundError(
-                project=project, version_slug=version_slug, filename=file
+                project=project, version_slug=version_slug, filename=filename
             )
 
-        return project, version, file
+        return project, version, filename
 
     def _match_subproject(self, parent_project, path, external_version_slug=None):
         """
@@ -295,15 +287,16 @@ class Unresolver:
         If the subproject exists, we try to resolve the rest of the path
         with the subproject as the canonical project.
 
-        :returns: A tuple with the current project, version and file.
+        :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
-        match = self.subproject_pattern.match(path)
+        pattern = parent_project.compiled_urlpattern_subproject or self.subproject_pattern
+        match = pattern.match(path)
         if not match:
             return None
 
-        subproject_alias = match.group("project")
-        file = self._normalize_filename(match.group("file"))
+        subproject_alias = match.group("subproject")
+        filename = self._normalize_filename(match.group("filename"))
         project_relationship = (
             parent_project.subprojects.filter(alias=subproject_alias)
             .select_related("child")
@@ -315,7 +308,7 @@ class Unresolver:
             subproject = project_relationship.child
             response = self._unresolve_path_with_parent_project(
                 parent_project=subproject,
-                path=file,
+                path=filename,
                 check_subprojects=False,
                 external_version_slug=external_version_slug,
             )
@@ -334,10 +327,18 @@ class Unresolver:
         An exception is raised if we weren't able to find a matching version,
         this exception has the current project (useful for 404 pages).
 
-        :returns: A tuple with the current project, version and file.
+        :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
-        file = self._normalize_filename(path)
+        pattern = parent_project.compiled_urlpattern
+        if pattern:
+            match = pattern.match(path)
+            if not match:
+                return None
+            filename = self._normalize_filename(match.group("filename"))
+        else:
+            filename = self._normalize_filename(path)
+
         if external_version_slug:
             version_slug = external_version_slug
             manager = EXTERNAL
@@ -350,10 +351,10 @@ class Unresolver:
         )
         if not version:
             raise VersionNotFoundError(
-                project=parent_project, version_slug=version_slug, filename=file
+                project=parent_project, version_slug=version_slug, filename=filename
             )
 
-        return parent_project, version, file
+        return parent_project, version, filename
 
     def _unresolve_path_with_parent_project(
         self, parent_project, path, check_subprojects=True, external_version_slug=None
@@ -361,18 +362,16 @@ class Unresolver:
         """
         Unresolve `path` with `parent_project` as base.
 
-        If the returned project is `None`, then we weren't able to
-        unresolve the path into a project.
-
-        If the returned version is `None`, then we weren't able to
-        unresolve the path into a valid version of the project.
+        The returned project, version, and filename are guaranteed to not be
+        `None`. An exception is raised if we weren't able to resolve the
+        project, version or path.
 
         The checks are done in the following order:
 
         - Check for multiple versions if the parent project
           isn't a single version project.
         - Check for subprojects.
-        - Check for single versions if the parent project isn’t
+        - Check for single versions if the parent project isn't
           a multi version project.
 
         :param parent_project: The project that owns the path.
@@ -384,7 +383,7 @@ class Unresolver:
          Used instead of the default version for single version projects
          being served under an external domain.
 
-        :returns: A tuple with: project, version, and file name.
+        :returns: A tuple with: project, version, and filename.
         """
         # Multiversion project.
         if not parent_project.single_version:

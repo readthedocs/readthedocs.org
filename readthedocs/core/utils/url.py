@@ -1,4 +1,7 @@
-"""URL hadling utilities."""
+"""URL handling utilities."""
+
+import re
+from readthedocs.constants import pattern_opts
 
 
 def unsafe_join_url_path(base, *args):
@@ -19,3 +22,64 @@ def unsafe_join_url_path(base, *args):
     for path in args:
         base = base.rstrip("/") + "/" + path.lstrip("/")
     return base
+
+
+def urlpattern_to_regex(urlpattern):
+    """
+    Transform a URL pattern to a regular expression.
+
+    A URL pattern is a regular expression with replacement fields, like:
+    language, version, filename, subproject.
+
+    Before compiling the regular expression, the string is formatted with
+    `str.format` to replace each field with a capture group:
+    language, version, filename, project.
+
+    This regex is mainly used by the unresolver.
+
+    For example:
+
+        ^/{language}/{version}$
+
+    Would be transformed to:
+
+        ^/(?P<language>en|es|br)/(?P<version>[a-zA-Z]+)$
+    """
+    return re.compile(urlpattern.format(
+        language=f"(?P<language>{pattern_opts['lang_slug']})",
+        version=f"(?P<version>{pattern_opts['version_slug']})",
+        filename=f"(?P<filename>{pattern_opts['filename_slug']})",
+        subproject=f"(?P<subproject>{pattern_opts['project_slug']})",
+    ))
+
+
+def urlpattern_to_plain_text(urlpattern):
+    """
+    Remove all regex special characters from a URL pattern.
+
+    URL patterns are regular expressions with replacement fields,
+    we remove all special regex characters to have a plain text
+    representation of the URL. Replacement fields are left untouched.
+
+    For example:
+
+        ^/{language}/{version}$
+
+    Would be transformed to:
+
+        /{language}/{version}
+
+    .. note::
+
+       Escaped characters will also be removed, this is fine since we don't
+       allow any of these characters in URL patterns.
+
+       To escape a regex instead of removing its characters, use ``re.escape``.
+    """
+    return urlpattern.translate({
+        "(": "",
+        ")": "",
+        "?": "",
+        "$": "",
+        "^": "",
+    })

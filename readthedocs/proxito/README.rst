@@ -42,6 +42,11 @@ path prefix:
                                     version     |
                                              filename
 
+URL patterns
+------------
+
+TBD
+
 CDN
 ---
 
