@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-07 10:40+0000\n"
+"POT-Creation-Date: 2023-03-14 09:23+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Tomas Straupis, 2021,2023\n"
 "Language-Team: Lithuanian (http://www.transifex.com/readthedocs/readthedocs/"
@@ -63,7 +63,7 @@ msgstr "Pas Read the Docs"
 msgid "Project Home"
 msgstr "Projekto namai"
 
-#: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
+#: api/v2/templates/restapi/footer.html:72 builds/apps.py:13
 #: templates/core/project_bar_base.html:49
 msgid "Builds"
 msgstr "Kūrimai"
@@ -173,7 +173,7 @@ msgstr "Pakvietimas priimtas"
 msgid "Invitation declined"
 msgstr "Pakvietimas atmestas"
 
-#: audit/models.py:116 core/models.py:21 gold/models.py:35
+#: audit/models.py:116 core/models.py:21 gold/models.py:33
 #: projects/models.py:129
 msgid "User"
 msgstr "Naudotojas"
@@ -924,7 +924,7 @@ msgstr ""
 #, python-brace-format
 msgid ""
 "Build output directory for format \"{artifact_type}\" is not a directory."
-msgstr ""
+msgstr "Išvesties aplankas formatui „{artifact_type}“ nėra aplankas."
 
 #: doc_builder/exceptions.py:47
 #, python-brace-format
@@ -933,6 +933,8 @@ msgid ""
 "files. It seems the build process created the directory but did not save any "
 "file to it."
 msgstr ""
+"Išvesties aplanke formatui „{artifact_type}“ nėra jokių failų. Panašu, kad "
+"aplankas buvo sukurtas, bet į jį neįrašytas joks failas."
 
 #: doc_builder/exceptions.py:51
 #, python-brace-format
@@ -941,43 +943,61 @@ msgid ""
 "files and it is not currently supported. Please, remove all the files but "
 "the \"{artifact_type}\" your want to upload."
 msgstr ""
+"Išvesties aplanke formatui „{artifact_type}“ yra keli failai ir jie šiuo "
+"metu nepalaikomi. Prašome pašalinti failus išskyrus „{artifact_type}“, kurį "
+"norite įkelti."
 
-#: doc_builder/exceptions.py:58
+#: doc_builder/exceptions.py:56
+msgid ""
+"Some files were detected in an unsupported output path, '_build/html'. "
+"Ensure your project is configured to use the output path "
+"'$READTHEDOCS_OUTPUT/html' instead."
+msgstr ""
+
+#: doc_builder/exceptions.py:61
+msgid ""
+"PDF generation failed. The build log below contains information on what "
+"errors caused the failure.Our code has recently changed to fail the entire "
+"build on PDF errors, where we used to pass the build when a PDF was created."
+"Please contact us if you need help understanding this error."
+msgstr ""
+
+#: doc_builder/exceptions.py:70
 msgid "This build was manually skipped using a command exit code."
 msgstr ""
 "Šis kūrimas buvo rankiniu būdu praleistas naudojant komandos išeities kodą."
 
-#: doc_builder/exceptions.py:63
+#: doc_builder/exceptions.py:75
 msgid "Builds for this project are temporarily disabled"
 msgstr "Šio projekto kūrimai laikinai išjungti"
 
-#: doc_builder/exceptions.py:68
+#: doc_builder/exceptions.py:80
 #, python-brace-format
 msgid "Problem in your project's configuration. {exception}"
 msgstr "Problema jūsų projekto konfigūracijoje. {exception}"
 
-#: doc_builder/exceptions.py:73
+#: doc_builder/exceptions.py:85
 #, python-brace-format
 msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
 msgstr ""
 "Pasiektas lygiagretumo apribojimas ({limit}), bus kartojama po 5 minučių."
 
-#: doc_builder/exceptions.py:77
+#: doc_builder/exceptions.py:89
 msgid "Build cancelled by user."
 msgstr "Kūrimą nutraukė naudotojas."
 
-#: doc_builder/exceptions.py:83
+#: doc_builder/exceptions.py:95
 msgid ""
 "PDF file was not generated/found in \"_readthedocs/pdf\" output directory."
 msgstr ""
 "PDF failas nebuvo sukurtas/rastas \"_readthedocs/pdf\" išvesties aplanke."
 
-#: doc_builder/exceptions.py:89
+#: doc_builder/exceptions.py:101
 #, python-brace-format
 msgid "Problem parsing MkDocs YAML configuration. {exception}"
 msgstr "Problema nagrinėjant MkDocs YAML konfigūraciją. {exception}"
 
-#: doc_builder/exceptions.py:93
+#: doc_builder/exceptions.py:105
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file has to be a string "
 "with relative or absolute path."
@@ -985,14 +1005,14 @@ msgstr ""
 "Jūsų MkDocs YAML konfigūracijos failo „docs_dir“ konfigūracija turi būti "
 "tekstas su santykiniu ar absoliučiu keliu."
 
-#: doc_builder/exceptions.py:98
+#: doc_builder/exceptions.py:110
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file does not contain a "
 "valid path."
 msgstr ""
 "Jūsų MkDocs YAML konfigūracijos failo „docs_dir“ nenurodytas tinkamas kelias."
 
-#: doc_builder/exceptions.py:103
+#: doc_builder/exceptions.py:115
 #, python-brace-format
 msgid ""
 "The \"{config}\" config from your MkDocs YAML config file has to be a list "
@@ -1001,12 +1021,12 @@ msgstr ""
 "Jūsų MkDocs YAML konfigūracijos failo „{config}“ turi būti santykinių kelių "
 "sąrašas."
 
-#: doc_builder/exceptions.py:108
+#: doc_builder/exceptions.py:120
 msgid "Please make sure the MkDocs YAML configuration file is not empty."
 msgstr ""
 "Prašome įsitikinti, kad MkDocs YAML konfigūracijos failas nėra tuščias."
 
-#: doc_builder/exceptions.py:112
+#: doc_builder/exceptions.py:124
 msgid ""
 "Your MkDocs YAML config file is incorrect. Please follow the user guide "
 "https://www.mkdocs.org/user-guide/configuration/ to configure the file "
@@ -1016,36 +1036,36 @@ msgstr ""
 "vadovą https://www.mkdocs.org/user-guide/configuration/, kad tinkamai "
 "sukonfigūruotumėte failą."
 
-#: doc_builder/exceptions.py:120
+#: doc_builder/exceptions.py:132
 msgid "Symlinks are not fully supported"
 msgstr "Simbolinės nuorodos pilnai nepalaikomos"
 
-#: gold/forms.py:52
+#: gold/forms.py:51
 msgid "No project found."
 msgstr "Nerastas joks projektas."
 
-#: gold/forms.py:54
+#: gold/forms.py:53
 msgid "This project is already Ad-Free."
 msgstr "Projektas jau yra be reklamos."
 
-#: gold/models.py:30 organizations/models.py:33 organizations/models.py:218
+#: gold/models.py:28 organizations/models.py:33 organizations/models.py:218
 #: organizations/models.py:292 projects/models.py:123
 #: subscriptions/models.py:24 subscriptions/models.py:126
 msgid "Publication date"
 msgstr "Publikavimo data"
 
-#: gold/models.py:31 organizations/models.py:34 organizations/models.py:219
+#: gold/models.py:29 organizations/models.py:34 organizations/models.py:219
 #: organizations/models.py:293 projects/models.py:124 projects/models.py:1421
 #: subscriptions/models.py:25 subscriptions/models.py:127
 #: subscriptions/models.py:183
 msgid "Modified date"
 msgstr "Keitimo data"
 
-#: gold/models.py:41 gold/templates/gold/subscription_detail.html:87
+#: gold/models.py:39 gold/templates/gold/subscription_detail.html:87
 msgid "Level"
 msgstr "Lygis"
 
-#: gold/models.py:48 organizations/models.py:39 organizations/models.py:229
+#: gold/models.py:46 organizations/models.py:39 organizations/models.py:229
 #: organizations/templates/organizations/team_detail.html:49
 #: organizations/templates/organizations/team_project_edit.html:13
 #: templates/core/project_bar.html:7 templates/core/project_bar_base.html:20
@@ -1199,7 +1219,7 @@ msgstr "Parinkite projektus"
 
 #: gold/templates/gold/subscription_detail.html:104
 msgid "Become a Gold member"
-msgstr ""
+msgstr "Tapkite auksiniu nariu"
 
 #: gold/templates/gold/subscription_detail.html:112
 #: templates/account/signup.html:10 templates/account/signup.html:46
@@ -1210,6 +1230,7 @@ msgstr "Prisiregistruoti"
 msgid ""
 "There was an error connecting to Stripe, please try again in a few minutes"
 msgstr ""
+"Klaida jungiantis prie Stripe, prašome pabandyti dar kartą po kelių minučių"
 
 #: integrations/models.py:150 integrations/models.py:158
 msgid "Request headers"
@@ -1258,7 +1279,7 @@ msgstr "Tiekėjo duomenys"
 
 #: integrations/models.py:302
 msgid "Secret used to validate the payload of the webhook"
-msgstr ""
+msgstr "Paslaptis, naudojama krovinio patikrinimui"
 
 #: integrations/models.py:324
 #, python-brace-format
@@ -1267,24 +1288,24 @@ msgstr "{0} už {1}"
 
 #: invitations/models.py:100
 msgid "From user"
-msgstr ""
+msgstr "Iš naudotojo"
 
 #: invitations/models.py:106
 msgid "To user"
-msgstr ""
+msgstr "Naudotojui"
 
 #: invitations/models.py:112 organizations/models.py:59
 #: organizations/models.py:308
 msgid "E-mail"
-msgstr ""
+msgstr "E-paštas"
 
 #: invitations/models.py:117
 msgid "Expiration date"
-msgstr ""
+msgstr "Galiojimo data"
 
 #: invitations/templates/invitations/includes/invitation_list.html:19
 msgid "Invitation expired"
-msgstr ""
+msgstr "Pakvietimas nebegalioja"
 
 #: invitations/templates/invitations/includes/invitation_list.html:21
 msgid "Invitation pending"
@@ -1333,7 +1354,7 @@ msgstr ""
 msgid "Decline"
 msgstr ""
 
-#: notifications/forms.py:29
+#: notifications/forms.py:28
 msgid "Notification"
 msgstr "Pranešimas"
 
@@ -2893,7 +2914,7 @@ msgstr "Projektas, kur šis kintamasis bus naudojamas"
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
-#: projects/notifications.py:27
+#: projects/notifications.py:26
 msgid ""
 "Your primary email address is not verified. Please <a "
 "href=\"{{account_email_url}}\">verify it here</a>."

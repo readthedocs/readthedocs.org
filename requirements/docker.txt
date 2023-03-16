@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.84
+boto3==1.26.89
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.84
+botocore==1.29.89
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -56,7 +56,7 @@ cffi==1.15.1
     #   cryptography
 chardet==5.1.0
     # via tox
-charset-normalizer==3.0.1
+charset-normalizer==3.1.0
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -157,7 +157,7 @@ django-formtools==2.3
     # via -r requirements/pip.txt
 django-gravatar2==1.4.4
     # via -r requirements/pip.txt
-django-ipware==4.0.2
+django-ipware==5.0.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -193,7 +193,7 @@ dparse==0.6.2
     # via -r requirements/pip.txt
 drf-extensions==0.7.1
     # via -r requirements/pip.txt
-drf-flex-fields==1.0.1
+drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
 elasticsearch==7.17.9
     # via
@@ -232,7 +232,7 @@ imagesize==1.4.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
-ipdb==0.13.11
+ipdb==0.13.13
     # via -r requirements/docker.in
 ipython==8.11.0
     # via ipdb
@@ -295,7 +295,7 @@ pickleshare==0.7.5
     # via ipython
 pillow==9.4.0
     # via -r requirements/docker.in
-platformdirs==3.1.0
+platformdirs==3.1.1
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -469,7 +469,7 @@ unidecode==1.3.6
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==1.26.14
+urllib3==1.26.15
     # via
     #   -r requirements/pip.txt
     #   botocore

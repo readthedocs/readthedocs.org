@@ -1,3 +1,23 @@
+Version 9.9.0
+-------------
+
+:Date: March 14, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10139 <https://github.com/readthedocs/readthedocs.org/pull/10139>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix typo (`#10130 <https://github.com/readthedocs/readthedocs.org/pull/10130>`__)
+* `@humitos <https://github.com/humitos>`__: Lint: one step forward through linting our code (`#10129 <https://github.com/readthedocs/readthedocs.org/pull/10129>`__)
+* `@humitos <https://github.com/humitos>`__: Build: check for `_build/html` directory and fail if exists (`#10126 <https://github.com/readthedocs/readthedocs.org/pull/10126>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: typo on Celery task (`#10125 <https://github.com/readthedocs/readthedocs.org/pull/10125>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: actually cache robots.txt and sitemap.xml (`#10123 <https://github.com/readthedocs/readthedocs.org/pull/10123>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: add another model to cacheops (`#10121 <https://github.com/readthedocs/readthedocs.org/pull/10121>`__)
+* `@humitos <https://github.com/humitos>`__: Build: pass shell commands directly (`build.jobs` / `build.commands)` (`#10119 <https://github.com/readthedocs/readthedocs.org/pull/10119>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.8.0 (`#10116 <https://github.com/readthedocs/readthedocs.org/pull/10116>`__)
+* `@humitos <https://github.com/humitos>`__: Downloadable artifacts: make PDF and ePub opt-in by default (`#10115 <https://github.com/readthedocs/readthedocs.org/pull/10115>`__)
+* `@humitos <https://github.com/humitos>`__: Build: fail PDF command (`latexmk`) if exit code != 0 (`#10113 <https://github.com/readthedocs/readthedocs.org/pull/10113>`__)
+* `@humitos <https://github.com/humitos>`__: pre-commit: move `prospector` inside pre-commit (`#10105 <https://github.com/readthedocs/readthedocs.org/pull/10105>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: use unresolver in 404 handler (`#10074 <https://github.com/readthedocs/readthedocs.org/pull/10074>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add beta version of doc diff library for testing (`#9546 <https://github.com/readthedocs/readthedocs.org/pull/9546>`__)
+
 Version 9.8.0
 -------------
 

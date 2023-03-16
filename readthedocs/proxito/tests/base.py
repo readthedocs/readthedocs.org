@@ -33,7 +33,7 @@ class BaseDocServing(TestCase):
             users=[self.eric],
             main_language_project=None,
         )
-        self.project.versions.update(privacy_level=PUBLIC)
+        self.project.versions.update(privacy_level=PUBLIC, built=True, active=True)
         self.version = self.project.versions.get(slug=LATEST)
 
         self.subproject = fixture.get(
