@@ -203,7 +203,7 @@ How-to guides
 ~~~~~~~~~~~~~
 
 * Title should begin with **“How to ...”**.
-  If the how-to guide is specific for Sphinx, make sure to note it in the title.
+  If the how-to guide is specific for a tool, make sure to note it in the title.
 * Navigation titles should not contain the “How to” part.
   Navigation title for "How to create a thing" is **Creating a thing**.
 * Introduce the scope: **“In this guide, we will…”**
