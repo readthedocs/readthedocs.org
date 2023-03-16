@@ -210,12 +210,11 @@ class Project(models.Model):
         help_text=_(
             "Specify the type of documentation you are building. "
             "This will make the automatic Read the Docs builder detect your MkDocs or Sphinx "
-            "configuration and  build your project running Read the Docs' default command. "
-            "The Generic builder is only possible to use with a readthedocs.yaml configuration "
-            "file since you need to specify the build command in this case. If you need more "
-            "options, use a "
+            "configuration and build your project running Read the Docs' default command. "
+            "Using a readthedocs.yaml "
             '<a href="https://docs.readthedocs.io/en/stable/config-file/index.html">configuration '
-            "file</a>. "
+            "file</a> allows you to change defaults or build documentation for <strong>other "
+            "tools than Sphinx and MkDocs</strong>."
         ),
     )
     urlconf = models.CharField(
