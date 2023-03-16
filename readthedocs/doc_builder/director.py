@@ -638,6 +638,10 @@ class BuildDirector:
             "readthedocs-build.yaml",
         )
 
+        if not os.path.exists(yaml_path):
+            log.debug("Build output YAML file (readtehdocs-build.yaml) does not exist.")
+            return
+
         try:
             with open(yaml_path, "r") as f:
                 data = yaml.safe_load(f)
