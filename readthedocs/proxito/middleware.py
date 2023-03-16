@@ -285,8 +285,6 @@ class ProxitoMiddleware(MiddlewareMixin):
             project = Project.objects.get(slug=project_slug)
             if project.has_feature(Feature.HOSTING_INTEGRATIONS):
                 response["X-RTD-Hosting-Integrations"] = "true"
-            else:
-                response["X-RTD-Hosting-Integrations"] = "false"
 
     def process_response(self, request, response):  # noqa
         self.add_proxito_headers(request, response)
