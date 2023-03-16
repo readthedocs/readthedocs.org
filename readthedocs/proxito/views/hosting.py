@@ -7,6 +7,7 @@ from django.views import View
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.mixins import CDNCacheControlMixin
+from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import unresolver
 
 log = structlog.get_logger(__name__)  # noqa
@@ -28,8 +29,9 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
         build = version.builds.last()
 
         # TODO: define how it will be the exact JSON object returned here
-        # NOTE: we could use the APIv3 serializers for some of these objects if we want to keep consistency.
-        # However, those may require some extra db calls that we probably want to avoid.
+        # NOTE: we could use the APIv3 serializers for some of these objects
+        # if we want to keep consistency. However, those may require some
+        # extra db calls that we probably want to avoid.
         data = {
             "comment": (
                 "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY"
@@ -73,7 +75,23 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                         )
                     ),
                 },
-                "doc_diff": True,
+                "doc_diff": {
+                    "enabled": True,
+                    # "http://test-builds-local.devthedocs.org/en/latest/index.html"
+                    "base_url": f"""{resolver.resolve(
+                        project=project,
+                        version_slug=project.get_default_version(),
+                        language=project.language,
+                        filename=unresolved_url.filename,
+                    )}""",
+                    "root_selector": "[role=main]",
+                    "inject_styles": True,
+                    # NOTE: `base_host` and `base_page` are not required, since
+                    # we are constructing the `base_url` in the backend instead
+                    # of the frontend, as the doc-diff extension does.
+                    "base_host": "",
+                    "base_page": "",
+                },
                 "flyout": {
                     "translations": [],
                     "versions": [
