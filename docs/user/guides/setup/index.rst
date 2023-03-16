@@ -8,11 +8,11 @@ The following how-to guides help you solve common tasks and challenges in the se
 
 ⏩️ :doc:`Connecting your Git repository automatically </connected-accounts>`
     Once your account is connected to your Git provider,
-    adding to your Git repository **automatically** is possible for |git_providers_and|.
+    adding and configuring a Git repository **automatically** is possible for |git_providers_and|.
 
 ⏩️ :doc:`Connecting your Git repository manually </guides/git-integrations>`
-    Setting up and connecting your Git repository **manually**,
-    supports most Git providers with webhooks.
+    If you are connecting a Git repository from another provider (for instance Gitea or Codeberg),
+    this guide tells you how to add and configure the Webhook **manually**.
 
 ⏩️ :doc:`Managing custom domains </guides/custom-domains>`
     Hosting your documentation using your own domain name, such as ``docs.example.com``.
