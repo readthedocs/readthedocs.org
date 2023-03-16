@@ -6,7 +6,8 @@ This guide shows how to configure a Read the Docs project to use a custom path f
 
 By default,
 Read the Docs will use the ``.readthedocs.yaml`` in your Git repository's root.
-That is what a Monorepo with many different documentation projects probably needs to customize differently for each nested documentation project.
+This is typically not sufficient for Monorepos layouts
+when their nested documentation projects need fundamentally different build configurations.
 
 .. seealso::
 
