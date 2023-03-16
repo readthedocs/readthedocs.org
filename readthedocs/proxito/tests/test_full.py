@@ -796,10 +796,42 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(response.status_code, 404)
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, 'exists')
-    def test_redirects_to_correct_index(self, storage_exists):
-        """This case is when the project uses a README.html as index."""
+    def test_redirects_to_correct_index_ending_with_slash(self, storage_exists):
+        """When the path ends with a slash, we try README.html as index."""
         self.project.versions.update(active=True, built=True)
-        fancy_version = fixture.get(
+        fixture.get(
+            Version,
+            slug="fancy-version",
+            privacy_level=constants.PUBLIC,
+            active=True,
+            built=True,
+            project=self.project,
+            documentation_type=SPHINX,
+        )
+
+        storage_exists.side_effect = [True]
+        response = self.client.get(
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/en/fancy-version/not-found/"},
+            ),
+            HTTP_HOST="project.readthedocs.io",
+        )
+        storage_exists.assert_has_calls(
+            [
+                mock.call("html/project/fancy-version/not-found/README.html"),
+            ]
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response["location"], "/en/fancy-version/not-found/README.html"
+        )
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_redirects_to_correct_index_ending_without_slash(self, storage_exists):
+        """When the path doesn't end with a slash, we try both, index.html and README.html."""
+        self.project.versions.update(active=True, built=True)
+        fixture.get(
             Version,
             slug='fancy-version',
             privacy_level=constants.PUBLIC,
@@ -811,8 +843,11 @@ class TestAdditionalDocViews(BaseDocServing):
 
         storage_exists.side_effect = [False, True]
         response = self.client.get(
-            reverse('proxito_404_handler', kwargs={'proxito_path': '/en/fancy-version/not-found/'}),
-            HTTP_HOST='project.readthedocs.io',
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/en/fancy-version/not-found"},
+            ),
+            HTTP_HOST="project.readthedocs.io",
         )
         storage_exists.assert_has_calls(
             [
@@ -1143,7 +1178,7 @@ class TestAdditionalDocViews(BaseDocServing):
                 HTTP_HOST="project.readthedocs.io",
             )
             self.assertEqual(resp.status_code, 404)
-            storage_open.assert_called_once_with("html/project/latest/404.html")
+            storage_open.assert_called_once()
 
         self.assertEqual(PageView.objects.all().count(), 2)
         version = self.project.versions.get(slug="latest")

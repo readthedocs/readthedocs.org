@@ -50,7 +50,7 @@ class BuildUserError(BuildBaseException):
     BUILD_OUTPUT_HAS_MULTIPLE_FILES = gettext_noop(
         'Build output directory for format "{artifact_type}" contains multiple files '
         "and it is not currently supported. "
-        'Please, remove all the files but the "{artifact_type}" your want to upload.'
+        'Please, remove all the files but the "{artifact_type}" you want to upload.'
     )
     BUILD_OUTPUT_OLD_DIRECTORY_USED = gettext_noop(
         "Some files were detected in an unsupported output path, '_build/html'. "
@@ -59,9 +59,9 @@ class BuildUserError(BuildBaseException):
     )
     PDF_COMMAND_FAILED = gettext_noop(
         "PDF generation failed. "
-        "The build log below contains information on what errors caused the failure."
+        "The build log below contains information on what errors caused the failure. "
         "Our code has recently changed to fail the entire build on PDF errors, "
-        "where we used to pass the build when a PDF was created."
+        "where we used to pass the build when a PDF was created. "
         "Please contact us if you need help understanding this error."
     )
 
