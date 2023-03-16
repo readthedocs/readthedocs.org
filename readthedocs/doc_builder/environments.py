@@ -309,7 +309,8 @@ class DockerBuildCommand(BuildCommand):
         #
         # $ docker run --user docs -it --rm readthedocs/build:ubuntu-22.04 /bin/bash
         # docs@bfe702e31cdd:~$ echo $PATH
-        # /home/docs/.asdf/shims:/home/docs/.asdf/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+        # /home/docs/.asdf/shims:/home/docs/.asdf/bin
+        #  :/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         # docs@bfe702e31cdd:~$
         asdf_paths = (
             f"/home/{settings.RTD_DOCKER_USER}/.asdf/shims"
