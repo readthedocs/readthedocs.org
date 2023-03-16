@@ -16,12 +16,19 @@ log = structlog.get_logger(__name__)  # noqa
 class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
     def get(self, request):
 
+        url = request.GET.get("url")
+        if not url:
+            return JsonResponse(
+                {"error": "'url' GET attribute is required"},
+                status=400,
+            )
+
         unresolved_domain = request.unresolved_domain
         project = unresolved_domain.project
 
         # TODO: why the UnresolvedURL object is not injected in the `request` by the middleware.
         # Is is fine to calculate it here?
-        unresolved_url = unresolver.unresolve_url(request.headers.get("Referer"))
+        unresolved_url = unresolver.unresolve_url(url)
         version = unresolved_url.version
 
         # TODO: use Referrer header or GET arguments for Version / Build
@@ -70,9 +77,9 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                     "enabled": True,
                     "query_selector": "[role=main]",
                     "versions": list(
-                        project.versions.filter(active=True).values_list(
-                            "slug", flat=True
-                        )
+                        project.versions.filter(active=True)
+                        .only("slug")
+                        .values_list("slug", flat=True)
                     ),
                 },
                 "doc_diff": {
