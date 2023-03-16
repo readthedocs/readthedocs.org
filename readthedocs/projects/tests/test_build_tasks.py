@@ -723,18 +723,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     bin_path=mock.ANY,
                 ),
                 mock.call("cat", "latexmkrc", cwd=mock.ANY),
-                mock.call(
-                    "latexmk",
-                    "-r",
-                    "latexmkrc",
-                    "-pdf",
-                    "-f",
-                    "-dvi-",
-                    "-ps-",
-                    "-jobname=project",
-                    "-interaction=nonstopmode",
-                    cwd=mock.ANY,
-                ),
                 # NOTE: pdf `mv` commands and others are not here because the
                 # PDF resulting file is not found in the process (`_post_build`)
                 mock.call(
