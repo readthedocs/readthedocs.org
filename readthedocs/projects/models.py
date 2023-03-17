@@ -252,7 +252,7 @@ class Project(models.Model):
             "It needs to declare the following replacement fields: subproject and filename. "
             "This pattern will be used to identify the subproject, to change "
             "the URL pattern of the subproject itself, change `urlpattern` attribute in the subproject. "
-            "The default pattern is: `^/projects/{subproject}(/{filename})?$`. "
+            "The default pattern is: `^/projects/{subproject}(/{filename})?$`."
         ),
     )
 

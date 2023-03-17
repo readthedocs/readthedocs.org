@@ -366,7 +366,7 @@ class Unresolver:
 
         The returned project, version, and filename are guaranteed to not be
         `None`. An exception is raised if we weren't able to resolve the
-        project, version or path.
+        project, version or path/filename.
 
         The checks are done in the following order:
 
