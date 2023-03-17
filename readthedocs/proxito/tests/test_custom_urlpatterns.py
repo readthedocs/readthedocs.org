@@ -235,7 +235,7 @@ class TestCustomURLPatterns(BaseDocServing):
             resp['x-accel-redirect'], '/proxito/media/html/subproject/latest/api/index.html',
         )
 
-    def test_custom_urlpattern_and_urlpattern_subproject(self):
+    def test_custom_urlpattern_and_urlpattern_subproject_in_superproject(self):
         self.project.urlpattern = "^/prefix/{language}(/({version}(/{filename})?)?)?$"
         self.project.urlpattern_subproject = "^/s/{subproject}(/{filename})?$"
         self.project.save()
@@ -315,4 +315,57 @@ class TestCustomURLPatterns(BaseDocServing):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/html/subproject-translation/latest/api/index.html',
+        )
+
+    def test_custom_urlpattern_in_subproject_and_urlpattern_in_superproject(self):
+        self.subproject.urlpattern = "^/prefix/{language}(/({version}(/{filename})?)?)?$"
+        self.subproject.save()
+        self.project.urlpattern_subproject = "^/s/{subproject}(/{filename})?$"
+        self.project.save()
+        host = "project.readthedocs.io"
+
+        # Root redirect for the main project.
+        resp = self.client.get("/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['Location'], "http://project.readthedocs.io/en/latest/")
+
+        # Serving works on the main project.
+        resp = self.client.get("/en/latest/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp['x-accel-redirect'], "/proxito/media/html/project/latest/index.html")
+
+        # Subproject to main project redirect
+        resp = self.client.get("/", HTTP_HOST="subproject.readthedocs.io")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['Location'], "http://project.readthedocs.io/s/subproject/")
+
+        resp = self.client.get("/en/latest/", HTTP_HOST="subproject.readthedocs.io")
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['Location'], "http://project.readthedocs.io/s/subproject/en/latest/")
+
+        # Root redirect for the subproject
+        resp = self.client.get("/s/subproject", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['Location'], 'http://project.readthedocs.io/s/subproject/prefix/en/latest/')
+
+        resp = self.client.get("/s/subproject/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['Location'], 'http://project.readthedocs.io/s/subproject/prefix/en/latest/')
+
+        # Trailing slash redirect
+        resp = self.client.get("/s/subproject/prefix/en/latest", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(resp['Location'], 'http://project.readthedocs.io/s/subproject/prefix/en/latest/')
+
+        # Normal serving
+        resp = self.client.get("/s/subproject/prefix/en/latest/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['x-accel-redirect'], '/proxito/media/html/subproject/latest/index.html',
+        )
+
+        resp = self.client.get("/s/subproject/prefix/en/latest/api/index.html", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp['x-accel-redirect'], '/proxito/media/html/subproject/latest/api/index.html',
         )

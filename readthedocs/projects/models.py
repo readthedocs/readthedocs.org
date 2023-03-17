@@ -677,7 +677,7 @@ class Project(models.Model):
         if self.urlconf:
             # Add our proxied api host at the first place we have a $variable
             # This supports both subpaths & normal root hosting
-            path_prefix = self.path_prefix
+            path_prefix = self.custom_path_prefix
             return unsafe_join_url_path(path_prefix, "/_")
         return '/_'
 
@@ -707,43 +707,49 @@ class Project(models.Model):
             return urlpattern_to_regex(self.urlpattern_subproject)
         return None
 
-    @cached_property
-    def path_prefix(self):
+    @property
+    def custom_path_prefix(self):
         """
-        Returns the path prefix for a project.
+        Get the path prefix from the custom urlconf.
 
-        If the project is a subproject, it will return ``/projects/<subproject-alias>/``.
-        If the project is a main project, it will return ``/``.
-        This will respect the custom URL patterns of the project if defined.
+        Returns `None` if the project doesn't have a custom urlconf.
         """
-        # TODO: remove this, when we have migrated to proxito v2.
         if self.urlconf:
             # Return the value before the first defined variable,
             # as that is a prefix and not part of our normal doc patterns.
             return self.urlconf.split("$", 1)[0]
+        return None
 
-        prefix = "/"
-        # If it's a subproject, get the subproject prefix from the main project.
+    @cached_property
+    def subproject_prefix(self):
+        """
+        Returns the path prefix of a subproject.
+
+        This normally is ``/projects/<subproject-alias>/``,
+        but if the project has a custom URL pattern,
+        that pattern will be used.
+
+        Returns `None` if the project isn't a subproject.
+        """
         parent_relationship = self.get_parent_relationship()
-        if parent_relationship:
-            parent_project = parent_relationship.parent
-            if parent_project.urlpattern_subproject:
-                subproject_prefix = urlpattern_to_plain_text(parent_project.urlpattern_subproject)
-                # The filename isn't part of the subproject prefix,
-                # so we remove it from the pattern.
-                index = subproject_prefix.find("{filename}")
-                subproject_prefix = subproject_prefix[:index]
-            else:
-                subproject_prefix = "/projects/{subproject}/"
-            prefix = subproject_prefix.format(subproject=parent_relationship.alias)
+        if not parent_relationship:
+            return None
 
-        if self.urlpattern:
-            plain_urlpattern = urlpattern_to_plain_text(self.urlpattern)
-            # The prefix is the value before the first replacement field (`{foobar}`).
-            index = plain_urlpattern.find("{")
-            if index >= 0:
-                prefix = unsafe_join_url_path(prefix, plain_urlpattern[:index])
-        return prefix
+        if self.urlconf:
+            # TODO: check if we have a project with a custom urlconf with subprojects.
+            pass
+
+        parent_project = parent_relationship.parent
+        if parent_project.urlpattern_subproject:
+            subproject_prefix = urlpattern_to_plain_text(parent_project.urlpattern_subproject)
+            # The filename isn't part of the subproject prefix,
+            # so we remove it from the pattern.
+            index = subproject_prefix.find("{filename}")
+            subproject_prefix = subproject_prefix[:index]
+        else:
+            subproject_prefix = "/projects/{subproject}/"
+
+        return subproject_prefix.format(subproject=parent_relationship.alias)
 
     @property
     def regex_urlconf(self):

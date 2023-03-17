@@ -213,16 +213,15 @@ class ResolverBase:
         )
         return urlunparse((protocol, domain, path, '', query_params, ''))
 
-    def get_url_prefix(self, project, external_version_slug=None):
+    def get_subproject_url_prefix(self, project, external_version_slug=None):
         """
-        Get the URL prefix from where the documentation of ``project`` is served from.
+        Get the URL prefix from where the documentation of a subproject is served from.
 
         This doesn't include the version or language. For example:
 
         - https://docs.example.com/projects/<project-slug>/
-        - https://docs.readthedocs.io/
 
-        This will respect the custom urlconf of the project if it's defined.
+        This will respect the custom subproject prefix if it's defined.
 
         :param project: Project object to get the root URL from
         :param external_version_slug: If given, resolve using the external version domain.
@@ -243,7 +242,7 @@ class ResolverBase:
             use_https = settings.PUBLIC_DOMAIN_USES_HTTPS
 
         protocol = "https" if use_https else "http"
-        path = project.path_prefix
+        path = project.subproject_prefix
         return urlunparse((protocol, domain, path, "", "", ""))
 
     def _get_canonical_project_data(self, project):
