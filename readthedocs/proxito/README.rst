@@ -45,7 +45,73 @@ path prefix:
 URL patterns
 ------------
 
-TBD
+URL patterns define how docs are served, and how the path is parsed by proxito.
+
+For example, the default paths used are:
+
+- Multi version project: ``/<language>/<version>/<filename>``
+- Single version project: ``/<filename>``
+- Subproject: ``/projects/<subproject-alias>/<filename>``
+
+URL patterns can be used to change these paths per project, with the following attributes:
+
+urlpattern:
+   URL pattern to change the path for multi version and single version projects.
+
+urlpattern_subproject:
+   URL pattern to change the path up to the subproject alias.
+   To change the pattern of the subproject itself, use ``urlpattern``.
+
+A URL pattern is a regex with replacement fields,
+replacement fields are expanded to define the proper regex and capture groups for the regex (components).
+Valid replacement fields are: ``language``, ``version``, ``filename``, and ``subproject``.
+
+Where to define the custom URL patterns
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If a project is using translations,
+the URL pattern must be defined in the ``urlpattern`` attribute in the main language project.
+
+If the project is using subprojects,
+the URL pattern to change the ``/projects/`` prefix
+must be defined in the ``urlpattern_subproject`` attribute of the parent project.
+
+To change the pattern of the subproject itself,
+the URL pattern must be defined in the ``urlpattern`` attribute of the subproject itself.
+
+Writing a custom URL pattern
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+
+   Custom URL patterns aren't meant to be written by users (yet),
+   a Read the Docs developer needs to do it for the user.
+
+The simplest way to write a custom URL pattern is to start from the default ones,
+and change them as needed.
+
+- Multi version project: ``^/{language}(/({version}(/{filename})?)?)?$``
+- Single version project: ``^/{filename}$``
+- Subproject: ``^/projects/{subproject}(/{filename})?$``
+
+A couple of rules to be followed to avoid unexpected behaviours are:
+
+- Always put the filename at the end of the pattern,
+  this is since a filename matches any string.
+  Changing the order of some components is possible,
+  but it may lead to some unexpected behaviours.
+- Write the regex in a way that a partial match is possible,
+  this is useful for raising the proper exception on partial matches
+  (like a 404 on an invalid language if the URL starts with one).
+- Make the slashes optional (``/``) at the end of each component when possible,
+  this is since a URL is still valid if it doesn't end with a slash.
+- Always end the regex with ``$``, so the whole path is matched,
+  not just a part of the path.
+  Starting the regex with ``^`` is optional, since we use ``re.match``.
+- All paths are guaranteed to start with ``/``, so always start the regex with ``/``.
+- Don't include named groups, since they won't be used.
+- Is recomeded to separate each component with ``/``,
+  since any other characters can be valid in components (like ``-`` in slugs).
 
 CDN
 ---

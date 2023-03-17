@@ -7,7 +7,7 @@ from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
-from readthedocs.core.utils.url import urlpattern_to_regex
+from readthedocs.core.utils.urlpattern import urlpattern_to_regex
 from readthedocs.projects.models import Domain, Feature, Project
 
 log = structlog.get_logger(__name__)
@@ -150,7 +150,7 @@ class Unresolver:
         # The path must have the `projects` prefix,
         # followed by the subproject alias,
         # optionally a filename, which will be recursively resolved.
-        "/projects/{subproject}(/{filename})?$"
+        "^/projects/{subproject}(/{filename})?$"
     )
 
     def unresolve_url(self, url, append_indexhtml=True):
@@ -330,6 +330,8 @@ class Unresolver:
         :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
+        # We only use the pattern if there is a custom urlpattern,
+        # otherwise any path is allowed, so we don't need a regex for that.
         pattern = parent_project.regex_urlpattern
         if pattern:
             match = pattern.match(path)

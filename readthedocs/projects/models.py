@@ -31,7 +31,8 @@ from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
-from readthedocs.core.utils.url import unsafe_join_url_path, urlpattern_to_plain_text, urlpattern_to_regex
+from readthedocs.core.utils.url import unsafe_join_url_path
+from readthedocs.core.utils.urlpattern import urlpattern_to_plain_text, urlpattern_to_regex
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -251,7 +252,7 @@ class Project(models.Model):
             "It needs to declare the following replacement fields: subproject and filename. "
             "This pattern will be used to identify the subproject, to change "
             "the URL pattern of the subproject itself, change `urlpattern` attribute in the subproject. "
-            "The default pattern is: `/projects/{subproject}(/{filename})?$`. "
+            "The default pattern is: `^/projects/{subproject}(/{filename})?$`. "
         ),
     )
 
@@ -728,12 +729,13 @@ class Project(models.Model):
             parent_project = parent_relationship.parent
             if parent_project.urlpattern_subproject:
                 subproject_prefix = urlpattern_to_plain_text(parent_project.urlpattern_subproject)
-                # The filename isn't part of the subproject prefix.
+                # The filename isn't part of the subproject prefix,
+                # so we remove it from the pattern.
                 index = subproject_prefix.find("{filename}")
                 subproject_prefix = subproject_prefix[:index]
             else:
                 subproject_prefix = "/projects/{subproject}/"
-            prefix = subproject_prefix.format(subproject=parent_project.slug)
+            prefix = subproject_prefix.format(subproject=parent_relationship.alias)
 
         if self.urlpattern:
             plain_urlpattern = urlpattern_to_plain_text(self.urlpattern)
