@@ -32,7 +32,10 @@ from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
-from readthedocs.core.utils.urlpattern import urlpattern_to_plain_text, urlpattern_to_regex
+from readthedocs.core.utils.urlpattern import (
+    urlpattern_to_plain_text,
+    urlpattern_to_regex,
+)
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -234,10 +237,10 @@ class Project(models.Model):
         blank=True,
         null=True,
         help_text=_(
-            "A Python regex pattern used when evaluating a multi version or single version project. "
-            "For multi version projects it needs to declare the following replacement fields: language, version, and filename. "
+            "A Python regex pattern used when evaluating a multi version or single version project. "  # noqa
+            "For multi version projects it needs to declare the following replacement fields: language, version, and filename. "  # noqa
             "For single version projects it needs to declare the filename replacement field only. "
-            "The default pattern for multi version projects is: `^/{language}(/({version}(/{filename})?)?)?$`. "
+            "The default pattern for multi version projects is: `^/{language}(/({version}(/{filename})?)?)?$`. "  # noqa
             "The default pattern for single version projects is: `^/{filename}?$`."
         ),
     )
@@ -251,7 +254,7 @@ class Project(models.Model):
             "A Python regex pattern used when evaluating a subproject. "
             "It needs to declare the following replacement fields: subproject and filename. "
             "This pattern will be used to identify the subproject, to change "
-            "the URL pattern of the subproject itself, change `urlpattern` attribute in the subproject. "
+            "the URL pattern of the subproject itself, change `urlpattern` attribute in the subproject. "  # noqa
             "The default pattern is: `^/projects/{subproject}(/{filename})?$`."
         ),
     )
@@ -741,7 +744,9 @@ class Project(models.Model):
 
         parent_project = parent_relationship.parent
         if parent_project.urlpattern_subproject:
-            subproject_prefix = urlpattern_to_plain_text(parent_project.urlpattern_subproject)
+            subproject_prefix = urlpattern_to_plain_text(
+                parent_project.urlpattern_subproject
+            )
             # The filename isn't part of the subproject prefix,
             # so we remove it from the pattern.
             index = subproject_prefix.find("{filename}")
