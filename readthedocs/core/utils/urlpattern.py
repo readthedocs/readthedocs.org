@@ -2,6 +2,7 @@ import re
 
 from readthedocs.constants import pattern_opts
 
+
 def urlpattern_to_regex(urlpattern):
     """
     Transform a URL pattern to a regular expression.
