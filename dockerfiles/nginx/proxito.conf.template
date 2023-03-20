@@ -96,7 +96,7 @@ server {
 
         # Inject our own script dynamically
         # TODO: find a way to make this work _without_ running `npm run dev` from the `readthedocs-client` repository
-        sub_filter '</head>' '<script language="javascript" src="http://localhost:8080/readthedocs-client.js"></script>\n</head>';
+        sub_filter '</head>' '<script language="javascript" src="http://localhost:8000/readthedocs-client.js"></script>\n</head>';
         sub_filter_last_modified on;
         sub_filter_once on;
     }
