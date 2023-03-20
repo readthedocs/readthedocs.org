@@ -385,6 +385,7 @@ class UpdateProjectForm(
             # Basics
             'name',
             'repo',
+            "repo_type",
             # Extra
             'description',
             'language',
