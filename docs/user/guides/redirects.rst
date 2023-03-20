@@ -9,7 +9,7 @@ which means that the reader is automatically redirected to a *new URL*.
 
 .. seealso::
 
-   :doc:`/automatic-redirects`
+   :doc:`/guides/best-practice/links`
      The need for a redirect often comes from external links to your documentation.
      Read more about handling links in this explanation of best practices.
 

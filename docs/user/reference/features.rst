@@ -101,3 +101,4 @@ Feature reference
    /security-log
    /server-side-search/index
    /single-version
+   /science

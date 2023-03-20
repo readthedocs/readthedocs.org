@@ -200,7 +200,7 @@ or redirecting one version to another.
 
 .. seealso:
 
-   :doc:`/automatic-redirects`
+   :doc:`/guides/best-practice/links`
       Following best practices to avoid broken links is great for search engine ranking.
 
 Canonical URLs ✅️

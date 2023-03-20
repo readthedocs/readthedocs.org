@@ -19,7 +19,7 @@ the bad user experience of a 404 page is usually best to avoid.
 
    :doc:`/guides/redirects`
      This guide shows you how to add redirects with practical examples.
-   :doc:`/automatic-redirects`
+   :doc:`/guides/best-practice/links`
      Information and tips about creating and handling external references.
    :doc:`/guides/deprecating-content`
      A guide to deprecating features and other topics in a documentation.
@@ -43,7 +43,7 @@ Built-in redirects
 
 This section explains the redirects that are automatically active for all projects and how they are useful.
 Built-in redirects are especially useful for creating and sharing incoming links,
-which is discussed indepth in :doc:`/automatic-redirects`.
+which is discussed indepth in :doc:`/guides/best-practice/links`.
 
 .. _page_redirects:
 
@@ -54,11 +54,11 @@ You can link to a specific page and have it redirect to your default version,
 allowing you to create links on external sources that are always up to date.
 This is done with the ``/page/`` URL prefix.
 
-For instance, you can reach the page you are reading now by going to https://docs.readthedocs.io/page/automatic-redirects.html.
+For instance, you can reach the page you are reading now by going to https://docs.readthedocs.io/page/guides/best-practice/links.html.
 
 Another way to handle this is the ``latest`` version.
 You can set your ``latest`` version to a specific version and just always link to ``latest``.
-You can reach this page by going to https://docs.readthedocs.io/en/latest/automatic-redirects.html.
+You can reach this page by going to https://docs.readthedocs.io/en/latest/guides/best-practice/links.html.
 
 .. _root_url_redirect:
 
