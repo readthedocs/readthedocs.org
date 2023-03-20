@@ -85,12 +85,12 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                 "doc_diff": {
                     "enabled": True,
                     # "http://test-builds-local.devthedocs.org/en/latest/index.html"
-                    "base_url": f"""{resolver.resolve(
+                    "base_url": resolver.resolve(
                         project=project,
                         version_slug=project.get_default_version(),
                         language=project.language,
                         filename=unresolved_url.filename,
-                    )}""",
+                    ),
                     "root_selector": "[role=main]",
                     "inject_styles": True,
                     # NOTE: `base_host` and `base_page` are not required, since
