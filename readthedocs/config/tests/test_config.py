@@ -196,6 +196,32 @@ def test_build_config_has_source_file(tmpdir):
     assert build.source_file == os.path.join(base, 'readthedocs.yml')
 
 
+def test_load_non_default(tmpdir):
+    """
+    Load a config file name from non-default path
+
+    Verifies that we can load a custom config path and that an existing default config file is
+    correctly ignored.
+    """
+    non_default_filename = "myconfig.yaml"
+    apply_fs(
+        tmpdir,
+        {
+            non_default_filename: textwrap.dedent(
+                """
+            version: 2
+        """
+            ),
+            ".readthedocs.yaml": "illegal syntax but should not load",
+        },
+    )
+    base = str(tmpdir)
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {}, config_file="myconfig.yaml")
+    assert isinstance(build, BuildConfigV2)
+    assert build.source_file == os.path.join(base, non_default_filename)
+
+
 def test_build_config_has_list_with_single_empty_value(tmpdir):
     base = str(apply_fs(
         tmpdir, {
