@@ -7,6 +7,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
@@ -643,7 +644,7 @@ class BuildDirector:
             return
 
         try:
-            with open(yaml_path, "r") as f:
+            with safe_open(yaml_path, "r") as f:
                 data = yaml.safe_load(f)
         except Exception:
             # NOTE: skip this work for now until we decide whether or not this
