@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("builds", "0047_build_default_triggered"),
+        ("builds", "0048_add_build_data"),
     ]
 
     operations = [
