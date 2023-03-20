@@ -95,9 +95,8 @@ server {
         add_header X-RTD-Hosting-Integrations $rtd_hosting_integrations always;
 
         # Inject our own script dynamically
-        # TODO: decide where is the best place to do this
-        sub_filter '</head>' '<script language="javascript" src="http://devthedocs.org/static/core/js/readthedocs-client.js"></script>\n</head>';
-        # sub_filter_types text/html;
+        # TODO: find a way to make this work _without_ running `npm run dev` from the `readthedocs-client` repository
+        sub_filter '</head>' '<script language="javascript" src="http://localhost:8080/readthedocs-client.js"></script>\n</head>';
         sub_filter_last_modified on;
         sub_filter_once on;
     }
