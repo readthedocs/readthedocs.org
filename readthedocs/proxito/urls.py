@@ -117,7 +117,7 @@ proxied_urls = [
     ),
     # readthedocs-config.js
     path(
-        f"{DOC_PATH_PREFIX}readthedocs-config.json",
+        f"{DOC_PATH_PREFIX}readthedocs-config/",
         ReadTheDocsConfigJson.as_view(),
         name="proxito_readthedocs_config_json",
     ),
