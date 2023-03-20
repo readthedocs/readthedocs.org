@@ -222,6 +222,32 @@ def test_load_non_default(tmpdir):
     assert build.source_file == os.path.join(base, non_default_filename)
 
 
+def test_load_non_default_with_strange_extension(tmpdir):
+    """
+    Load a config file name from non-default path
+
+    In this version, we verify that we can handle non-yaml extensions
+    because we allow the user to do that.
+    """
+    non_default_filename = "myconfig.unconventional"
+    apply_fs(
+        tmpdir,
+        {
+            non_default_filename: textwrap.dedent(
+                """
+            version: 2
+        """
+            ),
+            ".readthedocs.yaml": "illegal syntax but should not load",
+        },
+    )
+    base = str(tmpdir)
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {}, config_file="myconfig.unconventional")
+    assert isinstance(build, BuildConfigV2)
+    assert build.source_file == os.path.join(base, non_default_filename)
+
+
 def test_build_config_has_list_with_single_empty_value(tmpdir):
     base = str(apply_fs(
         tmpdir, {
