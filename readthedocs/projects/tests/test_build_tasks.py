@@ -33,12 +33,7 @@ class BuildEnvironmentBase:
         # Save the reference to query it from inside the test
         self.requests_mock = requests_mock
 
-        self.project = fixture.get(
-            Project,
-            slug="project",
-            enable_epub_build=True,
-            enable_pdf_build=True,
-        )
+        self.project = self._get_project()
         self.version = self.project.versions.get(slug="latest")
         self.build = fixture.get(
             Build,
@@ -59,6 +54,14 @@ class BuildEnvironmentBase:
         # tearDown
         self.mocker.stop()
 
+    def _get_project(self):
+        return fixture.get(
+            Project,
+            slug="project",
+            enable_epub_build=True,
+            enable_pdf_build=True,
+        )
+
     def _trigger_update_docs_task(self):
         # NOTE: is it possible to replace calling this directly by `trigger_build` instead? :)
         return update_docs_task.delay(
@@ -76,6 +79,86 @@ class BuildEnvironmentBase:
         config.validate()
         return config
 
+
+class TestCustomConfigFile(BuildEnvironmentBase):
+
+    # Relative path to where a custom config file is assumed to exist in repo
+    config_file_name = "unique.yaml"
+
+    def _get_project(self):
+        return fixture.get(
+            Project,
+            slug="project",
+            enable_epub_build=False,
+            enable_pdf_build=False,
+            build_config_file=self.config_file_name,
+        )
+
+    def _config_file(self, config):
+        config = BuildConfigV2(
+            {},
+            config,
+            source_file=self.config_file_name,
+        )
+        config.validate()
+        return config
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.director.BuildDirector.build_docs_class")
+    def test_config_is_stored(self, build_docs_class, load_yaml_config):
+        """Test that a custom config file is stored"""
+
+        # We add the PDF format to this config so we can check that the
+        # config file is in use
+        config = self._config_file(
+            {
+                "version": 2,
+                "formats": ["pdf"],
+                "sphinx": {
+                    "configuration": "docs/conf.py",
+                },
+            }
+        )
+        load_yaml_config.return_value = config
+        build_docs_class.return_value = True  # success
+
+        assert not BuildData.objects.all().exists()
+
+        self._trigger_update_docs_task()
+
+        # Assert that the director tries to load the custom config file
+        load_yaml_config.assert_called_once_with(
+            version=mock.ANY, config_file=self.config_file_name
+        )
+
+        # Assert that we are building a PDF, since that is what our custom config file says
+        build_docs_class.assert_called_with("sphinx_pdf")
+
+    @mock.patch("readthedocs.core.utils.filesystem._assert_path_is_inside_docroot")
+    @mock.patch("readthedocs.doc_builder.director.BuildDirector.build_docs_class")
+    def test_config_file_is_loaded(
+        self, build_docs_class, _assert_path_is_inside_docroot
+    ):
+        """Test that a custom config file is loaded
+
+        The build_config_file field on Project should be loading the file that we add
+        to the repo."""
+
+        # While testing, we are unsure if temporary test files exist in the docroot
+        _assert_path_is_inside_docroot.return_value = True
+
+        self.mocker.add_file_in_repo_checkout(
+            self.config_file_name,
+            "version: 2\n"
+            "formats: [pdf]\n"
+            "sphinx:\n"
+            "    configuration: docs/conf.py",
+        )
+
+        self._trigger_update_docs_task()
+
+        # Assert that we are building a PDF, since that is what our custom config file says
+        build_docs_class.assert_called_with("sphinx_pdf")
 
 class TestBuildTask(BuildEnvironmentBase):
     @pytest.mark.parametrize(
