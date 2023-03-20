@@ -26,12 +26,9 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
         unresolved_domain = request.unresolved_domain
         project = unresolved_domain.project
 
-        # TODO: why the UnresolvedURL object is not injected in the `request` by the middleware.
-        # Is is fine to calculate it here?
         unresolved_url = unresolver.unresolve_url(url)
         version = unresolved_url.version
 
-        # TODO: use Referrer header or GET arguments for Version / Build
         project.get_default_version()
         build = version.builds.last()
 
