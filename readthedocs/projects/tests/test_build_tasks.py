@@ -299,6 +299,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[7]._request.method == "PATCH"
         assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[7].json() == {
+            "build_data": None,
             "built": True,
             "documentation_type": "mkdocs",
             "has_pdf": True,
@@ -543,6 +544,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[7]._request.method == "PATCH"
         assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[7].json() == {
+            "build_data": None,
             "built": True,
             "documentation_type": "sphinx",
             "has_pdf": True,
@@ -810,18 +812,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     bin_path=mock.ANY,
                 ),
                 mock.call("cat", "latexmkrc", cwd=mock.ANY),
-                mock.call(
-                    "latexmk",
-                    "-r",
-                    "latexmkrc",
-                    "-pdf",
-                    "-f",
-                    "-dvi-",
-                    "-ps-",
-                    "-jobname=project",
-                    "-interaction=nonstopmode",
-                    cwd=mock.ANY,
-                ),
                 # NOTE: pdf `mv` commands and others are not here because the
                 # PDF resulting file is not found in the process (`_post_build`)
                 mock.call(

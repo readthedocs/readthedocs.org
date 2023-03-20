@@ -1898,6 +1898,7 @@ class Feature(models.Model):
     CANCEL_OLD_BUILDS = "cancel_old_builds"
     DONT_CREATE_INDEX = "dont_create_index"
     USE_RCLONE = "use_rclone"
+    HOSTING_INTEGRATIONS = "hosting_integrations"
 
     FEATURES = (
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
@@ -2071,6 +2072,10 @@ class Feature(models.Model):
         (
             USE_RCLONE,
             _("Use rclone for syncing files to the media storage."),
+        ),
+        (
+            HOSTING_INTEGRATIONS,
+            _("Inject 'readthedocs-client.js' as <script> HTML tag in responses."),
         ),
     )
 

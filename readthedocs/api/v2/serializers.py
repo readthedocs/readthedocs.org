@@ -102,7 +102,7 @@ class VersionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Version
-        fields = (
+        fields = [
             'id',
             'project',
             'slug',
@@ -117,7 +117,7 @@ class VersionSerializer(serializers.ModelSerializer):
             'has_epub',
             'has_htmlzip',
             'documentation_type',
-        )
+        ]
 
 
 class VersionAdminSerializer(VersionSerializer):
@@ -125,6 +125,12 @@ class VersionAdminSerializer(VersionSerializer):
     """Version serializer that returns admin project data."""
 
     project = ProjectAdminSerializer()
+    build_data = serializers.JSONField(required=False, write_only=True)
+
+    class Meta(VersionSerializer.Meta):
+        fields = VersionSerializer.Meta.fields + [
+            "build_data",
+        ]
 
 
 class BuildCommandSerializer(serializers.ModelSerializer):

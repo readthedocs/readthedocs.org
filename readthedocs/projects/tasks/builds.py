@@ -103,9 +103,8 @@ class TaskData:
     build_commit: str = None
 
     start_time: timezone.datetime = None
-    environment_class: type[DockerBuildEnvironment] | type[  # noqa
-        LocalBuildEnvironment
-    ] = None  # noqa
+    # pylint: disable=unsubscriptable-object
+    environment_class: type[DockerBuildEnvironment] | type[LocalBuildEnvironment] = None
     build_director: BuildDirector = None
     config: BuildConfigV1 | BuildConfigV2 = None
     project: APIProject = None
@@ -600,6 +599,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                         "has_pdf": "pdf" in valid_artifacts,
                         "has_epub": "epub" in valid_artifacts,
                         "has_htmlzip": "htmlzip" in valid_artifacts,
+                        "build_data": self.data.version.build_data,
                     }
                 )
             except HttpClientError:
