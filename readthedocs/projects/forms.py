@@ -349,7 +349,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     def clean_conf_py_file(self):
         filename = self.cleaned_data.get('conf_py_file', '').strip()
-        if filename and 'conf.py' not in filename:
+        if filename and not filename.endswith("conf.py"):
             raise forms.ValidationError(
                 _(
                     'Your configuration file is invalid, make sure it contains '
