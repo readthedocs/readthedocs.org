@@ -103,7 +103,9 @@ class TaskData:
     build_commit: str = None
 
     start_time: timezone.datetime = None
-    environment_class: type[DockerBuildEnvironment] | type[LocalBuildEnvironment] = None
+    environment_class: type[DockerBuildEnvironment] | type[  # noqa
+        LocalBuildEnvironment
+    ] = None  # noqa
     build_director: BuildDirector = None
     config: BuildConfigV1 | BuildConfigV2 = None
     project: APIProject = None
@@ -572,7 +574,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                             artifact_type=artifact_type
                         )
                     )
-                elif artifact_format_files == 0:
+                if artifact_format_files == 0:
                     raise BuildUserError(
                         BuildUserError.BUILD_OUTPUT_HAS_0_FILES.format(
                             artifact_type=artifact_type
