@@ -68,7 +68,7 @@ All :doc:`build processes </builds>` have the following environment variables au
 .. envvar:: READTHEDOCS_REPOSITORY_IDENTIFIER
 
     Contains the Git identifier that was *checked out* from the remote repository URL.
-    It could be a branch or tag name.
+    Possible values are either a branch or tag name.
 
     :Example: ``v1.x``
     :Example: ``bugfix/docs-typo``
