@@ -278,7 +278,7 @@ class TestProjectAdvancedUpdate(TestCase):
         get(EmailAddress, email=self.user.email, user=self.user, verified=True)
         self.project = get(Project, users=[self.user])
 
-    def test_invite_by_username(self):
+    def test_project_advanced_update_with_valid_simple_form_data(self):
         url = reverse("projects_advanced", args=[self.project.slug])
         self.client.force_login(self.user)
         resp = self.client.post(

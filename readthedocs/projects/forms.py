@@ -362,8 +362,8 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         """
         Validate user input to help user.
 
-        We also validate this path before using it to read a file, so this is
-        only considered helpful to a user.
+        We also validate this path during the build process, so this validation step is
+        only considered as helpful to a user, not a security measure.
         """
         filename = self.cleaned_data.get("build_config_file")
         filename = (filename or "").strip()
