@@ -312,12 +312,33 @@ class DockerBuildCommand(BuildCommand):
         # /home/docs/.asdf/shims:/home/docs/.asdf/bin
         #  :/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         # docs@bfe702e31cdd:~$
-        asdf_paths = "/home/docs/.asdf/shims:/home/docs/.asdf/bin"
-        if settings.RTD_DOCKER_COMPOSE:
-            asdf_paths += ":/root/.asdf/shims:/root/.asdf/bin"
-
+        #
+        # On old Docker images we have different PATH:
+        #
+        # $ sudo docker run -it readthedocs/build:latest /bin/bash
+        # docs@656e38a30fa4:/$ echo $PATH
+        # /home/docs/.pyenv/shims:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/docs/.conda/bin:/home/docs/.pyenv/bin
+        # docs@656e38a30fa4:/$
         default_paths = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-        environment["PATH"] = f"{asdf_paths}:{default_paths}"
+        if self.build_env.container_image in (
+                "readthedocs/build:ubuntu-22.04",
+                "readthedocs/build:ubuntu-20.04",
+        ):
+            # Use ASDF path for newer images
+            python_paths = "/home/docs/.asdf/shims:/home/docs/.asdf/bin"
+            paths = f"{python_paths}:{default_paths}"
+
+            # On local development, we are using root user
+            if settings.RTD_DOCKER_COMPOSE:
+                paths = paths.replace("/home/docs/", "/root/")
+        else:
+            # Use PYENV for older images
+            paths = (
+                "/home/docs/.pyenv/shims:/home/docs/.cargo/bin"
+                f":{default_paths}:"
+                "/home/docs/.conda/bin:/home/docs/.pyenv/bin"
+            )
+        environment["PATH"] = paths
 
         # Prepend the BIN_PATH if it's defined
         if self.bin_path:
