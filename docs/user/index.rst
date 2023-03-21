@@ -29,10 +29,14 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: 🪄 How-to guides
 
-   /guides/authors
-   /guides/administrators
-   /guides/developers
-   /guides/troubleshooting/index
+   Project setup and configuration </guides/setup/index>
+   Build process </guides/build/index>
+   Upgrading and maintaining projects </guides/maintenance/index>
+   Content, themes and SEO </guides/content/index>
+   Security and access </guides/access/index>
+   Account management </guides/management/index>
+   Best practice </guides/best-practice/index>
+   Troubleshooting problems </guides/troubleshooting/index>
 
 .. toctree::
    :maxdepth: 2
@@ -139,41 +143,6 @@ and some of the core features of Read the Docs.
   :doc:`/faq`
 
 
-How-to guides
--------------
-
-These guides will help you walk through specific use cases
-related to Read the Docs itself, documentation tools like Sphinx and MkDocs
-and how to write successful documentation.
-
-* **For documentation authors**:
-  :doc:`/guides/cross-referencing-with-sphinx` |
-  :doc:`/guides/intersphinx` |
-  :doc:`/guides/jupyter` |
-  :doc:`More guides for authors </guides/authors>`
-
-* **For project administrators**:
-  :doc:`/guides/git-integrations` |
-  :doc:`/guides/custom-domains` |
-  :doc:`/guides/technical-docs-seo-guide` |
-  :doc:`/guides/manage-translations-sphinx` |
-  :doc:`/guides/private-submodules` |
-  :doc:`/guides/pull-requests` |
-  :doc:`/analytics` |
-  :doc:`/guides/build-notifications` |
-  :doc:`More guides for administrators </guides/administrators>`
-
-* **For developers and designers**:
-  :doc:`/guides/private-python-packages` |
-  :doc:`/guides/adding-custom-css` |
-  :doc:`/guides/reproducible-builds` |
-  :doc:`/guides/embedding-content` |
-  :doc:`/guides/conda` |
-  :doc:`/analytics` |
-  :doc:`/guides/build-notifications` |
-  :doc:`More guides for developers and designers </guides/developers>`
-
-
 Advanced features of Read the Docs
 ----------------------------------
 
@@ -189,9 +158,6 @@ out of your documentation and Read the Docs.
 
 * **Multi-language documentation**:
   :doc:`Translations and localization <localization>`
-
-* **Redirects**:
-  :doc:`Automatic redirects <automatic-redirects>`
 
 * **Versions**
   :doc:`Automation rules <automation-rules>`

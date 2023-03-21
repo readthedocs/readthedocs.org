@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.89
+boto3==1.26.94
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.89
+botocore==1.29.94
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -137,7 +137,7 @@ django-annoying==0.10.6
     # via -r requirements/pip.txt
 django-autoslug==1.9.8
     # via -r requirements/pip.txt
-django-cacheops==6.2
+django-cacheops==7.0
     # via -r requirements/pip.txt
 django-cors-headers==3.14.0
     # via -r requirements/pip.txt
@@ -207,7 +207,7 @@ executing==1.2.0
     # via stack-data
 fancycompleter==0.9.1
     # via pdbpp
-filelock==3.9.0
+filelock==3.10.0
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -328,7 +328,7 @@ pyjwt[crypto]==2.6.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pyproject-api==1.5.0
+pyproject-api==1.5.1
     # via tox
 pyquery==2.0.0
     # via -r requirements/pip.txt
@@ -388,7 +388,6 @@ six==1.16.0
     #   asttokens
     #   click-repl
     #   django-annoying
-    #   django-cacheops
     #   django-elasticsearch-dsl
     #   elasticsearch-dsl
     #   python-dateutil
@@ -453,7 +452,7 @@ tomli==2.0.1
     #   ipdb
     #   pyproject-api
     #   tox
-tox==4.4.6
+tox==4.4.7
     # via -r requirements/docker.in
 traitlets==5.9.0
     # via
@@ -484,7 +483,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.20.0
+virtualenv==20.21.0
     # via
     #   -r requirements/pip.txt
     #   tox

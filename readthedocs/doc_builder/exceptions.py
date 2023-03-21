@@ -50,7 +50,7 @@ class BuildUserError(BuildBaseException):
     BUILD_OUTPUT_HAS_MULTIPLE_FILES = gettext_noop(
         'Build output directory for format "{artifact_type}" contains multiple files '
         "and it is not currently supported. "
-        'Please, remove all the files but the "{artifact_type}" your want to upload.'
+        'Please, remove all the files but the "{artifact_type}" you want to upload.'
     )
     BUILD_OUTPUT_OLD_DIRECTORY_USED = gettext_noop(
         "Some files were detected in an unsupported output path, '_build/html'. "

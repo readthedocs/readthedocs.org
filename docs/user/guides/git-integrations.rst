@@ -1,7 +1,9 @@
 How to manually connect your Git repository
 ===========================================
 
-In this guide, you will find the simple steps to integrating your Read the Docs project with GitHub, Bitbucket, GitLab, Gitea or any other Git provider that supports our generic API.
+In this guide,
+you will find the simple steps to manually integrating your Read the Docs project with all Git providers that supports our generic API.
+This includes most Git providers, for example |git_providers_and|.
 
 .. note::
 

@@ -16,9 +16,9 @@ babel==2.12.1
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.26.89
+boto3==1.26.94
     # via django-storages
-botocore==1.29.89
+botocore==1.29.94
     # via
     #   boto3
     #   s3transfer
@@ -84,7 +84,7 @@ django-annoying==0.10.6
     # via -r requirements/pip.in
 django-autoslug==1.9.8
     # via -r requirements/pip.in
-django-cacheops==6.2
+django-cacheops==7.0
     # via -r requirements/pip.in
 django-cors-headers==3.14.0
     # via -r requirements/pip.in
@@ -148,7 +148,7 @@ elasticsearch-dsl==7.4.1
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
-filelock==3.9.0
+filelock==3.10.0
     # via virtualenv
 funcy==1.18
     # via django-cacheops
@@ -249,7 +249,6 @@ six==1.16.0
     # via
     #   click-repl
     #   django-annoying
-    #   django-cacheops
     #   django-elasticsearch-dsl
     #   elasticsearch-dsl
     #   python-dateutil
@@ -307,7 +306,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.20.0
+virtualenv==20.21.0
     # via -r requirements/pip.in
 wcwidth==0.2.6
     # via prompt-toolkit
