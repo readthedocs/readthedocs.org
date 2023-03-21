@@ -99,15 +99,10 @@ class SubmoduleURLValidator(RepositoryURLValidator):
 validate_repository_url = RepositoryURLValidator()
 validate_submodule_url = SubmoduleURLValidator()
 
-# We don't want to deal with weird characters in repository paths.
-# They should not have / at the beginning nor end
-# This pattern allows '..' so we deal with that elsewhere.
-unix_relative_repo_path_re = re.compile(
-    r"""^[\w_\-\.][\w_\-\./]+[\w+_\-]$""", re.IGNORECASE
-)
 
-
-def validate_repository_path(path):
+def validate_repository_path(
+    valid_filenames=None, invalid_characters="[]{}()`'\"\\%&<>|,"
+):
     """
     Validate that user input is a good relative repository path.
 
@@ -115,30 +110,55 @@ def validate_repository_path(path):
     but not all valid unix paths are good repository paths.
 
     This validator checks for common mistakes.
+
+    :param valid_filenames: A list of valid file names or None.
     """
-    if path.startswith("/"):
-        raise ValidationError(
-            _(
-                "Use a relative path. It should not begin with '/'. "
-                "The path is relative to the root of your repository."
-            ),
-            code="path_invalid",
-        )
-    if path.endswith("/"):
-        raise ValidationError(
-            _("The path cannot end with '/', as it cannot be a directory."),
-            code="path_invalid",
-        )
-    if ".." in path:
-        raise ValidationError(
-            _("Found invalid sequence in path: '..'"),
-            code="path_invalid",
-        )
-    if not unix_relative_repo_path_re.match(path):
-        raise ValidationError(
-            _(
-                "The path contains invalid characters. "
-                "Only allowed characters are alphanumeric + <code>/_.-</code>."
-            ),
-            code="path_invalid",
-        )
+
+    def validator_function(path):
+        if path.startswith("/"):
+            raise ValidationError(
+                _(
+                    "Use a relative path. It should not begin with '/'. "
+                    "The path is relative to the root of your repository."
+                ),
+                code="path_invalid",
+            )
+        if path.endswith("/"):
+            raise ValidationError(
+                _("The path cannot end with '/', as it cannot be a directory."),
+                code="path_invalid",
+            )
+        if ".." in path:
+            raise ValidationError(
+                _("Found invalid sequence in path: '..'"),
+                code="path_invalid",
+            )
+        if any(ch in path for ch in invalid_characters):
+            raise ValidationError(
+                _(
+                    "Found invalid character. Avoid these characters: "
+                    "<code>{invalid_characters}</code>"
+                ).format(invalid_characters=invalid_characters),
+                code="path_invalid",
+            )
+        # If we should validate filenames
+        if valid_filenames:
+            is_valid = any(fn == path for fn in valid_filenames) or any(
+                path.endswith(f"/{fn}") for fn in valid_filenames
+            )
+            if not is_valid and len(valid_filenames) == 1:
+                raise ValidationError(
+                    _("The only allowed filename is <code>{filename}</code>.").format(
+                        filename=valid_filenames[0]
+                    ),
+                    code="path_invalid",
+                )
+            if not is_valid:
+                raise ValidationError(
+                    _(
+                        "The only allowed filenames are <code>{filenames}</code>."
+                    ).format(filenames=", ".join(valid_filenames)),
+                    code="path_invalid",
+                )
+
+    return validator_function

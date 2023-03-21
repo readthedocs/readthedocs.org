@@ -5,39 +5,47 @@ from readthedocs.projects import validators
 
 
 def test_repository_path_validator():
+    validator = validators.validate_repository_path(
+        valid_filenames=[".readthedocs.yaml"]
+    )
 
     # Invalid stuff
     with pytest.raises(ValidationError):
-        validators.validate_repository_path("/absolute_path")
+        validator("/absolute_path")
 
     with pytest.raises(ValidationError):
-        validators.validate_repository_path("directory/")
+        validator("directory/")
 
     with pytest.raises(ValidationError):
-        validators.validate_repository_path("spaces are too weird")
+        validator("../not_that")
 
     with pytest.raises(ValidationError):
-        validators.validate_repository_path("../not_that")
+        validator("../../../and_not_that/../")
 
     with pytest.raises(ValidationError):
-        validators.validate_repository_path("../../../and_not_that/../")
+        validator("'none_of_this'")
 
     with pytest.raises(ValidationError):
-        validators.validate_repository_path("'none_of_this'")
+        validator('"and_none_of_this"')
 
     with pytest.raises(ValidationError):
-        validators.validate_repository_path('"and_none_of_this"')
+        validator("nor_this.")
 
     with pytest.raises(ValidationError):
-        validators.validate_repository_path("nor_this.")
+        validator(",you_probably_meant_to_use_a_dot")
 
     with pytest.raises(ValidationError):
-        validators.validate_repository_path(",you_probably_meant_to_use_a_dot")
+        validator(".readthedocs.uml")
 
     # Valid stuff
-    validators.validate_repository_path("møltilinguål_is_ok")
-    validators.validate_repository_path("MixedCaseIsCoolToo")
-    validators.validate_repository_path("this/is/valid")
-    validators.validate_repository_path("this/is/valid.yaml")
-    validators.validate_repository_path("this/is-also/valid.yaml")
-    validators.validate_repository_path(".readthedocs.yaml")
+    validator("this/is/okay/.readthedocs.yaml")
+    validator("thiS/Is/oKay/.readthedocs.yaml")
+    validator("this is okay/.readthedocs.yaml")
+    validator("this_is_okay/.readthedocs.yaml")
+    validator("this-is-okay/.readthedocs.yaml")
+    validator(".readthedocs.yaml")
+
+    validator = validators.validate_repository_path(
+        valid_filenames=[".readthedocs.yaml", ".readthedocs.yml"]
+    )
+    validator(".readthedocs.yml")
