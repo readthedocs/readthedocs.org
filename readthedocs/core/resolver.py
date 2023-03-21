@@ -54,28 +54,30 @@ class ResolverBase:
     """
 
     def base_resolve_path(
-            self,
-            project_slug,
-            filename,
-            version_slug=None,
-            language=None,
-            single_version=None,
-            subproject_relationship=None,
-            subdomain=None,
-            cname=None,
-            urlconf=None,
-            urlpattern=None,
+        self,
+        project_slug,
+        filename,
+        version_slug=None,
+        language=None,
+        single_version=None,
+        subproject_relationship=None,
+        subdomain=None,
+        cname=None,
+        urlconf=None,
+        urlpattern=None,
     ):
         """Resolve a with nothing smart, just filling in the blanks."""
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
         if subdomain or cname or self._use_subdomain():
-            path = '/'
+            path = "/"
         else:
-            path = '/docs/{project}/'
+            path = "/docs/{project}/"
 
         if subproject_relationship:
-            path = unsafe_join_url_path(path, subproject_relationship.child.subproject_prefix)
+            path = unsafe_join_url_path(
+                path, subproject_relationship.child.subproject_prefix
+            )
 
         # If the project has a custom urlpattern, we use it.
         if urlpattern:
@@ -85,17 +87,17 @@ class ResolverBase:
         # which is just the filename for single version projects and language/version
         # for multi version projects.
         elif single_version:
-            path = unsafe_join_url_path(path, '{filename}')
+            path = unsafe_join_url_path(path, "{filename}")
         else:
-            path = unsafe_join_url_path(path, '{language}/{version}/{filename}')
+            path = unsafe_join_url_path(path, "{language}/{version}/{filename}")
 
         # Allow users to override their own URLConf
         # This logic could be cleaned up with a standard set of variable replacements
         if urlconf:
             path = urlconf
             path = path.replace(
-                '$version',
-                '{version}',
+                "$version",
+                "{version}",
             )
             path = path.replace(
                 '$language',
@@ -106,12 +108,13 @@ class ResolverBase:
                 '{filename}',
             )
             path = path.replace(
-                '$subproject',
-                '{subproject}',
+                "$subproject",
+                "{subproject}",
             )
-            if '$' in path:
+            if "$" in path:
                 log.warning(
-                    'Unconverted variable in a resolver URLConf.', url=path,
+                    "Unconverted variable in a resolver URLConf.",
+                    url=path,
                 )
 
         return path.format(
@@ -119,7 +122,9 @@ class ResolverBase:
             filename=filename,
             version=version_slug,
             language=language,
-            subproject=subproject_relationship.alias if subproject_relationship else None,
+            subproject=subproject_relationship.alias
+            if subproject_relationship
+            else None,
         )
 
     def resolve_path(
@@ -139,7 +144,9 @@ class ResolverBase:
 
         filename = self._fix_filename(filename)
 
-        parent_project, subproject_relationship = self._get_canonical_project_data(project)
+        parent_project, subproject_relationship = self._get_canonical_project_data(
+            project
+        )
         cname = (
             cname
             or self._use_subdomain()
