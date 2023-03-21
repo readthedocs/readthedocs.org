@@ -1,3 +1,25 @@
+Version 9.9.1
+-------------
+
+:Date: March 21, 2023
+
+* `@humitos <https://github.com/humitos>`__: Build: use safe_open for security reasons (`#10165 <https://github.com/readthedocs/readthedocs.org/pull/10165>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10163 <https://github.com/readthedocs/readthedocs.org/pull/10163>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update some docs for the new dashboard templates (`#10161 <https://github.com/readthedocs/readthedocs.org/pull/10161>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Revert 92a7182af42e26cab01265d2cc06fc7832832689 (`#10158 <https://github.com/readthedocs/readthedocs.org/pull/10158>`__)
+* `@humitos <https://github.com/humitos>`__: Lint: update common to get the latest linting changes (`#10154 <https://github.com/readthedocs/readthedocs.org/pull/10154>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: don't check for index.html if the path already ends with `/`. (`#10153 <https://github.com/readthedocs/readthedocs.org/pull/10153>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Docs: Disable PDF builds for now (`#10152 <https://github.com/readthedocs/readthedocs.org/pull/10152>`__)
+* `@stsewd <https://github.com/stsewd>`__: Put back template_name on proxito 404 view (`#10149 <https://github.com/readthedocs/readthedocs.org/pull/10149>`__)
+* `@silopolis <https://github.com/silopolis>`__: Fix doc_builder exceptions messages typos and spelling (`#10147 <https://github.com/readthedocs/readthedocs.org/pull/10147>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.9.0 (`#10146 <https://github.com/readthedocs/readthedocs.org/pull/10146>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: redirect http->https for public domains (`#10142 <https://github.com/readthedocs/readthedocs.org/pull/10142>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Removing non-used requirements file lint.in (`#10140 <https://github.com/readthedocs/readthedocs.org/pull/10140>`__)
+* `@humitos <https://github.com/humitos>`__: Build: pass `PATH` environment variable to Docker container (`#10133 <https://github.com/readthedocs/readthedocs.org/pull/10133>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: New how-to sublevels (Diátaxis) (`#10131 <https://github.com/readthedocs/readthedocs.org/pull/10131>`__)
+* `@humitos <https://github.com/humitos>`__: Hosting: manual integrations via build contract (`#10127 <https://github.com/readthedocs/readthedocs.org/pull/10127>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: emojis in TOC captions, FontAwesome on external links in TOC (Diátaxis) (`#10039 <https://github.com/readthedocs/readthedocs.org/pull/10039>`__)
+
 Version 9.9.0
 -------------
 
