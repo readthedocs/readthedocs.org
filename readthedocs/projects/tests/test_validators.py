@@ -5,47 +5,38 @@ from readthedocs.projects import validators
 
 
 def test_repository_path_validator():
-    validator = validators.validate_repository_path(
-        valid_filenames=[".readthedocs.yaml"]
-    )
-
     # Invalid stuff
     with pytest.raises(ValidationError):
-        validator("/absolute_path")
+        validators.validate_build_config_file("/absolute_path")
 
     with pytest.raises(ValidationError):
-        validator("directory/")
+        validators.validate_build_config_file("directory/")
 
     with pytest.raises(ValidationError):
-        validator("../not_that")
+        validators.validate_build_config_file("../not_that")
 
     with pytest.raises(ValidationError):
-        validator("../../../and_not_that/../")
+        validators.validate_build_config_file("../../../and_not_that/../")
 
     with pytest.raises(ValidationError):
-        validator("'none_of_this'")
+        validators.validate_build_config_file("'none_of_this'")
 
     with pytest.raises(ValidationError):
-        validator('"and_none_of_this"')
+        validators.validate_build_config_file('"and_none_of_this"')
 
     with pytest.raises(ValidationError):
-        validator("nor_this.")
+        validators.validate_build_config_file("nor_this.")
 
     with pytest.raises(ValidationError):
-        validator(",you_probably_meant_to_use_a_dot")
+        validators.validate_build_config_file(",you_probably_meant_to_use_a_dot")
 
     with pytest.raises(ValidationError):
-        validator(".readthedocs.uml")
+        validators.validate_build_config_file(".readthedocs.uml")
 
     # Valid stuff
-    validator("this/is/okay/.readthedocs.yaml")
-    validator("thiS/Is/oKay/.readthedocs.yaml")
-    validator("this is okay/.readthedocs.yaml")
-    validator("this_is_okay/.readthedocs.yaml")
-    validator("this-is-okay/.readthedocs.yaml")
-    validator(".readthedocs.yaml")
-
-    validator = validators.validate_repository_path(
-        valid_filenames=[".readthedocs.yaml", ".readthedocs.yml"]
-    )
-    validator(".readthedocs.yml")
+    validators.validate_build_config_file("this/is/okay/.readthedocs.yaml")
+    validators.validate_build_config_file("thiS/Is/oKay/.readthedocs.yaml")
+    validators.validate_build_config_file("this is okay/.readthedocs.yaml")
+    validators.validate_build_config_file("this_is_okay/.readthedocs.yaml")
+    validators.validate_build_config_file("this-is-okay/.readthedocs.yaml")
+    validators.validate_build_config_file(".readthedocs.yaml")
