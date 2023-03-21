@@ -2,10 +2,10 @@ How to use a .readthedocs.yaml file in a sub-folder
 ===================================================
 
 This guide shows how to configure a Read the Docs project to use a custom path for the ``.readthedocs.yaml`` build configuration.
-*Monorepos* that have multiple documentation projects in the same Git repository can benefit from this new experimental feature.
+*Monorepos* that have multiple documentation projects in the same Git repository can benefit from this feature.
 
 By default,
-Read the Docs will use the ``.readthedocs.yaml`` in your Git repository's root.
+Read the Docs will use the ``.readthedocs.yaml`` at the top level of your Git repository.
 This is typically not sufficient for Monorepos layouts
 when their nested documentation projects need fundamentally different build configurations.
 
@@ -15,20 +15,16 @@ when their nested documentation projects need fundamentally different build conf
    If you are only using Sphinx projects and want to share the same build configuration,
    you can also use the ``sphinx-multiproject`` extension.
 
-Current feature status
-----------------------
+Implementation considerations
+-------------------------------
 
 This feature is currently *project-wide*.
-A custom build configuration file path is applied to all builds and versions.
-
-Or configuration file does not support any kind of inheritance or templating,
-so you cannot share YAML structures between different configuration files.
+A custom build configuration file path is applied to all versions of your documentation.
 
 .. warning::
 
-   Changing the configuration path later is not currently supported.
-   If you do this,
-   older versions of the project will not be able to build again.
+   Changing the configuration path will apply to all versions.
+   Different versions of the project may not be able to build again if this path is changed.
 
 Adding an additional project from the same repository
 -----------------------------------------------------
@@ -57,7 +53,7 @@ you need to ensure that relevant versions of your documentation are built again.
 Next steps
 ----------
 
-Once you have the first couple of Read the Docs project bootstrapped with a custom path for the build configuration file,
+Once you have the first couple of Read the Docs project configured with a custom path for the ``.readthedocs.yaml` file,
 you can add all the other projects and build their configurations independently.
 
 Everything in the Read the Docs projects will work independently as well,

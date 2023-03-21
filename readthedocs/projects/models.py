@@ -369,7 +369,7 @@ class Project(models.Model):
         help_text=_(
             "<strong>Warning: experimental feature</strong>. "
             "Custom path from repository root to a build configuration file, "
-            "ex. <code>subproject/docs/.readthedocs.yaml</code>. "
+            "ex. <code>subpath/docs/.readthedocs.yaml</code>. "
             "Leave blank for default value (<code>.readthedocs.yaml</code>).",
         ),
         validators=[validate_repository_path],
