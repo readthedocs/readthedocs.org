@@ -52,6 +52,7 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     :Example: ``https://docs.example.com/en/latest/``
     :Example: ``https://docs.readthedocs.io/ja/stable/``
+    :Example: ``https://example--17.org.readthedocs.build/fr/17/``
 
 .. seealso::
 
