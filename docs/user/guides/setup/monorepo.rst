@@ -6,14 +6,19 @@ This guide shows how to configure a Read the Docs project to use a custom path f
 
 By default,
 Read the Docs will use the ``.readthedocs.yaml`` at the top level of your Git repository.
-This is typically not sufficient for Monorepos layouts
+This is typically not sufficient for monorepo layouts
 when their nested documentation projects need fundamentally different build configurations.
 
 .. seealso::
 
    `sphinx-multiproject <https://sphinx-multiproject.readthedocs.io/en/latest/>`__
-   If you are only using Sphinx projects and want to share the same build configuration,
-   you can also use the ``sphinx-multiproject`` extension.
+       If you are only using Sphinx projects and want to share the same build configuration,
+       you can also use the ``sphinx-multiproject`` extension.
+
+   :doc:`/guides/environment-variables`
+       You might also be able to reuse the same configuration file across multiple projects,
+       using only environment variables.
+       This is possible if the configuration pattern is very similar and the documentation tool is the same.
 
 Implementation considerations
 -------------------------------
@@ -54,13 +59,18 @@ you need to ensure that relevant versions of your documentation are built again.
 Next steps
 ----------
 
-Once you have the first couple of Read the Docs project configured with a custom path for the ``.readthedocs.yaml` file,
-you can add all the other projects and build their configurations independently.
+Once you have your monorepo pattern implemented and tested and it's ready to roll out to all your projects,
+you should also consider the Read the Docs project setup for these individual projects.
 
-Everything in the Read the Docs projects will work independently as well,
-meaning that you can have different sets of maintainers,
-different sets of redirect rules,
-different custom domains etc.
+Having individual projects gives you the full flexibility of the Read the Docs platform to make individual setups for each project.
+
+For each project, it's now possible to configure individual:
+
+* Sets of maintainers (or :doc:`organizations </commercial/organizations>` on |com_brand|)
+* :doc:`Custom redirect rules </guides/custom-domains>`
+* :doc:`Custom domains </guides/custom-domains>`
+* :doc:`Automation rules </automation-rules>`
+* :doc:`Traffic and search analytics </reference/analytics>`
 
 Other tips
 ----------
