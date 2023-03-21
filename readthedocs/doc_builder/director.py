@@ -216,8 +216,11 @@ class BuildDirector:
         self.vcs_repository.checkout(identifier)
 
         # The director is responsible for understanding which config file to use for a build.
-        # Reproducibility: Build already has a config_file set.
-        non_default_config_file = self.data.build.get("build_config_file", None)
+        # In order to reproduce a build 1:1, we may use build_config_file defined by the build
+        # instead of per-version or per-project.
+        # Use the below line to fetch the build_config_file defined per-build.
+        # non_default_config_file = self.data.build.get("build_config_file", None)
+        non_default_config_file = None
 
         # This logic can be extended with version-specific config files
         if not non_default_config_file and self.data.version.project.build_config_file:
