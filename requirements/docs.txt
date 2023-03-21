@@ -28,7 +28,7 @@ docutils==0.18.1
     #   sphinx
     #   sphinx-rtd-theme
     #   sphinx-tabs
-fonttools==4.39.0
+fonttools==4.39.2
     # via matplotlib
 idna==3.4
     # via requests
@@ -103,6 +103,7 @@ sphinx==5.3.0
     #   sphinx-rtd-theme
     #   sphinx-tabs
     #   sphinxcontrib-httpdomain
+    #   sphinxcontrib-jquery
     #   sphinxemoji
     #   sphinxext-opengraph
 sphinx-autobuild==2021.3.14
@@ -131,7 +132,7 @@ sphinxcontrib-htmlhelp==2.0.1
     # via sphinx
 sphinxcontrib-httpdomain==1.8.1
     # via -r requirements/docs.in
-sphinxcontrib-jquery==2.0.0
+sphinxcontrib-jquery==4.1
     # via
     #   sphinx-hoverxref
     #   sphinx-rtd-theme

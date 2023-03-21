@@ -13,7 +13,7 @@ progressively and in non harmful ways.
 
 .. seealso::
 
-   :doc:`/automatic-redirects`
+   :doc:`/guides/best-practice/links`
      More information about handling URL structures, renaming and removing content.
 
 Deprecating versions
