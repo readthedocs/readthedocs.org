@@ -367,15 +367,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         """
         filename = self.cleaned_data.get("build_config_file")
         filename = (filename or "").strip()
-        if filename.startswith("/"):
-            raise forms.ValidationError(
-                _(
-                    "Use a relative path. It should not begin with '/'. "
-                    "The path is relative to the root of your repository."
-                )
-            )
-        if ".." in filename:
-            raise forms.ValidationError(_("Found invalid sequence in path: '..'"))
         return filename
 
     def get_all_active_versions(self):

@@ -98,3 +98,47 @@ class SubmoduleURLValidator(RepositoryURLValidator):
 
 validate_repository_url = RepositoryURLValidator()
 validate_submodule_url = SubmoduleURLValidator()
+
+# We don't want to deal with weird characters in repository paths.
+# They should not have / at the beginning nor end
+# This pattern allows '..' so we deal with that elsewhere.
+unix_relative_repo_path_re = re.compile(
+    r"""^[\w_\-\.][\w_\-\./]+[\w+_\-]$""", re.IGNORECASE
+)
+
+
+def validate_repository_path(path):
+    """
+    Validate that user input is a good relative repository path.
+
+    By 'good', we mean that it's a valid unix path,
+    but not all valid unix paths are good repository paths.
+
+    This validator checks for common mistakes.
+    """
+    if path.startswith("/"):
+        raise ValidationError(
+            _(
+                "Use a relative path. It should not begin with '/'. "
+                "The path is relative to the root of your repository."
+            ),
+            code="path_invalid",
+        )
+    if path.endswith("/"):
+        raise ValidationError(
+            _("The path cannot end with '/', as it cannot be a directory."),
+            code="path_invalid",
+        )
+    if ".." in path:
+        raise ValidationError(
+            _("Found invalid sequence in path: '..'"),
+            code="path_invalid",
+        )
+    if not unix_relative_repo_path_re.match(path):
+        raise ValidationError(
+            _(
+                "The path contains invalid characters. "
+                "Only allowed characters are alphanumeric + <code>/_.-</code>."
+            ),
+            code="path_invalid",
+        )

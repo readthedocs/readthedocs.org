@@ -46,6 +46,7 @@ from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
     validate_domain_name,
     validate_no_ip,
+    validate_repository_path,
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
@@ -371,6 +372,7 @@ class Project(models.Model):
             "ex. <code>subproject/docs/.readthedocs.yaml</code>. "
             "Leave blank for default value (<code>.readthedocs.yaml</code>).",
         ),
+        validators=[validate_repository_path],
     )
 
     featured = models.BooleanField(_('Featured'), default=False)
