@@ -154,13 +154,14 @@ class ResolverBase:
         )
         single_version = bool(project.single_version or single_version)
 
-        # For a normal project or translation that isn't a subproject,
-        # we use the urlpattern of the parent project.
-        urlpattern = parent_project.urlpattern
-        # If the project is a subproject, we use the
-        # urlpattern of the child of the relationship.
+        # If the project is a subproject, we use the urlpattern
+        # of the child of the relationship. For a project that
+        # isn't a subproject, we use the urlpattern of the
+        # parent project.
         if subproject_relationship:
             urlpattern = subproject_relationship.child.urlpattern
+        else:
+            urlpattern = parent_project.urlpattern
 
         return self.base_resolve_path(
             project_slug=parent_project.slug,

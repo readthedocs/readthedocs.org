@@ -59,26 +59,22 @@ urlpattern:
    URL pattern to change the path for multi version and single version projects.
 
 urlpattern_subproject:
-   URL pattern to change the path up to the subproject alias.
+   URL pattern to change the path up to the subproject alias (the ``/projects`` prefix).
    To change the pattern of the subproject itself, use ``urlpattern``.
 
 A URL pattern is a regex with replacement fields,
-replacement fields are expanded to define the proper regex and capture groups for the regex (components).
+replacement fields are expanded to define the proper regex and capture groups (components).
 Valid replacement fields are: ``language``, ``version``, ``filename``, and ``subproject``.
 
 Where to define the custom URL patterns
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If a project is using translations,
-the URL pattern must be defined in the ``urlpattern`` attribute in the main language project.
+To change the URL pattern of a project,
+define the custom URL pattern in the ``urlpattern`` attribute of the project itself,
+or if it's a translation, in the main language project.
 
-If the project is using subprojects,
-the URL pattern to change the ``/projects/`` prefix
-must be defined in the ``urlpattern_subproject`` attribute of the parent project.
-
-To change the pattern of the subproject itself,
-the URL pattern must be defined in the ``urlpattern`` attribute of the subproject itself,
-or in the main translation if it's a translation.
+And to change the URL pattern of the subproject prefix (``/projects``),
+define the custom URL pattern in the  ``urlpattern_subproject`` attribute of the parent project.
 
 Writing a custom URL pattern
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -103,12 +99,15 @@ A couple of rules to be followed to avoid unexpected behaviours are:
   this is useful for raising the proper exception on partial matches
   (like a 404 on an invalid language if the URL starts with one).
 - Make the slashes optional (``/``) at the end of each component when possible,
-  this is since a URL is still valid if it doesn't end with a slash.
+  this is since a URL is still valid if it doesn't end with a slash
+  (proxito will redirecte to the path with the slash when appropriate).
 - Always end the regex with ``$``, so the whole path is matched,
   not just a part of the path.
-  Starting the regex with ``^`` is optional, since we use ``re.match``.
+- Starting the regex with ``^`` is optional, since we use ``re.match``.
 - All paths are guaranteed to start with ``/``, so always start the regex with ``/``.
-- Don't include named groups, since they won't be used.
+- Don't include named groups or character classes (``[]``),
+  since we want to be able to reconstruct the URL from the regex
+  using only the version, language, filename, and subproject components.
 - Is recomeded to separate each component with ``/``,
   since any other characters can be valid in components (like ``-`` in slugs).
 

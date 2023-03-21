@@ -12,7 +12,7 @@ def urlpattern_to_regex(urlpattern):
 
     Before compiling the regular expression, the string is formatted with
     `str.format` to replace each field with a capture group:
-    language, version, filename, project.
+    language, version, filename, subproject.
 
     This regex is mainly used by the unresolver.
 
