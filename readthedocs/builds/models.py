@@ -601,7 +601,8 @@ class APIVersion(Version):
         proxy = True
 
     def __init__(self, *args, **kwargs):
-        self.project = APIProject(**kwargs.pop('project', {}))
+        self.project = APIProject(**kwargs.pop("project", {}))
+        self.canonical_url = kwargs.pop("canonical_url", None)
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
         for key in ['resource_uri', 'absolute_url', 'downloads']:
