@@ -64,13 +64,21 @@ you should also consider the Read the Docs project setup for these individual pr
 
 Having individual projects gives you the full flexibility of the Read the Docs platform to make individual setups for each project.
 
-For each project, it's now possible to configure individual:
+For each project, it's now possible to configure:
 
 * Sets of maintainers (or :doc:`organizations </commercial/organizations>` on |com_brand|)
 * :doc:`Custom redirect rules </guides/custom-domains>`
 * :doc:`Custom domains </guides/custom-domains>`
 * :doc:`Automation rules </automation-rules>`
 * :doc:`Traffic and search analytics </reference/analytics>`
+
+...and much more. All settings for a Read the Docs project is available for the individual project.
+
+.. seealso::
+
+   :doc:`/guides/subprojects`
+      More information on nesting one project inside another project.
+      In this setup, it is still possible to use the same monorepo for each subproject.
 
 Other tips
 ----------
