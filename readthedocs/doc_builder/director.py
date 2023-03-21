@@ -227,7 +227,7 @@ class BuildDirector:
             non_default_config_file = self.data.version.project.build_config_file
 
         if non_default_config_file:
-            log.info(f"Using a non-default config file {non_default_config_file}.")
+            log.info("Using a non-default config file.", config_file=non_default_config_file)
         self.data.config = load_yaml_config(
             version=self.data.version,
             config_file=non_default_config_file,
