@@ -312,10 +312,7 @@ class DockerBuildCommand(BuildCommand):
         # /home/docs/.asdf/shims:/home/docs/.asdf/bin
         #  :/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
         # docs@bfe702e31cdd:~$
-        asdf_paths = (
-            f"/home/{settings.RTD_DOCKER_USER}/.asdf/shims"
-            f":/home/{settings.RTD_DOCKER_USER}/.asdf/bin"
-        )
+        asdf_paths = "/home/docs/.asdf/shims:/home/docs/.asdf/bin"
         if settings.RTD_DOCKER_COMPOSE:
             asdf_paths += ":/root/.asdf/shims:/root/.asdf/bin"
 
