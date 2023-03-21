@@ -1389,18 +1389,20 @@ def load(path, env_config, config_file=None):
     the version of the configuration a build object would be load and validated,
     ``BuildConfigV1`` is the default.
     """
-    if not config_file:
-        filename = find_one(path, CONFIG_FILENAME_REGEX)
-        if not filename:
-            # This exception is current caught higher up and will result in an attempt
-            # to load the v1 config schema.
-            raise DefaultConfigFileNotFound(path)
-    else:
+    # Custom non-default config file location
+    if config_file:
         filename = os.path.join(path, config_file)
         # When a config file is specified and not found, we raise ConfigError
         # because ConfigFileNotFound
         if not os.path.exists(filename):
             raise ConfigFileNotFound(os.path.relpath(filename, path))
+    # Default behavior
+    else:
+        filename = find_one(path, CONFIG_FILENAME_REGEX)
+        if not filename:
+            # This exception is current caught higher up and will result in an attempt
+            # to load the v1 config schema.
+            raise DefaultConfigFileNotFound(path)
 
     # Allow symlinks, but only the ones that resolve inside the base directory.
     with safe_open(
