@@ -50,7 +50,7 @@ All :doc:`build processes </builds>` have the following environment variables au
     If the project has configured a :doc:`custom domain </custom-domains>` (e.g. ``docs.example.com``) it will be used in the resulting canonical URL.
     Otherwise, your project's :ref:`default subdomain <custom-domains:default-subdomain>` will be used.
     
-The path for the language and version is appended to the domain, so the final canonical base URLs can look like the following examples.
+    The path for the language and version is appended to the domain, so the final canonical base URLs can look like the following examples:
 
     :Example: ``https://docs.example.com/en/latest/``
     :Example: ``https://docs.readthedocs.io/ja/stable/``
