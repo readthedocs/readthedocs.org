@@ -58,16 +58,16 @@ All :doc:`build processes </builds>` have the following environment variables au
 
 .. envvar:: READTHEDOCS_REPOSITORY_URL
 
-    URL from where the source code to generate the documentation is clonned.
+    URL for the remote source repository, from which the documentation is cloned.
     It could be HTTPS, SSH or any other URL scheme supported by Git.
-    This is the same URL defined under :guilabel:`Admin` > :guilabel:`Settings` > :guilabel:`Repository URL`.
+    This is the same URL defined in your Project's :term:`dashboard` in :menuselection:`Admin --> Settings --> Repository URL`.
 
     :Example: ``https://github.com/readthedocs/readthedocs.org``
     :Example: ``git@github.com:readthedocs/readthedocs.org.git``
 
 .. envvar:: READTHEDOCS_REPOSITORY_IDENTIFIER
 
-    Git identifier checked out from the repository URL.
+    Contains the Git identifier that was *checked out* from the remote repository URL.
     It could be a branch or tag name.
 
     :Example: ``v1.x``
