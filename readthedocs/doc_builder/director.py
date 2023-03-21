@@ -574,6 +574,9 @@ class BuildDirector:
             "READTHEDOCS_OUTPUT": os.path.join(
                 self.data.project.checkout_path(self.data.version.slug), "_readthedocs/"
             ),
+            "READTHEDOCS_REPOSITORY_URL": self.data.project.repo,
+            "READTHEDOCS_REPOSITORY_IDENTIFIER": self.data.version.identifier,
+            "READTHEDOCS_REPOSITORY_IDENTIFIER_HASH": self.data.build["commit"],
         }
         return env
 

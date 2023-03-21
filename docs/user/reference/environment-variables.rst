@@ -56,6 +56,31 @@ All :doc:`build processes </builds>` have the following environment variables au
     :Example: ``https://docs.readthedocs.io/ja/stable/``
     :Example: ``https://example--17.org.readthedocs.build/fr/17/``
 
+.. envvar:: READTHEDOCS_REPOSITORY_URL
+
+    URL from where the source code to generate the documentation is clonned.
+    It could be HTTPS, SSH or any other URL scheme supported by Git.
+    This is the same URL defined under :guilabel:`Admin` > :guilabel:`Settings` > :guilabel:`Repository URL`.
+
+    :Example: ``https://github.com/readthedocs/readthedocs.org``
+    :Example: ``git@github.com:readthedocs/readthedocs.org.git``
+
+.. envvar:: READTHEDOCS_REPOSITORY_IDENTIFIER
+
+    Git identifier checked out from the repository URL.
+    It could be a branch or tag name.
+
+    :Example: ``v1.x``
+    :Example: ``bugfix/docs-typo``
+    :Example: ``feature/signup``
+    :Example: ``update-readme``
+
+.. envvar:: READTHEDOCS_REPOSITORY_IDENTIFIER_HASH
+
+    Git commit hash identifier checked out from the repository URL.
+
+    :Example: ``1f94e04b7f596c309b7efab4e7630ed78e85a1f1``
+
 .. seealso::
 
    :doc:`/environment-variables`
