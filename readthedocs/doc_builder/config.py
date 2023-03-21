@@ -12,7 +12,7 @@ from .constants import DOCKER_IMAGE, DOCKER_IMAGE_SETTINGS
 
 def load_yaml_config(version, config_file=None):
     """
-    Load a build configuration file.
+    Load a build configuration file (`.readthedocs.yaml`).
 
     This uses the configuration logic from `readthedocs-build`, which will keep
     parsing consistent between projects.
