@@ -734,7 +734,7 @@ class Project(models.Model):
 
         Returns `None` if the project isn't a subproject.
         """
-        parent_relationship = self.get_parent_relationship()
+        parent_relationship = self.parent_relationship
         if not parent_relationship:
             return None
 
@@ -868,7 +868,7 @@ class Project(models.Model):
 
     @cached_property
     def superproject(self):
-        relationship = self.get_parent_relationship()
+        relationship = self.parent_relationship
         if relationship:
             return relationship.parent
         return None
@@ -1288,7 +1288,8 @@ class Project(models.Model):
     def remove_subproject(self, child):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
 
-    def get_parent_relationship(self):
+    @cached_property
+    def parent_relationship(self):
         """
         Get parent project relationship.
 

@@ -6,6 +6,8 @@ from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils.url import unsafe_join_url_path
+from readthedocs.core.utils.urlpattern import urlpattern_to_plain_text
 
 log = structlog.get_logger(__name__)
 
@@ -58,59 +60,66 @@ class ResolverBase:
             version_slug=None,
             language=None,
             single_version=None,
-            subproject_slug=None,
+            subproject_relationship=None,
             subdomain=None,
             cname=None,
             urlconf=None,
+            urlpattern=None,
     ):
         """Resolve a with nothing smart, just filling in the blanks."""
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
-        if subdomain or cname or (self._use_subdomain()):
-            url = '/'
+        if subdomain or cname or self._use_subdomain():
+            path = '/'
         else:
-            url = '/docs/{project_slug}/'
+            path = '/docs/{project}/'
 
-        if subproject_slug:
-            url += 'projects/{subproject_slug}/'
+        if subproject_relationship:
+            path = unsafe_join_url_path(path, subproject_relationship.child.subproject_prefix)
 
-        if single_version:
-            url += '{filename}'
+        # If the project has a custom urlpattern, we use it.
+        if urlpattern:
+            plain_urlpattern = urlpattern_to_plain_text(urlpattern)
+            path = unsafe_join_url_path(path, plain_urlpattern)
+        # If the project doesn't have a custom URL pattern, we use the default,
+        # which is just the filename for single version projects and language/version
+        # for multi version projects.
+        elif single_version:
+            path = unsafe_join_url_path(path, '{filename}')
         else:
-            url += '{language}/{version_slug}/{filename}'
+            path = unsafe_join_url_path(path, '{language}/{version}/{filename}')
 
         # Allow users to override their own URLConf
         # This logic could be cleaned up with a standard set of variable replacements
         if urlconf:
-            url = urlconf
-            url = url.replace(
+            path = urlconf
+            path = path.replace(
                 '$version',
-                '{version_slug}',
+                '{version}',
             )
-            url = url.replace(
+            path = path.replace(
                 '$language',
                 '{language}',
             )
-            url = url.replace(
+            path = path.replace(
                 '$filename',
                 '{filename}',
             )
-            url = url.replace(
+            path = path.replace(
                 '$subproject',
-                '{subproject_slug}',
+                '{subproject}',
             )
-            if '$' in url:
+            if '$' in path:
                 log.warning(
-                    'Unconverted variable in a resolver URLConf.', url=url,
+                    'Unconverted variable in a resolver URLConf.', url=path,
                 )
 
-        return url.format(
-            project_slug=project_slug,
+        return path.format(
+            project=project_slug,
             filename=filename,
-            version_slug=version_slug,
+            version=version_slug,
             language=language,
-            single_version=single_version,
-            subproject_slug=subproject_slug,
+            subproject=subproject_relationship.alias if subproject_relationship else None,
         )
 
     def resolve_path(
@@ -128,27 +137,35 @@ class ResolverBase:
         version_slug = version_slug or project.get_default_version()
         language = language or project.language
 
-        filename = self._fix_filename(project, filename)
+        filename = self._fix_filename(filename)
 
-        main_project, subproject_slug = self._get_canonical_project_data(project)
-        project_slug = main_project.slug
+        parent_project, subproject_relationship = self._get_canonical_project_data(project)
         cname = (
             cname
             or self._use_subdomain()
-            or main_project.get_canonical_custom_domain()
+            or parent_project.get_canonical_custom_domain()
         )
         single_version = bool(project.single_version or single_version)
 
+        # For a normal project or translation that isn't a subproject,
+        # we use the urlpattern of the parent project.
+        urlpattern = parent_project.urlpattern
+        # If the project is a subproject, we use the
+        # urlpattern of the child of the relationship.
+        if subproject_relationship:
+            urlpattern = subproject_relationship.child.urlpattern
+
         return self.base_resolve_path(
-            project_slug=project_slug,
+            project_slug=parent_project.slug,
             filename=filename,
             version_slug=version_slug,
             language=language,
             single_version=single_version,
-            subproject_slug=subproject_slug,
+            subproject_relationship=subproject_relationship,
             cname=cname,
             subdomain=subdomain,
             urlconf=urlconf or project.urlconf,
+            urlpattern=urlpattern,
         )
 
     def resolve_domain(self, project, use_canonical_domain=True):
@@ -247,10 +264,9 @@ class ResolverBase:
 
     def _get_canonical_project_data(self, project):
         """
-        Returns a tuple with (project, subproject_slug) from the canonical project of `project`.
+        Returns a tuple with (parent project, subproject relationship) from the canonical project of `project`.
 
-        We currently support more than 2 levels of nesting subprojects and translations,
-        but we only serve 2 levels to avoid sticking in the loop.
+        We don't support more than 2 levels of nesting subprojects and translations,
         This means, we can have the following cases:
 
         - The project isn't a translation or subproject
@@ -293,19 +309,17 @@ class ResolverBase:
         If the project is a translation,
         we need to check if the main translation is a subproject.
         """
-        main_project = project
-        subproject_slug = None
+        parent_project = project
 
-        main_language_project = main_project.main_language_project
+        main_language_project = parent_project.main_language_project
         if main_language_project:
-            main_project = main_language_project
+            parent_project = main_language_project
 
-        relation = main_project.get_parent_relationship()
+        relation = parent_project.parent_relationship
         if relation:
-            main_project = relation.parent
-            subproject_slug = relation.alias
+            parent_project = relation.parent
 
-        return (main_project, subproject_slug)
+        return (parent_project, relation)
 
     def _get_canonical_project(self, project, projects=None):
         """
@@ -330,7 +344,7 @@ class ResolverBase:
         if project.main_language_project:
             next_project = project.main_language_project
         else:
-            relation = project.get_parent_relationship()
+            relation = project.parent_relationship
             if relation:
                 next_project = relation.parent
 
@@ -359,7 +373,7 @@ class ResolverBase:
         )
         return type_ == EXTERNAL
 
-    def _fix_filename(self, project, filename):
+    def _fix_filename(self, filename):
         """
         Force filenames that might be HTML file paths into proper URL's.
 

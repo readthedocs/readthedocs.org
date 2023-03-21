@@ -77,7 +77,8 @@ the URL pattern to change the ``/projects/`` prefix
 must be defined in the ``urlpattern_subproject`` attribute of the parent project.
 
 To change the pattern of the subproject itself,
-the URL pattern must be defined in the ``urlpattern`` attribute of the subproject itself.
+the URL pattern must be defined in the ``urlpattern`` attribute of the subproject itself,
+or in the main translation if it's a translation.
 
 Writing a custom URL pattern
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -98,8 +99,6 @@ A couple of rules to be followed to avoid unexpected behaviours are:
 
 - Always put the filename at the end of the pattern,
   this is since a filename matches any string.
-  Changing the order of some components is possible,
-  but it may lead to some unexpected behaviours.
 - Write the regex in a way that a partial match is possible,
   this is useful for raising the proper exception on partial matches
   (like a 404 on an invalid language if the URL starts with one).
