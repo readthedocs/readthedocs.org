@@ -271,7 +271,7 @@ class ResolverBase:
 
     def _get_canonical_project_data(self, project):
         """
-        Returns a tuple with (parent project, subproject relationship) from the canonical project of `project`.
+        Get the parent project and subproject relationship from the canonical project of `project`.
 
         We don't support more than 2 levels of nesting subprojects and translations,
         This means, we can have the following cases:
