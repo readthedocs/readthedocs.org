@@ -48,7 +48,8 @@ you need to ensure that relevant versions of your documentation are built again.
 
 .. tip::
 
-   We recommend that you set up the first 1-2 projects and try to configure them as much as possible before scaling up.
+   Having multiple different build configuration files can be complex.
+   We recommend setting up 1-2 projects in your Monorepo and getting them to build and publish successfully before adding additional projects to the equation.
 
 Next steps
 ----------
