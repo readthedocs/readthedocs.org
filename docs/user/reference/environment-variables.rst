@@ -44,6 +44,15 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     :Example: ``/home/docs/checkouts/readthedocs.org/user_builds/project/envs/version``
 
+.. envvar:: READTHEDOCS_CANONICAL_URL
+
+    Canonical URL for the version it's currently building.
+    If the project has configured a :doc:`custom domain </custom-domains>` (e.g. ``docs.example.com``) it will be used in the resulting canonical URL.
+    Otherwise, the default domain will be exposed (e.g. ``.readthedocs.io``)
+
+    :Example: ``https://docs.example.com/en/latest/``
+    :Example: ``https://docs.readthedocs.io/ja/stable/``
+
 .. seealso::
 
    :doc:`/environment-variables`
