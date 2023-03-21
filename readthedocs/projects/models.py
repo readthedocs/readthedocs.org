@@ -217,7 +217,7 @@ class Project(models.Model):
             'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
         ),
     )
-    # NOTE: This is deprecated, use the `urlpattern_*` attributes instead.
+    # NOTE: This is deprecated, use the `urlpattern*` attributes instead.
     urlconf = models.CharField(
         _('Documentation URL Configuration'),
         max_length=255,
@@ -240,18 +240,18 @@ class Project(models.Model):
             "A Python regex pattern used when evaluating a multi version or single version project. "  # noqa
             "For multi version projects it needs to declare the following replacement fields: language, version, and filename. "  # noqa
             "For single version projects it needs to declare the filename replacement field only. "
-            "The default pattern for multi version projects is: `^/{language}(/({version}(/{filename})?)?)?$`. "  # noqa
-            "The default pattern for single version projects is: `^/{filename}?$`."
+            "The default pattern for multi version projects is: `^/{language}(/({version}(/{filename})?)?)?$`, "  # noqa
+            "and for single version projects is: `^/{filename}?$`."
         ),
     )
     urlpattern_subproject = models.CharField(
-        _("Custom URL pattern for subprojects"),
+        _("Custom URL pattern for the subproject prefix"),
         max_length=255,
         default=None,
         blank=True,
         null=True,
         help_text=_(
-            "A Python regex pattern used when evaluating a subproject. "
+            "A Python regex pattern used when evaluating the root of a subproject. "
             "It needs to declare the following replacement fields: subproject and filename. "
             "This pattern will be used to identify the subproject, to change "
             "the URL pattern of the subproject itself, change `urlpattern` attribute in the subproject. "  # noqa
@@ -737,10 +737,6 @@ class Project(models.Model):
         parent_relationship = self.parent_relationship
         if not parent_relationship:
             return None
-
-        if self.urlconf:
-            # TODO: check if we have a project with a custom urlconf with subprojects.
-            pass
 
         parent_project = parent_relationship.parent
         if parent_project.urlpattern_subproject:

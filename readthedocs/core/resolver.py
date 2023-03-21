@@ -80,17 +80,18 @@ class ResolverBase:
             )
 
         # If the project has a custom urlpattern, we use it.
-        if urlpattern:
-            plain_urlpattern = urlpattern_to_plain_text(urlpattern)
-            path = unsafe_join_url_path(path, plain_urlpattern)
         # If the project doesn't have a custom URL pattern, we use the default,
         # which is just the filename for single version projects and language/version
         # for multi version projects.
+        if urlpattern:
+            plain_urlpattern = urlpattern_to_plain_text(urlpattern)
+            path = unsafe_join_url_path(path, plain_urlpattern)
         elif single_version:
             path = unsafe_join_url_path(path, "{filename}")
         else:
             path = unsafe_join_url_path(path, "{language}/{version}/{filename}")
 
+        # TODO: remove this when all projects have migrated to URL patterns.
         # Allow users to override their own URLConf
         # This logic could be cleaned up with a standard set of variable replacements
         if urlconf:
@@ -117,14 +118,15 @@ class ResolverBase:
                     url=path,
                 )
 
+        subproject_alias = (
+            subproject_relationship.alias if subproject_relationship else ""
+        )
         return path.format(
             project=project_slug,
             filename=filename,
             version=version_slug,
             language=language,
-            subproject=subproject_relationship.alias
-            if subproject_relationship
-            else None,
+            subproject=subproject_alias,
         )
 
     def resolve_path(

@@ -7,12 +7,12 @@ def urlpattern_to_regex(urlpattern):
     """
     Transform a URL pattern to a regular expression.
 
-    A URL pattern is a regular expression with replacement fields, like:
-    language, version, filename, subproject.
+    A URL pattern is a regular expression with replacement fields,
+    valid replacement fields are: language, version, filename, subproject.
 
     Before compiling the regular expression, the string is formatted with
-    `str.format` to replace each field with a capture group:
-    language, version, filename, subproject.
+    `str.format` to replace each field with a capture group with their respective
+    regex pattern.
 
     This regex is mainly used by the unresolver.
 
@@ -50,6 +50,9 @@ def urlpattern_to_plain_text(urlpattern):
 
         /{language}/{version}
 
+    This operation is useful to build a URL from a URL pattern,
+    given the current language, version, filename, or subproject.
+
     .. note::
 
        To escape a regex instead of removing its characters, use ``re.escape``.
@@ -58,9 +61,8 @@ def urlpattern_to_plain_text(urlpattern):
     plain_urlpattern = []
     is_escaped = False
     for c in urlpattern:
-        # If the previous character was a backslash,
-        # the current character is escaped, so we don't
-        # need to check if the character is special.
+        # If the previous character was a backslash, the
+        # current character is escaped, so we include it as is.
         if is_escaped:
             is_escaped = False
             plain_urlpattern.append(c)
