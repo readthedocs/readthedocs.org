@@ -372,7 +372,7 @@ class Project(models.Model):
             "ex. <code>subpath/docs/.readthedocs.yaml</code>. "
             "Leave blank for default value (<code>.readthedocs.yaml</code>).",
         ),
-        validators=[validate_repository_path],
+        validators=[validate_repository_path(valid_filenames=[".readthedocs.yaml"])],
     )
 
     featured = models.BooleanField(_('Featured'), default=False)

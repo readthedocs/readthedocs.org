@@ -288,7 +288,10 @@ class TestProjectAdvancedUpdate(TestCase):
                 "default_branch": "",
                 "documentation_type": "sphinx",
                 "python_interpreter": "python3",
-                "build_config_file": "test.yaml",
+                "build_config_file": "folder/.readthedocs.yaml",
             },
         )
         self.assertEqual(resp.status_code, 302)
+
+        self.project.refresh_from_db()
+        assert self.project.build_config_file == "folder/.readthedocs.yaml"
