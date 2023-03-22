@@ -56,7 +56,7 @@ All :doc:`build processes </builds>` have the following environment variables au
     :Example: ``https://docs.readthedocs.io/ja/stable/``
     :Example: ``https://example--17.org.readthedocs.build/fr/17/``
 
-.. envvar:: READTHEDOCS_REPOSITORY_URL
+.. envvar:: READTHEDOCS_REPOSITORY_CLONE_URL
 
     URL for the remote source repository, from which the documentation is cloned.
     It could be HTTPS, SSH or any other URL scheme supported by Git.
