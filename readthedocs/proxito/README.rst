@@ -110,6 +110,11 @@ A couple of rules to be followed to avoid unexpected behaviours are:
   using only the version, language, filename, and subproject components.
 - Is recomeded to separate each component with ``/``,
   since any other characters can be valid in components (like ``-`` in slugs).
+- Remember that this is a regex, so make sure to escape special characters like ``.``.
+- Make sure that the patterns from the parent project and the subproject prefix
+  don't overlap (``urlpattern`` and ``urlpattern_subproject``).
+  We first try to match the path against ``urlpattern`` and then against ``urlpattern_subproject``,
+  if they overlap, we won't be able to serve subprojects.
 
 CDN
 ---
