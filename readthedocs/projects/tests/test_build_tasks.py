@@ -384,6 +384,11 @@ class TestBuildTask(BuildEnvironmentBase):
             # Local and Circle are different values.
             # We only check it's present, but not its value.
             READTHEDOCS_VIRTUALENV_PATH=mock.ANY,
+            READTHEDOCS_CANONICAL_URL=self.project.get_docs_url(
+                lang_slug=self.project.language,
+                version_slug=self.version.slug,
+                external=external,
+            ),
         )
         if not external:
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"

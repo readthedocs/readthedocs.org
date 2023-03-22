@@ -644,6 +644,12 @@ class BuildDirector:
                 }
             )
 
+        env.update(
+            {
+                "READTHEDOCS_CANONICAL_URL": self.data.version.canonical_url,
+            }
+        )
+
         # Update environment from Project's specific environment variables,
         # avoiding to expose private environment variables
         # if the version is external (i.e. a PR build).
