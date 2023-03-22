@@ -126,7 +126,7 @@ class VersionAdminSerializer(VersionSerializer):
 
     project = ProjectAdminSerializer()
     canonical_url = serializers.SerializerMethodField()
-    build_data = serializers.JSONField(required=False, write_only=True)
+    build_data = serializers.JSONField(required=False, write_only=True, allow_null=True)
 
     def get_canonical_url(self, obj):
         return obj.project.get_docs_url(
