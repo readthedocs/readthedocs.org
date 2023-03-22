@@ -105,8 +105,8 @@ A couple of rules to be followed to avoid unexpected behaviours are:
   not just a part of the path.
 - Starting the regex with ``^`` is optional, since we use ``re.match``.
 - All paths are guaranteed to start with ``/``, so always start the regex with ``/``.
-- Don't include named groups or character classes (``[]``),
-  since we want to be able to reconstruct the URL from the regex
+- Don't include named groups, character classes (``[]``),
+  or anything that can't be used to reconstruct the URL from the pattern
   using only the version, language, filename, and subproject components.
 - Is recomeded to separate each component with ``/``,
   since any other characters can be valid in components (like ``-`` in slugs).
