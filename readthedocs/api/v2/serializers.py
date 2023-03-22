@@ -124,7 +124,7 @@ class VersionAdminSerializer(VersionSerializer):
     """Version serializer that returns admin project data."""
 
     project = ProjectAdminSerializer()
-    build_data = serializers.JSONField(required=False, write_only=True)
+    build_data = serializers.JSONField(required=False, write_only=True, allow_null=True)
 
     class Meta(VersionSerializer.Meta):
         fields = VersionSerializer.Meta.fields + [

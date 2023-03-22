@@ -601,8 +601,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                         "has_pdf": "pdf" in valid_artifacts,
                         "has_epub": "epub" in valid_artifacts,
                         "has_htmlzip": "htmlzip" in valid_artifacts,
-                        # Build data can't be `None`.
-                        "build_data": self.data.version.build_data or {},
+                        "build_data": self.data.version.build_data,
                     }
                 )
             except HttpClientError:
