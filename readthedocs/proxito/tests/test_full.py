@@ -428,6 +428,19 @@ class TestDocServingBackends(BaseDocServing):
             )
             self.assertEqual(resp["CDN-Cache-Control"], "public")
 
+            # Translation
+            resp = self.client.get(
+                f"/_/downloads/es/latest/{type_}/",
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 200)
+            extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
+            self.assertEqual(
+                resp["X-Accel-Redirect"],
+                f"/proxito/media/{type_}/translation/latest/translation.{extension}",
+            )
+            self.assertEqual(resp["CDN-Cache-Control"], "public")
+
     @override_settings(PYTHON_MEDIA=False, ALLOW_PRIVATE_REPOS=True)
     def test_download_files_private_version(self):
         self.version.privacy_level = PRIVATE
@@ -492,6 +505,74 @@ class TestDocServingBackends(BaseDocServing):
                 HTTP_HOST="project--10.dev.readthedocs.build",
             )
             self.assertEqual(resp.status_code, 404)
+
+    @override_settings(PYTHON_MEDIA=False)
+    def test_download_files_from_external_version(self):
+        fixture.get(
+            Version,
+            verbose_name="10",
+            slug="10",
+            type=EXTERNAL,
+            active=True,
+            project=self.project,
+        )
+        for type_ in DOWNLOADABLE_MEDIA_TYPES:
+            resp = self.client.get(
+                f"/_/downloads/en/10/{type_}/",
+                HTTP_HOST="project--10.dev.readthedocs.build",
+            )
+            self.assertEqual(resp.status_code, 200)
+            extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
+            self.assertEqual(
+                resp["X-Accel-Redirect"],
+                f"/proxito/media/external/{type_}/project/10/project.{extension}",
+            )
+            self.assertEqual(resp["CDN-Cache-Control"], "public")
+
+    @override_settings(PYTHON_MEDIA=False)
+    def test_download_files_from_external_version_unmatching_versions(self):
+        fixture.get(
+            Version,
+            verbose_name="11",
+            slug="11",
+            type=EXTERNAL,
+            active=True,
+            project=self.project,
+        )
+        for type_ in DOWNLOADABLE_MEDIA_TYPES:
+            resp = self.client.get(
+                f"/_/downloads/en/11/{type_}/",
+                HTTP_HOST="project--10.dev.readthedocs.build",
+            )
+            self.assertEqual(resp.status_code, 404)
+
+    @override_settings(PYTHON_MEDIA=False)
+    def test_download_files_from_subproject(self):
+        for type_ in DOWNLOADABLE_MEDIA_TYPES:
+            resp = self.client.get(
+                f"/_/downloads/subproject/en/latest/{type_}/",
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 200)
+            extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
+            self.assertEqual(
+                resp["X-Accel-Redirect"],
+                f"/proxito/media/{type_}/subproject/latest/subproject.{extension}",
+            )
+            self.assertEqual(resp["CDN-Cache-Control"], "public")
+
+            # Translation
+            resp = self.client.get(
+                f"/_/downloads/subproject/es/latest/{type_}/",
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(resp.status_code, 200)
+            extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
+            self.assertEqual(
+                resp["X-Accel-Redirect"],
+                f"/proxito/media/{type_}/subproject-translation/latest/subproject-translation.{extension}",
+            )
+            self.assertEqual(resp["CDN-Cache-Control"], "public")
 
     @override_settings(PYTHON_MEDIA=False)
     def test_filename_with_parent_paths(self):
