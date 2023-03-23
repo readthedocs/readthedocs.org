@@ -16,6 +16,7 @@ from readthedocs.projects.models import Project
 @override_settings(
     PUBLIC_DOMAIN="dev.readthedocs.io",
     PUBLIC_DOMAIN_USES_HTTPS=True,
+    GLOBAL_ANALYTICS_CODE=None,
 )
 @pytest.mark.proxito
 class TestReadTheDocsConfigJson(TestCase):
