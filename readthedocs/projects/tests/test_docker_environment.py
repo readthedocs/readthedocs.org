@@ -1,8 +1,6 @@
-from unittest import mock
 
-import pytest
 import django_dynamic_fixture as fixture
-
+import pytest
 
 from readthedocs.builds.models import Build
 from readthedocs.doc_builder.environments import DockerBuildEnvironment
@@ -36,4 +34,3 @@ class TestDockerBuildEnvironmentNew:
 
     def test_container_id(self):
         assert self.environment.container_id == f'build-{self.build.pk}-project-{self.project.pk}-{self.project.slug}'
-

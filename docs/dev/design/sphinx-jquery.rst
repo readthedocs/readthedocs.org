@@ -110,7 +110,7 @@ The minified jQuery JS file is ultimately included by calling `app.add_js_file <
       get_jquery_url_path(),
       loading_method="defer",
       priority=200,
-      integrity="sha256-{}".format(get_jquery_sha256_checksum())
+      integrity="sha256-{}".format(get_jquery_sha256_checksum()),
   )
 
 

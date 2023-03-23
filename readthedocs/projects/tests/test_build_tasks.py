@@ -216,6 +216,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[7]._request.method == "PATCH"
         assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[7].json() == {
+            "build_data": None,
             "built": True,
             "documentation_type": "mkdocs",
             "has_pdf": True,
@@ -300,6 +301,11 @@ class TestBuildTask(BuildEnvironmentBase):
             # Local and Circle are different values.
             # We only check it's present, but not its value.
             READTHEDOCS_VIRTUALENV_PATH=mock.ANY,
+            READTHEDOCS_CANONICAL_URL=self.project.get_docs_url(
+                lang_slug=self.project.language,
+                version_slug=self.version.slug,
+                external=external,
+            ),
         )
         if not external:
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
@@ -457,6 +463,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[7]._request.method == "PATCH"
         assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[7].json() == {
+            "build_data": None,
             "built": True,
             "documentation_type": "sphinx",
             "has_pdf": True,
@@ -723,18 +730,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     bin_path=mock.ANY,
                 ),
                 mock.call("cat", "latexmkrc", cwd=mock.ANY),
-                mock.call(
-                    "latexmk",
-                    "-r",
-                    "latexmkrc",
-                    "-pdf",
-                    "-f",
-                    "-dvi-",
-                    "-ps-",
-                    "-jobname=project",
-                    "-interaction=nonstopmode",
-                    cwd=mock.ANY,
-                ),
                 # NOTE: pdf `mv` commands and others are not here because the
                 # PDF resulting file is not found in the process (`_post_build`)
                 mock.call(
@@ -782,6 +777,13 @@ class TestBuildTask(BuildEnvironmentBase):
                     cwd=mock.ANY,
                     record=False,
                 ),
+                mock.call(
+                    "test",
+                    "-x",
+                    "_build/html",
+                    record=False,
+                    cwd=mock.ANY,
+                ),
                 # FIXME: I think we are hitting this issue here:
                 # https://github.com/pytest-dev/pytest-mock/issues/234
                 mock.call("lsb_release", "--description", record=False, demux=True),
@@ -805,14 +807,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "json",
                     record=False,
                     demux=True,
-                ),
-                mock.call(
-                    "test",
-                    "-x",
-                    "_build/html",
-                    record=False,
-                    demux=True,
-                    cwd=mock.ANY,
                 ),
             ]
         )

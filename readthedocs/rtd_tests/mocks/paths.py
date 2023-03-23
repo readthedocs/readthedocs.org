@@ -1,8 +1,6 @@
-# -*- coding: utf-8 -*-
 """Context managers to patch os.path.exists calls."""
 import os
 import re
-
 from unittest import mock
 
 

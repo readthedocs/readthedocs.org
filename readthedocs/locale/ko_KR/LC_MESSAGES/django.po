@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-07 10:40+0000\n"
+"POT-Creation-Date: 2023-03-21 14:25+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Chanyoung Oh <ndcd607@gmail.com>, 2016,2018\n"
 "Language-Team: Korean (Korea) (http://www.transifex.com/readthedocs/"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: analytics/models.py:69 builds/models.py:626 projects/models.py:1408
+#: analytics/models.py:69 builds/models.py:630 projects/models.py:1408
 #: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:262
 msgid "Version"
 msgstr "버전"
@@ -61,7 +61,7 @@ msgstr ""
 msgid "Project Home"
 msgstr ""
 
-#: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
+#: api/v2/templates/restapi/footer.html:72 builds/apps.py:13
 #: templates/core/project_bar_base.html:49
 msgid "Builds"
 msgstr "빌드"
@@ -171,7 +171,7 @@ msgstr ""
 msgid "Invitation declined"
 msgstr ""
 
-#: audit/models.py:116 core/models.py:21 gold/models.py:35
+#: audit/models.py:116 core/models.py:21 gold/models.py:33
 #: projects/models.py:129
 msgid "User"
 msgstr "사용자"
@@ -184,7 +184,7 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
-#: audit/models.py:138 builds/models.py:110 builds/models.py:620
+#: audit/models.py:138 builds/models.py:108 builds/models.py:624
 #: projects/models.py:1402 redirects/models.py:57
 msgid "Project"
 msgstr "프로젝트"
@@ -209,7 +209,7 @@ msgstr ""
 msgid "Organization slug"
 msgstr ""
 
-#: audit/models.py:180 builds/models.py:1130
+#: audit/models.py:180 builds/models.py:1134
 msgid "Action"
 msgstr ""
 
@@ -416,7 +416,7 @@ msgstr ""
 msgid "Custom match"
 msgstr ""
 
-#: builds/filters.py:18 builds/models.py:149 redirects/models.py:23
+#: builds/filters.py:18 builds/models.py:147 redirects/models.py:23
 msgid "Active"
 msgstr "활성"
 
@@ -429,7 +429,7 @@ msgstr ""
 msgid "Build failed"
 msgstr "빌드 실패"
 
-#: builds/filters.py:26 builds/models.py:151 builds/models.py:642
+#: builds/filters.py:26 builds/models.py:149 builds/models.py:646
 msgid "State"
 msgstr "상태"
 
@@ -458,268 +458,272 @@ msgstr ""
 msgid "Invalid Python regular expression."
 msgstr ""
 
-#: builds/models.py:98 projects/models.py:1490 projects/models.py:1658
+#: builds/models.py:96 projects/models.py:1490 projects/models.py:1658
 msgid "created"
 msgstr ""
 
-#: builds/models.py:103 projects/models.py:1495
+#: builds/models.py:101 projects/models.py:1495
 msgid "modified"
 msgstr ""
 
-#: builds/models.py:115 builds/models.py:632 sphinx_domains/models.py:59
+#: builds/models.py:113 builds/models.py:636 sphinx_domains/models.py:59
 #: subscriptions/models.py:134
 msgid "Type"
 msgstr "종류"
 
-#: builds/models.py:129
+#: builds/models.py:127
 msgid "Identifier"
 msgstr "식별자"
 
-#: builds/models.py:136
+#: builds/models.py:134
 msgid "Verbose Name"
 msgstr ""
 
-#: builds/models.py:143 oauth/models.py:32 organizations/models.py:52
+#: builds/models.py:141 oauth/models.py:32 organizations/models.py:52
 #: projects/models.py:134 subscriptions/models.py:35
 msgid "Slug"
 msgstr ""
 
-#: builds/models.py:148
+#: builds/models.py:146
 msgid "Supported"
 msgstr "지원함"
 
-#: builds/models.py:156
+#: builds/models.py:154
 msgid "State of the PR/MR associated to this version."
 msgstr ""
 
-#: builds/models.py:158
+#: builds/models.py:156
 msgid "Built"
 msgstr "빌드됨"
 
-#: builds/models.py:159
+#: builds/models.py:157
 msgid "Uploaded"
 msgstr "업로드됨"
 
-#: builds/models.py:161 projects/models.py:410
+#: builds/models.py:159 projects/models.py:410
 msgid "Privacy Level"
 msgstr "보안 수준"
 
-#: builds/models.py:165
+#: builds/models.py:163
 msgid "Level of privacy for this Version."
 msgstr "이 버전의 보안 수준"
 
-#: builds/models.py:168
+#: builds/models.py:166
 msgid "Hidden"
 msgstr ""
 
-#: builds/models.py:170
+#: builds/models.py:168
 msgid "Hide this version from the version (flyout) menu and search results?"
 msgstr ""
 
-#: builds/models.py:172
+#: builds/models.py:170
 msgid "Machine Created"
 msgstr "머신 생성됨"
 
-#: builds/models.py:175
+#: builds/models.py:173
 msgid "Has PDF"
 msgstr ""
 
-#: builds/models.py:176
+#: builds/models.py:174
 msgid "Has ePub"
 msgstr ""
 
-#: builds/models.py:177
+#: builds/models.py:175
 msgid "Has HTML Zip"
 msgstr ""
 
-#: builds/models.py:180 projects/models.py:206
+#: builds/models.py:178 projects/models.py:206
 msgid "Documentation type"
 msgstr "문서 종류"
 
-#: builds/models.py:185
+#: builds/models.py:183
 msgid "Type of documentation the version was built with."
 msgstr ""
 
-#: builds/models.py:201
+#: builds/models.py:188
+msgid "Data generated at build time by the doctool (`readthedocs-build.yaml`)."
+msgstr ""
+
+#: builds/models.py:205
 #, python-brace-format
 msgid "Version {version} of {project} ({pk})"
 msgstr "{project} ({pk})의 버전 {version}"
 
-#: builds/models.py:654
+#: builds/models.py:658
 msgid "Status"
 msgstr ""
 
-#: builds/models.py:661 integrations/models.py:147
+#: builds/models.py:665 integrations/models.py:147
 msgid "Date"
 msgstr "날짜"
 
-#: builds/models.py:662
+#: builds/models.py:666
 msgid "Success"
 msgstr "성공"
 
-#: builds/models.py:667
+#: builds/models.py:671
 msgid "Setup"
 msgstr "설치"
 
-#: builds/models.py:668
+#: builds/models.py:672
 msgid "Setup error"
 msgstr "설치 오류"
 
-#: builds/models.py:669
+#: builds/models.py:673
 msgid "Output"
 msgstr "결과물"
 
-#: builds/models.py:670 templates/builds/build_detail.html:224
+#: builds/models.py:674 templates/builds/build_detail.html:224
 msgid "Error"
 msgstr "오류"
 
-#: builds/models.py:671
+#: builds/models.py:675
 msgid "Exit code"
 msgstr "종료 코드"
 
-#: builds/models.py:676 projects/models.py:1419 sphinx_domains/models.py:43
+#: builds/models.py:680 projects/models.py:1419 sphinx_domains/models.py:43
 msgid "Commit"
 msgstr "커밋"
 
-#: builds/models.py:682
+#: builds/models.py:686
 msgid "Version slug"
 msgstr ""
 
-#: builds/models.py:688
+#: builds/models.py:692
 msgid "Version name"
 msgstr ""
 
-#: builds/models.py:694 builds/models.py:1143
+#: builds/models.py:698 builds/models.py:1147
 msgid "Version type"
 msgstr ""
 
-#: builds/models.py:701
+#: builds/models.py:705
 msgid "Configuration used in the build"
 msgstr ""
 
-#: builds/models.py:706
+#: builds/models.py:710
 msgid "Build Length"
 msgstr "빌드 길이"
 
-#: builds/models.py:709
+#: builds/models.py:713
 msgid "Builder"
 msgstr "빌더"
 
-#: builds/models.py:716
+#: builds/models.py:720
 msgid "Cold Storage"
 msgstr ""
 
-#: builds/models.py:722
+#: builds/models.py:726
 msgid "Celery task id"
 msgstr ""
 
-#: builds/models.py:833
+#: builds/models.py:837
 #, python-brace-format
 msgid "Build {project} for {usernames} ({pk})"
 msgstr ""
 
-#: builds/models.py:1041
+#: builds/models.py:1045
 msgid "Build"
 msgstr "빌드"
 
-#: builds/models.py:1046
+#: builds/models.py:1050
 msgid "Command"
 msgstr "명령어"
 
-#: builds/models.py:1047 builds/models.py:1107 oauth/models.py:135
+#: builds/models.py:1051 builds/models.py:1111 oauth/models.py:135
 #: organizations/models.py:66 projects/models.py:136 subscriptions/models.py:30
 #: subscriptions/models.py:137 templates/core/project_details.html:78
 msgid "Description"
 msgstr "설명"
 
-#: builds/models.py:1048
+#: builds/models.py:1052
 msgid "Command output"
 msgstr ""
 
-#: builds/models.py:1049
+#: builds/models.py:1053
 msgid "Command exit code"
 msgstr ""
 
-#: builds/models.py:1051
+#: builds/models.py:1055
 msgid "Start time"
 msgstr "시작 시간"
 
-#: builds/models.py:1052
+#: builds/models.py:1056
 msgid "End time"
 msgstr "종료 시간"
 
-#: builds/models.py:1062
+#: builds/models.py:1066
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
 msgstr ""
 
-#: builds/models.py:1086
+#: builds/models.py:1090
 msgid "Activate version"
 msgstr ""
 
-#: builds/models.py:1087
+#: builds/models.py:1091
 msgid "Hide version"
 msgstr ""
 
-#: builds/models.py:1088
+#: builds/models.py:1092
 msgid "Make version public"
 msgstr ""
 
-#: builds/models.py:1089
+#: builds/models.py:1093
 msgid "Make version private"
 msgstr ""
 
-#: builds/models.py:1090
+#: builds/models.py:1094
 msgid "Set version as default"
 msgstr ""
 
-#: builds/models.py:1091
+#: builds/models.py:1095
 msgid "Delete version (on branch/tag deletion)"
 msgstr ""
 
-#: builds/models.py:1103
+#: builds/models.py:1107
 msgid "Rule priority"
 msgstr ""
 
-#: builds/models.py:1104
+#: builds/models.py:1108
 msgid "A lower number (0) means a higher priority"
 msgstr ""
 
-#: builds/models.py:1113
+#: builds/models.py:1117
 msgid "Match argument"
 msgstr ""
 
-#: builds/models.py:1114
+#: builds/models.py:1118
 msgid "Value used for the rule to match the version"
 msgstr ""
 
-#: builds/models.py:1118
+#: builds/models.py:1122
 msgid "Predefined match argument"
 msgstr ""
 
-#: builds/models.py:1120
+#: builds/models.py:1124
 msgid ""
 "Match argument defined by us, it is used if is not None, otherwise match_arg "
 "will be used."
 msgstr ""
 
-#: builds/models.py:1131
+#: builds/models.py:1135
 msgid "Action to apply to matching versions"
 msgstr ""
 
-#: builds/models.py:1136
+#: builds/models.py:1140
 msgid "Action argument"
 msgstr ""
 
-#: builds/models.py:1137
+#: builds/models.py:1141
 msgid "Value used for the action to perfom an operation"
 msgstr ""
 
-#: builds/models.py:1144
+#: builds/models.py:1148
 msgid "Type of version the rule should be applied to"
 msgstr ""
 
-#: builds/models.py:1368
+#: builds/models.py:1372
 msgid "Matched rule"
 msgstr ""
 
@@ -836,35 +840,35 @@ msgid ""
 "(under Your Project &gt;&gt; Admin &gt;&gt; Domains)"
 msgstr ""
 
-#: doc_builder/director.py:66
+#: doc_builder/director.py:68
 #, python-brace-format
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr ""
 
-#: doc_builder/environments.py:346
+#: doc_builder/environments.py:375
 msgid ""
 "\n"
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 msgstr ""
 
-#: doc_builder/environments.py:352
+#: doc_builder/environments.py:381
 msgid "Command exited abnormally"
 msgstr "명령어가 비정상적으로 종료됨"
 
-#: doc_builder/environments.py:653
+#: doc_builder/environments.py:669
 msgid "A build environment is currently running for this version"
 msgstr ""
 
-#: doc_builder/environments.py:813
+#: doc_builder/environments.py:829
 msgid "Build exited due to time out"
 msgstr "시간 초과로 빌드가 종료됨"
 
-#: doc_builder/environments.py:818
+#: doc_builder/environments.py:834
 msgid "Build exited due to excessive memory consumption"
 msgstr "지나친 메모리 사용으로 빌드가 종료됨"
 
-#: doc_builder/environments.py:824
+#: doc_builder/environments.py:840
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr "알 수 없는 이유로 빌드가 종료됨: {0}"
@@ -910,101 +914,108 @@ msgstr ""
 msgid ""
 "Build output directory for format \"{artifact_type}\" contains multiple "
 "files and it is not currently supported. Please, remove all the files but "
-"the \"{artifact_type}\" your want to upload."
+"the \"{artifact_type}\" you want to upload."
 msgstr ""
 
-#: doc_builder/exceptions.py:58
-msgid "This build was manually skipped using a command exit code."
+#: doc_builder/exceptions.py:56
+msgid ""
+"Some files were detected in an unsupported output path, '_build/html'. "
+"Ensure your project is configured to use the output path "
+"'$READTHEDOCS_OUTPUT/html' instead."
 msgstr ""
 
 #: doc_builder/exceptions.py:63
-msgid "Builds for this project are temporarily disabled"
+msgid "This build was manually skipped using a command exit code."
 msgstr ""
 
 #: doc_builder/exceptions.py:68
-#, python-brace-format
-msgid "Problem in your project's configuration. {exception}"
+msgid "Builds for this project are temporarily disabled"
 msgstr ""
 
 #: doc_builder/exceptions.py:73
 #, python-brace-format
+msgid "Problem in your project's configuration. {exception}"
+msgstr ""
+
+#: doc_builder/exceptions.py:78
+#, python-brace-format
 msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
 msgstr ""
 
-#: doc_builder/exceptions.py:77
+#: doc_builder/exceptions.py:82
 msgid "Build cancelled by user."
 msgstr ""
 
-#: doc_builder/exceptions.py:83
+#: doc_builder/exceptions.py:88
 msgid ""
 "PDF file was not generated/found in \"_readthedocs/pdf\" output directory."
 msgstr ""
 
-#: doc_builder/exceptions.py:89
+#: doc_builder/exceptions.py:94
 #, python-brace-format
 msgid "Problem parsing MkDocs YAML configuration. {exception}"
 msgstr ""
 
-#: doc_builder/exceptions.py:93
+#: doc_builder/exceptions.py:98
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file has to be a string "
 "with relative or absolute path."
 msgstr ""
 
-#: doc_builder/exceptions.py:98
+#: doc_builder/exceptions.py:103
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file does not contain a "
 "valid path."
 msgstr ""
 
-#: doc_builder/exceptions.py:103
+#: doc_builder/exceptions.py:108
 #, python-brace-format
 msgid ""
 "The \"{config}\" config from your MkDocs YAML config file has to be a list "
 "of relative paths."
 msgstr ""
 
-#: doc_builder/exceptions.py:108
+#: doc_builder/exceptions.py:113
 msgid "Please make sure the MkDocs YAML configuration file is not empty."
 msgstr ""
 
-#: doc_builder/exceptions.py:112
+#: doc_builder/exceptions.py:117
 msgid ""
 "Your MkDocs YAML config file is incorrect. Please follow the user guide "
 "https://www.mkdocs.org/user-guide/configuration/ to configure the file "
 "properly."
 msgstr ""
 
-#: doc_builder/exceptions.py:120
+#: doc_builder/exceptions.py:125
 msgid "Symlinks are not fully supported"
 msgstr ""
 
-#: gold/forms.py:52
+#: gold/forms.py:51
 msgid "No project found."
 msgstr ""
 
-#: gold/forms.py:54
+#: gold/forms.py:53
 msgid "This project is already Ad-Free."
 msgstr ""
 
-#: gold/models.py:30 organizations/models.py:33 organizations/models.py:218
+#: gold/models.py:28 organizations/models.py:33 organizations/models.py:218
 #: organizations/models.py:292 projects/models.py:123
 #: subscriptions/models.py:24 subscriptions/models.py:126
 msgid "Publication date"
 msgstr "게시 날짜"
 
-#: gold/models.py:31 organizations/models.py:34 organizations/models.py:219
+#: gold/models.py:29 organizations/models.py:34 organizations/models.py:219
 #: organizations/models.py:293 projects/models.py:124 projects/models.py:1421
 #: subscriptions/models.py:25 subscriptions/models.py:127
 #: subscriptions/models.py:183
 msgid "Modified date"
 msgstr "수정 날짜"
 
-#: gold/models.py:41 gold/templates/gold/subscription_detail.html:87
+#: gold/models.py:39 gold/templates/gold/subscription_detail.html:87
 msgid "Level"
 msgstr "레벨"
 
-#: gold/models.py:48 organizations/models.py:39 organizations/models.py:229
+#: gold/models.py:46 organizations/models.py:39 organizations/models.py:229
 #: organizations/templates/organizations/team_detail.html:49
 #: organizations/templates/organizations/team_project_edit.html:13
 #: templates/core/project_bar.html:7 templates/core/project_bar_base.html:20
@@ -1273,7 +1284,7 @@ msgstr ""
 msgid "Decline"
 msgstr ""
 
-#: notifications/forms.py:29
+#: notifications/forms.py:28
 msgid "Notification"
 msgstr "알림"
 
@@ -1950,7 +1961,7 @@ msgstr ""
 msgid "Bazaar"
 msgstr ""
 
-#: projects/constants.py:99 projects/models.py:2119
+#: projects/constants.py:99 projects/models.py:2124
 msgid "Public"
 msgstr "공개"
 
@@ -2593,217 +2604,221 @@ msgstr ""
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1889
+#: projects/models.py:1890
 msgid "Allow deprecated webhook views"
 msgstr ""
 
-#: projects/models.py:1893
+#: projects/models.py:1894
 msgid "Do not overwrite context vars in conf.py with Read the Docs context"
 msgstr ""
 
-#: projects/models.py:1899
+#: projects/models.py:1900
 msgid "Do not define html_theme_path on Sphinx < 6.0"
 msgstr ""
 
-#: projects/models.py:1904
+#: projects/models.py:1905
 msgid "Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 
-#: projects/models.py:1908
+#: projects/models.py:1909
 msgid "Do not shallow clone when cloning git repos"
 msgstr ""
 
-#: projects/models.py:1912
+#: projects/models.py:1913
 msgid "Use Docker image labelled as `testing` to build the docs"
 msgstr ""
 
-#: projects/models.py:1916
+#: projects/models.py:1917
 msgid "Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1920
+#: projects/models.py:1921
 msgid "Clean all files used in the build process"
 msgstr ""
 
-#: projects/models.py:1924
+#: projects/models.py:1925
 msgid "Upgrade conda before creating the environment"
 msgstr ""
 
-#: projects/models.py:1928
+#: projects/models.py:1929
 msgid "Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1933
+#: projects/models.py:1934
 msgid ""
 "Pass all versions (including private) into the html context when building "
 "with Sphinx"
 msgstr ""
 
-#: projects/models.py:1939
+#: projects/models.py:1940
 msgid ""
 "Cache the environment (virtualenv, conda, pip cache, repository) in storage"
 msgstr ""
 
-#: projects/models.py:1943
+#: projects/models.py:1944
 msgid "Limit the amount of concurrent builds"
 msgstr ""
 
-#: projects/models.py:1947
+#: projects/models.py:1948
 msgid ""
 "CDN support for a project's public versions when privacy levels are enabled."
 msgstr ""
 
-#: projects/models.py:1951
+#: projects/models.py:1952
 msgid "Use Docker gVisor runtime to create build container."
 msgstr ""
 
-#: projects/models.py:1955
+#: projects/models.py:1956
 msgid "Record 404s page views."
 msgstr ""
 
-#: projects/models.py:1959
+#: projects/models.py:1960
 msgid "Allow forced redirects."
 msgstr ""
 
-#: projects/models.py:1963
+#: projects/models.py:1964
 msgid "Disable all page views"
 msgstr ""
 
-#: projects/models.py:1967
+#: projects/models.py:1968
 msgid "Disable indexing of sphinx domains"
 msgstr ""
 
-#: projects/models.py:1971
+#: projects/models.py:1972
 msgid "Allow usage of the X-RTD-Slug header"
 msgstr ""
 
-#: projects/models.py:1975
+#: projects/models.py:1976
 msgid "Use new unresolver implementation for serving documentation files."
 msgstr ""
 
-#: projects/models.py:1981
+#: projects/models.py:1982
 msgid "Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:1985
+#: projects/models.py:1986
 msgid "Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:1989
+#: projects/models.py:1990
 msgid "Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:1993
+#: projects/models.py:1994
 msgid "Always run pip install --upgrade"
 msgstr ""
 
-#: projects/models.py:1994
+#: projects/models.py:1995
 msgid "Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:1997
+#: projects/models.py:1998
 msgid "Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:1999
+#: projects/models.py:2000
 msgid "Use latest version of Sphinx"
 msgstr "최신 버전의 Sphinx를 사용하세요"
 
-#: projects/models.py:2002
+#: projects/models.py:2003
 msgid "Install mkdocs 0.17.3 by default"
 msgstr ""
 
-#: projects/models.py:2004
+#: projects/models.py:2005
 msgid "Use latest version of MkDocs"
 msgstr ""
 
-#: projects/models.py:2007
+#: projects/models.py:2008
 msgid "Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
-#: projects/models.py:2013
+#: projects/models.py:2014
 msgid "Disable server side search"
 msgstr ""
 
-#: projects/models.py:2017
+#: projects/models.py:2018
 msgid "Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:2021
+#: projects/models.py:2022
 msgid "Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:2025
+#: projects/models.py:2026
 msgid ""
 "Index content directly from html files instead or relying in other sources"
 msgstr ""
 
-#: projects/models.py:2031
+#: projects/models.py:2032
 msgid ""
 "List packages installed in the environment (\"pip list\" or \"conda list\") "
 "on build's output"
 msgstr ""
 
-#: projects/models.py:2037
+#: projects/models.py:2038
 msgid ""
 "Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions"
 msgstr ""
 
-#: projects/models.py:2041
+#: projects/models.py:2042
 msgid "Use \"-j auto\" when calling sphinx-build"
 msgstr ""
 
-#: projects/models.py:2045
+#: projects/models.py:2046
 msgid "Use regular sphinx builders instead of custom RTD builders"
 msgstr ""
 
-#: projects/models.py:2050
+#: projects/models.py:2051
 msgid ""
 "Cancel triggered/running builds when a new one with same project/version "
 "arrives"
 msgstr ""
 
-#: projects/models.py:2055
+#: projects/models.py:2056
 msgid "Do not create index.md or README.rst if the project does not have one."
 msgstr ""
 
-#: projects/models.py:2059
+#: projects/models.py:2060
 msgid "Use rclone for syncing files to the media storage."
 msgstr ""
 
-#: projects/models.py:2070
-msgid "Feature identifier"
+#: projects/models.py:2064
+msgid "Inject 'readthedocs-client.js' as <script> HTML tag in responses."
 msgstr ""
 
 #: projects/models.py:2075
+msgid "Feature identifier"
+msgstr ""
+
+#: projects/models.py:2080
 msgid "Date feature was added"
 msgstr ""
 
-#: projects/models.py:2081
+#: projects/models.py:2086
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:2085
+#: projects/models.py:2090
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2107
+#: projects/models.py:2112
 msgid "Name of the environment variable"
 msgstr ""
 
-#: projects/models.py:2111
+#: projects/models.py:2116
 msgid "Value of the environment variable"
 msgstr ""
 
-#: projects/models.py:2116
+#: projects/models.py:2121
 msgid "Project where this variable will be used"
 msgstr ""
 
-#: projects/models.py:2122
+#: projects/models.py:2127
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
-#: projects/notifications.py:27
+#: projects/notifications.py:26
 msgid ""
 "Your primary email address is not verified. Please <a "
 "href=\"{{account_email_url}}\">verify it here</a>."

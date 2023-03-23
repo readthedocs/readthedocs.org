@@ -5,7 +5,7 @@ You can serve your documentation project from your own domain,
 for instance ``docs.example.com``.
 This is great for maintaining a consistent brand for your product and its documentation.
 
-.. _default_subdomain:
+.. _default-subdomain:
 
 .. rubric:: Default subdomains
 
