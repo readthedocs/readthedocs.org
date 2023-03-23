@@ -463,17 +463,6 @@ class SphinxParser(GenericParser):
                 sections = self._get_sections(title=title, body=body.body)
             except Exception:
                 log.info('Unable to index sections.', path=fjson_path)
-
-            # XXX: Don't index domains while we migrate the ID type of the sphinx domains table.
-            # https://github.com/readthedocs/readthedocs.org/pull/9482.
-            from readthedocs.projects.models import Feature
-
-            if not self.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
-                try:
-                    # Create a new html object, since the previous one could have been modified.
-                    body = HTMLParser(data["body"])
-                except Exception:
-                    log.info("Unable to index domains.", path=fjson_path)
         else:
             log.info('Unable to index content.', path=fjson_path)
 
