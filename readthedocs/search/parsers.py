@@ -476,20 +476,16 @@ class SphinxParser(GenericParser):
 
     def _clean_body(self, body):
         """
-        Removes sphinx domain nodes.
+        Removes nodes in Sphinx-generated HTML structures.
 
         This method is overridden to remove contents that are likely
-        to be a sphinx domain (`dl` tags).
-        We already index those in another step.
+        to be useless for search indexing.
+
+        Currently: TOC elements.
         """
         body = super()._clean_body(body)
-        # XXX: Don't exclude domains from the general search
-        # while we migrate the ID type of the sphinx domains table
-        # https://github.com/readthedocs/readthedocs.org/pull/9482.
-        nodes_to_be_removed = []
 
-        # if not self.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
-        #     nodes_to_be_removed = self._get_sphinx_domains(body)
+        nodes_to_be_removed = []
 
         # TODO: see if we really need to remove these
         # remove `Table of Contents` elements
@@ -500,19 +496,6 @@ class SphinxParser(GenericParser):
             node.decompose()
 
         return body
-
-    def _parse_domain_tag(self, tag):
-        """Returns the text from the description tag of the domain."""
-
-        # Remove all nested domains,
-        # since they are already parsed separately.
-        nested_domains = self._get_sphinx_domains(tag)
-        for node in nested_domains:
-            if tag != node:
-                node.decompose()
-
-        docstring = self._parse_content(tag.text())
-        return docstring
 
 
 class MkDocsParser(GenericParser):
