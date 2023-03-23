@@ -14,4 +14,4 @@ and how to write successful documentation.
 .. toctree::
    :glob:
 
-   */*
+   */index
