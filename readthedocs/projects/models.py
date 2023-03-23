@@ -1687,7 +1687,7 @@ class Domain(TimeStampedModel):
     )
     https = models.BooleanField(
         _('Use HTTPS'),
-        default=False,
+        default=True,
         help_text=_('Always use HTTPS for this domain'),
     )
     count = models.IntegerField(

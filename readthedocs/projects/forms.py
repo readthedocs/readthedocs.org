@@ -706,9 +706,14 @@ class DomainBaseForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Disable domain manipulation on Update, but allow on Create
-        instance = getattr(self, 'instance', None)
-        if instance and instance.pk:
+        if self.instance.pk:
             self.fields['domain'].disabled = True
+
+        # Remove the https option at creation,
+        # but show it if the domain is already marked as http only,
+        # so users can upgrade.
+        if not self.instance.pk or self.instance.https:
+            self.fields.pop("https")
 
     def clean_project(self):
         return self.project
