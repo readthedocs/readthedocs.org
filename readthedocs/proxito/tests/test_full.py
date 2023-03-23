@@ -378,11 +378,12 @@ class ProxitoV2TestFullDocServing(TestFullDocServing):
     def test_single_version_serving_projects_dir(self):
         self.project.single_version = True
         self.project.save()
-        url = '/projects/awesome.html'
-        host = 'project.dev.readthedocs.io'
+        url = "/projects/awesome.html"
+        host = "project.dev.readthedocs.io"
         resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
-            resp['x-accel-redirect'], '/proxito/media/html/project/latest/projects/awesome.html',
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/projects/awesome.html",
         )
 
 
