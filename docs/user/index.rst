@@ -99,11 +99,14 @@ First time here?
 🚀 :doc:`/tutorial/index`
   Read to take the first practical steps to getting started on Read the Docs?
 
+.. TODO: This next item needs its article to be finished in a separate PR
+.. https://github.com/readthedocs/readthedocs.org/pull/10071
+
 💡 :doc:`Why use a dedicated documentation CI? </integrations>`
   Get an introduction to some of the most important reasons for using a *Documentation CI* and build *docs as code*.
 
 Using a documentation tool like Sphinx or MkDocs for the first time or importing an existing project?
-Have a look at the :doc:`🚀 tutorials section </tutorials/index>`.
+Have a look at the :doc:`🔠 tutorials section </tutorials/index>`.
 
 
 How-to guides
@@ -115,12 +118,36 @@ How-to guides
 🪄 Another guide
   This is a guide
 
+.. TODO: Fix the how-to index!
+
+...or have a look at the entire :doc:`🔠 how-to catalog </guides/index>`.
+
 
 Reference
 ---------
 
-📚 A reference
+📚 Feature reference
   This is a reference
 
-📚 A reference
+📚 Configuration file
   This is another reference
+
+📚 Build process overview
+  This is another reference
+
+📚 Build process customization
+  This is another reference
+
+📚 Search query syntax
+  This is another reference
+
+
+
+Explanation
+-----------
+
+💡 Continuous Documentation
+  This is another reference
+
+💡 Advanced topics: Deep-dive into Read the Docs
+  Get familiar with some of the more advanced topics of building and deploying documentation with Read the Docs.
