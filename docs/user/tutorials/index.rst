@@ -6,30 +6,28 @@
 Tutorials
 =========
 
-.. TODO: Continue to add more features here.
-
 ⏩️ :doc:`/tutorial/index`
-  Documentation projects can use their own domain name.
-  A project may define multiple domains,
-  as well as define the *canonical domain* where all other domains will redirect.
+  This is where you should go if you are trying Read the Docs for the first time!
 
 
 ⏩️ :doc:`/intro/getting-started-with-sphinx`
-  We support multiple versions and translations,
-  integrated nicely into the URL of your documentation.
-  This is served at ``/en/latest/`` by default.
-  If you only have 1 version and translation,
-  we also support :doc:`single version projects </single-version>` served at ``/``.
+  Sphinx is the most popular documentation tool on our platform.
+  But that's not to say that it's *easy* if you are using it for the first time.
+  We recommend a soft start with this tutorial.
 
 ⏩️ :doc:`/intro/getting-started-with-mkdocs`
-  Your project can be configured to build and host documentation for every new pull request.
-  Previewing changes during review makes it easier to catch formatting and display issues.
+  Another great and popular tool is MkDocs.
+  This is especially popular because of its default of using Markdown.
+  This tool is well-supported on our platform and that's why we have a tutorial.
 
 ⏩️ :doc:`/intro/import-guide`
-  Build notifications can alert you when your builds fail so you can take immediate action.
+  If you already wrote your documentation,
+  this guide will help you get started at the most natural point:
+  Importing an existing documentation project.
 
 ⏩️ :doc:`/examples`
-  Build notifications can alert you when your builds fail so you can take immediate action.
+  If you are bootstrapping a new documentation project,
+  here is a list of example projects that you can derive your setup from.
 
 
 .. toctree::
