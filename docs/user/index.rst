@@ -67,20 +67,20 @@ by building, versioning, and hosting of your docs, automatically.
 This enables many "docs like code" workflows,
 keeping your code & documentation as close as possible.
 
-Never out of sync |:arrows_counterclockwise:|
+|:arrows_counterclockwise:| Never out of sync
     Whenever you push code to your favorite version control system,
     whether that is Git or Mercurial,
     Read the Docs will automatically build your docs
     so your code and documentation are always up-to-date.
     Read more about :doc:`/integrations`.
 
-Multiple versions |:card_index_dividers:|
+|:card_index_dividers:| Multiple versions
     Read the Docs can host and build multiple versions of your docs
     so having a 1.0 version of your docs and a 2.0 version
     of your docs is as easy as having a separate branch or tag in your version control system.
     Read more about :doc:`/versions`.
 
-Open Source and User Focused |:heartbeat:|
+|:heartbeat:| Open Source and User Focused
     Our code is free and `open source <https://github.com/readthedocs/>`_.
     :doc:`Our company </about/index>` is bootstrapped and 100% user focused.
     |org_brand| hosts documentation for over 100,000 large
@@ -91,3 +91,36 @@ Open Source and User Focused |:heartbeat:|
 .. _Read the docs: https://readthedocs.org/
 
 You can find out more about our all the :doc:`features </reference/features>` in these pages.
+
+
+First time here?
+----------------
+
+🚀 :doc:`/tutorial/index`
+  Read to take the first practical steps to getting started on Read the Docs?
+
+💡 :doc:`Why use a dedicated documentation CI? </integrations>`
+  Get an introduction to some of the most important reasons for using a *Documentation CI* and build *docs as code*.
+
+Using a documentation tool like Sphinx or MkDocs for the first time or importing an existing project?
+Have a look at the :doc:`🚀 tutorials section </tutorials/index>`.
+
+
+How-to guides
+-------------
+
+🪄 A guide
+  This is a guide
+
+🪄 Another guide
+  This is a guide
+
+
+Reference
+---------
+
+📚 A reference
+  This is a reference
+
+📚 A reference
+  This is another reference
