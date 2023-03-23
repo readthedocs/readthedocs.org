@@ -673,9 +673,6 @@ and Read the Docs:
 - Whether you are a documentation author, a project administrator, a developer, or a designer,
   you can follow our how-to guides that cover specific tasks,
   available under :doc:`/guides/index`.
-- You can check out some of the
-  :ref:`index:Advanced features of Read the Docs`,
-  like :doc:`/subprojects` or :doc:`/automation-rules`, to name a few.
 - For private project support and other enterprise features,
   you can use :doc:`our commercial service </commercial/index>`
   (and if in doubt, check out :doc:`/choosing-a-site`).
