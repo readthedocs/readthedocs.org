@@ -691,7 +691,7 @@ class RedirectForm(forms.ModelForm):
         return self.project
 
 
-class DomainBaseForm(forms.ModelForm):
+class DomainForm(forms.ModelForm):
 
     """Form to configure a custom domain name for a project."""
 
@@ -756,10 +756,6 @@ class DomainBaseForm(forms.ModelForm):
                 _('Only one domain can be canonical at a time.'),
             )
         return canonical
-
-
-class DomainForm(SettingsOverrideObject):
-    _default_class = DomainBaseForm
 
 
 class IntegrationForm(forms.ModelForm):
