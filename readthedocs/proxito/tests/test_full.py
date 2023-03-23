@@ -375,6 +375,28 @@ class ProxitoV2TestFullDocServing(TestFullDocServing):
             future_default_true=True,
         )
 
+    def test_single_version_serving_language_like_subdir(self):
+        self.project.single_version = True
+        self.project.save()
+        url = "/en/api/awesome.html"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/en/api/awesome.html",
+        )
+
+    def test_single_version_serving_language_like_dir(self):
+        self.project.single_version = True
+        self.project.save()
+        url = "/en/awesome.html"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, HTTP_HOST=host)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/en/api/awesome.html",
+        )
+
 
 @override_settings(
     PUBLIC_DOMAIN="dev.readthedocs.io",
