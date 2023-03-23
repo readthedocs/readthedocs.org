@@ -102,52 +102,66 @@ First time here?
 .. TODO: This next item needs its article to be finished in a separate PR
 .. https://github.com/readthedocs/readthedocs.org/pull/10071
 
-💡 :doc:`Why use a dedicated documentation CI? </integrations>`
+💡 :doc:`Why use a dedicated documentation platform? </integrations>`
   Get an introduction to some of the most important reasons for using a *Documentation CI* and build *docs as code*.
 
-Using a documentation tool like Sphinx or MkDocs for the first time or importing an existing project?
-Have a look at the :doc:`🔠 tutorials section </tutorials/index>`.
+:doc:`🔠 All tutorials </tutorials/index>`
+  Using a documentation tool like Sphinx or MkDocs for the first time or importing an existing project?
+  We have the tutorials to get you started!
 
 
 How-to guides
 -------------
 
-🪄 A guide
-  This is a guide
+🪄 :doc:`/guides/cross-referencing-with-sphinx`
+  Learn how to use cross-references in a Sphinx project
 
-🪄 Another guide
-  This is a guide
+🪄 :doc:`/analytics`
+  How to use our Traffic analytics to understand how users are interacting with your documentation.
 
-.. TODO: Fix the how-to index!
+🪄 :doc:`/guides/pull-requests`
+  Switch on Pull Request builds and enjoy auto-generated previews.
 
-...or have a look at the entire :doc:`🔠 how-to catalog </guides/index>`.
+:doc:`🔠 All how-to guides </guides/index>`
+  Have a look at the entire catalog for **many many more how-to guides**.
 
 
 Reference
 ---------
 
-📚 Feature reference
-  This is a reference
+📚 :doc:`/reference/features`
+  An overview and reference of all features of Read the Docs.
 
-📚 Configuration file
-  This is another reference
+📚 :doc:`/config-file/index`
+  Reference for the ``.readthedocs.yaml`` file.
 
-📚 Build process overview
-  This is another reference
+📚 :doc:`/builds`
+  Reference to how builds are processed
 
-📚 Build process customization
-  This is another reference
+📚 :doc:`/build-customization`
+  Reference of the ways that you can add your own build logic or replace the default build steps.
 
-📚 Search query syntax
-  This is another reference
+📚 :doc:`/server-side-search/syntax`
+  How our search works - available for all documentation projects.
 
+📚 :doc:`/api/index`
+  Building a documentation project on Read the Docs gives access to a number of great APIs that you can take advantage of on your website and integration tools.
+
+📚 `Developer documentation <https://dev.readthedocs.io/>`__
+  Do you want to help develop Read the Docs? This is where to get started.
 
 
 Explanation
 -----------
 
-💡 Continuous Documentation
-  This is another reference
+.. TODO: This next item needs its article to be finished in a separate PR
+.. https://github.com/readthedocs/readthedocs.org/pull/10071
+
+💡 :doc:`Continuous Documentation </integrations>`
+  Learn about the many advantages of having your documentation continuously build and deployed.
+
+.. TODO: This next item needs its article to be finished in a separate PR
+.. https://github.com/readthedocs/readthedocs.org/pull/10071
 
 💡 Advanced topics: Deep-dive into Read the Docs
   Get familiar with some of the more advanced topics of building and deploying documentation with Read the Docs.
