@@ -35,9 +35,9 @@ class HealthCheckView(CDNCacheControlMixin, View):
 class HomepageView(TemplateView):
 
     """
-    Conditionally show the home page or redirevt to the login page.
+    Conditionally show the home page or redirect to the login page.
 
-    On the current dashboard, this shows the application homepage. Howeber, we
+    On the current dashboard, this shows the application homepage. However, we
     no longer require this page in our application as we have a similar page on
     our website. Instead, redirect to our login page on the new dashboard.
     """
