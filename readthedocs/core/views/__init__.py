@@ -8,7 +8,8 @@ and server errors.
 import structlog
 from django.conf import settings
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views.generic import TemplateView, View
 
 from readthedocs.core.mixins import CDNCacheControlMixin, PrivateViewMixin
@@ -27,13 +28,26 @@ class HealthCheckView(CDNCacheControlMixin, View):
     # but it's useful to be careful here in case of a misconfiguration.
     cache_response = False
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, *_, **__):
         return JsonResponse({'status': 200}, status=200)
 
 
 class HomepageView(TemplateView):
 
+    """
+    Conditionally show the home page or redirevt to the login page.
+
+    On the current dashboard, this shows the application homepage. Howeber, we
+    no longer require this page in our application as we have a similar page on
+    our website. Instead, redirect to our login page on the new dashboard.
+    """
+
     template_name = 'homepage.html'
+
+    def get(self, request, *args, **kwargs):
+        if settings.RTD_EXT_THEME_ENABLED:
+            return redirect(reverse("account_login"))
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         """Add latest builds and featured projects."""
