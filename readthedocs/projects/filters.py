@@ -1,3 +1,5 @@
+"""Filters used in project dashboard."""
+
 import structlog
 from django.db.models import Count, F, Max
 from django.forms.widgets import HiddenInput
@@ -23,38 +25,55 @@ class VersionSortOrderingFilter(OrderingFilter):
     filter, because result would be params like ``?sort=None``.
     """
 
+    SORT_BUILD_COUNT = "build_count"
+    SORT_BUILD_DATE = "build_date"
+    SORT_NAME = "name"
+
     def __init__(self, *args, **kwargs):
+        # The default filtering operation will be `-recent`, so we omit it
+        # from choices to avoid showing it on the list twice.
+        kwargs.setdefault("empty_label", _("Recently built"))
+        kwargs.setdefault(
+            "choices",
+            (
+                ("-" + self.SORT_BUILD_DATE, _("Least recently built")),
+                ("-" + self.SORT_BUILD_COUNT, _("Frequently built")),
+                (self.SORT_BUILD_COUNT, _("Least frequently built")),
+                (self.SORT_NAME, _("Name")),
+                ("-" + self.SORT_NAME, _("Name (descending)")),
+            ),
+        )
         super().__init__(*args, **kwargs)
-        self.extra['choices'] = [
-            ('name', _('Name')),
-            ('-name', _('Name (descending)')),
-            ('-recent', _('Most recently built')),
-            ('recent', _('Least recently built')),
-        ]
 
     def filter(self, qs, value):
         # This is where we use the None value for this custom filter. This
         # doesn't work with a standard model filter. Note: ``value`` is always
         # an iterable, but can be empty.
         if not value:
-            value = ['relevance']
+            value = [self.SORT_BUILD_DATE]
 
-        # Selectively add anotations as a small query optimization
-        annotations = {
-            # Default ordering is number of builds, but could be another proxy
-            # for version populatrity
-            'relevance': {'relevance': Count('builds')},
-            # Most recent build date, this appears inverted in the option value
-            'recent': {'recent': Max('builds__date')},
-            # Alias field name here, as ``OrderingFilter`` was having trouble
-            # doing this with it's native field mapping
-            'name': {'name': F('verbose_name')},
-        }
-        # And copy the negative sort lookups, ``value`` might be ``['-recent']``
-        annotations.update({f'-{key}': value for (key, value) in annotations.items()})
+        annotations = {}
+        order_bys = []
+        for field_ordered in value:
+            field = field_ordered.lstrip("-")
 
-        annotation = annotations.get(*value)
-        return qs.annotate(**annotation).order_by(*value)
+            if field == self.SORT_BUILD_DATE:
+                annotations[self.SORT_BUILD_DATE] = Max("builds__date")
+            elif field == self.SORT_BUILD_COUNT:
+                annotations[self.SORT_BUILD_COUNT] = Count("builds")
+            elif field == self.SORT_NAME:
+                # Alias field name here, as ``OrderingFilter`` was having trouble
+                # doing this with it's native field mapping
+                annotations[self.SORT_NAME] = F("verbose_name")
+
+            if field_ordered == self.SORT_BUILD_DATE:
+                order_bys.append(F(field).desc(nulls_last=True))
+            elif field_ordered == "-" + self.SORT_BUILD_DATE:
+                order_bys.append(F(field).asc(nulls_first=True))
+            else:
+                order_bys.append(field_ordered)
+
+        return qs.annotate(**annotations).order_by(*order_bys)
 
 
 class ProjectSortOrderingFilter(OrderingFilter):
@@ -68,33 +87,52 @@ class ProjectSortOrderingFilter(OrderingFilter):
     custom filter, instead of an automated model filter.
     """
 
-    SORT_NAME = 'name'
-    SORT_MODIFIED_DATE = 'modified_date'
-    SORT_BUILD_DATE = 'built_last'
-    SORT_BUILD_COUNT = 'build_count'
+    SORT_NAME = "name"
+    SORT_MODIFIED_DATE = "modified_date"
+    SORT_BUILD_DATE = "build_date"
+    SORT_BUILD_COUNT = "build_count"
 
     def __init__(self, *args, **kwargs):
+        # The default filtering operation will be `name`, so we omit it
+        # from choices to avoid showing it on the list twice.
+        kwargs.setdefault("empty_label", _("Recently built"))
+        kwargs.setdefault(
+            "choices",
+            (
+                ("-" + self.SORT_BUILD_DATE, _("Least recently built")),
+                ("-" + self.SORT_BUILD_COUNT, _("Frequently built")),
+                (self.SORT_BUILD_COUNT, _("Least frequently built")),
+                ("-" + self.SORT_MODIFIED_DATE, _("Recently modified")),
+                (self.SORT_MODIFIED_DATE, _("Least recently modified")),
+                (self.SORT_NAME, _("Name")),
+                ("-" + self.SORT_NAME, _("Name (descending)")),
+            ),
+        )
         super().__init__(*args, **kwargs)
-        self.extra["choices"] = [
-            (f"-{self.SORT_NAME}", _("Name (descending)")),
-            (f"-{self.SORT_MODIFIED_DATE}", _("Most recently modified")),
-            (self.SORT_MODIFIED_DATE, _("Least recently modified")),
-            (f"-{self.SORT_BUILD_DATE}", _("Most recently built")),
-            (self.SORT_BUILD_DATE, _("Least recently built")),
-            (f"-{self.SORT_BUILD_COUNT}", _("Most frequently built")),
-            (self.SORT_BUILD_COUNT, _("Least frequently built")),
-        ]
 
     def filter(self, qs, value):
         # This is where we use the None value from the custom filter
-        if value is None:
-            value = [self.SORT_NAME]
-        return qs.annotate(
-            **{
-                self.SORT_BUILD_DATE: Max('versions__builds__date'),
-                self.SORT_BUILD_COUNT: Count('versions__builds'),
-            }
-        ).order_by(*value)
+        if not value:
+            value = [self.SORT_BUILD_DATE]
+
+        annotations = {}
+        order_bys = []
+        for field_ordered in value:
+            field = field_ordered.lstrip("-")
+
+            if field == self.SORT_BUILD_DATE:
+                annotations[self.SORT_BUILD_DATE] = Max("builds__date")
+            elif field == self.SORT_BUILD_COUNT:
+                annotations[self.SORT_BUILD_COUNT] = Count("builds")
+
+            if field_ordered == self.SORT_BUILD_DATE:
+                order_bys.append(F(field).desc(nulls_last=True))
+            elif field_ordered == "-" + self.SORT_BUILD_DATE:
+                order_bys.append(F(field).asc(nulls_first=True))
+            else:
+                order_bys.append(field_ordered)
+
+        return qs.annotate(**annotations).order_by(*order_bys)
 
 
 class ProjectListFilterSet(FilterSet):
@@ -110,7 +148,6 @@ class ProjectListFilterSet(FilterSet):
     sort = ProjectSortOrderingFilter(
         field_name='sort',
         label=_('Sort by'),
-        empty_label=_('Name'),
     )
 
 
@@ -159,10 +196,9 @@ class ProjectVersionListFilterSet(FilterSet):
     sort = VersionSortOrderingFilter(
         field_name='sort',
         label=_('Sort by'),
-        empty_label=_('Relevance'),
     )
 
-    def get_visibility(self, queryset, name, value):
+    def get_visibility(self, queryset, *, value):
         if value == self.VISIBILITY_HIDDEN:
             return queryset.filter(hidden=True)
         if value == self.VISIBILITY_VISIBLE:
