@@ -144,10 +144,10 @@ class ProjectListFilterSet(FilterSet):
     provides search-as-you-type lookup filter as well.
     """
 
-    project = CharFilter(field_name='slug', widget=HiddenInput)
+    project = CharFilter(field_name="slug", widget=HiddenInput)
     sort = ProjectSortOrderingFilter(
-        field_name='sort',
-        label=_('Sort by'),
+        field_name="sort",
+        label=_("Sort by"),
     )
 
 
@@ -161,41 +161,41 @@ class ProjectVersionListFilterSet(FilterSet):
     with an included queryset, which provides user project authorization.
     """
 
-    VISIBILITY_HIDDEN = 'hidden'
-    VISIBILITY_VISIBLE = 'visible'
+    VISIBILITY_HIDDEN = "hidden"
+    VISIBILITY_VISIBLE = "visible"
 
     VISIBILITY_CHOICES = (
-        ('hidden', _('Hidden versions')),
-        ('visible', _('Visible versions')),
+        ("hidden", _("Hidden versions")),
+        ("visible", _("Visible versions")),
     )
 
     PRIVACY_CHOICES = (
-        ('public', _('Public versions')),
-        ('private', _('Private versions')),
+        ("public", _("Public versions")),
+        ("private", _("Private versions")),
     )
 
     # Attribute filter fields
-    version = CharFilter(field_name='slug', widget=HiddenInput)
+    version = CharFilter(field_name="slug", widget=HiddenInput)
     privacy = ChoiceFilter(
-        field_name='privacy_level',
-        label=_('Privacy'),
+        field_name="privacy_level",
+        label=_("Privacy"),
         choices=PRIVACY_CHOICES,
-        empty_label=_('Any'),
+        empty_label=_("Any"),
     )
     # This field looks better as ``visibility=hidden`` than it does
     # ``hidden=true``, otherwise we could use a BooleanFilter instance here
     # instead
     visibility = ChoiceFilter(
-        field_name='hidden',
-        label=_('Visibility'),
+        field_name="hidden",
+        label=_("Visibility"),
         choices=VISIBILITY_CHOICES,
-        method='get_visibility',
-        empty_label=_('Any'),
+        method="get_visibility",
+        empty_label=_("Any"),
     )
 
     sort = VersionSortOrderingFilter(
-        field_name='sort',
-        label=_('Sort by'),
+        field_name="sort",
+        label=_("Sort by"),
     )
 
     def get_visibility(self, queryset, *, value):

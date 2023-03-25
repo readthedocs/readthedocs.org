@@ -18,36 +18,36 @@ class BuildListFilter(FilterSet):
 
     """Project build list dashboard filter."""
 
-    STATE_ACTIVE = 'active'
-    STATE_SUCCESS = 'succeeded'
-    STATE_FAILED = 'failed'
+    STATE_ACTIVE = "active"
+    STATE_SUCCESS = "succeeded"
+    STATE_FAILED = "failed"
 
     STATE_CHOICES = (
-        (STATE_ACTIVE, _('Active')),
-        (STATE_SUCCESS, _('Build successful')),
-        (STATE_FAILED, _('Build failed')),
+        (STATE_ACTIVE, _("Active")),
+        (STATE_SUCCESS, _("Build successful")),
+        (STATE_FAILED, _("Build failed")),
     )
 
     TYPE_NORMAL = "normal"
     TYPE_EXTERNAL = "external"
     TYPE_CHOICES = (
-        (TYPE_NORMAL, _('Normal')),
-        (TYPE_EXTERNAL, _('Pull/merge request')),
+        (TYPE_NORMAL, _("Normal")),
+        (TYPE_EXTERNAL, _("Pull/merge request")),
     )
 
     # Attribute filter fields
-    version = CharFilter(field_name='version__slug', widget=HiddenInput)
+    version = CharFilter(field_name="version__slug", widget=HiddenInput)
     state = ChoiceFilter(
-        label=_('State'),
+        label=_("State"),
         choices=STATE_CHOICES,
-        empty_label=_('Any'),
-        method='get_state',
+        empty_label=_("Any"),
+        method="get_state",
     )
     type = ChoiceFilter(
-        label=_('Type'),
+        label=_("Type"),
         choices=TYPE_CHOICES,
-        empty_label=_('Any'),
-        method='get_type',
+        empty_label=_("Any"),
+        method="get_type",
     )
 
     def get_state(self, queryset, *, value):
