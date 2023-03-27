@@ -1,5 +1,6 @@
 .. This page seeks to put out lots of pointers to other articles in the documentation
 .. while giving an introduction that can be read consecutively.
+.. TODO: Links and references!
 
 Choosing a dedicated documentation platform
 ===========================================
@@ -52,9 +53,16 @@ All these features ultimately sustain the life-cycle of a documentation project.
 Freedom to choose documentation tools
 -------------------------------------
 
+One of the big choices facing new documentation project is to choose between the many documentation tools that exist.
+Read the Docs was originally built for Sphinx,
+but has since then evolved into a generic documentation building platform.
+
+In the build process,
+your documentation tool is called according to your own configuration and Read the Docs will then use the outputs to automatically publish your documentation website and offline formats.
 
 Agile workflows with Continuous Integration and Deployment (CI/CD)
 ------------------------------------------------------------------
+
 
 
 Types of documentation projects
