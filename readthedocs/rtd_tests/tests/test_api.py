@@ -2442,6 +2442,7 @@ class APIVersionTests(TestCase):
             "built": False,
             "id": 18,
             "active": True,
+            "canonical_url": "http://readthedocs.org/docs/pip/en/0.8/",
             "project": {
                 "analytics_code": None,
                 "analytics_disabled": False,

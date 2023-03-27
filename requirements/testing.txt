@@ -30,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.94
+boto3==1.26.99
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.94
+botocore==1.29.99
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -75,7 +75,7 @@ click-repl==0.2.0
     #   celery
 coverage[toml]==7.2.2
     # via pytest-cov
-cryptography==39.0.2
+cryptography==40.0.1
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -195,7 +195,7 @@ elasticsearch-dsl==7.4.1
     #   django-elasticsearch-dsl
 exceptiongroup==1.1.1
     # via pytest
-filelock==3.10.0
+filelock==3.10.5
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -242,19 +242,19 @@ lxml==4.9.2
     # via
     #   -r requirements/pip.txt
     #   pyquery
-markdown==3.4.1
+markdown==3.4.3
     # via -r requirements/pip.txt
 markupsafe==2.1.2
     # via
     #   -r requirements/pip.txt
     #   jinja2
-mercurial==6.3.3
+mercurial==6.4
     # via -r requirements/testing.in
 oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.7
+orjson==3.8.8
     # via -r requirements/pip.txt
 packaging==23.0
     # via
@@ -263,7 +263,7 @@ packaging==23.0
     #   dparse
     #   pytest
     #   sphinx
-platformdirs==3.1.1
+platformdirs==3.2.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -311,7 +311,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2022.7.1
+pytz==2023.2
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -321,12 +321,12 @@ pyyaml==5.4.1
     # via
     #   -r requirements/pip.txt
     #   yamale
-redis==4.5.1
+redis==4.5.3
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
     #   django-redis
-regex==2022.10.31
+regex==2023.3.23
     # via -r requirements/pip.txt
 requests==2.28.2
     # via
