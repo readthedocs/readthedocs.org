@@ -62,54 +62,76 @@ Read the Docs: documentation simplified
 
    <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
 
-`Read the Docs`_ simplifies software documentation
+Read the Docs simplifies software documentation
 by building, versioning, and hosting of your docs, automatically.
-This enables many "docs like code" workflows,
-keeping your code & documentation as close as possible.
+Treating documentation like code keeps your team in the same tools,
+and your documentation up to date.
 
-|:arrows_counterclockwise:| Never out of sync
-    Whenever you push code to your favorite version control system,
-    whether that is Git or Mercurial,
+|:arrows_counterclockwise:| Up to date documentation
+    Whenever you push code to Git,
     Read the Docs will automatically build your docs
     so your code and documentation are always up-to-date.
-    Read more about :doc:`/integrations`.
+    Get started with our :doc:`tutorial </tutorial/index>`.
 
-|:card_index_dividers:| Multiple versions
-    Read the Docs can host and build multiple versions of your docs
-    so having a 1.0 version of your docs and a 2.0 version
-    of your docs is as easy as having a separate branch or tag in your version control system.
-    Read more about :doc:`/versions`.
+|:card_index_dividers:| Documentation for every version
+    Read the Docs can host multiple versions of your docs.
+    Keep your 1.0 and 2.0 documentation online,
+    pulled directly from Git.
+    Start hosting all your :doc:`versions </versions>`.
 
-|:heartbeat:| Open Source and User Focused
-    Our code is free and `open source <https://github.com/readthedocs/>`_.
-    :doc:`Our company </about/index>` is bootstrapped and 100% user focused.
+|:heartbeat:| Open source and user focused
+    Our company is bootstrapped and 100% user-focused,
+    so our product gets better for our users instead of our investors.
     |org_brand| hosts documentation for over 100,000 large
-    and small open source projects,
-    in almost every human and computer language.
+    and small open source projects.
     |com_brand| supports hundreds of organizations with product and internal documentation.
-
-.. _Read the docs: https://readthedocs.org/
-
+    Learn more about :doc:`our two platforms </choosing-a-site>`.
 
 First time here?
 ----------------
 
+We have a few places for you to get started.
+
 🚀 :doc:`/tutorial/index`
   This tutorial helps you take the first practical steps and get started with Read the Docs.
+
+🚀 :doc:`/examples`
+  Get started with an example project to hit the ground running.
+
+.. TODO: This next item needs its article to be finished in a separate PR
+.. https://github.com/readthedocs/readthedocs.org/pull/10071
+.. This page isn't ready for front page treatment
+.. doc:`Why use a dedicated documentation platform? </integrations>`
+.. An introduction to some of the most important reasons for using a *Documentation CI* and build *docs as code*.
+
+:doc:`🚀 All tutorials </tutorials/index>`
+  Using documentation tools like **Sphinx** or **MkDocs** for the first time or **importing an existing project**?
+  We have the tutorials to get you started!
+
+Explanation
+-----------
+
+Get a high-level overview of our platform.
 
 .. TODO: This next item needs its article to be finished in a separate PR
 .. https://github.com/readthedocs/readthedocs.org/pull/10071
 
-💡 :doc:`Why use a dedicated documentation platform? </integrations>`
-  An introduction to some of the most important reasons for using a *Documentation CI* and build *docs as code*.
+💡 :doc:`Continuous Documentation </integrations>`
+  Learn about the many advantages of having your documentation continuously build and deployed.
 
-:doc:`🔠 All tutorials </tutorials/index>`
-  Using documentation tools like **Sphinx** or **MkDocs** for the first time or **importing an existing project**?
-  We have the tutorials to get you started!
+💡 :doc:`/choosing-a-site`
+  Learn about the differences between |org_brand| and |com_brand|.
+
+.. TODO: This next item needs its article to be finished in a separate PR
+.. https://github.com/readthedocs/readthedocs.org/pull/10071
+.. TODO: 💡 Advanced topics: Deep-dive into Read the Docs
+..  Get familiar with some of the more advanced topics of building and deploying documentation with Read the Docs.
 
 
 How-to guides
 -------------
+
+Need to get something specific done? These guides provide step-by-step instructions on various areas.
 
 🪄 :doc:`/guides/cross-referencing-with-sphinx`
   Learn how to use cross-references in a Sphinx project.
@@ -118,14 +140,16 @@ How-to guides
   How to use our Traffic analytics to understand how users are interacting with your documentation.
 
 🪄 :doc:`/guides/pull-requests`
-  Switch on Pull Request builds and enjoy auto-generated previews.
+  Enable Pull Request builds and enjoy auto-generated previews.
 
-:doc:`🔠 All how-to guides </guides/index>`
+🪄 :doc:` All how-to guides </guides/index>`
   Have a look at the entire catalog for **many many more how-to guides**.
 
 
 Reference
 ---------
+
+Need to know how something works? Our references provide the details.
 
 📚 :doc:`/reference/features`
   Overview and reference of all the main features of Read the Docs.
@@ -144,24 +168,3 @@ Reference
 
 📚 :doc:`/api/index`
   Building a documentation project on Read the Docs gives access to a number of great APIs that you can take advantage of on your website and integration tools.
-
-📚 `Developer documentation <https://dev.readthedocs.io/>`__
-  Do you want to help develop Read the Docs? This is where to get started.
-
-
-Explanation
------------
-
-.. TODO: This next item needs its article to be finished in a separate PR
-.. https://github.com/readthedocs/readthedocs.org/pull/10071
-
-💡 :doc:`Continuous Documentation </integrations>`
-  Learn about the many advantages of having your documentation continuously build and deployed.
-
-💡 :doc:`/choosing-a-site`
-  Learn about the differences between |org_brand| and |com_brand|.
-
-.. TODO: This next item needs its article to be finished in a separate PR
-.. https://github.com/readthedocs/readthedocs.org/pull/10071
-.. TODO: 💡 Advanced topics: Deep-dive into Read the Docs
-..  Get familiar with some of the more advanced topics of building and deploying documentation with Read the Docs.
