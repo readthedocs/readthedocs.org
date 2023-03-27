@@ -140,24 +140,11 @@ class GenericParser:
         except Exception as e:
             log.info('Unable to index section', section=str(e))
 
-        # Index content from h1 to h6 headers.
-        for head_level in range(1, 7):
-            tags = body.css(f'h{head_level}')
-            for tag in tags:
-                try:
-                    title, _id = self._parse_section_title(tag)
-                    next_tag = self._get_header_container(tag).next
-                    content, _ = self._parse_section_content(next_tag, depth=2)
-                    yield {
-                        "id": _id,
-                        "title": title,
-                        "content": content,
-                    }
-                except Exception as e:
-                    log.info("Unable to index section.", section=str(e))
-
         # All terms in dls are treated as sections.
+        # After indexing them, we remove them from the body such that their contents aren't
+        # repeated in the following indexing
         dls = body.css("dl")
+        dl_nodes_to_be_removed = []
         for dl in dls:
             # Select all dts with id defined
             dts = dl.css('dt[id]:not([id=""])')
@@ -166,6 +153,8 @@ class GenericParser:
             # multiple <dt> elements in a row indicate several terms that are
             # all defined by the immediate next <dd> element.
             for dt in dts:
+                if dl not in dl_nodes_to_be_removed:
+                    dl_nodes_to_be_removed.append(dl)
                 try:
                     title, _id = self._parse_dt(dt)
                     # https://developer.mozilla.org/en-US/docs/Web/CSS/General_sibling_combinator
@@ -183,6 +172,26 @@ class GenericParser:
                     }
                 except Exception as e:
                     log.info("Unable to index dt section.", section=str(e))
+
+        # Remove the <dl> nodes that were found to have indexed content
+        for node in dl_nodes_to_be_removed:
+            node.decompose()
+
+        # Index content from h1 to h6 headers.
+        for head_level in range(1, 7):
+            tags = body.css(f"h{head_level}")
+            for tag in tags:
+                try:
+                    title, _id = self._parse_section_title(tag)
+                    next_tag = self._get_header_container(tag).next
+                    content, _ = self._parse_section_content(next_tag, depth=2)
+                    yield {
+                        "id": _id,
+                        "title": title,
+                        "content": content,
+                    }
+                except Exception as e:
+                    log.info("Unable to index section.", section=str(e))
 
     def _parse_dt(self, tag):
         """
@@ -464,8 +473,8 @@ class SphinxParser(GenericParser):
             try:
                 body = self._clean_body(HTMLParser(data["body"]))
                 sections = self._get_sections(title=title, body=body.body)
-            except Exception:
-                log.info('Unable to index sections.', path=fjson_path)
+            except Exception as e:
+                log.info("Unable to index sections.", path=fjson_path, exception=e)
         else:
             log.info('Unable to index content.', path=fjson_path)
 
@@ -488,11 +497,12 @@ class SphinxParser(GenericParser):
         """
         body = super()._clean_body(body)
 
-        nodes_to_be_removed = []
-
         # TODO: see if we really need to remove these
         # remove `Table of Contents` elements
-        nodes_to_be_removed += body.css('.toctree-wrapper') + body.css('.contents.local.topic')
+        nodes_to_be_removed = itertools.chain(
+            body.css(".toctree-wrapper"),
+            body.css(".contents.local.topic"),
+        )
 
         # removing all nodes in list
         for node in nodes_to_be_removed:
