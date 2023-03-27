@@ -321,8 +321,8 @@ class DockerBuildCommand(BuildCommand):
         # docs@656e38a30fa4:/$
         default_paths = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
         if self.build_env.container_image in (
-                "readthedocs/build:ubuntu-22.04",
-                "readthedocs/build:ubuntu-20.04",
+            "readthedocs/build:ubuntu-22.04",
+            "readthedocs/build:ubuntu-20.04",
         ):
             # Use ASDF path for newer images
             python_paths = "/home/docs/.asdf/shims:/home/docs/.asdf/bin"
