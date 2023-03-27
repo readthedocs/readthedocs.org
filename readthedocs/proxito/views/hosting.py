@@ -126,7 +126,7 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                             f"project:{project.slug}/{version.slug}",
                         ],
                         [
-                            "Search only on subprojects",
+                            "Search subprojects",
                             f"subprojects:{project.slug}/{version.slug}",
                         ],
                     ],
