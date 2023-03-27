@@ -90,23 +90,21 @@ keeping your code & documentation as close as possible.
 
 .. _Read the docs: https://readthedocs.org/
 
-You can find out more about our all the :doc:`features </reference/features>` in these pages.
-
 
 First time here?
 ----------------
 
 🚀 :doc:`/tutorial/index`
-  Read to take the first practical steps to getting started on Read the Docs?
+  This tutorial helps you take the first practical steps and get started with Read the Docs.
 
 .. TODO: This next item needs its article to be finished in a separate PR
 .. https://github.com/readthedocs/readthedocs.org/pull/10071
 
 💡 :doc:`Why use a dedicated documentation platform? </integrations>`
-  Get an introduction to some of the most important reasons for using a *Documentation CI* and build *docs as code*.
+  An introduction to some of the most important reasons for using a *Documentation CI* and build *docs as code*.
 
 :doc:`🔠 All tutorials </tutorials/index>`
-  Using a documentation tool like Sphinx or MkDocs for the first time or importing an existing project?
+  Using documentation tools like **Sphinx** or **MkDocs** for the first time or **importing an existing project**?
   We have the tutorials to get you started!
 
 
@@ -114,7 +112,7 @@ How-to guides
 -------------
 
 🪄 :doc:`/guides/cross-referencing-with-sphinx`
-  Learn how to use cross-references in a Sphinx project
+  Learn how to use cross-references in a Sphinx project.
 
 🪄 :doc:`/analytics`
   How to use our Traffic analytics to understand how users are interacting with your documentation.
@@ -130,16 +128,16 @@ Reference
 ---------
 
 📚 :doc:`/reference/features`
-  An overview and reference of all features of Read the Docs.
+  Overview and reference of all the main features of Read the Docs.
 
 📚 :doc:`/config-file/index`
-  Reference for the ``.readthedocs.yaml`` file.
+  Reference of the ``.readthedocs.yaml`` file.
 
 📚 :doc:`/builds`
-  Reference to how builds are processed
+  Overview of how *builds* are processed.
 
 📚 :doc:`/build-customization`
-  Reference of the ways that you can add your own build logic or replace the default build steps.
+  Reference of adding your own build logic or replacing the default build steps.
 
 📚 :doc:`/server-side-search/syntax`
   How our search works - available for all documentation projects.
