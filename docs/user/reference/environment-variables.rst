@@ -56,7 +56,7 @@ All :doc:`build processes </builds>` have the following environment variables au
     :Example: ``https://docs.readthedocs.io/ja/stable/``
     :Example: ``https://example--17.org.readthedocs.build/fr/17/``
 
-.. envvar:: READTHEDOCS_REPOSITORY_CLONE_URL
+.. envvar:: READTHEDOCS_GIT_CLONE_URL
 
     URL for the remote source repository, from which the documentation is cloned.
     It could be HTTPS, SSH or any other URL scheme supported by Git.
@@ -65,7 +65,7 @@ All :doc:`build processes </builds>` have the following environment variables au
     :Example: ``https://github.com/readthedocs/readthedocs.org``
     :Example: ``git@github.com:readthedocs/readthedocs.org.git``
 
-.. envvar:: READTHEDOCS_REPOSITORY_IDENTIFIER
+.. envvar:: READTHEDOCS_GIT_IDENTIFIER
 
     Contains the Git identifier that was *checked out* from the remote repository URL.
     Possible values are either a branch or tag name.
@@ -75,7 +75,7 @@ All :doc:`build processes </builds>` have the following environment variables au
     :Example: ``feature/signup``
     :Example: ``update-readme``
 
-.. envvar:: READTHEDOCS_REPOSITORY_IDENTIFIER_HASH
+.. envvar:: READTHEDOCS_GIT_COMMIT_HASH
 
     Git commit hash identifier checked out from the repository URL.
 

@@ -279,9 +279,9 @@ class TestBuildTask(BuildEnvironmentBase):
             "READTHEDOCS_OUTPUT": os.path.join(
                 self.project.checkout_path(self.version.slug), "_readthedocs/"
             ),
-            "READTHEDOCS_REPOSITORY_CLONE_URL": self.project.repo,
-            "READTHEDOCS_REPOSITORY_IDENTIFIER": self.version.identifier,
-            "READTHEDOCS_REPOSITORY_IDENTIFIER_HASH": self.build.commit,
+            "READTHEDOCS_GIT_CLONE_URL": self.project.repo,
+            "READTHEDOCS_GIT_IDENTIFIER": self.version.identifier,
+            "READTHEDOCS_GIT_COMMIT_HASH": self.build.commit,
         }
 
         self._trigger_update_docs_task()
