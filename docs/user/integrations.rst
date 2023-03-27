@@ -20,7 +20,20 @@ such as GitHub, Bitbucket or GitLab.
 With each change committed to your repository, we are notified by the configured *webhook*.
 
 When a receive a *webhook* notification, we match it to a project's *Integration*.
-When a webhook is received, the matching project will then:
+When a webhook is received, the matching project will then process your setup and publish the documentation.
+
+The short version
+-----------------
+
+If you follow for instance the tutorial,
+a simple setup will use our builders and deploy everything in the following way:
+
+1. ...
+2. ...
+3. ...
+
+The long version
+----------------
 
 * :doc:`Build </builds>` the latest commit.
 * Synchronize your versions based on the latest tag and branch data in Git.
