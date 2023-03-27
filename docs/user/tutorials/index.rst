@@ -12,8 +12,8 @@ Tutorials
 
 ⏩️ :doc:`/intro/getting-started-with-sphinx`
   Sphinx is the most popular documentation tool on our platform.
-  But that's not to say that it's *easy* if you are using it for the first time.
-  We recommend a soft start with this tutorial.
+  It supports both reStructuredText and Markdown formats, and can generate rich API documentation from your source code.
+  We recommend Sphinx for documentation that includes API reference documentation.
 
 ⏩️ :doc:`/intro/getting-started-with-mkdocs`
   Another great and popular tool is MkDocs.
@@ -23,7 +23,7 @@ Tutorials
 ⏩️ :doc:`/intro/import-guide`
   If you already wrote your documentation,
   this guide will help you get started at the most natural point:
-  Importing an existing documentation project.
+  importing an existing documentation project.
 
 ⏩️ :doc:`/examples`
   If you are bootstrapping a new documentation project,
