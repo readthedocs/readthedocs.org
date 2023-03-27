@@ -226,6 +226,9 @@ class GenericParser:
             body.css('[role=search]'),
             # Permalinks
             body.css('.headerlink'),
+            # Sphinx code blocks contain line numbers and they are very noisy in contents
+            body.css(".linenos"),
+            body.css(".lineno"),
         )
         for node in nodes_to_be_removed:
             node.decompose()
