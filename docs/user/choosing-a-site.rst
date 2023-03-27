@@ -1,22 +1,75 @@
+.. This page seeks to put out lots of pointers to other articles in the documentation
+.. while giving an introduction that can be read consecutively.
+
 Choosing a dedicated documentation platform
 ===========================================
 
-Read the Docs is a *choice* that needs explanation and understanding.
-The reasons behind choosing a dedicated platform for building and deploying your documentation is in fact our *vision* for Read the Docs.
+In this article,
+we explain the major reasons behind having a platform dedicated to build and publish documentation projects.
+In other words,
+we dive into some of the reasons behind Read the Docs' existence and vision.
 
-At the same time, users often ask what the differences are between |org_brand| and |com_brand|.
+Let us start with the major benefits of choosing a dedicated documentation platform:
 
-Why choose a dedicated documentation platform?
-----------------------------------------------
+* Life-cycle: Handling challenges and complexities that documentation projects face
+* Freedom to choose your documentation tools
+* Workflow: Supportive of agile workflows and automating repetitive tasks
+
+When observing a documentation project,
+we might understand documentation as simply one or more deliverables of the project, such as:
+A website, a PDF document, an API documentation.
+We might simply focus on choosing the software tools generate a static website or a set of :doc:`documentation output formats </downloadable-documentation>`.
+
+Choosing to use Read the Docs as a first-step,
+allows you to focus on other critical choices,
+such as documentation tools and documentation structure.
+
+Supporting the life-cycle of a documentation project
+----------------------------------------------------
 
 It's common to think that documentation is as simple as maintaining some content for a static website. Job done.
-But once you get the full picture of how complex maintaining a documentation site is over time,
-it will make sense to choose a platform that's based on decades of experience in operating documentation tools that have proven their value over the same span of time.
+Read the Docs is a platform that's based on decades of experience in operating documentation tools that have proven their value over the same span of time.
+It handles challenges that you might face down the road by having the right features ready when you need them.
+
+Example: Automated versioning and redirects
+    Once a documentation project is bootstrapped,
+    the software project might change its version and remove and add features.
+    Old versions of the project still need to be able to refer to their original documentation while new versions should not be unnecessarily complicated by documenting old features.
+    That is why Read the Docs supports versioning out-of-the-box and also gives you a mature set of options for creating automated redirects.
+    It's not just simple A=>B redirects, but they can follow your own patterns or work only on specific versions.
+
+Example: Analytics
+    Documentation websites also benefit from knowing which pages are popular and how people discover them through online search.
+    It would be understandable that this is not an immediate requirement for a documentation project,
+    but the need eventually arises,
+    and why should every documentation project have to implement their own analytics solution?
 
 A very straight-forward way to understand Read the Docs is to look at our :doc:`feature reference </reference/features>`.
 All these features ultimately sustain the life-cycle of a documentation project.
 
 .. insert life-cycle diagram.
+
+Freedom to choose documentation tools
+-------------------------------------
+
+
+Agile workflows with Continuous Integration and Deployment (CI/CD)
+------------------------------------------------------------------
+
+
+Types of documentation projects
+-------------------------------
+
+
+Software projects
+~~~~~~~~~~~~~~~~~
+
+...
+
+Scientific writing and academic projects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+...
 
 Differences between Community and Business
 ------------------------------------------
