@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """HTML forms for sending notifications."""
 from django import forms

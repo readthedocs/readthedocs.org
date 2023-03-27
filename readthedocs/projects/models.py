@@ -31,6 +31,7 @@ from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
+from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -323,14 +324,14 @@ class Project(models.Model):
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(
         _('Enable EPUB build'),
-        default=True,
+        default=False,
         help_text=_(
             'Create a EPUB version of your documentation with each build.',
         ),
     )
     enable_pdf_build = models.BooleanField(
         _('Enable PDF build'),
-        default=True,
+        default=False,
         help_text=_(
             'Create a PDF version of your documentation with each build.',
         ),
@@ -359,7 +360,22 @@ class Project(models.Model):
     )
 
     featured = models.BooleanField(_('Featured'), default=False)
-    skip = models.BooleanField(_('Skip'), default=False)
+
+    skip = models.BooleanField(_("Skip (disable) building this project"), default=False)
+
+    # null=True can be removed in a later migration
+    # be careful if adding new queries on this, .filter(delisted=False) does not work
+    # but .exclude(delisted=True) does!
+    delisted = models.BooleanField(
+        null=True,
+        default=False,
+        verbose_name=_("Delisted"),
+        help_text=_(
+            "Delisting a project removes it from Read the Docs search indexing and asks external "
+            "search engines to remove it via robots.txt"
+        ),
+    )
+
     install_project = models.BooleanField(
         _('Install Project'),
         help_text=_(
@@ -630,8 +646,8 @@ class Project(models.Model):
         if self.urlconf:
             # Add our proxied api host at the first place we have a $variable
             # This supports both subpaths & normal root hosting
-            url_prefix = self.urlconf.split('$', 1)[0]
-            return '/' + url_prefix.strip('/') + '/_'
+            path_prefix = self.custom_path_prefix
+            return unsafe_join_url_path(path_prefix, "/_")
         return '/_'
 
     @property
@@ -647,6 +663,19 @@ class Project(models.Model):
     def proxied_static_path(self):
         """Path for static files hosted on the user's doc domain."""
         return f"{self.proxied_api_host}/static/"
+
+    @property
+    def custom_path_prefix(self):
+        """
+        Get the path prefix from the custom urlconf.
+
+        Returns `None` if the project doesn't have a custom urlconf.
+        """
+        if self.urlconf:
+            # Return the value before the first defined variable,
+            # as that is a prefix and not part of our normal doc patterns.
+            return self.urlconf.split("$", 1)[0]
+        return None
 
     @property
     def regex_urlconf(self):
@@ -753,12 +782,12 @@ class Project(models.Model):
 
         return ProxitoURLConf
 
-    @property
+    @cached_property
     def is_subproject(self):
         """Return whether or not this project is a subproject."""
         return self.superprojects.exists()
 
-    @property
+    @cached_property
     def superproject(self):
         relationship = self.get_parent_relationship()
         if relationship:
@@ -1759,13 +1788,14 @@ class HTTPHeader(TimeStampedModel, models.Model):
     """
 
     HEADERS_CHOICES = (
-        ('access_control_allow_origin', 'Access-Control-Allow-Origin'),
-        ('access_control_allow_headers', 'Access-Control-Allow-Headers'),
-        ('content_security_policy', 'Content-Security-Policy'),
-        ('feature_policy', 'Feature-Policy'),
-        ('permissions_policy', 'Permissions-Policy'),
-        ('referrer_policy', 'Referrer-Policy'),
-        ('x_frame_options', 'X-Frame-Options'),
+        ("access_control_allow_origin", "Access-Control-Allow-Origin"),
+        ("access_control_allow_headers", "Access-Control-Allow-Headers"),
+        ("content_security_policy", "Content-Security-Policy"),
+        ("feature_policy", "Feature-Policy"),
+        ("permissions_policy", "Permissions-Policy"),
+        ("referrer_policy", "Referrer-Policy"),
+        ("x_frame_options", "X-Frame-Options"),
+        ("x_content_type_options", "X-Content-Type-Options"),
     )
 
     domain = models.ForeignKey(
@@ -1824,6 +1854,7 @@ class Feature(models.Model):
     DISABLE_PAGEVIEWS = "disable_pageviews"
     DISABLE_SPHINX_DOMAINS = "disable_sphinx_domains"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
+    USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1853,6 +1884,7 @@ class Feature(models.Model):
     CANCEL_OLD_BUILDS = "cancel_old_builds"
     DONT_CREATE_INDEX = "dont_create_index"
     USE_RCLONE = "use_rclone"
+    HOSTING_INTEGRATIONS = "hosting_integrations"
 
     FEATURES = (
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
@@ -1939,6 +1971,10 @@ class Feature(models.Model):
             RESOLVE_PROJECT_FROM_HEADER,
             _("Allow usage of the X-RTD-Slug header"),
         ),
+        (
+            USE_UNRESOLVER_WITH_PROXITO,
+            _("Use new unresolver implementation for serving documentation files."),
+        ),
 
         # Versions sync related features
         (
@@ -2022,6 +2058,10 @@ class Feature(models.Model):
         (
             USE_RCLONE,
             _("Use rclone for syncing files to the media storage."),
+        ),
+        (
+            HOSTING_INTEGRATIONS,
+            _("Inject 'readthedocs-client.js' as <script> HTML tag in responses."),
         ),
     )
 

@@ -19,9 +19,15 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
 from taggit.models import Tag
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED, LATEST
+from readthedocs.builds.constants import (
+    BUILD_STATE_FINISHED,
+    EXTERNAL,
+    INTERNAL,
+    LATEST,
+)
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
+from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.filters import ProjectVersionListFilterSet
@@ -302,7 +308,7 @@ def project_downloads(request, project_slug):
     )
 
 
-class ProjectDownloadMediaBase(ServeDocsMixin, View):
+class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
 
     # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
     same_domain_url = False
@@ -346,17 +352,23 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
             if not self.allowed_user(request, final_project, version_slug):
                 return self.get_unauthed_response(request, final_project)
 
+            is_external = request.unresolved_domain.is_from_external_domain
+            manager = EXTERNAL if is_external else INTERNAL
+
             # We don't use ``.public`` in this filter because the access
             # permission was already granted by ``.allowed_user``
             version = get_object_or_404(
-                final_project.versions,
+                final_project.versions(manager=manager),
                 slug=version_slug,
             )
+
+            # All public versions can be cached.
+            self.cache_response = version.is_public
 
         else:
             # All the arguments come from the URL.
             version = get_object_or_404(
-                Version.objects.public(user=request.user),
+                Version.internal.public(user=request.user),
                 project__slug=project_slug,
                 slug=version_slug,
             )

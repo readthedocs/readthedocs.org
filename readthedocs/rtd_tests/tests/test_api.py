@@ -38,7 +38,6 @@ from readthedocs.api.v2.views.integrations import (
     GitHubWebhookView,
     GitLabWebhookView,
 )
-from readthedocs.api.v2.views.task_views import get_status_data
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
@@ -2443,6 +2442,7 @@ class APIVersionTests(TestCase):
             "built": False,
             "id": 18,
             "active": True,
+            "canonical_url": "http://readthedocs.org/docs/pip/en/0.8/",
             "project": {
                 "analytics_code": None,
                 "analytics_disabled": False,
@@ -2545,24 +2545,3 @@ class APIVersionTests(TestCase):
         self.assertEqual(resp.data['has_pdf'], True)
         self.assertEqual(resp.data['has_epub'], False)
         self.assertEqual(resp.data['has_htmlzip'], False)
-
-
-class TaskViewsTests(TestCase):
-
-    def test_get_status_data(self):
-        data = get_status_data(
-            'public_task_exception',
-            'SUCCESS',
-            {'data': 'public'},
-            'Something bad happened',
-        )
-        self.assertEqual(
-            data, {
-                'name': 'public_task_exception',
-                'data': {'data': 'public'},
-                'started': True,
-                'finished': True,
-                'success': False,
-                'error': 'Something bad happened',
-            },
-        )

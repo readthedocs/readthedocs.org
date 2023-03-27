@@ -44,6 +44,18 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     :Example: ``/home/docs/checkouts/readthedocs.org/user_builds/project/envs/version``
 
+.. envvar:: READTHEDOCS_CANONICAL_URL
+
+    Canonical base URL for the version that is built.
+    If the project has configured a :doc:`custom domain </custom-domains>` (e.g. ``docs.example.com``) it will be used in the resulting canonical URL.
+    Otherwise, your project's :ref:`default subdomain <default-subdomain>` will be used.
+
+    The path for the language and version is appended to the domain, so the final canonical base URLs can look like the following examples:
+
+    :Example: ``https://docs.example.com/en/latest/``
+    :Example: ``https://docs.readthedocs.io/ja/stable/``
+    :Example: ``https://example--17.org.readthedocs.build/fr/17/``
+
 .. seealso::
 
    :doc:`/environment-variables`

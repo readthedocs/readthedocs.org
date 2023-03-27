@@ -11,7 +11,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.views.generic import TemplateView, View
 
-from readthedocs.core.mixins import PrivateViewMixin
+from readthedocs.core.mixins import CDNCacheControlMixin, PrivateViewMixin
 from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
@@ -21,7 +21,12 @@ class NoProjectException(Exception):
     pass
 
 
-class HealthCheckView(View):
+class HealthCheckView(CDNCacheControlMixin, View):
+    # Never cache this view, we always want to get the live response from the server.
+    # In production we should configure the health check to hit the LB directly,
+    # but it's useful to be careful here in case of a misconfiguration.
+    cache_response = False
+
     def get(self, request, *args, **kwargs):
         return JsonResponse({'status': 200}, status=200)
 

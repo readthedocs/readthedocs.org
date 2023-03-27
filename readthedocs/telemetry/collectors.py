@@ -93,26 +93,7 @@ class BuildDataCollector:
         }
         data["doctool"] = self._get_doctool()
 
-        # NOTE: Check if there are files at `_build/html` (the old output directory)
-        # and log these projects so we can communicate with their maintainers
-        #
-        # This temporal and should be removed in the future once we have
-        # decided what to do with this collected data.
-        self._check_using_old_output_directory()
-
         return data
-
-    def _check_using_old_output_directory(self):
-        code, _, _ = self.run(
-            "test",
-            "-x",
-            "_build/html",
-            cwd=self.project.checkout_path(self.version.slug),
-        )
-        if code == 0:
-            log.warning(
-                "Directory '_build/html' exists. This may lead to unexpected behavior."
-            )
 
     def _get_doctool_name(self):
         if self.version.is_sphinx_type:

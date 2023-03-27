@@ -21,6 +21,9 @@
           {% endblock %}
         </span>
         <a href="{{ project.get_absolute_url }}">{{ project }}</a>
+        {% if project.delisted %}
+          <a href="https://docs.readthedocs.io/en/stable/unofficial-projects.html" class="quiet" target="_blank">{% trans "delisted" %}</a>
+        {% endif %}
       </h1>
     </div>
 

@@ -245,6 +245,7 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.gitlab',
             'allauth.socialaccount.providers.bitbucket',
             'allauth.socialaccount.providers.bitbucket_oauth2',
+            'cacheops',
         ]
         if ext:
             apps.append('readthedocsext.cdn')
@@ -709,11 +710,16 @@ class CommunityBaseSettings(Settings):
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
+
+    # Make email verification mandatory.
+    # Users won't be able to login until they verify the email address.
     ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-    ACCOUNT_ACTIVATION_DAYS = 7
+    ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_STORE_TOKENS = True
+
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
             'SCOPE': [
@@ -744,7 +750,7 @@ class CommunityBaseSettings(Settings):
 
     # Allow cross-site requests from any origin,
     # all information from our allowed endpoits is public.
-    # 
+    #
     # NOTE: We don't use `CORS_ALLOW_ALL_ORIGINS=True`,
     # since that will set the `Access-Control-Allow-Origin` header to `*`,
     # we won't be able to pass credentials fo the sustainability API with that value.
@@ -1024,3 +1030,45 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS = 500
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
     RTD_SPAM_MAX_SCORE = 9999
+
+    CACHEOPS_ENABLED = False
+    CACHEOPS_TIMEOUT = 60 * 60  # seconds
+    CACHEOPS_OPS = {'get', 'fetch'}
+    CACHEOPS_DEGRADE_ON_FAILURE = True
+    CACHEOPS = {
+        # readthedocs.projects.*
+        'projects.project': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.feature': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.projectrelationship': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.domain': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.builds.*
+        'builds.version': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.organizations.*
+        'organizations.organization': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.subscriptions.*
+        'subscriptions.planfeature': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+    }

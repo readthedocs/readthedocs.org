@@ -88,7 +88,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     def LOGGING(self):
         logging = super().LOGGING
 
-        logging['handlers']['console']['level'] = 'DEBUG'
+        logging['handlers']['console']['level'] = os.environ.get("RTD_LOGGING_LEVEL", 'INFO')
         logging['formatters']['default']['format'] = '[%(asctime)s] ' + self.LOG_FORMAT
         # Allow Sphinx and other tools to create loggers
         logging['disable_existing_loggers'] = False
@@ -161,6 +161,7 @@ class DockerBaseSettings(CommunityBaseSettings):
         },
     }
 
+    CACHEOPS_REDIS = f"redis://:{CACHES['default']['OPTIONS']['PASSWORD']}@cache:6379/1"
     BROKER_URL = f"redis://:{CACHES['default']['OPTIONS']['PASSWORD']}@cache:6379/0"
 
     CELERY_ALWAYS_EAGER = False

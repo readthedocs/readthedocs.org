@@ -216,6 +216,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[7]._request.method == "PATCH"
         assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[7].json() == {
+            "build_data": None,
             "built": True,
             "documentation_type": "mkdocs",
             "has_pdf": True,
@@ -300,6 +301,11 @@ class TestBuildTask(BuildEnvironmentBase):
             # Local and Circle are different values.
             # We only check it's present, but not its value.
             READTHEDOCS_VIRTUALENV_PATH=mock.ANY,
+            READTHEDOCS_CANONICAL_URL=self.project.get_docs_url(
+                lang_slug=self.project.language,
+                version_slug=self.version.slug,
+                external=external,
+            ),
         )
         if not external:
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
@@ -457,6 +463,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[7]._request.method == "PATCH"
         assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[7].json() == {
+            "build_data": None,
             "built": True,
             "documentation_type": "sphinx",
             "has_pdf": True,
@@ -770,6 +777,13 @@ class TestBuildTask(BuildEnvironmentBase):
                     cwd=mock.ANY,
                     record=False,
                 ),
+                mock.call(
+                    "test",
+                    "-x",
+                    "_build/html",
+                    record=False,
+                    cwd=mock.ANY,
+                ),
                 # FIXME: I think we are hitting this issue here:
                 # https://github.com/pytest-dev/pytest-mock/issues/234
                 mock.call("lsb_release", "--description", record=False, demux=True),
@@ -916,10 +930,11 @@ class TestBuildTask(BuildEnvironmentBase):
 
         self.mocker.mocks["environment.run"].assert_has_calls(
             [
-                mock.call(
-                    "git", "fetch", "--unshallow", escape_command=False, cwd=mock.ANY
-                ),
-                mock.call("echo", "`date`", escape_command=False, cwd=mock.ANY),
+                # NOTE: when running commands from `build.jobs` or
+                # `build.commands` they are not split to allow multi-line
+                # scripts
+                mock.call("git fetch --unshallow", escape_command=False, cwd=mock.ANY),
+                mock.call("echo `date`", escape_command=False, cwd=mock.ANY),
             ],
             any_order=True,
         )
@@ -1035,10 +1050,11 @@ class TestBuildTask(BuildEnvironmentBase):
                     "virtualenv",
                     "setuptools<58.3.0",
                 ),
+                # NOTE: when running commands from `build.jobs` or
+                # `build.commands` they are not split to allow multi-line
+                # scripts
                 mock.call(
-                    "pip",
-                    "install",
-                    "pelican[markdown]",
+                    "pip install pelican[markdown]",
                     escape_command=False,
                     cwd=mock.ANY,
                 ),
@@ -1051,12 +1067,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     cwd=mock.ANY,
                 ),
                 mock.call(
-                    "pelican",
-                    "--settings",
-                    "docs/pelicanconf.py",
-                    "--output",
-                    "$READTHEDOCS_OUTPUT/html/",
-                    "docs/",
+                    "pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/",
                     escape_command=False,
                     cwd=mock.ANY,
                 ),

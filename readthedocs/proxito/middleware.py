@@ -26,6 +26,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
+from readthedocs.projects.models import Feature, Project
 
 log = structlog.get_logger(__name__)
 
@@ -156,27 +157,32 @@ class ProxitoMiddleware(MiddlewareMixin):
         """
         Add Cache-Control headers.
 
-        If privacy levels are enabled and the header isn't already present,
-        set the cache level to private.
-        Or if the request was from the `X-RTD-Slug` header,
-        we don't cache the response, since we could be caching a response in another domain.
+        If the `CDN-Cache-Control` header isn't already present, set the cache
+        level to public or private, depending if we allow private repos or not.
+        Or if the request was from the `X-RTD-Slug` header, we don't cache the
+        response, since we could be caching a response in another domain.
 
         We use ``CDN-Cache-Control``, to control caching at the CDN level only.
         This doesn't affect caching at the browser level (``Cache-Control``).
 
         See https://developers.cloudflare.com/cache/about/cdn-cache-control.
         """
-        header = "CDN-Cache-Control"
+        cdn_cache_header = "CDN-Cache-Control"
         unresolved_domain = request.unresolved_domain
         # Never trust projects resolving from the X-RTD-Slug header,
         # we don't want to cache their content on domains from other
         # projects, see GHSA-mp38-vprc-7hf5.
         if unresolved_domain and unresolved_domain.is_from_http_header:
-            response.headers[header] = "private"
+            response.headers[cdn_cache_header] = "private"
+            # SECURITY: Return early, we never want to cache this response.
+            return
 
-        if settings.ALLOW_PRIVATE_REPOS:
-            # Set the key to private only if it hasn't already been set by the view.
-            response.headers.setdefault(header, "private")
+        # Set the key only if it hasn't already been set by the view.
+        if cdn_cache_header not in response.headers:
+            default_cache_level = (
+                "private" if settings.ALLOW_PRIVATE_REPOS else "public"
+            )
+            response.headers[cdn_cache_header] = default_cache_level
 
     def _set_request_attributes(self, request, unresolved_domain):
         """
@@ -273,9 +279,17 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         return None
 
+    def add_hosting_integrations_headers(self, request, response):
+        project_slug = getattr(request, "path_project_slug", "")
+        if project_slug:
+            project = Project.objects.get(slug=project_slug)
+            if project.has_feature(Feature.HOSTING_INTEGRATIONS):
+                response["X-RTD-Hosting-Integrations"] = "true"
+
     def process_response(self, request, response):  # noqa
         self.add_proxito_headers(request, response)
         self.add_cache_headers(request, response)
         self.add_hsts_headers(request, response)
         self.add_user_headers(request, response)
+        self.add_hosting_integrations_headers(request, response)
         return response
