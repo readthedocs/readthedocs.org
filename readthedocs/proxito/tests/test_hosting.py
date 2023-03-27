@@ -119,6 +119,16 @@ class TestReadTheDocsConfigJson(TestCase):
                         "filepath": "/docs/index.rst",
                     },
                 },
+                "search": {
+                    "api_endpoint": "/_/api/v3/search/",
+                    "default_filter": "subprojects:project/latest",
+                    "filters": [
+                        ["Search only in this project", "project:project/latest"],
+                        ["Search subprojects", "subprojects:project/latest"],
+                    ],
+                    "project": "project",
+                    "version": "latest",
+                },
             },
         }
         assert r.json() == expected
