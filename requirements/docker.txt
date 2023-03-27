@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.94
+boto3==1.26.99
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.94
+botocore==1.29.99
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -81,7 +81,7 @@ click-repl==0.2.0
     #   celery
 colorama==0.4.6
     # via tox
-cryptography==39.0.2
+cryptography==40.0.1
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -207,7 +207,7 @@ executing==1.2.0
     # via stack-data
 fancycompleter==0.9.1
     # via pdbpp
-filelock==3.10.0
+filelock==3.10.5
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -259,7 +259,7 @@ lxml==4.9.2
     # via
     #   -r requirements/pip.txt
     #   pyquery
-markdown==3.4.1
+markdown==3.4.3
     # via -r requirements/pip.txt
 markdown-it-py==2.2.0
     # via rich
@@ -275,7 +275,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.7
+orjson==3.8.8
     # via -r requirements/pip.txt
 packaging==23.0
     # via
@@ -295,7 +295,7 @@ pickleshare==0.7.5
     # via ipython
 pillow==9.4.0
     # via -r requirements/docker.in
-platformdirs==3.1.1
+platformdirs==3.2.0
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -343,7 +343,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2022.7.1
+pytz==2023.2
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -351,12 +351,12 @@ pytz==2022.7.1
     #   djangorestframework
 pyyaml==5.4.1
     # via -r requirements/pip.txt
-redis==4.5.1
+redis==4.5.3
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
     #   django-redis
-regex==2022.10.31
+regex==2023.3.23
     # via -r requirements/pip.txt
 requests==2.28.2
     # via
