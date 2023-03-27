@@ -160,8 +160,10 @@ Explanation
 💡 :doc:`Continuous Documentation </integrations>`
   Learn about the many advantages of having your documentation continuously build and deployed.
 
+💡 :doc:`/choosing-a-site`
+  Learn about the differences between |org_brand| and |com_brand|.
+
 .. TODO: This next item needs its article to be finished in a separate PR
 .. https://github.com/readthedocs/readthedocs.org/pull/10071
-
-💡 Advanced topics: Deep-dive into Read the Docs
-  Get familiar with some of the more advanced topics of building and deploying documentation with Read the Docs.
+.. TODO: 💡 Advanced topics: Deep-dive into Read the Docs
+..  Get familiar with some of the more advanced topics of building and deploying documentation with Read the Docs.
