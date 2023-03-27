@@ -138,15 +138,17 @@ How-to guides
 Need to get something specific done? These guides provide step-by-step instructions on various areas:
 
 .. Descriptions here are active, learn, setup, etc.
+.. The chosen sample of how-tos is intended reflect to width of the how-to section
+.. i.e. NOT only what is most popular or easiest for beginners.
 
-🪄 :doc:`/guides/cross-referencing-with-sphinx`
-  Learn how to use cross-references in a Sphinx project.
+🪄 :doc:`/guides/pull-requests`
+  Setup pull request builds and enjoy previews of each commit.
 
 🪄 :doc:`/analytics`
   Learn more about how users are interacting with your documentation.
 
-🪄 :doc:`/guides/pull-requests`
-  Setup pull request builds and enjoy previews of each commit.
+🪄 :doc:`/guides/cross-referencing-with-sphinx`
+  Learn how to use cross-references in a Sphinx project.
 
 🪄 :doc:`All how-to guides </guides/index>`
   Browser the entire catalog for many more how-to guides.
