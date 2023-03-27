@@ -90,13 +90,15 @@ and your documentation up to date.
 First time here?
 ----------------
 
-We have a few places for you to get started.
+We have a few places for you to get started:
+
+.. descriptions here are active
 
 🚀 :doc:`/tutorial/index`
-  This tutorial helps you take the first practical steps and get started with Read the Docs.
+  Take the first practical steps with Read the Docs.
 
 🚀 :doc:`/examples`
-  Get started with an example project to hit the ground running.
+  Start your journey with an example project to hit the ground running.
 
 .. TODO: This next item needs its article to be finished in a separate PR
 .. https://github.com/readthedocs/readthedocs.org/pull/10071
@@ -105,19 +107,21 @@ We have a few places for you to get started.
 .. An introduction to some of the most important reasons for using a *Documentation CI* and build *docs as code*.
 
 :doc:`🚀 All tutorials </tutorials/index>`
-  Using documentation tools like **Sphinx** or **MkDocs** for the first time or **importing an existing project**?
+  Using documentation tools like Sphinx or MkDocs for the first time or importing an existing project?
   We have the tutorials to get you started!
 
 Explanation
 -----------
 
-Get a high-level overview of our platform.
+Get a high-level overview of our platform:
+
+.. Descriptions here are focused on learning
 
 .. TODO: This next item needs its article to be finished in a separate PR
 .. https://github.com/readthedocs/readthedocs.org/pull/10071
 
 💡 :doc:`Continuous Documentation </integrations>`
-  Learn about the many advantages of having your documentation continuously build and deployed.
+  Discover the advantages of having your documentation continuously deployed.
 
 💡 :doc:`/choosing-a-site`
   Learn about the differences between |org_brand| and |com_brand|.
@@ -131,40 +135,40 @@ Get a high-level overview of our platform.
 How-to guides
 -------------
 
-Need to get something specific done? These guides provide step-by-step instructions on various areas.
+Need to get something specific done? These guides provide step-by-step instructions on various areas:
+
+.. Descriptions here are active, learn, setup, etc.
 
 🪄 :doc:`/guides/cross-referencing-with-sphinx`
   Learn how to use cross-references in a Sphinx project.
 
 🪄 :doc:`/analytics`
-  How to use our Traffic analytics to understand how users are interacting with your documentation.
+  Learn more about how users are interacting with your documentation.
 
 🪄 :doc:`/guides/pull-requests`
-  Enable Pull Request builds and enjoy auto-generated previews.
+  Setup pull request builds and enjoy previews of each commit.
 
-🪄 :doc:` All how-to guides </guides/index>`
-  Have a look at the entire catalog for **many many more how-to guides**.
-
+🪄 :doc:`All how-to guides </guides/index>`
+  Browser the entire catalog for many more how-to guides.
 
 Reference
 ---------
 
-Need to know how something works? Our references provide the details.
+Need to know how something works? Our references provide the details:
+
+.. Descriptions here sound like reference
 
 📚 :doc:`/reference/features`
-  Overview and reference of all the main features of Read the Docs.
+  Overview of all the main features of Read the Docs.
 
 📚 :doc:`/config-file/index`
-  Reference of the ``.readthedocs.yaml`` file.
+  Information for our configuration file: ``.readthedocs.yaml``.
 
 📚 :doc:`/builds`
-  Overview of how *builds* are processed.
+  Overview of how documentation builds happen.
 
 📚 :doc:`/build-customization`
-  Reference of adding your own build logic or replacing the default build steps.
-
-📚 :doc:`/server-side-search/syntax`
-  How our search works - available for all documentation projects.
+  Information on how to add your own build logic or replace default build steps.
 
 📚 :doc:`/api/index`
-  Building a documentation project on Read the Docs gives access to a number of great APIs that you can take advantage of on your website and integration tools.
+  Automate your documentation with our API and save yourself some work.
