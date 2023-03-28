@@ -22,24 +22,24 @@ With each change committed to your repository, we are notified by the configured
 When a receive a *webhook* notification, we match it to a project's *Integration*.
 When a webhook is received, the matching project will then process your setup and publish the documentation.
 
-The short version
------------------
+.. The short version
+.. -----------------
 
-If you follow for instance the tutorial,
-a simple setup will use our builders and deploy everything in the following way:
+.. If you follow for instance the tutorial,
+.. a simple setup will use our builders and deploy everything in the following way:
 
-1. ...
-2. ...
-3. ...
+.. 1. ...
+.. 2. ...
+.. 3. ...
 
-The long version
-----------------
+.. The long version
+.. ----------------
 
-* :doc:`Build </builds>` the latest commit.
-* Synchronize your versions based on the latest tag and branch data in Git.
-* Run your :doc:`automation rules</automation-rules>`.
-* Auto-cancel any currently running builds of the same version.
-* Add a log entry to the integration's :guilabel:`Recent Activity`.
+.. * :doc:`Build </builds>` the latest commit.
+.. * Synchronize your versions based on the latest tag and branch data in Git.
+.. * Run your :doc:`automation rules</automation-rules>`.
+.. * Auto-cancel any currently running builds of the same version.
+.. * Add a log entry to the integration's :guilabel:`Recent Activity`.
 
 Continuous Documentation for software projects
 ----------------------------------------------
@@ -57,6 +57,11 @@ and increases overall value from the documentation you write.
 
 As part of this quick feedback loop,
 You can preview documentation changes immediately using :doc:`pull request previews </pull-requests>`.
+
+.. Continuous Documentation for scientific projects
+.. ------------------------------------------------
+
+.. We should perhaps write a short introduction here and reference the science page.
 
 Automated versioning
 --------------------

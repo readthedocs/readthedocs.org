@@ -35,8 +35,10 @@ we recommend a simple process:
 This process helps you get started quickly,
 and helps keep things consistent for the reader of your documentation.
 
-Diátaxis
---------
+.. _diataxis:
+
+Diátaxis Methodology
+--------------------
 
 The documentation you're reading is written using the Diátaxis framework.
 It has four major parts as summarized by this image:
