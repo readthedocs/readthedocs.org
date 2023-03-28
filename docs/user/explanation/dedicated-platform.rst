@@ -82,20 +82,24 @@ Features for the lifecycle of a documentation project
 -----------------------------------------------------
 
 Read the Docs is a platform with over a decade of experience in automating documentation tools.
-The platform handles challenges that you might face down the road by having the right features ready when you need them.
+The platform handles your current challenges or challenges that you face down the road.
+The right features are available when you need them.
 
 Example: Automated versioning and redirects
     Once a documentation project is bootstrapped,
-    the software product might change its version and remove and add features.
+    the software product might change its version and remove or add features.
     Old versions of the product still need to be able to refer to their original documentation while new versions should not be unnecessarily complicated by documenting old features.
-    That is why Read the Docs supports versioning out-of-the-box and also gives you a mature set of options for creating automated redirects.
-    It's not just simple A=>B redirects, but they can follow your own patterns or work only on specific versions.
+
+    That is why Read the Docs supports versioning out-of-the-box and also gives you a mature set of options for creating :doc:`user-defined redirects </user-defined-redirects>`.
+
+    As your documentation grows and pages are moved around, versioning and redirects become critical.
 
 Example: Analytics
-    Documentation websites also benefit from knowing which pages are popular and how people discover them through online search.
-    It would be understandable that this is not an immediate requirement for a documentation project,
-    but the need eventually arises,
-    and why should every documentation project have to implement their own analytics solution?
+    Documentation websites benefit from knowing which pages are popular and how people discover them through online search.
+
+    This may not be an immediate requirement for a documentation project,
+    but the need often arises.
+    And why should every documentation project have to implement their own analytics solution?
     For this, you can use :doc:`/reference/analytics`.
 
 .. seealso::
