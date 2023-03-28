@@ -334,7 +334,9 @@ class DockerBuildCommand(BuildCommand):
             exec_cmd = client.exec_create(
                 container=self.build_env.container_id,
                 cmd=self.get_wrapped_command(),
-                environment=environment,
+                environment=self._environment,
+                # HOTFIX: Remove our custom PATH variable
+                # environment=environment,
                 user=self.user,
                 workdir=self.cwd,
                 stdout=True,
