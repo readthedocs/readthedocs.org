@@ -30,7 +30,6 @@ Let us start with a high-level overview:
 
 🚢️️ :ref:`workflows`
     A dedicated CI/CD platform publishes your documentation automatically and versions it so you can focus on applying your own workflow and keep the documentation aligned with your product.
-    Support for multiple versions and many different types of projects and workflows.
 
 .. The following sections are about using a dedicated platform as a first-choice in order to free up space for other tasks.
 .. These paragraphs can benefit from being shortened and organized, but they are intended as the summary of the introduction.
