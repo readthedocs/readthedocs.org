@@ -50,7 +50,7 @@ class BuildListFilter(FilterSet):
         method="get_type",
     )
 
-    def get_state(self, queryset, *, value):
+    def get_state(self, queryset, _, value):
         if value == self.STATE_ACTIVE:
             queryset = queryset.exclude(state__in=BUILD_FINAL_STATES)
         elif value == self.STATE_SUCCESS:
@@ -62,7 +62,7 @@ class BuildListFilter(FilterSet):
             )
         return queryset
 
-    def get_type(self, queryset, *, value):
+    def get_type(self, queryset, _, value):
         if value == self.TYPE_NORMAL:
             queryset = queryset.exclude(type=EXTERNAL)
         elif value == self.TYPE_EXTERNAL:
