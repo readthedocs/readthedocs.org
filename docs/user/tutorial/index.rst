@@ -112,7 +112,7 @@ Welcome!
 
    Our commercial site offers some extra features,
    like support for private projects.
-   You can learn more about :doc:`our two different sites </choosing-a-site>`.
+   You can learn more about :ref:`our two platforms <com_org_differences>`.
 
 First steps
 -----------
@@ -675,7 +675,7 @@ and Read the Docs:
   available under :doc:`/guides/index`.
 - For private project support and other enterprise features,
   you can use :doc:`our commercial service </commercial/index>`
-  (and if in doubt, check out :doc:`/choosing-a-site`).
+  (and if in doubt, check out :ref:`com_org_differences`).
 - Do you want to join a global community of fellow `documentarians <writethedocs:documentarians>`?
   Check out `Write the Docs <https://www.writethedocs.org/>`_ and
   :doc:`its Slack workspace <writethedocs:slack>`.

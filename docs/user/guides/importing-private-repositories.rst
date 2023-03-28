@@ -4,7 +4,7 @@ How to import private repositories
 .. warning::
 
    This guide is for users of :doc:`/commercial/index`.
-   **If you are using GitHub, GitLab, or Bitbucket**,
+   **If you are using |git_providers_or|**,
    we recommend :doc:`connecting your account </connected-accounts>` and importing your project from
    https://readthedocs.com/dashboard/import instead of importing it manually.
 
@@ -122,7 +122,7 @@ Webhooks
 --------
 
 To build your documentation on every commit,
-you'll need to manually add a webhook, see :doc:`/integrations`.
+you'll need to manually add a webhook, see :doc:`/guides/git-integrations`.
 If you are using an unsupported integration,
 you may need to setup a custom integration
 using our :ref:`generic webhook <webhook-integration-generic>`.

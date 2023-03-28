@@ -39,6 +39,14 @@ so that you have a reference for how we're using them.
       and rules for publication of documentation can be :doc:`automated </automation-rules>`.
       Similar to :term:`Docs as Code`.
 
+   webhooks
+      There are two important types of webhooks for Read the Docs:
+
+      * Git providers have webhooks which are special URLs that Read the Docs can call in order to notify about documentation builds.
+      * Read the Docs has a unique webhook for each project that the Git provider calls when changes happen in Git.
+
+      See also: :doc:`/guides/git-integrations` and :doc:`/build-notifications`
+
    pre-defined build jobs
       Commands executed by Read the Docs when performing the build process.
       They cannot be overwritten by the user.
