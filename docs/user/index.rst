@@ -119,7 +119,7 @@ Get a high-level overview of our platform:
 .. https://github.com/readthedocs/readthedocs.org/pull/10071
 
 💡 :doc:`/explanation/dedicated-platform`
-  An introduction to using a dedicated documentation platform.
+  An introduction the reasons behind choosing a dedicated documentation platform such as Read the Docs.
 
 💡 :doc:`/explanation/continuous-documentation`
   Discover the advantages of having your documentation continuously deployed.
