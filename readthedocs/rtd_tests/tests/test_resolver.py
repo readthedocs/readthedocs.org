@@ -916,9 +916,7 @@ class TestSubprojectsWithTranslations(TestCase):
 )
 class TestResolverWithCustomURLPatterns(ResolverBase):
     def test_custom_urlpattern_multi_version_project(self):
-        self.pip.urlpattern = (
-            "^/custom/prefix/{language}(/({version}(/{filename})?)?)?$"
-        )
+        self.pip.urlpattern = "/custom/prefix/{language}(/({version}(/{filename})?)?)?"
         self.pip.save()
 
         url = resolve(self.pip)
@@ -938,9 +936,7 @@ class TestResolverWithCustomURLPatterns(ResolverBase):
         )
 
     def test_custom_urlpattern_multi_version_project_translation(self):
-        self.pip.urlpattern = (
-            "^/custom/prefix/{language}(/({version}(/{filename})?)?)?$"
-        )
+        self.pip.urlpattern = "/custom/prefix/{language}(/({version}(/{filename})?)?)?"
         self.pip.save()
 
         url = resolve(self.translation)
@@ -962,7 +958,7 @@ class TestResolverWithCustomURLPatterns(ResolverBase):
         )
 
     def test_custom_urlpattern_reversed_components_multi_version_project(self):
-        self.pip.urlpattern = "^/{version}(/({language}(/{filename})?)?)?$"
+        self.pip.urlpattern = "/{version}(/({language}(/{filename})?)?)?"
         self.pip.save()
 
         url = resolve(self.pip)
@@ -981,7 +977,7 @@ class TestResolverWithCustomURLPatterns(ResolverBase):
 
     def test_custom_urlpattern_single_version_project(self):
         self.pip.single_version = True
-        self.pip.urlpattern = "^/custom-prefix(/{filename})?$"
+        self.pip.urlpattern = "/custom-prefix(/{filename})?"
         self.pip.save()
 
         url = resolve(self.pip)
@@ -999,7 +995,7 @@ class TestResolverWithCustomURLPatterns(ResolverBase):
         self.assertEqual(url, "http://pip.readthedocs.io/custom-prefix/api/index.html")
 
     def test_custom_urlpattern_subproject(self):
-        self.pip.urlpattern_subproject = "^/custom/{subproject}/prefix(/{filename})?$"
+        self.pip.urlpattern_subproject = "/custom/{subproject}/prefix(/{filename})?"
         self.pip.save()
 
         url = resolve(self.subproject)
@@ -1021,7 +1017,7 @@ class TestResolverWithCustomURLPatterns(ResolverBase):
         )
 
     def test_custom_urlpattern_subproject_empty(self):
-        self.pip.urlpattern_subproject = "^/{subproject}(/{filename})?$"
+        self.pip.urlpattern_subproject = "/{subproject}(/{filename})?"
         self.pip.save()
 
         url = resolve(self.subproject)
@@ -1041,8 +1037,8 @@ class TestResolverWithCustomURLPatterns(ResolverBase):
         self.assertEqual(url, "http://pip.readthedocs.io/sub/ja/latest/api/index.html")
 
     def test_custom_urlpattern_and_urlpattern_subproject_in_superproject(self):
-        self.pip.urlpattern = "^/prefix/{language}(/({version}(/{filename})?)?)?$"
-        self.pip.urlpattern_subproject = "^/s/{subproject}(/{filename})?$"
+        self.pip.urlpattern = "/prefix/{language}(/({version}(/{filename})?)?)?"
+        self.pip.urlpattern_subproject = "/s/{subproject}(/{filename})?"
         self.pip.save()
 
         url = resolve(self.pip)
@@ -1080,8 +1076,8 @@ class TestResolverWithCustomURLPatterns(ResolverBase):
         )
 
     def test_custom_urlpattern_and_urlpattern_subproject_with_translations(self):
-        self.pip.urlpattern = "^/prefix/{language}(/({version}(/{filename})?)?)?$"
-        self.pip.urlpattern_subproject = "^/s/{subproject}(/{filename})?$"
+        self.pip.urlpattern = "/prefix/{language}(/({version}(/{filename})?)?)?"
+        self.pip.urlpattern_subproject = "/s/{subproject}(/{filename})?"
         self.pip.save()
 
         url = resolve(self.translation)
@@ -1123,11 +1119,9 @@ class TestResolverWithCustomURLPatterns(ResolverBase):
         )
 
     def test_custom_urlpattern_in_subproject_and_urlpattern_in_superproject(self):
-        self.subproject.urlpattern = (
-            "^/prefix/{language}(/({version}(/{filename})?)?)?$"
-        )
+        self.subproject.urlpattern = "/prefix/{language}(/({version}(/{filename})?)?)?"
         self.subproject.save()
-        self.pip.urlpattern_subproject = "^/s/{subproject}(/{filename})?$"
+        self.pip.urlpattern_subproject = "/s/{subproject}(/{filename})?"
         self.pip.save()
 
         url = resolve(self.subproject)

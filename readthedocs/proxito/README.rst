@@ -51,16 +51,17 @@ For example, the default paths used are:
 
 - Multi version project: ``/<language>/<version>/<filename>``
 - Single version project: ``/<filename>``
-- Subproject: ``/projects/<subproject-alias>/<filename>``
+- Subproject: ``/projects/<subproject-alias>/<subproject-path>``
 
-URL patterns can be used to change these paths per project, with the following attributes:
+URL patterns can be used to change these paths per project,
+with the following Project model attributes:
 
 urlpattern:
    URL pattern to change the path for multi version and single version projects.
 
 urlpattern_subproject:
    URL pattern to change the path up to the subproject alias (the ``/projects`` prefix).
-   To change the pattern of the subproject itself, use ``urlpattern``.
+   To change the pattern of the subproject itself, use ``urlpattern`` on the subproject.
 
 A URL pattern is a regex with replacement fields,
 replacement fields are expanded to define the proper regex and capture groups (components).
@@ -70,11 +71,11 @@ Where to define the custom URL patterns
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To change the URL pattern of a project,
-define the custom URL pattern in the ``urlpattern`` attribute of the project itself,
-or if it's a translation, in the main language project.
+define the custom URL pattern in the ``urlpattern`` attribute of the project itself.
+For a translation, change the main language project ``urlpattern``.
 
 And to change the URL pattern of the subproject prefix (``/projects``),
-define the custom URL pattern in the  ``urlpattern_subproject`` attribute of the parent project.
+define the custom URL pattern in the  ``urlpattern_subproject`` attribute of the super project.
 
 Writing a custom URL pattern
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -87,9 +88,9 @@ Writing a custom URL pattern
 The simplest way to write a custom URL pattern is to start from the default ones,
 and change them as needed.
 
-- Multi version project: ``^/{language}(/({version}(/{filename})?)?)?$``
-- Single version project: ``^/{filename}$``
-- Subproject: ``^/projects/{subproject}(/{filename})?$``
+- Multi version project: ``/{language}(/({version}(/{filename})?)?)?``
+- Single version project: ``/{filename}``
+- Subproject: ``/projects/{subproject}(/{filename})?``
 
 A couple of rules to be followed to avoid unexpected behaviours are:
 
@@ -101,9 +102,7 @@ A couple of rules to be followed to avoid unexpected behaviours are:
 - Make the slashes optional (``/``) at the end of each component when possible,
   this is since a URL is still valid if it doesn't end with a slash
   (proxito will redirecte to the path with the slash when appropriate).
-- Always end the regex with ``$``, so the whole path is matched,
-  not just a part of the path.
-- Starting the regex with ``^`` is optional, since we use ``re.match``.
+- Don't start the pattern with ``^``, or end it with ``$``, this is already added by our code.
 - All paths are guaranteed to start with ``/``, so always start the regex with ``/``.
 - Don't include named groups, character classes (``[]``),
   or anything that can't be used to reconstruct the URL from the pattern
@@ -115,6 +114,10 @@ A couple of rules to be followed to avoid unexpected behaviours are:
   don't overlap (``urlpattern`` and ``urlpattern_subproject``).
   We first try to match the path against ``urlpattern`` and then against ``urlpattern_subproject``,
   if they overlap, we won't be able to serve subprojects.
+
+.. note::
+
+   Some of these rules are validated when saving the project from the admin.
 
 CDN
 ---

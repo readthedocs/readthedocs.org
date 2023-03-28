@@ -16,10 +16,10 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 default=None,
-                help_text="A Python regex pattern used when evaluating a multi version or single version project. For multi version projects it needs to declare the following replacement fields: language, version, and filename. For single version projects it needs to declare the filename replacement field only. The default pattern for multi version projects is: `^/{language}(/({version}(/{filename})?)?)?$`, and for single version projects is: `^/{filename}?$`.",
+                help_text="A Python regex pattern used when serving documentation from the project. For multi version projects it needs to declare the following replacement fields: language, version, and filename. For single version projects it needs to declare the filename replacement field only. The default pattern for multi version projects is: `/{language}(/({version}(/{filename})?)?)?`, and for single version projects is: `/{filename}`.",
                 max_length=255,
                 null=True,
-                verbose_name="Custom URL pattern for multi version and single version projects",
+                verbose_name="Custom URL pattern for serving documentation for the project",
             ),
         ),
         migrations.AddField(
@@ -28,7 +28,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 default=None,
-                help_text="A Python regex pattern used when evaluating the root of a subproject. It needs to declare the following replacement fields: subproject and filename. This pattern will be used to identify the subproject, to change the URL pattern of the subproject itself, change `urlpattern` attribute in the subproject. The default pattern is: `^/projects/{subproject}(/{filename})?$`.",
+                help_text="A Python regex pattern used when evaluating the root of a subproject. It needs to declare the following replacement fields: subproject and filename. This pattern will be used to identify the subproject, to change the URL pattern of the subproject itself, change `urlpattern` attribute in the subproject. The default pattern is: `/projects/{subproject}(/{filename})?`.",
                 max_length=255,
                 null=True,
                 verbose_name="Custom URL pattern for the subproject prefix",
@@ -40,10 +40,10 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 default=None,
-                help_text="A Python regex pattern used when evaluating a multi version or single version project. For multi version projects it needs to declare the following replacement fields: language, version, and filename. For single version projects it needs to declare the filename replacement field only. The default pattern for multi version projects is: `^/{language}(/({version}(/{filename})?)?)?$`, and for single version projects is: `^/{filename}?$`.",
+                help_text="A Python regex pattern used when serving documentation from the project. For multi version projects it needs to declare the following replacement fields: language, version, and filename. For single version projects it needs to declare the filename replacement field only. The default pattern for multi version projects is: `/{language}(/({version}(/{filename})?)?)?`, and for single version projects is: `/{filename}`.",
                 max_length=255,
                 null=True,
-                verbose_name="Custom URL pattern for multi version and single version projects",
+                verbose_name="Custom URL pattern for serving documentation for the project",
             ),
         ),
         migrations.AddField(
@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 default=None,
-                help_text="A Python regex pattern used when evaluating the root of a subproject. It needs to declare the following replacement fields: subproject and filename. This pattern will be used to identify the subproject, to change the URL pattern of the subproject itself, change `urlpattern` attribute in the subproject. The default pattern is: `^/projects/{subproject}(/{filename})?$`.",
+                help_text="A Python regex pattern used when evaluating the root of a subproject. It needs to declare the following replacement fields: subproject and filename. This pattern will be used to identify the subproject, to change the URL pattern of the subproject itself, change `urlpattern` attribute in the subproject. The default pattern is: `/projects/{subproject}(/{filename})?`.",
                 max_length=255,
                 null=True,
                 verbose_name="Custom URL pattern for the subproject prefix",

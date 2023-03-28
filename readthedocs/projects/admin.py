@@ -1,5 +1,6 @@
 """Django administration interface for `projects.models`."""
 
+from django import forms
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.actions import delete_selected
@@ -10,6 +11,10 @@ from django.utils.translation import gettext_lazy as _
 from readthedocs.builds.models import Version
 from readthedocs.core.history import ExtraSimpleHistoryAdmin, set_change_reason
 from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils.urlpattern import (
+    validate_urlpattern,
+    validate_urlpattern_subproject,
+)
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
 from readthedocs.search.utils import _indexing_helper
@@ -228,10 +233,23 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
         return queryset
 
 
+class ProjectAdminForm(forms.ModelForm):
+    def clean_urlpattern(self):
+        urlpattern = self.cleaned_data.get("urlpattern")
+        validate_urlpattern(self.instance, urlpattern=urlpattern)
+        return urlpattern
+
+    def clean_urlpattern_subproject(self):
+        urlpattern = self.cleaned_data.get("urlpattern_subproject")
+        validate_urlpattern_subproject(self.instance, urlpattern=urlpattern)
+        return urlpattern
+
+
 class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
     """Project model admin view."""
 
+    form = ProjectAdminForm
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('name', 'slug', 'repo')
 

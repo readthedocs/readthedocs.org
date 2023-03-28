@@ -231,17 +231,17 @@ class Project(models.Model):
     )
 
     urlpattern = models.CharField(
-        _("Custom URL pattern for multi version and single version projects"),
+        _("Custom URL pattern for serving documentation for the project"),
         max_length=255,
         default=None,
         blank=True,
         null=True,
         help_text=_(
-            "A Python regex pattern used when evaluating a multi version or single version project. "  # noqa
+            "A Python regex pattern used when serving documentation from the project. "  # noqa
             "For multi version projects it needs to declare the following replacement fields: language, version, and filename. "  # noqa
             "For single version projects it needs to declare the filename replacement field only. "
-            "The default pattern for multi version projects is: `^/{language}(/({version}(/{filename})?)?)?$`, "  # noqa
-            "and for single version projects is: `^/{filename}?$`."
+            "The default pattern for multi version projects is: `/{language}(/({version}(/{filename})?)?)?`, "  # noqa
+            "and for single version projects is: `/{filename}`."
         ),
     )
     urlpattern_subproject = models.CharField(
@@ -255,7 +255,7 @@ class Project(models.Model):
             "It needs to declare the following replacement fields: subproject and filename. "
             "This pattern will be used to identify the subproject, to change "
             "the URL pattern of the subproject itself, change `urlpattern` attribute in the subproject. "  # noqa
-            "The default pattern is: `^/projects/{subproject}(/{filename})?$`."
+            "The default pattern is: `/projects/{subproject}(/{filename})?`."
         ),
     )
 

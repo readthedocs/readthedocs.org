@@ -139,7 +139,7 @@ class Unresolver:
     multiversion_pattern = urlpattern_to_regex(
         # The path must have a language slug,
         # optionally a version slug followed by a filename.
-        "^/{language}(/({version}(/{filename})?)?)?$"
+        "/{language}(/({version}(/{filename})?)?)?"
     )
 
     # This pattern matches:
@@ -150,7 +150,7 @@ class Unresolver:
         # The path must have the `projects` prefix,
         # followed by the subproject alias,
         # optionally a filename, which will be recursively resolved.
-        "^/projects/{subproject}(/{filename})?$"
+        "/projects/{subproject}(/{filename})?"
     )
 
     def unresolve_url(self, url, append_indexhtml=True):
