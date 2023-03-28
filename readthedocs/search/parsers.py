@@ -171,7 +171,7 @@ class GenericParser:
                         "content": content,
                     }
                 except Exception as e:
-                    log.info("Unable to index dt section.", section=str(e))
+                    log.info("Unable to index dt section.", exc_info=True)
 
         # Remove the <dl> nodes that were found to have indexed content
         for node in dl_nodes_to_be_removed:

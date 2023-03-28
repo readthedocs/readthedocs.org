@@ -143,13 +143,13 @@ Sections are stored in a dictionary composed of an ``id``, ``title`` and ``conte
 Sections are defined as:
 
 * ``h1-h7``, all content between one heading level and the next header on the same level is used as content for that section.
-* ``dt`` elements with an ``id attribute`` map the ``title`` to the ``dt`` element and the content to the ``dd`` element.
+* ``dt`` elements with an ``id`` attribute, we map the ``title`` to the ``dt`` element and the content to the ``dd`` element.
 
 All sections have to be identified by a DOM container's ``id`` attribute,
 which will be used to link to the section.
 How the id is detected varies with the type of element:
 
-* ``h1-h7`` elements try the ``id`` attribute of the header itself or
+* ``h1-h7`` elements use the ``id`` attribute of the header itself if present, or
   its ``section`` parent (if exists).
 * ``dt`` elements use the ``id`` attribute of the ``dt`` element.
 
