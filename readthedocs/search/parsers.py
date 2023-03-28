@@ -191,7 +191,7 @@ class GenericParser:
                         "content": content,
                     }
                 except Exception as e:
-                    log.info("Unable to index section.", section=str(e))
+                    log.info("Unable to index section.", exc_info=True)
 
     def _parse_dt(self, tag):
         """
@@ -225,7 +225,7 @@ class GenericParser:
         Removes nodes with irrelevant content before parsing its sections.
 
         This method is documented here:
-        https://dev.readthedocs.io/en/latest/search-integration.html#irrelevant-content
+        https://dev.readthedocs.io/page/search-integration.html#irrelevant-content
 
         .. warning::
 
@@ -238,7 +238,8 @@ class GenericParser:
             body.css('[role=search]'),
             # Permalinks
             body.css('.headerlink'),
-            # Sphinx code blocks contain line numbers and they are very noisy in contents
+            # Line numbers from code blocks, they are very noisy in contents.
+            # This convention is popular in Sphinx.
             body.css(".linenos"),
             body.css(".lineno"),
         )
@@ -485,7 +486,7 @@ class SphinxParser(GenericParser):
             "path": path,
             "title": title,
             "sections": sections,
-            # this used to contain content from <dl> but this is now handled in a generic parser
+            # This used to contain content from <dl> nodes, but they are now handled in the generic parser as sections.
             "domain_data": {},
         }
 
