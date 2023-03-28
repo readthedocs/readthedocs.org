@@ -279,6 +279,9 @@ class TestBuildTask(BuildEnvironmentBase):
             "READTHEDOCS_OUTPUT": os.path.join(
                 self.project.checkout_path(self.version.slug), "_readthedocs/"
             ),
+            "READTHEDOCS_GIT_CLONE_URL": self.project.repo,
+            "READTHEDOCS_GIT_IDENTIFIER": self.version.identifier,
+            "READTHEDOCS_GIT_COMMIT_HASH": self.build.commit,
         }
 
         self._trigger_update_docs_task()
@@ -301,6 +304,11 @@ class TestBuildTask(BuildEnvironmentBase):
             # Local and Circle are different values.
             # We only check it's present, but not its value.
             READTHEDOCS_VIRTUALENV_PATH=mock.ANY,
+            READTHEDOCS_CANONICAL_URL=self.project.get_docs_url(
+                lang_slug=self.project.language,
+                version_slug=self.version.slug,
+                external=external,
+            ),
         )
         if not external:
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
