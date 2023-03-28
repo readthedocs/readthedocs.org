@@ -39,10 +39,10 @@ Real-life examples
 
 .. image:: _static/images/awesome-list.svg
   :alt: Awesome List badge
-  :target: https://github.com/readthedocs-examples/
+  :target: https://github.com/readthedocs-examples/awesome-read-the-docs
 
 We maintain an **Awesome List** where you can contribute new shiny examples of using Read the Docs.
-Please refer to the instructions on how to submit new entries on `Awesome Read the Docs Projects <https://github.com/readthedocs-examples/>`_.
+Please refer to the instructions on how to submit new entries on `Awesome Read the Docs Projects <https://github.com/readthedocs-examples/awesome-read-the-docs>`__.
 
 
 Contributing an example project

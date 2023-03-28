@@ -16,6 +16,7 @@ from readthedocs.projects.models import Project
 @override_settings(
     PUBLIC_DOMAIN="dev.readthedocs.io",
     PUBLIC_DOMAIN_USES_HTTPS=True,
+    GLOBAL_ANALYTICS_CODE=None,
 )
 @pytest.mark.proxito
 class TestReadTheDocsConfigJson(TestCase):
@@ -117,6 +118,16 @@ class TestReadTheDocsConfigJson(TestCase):
                         "branch": self.version.identifier,
                         "filepath": "/docs/index.rst",
                     },
+                },
+                "search": {
+                    "api_endpoint": "/_/api/v3/search/",
+                    "default_filter": "subprojects:project/latest",
+                    "filters": [
+                        ["Search only in this project", "project:project/latest"],
+                        ["Search subprojects", "subprojects:project/latest"],
+                    ],
+                    "project": "project",
+                    "version": "latest",
                 },
             },
         }
