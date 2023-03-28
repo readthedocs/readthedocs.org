@@ -229,7 +229,9 @@ class RedirectTests(BaseDocServing):
 
     # Specific Page Redirects
     def test_proper_page_on_subdomain(self):
-        r = self.client.get('/page/test.html', HTTP_HOST='project.dev.readthedocs.io')
+        r = self.client.get(
+            "/page/test.html", secure=True, HTTP_HOST="project.dev.readthedocs.io"
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'],
@@ -240,35 +242,35 @@ class RedirectTests(BaseDocServing):
         host = 'project.dev.readthedocs.io'
 
         url = '/en/latest////awesome.html'
-        resp = self.client.get(url, HTTP_HOST=host)
+        resp = self.client.get(url, secure=True, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome.html',
         )
 
         url = '/en/latest////awesome.html'
-        resp = self.client.get(url, HTTP_HOST=host)
+        resp = self.client.get(url, secure=True, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome.html',
         )
 
         url = '/en/latest////awesome///index.html'
-        resp = self.client.get(url, HTTP_HOST=host)
+        resp = self.client.get(url, secure=True, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome/index.html',
         )
 
         url = '/en/latest////awesome///index.html?foo=bar'
-        resp = self.client.get(url, HTTP_HOST=host)
+        resp = self.client.get(url, secure=True, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome/index.html?foo=bar',
         )
 
         url = '/en/latest////awesome///'
-        resp = self.client.get(url, HTTP_HOST=host)
+        resp = self.client.get(url, secure=True, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome/',
@@ -276,7 +278,7 @@ class RedirectTests(BaseDocServing):
 
         # Don't change the values of params
         url = '/en/latest////awesome///index.html?foo=bar//bas'
-        resp = self.client.get(url, HTTP_HOST=host)
+        resp = self.client.get(url, secure=True, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome/index.html?foo=bar//bas',
