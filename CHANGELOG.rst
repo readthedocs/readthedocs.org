@@ -1,3 +1,27 @@
+Version 9.10.0
+--------------
+
+:Date: March 28, 2023
+
+* `@stsewd <https://github.com/stsewd>`__: Docs: test new search extension release (`#10197 <https://github.com/readthedocs/readthedocs.org/pull/10197>`__)
+* `@humitos <https://github.com/humitos>`__: Javascript client: search-as-you-type API response (`#10196 <https://github.com/readthedocs/readthedocs.org/pull/10196>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10192 <https://github.com/readthedocs/readthedocs.org/pull/10192>`__)
+* `@agjohnson <https://github.com/agjohnson>`__:  Filters: several bug fixes and some filter tuning (`#10191 <https://github.com/readthedocs/readthedocs.org/pull/10191>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Make our homepage conditional on the new dashboard (`#10189 <https://github.com/readthedocs/readthedocs.org/pull/10189>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Changes to main index page (Diátaxis) (`#10186 <https://github.com/readthedocs/readthedocs.org/pull/10186>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: allow serving files under the projects dir (`#10180 <https://github.com/readthedocs/readthedocs.org/pull/10180>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: test redirects with projects prefix (`#10179 <https://github.com/readthedocs/readthedocs.org/pull/10179>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: refactor project download view (`#10178 <https://github.com/readthedocs/readthedocs.org/pull/10178>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#10177 <https://github.com/readthedocs/readthedocs.org/pull/10177>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Removal of implicit Intersphinx reference labels to MyST-based documentation (`#10176 <https://github.com/readthedocs/readthedocs.org/pull/10176>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: fix API call to version.patch() (`#10175 <https://github.com/readthedocs/readthedocs.org/pull/10175>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Replace nvm/asdf with native CircleCI node installation (`#10174 <https://github.com/readthedocs/readthedocs.org/pull/10174>`__)
+* `@humitos <https://github.com/humitos>`__: Build: hardcode the Docker username for now (`#10172 <https://github.com/readthedocs/readthedocs.org/pull/10172>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 9.9.1 (`#10169 <https://github.com/readthedocs/readthedocs.org/pull/10169>`__)
+* `@humitos <https://github.com/humitos>`__: Build: expose VCS-related environment variables (`#10168 <https://github.com/readthedocs/readthedocs.org/pull/10168>`__)
+* `@humitos <https://github.com/humitos>`__: Build: export READTHEDOCS_CANONICAL_URL variable (`#10166 <https://github.com/readthedocs/readthedocs.org/pull/10166>`__)
+* `@humitos <https://github.com/humitos>`__: Project: only support Git as VCS for new projects (`#10114 <https://github.com/readthedocs/readthedocs.org/pull/10114>`__)
+
 Version 9.9.1
 -------------
 
