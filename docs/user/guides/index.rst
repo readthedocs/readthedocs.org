@@ -10,3 +10,8 @@ and how to write successful documentation.
 .. tip::
    We recommend looking through the list,
    maybe there is a guide you hadn't looked for?
+
+.. toctree::
+   :glob:
+
+   */index
