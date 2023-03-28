@@ -673,6 +673,43 @@ class ProxitoV2UserRedirectTests(UserRedirectTests):
             future_default_true=True,
         )
 
+    def test_redirect_using_projects_prefix(self):
+        """
+        Test that we can support redirects using the ``/projects/`` prefix.
+
+        https://github.com/readthedocs/readthedocs.org/issues/7552
+        """
+        redirect = fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/projects/$rest",
+            to_url="https://example.com/projects/",
+        )
+        self.assertEqual(self.project.redirects.count(), 1)
+        r = self.client.get(
+            "/projects/deleted-subproject/en/latest/guides/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "https://example.com/projects/deleted-subproject/en/latest/guides/install.html",
+        )
+
+        redirect.from_url = "/projects/not-found/$rest"
+        redirect.to_url = "/projects/subproject/"
+        redirect.save()
+        r = self.client.get(
+            "/projects/not-found/en/latest/guides/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/projects/subproject/en/latest/guides/install.html",
+        )
+
 
 @override_settings(PUBLIC_DOMAIN="dev.readthedocs.io")
 class UserForcedRedirectTests(BaseDocServing):

@@ -574,6 +574,12 @@ class BuildDirector:
             "READTHEDOCS_OUTPUT": os.path.join(
                 self.data.project.checkout_path(self.data.version.slug), "_readthedocs/"
             ),
+            "READTHEDOCS_GIT_CLONE_URL": self.data.project.repo,
+            # TODO: we don't have access to the database from the builder.
+            # We need to find a way to expose HTML_URL here as well.
+            # "READTHEDOCS_GIT_HTML_URL": self.data.project.remote_repository.html_url,
+            "READTHEDOCS_GIT_IDENTIFIER": self.data.version.identifier,
+            "READTHEDOCS_GIT_COMMIT_HASH": self.data.build["commit"],
         }
         return env
 
