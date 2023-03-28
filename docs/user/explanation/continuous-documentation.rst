@@ -49,6 +49,8 @@ The matching project will then process your build and publish the documentation.
 Continuous Documentation for software projects
 ----------------------------------------------
 
+.. TODO: This should be improved
+
 Documentation fits into any CI/CD pipeline by following a process known as *Documentation as Code (Docs as code)*.
 The primary method of doing this is by maintaining documentation alongside the source code,
 meaning that the documentation's life cycle is the same as your software project.
