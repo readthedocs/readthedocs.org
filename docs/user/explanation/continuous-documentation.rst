@@ -19,8 +19,13 @@ The Continuous Integration and Continuous Deployment (CI/CD) features are config
 such as GitHub, Bitbucket or GitLab.
 With each change committed to your repository, we are notified by the configured :term:`webhook <webhooks>`.
 
-When a receive a *webhook* notification, we match it to a project's *Integration*.
-When a webhook is received, the matching project will then process your setup and publish the documentation.
+When a receive a *webhook* notification, we match it to a Read the Docs project.
+The matching project will then process your build and publish the documentation.
+
+.. seealso::
+
+   :doc:`/builds`
+      Read more about the technical specification of the Build process and how you configure it.
 
 .. The short version
 .. -----------------
