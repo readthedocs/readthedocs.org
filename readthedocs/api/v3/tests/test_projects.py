@@ -30,30 +30,30 @@ class ProjectsEndpointTests(APIEndpointMixin):
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_projects_list_privacy_levels_enabled(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(
-            reverse('projects-list'),
+            reverse("projects-list"),
         )
         self.assertEqual(response.status_code, 200)
-        expected = self._get_response_dict('projects-list')
-        expected['results'][0]['privacy_level'] = 'public'
-        expected['results'][0]['external_builds_privacy_level'] = 'public'
+        expected = self._get_response_dict("projects-list")
+        expected["results"][0]["privacy_level"] = "public"
+        expected["results"][0]["external_builds_privacy_level"] = "public"
         self.assertDictEqual(response.json(), expected)
 
-        self.project.privacy_level = 'private'
-        self.project.external_builds_privacy_level = 'private'
+        self.project.privacy_level = "private"
+        self.project.external_builds_privacy_level = "private"
         self.project.save()
         response = self.client.get(
-            reverse('projects-list'),
+            reverse("projects-list"),
         )
         self.assertEqual(response.status_code, 200)
-        expected = self._get_response_dict('projects-list')
-        expected['results'][0]['privacy_level'] = 'private'
-        expected['results'][0]['external_builds_privacy_level'] = 'private'
+        expected = self._get_response_dict("projects-list")
+        expected["results"][0]["privacy_level"] = "private"
+        expected["results"][0]["external_builds_privacy_level"] = "private"
         response = response.json()
         # We don't care about the modified date.
-        expected['results'][0].pop('modified')
-        response['results'][0].pop('modified')
+        expected["results"][0].pop("modified")
+        response["results"][0].pop("modified")
         self.assertDictEqual(response, expected)
 
     def test_projects_list_filter_full_hit(self):
@@ -123,18 +123,19 @@ class ProjectsEndpointTests(APIEndpointMixin):
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_own_projects_detail_privacy_levels_enabled(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(
             reverse(
-                'projects-detail',
+                "projects-detail",
                 kwargs={
-                    'project_slug': self.project.slug,
-                }),
+                    "project_slug": self.project.slug,
+                },
+            ),
             {
-                'expand': (
-                    'active_versions,'
-                    'active_versions.last_build,'
-                    'active_versions.last_build.config'
+                "expand": (
+                    "active_versions,"
+                    "active_versions.last_build,"
+                    "active_versions.last_build.config"
                 ),
             },
         )
@@ -148,20 +149,21 @@ class ProjectsEndpointTests(APIEndpointMixin):
             expected,
         )
 
-        self.project.privacy_level = 'private'
-        self.project.external_builds_privacy_level = 'private'
+        self.project.privacy_level = "private"
+        self.project.external_builds_privacy_level = "private"
         self.project.save()
         response = self.client.get(
             reverse(
-                'projects-detail',
+                "projects-detail",
                 kwargs={
-                    'project_slug': self.project.slug,
-                }),
+                    "project_slug": self.project.slug,
+                },
+            ),
             {
-                'expand': (
-                    'active_versions,'
-                    'active_versions.last_build,'
-                    'active_versions.last_build.config'
+                "expand": (
+                    "active_versions,"
+                    "active_versions.last_build,"
+                    "active_versions.last_build.config"
                 ),
             },
         )
@@ -172,8 +174,8 @@ class ProjectsEndpointTests(APIEndpointMixin):
         expected["active_versions"][0]["privacy_level"] = "public"
         response = response.json()
         # We don't care about the modified date.
-        expected.pop('modified')
-        response.pop('modified')
+        expected.pop("modified")
+        response.pop("modified")
         self.assertDictEqual(response, expected)
 
     def test_projects_superproject(self):
@@ -466,16 +468,16 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 403)
 
     def test_partial_update_project_privacy_levels_disabled(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         data = {
-            'privacy_level': 'private',
+            "privacy_level": "private",
             "external_builds_privacy_level": "private",
         }
         response = self.client.patch(
             reverse(
-                'projects-detail',
+                "projects-detail",
                 kwargs={
-                    'project_slug': self.project.slug,
+                    "project_slug": self.project.slug,
                 },
             ),
             data,
@@ -488,16 +490,16 @@ class ProjectsEndpointTests(APIEndpointMixin):
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_partial_update_project_privacy_levels_enabled(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         data = {
-            'privacy_level': 'private',
+            "privacy_level": "private",
             "external_builds_privacy_level": "private",
         }
         response = self.client.patch(
             reverse(
-                'projects-detail',
+                "projects-detail",
                 kwargs={
-                    'project_slug': self.project.slug,
+                    "project_slug": self.project.slug,
                 },
             ),
             data,

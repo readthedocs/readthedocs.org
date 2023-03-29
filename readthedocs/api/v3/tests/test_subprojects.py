@@ -1,7 +1,7 @@
+from django.test import override_settings
 from django.urls import reverse
 
 from .mixins import APIEndpointMixin
-from django.test import override_settings
 
 
 @override_settings(
