@@ -1,11 +1,11 @@
 from unittest import mock
 
 import django_dynamic_fixture as fixture
+from django.test import override_settings
 from django.urls import reverse
 
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import Project
-from django.test import override_settings
 
 from .mixins import APIEndpointMixin
 
@@ -139,9 +139,10 @@ class ProjectsEndpointTests(APIEndpointMixin):
             },
         )
         self.assertEqual(response.status_code, 200)
-        expected = self._get_response_dict('projects-detail')
-        expected['privacy_level'] = 'public'
-        expected['external_builds_privacy_level'] = 'public'
+        expected = self._get_response_dict("projects-detail")
+        expected["privacy_level"] = "public"
+        expected["external_builds_privacy_level"] = "public"
+        expected["active_versions"][0]["privacy_level"] = "public"
         self.assertDictEqual(
             response.json(),
             expected,
@@ -165,9 +166,10 @@ class ProjectsEndpointTests(APIEndpointMixin):
             },
         )
         self.assertEqual(response.status_code, 200)
-        expected = self._get_response_dict('projects-detail')
-        expected['privacy_level'] = 'private'
-        expected['external_builds_privacy_level'] = 'private'
+        expected = self._get_response_dict("projects-detail")
+        expected["privacy_level"] = "private"
+        expected["external_builds_privacy_level"] = "private"
+        expected["active_versions"][0]["privacy_level"] = "public"
         response = response.json()
         # We don't care about the modified date.
         expected.pop('modified')

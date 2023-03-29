@@ -277,6 +277,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
             'downloads',
             'urls',
             '_links',
+            "privacy_level",
         ]
 
         expandable_fields = {
@@ -284,6 +285,14 @@ class VersionSerializer(FlexFieldsModelSerializer):
                 BuildSerializer,
             )
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # If privacy levels are not allowed,
+        # everything is public, we don't allow changing it.
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("privacy_level")
 
     def get_downloads(self, obj):
         downloads = obj.get_downloads()
@@ -314,7 +323,16 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
         fields = [
             'active',
             'hidden',
+            "privacy_level",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # If privacy levels are not allowed,
+        # everything is public, we don't allow changing it.
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("privacy_level")
 
 
 class LanguageSerializer(serializers.Serializer):
@@ -674,7 +692,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         # so is easier to test.
         if settings.RTD_ALLOW_ORGANIZATIONS:
             self.fields.pop("users", None)
-        
+
         # If privacy levels are not allowed,
         # everything is public, we don't allow changing it.
         if not settings.ALLOW_PRIVATE_REPOS:
