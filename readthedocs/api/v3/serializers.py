@@ -565,10 +565,20 @@ class ProjectUpdateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
             'show_version_warning',
             'single_version',
             'external_builds_enabled',
+            "privacy_level",
+            "external_builds_privacy_level",
 
             # NOTE: we do not allow to change any setting that can be set via
             # the YAML config file.
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If privacy levels are not allowed,
+        # everything is public, we don't allow changing it.
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("privacy_level")
+            self.fields.pop("external_builds_privacy_level")
 
 
 class ProjectUpdateSerializer(SettingsOverrideObject):
@@ -622,6 +632,8 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             'translation_of',
             'urls',
             'tags',
+            "privacy_level",
+            "external_builds_privacy_level",
 
             # NOTE: ``expandable_fields`` must not be included here. Otherwise,
             # they will be tried to be rendered and fail
@@ -662,6 +674,12 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         # so is easier to test.
         if settings.RTD_ALLOW_ORGANIZATIONS:
             self.fields.pop("users", None)
+        
+        # If privacy levels are not allowed,
+        # everything is public, we don't allow changing it.
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("privacy_level")
+            self.fields.pop("external_builds_privacy_level")
 
     def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``

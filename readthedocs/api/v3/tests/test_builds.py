@@ -4,7 +4,12 @@ from django.urls import reverse
 
 from .mixins import APIEndpointMixin
 
+from django.test import override_settings
 
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=False,
+    ALLOW_PRIVATE_REPOS=False,
+)
 @mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class BuildsEndpointTests(APIEndpointMixin):
 

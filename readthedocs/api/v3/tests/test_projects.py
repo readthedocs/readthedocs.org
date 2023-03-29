@@ -5,10 +5,15 @@ from django.urls import reverse
 
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import Project
+from django.test import override_settings
 
 from .mixins import APIEndpointMixin
 
 
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=False,
+    ALLOW_PRIVATE_REPOS=False,
+)
 @mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class ProjectsEndpointTests(APIEndpointMixin):
 
@@ -22,6 +27,34 @@ class ProjectsEndpointTests(APIEndpointMixin):
             response.json(),
             self._get_response_dict('projects-list'),
         )
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_projects_list_privacy_levels_enabled(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse('projects-list'),
+        )
+        self.assertEqual(response.status_code, 200)
+        expected = self._get_response_dict('projects-list')
+        expected['results'][0]['privacy_level'] = 'public'
+        expected['results'][0]['external_builds_privacy_level'] = 'public'
+        self.assertDictEqual(response.json(), expected)
+
+        self.project.privacy_level = 'private'
+        self.project.external_builds_privacy_level = 'private'
+        self.project.save()
+        response = self.client.get(
+            reverse('projects-list'),
+        )
+        self.assertEqual(response.status_code, 200)
+        expected = self._get_response_dict('projects-list')
+        expected['results'][0]['privacy_level'] = 'private'
+        expected['results'][0]['external_builds_privacy_level'] = 'private'
+        response = response.json()
+        # We don't care about the modified date.
+        expected['results'][0].pop('modified')
+        response['results'][0].pop('modified')
+        self.assertDictEqual(response, expected)
 
     def test_projects_list_filter_full_hit(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
@@ -87,6 +120,59 @@ class ProjectsEndpointTests(APIEndpointMixin):
             response.json(),
             self._get_response_dict('projects-detail'),
         )
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_own_projects_detail_privacy_levels_enabled(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        response = self.client.get(
+            reverse(
+                'projects-detail',
+                kwargs={
+                    'project_slug': self.project.slug,
+                }),
+            {
+                'expand': (
+                    'active_versions,'
+                    'active_versions.last_build,'
+                    'active_versions.last_build.config'
+                ),
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        expected = self._get_response_dict('projects-detail')
+        expected['privacy_level'] = 'public'
+        expected['external_builds_privacy_level'] = 'public'
+        self.assertDictEqual(
+            response.json(),
+            expected,
+        )
+
+        self.project.privacy_level = 'private'
+        self.project.external_builds_privacy_level = 'private'
+        self.project.save()
+        response = self.client.get(
+            reverse(
+                'projects-detail',
+                kwargs={
+                    'project_slug': self.project.slug,
+                }),
+            {
+                'expand': (
+                    'active_versions,'
+                    'active_versions.last_build,'
+                    'active_versions.last_build.config'
+                ),
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        expected = self._get_response_dict('projects-detail')
+        expected['privacy_level'] = 'private'
+        expected['external_builds_privacy_level'] = 'private'
+        response = response.json()
+        # We don't care about the modified date.
+        expected.pop('modified')
+        response.pop('modified')
+        self.assertDictEqual(response, expected)
 
     def test_projects_superproject(self):
         self._create_subproject()
@@ -376,3 +462,46 @@ class ProjectsEndpointTests(APIEndpointMixin):
             data,
         )
         self.assertEqual(response.status_code, 403)
+
+    def test_partial_update_project_privacy_levels_disabled(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        data = {
+            'privacy_level': 'private',
+            "external_builds_privacy_level": "private",
+        }
+        response = self.client.patch(
+            reverse(
+                'projects-detail',
+                kwargs={
+                    'project_slug': self.project.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 204)
+
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.privacy_level, "public")
+        self.assertEqual(self.project.external_builds_privacy_level, "public")
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_partial_update_project_privacy_levels_enabled(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        data = {
+            'privacy_level': 'private',
+            "external_builds_privacy_level": "private",
+        }
+        response = self.client.patch(
+            reverse(
+                'projects-detail',
+                kwargs={
+                    'project_slug': self.project.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 204)
+
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.privacy_level, "private")
+        self.assertEqual(self.project.external_builds_privacy_level, "private")
