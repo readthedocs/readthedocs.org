@@ -1,22 +1,25 @@
 """Documentation Builder Environments."""
 
+import io
 import os
 import re
 import subprocess
 import sys
+import tarfile
+import time
 import uuid
 from datetime import datetime
 
 import structlog
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError, ReadTimeout  # noqa
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
+from docker import APIClient
 from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
@@ -302,57 +305,11 @@ class DockerBuildCommand(BuildCommand):
         self.start_time = datetime.utcnow()
         client = self.build_env.get_client()
 
-        # Create a copy of the environment to update PATH variable
-        environment = self._environment.copy()
-        # Default PATH variable
-        # This default comes from our Docker image:
-        #
-        # $ docker run --user docs -it --rm readthedocs/build:ubuntu-22.04 /bin/bash
-        # docs@bfe702e31cdd:~$ echo $PATH
-        # /home/docs/.asdf/shims:/home/docs/.asdf/bin
-        #  :/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-        # docs@bfe702e31cdd:~$
-        #
-        # On old Docker images we have different PATH:
-        #
-        # $ sudo docker run -it readthedocs/build:latest /bin/bash
-        # docs@656e38a30fa4:/$ echo $PATH
-        # /home/docs/.pyenv/shims:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/docs/.conda/bin:/home/docs/.pyenv/bin
-        # docs@656e38a30fa4:/$
-        default_paths = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-        if self.build_env.container_image in (
-            "readthedocs/build:ubuntu-22.04",
-            "readthedocs/build:ubuntu-20.04",
-        ):
-            # Use ASDF path for newer images
-            python_paths = "/home/docs/.asdf/shims:/home/docs/.asdf/bin"
-            paths = f"{python_paths}:{default_paths}"
-
-            # On local development, we are using root user
-            if settings.RTD_DOCKER_COMPOSE:
-                paths = paths.replace("/home/docs/", "/root/")
-        else:
-            # Use PYENV for older images
-            paths = (
-                "/home/docs/.pyenv/shims:/home/docs/.cargo/bin"
-                f":{default_paths}:"
-                "/home/docs/.conda/bin:/home/docs/.pyenv/bin"
-            )
-        environment["PATH"] = paths
-
-        # Prepend the BIN_PATH if it's defined
-        if self.bin_path:
-            original_path = environment.get("PATH")
-            escaped_bin_path = self._escape_command(self.bin_path)
-            environment["PATH"] = escaped_bin_path
-            if original_path:
-                environment["PATH"] = f"{escaped_bin_path}:{original_path}"
-
         try:
             exec_cmd = client.exec_create(
                 container=self.build_env.container_id,
-                cmd=self.get_wrapped_command(),
-                environment=environment,
+                cmd=self.dump_and_get_final_command(),
+                environment=self._environment,
                 user=self.user,
                 workdir=self.cwd,
                 stdout=True,
@@ -400,23 +357,6 @@ class DockerBuildCommand(BuildCommand):
         finally:
             self.end_time = datetime.utcnow()
 
-    def get_wrapped_command(self):
-        """
-        Wrap command in a shell and optionally escape special bash characters.
-
-        Some characters will be interpreted as shell characters without
-        escaping, such as: ``pip install requests<0.8``. When passing
-        ``escape_command=True`` in the init method this escapes a good majority
-        of those characters.
-        """
-        command = (
-            ' '.join(
-                self._escape_command(part) if self.escape_command else part
-                for part in self.command
-            )
-        )
-        return f"/bin/bash -c '{command}'"
-
     def _escape_command(self, cmd):
         r"""Escape the command by prefixing suspicious chars with `\`."""
         command = self.bash_escape_re.sub(r"\\\1", cmd)
@@ -431,6 +371,44 @@ class DockerBuildCommand(BuildCommand):
         for variable in not_escape_variables:
             command = command.replace(f"\\${variable}", f"${variable}")
         return command
+
+    def dump_and_get_final_command(self):
+        """
+        Dump the command into a shell script and return the correct command to execute.
+
+        Create a shell script file called `/readthedocs.sh` with the content of
+        the command to be executed by the Docker container.
+        This file includes an extra binary PATH in case we are running
+        Python/Conda/Mamba/etc binaries.
+
+        We dump the command into a particular shell script to allow running multi-line commands
+        in ``build.jobs`` and ``build.commands``.
+        """
+        bin_path = f"{self.bin_path}:" if self.bin_path else ""
+        command = " ".join(
+            self._escape_command(part) if self.escape_command else part
+            for part in self.command
+        )
+        script_content = f"""
+#!/bin/bash
+
+export PATH={bin_path}$PATH
+{command}
+"""
+        tarstream = io.BytesIO()
+        tar = tarfile.TarFile(fileobj=tarstream, mode="w")
+        script_data = script_content.encode("utf8")
+        tarinfo = tarfile.TarInfo(name="readthedocs.sh")
+        tarinfo.size = len(script_data)
+        tarinfo.mtime = time.time()
+        tar.addfile(tarinfo, io.BytesIO(script_data))
+        tar.close()
+        tarstream.seek(0)
+
+        client = self.build_env.get_client()
+        client.put_archive(self.build_env.container_id, "/", tarstream)
+
+        return "/bin/bash /readthedocs.sh"
 
 
 class BaseEnvironment:
