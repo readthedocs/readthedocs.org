@@ -280,7 +280,7 @@ class ServeDocsMixin:
         log.debug('Unauthorized access to documentation.', project_slug=project.slug)
         return res
 
-    def allowed_user(self, *args, **kwargs):
+    def allowed_user(self, request, version):
         return True
 
     def get_version_from_host(self, request, version_slug):
