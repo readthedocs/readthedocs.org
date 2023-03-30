@@ -205,7 +205,7 @@
     {
       "id": "configuration",
       "title": "Configuration",
-      "content": "There are also config values that you can set: suppress_warnings autodoc supports to suppress warning messages via suppress_warnings. It allows following warnings types in addition: autodoc autodoc.import_object"
+      "content": "There are also config values that you can set:"
     },
     {
       "id": "docstring-preprocessing",

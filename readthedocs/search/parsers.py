@@ -144,7 +144,6 @@ class GenericParser:
         # After indexing them, we remove them from the body such that their contents aren't
         # repeated in the following indexing
         dls = body.css("dl")
-        dl_nodes_to_be_removed = []
         for dl in dls:
             # Select all dts with id defined
             dts = dl.css('dt[id]:not([id=""])')
@@ -153,8 +152,6 @@ class GenericParser:
             # multiple <dt> elements in a row indicate several terms that are
             # all defined by the immediate next <dd> element.
             for dt in dts:
-                if dl not in dl_nodes_to_be_removed:
-                    dl_nodes_to_be_removed.append(dl)
                 try:
                     title, _id = self._parse_dt(dt)
                     # https://developer.mozilla.org/en-US/docs/Web/CSS/General_sibling_combinator
@@ -170,17 +167,22 @@ class GenericParser:
                         "title": title,
                         "content": content,
                     }
-                except Exception as e:
+                except Exception:
                     log.info("Unable to index dt section.", exc_info=True)
 
-        # Remove the <dl> nodes that were found to have indexed content
-        for node in dl_nodes_to_be_removed:
-            node.decompose()
+            # Remove the <dl> node
+            # There isn't a clear indication if this behavior is DFS or BFS
+            dl.decompose()
 
+        # This is pattern is intended for a future generic scenario
+        # We could include the <dl> pattern in _is_section etc. instead of having the above
+        # <dl> block
+        outer_sections = []
         # Index content from h1 to h6 headers.
         for head_level in range(1, 7):
-            tags = body.css(f"h{head_level}")
-            for tag in tags:
+            outer_sections.append(body.css(f"h{head_level}"))
+        for section in outer_sections:
+            for tag in section:
                 try:
                     title, _id = self._parse_section_title(tag)
                     next_tag = self._get_header_container(tag).next
@@ -190,7 +192,7 @@ class GenericParser:
                         "title": title,
                         "content": content,
                     }
-                except Exception as e:
+                except Exception:
                     log.info("Unable to index section.", exc_info=True)
 
     def _parse_dt(self, tag):
@@ -486,8 +488,7 @@ class SphinxParser(GenericParser):
             "path": path,
             "title": title,
             "sections": sections,
-            # This used to contain content from <dl> nodes, but they are now handled in the generic parser as sections.
-            "domain_data": {},
+            "domain_data": {},  # deprecated
         }
 
     def _clean_body(self, body):
