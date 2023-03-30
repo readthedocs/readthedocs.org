@@ -174,12 +174,8 @@ class GenericParser:
             # There isn't a clear indication if this behavior is DFS or BFS
             dl.decompose()
 
-        # This is pattern is intended for a future generic scenario
-        # We could include the <dl> pattern in _is_section etc. instead of having the above
-        # <dl> block
         # Index content from h1 to h6 headers.
-        outer_sections = [body.css(f"h{h}") for h in range(1, 7)]
-        for section in outer_sections:
+        for section in [body.css(f"h{h}") for h in range(1, 7)]:
             for tag in section:
                 try:
                     title, _id = self._parse_section_title(tag)
