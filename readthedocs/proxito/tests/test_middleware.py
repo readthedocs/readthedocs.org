@@ -39,7 +39,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
     def test_proper_cname(self):
         domain = 'docs.random.com'
         get(Domain, project=self.pip, domain=domain)
-        request = self.request(method='get', path=self.url, HTTP_HOST=domain)
+        request = self.request(method='get', secure=True, path=self.url, HTTP_HOST=domain)
         res = self.run_middleware(request)
         self.assertIsNone(res)
         self.assertTrue(request.unresolved_domain.is_from_custom_domain)
