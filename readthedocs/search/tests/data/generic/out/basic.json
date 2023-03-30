@@ -6,7 +6,7 @@
       {
         "id": "",
         "title": "Title of the page",
-        "content": "Content of the body. Love To code is to love No section for me This term does not have an ID so it's not gonna get its own section Code Docs Code and docs are like love, they are 4-letter words. Complexity/dt>Mother Mother cannot fly All stones All stones cannot fly Ergo Mother is a stone"
+        "content": "Content of the body. Love To code is to love No section for me This term does not have an ID so it's not gonna get its own section Code Docs Code and docs are like love, they are 4-letter words. Complexity Mother Mother cannot fly All stones All stones cannot fly Ergo Mother is a stone"
       },
       {
         "id": "love",
@@ -25,8 +25,23 @@
       },
       {
         "id": "complexity",
-        "title": "Complexity/dt>",
+        "title": "Complexity",
         "content": "\n        \n          Mother\n          Mother cannot fly\n          All stones\n          All stones cannot fly\n          Ergo\n          Mother is a stone\n        \n      "
+      },
+      {
+        "id": "mother",
+        "title": "Mother",
+        "content": "Mother cannot fly"
+      },
+      {
+        "id": "stones",
+        "title": "All stones",
+        "content": "All stones cannot fly"
+      },
+      {
+        "id": "ergo",
+        "title": "Ergo",
+        "content": "Mother is a stone"
       }
     ],
     "domain_data": {}

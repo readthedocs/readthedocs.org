@@ -144,7 +144,13 @@ class GenericParser:
         # After indexing them, we remove them from the body such that their contents aren't
         # repeated in the following indexing
         dls = body.css("dl")
+        seen_dls = []
         for dl in dls:
+            if dl in seen_dls:
+                continue
+            for inner_dl in dl.css("dl"):
+                seen_dls.append(inner_dl)
+
             # Select all dts with id defined
             dts = dl.css('dt[id]:not([id=""])')
 

@@ -18,11 +18,6 @@
       "content": "\n            Start the Foo.\n            \n              Parameters:\n              \n                \n                  \n                    qux (string) \u2013 The first argument to initialize class.\n                  \n                  \n                    spam (bool) \u2013 Spam me yes or no\u2026\n                  \n                \n              \n            \n          "
     },
     {
-      "id": "test_py_module.test.Foo.__init__",
-      "title": "__init__( qux, spam= False) [source]",
-      "content": "\n            Start the Foo.\n            \n              Parameters:\n              \n                \n                  \n                    qux (string) \u2013 The first argument to initialize class.\n                  \n                  \n                    spam (bool) \u2013 Spam me yes or no\u2026\n                  \n                \n              \n            \n          "
-    },
-    {
       "id": "id6",
       "title": "1(1,2)",
       "content": "\n        A footnote contains body elements, consistently indented by at least 3 spaces.\n        This is the footnote\u2019s second paragraph.\n      "
