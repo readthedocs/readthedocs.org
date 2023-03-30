@@ -117,10 +117,12 @@ Tags to be ignored:
 
 - ``nav``
 
-Special Sphinx and MkDocs heuristics:
+Special rules that are derived from specific documentation tools applied in the generic parser:
 
-- ``.linenos``, ``.lineno`` (line numbers in code-blocks)
-- ``.headerlink``
+.. https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#adding-line-numbers
+
+- ``.linenos``, ``.lineno`` (line numbers in code-blocks, comes from both MkDocs and Sphinx)
+- ``.headerlink`` (added by Sphinx to links in headers)
 
 Example:
 
