@@ -177,10 +177,8 @@ class GenericParser:
         # This is pattern is intended for a future generic scenario
         # We could include the <dl> pattern in _is_section etc. instead of having the above
         # <dl> block
-        outer_sections = []
         # Index content from h1 to h6 headers.
-        for head_level in range(1, 7):
-            outer_sections.append(body.css(f"h{head_level}"))
+        outer_sections = [body.css(f"h{h}") for h in range(1, 7)]
         for section in outer_sections:
             for tag in section:
                 try:
