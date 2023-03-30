@@ -114,6 +114,7 @@ class SmartResolverPathTests(ResolverBase):
             domain='http://docs.foobar.com',
             project=self.pip,
             canonical=True,
+            https=False,
         )
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_path(project=self.pip, filename='index.html')
@@ -128,6 +129,7 @@ class SmartResolverPathTests(ResolverBase):
             domain='http://docs.foobar.com',
             project=self.pip,
             canonical=False,
+            https=False,
         )
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_path(project=self.pip, filename='')
@@ -365,6 +367,7 @@ class ResolverDomainTests(ResolverBase):
             domain='docs.foobar.com',
             project=self.pip,
             canonical=True,
+            https=False,
         )
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_domain(project=self.pip)
@@ -500,6 +503,7 @@ class ResolverTests(ResolverBase):
             domain='docs.foobar.com',
             project=self.pip,
             canonical=True,
+            https=False,
         )
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve(project=self.pip)
@@ -699,6 +703,7 @@ class ResolverTests(ResolverBase):
             domain='docs.foobar.com',
             project=self.pip,
             canonical=True,
+            https=False,
         )
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve(project=self.pip)
