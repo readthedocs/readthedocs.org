@@ -639,7 +639,9 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         """
         versions_404 = [version] if version else []
         if not version or version.slug != project.default_version:
-            default_version = project.versions.filter(slug=project.default_version).first()
+            default_version = project.versions.filter(
+                slug=project.default_version
+            ).first()
             if default_version:
                 versions_404.append(default_version)
 
