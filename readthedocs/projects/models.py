@@ -33,7 +33,6 @@ from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.core.utils.urlpattern import (
-    urlpattern_to_plain_text,
     urlpattern_to_regex,
 )
 from readthedocs.domains.querysets import DomainQueryset
@@ -704,7 +703,7 @@ class Project(models.Model):
     @cached_property
     def regex_urlpattern(self):
         if self.urlpattern:
-            return urlpattern_to_regex(self.urlpattern)
+            return urlpattern_to_regex(self.urlpattern, single_vesion=self.single_version)
         return None
 
     @cached_property
@@ -743,9 +742,7 @@ class Project(models.Model):
 
         parent_project = parent_relationship.parent
         if parent_project.urlpattern_subproject:
-            subproject_prefix = urlpattern_to_plain_text(
-                parent_project.urlpattern_subproject
-            )
+            subproject_prefix = parent_project.urlpattern_subproject
             # The filename isn't part of the subproject prefix,
             # so we remove it from the pattern.
             index = subproject_prefix.find("{filename}")

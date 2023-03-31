@@ -7,7 +7,6 @@ from django.conf import settings
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.utils.url import unsafe_join_url_path
-from readthedocs.core.utils.urlpattern import urlpattern_to_plain_text
 
 log = structlog.get_logger(__name__)
 
@@ -84,8 +83,7 @@ class ResolverBase:
         # which is just the filename for single version projects and language/version
         # for multi version projects.
         if urlpattern:
-            plain_urlpattern = urlpattern_to_plain_text(urlpattern)
-            path = unsafe_join_url_path(path, plain_urlpattern)
+            path = unsafe_join_url_path(path, urlpattern)
         elif single_version:
             path = unsafe_join_url_path(path, "{filename}")
         else:

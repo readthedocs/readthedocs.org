@@ -6,6 +6,7 @@ from django_dynamic_fixture import get
 from readthedocs.core.utils.urlpattern import (
     validate_urlpattern,
     validate_urlpattern_subproject,
+    wrap_urlpattern,
 )
 from readthedocs.projects.models import Project
 
@@ -107,3 +108,26 @@ class TestURLPatternsUtils(TestCase):
             pattern = "/projects/{subproject}(/{filename})?"
             validate_urlpattern_subproject(self.subproject_translation, pattern)
         self.assertEqual(excinfo.value.code, "invalid_project")
+
+    def test_wrap_urlpattern(self):
+        patterns = [
+            # URL patterns
+            ("/{language}/{version}/{filename}", "/{language}(/({version}(/({filename})?)?)?)?"),
+            ("/prefix/{language}/{version}/{filename}", "/prefix/{language}(/({version}(/({filename})?)?)?)?"),
+            ("/custom/prefix/{language}/{version}/{filename}", "/custom/prefix/{language}(/({version}(/({filename})?)?)?)?"),
+            ("/{version}/{language}/{filename}", "/{version}(/({language}(/({filename})?)?)?)?"),
+            # Subproject URL pattern
+            ("/{subproject}/{filename}", "/{subproject}(/({filename})?)?"),
+            ("/custom/{subproject}/prefix/{filename}", "/custom/{subproject}/prefix(/({filename})?)?"),
+            ("/s/{subproject}/{filename}", "/s/{subproject}(/({filename})?)?"),
+        ]
+        for pattern, expected in patterns:
+            self.assertEqual(wrap_urlpattern(pattern), expected)
+
+    def test_wrap_urlpattern_single_version(self):
+        patterns = [
+            ("/{filename}", "/{filename}"),
+            ("/custom-prefix/{filename}", "/custom-prefix(/({filename})?)?"),
+        ]
+        for pattern, expected in patterns:
+            self.assertEqual(wrap_urlpattern(pattern, single_version=True), expected)

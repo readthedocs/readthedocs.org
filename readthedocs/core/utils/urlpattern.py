@@ -34,7 +34,9 @@ def validate_urlpattern(project, urlpattern):
     else:
         required_replacement_fields = ["{language}", "{version}", "{filename}"]
     _validate_urlpattern(
-        urlpattern, required_replacement_fields=required_replacement_fields
+        urlpattern,
+        required_replacement_fields=required_replacement_fields,
+        single_version=project.single_version,
     )
 
 
@@ -68,7 +70,7 @@ def validate_urlpattern_subproject(project, urlpattern):
     )
 
 
-def _validate_urlpattern(urlpattern, required_replacement_fields):
+def _validate_urlpattern(urlpattern, required_replacement_fields, single_version=False):
     """
     Validate a URL pattern.
 
@@ -83,6 +85,7 @@ def _validate_urlpattern(urlpattern, required_replacement_fields):
 
     :param urlpattern: URL pattern to validate
     :param required_replacement_fields: List of required replacement fields
+    :param single_version: If the pattern is from a single version project.
     """
     if not urlpattern.startswith("/"):
         raise ValidationError(
@@ -100,7 +103,7 @@ def _validate_urlpattern(urlpattern, required_replacement_fields):
             )
 
     try:
-        regex = urlpattern_to_regex(urlpattern)
+        regex = urlpattern_to_regex(urlpattern, single_version=single_version)
     except KeyError as e:
         invalid_field = e.args[0]
         raise ValidationError(
@@ -125,11 +128,11 @@ def _validate_urlpattern(urlpattern, required_replacement_fields):
                 )
 
 
-def urlpattern_to_regex(urlpattern):
+def urlpattern_to_regex(urlpattern, single_vesion=False):
     """
     Transform a URL pattern to a regular expression.
 
-    A URL pattern is a regular expression with replacement fields,
+    A URL pattern is a string with replacement fields,
     valid replacement fields are: language, version, filename, subproject.
 
     Before compiling the regular expression, the string is formatted with
@@ -144,8 +147,15 @@ def urlpattern_to_regex(urlpattern):
 
     Would be transformed to:
 
-        ^/(?P<language>en|es|br)/(?P<version>[a-zA-Z]+)$
+        ^/(?P<language>en|es|br)(/(?P<version>[a-zA-Z]+)?)?$
     """
+    urlpattern = re.escape(urlpattern)
+    # The whole pattern was escaped, including the brackets from the
+    # replacement fields, we want to keep those in the pattern.
+    valid_replacement_fields = ("subproject", "version", "language", "filename")
+    for replacement_field in valid_replacement_fields:
+        urlpattern = urlpattern.replace("\\{" + replacement_field + "\\}", "{" + replacement_field + "}", 1)
+    urlpattern = wrap_urlpattern(urlpattern, single_version=single_vesion)
     urlpattern = f"^{urlpattern}$"
     return re.compile(
         urlpattern.format(
@@ -157,45 +167,61 @@ def urlpattern_to_regex(urlpattern):
     )
 
 
-def urlpattern_to_plain_text(urlpattern):
+def wrap_urlpattern(urlpattern, single_version=False):
     """
-    Remove all regex special characters from a URL pattern.
+    Wrap each component of a pattern inside an optional group to support partial matches.
 
-    URL patterns are regular expressions with replacement fields,
-    we remove all special regex characters to have a plain text
-    representation of the URL. Replacement fields are left untouched.
+    If the pattern is from a single version project,
+    the only component is the filename, so we need to wrap it.
+    Otherwise, we skip the first component, and wrap from the second component,
+    since for all others at least one component must match.
+
+    The wrapping happens from the last component, so the group of the next component
+    is always contained in the group of the previous component, and so on.
+
+    For example, for /{version}/{language}/{filename},
+    the wrapping will happen in the next order:
+
+    - /{version}/{language}/{filename}
+    - /{version}/{language}/({filename})?
+    - /{version}/{language}(/({filename})?)?
+    - /{version}/({language}(/({filename})?)?)?
+    - /{version}(/({language}(/({filename})?)?)?)?
+
+    This way that pattern will match the following paths:
+
+    - /en
+    - /en/
+    - /en/latest
+    - /en/latest/
+    - /en/latest/filename
+    """
+    start = 0 if single_version else urlpattern.find("}/")
+    end = len(urlpattern)
+    while end > 0:
+        index = urlpattern.rfind("/{", start, end)
+        if index > 0:
+            # We first wrap from the start of the component,
+            # and then wrap the start of the slash,
+            # so paths with or without a trailing slash match.
+            urlpattern = _wrap(urlpattern, index + 1)
+            urlpattern = _wrap(urlpattern, index)
+        end = index
+    return urlpattern
+
+
+def _wrap(urlpattern, index):
+    """
+    Wrap a pattern in an optional group from the given index.
 
     For example:
 
-        ^/{language}/{version}$
+        /{version}/{language}
 
-    Would be transformed to:
+    Would become
 
-        /{language}/{version}
+        /{version}/({language})?
 
-    This operation is useful to build a URL from a URL pattern,
-    given the current language, version, filename, or subproject.
-
-    .. note::
-
-       To escape a regex instead of removing its characters, use ``re.escape``.
+    If the index of the second `{` was given (11).
     """
-    remove = {"(", ")", "?"}
-    plain_urlpattern = []
-    is_escaped = False
-    for c in urlpattern:
-        # If the previous character was a backslash, the
-        # current character is escaped, so we include it as is.
-        if is_escaped:
-            is_escaped = False
-            plain_urlpattern.append(c)
-            continue
-
-        if c == "\\":
-            is_escaped = True
-            continue
-
-        if c not in remove:
-            plain_urlpattern.append(c)
-
-    return "".join(plain_urlpattern)
+    return urlpattern[:index] + "(" + urlpattern[index:] + ")?"

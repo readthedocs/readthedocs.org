@@ -22,7 +22,7 @@ class TestCustomURLPatterns(BaseDocServing):
 
     def test_custom_urlpattern_multi_version_project(self):
         self.project.urlpattern = (
-            "/custom/prefix/{language}(/({version}(/{filename})?)?)?"
+            "/custom/prefix/{language}/{version}/{filename}"
         )
         self.project.save()
         host = "project.readthedocs.io"
@@ -62,7 +62,7 @@ class TestCustomURLPatterns(BaseDocServing):
 
     def test_custom_urlpattern_multi_version_project_translation(self):
         self.project.urlpattern = (
-            "/custom/prefix/{language}(/({version}(/{filename})?)?)?"
+            "/custom/prefix/{language}/{version}/{filename}"
         )
         self.project.save()
         host = "project.readthedocs.io"
@@ -94,7 +94,7 @@ class TestCustomURLPatterns(BaseDocServing):
         )
 
     def test_custom_urlpattern_reversed_components_multi_version_project(self):
-        self.project.urlpattern = "/{version}(/({language}(/{filename})?)?)?"
+        self.project.urlpattern = "/{version}/{language}/{filename}"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -122,7 +122,7 @@ class TestCustomURLPatterns(BaseDocServing):
 
     def test_custom_urlpattern_single_version_project(self):
         self.project.single_version = True
-        self.project.urlpattern = "/custom-prefix(/{filename})?"
+        self.project.urlpattern = "/custom-prefix/{filename}"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -154,7 +154,7 @@ class TestCustomURLPatterns(BaseDocServing):
         )
 
     def test_custom_urlpattern_subproject(self):
-        self.project.urlpattern_subproject = "/custom/{subproject}/prefix(/{filename})?"
+        self.project.urlpattern_subproject = "/custom/{subproject}/prefix/{filename}"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -232,7 +232,7 @@ class TestCustomURLPatterns(BaseDocServing):
         )
 
     def test_custom_urlpattern_subproject_empty(self):
-        self.project.urlpattern_subproject = "/{subproject}(/{filename})?"
+        self.project.urlpattern_subproject = "/{subproject}/{filename}"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -295,8 +295,8 @@ class TestCustomURLPatterns(BaseDocServing):
         )
 
     def test_custom_urlpattern_and_urlpattern_subproject_in_superproject(self):
-        self.project.urlpattern = "/prefix/{language}(/({version}(/{filename})?)?)?"
-        self.project.urlpattern_subproject = "/s/{subproject}(/{filename})?"
+        self.project.urlpattern = "/prefix/{language}/{version}/{filename}"
+        self.project.urlpattern_subproject = "/s/{subproject}/{filename}"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -366,8 +366,8 @@ class TestCustomURLPatterns(BaseDocServing):
         )
 
     def test_custom_urlpattern_and_urlpattern_subproject_with_translations(self):
-        self.project.urlpattern = "/prefix/{language}(/({version}(/{filename})?)?)?"
-        self.project.urlpattern_subproject = "/s/{subproject}(/{filename})?"
+        self.project.urlpattern = "/prefix/{language}/{version}/{filename}"
+        self.project.urlpattern_subproject = "/s/{subproject}/{filename}"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -398,9 +398,9 @@ class TestCustomURLPatterns(BaseDocServing):
         )
 
     def test_custom_urlpattern_in_subproject_and_urlpattern_in_superproject(self):
-        self.subproject.urlpattern = "/prefix/{language}(/({version}(/{filename})?)?)?"
+        self.subproject.urlpattern = "/prefix/{language}/{version}/{filename}"
         self.subproject.save()
-        self.project.urlpattern_subproject = "/s/{subproject}(/{filename})?"
+        self.project.urlpattern_subproject = "/s/{subproject}/{filename}"
         self.project.save()
         host = "project.readthedocs.io"
 
