@@ -702,7 +702,7 @@ class Project(models.Model):
     def regex_urlpattern(self):
         if self.urlpattern:
             return urlpattern_to_regex(
-                self.urlpattern, single_vesion=self.single_version
+                self.urlpattern, single_version=self.single_version
             )
         return None
 

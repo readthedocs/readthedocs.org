@@ -128,7 +128,7 @@ def _validate_urlpattern(urlpattern, required_replacement_fields, single_version
                 )
 
 
-def urlpattern_to_regex(urlpattern, single_vesion=False):
+def urlpattern_to_regex(urlpattern, single_version=False):
     """
     Transform a URL pattern to a regular expression.
 
@@ -157,7 +157,7 @@ def urlpattern_to_regex(urlpattern, single_vesion=False):
         urlpattern = urlpattern.replace(
             "\\{" + replacement_field + "\\}", "{" + replacement_field + "}", 1
         )
-    urlpattern = wrap_urlpattern(urlpattern, single_version=single_vesion)
+    urlpattern = wrap_urlpattern(urlpattern, single_version=single_version)
     urlpattern = f"^{urlpattern}$"
     return re.compile(
         urlpattern.format(
