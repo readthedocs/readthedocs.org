@@ -154,7 +154,9 @@ def urlpattern_to_regex(urlpattern, single_vesion=False):
     # replacement fields, we want to keep those in the pattern.
     valid_replacement_fields = ("subproject", "version", "language", "filename")
     for replacement_field in valid_replacement_fields:
-        urlpattern = urlpattern.replace("\\{" + replacement_field + "\\}", "{" + replacement_field + "}", 1)
+        urlpattern = urlpattern.replace(
+            "\\{" + replacement_field + "\\}", "{" + replacement_field + "}", 1
+        )
     urlpattern = wrap_urlpattern(urlpattern, single_version=single_vesion)
     urlpattern = f"^{urlpattern}$"
     return re.compile(

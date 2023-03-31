@@ -32,9 +32,7 @@ from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
-from readthedocs.core.utils.urlpattern import (
-    urlpattern_to_regex,
-)
+from readthedocs.core.utils.urlpattern import urlpattern_to_regex
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -703,7 +701,9 @@ class Project(models.Model):
     @cached_property
     def regex_urlpattern(self):
         if self.urlpattern:
-            return urlpattern_to_regex(self.urlpattern, single_vesion=self.single_version)
+            return urlpattern_to_regex(
+                self.urlpattern, single_vesion=self.single_version
+            )
         return None
 
     @cached_property

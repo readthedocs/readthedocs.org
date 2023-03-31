@@ -112,13 +112,28 @@ class TestURLPatternsUtils(TestCase):
     def test_wrap_urlpattern(self):
         patterns = [
             # URL patterns
-            ("/{language}/{version}/{filename}", "/{language}(/({version}(/({filename})?)?)?)?"),
-            ("/prefix/{language}/{version}/{filename}", "/prefix/{language}(/({version}(/({filename})?)?)?)?"),
-            ("/custom/prefix/{language}/{version}/{filename}", "/custom/prefix/{language}(/({version}(/({filename})?)?)?)?"),
-            ("/{version}/{language}/{filename}", "/{version}(/({language}(/({filename})?)?)?)?"),
+            (
+                "/{language}/{version}/{filename}",
+                "/{language}(/({version}(/({filename})?)?)?)?",
+            ),
+            (
+                "/prefix/{language}/{version}/{filename}",
+                "/prefix/{language}(/({version}(/({filename})?)?)?)?",
+            ),
+            (
+                "/custom/prefix/{language}/{version}/{filename}",
+                "/custom/prefix/{language}(/({version}(/({filename})?)?)?)?",
+            ),
+            (
+                "/{version}/{language}/{filename}",
+                "/{version}(/({language}(/({filename})?)?)?)?",
+            ),
             # Subproject URL pattern
             ("/{subproject}/{filename}", "/{subproject}(/({filename})?)?"),
-            ("/custom/{subproject}/prefix/{filename}", "/custom/{subproject}/prefix(/({filename})?)?"),
+            (
+                "/custom/{subproject}/prefix/{filename}",
+                "/custom/{subproject}/prefix(/({filename})?)?",
+            ),
             ("/s/{subproject}/{filename}", "/s/{subproject}(/({filename})?)?"),
         ]
         for pattern, expected in patterns:

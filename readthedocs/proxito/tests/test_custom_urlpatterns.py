@@ -21,9 +21,7 @@ class TestCustomURLPatterns(BaseDocServing):
         )
 
     def test_custom_urlpattern_multi_version_project(self):
-        self.project.urlpattern = (
-            "/custom/prefix/{language}/{version}/{filename}"
-        )
+        self.project.urlpattern = "/custom/prefix/{language}/{version}/{filename}"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -61,9 +59,7 @@ class TestCustomURLPatterns(BaseDocServing):
         )
 
     def test_custom_urlpattern_multi_version_project_translation(self):
-        self.project.urlpattern = (
-            "/custom/prefix/{language}/{version}/{filename}"
-        )
+        self.project.urlpattern = "/custom/prefix/{language}/{version}/{filename}"
         self.project.save()
         host = "project.readthedocs.io"
 
