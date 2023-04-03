@@ -253,7 +253,9 @@ class ProxitoMiddleware(MiddlewareMixin):
                 from_url=request.get_full_path(),
                 to_url=final_url,
             )
-            return redirect(final_url)
+            response = redirect(final_url)
+            cache_response(response, cache_tags=[unresolved_domain.project.slug])
+            return response
 
         project = unresolved_domain.project
         log.debug(

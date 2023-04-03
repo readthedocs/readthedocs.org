@@ -318,9 +318,7 @@ class RedirectTests(BaseDocServing):
             resp['Location'], '/en/latest/awesome.html',
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
-        # TODO: cache slash redirects.
-        # self.assertEqual(resp.headers['Cache-Tag'], "project")
-        # self.assertEqual(resp["X-RTD-Redirect"], RedirectType.system.name)
+        self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         url = '/en/latest////awesome.html'
         resp = self.client.get(url, secure=True, HTTP_HOST=host)
@@ -329,9 +327,7 @@ class RedirectTests(BaseDocServing):
             resp['Location'], '/en/latest/awesome.html',
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
-        # TODO: cache slash redirects.
-        # self.assertEqual(resp.headers['Cache-Tag'], "project")
-        # self.assertEqual(resp["X-RTD-Redirect"], RedirectType.system.name)
+        self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         url = '/en/latest////awesome///index.html'
         resp = self.client.get(url, secure=True, HTTP_HOST=host)
@@ -340,9 +336,7 @@ class RedirectTests(BaseDocServing):
             resp['Location'], '/en/latest/awesome/index.html',
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
-        # TODO: cache slash redirects.
-        # self.assertEqual(resp.headers['Cache-Tag'], "project")
-        # self.assertEqual(resp["X-RTD-Redirect"], RedirectType.system.name)
+        self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         url = '/en/latest////awesome///index.html?foo=bar'
         resp = self.client.get(url, secure=True, HTTP_HOST=host)
@@ -351,9 +345,7 @@ class RedirectTests(BaseDocServing):
             resp['Location'], '/en/latest/awesome/index.html?foo=bar',
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
-        # TODO: cache slash redirects.
-        # self.assertEqual(resp.headers['Cache-Tag'], "project")
-        # self.assertEqual(resp["X-RTD-Redirect"], RedirectType.system.name)
+        self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         url = '/en/latest////awesome///'
         resp = self.client.get(url, secure=True, HTTP_HOST=host)
@@ -362,9 +354,7 @@ class RedirectTests(BaseDocServing):
             resp['Location'], '/en/latest/awesome/',
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
-        # TODO: cache slash redirects.
-        # self.assertEqual(resp.headers['Cache-Tag'], "project")
-        # self.assertEqual(resp["X-RTD-Redirect"], RedirectType.system.name)
+        self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         # Don't change the values of params
         url = '/en/latest////awesome///index.html?foo=bar//bas'
@@ -374,9 +364,7 @@ class RedirectTests(BaseDocServing):
             resp['Location'], '/en/latest/awesome/index.html?foo=bar//bas',
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
-        # TODO: cache slash redirects.
-        # self.assertEqual(resp.headers['Cache-Tag'], "project")
-        # self.assertEqual(resp["X-RTD-Redirect"], RedirectType.system.name)
+        self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         # WARNING
         # The test client strips multiple slashes at the front of the URL
