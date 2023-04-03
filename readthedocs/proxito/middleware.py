@@ -299,6 +299,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         - It's from a public domain, and the public domain uses HTTPS.
         """
         if request.is_secure():
+            # The request is already HTTPS, so we skip redirecting it.
             return None
 
         unresolved_domain = request.unresolved_domain

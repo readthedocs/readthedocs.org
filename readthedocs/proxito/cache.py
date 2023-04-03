@@ -28,8 +28,8 @@ def cache_response(response, cache_tags=None, force=True):
     Cache the response at the CDN level.
 
     We add the ``Cache-Tag`` header to the response, to be able to purge
-    the cache by a given tag. And we set the ``CDN-Cache-Control`` header
-    to public, to cache the response at the CDN level only. This doesn't
+    the cache by a given tag. And we set the ``CDN-Cache-Control: public`` header
+    to cache the response at the CDN level only. This doesn't
     affect caching at the browser level (``Cache-Control``).
 
     See:
