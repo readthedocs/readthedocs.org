@@ -1,13 +1,15 @@
 """Test hosting views."""
 
+import json
+from pathlib import Path
+
 import django_dynamic_fixture as fixture
 import pytest
-from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
+from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
@@ -21,114 +23,89 @@ from readthedocs.projects.models import Project
 @pytest.mark.proxito
 class TestReadTheDocsConfigJson(TestCase):
     def setUp(self):
-        self.user = fixture.get(User, username="user")
-        self.user.set_password("user")
+        self.user = fixture.get(User, username="testuser")
+        self.user.set_password("testuser")
         self.user.save()
 
         self.project = fixture.get(
             Project,
             slug="project",
+            name="project",
             language="en",
             privacy_level=PUBLIC,
             external_builds_privacy_level=PUBLIC,
-            repo="git://10.10.0.1/project",
+            repo="https://github.com/readthedocs/project",
             programming_language="words",
             single_version=False,
             users=[self.user],
             main_language_project=None,
+            project_url="http://project.com",
         )
+
+        for tag in ("tag", "project", "test"):
+            self.project.tags.add(tag)
+
         self.project.versions.update(
             privacy_level=PUBLIC,
             built=True,
             active=True,
-            type=INTERNAL,
-            identifier="1a2b3c",
+            type="tag",
+            identifier="a1b2c3",
         )
         self.version = self.project.versions.get(slug=LATEST)
         self.build = fixture.get(
             Build,
+            project=self.project,
             version=self.version,
+            commit="a1b2c3",
+            length=60,
+            state="finished",
+            success=True,
         )
 
-    def test_get_config(self):
+    def _get_response_dict(self, view_name, filepath=None):
+        filepath = filepath or __file__
+        filename = Path(filepath).absolute().parent / "responses" / f"{view_name}.json"
+        return json.load(open(filename))
+
+    def _normalize_datetime_fields(self, obj):
+        obj["project"]["created"] = "2019-04-29T10:00:00Z"
+        obj["project"]["modified"] = "2019-04-29T12:00:00Z"
+        obj["build"]["created"] = "2019-04-29T10:00:00Z"
+        obj["build"]["finished"] = "2019-04-29T10:01:00Z"
+        return obj
+
+    def test_get_config_v0(self):
         r = self.client.get(
             reverse("proxito_readthedocs_config_json"),
             {"url": "https://project.dev.readthedocs.io/en/latest/"},
             secure=True,
             HTTP_HOST="project.dev.readthedocs.io",
+            HTTP_X_RTD_HOSTING_INTEGRATIONS_VERSION="0.1.0",
         )
         assert r.status_code == 200
+        assert self._normalize_datetime_fields(r.json()) == self._get_response_dict(
+            "v0"
+        )
 
-        expected = {
-            "comment": "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!",
-            "project": {
-                "slug": self.project.slug,
-                "language": self.project.language,
-                "repository_url": self.project.repo,
-                "programming_language": self.project.programming_language,
-            },
-            "version": {
-                "slug": self.version.slug,
-                "external": self.version.type == EXTERNAL,
-            },
-            "build": {
-                "id": self.build.pk,
-            },
-            "domains": {
-                "dashboard": settings.PRODUCTION_DOMAIN,
-            },
-            "readthedocs": {
-                "analytics": {
-                    "code": None,
-                }
-            },
-            "features": {
-                "analytics": {
-                    "code": None,
-                },
-                "external_version_warning": {
-                    "enabled": True,
-                    "query_selector": "[role=main]",
-                },
-                "non_latest_version_warning": {
-                    "enabled": True,
-                    "query_selector": "[role=main]",
-                    "versions": [
-                        "latest",
-                    ],
-                },
-                "doc_diff": {
-                    "enabled": True,
-                    "base_url": "https://project.dev.readthedocs.io/en/latest/index.html",
-                    "root_selector": "[role=main]",
-                    "inject_styles": True,
-                    "base_host": "",
-                    "base_page": "",
-                },
-                "flyout": {
-                    "translations": [],
-                    "versions": [
-                        {"slug": "latest", "url": "/en/latest/"},
-                    ],
-                    "downloads": [],
-                    "vcs": {
-                        "url": "https://github.com",
-                        "username": "readthedocs",
-                        "repository": "test-builds",
-                        "branch": self.version.identifier,
-                        "filepath": "/docs/index.rst",
-                    },
-                },
-                "search": {
-                    "api_endpoint": "/_/api/v3/search/",
-                    "default_filter": "subprojects:project/latest",
-                    "filters": [
-                        ["Search only in this project", "project:project/latest"],
-                        ["Search subprojects", "subprojects:project/latest"],
-                    ],
-                    "project": "project",
-                    "version": "latest",
-                },
-            },
-        }
-        assert r.json() == expected
+    def test_get_config_v1(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_config_json"),
+            {"url": "https://project.dev.readthedocs.io/en/latest/"},
+            secure=True,
+            HTTP_HOST="project.dev.readthedocs.io",
+            HTTP_X_RTD_HOSTING_INTEGRATIONS_VERSION="1.0.0",
+        )
+        assert r.status_code == 200
+        assert r.json() == self._get_response_dict("v1")
+
+    def test_get_config_unsupported_version(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_config_json"),
+            {"url": "https://project.dev.readthedocs.io/en/latest/"},
+            secure=True,
+            HTTP_HOST="project.dev.readthedocs.io",
+            HTTP_X_RTD_HOSTING_INTEGRATIONS_VERSION="2.0.0",
+        )
+        assert r.status_code == 400
+        assert r.json() == self._get_response_dict("v2")

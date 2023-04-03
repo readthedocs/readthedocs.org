@@ -1,11 +1,16 @@
 """Views for hosting features."""
 
+import packaging
 import structlog
 from django.conf import settings
 from django.http import JsonResponse
 from django.views import View
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.api.v3.serializers import (
+    BuildSerializer,
+    ProjectSerializer,
+    VersionSerializer,
+)
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import unresolver
@@ -13,7 +18,34 @@ from readthedocs.core.unresolver import unresolver
 log = structlog.get_logger(__name__)  # noqa
 
 
+CLIENT_VERSIONS_SUPPORTED = (0, 1)
+
+
+class ClientError(Exception):
+    VERSION_NOT_CURRENTLY_SUPPORTED = (
+        "The version specified in 'X-RTD-Hosting-Integrations-Version'"
+        " is currently not supported"
+    )
+    VERSION_INVALID = "'X-RTD-Hosting-Integrations-Version' header version is invalid"
+    VERSION_HEADER_MISSING = (
+        "'X-RTD-Hosting-Integrations-Version' header attribute is required"
+    )
+
+
 class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
+
+    """
+    API response consumed by our JavaScript client.
+
+    The code for the JavaScript client lives at:
+      https://github.com/readthedocs/readthedocs-client/
+
+    Attributes:
+
+      url (required): absolute URL from where the request is performed
+        (e.g. ``window.location.href``)
+    """
+
     def get(self, request):
 
         url = request.GET.get("url")
@@ -23,37 +55,120 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                 status=400,
             )
 
+        client_version = request.headers.get("X-RTD-Hosting-Integrations-Version")
+        if not client_version:
+            return JsonResponse(
+                {
+                    "error": ClientError.VERSION_HEADER_MISSING,
+                },
+                status=400,
+            )
+        try:
+            client_version = packaging.version.parse(client_version)
+            if client_version.major not in CLIENT_VERSIONS_SUPPORTED:
+                raise ClientError
+        except packaging.version.InvalidVersion:
+            return JsonResponse(
+                {
+                    "error": ClientError.VERSION_INVALID,
+                },
+                status=400,
+            )
+        except ClientError:
+            return JsonResponse(
+                {"error": ClientError.VERSION_NOT_CURRENTLY_SUPPORTED},
+                status=400,
+            )
+
         unresolved_domain = request.unresolved_domain
         project = unresolved_domain.project
 
         unresolved_url = unresolver.unresolve_url(url)
         version = unresolved_url.version
+        filename = unresolved_url.filename
 
         project.get_default_version()
         build = version.builds.last()
 
-        # TODO: define how it will be the exact JSON object returned here
-        # NOTE: we could use the APIv3 serializers for some of these objects
-        # if we want to keep consistency. However, those may require some
-        # extra db calls that we probably want to avoid.
+        data = ClientResponse().get(client_version, project, version, build, filename)
+        return JsonResponse(data, json_dumps_params=dict(indent=4))
+
+
+class NoLinksMixin:
+
+    """Mixin to remove conflicting fields from serializers."""
+
+    FIELDS_TO_REMOVE = (
+        "_links",
+        "urls",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super(NoLinksMixin, self).__init__(*args, **kwargs)
+
+        for field in self.FIELDS_TO_REMOVE:
+            if field in self.fields:
+                del self.fields[field]
+
+            if field in self.Meta.fields:
+                del self.Meta.fields[self.Meta.fields.index(field)]
+
+
+# NOTE: the following serializers are required only to remove some fields we
+# can't expose yet in this API endpoint because it running under El Proxito
+# which cannot resolve some dashboard URLs because they are not defined on El
+# Proxito.
+#
+# See https://github.com/readthedocs/readthedocs-ops/issues/1323
+class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
+    pass
+
+
+class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
+    pass
+
+
+class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
+    pass
+
+
+class ClientResponse:
+    def get(self, client_version, project, version, build, filename):
+        """
+        Unique entry point to get the proper API response.
+
+        It will evaluate the ``client_version`` passed and decide which is the
+        best JSON structure for that particular version.
+        """
+        if client_version.major == 0:
+            return self._v0(project, version, build, filename)
+
+        if client_version.major == 1:
+            return self._v1(project, version, build, filename)
+
+    def _v0(self, project, version, build, filename):
+        """
+        Initial JSON data structure consumed by the JavaScript client.
+
+        This response is definitely in *alpha* state currently and shouldn't be
+        used for anyone to customize their documentation or the integration
+        with the Read the Docs JavaScript client. It's under active development
+        and anything can change without notice.
+
+        It tries to follow some similarity with the APIv3 for already-known resources
+        (Project, Version, Build, etc).
+        """
+
         data = {
             "comment": (
                 "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY"
                 " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
             ),
-            "project": {
-                "slug": project.slug,
-                "language": project.language,
-                "repository_url": project.repo,
-                "programming_language": project.programming_language,
-            },
-            "version": {
-                "slug": version.slug,
-                "external": version.type == EXTERNAL,
-            },
-            "build": {
-                "id": build.pk,
-            },
+            "project": ProjectSerializerNoLinks(project).data,
+            "version": VersionSerializerNoLinks(version).data,
+            "build": BuildSerializerNoLinks(build).data,
+            # TODO: consider creating one serializer per field here.
+            # The resulting JSON will be the same, but maybe it's easier/cleaner?
             "domains": {
                 "dashboard": settings.PRODUCTION_DOMAIN,
             },
@@ -64,6 +179,7 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
             },
             "features": {
                 "analytics": {
+                    # TODO: consider adding this field into the ProjectSerializer itself.
                     "code": project.analytics_code,
                 },
                 "external_version_warning": {
@@ -86,7 +202,7 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                         project=project,
                         version_slug=project.get_default_version(),
                         language=project.language,
-                        filename=unresolved_url.filename,
+                        filename=filename,
                     ),
                     "root_selector": "[role=main]",
                     "inject_styles": True,
@@ -139,4 +255,9 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
         if version.build_data:
             data.update(version.build_data)
 
-        return JsonResponse(data, json_dumps_params=dict(indent=4))
+        return data
+
+    def _v1(self, project, version, build, filename):
+        return {
+            "comment": "Undefined yet. Use v0 for now",
+        }
