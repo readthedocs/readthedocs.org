@@ -286,14 +286,6 @@ class VersionSerializer(FlexFieldsModelSerializer):
             )
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # If privacy levels are not allowed,
-        # everything is public, we don't allow changing it.
-        if not settings.ALLOW_PRIVATE_REPOS:
-            self.fields.pop("privacy_level")
-
     def get_downloads(self, obj):
         downloads = obj.get_downloads()
         data = {}
@@ -493,7 +485,17 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
             "repository",
             "homepage",
             "tags",
+            "privacy_level",
+            "external_builds_privacy_level",
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If privacy levels are not allowed,
+        # everything is public, we don't allow changing it.
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("privacy_level")
+            self.fields.pop("external_builds_privacy_level")
 
     def _validate_remote_repository(self, data):
         """
@@ -692,12 +694,6 @@ class ProjectSerializer(FlexFieldsModelSerializer):
         # so is easier to test.
         if settings.RTD_ALLOW_ORGANIZATIONS:
             self.fields.pop("users", None)
-
-        # If privacy levels are not allowed,
-        # everything is public, we don't allow changing it.
-        if not settings.ALLOW_PRIVATE_REPOS:
-            self.fields.pop("privacy_level")
-            self.fields.pop("external_builds_privacy_level")
 
     def get_homepage(self, obj):
         # Overridden only to return ``None`` when the project_url is ``''``

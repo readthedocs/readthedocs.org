@@ -304,10 +304,6 @@ Project details
 
          * **expand** (*string*) -- with ``organization`` and ``teams``.
 
-    .. note::
-
-       Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
-
 Project create
 ++++++++++++++
 
@@ -439,13 +435,18 @@ Project update
             "analytics_disabled": false,
             "single_version": false,
             "external_builds_enabled": true,
-
+            "privacy_level": "public",
+            "external_builds_privacy_level": "public"
         }
 
     .. note::
 
         Adding ``tags`` will replace existing tags with the new list,
         and if omitted won't change the tags.
+
+    .. note::
+
+       Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
 
     :statuscode 204: Updated successfully
 
@@ -571,10 +572,6 @@ Version detail
     :query string expand: allows to add/expand some extra fields in the response.
                           Allowed values are ``last_build`` and ``last_build.config``.
                           Multiple fields can be passed separated by commas.
-
-    .. note::
-
-       Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
 
 Version update
 ++++++++++++++

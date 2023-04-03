@@ -35,10 +35,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             reverse("projects-list"),
         )
         self.assertEqual(response.status_code, 200)
-        expected = self._get_response_dict("projects-list")
-        expected["results"][0]["privacy_level"] = "public"
-        expected["results"][0]["external_builds_privacy_level"] = "public"
-        self.assertDictEqual(response.json(), expected)
+        self.assertDictEqual(response.json(), self._get_response_dict("projects-list"))
 
         self.project.privacy_level = "private"
         self.project.external_builds_privacy_level = "private"
@@ -140,13 +137,9 @@ class ProjectsEndpointTests(APIEndpointMixin):
             },
         )
         self.assertEqual(response.status_code, 200)
-        expected = self._get_response_dict("projects-detail")
-        expected["privacy_level"] = "public"
-        expected["external_builds_privacy_level"] = "public"
-        expected["active_versions"][0]["privacy_level"] = "public"
         self.assertDictEqual(
             response.json(),
-            expected,
+            self._get_response_dict("projects-detail"),
         )
 
         self.project.privacy_level = "private"

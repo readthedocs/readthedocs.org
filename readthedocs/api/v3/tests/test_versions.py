@@ -70,11 +70,9 @@ class VersionsEndpointTests(APIEndpointMixin):
             ),
         )
         self.assertEqual(response.status_code, 200)
-        expected = self._get_response_dict("projects-versions-detail")
-        expected["privacy_level"] = "public"
         self.assertDictEqual(
             response.json(),
-            expected,
+            self._get_response_dict("projects-versions-detail"),
         )
 
         self.version.privacy_level = "private"
