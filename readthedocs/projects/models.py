@@ -363,8 +363,8 @@ class Project(models.Model):
         ),
     )
 
-    build_config_file = models.CharField(
-        _("Build configuration file"),
+    readthedocs_yaml_path = models.CharField(
+        _("Path for .readthedocs.yaml"),
         max_length=1024,
         default=None,
         blank=True,

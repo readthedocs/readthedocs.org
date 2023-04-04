@@ -207,7 +207,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             "single_version",
             "external_builds_enabled",
             "external_builds_privacy_level",
-            "build_config_file",
+            "readthedocs_yaml_path",
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -358,14 +358,14 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             )  # yapf: disable
         return filename
 
-    def clean_build_config_file(self):
+    def clean_readthedocs_yaml_path(self):
         """
         Validate user input to help user.
 
         We also validate this path during the build process, so this validation step is
         only considered as helpful to a user, not a security measure.
         """
-        filename = self.cleaned_data.get("build_config_file")
+        filename = self.cleaned_data.get("readthedocs_yaml_path")
         filename = (filename or "").strip()
         return filename
 

@@ -1381,7 +1381,7 @@ class BuildConfigV2(BuildConfigBase):
         return Search(**self._config['search'])
 
 
-def load(path, env_config, config_file=None):
+def load(path, env_config, readthedocs_yaml_path=None):
     """
     Load a project configuration and the top-most build config for a given path.
 
@@ -1390,8 +1390,8 @@ def load(path, env_config, config_file=None):
     ``BuildConfigV1`` is the default.
     """
     # Custom non-default config file location
-    if config_file:
-        filename = os.path.join(path, config_file)
+    if readthedocs_yaml_path:
+        filename = os.path.join(path, readthedocs_yaml_path)
         # When a config file is specified and not found, we raise ConfigError
         # because ConfigFileNotFound
         if not os.path.exists(filename):

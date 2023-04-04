@@ -217,7 +217,7 @@ def test_load_non_default(tmpdir):
     )
     base = str(tmpdir)
     with override_settings(DOCROOT=tmpdir):
-        build = load(base, {}, config_file="myconfig.yaml")
+        build = load(base, {}, readthedocs_yaml_path="myconfig.yaml")
     assert isinstance(build, BuildConfigV2)
     assert build.source_file == os.path.join(base, non_default_filename)
 
@@ -243,7 +243,7 @@ def test_load_non_default_with_strange_extension(tmpdir):
     )
     base = str(tmpdir)
     with override_settings(DOCROOT=tmpdir):
-        build = load(base, {}, config_file="myconfig.unconventional")
+        build = load(base, {}, readthedocs_yaml_path="myconfig.unconventional")
     assert isinstance(build, BuildConfigV2)
     assert build.source_file == os.path.join(base, non_default_filename)
 

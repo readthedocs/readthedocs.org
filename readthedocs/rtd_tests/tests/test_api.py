@@ -708,7 +708,7 @@ class APITests(TestCase):
             Project,
             main_language_project=None,
             conf_py_file="foo",
-            build_config_file="bar",
+            readthedocs_yaml_path="bar",
         )
         client = APIClient()
 
@@ -716,15 +716,15 @@ class APITests(TestCase):
         resp = client.get('/api/v2/project/%s/' % (project.pk))
         self.assertEqual(resp.status_code, 200)
         self.assertNotIn("conf_py_file", resp.data)
-        self.assertNotIn("build_config_file", resp.data)
+        self.assertNotIn("readthedocs_yaml_path", resp.data)
 
         client.force_authenticate(user=user_admin)
         resp = client.get('/api/v2/project/%s/' % (project.pk))
         self.assertEqual(resp.status_code, 200)
         self.assertIn("conf_py_file", resp.data)
         self.assertEqual(resp.data["conf_py_file"], "foo")
-        self.assertIn("build_config_file", resp.data)
-        self.assertEqual(resp.data["build_config_file"], "bar")
+        self.assertIn("readthedocs_yaml_path", resp.data)
+        self.assertEqual(resp.data["readthedocs_yaml_path"], "bar")
 
     def test_project_features(self):
         user = get(User, is_staff=True)
@@ -2480,7 +2480,7 @@ class APIVersionTests(TestCase):
                 "repo": "https://github.com/pypa/pip",
                 "repo_type": "git",
                 "requirements_file": None,
-                "build_config_file": None,
+                "readthedocs_yaml_path": None,
                 "show_advertising": True,
                 "skip": False,
                 "slug": "pip",

@@ -216,26 +216,26 @@ class BuildDirector:
         self.vcs_repository.checkout(identifier)
 
         # The director is responsible for understanding which config file to use for a build.
-        # In order to reproduce a build 1:1, we may use build_config_file defined by the build
+        # In order to reproduce a build 1:1, we may use readthedocs_yaml_path defined by the build
         # instead of per-version or per-project.
-        # Use the below line to fetch the build_config_file defined per-build.
-        # non_default_config_file = self.data.build.get("build_config_file", None)
-        non_default_config_file = None
+        # Use the below line to fetch the readthedocs_yaml_path defined per-build.
+        # custom_config_file = self.data.build.get("readthedocs_yaml_path", None)
+        custom_config_file = None
 
         # This logic can be extended with version-specific config files
-        if not non_default_config_file and self.data.version.project.build_config_file:
-            non_default_config_file = self.data.version.project.build_config_file
+        if not custom_config_file and self.data.version.project.readthedocs_yaml_path:
+            custom_config_file = self.data.version.project.readthedocs_yaml_path
 
-        if non_default_config_file:
+        if custom_config_file:
             log.info(
-                "Using a non-default config file.", config_file=non_default_config_file
+                "Using a custom config file.", custom_config_file=custom_config_file
             )
         self.data.config = load_yaml_config(
             version=self.data.version,
-            config_file=non_default_config_file,
+            readthedocs_yaml_path=custom_config_file,
         )
         self.data.build["config"] = self.data.config.as_dict()
-        self.data.build["build_config_file"] = non_default_config_file
+        self.data.build["readthedocs_yaml_path"] = custom_config_file
 
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)

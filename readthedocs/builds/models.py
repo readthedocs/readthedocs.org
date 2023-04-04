@@ -708,8 +708,8 @@ class Build(models.Model):
         null=True,
         blank=True,
     )
-    build_config_file = models.CharField(
-        _("Non-default build configuration file used"),
+    readthedocs_yaml_path = models.CharField(
+        _("Custom build configuration file path used in this build"),
         max_length=1024,
         default=None,
         blank=True,

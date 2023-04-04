@@ -93,7 +93,7 @@ class ProjectAdminSerializer(ProjectSerializer):
             "show_advertising",
             "environment_variables",
             "max_concurrent_builds",
-            "build_config_file",
+            "readthedocs_yaml_path",
         )
 
 

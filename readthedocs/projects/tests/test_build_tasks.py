@@ -91,7 +91,7 @@ class TestCustomConfigFile(BuildEnvironmentBase):
             slug="project",
             enable_epub_build=False,
             enable_pdf_build=False,
-            build_config_file=self.config_file_name,
+            readthedocs_yaml_path=self.config_file_name,
         )
 
     def _config_file(self, config):
@@ -128,7 +128,7 @@ class TestCustomConfigFile(BuildEnvironmentBase):
 
         # Assert that the director tries to load the custom config file
         load_yaml_config.assert_called_once_with(
-            version=mock.ANY, config_file=self.config_file_name
+            version=mock.ANY, readthedocs_yaml_path=self.config_file_name
         )
 
         # Assert that we are building a PDF, since that is what our custom config file says
@@ -141,7 +141,7 @@ class TestCustomConfigFile(BuildEnvironmentBase):
     ):
         """Test that a custom config file is loaded
 
-        The build_config_file field on Project should be loading the file that we add
+        The readthedocs_yaml_path field on Project should be loading the file that we add
         to the repo."""
 
         # While testing, we are unsure if temporary test files exist in the docroot
@@ -488,7 +488,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "state": "installing",
             "commit": "a1b2c3",
             "builder": mock.ANY,
-            "build_config_file": None,
+            "readthedocs_yaml_path": None,
             "error": "",
             # We update the `config` field at the same time we send the
             # `installing` state, to reduce one API call
@@ -533,7 +533,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "id": 1,
             "state": "building",
             "commit": "a1b2c3",
-            "build_config_file": None,
+            "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
             "error": "",
@@ -543,7 +543,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "id": 1,
             "state": "uploading",
             "commit": "a1b2c3",
-            "build_config_file": None,
+            "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
             "error": "",
@@ -568,7 +568,7 @@ class TestBuildTask(BuildEnvironmentBase):
             "id": 1,
             "state": "finished",
             "commit": "a1b2c3",
-            "build_config_file": None,
+            "readthedocs_yaml_path": None,
             "config": mock.ANY,
             "builder": mock.ANY,
             "length": mock.ANY,
