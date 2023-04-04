@@ -200,9 +200,11 @@ class PlanFeatureManager(models.Manager):
         Use this function instead of ``get_feature().value``
         when you need to respect the ``RTD_DEFAULT_FEATURES`` setting.
         """
-        feature = self.get_feature(obj, type)
-        if feature:
-            return feature.value
+        # Hit the DB only if subscriptions are enabled.
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            feature = self.get_feature(obj, type)
+            if feature:
+                return feature.value
         return settings.RTD_DEFAULT_FEATURES.get(type, default)
 
     # pylint: disable=redefined-builtin
@@ -213,6 +215,8 @@ class PlanFeatureManager(models.Manager):
         Use this function instead of ``bool(get_feature())``
         when you need to respect the ``RTD_DEFAULT_FEATURES`` setting.
         """
-        if self.get_feature(obj, type) is not None:
-            return True
+        # Hit the DB only if subscriptions are enabled.
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            if self.get_feature(obj, type) is not None:
+                return True
         return type in settings.RTD_DEFAULT_FEATURES

@@ -167,7 +167,6 @@ class CommunityBaseSettings(Settings):
         return {
             constants.TYPE_CNAME: 1,
             constants.TYPE_SSL: 1,
-            constants.TYPE_CDN: 1,
             constants.TYPE_EMBED_API: 1,
             # Retention days for search analytics.
             constants.TYPE_SEARCH_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
