@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils.deconstruct import deconstructible
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 
@@ -133,10 +134,12 @@ def validate_build_config_file(path):
         )
     if any(ch in path for ch in invalid_characters):
         raise ValidationError(
-            _(
-                "Found invalid character. Avoid these characters: "
-                "<code>{invalid_characters}</code>"
-            ).format(invalid_characters=invalid_characters),
+            mark_safe(
+                _(
+                    "Found invalid character. Avoid these characters: "
+                    "<code>{invalid_characters}</code>"
+                ).format(invalid_characters=invalid_characters),
+            ),
             code="path_invalid",
         )
     # If we should validate filenames
@@ -146,15 +149,19 @@ def validate_build_config_file(path):
         )
         if not is_valid and len(valid_filenames) == 1:
             raise ValidationError(
-                _("The only allowed filename is <code>{filename}</code>.").format(
-                    filename=valid_filenames[0]
+                mark_safe(
+                    _("The only allowed filename is <code>{filename}</code>.").format(
+                        filename=valid_filenames[0]
+                    ),
                 ),
                 code="path_invalid",
             )
         if not is_valid:
             raise ValidationError(
-                _("The only allowed filenames are <code>{filenames}</code>.").format(
-                    filenames=", ".join(valid_filenames)
+                mark_safe(
+                    _(
+                        "The only allowed filenames are <code>{filenames}</code>."
+                    ).format(filenames=", ".join(valid_filenames)),
                 ),
                 code="path_invalid",
             )
