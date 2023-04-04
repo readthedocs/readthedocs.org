@@ -29,11 +29,11 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.models import Domain, Feature, Project
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.redirects.models import Redirect
-from readthedocs.subscriptions.constants import TYPE_CDN, TYPE_CNAME
 from readthedocs.rtd_tests.storage import (
     BuildMediaFileSystemStorageTest,
     StaticFileSystemStorageTest,
 )
+from readthedocs.subscriptions.constants import TYPE_CDN, TYPE_CNAME
 from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 
 from .base import BaseDocServing

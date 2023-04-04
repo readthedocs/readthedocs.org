@@ -4,7 +4,6 @@ from django_dynamic_fixture import get
 
 from readthedocs.projects.models import Feature
 from readthedocs.proxito.constants import RedirectType
-
 from readthedocs.subscriptions.constants import TYPE_CNAME, TYPE_SSL
 
 from .base import BaseDocServing

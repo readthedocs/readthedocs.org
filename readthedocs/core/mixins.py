@@ -2,6 +2,7 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
 from vanilla import ListView
 
+
 class ListViewWithForm(ListView):
 
     """List view that also exposes a create form."""

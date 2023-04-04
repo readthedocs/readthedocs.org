@@ -7,8 +7,8 @@ from django.contrib.auth.models import User
 from django.core.files.storage import get_storage_class
 from django.test import TestCase
 
-from readthedocs.projects.constants import PUBLIC, SSL_STATUS_VALID
 from readthedocs.builds.constants import LATEST
+from readthedocs.projects.constants import PUBLIC, SSL_STATUS_VALID
 from readthedocs.projects.models import Domain, Project
 from readthedocs.proxito.views import serve
 
