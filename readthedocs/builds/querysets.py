@@ -208,8 +208,6 @@ class BuildQuerySet(models.QuerySet):
         limit_reached = False
         query = Q(
             project=project,
-            # Limit builds to 5 hours ago to speed up the query
-            date__gt=timezone.now() - datetime.timedelta(hours=5),
         )
 
         if project.main_language_project:
@@ -226,6 +224,9 @@ class BuildQuerySet(models.QuerySet):
         organization = project.organizations.first()
         if organization:
             query |= Q(project__in=organization.projects.all())
+
+        # Limit builds to 5 hours ago to speed up the query
+        query &= Q(date__gt=timezone.now() - datetime.timedelta(hours=5))
 
         concurrent = (
             (

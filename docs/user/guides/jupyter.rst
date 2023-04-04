@@ -114,8 +114,8 @@ Each editor has a different way of doing it:
 
 - The classical Jupyter Notebook interface
   provides a "Save Notebook Widget State" action in the "Widgets" menu,
-  :ref:`as explained in the ipywidgets
-  documentation <ipywidgets:/embedding.md#embedding-widgets-in-html-web-pages>`.
+  :doc:`as explained in the ipywidgets
+  documentation <ipywidgets:embedding>`.
   You need to click it before exporting your notebook to HTML.
 - JupyterLab provides a "Save Widget State Automatically" option in the "Settings" menu.
   You need to leave it checked so that widget state is automatically saved.
@@ -131,7 +131,7 @@ Each editor has a different way of doing it:
    JupyterLab option to save the interactive widget state automatically
 
 For example, if you create a notebook with a simple
-:ref:`ipywidgets:/examples/widget list.ipynb#intslider`
+`IntSlider <https://ipywidgets.readthedocs.io/en/stable/examples/Widget%20List.html#intslider>`__
 widget from ipywidgets and save the widget state,
 the slider will render correctly in Sphinx.
 
@@ -175,15 +175,15 @@ For example, this is how a simple notebook looks like in MyST Markdown format:
 
    ---
    jupytext:
-   text_representation:
-      extension: .md
-      format_name: myst
-      format_version: 0.13
-      jupytext_version: 1.10.3
+     text_representation:
+       extension: .md
+       format_name: myst
+       format_version: 0.13
+       jupytext_version: 1.10.3
    kernelspec:
-   display_name: Python 3
-   language: python
-   name: python3
+     display_name: Python 3
+     language: python
+     name: python3
    ---
 
    # Plain-text notebook formats
@@ -331,7 +331,7 @@ However, there are some differences between them:
   whereas MyST-NB uses `MyST-Parser`_
   to directly convert the Markdown text to docutils AST.
   Therefore, nbsphinx assumes `pandoc flavored Markdown <https://pandoc.org/MANUAL.html#pandocs-markdown>`_,
-  whereas MyST-NB uses :doc:`MyST flavored Markdown <myst-parser:syntax/syntax>`.
+  whereas MyST-NB uses :doc:`MyST flavored Markdown <myst-parser:index>`.
   Both Markdown flavors are mostly equal,
   but they have some differences.
 - nbsphinx executes each notebook during the parsing phase,

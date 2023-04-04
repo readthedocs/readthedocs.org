@@ -1,14 +1,9 @@
-Search Query Syntax
+Search query syntax
 ===================
 
-When searching on Read the Docs, you can use some parameters in your
-query in order to search on given projects, versions,
-or to get more accurate results.
-
-.. contents:: Table of contents
-   :local:
-   :backlinks: none
-   :depth: 3
+When searching on Read the Docs with :doc:`server side search </server-side-search/index>`,
+you can use some parameters in your query
+in order to search on given projects, versions, or to get more accurate results.
 
 Parameters
 ----------

@@ -1,4 +1,4 @@
-Documentation Style Guide
+Documentation style guide
 =========================
 
 This document will serve as the canonical place to define how we write documentation at Read the Docs.
@@ -49,7 +49,7 @@ Content
   * ``:guilabel:`<your username>` dropdown``
 * Make sure that **all bullet list items end with a period**, and don't mix periods with no periods.
 
-Word List
+Word list
 ---------
 
 We have a specific way that we write common words:
@@ -187,9 +187,11 @@ This means that *both content and navigation path* for all sections should fit a
 Explanation
 ~~~~~~~~~~~
 
-* Introduce the scope: **“This article introduces ...”**
-  (write this as the very first thing,
-  then consider rewriting it or turning it into an internal comment afterwards).
+* Title convention: Use words indicating explanation in the title.
+  Like **Understanding <subject>**, **Dive into <subject>**, **Introduction to <subject>** etc.
+* Introduce the scope in the first paragraph: **“This article introduces ...”**.
+  Write this as the very first thing,
+  then re-read it and potentially shorten it later in your writing process.
 * Cross-reference the related How-to Guide.
   Put a ``seealso::`` somewhere visible.
   It should likely be placed right after the introduction,
@@ -197,12 +199,20 @@ Explanation
 * Consider adding an Examples section.
 * Can you add screenshots or diagrams?
 
-How-to Guides
+How-to guides
 ~~~~~~~~~~~~~
 
-* Title should begin with **“How to ...”**,
-  but navigation titles should not contain the “How to” part.
+* Title should begin with **“How to ...”**.
+  If the how-to guide is specific for a tool, make sure to note it in the title.
+* Navigation titles should not contain the “How to” part.
+  Navigation title for "How to create a thing" is **Creating a thing**.
 * Introduce the scope: **“In this guide, we will…”**
+
+  * Introduction paragraph suggestions:
+
+    * "This guide shows <something>. <motivation>"
+    * "<motivation>. This guide shows you how."
+
 * Cross-reference related explanation.
   Put a ``seealso::`` somewhere visible,
   It should likely be placed right after the introduction
@@ -231,6 +241,7 @@ Tutorial
 
 .. note:: We don’t really have tutorials targeted in the systematic refactor, so this checklist isn’t very important right now.
 
+* "Getting started with <subject>" is likely a good start!
 * Cross-reference related explanation and how-to.
 * Try not to explain things too much, and instead link to the explanation content.
 * **Refactor other resources** so you can use references instead of disturbing the flow of the tutorial.

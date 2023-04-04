@@ -53,9 +53,14 @@ class BuildEnvironmentMocker:
         #     'readthedocs.doc_builder.backends.sphinx.PdfBuilder.build',
         # )
 
-        self.patches['builder.pdf.LatexBuildCommand.run'] = mock.patch(
-            'readthedocs.doc_builder.backends.sphinx.LatexBuildCommand.run',
-            return_value=mock.MagicMock(output='stdout', successful=True)
+        self.patches["builder.pdf.PdfBuilder.pdf_file_name"] = mock.patch(
+            "readthedocs.doc_builder.backends.sphinx.PdfBuilder.pdf_file_name",
+            "project-slug.pdf",
+        )
+
+        self.patches["builder.pdf.LatexBuildCommand.run"] = mock.patch(
+            "readthedocs.doc_builder.backends.sphinx.LatexBuildCommand.run",
+            return_value=mock.MagicMock(output="stdout", successful=True),
         )
         # self.patches['builder.pdf.LatexBuildCommand.output'] = mock.patch(
         #     'readthedocs.doc_builder.backends.sphinx.LatexBuildCommand.output',

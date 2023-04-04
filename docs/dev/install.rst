@@ -1,4 +1,4 @@
-Development Installation
+Development installation
 ========================
 
 .. meta::
@@ -98,6 +98,8 @@ save some work while typing docker compose commands. This section explains these
     * ``--no-reload`` makes all celery processes and django runserver
       to use no reload and do not watch for files changes
     * ``--ngrok`` is useful when it's required to access the local instance from outside (e.g. GitHub webhook)
+    * ``--ext-theme`` to use the new dashboard templates
+    * ``--webpack`` to start the Webpack dev server for the new dashboard templates
 
 ``inv docker.shell``
     Opens a shell in a container (web by default).
@@ -196,7 +198,7 @@ Configuring connected accounts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These are optional steps to setup the :doc:`connected accounts <rtd:connected-accounts>`
-(GitHub, GitLab, and BitBucket) in your development environment.
+(GitHub, GitLab, and Bitbucket) in your development environment.
 This will allow you to login to your local development instance
 using your GitHub, Bitbucket, or GitLab credentials
 and this makes the process of importing repositories easier.

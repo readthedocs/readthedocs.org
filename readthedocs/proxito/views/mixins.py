@@ -4,6 +4,7 @@ from urllib.parse import parse_qsl, urlencode, urlparse
 
 import structlog
 from django.conf import settings
+from django.core.exceptions import BadRequest
 from django.http import (
     HttpResponse,
     HttpResponsePermanentRedirect,
@@ -14,68 +15,182 @@ from django.utils.encoding import iri_to_uri
 from django.views.static import serve
 from slugify import slugify as unicode_slugify
 
+from readthedocs.analytics.tasks import analytics_event
+from readthedocs.analytics.utils import get_client_ip
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
-from readthedocs.core.resolver import resolve
-from readthedocs.proxito.constants import REDIRECT_CANONICAL_CNAME, REDIRECT_HTTPS
+from readthedocs.core.resolver import resolve, resolver
+from readthedocs.core.utils.url import unsafe_join_url_path
+from readthedocs.projects.constants import MEDIA_TYPE_HTML
+from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage, staticfiles_storage
 
-log = structlog.get_logger(__name__)  # noqa
+log = structlog.get_logger(__name__)
+
+
+class InvalidPathError(Exception):
+
+    """An invalid path was passed to storage."""
+
+
+class StorageFileNotFound(Exception):
+
+    """The file wasn't found in the storage backend."""
 
 
 class ServeDocsMixin:
 
     """Class implementing all the logic to serve a document."""
 
+    # We force all storage calls to use internal versions
+    # unless explicitly set to external.
     version_type = INTERNAL
 
-    def _serve_docs(
-            self,
-            request,
-            final_project,
-            path,
-            download=False,
-            version_slug=None,
-    ):
+    def _serve_docs(self, request, project, version, filename, check_if_exists=False):
         """
-        Serve documentation in the way specified by settings.
+        Serve a documentation file.
+
+        :param check_if_exists: If `True` we check if the file exists before trying
+         to serve it. This will raisen an exception if the file doesn't exists.
+         Useful to make sure were are serving a file that exists in storage,
+         checking if the file exists will make one additional request to the storage.
+        """
+        base_storage_path = project.get_storage_path(
+            type_=MEDIA_TYPE_HTML,
+            version_slug=version.slug,
+            include_file=False,
+            # Force to always read from the internal or extrernal storage,
+            # according to the current request.
+            version_type=self.version_type,
+        )
+
+        # Handle our backend storage not supporting directory indexes,
+        # so we need to append index.html when appropriate.
+        if not filename or filename.endswith("/"):
+            filename += "index.html"
+
+        # If the filename starts with `/`, the join will fail,
+        # so we strip it before joining it.
+        try:
+            storage_path = build_media_storage.join(
+                base_storage_path, filename.lstrip("/")
+            )
+        except ValueError:
+            # We expect this exception from the django storages safe_join
+            # function, when the filename resolves to a higher relative path.
+            # The request is malicious or malformed in this case.
+            raise BadRequest("Invalid URL")
+
+        if check_if_exists and not build_media_storage.exists(storage_path):
+            raise StorageFileNotFound
+
+        self._track_pageview(
+            project=project,
+            path=filename,
+            request=request,
+            download=False,
+        )
+        return self._serve_file(
+            request=request,
+            storage_path=storage_path,
+            storage_backend=build_media_storage,
+        )
+
+    def _serve_dowload(self, request, project, version, type_):
+        """
+        Serve downloadable content for the given version.
+
+        The HTTP header ``Content-Disposition`` is added with the proper
+        filename (e.g. "pip-pypa-io-en-latest.pdf" or "pip-pypi-io-en-v2.0.pdf"
+        or "docs-celeryproject-org-kombu-en-stable.pdf").
+        """
+        storage_path = project.get_storage_path(
+            type_=type_,
+            version_slug=version.slug,
+            # Force to always read from the internal or extrernal storage,
+            # according to the current request.
+            version_type=self.version_type,
+            include_file=True,
+        )
+        self._track_pageview(
+            project=project,
+            path=storage_path,
+            request=request,
+            download=True,
+        )
+
+        # Send media download to analytics - sensitive data is anonymized
+        analytics_event.delay(
+            event_category="Build Media",
+            event_action=f"Download {type_}",
+            event_label=str(version),
+            ua=request.headers.get("User-Agent"),
+            uip=get_client_ip(request),
+        )
+
+        response = self._serve_file(
+            request=request,
+            storage_path=storage_path,
+            storage_backend=build_media_storage,
+        )
+
+        # Set the filename of the download.
+        filename_ext = storage_path.rsplit(".", 1)[-1]
+        domain = unicode_slugify(project.subdomain().replace(".", "-"))
+        if project.is_subproject:
+            filename = f"{domain}-{project.alias}-{project.language}-{version.slug}.{filename_ext}"
+        else:
+            filename = f"{domain}-{project.language}-{version.slug}.{filename_ext}"
+        response["Content-Disposition"] = f"filename={filename}"
+        return response
+
+    def _serve_file(self, request, storage_path, storage_backend):
+        """
+        Serve a file from storage.
 
         Serve from the filesystem if using ``PYTHON_MEDIA``. We definitely
         shouldn't do this in production, but I don't want to force a check for
         ``DEBUG``.
 
-        If ``download`` and ``version_slug`` are passed,
-        the HTTP header ``Content-Disposition`` is added with the proper
-        filename (e.g. "pip-pypa-io-en-latest.pdf" or "pip-pypi-io-en-v2.0.pdf"
-        or "docs-celeryproject-org-kombu-en-stable.pdf")
+        :param storage_path: Path to file to serve.
+        :param storage_backend: Storage backend class from where to serve the file.
         """
-
-        self._track_pageview(
-            project=final_project,
-            path=path,
+        storage_url = self._get_storage_url(
             request=request,
-            download=download,
+            storage_path=storage_path,
+            storage_backend=storage_backend,
         )
         if settings.PYTHON_MEDIA:
-            response = self._serve_file_from_python(request, path, build_media_storage)
-        else:
-            response = self._serve_file_from_nginx(path, root_path="proxito")
+            return self._serve_file_from_python(request, storage_url, storage_backend)
 
-        # Set the filename of the download.
-        if download:
-            filename_ext = urlparse(path).path.rsplit(".", 1)[-1]
-            domain = unicode_slugify(final_project.subdomain().replace(".", "-"))
-            if final_project.is_subproject:
-                alias = final_project.alias
-                filename = f"{domain}-{alias}-{final_project.language}-{version_slug}.{filename_ext}"  # noqa
-            else:
-                filename = (
-                    f"{domain}-{final_project.language}-{version_slug}.{filename_ext}"
-                )
-            response["Content-Disposition"] = f"filename={filename}"
+        return self._serve_file_from_nginx(
+            storage_url,
+            root_path=storage_backend.internal_redirect_root_path,
+        )
 
-        return response
+    def _get_storage_url(self, request, storage_path, storage_backend):
+        """
+        Get the full storage URL from a storage path.
+
+        The URL will be without scheme and domain,
+        this is to perform an NGINX internal redirect.
+        Authorization query arguments will stay in place
+        (useful for private buckets).
+        """
+        # We are catching a broader exception,
+        # since depending on the storage backend,
+        # an invalid path may raise a different exception.
+        try:
+            # NOTE: calling ``.url`` will remove any double slashes.
+            # e.g: '/foo//bar///' -> '/foo/bar/'.
+            storage_url = storage_backend.url(storage_path, http_method=request.method)
+        except Exception as e:
+            log.info("Invalid storage path.", path=storage_path, exc_info=e)
+            raise InvalidPathError
+
+        parsed_url = urlparse(storage_url)._replace(scheme="", netloc="")
+        return parsed_url.geturl()
 
     def _track_pageview(self, project, path, request, download):
         """Create an audit log of the page view if audit is enabled."""
@@ -100,10 +215,12 @@ class ServeDocsMixin:
         """
         return False
 
-    def _serve_static_file(self, request, path):
-        if settings.PYTHON_MEDIA:
-            return self._serve_file_from_python(request, path, staticfiles_storage)
-        return self._serve_file_from_nginx(path, root_path="proxito-static")
+    def _serve_static_file(self, request, filename):
+        return self._serve_file(
+            request=request,
+            storage_path=filename,
+            storage_backend=staticfiles_storage,
+        )
 
     def _serve_file_from_nginx(self, path, root_path):
         """
@@ -163,19 +280,21 @@ class ServeDocsMixin:
         log.debug('Unauthorized access to documentation.', project_slug=project.slug)
         return res
 
-    def allowed_user(self, *args, **kwargs):
+    def allowed_user(self, request, version):
         return True
 
     def get_version_from_host(self, request, version_slug):
         # Handle external domain
-        if hasattr(request, 'external_domain'):
+        unresolved_domain = request.unresolved_domain
+        if unresolved_domain and unresolved_domain.is_from_external_domain:
+            external_version_slug = unresolved_domain.external_version_slug
             self.version_type = EXTERNAL
             log.warning(
                 'Using version slug from host.',
                 version_slug=version_slug,
-                host_version=request.host_version_slug,
+                host_version=external_version_slug,
             )
-            version_slug = request.host_version_slug
+            return external_version_slug
         return version_slug
 
     def _spam_response(self, request, project):
@@ -211,18 +330,18 @@ class ServeRedirectMixin:
         log.debug(
             "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
         )
+        # All system redirects can be cached, since the final URL will check for authz.
+        self.cache_response = True
         resp = HttpResponseRedirect(to)
-        resp['X-RTD-Redirect'] = 'system'
+        resp["X-RTD-Redirect"] = RedirectType.system.name
         return resp
 
     def canonical_redirect(
         self,
         request,
         final_project,
-        version_slug,
-        filename,
-        redirect_type=None,
-        is_external_version=False,
+        redirect_type,
+        external_version_slug=None,
     ):
         """
         Return a redirect to the canonical domain including scheme.
@@ -240,31 +359,36 @@ class ServeRedirectMixin:
 
         :param request: Request object.
         :param final_project: The current project being served.
-        :param version_slug: The current version slug being served.
-        :param filename: The filename being served.
         :param redirect_type: The type of canonical redirect (https, canonical-cname, subproject-main-domain)
-        :param external: If the version is from a pull request preview.
+        :param external_version_slug: The version slug if the request is from a pull request preview.
         """
         from_url = request.build_absolute_uri()
         parsed_from = urlparse(from_url)
 
-        if redirect_type == REDIRECT_HTTPS:
-            to = parsed_from._replace(scheme='https').geturl()
-        else:
-            to = resolve(
+        if redirect_type == RedirectType.http_to_https:
+            # We only need to change the protocol.
+            to = parsed_from._replace(scheme="https").geturl()
+        elif redirect_type == RedirectType.to_canonical_domain:
+            # We need to change the domain and protocol.
+            canonical_domain = final_project.get_canonical_custom_domain()
+            protocol = "https" if canonical_domain.https else "http"
+            to = parsed_from._replace(
+                scheme=protocol, netloc=canonical_domain.domain
+            ).geturl()
+        elif redirect_type == RedirectType.subproject_to_main_domain:
+            # We need to get the subproject root in the domain of the main
+            # project, and append the current path.
+            project_doc_prefix = resolver.get_url_prefix(
                 project=final_project,
-                version_slug=version_slug,
-                filename=filename,
-                query_params=parsed_from.query,
-                external=is_external_version,
+                external_version_slug=external_version_slug,
             )
-            # When a canonical redirect is done, only change the domain.
-            if redirect_type == REDIRECT_CANONICAL_CNAME:
-                parsed_to = urlparse(to)
-                to = parsed_from._replace(
-                    scheme=parsed_to.scheme,
-                    netloc=parsed_to.netloc,
-                ).geturl()
+            parsed_doc_prefix = urlparse(project_doc_prefix)
+            to = parsed_doc_prefix._replace(
+                path=unsafe_join_url_path(parsed_doc_prefix.path, parsed_from.path),
+                query=parsed_from.query,
+            ).geturl()
+        else:
+            raise NotImplementedError
 
         if from_url == to:
             # check that we do have a response and avoid infinite redirect
@@ -274,9 +398,13 @@ class ServeRedirectMixin:
             )
             raise InfiniteRedirectException()
 
-        log.info('Canonical Redirect.', host=request.get_host(), from_url=filename, to_url=to)
+        log.info(
+            "Canonical Redirect.", host=request.get_host(), from_url=from_url, to_url=to
+        )
+        # All canonical redirects can be cached, since the final URL will check for authz.
+        self.cache_response = True
         resp = HttpResponseRedirect(to)
-        resp["X-RTD-Redirect"] = redirect_type or "unknown"
+        resp["X-RTD-Redirect"] = redirect_type.name
         return resp
 
     def get_redirect(
@@ -348,5 +476,5 @@ class ServeRedirectMixin:
             resp = HttpResponseRedirect(new_path)
 
         # Add a user-visible header to make debugging easier
-        resp['X-RTD-Redirect'] = 'user'
+        resp["X-RTD-Redirect"] = RedirectType.user.name
         return resp

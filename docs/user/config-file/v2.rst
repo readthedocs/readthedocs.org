@@ -1,4 +1,4 @@
-Configuration File V2
+Configuration file v2
 =====================
 
 Read the Docs supports configuring your documentation builds with a YAML file.
@@ -143,6 +143,8 @@ Example:
 
    At the moment, only Sphinx supports additional formats.
    ``pdf``, ``epub``, and ``htmlzip`` output is not yet supported when using MkDocs.
+
+   With :doc:`builds from pull requests </pull-requests>`, only HTML formats are generated. Other formats are resource intensive and will be built after merging.
 
 python
 ~~~~~~
@@ -292,7 +294,7 @@ Configuration for Conda support.
 conda.environment
 `````````````````
 
-The path to the Conda environment file, relative to the root of the project.
+The path to the Conda `environment file <https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_, relative to the root of the project.
 
 :Type: ``path``
 :Required: ``true``
@@ -427,7 +429,7 @@ We don't currently support PPA's or other custom repositories.
 .. note::
 
    When possible avoid installing Python packages using apt (``python3-numpy`` for example),
-   :ref:`use pip or Conda instead <guides/reproducible-builds:pinning dependencies>`.
+   :doc:`use pip or conda instead </guides/reproducible-builds>`.
 
 
 build.jobs
@@ -749,13 +751,13 @@ check :ref:`config-file/v2:search.ignore`.
 search.ignore
 `````````````
 
-Don't index files matching a pattern.
-This is, you won't see search results from these files.
+List of paths to ignore and exclude from the search index.
+Paths matched will not be included in search results.
 
 :Type: ``list`` of patterns
 :Default: ``['search.html', 'search/index.html', '404.html', '404/index.html']``
 
-Patterns are matched against the final html pages produced by the build
+Patterns are matched against the relative path of html files produced by the build
 (you should try to match `index.html`, not `docs/index.rst`).
 Patterns can include some special characters:
 
@@ -769,13 +771,13 @@ Patterns can include some special characters:
 
    search:
       ignore:
-        # Ignore a single file
+        # Ignore a single file in the root of the output directory
         - 404.html
 
         # Ignore all files under the search/ directory
         - search/*
 
-        # Ignore all files that end with ref.html
+        # Ignore all files named ref.html nested inside one or more sub-folders
         - '*/ref.html'
 
 .. code-block:: yaml
@@ -854,8 +856,10 @@ The Docker image used for building the docs.
 Each image support different Python versions and has different packages installed,
 as defined here:
 
-* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`stable`
-* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_: :buildpyversions:`latest`
+* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_:
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``pypy3.5``
+* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_:
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``, ``pypy3.5``
 
 python.version (legacy)
 ```````````````````````

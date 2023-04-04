@@ -50,8 +50,7 @@ and it contains the following files:
 
 ``docs/``
   Directory holding all the Sphinx documentation sources,
-  including some required dependencies in ``docs/requirements.txt``,
-  the Sphinx configuration ``docs/source/conf.py``,
+  including the Sphinx configuration ``docs/source/conf.py``
   and the root document ``docs/source/index.rst`` written in reStructuredText.
 
 .. figure:: /_static/images/tutorial/github-template.png
@@ -581,7 +580,7 @@ how readers are using your documentation, addressing some common questions like:
 
 Read the Docs offers you some analytics tools to find out the answers.
 
-Browsing Traffic Analytics
+Browsing traffic analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The :doc:`/analytics` view shows the top viewed documentation pages of the past 30 days,
@@ -622,11 +621,11 @@ and click on the :guilabel:`Download all data` button.
 That will prompt you to download a :abbr:`CSV (Comma-Separated Values)` file
 that you can process any way you want.
 
-Browsing Search Analytics
+Browsing search analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Apart from traffic analytics, Read the Docs also offers the possibility
-to inspect :ref:`what search terms your readers use <server-side-search/index:Search Analytics>`
+to inspect :doc:`what search terms your readers use </guides/search-analytics>`
 on your documentation.
 This can inform decisions on what areas to reinforce,
 or what parts of your project are less understood or more difficult to find.
@@ -666,7 +665,7 @@ Here you have some resources to continue learning about documentation
 and Read the Docs:
 
 - You can learn more about the functionality of the platform
-  by going over our :doc:`/features` page.
+  by going over our :doc:`features </reference/features>` page.
 - To make the most of the documentation generators that are supported,
   you can read the :doc:`Sphinx tutorial <sphinx:tutorial/index>`
   or the `MkDocs User Guide <https://www.mkdocs.org/user-guide/>`_.
@@ -674,9 +673,6 @@ and Read the Docs:
 - Whether you are a documentation author, a project administrator, a developer, or a designer,
   you can follow our how-to guides that cover specific tasks,
   available under :doc:`/guides/index`.
-- You can check out some of the
-  :ref:`index:Advanced features of Read the Docs`,
-  like :doc:`/subprojects` or :doc:`/automation-rules`, to name a few.
 - For private project support and other enterprise features,
   you can use :doc:`our commercial service </commercial/index>`
   (and if in doubt, check out :doc:`/choosing-a-site`).

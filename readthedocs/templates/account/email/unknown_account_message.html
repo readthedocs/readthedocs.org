@@ -1,0 +1,21 @@
+{% extends "core/email/common.html" %}
+
+{% block content %}
+<p>
+  You are receiving this email because you or someone else has requested a
+  password for your user account. However, we do not have any record of a user
+  with email {{ email }} in our database.
+</p>
+
+<p>
+  This mail can be safely ignored if you did not request a password reset.
+</p>
+
+<p>
+  If it was you, you can sign up for an account using the link below.
+</p>
+
+<p>
+  <a href="{{ signup_url }}">{{ signup_url }}</a>
+</p>
+{% endblock %}

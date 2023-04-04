@@ -1,5 +1,5 @@
-Policy for Abandoned Projects
-=============================
+Abandoned projects policy
+=========================
 
 This policy describes the process by which a Read the Docs project :term:`slug` may be changed.
 

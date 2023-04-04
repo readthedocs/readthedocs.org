@@ -1,4 +1,4 @@
-How to Link to Other Documentation Projects With Intersphinx
+How to link to other documentation projects with Intersphinx
 ============================================================
 
 This section shows you how to maintain references to named sections of other external Sphinx projects.
@@ -13,6 +13,9 @@ While you could just hyperlink directly, there is a better way.
 :doc:`Intersphinx <sphinx:usage/extensions/intersphinx>` allows you to use all :ref:`cross-reference roles <sphinx:xref-syntax>` from Sphinx with objects in other projects.
 That is, you could use the ``:ref:`` role to link to sections of other documentation projects.
 Sphinx will ensure that your cross-references to the other project exist and will raise a warning if they are deleted or changed so you can keep your docs up to date.
+
+If you are publishing several Sphinx projects together using Read the Docs' *subprojects* (see :doc:`/subprojects`),
+you should use Intersphinx to reference your subprojects from other projects.
 
 .. note::
 
@@ -48,6 +51,18 @@ And use the ``intersphinx_mapping`` configuration to indicate the name and link 
        "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
    }
 
+   # We recommend adding the following config value.
+   # Sphinx defaults to automatically resolve *unresolved* labels using all your Intersphinx mappings.
+   # This behavior has unintended side-effects, namely that documentations local references can
+   # suddenly resolve to an external location.
+   # See also:
+   # https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html#confval-intersphinx_disabled_reftypes
+   intersphinx_disabled_reftypes = ["*"]
+
+.. note::
+
+   If you are using Read the Docs' subprojects, you also need to enable the Intersphinx extension on each of the subprojects.
+   For each subproject, you need to add the main project and all the other subprojects to ``intersphinx_mapping``.
 
 Now you can use the ``sphinx`` name with a cross-reference role:
 
@@ -87,6 +102,7 @@ Result:
    .. prompt:: bash $
 
       python -m sphinx.ext.intersphinx https://www.sphinx-doc.org/en/master/objects.inv
+
 
 Intersphinx in Read the Docs
 ----------------------------

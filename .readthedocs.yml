@@ -1,6 +1,8 @@
 version: 2
 
-formats: all
+formats:
+  - epub
+  - htmlzip
 
 sphinx:
   configuration: docs/conf.py
@@ -8,7 +10,6 @@ sphinx:
 
 python:
   install:
-    - requirements: requirements/pip.txt
     - requirements: requirements/docs.txt
 
 build:

@@ -1,4 +1,4 @@
-Server Side Search Integration
+Server side search integration
 ==============================
 
 Read the Docs provides :doc:`server side search (SSS) <rtd:server-side-search/index>`

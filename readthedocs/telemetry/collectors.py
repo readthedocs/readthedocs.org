@@ -92,6 +92,7 @@ class BuildDataCollector:
             },
         }
         data["doctool"] = self._get_doctool()
+
         return data
 
     def _get_doctool_name(self):

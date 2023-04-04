@@ -2,6 +2,8 @@ from .docker_compose import DockerBaseSettings
 
 
 class CeleryDevSettings(DockerBaseSettings):
+    DONT_HIT_DB = False
+
     # TODO: review this since it may not be needed with MinIO (S3). For now,
     # this is still required, but the CORS issue may have disappeared in MinIO.
 

@@ -31,6 +31,7 @@ from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
+from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -143,6 +144,9 @@ class Project(models.Model):
         help_text=_('Hosted documentation repository URL'),
         db_index=True,
     )
+
+    # NOTE: this field is going to be completely removed soon.
+    # We only accept Git for new repositories
     repo_type = models.CharField(
         _('Repository type'),
         max_length=10,
@@ -175,8 +179,8 @@ class Project(models.Model):
         default=LATEST,
         help_text=_('The version of your project that / redirects to'),
     )
-    # In default_branch, None means the backend should choose the
-    # appropriate branch. Eg 'master' for git
+    # In default_branch, ``None`` means the backend will use the default branch
+    # cloned for each backend.
     default_branch = models.CharField(
         _('Default branch'),
         max_length=255,
@@ -185,8 +189,7 @@ class Project(models.Model):
         blank=True,
         help_text=_(
             'What branch "latest" points to. Leave empty '
-            'to use the default value for your VCS (eg. '
-            '<code>trunk</code> or <code>master</code>).',
+            "to use the default value for your VCS.",
         ),
     )
     requirements_file = models.CharField(
@@ -324,14 +327,14 @@ class Project(models.Model):
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(
         _('Enable EPUB build'),
-        default=True,
+        default=False,
         help_text=_(
             'Create a EPUB version of your documentation with each build.',
         ),
     )
     enable_pdf_build = models.BooleanField(
         _('Enable PDF build'),
-        default=True,
+        default=False,
         help_text=_(
             'Create a PDF version of your documentation with each build.',
         ),
@@ -360,7 +363,22 @@ class Project(models.Model):
     )
 
     featured = models.BooleanField(_('Featured'), default=False)
-    skip = models.BooleanField(_('Skip'), default=False)
+
+    skip = models.BooleanField(_("Skip (disable) building this project"), default=False)
+
+    # null=True can be removed in a later migration
+    # be careful if adding new queries on this, .filter(delisted=False) does not work
+    # but .exclude(delisted=True) does!
+    delisted = models.BooleanField(
+        null=True,
+        default=False,
+        verbose_name=_("Delisted"),
+        help_text=_(
+            "Delisting a project removes it from Read the Docs search indexing and asks external "
+            "search engines to remove it via robots.txt"
+        ),
+    )
+
     install_project = models.BooleanField(
         _('Install Project'),
         help_text=_(
@@ -480,21 +498,21 @@ class Project(models.Model):
             if not self.slug:
                 raise Exception(_('Model must have slug'))
         super().save(*args, **kwargs)
-        try:
-            latest = self.versions.filter(slug=LATEST).first()
-            default_branch = self.get_default_branch()
-            if latest and latest.identifier != default_branch:
-                latest.identifier = default_branch
-                latest.save()
-        except Exception:
-            log.exception('Failed to update latest identifier')
 
         try:
-            branch = self.get_default_branch()
             if not self.versions.filter(slug=LATEST).exists():
-                self.versions.create_latest(identifier=branch)
+                self.versions.create_latest()
         except Exception:
-            log.exception('Error creating default branches')
+            log.exception("Error creating default branches")
+
+        # Update `Version.identifier` for `latest` with the default branch the user has selected,
+        # even if it's `None` (meaning to match the `default_branch` of the repository)
+        # NOTE: this code is required to be *after* ``create_latest()``.
+        # It has to be updated after creating LATEST originally.
+        log.debug(
+            "Updating default branch.", slug=LATEST, identifier=self.default_branch
+        )
+        self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
 
     def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
         from readthedocs.projects.tasks.utils import clean_project_resources
@@ -631,8 +649,8 @@ class Project(models.Model):
         if self.urlconf:
             # Add our proxied api host at the first place we have a $variable
             # This supports both subpaths & normal root hosting
-            url_prefix = self.urlconf.split('$', 1)[0]
-            return '/' + url_prefix.strip('/') + '/_'
+            path_prefix = self.custom_path_prefix
+            return unsafe_join_url_path(path_prefix, "/_")
         return '/_'
 
     @property
@@ -648,6 +666,19 @@ class Project(models.Model):
     def proxied_static_path(self):
         """Path for static files hosted on the user's doc domain."""
         return f"{self.proxied_api_host}/static/"
+
+    @property
+    def custom_path_prefix(self):
+        """
+        Get the path prefix from the custom urlconf.
+
+        Returns `None` if the project doesn't have a custom urlconf.
+        """
+        if self.urlconf:
+            # Return the value before the first defined variable,
+            # as that is a prefix and not part of our normal doc patterns.
+            return self.urlconf.split("$", 1)[0]
+        return None
 
     @property
     def regex_urlconf(self):
@@ -754,12 +785,12 @@ class Project(models.Model):
 
         return ProxitoURLConf
 
-    @property
+    @cached_property
     def is_subproject(self):
         """Return whether or not this project is a subproject."""
         return self.superprojects.exists()
 
-    @property
+    @cached_property
     def superproject(self):
         relationship = self.get_parent_relationship()
         if relationship:
@@ -817,8 +848,13 @@ class Project(models.Model):
         return doc_base
 
     def artifact_path(self, type_, version=LATEST):
-        """The path to the build html docs in the project."""
-        return os.path.join(self.doc_path, 'artifacts', version, type_)
+        """
+        The path to the build docs output for the project.
+
+        :param type_: one of `html`, `json`, `htmlzip`, `pdf`, `epub`.
+        :param version: slug of the version.
+        """
+        return os.path.join(self.checkout_path(version=version), "_readthedocs", type_)
 
     def conf_file(self, version=LATEST):
         """Find a ``conf.py`` file in the project checkout."""
@@ -947,7 +983,7 @@ class Project(models.Model):
 
     @property
     def git_provider_name(self):
-        """Get the provider name for project. e.g: GitHub, GitLab, BitBucket."""
+        """Get the provider name for project. e.g: GitHub, GitLab, Bitbucket."""
         service = self.git_service_class()
         if service:
             provider = allauth_registry.by_id(service.adapter.provider_id)
@@ -1654,7 +1690,7 @@ class Domain(TimeStampedModel):
     )
     https = models.BooleanField(
         _('Use HTTPS'),
-        default=False,
+        default=True,
         help_text=_('Always use HTTPS for this domain'),
     )
     count = models.IntegerField(
@@ -1755,13 +1791,14 @@ class HTTPHeader(TimeStampedModel, models.Model):
     """
 
     HEADERS_CHOICES = (
-        ('access_control_allow_origin', 'Access-Control-Allow-Origin'),
-        ('access_control_allow_headers', 'Access-Control-Allow-Headers'),
-        ('content_security_policy', 'Content-Security-Policy'),
-        ('feature_policy', 'Feature-Policy'),
-        ('permissions_policy', 'Permissions-Policy'),
-        ('referrer_policy', 'Referrer-Policy'),
-        ('x_frame_options', 'X-Frame-Options'),
+        ("access_control_allow_origin", "Access-Control-Allow-Origin"),
+        ("access_control_allow_headers", "Access-Control-Allow-Headers"),
+        ("content_security_policy", "Content-Security-Policy"),
+        ("feature_policy", "Feature-Policy"),
+        ("permissions_policy", "Permissions-Policy"),
+        ("referrer_policy", "Referrer-Policy"),
+        ("x_frame_options", "X-Frame-Options"),
+        ("x_content_type_options", "X-Content-Type-Options"),
     )
 
     domain = models.ForeignKey(
@@ -1802,6 +1839,7 @@ class Feature(models.Model):
     # may be added by other packages
     ALLOW_DEPRECATED_WEBHOOKS = "allow_deprecated_webhooks"
     DONT_OVERWRITE_SPHINX_CONTEXT = "dont_overwrite_sphinx_context"
+    SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
     DONT_SHALLOW_CLONE = "dont_shallow_clone"
@@ -1818,6 +1856,8 @@ class Feature(models.Model):
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     DISABLE_SPHINX_DOMAINS = "disable_sphinx_domains"
+    RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
+    USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1839,12 +1879,15 @@ class Feature(models.Model):
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
+    # Build related features
     LIST_PACKAGES_INSTALLED_ENV = "list_packages_installed_env"
     VCS_REMOTE_LISTING = "vcs_remote_listing"
     SPHINX_PARALLEL = "sphinx_parallel"
     USE_SPHINX_BUILDERS = "use_sphinx_builders"
     CANCEL_OLD_BUILDS = "cancel_old_builds"
     DONT_CREATE_INDEX = "dont_create_index"
+    USE_RCLONE = "use_rclone"
+    HOSTING_INTEGRATIONS = "hosting_integrations"
 
     FEATURES = (
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
@@ -1852,6 +1895,12 @@ class Feature(models.Model):
             DONT_OVERWRITE_SPHINX_CONTEXT,
             _(
                 'Do not overwrite context vars in conf.py with Read the Docs context',
+            ),
+        ),
+        (
+            SKIP_SPHINX_HTML_THEME_PATH,
+            _(
+                "Do not define html_theme_path on Sphinx < 6.0",
             ),
         ),
         (
@@ -1920,6 +1969,14 @@ class Feature(models.Model):
         (
             DISABLE_SPHINX_DOMAINS,
             _("Disable indexing of sphinx domains"),
+        ),
+        (
+            RESOLVE_PROJECT_FROM_HEADER,
+            _("Allow usage of the X-RTD-Slug header"),
+        ),
+        (
+            USE_UNRESOLVER_WITH_PROXITO,
+            _("Use new unresolver implementation for serving documentation files."),
         ),
 
         # Versions sync related features
@@ -2000,6 +2057,14 @@ class Feature(models.Model):
         (
             DONT_CREATE_INDEX,
             _('Do not create index.md or README.rst if the project does not have one.'),
+        ),
+        (
+            USE_RCLONE,
+            _("Use rclone for syncing files to the media storage."),
+        ),
+        (
+            HOSTING_INTEGRATIONS,
+            _("Inject 'readthedocs-client.js' as <script> HTML tag in responses."),
         ),
     )
 

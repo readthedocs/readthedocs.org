@@ -200,8 +200,11 @@ class TestGitBackend(TestCase):
         repo = self.project.vcs_repo()
         code, _, _ = repo.update()
         self.assertEqual(code, 0)
-        code, _, _ = repo.checkout()
-        self.assertEqual(code, 0)
+
+        # Returns `None` because there is no `identifier`,
+        # so it uses the default branch
+        self.assertIsNone(repo.checkout())
+
         self.assertTrue(exists(repo.working_dir))
 
     @patch('readthedocs.vcs_support.backends.git.Backend.fetch')

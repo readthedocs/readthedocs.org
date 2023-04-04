@@ -8,6 +8,7 @@ from django.core.files.storage import get_storage_class
 from django.test import TestCase
 
 from readthedocs.projects.constants import PUBLIC, SSL_STATUS_VALID
+from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Domain, Project
 from readthedocs.proxito.views import serve
 
@@ -32,7 +33,8 @@ class BaseDocServing(TestCase):
             users=[self.eric],
             main_language_project=None,
         )
-        self.project.versions.update(privacy_level=PUBLIC)
+        self.project.versions.update(privacy_level=PUBLIC, built=True, active=True)
+        self.version = self.project.versions.get(slug=LATEST)
 
         self.subproject = fixture.get(
             Project,

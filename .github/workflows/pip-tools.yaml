@@ -33,17 +33,11 @@ jobs:
       - name: Run pip-compile on requirements/pip.in
         run: pip-compile --upgrade --resolver=backtracking --output-file=requirements/pip.txt requirements/pip.in
 
-      - name: Run pip-compile on requirements/debug.in
-        run: pip-compile --upgrade --resolver=backtracking --output-file=requirements/debug.txt requirements/debug.in
-
       - name: Run pip-compile on requirements/docker.in
         run: pip-compile --upgrade --resolver=backtracking --output-file=requirements/docker.txt requirements/docker.in
 
       - name: Run pip-compile on requirements/testing.in
         run: pip-compile --upgrade --resolver=backtracking --output-file=requirements/testing.txt requirements/testing.in
-
-      - name: Run pip-compile on requirements/lint.in
-        run: pip-compile --upgrade --resolver=backtracking --output-file=requirements/lint.txt requirements/lint.in
 
       - name: Run pip-compile on requirements/docs.in
         run: pip-compile --upgrade --resolver=backtracking --output-file=requirements/docs.txt requirements/docs.in

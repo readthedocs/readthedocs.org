@@ -358,7 +358,7 @@ class SearchAPITest(SearchTestBase):
 @override_settings(PUBLIC_DOMAIN="readthedocs.io", USE_SUBDOMAIN=True)
 class ProxiedSearchAPITest(SearchAPITest):
 
-    host = "docs.readthedocs.io"
+    host = "project.readthedocs.io"
 
     def get(self, *args, **kwargs):
         return self.client.get(*args, HTTP_HOST=self.host, **kwargs)

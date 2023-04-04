@@ -1,11 +1,11 @@
 """Defines serializers for each of our models."""
 
-import re
 
 from allauth.socialaccount.models import SocialAccount
-from django.conf import settings
 from rest_framework import serializers
 
+from readthedocs.api.v2.utils import normalize_build_command
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, Project
@@ -102,7 +102,7 @@ class VersionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Version
-        fields = (
+        fields = [
             'id',
             'project',
             'slug',
@@ -117,7 +117,7 @@ class VersionSerializer(serializers.ModelSerializer):
             'has_epub',
             'has_htmlzip',
             'documentation_type',
-        )
+        ]
 
 
 class VersionAdminSerializer(VersionSerializer):
@@ -125,6 +125,21 @@ class VersionAdminSerializer(VersionSerializer):
     """Version serializer that returns admin project data."""
 
     project = ProjectAdminSerializer()
+    canonical_url = serializers.SerializerMethodField()
+    build_data = serializers.JSONField(required=False, write_only=True, allow_null=True)
+
+    def get_canonical_url(self, obj):
+        return obj.project.get_docs_url(
+            lang_slug=obj.project.language,
+            version_slug=obj.slug,
+            external=obj.type == EXTERNAL,
+        )
+
+    class Meta(VersionSerializer.Meta):
+        fields = VersionSerializer.Meta.fields + [
+            "build_data",
+            "canonical_url",
+        ]
 
 
 class BuildCommandSerializer(serializers.ModelSerializer):
@@ -157,22 +172,9 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
     command = serializers.SerializerMethodField()
 
     def get_command(self, obj):
-        project_slug = obj.build.version.project.slug
-        version_slug = obj.build.version.slug
-        docroot = settings.DOCROOT.rstrip("/")  # remove trailing '/'
-
-        # Remove Docker hash from DOCROOT when running it locally
-        # DOCROOT contains the Docker container hash (e.g. b7703d1b5854).
-        # We have to remove it from the DOCROOT it self since it changes each time
-        # we spin up a new Docker instance locally.
-        container_hash = "/"
-        if settings.RTD_DOCKER_COMPOSE:
-            docroot = re.sub("/[0-9a-z]+/?$", "", settings.DOCROOT, count=1)
-            container_hash = "/([0-9a-z]+/)?"
-
-        regex = f"{docroot}{container_hash}{project_slug}/envs/{version_slug}(/bin/)?"
-        command = re.sub(regex, "", obj.command, count=1)
-        return command
+        return normalize_build_command(
+            obj.command, obj.build.project.slug, obj.build.version.slug
+        )
 
 
 class BuildSerializer(serializers.ModelSerializer):

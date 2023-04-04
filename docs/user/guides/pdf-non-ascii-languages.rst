@@ -1,10 +1,8 @@
-Sphinx PDFs with Unicode
-========================
+How to support Unicode in Sphinx PDFs
+=====================================
 
-Sphinx offers different `LaTeX engines`_ that have better support for Unicode characters
-and non-European languages like Japanese or Chinese.
-By default Sphinx uses ``pdflatex``,
-which does not have good support for Unicode characters and may make the PDF builder fail.
+Sphinx offers different `LaTeX engines`_ that have better support for Unicode characters,
+relevant for instance for Japanese or Chinese.
 
 .. _LaTeX engines: http://www.sphinx-doc.org/en/master/usage/configuration.html#confval-latex_engine
 
@@ -17,7 +15,7 @@ to modify Sphinx and Read the Docs behavior to make your documentation to build 
 
 For docs that are not written in Chinese or Japanese,
 and if your build fails from a Unicode error,
-then try ``xelatex`` as the ``latex_engine`` instead of the default ``pdflatex`` in your ``conf.py``:
+then try ``xelatex`` as the ``latex_engine`` in your ``conf.py``:
 
 .. code-block:: python
 

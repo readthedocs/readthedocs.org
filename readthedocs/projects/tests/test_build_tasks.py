@@ -1,4 +1,5 @@
 import os
+import pathlib
 from unittest import mock
 
 import django_dynamic_fixture as fixture
@@ -119,7 +120,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 "-D",
                 "language=en",
                 ".",
-                "_build/html",
+                "$READTHEDOCS_OUTPUT/html",
                 cwd=mock.ANY,
                 bin_path=mock.ANY,
             )
@@ -140,7 +141,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-D",
                     "language=en",
                     ".",
-                    "_build/html",
+                    "$READTHEDOCS_OUTPUT/html",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 )
@@ -197,16 +198,29 @@ class TestBuildTask(BuildEnvironmentBase):
             }
         )
 
+        # Create the artifact paths, so that `store_build_artifacts`
+        # properly runs: https://github.com/readthedocs/readthedocs.org/blob/faa611fad689675f81101ea643770a6b669bf529/readthedocs/projects/tasks/builds.py#L798-L804
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
+        for f in ("epub", "pdf"):
+            os.makedirs(self.project.artifact_path(version=self.version.slug, type_=f))
+            pathlib.Path(
+                os.path.join(
+                    self.project.artifact_path(version=self.version.slug, type_=f),
+                    f"{self.project.slug}.{f}",
+                )
+            ).touch()
+
         self._trigger_update_docs_task()
 
         # Update version state
         assert self.requests_mock.request_history[7]._request.method == "PATCH"
         assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[7].json() == {
+            "build_data": None,
             "built": True,
             "documentation_type": "mkdocs",
-            "has_pdf": False,
-            "has_epub": False,
+            "has_pdf": True,
+            "has_epub": True,
             "has_htmlzip": False,
         }
 
@@ -262,6 +276,12 @@ class TestBuildTask(BuildEnvironmentBase):
             "READTHEDOCS_VERSION_NAME": self.version.verbose_name,
             "READTHEDOCS_PROJECT": self.project.slug,
             "READTHEDOCS_LANGUAGE": self.project.language,
+            "READTHEDOCS_OUTPUT": os.path.join(
+                self.project.checkout_path(self.version.slug), "_readthedocs/"
+            ),
+            "READTHEDOCS_GIT_CLONE_URL": self.project.repo,
+            "READTHEDOCS_GIT_IDENTIFIER": self.version.identifier,
+            "READTHEDOCS_GIT_COMMIT_HASH": self.build.commit,
         }
 
         self._trigger_update_docs_task()
@@ -281,6 +301,14 @@ class TestBuildTask(BuildEnvironmentBase):
                 "bin",
             ),
             PUBLIC_TOKEN="a1b2c3",
+            # Local and Circle are different values.
+            # We only check it's present, but not its value.
+            READTHEDOCS_VIRTUALENV_PATH=mock.ANY,
+            READTHEDOCS_CANONICAL_URL=self.project.get_docs_url(
+                lang_slug=self.project.language,
+                version_slug=self.version.slug,
+                external=external,
+            ),
         )
         if not external:
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
@@ -312,6 +340,18 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
         assert not BuildData.objects.all().exists()
+
+        # Create the artifact paths, so it's detected by the builder
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="json"))
+        for f in ("htmlzip", "epub", "pdf"):
+            os.makedirs(self.project.artifact_path(version=self.version.slug, type_=f))
+            pathlib.Path(
+                os.path.join(
+                    self.project.artifact_path(version=self.version.slug, type_=f),
+                    f"{self.project.slug}.{f}",
+                )
+            ).touch()
 
         self._trigger_update_docs_task()
 
@@ -426,6 +466,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[7]._request.method == "PATCH"
         assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[7].json() == {
+            "build_data": None,
             "built": True,
             "documentation_type": "sphinx",
             "has_pdf": True,
@@ -528,7 +569,10 @@ class TestBuildTask(BuildEnvironmentBase):
         }
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_build_commands_executed(self, load_yaml_config):
+    def test_build_commands_executed(
+        self,
+        load_yaml_config,
+    ):
         load_yaml_config.return_value = self._config_file(
             {
                 "version": 2,
@@ -538,6 +582,15 @@ class TestBuildTask(BuildEnvironmentBase):
                 },
             }
         )
+
+        # Create the artifact paths, so it's detected by the builder
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="json"))
+        os.makedirs(
+            self.project.artifact_path(version=self.version.slug, type_="htmlzip")
+        )
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="epub"))
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="pdf"))
 
         self._trigger_update_docs_task()
 
@@ -613,7 +666,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-D",
                     "language=en",
                     ".",
-                    "_build/html",
+                    "$READTHEDOCS_OUTPUT/html",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 ),
@@ -630,45 +683,58 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-D",
                     "language=en",
                     ".",
-                    "_build/localmedia",
+                    "$READTHEDOCS_OUTPUT/htmlzip",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
+                ),
+                mock.call(
+                    "mktemp",
+                    "--directory",
+                    record=False,
+                ),
+                mock.call(
+                    "mv",
+                    mock.ANY,
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "mkdir",
+                    "--parents",
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "zip",
+                    "--recurse-paths",
+                    "--symlinks",
+                    mock.ANY,
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
                 ),
                 mock.call(
                     mock.ANY,
                     "-m",
                     "sphinx",
+                    "-T",
+                    "-E",
                     "-b",
                     "latex",
-                    "-D",
-                    "language=en",
                     "-d",
                     "_build/doctrees",
+                    "-D",
+                    "language=en",
                     ".",
-                    "_build/latex",
+                    "$READTHEDOCS_OUTPUT/pdf",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 ),
-                mock.call(
-                    mock.ANY,
-                    "-c",
-                    '"import sys; import sphinx; sys.exit(0 if sphinx.version_info >= (1, 6, 1) else 1)"',
-                    bin_path=mock.ANY,
-                    cwd=mock.ANY,
-                    escape_command=False,
-                    shell=True,
-                    record=False,
-                ),
-                mock.call(
-                    "mv",
-                    "-f",
-                    "output.file",
-                    # TODO: take a look at
-                    # https://callee.readthedocs.io/en/latest/reference/strings.html#callee.strings.EndsWith
-                    # to match `project.pdf`
-                    mock.ANY,
-                    cwd=mock.ANY,
-                ),
+                mock.call("cat", "latexmkrc", cwd=mock.ANY),
+                # NOTE: pdf `mv` commands and others are not here because the
+                # PDF resulting file is not found in the process (`_post_build`)
                 mock.call(
                     mock.ANY,
                     "-m",
@@ -682,22 +748,69 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-D",
                     "language=en",
                     ".",
-                    "_build/epub",
+                    "$READTHEDOCS_OUTPUT/epub",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 ),
                 mock.call(
                     "mv",
-                    "-f",
-                    "output.file",
-                    # TODO: take a look at
-                    # https://callee.readthedocs.io/en/latest/reference/strings.html#callee.strings.EndsWith
-                    # to match `project.epub`
                     mock.ANY,
+                    "/tmp/project-latest.epub",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "rm",
+                    "--recursive",
+                    "$READTHEDOCS_OUTPUT/epub",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "mkdir",
+                    "--parents",
+                    "$READTHEDOCS_OUTPUT/epub",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "mv",
+                    "/tmp/project-latest.epub",
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "test",
+                    "-x",
+                    "_build/html",
+                    record=False,
                     cwd=mock.ANY,
                 ),
                 # FIXME: I think we are hitting this issue here:
                 # https://github.com/pytest-dev/pytest-mock/issues/234
+                mock.call("lsb_release", "--description", record=False, demux=True),
+                mock.call("python", "--version", record=False, demux=True),
+                mock.call(
+                    "dpkg-query",
+                    "--showformat",
+                    "${package} ${version}\\n",
+                    "--show",
+                    record=False,
+                    demux=True,
+                ),
+                mock.call(
+                    "python",
+                    "-m",
+                    "pip",
+                    "list",
+                    "--pre",
+                    "--local",
+                    "--format",
+                    "json",
+                    record=False,
+                    demux=True,
+                ),
             ]
         )
 
@@ -820,10 +933,11 @@ class TestBuildTask(BuildEnvironmentBase):
 
         self.mocker.mocks["environment.run"].assert_has_calls(
             [
-                mock.call(
-                    "git", "fetch", "--unshallow", escape_command=False, cwd=mock.ANY
-                ),
-                mock.call("echo", "`date`", escape_command=False, cwd=mock.ANY),
+                # NOTE: when running commands from `build.jobs` or
+                # `build.commands` they are not split to allow multi-line
+                # scripts
+                mock.call("git fetch --unshallow", escape_command=False, cwd=mock.ANY),
+                mock.call("echo `date`", escape_command=False, cwd=mock.ANY),
             ],
             any_order=True,
         )
@@ -914,7 +1028,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "commands": [
                         "pip install pelican[markdown]",
-                        "pelican --settings docs/pelicanconf.py --output _readthedocs/html/ docs/",
+                        "pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/",
                     ],
                 },
             },
@@ -939,10 +1053,11 @@ class TestBuildTask(BuildEnvironmentBase):
                     "virtualenv",
                     "setuptools<58.3.0",
                 ),
+                # NOTE: when running commands from `build.jobs` or
+                # `build.commands` they are not split to allow multi-line
+                # scripts
                 mock.call(
-                    "pip",
-                    "install",
-                    "pelican[markdown]",
+                    "pip install pelican[markdown]",
                     escape_command=False,
                     cwd=mock.ANY,
                 ),
@@ -955,12 +1070,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     cwd=mock.ANY,
                 ),
                 mock.call(
-                    "pelican",
-                    "--settings",
-                    "docs/pelicanconf.py",
-                    "--output",
-                    "_readthedocs/html/",
-                    "docs/",
+                    "pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/",
                     escape_command=False,
                     cwd=mock.ANY,
                 ),
@@ -1142,7 +1252,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-D",
                     "language=en",
                     ".",
-                    "_build/html",
+                    "$READTHEDOCS_OUTPUT/html",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 ),
@@ -1172,7 +1282,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "build",
                     "--clean",
                     "--site-dir",
-                    "_build/html",
+                    "$READTHEDOCS_OUTPUT/html",
                     "--config-file",
                     "docs/mkdocs.yaml",
                     "--strict",  # fail on warning flag
@@ -1521,7 +1631,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-D",
                     "language=en",
                     ".",
-                    "_build/html",
+                    "$READTHEDOCS_OUTPUT/html",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 ),

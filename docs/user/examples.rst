@@ -6,7 +6,7 @@ Example projects
 * Want to showcase your own solution?
 
 The following example projects show a rich variety of uses of Read the Docs.
-You can use them for inspiration, for learning and for recipies to start your own documentation projects.
+You can use them for inspiration, for learning and for recipes to start your own documentation projects.
 View the *rendered* version of each project and then head over to the Git source to see how it's done and reuse the code.
 
 Sphinx and MkDocs examples
@@ -39,10 +39,10 @@ Real-life examples
 
 .. image:: _static/images/awesome-list.svg
   :alt: Awesome List badge
-  :target: https://github.com/readthedocs-examples/
+  :target: https://github.com/readthedocs-examples/awesome-read-the-docs
 
 We maintain an **Awesome List** where you can contribute new shiny examples of using Read the Docs.
-Please refer to the instructions on how to submit new entries on `Awesome Read the Docs Projects <https://github.com/readthedocs-examples/>`_.
+Please refer to the instructions on how to submit new entries on `Awesome Read the Docs Projects <https://github.com/readthedocs-examples/awesome-read-the-docs>`__.
 
 
 Contributing an example project

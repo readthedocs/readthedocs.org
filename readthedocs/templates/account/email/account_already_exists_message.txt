@@ -1,0 +1,17 @@
+{% extends "core/email/common.txt" %}
+
+{% block content %}
+
+You are receiving this email because you or someone else tried to signup for
+an account using email address:
+
+{{ email }}
+
+However, an account using that email address already exists. In case you have
+forgotten about this, please use the password forgotten procedure to recover
+your account:
+
+{{ password_reset_url }
+
+If you did not sign up for an account with Read the Docs, you can disregard this email.
+{% endblock %}

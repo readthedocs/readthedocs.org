@@ -1,4 +1,4 @@
-In Doc Search UI
+In-doc search UI
 ================
 
 Giving readers the ability to easily search the information
@@ -24,11 +24,11 @@ The final result may look something like this:
     Short demo
 
 
-Goals And Non-Goals
+Goals And non-Goals
 -------------------
 
-Project Goals
-++++++++++++++
+Project goals
++++++++++++++
 
 * Support a search-as-you-type/autocomplete interface.
 * Support across all (or virtually all) Sphinx themes.
@@ -36,14 +36,14 @@ Project Goals
 * Project maintainers should have a way to opt-in/opt-out of this feature.
 * (Optional) Project maintainers should have the flexibility to change some of the styles using custom CSS and JS files.
 
-Non-Goals
-++++++++++
+Non-goals
++++++++++
 
 * For the initial release, we are targeting only Sphinx documentations
   as we don't index MkDocs documentations to our Elasticsearch index.
 
 
-Existing Search Implementation
+Existing search implementation
 ------------------------------
 
 We have a detailed documentation explaining the underlying architecture of our search backend
@@ -51,7 +51,7 @@ and how we index documents to our Elasticsearch index.
 You can read about it :doc:`here </server-side-search>`.
 
 
-Proposed Architecture for In-Doc Search UI
+Proposed architecture for in-doc search UI
 ------------------------------------------
 
 Frontend
@@ -69,7 +69,7 @@ This will provide us some advantages over using any third party library:
 * Performance benefits.
 
 
-Proposed Architecture
+Proposed architecture
 ~~~~~~~~~~~~~~~~~~~~~
 
 We plan to select the search bar, which is present in every theme,
@@ -125,7 +125,7 @@ Edge NGram Tokenizer
   * Requires greater disk space.
 
 
-Completion Suggester
+Completion suggester
 ~~~~~~~~~~~~~~~~~~~~
 
 * Pros
@@ -164,7 +164,7 @@ Milestones
 +-----------------------------------------------------------------------------------+------------------+
 
 
-Open Questions
+Open questions
 ++++++++++++++
 
 * Should we rely on jQuery, any third party library or pure vanilla JavaScript?

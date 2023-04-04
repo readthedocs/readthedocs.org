@@ -1,4 +1,4 @@
-Importing Your Documentation
+Importing your documentation
 ============================
 
 .. meta::
@@ -33,7 +33,8 @@ these properties, and then click **Next** to
 Manually import your docs
 -------------------------
 
-If you do not have a connected account, you will need to select **Import Manually**
+If you have not :doc:`connected a Git provider account </guides/connecting-git-account>`,
+you will need to select **Import Manually**
 and enter the information for your repository yourself. You will also need to
 manually configure the webhook for your repository as well. When importing your
 project, you will be asked for the repository URL, along with some other
@@ -50,8 +51,12 @@ Add an optional homepage URL and some tags, and then click **Next**.
 Once your project is created, you'll need to manually configure the repository
 webhook if you would like to have new changes trigger builds for your
 project on Read the Docs. Go to your project's :guilabel:`Admin` > :guilabel:`Integrations` page to
-configure a new webhook, or see :ref:`our steps for webhook creation <integrations:Integration Creation>`
-for more information on this process.
+configure a new webhook.
+
+.. seealso::
+
+   :doc:`/guides/git-integrations`
+      Once you have imported your git project, use this guide to manually set up basic and additional *webhook* integration.
 
 .. note::
     The ``Admin`` page can be found at ``https://readthedocs.org/dashboard/<project-slug>/edit/``.
@@ -76,7 +81,7 @@ You can configure these settings in a ``.readthedocs.yaml`` file.
 See our :doc:`/config-file/index` docs for more details.
 
 It is also important to note that the default version of Sphinx is ``v1.8.5``.
-We recommend to set the version your project uses :ref:`explicitily <guides/reproducible-builds:don't rely on implicit dependencies>`.
+We recommend to set the version your project uses :doc:`explicitily with pinned dependencies </guides/reproducible-builds>`.
 
 Read the Docs will host multiple versions of your code. You can read more about
 how to use this well on our :doc:`/versions` page.

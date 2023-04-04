@@ -1,5 +1,4 @@
 """URL resolver for documentation."""
-
 from urllib.parse import urlunparse
 
 import structlog
@@ -7,6 +6,7 @@ from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils.url import unsafe_join_url_path
 
 log = structlog.get_logger(__name__)
 
@@ -213,6 +213,56 @@ class ResolverBase:
             project, filename=filename, **kwargs
         )
         return urlunparse((protocol, domain, path, '', query_params, ''))
+
+    def _get_path_prefix(self, project):
+        """
+        Returns the path prefix for a project.
+
+        If the project is a subproject, it will return ``/projects/<subproject-alias>/``.
+        If the project is a main project, it will return ``/``.
+        This will respect the custom urlconf of the project if it's defined.
+        """
+        custom_prefix = project.custom_path_prefix
+        parent_relationship = project.get_parent_relationship()
+        if parent_relationship:
+            prefix = custom_prefix or "projects"
+            return unsafe_join_url_path(prefix, parent_relationship.alias, "/")
+
+        prefix = custom_prefix or "/"
+        return unsafe_join_url_path(prefix, "/")
+
+    def get_url_prefix(self, project, external_version_slug=None):
+        """
+        Get the URL prefix from where the documentation of ``project`` is served from.
+
+        This doesn't include the version or language. For example:
+
+        - https://docs.example.com/projects/<project-slug>/
+        - https://docs.readthedocs.io/
+
+        This will respect the custom urlconf of the project if it's defined.
+
+        :param project: Project object to get the root URL from
+        :param external_version_slug: If given, resolve using the external version domain.
+        """
+        canonical_project = self._get_canonical_project(project)
+        use_custom_domain = self._use_cname(canonical_project)
+        custom_domain = canonical_project.get_canonical_custom_domain()
+        if external_version_slug:
+            domain = self._get_external_subdomain(
+                canonical_project, external_version_slug
+            )
+            use_https = settings.PUBLIC_DOMAIN_USES_HTTPS
+        elif use_custom_domain and custom_domain:
+            domain = custom_domain.domain
+            use_https = custom_domain.https
+        else:
+            domain = self._get_project_subdomain(canonical_project)
+            use_https = settings.PUBLIC_DOMAIN_USES_HTTPS
+
+        protocol = "https" if use_https else "http"
+        path = self._get_path_prefix(project)
+        return urlunparse((protocol, domain, path, "", "", ""))
 
     def _get_canonical_project_data(self, project):
         """

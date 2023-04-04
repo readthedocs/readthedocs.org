@@ -200,7 +200,10 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
         queryset = (
             Build.objects
             .exclude(cold_storage=True)
-            .filter(date__lt=max_date)
+            .filter(
+                date__lt=max_date,
+                date__gt=max_date - timezone.timedelta(days=90),
+            )
             .prefetch_related('commands')
             .only('date', 'cold_storage')
             [:limit]
@@ -261,7 +264,6 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
                     build_pk=last_build.pk,
                     commit=last_build.commit,
                     status=status,
-                    link_to_build=True,
                 )
         except Exception:
             log.exception(
@@ -377,7 +379,7 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     default_retry_delay=60,
     queue='web'
 )
-def send_build_status(build_pk, commit, status, link_to_build=False):
+def send_build_status(build_pk, commit, status):
     """
     Send Build Status to Git Status API for project external versions.
 
@@ -390,7 +392,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
-    # TODO: Send build status for BitBucket.
+    # TODO: Send build status for Bitbucket.
     build = Build.objects.filter(pk=build_pk).first()
     if not build:
         return
@@ -432,7 +434,6 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                     build=build,
                     commit=commit,
                     state=status,
-                    link_to_build=link_to_build,
                 )
 
                 if success:
@@ -449,7 +450,11 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                 # Try to loop through services for users all social accounts
                 # to send successful build status
                 for service in services:
-                    success = service.send_build_status(build, commit, status)
+                    success = service.send_build_status(
+                        build,
+                        commit,
+                        status,
+                    )
                     if success:
                         log.debug(
                             'Build status report sent correctly using an user account.',
@@ -558,6 +563,11 @@ class BuildNotificationSender:
                 protocol,
                 settings.PRODUCTION_DOMAIN,
                 self.build.get_absolute_url(),
+            ),
+            "build_raw": "{}://{}{}".format(
+                protocol,
+                settings.PRODUCTION_DOMAIN,
+                reverse("build-detail", args=[self.build.pk, "txt"]),
             ),
             'unsubscribe_url': '{}://{}{}'.format(
                 protocol,
