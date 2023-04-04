@@ -371,9 +371,9 @@ class Project(models.Model):
         null=True,
         help_text=_(
             "<strong>Warning: experimental feature</strong>. "
-            "Custom path from repository root to a build configuration file, "
+            "Custom path from repository top-level to your <code>.readthedocs.yaml</code>, "
             "ex. <code>subpath/docs/.readthedocs.yaml</code>. "
-            "Leave blank for default value (<code>.readthedocs.yaml</code>).",
+            "Leave blank for default value: <code>.readthedocs.yaml</code>.",
         ),
         validators=[validate_build_config_file],
     )
