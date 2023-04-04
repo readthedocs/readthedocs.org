@@ -88,5 +88,5 @@ it's not desirable to have changes in unrelated sub-folders trigger new builds.
 
 Therefore,
 you should consider setting up :ref:`conditional build cancellation rules <build-customization:Cancel build based on a condition>`.
-This is done in the build configuration file,
-so you can write different rules for each documentation project in the Monorepo 💯️
+The configuration is added in each ``.readthedocs.yaml``,
+making it possible to write one conditional build rules per documentation project in the Monorepo 💯️
