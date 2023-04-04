@@ -1097,12 +1097,12 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
 
     ACTIONS = (
-        (ACTIVATE_VERSION_ACTION, _('Activate version')),
-        (HIDE_VERSION_ACTION, _('Hide version')),
-        (MAKE_VERSION_PUBLIC_ACTION, _('Make version public')),
-        (MAKE_VERSION_PRIVATE_ACTION, _('Make version private')),
-        (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
-        (DELETE_VERSION_ACTION, _('Delete version (on branch/tag deletion)')),
+        (ACTIVATE_VERSION_ACTION, _("Activate version")),
+        (HIDE_VERSION_ACTION, _("Hide version")),
+        (MAKE_VERSION_PUBLIC_ACTION, _("Make version public")),
+        (MAKE_VERSION_PRIVATE_ACTION, _("Make version private")),
+        (SET_DEFAULT_VERSION_ACTION, _("Set version as default")),
+        (DELETE_VERSION_ACTION, _("Delete version")),
     )
 
     allowed_actions_on_create = {}
@@ -1377,6 +1377,20 @@ class RegexAutomationRule(VersionAutomationRule):
 
 
 class AutomationRuleMatch(TimeStampedModel):
+
+    ACTIONS_PAST_TENSE = {
+        VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
+        VersionAutomationRule.HIDE_VERSION_ACTION: _("Version hidden"),
+        VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: _(
+            "Version set to public privacy"
+        ),
+        VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: _(
+            "Version set to private privacy"
+        ),
+        VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: _("Version set as default"),
+        VersionAutomationRule.DELETE_VERSION_ACTION: _("Version deleted"),
+    }
+
     rule = models.ForeignKey(
         VersionAutomationRule,
         verbose_name=_('Matched rule'),
@@ -1400,3 +1414,6 @@ class AutomationRuleMatch(TimeStampedModel):
 
     class Meta:
         ordering = ('-modified', '-created')
+
+    def get_action_past_tense(self):
+        return self.ACTIONS_PAST_TENSE.get(self.action)

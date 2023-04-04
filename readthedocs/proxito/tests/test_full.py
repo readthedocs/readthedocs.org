@@ -1499,6 +1499,16 @@ class ProxitoV2TestAdditionalDocViews(TestAdditionalDocViews):
             future_default_true=True,
         )
 
+    def test_404_download(self):
+        response = self.client.get(
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/_/downloads/en/latest/pdf/"},
+            ),
+            HTTP_HOST="project.readthedocs.io",
+        )
+        self.assertEqual(response.status_code, 404)
+
 
 @override_settings(
     ALLOW_PRIVATE_REPOS=True,

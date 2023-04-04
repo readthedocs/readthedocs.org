@@ -40,11 +40,11 @@ class FormTests(TestCase):
         )
         self.assertTrue(form.is_valid())
         domain = form.save()
-        self.assertFalse(domain.https)
+        self.assertTrue(domain.https)
         form = DomainForm(
             {
-                'domain': 'example.com', 'canonical': True,
-                'https': True,
+                "domain": "example.com",
+                "canonical": True,
             },
             project=self.project,
         )
@@ -172,3 +172,25 @@ class FormTests(TestCase):
         domain = form.save()
         self.assertEqual(domain.domain, 'example.com')
         self.assertFalse(domain.canonical)
+
+    def test_allow_change_http_to_https(self):
+        domain = get(Domain, domain="docs.example.com", https=False)
+        form = DomainForm(
+            {"https": True},
+            project=self.project,
+            instance=domain,
+        )
+        self.assertTrue(form.is_valid())
+        domain = form.save()
+        self.assertTrue(domain.https)
+
+    def test_dont_allow_changin_https_to_http(self):
+        domain = get(Domain, domain="docs.example.com", https=True)
+        form = DomainForm(
+            {"https": False},
+            project=self.project,
+            instance=domain,
+        )
+        self.assertTrue(form.is_valid())
+        domain = form.save()
+        self.assertTrue(domain.https)
