@@ -5,7 +5,6 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.models import Domain, Feature, HTTPHeader
-from readthedocs.subscriptions.constants import TYPE_CDN
 
 from .base import BaseDocServing
 
@@ -149,23 +148,6 @@ class ProxitoHeaderTests(BaseDocServing):
         r = self.client.get(
             "/en/latest/", secure=True, HTTP_HOST="project.dev.readthedocs.io"
         )
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r["CDN-Cache-Control"], "public")
-
-    @override_settings(ALLOW_PRIVATE_REPOS=True, RTD_DEFAULT_FEATURES={})
-    def test_cache_headers_private_project_no_feature(self):
-        r = self.client.get("/en/latest/", HTTP_HOST="project.dev.readthedocs.io")
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r["CDN-Cache-Control"], "private")
-
-    @override_settings(
-        ALLOW_PRIVATE_REPOS=True,
-        RTD_DEFAULT_FEATURES={
-            TYPE_CDN: 1,
-        },
-    )
-    def test_cache_headers_private_project_with_feature(self):
-        r = self.client.get("/en/latest/", HTTP_HOST="project.dev.readthedocs.io")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r["CDN-Cache-Control"], "public")
 
