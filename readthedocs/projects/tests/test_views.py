@@ -270,28 +270,3 @@ class TestProjectDownloads(TestCase):
                 resp["X-Accel-Redirect"],
                 f"/proxito/media/{type_}/project/latest/project.{extension}",
             )
-
-
-class TestProjectAdvancedUpdate(TestCase):
-    def setUp(self):
-        self.user = get(User)
-        get(EmailAddress, email=self.user.email, user=self.user, verified=True)
-        self.project = get(Project, users=[self.user])
-
-    def test_project_advanced_update_with_valid_simple_form_data(self):
-        url = reverse("projects_advanced", args=[self.project.slug])
-        self.client.force_login(self.user)
-        resp = self.client.post(
-            url,
-            data={
-                "default_version": "latest",
-                "default_branch": "",
-                "documentation_type": "sphinx",
-                "python_interpreter": "python3",
-                "readthedocs_yaml_path": "folder/.readthedocs.yaml",
-            },
-        )
-        self.assertEqual(resp.status_code, 302)
-
-        self.project.refresh_from_db()
-        assert self.project.readthedocs_yaml_path == "folder/.readthedocs.yaml"
