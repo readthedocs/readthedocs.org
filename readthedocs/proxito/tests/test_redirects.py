@@ -4,7 +4,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.projects.models import Feature
 from readthedocs.proxito.constants import RedirectType
-from readthedocs.subscriptions.constants import TYPE_CNAME, TYPE_SSL
+from readthedocs.subscriptions.constants import TYPE_CNAME
 
 from .base import BaseDocServing
 
@@ -14,7 +14,6 @@ from .base import BaseDocServing
     PUBLIC_DOMAIN_USES_HTTPS=True,
     RTD_DEFAULT_FEATURES={
         TYPE_CNAME: 1,
-        TYPE_SSL: 1,
     },
 )
 class RedirectTests(BaseDocServing):
