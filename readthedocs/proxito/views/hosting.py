@@ -18,7 +18,7 @@ from readthedocs.core.unresolver import unresolver
 log = structlog.get_logger(__name__)  # noqa
 
 
-CLIENT_VERSIONS_SUPPORTED = (0, 1)
+ADDONS_VERSIONS_SUPPORTED = (0, 1)
 
 
 class ClientError(Exception):
@@ -55,8 +55,8 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                 status=400,
             )
 
-        client_version = request.headers.get("X-RTD-Hosting-Integrations-Version")
-        if not client_version:
+        addons_version = request.headers.get("X-RTD-Hosting-Integrations-Version")
+        if not addons_version:
             return JsonResponse(
                 {
                     "error": ClientError.VERSION_HEADER_MISSING,
@@ -64,8 +64,8 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                 status=400,
             )
         try:
-            client_version = packaging.version.parse(client_version)
-            if client_version.major not in CLIENT_VERSIONS_SUPPORTED:
+            addons_version = packaging.version.parse(addons_version)
+            if addons_version.major not in ADDONS_VERSIONS_SUPPORTED:
                 raise ClientError
         except packaging.version.InvalidVersion:
             return JsonResponse(
@@ -90,7 +90,7 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
         project.get_default_version()
         build = version.builds.last()
 
-        data = ClientResponse().get(client_version, project, version, build, filename)
+        data = AddonsResponse().get(addons_version, project, version, build, filename)
         return JsonResponse(data, json_dumps_params=dict(indent=4))
 
 
@@ -132,18 +132,18 @@ class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
     pass
 
 
-class ClientResponse:
-    def get(self, client_version, project, version, build, filename):
+class AddonsResponse:
+    def get(self, addons_version, project, version, build, filename):
         """
         Unique entry point to get the proper API response.
 
-        It will evaluate the ``client_version`` passed and decide which is the
+        It will evaluate the ``addons_version`` passed and decide which is the
         best JSON structure for that particular version.
         """
-        if client_version.major == 0:
+        if addons_version.major == 0:
             return self._v0(project, version, build, filename)
 
-        if client_version.major == 1:
+        if addons_version.major == 1:
             return self._v1(project, version, build, filename)
 
     def _v0(self, project, version, build, filename):
