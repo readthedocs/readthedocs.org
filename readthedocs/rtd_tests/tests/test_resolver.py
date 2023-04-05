@@ -7,9 +7,15 @@ from readthedocs.core.resolver import Resolver, resolve, resolve_domain, resolve
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
+from readthedocs.subscriptions.constants import TYPE_CNAME
 
 
-@override_settings(PUBLIC_DOMAIN='readthedocs.org')
+@override_settings(
+    PUBLIC_DOMAIN="readthedocs.org",
+    RTD_DEFAULT_FEATURES={
+        TYPE_CNAME: 1,
+    },
+)
 class ResolverBase(TestCase):
 
     def setUp(self):
