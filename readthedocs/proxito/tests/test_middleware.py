@@ -16,10 +16,16 @@ from readthedocs.proxito.middleware import ProxitoMiddleware
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 from readthedocs.rtd_tests.utils import create_user
+from readthedocs.subscriptions.constants import TYPE_CNAME
 
 
 @pytest.mark.proxito
-@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
+@override_settings(
+    PUBLIC_DOMAIN="dev.readthedocs.io",
+    RTD_DEFAULT_FEATURES={
+        TYPE_CNAME: 1,
+    },
+)
 class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
     def setUp(self):
