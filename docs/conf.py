@@ -70,7 +70,7 @@ templates_path = ["_templates"]
 # This will ensure that we use the correctly set environment for canonical URLs
 # Old Read the Docs injections makes it point only to the default version,
 # for instance /en/stable/
-html_baseurl = os.environment.get("READTHEDOCS_CANONICAL_URL")
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
