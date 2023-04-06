@@ -16,8 +16,6 @@ Choosing a dedicated documentation platform
 ===========================================
 
 This is an introduction to the most common benefits of choosing a dedicated platform for building and publishing documentation projects.
-In other words,
-we dive into some of the reasons behind Read the Docs' existence and vision.
 
 Let us start with a high-level overview:
 
@@ -38,6 +36,13 @@ Using Read the Docs
 allows you to focus on other critical tasks,
 such as choosing documentation tools, structuring your documentation and having the perfect workflow.
 Not to mention *writing the documentation itself*!
+
+.. note::
+
+    Read the Docs is the dedicated documentation platform that we are mostly hinting at,
+    but whenever possible,
+    we present the general case of a dedicated documentation platform since having *no* dedicated documentation platform at all is the present situation for many,
+    especially software projects.
 
 If we observe a documentation project simply from the outside,
 we might only see the documentation as one or more deliverables, such as:
