@@ -4,11 +4,11 @@ Understanding environment variables
 ===================================
 
 Read the Docs allows you to define your own environment variables to be used in the build process.
-It also defines a set of :doc:`default environment variables </reference/environment-variables>` with information about your build.
+It also defines a set of :doc:`pre-defined environment variables </reference/environment-variables>` with information about your build.
 These are useful for different purposes:
 
 * Custom environment variables are useful for adding build secrets such as API tokens.
-* Default environment variables are useful for varying your build specifically for Read the Docs or specific types of builds on Read the Docs.
+* Pre-defined environment variables are useful for varying your build specifically for Read the Docs or specific types of builds on Read the Docs.
 
 .. The following introduction is difficult to balance.
 .. We should ideally support environment variables in the Config File,
