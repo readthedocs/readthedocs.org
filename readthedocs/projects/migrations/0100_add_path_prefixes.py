@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("projects", "0098_pdf_epub_opt_in"),
+        ("projects", "0099_alter_domain_https"),
     ]
 
     operations = [

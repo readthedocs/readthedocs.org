@@ -44,6 +44,8 @@ from readthedocs.projects.querysets import (
 )
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
+    validate_custom_prefix,
+    validate_custom_subproject_prefix,
     validate_domain_name,
     validate_no_ip,
     validate_repository_url,
@@ -557,6 +559,15 @@ class Project(models.Model):
         clean_project_resources(self)
 
         super().delete(*args, **kwargs)
+
+    def clean(self):
+        if self.custom_prefix:
+            self.custom_prefix = validate_custom_prefix(self, self.custom_prefix)
+
+        if self.custom_subproject_prefix:
+            self.custom_subproject_prefix = validate_custom_subproject_prefix(
+                self, self.custom_subproject_prefix
+            )
 
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
