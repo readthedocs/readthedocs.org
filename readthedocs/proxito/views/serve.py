@@ -265,7 +265,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 pass
 
         # Check user permissions and return an unauthed response if needed
-        if not self.allowed_user(request, final_project, version_slug):
+        if not version or not self.allowed_user(request, version):
             return self.get_unauthed_response(request, final_project)
 
         return self._serve_docs(
@@ -467,7 +467,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 pass
 
         # Check user permissions and return an unauthed response if needed.
-        if not self.allowed_user(request, project, version.slug):
+        if not self.allowed_user(request, version):
             return self.get_unauthed_response(request, project)
 
         return self._serve_docs(
@@ -644,22 +644,21 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         If a 404 page is found, we return a response with the content of that file,
         `None` otherwise.
         """
-        current_version_slug = version.slug if version else None
-        versions_slug = []
-        if current_version_slug:
-            versions_slug.append(current_version_slug)
+        versions_404 = [version] if version else []
+        if not version or version.slug != project.default_version:
+            default_version = project.versions.filter(
+                slug=project.default_version
+            ).first()
+            if default_version:
+                versions_404.append(default_version)
 
-        default_version_slug = project.get_default_version()
-        if default_version_slug != current_version_slug:
-            versions_slug.append(default_version_slug)
-
-        for version_slug_404 in versions_slug:
-            if not self.allowed_user(request, project, version_slug_404):
+        for version_404 in versions_404:
+            if not self.allowed_user(request, version_404):
                 continue
 
             storage_root_path = project.get_storage_path(
                 type_="html",
-                version_slug=version_slug_404,
+                version_slug=version_404.slug,
                 include_file=False,
                 version_type=self.version_type,
             )
@@ -671,7 +670,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                 if build_media_storage.exists(storage_filename_path):
                     log.info(
                         "Serving custom 404.html page.",
-                        version_slug_404=version_slug_404,
+                        version_slug_404=version_404.slug,
                         storage_filename_path=storage_filename_path,
                     )
                     resp = HttpResponse(

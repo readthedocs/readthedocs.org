@@ -83,6 +83,7 @@ class ProxitoHeaderTests(BaseDocServing):
             Domain,
             project=self.project,
             domain=hostname,
+            https=False,
         )
         r = self.client.get("/en/latest/", HTTP_HOST=hostname)
         self.assertEqual(r.status_code, 200)
@@ -112,6 +113,7 @@ class ProxitoHeaderTests(BaseDocServing):
             Domain,
             project=self.project,
             domain=hostname,
+            https=False,
         )
         http_header = 'X-My-Header'
         http_header_secure = 'X-My-Secure-Header'

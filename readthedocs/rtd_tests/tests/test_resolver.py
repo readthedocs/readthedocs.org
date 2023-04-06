@@ -7,9 +7,15 @@ from readthedocs.core.resolver import Resolver, resolve, resolve_domain, resolve
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
+from readthedocs.subscriptions.constants import TYPE_CNAME
 
 
-@override_settings(PUBLIC_DOMAIN='readthedocs.org')
+@override_settings(
+    PUBLIC_DOMAIN="readthedocs.org",
+    RTD_DEFAULT_FEATURES={
+        TYPE_CNAME: 1,
+    },
+)
 class ResolverBase(TestCase):
 
     def setUp(self):
@@ -125,6 +131,7 @@ class SmartResolverPathTests(ResolverBase):
             domain='http://docs.foobar.com',
             project=self.pip,
             canonical=True,
+            https=False,
         )
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_path(project=self.pip, filename='index.html')
@@ -139,6 +146,7 @@ class SmartResolverPathTests(ResolverBase):
             domain='http://docs.foobar.com',
             project=self.pip,
             canonical=False,
+            https=False,
         )
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_path(project=self.pip, filename='')
@@ -376,6 +384,7 @@ class ResolverDomainTests(ResolverBase):
             domain='docs.foobar.com',
             project=self.pip,
             canonical=True,
+            https=False,
         )
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve_domain(project=self.pip)
@@ -511,6 +520,7 @@ class ResolverTests(ResolverBase):
             domain='docs.foobar.com',
             project=self.pip,
             canonical=True,
+            https=False,
         )
         with override_settings(USE_SUBDOMAIN=False):
             url = resolve(project=self.pip)
@@ -710,6 +720,7 @@ class ResolverTests(ResolverBase):
             domain='docs.foobar.com',
             project=self.pip,
             canonical=True,
+            https=False,
         )
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve(project=self.pip)
