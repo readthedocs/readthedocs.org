@@ -123,22 +123,6 @@ class GenericParser:
         We can have pages that have content before the first title or that don't have a title,
         we index that content first under the title of the original page.
         """
-        # Index content for pages that don't start with a title.
-        # We check for sections till 3 levels to avoid indexing all the content
-        # in this step.
-        try:
-            content, _ = self._parse_section_content(
-                body.child,
-                depth=3,
-            )
-            if content:
-                yield {
-                    'id': '',
-                    'title': title,
-                    'content': content,
-                }
-        except Exception as e:
-            log.info('Unable to index section', section=str(e))
 
         # All terms in dls are treated as sections.
         # After indexing them, we remove them from the body such that their contents aren't
@@ -191,6 +175,23 @@ class GenericParser:
             # Remove the <dl> node
             # There isn't a clear indication if this behavior is DFS or BFS
             dl.decompose()
+
+        # Index content for pages that don't start with a title.
+        # We check for sections till 3 levels to avoid indexing all the content
+        # in this step.
+        try:
+            content, _ = self._parse_section_content(
+                body.child,
+                depth=3,
+            )
+            if content:
+                yield {
+                    "id": "",
+                    "title": title,
+                    "content": content,
+                }
+        except Exception as e:
+            log.info("Unable to index section", section=str(e))
 
         # Index content from h1 to h6 headers.
         for section in [body.css(f"h{h}") for h in range(1, 7)]:

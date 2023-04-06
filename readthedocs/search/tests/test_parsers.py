@@ -255,6 +255,7 @@ class TestParsers:
         )
 
         parsed_json = page_file.processed_json
+        print(json.dumps(parsed_json, indent=2))
         expected_json = json.load(open(data_path / 'sphinx/out/page.json'))
         assert parsed_json == expected_json
 
@@ -306,6 +307,7 @@ class TestParsers:
         )
 
         parsed_json = page_file.processed_json
+        print(json.dumps(parsed_json, indent=2))
         expected_json = json.load(open(data_path / "sphinx/out/httpdomain.json"))
         assert parsed_json == expected_json
 
@@ -332,6 +334,7 @@ class TestParsers:
         )
 
         parsed_json = page_file.processed_json
+        print(json.dumps(parsed_json, indent=2))
         expected_json = json.load(open(data_path / "sphinx/out/autodoc.json"))
         assert parsed_json == expected_json
 
@@ -358,6 +361,7 @@ class TestParsers:
         )
 
         parsed_json = page_file.processed_json
+        print(json.dumps(parsed_json, indent=2))
         expected_json = json.load(open(data_path / "sphinx/out/requests.json"))
         assert parsed_json == expected_json
 
