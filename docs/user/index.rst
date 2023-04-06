@@ -98,15 +98,18 @@ We have a few places for you to get started:
 🚀 :doc:`/examples`
   Start your journey with an example project to hit the ground running.
 
-.. TODO: This next item needs its article to be finished in a separate PR
+🚀 :doc:`All tutorials </tutorials/index>`
+  Using documentation tools like Sphinx or MkDocs for the first time or importing an existing project?
+  We have the tutorials to get you started!
+
+.. TODO: This above item needs its article to be finished in a separate PR
+.. because of what seems to be a bug in Sphinx, we get two <dl> items
+.. if we put comments between items.
 .. https://github.com/readthedocs/readthedocs.org/pull/10071
 .. This page isn't ready for front page treatment
 .. doc:`Why use a dedicated documentation platform? </integrations>`
 .. An introduction to some of the most important reasons for using a *Documentation CI* and build *docs as code*.
 
-:doc:`🚀 All tutorials </tutorials/index>`
-  Using documentation tools like Sphinx or MkDocs for the first time or importing an existing project?
-  We have the tutorials to get you started!
 
 Explanation
 -----------
