@@ -17,10 +17,15 @@ and finally *deploy* your documentation for readers to see.
 
 The Continuous Integration and Continuous Deployment (CI/CD) features are configured with your repository provider,
 such as GitHub, Bitbucket or GitLab.
-With each change committed to your repository, we are notified by the configured *webhook*.
+With each change committed to your repository, we are notified by the configured :term:`webhook <webhooks>`.
 
-When a receive a *webhook* notification, we match it to a project's *Integration*.
-When a webhook is received, the matching project will then process your setup and publish the documentation.
+When a receive a *webhook* notification, we match it to a Read the Docs project.
+The matching project will then process your build and publish the documentation.
+
+.. seealso::
+
+   :doc:`/builds`
+      Read more about the technical specification of the Build process and how you configure it.
 
 .. The short version
 .. -----------------
@@ -43,6 +48,8 @@ When a webhook is received, the matching project will then process your setup an
 
 Continuous Documentation for software projects
 ----------------------------------------------
+
+.. TODO: This should be improved
 
 Documentation fits into any CI/CD pipeline by following a process known as *Documentation as Code (Docs as code)*.
 The primary method of doing this is by maintaining documentation alongside the source code,

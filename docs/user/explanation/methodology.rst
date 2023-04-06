@@ -4,12 +4,19 @@ Methodology and best practice
 In this section,
 we are covering important methods and best practices that will make your documentation better.
 
+.. seealso::
+
+    `Write the Docs: Content Archive <https://www.writethedocs.org/topics/>`__
+        Did you know that Read the Docs is related to `Write the Docs <https://www.writethedocs.org/>`__?
+        Write the Docs is a conference, a community and a documentation project that's full of methods, tips and
+        articles about writing documentation.
+
 You can familiarize yourself with these topics before or after writing documentation.
 We encourage that you read this at any time,
 as each section gives approaches
 regardless of whether you need to create new content or restructure larger documentation sets.
 
-⏩️ :doc:`The Diátaxis Methodology <diataxis>`
+⏩️ :doc:`The Diátaxis Methodology <documentation-structure>`
     In order to understand documentation in the most general and fundamental sense,
     we introduce the Diátaxis methodology which is also used for the documentation you are now reading.
 
@@ -31,5 +38,5 @@ regardless of whether you need to create new content or restructure larger docum
    :maxdepth: 2
    :hidden:
 
-   diataxis
+   documentation-structure
    /guides/best-practice/index

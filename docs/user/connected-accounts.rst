@@ -19,8 +19,8 @@ we recommend that you connect your Read the Docs account to your Git provider.
 Connecting your account allows for:
 
 * Easy import of your repositories.
-* Automatic configuration of your repository :doc:`/integrations`.
-  which allow Read the Docs to build your docs on every change to your repository
+* Automatic configuration of your repository's :term:`webhooks`.
+  which allows Read the Docs to build your docs on every change to your repository.
 * Logging into Read the Docs with your |git_providers_or| credentials.
 
 
@@ -71,7 +71,7 @@ Read the Docs does not generally ask for *write* permission to your repository c
 and since we only connect to public repositories we don't need special permissions to read them.
 However, we do need permissions for authorizing your account
 so that you can login to Read the Docs with your connected account credentials
-and to setup :doc:`/integrations`
+and to setup :term:`webhooks`
 which allow us to build your documentation on every change to your repository.
 
 

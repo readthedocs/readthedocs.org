@@ -3,47 +3,62 @@
 .. TODO:
 .. - Links and references!
 .. - Diagram in life-cycle section
+..
+.. There are other reasons that we could cover:
+.. - Code: If you write docs as code, you want this
+.. - When you should NOT choose a dedicated documentation CI/CD: You just need a README in your Git repo! You need WYSIWYG so badly that you're probably better off with Confluence, GitBook or Google Docs.
+.. - A dedicated platform helps to solve tasks that you otherwise end up writing and maintaining your own scripts and CI tools for.
+.. - Always evolving: Read the Docs develops new features on-demand. So you get a dedicated platform that's maintained and has new features added.
+.. - Community: Related to the above, but perhaps worth mentioning that a lot of people are building tools and extensions that run on the platform etc.
+.. - Batteries included / integrations: Flyout menu, search, SSL certificate
 
 Choosing a dedicated documentation platform
 ===========================================
 
-In this article,
-we introduce the major reasons behind having a dedicated platform for building and publishing documentation projects.
+This is an introduction to the most common benefits of choosing a dedicated platform for building and publishing documentation projects.
 In other words,
 we dive into some of the reasons behind Read the Docs' existence and vision.
 
-Let us start with the major benefits of choosing a dedicated documentation platform:
+Let us start with a high-level overview:
 
-:ref:`lifecycle`
-    A dedicated documentation platform handles a variety of challenges and complexities that documentation projects face throughout their lifecycle.
+🧭️️️ :ref:`lifecycle`
+    A dedicated documentation platform has all the features to handle a variety of challenges and complexities that documentation projects meet during their lifecycle.
 
-:ref:`documentation_tools`
+🛠️ :ref:`documentation_tools`
     By choosing a tool-agnostic dedicated platform,
     you can use the documentation tools that you want.
 
-:ref:`workflows`
-    Publish your documentation automatically and version it together with your product.
-    Support for multiple versions and many different types of projects and workflows.
+🚢️️ :ref:`workflows`
+    A dedicated CI/CD platform publishes your documentation automatically and versions it so you can focus on applying your own workflow and keep the documentation aligned with your product.
 
-Choosing to use Read the Docs as a first step,
+.. The following sections are about using a dedicated platform as a first-choice in order to free up space for other tasks.
+.. These paragraphs can benefit from being shortened and organized, but they are intended as the summary of the introduction.
+
+Using Read the Docs
 allows you to focus on other critical tasks,
-such as choosing documentation tools and structuring your documentation.
+such as choosing documentation tools, structuring your documentation and having the perfect workflow.
 Not to mention *writing the documentation itself*!
 
-When observing a documentation project,
-we might understand documentation as simply one or more deliverables of the project, such as:
-A website, a PDF document, an API documentation.
+If we observe a documentation project simply from the outside,
+we might only see the documentation as one or more deliverables, such as:
+A website, a PDF document, or an API documentation.
 But in order to get there,
 a dedicated documentation platform is a reliable first choice.
-Such a platform helps to solve tasks that you otherwise end up writing and maintaining your own scripts and CI tools for.
+
+A dedicated platform helps to solve tasks that you otherwise end up writing and maintaining your own scripts and CI tools for.
 
 .. seealso::
 
     `Comparison with GitHub Pages <https://about.readthedocs.com/comparisons/github-pages/>`__
         On our website, we have a list of common tasks that developers and DevOps teams have to solve themselves on a generic CI.
 
+Simply put, the role of a *dedicated documentation platform* is to offer a compelling set of features that documentation projects and their organizations or communities need.
+
+Read the Docs does exactly this in two versions:
+|org_brand| and |com_brand|. :ref:`Read more about their differences <com_org_differences>`.
+
 .. Keeping this list commented out for now.
-.. The seealso is better, since this is largely marketing content.
+.. The seealso about GitHub pages is better, since this is largely marketing content.
 .. It's also nice to not break up the reading flow with a long list. Should delete...
 .. * ✅️ Publishing a static website
 .. * ✅️ Adding a fast cache layer for the website
@@ -60,35 +75,37 @@ Such a platform helps to solve tasks that you otherwise end up writing and maint
 .. * ✅️ Manage access to private documentation projects
 .. * ...this list is longer, and it is incidentally also the list of features that were built for Read the Docs.
 
-The role of a *dedicated documentation platform* is to offer the set of features that documentation projects and their organizations need.
-
-Read the Docs does exactly this in two versions:
-|org_brand| and |com_brand|. :ref:`Read more about their differences <com_org_differences>`.
-
 .. _lifecycle:
 
-Features for the life-cycle of a documentation project
-------------------------------------------------------
+Features for the lifecycle of a documentation project
+-----------------------------------------------------
 
 Read the Docs is a platform with over a decade of experience in automating documentation tools.
-The platform handles challenges that you might face down the road by always having the right features ready when you need them.
+The platform handles your current challenges or challenges that you face down the road.
+The right features are available when you need them.
 
 Example: Automated versioning and redirects
     Once a documentation project is bootstrapped,
-    the software product might change its version and remove and add features.
+    the software product might change its version and remove or add features.
     Old versions of the product still need to be able to refer to their original documentation while new versions should not be unnecessarily complicated by documenting old features.
-    That is why Read the Docs supports versioning out-of-the-box and also gives you a mature set of options for creating automated redirects.
-    It's not just simple A=>B redirects, but they can follow your own patterns or work only on specific versions.
+
+    That is why Read the Docs supports versioning out-of-the-box and also gives you a mature set of options for creating :doc:`user-defined redirects </user-defined-redirects>`.
+
+    As your documentation grows and pages are moved around, versioning and redirects become critical.
 
 Example: Analytics
-    Documentation websites also benefit from knowing which pages are popular and how people discover them through online search.
-    It would be understandable that this is not an immediate requirement for a documentation project,
-    but the need eventually arises,
-    and why should every documentation project have to implement their own analytics solution?
+    Documentation websites benefit from knowing which pages are popular and how people discover them through online search.
+
+    This may not be an immediate requirement for a documentation project,
+    but the need often arises.
+    And why should every documentation project have to implement their own analytics solution?
     For this, you can use :doc:`/reference/analytics`.
 
-A very straight-forward way to understand Read the Docs is to look at our :doc:`feature reference </reference/features>`.
-All these features ultimately sustain the life-cycle of a documentation project.
+.. seealso::
+
+    :doc:`/reference/features`
+        A practical way to understand Read the Docs is to look at our :doc:`list of features </reference/features>`.
+        All these features ultimately sustain the life-cycle of a documentation project.
 
 .. insert life-cycle diagram.
 .. new product + documentation project => new documentation pages => more product versions => more readers => more reader inputs => breaking changes => legacy product versions
@@ -105,31 +122,40 @@ but has since then evolved into a generic documentation building platform.
 In the :doc:`build process </builds>`,
 your documentation tool is called according to your own configuration and Read the Docs will then gather, version and publish files written by the documentation tool.
 Whatever documentation tool you choose to build with,
-your static website and additional :doc:`offline formats </downloadable-documentation>` can be gathered and published at your project's :doc:`domain </custom-domains>`
+your static website and additional :doc:`offline formats </downloadable-documentation>` can be versioned and published at your project's :doc:`domain </custom-domains>`
 
 A documentation tool simply needs to be able to run on Linux inside a Docker container.
 Most documentation frameworks will do this.
 Some popular choices include:
 
+.. TODO: expand the list and add links
+
 * Sphinx
 * MkDocs
 * Jupyter Book
 * ...and any other tool that will install and run in a Docker container.
-* + plugins/extensions for all of the above!
+* ...and plugins/extensions for all of the above!
 
 .. _workflows:
 
 Agile workflows with Continuous Integration and Deployment (CI/CD)
 ------------------------------------------------------------------
 
-Automating your build and deploy process,
+Automating your `build and deploy process </builds>`,
 enables documentation writers to suggest changes, share previews, receive feedback and implement feedback quickly and iteratively.
-Making your documentation project's workflow *agile* is supported by Read the Docs by:
+Making your documentation project's workflow *agile* is supported by Read the Docs through a number of features.
+Here are some examples:
+
+.. these examples need more love. They could be more focused on practical tasks, rather than just the abstract topic.
 
 Example: Automatic Git integration
     Many software projects already have a Git workflow,
     while many other types of projects have recently discovered the benefits of using Git.
-    A dedicated documentation CI/CD
+    A dedicated documentation CI/CD will hook into your Git repository and be notified of changes so it can build and publish your documentation.
+    This includes a number of additional options,
+    such as support for private repositories,
+    storing Read the Docs configuration in the Git repository (configuration as code)
+    and managing access through GitHub SSO.
 
 Example: Automatic previews
     When someone opens a *pull request*,
@@ -144,6 +170,9 @@ Example: Automatic deploys with version tagging
     keeping old versions active.
 
 .. seealso::
+
+    :doc:`/explanation/continuous-documentation`
+        A more technical introduction to CI/CD for documentation projects.
 
     :ref:`Diátaxis methodology <diataxis>`
         Having an agile workflow enables your documentation project to *grow organically*.
@@ -175,8 +204,8 @@ are some key differences between our two platforms.
 |org_brand|
 ~~~~~~~~~~~
 
-|org_brand| is exclusively for hosting open source documentation. We support
-open source communities by providing free documentation building and hosting
+|org_brand| is exclusively for free and open source software, content and projects.
+We support open source communities by providing free documentation building and hosting
 services, for projects of all sizes.
 
 Important points:
