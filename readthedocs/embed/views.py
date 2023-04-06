@@ -17,7 +17,6 @@ from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v3.permissions import HasEmbedAPIAccess
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import resolve
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.utils import clean_references, recurse_while_none
 from readthedocs.storage import build_media_storage
 
@@ -31,7 +30,7 @@ def escape_selector(selector):
     return ret
 
 
-class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
+class EmbedAPI(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     # pylint: disable=line-too-long
 
@@ -131,10 +130,6 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             hoverxref_version=request.headers.get("X-Hoverxref-Version"),
         )
         return Response(response)
-
-
-class EmbedAPI(SettingsOverrideObject):
-    _default_class = EmbedAPIBase
 
 
 def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
