@@ -1,6 +1,24 @@
 from rest_framework.permissions import BasePermission, IsAuthenticated
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.subscriptions.constants import TYPE_EMBED_API
+from readthedocs.subscriptions.models import PlanFeature
+
+
+class HasEmbedAPIAccess(BasePermission):
+
+    message = (
+        "Content embedding isn't available in your current plan. "
+        "Upgrade your subscription to enable this feature. "
+        "https://about.readthedocs.com/pricing/."
+    )
+
+    def has_permission(self, request, view):
+        project = view._get_project()
+        # TODO: what to do with external URLs?
+        if project and not PlanFeature.objects.has_feature(project, TYPE_EMBED_API):
+            return False
+        return True
 
 
 class UserProjectsListing(BasePermission):

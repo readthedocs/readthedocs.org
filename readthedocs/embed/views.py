@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 
 from readthedocs.api.mixins import CDNCacheTagsMixin, EmbedAPIMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
+from readthedocs.api.v3.permissions import HasEmbedAPIAccess
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import resolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -60,7 +61,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
     # Current Request
     """  # noqa
 
-    permission_classes = [IsAuthorizedToViewVersion]
+    permission_classes = [HasEmbedAPIAccess, IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
     @property
