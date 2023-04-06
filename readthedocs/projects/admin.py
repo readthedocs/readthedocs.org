@@ -11,9 +11,9 @@ from django.utils.translation import gettext_lazy as _
 from readthedocs.builds.models import Version
 from readthedocs.core.history import ExtraSimpleHistoryAdmin, set_change_reason
 from readthedocs.core.utils import trigger_build
-from readthedocs.core.utils.urlpattern import (
-    validate_urlpattern,
-    validate_urlpattern_subproject,
+from readthedocs.core.utils.pathprefix import (
+    validate_custom_prefix,
+    validate_custom_subproject_prefix,
 )
 from readthedocs.notifications.views import SendNotificationView
 from readthedocs.redirects.models import Redirect
@@ -234,15 +234,15 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
 
 
 class ProjectAdminForm(forms.ModelForm):
-    def clean_urlpattern(self):
-        urlpattern = self.cleaned_data.get("urlpattern")
-        validate_urlpattern(self.instance, urlpattern=urlpattern)
-        return urlpattern
+    def clean_custom_prefix(self):
+        prefix = self.cleaned_data.get("custom_prefix")
+        prefix = validate_custom_prefix(self.instance, prefix=prefix)
+        return prefix
 
-    def clean_urlpattern_subproject(self):
-        urlpattern = self.cleaned_data.get("urlpattern_subproject")
-        validate_urlpattern_subproject(self.instance, urlpattern=urlpattern)
-        return urlpattern
+    def clean_custom_subproject_prefix(self):
+        prefix = self.cleaned_data.get("custom_subproject_prefix")
+        prefix = validate_custom_subproject_prefix(self.instance, prefix=prefix)
+        return prefix
 
 
 class ProjectAdmin(ExtraSimpleHistoryAdmin):

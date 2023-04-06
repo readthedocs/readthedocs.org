@@ -10,7 +10,7 @@ from readthedocs.proxito.tests.base import BaseDocServing
     PUBLIC_DOMAIN="readthedocs.io",
     RTD_EXTERNAL_VERSION_DOMAIN="readthedocs.build",
 )
-class TestCustomURLPatterns(BaseDocServing):
+class TestCustomPathPrefixes(BaseDocServing):
     def setUp(self):
         super().setUp()
         get(
@@ -20,8 +20,8 @@ class TestCustomURLPatterns(BaseDocServing):
             future_default_true=True,
         )
 
-    def test_custom_urlpattern_multi_version_project(self):
-        self.project.urlpattern = "/custom/prefix/{language}/{version}/{filename}"
+    def test_custom_prefix_multi_version_project(self):
+        self.project.custom_prefix = "/custom/prefix/"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -58,8 +58,8 @@ class TestCustomURLPatterns(BaseDocServing):
             "/proxito/media/html/project/latest/api/index.html",
         )
 
-    def test_custom_urlpattern_multi_version_project_translation(self):
-        self.project.urlpattern = "/custom/prefix/{language}/{version}/{filename}"
+    def test_custom_prefix_multi_version_project_translation(self):
+        self.project.custom_prefix = "/custom/prefix/"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -89,36 +89,9 @@ class TestCustomURLPatterns(BaseDocServing):
             "/proxito/media/html/translation/latest/api/index.html",
         )
 
-    def test_custom_urlpattern_reversed_components_multi_version_project(self):
-        self.project.urlpattern = "/{version}/{language}/{filename}"
-        self.project.save()
-        host = "project.readthedocs.io"
-
-        resp = self.client.get("/en/latest/", HTTP_HOST=host)
-        self.assertEqual(resp.status_code, 404)
-
-        # Trailing slash redirect
-        resp = self.client.get("/latest/en", HTTP_HOST=host)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp["Location"], "http://project.readthedocs.io/latest/en/")
-
-        resp = self.client.get("/latest/en/", HTTP_HOST=host)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(
-            resp["x-accel-redirect"],
-            "/proxito/media/html/project/latest/index.html",
-        )
-
-        resp = self.client.get("/latest/en/api/index.html", HTTP_HOST=host)
-        self.assertEqual(resp.status_code, 200)
-        self.assertEqual(
-            resp["x-accel-redirect"],
-            "/proxito/media/html/project/latest/api/index.html",
-        )
-
-    def test_custom_urlpattern_single_version_project(self):
+    def test_custom_prefix_single_version_project(self):
         self.project.single_version = True
-        self.project.urlpattern = "/custom-prefix/{filename}"
+        self.project.custom_prefix = "/custom-prefix/"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -149,8 +122,8 @@ class TestCustomURLPatterns(BaseDocServing):
             "/proxito/media/html/project/latest/api/index.html",
         )
 
-    def test_custom_urlpattern_subproject(self):
-        self.project.urlpattern_subproject = "/custom/{subproject}/prefix/{filename}"
+    def test_custom_subproject_prefix(self):
+        self.project.custom_subproject_prefix = "/custom/"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -170,14 +143,14 @@ class TestCustomURLPatterns(BaseDocServing):
         resp = self.client.get("/", HTTP_HOST="subproject.readthedocs.io")
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
-            resp["Location"], "http://project.readthedocs.io/custom/subproject/prefix/"
+            resp["Location"], "http://project.readthedocs.io/custom/subproject/"
         )
 
         resp = self.client.get("/en/latest/", HTTP_HOST="subproject.readthedocs.io")
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp["Location"],
-            "http://project.readthedocs.io/custom/subproject/prefix/en/latest/",
+            "http://project.readthedocs.io/custom/subproject/en/latest/",
         )
 
         # Old paths
@@ -188,30 +161,30 @@ class TestCustomURLPatterns(BaseDocServing):
         self.assertEqual(resp.status_code, 404)
 
         # Root redirect for the subproject
-        resp = self.client.get("/custom/subproject/prefix", HTTP_HOST=host)
+        resp = self.client.get("/custom/subproject", HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp["Location"],
-            "http://project.readthedocs.io/custom/subproject/prefix/en/latest/",
+            "http://project.readthedocs.io/custom/subproject/en/latest/",
         )
 
-        resp = self.client.get("/custom/subproject/prefix/", HTTP_HOST=host)
+        resp = self.client.get("/custom/subproject/", HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp["Location"],
-            "http://project.readthedocs.io/custom/subproject/prefix/en/latest/",
+            "http://project.readthedocs.io/custom/subproject/en/latest/",
         )
 
         # Trailing slash redirect
-        resp = self.client.get("/custom/subproject/prefix/en/latest", HTTP_HOST=host)
+        resp = self.client.get("/custom/subproject/en/latest", HTTP_HOST=host)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp["Location"],
-            "http://project.readthedocs.io/custom/subproject/prefix/en/latest/",
+            "http://project.readthedocs.io/custom/subproject/en/latest/",
         )
 
         # Normal serving
-        resp = self.client.get("/custom/subproject/prefix/en/latest/", HTTP_HOST=host)
+        resp = self.client.get("/custom/subproject/en/latest/", HTTP_HOST=host)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(
             resp["x-accel-redirect"],
@@ -219,7 +192,7 @@ class TestCustomURLPatterns(BaseDocServing):
         )
 
         resp = self.client.get(
-            "/custom/subproject/prefix/en/latest/api/index.html", HTTP_HOST=host
+            "/custom/subproject/en/latest/api/index.html", HTTP_HOST=host
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(
@@ -227,8 +200,8 @@ class TestCustomURLPatterns(BaseDocServing):
             "/proxito/media/html/subproject/latest/api/index.html",
         )
 
-    def test_custom_urlpattern_subproject_empty(self):
-        self.project.urlpattern_subproject = "/{subproject}/{filename}"
+    def test_custom_subproject_prefix_empty(self):
+        self.project.custom_subproject_prefix = "/"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -290,9 +263,9 @@ class TestCustomURLPatterns(BaseDocServing):
             "/proxito/media/html/subproject/latest/api/index.html",
         )
 
-    def test_custom_urlpattern_and_urlpattern_subproject_in_superproject(self):
-        self.project.urlpattern = "/prefix/{language}/{version}/{filename}"
-        self.project.urlpattern_subproject = "/s/{subproject}/{filename}"
+    def test_custom_prefix_and_custom_subproject_prefix_in_superproject(self):
+        self.project.custom_prefix = "/prefix/"
+        self.project.custom_subproject_prefix = "/s/"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -361,9 +334,9 @@ class TestCustomURLPatterns(BaseDocServing):
             "/proxito/media/html/subproject/latest/api/index.html",
         )
 
-    def test_custom_urlpattern_and_urlpattern_subproject_with_translations(self):
-        self.project.urlpattern = "/prefix/{language}/{version}/{filename}"
-        self.project.urlpattern_subproject = "/s/{subproject}/{filename}"
+    def test_custom_prefix_and_custom_subproject_prefix_with_translations(self):
+        self.project.custom_prefix = "/prefix/"
+        self.project.custom_subproject_prefix = "/s/"
         self.project.save()
         host = "project.readthedocs.io"
 
@@ -393,10 +366,10 @@ class TestCustomURLPatterns(BaseDocServing):
             "/proxito/media/html/subproject-translation/latest/api/index.html",
         )
 
-    def test_custom_urlpattern_in_subproject_and_urlpattern_in_superproject(self):
-        self.subproject.urlpattern = "/prefix/{language}/{version}/{filename}"
+    def test_custom_prefix_in_subproject_and_custom_prefix_in_superproject(self):
+        self.subproject.custom_prefix = "/prefix/"
         self.subproject.save()
-        self.project.urlpattern_subproject = "/s/{subproject}/{filename}"
+        self.project.custom_subproject_prefix = "/s/"
         self.project.save()
         host = "project.readthedocs.io"
 

@@ -1,3 +1,4 @@
+import re
 from dataclasses import dataclass
 from enum import Enum, auto
 from urllib.parse import ParseResult, urlparse
@@ -7,7 +8,7 @@ from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
-from readthedocs.core.utils.urlpattern import urlpattern_to_regex
+from readthedocs.constants import pattern_opts
 from readthedocs.projects.models import Domain, Feature, Project
 
 log = structlog.get_logger(__name__)
@@ -129,6 +130,22 @@ class UnresolvedDomain:
         return self.source == DomainSourceType.external_domain
 
 
+def _expand_regex(pattern):
+    """
+    Expand a pattern with the patterns from pattern_opts.
+
+    This is used to avoid having a long regex.
+    """
+    return re.compile(
+        pattern.format(
+            language=f"(?P<language>{pattern_opts['lang_slug']})",
+            version=f"(?P<version>{pattern_opts['version_slug']})",
+            filename=f"(?P<filename>{pattern_opts['filename_slug']})",
+            subproject=f"(?P<subproject>{pattern_opts['project_slug']})",
+        )
+    )
+
+
 class Unresolver:
     # This pattern matches:
     # - /en
@@ -136,21 +153,21 @@ class Unresolver:
     # - /en/latest
     # - /en/latest/
     # - /en/latest/file/name/
-    multiversion_pattern = urlpattern_to_regex(
+    multiversion_pattern = _expand_regex(
         # The path must have a language slug,
         # optionally a version slug followed by a filename.
-        "/{language}/{version}/{filename}"
+        "^/{language}(/({version}(/{filename})?)?)?$"
     )
 
     # This pattern matches:
     # - /projects/subproject
     # - /projects/subproject/
     # - /projects/subproject/file/name/
-    subproject_pattern = urlpattern_to_regex(
-        # The path must have the `projects` prefix,
-        # followed by the subproject alias,
+    subproject_pattern = _expand_regex(
+        # The path must have the `project` alias,
         # optionally a filename, which will be recursively resolved.
-        "/projects/{subproject}/{filename}"
+        "^/{subproject}(/{filename})?$"
+        # "^/projects/{subproject}(/{filename})?$"
     )
 
     def unresolve_url(self, url, append_indexhtml=True):
@@ -243,8 +260,14 @@ class Unresolver:
         :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
-        pattern = parent_project.regex_urlpattern or self.multiversion_pattern
-        match = pattern.match(path)
+        custom_prefix = parent_project.custom_prefix
+        if custom_prefix:
+            if not path.startswith(custom_prefix):
+                return None
+            # pep8 and blank don't agree on having a space before :.
+            path = self._normalize_filename(path[len(custom_prefix) :])  # noqa
+
+        match = self.multiversion_pattern.match(path)
         if not match:
             return None
 
@@ -290,8 +313,13 @@ class Unresolver:
         :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
-        pattern = parent_project.regex_urlpattern_subproject or self.subproject_pattern
-        match = pattern.match(path)
+        custom_prefix = parent_project.custom_subproject_prefix or "/projects/"
+        if not path.startswith(custom_prefix):
+            return None
+        # pep8 and blank don't agree on having a space before :.
+        path = self._normalize_filename(path[len(custom_prefix) :])  # noqa
+
+        match = self.subproject_pattern.match(path)
         if not match:
             return None
 
@@ -330,16 +358,16 @@ class Unresolver:
         :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
-        # We only use the pattern if there is a custom urlpattern,
-        # otherwise any path is allowed, so we don't need a regex for that.
-        pattern = parent_project.regex_urlpattern
-        if pattern:
-            match = pattern.match(path)
-            if not match:
+        custom_prefix = parent_project.custom_prefix
+        if custom_prefix:
+            if not path.startswith(custom_prefix):
                 return None
-            filename = self._normalize_filename(match.group("filename"))
-        else:
-            filename = self._normalize_filename(path)
+            # pep8 and blank don't agree on having a space before :.
+            path = path[len(custom_prefix) :]  # noqa
+
+        # In single version projects, any path is allowed,
+        # so we don't need a regex for that.
+        filename = self._normalize_filename(path)
 
         if external_version_slug:
             version_slug = external_version_slug

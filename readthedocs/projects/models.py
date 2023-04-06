@@ -32,7 +32,6 @@ from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
-from readthedocs.core.utils.urlpattern import urlpattern_to_regex
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -114,6 +113,18 @@ class ProjectRelationship(models.Model):
     # HACK
     def get_absolute_url(self):
         return resolve(self.child)
+
+    @cached_property
+    def subproject_prefix(self):
+        """
+        Returns the path prefix of the subproject.
+
+        This normally is ``/projects/<subproject-alias>/``,
+        but if the project has a custom subproject prefix,
+        that will be used.
+        """
+        prefix = self.parent.custom_subproject_prefix or "/projects/"
+        return unsafe_join_url_path(prefix, self.alias, "/")
 
 
 class Project(models.Model):
@@ -217,7 +228,7 @@ class Project(models.Model):
             'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
         ),
     )
-    # NOTE: This is deprecated, use the `urlpattern*` attributes instead.
+    # NOTE: This is deprecated, use the `custom_prefix*` attributes instead.
     urlconf = models.CharField(
         _('Documentation URL Configuration'),
         max_length=255,
@@ -230,32 +241,26 @@ class Project(models.Model):
         ),
     )
 
-    urlpattern = models.CharField(
-        _("Custom URL pattern for serving documentation for the project"),
+    custom_prefix = models.CharField(
+        _("Custom path prefix"),
         max_length=255,
         default=None,
         blank=True,
         null=True,
         help_text=_(
-            "A Python regex pattern used when serving documentation from the project. "  # noqa
-            "For multi version projects it needs to declare the following replacement fields: language, version, and filename. "  # noqa
-            "For single version projects it needs to declare the filename replacement field only. "
-            "The default pattern for multi version projects is: `/{language}(/({version}(/{filename})?)?)?`, "  # noqa
-            "and for single version projects is: `/{filename}`."
+            "A custom path prefix used when serving documentation from this project. "
+            "By default we serve documentation at the root (/) of a domain."
         ),
     )
-    urlpattern_subproject = models.CharField(
-        _("Custom URL pattern for the subproject prefix"),
+    custom_subproject_prefix = models.CharField(
+        _("Custom subproject path prefix"),
         max_length=255,
         default=None,
         blank=True,
         null=True,
         help_text=_(
-            "A Python regex pattern used when evaluating the root of a subproject. "
-            "It needs to declare the following replacement fields: subproject and filename. "
-            "This pattern will be used to identify the subproject, to change "
-            "the URL pattern of the subproject itself, change `urlpattern` attribute in the subproject. "  # noqa
-            "The default pattern is: `/projects/{subproject}(/{filename})?`."
+            "A custom path prefix used when evaluating the root of a subproject. "
+            "By default we serve documentation from subprojects under the `/projects/` prefix."
         ),
     )
 
@@ -698,20 +703,6 @@ class Project(models.Model):
         """Path for static files hosted on the user's doc domain."""
         return f"{self.proxied_api_host}/static/"
 
-    @cached_property
-    def regex_urlpattern(self):
-        if self.urlpattern:
-            return urlpattern_to_regex(
-                self.urlpattern, single_version=self.single_version
-            )
-        return None
-
-    @cached_property
-    def regex_urlpattern_subproject(self):
-        if self.urlpattern_subproject:
-            return urlpattern_to_regex(self.urlpattern_subproject)
-        return None
-
     @property
     def custom_path_prefix(self):
         """
@@ -731,26 +722,15 @@ class Project(models.Model):
         Returns the path prefix of a subproject.
 
         This normally is ``/projects/<subproject-alias>/``,
-        but if the project has a custom URL pattern,
-        that pattern will be used.
+        but if the project has a custom subproject prefix,
+        that will be used.
 
         Returns `None` if the project isn't a subproject.
         """
         parent_relationship = self.parent_relationship
         if not parent_relationship:
             return None
-
-        parent_project = parent_relationship.parent
-        if parent_project.urlpattern_subproject:
-            subproject_prefix = parent_project.urlpattern_subproject
-            # The filename isn't part of the subproject prefix,
-            # so we remove it from the pattern.
-            index = subproject_prefix.find("{filename}")
-            subproject_prefix = subproject_prefix[:index]
-        else:
-            subproject_prefix = "/projects/{subproject}/"
-
-        return subproject_prefix.format(subproject=parent_relationship.alias)
+        return parent_relationship.subproject_prefix
 
     @property
     def regex_urlconf(self):

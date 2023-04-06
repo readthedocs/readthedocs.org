@@ -42,82 +42,35 @@ path prefix:
                                     version     |
                                              filename
 
-URL patterns
-------------
+Custom path prefixes
+--------------------
 
-URL patterns define how docs are served, and how the path is parsed by proxito.
-
-For example, the default paths used are:
+By default we serve documentation from the following paths:
 
 - Multi version project: ``/<language>/<version>/<filename>``
 - Single version project: ``/<filename>``
 - Subproject: ``/projects/<subproject-alias>/<subproject-path>``
 
-URL patterns can be used to change these paths per project,
-with the following Project model attributes:
+Custom path prefixes can be used to change from where the documentation is served from,
+and even change the ``/projects`` prefix for subprojects.
+These prefixes can be changed per project, with the following Project model attributes:
 
-urlpattern:
-   URL pattern to change the path for multi version and single version projects.
+custom_prefix:
+   Add a prefix for multi version and single version projects.
 
-urlpattern_subproject:
-   URL pattern to change the path up to the subproject alias (the ``/projects`` prefix).
-   To change the pattern of the subproject itself, use ``urlpattern`` on the subproject.
+custom_subproject_prefix:
+   Change the ``/projects`` prefix for subprojects.
+   To change the prefix of the subproject itself, use ``custom_prefix`` on the subproject.
 
-A URL pattern is a regex with replacement fields,
-replacement fields are expanded to define the proper regex and capture groups (components).
-Valid replacement fields are: ``language``, ``version``, ``filename``, and ``subproject``.
+Where to define the custom path prefix
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Where to define the custom URL patterns
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To change the path prefix of a project,
+define the prefix in the ``custom_prefix`` attribute of the project itself.
+For a translation, change the main language project ``custom_prefix``.
 
-To change the URL pattern of a project,
-define the custom URL pattern in the ``urlpattern`` attribute of the project itself.
-For a translation, change the main language project ``urlpattern``.
-
-And to change the URL pattern of the subproject prefix (``/projects``),
-define the custom URL pattern in the  ``urlpattern_subproject`` attribute of the super project.
-
-Writing a custom URL pattern
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. note::
-
-   Custom URL patterns aren't meant to be written by users (yet),
-   a Read the Docs developer needs to do it for the user.
-
-The simplest way to write a custom URL pattern is to start from the default ones,
-and change them as needed.
-
-- Multi version project: ``/{language}(/({version}(/{filename})?)?)?``
-- Single version project: ``/{filename}``
-- Subproject: ``/projects/{subproject}(/{filename})?``
-
-A couple of rules to be followed to avoid unexpected behaviours are:
-
-- Always put the filename at the end of the pattern,
-  this is since a filename matches any string.
-- Write the regex in a way that a partial match is possible,
-  this is useful for raising the proper exception on partial matches
-  (like a 404 on an invalid language if the URL starts with one).
-- Make the slashes optional (``/``) at the end of each component when possible,
-  this is since a URL is still valid if it doesn't end with a slash
-  (proxito will redirecte to the path with the slash when appropriate).
-- Don't start the pattern with ``^``, or end it with ``$``, this is already added by our code.
-- All paths are guaranteed to start with ``/``, so always start the regex with ``/``.
-- Don't include named groups, character classes (``[]``),
-  or anything that can't be used to reconstruct the URL from the pattern
-  using only the version, language, filename, and subproject components.
-- Is recomeded to separate each component with ``/``,
-  since any other characters can be valid in components (like ``-`` in slugs).
-- Remember that this is a regex, so make sure to escape special characters like ``.``.
-- Make sure that the patterns from the parent project and the subproject prefix
-  don't overlap (``urlpattern`` and ``urlpattern_subproject``).
-  We first try to match the path against ``urlpattern`` and then against ``urlpattern_subproject``,
-  if they overlap, we won't be able to serve subprojects.
-
-.. note::
-
-   Some of these rules are validated when saving the project from the admin.
+And to change the prefix of subprojects (``/projects``),
+define the prefix in the ``custom_subproject_prefix`` attribute of the super project.
 
 CDN
 ---

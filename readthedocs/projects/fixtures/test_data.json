@@ -915,7 +915,7 @@
     "fields": {
         "parent": 6,
         "child": 23,
-        "alias": null
+        "alias": "test-project"
     }
 },
 {

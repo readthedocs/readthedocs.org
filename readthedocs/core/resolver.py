@@ -63,7 +63,7 @@ class ResolverBase:
         subdomain=None,
         cname=None,
         urlconf=None,
-        urlpattern=None,
+        custom_prefix=None,
     ):
         """Resolve a with nothing smart, just filling in the blanks."""
         # Only support `/docs/project' URLs outside our normal environment. Normally
@@ -74,17 +74,13 @@ class ResolverBase:
             path = "/docs/{project}/"
 
         if subproject_relationship:
-            path = unsafe_join_url_path(
-                path, subproject_relationship.child.subproject_prefix
-            )
+            path = unsafe_join_url_path(path, subproject_relationship.subproject_prefix)
 
-        # If the project has a custom urlpattern, we use it.
-        # If the project doesn't have a custom URL pattern, we use the default,
-        # which is just the filename for single version projects and language/version
-        # for multi version projects.
-        if urlpattern:
-            path = unsafe_join_url_path(path, urlpattern)
-        elif single_version:
+        # If the project has a custom prefix, we use it.
+        if custom_prefix:
+            path = unsafe_join_url_path(path, custom_prefix)
+
+        if single_version:
             path = unsafe_join_url_path(path, "{filename}")
         else:
             path = unsafe_join_url_path(path, "{language}/{version}/{filename}")
@@ -154,14 +150,14 @@ class ResolverBase:
         )
         single_version = bool(project.single_version or single_version)
 
-        # If the project is a subproject, we use the urlpattern
+        # If the project is a subproject, we use the custom prefix
         # of the child of the relationship. For a project that
-        # isn't a subproject, we use the urlpattern of the
+        # isn't a subproject, we use the custom prefix of the
         # parent project.
         if subproject_relationship:
-            urlpattern = subproject_relationship.child.urlpattern
+            custom_prefix = subproject_relationship.child.custom_prefix
         else:
-            urlpattern = parent_project.urlpattern
+            custom_prefix = parent_project.custom_prefix
 
         return self.base_resolve_path(
             project_slug=parent_project.slug,
@@ -173,7 +169,7 @@ class ResolverBase:
             cname=cname,
             subdomain=subdomain,
             urlconf=urlconf or project.urlconf,
-            urlpattern=urlpattern,
+            custom_prefix=custom_prefix,
         )
 
     def resolve_domain(self, project, use_canonical_domain=True):

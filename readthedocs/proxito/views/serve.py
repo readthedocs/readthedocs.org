@@ -372,7 +372,14 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             request.path_project_slug = project.slug
             request.path_version_slug = version_slug
 
-            if exc.path == "/":
+            empty_paths = ["/"]
+            if project.custom_prefix:
+                # We need to check custom path prefixes with and without the trailing slash,
+                # e.g: /foo and /foo/.
+                empty_paths.append(project.custom_prefix)
+                empty_paths.append(project.custom_prefix.rstrip("/"))
+
+            if exc.path in empty_paths:
                 # When the path is empty, the project didn't have an explicit version,
                 # so we need to redirect to the default version.
                 # This is `/ -> /en/latest/` or
@@ -381,7 +388,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                     request=request,
                     final_project=project,
                     version_slug=version_slug,
-                    filename=exc.path,
+                    filename="",
                     is_external_version=unresolved_domain.is_from_external_domain,
                 )
 
