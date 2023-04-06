@@ -1,7 +1,7 @@
 from readthedocs.api.v2.views.footer_views import BaseFooterHTML
+from readthedocs.core.mixins import ProxiedAPIMixin
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.views import EmbedAPI
-from readthedocs.core.mixins import ProxiedAPIMixin
 
 
 class BaseProxiedFooterHTML(ProxiedAPIMixin, BaseFooterHTML):
