@@ -177,6 +177,9 @@ class AddonsResponse:
                     "code": settings.GLOBAL_ANALYTICS_CODE,
                 },
             },
+            # TODO: the ``features`` is not polished and we expect to change drastically.
+            # Mainly, all the fields including a Project, Version or Build will use the exact same
+            # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "features": {
                 "analytics": {
                     # TODO: consider adding this field into the ProjectSerializer itself.
