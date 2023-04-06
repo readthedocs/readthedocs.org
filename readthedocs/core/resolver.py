@@ -61,7 +61,7 @@ class ResolverBase:
         version_slug=None,
         language=None,
         single_version=None,
-        subproject_relationship=None,
+        project_relationship=None,
         subdomain=None,
         cname=None,
         urlconf=None,
@@ -75,8 +75,8 @@ class ResolverBase:
         else:
             path = "/docs/{project}/"
 
-        if subproject_relationship:
-            path = unsafe_join_url_path(path, subproject_relationship.subproject_prefix)
+        if project_relationship:
+            path = unsafe_join_url_path(path, project_relationship.subproject_prefix)
 
         # If the project has a custom prefix, we use it.
         if custom_prefix:
@@ -114,9 +114,7 @@ class ResolverBase:
                     url=path,
                 )
 
-        subproject_alias = (
-            subproject_relationship.alias if subproject_relationship else ""
-        )
+        subproject_alias = project_relationship.alias if project_relationship else ""
         return path.format(
             project=project_slug,
             filename=filename,
@@ -142,9 +140,7 @@ class ResolverBase:
 
         filename = self._fix_filename(filename)
 
-        parent_project, subproject_relationship = self._get_canonical_project_data(
-            project
-        )
+        parent_project, project_relationship = self._get_canonical_project_data(project)
         cname = (
             cname
             or self._use_subdomain()
@@ -156,8 +152,8 @@ class ResolverBase:
         # of the child of the relationship. For a project that
         # isn't a subproject, we use the custom prefix of the
         # parent project.
-        if subproject_relationship:
-            custom_prefix = subproject_relationship.child.custom_prefix
+        if project_relationship:
+            custom_prefix = project_relationship.child.custom_prefix
         else:
             custom_prefix = parent_project.custom_prefix
 
@@ -167,7 +163,7 @@ class ResolverBase:
             version_slug=version_slug,
             language=language,
             single_version=single_version,
-            subproject_relationship=subproject_relationship,
+            project_relationship=project_relationship,
             cname=cname,
             subdomain=subdomain,
             urlconf=urlconf or project.urlconf,
@@ -321,11 +317,11 @@ class ResolverBase:
         if main_language_project:
             parent_project = main_language_project
 
-        relation = parent_project.parent_relationship
-        if relation:
-            parent_project = relation.parent
+        relationship = parent_project.parent_relationship
+        if relationship:
+            parent_project = relationship.parent
 
-        return (parent_project, relation)
+        return (parent_project, relationship)
 
     def _get_canonical_project(self, project, projects=None):
         """

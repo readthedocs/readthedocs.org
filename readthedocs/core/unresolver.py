@@ -167,7 +167,6 @@ class Unresolver:
         # The path must have the `project` alias,
         # optionally a filename, which will be recursively resolved.
         "^/{subproject}(/{filename})?$"
-        # "^/projects/{subproject}(/{filename})?$"
     )
 
     def unresolve_url(self, url, append_indexhtml=True):
