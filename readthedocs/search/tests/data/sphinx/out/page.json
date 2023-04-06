@@ -10,22 +10,22 @@
     {
       "id": "test_py_module.test.Foo",
       "title": "class test_py_module.test.Foo(qux, spam=False)[source]",
-      "content": "\n        Docstring for class Foo.\n        This text tests for the formatting of docstrings generated from output\n          sphinx.ext.autodoc.\n        \n        \n          \n            __init__(\n            qux, spam=\n              False)\n            \n              [source]\n          \n          \n            Start the Foo.\n            \n              Parameters:\n              \n                \n                  \n                    qux (string) \u2013 The first argument to initialize class.\n                  \n                  \n                    spam (bool) \u2013 Spam me yes or no\u2026\n                  \n                \n              \n            \n          \n        \n      "
+      "content": "Docstring for class Foo. This text tests for the formatting of docstrings generated from output sphinx.ext.autodoc."
     },
     {
       "id": "test_py_module.test.Foo.__init__",
       "title": "__init__( qux, spam= False) [source]",
-      "content": "\n            Start the Foo.\n            \n              Parameters:\n              \n                \n                  \n                    qux (string) \u2013 The first argument to initialize class.\n                  \n                  \n                    spam (bool) \u2013 Spam me yes or no\u2026\n                  \n                \n              \n            \n          "
+      "content": "Start the Foo."
     },
     {
       "id": "id6",
       "title": "1(1,2)",
-      "content": "\n        A footnote contains body elements, consistently indented by at least 3 spaces.\n        This is the footnote\u2019s second paragraph.\n      "
+      "content": "A footnote contains body elements, consistently indented by at least 3 spaces. This is the footnote\u2019s second paragraph."
     },
     {
       "id": "id9",
       "title": "3",
-      "content": "\n        This footnote is numbered automatically and anonymously using a label of \u201c#\u201d only.\n      "
+      "content": "This footnote is numbered automatically and anonymously using a label of \u201c#\u201d only."
     },
     {
       "id": "i-need-secrets-or-environment-variables-in-my-build",

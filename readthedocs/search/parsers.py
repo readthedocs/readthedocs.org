@@ -166,8 +166,20 @@ class GenericParser:
                     if not dd or not _id:
                         continue
 
+                    # Create a copy of the node to avoid manipulating the
+                    # data structure that we're iterating over
+                    dd_copy = HTMLParser(dd.html).body.child
+
+                    # Remove all nested domains from dd_copy.
+                    # They are already parsed separately.
+                    nested_domains = dd_copy.css("dl")
+                    for node in nested_domains:
+                        if dd_copy != node:
+                            node.decompose()
+
                     # The content of the <dt> section is the content of the accompanying <dd>
-                    content = dd.text()
+                    content = self._parse_content(dd_copy.text())
+
                     yield {
                         "id": _id,
                         "title": title,

@@ -377,6 +377,7 @@ class TestParsers:
             path="basic.html",
         )
         parsed_json = [file.processed_json]
+        print(json.dumps(parsed_json, indent=2))
         expected_json = json.load(open(data_path / "generic/out/basic.json"))
         assert parsed_json == expected_json
 
