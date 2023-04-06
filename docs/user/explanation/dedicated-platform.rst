@@ -174,7 +174,7 @@ Example: Automatic deploys with version tagging
     :doc:`/explanation/continuous-documentation`
         A more technical introduction to CI/CD for documentation projects.
 
-    :ref:`Diátaxis methodology <diataxis>`
+    `Diátaxis Framework <https://diataxis.fr>`__
         Having an agile workflow enables your documentation project to *grow organically*.
         This is one of the core principles of the Diatáxis Methodology,
         which presents a universal structure and agile workflow methodology for documentation projects.

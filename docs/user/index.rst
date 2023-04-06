@@ -19,7 +19,6 @@ Read the Docs: documentation simplified
 
    /explanation/dedicated-platform
    /explanation/continuous-documentation
-   /explanation/methodology
    /explanation/advanced
 
 .. toctree::
