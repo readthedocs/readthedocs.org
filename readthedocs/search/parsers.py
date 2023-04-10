@@ -221,13 +221,13 @@ class GenericParser:
                 # They are already parsed separately.
                 # We can remove all <dl> in bulk because we generally parse
                 # <dt>s without ids in the parent section that they belong.
-                nested_dls = dd_copy.css("dl")
-                for node in nested_dls:
-                    for _dt in node.css("dt"):
-                        if not _dt.attributes.get("id", ""):
-                            continue
+                for node in dd_copy.css("dl"):
+                    # Traverse all <dt>s with an ID (the ones we index!)
+                    for _dt in node.css("dt[id]:not([id=" "])"):
+                        # Traverse all their adjacent <dd>s and remove them
                         for _dd in _dt.css("dt ~ dd"):
                             _dd.decompose()
+                        # Remove the <dt> too
                         _dt.decompose()
 
                 # The content of the <dt> section is the content of the accompanying <dd>
