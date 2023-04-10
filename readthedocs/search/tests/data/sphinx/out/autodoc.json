@@ -180,22 +180,22 @@
     {
       "id": "directives",
       "title": "Directives",
-      "content": "autodoc provides several directives that are versions of the usual py:module, py:class and so forth. On parsing time, they import the corresponding module and extract the docstring of the given objects, inserting them into the page source under a suitable py:module, py:class etc. directive. Note Just as py:class respects the current py:module, autoclass will also do so. Likewise, automethod will respect the current py:class."
+      "content": "autodoc provides several directives that are versions of the usual py:module, py:class and so forth. On parsing time, they import the corresponding module and extract the docstring of the given objects, inserting them into the page source under a suitable py:module, py:class etc. directive. Note Just as py:class respects the current py:module, autoclass will also do so. Likewise, automethod will respect the current py:class. .. automodule:: .. autoclass:: .. autoexception:: .. autofunction:: .. autodecorator:: .. autodata:: .. automethod:: .. autoattribute:: .. autoproperty::"
     },
     {
       "id": "configuration",
       "title": "Configuration",
-      "content": "There are also config values that you can set:"
+      "content": "There are also config values that you can set: autoclass_content autodoc_class_signature autodoc_member_order autodoc_default_flags autodoc_default_options autodoc_docstring_signature autodoc_mock_imports autodoc_typehints autodoc_typehints_description_target autodoc_type_aliases autodoc_typehints_format autodoc_preserve_defaults autodoc_warningiserror autodoc_inherit_docstrings suppress_warnings autodoc supports to suppress warning messages via suppress_warnings. It allows following warnings types in addition: autodoc autodoc.import_object"
     },
     {
       "id": "docstring-preprocessing",
       "title": "Docstring preprocessing",
-      "content": "autodoc provides the following additional events: The sphinx.ext.autodoc module provides factory functions for commonly needed docstring processing in event autodoc-process-docstring:"
+      "content": "autodoc provides the following additional events: autodoc-process-docstring(app, what, name, obj, options, lines) autodoc-before-process-signature(app, obj, bound_method) autodoc-process-signature(app, what, name, obj, options, signature, return_annotation) The sphinx.ext.autodoc module provides factory functions for commonly needed docstring processing in event autodoc-process-docstring: sphinx.ext.autodoc.cut_lines(pre: int, post: int = 0, what: str | None = None) \u2192 Callable[source] sphinx.ext.autodoc.between(marker: str, what: Sequence[str] | None = None, keepempty: bool = False, exclude: bool = False) \u2192 Callable[source] autodoc-process-bases(app, name, obj, options, bases)"
     },
     {
       "id": "skipping-members",
       "title": "Skipping members",
-      "content": "autodoc allows the user to define a custom method for determining whether a member should be included in the documentation by using the following event:"
+      "content": "autodoc allows the user to define a custom method for determining whether a member should be included in the documentation by using the following event: autodoc-skip-member(app, what, name, obj, skip, options)"
     }
   ],
   "domain_data": {}

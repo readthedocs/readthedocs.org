@@ -10,7 +10,7 @@
     {
       "id": "",
       "title": "Here is a nice reference",
-      "content": ""
+      "content": "GET /api/v3/projects/"
     }
   ],
   "domain_data": {}

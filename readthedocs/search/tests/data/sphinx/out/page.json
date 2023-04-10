@@ -24,7 +24,7 @@
     },
     {
       "id": "",
-      "title": "3",
+      "title": "I Need Secrets (or Environment Variables) in my Build",
       "content": "Content at the beginning."
     },
     {
@@ -50,7 +50,7 @@
     {
       "id": "footnotes-and-domains",
       "title": "Footnotes and domains",
-      "content": ""
+      "content": "class test_py_module.test.Foo(qux, spam=False)[source] 1(1,2) 3"
     },
     {
       "id": "subsub-title",
