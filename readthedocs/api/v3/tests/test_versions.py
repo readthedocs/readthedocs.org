@@ -208,6 +208,25 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.version.refresh_from_db()
         self.assertEqual(self.version.privacy_level, "private")
 
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_projects_versions_partial_update_invalid_privacy_levels(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        data = {
+            "privacy_level": "publicprivate",
+        }
+        response = self.client.patch(
+            reverse(
+                "projects-versions-detail",
+                kwargs={
+                    "parent_lookup_project__slug": self.project.slug,
+                    "version_slug": self.version.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(self.version.privacy_level, "public")
+
     def test_projects_version_external(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         self.version.type = EXTERNAL

@@ -502,3 +502,24 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.project.refresh_from_db()
         self.assertEqual(self.project.privacy_level, "private")
         self.assertEqual(self.project.external_builds_privacy_level, "private")
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_partial_update_project_invalid_privacy_level(self):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        data = {
+            "privacy_level": "prubic",
+            "external_builds_privacy_level": "privic",
+        }
+        response = self.client.patch(
+            reverse(
+                "projects-detail",
+                kwargs={
+                    "project_slug": self.project.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 400)
+        self.project.refresh_from_db()
+        self.assertEqual(self.project.privacy_level, "public")
+        self.assertEqual(self.project.external_builds_privacy_level, "public")
