@@ -221,7 +221,7 @@ class GenericParser:
                 # They are already parsed separately.
                 for node in dd_copy.css("dl"):
                     # Traverse all <dt>s with an ID (the ones we index!)
-                    for _dt in node.css("dt[id]:not([id=" "])"):
+                    for _dt in node.css('dt[id]:not([id=""])'):
                         # Fetch adjacent <dd>s and remove them
                         _dd_dt = _dt.css_first("dt ~ dd")
                         if _dd_dt:
