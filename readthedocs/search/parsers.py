@@ -4,6 +4,7 @@ import itertools
 import os
 import re
 from urllib.parse import urlparse
+from uuid import uuid4
 
 import orjson as json
 import structlog
@@ -124,57 +125,73 @@ class GenericParser:
         we index that content first under the title of the original page.
         """
 
-        # All terms in dls are treated as sections.
-        # After indexing them, we remove them from the body such that their contents aren't
-        # repeated in the following indexing
-        dls = body.css("dl")
-        seen_dls = []
-        for dl in dls:
-            if dl in seen_dls:
-                continue
-            for inner_dl in dl.css("dl"):
-                seen_dls.append(inner_dl)
+        document_title = title
 
+        # All terms in <dl>s are treated as sections.
+        # We traverse by <dl> - traversing by <dt> has shown in experiments to render a
+        # different traversal order, which could make the tests more unstable.
+        dls = body.css("dl")
+        # Track every <dd> that's indexed.
+        # After indexing them, we remove their indexed content from the body such that their
+        # contents aren't repeated in the following indexing
+        seen_dds = []
+        for dl in dls:
+
+            # Hack: Identify a :host() without using :host() selector
+            # We would perhaps like to have written '> dt' but the syntax isn't allowed.
+            # We also cannot use :host.
+            # So in order to ensure that we are only selecting the <dt> elements that are direct
+            # descendents of the traversed <dl>, we give it a unique ID.
+            random_uuid = uuid4().hex
+            # Here, it's okay to manipulate the ID of the <dl> because we're not going to use it.
+            # Note: It didn't work to use custom node attributes nor :has().
+            dl.attrs["id"] = random_uuid
             # Select all dts with id defined
-            dts = dl.css('dt[id]:not([id=""])')
+            dts = dl.css(f'dl#{random_uuid} > dt[id]:not([id=""])')
 
             # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt
             # multiple <dt> elements in a row indicate several terms that are
             # all defined by the immediate next <dd> element.
             for dt in dts:
-                try:
-                    title, _id = self._parse_dt(dt)
-                    # https://developer.mozilla.org/en-US/docs/Web/CSS/General_sibling_combinator
-                    dd = dt.css_first("dt ~ dd")
-                    # We only index a dt with an id attribute and an accompanying dd
-                    if not dd or not _id:
-                        continue
+                title, _id = self._parse_dt(dt)
+                # Select the first adjacent <dd> using a "gamble" that seems to work.
+                # In this example, we cannot use the current <dt>'s ID because they contain invalid
+                # syntax and there's no apparent way to fix that.
+                # https://developer.mozilla.org/en-US/docs/Web/CSS/General_sibling_combinator
+                dd = dt.css_first("dt ~ dd")
+                # We only index a dt with an id attribute and an accompanying dd
+                if not dd or not _id:
+                    continue
 
-                    # Create a copy of the node to avoid manipulating the
-                    # data structure that we're iterating over
-                    dd_copy = HTMLParser(dd.html).body.child
+                seen_dds.append(dd)
 
-                    # Remove all nested domains from dd_copy.
-                    # They are already parsed separately.
-                    nested_domains = dd_copy.css("dl")
-                    for node in nested_domains:
-                        if dd_copy != node:
-                            node.decompose()
+                # Create a copy of the node to avoid manipulating the
+                # data structure that we're iterating over
+                dd_copy = HTMLParser(dd.html).body.child
 
-                    # The content of the <dt> section is the content of the accompanying <dd>
-                    content = self._parse_content(dd_copy.text())
+                # Remove all nested domains from dd_copy.
+                # They are already parsed separately.
+                # We can remove all <dl> in bulk because we generally parse
+                # <dt>s without ids in the parent section that they belong.
+                nested_domains = dd_copy.css("dl")
+                for node in nested_domains:
+                    if dd_copy != node:
+                        node.decompose()
 
-                    yield {
-                        "id": _id,
-                        "title": title,
-                        "content": content,
-                    }
-                except Exception:
-                    log.info("Unable to index dt section.", exc_info=True)
+                # The content of the <dt> section is the content of the accompanying <dd>
+                content = self._parse_content(dd_copy.text())
 
-            # Remove the <dl> node
-            # There isn't a clear indication if this behavior is DFS or BFS
-            dl.decompose()
+                yield {
+                    "id": _id,
+                    "title": title,
+                    "content": content,
+                }
+
+        # Remove all seen and indexed data outside of traversal.
+        # There isn't a clear indication if this behavior is DFS or BFS,
+        # and we want to avoid modifying the DOM tree while traversing it.
+        for dd in seen_dds:
+            dd.decompose()
 
         # Index content for pages that don't start with a title.
         # We check for sections till 3 levels to avoid indexing all the content
@@ -187,7 +204,7 @@ class GenericParser:
             if content:
                 yield {
                     "id": "",
-                    "title": title,
+                    "title": document_title,
                     "content": content,
                 }
         except Exception as e:
