@@ -307,7 +307,7 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
     """
     Used when modifying (update action) a ``Version``.
 
-    It only allows to make the Version active/non-active.
+    It allows to change the version states and privacy level only.
     """
 
     class Meta:
