@@ -10,7 +10,7 @@
     {
       "id": "test_py_module.test.Foo.__init__",
       "title": "__init__( qux, spam= False) [source]",
-      "content": "Start the Foo."
+      "content": "Start the Foo. Parameters: qux (string) \u2013 The first argument to initialize class. spam (bool) \u2013 Spam me yes or no\u2026"
     },
     {
       "id": "id6",

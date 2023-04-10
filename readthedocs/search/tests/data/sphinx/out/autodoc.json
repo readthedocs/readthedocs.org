@@ -70,12 +70,12 @@
     {
       "id": "confval-autoclass_content",
       "title": "autoclass_content",
-      "content": "This value selects what content will be inserted into the main body of an autoclass directive. The possible values are: New in version 0.3. If the class has no __init__ method or if the __init__ method\u2019s docstring is empty, but the class has a __new__ method\u2019s docstring, it is used instead. New in version 1.4."
+      "content": "This value selects what content will be inserted into the main body of an autoclass directive. The possible values are: \"class\"Only the class\u2019 docstring is inserted. This is the default. You can still document __init__ as a separate method using automethod or the members option to autoclass. \"both\"Both the class\u2019 and the __init__ method\u2019s docstring are concatenated and inserted. \"init\"Only the __init__ method\u2019s docstring is inserted. New in version 0.3. If the class has no __init__ method or if the __init__ method\u2019s docstring is empty, but the class has a __new__ method\u2019s docstring, it is used instead. New in version 1.4."
     },
     {
       "id": "confval-autodoc_class_signature",
       "title": "autodoc_class_signature",
-      "content": "This value selects how the signature will be displayed for the class defined by autoclass directive. The possible values are: The default is \"mixed\". New in version 4.1."
+      "content": "This value selects how the signature will be displayed for the class defined by autoclass directive. The possible values are: \"mixed\"Display the signature with the class name. \"separated\"Display the signature as a method. The default is \"mixed\". New in version 4.1."
     },
     {
       "id": "confval-autodoc_member_order",
@@ -140,17 +140,17 @@
     {
       "id": "event-autodoc-process-docstring",
       "title": "autodoc-process-docstring(app, what, name, obj, options, lines)",
-      "content": "New in version 0.4. Emitted when autodoc has read and processed a docstring. lines is a list of strings \u2013 the lines of the processed docstring \u2013 that the event handler can modify in place to change what Sphinx puts into the output."
+      "content": "New in version 0.4. Emitted when autodoc has read and processed a docstring. lines is a list of strings \u2013 the lines of the processed docstring \u2013 that the event handler can modify in place to change what Sphinx puts into the output. Parameters: app \u2013 the Sphinx application object what \u2013 the type of the object which the docstring belongs to (one of \"module\", \"class\", \"exception\", \"function\", \"method\", \"attribute\") name \u2013 the fully qualified name of the object obj \u2013 the object itself options \u2013 the options given to the directive: an object with attributes inherited_members, undoc_members, show_inheritance and noindex that are true if the flag option of same name was given to the auto directive lines \u2013 the lines of the docstring, see above"
     },
     {
       "id": "event-autodoc-before-process-signature",
       "title": "autodoc-before-process-signature(app, obj, bound_method)",
-      "content": "New in version 2.4. Emitted before autodoc formats a signature for an object. The event handler can modify an object to change its signature."
+      "content": "New in version 2.4. Emitted before autodoc formats a signature for an object. The event handler can modify an object to change its signature. Parameters: app \u2013 the Sphinx application object obj \u2013 the object itself bound_method \u2013 a boolean indicates an object is bound method or not"
     },
     {
       "id": "event-autodoc-process-signature",
       "title": "autodoc-process-signature(app, what, name, obj, options, signature, return_annotation)",
-      "content": "New in version 0.5. Emitted when autodoc has formatted a signature for an object. The event handler can return a new tuple (signature, return_annotation) to change what Sphinx puts into the output."
+      "content": "New in version 0.5. Emitted when autodoc has formatted a signature for an object. The event handler can return a new tuple (signature, return_annotation) to change what Sphinx puts into the output. Parameters: app \u2013 the Sphinx application object what \u2013 the type of the object which the docstring belongs to (one of \"module\", \"class\", \"exception\", \"function\", \"method\", \"attribute\") name \u2013 the fully qualified name of the object obj \u2013 the object itself options \u2013 the options given to the directive: an object with attributes inherited_members, undoc_members, show_inheritance and noindex that are true if the flag option of same name was given to the auto directive signature \u2013 function signature, as a string of the form \"(parameter_1, parameter_2)\", or None if introspection didn\u2019t succeed and signature wasn\u2019t specified in the directive. return_annotation \u2013 function return annotation as a string of the form \" -> annotation\", or None if there is no return annotation"
     },
     {
       "id": "sphinx.ext.autodoc.cut_lines",
@@ -165,12 +165,12 @@
     {
       "id": "event-autodoc-process-bases",
       "title": "autodoc-process-bases(app, name, obj, options, bases)",
-      "content": "Emitted when autodoc has read and processed a class to determine the base-classes. bases is a list of classes that the event handler can modify in place to change what Sphinx puts into the output. It\u2019s emitted only if show-inheritance option given. New in version 4.1. Changed in version 4.3: bases can contain a string as a base class name. It will be processed as reST mark-up\u2019ed text."
+      "content": "Emitted when autodoc has read and processed a class to determine the base-classes. bases is a list of classes that the event handler can modify in place to change what Sphinx puts into the output. It\u2019s emitted only if show-inheritance option given. Parameters: app \u2013 the Sphinx application object name \u2013 the fully qualified name of the object obj \u2013 the object itself options \u2013 the options given to the class directive bases \u2013 the list of base classes signature. see above. New in version 4.1. Changed in version 4.3: bases can contain a string as a base class name. It will be processed as reST mark-up\u2019ed text."
     },
     {
       "id": "event-autodoc-skip-member",
       "title": "autodoc-skip-member(app, what, name, obj, skip, options)",
-      "content": "New in version 0.5. Emitted when autodoc has to decide whether a member should be included in the documentation. The member is excluded if a handler returns True. It is included if the handler returns False. If more than one enabled extension handles the autodoc-skip-member event, autodoc will use the first non-None value returned by a handler. Handlers should return None to fall back to the skipping behavior of autodoc and other enabled extensions."
+      "content": "New in version 0.5. Emitted when autodoc has to decide whether a member should be included in the documentation. The member is excluded if a handler returns True. It is included if the handler returns False. If more than one enabled extension handles the autodoc-skip-member event, autodoc will use the first non-None value returned by a handler. Handlers should return None to fall back to the skipping behavior of autodoc and other enabled extensions. Parameters: app \u2013 the Sphinx application object what \u2013 the type of the object which the docstring belongs to (one of \"module\", \"class\", \"exception\", \"function\", \"method\", \"attribute\") name \u2013 the fully qualified name of the object obj \u2013 the object itself skip \u2013 a boolean indicating if autodoc will skip this member if the user handler does not override the decision options \u2013 the options given to the directive: an object with attributes inherited_members, undoc_members, show_inheritance and noindex that are true if the flag option of same name was given to the auto directive"
     },
     {
       "id": "module-sphinx.ext.autodoc",

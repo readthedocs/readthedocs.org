@@ -5,37 +5,37 @@
     {
       "id": "requests.request",
       "title": "requests.request(method, url, **kwargs)[source]",
-      "content": "Constructs and sends a Request. Usage: >>> import requests >>> req = requests.request('GET', 'https://httpbin.org/get') >>> req <Response [200]>"
+      "content": "Constructs and sends a Request. Parameters method \u2013 method for the new Request object: GET, OPTIONS, HEAD, POST, PUT, PATCH, or DELETE. url \u2013 URL for the new Request object. params \u2013 (optional) Dictionary, list of tuples or bytes to send in the query string for the Request. data \u2013 (optional) Dictionary, list of tuples, bytes, or file-like object to send in the body of the Request. json \u2013 (optional) A JSON serializable Python object to send in the body of the Request. headers \u2013 (optional) Dictionary of HTTP Headers to send with the Request. cookies \u2013 (optional) Dict or CookieJar object to send with the Request. files \u2013 (optional) Dictionary of 'name': file-like-objects (or {'name': file-tuple}) for multipart encoding upload. file-tuple can be a 2-tuple ('filename', fileobj), 3-tuple ('filename', fileobj, 'content_type') or a 4-tuple ('filename', fileobj, 'content_type', custom_headers), where 'content-type' is a string defining the content type of the given file and custom_headers a dict-like object containing additional headers to add for the file. auth \u2013 (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth. timeout (float or tuple) \u2013 (optional) How many seconds to wait for the server to send data before giving up, as a float, or a (connect timeout, read timeout) tuple. allow_redirects (bool) \u2013 (optional) Boolean. Enable/disable GET/OPTIONS/POST/PUT/PATCH/DELETE/HEAD redirection. Defaults to True. proxies \u2013 (optional) Dictionary mapping protocol to the URL of the proxy. verify \u2013 (optional) Either a boolean, in which case it controls whether we verify the server\u2019s TLS certificate, or a string, in which case it must be a path to a CA bundle to use. Defaults to True. stream \u2013 (optional) if False, the response content will be immediately downloaded. cert \u2013 (optional) if String, path to ssl client cert file (.pem). If Tuple, (\u2018cert\u2019, \u2018key\u2019) pair. Returns Response object Return type requests.Response Usage: >>> import requests >>> req = requests.request('GET', 'https://httpbin.org/get') >>> req <Response [200]>"
     },
     {
       "id": "requests.head",
       "title": "requests.head(url, **kwargs)[source]",
-      "content": "Sends a HEAD request."
+      "content": "Sends a HEAD request. Parameters url \u2013 URL for the new Request object. **kwargs \u2013 Optional arguments that request takes. If allow_redirects is not provided, it will be set to False (as opposed to the default request behavior). Returns Response object Return type requests.Response"
     },
     {
       "id": "requests.get",
       "title": "requests.get(url, params=None, **kwargs)[source]",
-      "content": "Sends a GET request."
+      "content": "Sends a GET request. Parameters url \u2013 URL for the new Request object. params \u2013 (optional) Dictionary, list of tuples or bytes to send in the query string for the Request. **kwargs \u2013 Optional arguments that request takes. Returns Response object Return type requests.Response"
     },
     {
       "id": "requests.post",
       "title": "requests.post(url, data=None, json=None, **kwargs)[source]",
-      "content": "Sends a POST request."
+      "content": "Sends a POST request. Parameters url \u2013 URL for the new Request object. data \u2013 (optional) Dictionary, list of tuples, bytes, or file-like object to send in the body of the Request. json \u2013 (optional) A JSON serializable Python object to send in the body of the Request. **kwargs \u2013 Optional arguments that request takes. Returns Response object Return type requests.Response"
     },
     {
       "id": "requests.put",
       "title": "requests.put(url, data=None, **kwargs)[source]",
-      "content": "Sends a PUT request."
+      "content": "Sends a PUT request. Parameters url \u2013 URL for the new Request object. data \u2013 (optional) Dictionary, list of tuples, bytes, or file-like object to send in the body of the Request. json \u2013 (optional) A JSON serializable Python object to send in the body of the Request. **kwargs \u2013 Optional arguments that request takes. Returns Response object Return type requests.Response"
     },
     {
       "id": "requests.patch",
       "title": "requests.patch(url, data=None, **kwargs)[source]",
-      "content": "Sends a PATCH request."
+      "content": "Sends a PATCH request. Parameters url \u2013 URL for the new Request object. data \u2013 (optional) Dictionary, list of tuples, bytes, or file-like object to send in the body of the Request. json \u2013 (optional) A JSON serializable Python object to send in the body of the Request. **kwargs \u2013 Optional arguments that request takes. Returns Response object Return type requests.Response"
     },
     {
       "id": "requests.delete",
       "title": "requests.delete(url, **kwargs)[source]",
-      "content": "Sends a DELETE request."
+      "content": "Sends a DELETE request. Parameters url \u2013 URL for the new Request object. **kwargs \u2013 Optional arguments that request takes. Returns Response object Return type requests.Response"
     },
     {
       "id": "requests.RequestException",
@@ -110,17 +110,17 @@
     {
       "id": "requests.Session.delete",
       "title": "delete(url, **kwargs)[source]",
-      "content": "Sends a DELETE request. Returns Response object."
+      "content": "Sends a DELETE request. Returns Response object. Parameters url \u2013 URL for the new Request object. **kwargs \u2013 Optional arguments that request takes. Return type requests.Response"
     },
     {
       "id": "requests.Session.get",
       "title": "get(url, **kwargs)[source]",
-      "content": "Sends a GET request. Returns Response object."
+      "content": "Sends a GET request. Returns Response object. Parameters url \u2013 URL for the new Request object. **kwargs \u2013 Optional arguments that request takes. Return type requests.Response"
     },
     {
       "id": "requests.Session.get_adapter",
       "title": "get_adapter(url)[source]",
-      "content": "Returns the appropriate connection adapter for the given URL."
+      "content": "Returns the appropriate connection adapter for the given URL. Return type requests.adapters.BaseAdapter"
     },
     {
       "id": "requests.Session.get_redirect_target",
@@ -130,7 +130,7 @@
     {
       "id": "requests.Session.head",
       "title": "head(url, **kwargs)[source]",
-      "content": "Sends a HEAD request. Returns Response object."
+      "content": "Sends a HEAD request. Returns Response object. Parameters url \u2013 URL for the new Request object. **kwargs \u2013 Optional arguments that request takes. Return type requests.Response"
     },
     {
       "id": "requests.Session.headers",
@@ -150,7 +150,7 @@
     {
       "id": "requests.Session.merge_environment_settings",
       "title": "merge_environment_settings(url, proxies, stream, verify, cert)[source]",
-      "content": "Check the environment and merge it with some settings."
+      "content": "Check the environment and merge it with some settings. Return type dict"
     },
     {
       "id": "requests.Session.mount",
@@ -160,7 +160,7 @@
     {
       "id": "requests.Session.options",
       "title": "options(url, **kwargs)[source]",
-      "content": "Sends a OPTIONS request. Returns Response object."
+      "content": "Sends a OPTIONS request. Returns Response object. Parameters url \u2013 URL for the new Request object. **kwargs \u2013 Optional arguments that request takes. Return type requests.Response"
     },
     {
       "id": "requests.Session.params",
@@ -170,17 +170,17 @@
     {
       "id": "requests.Session.patch",
       "title": "patch(url, data=None, **kwargs)[source]",
-      "content": "Sends a PATCH request. Returns Response object."
+      "content": "Sends a PATCH request. Returns Response object. Parameters url \u2013 URL for the new Request object. data \u2013 (optional) Dictionary, list of tuples, bytes, or file-like object to send in the body of the Request. **kwargs \u2013 Optional arguments that request takes. Return type requests.Response"
     },
     {
       "id": "requests.Session.post",
       "title": "post(url, data=None, json=None, **kwargs)[source]",
-      "content": "Sends a POST request. Returns Response object."
+      "content": "Sends a POST request. Returns Response object. Parameters url \u2013 URL for the new Request object. data \u2013 (optional) Dictionary, list of tuples, bytes, or file-like object to send in the body of the Request. json \u2013 (optional) json to send in the body of the Request. **kwargs \u2013 Optional arguments that request takes. Return type requests.Response"
     },
     {
       "id": "requests.Session.prepare_request",
       "title": "prepare_request(request)[source]",
-      "content": "Constructs a PreparedRequest for transmission and returns it. The PreparedRequest has settings merged from the Request instance and those of the Session."
+      "content": "Constructs a PreparedRequest for transmission and returns it. The PreparedRequest has settings merged from the Request instance and those of the Session. Parameters request \u2013 Request instance to prepare with this session\u2019s settings. Return type requests.PreparedRequest"
     },
     {
       "id": "requests.Session.proxies",
@@ -190,7 +190,7 @@
     {
       "id": "requests.Session.put",
       "title": "put(url, data=None, **kwargs)[source]",
-      "content": "Sends a PUT request. Returns Response object."
+      "content": "Sends a PUT request. Returns Response object. Parameters url \u2013 URL for the new Request object. data \u2013 (optional) Dictionary, list of tuples, bytes, or file-like object to send in the body of the Request. **kwargs \u2013 Optional arguments that request takes. Return type requests.Response"
     },
     {
       "id": "requests.Session.rebuild_auth",
@@ -205,12 +205,12 @@
     {
       "id": "requests.Session.rebuild_proxies",
       "title": "rebuild_proxies(prepared_request, proxies)",
-      "content": "This method re-evaluates the proxy configuration by considering the environment variables. If we are redirected to a URL covered by NO_PROXY, we strip the proxy configuration. Otherwise, we set missing proxy keys for this URL (in case they were stripped by a previous redirect). This method also replaces the Proxy-Authorization header where necessary."
+      "content": "This method re-evaluates the proxy configuration by considering the environment variables. If we are redirected to a URL covered by NO_PROXY, we strip the proxy configuration. Otherwise, we set missing proxy keys for this URL (in case they were stripped by a previous redirect). This method also replaces the Proxy-Authorization header where necessary. Return type dict"
     },
     {
       "id": "requests.Session.request",
       "title": "request(method, url, params=None, data=None, headers=None, cookies=None, files=None, auth=None, timeout=None, allow_redirects=True, proxies=None, hooks=None, stream=None, verify=None, cert=None, json=None)[source]",
-      "content": "Constructs a Request, prepares it and sends it. Returns Response object."
+      "content": "Constructs a Request, prepares it and sends it. Returns Response object. Parameters method \u2013 method for the new Request object. url \u2013 URL for the new Request object. params \u2013 (optional) Dictionary or bytes to be sent in the query string for the Request. data \u2013 (optional) Dictionary, list of tuples, bytes, or file-like object to send in the body of the Request. json \u2013 (optional) json to send in the body of the Request. headers \u2013 (optional) Dictionary of HTTP Headers to send with the Request. cookies \u2013 (optional) Dict or CookieJar object to send with the Request. files \u2013 (optional) Dictionary of 'filename': file-like-objects for multipart encoding upload. auth \u2013 (optional) Auth tuple or callable to enable Basic/Digest/Custom HTTP Auth. timeout (float or tuple) \u2013 (optional) How long to wait for the server to send data before giving up, as a float, or a (connect timeout, read timeout) tuple. allow_redirects (bool) \u2013 (optional) Set to True by default. proxies \u2013 (optional) Dictionary mapping protocol or protocol and hostname to the URL of the proxy. stream \u2013 (optional) whether to immediately download the response content. Defaults to False. verify \u2013 (optional) Either a boolean, in which case it controls whether we verify the server\u2019s TLS certificate, or a string, in which case it must be a path to a CA bundle to use. Defaults to True. When set to False, requests will accept any TLS certificate presented by the server, and will ignore hostname mismatches and/or expired certificates, which will make your application vulnerable to man-in-the-middle (MitM) attacks. Setting verify to False may be useful during local development or testing. cert \u2013 (optional) if String, path to ssl client cert file (.pem). If Tuple, (\u2018cert\u2019, \u2018key\u2019) pair. Return type requests.Response"
     },
     {
       "id": "requests.Session.resolve_redirects",
@@ -220,7 +220,7 @@
     {
       "id": "requests.Session.send",
       "title": "send(request, **kwargs)[source]",
-      "content": "Send a given PreparedRequest."
+      "content": "Send a given PreparedRequest. Return type requests.Response"
     },
     {
       "id": "requests.Session.should_strip_auth",
@@ -245,7 +245,7 @@
     {
       "id": "requests.Request",
       "title": "class requests.Request(method=None, url=None, headers=None, files=None, data=None, params=None, auth=None, cookies=None, hooks=None, json=None)[source]",
-      "content": "A user-created Request object. Used to prepare a PreparedRequest, which is sent to the server. Usage: >>> import requests >>> req = requests.Request('GET', 'https://httpbin.org/get') >>> req.prepare() <PreparedRequest [GET]>"
+      "content": "A user-created Request object. Used to prepare a PreparedRequest, which is sent to the server. Parameters method \u2013 HTTP method to use. url \u2013 URL to send. headers \u2013 dictionary of headers to send. files \u2013 dictionary of {filename: fileobject} files to multipart upload. data \u2013 the body to attach to the request. If a dictionary or list of tuples [(key, value)] is provided, form-encoding will take place. json \u2013 json for the body to attach to the request (if files or data is not specified). params \u2013 URL parameters to append to the URL. If a dictionary or list of tuples [(key, value)] is provided, form-encoding will take place. auth \u2013 Auth handler or (user, pass) tuple. cookies \u2013 dictionary or CookieJar of cookies to attach to this request. hooks \u2013 dictionary of callback hooks, for internal usage. Usage: >>> import requests >>> req = requests.Request('GET', 'https://httpbin.org/get') >>> req.prepare() <PreparedRequest [GET]>"
     },
     {
       "id": "requests.Request.deregister_hook",
@@ -330,7 +330,7 @@
     {
       "id": "requests.Response.json",
       "title": "json(**kwargs)[source]",
-      "content": "Returns the json-encoded content of a response, if any."
+      "content": "Returns the json-encoded content of a response, if any. Parameters **kwargs \u2013 Optional arguments that json.loads takes. Raises requests.exceptions.JSONDecodeError \u2013 If the response body does not contain valid json."
     },
     {
       "id": "requests.Response.links",
@@ -485,27 +485,27 @@
     {
       "id": "requests.adapters.BaseAdapter.send",
       "title": "send(request, stream=False, timeout=None, verify=True, cert=None, proxies=None)[source]",
-      "content": "Sends PreparedRequest object. Returns Response object."
+      "content": "Sends PreparedRequest object. Returns Response object. Parameters request \u2013 The PreparedRequest being sent. stream \u2013 (optional) Whether to stream the request content. timeout (float or tuple) \u2013 (optional) How long to wait for the server to send data before giving up, as a float, or a (connect timeout, read timeout) tuple. verify \u2013 (optional) Either a boolean, in which case it controls whether we verify the server\u2019s TLS certificate, or a string, in which case it must be a path to a CA bundle to use cert \u2013 (optional) Any user-provided SSL certificate to be trusted. proxies \u2013 (optional) The proxies dictionary to apply to the request."
     },
     {
       "id": "requests.adapters.HTTPAdapter",
       "title": "class requests.adapters.HTTPAdapter(pool_connections=10, pool_maxsize=10, max_retries=0, pool_block=False)[source]",
-      "content": "The built-in HTTP Adapter for urllib3. Provides a general-case interface for Requests sessions to contact HTTP and HTTPS urls by implementing the Transport Adapter interface. This class will usually be created by the Session class under the covers. Usage: >>> import requests >>> s = requests.Session() >>> a = requests.adapters.HTTPAdapter(max_retries=3) >>> s.mount('http://', a)"
+      "content": "The built-in HTTP Adapter for urllib3. Provides a general-case interface for Requests sessions to contact HTTP and HTTPS urls by implementing the Transport Adapter interface. This class will usually be created by the Session class under the covers. Parameters pool_connections \u2013 The number of urllib3 connection pools to cache. pool_maxsize \u2013 The maximum number of connections to save in the pool. max_retries \u2013 The maximum number of retries each connection should attempt. Note, this applies only to failed DNS lookups, socket connections and connection timeouts, never to requests where data has made it to the server. By default, Requests does not retry failed connections. If you need granular control over the conditions under which we retry a request, import urllib3\u2019s Retry class and pass that instead. pool_block \u2013 Whether the connection pool should block for connections. Usage: >>> import requests >>> s = requests.Session() >>> a = requests.adapters.HTTPAdapter(max_retries=3) >>> s.mount('http://', a)"
     },
     {
       "id": "requests.adapters.HTTPAdapter.add_headers",
       "title": "add_headers(request, **kwargs)[source]",
-      "content": "Add any headers needed by the connection. As of v2.0 this does nothing by default, but is left for overriding by users that subclass the HTTPAdapter. This should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter."
+      "content": "Add any headers needed by the connection. As of v2.0 this does nothing by default, but is left for overriding by users that subclass the HTTPAdapter. This should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter. Parameters request \u2013 The PreparedRequest to add headers to. kwargs \u2013 The keyword arguments from the call to send()."
     },
     {
       "id": "requests.adapters.HTTPAdapter.build_response",
       "title": "build_response(req, resp)[source]",
-      "content": "Builds a Response object from a urllib3 response. This should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter"
+      "content": "Builds a Response object from a urllib3 response. This should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter Parameters req \u2013 The PreparedRequest used to generate the response. resp \u2013 The urllib3 response object. Return type requests.Response"
     },
     {
       "id": "requests.adapters.HTTPAdapter.cert_verify",
       "title": "cert_verify(conn, url, verify, cert)[source]",
-      "content": "Verify a SSL certificate. This method should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter."
+      "content": "Verify a SSL certificate. This method should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter. Parameters conn \u2013 The urllib3 connection object associated with the cert. url \u2013 The requested URL. verify \u2013 Either a boolean, in which case it controls whether we verify the server\u2019s TLS certificate, or a string, in which case it must be a path to a CA bundle to use cert \u2013 The SSL certificate to verify."
     },
     {
       "id": "requests.adapters.HTTPAdapter.close",
@@ -515,32 +515,32 @@
     {
       "id": "requests.adapters.HTTPAdapter.get_connection",
       "title": "get_connection(url, proxies=None)[source]",
-      "content": "Returns a urllib3 connection for the given URL. This should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter."
+      "content": "Returns a urllib3 connection for the given URL. This should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter. Parameters url \u2013 The URL to connect to. proxies \u2013 (optional) A Requests-style dictionary of proxies used on this request. Return type urllib3.ConnectionPool"
     },
     {
       "id": "requests.adapters.HTTPAdapter.init_poolmanager",
       "title": "init_poolmanager(connections, maxsize, block=False, **pool_kwargs)[source]",
-      "content": "Initializes a urllib3 PoolManager. This method should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter."
+      "content": "Initializes a urllib3 PoolManager. This method should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter. Parameters connections \u2013 The number of urllib3 connection pools to cache. maxsize \u2013 The maximum number of connections to save in the pool. block \u2013 Block when no free connections are available. pool_kwargs \u2013 Extra keyword arguments used to initialize the Pool Manager."
     },
     {
       "id": "requests.adapters.HTTPAdapter.proxy_headers",
       "title": "proxy_headers(proxy)[source]",
-      "content": "Returns a dictionary of the headers to add to any request sent through a proxy. This works with urllib3 magic to ensure that they are correctly sent to the proxy, rather than in a tunnelled request if CONNECT is being used. This should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter."
+      "content": "Returns a dictionary of the headers to add to any request sent through a proxy. This works with urllib3 magic to ensure that they are correctly sent to the proxy, rather than in a tunnelled request if CONNECT is being used. This should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter. Parameters proxy \u2013 The url of the proxy being used for this request. Return type dict"
     },
     {
       "id": "requests.adapters.HTTPAdapter.proxy_manager_for",
       "title": "proxy_manager_for(proxy, **proxy_kwargs)[source]",
-      "content": "Return urllib3 ProxyManager for the given proxy. This method should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter."
+      "content": "Return urllib3 ProxyManager for the given proxy. This method should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter. Parameters proxy \u2013 The proxy to return a urllib3 ProxyManager for. proxy_kwargs \u2013 Extra keyword arguments used to configure the Proxy Manager. Returns ProxyManager Return type urllib3.ProxyManager"
     },
     {
       "id": "requests.adapters.HTTPAdapter.request_url",
       "title": "request_url(request, proxies)[source]",
-      "content": "Obtain the url to use when making the final request. If the message is being sent through a HTTP proxy, the full URL has to be used. Otherwise, we should only use the path portion of the URL. This should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter."
+      "content": "Obtain the url to use when making the final request. If the message is being sent through a HTTP proxy, the full URL has to be used. Otherwise, we should only use the path portion of the URL. This should not be called from user code, and is only exposed for use when subclassing the HTTPAdapter. Parameters request \u2013 The PreparedRequest being sent. proxies \u2013 A dictionary of schemes or schemes and hosts to proxy URLs. Return type str"
     },
     {
       "id": "requests.adapters.HTTPAdapter.send",
       "title": "send(request, stream=False, timeout=None, verify=True, cert=None, proxies=None)[source]",
-      "content": "Sends PreparedRequest object. Returns Response object."
+      "content": "Sends PreparedRequest object. Returns Response object. Parameters request \u2013 The PreparedRequest being sent. stream \u2013 (optional) Whether to stream the request content. timeout (float or tuple or urllib3 Timeout object) \u2013 (optional) How long to wait for the server to send data before giving up, as a float, or a (connect timeout, read timeout) tuple. verify \u2013 (optional) Either a boolean, in which case it controls whether we verify the server\u2019s TLS certificate, or a string, in which case it must be a path to a CA bundle to use cert \u2013 (optional) Any user-provided SSL certificate to be trusted. proxies \u2013 (optional) The proxies dictionary to apply to the request. Return type requests.Response"
     },
     {
       "id": "requests.auth.AuthBase",
@@ -565,32 +565,32 @@
     {
       "id": "requests.utils.get_encodings_from_content",
       "title": "requests.utils.get_encodings_from_content(content)[source]",
-      "content": "Returns encodings from given content string."
+      "content": "Returns encodings from given content string. Parameters content \u2013 bytestring to extract encodings from."
     },
     {
       "id": "requests.utils.get_encoding_from_headers",
       "title": "requests.utils.get_encoding_from_headers(headers)[source]",
-      "content": "Returns encodings from given HTTP Header Dict."
+      "content": "Returns encodings from given HTTP Header Dict. Parameters headers \u2013 dictionary to extract encoding from. Return type str"
     },
     {
       "id": "requests.utils.get_unicode_from_response",
       "title": "requests.utils.get_unicode_from_response(r)[source]",
-      "content": "Returns the requested content back in unicode. Tried: charset from content-type fall back and replace all unicode characters"
+      "content": "Returns the requested content back in unicode. Parameters r \u2013 Response object to get unicode content from. Tried: charset from content-type fall back and replace all unicode characters Return type str"
     },
     {
       "id": "requests.utils.dict_from_cookiejar",
       "title": "requests.utils.dict_from_cookiejar(cj)[source]",
-      "content": "Returns a key/value dictionary from a CookieJar."
+      "content": "Returns a key/value dictionary from a CookieJar. Parameters cj \u2013 CookieJar object to extract cookies from. Return type dict"
     },
     {
       "id": "requests.utils.add_dict_to_cookiejar",
       "title": "requests.utils.add_dict_to_cookiejar(cj, cookie_dict)[source]",
-      "content": "Returns a CookieJar from a key/value dictionary."
+      "content": "Returns a CookieJar from a key/value dictionary. Parameters cj \u2013 CookieJar to insert cookies into. cookie_dict \u2013 Dict of key/values to insert into CookieJar. Return type CookieJar"
     },
     {
       "id": "requests.cookies.cookiejar_from_dict",
       "title": "requests.cookies.cookiejar_from_dict(cookie_dict, cookiejar=None, overwrite=True)[source]",
-      "content": "Returns a CookieJar from a key/value dictionary."
+      "content": "Returns a CookieJar from a key/value dictionary. Parameters cookie_dict \u2013 Dict of key/values to insert into CookieJar. cookiejar \u2013 (optional) A cookiejar to add the cookies to. overwrite \u2013 (optional) If False, will not replace cookies already in the jar with new ones. Return type CookieJar"
     },
     {
       "id": "requests.cookies.RequestsCookieJar",
@@ -635,7 +635,7 @@
     {
       "id": "requests.cookies.RequestsCookieJar.get_dict",
       "title": "get_dict(domain=None, path=None)[source]",
-      "content": "Takes as an argument an optional domain and path and returns a plain old Python dict of name-value pairs of cookies that meet the requirements."
+      "content": "Takes as an argument an optional domain and path and returns a plain old Python dict of name-value pairs of cookies that meet the requirements. Return type dict"
     },
     {
       "id": "requests.cookies.RequestsCookieJar.get_policy",
@@ -685,7 +685,7 @@
     {
       "id": "requests.cookies.RequestsCookieJar.multiple_domains",
       "title": "multiple_domains()[source]",
-      "content": "Returns True if there are multiple domains in the jar. Returns False otherwise."
+      "content": "Returns True if there are multiple domains in the jar. Returns False otherwise. Return type bool"
     },
     {
       "id": "requests.cookies.RequestsCookieJar.pop",
