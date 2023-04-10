@@ -219,8 +219,6 @@ class GenericParser:
 
                 # Remove all nested domains from dd_copy.
                 # They are already parsed separately.
-                # We can remove all <dl> in bulk because we generally parse
-                # <dt>s without ids in the parent section that they belong.
                 for node in dd_copy.css("dl"):
                     # Traverse all <dt>s with an ID (the ones we index!)
                     for _dt in node.css("dt[id]:not([id=" "])"):
