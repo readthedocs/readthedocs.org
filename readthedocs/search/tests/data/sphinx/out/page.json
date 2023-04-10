@@ -50,7 +50,7 @@
     {
       "id": "footnotes-and-domains",
       "title": "Footnotes and domains",
-      "content": "class test_py_module.test.Foo(qux, spam=False)[source] 1(1,2) 3"
+      "content": ""
     },
     {
       "id": "subsub-title",

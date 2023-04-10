@@ -134,7 +134,8 @@ class GenericParser:
         # Track every <dd> that's indexed.
         # After indexing them, we remove their indexed content from the body such that their
         # contents aren't repeated in the following indexing
-        seen_dds = []
+        indexed_dds = []
+        indexed_dts = []
         for dl in dls:
 
             # Hack: Identify a :host() without using :host() selector
@@ -163,7 +164,8 @@ class GenericParser:
                 if not dd or not _id:
                     continue
 
-                seen_dds.append(dd)
+                indexed_dds.append(dd)
+                indexed_dts.append(dt)
 
                 # Create a copy of the node to avoid manipulating the
                 # data structure that we're iterating over
@@ -190,8 +192,8 @@ class GenericParser:
         # Remove all seen and indexed data outside of traversal.
         # There isn't a clear indication if this behavior is DFS or BFS,
         # and we want to avoid modifying the DOM tree while traversing it.
-        for dd in seen_dds:
-            dd.decompose()
+        for node in indexed_dds + indexed_dts:
+            node.decompose()
 
         # Index content for pages that don't start with a title.
         # We check for sections till 3 levels to avoid indexing all the content
