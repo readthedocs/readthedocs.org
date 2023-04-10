@@ -127,15 +127,16 @@ class GenericParser:
 
         document_title = title
 
-        indexed_dls, dl_sections = self._parse_dls(body)
+        indexed_nodes = []
 
-        for section in dl_sections:
+        for dd, dt, section in self._parse_dls(body):
+            indexed_nodes.append(dd)
+            indexed_nodes.append(dt)
             yield section
 
         # Remove all seen and indexed data outside of traversal.
-        # There isn't a clear indication if this behavior is DFS or BFS,
-        # and we want to avoid modifying the DOM tree while traversing it.
-        for node in indexed_dls:
+        # We want to avoid modifying the DOM tree while traversing it.
+        for node in indexed_nodes:
             node.decompose()
 
         # Index content for pages that don't start with a title.
@@ -176,11 +177,7 @@ class GenericParser:
         # We traverse by <dl> - traversing by <dt> has shown in experiments to render a
         # different traversal order, which could make the tests more unstable.
         dls = body.css("dl")
-        # Track every <dd> that's indexed.
-        # After indexing them, we remove their indexed content from the body such that their
-        # contents aren't repeated in the following indexing
-        indexed_nodes = []
-        sections = []
+
         for dl in dls:
 
             # Hack: Identify a :host() without using :host() selector
@@ -210,9 +207,6 @@ class GenericParser:
                 if not dd or not _id:
                     continue
 
-                indexed_nodes.append(dd)
-                indexed_nodes.append(dt)
-
                 # Create a copy of the node to avoid manipulating the
                 # data structure that we're iterating over
                 dd_copy = HTMLParser(dd.html).body.child
@@ -232,15 +226,15 @@ class GenericParser:
                 # The content of the <dt> section is the content of the accompanying <dd>
                 content = self._parse_content(dd_copy.text())
 
-                sections.append(
+                yield (
+                    dd,
+                    dt,
                     {
                         "id": _id,
                         "title": title,
                         "content": content,
                     }
                 )
-
-        return indexed_nodes, sections
 
     def _parse_dt(self, tag):
         """
