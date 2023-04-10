@@ -233,7 +233,7 @@ class GenericParser:
                         "id": _id,
                         "title": title,
                         "content": content,
-                    }
+                    },
                 )
 
     def _parse_dt(self, tag):
