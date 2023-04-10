@@ -30,11 +30,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.99
+boto3==1.26.104
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.99
+botocore==1.29.104
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -141,7 +141,7 @@ django-elasticsearch-dsl==7.3
     # via -r requirements/pip.txt
 django-extensions==3.2.1
     # via -r requirements/pip.txt
-django-filter==22.1
+django-filter==23.1
     # via -r requirements/pip.txt
 django-formtools==2.3
     # via -r requirements/pip.txt
@@ -195,7 +195,7 @@ elasticsearch-dsl==7.4.1
     #   django-elasticsearch-dsl
 exceptiongroup==1.1.1
     # via pytest
-filelock==3.10.5
+filelock==3.10.7
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -254,7 +254,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.8
+orjson==3.8.9
     # via -r requirements/pip.txt
 packaging==23.0
     # via
@@ -311,7 +311,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2023.2
+pytz==2023.3
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -321,7 +321,7 @@ pyyaml==5.4.1
     # via
     #   -r requirements/pip.txt
     #   yamale
-redis==4.5.3
+redis==4.5.4
     # via
     #   -r requirements/pip.txt
     #   django-cacheops

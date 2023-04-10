@@ -144,6 +144,9 @@ class Project(models.Model):
         help_text=_('Hosted documentation repository URL'),
         db_index=True,
     )
+
+    # NOTE: this field is going to be completely removed soon.
+    # We only accept Git for new repositories
     repo_type = models.CharField(
         _('Repository type'),
         max_length=10,
@@ -1687,7 +1690,7 @@ class Domain(TimeStampedModel):
     )
     https = models.BooleanField(
         _('Use HTTPS'),
-        default=False,
+        default=True,
         help_text=_('Always use HTTPS for this domain'),
     )
     count = models.IntegerField(

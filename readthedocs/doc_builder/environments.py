@@ -14,7 +14,7 @@ from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
-from requests.exceptions import ConnectionError, ReadTimeout  # noqa
+from requests.exceptions import ConnectionError, ReadTimeout
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
 from readthedocs.api.v2.client import api as api_v2
@@ -73,7 +73,7 @@ class BuildCommand(BuildCommandResultMixin):
         bin_path=None,
         record_as_success=False,
         demux=False,
-        **kwargs,  # pylint: disable=unused-argument
+        **kwargs,
     ):
         self.command = command
         self.shell = shell
@@ -252,8 +252,8 @@ class BuildCommand(BuildCommandResultMixin):
                 {key: str(value) for key, value in data.items()}
             )
             resource = api_v2.command
-            resp = resource._store["session"].post(  # pylint: disable=protected-access
-                resource._store["base_url"] + "/",  # pylint: disable=protected-access
+            resp = resource._store["session"].post(
+                resource._store["base_url"] + "/",
                 data=encoder,
                 headers={
                     'Content-Type': encoder.content_type,
@@ -301,40 +301,11 @@ class DockerBuildCommand(BuildCommand):
 
         self.start_time = datetime.utcnow()
         client = self.build_env.get_client()
-
-        # Create a copy of the environment to update PATH variable
-        environment = self._environment.copy()
-        # Default PATH variable
-        # This default comes from our Docker image:
-        #
-        # $ docker run --user docs -it --rm readthedocs/build:ubuntu-22.04 /bin/bash
-        # docs@bfe702e31cdd:~$ echo $PATH
-        # /home/docs/.asdf/shims:/home/docs/.asdf/bin
-        #  :/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-        # docs@bfe702e31cdd:~$
-        asdf_paths = (
-            f"/home/{settings.RTD_DOCKER_USER}/.asdf/shims"
-            f":/home/{settings.RTD_DOCKER_USER}/.asdf/bin"
-        )
-        if settings.RTD_DOCKER_COMPOSE:
-            asdf_paths += ":/root/.asdf/shims:/root/.asdf/bin"
-
-        default_paths = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-        environment["PATH"] = f"{asdf_paths}:{default_paths}"
-
-        # Prepend the BIN_PATH if it's defined
-        if self.bin_path:
-            original_path = environment.get("PATH")
-            escaped_bin_path = self._escape_command(self.bin_path)
-            environment["PATH"] = escaped_bin_path
-            if original_path:
-                environment["PATH"] = f"{escaped_bin_path}:{original_path}"
-
         try:
             exec_cmd = client.exec_create(
                 container=self.build_env.container_id,
                 cmd=self.get_wrapped_command(),
-                environment=environment,
+                environment=self._environment,
                 user=self.user,
                 workdir=self.cwd,
                 stdout=True,
@@ -386,18 +357,29 @@ class DockerBuildCommand(BuildCommand):
         """
         Wrap command in a shell and optionally escape special bash characters.
 
+        In order to set the current working path inside a docker container, we
+        need to wrap the command in a shell call manually.
+
         Some characters will be interpreted as shell characters without
         escaping, such as: ``pip install requests<0.8``. When passing
         ``escape_command=True`` in the init method this escapes a good majority
         of those characters.
         """
+        prefix = ""
+        if self.bin_path:
+            bin_path = self._escape_command(self.bin_path)
+            prefix += f"PATH={bin_path}:$PATH "
+
         command = (
             ' '.join(
                 self._escape_command(part) if self.escape_command else part
                 for part in self.command
             )
         )
-        return f"/bin/bash -c '{command}'"
+        return "/bin/sh -c '{prefix}{cmd}'".format(
+            prefix=prefix,
+            cmd=command,
+        )
 
     def _escape_command(self, cmd):
         r"""Escape the command by prefixing suspicious chars with `\`."""
@@ -547,7 +529,7 @@ class BuildEnvironment(BaseEnvironment):
         config=None,
         environment=None,
         record=True,
-        **kwargs,  # pylint: disable=unused-argument
+        **kwargs,
     ):
         super().__init__(project, environment)
         self.version = version
@@ -573,7 +555,7 @@ class BuildEnvironment(BaseEnvironment):
         })
         return super().run(*cmd, **kwargs)
 
-    def run_command_class(self, *cmd, **kwargs):  # pylint: disable=signature-differs
+    def run_command_class(self, *cmd, **kwargs):  # pylint: disable=arguments-differ
         kwargs.update({
             'build_env': self,
         })

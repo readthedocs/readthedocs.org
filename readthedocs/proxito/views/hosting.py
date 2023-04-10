@@ -115,6 +115,23 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                         "filepath": "/docs/index.rst",
                     },
                 },
+                "search": {
+                    "project": project.slug,
+                    "version": version.slug,
+                    "api_endpoint": "/_/api/v3/search/",
+                    # TODO: figure it out where this data comes from
+                    "filters": [
+                        [
+                            "Search only in this project",
+                            f"project:{project.slug}/{version.slug}",
+                        ],
+                        [
+                            "Search subprojects",
+                            f"subprojects:{project.slug}/{version.slug}",
+                        ],
+                    ],
+                    "default_filter": f"subprojects:{project.slug}/{version.slug}",
+                },
             },
         }
 

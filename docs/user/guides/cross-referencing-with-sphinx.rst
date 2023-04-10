@@ -1,5 +1,5 @@
-Cross-referencing with Sphinx
-=============================
+How to use cross-references with Sphinx
+=======================================
 
 When writing documentation you often need to link to other pages of your documentation,
 other sections of the current page, or sections from other pages.
