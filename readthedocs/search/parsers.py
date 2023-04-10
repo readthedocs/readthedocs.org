@@ -202,7 +202,7 @@ class GenericParser:
                 title, _id = self._parse_dt(dt)
                 # Select the first adjacent <dd> using a "gamble" that seems to work.
                 # In this example, we cannot use the current <dt>'s ID because they contain invalid
-                # syntax and there's no apparent way to fix that.
+                # CSS selector syntax and there's no apparent way to fix that.
                 # https://developer.mozilla.org/en-US/docs/Web/CSS/General_sibling_combinator
                 dd = dt.css_first("dt ~ dd")
 
@@ -222,9 +222,10 @@ class GenericParser:
                 for node in dd_copy.css("dl"):
                     # Traverse all <dt>s with an ID (the ones we index!)
                     for _dt in node.css("dt[id]:not([id=" "])"):
-                        # Traverse all their adjacent <dd>s and remove them
-                        for _dd in _dt.css("dt ~ dd"):
-                            _dd.decompose()
+                        # Fetch adjacent <dd>s and remove them
+                        _dd_dt = _dt.css_first("dt ~ dd")
+                        if _dd_dt:
+                            _dd_dt.decompose()
                         # Remove the <dt> too
                         _dt.decompose()
 
