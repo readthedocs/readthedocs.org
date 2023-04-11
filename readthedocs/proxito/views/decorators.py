@@ -2,12 +2,9 @@ from functools import wraps
 
 import structlog
 from django.db.models import Q
+from django.http import Http404
 
 from readthedocs.projects.models import Project, ProjectRelationship
-from readthedocs.proxito.exceptions import (
-    ProxitoProjectHttp404,
-    ProxitoSubProjectHttp404,
-)
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -25,15 +22,12 @@ def map_subproject_slug(view_func):
     def inner_view(  # noqa
         request, subproject=None, subproject_slug=None, *args, **kwargs
     ):
-        # Something not entirely clear is happening when unpacking args and kwargs
-        # so the project is fetched from kwarg dictionary.
-        project = kwargs["project"]
         if subproject is None and subproject_slug:
             # Try to fetch by subproject alias first, otherwise we might end up
             # redirected to an unrelated project.
             # Depends on a project passed into kwargs
             rel = (
-                ProjectRelationship.objects.filter(parent=project)
+                ProjectRelationship.objects.filter(parent=kwargs["project"])
                 .filter(Q(alias=subproject_slug) | Q(child__slug=subproject_slug))
                 .first()
             )
@@ -43,15 +37,9 @@ def map_subproject_slug(view_func):
                 log.warning(
                     "The slug is not subproject of project.",
                     subproject_slug=subproject_slug,
-                    project_slug=project.slug,
-                    project=project,
+                    project_slug=kwargs["project"].slug,
                 )
-                raise ProxitoSubProjectHttp404(
-                    "Invalid subproject slug",
-                    project_slug=project.slug,
-                    project=project,
-                    subproject_slug=subproject_slug,
-                )
+                raise Http404("Invalid subproject slug")
         return view_func(request, subproject=subproject, *args, **kwargs)
 
     return inner_view
@@ -83,10 +71,7 @@ def map_project_slug(view_func):
                 try:
                     project = Project.objects.get(slug=project_slug)
                 except Project.DoesNotExist:
-                    log.debug(f"No project found with slug {project_slug}")
-                    raise ProxitoProjectHttp404(
-                        "Project does not exist.", project_slug=project_slug
-                    )
+                    raise Http404("Project does not exist.")
         return view_func(request, project=project, *args, **kwargs)
 
     return inner_view
