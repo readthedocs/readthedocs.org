@@ -239,6 +239,14 @@ Example: :doc:`Flyout menu </flyout-menu>`
         which integrates with any documentation project.
         Please contact :doc:`/support` for more information.
 
+.. TODO: Split this into an include:: since we are repeating it
+
+.. seealso::
+
+    :doc:`/reference/features`
+        A practical way to understand Read the Docs is to look at our :doc:`list of features </reference/features>`.
+        All these features ultimately sustain the life-cycle of a documentation project.
+
 
 .. Types of documentation projects
 .. -------------------------------
