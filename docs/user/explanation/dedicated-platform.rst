@@ -10,6 +10,8 @@
 .. - A dedicated platform helps to solve tasks that you otherwise end up writing and maintaining your own scripts and CI tools for.
 .. - Always evolving: Read the Docs develops new features on-demand. So you get a dedicated platform that's maintained and has new features added.
 .. - Community: Related to the above, but perhaps worth mentioning that a lot of people are building tools and extensions that run on the platform etc.
+.. - Reader features: Alternative name for "Batteries included" is "Reader features"
+
 
 Choosing a dedicated documentation platform
 ===========================================
@@ -34,7 +36,6 @@ Let us start with a high-level overview:
 🔋️ :ref:`batteries_included`
     Read the Docs continues to develop new projects and ideas,
     bringing additional powers to documentation projects that are hosted on the platform.
-
 
 .. The following sections are about using a dedicated platform as a first-choice in order to free up space for other tasks.
 .. These paragraphs can benefit from being shortened and organized, but they are intended as the summary of the introduction.

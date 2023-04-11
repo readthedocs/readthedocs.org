@@ -63,7 +63,7 @@
   </font>
  </defs>
  <defs class="TextShapeIndex">
-  <g ooo:slide="id1" ooo:id-list="id3 id4 id5 id6 id7 id8 id9 id10 id11 id12 id13 id14 id15 id16 id17 id18 id19 id20 id21 id22 id23 id24 id25 id26 id27"/>
+  <g ooo:slide="id1" ooo:id-list="id3 id4 id5 id6 id7 id8 id9 id10 id11 id12 id13 id14 id15 id16 id17 id18 id19 id20 id21 id22 id23 id24 id25 id26 id27 id28 id29"/>
  </defs>
  <defs class="EmbeddedBulletChars">
   <g id="bullet-char-template-57356" transform="scale(0.00048828125,-0.00048828125)">
@@ -200,37 +200,37 @@
       <g class="TextShape">
        <g id="id15">
         <rect class="BoundingBox" stroke="none" fill="none" x="10491" y="9578" width="5702" height="3036"/>
-        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Roboto Slab" font-size="701px" font-weight="700"><tspan class="TextPosition" x="10741" y="10440"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">Documentation</tspan></tspan></tspan><tspan class="TextParagraph" font-family="Roboto Slab" font-size="701px" font-weight="700"><tspan class="TextPosition" x="11738" y="11368"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">life-cycle</tspan></tspan></tspan></text>
+        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Roboto Slab" font-size="701px" font-weight="700"><tspan class="TextPosition" x="10741" y="10440"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">Documentation</tspan></tspan></tspan><tspan class="TextParagraph" font-family="Roboto Slab" font-size="701px" font-weight="700"><tspan class="TextPosition" x="11878" y="11368"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">lifecycle</tspan></tspan></tspan></text>
        </g>
       </g>
       <g class="com.sun.star.drawing.CustomShape">
        <g id="id16">
-        <rect class="BoundingBox" stroke="none" fill="none" x="18667" y="6386" width="3331" height="1559"/>
-        <path fill="rgb(52,49,49)" stroke="none" d="M 20136,7943 L 18668,7935 19719,6880 19845,7202 21227,6634 21395,7064 20013,7631 20136,7943 Z M 21996,6817 L 21828,6387 21678,6449 21846,6878 21996,6817 Z M 21696,6940 L 21528,6511 21377,6573 21545,7002 21696,6940 21696,6940 Z"/>
-        <path fill="none" stroke="rgb(52,49,49)" d="M 20136,7943 L 18668,7935 19719,6880 19845,7202 21227,6634 21395,7064 20013,7631 20136,7943 Z"/>
-        <path fill="none" stroke="rgb(52,49,49)" d="M 21996,6817 L 21828,6387 21678,6449 21846,6878 21996,6817 Z"/>
-        <path fill="none" stroke="rgb(52,49,49)" d="M 21696,6940 L 21528,6511 21377,6573 21545,7002 21696,6940 21696,6940 Z"/>
+        <rect class="BoundingBox" stroke="none" fill="none" x="17708" y="5046" width="3072" height="2100"/>
+        <path fill="rgb(52,49,49)" stroke="none" d="M 19154,6885 L 17709,7144 18551,5915 18734,6209 19989,5399 20233,5791 18977,6601 19154,6885 Z M 20778,5439 L 20535,5047 20398,5135 20642,5527 20778,5439 Z M 20506,5614 L 20262,5223 20125,5311 20369,5703 20506,5614 20506,5614 Z"/>
+        <path fill="none" stroke="rgb(52,49,49)" d="M 19154,6885 L 17709,7144 18551,5915 18734,6209 19989,5399 20233,5791 18977,6601 19154,6885 Z"/>
+        <path fill="none" stroke="rgb(52,49,49)" d="M 20778,5439 L 20535,5047 20398,5135 20642,5527 20778,5439 Z"/>
+        <path fill="none" stroke="rgb(52,49,49)" d="M 20506,5614 L 20262,5223 20125,5311 20369,5703 20506,5614 20506,5614 Z"/>
        </g>
       </g>
       <g class="TextShape">
        <g id="id17">
-        <rect class="BoundingBox" stroke="none" fill="none" x="22224" y="5301" width="5839" height="2454"/>
-        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="22474" y="5947"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">Contributor suggests</tspan></tspan></tspan><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="22474" y="6603"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">a new page or</tspan></tspan></tspan><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="22474" y="7259"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">small change</tspan></tspan></tspan></text>
+        <rect class="BoundingBox" stroke="none" fill="none" x="21149" y="3579" width="5839" height="2454"/>
+        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="21399" y="4225"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">Contributor suggests</tspan></tspan></tspan><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="21399" y="4881"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">a new page or</tspan></tspan></tspan><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="21399" y="5537"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">small change</tspan></tspan></tspan></text>
        </g>
       </g>
       <g class="com.sun.star.drawing.CustomShape">
        <g id="id18">
-        <rect class="BoundingBox" stroke="none" fill="none" x="19063" y="10923" width="3500" height="1148"/>
-        <path fill="rgb(52,49,49)" stroke="none" d="M 20415,12069 L 19064,11482 20431,10924 20426,11271 21914,11293 21908,11755 20420,11733 20415,12069 Z M 22555,11765 L 22561,11303 22400,11300 22394,11762 22555,11765 Z M 22232,11760 L 22238,11298 22076,11296 22070,11757 22232,11760 22232,11760 Z"/>
-        <path fill="none" stroke="rgb(52,49,49)" d="M 20415,12069 L 19064,11482 20431,10924 20426,11271 21914,11293 21908,11755 20420,11733 20415,12069 Z"/>
-        <path fill="none" stroke="rgb(52,49,49)" d="M 22555,11765 L 22561,11303 22400,11300 22394,11762 22555,11765 Z"/>
-        <path fill="none" stroke="rgb(52,49,49)" d="M 22232,11760 L 22238,11298 22076,11296 22070,11757 22232,11760 22232,11760 Z"/>
+        <rect class="BoundingBox" stroke="none" fill="none" x="18809" y="11608" width="3495" height="1137"/>
+        <path fill="rgb(52,49,49)" stroke="none" d="M 20077,12743 L 18810,11991 20236,11609 20188,11953 21661,12161 21597,12619 20124,12410 20077,12743 Z M 22238,12709 L 22302,12252 22143,12229 22078,12687 22238,12709 Z M 21918,12664 L 21982,12207 21822,12184 21757,12641 21918,12664 21918,12664 Z"/>
+        <path fill="none" stroke="rgb(52,49,49)" d="M 20077,12743 L 18810,11991 20236,11609 20188,11953 21661,12161 21597,12619 20124,12410 20077,12743 Z"/>
+        <path fill="none" stroke="rgb(52,49,49)" d="M 22238,12709 L 22302,12252 22143,12229 22078,12687 22238,12709 Z"/>
+        <path fill="none" stroke="rgb(52,49,49)" d="M 21918,12664 L 21982,12207 21822,12184 21757,12641 21918,12664 21918,12664 Z"/>
        </g>
       </g>
       <g class="TextShape">
        <g id="id19">
-        <rect class="BoundingBox" stroke="none" fill="none" x="22883" y="10219" width="5839" height="2454"/>
-        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="23133" y="10865"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">Analyzing and</tspan></tspan></tspan><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="23133" y="11521"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">understanding</tspan></tspan></tspan><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="23133" y="12177"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">our users</tspan></tspan></tspan></text>
+        <rect class="BoundingBox" stroke="none" fill="none" x="22542" y="11834" width="5839" height="2454"/>
+        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="22792" y="12480"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">Analyzing and</tspan></tspan></tspan><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="22792" y="13136"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">understanding</tspan></tspan></tspan><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="22792" y="13792"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">user behavior</tspan></tspan></tspan></text>
        </g>
       </g>
       <g class="com.sun.star.drawing.CustomShape">
@@ -291,6 +291,21 @@
        <g id="id27">
         <rect class="BoundingBox" stroke="none" fill="none" x="10257" y="18949" width="5839" height="2454"/>
         <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="10507" y="19595"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">Several active </tspan></tspan><tspan class="TextPosition" x="10507" y="20251"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">development branches</tspan></tspan></tspan></text>
+       </g>
+      </g>
+      <g class="com.sun.star.drawing.CustomShape">
+       <g id="id28">
+        <rect class="BoundingBox" stroke="none" fill="none" x="18786" y="8769" width="3503" height="1142"/>
+        <path fill="rgb(52,49,49)" stroke="none" d="M 20196,9909 L 18787,9478 20083,8770 20117,9115 21598,8969 21644,9429 20163,9575 20196,9909 Z M 22287,9366 L 22242,8906 22082,8922 22127,9382 22287,9366 Z M 21966,9397 L 21920,8938 21759,8954 21805,9413 21966,9397 21966,9397 Z"/>
+        <path fill="none" stroke="rgb(52,49,49)" d="M 20196,9909 L 18787,9478 20083,8770 20117,9115 21598,8969 21644,9429 20163,9575 20196,9909 Z"/>
+        <path fill="none" stroke="rgb(52,49,49)" d="M 22287,9366 L 22242,8906 22082,8922 22127,9382 22287,9366 Z"/>
+        <path fill="none" stroke="rgb(52,49,49)" d="M 21966,9397 L 21920,8938 21759,8954 21805,9413 21966,9397 21966,9397 Z"/>
+       </g>
+      </g>
+      <g class="TextShape">
+       <g id="id29">
+        <rect class="BoundingBox" stroke="none" fill="none" x="22470" y="7859" width="5839" height="2454"/>
+        <text class="SVGTextShape"><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="22720" y="8505"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">Sudden success!</tspan></tspan></tspan><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="22720" y="9161"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">100,000 page views</tspan></tspan></tspan><tspan class="TextParagraph" font-family="Roboto Slab" font-size="494px" font-weight="700"><tspan class="TextPosition" x="22720" y="9817"><tspan fill="rgb(0,0,0)" stroke="none" style="white-space: pre">per day.</tspan></tspan></tspan></text>
        </g>
       </g>
      </g>
