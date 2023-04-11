@@ -6,10 +6,9 @@ Background
 
 .. note::
 
-    Consider this the canonical resource for contributing Javascript and CSS. We
-    are currently in the process of modernizing our front end development
-    procedures. You will see a lot of different styles around the code base for
-    front end JavaScript and CSS.
+   This information is for the current dashboard templates and JavaScript source
+   files and will soon be replaced by the new dashboard templates. This
+   information will soon be mostly out of date.
 
 Our modern front end development stack includes the following tools:
 

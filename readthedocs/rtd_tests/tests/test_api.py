@@ -60,6 +60,7 @@ from readthedocs.projects.models import (
     Feature,
     Project,
 )
+from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 
 super_auth = base64.b64encode(b'super:test').decode('utf-8')
 eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
@@ -845,6 +846,11 @@ class APITests(TestCase):
             {'RELEASE': 'prod'},
         )
 
+    @override_settings(
+        RTD_DEFAULT_FEATURES={
+            TYPE_CONCURRENT_BUILDS: 4,
+        }
+    )
     def test_concurrent_builds(self):
         expected = {
             'limit_reached': False,
@@ -2442,6 +2448,7 @@ class APIVersionTests(TestCase):
             "built": False,
             "id": 18,
             "active": True,
+            "canonical_url": "http://readthedocs.org/docs/pip/en/0.8/",
             "project": {
                 "analytics_code": None,
                 "analytics_disabled": False,

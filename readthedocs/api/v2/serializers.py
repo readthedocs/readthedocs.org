@@ -5,6 +5,7 @@ from allauth.socialaccount.models import SocialAccount
 from rest_framework import serializers
 
 from readthedocs.api.v2.utils import normalize_build_command
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, Project
@@ -101,7 +102,7 @@ class VersionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Version
-        fields = (
+        fields = [
             'id',
             'project',
             'slug',
@@ -116,7 +117,7 @@ class VersionSerializer(serializers.ModelSerializer):
             'has_epub',
             'has_htmlzip',
             'documentation_type',
-        )
+        ]
 
 
 class VersionAdminSerializer(VersionSerializer):
@@ -124,6 +125,21 @@ class VersionAdminSerializer(VersionSerializer):
     """Version serializer that returns admin project data."""
 
     project = ProjectAdminSerializer()
+    canonical_url = serializers.SerializerMethodField()
+    build_data = serializers.JSONField(required=False, write_only=True, allow_null=True)
+
+    def get_canonical_url(self, obj):
+        return obj.project.get_docs_url(
+            lang_slug=obj.project.language,
+            version_slug=obj.slug,
+            external=obj.type == EXTERNAL,
+        )
+
+    class Meta(VersionSerializer.Meta):
+        fields = VersionSerializer.Meta.fields + [
+            "build_data",
+            "canonical_url",
+        ]
 
 
 class BuildCommandSerializer(serializers.ModelSerializer):

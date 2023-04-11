@@ -103,7 +103,10 @@ class TaskData:
     build_commit: str = None
 
     start_time: timezone.datetime = None
+
+    # pylint: disable=unsubscriptable-object
     environment_class: type[DockerBuildEnvironment] | type[LocalBuildEnvironment] = None
+
     build_director: BuildDirector = None
     config: BuildConfigV1 | BuildConfigV2 = None
     project: APIProject = None
@@ -572,7 +575,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                             artifact_type=artifact_type
                         )
                     )
-                elif artifact_format_files == 0:
+                if artifact_format_files == 0:
                     raise BuildUserError(
                         BuildUserError.BUILD_OUTPUT_HAS_0_FILES.format(
                             artifact_type=artifact_type
@@ -598,6 +601,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                         "has_pdf": "pdf" in valid_artifacts,
                         "has_epub": "epub" in valid_artifacts,
                         "has_htmlzip": "htmlzip" in valid_artifacts,
+                        "build_data": self.data.version.build_data,
                     }
                 )
             except HttpClientError:
@@ -754,6 +758,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                     self.update_build(state=BUILD_STATE_BUILDING)
                     self.data.build_director.build()
             finally:
+                self.data.build_director.check_old_output_directory()
                 self.data.build_data = self.collect_build_data()
 
         # At this point, the user's build already succeeded.

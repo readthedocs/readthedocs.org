@@ -49,7 +49,19 @@ log = structlog.get_logger(__name__)  # noqa
 
 
 class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
+
+    """
+    Page redirect view.
+
+    This allows users to redirec to the default version of a project.
+    For example:
+
+    - /page/api/index.html -> /en/latest/api/index.html
+    - /projects/subproject/page/index.html -> /projects/subproject/en/latest/api/index.html
+    """
+
     def get(self, request, subproject_slug=None, filename=""):
+        """Handle all page redirects."""
 
         unresolved_domain = request.unresolved_domain
         project = unresolved_domain.project
@@ -88,6 +100,14 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
 
 class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
+
+    """
+    Serve docs view.
+
+    This view serves all the documentation pages,
+    and handles canonical redirects.
+    """
+
     def get(
         self,
         request,
@@ -104,6 +124,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         ``subproject_slash`` is used to determine if the subproject URL has a slash,
         so that we can decide if we need to serve docs or add a /.
         """
+        # pylint: disable=too-many-locals
         unresolved_domain = request.unresolved_domain
         # Handle requests that need canonicalizing first,
         # e.g. HTTP -> HTTPS, redirect to canonical domain, etc.
@@ -278,7 +299,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 pass
 
         # Check user permissions and return an unauthed response if needed
-        if not self.allowed_user(request, final_project, version_slug):
+        if not version or not self.allowed_user(request, version):
             return self.get_unauthed_response(request, final_project)
 
         return self._serve_docs(
@@ -299,6 +320,17 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 log.debug("Proxito CNAME HTTPS Redirect.", domain=domain.domain)
                 return RedirectType.http_to_https
 
+        # Redirect HTTP -> HTTPS (302) for public domains.
+        if (
+            (
+                unresolved_domain.is_from_public_domain
+                or unresolved_domain.is_from_external_domain
+            )
+            and settings.PUBLIC_DOMAIN_USES_HTTPS
+            and not request.is_secure()
+        ):
+            return RedirectType.http_to_https
+
         # Check for subprojects before checking for canonical domains,
         # so we can redirect to the main domain first.
         # Custom domains on subprojects are not supported.
@@ -316,6 +348,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 .exists()
             )
             # For .com we need to check if the project supports custom domains.
+            # pylint: disable=protected-access
             if canonical_domain and resolver._use_cname(project):
                 log.debug(
                     "Proxito Public Domain -> Canonical Domain Redirect.",
@@ -461,7 +494,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 pass
 
         # Check user permissions and return an unauthed response if needed.
-        if not self.allowed_user(request, project, version.slug):
+        if not self.allowed_user(request, version):
             return self.get_unauthed_response(request, project)
 
         return self._serve_docs(
@@ -476,9 +509,16 @@ class ServeDocs(SettingsOverrideObject):
     _default_class = ServeDocsBase
 
 
-class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
+class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, View):
 
-    def get(self, request, proxito_path, template_name='404.html'):
+    """
+    Proxito handler for 404 pages.
+
+    This view is called by an internal nginx redirect when there is a 404.
+    """
+
+    # pylint: disable=unused-argument
+    def get(self, request, proxito_path, template_name="404.html"):
         """
         Handler for 404 pages on subdomains.
 
@@ -494,6 +534,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         with the default version and finally, if none of them are found, the Read
         the Docs default page (Maze Found) is rendered by Django and served.
         """
+        # pylint: disable=too-many-locals
         log.bind(proxito_path=proxito_path)
         log.debug('Executing 404 handler.')
 
@@ -607,7 +648,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 project_slug=final_project.slug,
                 proxito_path=proxito_path,
             )
-        elif kwargs.get("subproject_slug"):
+        if kwargs.get("subproject_slug"):
             raise ProxitoSubProjectHttp404(
                 "Subproject not found and no custom 404",
                 project=final_project,
@@ -615,13 +656,12 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 subproject_slug=kwargs.get("subproject_slug"),
                 proxito_path=proxito_path,
             )
-        else:
-            raise ProxitoProjectVersionHttp404(
-                "Version not found and no custom 404",
-                project=final_project,
-                project_slug=final_project.slug,
-                proxito_path=proxito_path,
-            )
+        raise ProxitoProjectVersionHttp404(
+            "Version not found and no custom 404",
+            project=final_project,
+            project_slug=final_project.slug,
+            proxito_path=proxito_path,
+        )
 
     def _register_broken_link(self, project, version, path, full_path):
         try:
@@ -673,22 +713,21 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
         If a 404 page is found, we return a response with the content of that file,
         `None` otherwise.
         """
-        current_version_slug = version.slug if version else None
-        versions_slug = []
-        if current_version_slug:
-            versions_slug.append(current_version_slug)
+        versions_404 = [version] if version else []
+        if not version or version.slug != project.default_version:
+            default_version = project.versions.filter(
+                slug=project.default_version
+            ).first()
+            if default_version:
+                versions_404.append(default_version)
 
-        default_version_slug = project.get_default_version()
-        if default_version_slug != current_version_slug:
-            versions_slug.append(default_version_slug)
-
-        for version_slug_404 in versions_slug:
-            if not self.allowed_user(request, project, version_slug_404):
+        for version_404 in versions_404:
+            if not self.allowed_user(request, version_404):
                 continue
 
             storage_root_path = project.get_storage_path(
                 type_="html",
-                version_slug=version_slug_404,
+                version_slug=version_404.slug,
                 include_file=False,
                 version_type=self.version_type,
             )
@@ -700,7 +739,7 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
                 if build_media_storage.exists(storage_filename_path):
                     log.info(
                         "Serving custom 404.html page.",
-                        version_slug_404=version_slug_404,
+                        version_slug_404=version_404.slug,
                         storage_filename_path=storage_filename_path,
                     )
                     resp = HttpResponse(
@@ -727,8 +766,15 @@ class ServeError404Base(ServeRedirectMixin, ServeDocsMixin, View):
             version_type=self.version_type,
         )
 
+        tryfiles = ["index.html", "README.html"]
+        # If the path ends with `/`, we already tried to serve
+        # the `/index.html` file, so we only need to test for
+        # the `/README.html` file.
+        if full_path.endswith("/"):
+            tryfiles = ["README.html"]
+
         # First, check for dirhtml with slash
-        for tryfile in ("index.html", "README.html"):
+        for tryfile in tryfiles:
             storage_filename_path = build_media_storage.join(
                 storage_root_path,
                 f"{filename}/{tryfile}".lstrip("/"),
@@ -875,10 +921,14 @@ class ServeError404(SettingsOverrideObject):
     _default_class = ServeError404Base
 
 
-class ServeRobotsTXTBase(ServeDocsMixin, View):
+class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin, View):
+
+    """Serve robots.txt from the domain's root."""
 
     # Always cache this view, since it's the same for all users.
     cache_response = True
+    # Extra cache tag to invalidate only this view if needed.
+    project_cache_tag = "robots.txt"
 
     def get(self, request):
         """
@@ -899,7 +949,7 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
             )
 
         # Verify if the project is marked as spam and return a custom robots.txt
-        elif "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import is_robotstxt_denied  # noqa
             if is_robotstxt_denied(project):
                 return render(
@@ -971,15 +1021,30 @@ class ServeRobotsTXTBase(ServeDocsMixin, View):
         ]
         return hidden_paths
 
+    def _get_project(self):
+        # Method used by the CDNCacheTagsMixin class.
+        return self.request.unresolved_domain.project
+
+    def _get_version(self):
+        # Method used by the CDNCacheTagsMixin class.
+        # This view isn't explicitly mapped to a version,
+        # but it can be when we serve a custom robots.txt file.
+        # TODO: refactor how we set cache tags to avoid this.
+        return None
+
 
 class ServeRobotsTXT(SettingsOverrideObject):
     _default_class = ServeRobotsTXTBase
 
 
-class ServeSitemapXMLBase(View):
+class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
+
+    """Serve sitemap.xml from the domain's root."""
 
     # Always cache this view, since it's the same for all users.
     cache_response = True
+    # Extra cache tag to invalidate only this view if needed.
+    project_cache_tag = "sitemap.xml"
 
     def get(self, request):
         """
@@ -1110,6 +1175,16 @@ class ServeSitemapXMLBase(View):
             context,
             content_type='application/xml',
         )
+
+    def _get_project(self):
+        # Method used by the CDNCacheTagsMixin class.
+        return self.request.unresolved_domain.project
+
+    def _get_version(self):
+        # Method used by the CDNCacheTagsMixin class.
+        # This view isn't explicitly mapped to a version,
+        # TODO: refactor how we set cache tags to avoid this.
+        return None
 
 
 class ServeSitemapXML(SettingsOverrideObject):

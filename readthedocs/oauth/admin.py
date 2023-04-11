@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """Admin configuration for the OAuth app."""
 

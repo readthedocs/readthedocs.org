@@ -1,9 +1,13 @@
 Troubleshooting slow builds
 ===========================
 
+This page contains a list of the most common issues that are slowing down builds.
+
 In case you are waiting a long time for your builds to finish
 or your builds are terminated by exceeding general resource limits,
 this troubleshooting guide will help you resolve some of the most common issues causing slow builds.
+Even if you are not facing any immediate performance issues,
+it's always good to be familiar with the most common ones.
 
 Build resources on Read the Docs are limited to make sure that users don't overwhelm our build systems.
 The current build limits can be found on our :ref:`Build resources reference <builds:Build resources>`.

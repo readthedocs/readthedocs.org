@@ -9,7 +9,7 @@ import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import prefetch_related_objects
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.crypto import constant_time_compare
@@ -35,7 +35,6 @@ from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
-from readthedocs.proxito.views.utils import _get_project_data_from_request
 
 from ..constants import PRIVATE
 from .base import ProjectOnboardMixin, ProjectSpamMixin
@@ -339,32 +338,42 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
                      not the actual Project permissions.
         """
         if self.same_domain_url:
-            # It uses the request to get the ``project``. The rest of arguments come
-            # from the URL.
-            final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
-                request,
-                project_slug=None,
-                subproject_slug=subproject_slug,
-                lang_slug=lang_slug,
-                version_slug=version_slug,
-            )
-
-            if not self.allowed_user(request, final_project, version_slug):
-                return self.get_unauthed_response(request, final_project)
-
+            unresolved_domain = request.unresolved_domain
             is_external = request.unresolved_domain.is_from_external_domain
             manager = EXTERNAL if is_external else INTERNAL
 
-            # We don't use ``.public`` in this filter because the access
-            # permission was already granted by ``.allowed_user``
+            # Additional protection to force all storage calls
+            # to use the external or internal versions storage.
+            # TODO: We already force the manager to match the type,
+            # so we could probably just remove this.
+            self.version_type = manager
+
+            # It uses the request to get the ``project``.
+            # The rest of arguments come from the URL.
+            project = unresolved_domain.project
+
+            # Use the project from the domain, or use the subproject slug.
+            if subproject_slug:
+                project = get_object_or_404(
+                    project.subprojects, alias=subproject_slug
+                ).child
+
+            if project.language != lang_slug:
+                project = get_object_or_404(project.translations, language=lang_slug)
+
+            if is_external and unresolved_domain.external_version_slug != version_slug:
+                raise Http404
+
             version = get_object_or_404(
-                final_project.versions(manager=manager),
+                project.versions(manager=manager),
                 slug=version_slug,
             )
 
+            if not self.allowed_user(request, version):
+                return self.get_unauthed_response(request, project)
+
             # All public versions can be cached.
             self.cache_response = version.is_public
-
         else:
             # All the arguments come from the URL.
             version = get_object_or_404(
