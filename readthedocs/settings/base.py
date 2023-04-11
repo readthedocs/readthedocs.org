@@ -157,6 +157,26 @@ class CommunityBaseSettings(Settings):
     # Number of days an invitation is valid.
     RTD_INVITATIONS_EXPIRATION_DAYS = 15
 
+    @property
+    def RTD_DEFAULT_FEATURES(self):
+        # Features listed here will be available to users that don't have a
+        # subscription or if their subscription doesn't include the feature.
+        # Depending on the feature type, the numeric value represents a
+        # number of days or limit of the feature.
+        from readthedocs.subscriptions import constants
+        return {
+            constants.TYPE_CNAME: 1,
+            constants.TYPE_EMBED_API: 1,
+            # Retention days for search analytics.
+            constants.TYPE_SEARCH_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            # Retention days for page view analytics.
+            constants.TYPE_PAGEVIEW_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            # Retention days for audit logs.
+            constants.TYPE_AUDIT_LOGS: self.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS,
+            # Max number of concurrent builds.
+            constants.TYPE_CONCURRENT_BUILDS: self.RTD_MAX_CONCURRENT_BUILDS,
+        }
+
     # Database and API hitting settings
     DONT_HIT_API = False
     DONT_HIT_DB = True
@@ -245,6 +265,7 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.gitlab',
             'allauth.socialaccount.providers.bitbucket',
             'allauth.socialaccount.providers.bitbucket_oauth2',
+            'cacheops',
         ]
         if ext:
             apps.append('readthedocsext.cdn')
@@ -709,11 +730,16 @@ class CommunityBaseSettings(Settings):
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
+
+    # Make email verification mandatory.
+    # Users won't be able to login until they verify the email address.
     ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-    ACCOUNT_ACTIVATION_DAYS = 7
+    ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_STORE_TOKENS = True
+
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
             'SCOPE': [
@@ -744,7 +770,7 @@ class CommunityBaseSettings(Settings):
 
     # Allow cross-site requests from any origin,
     # all information from our allowed endpoits is public.
-    # 
+    #
     # NOTE: We don't use `CORS_ALLOW_ALL_ORIGINS=True`,
     # since that will set the `Access-Control-Allow-Origin` header to `*`,
     # we won't be able to pass credentials fo the sustainability API with that value.
@@ -1024,3 +1050,45 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS = 500
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
     RTD_SPAM_MAX_SCORE = 9999
+
+    CACHEOPS_ENABLED = False
+    CACHEOPS_TIMEOUT = 60 * 60  # seconds
+    CACHEOPS_OPS = {'get', 'fetch'}
+    CACHEOPS_DEGRADE_ON_FAILURE = True
+    CACHEOPS = {
+        # readthedocs.projects.*
+        'projects.project': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.feature': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.projectrelationship': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.domain': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.builds.*
+        'builds.version': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.organizations.*
+        'organizations.organization': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.subscriptions.*
+        'subscriptions.planfeature': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+    }

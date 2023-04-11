@@ -65,11 +65,9 @@ from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
     DOCTYPE_CHOICES,
-    GITHUB_BRAND,
     GITHUB_COMMIT_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
     GITHUB_URL,
-    GITLAB_BRAND,
     GITLAB_COMMIT_URL,
     GITLAB_MERGE_REQUEST_COMMIT_URL,
     GITLAB_URL,
@@ -186,6 +184,12 @@ class Version(TimeStampedModel):
         ),
     )
 
+    build_data = models.JSONField(
+        _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
+        default=None,
+        null=True,
+    )
+
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
     internal = InternalVersionManager.from_queryset(partial(VersionQuerySet, internal_only=True))()
@@ -216,6 +220,16 @@ class Version(TimeStampedModel):
         if self.is_external:
             return self.project.external_builds_privacy_level == PRIVATE
         return self.privacy_level == PRIVATE
+
+    @property
+    def is_public(self):
+        """
+        Check if the version is public (taking external versions into consideration).
+
+        This is basically ``is_private`` negated,
+        ``is_private`` understands both normal and external versions
+        """
+        return not self.is_private
 
     @property
     def is_external(self):
@@ -587,7 +601,8 @@ class APIVersion(Version):
         proxy = True
 
     def __init__(self, *args, **kwargs):
-        self.project = APIProject(**kwargs.pop('project', {}))
+        self.project = APIProject(**kwargs.pop("project", {}))
+        self.canonical_url = kwargs.pop("canonical_url", None)
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
         for key in ['resource_uri', 'absolute_url', 'downloads']:
@@ -1073,12 +1088,12 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
 
     ACTIONS = (
-        (ACTIVATE_VERSION_ACTION, _('Activate version')),
-        (HIDE_VERSION_ACTION, _('Hide version')),
-        (MAKE_VERSION_PUBLIC_ACTION, _('Make version public')),
-        (MAKE_VERSION_PRIVATE_ACTION, _('Make version private')),
-        (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
-        (DELETE_VERSION_ACTION, _('Delete version (on branch/tag deletion)')),
+        (ACTIVATE_VERSION_ACTION, _("Activate version")),
+        (HIDE_VERSION_ACTION, _("Hide version")),
+        (MAKE_VERSION_PUBLIC_ACTION, _("Make version public")),
+        (MAKE_VERSION_PRIVATE_ACTION, _("Make version private")),
+        (SET_DEFAULT_VERSION_ACTION, _("Set version as default")),
+        (DELETE_VERSION_ACTION, _("Delete version")),
     )
 
     allowed_actions_on_create = {}
@@ -1353,6 +1368,20 @@ class RegexAutomationRule(VersionAutomationRule):
 
 
 class AutomationRuleMatch(TimeStampedModel):
+
+    ACTIONS_PAST_TENSE = {
+        VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
+        VersionAutomationRule.HIDE_VERSION_ACTION: _("Version hidden"),
+        VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: _(
+            "Version set to public privacy"
+        ),
+        VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: _(
+            "Version set to private privacy"
+        ),
+        VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: _("Version set as default"),
+        VersionAutomationRule.DELETE_VERSION_ACTION: _("Version deleted"),
+    }
+
     rule = models.ForeignKey(
         VersionAutomationRule,
         verbose_name=_('Matched rule'),
@@ -1376,3 +1405,6 @@ class AutomationRuleMatch(TimeStampedModel):
 
     class Meta:
         ordering = ('-modified', '-created')
+
+    def get_action_past_tense(self):
+        return self.ACTIONS_PAST_TENSE.get(self.action)

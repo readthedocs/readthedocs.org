@@ -80,6 +80,9 @@ class APIEndpointMixin(TestCase):
             active=True,
             built=True,
             type=TAG,
+            has_pdf=True,
+            has_epub=True,
+            has_htmlzip=True,
         )
 
         self.build = fixture.get(

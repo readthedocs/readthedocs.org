@@ -5,6 +5,43 @@ Module in charge of serving documentation pages.
 
 Read the Docs core team members can view the `Proxito design doc <https://github.com/readthedocs/el-proxito/blob/master/docs/design/architecture.rst>`_
 
+URL parts
+---------
+
+In our code we use the following terms to refer to the different parts of the URL:
+
+url:
+   The full URL including the protocol, for example ``https://docs.readthedocs.io/en/latest/api/index.html``.
+path:
+   The whole path from the URL without query arguments or fragment,
+   for example ``/en/latest/api/index.html``.
+domain:
+   The domain/subdomain without the protocol, for example ``docs.readthedocs.io``.
+language:
+   The language of the documentation, for example ``en``.
+version:
+   The version of the documentation, for example ``latest``.
+filename:
+   The name of the file being served, for example ``/api/index.html``.
+path prefix:
+   The path prefix of the URL without version or language,
+   for a normal project this is ``/``, and for subprojects this is ``/projects/<subproject-alias>/``.
+   This prefix can be different for project defining their own urlconf.
+
+.. code:: text
+
+                         URL
+   |----------------------------------------------------|
+                                        path
+                              |-------------------------|
+    https://docs.readthedocs.io/en/latest/api/index.html
+   |-------|-------------------|--|------|--------------|
+    protocol         |          |     |         |
+                   domain       |     |         |
+                             language |         |
+                                    version     |
+                                             filename
+
 CDN
 ---
 
@@ -39,9 +76,7 @@ What can/can't be cached?
 
 - ServeRobotsTXT: can be cached, we don't serve a custom robots.txt
   to any user if the default version is private.
-  This view is already cached at the application level.
 - ServeSitemapXML: can be cached. It displays only public versions, for everyone.
-  This view is already cached at the application level.
 - ServeStaticFiles: can be cached, all files are the same for all projects and users.
 - Embed API: can be cached for public versions.
 - Search:
@@ -54,3 +89,4 @@ What can/can't be cached?
   - If the project doesn't have subprojects.
   - All subprojects are public.
 - Analytics API: can't be cached, we want to always hit our serves with this one.
+- Health check view: shouldn't be cached, we always want to hit our serves with this one.

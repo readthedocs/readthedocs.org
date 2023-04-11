@@ -1,7 +1,9 @@
 Versioning your entire configuration
 ====================================
 
-The life-cycle of a documentation project changes the content and the structure of the documentation.
+.. TODO: This should live in Explanation / Deep-dive into Read the Docs
+
+The lifecycle of a documentation project changes the content and the structure of the documentation.
 In addition to this, **the whole configuration of a project also changes**.
 
 

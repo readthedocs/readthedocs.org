@@ -617,7 +617,7 @@ class PdfBuilder(BaseSphinx):
             cwd=self.absolute_host_output_dir,
         )
 
-        self.pdf_file_name = f'{self.project.slug}.pdf'
+        self.pdf_file_name = f"{self.project.slug}.pdf"
 
         return cmd_ret.successful
 

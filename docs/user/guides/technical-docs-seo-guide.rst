@@ -1,5 +1,5 @@
-Search Engine Optimization (SEO) for documentation projects
-===========================================================
+How to do Search Engine Optimization (SEO) for documentation projects
+=====================================================================
 
 .. meta::
     :description lang=en:
@@ -26,7 +26,7 @@ they can get the answers from your documentation in the search results.
    :ref:`external resources <guides/technical-docs-seo-guide:External resources>` section.
 
 
-SEO Basics
+SEO basics
 ----------
 
 Search engines like Google and Bing crawl through the internet
@@ -79,8 +79,8 @@ Best practices for documentation SEO
 Once a crawler or spider finds your site, it will follow links and redirects
 in an attempt to find any and all pages on your site.
 While there are a few ways to guide the search engine in its crawl
-for example by using a :ref:`sitemap <guides/technical-docs-seo-guide:Use a sitemap.xml file>`
-or a :ref:`robots.txt file <guides/technical-docs-seo-guide:Use a robots.txt file>`
+for example by using a :ref:`sitemap <seo_sitemap.xml>`
+or a :ref:`robots.txt file <seo_robots.txt>`
 which we'll discuss shortly,
 the most important thing is making sure the spider can follow links on your site
 and get to all your pages.
@@ -182,6 +182,8 @@ When using images, make sure to set the image alt text or set a caption on figur
 .. _md-in-html: https://python-markdown.github.io/extensions/md_in_html/
 
 
+.. _seo_redirects:
+
 Redirects ✅️
 ~~~~~~~~~~~~~
 
@@ -196,6 +198,10 @@ Read the Docs supports a few different kinds of :doc:`user defined redirects </u
 that should cover all the different cases such as redirecting a certain page for all project versions,
 or redirecting one version to another.
 
+.. seealso:
+
+   :doc:`/guides/best-practice/links`
+      Following best practices to avoid broken links is great for search engine ranking.
 
 Canonical URLs ✅️
 ~~~~~~~~~~~~~~~~~~
@@ -211,6 +217,8 @@ if you are using a :doc:`custom domain </custom-domains>`
 under :guilabel:`Admin` > :guilabel:`Domains`
 in the Read the Docs dashboard.
 
+
+.. _seo_robots.txt:
 
 Use a robots.txt file ✅️
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -230,6 +238,7 @@ that is written to your documentation root on your default branch/version.
 See the `Google's documentation on robots.txt <https://support.google.com/webmasters/answer/6062608>`_
 for additional details.
 
+.. _seo_sitemap.xml:
 
 Use a sitemap.xml file ✅️
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -242,7 +251,7 @@ or any alternate language versions of a page.
 
 Read the Docs generates a sitemap for you that contains the last time
 your documentation was updated as well as links to active versions, subprojects, and translations your project has.
-We have a small separate guide on :ref:`sitemaps <hosting:Sitemaps>`.
+We have a small separate guide on :doc:`sitemaps </reference/sitemaps>`.
 
 See the `Google docs on building a sitemap <https://support.google.com/webmasters/answer/183668>`_.
 
@@ -301,7 +310,7 @@ Some of the most valuable feedback these provide include:
 * Google and Bing will show pages that were previously indexed that now give a 404
   (or more rarely a 500 or other status code).
   These will remain in the index for some time but will eventually be removed.
-  This is a good opportunity to create a :ref:`redirect <guides/technical-docs-seo-guide:Redirects>`.
+  This is a good opportunity to create a :ref:`redirect <seo_redirects>`.
 * These tools will show any crawl issues with your documentation.
 * Search Console and Webmaster Tools will highlight security issues found
   or if Google or Bing took action against your site because they believe it is spammy.

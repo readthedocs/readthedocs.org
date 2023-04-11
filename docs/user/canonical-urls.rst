@@ -34,7 +34,7 @@ The canonical URL takes the following into account:
 
 * The default version of your project (usually "latest" or "stable").
 * The canonical :doc:`custom domain </custom-domains>` if you have one,
-  otherwise the default :ref:`subdomain <hosting:subdomain support>` will be used.
+  otherwise the default :ref:`subdomain <default-subdomain>` will be used.
 
 For example, if you have a project named ``example-docs``
 with a custom domain ``https://docs.example.com``,

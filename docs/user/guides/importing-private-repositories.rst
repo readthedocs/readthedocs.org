@@ -1,5 +1,5 @@
-Manually Importing Private Repositories
-=======================================
+How to import private repositories
+==================================
 
 .. warning::
 
@@ -7,6 +7,9 @@ Manually Importing Private Repositories
    **If you are using GitHub, GitLab, or Bitbucket**,
    we recommend :doc:`connecting your account </connected-accounts>` and importing your project from
    https://readthedocs.com/dashboard/import instead of importing it manually.
+
+You can grant access to private Git repositories using |com_brand|.
+Here is how you set it up.
 
 If you are using an unsupported integration, or don't want to connect your account,
 you'll need to do some **extra steps in order to have your project working**.
@@ -122,4 +125,4 @@ To build your documentation on every commit,
 you'll need to manually add a webhook, see :doc:`/integrations`.
 If you are using an unsupported integration,
 you may need to setup a custom integration
-using our :ref:`generic webhook <integrations:using the generic api integration>`.
+using our :ref:`generic webhook <webhook-integration-generic>`.

@@ -86,7 +86,7 @@ class ProjectBasicsForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ('name', 'repo', 'repo_type', 'default_branch')
+        fields = ("name", "repo", "default_branch")
 
     remote_repository = forms.IntegerField(
         widget=forms.HiddenInput(),
@@ -385,7 +385,7 @@ class UpdateProjectForm(
             # Basics
             'name',
             'repo',
-            'repo_type',
+            "repo_type",
             # Extra
             'description',
             'language',
@@ -691,7 +691,7 @@ class RedirectForm(forms.ModelForm):
         return self.project
 
 
-class DomainBaseForm(forms.ModelForm):
+class DomainForm(forms.ModelForm):
 
     """Form to configure a custom domain name for a project."""
 
@@ -706,9 +706,14 @@ class DomainBaseForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Disable domain manipulation on Update, but allow on Create
-        instance = getattr(self, 'instance', None)
-        if instance and instance.pk:
+        if self.instance.pk:
             self.fields['domain'].disabled = True
+
+        # Remove the https option at creation,
+        # but show it if the domain is already marked as http only,
+        # so users can upgrade.
+        if not self.instance.pk or self.instance.https:
+            self.fields.pop("https")
 
     def clean_project(self):
         return self.project
@@ -751,10 +756,6 @@ class DomainBaseForm(forms.ModelForm):
                 _('Only one domain can be canonical at a time.'),
             )
         return canonical
-
-
-class DomainForm(SettingsOverrideObject):
-    _default_class = DomainBaseForm
 
 
 class IntegrationForm(forms.ModelForm):

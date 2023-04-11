@@ -1,4 +1,4 @@
-Interesting Settings
+Interesting settings
 ====================
 
 DOCKER_LIMITS

@@ -91,7 +91,9 @@ git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.
 # "RecursionError: maximum recursion depth exceeded in comparison"
 django-formtools<2.4
 
-django-crispy-forms
+# We cannot upgrade to >=2 because it fails with
+# django.template.exceptions.TemplateDoesNotExist: bootstrap/field.html
+django-crispy-forms<2
 
 docker
 
@@ -127,3 +129,5 @@ structlog
 dparse
 
 gunicorn
+
+django-cacheops

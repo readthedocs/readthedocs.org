@@ -38,7 +38,6 @@ from readthedocs.api.v2.views.integrations import (
     GitHubWebhookView,
     GitLabWebhookView,
 )
-from readthedocs.api.v2.views.task_views import get_status_data
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
@@ -61,6 +60,7 @@ from readthedocs.projects.models import (
     Feature,
     Project,
 )
+from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 
 super_auth = base64.b64encode(b'super:test').decode('utf-8')
 eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
@@ -846,6 +846,11 @@ class APITests(TestCase):
             {'RELEASE': 'prod'},
         )
 
+    @override_settings(
+        RTD_DEFAULT_FEATURES={
+            TYPE_CONCURRENT_BUILDS: 4,
+        }
+    )
     def test_concurrent_builds(self):
         expected = {
             'limit_reached': False,
@@ -2443,6 +2448,7 @@ class APIVersionTests(TestCase):
             "built": False,
             "id": 18,
             "active": True,
+            "canonical_url": "http://readthedocs.org/docs/pip/en/0.8/",
             "project": {
                 "analytics_code": None,
                 "analytics_disabled": False,
@@ -2545,24 +2551,3 @@ class APIVersionTests(TestCase):
         self.assertEqual(resp.data['has_pdf'], True)
         self.assertEqual(resp.data['has_epub'], False)
         self.assertEqual(resp.data['has_htmlzip'], False)
-
-
-class TaskViewsTests(TestCase):
-
-    def test_get_status_data(self):
-        data = get_status_data(
-            'public_task_exception',
-            'SUCCESS',
-            {'data': 'public'},
-            'Something bad happened',
-        )
-        self.assertEqual(
-            data, {
-                'name': 'public_task_exception',
-                'data': {'data': 'public'},
-                'started': True,
-                'finished': True,
-                'success': False,
-                'error': 'Something bad happened',
-            },
-        )

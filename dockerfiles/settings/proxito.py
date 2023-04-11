@@ -6,6 +6,8 @@ from .docker_compose import DockerBaseSettings
 class ProxitoDevSettings(CommunityProxitoSettingsMixin, DockerBaseSettings):
     DONT_HIT_DB = False
 
+    CACHEOPS_ENABLED = True
+
     # El Proxito does not have django-debug-toolbar installed
     @property
     def DEBUG_TOOLBAR_CONFIG(self):

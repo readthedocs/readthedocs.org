@@ -172,7 +172,7 @@ class PlanFeatureManager(models.Manager):
         Get feature `type` for `obj`.
 
         :param obj: An organization or project instance.
-        :param type: The type of the feature (PlanFeature.TYPE_*).
+        :param type: The type of the feature (readthedocs.subscriptions.constants.TYPE_*).
         :returns: A PlanFeature object or None.
         """
         # Avoid circular imports.
@@ -191,3 +191,32 @@ class PlanFeatureManager(models.Manager):
             plan__subscriptions__organization=organization,
         )
         return feature.first()
+
+    # pylint: disable=redefined-builtin
+    def get_feature_value(self, obj, type, default=0):
+        """
+        Get the value of the given feature.
+
+        Use this function instead of ``get_feature().value``
+        when you need to respect the ``RTD_DEFAULT_FEATURES`` setting.
+        """
+        # Hit the DB only if subscriptions are enabled.
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            feature = self.get_feature(obj, type)
+            if feature:
+                return feature.value
+        return settings.RTD_DEFAULT_FEATURES.get(type, default)
+
+    # pylint: disable=redefined-builtin
+    def has_feature(self, obj, type):
+        """
+        Get the value of the given feature.
+
+        Use this function instead of ``bool(get_feature())``
+        when you need to respect the ``RTD_DEFAULT_FEATURES`` setting.
+        """
+        # Hit the DB only if subscriptions are enabled.
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            if self.get_feature(obj, type) is not None:
+                return True
+        return type in settings.RTD_DEFAULT_FEATURES

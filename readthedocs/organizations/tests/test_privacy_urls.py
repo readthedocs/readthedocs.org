@@ -35,7 +35,7 @@ class OrganizationMixin(URLAccessMixin):
 class NoOrganizationsTest(OrganizationMixin, TestCase):
 
     """Organization views aren't available if organizations aren't allowed."""
-    
+
     default_status_code = 404
 
     def login(self):

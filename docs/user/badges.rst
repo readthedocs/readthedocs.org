@@ -1,4 +1,4 @@
-Status Badges
+Status badges
 =============
 
 Status badges let you show the state of your documentation to your users.

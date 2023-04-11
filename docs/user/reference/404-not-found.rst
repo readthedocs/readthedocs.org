@@ -45,7 +45,7 @@ We have examples for some of the most popular tools below.
 
       MkDocs automatically generates a ``404.html`` which Read the Docs will use.
       However, assets will not be loaded correctly unless you define the `site_url`_ configuration value as your site's
-      :ref:`canonical base URL <canonical-urls:MkDocs>`.
+      :ref:`canonical base URL <guides/canonical-urls:MkDocs>`.
 
 .. _sphinx-notfound-page: https://pypi.org/project/sphinx-notfound-page
 .. _html_extra_path: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_extra_path

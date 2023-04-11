@@ -200,7 +200,10 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
         queryset = (
             Build.objects
             .exclude(cold_storage=True)
-            .filter(date__lt=max_date)
+            .filter(
+                date__lt=max_date,
+                date__gt=max_date - timezone.timedelta(days=90),
+            )
             .prefetch_related('commands')
             .only('date', 'cold_storage')
             [:limit]
@@ -560,6 +563,11 @@ class BuildNotificationSender:
                 protocol,
                 settings.PRODUCTION_DOMAIN,
                 self.build.get_absolute_url(),
+            ),
+            "build_raw": "{}://{}{}".format(
+                protocol,
+                settings.PRODUCTION_DOMAIN,
+                reverse("build-detail", args=[self.build.pk, "txt"]),
             ),
             'unsubscribe_url': '{}://{}{}'.format(
                 protocol,
