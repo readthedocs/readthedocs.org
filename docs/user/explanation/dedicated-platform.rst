@@ -10,12 +10,11 @@
 .. - A dedicated platform helps to solve tasks that you otherwise end up writing and maintaining your own scripts and CI tools for.
 .. - Always evolving: Read the Docs develops new features on-demand. So you get a dedicated platform that's maintained and has new features added.
 .. - Community: Related to the above, but perhaps worth mentioning that a lot of people are building tools and extensions that run on the platform etc.
-.. - Batteries included / integrations: Flyout menu, search, SSL certificate
 
 Choosing a dedicated documentation platform
 ===========================================
 
-This is an introduction to the most common benefits of choosing a dedicated platform for building and publishing documentation projects.
+This is an introduction to the most common benefits of choosing a *dedicated* platform for building and publishing documentation projects.
 
 Let us start with a high-level overview:
 
@@ -24,10 +23,18 @@ Let us start with a high-level overview:
 
 🛠️ :ref:`documentation_tools`
     By choosing a tool-agnostic dedicated platform,
-    you can use the documentation tools that you want.
+    you can use documentation tools from open source eco-systems.
 
 🚢️️ :ref:`workflows`
-    A dedicated CI/CD platform publishes your documentation automatically and versions it so you can focus on applying your own workflow and keep the documentation aligned with your product.
+    A dedicated documentation platform works like a :term:`CI/CD platform <CI/CD>`, publishing and versioning your documentation automatically.
+    Most documentation projects need CI/CD automation,
+    and by choosing a dedicated platform,
+    you save building your own scripts and deployment workflows for documentation.
+
+🔋️ :ref:`batteries_included`
+    Read the Docs continues to develop new projects and ideas,
+    bringing additional powers to documentation projects that are hosted on the platform.
+
 
 .. The following sections are about using a dedicated platform as a first-choice in order to free up space for other tasks.
 .. These paragraphs can benefit from being shortened and organized, but they are intended as the summary of the introduction.
@@ -89,6 +96,15 @@ Read the Docs is a platform with over a decade of experience in automating docum
 The platform handles your current challenges or challenges that you face down the road.
 The right features are available when you need them.
 
+.. figure:: /img/documentation-lifecycle.svg
+   :alt: A diagram of external effects to a documentation's life-cycle
+
+   The number of effects on a life-cycle are many.
+   Some are caused by external factors,
+   changes to the product or project,
+   changes in the team,
+   vision etc.
+
 Example: Automated versioning and redirects
     Once a documentation project is bootstrapped,
     the software product might change its version and remove or add features.
@@ -131,15 +147,19 @@ your static website and additional :doc:`offline formats </downloadable-document
 
 A documentation tool simply needs to be able to run on Linux inside a Docker container.
 Most documentation frameworks will do this.
-Some popular choices include:
+Some examples include:
 
 .. TODO: expand the list and add links
 
-* Sphinx
-* MkDocs
-* Jupyter Book
+* :doc:`Sphinx <sphinx:index>`
+* `MkDocs <https://www.mkdocs.org/>`__ and `Material for MkDocs <https://squidfunk.github.io/mkdocs-material/>`__
+* `Jupyter Book <https://jupyterbook.org>`__
+* `Pelican <https://getpelican.com/>`__
+* `Docusaurus <https://docusaurus.io/>`__
+* `Docsy for Hugo <https://www.docsy.dev/>`__
+* `Asciidoctor <https://asciidoctor.org/>`__
 * ...and any other tool that will install and run in a Docker container.
-* ...and plugins/extensions for all of the above!
+* ...and plugins/extensions/themes for all of the above.
 
 .. _workflows:
 
@@ -183,6 +203,41 @@ Example: Automatic deploys with version tagging
         Having an agile workflow enables your documentation project to *grow organically*.
         This is one of the core principles of the Diatáxis Methodology,
         which presents a universal structure and agile workflow methodology for documentation projects.
+
+
+.. _batteries_included:
+
+Batteries included
+------------------
+
+A common saying about a product that is ready to use in real life without a big effort is that the the product has *batteries included*.
+
+Several features of the Read the Docs platform are already mentioned in :ref:`lifecycle`.
+But did you know that we also build and extend features directly for usage with your documentation tools?
+
+As a relatively new chapter in Read the Docs' history,
+we are growing features that can be hard to maintain in the realm of a :term:`static website <static website>`.
+
+Example: Integrated :doc:`server side search </server-side-search/index>`
+    Many documentation tools include a small JavaScript-based search utilities.
+    Some don't.
+    In any case,
+    Read the Docs parses and indexes your HTML and offers a search form and search result dialogue that fits in any documentation project.
+    Search results can be delivered faster than JavaScript-based search tools and we also offer searches across multiple projects,
+    which is great for organizations.
+
+Example: :doc:`Flyout menu </flyout-menu>`
+    By default,
+    an MkDocs and Sphinx project hosted on Read the Docs will have a little :term:`flyout menu` at the bottom of the screen.
+    The menu always contains the latest list of releases and alternative formats,
+    as well as convenient links to edit the project on |git_providers_or|.
+
+    .. note::
+
+        As of April 2023, we are testing a new version of the :term:`flyout menu`,
+        which integrates with any documentation project.
+        Please contact :doc:`/support` for more information.
+
 
 .. Types of documentation projects
 .. -------------------------------

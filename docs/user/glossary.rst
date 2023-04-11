@@ -6,6 +6,11 @@ so that you have a reference for how we're using them.
 
 .. glossary::
 
+   CI/CD
+      CI/CD is a common way to write *Continuous Integration and Continuous Deployment*.
+      In some scenarios, they exist as two separate platforms.
+      Read the Docs contains a combined CI/CD platform made for documentation.
+
    dashboard
       The "admin" site where Read the Docs projects are managed and configured.
       This varies for our two properties:
@@ -66,6 +71,18 @@ so that you have a reference for how we're using them.
       project or version name, which is reduced to lowercase letters, numbers,
       and hyphens. You can retrieve your project or version slugs from
       :doc:`our API <api/v3>`.
+
+   static website
+      Documentation projects served on Read the Docs are a type of *static websites*.
+
+      A static site or static website is a collection of HTML files, images, CSS and JavaScript that do not change over time,
+      nor depend on which web server that is serving them.
+
+      Tools to manage and generate static websites are commonly known as *static site generators* and there is a big overlap with documentation tools.
+      Some static site generators are also documentation tools,
+      and some documentation tools are also used to generate normal websites.
+
+      For instance, :doc:`Sphinx <sphinx:index>` is made for documentation but also used for blogging.
 
    subproject
       Project A can be configured such that when requesting a URL ``/projects/<subproject-slug>``,
