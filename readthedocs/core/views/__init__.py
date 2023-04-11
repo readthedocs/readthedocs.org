@@ -12,16 +12,9 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import TemplateView, View
 
+from readthedocs.core.exceptions import ContextualizedHttp404
 from readthedocs.core.mixins import CDNCacheControlMixin, PrivateViewMixin
 from readthedocs.projects.models import Project
-from readthedocs.proxito.exceptions import (
-    ProxitoHttp404,
-    ProxitoProjectHttp404,
-    ProxitoProjectPageHttp404,
-    ProxitoProjectTranslationHttp404,
-    ProxitoProjectVersionHttp404,
-    ProxitoSubProjectHttp404,
-)
 
 log = structlog.get_logger(__name__)
 
@@ -84,33 +77,16 @@ def server_error_404(request, template_name="errors/404/base.html", exception=No
     """
 
     context = {}
-    # Properties are set by ProxitoHttp404. We could also have a look at the
-    # subproject_slug
-    if isinstance(exception, ProxitoHttp404):
+
+    # Contextualized 404 exceptions:
+    # Context is defined by the views that raise these exceptions and handled
+    # in their templates.
+    if isinstance(exception, ContextualizedHttp404):
         # These attributes are not guaranteed.
-        context.update(
-            {
-                "project": getattr(exception, "project", None),
-                "project_slug": getattr(exception, "project_slug", None),
-                "subproject_slug": getattr(exception, "subproject_slug", None),
-                "version_slug": getattr(exception, "version_slug", None),
-                "language_slug": getattr(exception, "language_slug", None),
-                "path_not_found": getattr(exception, "proxito_path", None),
-            }
-        )
+        context.update(exception.context)
+        template_name = exception.template_name
 
     context["path_not_found"] = context.get("path_not_found") or request.path
-
-    if isinstance(exception, ProxitoProjectVersionHttp404):
-        template_name = "errors/404/no_version.html"
-    elif isinstance(exception, ProxitoSubProjectHttp404):
-        template_name = "errors/404/no_subproject.html"
-    elif isinstance(exception, ProxitoProjectTranslationHttp404):
-        template_name = "errors/404/no_language.html"
-    elif isinstance(exception, ProxitoProjectPageHttp404):
-        template_name = "errors/404/no_project_page.html"
-    elif isinstance(exception, ProxitoProjectHttp404):
-        template_name = "errors/404/no_project.html"
 
     r = render(
         request,

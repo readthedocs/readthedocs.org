@@ -13,6 +13,14 @@ from readthedocs.analytics.models import PageView
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
+from readthedocs.core.exceptions import (
+    ContextualizedHttp404,
+    ProjectHttp404,
+    ProjectPageHttp404,
+    ProjectTranslationHttp404,
+    ProjectVersionHttp404,
+    SubProjectHttp404,
+)
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path, resolver
 from readthedocs.core.unresolver import (
@@ -27,13 +35,6 @@ from readthedocs.projects import constants
 from readthedocs.projects.models import Domain, Feature, ProjectRelationship
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
-from readthedocs.proxito.exceptions import (
-    ProxitoHttp404,
-    ProxitoProjectHttp404,
-    ProxitoProjectPageHttp404,
-    ProxitoProjectVersionHttp404,
-    ProxitoSubProjectHttp404,
-)
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
@@ -72,8 +73,11 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             try:
                 project = project.subprojects.get(alias=subproject_slug).child
             except ProjectRelationship.DoesNotExist:
-                raise ProxitoSubProjectHttp404(
-                    f"Did not find subproject slug {subproject_slug} for project {project.slug}",
+                raise SubProjectHttp404(
+                    message=(
+                        f"Did not find subproject slug {subproject_slug} "
+                        f"for project {project.slug}"
+                    ),
                     project=parent_project,
                     project_slug=parent_project.slug,
                     subproject_slug=subproject_slug,
@@ -171,11 +175,11 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             )
         # This special treatment of ProxitoProjectHttp404 happens because the decorator that
         # resolves a project doesn't know if it's resolving a subproject or a normal project
-        except ProxitoProjectHttp404 as e:
+        except ProjectHttp404 as e:
             if subproject_slug:
                 log.debug("Project expected to be a subproject was not found")
-                raise ProxitoSubProjectHttp404(
-                    f"Could not find subproject for {subproject_slug}",
+                raise SubProjectHttp404(
+                    message=f"Could not find subproject for {subproject_slug}",
                     project_slug=e.project_slug,
                     subproject_slug=subproject_slug,
                 )
@@ -216,7 +220,9 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         # version on the database we want to return 404.
         if (version and not version.active) or (version_slug and not version):
             log.warning("Version does not exist or is not active.")
-            raise ProxitoHttp404("Version does not exist or is not active.")
+            raise ContextualizedHttp404(
+                message="Version does not exist or is not active."
+            )
 
         if version:
             # All public versions can be cached.
@@ -275,7 +281,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 'Invalid URL for project with versions.',
                 filename=filename,
             )
-            raise ProxitoHttp404("Invalid URL for project with versions")
+            raise ContextualizedHttp404(message="Invalid URL for project with versions")
 
         redirect_path, http_status = self.get_redirect(
             project=final_project,
@@ -569,11 +575,11 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                 filename=kwargs.get("filename", ""),
                 explicit_proxito_path=proxito_path,
             )
-        except ProxitoProjectHttp404 as e:
+        except ProjectHttp404 as e:
             if subproject_slug:
                 log.debug("Project expected to be a subproject was not found")
-                raise ProxitoSubProjectHttp404(
-                    f"Could not find subproject for {subproject_slug}",
+                raise SubProjectHttp404(
+                    message=f"Could not find subproject for {subproject_slug}",
                     project_slug=e.project_slug,
                     subproject_slug=subproject_slug,
                     proxito_path=proxito_path,
@@ -588,7 +594,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         version = Version.objects.filter(
             project=final_project, slug=version_slug
         ).first()
-        version_found = bool(version)
+        bool(version)
 
         # If we were able to resolve to a valid version, it means that the
         # current file doesn't exist. So we check if we can redirect to its
@@ -641,27 +647,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         if response:
             return response
 
-        if version_found:
-            raise ProxitoProjectPageHttp404(
-                "Page not found and no custom 404",
-                project=final_project,
-                project_slug=final_project.slug,
-                proxito_path=proxito_path,
-            )
-        if kwargs.get("subproject_slug"):
-            raise ProxitoSubProjectHttp404(
-                "Subproject not found and no custom 404",
-                project=final_project,
-                project_slug=final_project.slug,
-                subproject_slug=kwargs.get("subproject_slug"),
-                proxito_path=proxito_path,
-            )
-        raise ProxitoProjectVersionHttp404(
-            "Version not found and no custom 404",
-            project=final_project,
-            project_slug=final_project.slug,
-            proxito_path=proxito_path,
-        )
+        raise Http404("No custom 404 page found.")
 
     def _register_broken_link(self, project, version, path, full_path):
         try:
@@ -826,6 +812,9 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         # Try to map the current path to a project/version/filename.
         # If that fails, we fill the variables with the information we have
         # available in the exceptions.
+
+        contextualized_404_class = ContextualizedHttp404
+
         try:
             unresolved = unresolver.unresolve_path(
                 unresolved_domain=unresolved_domain,
@@ -837,21 +826,26 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             filename = unresolved.filename
             lang_slug = project.language
             version_slug = version.slug
+            contextualized_404_class = ProjectPageHttp404
         except VersionNotFoundError as exc:
             project = exc.project
             lang_slug = project.language
             version_slug = exc.version_slug
             filename = exc.filename
+            contextualized_404_class = ProjectVersionHttp404
         except TranslationNotFoundError as exc:
             project = exc.project
             lang_slug = exc.language
             version_slug = exc.version_slug
             filename = exc.filename
+            contextualized_404_class = ProjectTranslationHttp404
         except InvalidExternalVersionError as exc:
             project = exc.project
+            # TODO: Use a contextualized 404
         except InvalidPathForVersionedProjectError as exc:
             project = exc.project
             filename = exc.path
+            # TODO: Use a contextualized 404
 
         log.bind(
             project_slug=project.slug,
@@ -914,7 +908,15 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         )
         if response:
             return response
-        raise Http404("No custom 404 page found.")
+
+        # No custom 404 page, use our contextualized 404 response
+        raise contextualized_404_class(
+            project=project,
+            version=version,
+            filename=filename,
+            lang_slug=project.language,
+            version_slug=version.slug,
+        )
 
 
 class ServeError404(SettingsOverrideObject):
@@ -973,7 +975,7 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
 
         if no_serve_robots_txt:
             # ... we do return a 404
-            raise ProxitoHttp404()
+            raise Http404()
 
         log.bind(
             project_slug=project.slug,
@@ -1110,7 +1112,7 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             only_active=True,
         )
         if not public_versions.exists():
-            raise ProxitoHttp404()
+            raise Http404()
 
         sorted_versions = sort_version_aware(public_versions)
 
