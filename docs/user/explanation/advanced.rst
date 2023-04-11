@@ -4,6 +4,11 @@ Deep dive into Read the Docs
 In this section,
 we explain some of the more specific or advanced concepts of writing documentation on Read the Docs.
 
+⏩️ :doc:`/config-file/index`
+    Configure your documentation build in a configuration file stored in Git:
+    The lifecycle of a documentation project changes the content and the structure of the documentation.
+    In addition to this, **the whole configuration of a project also changes**.
+
 ⏩️ :doc:`/subprojects`
     Thinking about gathering several documentation projects under the same umbrella?
     This is a common need, and using *subprojects* is a flexible option that is recommended for most cases.
@@ -23,6 +28,7 @@ we explain some of the more specific or advanced concepts of writing documentati
    :maxdepth: 2
    :hidden:
 
+   /config-file/index
    /subprojects
    /localization
    /downloadable-documentation

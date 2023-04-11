@@ -1,25 +1,27 @@
-Versioning your entire configuration
-====================================
+Versioning your configuration
+=============================
 
 .. TODO: This should live in Explanation / Deep-dive into Read the Docs
 
 The lifecycle of a documentation project changes the content and the structure of the documentation.
 In addition to this, **the whole configuration of a project also changes**.
 
-
+But changing your configuration for your documentation's version 2.x should not make it impossible to keep maintaining the documentation for version 1.x using the former configuration.
 
 Consider the following aspects of a documentation project:
 
 :Software tools:
     You may depend on a number of packages but your method for installing them changes.
     What is installed, how it's installed and what installs it can change.
+
     For instance,
     you might change between Pip, Pipenv, Conda etc.
-    It's also very common to develop the way that software is installed by invoking your dependency manager differently.
 
 :Documentation tools:
     Using Sphinx? Using MkDocs? Or some other tool?
-    Changing the documentation tool should be possible in the lifecycle of your documentation or software project.
+    All these tools have their own configuration files and special ways to invoke them.
+
+    Changing the documentation tool should also be possible in the lifecycle of your documentation.
     Read the Docs understands outputs from several different documentation tools and therefore,
     it's possible to change documentation tools between different versions of documentation.
 
@@ -51,3 +53,9 @@ making it hard to track changes, and reproduce and copy behavior to other projec
 
 Because of its fragility and uniqueness,
 the alternative to "Configuration as Code" is also often referred to as snowflake ❄️ configuration.
+
+.. seealso::
+
+   :doc:`/guides/reproducible-builds`
+      In addition to storing your configuration in Git,
+      we also recommend special practices for making your builds resilient to changes in your software dependencies.
