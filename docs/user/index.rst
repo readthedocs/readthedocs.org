@@ -44,7 +44,7 @@ Read the Docs: documentation simplified
    :caption: 📚 Reference
 
    /reference/features
-   /config-file/index
+   /config-file/v2
    /builds
    /build-customization
    /server-side-search/syntax
@@ -166,7 +166,7 @@ Need to know how something works? Our references provide the details:
 📚 :doc:`/reference/features`
   Overview of all the main features of Read the Docs.
 
-📚 :doc:`/config-file/index`
+📚 :doc:`/config-file/v2`
   Information for our configuration file: ``.readthedocs.yaml``.
 
 📚 :doc:`/builds`
