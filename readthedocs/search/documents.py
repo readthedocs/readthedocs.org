@@ -97,10 +97,17 @@ class PageDocument(RTDDocTypeMixin, Document):
     sections = fields.NestedField(
         attr='processed_json.sections',
         properties={
-            'id': fields.KeywordField(),
-            'title': fields.TextField(),
+            "id": fields.KeywordField(),
+            "title": fields.TextField(
+                # Simple analyzer breaks on `.`,
+                # otherwise search results are too strict for this use case
+                analyzer="simple",
+            ),
             'content': fields.TextField(
                 term_vector='with_positions_offsets',
+                # Simple analyzer breaks on `.`,
+                # otherwise search results are too strict for this use case
+                analyzer="simple",
             ),
         }
     )
