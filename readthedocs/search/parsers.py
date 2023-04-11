@@ -4,7 +4,6 @@ import itertools
 import os
 import re
 from urllib.parse import urlparse
-from uuid import uuid4
 
 import orjson as json
 import structlog
@@ -180,17 +179,9 @@ class GenericParser:
 
         for dl in dls:
 
-            # Hack: Identify a :host() without using :host() selector
-            # We would perhaps like to have written '> dt' but the syntax isn't allowed.
-            # We also cannot use :host.
-            # So in order to ensure that we are only selecting the <dt> elements that are direct
-            # descendents of the traversed <dl>, we give it a unique ID.
-            random_uuid = uuid4().hex
-            # Here, it's okay to manipulate the ID of the <dl> because we're not going to use it.
-            # Note: It didn't work to use custom node attributes nor :has().
-            dl.attrs["id"] = random_uuid
-            # Select all dts with id defined
-            dts = dl.css(f'dl#{random_uuid} > dt[id]:not([id=""])')
+            # Hack: Since we cannot use '> dt' nor ':host' in selectolax/Modest,
+            # we use an iterator to select immediate descendants.
+            dts = (node for node in dl.iter() if node.tag == "dt" and node.id)
 
             # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt
             # multiple <dt> elements in a row indicate several terms that are
