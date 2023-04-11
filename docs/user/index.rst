@@ -17,12 +17,9 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: 💡 Explanation
 
-   /choosing-a-site
-   /integrations
-   /downloadable-documentation
-   /environment-variables
-   /subprojects
-   /localization
+   /explanation/dedicated-platform
+   /explanation/continuous-documentation
+   /explanation/advanced
 
 .. toctree::
    :maxdepth: 2
@@ -85,7 +82,7 @@ and your documentation up to date.
     |org_brand| hosts documentation for over 100,000 large
     and small open source projects.
     |com_brand| supports hundreds of organizations with product and internal documentation.
-    Learn more about :doc:`our two platforms </choosing-a-site>`.
+    Learn more about :ref:`our two platforms <com_org_differences>`.
 
 First time here?
 ----------------
@@ -123,11 +120,11 @@ Get a high-level overview of our platform:
 .. TODO: This next item needs its article to be finished in a separate PR
 .. https://github.com/readthedocs/readthedocs.org/pull/10071
 
-💡 :doc:`Continuous Documentation </integrations>`
-  Discover the advantages of having your documentation continuously deployed.
+💡 :doc:`/explanation/dedicated-platform`
+  An introduction the reasons behind choosing a dedicated documentation platform such as Read the Docs.
 
-💡 :doc:`/choosing-a-site`
-  Learn about the differences between |org_brand| and |com_brand|.
+💡 :doc:`/explanation/continuous-documentation`
+  Discover the advantages of having your documentation continuously deployed.
 
 .. TODO: This next item needs its article to be finished in a separate PR
 .. https://github.com/readthedocs/readthedocs.org/pull/10071

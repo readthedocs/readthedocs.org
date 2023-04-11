@@ -7,27 +7,49 @@
 
 
 
-Continuous Documentation Deployment
-===================================
+Continuous Documentation
+========================
 
-Read the Docs is a *Continuous Documentation Deployment* platform for your software project.
-Every time you change something in your documentation, Read the Docs will detect your change and build your documentation.
+Read the Docs is a *Continuous Documentation* platform for your software project.
+Every time you change something in your documentation, Read the Docs will automatically detect your changes,
+*build* your documentation,
+and finally *deploy* your documentation for readers to see.
 
 The Continuous Integration and Continuous Deployment (CI/CD) features are configured with your repository provider,
 such as GitHub, Bitbucket or GitLab.
-With each change committed to your repository, we are notified by the configured *webhook*.
+With each change committed to your repository, we are notified by the configured :term:`webhook <webhooks>`.
 
-When a receive a *webhook* notification, we match it to a project's *Integration*.
-When a webhook is received, the matching project will then:
+When a receive a *webhook* notification, we match it to a Read the Docs project.
+The matching project will then process your build and publish the documentation.
 
-* :doc:`Build </builds>` the latest commit.
-* Synchronize your versions based on the latest tag and branch data in Git.
-* Run your :doc:`automation rules</automation-rules>`.
-* Auto-cancel any currently running builds of the same version.
-* Add a log entry to the integration's :guilabel:`Recent Activity`.
+.. seealso::
+
+   :doc:`/builds`
+      Read more about the technical specification of the Build process and how you configure it.
+
+.. The short version
+.. -----------------
+
+.. If you follow for instance the tutorial,
+.. a simple setup will use our builders and deploy everything in the following way:
+
+.. 1. ...
+.. 2. ...
+.. 3. ...
+
+.. The long version
+.. ----------------
+
+.. * :doc:`Build </builds>` the latest commit.
+.. * Synchronize your versions based on the latest tag and branch data in Git.
+.. * Run your :doc:`automation rules</automation-rules>`.
+.. * Auto-cancel any currently running builds of the same version.
+.. * Add a log entry to the integration's :guilabel:`Recent Activity`.
 
 Continuous Documentation for software projects
 ----------------------------------------------
+
+.. TODO: This should be improved
 
 Documentation fits into any CI/CD pipeline by following a process known as *Documentation as Code (Docs as code)*.
 The primary method of doing this is by maintaining documentation alongside the source code,
@@ -42,6 +64,11 @@ and increases overall value from the documentation you write.
 
 As part of this quick feedback loop,
 You can preview documentation changes immediately using :doc:`pull request previews </pull-requests>`.
+
+.. Continuous Documentation for scientific projects
+.. ------------------------------------------------
+
+.. We should perhaps write a short introduction here and reference the science page.
 
 Automated versioning
 --------------------

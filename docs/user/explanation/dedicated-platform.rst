@@ -1,0 +1,317 @@
+.. This page seeks to put out lots of pointers to other articles in the documentation
+.. while giving an introduction that can be read consecutively.
+.. TODO:
+.. - Links and references!
+.. - Diagram in life-cycle section
+..
+.. There are other reasons that we could cover:
+.. - Code: If you write docs as code, you want this
+.. - When you should NOT choose a dedicated documentation CI/CD: You just need a README in your Git repo! You need WYSIWYG so badly that you're probably better off with Confluence, GitBook or Google Docs.
+.. - A dedicated platform helps to solve tasks that you otherwise end up writing and maintaining your own scripts and CI tools for.
+.. - Always evolving: Read the Docs develops new features on-demand. So you get a dedicated platform that's maintained and has new features added.
+.. - Community: Related to the above, but perhaps worth mentioning that a lot of people are building tools and extensions that run on the platform etc.
+.. - Reader features: Alternative name for "Batteries included" is "Reader features"
+
+
+Choosing a dedicated documentation platform
+===========================================
+
+This is an introduction to the most common benefits of choosing a *dedicated* platform for building and publishing documentation projects.
+
+Let us start with a high-level overview:
+
+🧭️️️ :ref:`lifecycle`
+    A dedicated documentation platform has all the features to handle a variety of challenges and complexities that documentation projects meet during their lifecycle.
+
+🛠️ :ref:`documentation_tools`
+    By choosing a tool-agnostic dedicated platform,
+    you can use documentation tools from open source eco-systems.
+
+🚢️️ :ref:`workflows`
+    A dedicated documentation platform works like a :term:`CI/CD platform <CI/CD>`, publishing and versioning your documentation automatically.
+    Most documentation projects need CI/CD automation,
+    and by choosing a dedicated platform,
+    you save building your own scripts and deployment workflows for documentation.
+
+🔋️ :ref:`batteries_included`
+    Read the Docs continues to develop new projects and ideas,
+    bringing additional powers to documentation projects that are hosted on the platform.
+
+.. The following sections are about using a dedicated platform as a first-choice in order to free up space for other tasks.
+.. These paragraphs can benefit from being shortened and organized, but they are intended as the summary of the introduction.
+
+Using Read the Docs
+allows you to focus on other critical tasks,
+such as choosing documentation tools, structuring your documentation and having the perfect workflow.
+Not to mention *writing the documentation itself*!
+
+.. note::
+
+    Read the Docs is the dedicated documentation platform that we are mostly hinting at,
+    but whenever possible,
+    we present the general case of a dedicated documentation platform since having *no* dedicated documentation platform at all is the present situation for many,
+    especially software projects.
+
+If we observe a documentation project simply from the outside,
+we might only see the documentation as one or more deliverables, such as:
+A website, a PDF document, or an API documentation.
+But in order to get there,
+a dedicated documentation platform is a reliable first choice.
+
+A dedicated platform helps to solve tasks that you otherwise end up writing and maintaining your own scripts and CI tools for.
+
+.. seealso::
+
+    `Comparison with GitHub Pages <https://about.readthedocs.com/comparisons/github-pages/>`__
+        On our website, we have a list of common tasks that developers and DevOps teams have to solve themselves on a generic CI.
+
+Simply put, the role of a *dedicated documentation platform* is to offer a compelling set of features that documentation projects and their organizations or communities need.
+
+Read the Docs does exactly this in two versions:
+|org_brand| and |com_brand|. :ref:`Read more about their differences <com_org_differences>`.
+
+.. Keeping this list commented out for now.
+.. The seealso about GitHub pages is better, since this is largely marketing content.
+.. It's also nice to not break up the reading flow with a long list. Should delete...
+.. * ✅️ Publishing a static website
+.. * ✅️ Adding a fast cache layer for the website
+.. * ✅️ Maintaining SSL
+.. * ✅️ Notifications when things go wrong
+.. * ✅️ Versioning
+.. * ✅️ Letting users switch between versions
+.. * ✅️ Offering additional formats (PDFs, ebooks)
+.. * ✅️ Custom 404 pages
+.. * ✅️ Building a fast search index
+.. * ✅️ Having APIs to access documentation contents and integrate them elsewhere
+.. * ✅️ Redirecting users that visit old URLs
+.. * ✅️ Inviting a dedicated documentation team to manage all this
+.. * ✅️ Manage access to private documentation projects
+.. * ...this list is longer, and it is incidentally also the list of features that were built for Read the Docs.
+
+.. _lifecycle:
+
+Features for the lifecycle of a documentation project
+-----------------------------------------------------
+
+Read the Docs is a platform with over a decade of experience in automating documentation tools.
+The platform handles your current challenges or challenges that you face down the road.
+The right features are available when you need them.
+
+.. figure:: /img/documentation-lifecycle.svg
+   :alt: A diagram of external effects to a documentation's life-cycle
+
+   The number of effects on a life-cycle are many.
+   Some are caused by external factors,
+   changes to the product or project,
+   changes in the team,
+   vision etc.
+
+Example: Automated versioning and redirects
+    Once a documentation project is bootstrapped,
+    the software product might change its version and remove or add features.
+    Old versions of the product still need to be able to refer to their original documentation while new versions should not be unnecessarily complicated by documenting old features.
+
+    That is why Read the Docs supports versioning out-of-the-box and also gives you a mature set of options for creating :doc:`user-defined redirects </user-defined-redirects>`.
+
+    As your documentation grows and pages are moved around, versioning and redirects become critical.
+
+Example: Analytics
+    Documentation websites benefit from knowing which pages are popular and how people discover them through online search.
+
+    This may not be an immediate requirement for a documentation project,
+    but the need often arises.
+    And why should every documentation project have to implement their own analytics solution?
+    For this, you can use :doc:`/reference/analytics`.
+
+.. seealso::
+
+    :doc:`/reference/features`
+        A practical way to understand Read the Docs is to look at our :doc:`list of features </reference/features>`.
+        All these features ultimately sustain the life-cycle of a documentation project.
+
+.. insert life-cycle diagram.
+.. new product + documentation project => new documentation pages => more product versions => more readers => more reader inputs => breaking changes => legacy product versions
+
+.. _documentation_tools:
+
+Freedom to choose documentation tools
+-------------------------------------
+
+One of the big choices facing new documentation project is to choose between the many documentation tools that exist.
+Read the Docs was originally built for Sphinx,
+but has since then evolved into a generic documentation building platform.
+
+In the :doc:`build process </builds>`,
+your documentation tool is called according to your own configuration and Read the Docs will then gather, version and publish files written by the documentation tool.
+Whatever documentation tool you choose to build with,
+your static website and additional :doc:`offline formats </downloadable-documentation>` can be versioned and published at your project's :doc:`domain </custom-domains>`
+
+A documentation tool simply needs to be able to run on Linux inside a Docker container.
+Most documentation frameworks will do this.
+Some examples include:
+
+.. TODO: expand the list and add links
+
+* :doc:`Sphinx <sphinx:index>`
+* `MkDocs <https://www.mkdocs.org/>`__ and `Material for MkDocs <https://squidfunk.github.io/mkdocs-material/>`__
+* `Jupyter Book <https://jupyterbook.org>`__
+* `Pelican <https://getpelican.com/>`__
+* `Docusaurus <https://docusaurus.io/>`__
+* `Docsy for Hugo <https://www.docsy.dev/>`__
+* `Asciidoctor <https://asciidoctor.org/>`__
+* ...and any other tool that will install and run in a Docker container.
+* ...and plugins/extensions/themes for all of the above.
+
+.. _workflows:
+
+Agile workflows with Continuous Integration and Deployment (CI/CD)
+------------------------------------------------------------------
+
+Automating your `build and deploy process </builds>`,
+enables documentation writers to suggest changes, share previews, receive feedback and implement feedback quickly and iteratively.
+Making your documentation project's workflow *agile* is supported by Read the Docs through a number of features.
+Here are some examples:
+
+.. these examples need more love. They could be more focused on practical tasks, rather than just the abstract topic.
+
+Example: Automatic Git integration
+    Many software projects already have a Git workflow,
+    while many other types of projects have recently discovered the benefits of using Git.
+    A dedicated documentation CI/CD will hook into your Git repository and be notified of changes so it can build and publish your documentation.
+    This includes a number of additional options,
+    such as support for private repositories,
+    storing Read the Docs configuration in the Git repository (configuration as code)
+    and managing access through GitHub SSO.
+
+Example: Automatic previews
+    When someone opens a *pull request*,
+    Read the Docs will automatically build and display these changes,
+    allowing your workflow to continue undisturbed.
+    No need to email screenshots or attachments.
+    No need to upload a temporary version somewhere.
+
+Example: Automatic deploys with version tagging
+    Read the Docs enables you to only have to do things once.
+    You can *tag* your new version in Git and then have Read the Docs automatically see your change and publish a new version,
+    keeping old versions active.
+
+.. seealso::
+
+    :doc:`/explanation/continuous-documentation`
+        A more technical introduction to CI/CD for documentation projects.
+
+    `Diátaxis Framework <https://diataxis.fr>`__
+        Having an agile workflow enables your documentation project to *grow organically*.
+        This is one of the core principles of the Diatáxis Methodology,
+        which presents a universal structure and agile workflow methodology for documentation projects.
+
+
+.. _batteries_included:
+
+Batteries included
+------------------
+
+A common saying about a product that is ready to use in real life without a big effort is that the the product has *batteries included*.
+
+Several features of the Read the Docs platform are already mentioned in :ref:`lifecycle`.
+But did you know that we also build and extend features directly for usage with your documentation tools?
+
+As a relatively new chapter in Read the Docs' history,
+we are growing features that can be hard to maintain in the realm of a :term:`static website <static website>`.
+
+Example: Integrated :doc:`server side search </server-side-search/index>`
+    Many documentation tools include a small JavaScript-based search utilities.
+    Some don't.
+    In any case,
+    Read the Docs parses and indexes your HTML and offers a search form and search result dialogue that fits in any documentation project.
+    Search results can be delivered faster than JavaScript-based search tools and we also offer searches across multiple projects,
+    which is great for organizations.
+
+Example: :doc:`Flyout menu </flyout-menu>`
+    By default,
+    an MkDocs and Sphinx project hosted on Read the Docs will have a little :term:`flyout menu` at the bottom of the screen.
+    The menu always contains the latest list of releases and alternative formats,
+    as well as convenient links to edit the project on |git_providers_or|.
+
+    .. note::
+
+        As of April 2023, we are testing a new version of the :term:`flyout menu`,
+        which integrates with any documentation project.
+        Please contact :doc:`/support` for more information.
+
+.. TODO: Split this into an include:: since we are repeating it
+
+.. seealso::
+
+    :doc:`/reference/features`
+        A practical way to understand Read the Docs is to look at our :doc:`list of features </reference/features>`.
+        All these features ultimately sustain the life-cycle of a documentation project.
+
+
+.. Types of documentation projects
+.. -------------------------------
+
+.. Software projects
+.. ~~~~~~~~~~~~~~~~~
+
+.. Scientific writing and academic projects
+.. ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. _com_org_differences:
+
+Differences between Community and Business
+------------------------------------------
+
+While many of our features are available on both of these platforms, there
+are some key differences between our two platforms.
+
+.. seealso::
+
+   `Our website: Comparison of Community and all subscription plans <https://about.readthedocs.org/pricing/>`__
+      Refer to the complete table of features included in all of the Read the Docs solutions available.
+
+|org_brand|
+~~~~~~~~~~~
+
+|org_brand| is exclusively for free and open source software, content and projects.
+We support open source communities by providing free documentation building and hosting
+services, for projects of all sizes.
+
+Important points:
+
+* Open source project hosting is always free
+* All documentation sites include advertising
+* Only supports public VCS repositories
+* All documentation is publicly accessible to the world
+* Less build time and fewer build resources (memory & CPU)
+* Email support included only for issues with our platform
+* Documentation is organized by projects
+
+You can sign up for an account at https://readthedocs.org.
+
+|com_brand|
+~~~~~~~~~~~
+
+|com_brand| is meant for companies and users who have more complex requirements
+for their documentation project. This can include commercial projects with
+private source code, projects that can only be viewed with authentication, and
+even large scale projects that are publicly available.
+
+Important points:
+
+* Hosting plans require a paid subscription plan
+* There is no advertising on documentation sites
+* Allows importing private and public repositories from VCS
+* Supports private versions that require authentication to view
+* Supports team authentication, including SSO with Google, GitHub, GitLab, and Bitbucket
+* More build time and more build resources (memory & CPU)
+* Includes 24x5 email support, with 24x7 SLA support available
+* Documentation is organized by organization, giving more control over permissions
+
+You can sign up for an account at https://readthedocs.com.
+
+Questions?
+~~~~~~~~~~
+
+If you have a question about which platform would be best,
+email us at support@readthedocs.org.
