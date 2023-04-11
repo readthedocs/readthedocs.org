@@ -1,0 +1,112 @@
+<html>
+
+<body>
+<h1>Here is a nice reference</h1>
+<dl class="http get">
+<dt class="sig sig-object http" id="get--api-v3-projects-">
+<span class="sig-name descname"><span class="pre">GET</span> </span><span class="sig-name descname"><span class="pre">/api/v3/projects/</span></span><a class="headerlink" href="#get--api-v3-projects-" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve a list of all the projects for the current logged in user.</p>
+<p><strong>Example request</strong>:</p>
+<div class="sphinx-tabs docutils container">
+<div aria-label="Tabbed content" class="closeable" role="tablist"><button aria-controls="panel-2-QmFzaA==" aria-selected="true" class="sphinx-tabs-tab code-tab group-tab" id="tab-2-QmFzaA==" name="QmFzaA==" role="tab" tabindex="0">Bash</button><button aria-controls="panel-2-UHl0aG9u" aria-selected="false" class="sphinx-tabs-tab code-tab group-tab" id="tab-2-UHl0aG9u" name="UHl0aG9u" role="tab" tabindex="-1">Python</button></div><div aria-labelledby="tab-2-QmFzaA==" class="sphinx-tabs-panel code-tab group-tab" id="panel-2-QmFzaA==" name="QmFzaA==" role="tabpanel" tabindex="0"><div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>curl<span class="w"> </span>-H<span class="w"> </span><span class="s2">&quot;Authorization: Token &lt;token&gt;&quot;</span><span class="w"> </span>https://readthedocs.org/api/v3/projects/
+</pre></div>
+</div>
+</div><div aria-labelledby="tab-2-UHl0aG9u" class="sphinx-tabs-panel code-tab group-tab" hidden="true" id="panel-2-UHl0aG9u" name="UHl0aG9u" role="tabpanel" tabindex="0"><div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+<span class="n">URL</span> <span class="o">=</span> <span class="s1">&#39;https://readthedocs.org/api/v3/projects/&#39;</span>
+<span class="n">TOKEN</span> <span class="o">=</span> <span class="s1">&#39;&lt;token&gt;&#39;</span>
+<span class="n">HEADERS</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Authorization&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s1">&#39;token </span><span class="si">{</span><span class="n">TOKEN</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">}</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">URL</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">HEADERS</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">())</span>
+</pre></div>
+</div>
+</div></div>
+<p><strong>Example response</strong>:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;next&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/v3/projects/?limit=10&amp;offset=10&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;previous&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;results&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span>
+<span class="w">        </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12345</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Pip&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;slug&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pip&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;created&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2010-10-23T18:12:31+00:00&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;modified&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2018-12-11T07:21:11+00:00&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;language&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;en&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;English&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;programming_language&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;py&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Python&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;repository&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://github.com/pypa/pip&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;git&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;default_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;stable&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;default_branch&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;master&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;subproject_of&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;translation_of&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;urls&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;documentation&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://pip.pypa.io/en/stable/&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;home&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://pip.pypa.io/&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;tags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="s2">&quot;distutils&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;easy_install&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;egg&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;setuptools&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="s2">&quot;virtualenv&quot;</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;users&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;username&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dstufft&quot;</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">],</span>
+<span class="w">        </span><span class="nt">&quot;active_versions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;stable&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{VERSION}&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;latest&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{VERSION}&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;19.0.2&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;{VERSION}&quot;</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;_links&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;_self&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/v3/projects/pip/&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;versions&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/v3/projects/pip/versions/&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;builds&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/v3/projects/pip/builds/&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;subprojects&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/v3/projects/pip/subprojects/&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;superproject&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/v3/projects/pip/superproject/&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;redirects&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/v3/projects/pip/redirects/&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;translations&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;/api/v3/projects/pip/translations/&quot;</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Query Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>string</em>) – return projects with matching name</p></li>
+<li><p><strong>slug</strong> (<em>string</em>) – return projects with matching slug</p></li>
+<li><p><strong>language</strong> (<em>string</em>) – language code as <code class="docutils literal notranslate"><span class="pre">en</span></code>, <code class="docutils literal notranslate"><span class="pre">es</span></code>, <code class="docutils literal notranslate"><span class="pre">ru</span></code>, etc.</p></li>
+<li><p><strong>programming_language</strong> (<em>string</em>) – programming language code as <code class="docutils literal notranslate"><span class="pre">py</span></code>, <code class="docutils literal notranslate"><span class="pre">js</span></code>, etc.</p></li>
+</ul>
+</dd>
+</dl>
+<p>The <code class="docutils literal notranslate"><span class="pre">results</span></code> in response is an array of project data,
+which is same as <a class="reference internal" href="#get--api-v3-projects-(string-project_slug)-" title="GET /api/v3/projects/(string:project_slug)/"><code class="xref http http-get docutils literal notranslate"><span class="pre">GET</span> <span class="pre">/api/v3/projects/(string:project_slug)/</span></code></a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<blockquote>
+<div></div></blockquote>
+<p><a class="reference internal" href="../commercial/index.html"><span class="doc">Read the Docs for Business</span></a>, also accepts</p>
+<dl class="field-list simple">
+<dt class="field-odd">Query Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>expand</strong> (<em>string</em>) – with <code class="docutils literal notranslate"><span class="pre">organization</span></code> and <code class="docutils literal notranslate"><span class="pre">teams</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+</dd></dl>
+
+</body>
+</html>
