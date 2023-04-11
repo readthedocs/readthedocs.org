@@ -12,7 +12,7 @@ we explain some of the more specific or advanced concepts of writing documentati
     Learn more about multilingual documentation projects and how translation workflows are supported.
 
 ⏩️ :doc:`/downloadable-documentation`
-    An introduction to adding downloadable files to your documentation and keep them versioned.
+    An introduction to adding downloadable files that can be read offline to your documentation and keep them versioned.
 
 ⏩️ :doc:`/environment-variables`
     Environment variables can be used to make your documentation builds flexible and easy to customize.
