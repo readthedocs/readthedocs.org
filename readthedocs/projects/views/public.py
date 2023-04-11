@@ -369,7 +369,7 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
                 slug=version_slug,
             )
 
-            if not self.allowed_user(request, project, version.slug):
+            if not self.allowed_user(request, version):
                 return self.get_unauthed_response(request, project)
 
             # All public versions can be cached.

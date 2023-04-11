@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.99
+boto3==1.26.109
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.99
+botocore==1.29.109
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -84,7 +84,7 @@ cssselect==1.2.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
-cython==0.29.33
+cython==0.29.34
     # via
     #   -r requirements/pip.txt
     #   selectolax
@@ -126,7 +126,7 @@ django-allauth==0.51.0
     # via -r requirements/pip.txt
 django-annoying==0.10.6
     # via -r requirements/pip.txt
-django-autoslug==1.9.8
+django-autoslug==1.9.9
     # via -r requirements/pip.txt
 django-cacheops==7.0
     # via -r requirements/pip.txt
@@ -136,13 +136,13 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.7
     # via -r requirements/pip.txt
-django-debug-toolbar==3.8.1
+django-debug-toolbar==4.0.0
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==7.3
     # via -r requirements/pip.txt
 django-extensions==3.2.1
     # via -r requirements/pip.txt
-django-filter==22.1
+django-filter==23.1
     # via -r requirements/pip.txt
 django-formtools==2.3
     # via -r requirements/pip.txt
@@ -196,7 +196,7 @@ elasticsearch-dsl==7.4.1
     #   django-elasticsearch-dsl
 executing==1.2.0
     # via stack-data
-filelock==3.10.5
+filelock==3.11.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -220,7 +220,7 @@ imagesize==1.4.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
-ipython==8.11.0
+ipython==8.12.0
     # via -r requirements/deploy.in
 jedi==0.18.2
     # via ipython
@@ -259,7 +259,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.8
+orjson==3.8.9
     # via -r requirements/pip.txt
 packaging==23.0
     # via
@@ -273,7 +273,7 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-pillow==9.4.0
+pillow==9.5.0
     # via -r requirements/deploy.in
 platformdirs==3.2.0
     # via
@@ -284,7 +284,7 @@ prompt-toolkit==3.0.38
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg2==2.9.5
+psycopg2==2.9.6
     # via -r requirements/deploy.in
 ptyprocess==0.7.0
     # via pexpect
@@ -314,7 +314,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2023.2
+pytz==2023.3
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -322,7 +322,7 @@ pytz==2023.2
     #   djangorestframework
 pyyaml==5.4.1
     # via -r requirements/pip.txt
-redis==4.5.3
+redis==4.5.4
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -351,7 +351,7 @@ s3transfer==0.6.0
     #   boto3
 selectolax==0.3.12
     # via -r requirements/pip.txt
-sentry-sdk==1.17.0
+sentry-sdk==1.19.1
     # via structlog-sentry
 six==1.16.0
     # via
@@ -410,7 +410,7 @@ stripe==4.2.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-structlog==22.3.0
+structlog==23.1.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog

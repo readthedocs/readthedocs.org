@@ -54,7 +54,8 @@
                 "documentation": "http://project.readthedocs.io/en/v1.0/",
                 "vcs": "https://github.com/rtfd/project/tree/v1.0/"
             },
-            "verbose_name": "v1.0"
+            "verbose_name": "v1.0",
+            "privacy_level": "public"
         }
     ],
     "created": "2019-04-29T10:00:00Z",
@@ -104,5 +105,7 @@
         {
             "username": "testuser"
         }
-    ]
+    ],
+    "privacy_level": "public",
+    "external_builds_privacy_level": "public"
 }
