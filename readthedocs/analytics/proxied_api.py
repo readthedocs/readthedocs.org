@@ -53,11 +53,12 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
         project = self._get_project()
         version = self._get_version()
         absolute_uri = self.request.GET.get('absolute_uri')
-        self.increase_page_view_count(
-            project=project,
-            version=version,
-            absolute_uri=absolute_uri,
-        )
+        if absolute_uri:
+            self.increase_page_view_count(
+                project=project,
+                version=version,
+                absolute_uri=absolute_uri,
+            )
         return Response(status=200)
 
     # pylint: disable=no-self-use

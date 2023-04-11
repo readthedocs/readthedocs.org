@@ -16,9 +16,9 @@ babel==2.12.1
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.26.99
+boto3==1.26.109
     # via django-storages
-botocore==1.29.99
+botocore==1.29.109
     # via
     #   boto3
     #   s3transfer
@@ -48,7 +48,7 @@ cryptography==40.0.1
     # via pyjwt
 cssselect==1.2.0
     # via pyquery
-cython==0.29.33
+cython==0.29.34
     # via selectolax
 defusedxml==0.7.1
     # via python3-openid
@@ -82,7 +82,7 @@ django-allauth==0.51.0
     # via -r requirements/pip.in
 django-annoying==0.10.6
     # via -r requirements/pip.in
-django-autoslug==1.9.8
+django-autoslug==1.9.9
     # via -r requirements/pip.in
 django-cacheops==7.0
     # via -r requirements/pip.in
@@ -92,13 +92,13 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.in
 django-csp==3.7
     # via -r requirements/pip.in
-django-debug-toolbar==3.8.1
+django-debug-toolbar==4.0.0
     # via -r requirements/pip.in
 django-elasticsearch-dsl==7.3
     # via -r requirements/pip.in
 django-extensions==3.2.1
     # via -r requirements/pip.in
-django-filter==22.1
+django-filter==23.1
     # via -r requirements/pip.in
 django-formtools==2.3
     # via -r requirements/pip.in
@@ -148,7 +148,7 @@ elasticsearch-dsl==7.4.1
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
-filelock==3.10.5
+filelock==3.11.0
     # via virtualenv
 funcy==1.18
     # via django-cacheops
@@ -182,7 +182,7 @@ markupsafe==2.1.2
     # via jinja2
 oauthlib==3.2.2
     # via requests-oauthlib
-orjson==3.8.8
+orjson==3.8.9
     # via -r requirements/pip.in
 packaging==23.0
     # via
@@ -211,7 +211,7 @@ python-dateutil==2.8.2
     #   elasticsearch-dsl
 python3-openid==3.2.0
     # via django-allauth
-pytz==2023.2
+pytz==2023.3
     # via
     #   -r requirements/pip.in
     #   celery
@@ -219,7 +219,7 @@ pytz==2023.2
     #   djangorestframework
 pyyaml==5.4.1
     # via -r requirements/pip.in
-redis==4.5.3
+redis==4.5.4
     # via
     #   django-cacheops
     #   django-redis
@@ -281,7 +281,7 @@ stripe==4.2.0
     # via
     #   -r requirements/pip.in
     #   dj-stripe
-structlog==22.3.0
+structlog==23.1.0
     # via
     #   -r requirements/pip.in
     #   django-structlog

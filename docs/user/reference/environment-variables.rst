@@ -18,7 +18,11 @@ All :doc:`build processes </builds>` have the following environment variables au
     The locale name, or the identifier for the locale, for the project being built.
     This value comes from the project's configured language.
 
-    :Examples: ``en``, ``it``, ``de_AT``, ``es``, ``pt_BR``
+    :Example: ``en``
+    :Example: ``it``
+    :Example: ``de_AT``
+    :Example: ``es``
+    :Example: ``pt_BR``
 
 .. envvar:: READTHEDOCS_VERSION
 
@@ -35,7 +39,10 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     The type of the version being built.
 
-    :Values: ``branch``, ``tag``, ``external`` (for :doc:`pull request builds </pull-requests>`), or ``unknown``
+    :Example: ``branch``
+    :Example: ``tag``
+    :Example: ``external`` (for :doc:`pull request builds </pull-requests>`)
+    :Example: ``unknown``
 
 .. envvar:: READTHEDOCS_VIRTUALENV_PATH
 

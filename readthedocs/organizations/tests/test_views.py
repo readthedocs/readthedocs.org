@@ -16,6 +16,7 @@ from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
+from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
@@ -147,7 +148,12 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         self.assertNotIn(user_b, self.organization.owners.all())
 
 
-@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    RTD_DEFAULT_FEATURES={
+        TYPE_AUDIT_LOGS: 90,
+    },
+)
 class OrganizationSecurityLogTests(TestCase):
 
     def setUp(self):

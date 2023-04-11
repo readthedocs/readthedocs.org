@@ -26,11 +26,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-28 09:25+0000\n"
+"POT-Creation-Date: 2023-04-11 13:41+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Leonardo J. Caballero G. <leonardocaballero@gmail.com>, "
 "2015,2017-2020,2022\n"
-"Language-Team: Spanish (http://www.transifex.com/readthedocs/readthedocs/"
+"Language-Team: Spanish (http://app.transifex.com/readthedocs/readthedocs/"
 "language/es/)\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
@@ -133,22 +133,22 @@ msgstr "Alojado por"
 msgid "Privacy Policy"
 msgstr "Política de privacidad"
 
-#: api/v3/serializers.py:496
+#: api/v3/serializers.py:516
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "Nombre de proyecto no válido \"{0}\": no se generó ningún slug."
 
-#: api/v3/serializers.py:500
+#: api/v3/serializers.py:520
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "El proyecto con slug \"{0}\" ya existe."
 
-#: api/v3/serializers.py:706
+#: api/v3/serializers.py:738
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "El proyecto con {slug_name}={value} no es válido como subproyecto"
 
-#: api/v3/serializers.py:714 projects/forms.py:465
+#: api/v3/serializers.py:746 projects/forms.py:465
 msgid "A subproject with this alias already exists"
 msgstr "Ya existe un subproyecto con este alias"
 
@@ -174,8 +174,8 @@ msgstr "Autenticación fallida"
 msgid "Log out"
 msgstr ""
 
-#: audit/models.py:91 organizations/views/private.py:104
-#: organizations/views/private.py:169 projects/views/private.py:475
+#: audit/models.py:91 organizations/views/private.py:105
+#: organizations/views/private.py:170 projects/views/private.py:480
 msgid "Invitation sent"
 msgstr "Invitación enviada"
 
@@ -217,7 +217,7 @@ msgstr "ID de Proyecto"
 msgid "Project slug"
 msgstr "Slug de proyecto"
 
-#: audit/models.py:160 oauth/models.py:122 subscriptions/models.py:175
+#: audit/models.py:160 oauth/models.py:122 subscriptions/models.py:138
 msgid "Organization"
 msgstr "Organización"
 
@@ -441,10 +441,8 @@ msgid "Active"
 msgstr "Activo"
 
 #: builds/filters.py:27
-#, fuzzy
-#| msgid "Flagging successful"
 msgid "Build successful"
-msgstr "Marcado con éxito"
+msgstr ""
 
 #: builds/filters.py:28 projects/models.py:1530
 #: templates/builds/build_detail.html:143
@@ -469,7 +467,7 @@ msgid "Any"
 msgstr "Cualquier"
 
 #: builds/filters.py:47 builds/models.py:113 builds/models.py:637
-#: sphinx_domains/models.py:59 subscriptions/models.py:134
+#: sphinx_domains/models.py:59 subscriptions/models.py:97
 msgid "Type"
 msgstr "Tipo"
 
@@ -512,7 +510,7 @@ msgid "Verbose Name"
 msgstr "Nombre descriptivo"
 
 #: builds/models.py:141 oauth/models.py:32 organizations/models.py:52
-#: projects/models.py:134 subscriptions/models.py:35
+#: projects/models.py:134 subscriptions/models.py:33
 msgid "Slug"
 msgstr "Indicación"
 
@@ -665,8 +663,8 @@ msgid "Command"
 msgstr "Comando"
 
 #: builds/models.py:1052 builds/models.py:1112 oauth/models.py:135
-#: organizations/models.py:66 projects/models.py:136 subscriptions/models.py:30
-#: subscriptions/models.py:137 templates/core/project_details.html:78
+#: organizations/models.py:66 projects/models.py:136 subscriptions/models.py:28
+#: subscriptions/models.py:100 templates/core/project_details.html:78
 msgid "Description"
 msgstr "Descripción"
 
@@ -712,8 +710,10 @@ msgid "Set version as default"
 msgstr "Establecer la versión como predeterminada"
 
 #: builds/models.py:1096
-msgid "Delete version (on branch/tag deletion)"
-msgstr "Eliminar versión (en la eliminación de rama/etiqueta)"
+#, fuzzy
+#| msgid "Default version"
+msgid "Delete version"
+msgstr "Versión predeterminada"
 
 #: builds/models.py:1108
 msgid "Rule priority"
@@ -760,6 +760,38 @@ msgid "Type of version the rule should be applied to"
 msgstr "Tipo de versión a la que se debe aplicar la regla"
 
 #: builds/models.py:1373
+#, fuzzy
+#| msgid "Webhook activated"
+msgid "Version activated"
+msgstr "Webhook activado"
+
+#: builds/models.py:1374
+#, fuzzy
+#| msgid "Version name"
+msgid "Version hidden"
+msgstr "Nombre de versión"
+
+#: builds/models.py:1376
+msgid "Version set to public privacy"
+msgstr ""
+
+#: builds/models.py:1379
+msgid "Version set to private privacy"
+msgstr ""
+
+#: builds/models.py:1381
+#, fuzzy
+#| msgid "Set version as default"
+msgid "Version set as default"
+msgstr "Establecer la versión como predeterminada"
+
+#: builds/models.py:1382
+#, fuzzy
+#| msgid "Version type"
+msgid "Version deleted"
+msgstr "Tipo de versión"
+
+#: builds/models.py:1387
 msgid "Matched rule"
 msgstr "Regla coincidente"
 
@@ -892,7 +924,7 @@ msgstr ""
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr "Tipo de repositorio \"{repo_type}\" desconocido"
 
-#: doc_builder/environments.py:393
+#: doc_builder/environments.py:346
 msgid ""
 "\n"
 "\n"
@@ -902,24 +934,24 @@ msgstr ""
 "\n"
 "Command killed due to timeout or excessive memory consumption\n"
 
-#: doc_builder/environments.py:399
+#: doc_builder/environments.py:352
 msgid "Command exited abnormally"
 msgstr "El comando terminó de forma irregular"
 
-#: doc_builder/environments.py:687
+#: doc_builder/environments.py:651
 msgid "A build environment is currently running for this version"
 msgstr ""
 "Un entorno de compilación está actualmente ejecutándose para esta versión"
 
-#: doc_builder/environments.py:847
+#: doc_builder/environments.py:811
 msgid "Build exited due to time out"
 msgstr "Compilación cancelada por exceso de tiempo de espera."
 
-#: doc_builder/environments.py:852
+#: doc_builder/environments.py:816
 msgid "Build exited due to excessive memory consumption"
 msgstr "Compilación cancelada debido a un consumo excesivo de memoria"
 
-#: doc_builder/environments.py:858
+#: doc_builder/environments.py:822
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr "Compilación cancelada por un error desconocido:  {0}"
@@ -1070,14 +1102,14 @@ msgstr "Este proyecto ya no tiene publicidad."
 
 #: gold/models.py:28 organizations/models.py:33 organizations/models.py:218
 #: organizations/models.py:292 projects/models.py:123
-#: subscriptions/models.py:24 subscriptions/models.py:126
+#: subscriptions/models.py:22 subscriptions/models.py:89
 msgid "Publication date"
 msgstr "Fecha de publicación"
 
 #: gold/models.py:29 organizations/models.py:34 organizations/models.py:219
 #: organizations/models.py:293 projects/models.py:124 projects/models.py:1424
-#: subscriptions/models.py:25 subscriptions/models.py:127
-#: subscriptions/models.py:183
+#: subscriptions/models.py:23 subscriptions/models.py:90
+#: subscriptions/models.py:146
 msgid "Modified date"
 msgstr "Fecha de modificación"
 
@@ -1392,7 +1424,7 @@ msgstr "Usuarios"
 #: oauth/models.py:33 oauth/models.py:128 organizations/models.py:50
 #: organizations/models.py:242 projects/filters.py:42 projects/filters.py:107
 #: projects/models.py:133 projects/models.py:1416 sphinx_domains/models.py:51
-#: subscriptions/models.py:28
+#: subscriptions/models.py:26
 msgid "Name"
 msgstr "Nombre"
 
@@ -2012,35 +2044,35 @@ msgstr "Actualizar Proyectos"
 msgid "Verify your email address"
 msgstr "Verifique su dirección de correo electrónico"
 
-#: organizations/views/private.py:113
+#: organizations/views/private.py:114
 msgid "Owner removed"
 msgstr "Propietario eliminado"
 
-#: organizations/views/private.py:118
+#: organizations/views/private.py:119
 msgid "User is the last owner, can't be removed"
 msgstr "El usuario es el último propietario, no se puede eliminar"
 
-#: organizations/views/private.py:126
+#: organizations/views/private.py:127
 msgid "Team added"
 msgstr "Equipo agregado"
 
-#: organizations/views/private.py:136
+#: organizations/views/private.py:137
 msgid "Team deleted"
 msgstr "Equipo eliminado"
 
-#: organizations/views/private.py:153
+#: organizations/views/private.py:154
 msgid "Team updated"
 msgstr "Equipo actualizado"
 
-#: organizations/views/private.py:158
+#: organizations/views/private.py:159
 msgid "Team projects updated"
 msgstr "Proyectos de equipo actualizados"
 
-#: organizations/views/private.py:171
+#: organizations/views/private.py:172
 msgid "Member added to team"
 msgstr "Miembro agregado al equipo"
 
-#: organizations/views/private.py:176
+#: organizations/views/private.py:177
 msgid "Member removed from team"
 msgstr "Miembro eliminado del equipo"
 
@@ -2229,20 +2261,16 @@ msgstr ""
 "para obtener más información."
 
 #: projects/filters.py:35 projects/filters.py:98
-#, fuzzy
-#| msgid "Most recently built"
 msgid "Recently built"
-msgstr "Construido más recientemente"
+msgstr ""
 
 #: projects/filters.py:39 projects/filters.py:102
 msgid "Least recently built"
 msgstr "Construcción menos reciente"
 
 #: projects/filters.py:40 projects/filters.py:103
-#, fuzzy
-#| msgid "Most frequently built"
 msgid "Frequently built"
-msgstr "Construido con mayor frecuencia"
+msgstr ""
 
 #: projects/filters.py:41 projects/filters.py:104
 msgid "Least frequently built"
@@ -2253,10 +2281,8 @@ msgid "Name (descending)"
 msgstr "Nombre (descendente)"
 
 #: projects/filters.py:105
-#, fuzzy
-#| msgid "Most recently modified"
 msgid "Recently modified"
-msgstr "Modificado más recientemente"
+msgstr ""
 
 #: projects/filters.py:106
 msgid "Least recently modified"
@@ -2347,27 +2373,27 @@ msgstr "El usuario %(username)s ya es mantenedor"
 msgid "The payload must be a valid JSON object."
 msgstr "El payload debe ser un objeto JSON válido."
 
-#: projects/forms.py:751
+#: projects/forms.py:756
 msgid "Only one domain can be canonical at a time."
 msgstr "Solo un dominio puede ser canónico a la vez."
 
-#: projects/forms.py:858
+#: projects/forms.py:859
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "El nombre de la variable no puede empezar con __ (doble subrayado)"
 
-#: projects/forms.py:862
+#: projects/forms.py:863
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "El nombre de la variable no puede comenzar con READTHEDOCS"
 
-#: projects/forms.py:867
+#: projects/forms.py:868
 msgid "There is already a variable with this name for this project"
 msgstr "Ya existe una variable con este nombre en este proyecto"
 
-#: projects/forms.py:872
+#: projects/forms.py:873
 msgid "Variable name can't contain spaces"
 msgstr "El nombre de la variable no puede tener espacios"
 
-#: projects/forms.py:876
+#: projects/forms.py:877
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Sólo están permitidos los números, letras y subrayado"
 
@@ -3104,15 +3130,15 @@ msgstr "Caracter no válido en la URL"
 msgid "Invalid scheme for URL"
 msgstr "Esquema no válido para URL"
 
-#: projects/views/private.py:150 projects/views/private.py:160
+#: projects/views/private.py:155 projects/views/private.py:165
 msgid "Project settings updated"
 msgstr "Configuración del proyecto actualizada"
 
-#: projects/views/private.py:169
+#: projects/views/private.py:174
 msgid "Project deleted"
 msgstr "Proyecto borrado"
 
-#: projects/views/private.py:387
+#: projects/views/private.py:392
 #, python-brace-format
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
@@ -3121,12 +3147,12 @@ msgstr ""
 "Hay un problema con tu cuenta de {service}, intenta volver a conectar tu "
 "cuenta en tu <a href=\"{url}\">página de servicios conectados</a>."
 
-#: projects/views/private.py:509
+#: projects/views/private.py:514
 #, python-brace-format
 msgid "{username} is the last owner, can't be removed"
 msgstr "{username} es el último propietario, no se puede eliminar"
 
-#: projects/views/private.py:975
+#: projects/views/private.py:968
 msgid "Project has been opted out from advertisement support"
 msgstr "El proyecto ha sido excluido del soporte publicitario"
 
@@ -3269,67 +3295,67 @@ msgstr "Consulta"
 msgid "Total results"
 msgstr "Resultados totales"
 
-#: settings/base.py:412
+#: settings/base.py:432
 msgid "Catalan"
 msgstr "Catalán"
 
-#: settings/base.py:413
+#: settings/base.py:433
 msgid "English"
 msgstr "Inglés"
 
-#: settings/base.py:414
+#: settings/base.py:434
 msgid "Spanish"
 msgstr "Español"
 
-#: settings/base.py:415
+#: settings/base.py:435
 msgid "Brazilian Portuguese"
 msgstr "Portugués brasileño"
 
-#: settings/base.py:416
+#: settings/base.py:436
 msgid "Norwegian Bokmål"
 msgstr "Noruego bokmål"
 
-#: settings/base.py:417
+#: settings/base.py:437
 msgid "French"
 msgstr "Francés"
 
-#: settings/base.py:418
+#: settings/base.py:438
 msgid "Russian"
 msgstr "Ruso"
 
-#: settings/base.py:419
+#: settings/base.py:439
 msgid "German"
 msgstr "Alemán"
 
-#: settings/base.py:420
+#: settings/base.py:440
 msgid "Galician"
 msgstr "Gallego"
 
-#: settings/base.py:421
+#: settings/base.py:441
 msgid "Vietnamese"
 msgstr "Vietnamita"
 
-#: settings/base.py:422
+#: settings/base.py:442
 msgid "Simplified Chinese"
 msgstr "Chino simplificado"
 
-#: settings/base.py:423
+#: settings/base.py:443
 msgid "Traditional Chinese"
 msgstr "Chino tradicional"
 
-#: settings/base.py:424
+#: settings/base.py:444
 msgid "Japanese"
 msgstr "Japonés"
 
-#: settings/base.py:425
+#: settings/base.py:445
 msgid "Ukrainian"
 msgstr "Ucraniano"
 
-#: settings/base.py:426
+#: settings/base.py:446
 msgid "Italian"
 msgstr "Italiano"
 
-#: settings/base.py:427
+#: settings/base.py:447
 msgid "Korean"
 msgstr "Coreano"
 
@@ -3353,6 +3379,58 @@ msgstr "Visualización de documentos"
 msgid "Anchor"
 msgstr "Ancla"
 
+#: subscriptions/constants.py:26
+msgid "Custom domain"
+msgstr "Dominio personalizado"
+
+#: subscriptions/constants.py:27
+msgid "CDN public documentation"
+msgstr "Documentación pública de CDN"
+
+#: subscriptions/constants.py:28
+msgid "Custom SSL configuration"
+msgstr "Configuración SSL personalizada"
+
+#: subscriptions/constants.py:29
+msgid "Support SLA"
+msgstr "SLA de soporte"
+
+#: subscriptions/constants.py:30
+msgid "Private documentation"
+msgstr "Documentación privada"
+
+#: subscriptions/constants.py:31
+msgid "Embed content via API"
+msgstr "Incrustar contenido a través de API"
+
+#: subscriptions/constants.py:32
+msgid "Search analytics"
+msgstr "Análisis de búsqueda"
+
+#: subscriptions/constants.py:33
+msgid "Pageview analytics"
+msgstr "Análisis de páginas vistas"
+
+#: subscriptions/constants.py:34
+msgid "Concurrent builds"
+msgstr "Construcciones simultáneas"
+
+#: subscriptions/constants.py:35
+msgid "Single sign on (SSO) with Google"
+msgstr "Inicio de sesión único (SSO) con Google"
+
+#: subscriptions/constants.py:36
+msgid "Custom URLs"
+msgstr "Direcciones URLs personalizadas"
+
+#: subscriptions/constants.py:37
+msgid "Audit logs"
+msgstr "Registros de auditoria"
+
+#: subscriptions/constants.py:38
+msgid "Record every page view"
+msgstr "Registre cada vista de página"
+
 #: subscriptions/forms.py:24
 #, python-brace-format
 msgid ""
@@ -3362,113 +3440,61 @@ msgstr ""
 "Consulte nuestra <a href=\"{pricing_page}\">página de precios</a> para "
 "obtener más información sobre cada plan."
 
-#: subscriptions/models.py:36
+#: subscriptions/models.py:34
 msgid "Stripe ID"
 msgstr "ID de Stripe"
 
-#: subscriptions/models.py:37
+#: subscriptions/models.py:35
 msgid "Price"
 msgstr "Precio"
 
-#: subscriptions/models.py:38
+#: subscriptions/models.py:36
 msgid "Trial"
 msgstr "Prueba"
 
-#: subscriptions/models.py:43
+#: subscriptions/models.py:41
 msgid "For organizations"
 msgstr "Para organizaciones"
 
-#: subscriptions/models.py:51
+#: subscriptions/models.py:49
 msgid "Published"
 msgstr "Publicado"
 
-#: subscriptions/models.py:110
-msgid "Custom domain"
-msgstr "Dominio personalizado"
-
-#: subscriptions/models.py:111
-msgid "CDN public documentation"
-msgstr "Documentación pública de CDN"
-
-#: subscriptions/models.py:112
-msgid "Custom SSL configuration"
-msgstr "Configuración SSL personalizada"
-
-#: subscriptions/models.py:113
-msgid "Support SLA"
-msgstr "SLA de soporte"
-
-#: subscriptions/models.py:114
-msgid "Private documentation"
-msgstr "Documentación privada"
-
-#: subscriptions/models.py:115
-msgid "Embed content via API"
-msgstr "Incrustar contenido a través de API"
-
-#: subscriptions/models.py:116
-msgid "Search analytics"
-msgstr "Análisis de búsqueda"
-
-#: subscriptions/models.py:117
-msgid "Pageview analytics"
-msgstr "Análisis de páginas vistas"
-
-#: subscriptions/models.py:118
-msgid "Concurrent builds"
-msgstr "Construcciones simultáneas"
-
-#: subscriptions/models.py:119
-msgid "Single sign on (SSO) with Google"
-msgstr "Inicio de sesión único (SSO) con Google"
-
-#: subscriptions/models.py:120
-msgid "Custom URLs"
-msgstr "Direcciones URLs personalizadas"
-
-#: subscriptions/models.py:121
-msgid "Audit logs"
-msgstr "Registros de auditoria"
-
-#: subscriptions/models.py:122
-msgid "Record every page view"
-msgstr "Registre cada vista de página"
-
-#: subscriptions/models.py:135
+#: subscriptions/models.py:98
 msgid "Numeric value"
 msgstr "Valor numérico"
 
-#: subscriptions/models.py:169
+#: subscriptions/models.py:132
 #: subscriptions/templates/subscriptions/subscription_detail.html:31
 msgid "Plan"
 msgstr "Plan"
 
-#: subscriptions/models.py:179
+#: subscriptions/models.py:142
 msgid "Locked plan"
 msgstr "Plan bloqueado"
 
-#: subscriptions/models.py:181
+#: subscriptions/models.py:144
 msgid "Locked plan for custom contracts"
 msgstr "Plan bloqueado para contratos personalizados"
 
-#: subscriptions/models.py:188
+#: subscriptions/models.py:151
 msgid "Stripe subscription ID"
 msgstr "ID de suscripción de Stripe"
 
-#: subscriptions/models.py:193
+#: subscriptions/models.py:156
 #: subscriptions/templates/subscriptions/subscription_detail.html:62
 msgid "Subscription status"
 msgstr "Estado de suscripción"
 
-#: subscriptions/models.py:194
+#: subscriptions/models.py:157
 msgid "Start date"
 msgstr "Fecha de inicio"
 
-#: subscriptions/models.py:196
+#: subscriptions/models.py:159
 msgid "End date"
 msgstr "Fecha de fin"
 
-#: subscriptions/models.py:202
+#: subscriptions/models.py:165
 msgid "Trial end date"
 msgstr "Fecha final de prueba"
 
@@ -5875,8 +5901,5 @@ msgid ""
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
 
-#~ msgid "Build finished"
-#~ msgstr "Compilación terminada"
-
-#~ msgid "Relevance"
-#~ msgstr "Relevancia"
+#~ msgid "Delete version (on branch/tag deletion)"
+#~ msgstr "Eliminar versión (en la eliminación de rama/etiqueta)"
