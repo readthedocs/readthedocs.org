@@ -35,6 +35,7 @@ class RTDProductFeature:
 
 @dataclass(slots=True)
 class RTDProduct:
+
     """A local representation of a Stripe product."""
 
     stripe_id: str
