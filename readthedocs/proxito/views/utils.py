@@ -3,8 +3,8 @@ import os
 import structlog
 from django.http import HttpResponse
 
+from readthedocs.core.exceptions import ProjectTranslationHttp404
 from readthedocs.projects.models import Project
-from readthedocs.proxito.exceptions import ProxitoProjectTranslationHttp404
 
 from ...core.views import server_error_404
 from .decorators import map_project_slug, map_subproject_slug
@@ -81,8 +81,8 @@ def _get_project_data_from_request(
         try:
             final_project = current_project.translations.get(language=lang_slug)
         except Project.DoesNotExist:
-            raise ProxitoProjectTranslationHttp404(
-                "Did not find translation",
+            raise ProjectTranslationHttp404(
+                message="Did not find translation",
                 project=current_project,
                 project_slug=current_project.slug,
                 translation_slug=lang_slug,

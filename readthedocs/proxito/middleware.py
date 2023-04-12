@@ -16,6 +16,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
+from readthedocs.core.exceptions import ProjectHttp404
 from readthedocs.core.unresolver import (
     InvalidCustomDomainError,
     InvalidExternalDomainError,
@@ -26,7 +27,6 @@ from readthedocs.core.unresolver import (
 )
 from readthedocs.core.utils import get_cache_tag
 from readthedocs.projects.models import Feature, Project
-from readthedocs.proxito.exceptions import ProxitoProjectHttp404
 
 log = structlog.get_logger(__name__)
 
@@ -224,8 +224,8 @@ class ProxitoMiddleware(MiddlewareMixin):
             # We pass e.domain as 'project_slug' because we cannot unpack a slug from the
             # domain at this stage. The domain can be a custom domain docs.foobar.tld,
             # in which case 'docs' would be an incorrect slug.
-            raise ProxitoProjectHttp404(
-                f"No project found for requested domain {exc.domain}.",
+            raise ProjectHttp404(
+                message=f"No project found for requested domain {exc.domain}.",
                 project_slug=exc.domain,
                 proxito_path=request.path,
             )
