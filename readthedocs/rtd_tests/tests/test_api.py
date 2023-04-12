@@ -61,6 +61,7 @@ from readthedocs.projects.models import (
     Project,
 )
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
+from readthedocs.subscriptions.products import RTDProductFeature
 
 super_auth = base64.b64encode(b'super:test').decode('utf-8')
 eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
@@ -847,9 +848,9 @@ class APITests(TestCase):
         )
 
     @override_settings(
-        RTD_DEFAULT_FEATURES={
-            TYPE_CONCURRENT_BUILDS: 4,
-        }
+        RTD_DEFAULT_FEATURES=dict(
+            [RTDProductFeature(type=TYPE_CONCURRENT_BUILDS, value=4).to_item()]
+        ),
     )
     def test_concurrent_builds(self):
         expected = {

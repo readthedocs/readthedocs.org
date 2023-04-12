@@ -5,6 +5,7 @@ from django_dynamic_fixture import get
 from readthedocs.projects.models import Feature
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.subscriptions.constants import TYPE_CNAME
+from readthedocs.subscriptions.products import RTDProductFeature
 
 from .base import BaseDocServing
 
@@ -12,9 +13,7 @@ from .base import BaseDocServing
 @override_settings(
     PUBLIC_DOMAIN='dev.readthedocs.io',
     PUBLIC_DOMAIN_USES_HTTPS=True,
-    RTD_DEFAULT_FEATURES={
-        TYPE_CNAME: 1,
-    },
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
 )
 class RedirectTests(BaseDocServing):
 

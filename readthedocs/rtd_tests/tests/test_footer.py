@@ -14,6 +14,7 @@ from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND, PUBLIC
 from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_CNAME
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 class BaseTestFooterHTML:
@@ -447,9 +448,7 @@ class TestVersionCompareFooter(TestCase):
 @pytest.mark.proxito
 @override_settings(
     PUBLIC_DOMAIN="readthedocs.io",
-    RTD_DEFAULT_FEATURES={
-        TYPE_CNAME: 1,
-    },
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
 )
 class TestFooterPerformance(TestCase):
     # The expected number of queries for generating the footer

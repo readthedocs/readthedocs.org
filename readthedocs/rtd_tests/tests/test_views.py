@@ -16,6 +16,7 @@ from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Feature, Project
 from readthedocs.subscriptions.constants import TYPE_SEARCH_ANALYTICS
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())
@@ -335,9 +336,9 @@ class BuildViewTests(TestCase):
 
 
 @override_settings(
-    RTD_DEFAULT_FEATURES={
-        TYPE_SEARCH_ANALYTICS: 90,
-    }
+    RTD_DEFAULT_FEATURES=dict(
+        [RTDProductFeature(type=TYPE_SEARCH_ANALYTICS, value=90).to_item()]
+    ),
 )
 class TestSearchAnalyticsView(TestCase):
 

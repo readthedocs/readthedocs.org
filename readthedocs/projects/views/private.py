@@ -1124,7 +1124,7 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             ('Total Results', 'total_results'),
         ]
         data = []
-        if self._is_enabled(project):
+        if feature:
             data = (
                 SearchQuery.objects.filter(
                     project=project,
@@ -1216,7 +1216,7 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             ('Views', 'view_count'),
         ]
         data = []
-        if self._is_enabled(project):
+        if feature:
             data = (
                 PageView.objects.filter(
                     project=project,

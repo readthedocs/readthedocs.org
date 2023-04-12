@@ -8,13 +8,12 @@ from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
 from readthedocs.subscriptions.constants import TYPE_CNAME
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @override_settings(
     PUBLIC_DOMAIN="readthedocs.org",
-    RTD_DEFAULT_FEATURES={
-        TYPE_CNAME: 1,
-    },
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
 )
 class ResolverBase(TestCase):
 
