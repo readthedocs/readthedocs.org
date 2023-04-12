@@ -11,7 +11,7 @@ from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.utils import slugify
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.constants import FEATURE_TYPES
-from readthedocs.subscriptions.managers import PlanFeatureManager, SubscriptionManager
+from readthedocs.subscriptions.managers import SubscriptionManager
 
 
 class Plan(models.Model):
@@ -102,7 +102,6 @@ class PlanFeature(models.Model):
         null=True,
         blank=True,
     )
-    objects = PlanFeatureManager()
 
     def __str__(self):
         return '{plan} feature: {feature}'.format(

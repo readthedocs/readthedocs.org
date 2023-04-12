@@ -2,7 +2,7 @@ from rest_framework.permissions import BasePermission, IsAuthenticated
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.subscriptions.constants import TYPE_EMBED_API
-from readthedocs.subscriptions.models import PlanFeature
+from readthedocs.subscriptions.products import get_feature
 
 
 class HasEmbedAPIAccess(BasePermission):
@@ -24,7 +24,7 @@ class HasEmbedAPIAccess(BasePermission):
     def has_permission(self, request, view):
         project = view._get_project()
         # The project is None when the is requesting a section from an external site.
-        if project and not PlanFeature.objects.has_feature(project, TYPE_EMBED_API):
+        if project and not get_feature(project, type=TYPE_EMBED_API):
             return False
         return True
 

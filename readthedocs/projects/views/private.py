@@ -84,7 +84,7 @@ from readthedocs.subscriptions.constants import (
     TYPE_PAGEVIEW_ANALYTICS,
     TYPE_SEARCH_ANALYTICS,
 )
-from readthedocs.subscriptions.models import PlanFeature
+from readthedocs.subscriptions.products import get_feature
 
 log = structlog.get_logger(__name__)
 
@@ -769,10 +769,7 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
         return context
 
     def _is_enabled(self, project):
-        return PlanFeature.objects.has_feature(
-            project,
-            type=self.feature_type,
-        )
+        return bool(get_feature(project, type=self.feature_type))
 
 
 class DomainList(DomainMixin, ListViewWithForm):
@@ -1080,7 +1077,7 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
-        enabled = self._is_enabled(project)
+        enabled = bool(self._get_feature(project))
         context.update({'enabled': enabled})
         if not enabled:
             return context
@@ -1115,12 +1112,11 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         """Generate raw csv data of search queries."""
         project = self.get_project()
         now = timezone.now().date()
-        retention_limit = self._get_retention_days_limit(project)
-        if retention_limit in [None, -1]:
-            # Unlimited.
+        feature = self._get_feature(project)
+        if feature.unlimited:
             days_ago = project.pub_date.date()
         else:
-            days_ago = now - timezone.timedelta(days=retention_limit)
+            days_ago = now - timezone.timedelta(days=feature.value)
 
         values = [
             ('Created Date', 'created'),
@@ -1151,19 +1147,8 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 
-    def _get_retention_days_limit(self, project):
-        """From how many days we need to show data for this project?"""
-        return PlanFeature.objects.get_feature_value(
-            project,
-            type=self.feature_type,
-        )
-
-    def _is_enabled(self, project):
-        """Should we show search analytics for this project?"""
-        return PlanFeature.objects.has_feature(
-            project,
-            type=self.feature_type,
-        )
+    def _get_feature(self, project):
+        return get_feature(project, type=self.feature_type)
 
 
 class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
@@ -1181,7 +1166,7 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
-        enabled = self._is_enabled(project)
+        enabled = bool(self._get_feature(project))
         context.update({'enabled': enabled})
         if not enabled:
             return context
@@ -1217,12 +1202,12 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def _get_csv_data(self):
         project = self.get_project()
         now = timezone.now().date()
-        retention_limit = self._get_retention_days_limit(project)
-        if retention_limit in [None, -1]:
+        feature = self._get_feature(project)
+        if feature.unlimited:
             # Unlimited.
             days_ago = project.pub_date.date()
         else:
-            days_ago = now - timezone.timedelta(days=retention_limit)
+            days_ago = now - timezone.timedelta(days=feature.value)
 
         values = [
             ('Date', 'date'),
@@ -1254,16 +1239,5 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 
-    def _get_retention_days_limit(self, project):
-        """From how many days we need to show data for this project?"""
-        return PlanFeature.objects.get_feature_value(
-            project,
-            type=self.feature_type,
-        )
-
-    def _is_enabled(self, project):
-        """Should we show traffic analytics for this project?"""
-        return PlanFeature.objects.has_feature(
-            project,
-            type=self.feature_type,
-        )
+    def _get_feature(self, project):
+        return get_feature(project, type=self.feature_type)

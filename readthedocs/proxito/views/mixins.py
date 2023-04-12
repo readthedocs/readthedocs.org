@@ -26,7 +26,7 @@ from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage, staticfiles_storage
 from readthedocs.subscriptions.constants import TYPE_AUDIT_PAGEVIEWS
-from readthedocs.subscriptions.models import PlanFeature
+from readthedocs.subscriptions.products import get_feature
 
 log = structlog.get_logger(__name__)
 
@@ -215,7 +215,7 @@ class ServeDocsMixin:
         This feature is different from page views analytics,
         as it records every page view individually with more metadata like the user, IP, etc.
         """
-        return PlanFeature.objects.has_feature(project, TYPE_AUDIT_PAGEVIEWS)
+        return bool(get_feature(project, type=TYPE_AUDIT_PAGEVIEWS))
 
     def _serve_static_file(self, request, filename):
         return self._serve_file(

@@ -5,6 +5,7 @@ from django.db.models import Count, OuterRef, Prefetch, Q, Subquery
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
+from readthedocs.subscriptions.products import get_feature
 
 
 class ProjectQuerySetBase(models.QuerySet):
@@ -105,7 +106,6 @@ class ProjectQuerySetBase(models.QuerySet):
         :rtype: int
         """
         from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
-        from readthedocs.subscriptions.models import PlanFeature
 
         max_concurrent_organization = None
         organization = project.organizations.first()
@@ -115,10 +115,10 @@ class ProjectQuerySetBase(models.QuerySet):
         return (
             project.max_concurrent_builds
             or max_concurrent_organization
-            or PlanFeature.objects.get_feature_value(
+            or get_feature(
                 project,
                 type=TYPE_CONCURRENT_BUILDS,
-            )
+            ).value
         )
 
     def prefetch_latest_build(self):
