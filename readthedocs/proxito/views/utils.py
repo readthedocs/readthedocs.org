@@ -1,10 +1,8 @@
 import os
 
 import structlog
-from django.http import Http404, HttpResponse
-from django.shortcuts import render
-
-from readthedocs.projects.models import Project
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, render
 
 from ...core.exceptions import ContextualizedHttp404
 from .decorators import map_project_slug, map_subproject_slug
@@ -91,10 +89,9 @@ def _get_project_data_from_request(
     if not lang_slug or lang_slug == current_project.language:
         final_project = current_project
     else:
-        try:
-            final_project = current_project.translations.get(language=lang_slug)
-        except Project.DoesNotExist:
-            raise Http404("Did not find translation")
+        final_project = get_object_or_404(
+            current_project.translations.all(), language=lang_slug
+        )
 
     # Handle single version by grabbing the default version
     # We might have version_slug when we're serving a PR
