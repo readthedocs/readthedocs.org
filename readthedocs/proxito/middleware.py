@@ -213,21 +213,21 @@ class ProxitoMiddleware(MiddlewareMixin):
             unresolved_domain = unresolver.unresolve_domain_from_request(request)
         except SuspiciousHostnameError as exc:
             log.warning("Weird variation on our hostname.", domain=exc.domain)
+            # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise DomainDNSHttp404(
                 http_status=400,
                 host=exc.domain,
             )
         except (InvalidSubdomainError, InvalidExternalDomainError) as exc:
             log.debug("Invalid project set on the subdomain.")
-            # We pass e.domain as 'project_slug' because we cannot unpack a slug from the
-            # domain at this stage. The domain can be a custom domain docs.foobar.tld,
-            # in which case 'docs' would be an incorrect slug.
+            # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise ProjectHttp404(
                 domain=exc.domain,
             )
         except InvalidCustomDomainError as exc:
             # Some person is CNAMEing to us without configuring a domain - 404.
             log.debug("CNAME 404.", domain=exc.domain)
+            # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise DomainDNSHttp404(
                 host=exc.domain,
             )

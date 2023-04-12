@@ -26,10 +26,12 @@ def proxito_404_page_handler(
     """
     Serves a 404 error message, handling 404 exception types raised throughout the app.
 
-    Notice that handling of 404 errors happens elsewhere in views and middleware,
-    this view is expected to serve an actual 404 message.
+    We want to return fast when the 404 is used as an internal NGINX redirect to
+    reach our ``ServeError404`` view. However, if the 404 exception was risen
+    inside ``ServeError404`` view, we want to render a useful HTML response.
     """
 
+    # This type of request should have a fast response with no HTML rendered
     if request.resolver_match and request.resolver_match.url_name != 'proxito_404_handler':
         return fast_404(request, exception, template_name)
 
