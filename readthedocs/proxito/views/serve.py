@@ -875,7 +875,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             version=version,
             filename=filename,
             lang_slug=project.language,
-            version_slug=version.slug,
             path_not_found=path,
         )
 
