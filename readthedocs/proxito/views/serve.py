@@ -152,28 +152,19 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         original_version_slug = version_slug
         version_slug = self.get_version_from_host(request, version_slug)
 
-        try:
-            (
-                final_project,
-                lang_slug,
-                version_slug,
-                filename,
-            ) = _get_project_data_from_request(  # noqa
-                request,
-                project_slug=project_slug,
-                subproject_slug=subproject_slug,
-                lang_slug=lang_slug,
-                version_slug=version_slug,
-                filename=filename,
-            )
-        except Http404:
-            if subproject_slug:
-                log.debug("Project expected to be a subproject was not found")
-                raise Http404(
-                    f"Could not find subproject '{subproject_slug}' in project {project_slug}",
-                )
-            raise
-        version = final_project.versions.filter(slug=version_slug).first()
+        (
+            final_project,
+            lang_slug,
+            version_slug,
+            filename,
+        ) = _get_project_data_from_request(  # noqa
+            request,
+            project_slug=project_slug,
+            subproject_slug=subproject_slug,
+            lang_slug=lang_slug,
+            version_slug=version_slug,
+            filename=filename,
+        )
 
         is_external = unresolved_domain.is_from_external_domain
         if (
@@ -550,28 +541,20 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         # resolves a project doesn't know if it's resolving a subproject or a normal project
         subproject_slug = kwargs.get("subproject_slug")
         project_slug = kwargs.get("project_slug")
-        try:
-            (
-                final_project,
-                lang_slug,
-                version_slug,
-                filename,
-            ) = _get_project_data_from_request(  # noqa
-                request,
-                project_slug,
-                subproject_slug,
-                lang_slug=kwargs.get("lang_slug"),
-                version_slug=version_slug,
-                filename=kwargs.get("filename", ""),
-                explicit_proxito_path=proxito_path,
-            )
-        except Http404 as e:
-            if subproject_slug:
-                log.debug("Project expected to be a subproject was not found")
-                raise Http404(
-                    f"Could not find subproject '{subproject_slug}' for project {e.project_slug}",
-                )
-            raise
+        (
+            final_project,
+            lang_slug,
+            version_slug,
+            filename,
+        ) = _get_project_data_from_request(  # noqa
+            request,
+            project_slug,
+            subproject_slug,
+            lang_slug=kwargs.get("lang_slug"),
+            version_slug=version_slug,
+            filename=kwargs.get("filename", ""),
+            explicit_proxito_path=proxito_path,
+        )
 
         log.bind(
             project_slug=final_project.slug,
@@ -581,7 +564,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         version = Version.objects.filter(
             project=final_project, slug=version_slug
         ).first()
-        bool(version)
 
         # If we were able to resolve to a valid version, it means that the
         # current file doesn't exist. So we check if we can redirect to its
