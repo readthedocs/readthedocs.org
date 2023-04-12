@@ -69,10 +69,10 @@ class TestReadTheDocsConfigJson(TestCase):
         return json.load(open(filename))
 
     def _normalize_datetime_fields(self, obj):
-        obj["project"]["created"] = "2019-04-29T10:00:00Z"
-        obj["project"]["modified"] = "2019-04-29T12:00:00Z"
-        obj["build"]["created"] = "2019-04-29T10:00:00Z"
-        obj["build"]["finished"] = "2019-04-29T10:01:00Z"
+        obj["projects"]["current"]["created"] = "2019-04-29T10:00:00Z"
+        obj["projects"]["current"]["modified"] = "2019-04-29T12:00:00Z"
+        obj["builds"]["current"]["created"] = "2019-04-29T10:00:00Z"
+        obj["builds"]["current"]["finished"] = "2019-04-29T10:01:00Z"
         return obj
 
     def test_get_config_v0(self):
