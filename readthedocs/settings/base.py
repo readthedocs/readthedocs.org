@@ -178,6 +178,9 @@ class CommunityBaseSettings(Settings):
             RTDProductFeature(type=constants.TYPE_CONCURRENT_BUILDS, value=self.RTD_MAX_CONCURRENT_BUILDS).to_item(),
         ))
 
+    # A dictionary of Stripe products mapped to a RTDProduct object.
+    # In .org we don't have subscriptions/products, default features are
+    # defined in RTD_DEFAULT_FEATURES.
     RTD_PRODUCTS = {}
 
     # Database and API hitting settings

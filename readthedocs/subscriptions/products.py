@@ -1,3 +1,9 @@
+"""
+Read the Docs products.
+
+This module contains the dataclasses that represent the products available.
+The available products are defined in the ``RTD_PRODUCTS`` setting.
+"""
 from dataclasses import dataclass
 
 from django.conf import settings
@@ -7,8 +13,11 @@ from readthedocs.subscriptions.constants import FEATURE_TYPES
 
 @dataclass(slots=True)
 class RTDProductFeature:
+    # readthedocs.subscriptions.constants.TYPE_*
     type: str
+    # Depending on the feature type, this number can represent a numeric limit, number of days, etc.
     value: int = 0
+    # If this feature is unlimited for this product.
     unlimited: bool = False
 
     @property
@@ -16,24 +25,39 @@ class RTDProductFeature:
         return dict(FEATURE_TYPES).get(self.type)
 
     def to_item(self):
-        return (self.type, self)
+        """
+        Return a tuple with the feature type and the feature itself.
+
+        Useful to use it as a dictionary item.
+        """
+        return self.type, self
 
 
 @dataclass(slots=True)
 class RTDProduct:
+    """A local representation of a Stripe product."""
+
     stripe_id: str
+    # If this product should be available to users to purchase.
     listed: bool
     features: dict[str, RTDProductFeature]
 
     def to_item(self):
-        return (self.stripe_id, self)
+        """
+        Return a tuple with the stripe_id and the product itself.
+
+        Useful to use it as a dictionary item.
+        """
+        return self.stripe_id, self
 
 
 def get_listed_products():
+    """Return a list of products that are available to users to purchase."""
     return [product for product in settings.RTD_PRODUCTS.values() if product.listed]
 
 
 def get_products_with_feature(feature):
+    """Return a list of products that have the given feature."""
     return [
         product
         for product in settings.RTD_PRODUCTS.values()
@@ -42,6 +66,14 @@ def get_products_with_feature(feature):
 
 
 def get_feature(obj, type) -> RTDProductFeature:
+    """
+    Get the feature object for the given type of the object.
+
+    If the object doesn't have the feature, return the default feature or None.
+
+    :param obj: An organization or project instance.
+    :param type: The type of the feature (readthedocs.subscriptions.constants.TYPE_*).
+    """
     # Hit the DB only if subscriptions are enabled.
     if settings.RTD_PRODUCTS:
         from djstripe import models as djstripe

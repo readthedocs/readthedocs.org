@@ -1113,6 +1113,8 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         project = self.get_project()
         now = timezone.now().date()
         feature = self._get_feature(project)
+        if not feature:
+            raise Http404
         if feature.unlimited:
             days_ago = project.pub_date.date()
         else:
@@ -1123,16 +1125,14 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             ('Query', 'query'),
             ('Total Results', 'total_results'),
         ]
-        data = []
-        if feature:
-            data = (
-                SearchQuery.objects.filter(
-                    project=project,
-                    created__date__gte=days_ago,
-                )
-                .order_by('-created')
-                .values_list(*[value for _, value in values])
+        data = (
+            SearchQuery.objects.filter(
+                project=project,
+                created__date__gte=days_ago,
             )
+            .order_by("-created")
+            .values_list(*[value for _, value in values])
+        )
 
         filename = 'readthedocs_search_analytics_{project_slug}_{start}_{end}.csv'.format(
             project_slug=project.slug,
@@ -1203,8 +1203,9 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         project = self.get_project()
         now = timezone.now().date()
         feature = self._get_feature(project)
+        if not feature:
+            raise Http404
         if feature.unlimited:
-            # Unlimited.
             days_ago = project.pub_date.date()
         else:
             days_ago = now - timezone.timedelta(days=feature.value)
@@ -1215,17 +1216,15 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             ('Path', 'path'),
             ('Views', 'view_count'),
         ]
-        data = []
-        if feature:
-            data = (
-                PageView.objects.filter(
-                    project=project,
-                    date__gte=days_ago,
-                    status=200,
-                )
-                .order_by('-date')
-                .values_list(*[value for _, value in values])
+        data = (
+            PageView.objects.filter(
+                project=project,
+                date__gte=days_ago,
+                status=200,
             )
+            .order_by("-date")
+            .values_list(*[value for _, value in values])
+        )
 
         filename = 'readthedocs_traffic_analytics_{project_slug}_{start}_{end}.csv'.format(
             project_slug=project.slug,

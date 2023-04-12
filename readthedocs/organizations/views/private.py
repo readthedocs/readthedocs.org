@@ -238,7 +238,7 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
         context = super().get_context_data(**kwargs)
         feature = self._get_feature(organization)
         context["enabled"] = bool(feature)
-        context["days_limit"] = feature.value
+        context["days_limit"] = feature.value if feature else 0
         context["filter"] = self.filter
         context["AuditLog"] = AuditLog
         return context
