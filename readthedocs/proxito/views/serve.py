@@ -539,8 +539,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         version_slug = self.get_version_from_host(request, version_slug)
         # This special treatment of Http404 happens because the decorator that
         # resolves a project doesn't know if it's resolving a subproject or a normal project
-        subproject_slug = kwargs.get("subproject_slug")
-        project_slug = kwargs.get("project_slug")
         (
             final_project,
             lang_slug,
@@ -548,12 +546,11 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             filename,
         ) = _get_project_data_from_request(  # noqa
             request,
-            project_slug,
-            subproject_slug,
+            project_slug=kwargs.get("project_slug"),
+            subproject_slug=kwargs.get("subproject_slug"),
             lang_slug=kwargs.get("lang_slug"),
             version_slug=version_slug,
             filename=kwargs.get("filename", ""),
-            explicit_proxito_path=proxito_path,
         )
 
         log.bind(
