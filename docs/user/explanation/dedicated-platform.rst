@@ -1,8 +1,9 @@
 .. This page seeks to put out lots of pointers to other articles in the documentation
 .. while giving an introduction that can be read consecutively.
 .. TODO:
-.. - More links and references!
-..
+.. - More links and references! (remember the methodology section from a separate PR)
+.. - Tiny screenshots possible? It would be nice if examples of features had little screenshots.
+
 .. There are other reasons that we could cover:
 .. - Code: If you write docs as code, you want this
 .. - When you should NOT choose a dedicated documentation CI/CD: You just need a README in your Git repo! You need WYSIWYG so badly that you're probably better off with Confluence, GitBook or Google Docs.
@@ -10,6 +11,14 @@
 .. - Always evolving: Read the Docs develops new features on-demand. So you get a dedicated platform that's maintained and has new features added.
 .. - Community: Related to the above, but perhaps worth mentioning that a lot of people are building tools and extensions that run on the platform etc.
 .. - Reader features: Alternative name for "Batteries included" is "Reader features"
+.. - Use-cases: The list would be really nice to wrap up with a set of use-cases. Software projects, onboarding docs, science, books etc.
+
+.. TODO: This article is kind of a "long-read" intended to read and share with other decision-makers.
+.. It's not far from a "white paper", although it lacks case studies.
+.. One way to help the reader would perhaps be to add a little box
+..    Reading time: 15 minutes
+..    Content: An elaborated case for why Read the Docs as a dedicated platform makes sense.
+..             If you are interested in understanding why to use Read the Docs for the first time, this is a great starting point.
 
 
 Choosing a dedicated documentation platform
@@ -19,8 +28,7 @@ This is an introduction to the most common benefits of choosing a *dedicated* pl
 
 Simply put,
 the role of a *dedicated documentation platform* is to offer a compelling set of features that documentation projects and their organizations or communities need.
-
-We start with a high-level overview:
+This article gives a broad introduction to those features and their importance:
 
 🧭️️️ :ref:`lifecycle`
     A dedicated documentation platform has all the features to handle a variety of challenges and complexities that documentation projects meet during their lifecycle.
@@ -49,16 +57,10 @@ Not to mention *writing the documentation itself*!
 
 .. note::
 
-    Read the Docs is the dedicated documentation platform that we are mostly hinting at,
-    but whenever possible,
+    Read the Docs is the *dedicated documentation platform* that we are mostly hinting at.
+    But whenever possible,
     we present the general case of a dedicated documentation platform since having *no* dedicated documentation platform at all is the present situation for many,
     especially software projects.
-
-If we observe a documentation project simply from the outside,
-we might only see the documentation as one or more deliverables, such as:
-A website, a PDF document, or an API documentation.
-But in order to get there,
-a dedicated documentation platform is a reliable first choice.
 
 A dedicated platform helps to solve tasks that you otherwise end up writing and maintaining your own scripts and CI tools for.
 
@@ -67,8 +69,16 @@ A dedicated platform helps to solve tasks that you otherwise end up writing and 
     `Comparison with GitHub Pages <https://about.readthedocs.com/comparisons/github-pages/>`__
         On our website, we have a list of common tasks that developers and DevOps teams have to solve themselves on a generic CI.
 
-Read the Docs has two separate platforms:
-|org_brand| and |com_brand|. :ref:`Read more about their differences <com_org_differences>`.
+If we observe a documentation project simply from the outside,
+we might only see the documentation as one or more deliverables, such as:
+A website, a PDF document, or an API documentation.
+But in order to get there,
+a dedicated documentation platform is a reliable *first choice*.
+
+Finally, we should mention that Read the Docs offers two separate platforms:
+|org_brand| and |com_brand|.
+While they mostly share the same :ref:`open source platform <open-source-philosophy:Read the Docs open source philosophy>`,
+there are also :ref:`a couple of differences <com_org_differences>` to be aware of.
 
 .. _lifecycle:
 
