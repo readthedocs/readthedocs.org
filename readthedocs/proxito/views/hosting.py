@@ -164,9 +164,15 @@ class AddonsResponse:
                 "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY"
                 " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
             ),
-            "project": ProjectSerializerNoLinks(project).data,
-            "version": VersionSerializerNoLinks(version).data,
-            "build": BuildSerializerNoLinks(build).data,
+            "projects": {
+                "current": ProjectSerializerNoLinks(project).data,
+            },
+            "versions": {
+                "current": VersionSerializerNoLinks(version).data,
+            },
+            "builds": {
+                "current": BuildSerializerNoLinks(build).data,
+            },
             # TODO: consider creating one serializer per field here.
             # The resulting JSON will be the same, but maybe it's easier/cleaner?
             "domains": {
