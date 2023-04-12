@@ -406,7 +406,7 @@ class ResolverBase:
 
     def _use_cname(self, project):
         """Test if to allow direct serving for project on CNAME."""
-        return bool(get_feature(project, type=TYPE_CNAME))
+        return bool(get_feature(project, feature_type=TYPE_CNAME))
 
 
 class Resolver(SettingsOverrideObject):

@@ -769,7 +769,7 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
         return context
 
     def _is_enabled(self, project):
-        return bool(get_feature(project, type=self.feature_type))
+        return bool(get_feature(project, feature_type=self.feature_type))
 
 
 class DomainList(DomainMixin, ListViewWithForm):
@@ -1148,7 +1148,7 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         return get_csv_file(filename=filename, csv_data=csv_data)
 
     def _get_feature(self, project):
-        return get_feature(project, type=self.feature_type)
+        return get_feature(project, feature_type=self.feature_type)
 
 
 class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
@@ -1239,4 +1239,4 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         return get_csv_file(filename=filename, csv_data=csv_data)
 
     def _get_feature(self, project):
-        return get_feature(project, type=self.feature_type)
+        return get_feature(project, feature_type=self.feature_type)

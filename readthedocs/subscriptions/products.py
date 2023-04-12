@@ -19,10 +19,10 @@ class RTDProductFeature:
     value: int = 0
     # If this feature is unlimited for this product.
     unlimited: bool = False
+    description: str = ""
 
-    @property
-    def description(self):
-        return dict(FEATURE_TYPES).get(self.type)
+    def get_description(self):
+        return self.description or dict(FEATURE_TYPES).get(self.type)
 
     def to_item(self):
         """
@@ -52,21 +52,26 @@ class RTDProduct:
         return self.stripe_id, self
 
 
+def get_product(stripe_id):
+    """Return the product with the given stripe_id."""
+    return settings.RTD_PRODUCTS.get(stripe_id)
+
+
 def get_listed_products():
     """Return a list of products that are available to users to purchase."""
     return [product for product in settings.RTD_PRODUCTS.values() if product.listed]
 
 
-def get_products_with_feature(feature):
+def get_products_with_feature(feature_type):
     """Return a list of products that have the given feature."""
     return [
         product
         for product in settings.RTD_PRODUCTS.values()
-        if feature in product.features
+        if feature_type in product.features
     ]
 
 
-def get_feature(obj, type) -> RTDProductFeature:
+def get_feature(obj, feature_type) -> RTDProductFeature:
     """
     Get the feature object for the given type of the object.
 
@@ -92,7 +97,7 @@ def get_feature(obj, type) -> RTDProductFeature:
         # A subscription can have multiple products, but we only want
         # the product from the organization that has the feature we are looking for.
         stripe_products_id = [
-            product.stripe_id for product in get_products_with_feature(type)
+            product.stripe_id for product in get_products_with_feature(feature_type)
         ]
         stripe_product_id = (
             djstripe.Product.objects.filter(
@@ -103,6 +108,6 @@ def get_feature(obj, type) -> RTDProductFeature:
             .first()
         )
         if stripe_product_id is not None:
-            return settings.RTD_PRODUCTS[stripe_product_id].features[type]
+            return settings.RTD_PRODUCTS[stripe_product_id].features[feature_type]
 
-    return settings.RTD_DEFAULT_FEATURES.get(type)
+    return settings.RTD_DEFAULT_FEATURES.get(feature_type)

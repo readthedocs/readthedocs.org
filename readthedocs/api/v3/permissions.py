@@ -24,7 +24,7 @@ class HasEmbedAPIAccess(BasePermission):
     def has_permission(self, request, view):
         project = view._get_project()
         # The project is None when the is requesting a section from an external site.
-        if project and not get_feature(project, type=TYPE_EMBED_API):
+        if project and not get_feature(project, feature_type=TYPE_EMBED_API):
             return False
         return True
 

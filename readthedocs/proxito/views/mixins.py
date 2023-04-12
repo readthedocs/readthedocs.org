@@ -215,7 +215,7 @@ class ServeDocsMixin:
         This feature is different from page views analytics,
         as it records every page view individually with more metadata like the user, IP, etc.
         """
-        return bool(get_feature(project, type=TYPE_AUDIT_PAGEVIEWS))
+        return bool(get_feature(project, feature_type=TYPE_AUDIT_PAGEVIEWS))
 
     def _serve_static_file(self, request, filename):
         return self._serve_file(

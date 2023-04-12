@@ -117,7 +117,7 @@ class ProjectQuerySetBase(models.QuerySet):
             or max_concurrent_organization
             or get_feature(
                 project,
-                type=TYPE_CONCURRENT_BUILDS,
+                feature_type=TYPE_CONCURRENT_BUILDS,
             ).value
         )
 

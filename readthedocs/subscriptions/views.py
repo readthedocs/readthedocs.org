@@ -15,7 +15,7 @@ from vanilla import DetailView, GenericView
 
 from readthedocs.organizations.views.base import OrganizationMixin
 from readthedocs.subscriptions.forms import PlanForm
-from readthedocs.subscriptions.models import Plan
+from readthedocs.subscriptions.products import get_product
 from readthedocs.subscriptions.utils import get_or_create_stripe_customer
 
 log = structlog.get_logger(__name__)
@@ -66,7 +66,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
         ):
             raise Http404()
 
-        plan = get_object_or_404(Plan, id=form.cleaned_data['plan'])
+        stripe_price = get_object_or_404(djstripe.Price, id=form.cleaned_data["price"])
 
         url = self.request.build_absolute_uri(self.get_success_url())
         organization = self.get_organization()
@@ -78,8 +78,8 @@ class DetailSubscription(OrganizationMixin, DetailView):
                 payment_method_types=['card'],
                 line_items=[
                     {
-                        'price': plan.stripe_id,
-                        'quantity': 1,
+                        "price": stripe_price.id,
+                        "quantity": 1,
                     }
                 ],
                 mode='subscription',
@@ -91,7 +91,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
             log.exception(
                 'Error while creating a Stripe checkout session.',
                 organization_slug=organization.slug,
-                plan_slug=plan.slug,
+                price=stripe_price.id,
             )
             messages.error(
                 self.request,
@@ -115,12 +115,9 @@ class DetailSubscription(OrganizationMixin, DetailView):
         context = super().get_context_data(**kwargs)
         stripe_subscription = self.get_object()
         if stripe_subscription:
-            context[
-                "features"
-            ] = self.get_organization().subscription.plan.features.all()
-
             stripe_price = stripe_subscription.items.first().price
             context["stripe_price"] = stripe_price
+            context["features"] = get_product(stripe_price.product.id).features
 
             # When Stripe marks the subscription as ``past_due``,
             # it means the usage of RTD service for the current period/month was not paid at all.

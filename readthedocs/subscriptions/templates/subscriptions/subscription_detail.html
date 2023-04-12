@@ -42,8 +42,8 @@
       <dt>{% trans "Plan features:" %}</dt>
       <dd>
         {% for feature in features %}
-          <span class="subscription-plan-{{ feature.feature_type }}" style="display: block;">
-            {{ feature.description_display }}
+          <span class="subscription-plan-{{ feature.type }}" style="display: block;">
+            {{ feature.get_description }}
           </span>
         {% endfor %}
       </dd>
