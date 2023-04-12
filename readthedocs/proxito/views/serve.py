@@ -15,11 +15,9 @@ from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.core.exceptions import (
     ContextualizedHttp404,
-    ProjectHttp404,
     ProjectPageHttp404,
     ProjectTranslationHttp404,
     ProjectVersionHttp404,
-    SubProjectHttp404,
 )
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path, resolver
@@ -66,22 +64,17 @@ class ServePageRedirect(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         unresolved_domain = request.unresolved_domain
         project = unresolved_domain.project
-        parent_project = project
 
         # Use the project from the domain, or use the subproject slug.
         if subproject_slug:
             try:
                 project = project.subprojects.get(alias=subproject_slug).child
             except ProjectRelationship.DoesNotExist:
-                raise SubProjectHttp404(
-                    message=(
+                raise Http404(
+                    (
                         f"Did not find subproject slug {subproject_slug} "
                         f"for project {project.slug}"
                     ),
-                    project=parent_project,
-                    project_slug=parent_project.slug,
-                    subproject_slug=subproject_slug,
-                    proxito_path=request.proxito_path,
                 )
 
         # Get the default version from the current project,
@@ -173,15 +166,11 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 version_slug=version_slug,
                 filename=filename,
             )
-        # This special treatment of ProxitoProjectHttp404 happens because the decorator that
-        # resolves a project doesn't know if it's resolving a subproject or a normal project
-        except ProjectHttp404 as e:
+        except Http404:
             if subproject_slug:
                 log.debug("Project expected to be a subproject was not found")
-                raise SubProjectHttp404(
-                    message=f"Could not find subproject for {subproject_slug}",
-                    project_slug=e.project_slug,
-                    subproject_slug=subproject_slug,
+                raise Http404(
+                    f"Could not find subproject '{subproject_slug}' in project {project_slug}",
                 )
             raise
         version = final_project.versions.filter(slug=version_slug).first()
@@ -220,9 +209,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         # version on the database we want to return 404.
         if (version and not version.active) or (version_slug and not version):
             log.warning("Version does not exist or is not active.")
-            raise ContextualizedHttp404(
-                message="Version does not exist or is not active."
-            )
+            raise Http404("Version does not exist or is not active.")
 
         if version:
             # All public versions can be cached.
@@ -281,7 +268,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 'Invalid URL for project with versions.',
                 filename=filename,
             )
-            raise ContextualizedHttp404(message="Invalid URL for project with versions")
+            raise Http404("Invalid URL for project with versions")
 
         redirect_path, http_status = self.get_redirect(
             project=final_project,
@@ -381,6 +368,9 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         if unresolved_domain.is_from_external_domain:
             self.version_type = EXTERNAL
 
+        # 404 errors aren't contextualized because they are sent to the HTTP proxy
+        # The path will be 'unresolved' again when HTTP server handles the 404 error
+        # See: ServeError404Base
         try:
             unresolved = unresolver.unresolve_path(
                 unresolved_domain=unresolved_domain,
@@ -556,7 +546,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         version_slug = kwargs.get('version_slug')
         version_slug = self.get_version_from_host(request, version_slug)
-        # This special treatment of ProxitoProjectHttp404 happens because the decorator that
+        # This special treatment of Http404 happens because the decorator that
         # resolves a project doesn't know if it's resolving a subproject or a normal project
         subproject_slug = kwargs.get("subproject_slug")
         project_slug = kwargs.get("project_slug")
@@ -575,14 +565,11 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                 filename=kwargs.get("filename", ""),
                 explicit_proxito_path=proxito_path,
             )
-        except ProjectHttp404 as e:
+        except Http404 as e:
             if subproject_slug:
                 log.debug("Project expected to be a subproject was not found")
-                raise SubProjectHttp404(
-                    message=f"Could not find subproject for {subproject_slug}",
-                    project_slug=e.project_slug,
-                    subproject_slug=subproject_slug,
-                    proxito_path=proxito_path,
+                raise Http404(
+                    f"Could not find subproject '{subproject_slug}' for project {e.project_slug}",
                 )
             raise
 

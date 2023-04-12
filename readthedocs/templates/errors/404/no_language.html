@@ -4,7 +4,7 @@
 {# project exists but not in the requested language #}
 
 {% block 404_error_message %}
-  {% include "errors/404/include_error_message.html" with not_found_subject="language" %}
+  {% include "errors/404/include_error_message.html" %}
   {% include "errors/404/include_search.html" %}
   {% include "errors/404/include_tips.html" %}
 {% endblock %}

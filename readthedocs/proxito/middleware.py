@@ -12,11 +12,11 @@ from urllib.parse import urlparse
 import structlog
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
-from readthedocs.core.exceptions import ProjectHttp404
+from readthedocs.core.exceptions import DomainDNSHttp404, ProjectHttp404
 from readthedocs.core.unresolver import (
     InvalidCustomDomainError,
     InvalidExternalDomainError,
@@ -213,11 +213,9 @@ class ProxitoMiddleware(MiddlewareMixin):
             unresolved_domain = unresolver.unresolve_domain_from_request(request)
         except SuspiciousHostnameError as exc:
             log.warning("Weird variation on our hostname.", domain=exc.domain)
-            return render(
-                request,
-                "core/dns-404.html",
-                context={"host": exc.domain},
-                status=400,
+            raise DomainDNSHttp404(
+                http_status=400,
+                host=exc.domain,
             )
         except (InvalidSubdomainError, InvalidExternalDomainError) as exc:
             log.debug("Invalid project set on the subdomain.")
@@ -225,15 +223,13 @@ class ProxitoMiddleware(MiddlewareMixin):
             # domain at this stage. The domain can be a custom domain docs.foobar.tld,
             # in which case 'docs' would be an incorrect slug.
             raise ProjectHttp404(
-                message=f"No project found for requested domain {exc.domain}.",
-                project_slug=exc.domain,
-                proxito_path=request.path,
+                domain=exc.domain,
             )
         except InvalidCustomDomainError as exc:
             # Some person is CNAMEing to us without configuring a domain - 404.
             log.debug("CNAME 404.", domain=exc.domain)
-            return render(
-                request, "core/dns-404.html", context={"host": exc.domain}, status=404
+            raise DomainDNSHttp404(
+                host=exc.domain,
             )
         except InvalidXRTDSlugHeaderError:
             raise SuspiciousOperation("Invalid X-RTD-Slug header.")

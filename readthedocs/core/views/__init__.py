@@ -77,14 +77,16 @@ def server_error_404(request, template_name="errors/404/base.html", exception=No
     """
 
     context = {}
+    http_status = 404
 
     # Contextualized 404 exceptions:
     # Context is defined by the views that raise these exceptions and handled
     # in their templates.
     if isinstance(exception, ContextualizedHttp404):
         # These attributes are not guaranteed.
-        context.update(exception.context)
+        context.update(exception.get_context())
         template_name = exception.template_name
+        http_status = exception.http_status
 
     context["path_not_found"] = context.get("path_not_found") or request.path
 
@@ -93,7 +95,7 @@ def server_error_404(request, template_name="errors/404/base.html", exception=No
         template_name,
         context=context,
     )
-    r.status_code = 404
+    r.status_code = http_status
     return r
 
 

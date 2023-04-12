@@ -1,7 +1,7 @@
 {% load i18n %}
 <section>
   <p>
-    {% blocktrans trimmed %}
+    {% blocktrans trimmed with project_slug=project.slug|default:_("unknown slug") %}
       You are browsing the documentation of <code>{{ project_slug }}</code>.
       The {{ not_found_subject }} you are looking for at <code>{{ path_not_found }}</code> was not found.
     {% endblocktrans %}

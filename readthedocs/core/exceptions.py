@@ -1,19 +1,52 @@
 from django.http import Http404
+from django.utils.translation import gettext_lazy as _
 
 
 class ContextualizedHttp404(Http404):
 
+    """
+    Base class for contextualized HTTP 404 handling.
+
+    Subclasses may define their own template name,
+    HTTP status and object that was not found.
+
+    The contextualized exception is handled by the project's 404 view.
+    """
+
     template_name = "errors/404/base.html"
+    not_found_subject = _("page")
 
     def __init__(self, **kwargs):
-        self.context = kwargs
+        self.http_status = kwargs.pop("http_status", 404)
+        self.kwargs = kwargs
+
+    def get_context(self):
+        c = {
+            "not_found_subject": self.not_found_subject,
+        }
+        c.update(self.kwargs)
+        return c
+
+
+class DomainDNSHttp404(ContextualizedHttp404):
+
+    """Raised if a DNS record points to us but we do not know the domain."""
+
+    template_name = "errors/404/dns.html"
+    not_found_subject = _("domain matching DNS record")
 
 
 class ProjectHttp404(ContextualizedHttp404):
 
-    """Raised if a project was not found."""
+    """
+    Raised if a domain did not resolve to a project.
+
+    This is currently used very broadly.
+    It indicates a number of reasons for the user.
+    """
 
     template_name = "errors/404/no_project.html"
+    not_found_subject = _("project")
 
 
 class SubProjectHttp404(ContextualizedHttp404):
@@ -21,6 +54,7 @@ class SubProjectHttp404(ContextualizedHttp404):
     """Raised if a subproject was not found."""
 
     template_name = "errors/404/no_subproject.html"
+    not_found_subject = _("sub project")
 
 
 class ProjectPageHttp404(ContextualizedHttp404):
@@ -28,6 +62,7 @@ class ProjectPageHttp404(ContextualizedHttp404):
     """Raised if a page inside an existing project was not found."""
 
     template_name = "errors/404/no_project_page.html"
+    not_found_subject = _("documentation page")
 
 
 class ProjectTranslationHttp404(ContextualizedHttp404):
@@ -40,6 +75,7 @@ class ProjectTranslationHttp404(ContextualizedHttp404):
     """
 
     template_name = "errors/404/no_language.html"
+    not_found_subject = _("translation")
 
 
 class ProjectVersionHttp404(ContextualizedHttp404):
@@ -51,3 +87,4 @@ class ProjectVersionHttp404(ContextualizedHttp404):
     """
 
     template_name = "errors/404/no_version.html"
+    not_found_subject = _("documentation version")
