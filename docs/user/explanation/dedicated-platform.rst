@@ -1,8 +1,7 @@
 .. This page seeks to put out lots of pointers to other articles in the documentation
 .. while giving an introduction that can be read consecutively.
 .. TODO:
-.. - Links and references!
-.. - Diagram in life-cycle section
+.. - More links and references!
 ..
 .. There are other reasons that we could cover:
 .. - Code: If you write docs as code, you want this
@@ -18,7 +17,10 @@ Choosing a dedicated documentation platform
 
 This is an introduction to the most common benefits of choosing a *dedicated* platform for building and publishing documentation projects.
 
-Let us start with a high-level overview:
+Simply put,
+the role of a *dedicated documentation platform* is to offer a compelling set of features that documentation projects and their organizations or communities need.
+
+We start with a high-level overview:
 
 🧭️️️ :ref:`lifecycle`
     A dedicated documentation platform has all the features to handle a variety of challenges and complexities that documentation projects meet during their lifecycle.
@@ -65,9 +67,7 @@ A dedicated platform helps to solve tasks that you otherwise end up writing and 
     `Comparison with GitHub Pages <https://about.readthedocs.com/comparisons/github-pages/>`__
         On our website, we have a list of common tasks that developers and DevOps teams have to solve themselves on a generic CI.
 
-Simply put, the role of a *dedicated documentation platform* is to offer a compelling set of features that documentation projects and their organizations or communities need.
-
-Read the Docs does exactly this in two versions:
+Read the Docs has two separate platforms:
 |org_brand| and |com_brand|. :ref:`Read more about their differences <com_org_differences>`.
 
 .. Keeping this list commented out for now.
