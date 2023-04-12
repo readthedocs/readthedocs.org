@@ -4,7 +4,7 @@ import structlog
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 
-from ...core.exceptions import ContextualizedHttp404
+from ..exceptions import ContextualizedHttp404
 from .decorators import map_project_slug, map_subproject_slug
 
 log = structlog.get_logger(__name__)  # noqa

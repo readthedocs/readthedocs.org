@@ -13,12 +13,6 @@ from readthedocs.analytics.models import PageView
 from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
-from readthedocs.core.exceptions import (
-    ContextualizedHttp404,
-    ProjectPageHttp404,
-    ProjectTranslationHttp404,
-    ProjectVersionHttp404,
-)
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolve_path, resolver
 from readthedocs.core.unresolver import (
@@ -36,6 +30,12 @@ from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
+from ..exceptions import (
+    ContextualizedHttp404,
+    ProjectPageHttp404,
+    ProjectTranslationHttp404,
+    ProjectVersionHttp404,
+)
 from .mixins import (
     InvalidPathError,
     ServeDocsMixin,
@@ -876,6 +876,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             filename=filename,
             lang_slug=project.language,
             version_slug=version.slug,
+            path_not_found=path,
         )
 
 

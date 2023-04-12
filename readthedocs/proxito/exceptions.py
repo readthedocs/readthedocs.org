@@ -17,12 +17,22 @@ class ContextualizedHttp404(Http404):
     not_found_subject = _("page")
 
     def __init__(self, **kwargs):
+        """
+        Constructor that all subclasses should call.
+
+        :param kwargs: all kwargs are added as page context for rendering the 404 template
+        :param http_status: 404 view should respect this and set the HTTP status.
+        :param path_not_found: Inform the template and 404 view about a different path from
+                               request.path
+        """
         self.http_status = kwargs.pop("http_status", 404)
+        self.path_not_found = kwargs.pop("path_not_found", None)
         self.kwargs = kwargs
 
     def get_context(self):
         c = {
             "not_found_subject": self.not_found_subject,
+            "path_not_found": self.path_not_found,
         }
         c.update(self.kwargs)
         return c

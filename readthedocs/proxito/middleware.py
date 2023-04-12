@@ -16,7 +16,6 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
-from readthedocs.core.exceptions import DomainDNSHttp404, ProjectHttp404
 from readthedocs.core.unresolver import (
     InvalidCustomDomainError,
     InvalidExternalDomainError,
@@ -27,6 +26,8 @@ from readthedocs.core.unresolver import (
 )
 from readthedocs.core.utils import get_cache_tag
 from readthedocs.projects.models import Feature, Project
+
+from .exceptions import DomainDNSHttp404, ProjectHttp404
 
 log = structlog.get_logger(__name__)
 
