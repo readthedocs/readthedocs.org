@@ -13,14 +13,12 @@ from readthedocs.core.views import (
     HomepageView,
     SupportView,
     do_not_track,
-    server_error_404,
     server_error_500,
 )
 from readthedocs.search.views import GlobalSearchView
 
 admin.autodiscover()
 
-handler404 = server_error_404
 handler500 = server_error_500
 
 basic_urls = [
@@ -131,7 +129,6 @@ for build_format in ('epub', 'htmlzip', 'json', 'pdf'):
         document_root=os.path.join(settings.MEDIA_ROOT, build_format),
     )
 debug_urls += [
-    path("404/", server_error_404),
     path(
         "style-catalog/",
         TemplateView.as_view(template_name="style_catalog.html"),

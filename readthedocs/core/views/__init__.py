@@ -12,7 +12,6 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic import TemplateView, View
 
-from readthedocs.core.exceptions import ContextualizedHttp404
 from readthedocs.core.mixins import CDNCacheControlMixin, PrivateViewMixin
 from readthedocs.projects.models import Project
 
@@ -66,37 +65,6 @@ class SupportView(PrivateViewMixin, TemplateView):
         context = super().get_context_data(**kwargs)
         context['SUPPORT_FORM_ENDPOINT'] = settings.SUPPORT_FORM_ENDPOINT
         return context
-
-
-def server_error_404(request, template_name="errors/404/base.html", exception=None):
-    """
-    Serves a 404 error message, handling 404 exception types raised throughout the app.
-
-    Notice that handling of 404 errors happens elsewhere in views and middleware,
-    this view is expected to serve an actual 404 message.
-    """
-
-    context = {}
-    http_status = 404
-
-    # Contextualized 404 exceptions:
-    # Context is defined by the views that raise these exceptions and handled
-    # in their templates.
-    if isinstance(exception, ContextualizedHttp404):
-        # These attributes are not guaranteed.
-        context.update(exception.get_context())
-        template_name = exception.template_name
-        http_status = exception.http_status
-
-    context["path_not_found"] = context.get("path_not_found") or request.path
-
-    r = render(
-        request,
-        template_name,
-        context=context,
-    )
-    r.status_code = http_status
-    return r
 
 
 def server_error_500(request, template_name='500.html'):
