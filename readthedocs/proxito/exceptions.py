@@ -59,7 +59,7 @@ class ProjectHttp404(ContextualizedHttp404):
     not_found_subject = _("project")
 
 
-class SubProjectHttp404(ContextualizedHttp404):
+class SubprojectHttp404(ContextualizedHttp404):
 
     """Raised if a subproject was not found."""
 
@@ -67,7 +67,7 @@ class SubProjectHttp404(ContextualizedHttp404):
     not_found_subject = _("sub project")
 
 
-class ProjectPageHttp404(ContextualizedHttp404):
+class ProxitoProjectFilenameHttp404(ContextualizedHttp404):
 
     """Raised if a page inside an existing project was not found."""
 

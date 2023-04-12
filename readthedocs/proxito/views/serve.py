@@ -32,9 +32,9 @@ from readthedocs.storage import build_media_storage
 
 from ..exceptions import (
     ContextualizedHttp404,
-    ProjectPageHttp404,
     ProjectTranslationHttp404,
     ProjectVersionHttp404,
+    ProxitoProjectFilenameHttp404,
 )
 from .mixins import (
     InvalidPathError,
@@ -786,7 +786,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             filename = unresolved.filename
             lang_slug = project.language
             version_slug = version.slug
-            contextualized_404_class = ProjectPageHttp404
+            contextualized_404_class = ProxitoProjectFilenameHttp404
         except VersionNotFoundError as exc:
             project = exc.project
             lang_slug = project.language
