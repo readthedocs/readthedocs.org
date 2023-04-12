@@ -76,6 +76,14 @@
         "translations": "https://readthedocs.org/api/v3/projects/project/translations/",
         "versions": "https://readthedocs.org/api/v3/projects/project/versions/"
     },
+    "analytics": {
+        "google": {
+            "code": null
+        },
+        "readthedocs": {
+            "enabled": true
+        }
+    },
     "modified": "2019-04-29T12:00:00Z",
     "name": "project",
     "programming_language": {

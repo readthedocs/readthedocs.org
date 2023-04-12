@@ -605,6 +605,18 @@ class ProjectUpdateSerializer(SettingsOverrideObject):
     _default_class = ProjectUpdateSerializerBase
 
 
+class AnalyticsSerializer(serializers.Serializer):
+
+    readthedocs = serializers.SerializerMethodField()
+    google = serializers.SerializerMethodField()
+
+    def get_readthedocs(self, obj):
+        return {"enabled": not obj.analytics_disabled}
+
+    def get_google(self, obj):
+        return {"code": obj.analytics_code}
+
+
 class ProjectSerializer(FlexFieldsModelSerializer):
 
     """
@@ -616,6 +628,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
        But we have organization.owners.
     """
 
+    analytics = AnalyticsSerializer(source="*")
     homepage = serializers.SerializerMethodField()
     language = LanguageSerializer()
     programming_language = ProgrammingLanguageSerializer()
@@ -637,21 +650,22 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     class Meta:
         model = Project
         fields = [
-            'id',
-            'name',
-            'slug',
-            'created',
-            'modified',
-            'language',
-            'programming_language',
-            'homepage',
-            'repository',
-            'default_version',
-            'default_branch',
-            'subproject_of',
-            'translation_of',
-            'urls',
-            'tags',
+            "id",
+            "name",
+            "slug",
+            "created",
+            "modified",
+            "language",
+            "programming_language",
+            "analytics",
+            "homepage",
+            "repository",
+            "default_version",
+            "default_branch",
+            "subproject_of",
+            "translation_of",
+            "urls",
+            "tags",
             "privacy_level",
             "external_builds_privacy_level",
 
