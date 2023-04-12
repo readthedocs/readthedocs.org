@@ -70,24 +70,6 @@ A dedicated platform helps to solve tasks that you otherwise end up writing and 
 Read the Docs has two separate platforms:
 |org_brand| and |com_brand|. :ref:`Read more about their differences <com_org_differences>`.
 
-.. Keeping this list commented out for now.
-.. The seealso about GitHub pages is better, since this is largely marketing content.
-.. It's also nice to not break up the reading flow with a long list. Should delete...
-.. * ✅️ Publishing a static website
-.. * ✅️ Adding a fast cache layer for the website
-.. * ✅️ Maintaining SSL
-.. * ✅️ Notifications when things go wrong
-.. * ✅️ Versioning
-.. * ✅️ Letting users switch between versions
-.. * ✅️ Offering additional formats (PDFs, ebooks)
-.. * ✅️ Custom 404 pages
-.. * ✅️ Building a fast search index
-.. * ✅️ Having APIs to access documentation contents and integrate them elsewhere
-.. * ✅️ Redirecting users that visit old URLs
-.. * ✅️ Inviting a dedicated documentation team to manage all this
-.. * ✅️ Manage access to private documentation projects
-.. * ...this list is longer, and it is incidentally also the list of features that were built for Read the Docs.
-
 .. _lifecycle:
 
 Features for the lifecycle of a documentation project
