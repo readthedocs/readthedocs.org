@@ -445,7 +445,7 @@ class Unresolver:
         subdomain, *root_domain = domain.split(".", maxsplit=1)
         root_domain = root_domain[0] if root_domain else ""
 
-        if public_domain in domain:
+        if public_domain in domain and public_domain not in external_domain:
             # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`.
             if public_domain == root_domain:
                 project_slug = subdomain
