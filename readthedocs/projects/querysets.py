@@ -112,13 +112,12 @@ class ProjectQuerySetBase(models.QuerySet):
         if organization:
             max_concurrent_organization = organization.max_concurrent_builds
 
+        feature = get_feature(project, feature_type=TYPE_CONCURRENT_BUILDS)
+        feature_value = feature.value if feature else 1
         return (
             project.max_concurrent_builds
             or max_concurrent_organization
-            or get_feature(
-                project,
-                feature_type=TYPE_CONCURRENT_BUILDS,
-            ).value
+            or feature_value
         )
 
     def prefetch_latest_build(self):
