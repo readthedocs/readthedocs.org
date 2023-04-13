@@ -2,7 +2,7 @@ How to use a .readthedocs.yaml file in a sub-folder
 ===================================================
 
 This guide shows how to configure a Read the Docs project to use a custom path for the ``.readthedocs.yaml`` build configuration.
-*Monorepos* that have multiple documentation projects in the same Git repository can benefit from this feature.
+`Monorepos <https://en.wikipedia.org/wiki/Monorepo>`__ that have multiple documentation projects in the same Git repository can benefit from this feature.
 
 By default,
 Read the Docs will use the ``.readthedocs.yaml`` at the top level of your Git repository.
