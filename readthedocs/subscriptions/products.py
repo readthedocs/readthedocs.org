@@ -39,9 +39,9 @@ class RTDProduct:
     """A local representation of a Stripe product."""
 
     stripe_id: str
-    # If this product should be available to users to purchase.
-    listed: bool
     features: dict[str, RTDProductFeature]
+    # If this product should be available to users to purchase.
+    listed: bool = False
 
     def to_item(self):
         """
