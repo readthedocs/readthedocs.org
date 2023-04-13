@@ -4,7 +4,7 @@ from urllib.parse import urlsplit
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get, new
@@ -15,6 +15,7 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Feature, Project
+from readthedocs.subscriptions.constants import TYPE_SEARCH_ANALYTICS
 
 
 @mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())
@@ -333,6 +334,11 @@ class BuildViewTests(TestCase):
         self.assertEqual(r.status_code, 302)
 
 
+@override_settings(
+    RTD_DEFAULT_FEATURES={
+        TYPE_SEARCH_ANALYTICS: 90,
+    }
+)
 class TestSearchAnalyticsView(TestCase):
 
     """Tests for search analytics page."""
