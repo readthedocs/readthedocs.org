@@ -228,7 +228,7 @@ class BuildDirector:
 
         if custom_config_file:
             log.info(
-                "Using a custom config file.", custom_config_file=custom_config_file
+                "Using a custom .readthedocs.yaml file.", path=custom_config_file
             )
         self.data.config = load_yaml_config(
             version=self.data.version,
