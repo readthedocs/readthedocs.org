@@ -1,3 +1,5 @@
+.. Next steps: Show an example pattern for a monorepo layout or link to an example project
+
 How to use a .readthedocs.yaml file in a sub-folder
 ===================================================
 
@@ -6,8 +8,8 @@ This guide shows how to configure a Read the Docs project to use a custom path f
 
 By default,
 Read the Docs will use the ``.readthedocs.yaml`` at the top level of your Git repository.
-This is typically not sufficient for monorepo layouts
-when their nested documentation projects need fundamentally different build configurations.
+But if a Git repository contains multiple documentation projects that need different build configurations,
+you will need to have a ``.readthedocs.yaml`` file in multiple sub-folders.
 
 .. seealso::
 
@@ -21,7 +23,7 @@ when their nested documentation projects need fundamentally different build conf
        This is possible if the configuration pattern is very similar and the documentation tool is the same.
 
 Implementation considerations
--------------------------------
+-----------------------------
 
 This feature is currently *project-wide*.
 A custom build configuration file path is applied to all versions of your documentation.
@@ -71,8 +73,11 @@ For each project, it's now possible to configure:
 * :doc:`Custom domains </guides/custom-domains>`
 * :doc:`Automation rules </automation-rules>`
 * :doc:`Traffic and search analytics </reference/analytics>`
+* Additional documentation tools with individual :doc:`build processes </build-customization>`:
+  One project might use :doc:`Sphinx <sphinx:index>`,
+  while another project setup might use `Asciidoctor <https://asciidoctor.org/>`__.
 
-...and much more. All settings for a Read the Docs project is available for the individual project.
+...and much more. *All* settings for a Read the Docs project is available for each individual project.
 
 .. seealso::
 
