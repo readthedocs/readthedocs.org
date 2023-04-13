@@ -26,6 +26,6 @@ class PlanForm(forms.Form):
             for price in stripe_prices
         ]
         self.fields["price"].help_text = _(
-            f'Check our <a href="https://about.readthedocs.com/pricing/">pricing page</a> '
+            'Check our <a href="https://about.readthedocs.com/pricing/">pricing page</a> '
             'for more information about each plan.'
         )
