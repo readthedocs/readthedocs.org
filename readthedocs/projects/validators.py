@@ -109,11 +109,10 @@ def validate_build_config_file(path):
     but not all valid unix paths are good repository paths.
 
     This validator checks for common mistakes.
-
-    :param valid_filenames: A list of valid file names or None.
     """
     invalid_characters = "[]{}()`'\"\\%&<>|,"
     valid_filenames = [".readthedocs.yaml"]
+
     if path.startswith("/"):
         raise ValidationError(
             _(
@@ -142,26 +141,25 @@ def validate_build_config_file(path):
             ),
             code="path_invalid",
         )
-    # If we should validate filenames
-    if valid_filenames:
-        is_valid = any(fn == path for fn in valid_filenames) or any(
-            path.endswith(f"/{fn}") for fn in valid_filenames
+
+    is_valid = any(fn == path for fn in valid_filenames) or any(
+        path.endswith(f"/{fn}") for fn in valid_filenames
+    )
+    if not is_valid and len(valid_filenames) == 1:
+        raise ValidationError(
+            mark_safe(
+                _("The only allowed filename is <code>{filename}</code>.").format(
+                    filename=valid_filenames[0]
+                ),
+            ),
+            code="path_invalid",
         )
-        if not is_valid and len(valid_filenames) == 1:
-            raise ValidationError(
-                mark_safe(
-                    _("The only allowed filename is <code>{filename}</code>.").format(
-                        filename=valid_filenames[0]
-                    ),
+    if not is_valid:
+        raise ValidationError(
+            mark_safe(
+                _("The only allowed filenames are <code>{filenames}</code>.").format(
+                    filenames=", ".join(valid_filenames)
                 ),
-                code="path_invalid",
-            )
-        if not is_valid:
-            raise ValidationError(
-                mark_safe(
-                    _(
-                        "The only allowed filenames are <code>{filenames}</code>."
-                    ).format(filenames=", ".join(valid_filenames)),
-                ),
-                code="path_invalid",
-            )
+            ),
+            code="path_invalid",
+        )
