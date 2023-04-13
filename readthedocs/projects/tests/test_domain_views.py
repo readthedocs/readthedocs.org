@@ -99,9 +99,7 @@ class TestDomainViews(TestCase):
         self.assertEqual(domain.canonical, False)
 
 
-@override_settings(
-    RTD_ALLOW_ORGANIZATIONS=True,
-)
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class TestDomainViewsWithOrganizations(TestDomainViews):
     def setUp(self):
         super().setUp()
