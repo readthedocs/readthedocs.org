@@ -21,27 +21,26 @@
 ..             If you are interested in understanding why to use Read the Docs for the first time, this is a great starting point.
 
 
-Choosing a dedicated documentation platform
-===========================================
+Read the Docs: An all-in-one documentation solution
+===================================================
 
-This is an introduction to the most common benefits of choosing a *dedicated* platform for building and publishing documentation projects.
+This page covers the benefits of using an all-in-one documentation platform.
+There are a number of approaches to writing and deploying documentation,
+but using a platform built for this purpose provides you with a number of benefits that generic platforms do not.
 
-Simply put,
-the role of a *dedicated documentation platform* is to offer a compelling set of features that documentation projects and their organizations or communities need.
+The role of a *dedicated documentation platform* is to offer a compelling set of features that documentation projects and their organizations need.
 This article gives a broad introduction to those features and their importance:
 
 🧭️️️ :ref:`lifecycle`
-    A dedicated documentation platform has all the features to handle a variety of challenges and complexities that documentation projects meet during their lifecycle.
+    Documentation has a unique lifecycle, our platform handles a variety of challenges and complexities that documentation projects require, like versioning.
 
 🛠️ :ref:`documentation_tools`
-    By choosing a tool-agnostic dedicated platform,
-    you can use documentation tools from open source eco-systems.
+   Support for a variety of documentation tools allows you the flexibility to choose the best tool for your project.
 
 🚢️️ :ref:`workflows`
-    A dedicated documentation platform works like a :term:`CI/CD platform <CI/CD>`, publishing and versioning your documentation automatically.
-    Most documentation projects need CI/CD automation,
-    and by choosing a dedicated platform,
-    you save building your own scripts and deployment workflows for documentation.
+    Our platform works like a :term:`CI/CD platform <CI/CD>`, publishing and versioning your documentation automatically.
+    You save time not writing your own scripts and deployment workflows,
+    and get a reliable and reproducible process.
 
 🔋️ :ref:`batteries_included`
     Read the Docs continues to develop new projects and ideas,
@@ -50,35 +49,13 @@ This article gives a broad introduction to those features and their importance:
 .. The following sections are about using a dedicated platform as a first-choice in order to free up space for other tasks.
 .. These paragraphs can benefit from being shortened and organized, but they are intended as the summary of the introduction.
 
-Using Read the Docs
-allows you to focus on other critical tasks,
-such as choosing documentation tools, structuring your documentation and having the perfect workflow.
-Not to mention *writing the documentation itself*!
-
-.. note::
-
-    Read the Docs is the *dedicated documentation platform* that we are mostly hinting at.
-    But whenever possible,
-    we present the general case of a dedicated documentation platform since having *no* dedicated documentation platform at all is the present situation for many,
-    especially software projects.
-
-A dedicated platform helps to solve tasks that you otherwise end up writing and maintaining your own scripts and CI tools for.
+Using Read the Docs allows you to focus on other critical tasks,
+such as choosing structuring and writing your documentation itself!
 
 .. seealso::
 
     `Comparison with GitHub Pages <https://about.readthedocs.com/comparisons/github-pages/>`__
-        On our website, we have a list of common tasks that developers and DevOps teams have to solve themselves on a generic CI.
-
-If we observe a documentation project simply from the outside,
-we might only see the documentation as one or more deliverables, such as:
-A website, a PDF document, or an API documentation.
-But in order to get there,
-a dedicated documentation platform is a reliable *first choice*.
-
-Finally, we should mention that Read the Docs offers two separate platforms:
-|org_brand| and |com_brand|.
-While they mostly share the same :ref:`open source platform <open-source-philosophy:Read the Docs open source philosophy>`,
-there are also :ref:`a couple of differences <com_org_differences>` to be aware of.
+        On our website, we have a list of common tasks that teams have to solve themselves on a generic CI.
 
 .. _lifecycle:
 
@@ -156,8 +133,8 @@ Some examples include:
 
 .. _workflows:
 
-Agile workflows with Continuous Integration and Deployment (CI/CD)
-------------------------------------------------------------------
+Move faster by integrating the building and deployment of documentation
+-----------------------------------------------------------------------
 
 Automating your `build and deploy process </builds>`,
 enables documentation writers to suggest changes, share previews, receive feedback and implement feedback quickly and iteratively.
@@ -200,16 +177,12 @@ Example: Automatic deploys with version tagging
 
 .. _batteries_included:
 
-Batteries included
-------------------
+Better documentation reader experience
+--------------------------------------
 
-A common saying about a product that is ready to use in real life without a big effort is that the the product has *batteries included*.
-
-Several features of the Read the Docs platform are already mentioned in :ref:`lifecycle`.
-But did you know that we also build and extend features directly for usage with your documentation tools?
-
-As a relatively new chapter in Read the Docs' history,
-we are growing features that can be hard to maintain in the realm of a :term:`static website <static website>`.
+Read the Docs offers a number of features that are visible to readers of your documentation.
+This gives you the ability to provide a nicer experience to your readers,
+while also providing many benefits to the authors and maintainers.
 
 Example: Integrated :doc:`server side search </server-side-search/index>`
     Many documentation tools include a small JavaScript-based search utilities.

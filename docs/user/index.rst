@@ -121,16 +121,13 @@ Get a high-level overview of our platform:
 .. https://github.com/readthedocs/readthedocs.org/pull/10071
 
 💡 :doc:`/explanation/dedicated-platform`
-  An introduction to the reasons behind choosing a dedicated documentation platform such as Read the Docs.
+  An introduction to the reasons behind choosing a dedicated documentation platform.
 
 💡 :doc:`/explanation/continuous-documentation`
   Discover the advantages of having your documentation continuously deployed.
 
-.. TODO: This next item needs its article to be finished in a separate PR
-.. https://github.com/readthedocs/readthedocs.org/pull/10071
-.. TODO: 💡 Advanced topics: Deep-dive into Read the Docs
-..  Get familiar with some of the more advanced topics of building and deploying documentation with Read the Docs.
-
+💡 :doc:`/explanation/advanced`
+  Get familiar with some of the more advanced topics of building and deploying documentation.
 
 How-to guides
 -------------
