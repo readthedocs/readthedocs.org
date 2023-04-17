@@ -105,6 +105,7 @@
       }
     },
     "search": {
+      "enabled": true,
       "api_endpoint": "/_/api/v3/search/",
       "default_filter": "subprojects:project/latest",
       "filters": [

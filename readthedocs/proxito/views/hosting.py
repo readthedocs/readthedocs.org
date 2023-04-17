@@ -241,6 +241,7 @@ class AddonsResponse:
                     },
                 },
                 "search": {
+                    "enabled": True,
                     "project": project.slug,
                     "version": version.slug,
                     "api_endpoint": "/_/api/v3/search/",
