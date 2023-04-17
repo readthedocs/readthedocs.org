@@ -11,7 +11,7 @@ For private repositories, please use :doc:`Read the Docs for Business </commerci
 Automatically import your docs
 ------------------------------
 
-If you have :doc:`connected your Read the Docs account <../connected-accounts>` to GitHub, Bitbucket, or GitLab,
+If you have :doc:`connected your Read the Docs account <../guides/setup/git-repo-automatic>` to GitHub, Bitbucket, or GitLab,
 you will see a list of your repositories that we are able to import.
 To import one of these projects, just click the import
 icon next to the repository you'd like to import. This will bring up a form that

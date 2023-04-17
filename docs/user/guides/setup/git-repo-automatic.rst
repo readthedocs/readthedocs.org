@@ -7,7 +7,7 @@ automatically configures your Git repository and your Read the Docs project.
 ✅️ Signed up with your Git provider?
   If you signed up or logged in to Read the Docs with your |git_providers_or|
   credentials, you're all done. Your account is connected.
-  The permissions that are granted are :ref:`explained below <connected-accounts:Permissions for connected accounts>`.
+  The permissions that are granted are :ref:`explained below <guides/setup/git-repo-automatic:Permissions for connected accounts>`.
 ⬇️ Signed up with your email address?
   If you have signed up to Read the Docs with your email address,
   you can add the connection to the Git provider afterwards.
@@ -51,7 +51,7 @@ By granting Read the Docs the requested permissions,
 we are issued a secret OAuth token from your Git provider.
 
 Using the secret token,
-we can automatically configure the repository that you select in the :doc:`project import <intro/import-guide>`.
+we can automatically configure the repository that you select in the :doc:`project import </intro/import-guide>`.
 We also use the token to send back build statuses and preview URLs for :doc:`pull requests </pull-requests>`.
 
 .. _OAuth: https://en.wikipedia.org/wiki/OAuth

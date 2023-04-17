@@ -214,7 +214,7 @@ debugging currently.
 Configuring connected accounts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-These are optional steps to setup the :doc:`connected accounts <rtd:connected-accounts>`
+These are optional steps to setup the :doc:`connected accounts <rtd:guides/setup/git-repo-automatic>`
 (GitHub, GitLab, and Bitbucket) in your development environment.
 This will allow you to login to your local development instance
 using your GitHub, Bitbucket, or GitLab credentials
