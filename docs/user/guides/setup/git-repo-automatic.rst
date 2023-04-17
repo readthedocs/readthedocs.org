@@ -2,7 +2,7 @@ How to automatically configure a Git repository
 ===============================================
 
 In this article, we explain how connecting your Read the Docs account to |git_providers_or|
-automatically configures your Git repository and your Read the Docs project.
+makes Read the Docs able to automatically configure your imported Git repositories and your Read the Docs projects.
 
 ✅️ Signed up with your Git provider?
   If you signed up or logged in to Read the Docs with your |git_providers_or|
