@@ -45,6 +45,8 @@ class BaseMkdocs(BaseBuilder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # This is the *MkDocs* yaml file
         self.yaml_file = self.get_yaml_config()
 
         # README: historically, the default theme was ``readthedocs`` but in

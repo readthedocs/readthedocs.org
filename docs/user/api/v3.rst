@@ -277,6 +277,8 @@ Project details
                 "latest": "{VERSION}",
                 "19.0.2": "{VERSION}"
             },
+            "privacy_level": "public",
+            "external_builds_privacy_level": "public",
             "_links": {
                 "_self": "/api/v3/projects/pip/",
                 "versions": "/api/v3/projects/pip/versions/",
@@ -301,7 +303,6 @@ Project details
       :Query Parameters:
 
          * **expand** (*string*) -- with ``organization`` and ``teams``.
-
 
 Project create
 ++++++++++++++
@@ -350,6 +351,8 @@ Project create
             "homepage": "http://template.readthedocs.io/",
             "programming_language": "py",
             "language": "es",
+            "privacy_level": "public",
+            "external_builds_privacy_level": "public",
             "tags": [
                 "automation",
                 "sphinx"
@@ -371,6 +374,9 @@ Project create
          * **organization** (*string*) -- required organization's slug under the project will be imported.
          * **teams** (*string*) -- optional teams' slugs the project will belong to.
 
+      .. note::
+
+         Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
 
 Project update
 ++++++++++++++
@@ -429,13 +435,18 @@ Project update
             "analytics_disabled": false,
             "single_version": false,
             "external_builds_enabled": true,
-
+            "privacy_level": "public",
+            "external_builds_privacy_level": "public"
         }
 
     .. note::
 
         Adding ``tags`` will replace existing tags with the new list,
         and if omitted won't change the tags.
+
+    .. note::
+
+       Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
 
     :statuscode 204: Updated successfully
 
@@ -534,6 +545,7 @@ Version detail
             "hidden": false,
             "type": "tag",
             "last_build": "{BUILD}",
+            "privacy_level": "public",
             "downloads": {
                 "pdf": "https://pip.readthedocs.io/_/downloads/pdf/pip/stable/",
                 "htmlzip": "https://pip.readthedocs.io/_/downloads/htmlzip/pip/stable/",
@@ -560,7 +572,6 @@ Version detail
     :query string expand: allows to add/expand some extra fields in the response.
                           Allowed values are ``last_build`` and ``last_build.config``.
                           Multiple fields can be passed separated by commas.
-
 
 Version update
 ++++++++++++++
@@ -602,11 +613,15 @@ Version update
 
         {
             "active": true,
-            "hidden": false
+            "hidden": false,
+            "privacy_level": "public"
         }
 
     :statuscode 204: Updated successfully
 
+    .. note::
+
+       Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
 
 Builds
 ~~~~~~

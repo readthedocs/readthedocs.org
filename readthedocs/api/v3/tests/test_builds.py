@@ -1,10 +1,15 @@
 from unittest import mock
 
+from django.test import override_settings
 from django.urls import reverse
 
 from .mixins import APIEndpointMixin
 
 
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=False,
+    ALLOW_PRIVATE_REPOS=False,
+)
 @mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class BuildsEndpointTests(APIEndpointMixin):
 

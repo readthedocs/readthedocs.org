@@ -2,19 +2,23 @@
 
 from os import path
 
-from readthedocs.config import BuildConfigV1, ConfigFileNotFound
+from readthedocs.config import BuildConfigV1
 from readthedocs.config import load as load_config
 from readthedocs.projects.models import ProjectConfigurationError
 
+from ..config.config import DefaultConfigFileNotFound
 from .constants import DOCKER_IMAGE, DOCKER_IMAGE_SETTINGS
 
 
-def load_yaml_config(version):
+def load_yaml_config(version, readthedocs_yaml_path=None):
     """
-    Load a configuration from `readthedocs.yml` file.
+    Load a build configuration file (`.readthedocs.yaml`).
 
     This uses the configuration logic from `readthedocs-build`, which will keep
     parsing consistent between projects.
+
+    :param readthedocs_yaml_path: Optionally, we are told which readthedocs_yaml_path to
+                                  load instead of using defaults.
     """
     checkout_path = version.project.checkout_path(version.slug)
     project = version.project
@@ -56,8 +60,9 @@ def load_yaml_config(version):
         config = load_config(
             path=checkout_path,
             env_config=env_config,
+            readthedocs_yaml_path=readthedocs_yaml_path,
         )
-    except ConfigFileNotFound:
+    except DefaultConfigFileNotFound:
         # Default to use v1 with some defaults from the web interface
         # if we don't find a configuration file.
         config = BuildConfigV1(

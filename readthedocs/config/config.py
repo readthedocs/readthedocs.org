@@ -43,17 +43,18 @@ from .validation import (
 )
 
 __all__ = (
-    'ALL',
-    'load',
-    'BuildConfigV1',
-    'BuildConfigV2',
-    'ConfigError',
-    'ConfigOptionNotSupportedError',
-    'ConfigFileNotFound',
-    'InvalidConfig',
-    'PIP',
-    'SETUPTOOLS',
-    'LATEST_CONFIGURATION_VERSION',
+    "ALL",
+    "load",
+    "BuildConfigV1",
+    "BuildConfigV2",
+    "ConfigError",
+    "ConfigOptionNotSupportedError",
+    "ConfigFileNotFound",
+    "DefaultConfigFileNotFound",
+    "InvalidConfig",
+    "PIP",
+    "SETUPTOOLS",
+    "LATEST_CONFIGURATION_VERSION",
 )
 
 ALL = 'all'
@@ -92,6 +93,17 @@ class ConfigFileNotFound(ConfigError):
     def __init__(self, directory):
         super().__init__(
             f'Configuration file not found in: {directory}',
+            CONFIG_FILE_REQUIRED,
+        )
+
+
+class DefaultConfigFileNotFound(ConfigError):
+
+    """Error when we can't find a configuration file."""
+
+    def __init__(self, directory):
+        super().__init__(
+            f"No default configuration file in: {directory}",
             CONFIG_FILE_REQUIRED,
         )
 
@@ -1369,7 +1381,7 @@ class BuildConfigV2(BuildConfigBase):
         return Search(**self._config['search'])
 
 
-def load(path, env_config):
+def load(path, env_config, readthedocs_yaml_path=None):
     """
     Load a project configuration and the top-most build config for a given path.
 
@@ -1377,10 +1389,20 @@ def load(path, env_config):
     the version of the configuration a build object would be load and validated,
     ``BuildConfigV1`` is the default.
     """
-    filename = find_one(path, CONFIG_FILENAME_REGEX)
-
-    if not filename:
-        raise ConfigFileNotFound(path)
+    # Custom non-default config file location
+    if readthedocs_yaml_path:
+        filename = os.path.join(path, readthedocs_yaml_path)
+        # When a config file is specified and not found, we raise ConfigError
+        # because ConfigFileNotFound
+        if not os.path.exists(filename):
+            raise ConfigFileNotFound(os.path.relpath(filename, path))
+    # Default behavior
+    else:
+        filename = find_one(path, CONFIG_FILENAME_REGEX)
+        if not filename:
+            # This exception is current caught higher up and will result in an attempt
+            # to load the v1 config schema.
+            raise DefaultConfigFileNotFound(path)
 
     # Allow symlinks, but only the ones that resolve inside the base directory.
     with safe_open(

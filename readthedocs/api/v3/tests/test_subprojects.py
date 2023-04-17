@@ -1,8 +1,13 @@
+from django.test import override_settings
 from django.urls import reverse
 
 from .mixins import APIEndpointMixin
 
 
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=False,
+    ALLOW_PRIVATE_REPOS=False,
+)
 class SubprojectsEndpointTests(APIEndpointMixin):
 
     def setUp(self):
