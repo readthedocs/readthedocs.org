@@ -289,8 +289,8 @@ class ProxitoMiddleware(MiddlewareMixin):
                 response["X-RTD-Hosting-Integrations"] = "true"
 
             # Inject the new integrations for versions using `build.commands`
-            version = project.versions.get(slug=version_slug)
-            if version.config.get("build", {}).get("commands", {}) != []:
+            version = project.versions.filter(slug=version_slug).first()
+            if version and version.config.get("build", {}).get("commands", {}) != []:
                 response["X-RTD-Hosting-Integrations"] = "true"
 
     def process_response(self, request, response):  # noqa
