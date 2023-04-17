@@ -6,11 +6,11 @@ The following how-to guides help you solve common tasks and challenges in the se
 ⏩️ :doc:`Connecting your Read the Docs account to your Git provider </guides/connecting-git-account>`
     Steps to connect an account on |git_providers_or| with your Read the Docs account.
 
-⏩️ :doc:`Connecting your Git repository automatically </connected-accounts>`
+⏩️ :doc:`Configuring your Git repository automatically </connected-accounts>`
     Once your account is connected to your Git provider,
     adding and configuring a Git repository **automatically** is possible for |git_providers_and|.
 
-⏩️ :doc:`Connecting your Git repository manually </guides/git-integrations>`
+⏩️ :doc:`Configuring your Git repository manually </guides/git-integrations>`
     If you are connecting a Git repository from another provider (for instance Gitea or Codeberg),
     this guide tells you how to add and configure the Webhook **manually**.
 
