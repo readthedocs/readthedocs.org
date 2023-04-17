@@ -48,8 +48,8 @@ Now your connection is ready and you will be able to import and configure Git re
 .. seealso::
 
    :doc:`/guides/setup/git-repo-automatic`
-     Learn about what a connected account with your Git provider is used for
-     and the permissions required for connecting accounts.
+     Learn how the connected account is used for automatically configuring Git repositories and Read the Docs projects
+     and which **permissions** that are required from your Git provider.
 
 Removing a connection
 ---------------------
