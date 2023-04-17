@@ -7,21 +7,48 @@ makes Read the Docs able to automatically configure your imported Git repositori
 ✅️ Signed up with your Git provider?
   If you signed up or logged in to Read the Docs with your |git_providers_or|
   credentials, you're all done. Your account is connected.
-  The permissions that are granted are :ref:`explained below <guides/setup/git-repo-automatic:Permissions for connected accounts>`.
-⬇️ Signed up with your email address?
+
+  The rest of this guide helps to understand how the automatic configuration works.
+
+⏩️️ Signed up with your email address?
   If you have signed up to Read the Docs with your email address,
   you can add the connection to the Git provider afterwards.
-  See: :doc:`/guides/connecting-git-account`
+  You can also add a connection to an additional Git provider this way.
 
-If you are going to import repositories from |git_providers_or|,
-we recommend that you connect your Read the Docs account to your Git provider.
+  Please follow :doc:`/guides/connecting-git-account` in this case.
 
-Connecting your account allows for:
+Automatic configuration
+-----------------------
 
-* Easy import of your repositories.
-* Automatic configuration of your repository :doc:`/integrations`.
-  which allow Read the Docs to build your docs on every change to your repository
-* Logging into Read the Docs with your |git_providers_or| credentials.
+When your Read the Docs account is connected to your Git Provider and you import a Git repository,
+all the basic settings will automatically be configured on the Read the Docs project and on your Git repository.
+
+Here is an outline of what happens:
+
+#. A list of repositories that you have access to are automatically listed on Read the Docs' project import.
+#. You choose a Git repository from the list (see :doc:`/intro/import-guide`).
+#. Data about the repository is now read using the account connection and you are asked to confirm the setup.
+#. Read the Docs creates the project with these basic settings,
+   including a unique webhook that the Git provider calls.
+#. Read the Docs uses the account connection to add its webhook URL on the Git repository's settings,
+   as well as adding an integration for :doc:`Pull Request builds </guides/pull-requests>`.
+
+After the import,
+you can continue to configure the project.
+All settings can be modified,
+including the ones that were automatically created.
+
+.. TODO: The following is for a feature reference.
+
+.. If you are going to import repositories from |git_providers_or|,
+.. we recommend that you connect your Read the Docs account to your Git provider.
+
+.. Connecting your account allows for:
+
+.. * Easy import of your repositories.
+.. * Automatic configuration of your repository :doc:`/integrations`.
+..   which allow Read the Docs to build your docs on every change to your repository
+.. * Logging into Read the Docs with your |git_providers_or| credentials.
 
 
 .. seealso::
