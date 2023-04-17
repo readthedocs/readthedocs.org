@@ -5,7 +5,7 @@ How to import private repositories
 
    This guide is for users of :doc:`/commercial/index`.
    **If you are using GitHub, GitLab, or Bitbucket**,
-   we recommend :doc:`connecting your account </guides/setup/git-repo-automatic>` and importing your project from
+   we recommend :doc:`connecting your account </guides/connecting-git-account>` and importing your project from
    https://readthedocs.com/dashboard/import instead of importing it manually.
 
 You can grant access to private Git repositories using |com_brand|.
