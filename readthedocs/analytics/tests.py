@@ -130,7 +130,7 @@ class AnalyticsPageViewsTests(TestCase):
 
     def test_cache_headers(self):
         resp = self.client.get(self.url, HTTP_HOST=self.host)
-        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.status_code, 204)
         self.assertEqual(resp["CDN-Cache-Control"], "private")
 
     def test_increase_page_view_count(self):
