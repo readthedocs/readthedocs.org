@@ -188,6 +188,7 @@ class AddonsResponse:
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
                 "analytics": {
+                    "enabled": True,
                     # TODO: consider adding this field into the ProjectSerializer itself.
                     "code": project.analytics_code,
                 },
