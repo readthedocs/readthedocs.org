@@ -55,7 +55,7 @@ configure a new webhook.
 
 .. seealso::
 
-   :doc:`/guides/git-integrations`
+   :doc:`/guides/setup/git-repo-manual`
       Once you have imported your git project, use this guide to manually set up basic and additional *webhook* integration.
 
 .. note::
