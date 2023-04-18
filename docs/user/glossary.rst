@@ -6,6 +6,11 @@ so that you have a reference for how we're using them.
 
 .. glossary::
 
+   CI/CD
+      CI/CD is a common way to write *Continuous Integration and Continuous Deployment*.
+      In some scenarios, they exist as two separate platforms.
+      Read the Docs contains a combined CI/CD platform made for documentation.
+
    dashboard
       The "admin" site where Read the Docs projects are managed and configured.
       This varies for our two properties:
@@ -39,6 +44,18 @@ so that you have a reference for how we're using them.
       and rules for publication of documentation can be :doc:`automated </automation-rules>`.
       Similar to :term:`Docs as Code`.
 
+   webhooks
+      A webhook is a special URL that can be called from another service,
+      usually with a secret token.
+      It is commonly used to start a build or a deployment or to send a status update.
+
+      There are two important types of webhooks for Read the Docs:
+
+      * Git providers have webhooks which are special URLs that Read the Docs can call in order to notify about documentation builds.
+      * Read the Docs has a unique webhook for each project that the Git provider calls when changes happen in Git.
+
+      See also: :doc:`/guides/git-integrations` and :doc:`/build-notifications`
+
    pre-defined build jobs
       Commands executed by Read the Docs when performing the build process.
       They cannot be overwritten by the user.
@@ -58,7 +75,7 @@ so that you have a reference for how we're using them.
       You can also think of being *reproducible* as being *robust* or *resillient*.
 
       The typical issue with builds that are not reproducible is that their builds break entirely,
-      needubg frequent troubleshooting and manual fixing.
+      needing frequent troubleshooting and manual fixing.
 
       See: :doc:`/guides/reproducible-builds`.
 
@@ -67,6 +84,21 @@ so that you have a reference for how we're using them.
       project or version name, which is reduced to lowercase letters, numbers,
       and hyphens. You can retrieve your project or version slugs from
       :doc:`our API <api/v3>`.
+
+   static website
+      A static site or static website is a collection of HTML files, images, CSS and JavaScript that are served statically,
+      as opposed to dynamic websites that generate a unique response for each request, using databases and user sessions.
+
+      Static websites are highly portable, as they do not depend on the webserver.
+      They can also be viewed offline.
+
+      Documentation projects served on Read the Docs are *static websites*.
+
+      Tools to manage and generate static websites are commonly known as *static site generators* and there is a big overlap with documentation tools.
+      Some static site generators are also documentation tools,
+      and some documentation tools are also used to generate normal websites.
+
+      For instance, :doc:`Sphinx <sphinx:index>` is made for documentation but also used for blogging.
 
    subproject
       Project A can be configured such that when requesting a URL ``/projects/<subproject-slug>``,
