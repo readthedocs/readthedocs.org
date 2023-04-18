@@ -54,6 +54,13 @@ Word list
 
 We have a specific way that we write common words:
 
+* ``build command`` is the name of each step in the file.
+  We try to avoid confusion with pipelines, jobs and steps from other CIs,
+  as we do not have a multi-dimentional build sequence.
+* ``build job`` is the name of the general and pre-defined steps that can be overridden.
+  They are similar to "steps" in pipelines,
+  but on Read the Docs they are pre-defined.
+  So it's important to have a unique name.
 * ``Git`` should be upper case. Except when referring to the :program:`git` command, then it should be written as `:program:\`git\``.
 * ``Git repository`` for the place that stores Git repos. We used to use ``VCS``, but this is deprecated.
 * ``Git provider`` for generic references to GitHub/Bitbucket/GitLab/Gitea etc.
