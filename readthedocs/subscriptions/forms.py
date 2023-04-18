@@ -22,7 +22,7 @@ class PlanForm(forms.Form):
             .order_by("unit_amount")
         )
         self.fields["price"].choices = [
-            (price.pk, f"{price.product.name} ({price.human_readable_price})")
+            (price.id, f"{price.product.name} ({price.human_readable_price})")
             for price in stripe_prices
         ]
         self.fields["price"].help_text = _(
