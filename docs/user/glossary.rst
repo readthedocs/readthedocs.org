@@ -71,6 +71,11 @@ so that you have a reference for how we're using them.
 
       See: :doc:`/guides/reproducible-builds`.
 
+   root URL
+      Home URL of your documentation without the ``/<lang>`` and ``/<version>`` segments.
+      For projects without custom domains, the one ending in ``.readthedocs.io/``
+      (for example, ``https://docs.readthedocs.io`` as opposed to ``https://docs.readthedocs.io/en/latest``).
+
    slug
       A unique identifier for a project or version. This value comes from the
       project or version name, which is reduced to lowercase letters, numbers,
@@ -97,11 +102,6 @@ so that you have a reference for how we're using them.
       the root of project B is returned.
       In this case, *project B* is the subproject.
       Read more in :doc:`/subprojects`.
-
-   root URL
-      Home URL of your documentation without the ``/<lang>`` and ``/<version>`` segments.
-      For projects without custom domains, the one ending in ``.readthedocs.io/``
-      (for example, ``https://docs.readthedocs.io`` as opposed to ``https://docs.readthedocs.io/en/latest``).
 
    user-defined build jobs
       Commands defined by the user that Read the Docs will execute when performing the build process.
