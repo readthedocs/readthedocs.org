@@ -65,7 +65,7 @@ Read the Docs can clone all the repositories with the same key.
 
 .. seealso::
 
-   :ref:`Allow access to your Azure DevOps repository with an SSH key <guides/importing-private-repositories:azure devops>`.
+   :ref:`Allow access to your Azure DevOps repository with an SSH key <guides/importing-private-repositories:Add the public key to your project>`.
 
 Others
 ------
@@ -76,4 +76,4 @@ you only need to add it to each submodule repository.
 
 .. seealso::
 
-   :ref:`guides/importing-private-repositories:Giving access to your project with an SSH key`
+   :doc:`guides/importing-private-repositories`
