@@ -51,67 +51,64 @@ You can find the public SSH key of your Read the Docs project by:
 Add the public key to your project
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-GitHub
-''''''
+.. tabs::
 
-For GitHub, you can use
-`deploy keys with read only access <https://docs.github.com/en/developers/overview/managing-deploy-keys#deploy-keys>`__.
+   .. tab:: GitHub
 
-#. Go to your project on GitHub
-#. Click on :guilabel:`Settings`
-#. Click on :guilabel:`Deploy Keys`
-#. Click on :guilabel:`Add deploy key`
-#. Put a descriptive title and paste the
-   :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
-#. Click on :guilabel:`Add key`
+      For GitHub, you can use
+      `deploy keys with read only access <https://docs.github.com/en/developers/overview/managing-deploy-keys#deploy-keys>`__.
 
-GitLab
-''''''
+      #. Go to your project on GitHub
+      #. Click on :guilabel:`Settings`
+      #. Click on :guilabel:`Deploy Keys`
+      #. Click on :guilabel:`Add deploy key`
+      #. Put a descriptive title and paste the
+         :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
+      #. Click on :guilabel:`Add key`
 
-For GitLab, you can use `deploy keys with read only access <https://docs.gitlab.com/ee/user/project/deploy_keys/index.html>`__.
+   .. tab:: GitLab
 
-#. Go to your project on GitLab
-#. Click on :guilabel:`Settings`
-#. Click on :guilabel:`Repository`
-#. Expand the :guilabel:`Deploy Keys` section
-#. Put a descriptive title and paste the
-   :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
-#. Click on :guilabel:`Add key`
+      For GitLab, you can use `deploy keys with read only access <https://docs.gitlab.com/ee/user/project/deploy_keys/index.html>`__.
 
-Bitbucket
-'''''''''
+      #. Go to your project on GitLab
+      #. Click on :guilabel:`Settings`
+      #. Click on :guilabel:`Repository`
+      #. Expand the :guilabel:`Deploy Keys` section
+      #. Put a descriptive title and paste the
+         :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
+      #. Click on :guilabel:`Add key`
 
-For Bitbucket, you can use `access keys with read only access <https://confluence.atlassian.com/bitbucket/access-keys-294486051.html>`__.
+   .. tab:: Bitbucket
 
-#. Go your project on Bitbucket
-#. Click on :guilabel:`Repository Settings`
-#. Click on :guilabel:`Access keys`
-#. Click on :guilabel:`Add key`
-#. Put a descriptive label and paste the
-   :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
-#. Click on :guilabel:`Add SSH key`
+      For Bitbucket, you can use `access keys with read only access <https://confluence.atlassian.com/bitbucket/access-keys-294486051.html>`__.
 
-Azure DevOps
-''''''''''''
+      #. Go your project on Bitbucket
+      #. Click on :guilabel:`Repository Settings`
+      #. Click on :guilabel:`Access keys`
+      #. Click on :guilabel:`Add key`
+      #. Put a descriptive label and paste the
+         :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
+      #. Click on :guilabel:`Add SSH key`
 
-For Azure DevOps, you can use `SSH key authentication <https://docs.microsoft.com/en-us/azure/devops/repos/git/use-ssh-keys-to-authenticate?view=azure-devops>`__.
+   .. tab:: Azure DevOps
 
-#. Go your Azure DevOps page
-#. Click on :guilabel:`User settings`
-#. Click on :guilabel:`SSH public keys`
-#. Click on :guilabel:`New key`
-#. Put a descriptive name and paste the
-   :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
-#. Click on :guilabel:`Add`
+      For Azure DevOps, you can use `SSH key authentication <https://docs.microsoft.com/en-us/azure/devops/repos/git/use-ssh-keys-to-authenticate?view=azure-devops>`__.
 
-Others
-''''''
+      #. Go your Azure DevOps page
+      #. Click on :guilabel:`User settings`
+      #. Click on :guilabel:`SSH public keys`
+      #. Click on :guilabel:`New key`
+      #. Put a descriptive name and paste the
+         :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
+      #. Click on :guilabel:`Add`
 
-If you are not using any of the above providers,
-Read the Docs will still generate a pair of SSH keys.
-You'll need to add the :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
-to your repository.
-Refer to your provider's documentation for the steps required to do this.
+   .. tab:: Others
+
+      If you are not using any of the above providers,
+      Read the Docs will still generate a pair of SSH keys.
+      You'll need to add the :ref:`public SSH key from your Read the Docs project <guides/importing-private-repositories:copy your project's public key>`
+      to your repository.
+      Refer to your provider's documentation for the steps required to do this.
 
 Webhooks
 --------
