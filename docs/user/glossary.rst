@@ -53,6 +53,15 @@ so that you have a reference for how we're using them.
    project page
       Another name for :term:`project home`.
 
+   reproducible
+      A version of a documentation project is said to be *reproducible* when its source can be built on Read the Docs and result in the same static outputs (website, PDFs) over a periode of many years.
+      You can also think of being *reproducible* as being *robust* or *resillient*.
+
+      The typical issue with builds that are not reproducible is that their builds break entirely,
+      needubg frequent troubleshooting and manual fixing.
+
+      See: :doc:`/guides/reproducible-builds`.
+
    slug
       A unique identifier for a project or version. This value comes from the
       project or version name, which is reduced to lowercase letters, numbers,
