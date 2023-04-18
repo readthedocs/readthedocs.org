@@ -48,9 +48,6 @@ so that you have a reference for how we're using them.
       Commands executed by Read the Docs when performing the build process.
       They cannot be overwritten by the user.
 
-   profile page
-      Page where you can see the projects of a certain user.
-
    project home
       Page where you can access all the features of Read the Docs,
       from having an overview to browsing the latest builds or administering your project.
