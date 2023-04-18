@@ -61,6 +61,11 @@ We have a specific way that we write common words:
 * ``how to`` do the thing is explained in a ``how-to guide`` (notice hyphen and spaces).
 * ``lifecycle`` is spelled without hyphen nor space.
 * ``open source`` should be lower case, unless you are definitely referring to `OSI's Open Source Definition <https://opensource.org/osd>`.
+* ``.readthedocs.yaml`` is the general name of the build configuration file.
+  Even though we allow custom paths to the config file,
+  we only validate ``.readthedocs.yaml`` as the file name.
+  Older variations of the name are considered legacy.
+  We do not refer to it in general terms.
 
 Substitutions
 -------------
