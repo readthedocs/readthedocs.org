@@ -52,7 +52,7 @@ class RTDProduct:
         return self.stripe_id, self
 
 
-def get_product(stripe_id):
+def get_product(stripe_id) -> RTDProduct:
     """Return the product with the given stripe_id."""
     return settings.RTD_PRODUCTS.get(stripe_id)
 
