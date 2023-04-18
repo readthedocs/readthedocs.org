@@ -60,7 +60,6 @@ We have a specific way that we write common words:
   We avoid "host" and "platform" because they are slightly more ambiguous.
 * ``open source`` should be lower case, unless you are definitely referring to `OSI's Open Source Definition <https://opensource.org/osd>`.
 * ``how to`` do the thing is explained in a ``how-to guide`` (notice hyphen and spaces).
-* ``reproducible`` is a word that we use often, referring to the robustness.
 
 Substitutions
 -------------
