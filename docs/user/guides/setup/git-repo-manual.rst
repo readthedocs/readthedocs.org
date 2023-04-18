@@ -112,6 +112,10 @@ This will make Read the Docs build your documentation when a new commit, branch 
 
       .. _issue #8364: https://github.com/readthedocs/readthedocs.org/issues/8364
 
+   .. tab:: Others
+
+      Other providers are supported through a generic webhook, see :ref:`webhook-integration-generic`.
+
 
 Additional integration
 ----------------------
