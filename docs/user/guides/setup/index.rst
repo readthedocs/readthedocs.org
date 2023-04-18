@@ -24,6 +24,10 @@ The following how-to guides help you solve common tasks and challenges in the se
     Need several projects under the same umbrella?
     Start using subprojects, which is a way to host multiple projects under a "main project".
 
+⏩️ :doc:`Using a .readthedocs.yaml file in a sub-folder </guides/setup/monorepo>`
+    This guide shows how to configure a Read the Docs project to use a custom path for the ``.readthedocs.yaml`` build configuration.
+    *Monorepos* that have multiple documentation projects in the same Git repository can benefit from this feature.
+
 ⏩️ :doc:`Hiding a version </guides/hiding-a-version>`
     Is your version (flyout) menu overwhelmed and hard to navigate?
     Here's how to make it shorter.
@@ -44,4 +48,5 @@ The following how-to guides help you solve common tasks and challenges in the se
    Managing custom domains </guides/custom-domains>
    Managing subprojects </guides/subprojects>
    Hiding a version </guides/hiding-a-version>
+   Using a .readthedocs.yaml file in a sub-folder </guides/setup/monorepo>
    Using custom URL redirects in documentation projects </guides/redirects>
