@@ -1,21 +1,22 @@
 Versioning your configuration
 =============================
 
-.. TODO: This should live in Explanation / Deep-dive into Read the Docs
-
 The lifecycle of a documentation project changes the content and the structure of the documentation.
-In addition to this, **the whole configuration of a project also changes**.
+In addition to this,
+**the whole configuration of a project also changes**.
 
-But changing your configuration for your documentation's version 2.x should not make it impossible to keep maintaining the documentation for version 1.x using the former configuration.
+But changing your configuration for your documentation's version 2.x should not make it impossible to keep maintaining the documentation for version 1.x using a previous configuration.
 
 Consider the following aspects of a documentation project:
 
-:Software tools:
+:Build environment:
     You may depend on a number of packages but your method for installing them changes.
     What is installed, how it's installed and what installs it can change.
 
     For instance,
     you might change between Pip, Pipenv, Conda etc.
+
+    You might also jump between Python 2 and 3 or Python 3.8 and Python 3.10.
 
 :Documentation tools:
     Using Sphinx? Using MkDocs? Or some other tool?
@@ -26,13 +27,11 @@ Consider the following aspects of a documentation project:
     it's possible to change documentation tools between different versions of documentation.
 
 
-
 You can configure your Read the Docs project by adding a special file ``.readthedocs.yaml`` [1]_ to your Git repository.
 
 Because the file is stored in Git,
 the configuration will apply to the exact version that is being built.
 This allows you to store different configurations for different versions of your documentation.
-
 
 The main advantages of using a configuration file over the web interface are:
 
@@ -42,7 +41,6 @@ The main advantages of using a configuration file over the web interface are:
 - Some settings are only available using a configuration file
 
 .. [1] Other variants of the configuration file name like ``readthedocs.yaml``, ``.readthedocs.yml``, etc. are deprecated.
-
 
 Configuration as Code
 ---------------------
