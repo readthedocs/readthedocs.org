@@ -44,6 +44,30 @@ so that you have a reference for how we're using them.
       and rules for publication of documentation can be :doc:`automated </automation-rules>`.
       Similar to :term:`Docs as Code`.
 
+   pinning
+      *Pinning* software requirements is the most important technique to make a project :term:`reproducible`.
+      To *pin* a requirement means to specify which version that should be used.
+
+      When documentation builds,
+      software dependencies are installed in their latest versions permitted by the version specification.
+      Since software packages are frequently released,
+      we are usually trying to avoid incompatibilities in a new release from suddenly breaking a documentation build.
+
+      Examples of Python dependencies::
+
+          # Exact pinning: Only allow Sphinx 5.3.0
+          sphinx==5.3.0
+
+          # Loose pinning: Lower and upper bounds result in the latest 5.3.x release
+          sphinx>=5.3,<5.4
+
+          # Very loose pinning: Lower and upper bounds result in the latest 5.x release
+          sphinx>=5,<6
+
+      Read the Docs recommends using **exact pinning**.
+
+      See: :doc:`/guides/reproducible-builds`.
+
    pre-defined build jobs
       Commands executed by Read the Docs when performing the build process.
       They cannot be overwritten by the user.
