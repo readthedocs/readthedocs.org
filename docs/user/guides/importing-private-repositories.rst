@@ -13,11 +13,6 @@ you'll need to do some **extra steps in order to have your project working**.
 #. **Allow access to your project using an SSH key**
 #. **Setup a webhook to build your documentation on every commit**
 
-.. contents:: Table of contents
-   :local:
-   :backlinks: none
-   :depth: 3
-
 Importing your project
 ----------------------
 
