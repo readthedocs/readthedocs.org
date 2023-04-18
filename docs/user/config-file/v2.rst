@@ -1,5 +1,5 @@
-Configuration file v2
-=====================
+Configuration file .readthedocs.yaml
+====================================
 
 Read the Docs supports configuring your documentation builds with a YAML file.
 It's required to be named ``.readthedocs.yaml`` and be placed in the root of your Git repository.
@@ -947,6 +947,19 @@ These settings aren't supported via the configuration file.
 * ``Privacy level``
 * ``Analytics code``
 
+Custom sub-folder for .readthedocs.yaml
+---------------------------------------
+
+In order to support *monorepo* layouts,
+it's possible to configure the sub-folder where your ``.readthedocs.yaml`` is found.
+
+Using this configuration makes it possible to create several Read the Docs projects pointing at the same Git repository.
+This is recommended for monorepo layouts that host several documentation projects in the same repository.
+
+.. seealso::
+
+   :doc:`/guides/setup/monorepo`
+      This guide explains how to use the configuration.
 
 Previous version: v1
 --------------------
