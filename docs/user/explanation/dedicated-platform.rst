@@ -66,6 +66,10 @@ Read the Docs is a platform with over a decade of experience in automating docum
 The platform handles your current challenges or challenges that you face down the road.
 The right features are available when you need them.
 
+Some features respond to external factors,
+while other features respond to the natural development of a documentation project.
+The combined set of features make it possible to bootstrap a small documentation project and turn it into a mature enterprise product.
+
 .. figure:: /img/documentation-lifecycle.svg
    :alt: A diagram of external effects to a documentation's life-cycle
 
@@ -80,9 +84,11 @@ Example: Automated versioning and redirects
     the software product might change its version and remove or add features.
     Old versions of the product still need to be able to refer to their original documentation while new versions should not be unnecessarily complicated by documenting old features.
 
-    That is why Read the Docs supports versioning out-of-the-box and also gives you a mature set of options for creating :doc:`user-defined redirects </user-defined-redirects>`.
-
     As your documentation grows and pages are moved around, versioning and redirects become critical.
+
+    :doc:`Versioning </versions>` is a core part of documentation projects on our platform.
+    And on top of versioning support,
+    Read the Docs offers a mature set of :doc:`user-defined redirects </user-defined-redirects>`.
 
 Example: Analytics
     Documentation websites benefit from knowing which pages are popular and how people discover them through online search.
@@ -91,6 +97,16 @@ Example: Analytics
     but the need often arises.
     And why should every documentation project have to implement their own analytics solution?
     For this, you can use :doc:`/reference/analytics`.
+
+Example: Cloud hosting (CDN)
+    Read the Docs deploys and hosts your documentation.
+    Part of this package is to host documentation projects with a CDN in front of them,
+    so you never have to worry about incoming traffic.
+
+    We also have intelligent caching,
+    so you don't have to worry about when to invalidate your cloud cache when your project is updated.
+
+    Read more in :doc:`/reference/cdn`.
 
 .. seealso::
 
