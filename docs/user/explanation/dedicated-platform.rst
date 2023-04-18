@@ -71,9 +71,9 @@ while other features respond to the natural development of a documentation proje
 The combined set of features make it possible to bootstrap a small documentation project and turn it into a mature enterprise product.
 
 .. figure:: /img/documentation-lifecycle.svg
-   :alt: A diagram of external effects to a documentation's life-cycle
+   :alt: A diagram of external effects to a documentation's lifecycle
 
-   The number of effects on a life-cycle are many.
+   The number of effects on a lifecycle are many.
    Some are caused by external factors,
    changes to the product or project,
    changes in the team,
@@ -112,10 +112,8 @@ Example: Cloud hosting (CDN)
 
     :doc:`/reference/features`
         A practical way to understand Read the Docs is to look at our :doc:`list of features </reference/features>`.
-        All these features ultimately sustain the life-cycle of a documentation project.
+        All these features ultimately sustain the lifecycle of a documentation project.
 
-.. insert life-cycle diagram.
-.. new product + documentation project => new documentation pages => more product versions => more readers => more reader inputs => breaking changes => legacy product versions
 
 .. _documentation_tools:
 
@@ -226,7 +224,7 @@ Example: :doc:`Flyout menu </flyout-menu>`
 
     :doc:`/reference/features`
         A practical way to understand Read the Docs is to look at our :doc:`list of features </reference/features>`.
-        All these features ultimately sustain the life-cycle of a documentation project.
+        All these features ultimately sustain the lifecycle of a documentation project.
 
 
 .. Types of documentation projects
