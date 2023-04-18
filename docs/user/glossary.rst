@@ -59,7 +59,9 @@ so that you have a reference for how we're using them.
       Another name for :term:`project home`.
 
    reproducible
-      A version of a documentation project is said to be *reproducible* when its sources build correctly on Read the Docs over a periode of many years.
+      Being "reproducible" is an important positive quality goal of documentation.
+
+      A documentation project is said to be *reproducible* when its sources build correctly on Read the Docs over a periode of many years.
       You can also think of being *reproducible* as being *robust* or *resillient*.
 
       When builds are not reproducible and break due to external factors,
