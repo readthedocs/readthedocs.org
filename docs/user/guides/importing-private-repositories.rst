@@ -134,4 +134,4 @@ Finally, since this is a manual project import:
 **Don't forget to add the Read the Docs webhook!**
 
 To automatically trigger new builds on Read the Docs,
-you'll need to manually add a webhook, see :doc:`/integrations`.
+you'll need to manually add a webhook, see :doc:`/guides/git-integrations`.
