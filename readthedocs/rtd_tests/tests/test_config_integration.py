@@ -23,7 +23,7 @@ def create_load(config=None):
     if config is None:
         config = {}
 
-    def inner(path=None, env_config=None):
+    def inner(path=None, env_config=None, readthedocs_yaml_path=None):
         env_config_defaults = {
             'output_base': '',
             'name': '1',
@@ -97,8 +97,9 @@ class LoadConfigTests(TestCase):
             expected_env_config.update(img_settings)
 
         load_config.assert_called_once_with(
-                path=mock.ANY,
-                env_config=expected_env_config,
+            path=mock.ANY,
+            env_config=expected_env_config,
+            readthedocs_yaml_path=None,
         )
         self.assertEqual(config.python.version, '3')
 

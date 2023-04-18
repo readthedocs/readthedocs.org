@@ -287,6 +287,82 @@ class TestParsers:
 
     @mock.patch.object(BuildMediaFileSystemStorage, "exists")
     @mock.patch.object(BuildMediaFileSystemStorage, "open")
+    def test_sphinx_httpdomain(self, storage_open, storage_exists):
+        json_file = data_path / "sphinx/in/httpdomain.json"
+        html_content = data_path / "sphinx/in/httpdomain.html"
+
+        json_content = json.load(json_file.open())
+        json_content["body"] = html_content.open().read()
+        storage_open.side_effect = self._mock_open(json.dumps(json_content))
+        storage_exists.return_value = True
+
+        self.version.save()
+
+        page_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="httpdomain.html",
+        )
+
+        parsed_json = page_file.processed_json
+        expected_json = json.load(open(data_path / "sphinx/out/httpdomain.json"))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, "exists")
+    @mock.patch.object(BuildMediaFileSystemStorage, "open")
+    def test_sphinx_autodoc(self, storage_open, storage_exists):
+        # Source:
+        # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#directive-automodule
+        json_file = data_path / "sphinx/in/autodoc.json"
+        html_content = data_path / "sphinx/in/autodoc.html"
+
+        json_content = json.load(json_file.open())
+        json_content["body"] = html_content.open().read()
+        storage_open.side_effect = self._mock_open(json.dumps(json_content))
+        storage_exists.return_value = True
+
+        self.version.save()
+
+        page_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="autodoc.html",
+        )
+
+        parsed_json = page_file.processed_json
+        expected_json = json.load(open(data_path / "sphinx/out/autodoc.json"))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, "exists")
+    @mock.patch.object(BuildMediaFileSystemStorage, "open")
+    def test_sphinx_requests(self, storage_open, storage_exists):
+        # Source:
+        # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#directive-automodule
+        json_file = data_path / "sphinx/in/requests.json"
+        html_content = data_path / "sphinx/in/requests.html"
+
+        json_content = json.load(json_file.open())
+        json_content["body"] = html_content.open().read()
+        storage_open.side_effect = self._mock_open(json.dumps(json_content))
+        storage_exists.return_value = True
+
+        self.version.save()
+
+        page_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="requests.html",
+        )
+
+        parsed_json = page_file.processed_json
+        expected_json = json.load(open(data_path / "sphinx/out/requests.json"))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, "exists")
+    @mock.patch.object(BuildMediaFileSystemStorage, "open")
     def test_generic_simple_page(self, storage_open, storage_exists):
         file = data_path / "generic/in/basic.html"
         storage_exists.return_value = True

@@ -16,8 +16,8 @@ from readthedocs.config import (
     BuildConfigV1,
     BuildConfigV2,
     ConfigError,
-    ConfigFileNotFound,
     ConfigOptionNotSupportedError,
+    DefaultConfigFileNotFound,
     InvalidConfig,
     load,
 )
@@ -80,7 +80,7 @@ def get_build_config(config, env_config=None, source_file='readthedocs.yml'):
 def test_load_no_config_file(tmpdir, files):
     apply_fs(tmpdir, files)
     base = str(tmpdir)
-    with raises(ConfigFileNotFound) as e:
+    with raises(DefaultConfigFileNotFound) as e:
         with override_settings(DOCROOT=tmpdir):
             load(base, {})
     assert e.value.code == CONFIG_FILE_REQUIRED
@@ -194,6 +194,67 @@ def test_build_config_has_source_file(tmpdir):
     with override_settings(DOCROOT=tmpdir):
         build = load(base, {})
     assert build.source_file == os.path.join(base, 'readthedocs.yml')
+
+
+def test_load_non_default_filename(tmpdir):
+    """
+    Load a config file name with a non-default name.
+
+    Verifies that we can load a custom config path and that an existing default config file is
+    correctly ignored.
+
+    Note: Our CharField validator for readthedocs_yaml_path currently ONLY allows a file to be
+    called .readthedocs.yaml.
+    This test just verifies that the loader doesn't care since we support different file names
+    in the backend.
+    """
+    non_default_filename = "myconfig.yaml"
+    apply_fs(
+        tmpdir,
+        {
+            non_default_filename: textwrap.dedent(
+                """
+                version: 2
+                """
+            ),
+            ".readthedocs.yaml": "illegal syntax but should not load",
+        },
+    )
+    base = str(tmpdir)
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {}, readthedocs_yaml_path="myconfig.yaml")
+    assert isinstance(build, BuildConfigV2)
+    assert build.source_file == os.path.join(base, non_default_filename)
+
+
+def test_load_non_yaml_extension(tmpdir):
+    """
+    Load a config file name from non-default path.
+
+    In this version, we verify that we can handle non-yaml extensions
+    because we allow the user to do that.
+
+    See docstring of test_load_non_default_filename.
+    """
+    non_default_filename = ".readthedocs.skrammel"
+    apply_fs(
+        tmpdir,
+        {
+            "subdir": {
+                non_default_filename: textwrap.dedent(
+                    """
+                    version: 2
+                    """
+                ),
+            },
+            ".readthedocs.yaml": "illegal syntax but should not load",
+        },
+    )
+    base = str(tmpdir)
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {}, readthedocs_yaml_path="subdir/.readthedocs.skrammel")
+    assert isinstance(build, BuildConfigV2)
+    assert build.source_file == os.path.join(base, "subdir/.readthedocs.skrammel")
 
 
 def test_build_config_has_list_with_single_empty_value(tmpdir):
