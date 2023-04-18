@@ -5,6 +5,7 @@
       "created": "2019-04-29T10:00:00Z",
       "default_branch": "master",
       "default_version": "latest",
+      "external_builds_privacy_level": "public",
       "id": 1,
       "language": {
         "code": "en",
@@ -12,6 +13,7 @@
       },
       "modified": "2019-04-29T12:00:00Z",
       "name": "project",
+      "privacy_level": "public",
       "programming_language": {
         "code": "words",
         "name": "Only Words"
@@ -40,6 +42,7 @@
       "downloads": {},
       "id": 1,
       "identifier": "a1b2c3",
+      "privacy_level": "public",
       "ref": null,
       "slug": "latest",
       "type": "tag",
