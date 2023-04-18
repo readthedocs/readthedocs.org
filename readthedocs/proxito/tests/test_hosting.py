@@ -20,6 +20,7 @@ from readthedocs.projects.models import Project
     PUBLIC_DOMAIN="dev.readthedocs.io",
     PUBLIC_DOMAIN_USES_HTTPS=True,
     GLOBAL_ANALYTICS_CODE=None,
+    RTD_ALLOW_ORGANIZATIONS=False,
 )
 @pytest.mark.proxito
 class TestReadTheDocsConfigJson(TestCase):
