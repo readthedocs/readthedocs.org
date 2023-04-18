@@ -15,8 +15,8 @@ Every time you change something in your documentation, Read the Docs will automa
 *build* your documentation,
 and finally *deploy* your documentation for readers to see.
 
-The Continuous Integration and Continuous Deployment (CI/CD) features are configured with your repository provider,
-such as GitHub, Bitbucket or GitLab.
+The Continuous Integration and Continuous Deployment (:term:`CI/CD`) features are configured with your repository provider,
+such as |git_providers_or|.
 With each change committed to your repository, we are notified by the configured :term:`webhook <webhooks>`.
 
 When a receive a *webhook* notification, we match it to a Read the Docs project.

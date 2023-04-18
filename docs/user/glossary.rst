@@ -45,6 +45,10 @@ so that you have a reference for how we're using them.
       Similar to :term:`Docs as Code`.
 
    webhooks
+      A webhook is a special URL that can be called from another service,
+      usually with a secret token.
+      It is commonly used to start a build or a deployment or to send a status update.
+
       There are two important types of webhooks for Read the Docs:
 
       * Git providers have webhooks which are special URLs that Read the Docs can call in order to notify about documentation builds.
@@ -73,10 +77,13 @@ so that you have a reference for how we're using them.
       :doc:`our API <api/v3>`.
 
    static website
-      Documentation projects served on Read the Docs are a type of *static websites*.
+      A static site or static website is a collection of HTML files, images, CSS and JavaScript that are served statically,
+      as opposed to dynamic websites that generate a unique response for each request, using databases and user sessions.
 
-      A static site or static website is a collection of HTML files, images, CSS and JavaScript that do not change over time,
-      nor depend on which web server that is serving them.
+      Static websites are highly portable, as they do not depend on the webserver.
+      They can also be viewed offline.
+
+      Documentation projects served on Read the Docs are *static websites*.
 
       Tools to manage and generate static websites are commonly known as *static site generators* and there is a big overlap with documentation tools.
       Some static site generators are also documentation tools,
