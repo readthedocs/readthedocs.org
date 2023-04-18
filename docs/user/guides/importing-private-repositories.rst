@@ -1,12 +1,7 @@
 How to import private repositories
 ==================================
 
-.. warning::
-
-   This guide is for users of :doc:`/commercial/index`.
-   **If you are using GitHub, GitLab, or Bitbucket**,
-   we recommend :doc:`connecting your account </connected-accounts>` and importing your project from
-   https://readthedocs.com/dashboard/import instead of importing it manually.
+.. include:: /shared/admonition-rtd-business.rst
 
 You can grant access to private Git repositories using |com_brand|.
 Here is how you set it up.
