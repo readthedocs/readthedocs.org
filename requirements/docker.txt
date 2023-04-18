@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.109
+boto3==1.26.114
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.109
+botocore==1.29.114
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -81,7 +81,7 @@ click-repl==0.2.0
     #   celery
 colorama==0.4.6
     # via tox
-cryptography==40.0.1
+cryptography==40.0.2
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -275,9 +275,9 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.9
+orjson==3.8.10
     # via -r requirements/pip.txt
-packaging==23.0
+packaging==23.1
     # via
     #   -r requirements/pip.txt
     #   docker
@@ -317,7 +317,7 @@ pycparser==2.21
     # via
     #   -r requirements/pip.txt
     #   cffi
-pygments==2.14.0
+pygments==2.15.0
     # via
     #   -r requirements/pip.txt
     #   ipython
@@ -374,7 +374,7 @@ requests-oauthlib==1.3.1
     #   django-allauth
 requests-toolbelt==0.10.1
     # via -r requirements/pip.txt
-rich==13.3.3
+rich==13.3.4
     # via -r requirements/docker.in
 s3transfer==0.6.0
     # via
@@ -452,7 +452,7 @@ tomli==2.0.1
     #   ipdb
     #   pyproject-api
     #   tox
-tox==4.4.11
+tox==4.4.12
     # via -r requirements/docker.in
 traitlets==5.9.0
     # via
