@@ -1,3 +1,5 @@
+.. TODO: Use new glossary terms added in another PR
+
 Versioning your configuration
 =============================
 
@@ -6,6 +8,11 @@ In addition to this,
 **the whole configuration of a project also changes**.
 
 But changing your configuration for your documentation's version 2.x should not make it impossible to keep maintaining the documentation for version 1.x using a previous configuration.
+
+.. seealso::
+
+   :doc:`/config-file/v2`
+      Reference of all the settings offered in the build configuration file.
 
 Consider the following aspects of a documentation project:
 
@@ -36,7 +43,7 @@ This allows you to store different configurations for different versions of your
 The main advantages of using a configuration file over the web interface are:
 
 - Settings are per version rather than per project.
-- Settings live in your VCS.
+- Settings live in your Git repository.
 - They enable reproducible build environments over time.
 - Some settings are only available using a configuration file
 
