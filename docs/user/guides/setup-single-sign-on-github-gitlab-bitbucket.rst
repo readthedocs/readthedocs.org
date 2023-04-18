@@ -16,7 +16,7 @@ User setup
 ~~~~~~~~~~
 
 Users in your organization must have their GitHub, Bitbucket, or GitLab
-:doc:`account connected </connected-accounts>`,
+:doc:`account connected </guides/connecting-git-account>`,
 otherwise they won't have access to any project on Read the Docs after performing this change.
 You can read more about `granting permissions on GitHub`_ in their documentation.
 

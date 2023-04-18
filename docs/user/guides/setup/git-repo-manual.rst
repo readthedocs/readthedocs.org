@@ -7,7 +7,7 @@ This includes most Git providers, for example |git_providers_and|.
 
 .. seealso::
 
-   :doc:`/connected-accounts`
+   :doc:`/guides/setup/git-repo-automatic`
      You are now reading the guide to configuring a Git repository manually.
      If your Read the Docs account is :doc:`connected to the Git provider </guides/connecting-git-account>`,
      we can setup the integration automatically.
@@ -132,7 +132,7 @@ Use this URL when setting up a new integration with your provider ^^ these steps
    :doc:`/guides/pull-requests`
       Git repositories that are imported manually **do not** have the required setup to send back a **commit status**.
       If you need this integration,
-      you have to :doc:`configure the repository automatically </connected-accounts>`.
+      you have to :doc:`configure the repository automatically </guides/setup/git-repo-automatic>`.
 
 .. seealso::
 
