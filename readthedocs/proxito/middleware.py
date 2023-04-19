@@ -217,7 +217,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise DomainDNSHttp404(
                 http_status=400,
-                host=exc.domain,
+                domain=exc.domain,
             )
         except (InvalidSubdomainError, InvalidExternalDomainError) as exc:
             log.debug("Invalid project set on the subdomain.")
@@ -230,7 +230,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             log.debug("CNAME 404.", domain=exc.domain)
             # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise DomainDNSHttp404(
-                host=exc.domain,
+                domain=exc.domain,
             )
         except InvalidXRTDSlugHeaderError:
             raise SuspiciousOperation("Invalid X-RTD-Slug header.")

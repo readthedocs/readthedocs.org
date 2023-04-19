@@ -27,8 +27,8 @@ class ContextualizedHttp404(Http404):
         :param path_not_found: Inform the template and 404 view about a different path from
                                request.path
         """
-        self.http_status = kwargs.pop("http_status", 404)
-        self.path_not_found = kwargs.pop("path_not_found", None)
+        self.http_status = http_status
+        self.path_not_found = path_not_found
         self.kwargs = kwargs
 
     def get_context(self):
