@@ -9,7 +9,7 @@ so that you have a reference for how we're using them.
    CI/CD
       CI/CD is a common way to write *Continuous Integration and Continuous Deployment*.
       In some scenarios, they exist as two separate platforms.
-      Read the Docs contains a combined CI/CD platform made for documentation.
+      Read the Docs is a combined CI/CD platform made for documentation.
 
    dashboard
       The "admin" site where Read the Docs projects are managed and configured.
@@ -46,7 +46,7 @@ so that you have a reference for how we're using them.
 
    pinning
       *Pinning* software requirements is the most important technique to make a project :term:`reproducible`.
-      To *pin* a requirement means to specify which version that should be used.
+      To *pin* a requirement means to explicitly specify which version should be used.
 
       When documentation builds,
       software dependencies are installed in their latest versions permitted by the version specification.
