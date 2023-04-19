@@ -1,9 +1,7 @@
 {% load i18n %}
 
         <!-- BEGIN wide search bar -->
-        {% if term|default_if_none:False %}
-        <h3>{% trans "Search the docs" %}</h3>
-        {% else %}
+        {% if not term|default_if_none:False %}
         <h3>{% trans "Search all the docs" %}</h3>
         {% endif %}
         <div class="wide-search-bar">
