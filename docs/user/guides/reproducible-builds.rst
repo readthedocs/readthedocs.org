@@ -143,7 +143,7 @@ Check list ✅
 -------------
 
 If you followed this guide,
-you have pinned:
+you have:term:`pinned <pinning>`:
 
 * tool versions (Python, Node)
 * top-level dependencies (Sphinx, Sphinx extensions)
