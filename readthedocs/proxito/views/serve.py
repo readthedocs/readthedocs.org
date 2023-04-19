@@ -27,21 +27,21 @@ from readthedocs.projects import constants
 from readthedocs.projects.models import Domain, Feature
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
-from readthedocs.redirects.exceptions import InfiniteRedirectException
-from readthedocs.storage import build_media_storage
-
-from ..exceptions import (
+from readthedocs.proxito.exceptions import (
     ContextualizedHttp404,
+    ProjectFilenameHttp404,
     ProjectTranslationHttp404,
     ProjectVersionHttp404,
-    ProxitoProjectFilenameHttp404,
 )
-from .mixins import (
+from readthedocs.proxito.views.mixins import (
     InvalidPathError,
     ServeDocsMixin,
     ServeRedirectMixin,
     StorageFileNotFound,
 )
+from readthedocs.redirects.exceptions import InfiniteRedirectException
+from readthedocs.storage import build_media_storage
+
 from .utils import _get_project_data_from_request
 
 log = structlog.get_logger(__name__)  # noqa
@@ -784,7 +784,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             filename = unresolved.filename
             lang_slug = project.language
             version_slug = version.slug
-            contextualized_404_class = ProxitoProjectFilenameHttp404
+            contextualized_404_class = ProjectFilenameHttp404
         except VersionNotFoundError as exc:
             project = exc.project
             lang_slug = project.language
