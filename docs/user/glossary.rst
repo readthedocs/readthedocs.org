@@ -49,7 +49,7 @@ so that you have a reference for how we're using them.
       To *pin* a requirement means to explicitly specify which version should be used.
 
       When documentation builds,
-      software dependencies are installed in their latest versions permitted by the version specification.
+      software dependencies are installed in their latest versions permitted by the pinning specification.
       Since software packages are frequently released,
       we are usually trying to avoid incompatibilities in a new release from suddenly breaking a documentation build.
 
