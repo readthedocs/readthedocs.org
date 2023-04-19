@@ -44,6 +44,7 @@ from readthedocs.projects.querysets import (
 )
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
+    validate_build_config_file,
     validate_domain_name,
     validate_no_ip,
     validate_repository_url,
@@ -353,13 +354,28 @@ class Project(models.Model):
     conf_py_file = models.CharField(
         _('Python configuration file'),
         max_length=255,
-        default='',
+        default="",
         blank=True,
         help_text=_(
-            'Path from project root to <code>conf.py</code> file '
-            '(ex. <code>docs/conf.py</code>). '
-            'Leave blank if you want us to find it for you.',
+            "Path from project root to <code>conf.py</code> file "
+            "(ex. <code>docs/conf.py</code>). "
+            "Leave blank if you want us to find it for you.",
         ),
+    )
+
+    readthedocs_yaml_path = models.CharField(
+        _("Path for .readthedocs.yaml"),
+        max_length=1024,
+        default=None,
+        blank=True,
+        null=True,
+        help_text=_(
+            "<strong>Warning: experimental feature</strong>. "
+            "Custom path from repository top-level to your <code>.readthedocs.yaml</code>, "
+            "ex. <code>subpath/docs/.readthedocs.yaml</code>. "
+            "Leave blank for default value: <code>.readthedocs.yaml</code>.",
+        ),
+        validators=[validate_build_config_file],
     )
 
     featured = models.BooleanField(_('Featured'), default=False)
@@ -857,7 +873,7 @@ class Project(models.Model):
         return os.path.join(self.checkout_path(version=version), "_readthedocs", type_)
 
     def conf_file(self, version=LATEST):
-        """Find a ``conf.py`` file in the project checkout."""
+        """Find a Sphinx ``conf.py`` file in the project checkout."""
         if self.conf_py_file:
             conf_path = os.path.join(
                 self.checkout_path(version),

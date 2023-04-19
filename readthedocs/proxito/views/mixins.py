@@ -24,6 +24,8 @@ from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage, staticfiles_storage
+from readthedocs.subscriptions.constants import TYPE_AUDIT_PAGEVIEWS
+from readthedocs.subscriptions.models import PlanFeature
 
 log = structlog.get_logger(__name__)
 
@@ -212,7 +214,7 @@ class ServeDocsMixin:
         This feature is different from page views analytics,
         as it records every page view individually with more metadata like the user, IP, etc.
         """
-        return False
+        return PlanFeature.objects.has_feature(project, TYPE_AUDIT_PAGEVIEWS)
 
     def _serve_static_file(self, request, filename):
         return self._serve_file(
@@ -279,7 +281,7 @@ class ServeDocsMixin:
         log.debug('Unauthorized access to documentation.', project_slug=project.slug)
         return res
 
-    def allowed_user(self, *args, **kwargs):
+    def allowed_user(self, request, version):
         return True
 
     def get_version_from_host(self, request, version_slug):

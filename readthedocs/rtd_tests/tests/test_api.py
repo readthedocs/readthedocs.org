@@ -60,6 +60,7 @@ from readthedocs.projects.models import (
     Feature,
     Project,
 )
+from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 
 super_auth = base64.b64encode(b'super:test').decode('utf-8')
 eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
@@ -704,19 +705,27 @@ class APITests(TestCase):
     def test_user_doesnt_get_full_api_return(self):
         user_normal = get(User, is_staff=False)
         user_admin = get(User, is_staff=True)
-        project = get(Project, main_language_project=None, conf_py_file='foo')
+        project = get(
+            Project,
+            main_language_project=None,
+            conf_py_file="foo",
+            readthedocs_yaml_path="bar",
+        )
         client = APIClient()
 
         client.force_authenticate(user=user_normal)
         resp = client.get('/api/v2/project/%s/' % (project.pk))
         self.assertEqual(resp.status_code, 200)
-        self.assertNotIn('conf_py_file', resp.data)
+        self.assertNotIn("conf_py_file", resp.data)
+        self.assertNotIn("readthedocs_yaml_path", resp.data)
 
         client.force_authenticate(user=user_admin)
         resp = client.get('/api/v2/project/%s/' % (project.pk))
         self.assertEqual(resp.status_code, 200)
-        self.assertIn('conf_py_file', resp.data)
-        self.assertEqual(resp.data['conf_py_file'], 'foo')
+        self.assertIn("conf_py_file", resp.data)
+        self.assertEqual(resp.data["conf_py_file"], "foo")
+        self.assertIn("readthedocs_yaml_path", resp.data)
+        self.assertEqual(resp.data["readthedocs_yaml_path"], "bar")
 
     def test_project_features(self):
         user = get(User, is_staff=True)
@@ -845,6 +854,11 @@ class APITests(TestCase):
             {'RELEASE': 'prod'},
         )
 
+    @override_settings(
+        RTD_DEFAULT_FEATURES={
+            TYPE_CONCURRENT_BUILDS: 4,
+        }
+    )
     def test_concurrent_builds(self):
         expected = {
             'limit_reached': False,
@@ -2472,6 +2486,7 @@ class APIVersionTests(TestCase):
                 "repo": "https://github.com/pypa/pip",
                 "repo_type": "git",
                 "requirements_file": None,
+                "readthedocs_yaml_path": None,
                 "show_advertising": True,
                 "skip": False,
                 "slug": "pip",

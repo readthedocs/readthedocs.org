@@ -14,7 +14,6 @@ from readthedocs.analytics.models import PageView
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST
 from readthedocs.builds.models import Version
-from readthedocs.organizations.models import Organization
 from readthedocs.projects import constants
 from readthedocs.projects.constants import (
     DOWNLOADABLE_MEDIA_TYPES,
@@ -27,13 +26,12 @@ from readthedocs.projects.constants import (
     SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import Domain, Feature, Project
-from readthedocs.proxito.views.mixins import ServeDocsMixin
 from readthedocs.redirects.models import Redirect
 from readthedocs.rtd_tests.storage import (
     BuildMediaFileSystemStorageTest,
     StaticFileSystemStorageTest,
 )
-from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
+from readthedocs.subscriptions.constants import TYPE_AUDIT_PAGEVIEWS, TYPE_CNAME
 
 from .base import BaseDocServing
 
@@ -609,21 +607,19 @@ class TestDocServingBackends(BaseDocServing):
             resp = self.client.get(_path, HTTP_HOST="project.dev.readthedocs.io")
             self.assertEqual(resp.status_code, 400)
 
-    @mock.patch.object(ServeDocsMixin, '_is_audit_enabled')
-    def test_track_html_files_only(self, is_audit_enabled):
-        is_audit_enabled.return_value = False
-
+    def test_track_html_files_only(self):
         self.assertEqual(AuditLog.objects.all().count(), 0)
         url = '/en/latest/awesome.html'
         host = 'project.dev.readthedocs.io'
-        resp = self.client.get(url, HTTP_HOST=host)
+        with override_settings(RTD_DEFAULT_FEATURES={}):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertIn('x-accel-redirect', resp)
         self.assertEqual(AuditLog.objects.all().count(), 0)
 
-        is_audit_enabled.return_value = True
         url = '/en/latest/awesome.html'
         host = 'project.dev.readthedocs.io'
-        resp = self.client.get(url, HTTP_HOST=host)
+        with override_settings(RTD_DEFAULT_FEATURES={TYPE_AUDIT_PAGEVIEWS: 1}):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertIn('x-accel-redirect', resp)
         self.assertEqual(AuditLog.objects.all().count(), 1)
 
@@ -633,16 +629,16 @@ class TestDocServingBackends(BaseDocServing):
         self.assertEqual(log.resource, url)
         self.assertEqual(log.action, AuditLog.PAGEVIEW)
 
-        resp = self.client.get('/en/latest/awesome.js', HTTP_HOST=host)
-        self.assertIn('x-accel-redirect', resp)
-        resp = self.client.get('/en/latest/awesome.css', HTTP_HOST=host)
-        self.assertIn('x-accel-redirect', resp)
+        with override_settings(RTD_DEFAULT_FEATURES={TYPE_AUDIT_PAGEVIEWS: 1}):
+            resp = self.client.get("/en/latest/awesome.js", HTTP_HOST=host)
+        self.assertIn("x-accel-redirect", resp)
+
+        with override_settings(RTD_DEFAULT_FEATURES={TYPE_AUDIT_PAGEVIEWS: 1}):
+            resp = self.client.get("/en/latest/awesome.css", HTTP_HOST=host)
+        self.assertIn("x-accel-redirect", resp)
         self.assertEqual(AuditLog.objects.all().count(), 1)
 
-    @mock.patch.object(ServeDocsMixin, '_is_audit_enabled')
-    def test_track_downloads(self, is_audit_enabled):
-        is_audit_enabled.return_value = True
-
+    def test_track_downloads(self):
         self.project.versions.update(
             has_pdf=True,
             has_epub=True,
@@ -652,7 +648,8 @@ class TestDocServingBackends(BaseDocServing):
         self.assertEqual(AuditLog.objects.all().count(), 0)
         url = '/_/downloads/en/latest/pdf/'
         host = 'project.dev.readthedocs.io'
-        resp = self.client.get(url, HTTP_HOST=host)
+        with override_settings(RTD_DEFAULT_FEATURES={TYPE_AUDIT_PAGEVIEWS: 1}):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertIn('x-accel-redirect', resp)
         self.assertEqual(AuditLog.objects.all().count(), 1)
 
@@ -1499,11 +1496,24 @@ class ProxitoV2TestAdditionalDocViews(TestAdditionalDocViews):
             future_default_true=True,
         )
 
+    def test_404_download(self):
+        response = self.client.get(
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/_/downloads/en/latest/pdf/"},
+            ),
+            HTTP_HOST="project.readthedocs.io",
+        )
+        self.assertEqual(response.status_code, 404)
+
 
 @override_settings(
     ALLOW_PRIVATE_REPOS=True,
     PUBLIC_DOMAIN='dev.readthedocs.io',
     PUBLIC_DOMAIN_USES_HTTPS=True,
+    RTD_DEFAULT_FEATURES={
+        TYPE_CNAME: 1,
+    },
 )
 # We are overriding the storage class instead of using RTD_BUILD_MEDIA_STORAGE,
 # since the setting is evaluated just once (first test to use the storage
@@ -1726,30 +1736,6 @@ class TestCDNCache(BaseDocServing):
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "private")
         self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest")
-
-    def test_cache_on_plan(self):
-        self.organization = get(Organization)
-        self.plan = get(
-            Plan,
-            published=True,
-        )
-        self.subscription = get(
-            Subscription,
-            plan=self.plan,
-            organization=self.organization,
-        )
-        self.feature = get(
-            PlanFeature,
-            plan=self.plan,
-            feature_type=PlanFeature.TYPE_CDN,
-        )
-
-        # Delete feature plan, so we aren't using that logic
-        Feature.objects.filter(feature_id=Feature.CDN_ENABLED).delete()
-
-        # Add project to plan, so we're using that to enable CDN
-        self.organization.projects.add(self.project)
-        self._test_cache_control_header_project(expected_value="public")
 
 
 class ProxitoV2TestCDNCache(TestCDNCache):

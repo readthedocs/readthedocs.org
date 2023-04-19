@@ -1,5 +1,4 @@
 """Project model QuerySet classes."""
-from django.conf import settings
 from django.db import models
 from django.db.models import Count, OuterRef, Prefetch, Q, Subquery
 
@@ -96,6 +95,7 @@ class ProjectQuerySetBase(models.QuerySet):
 
           - project
           - organization
+          - plan
           - default setting
 
         :param project: project to be checked
@@ -104,15 +104,21 @@ class ProjectQuerySetBase(models.QuerySet):
         :returns: number of max concurrent builds for the project
         :rtype: int
         """
+        from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
+        from readthedocs.subscriptions.models import PlanFeature
+
         max_concurrent_organization = None
         organization = project.organizations.first()
         if organization:
             max_concurrent_organization = organization.max_concurrent_builds
 
         return (
-            project.max_concurrent_builds or
-            max_concurrent_organization or
-            settings.RTD_MAX_CONCURRENT_BUILDS
+            project.max_concurrent_builds
+            or max_concurrent_organization
+            or PlanFeature.objects.get_feature_value(
+                project,
+                type=TYPE_CONCURRENT_BUILDS,
+            )
         )
 
     def prefetch_latest_build(self):

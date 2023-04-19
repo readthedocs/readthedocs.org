@@ -1,3 +1,48 @@
+Version 9.11.0
+--------------
+
+:Date: April 18, 2023
+
+* `@benjaoming <https://github.com/benjaoming>`__: Fix a little test failure (`#10248 <https://github.com/readthedocs/readthedocs.org/pull/10248>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Scripts: Add export statements and instruction to fetch awscli (compile_version_upload_s3.sh) (`#10245 <https://github.com/readthedocs/readthedocs.org/pull/10245>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10244 <https://github.com/readthedocs/readthedocs.org/pull/10244>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V3: make tests explicit (`#10236 <https://github.com/readthedocs/readthedocs.org/pull/10236>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 9.10.1 (`#10235 <https://github.com/readthedocs/readthedocs.org/pull/10235>`__)
+* `@dependabot[bot] <https://github.com/dependabot[bot]>`__: Bump peter-evans/create-pull-request from 4 to 5 (`#10233 <https://github.com/readthedocs/readthedocs.org/pull/10233>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10232 <https://github.com/readthedocs/readthedocs.org/pull/10232>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add notes on private repo support in our install docs (`#10230 <https://github.com/readthedocs/readthedocs.org/pull/10230>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics API: check if absolute_uri isn't present (`#10227 <https://github.com/readthedocs/readthedocs.org/pull/10227>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: inject hosting integration header for `build.commands` (`#10219 <https://github.com/readthedocs/readthedocs.org/pull/10219>`__)
+* `@humitos <https://github.com/humitos>`__: API: hosting integrations endpoint versioning/structure (`#10216 <https://github.com/readthedocs/readthedocs.org/pull/10216>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Search: index <dl>s as sections and remove Sphinx domain logic (`#10128 <https://github.com/readthedocs/readthedocs.org/pull/10128>`__)
+* `@ewdurbin <https://github.com/ewdurbin>`__: implement multiple .readthedocs.yml files per repo (`#10001 <https://github.com/readthedocs/readthedocs.org/pull/10001>`__)
+
+Version 9.10.1
+--------------
+
+:Date: April 11, 2023
+
+* `@dependabot[bot] <https://github.com/dependabot[bot]>`__: Bump peter-evans/create-pull-request from 4 to 5 (`#10233 <https://github.com/readthedocs/readthedocs.org/pull/10233>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10232 <https://github.com/readthedocs/readthedocs.org/pull/10232>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add notes on private repo support in our install docs (`#10230 <https://github.com/readthedocs/readthedocs.org/pull/10230>`__)
+* `@stsewd <https://github.com/stsewd>`__: Migrate more feature checks (`#10228 <https://github.com/readthedocs/readthedocs.org/pull/10228>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics API: check if absolute_uri isn't present (`#10227 <https://github.com/readthedocs/readthedocs.org/pull/10227>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: minor changes to examples for consistency (`#10225 <https://github.com/readthedocs/readthedocs.org/pull/10225>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Experiment with canonical url using READTHEDOCS_CANONICAL_URL (`#10224 <https://github.com/readthedocs/readthedocs.org/pull/10224>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10215 <https://github.com/readthedocs/readthedocs.org/pull/10215>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: refactor allowed_user (`#10213 <https://github.com/readthedocs/readthedocs.org/pull/10213>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: Test infinite redirect on non-existing PDFs (`#10212 <https://github.com/readthedocs/readthedocs.org/pull/10212>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V3: support privacy levels on projects and versions (`#10210 <https://github.com/readthedocs/readthedocs.org/pull/10210>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix filter positional arguments (`#10202 <https://github.com/readthedocs/readthedocs.org/pull/10202>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Gather definitions in the same dl on main index page (`#10201 <https://github.com/readthedocs/readthedocs.org/pull/10201>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.10.0 (`#10200 <https://github.com/readthedocs/readthedocs.org/pull/10200>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom domains: hide https option (`#10188 <https://github.com/readthedocs/readthedocs.org/pull/10188>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: refactor project download view (`#10178 <https://github.com/readthedocs/readthedocs.org/pull/10178>`__)
+* `@humitos <https://github.com/humitos>`__: Build: hardcode the Docker username for now (`#10172 <https://github.com/readthedocs/readthedocs.org/pull/10172>`__)
+* `@humitos <https://github.com/humitos>`__: Build: expose VCS-related environment variables (`#10168 <https://github.com/readthedocs/readthedocs.org/pull/10168>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Automation rules: model text changes for UI (`#10138 <https://github.com/readthedocs/readthedocs.org/pull/10138>`__)
+* `@stsewd <https://github.com/stsewd>`__: Unify feature check for organization/project (`#8920 <https://github.com/readthedocs/readthedocs.org/pull/8920>`__)
+
 Version 9.10.0
 --------------
 

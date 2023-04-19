@@ -65,9 +65,16 @@ ogp_description_length = 300
 
 templates_path = ["_templates"]
 
+# This may be elevated as a general issue for documentation and behavioral
+# change to the Sphinx build:
+# This will ensure that we use the correctly set environment for canonical URLs
+# Old Read the Docs injections makes it point only to the default version,
+# for instance /en/stable/
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
+
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "9.10.0"
+version = "9.11.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
