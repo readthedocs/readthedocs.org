@@ -27,6 +27,7 @@ from readthedocs.projects import constants
 from readthedocs.projects.models import Domain, Feature
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
+from readthedocs.proxito.redirects import canonical_redirect
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
@@ -119,14 +120,12 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         # and makes caching more effective because we don't care about authz.
         redirect_type = self._get_canonical_redirect_type(request)
         if redirect_type:
-            # TODO: find a better way to pass this to the middleware.
-            request.path_project_slug = unresolved_domain.project.slug
             try:
-                return self.canonical_redirect(
-                    request=request,
-                    final_project=unresolved_domain.project,
-                    external_version_slug=unresolved_domain.external_version_slug,
+                return canonical_redirect(
+                    request,
+                    project=unresolved_domain.project,
                     redirect_type=redirect_type,
+                    external_version_slug=unresolved_domain.external_version_slug,
                 )
             except InfiniteRedirectException:
                 # ``canonical_redirect`` raises this when it's redirecting back to itself.
@@ -279,24 +278,6 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         """If the current request needs a redirect, return the type of redirect to perform."""
         unresolved_domain = request.unresolved_domain
         project = unresolved_domain.project
-        if unresolved_domain.is_from_custom_domain:
-            domain = unresolved_domain.domain
-            if domain.https and not request.is_secure():
-                # Redirect HTTP -> HTTPS (302) for this custom domain.
-                log.debug("Proxito CNAME HTTPS Redirect.", domain=domain.domain)
-                return RedirectType.http_to_https
-
-        # Redirect HTTP -> HTTPS (302) for public domains.
-        if (
-            (
-                unresolved_domain.is_from_public_domain
-                or unresolved_domain.is_from_external_domain
-            )
-            and settings.PUBLIC_DOMAIN_USES_HTTPS
-            and not request.is_secure()
-        ):
-            return RedirectType.http_to_https
-
         # Check for subprojects before checking for canonical domains,
         # so we can redirect to the main domain first.
         # Custom domains on subprojects are not supported.
