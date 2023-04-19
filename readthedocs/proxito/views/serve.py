@@ -353,8 +353,8 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         if unresolved_domain.is_from_external_domain:
             self.version_type = EXTERNAL
 
-        # 404 errors aren't contextualized because they are sent to the HTTP proxy
-        # The path will be 'unresolved' again when HTTP server handles the 404 error
+        # 404 errors aren't contextualized here because all 404s use the internal nginx redirect,
+        # where the path will be 'unresolved' again when handling the 404 error
         # See: ServeError404Base
         try:
             unresolved = unresolver.unresolve_path(
@@ -531,8 +531,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         version_slug = kwargs.get('version_slug')
         version_slug = self.get_version_from_host(request, version_slug)
-        # This special treatment of Http404 happens because the decorator that
-        # resolves a project doesn't know if it's resolving a subproject or a normal project
         (
             final_project,
             lang_slug,

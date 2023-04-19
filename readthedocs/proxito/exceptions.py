@@ -10,13 +10,13 @@ class ContextualizedHttp404(Http404):
     Subclasses may define their own template name,
     HTTP status and object that was not found.
 
-    The contextualized exception is handled by the project's 404 view.
+    The contextualized exception is handled by proxito's 404 handler
     """
 
     template_name = "errors/404/base.html"
     not_found_subject = _("page")
 
-    def __init__(self, **kwargs):
+    def __init__(self, http_status=404, path_not_found=None, **kwargs):
         """
         Constructor that all subclasses should call.
 
@@ -64,10 +64,10 @@ class SubprojectHttp404(ContextualizedHttp404):
     """Raised if a subproject was not found."""
 
     template_name = "errors/404/no_subproject.html"
-    not_found_subject = _("sub project")
+    not_found_subject = _("subproject")
 
 
-class ProxitoProjectFilenameHttp404(ContextualizedHttp404):
+class ProjectFilenameHttp404(ContextualizedHttp404):
 
     """Raised if a page inside an existing project was not found."""
 
@@ -93,7 +93,7 @@ class ProjectVersionHttp404(ContextualizedHttp404):
     """
     Raised if a version was not found.
 
-    Note: The containing project can be both a project or a subproject inside another project.
+    Note: The containing project can be a subproject.
     """
 
     template_name = "errors/404/no_version.html"

@@ -31,7 +31,7 @@ def proxito_404_page_handler(
     inside ``ServeError404`` view, we want to render a useful HTML response.
     """
 
-    # This type of request should have a fast response with no HTML rendered
+    # 404 exceptions that don't originate from our proxito 404 handler should have a fast response with no HTML rendered, since they will be forwarded to our 404 handler again.
     if request.resolver_match and request.resolver_match.url_name != 'proxito_404_handler':
         return fast_404(request, exception, template_name)
 
@@ -42,7 +42,6 @@ def proxito_404_page_handler(
     # Context is defined by the views that raise these exceptions and handled
     # in their templates.
     if isinstance(exception, ContextualizedHttp404):
-        # These attributes are not guaranteed.
         context.update(exception.get_context())
         template_name = exception.template_name
         http_status = exception.http_status
