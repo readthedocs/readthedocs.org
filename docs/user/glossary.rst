@@ -45,8 +45,8 @@ so that you have a reference for how we're using them.
       Similar to :term:`Docs as Code`.
 
    pinning
-      *Pinning* software requirements is the most important technique to make a project :term:`reproducible`.
       To *pin* a requirement means to explicitly specify which version should be used.
+      *Pinning* software requirements is the most important technique to make a project :term:`reproducible`.
 
       When documentation builds,
       software dependencies are installed in their latest versions permitted by the pinning specification.
