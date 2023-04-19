@@ -354,7 +354,7 @@ and as a result, it tends to look a bit better with the default theme.
 I need to install a package in a environment with pinned versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To ensure proper installation of a Python package, the ``pip`` :ref:`install method <config-file/v2:python.install>` will automatically upgrade every dependency to its most recent version in case they aren't pinned by the package definition.
+To ensure proper installation of a Python package, the ``pip`` :ref:`install method <config-file/v2:python.install>` will automatically upgrade every dependency to its most recent version in case they aren't:term:`pinned <pinning>` by the package definition.
 If instead you'd like to pin your dependencies outside the package, you can add this line to your requirements or environment file (if you are using Conda).
 
 In your ``requirements.txt`` file::

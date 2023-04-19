@@ -19,7 +19,7 @@ we recommend that you connect your Read the Docs account to your Git provider.
 Connecting your account allows for:
 
 * Easy import of your repositories.
-* Automatic configuration of your repository's :term:`webhooks`.
+* Automatic configuration of your repository's :term:`webhooks <webhook>`.
   which allows Read the Docs to build your docs on every change to your repository.
 * Logging into Read the Docs with your |git_providers_or| credentials.
 
@@ -71,7 +71,7 @@ Read the Docs does not generally ask for *write* permission to your repository c
 and since we only connect to public repositories we don't need special permissions to read them.
 However, we do need permissions for authorizing your account
 so that you can login to Read the Docs with your connected account credentials
-and to setup :term:`webhooks`
+and to setup :term:`webhooks <webhook>`
 which allow us to build your documentation on every change to your repository.
 
 
@@ -88,7 +88,7 @@ which allow us to build your documentation on every change to your repository.
           We ask for this so you can create a Read the Docs account and login with your GitHub credentials.
 
       Administering webhooks (``admin:repo_hook``)
-          We ask for this so we can create webhooks on your repositories when you import them into Read the Docs.
+          We ask for this so we can create :term:`webhooks <webhook>` on your repositories when you import them into Read the Docs.
           This allows us to build the docs when you push new commits.
 
       Read access to your organizations (``read:org``)
@@ -115,7 +115,7 @@ which allow us to build your documentation on every change to your repository.
       We request permissions for:
 
       Administering your repositories (``repository:admin``)
-        We ask for this so we can create webhooks on your repositories when you import them into Read the Docs.
+        We ask for this so we can create :term:`webhooks <webhook>` on your repositories when you import them into Read the Docs.
         This allows us to build the docs when you push new commits.
         NB! This permission scope does **not** include any write access to code.
 
