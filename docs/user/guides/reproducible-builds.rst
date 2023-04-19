@@ -2,7 +2,7 @@ How to create reproducible builds
 =================================
 
 Your documentation depends on a number of dependencies to be built.
-If your docs don't have reproducible builds,
+If your docs don't have :term:`reproducible` builds,
 an update in a dependency can break your builds when least expected,
 or make your docs look different from your local version.
 This guide will help you to keep your builds working over time,
@@ -15,7 +15,6 @@ so that you can focus on content.
 Use a ``.readthedocs.yaml`` configuration file
 ----------------------------------------------
 
-
 We recommend using a :doc:`configuration file </config-file/v2>` to manage your documentation.
 Our config file *provides you per version settings*,
 and *those settings live in your Git repository*.
@@ -26,7 +25,7 @@ and ensures that all your versions can be rebuilt from a reproducible configurat
 Use a requirements file for Python dependencies
 -----------------------------------------------
 
-We recommend using a Pip :ref:`requirements file <pip:requirements-file-format>` or Conda :ref:`environment file <config-file/v2:conda.environment>` to pin Python dependencies.
+We recommend using a Pip :ref:`requirements file <pip:requirements-file-format>` or Conda :ref:`environment file <config-file/v2:conda.environment>` to :term:`pin <pinning>` Python dependencies.
 This ensures that top-level dependencies and extensions don't change.
 
 A configuration file with explicit dependencies looks like this:
@@ -66,7 +65,7 @@ A configuration file with explicit dependencies looks like this:
 Pin your transitive dependencies
 --------------------------------
 
-Once you have pinned your own dependencies,
+Once you have :term:`pinned <pinning>` your own dependencies,
 the next things to worry about are the dependencies of your dependencies.
 These are called *transitive dependencies*,
 and they can upgrade without warning if you do not pin these packages as well.

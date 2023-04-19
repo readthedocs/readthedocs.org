@@ -127,7 +127,7 @@ so that you have a reference for how we're using them.
    user-defined build jobs
       Commands defined by the user that Read the Docs will execute when performing the build process.
 
-   webhooks
+   webhook
       A webhook is a special URL that can be called from another service,
       usually with a secret token.
       It is commonly used to start a build or a deployment or to send a status update.
