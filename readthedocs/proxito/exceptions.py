@@ -1,5 +1,5 @@
 from django.http import Http404
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 
 class ContextualizedHttp404(Http404):
@@ -14,7 +14,9 @@ class ContextualizedHttp404(Http404):
     """
 
     template_name = "errors/404/base.html"
-    not_found_subject = _("page")
+    not_found_subject = pgettext_lazy(
+        "Names an object not found in a 404 error", "page"
+    )
 
     def __init__(self, http_status=404, path_not_found=None, **kwargs):
         """
@@ -40,10 +42,12 @@ class ContextualizedHttp404(Http404):
 
 class DomainDNSHttp404(ContextualizedHttp404):
 
-    """Raised if a DNS record points to us but we do not know the domain."""
+    """Raised if a DNS record points to us and we don't know the domain."""
 
     template_name = "errors/404/dns.html"
-    not_found_subject = _("domain matching DNS record")
+    not_found_subject = pgettext_lazy(
+        "Names an object not found in a 404 error", "matching DNS record"
+    )
 
 
 class ProjectHttp404(ContextualizedHttp404):
@@ -56,7 +60,9 @@ class ProjectHttp404(ContextualizedHttp404):
     """
 
     template_name = "errors/404/no_project.html"
-    not_found_subject = _("project")
+    not_found_subject = pgettext_lazy(
+        "Names an object not found in a 404 error", "project"
+    )
 
 
 class SubprojectHttp404(ContextualizedHttp404):
@@ -64,7 +70,9 @@ class SubprojectHttp404(ContextualizedHttp404):
     """Raised if a subproject was not found."""
 
     template_name = "errors/404/no_subproject.html"
-    not_found_subject = _("subproject")
+    not_found_subject = pgettext_lazy(
+        "Names an object not found in a 404 error", "subproject"
+    )
 
 
 class ProjectFilenameHttp404(ContextualizedHttp404):
@@ -72,7 +80,9 @@ class ProjectFilenameHttp404(ContextualizedHttp404):
     """Raised if a page inside an existing project was not found."""
 
     template_name = "errors/404/no_project_page.html"
-    not_found_subject = _("documentation page")
+    not_found_subject = pgettext_lazy(
+        "Names an object not found in a 404 error", "documentation page"
+    )
 
 
 class ProjectTranslationHttp404(ContextualizedHttp404):
@@ -85,7 +95,9 @@ class ProjectTranslationHttp404(ContextualizedHttp404):
     """
 
     template_name = "errors/404/no_language.html"
-    not_found_subject = _("translation")
+    not_found_subject = pgettext_lazy(
+        "Names an object not found in a 404 error", "translation"
+    )
 
 
 class ProjectVersionHttp404(ContextualizedHttp404):
@@ -97,4 +109,6 @@ class ProjectVersionHttp404(ContextualizedHttp404):
     """
 
     template_name = "errors/404/no_version.html"
-    not_found_subject = _("documentation version")
+    not_found_subject = pgettext_lazy(
+        "Names an object not found in a 404 error", "documentation version"
+    )
