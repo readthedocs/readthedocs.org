@@ -445,41 +445,34 @@ class Unresolver:
         subdomain, *root_domain = domain.split(".", maxsplit=1)
         root_domain = root_domain[0] if root_domain else ""
 
-        if public_domain in domain:
-            # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`.
-            if public_domain == root_domain:
-                project_slug = subdomain
-                log.debug("Public domain.", domain=domain)
+        # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`.
+        if public_domain == root_domain:
+            project_slug = subdomain
+            log.debug("Public domain.", domain=domain)
+            return UnresolvedDomain(
+                source_domain=domain,
+                source=DomainSourceType.public_domain,
+                project=self._resolve_project_slug(project_slug, domain),
+            )
+
+        # Serve from the RTD_EXTERNAL_VERSION_DOMAIN, ensuring it looks like
+        # `project--version.RTD_EXTERNAL_VERSION_DOMAIN`.
+        if external_domain == root_domain:
+            try:
+                project_slug, version_slug = subdomain.rsplit("--", maxsplit=1)
+                log.debug("External versions domain.", domain=domain)
                 return UnresolvedDomain(
                     source_domain=domain,
-                    source=DomainSourceType.public_domain,
+                    source=DomainSourceType.external_domain,
                     project=self._resolve_project_slug(project_slug, domain),
+                    external_version_slug=version_slug,
                 )
+            except ValueError:
+                log.info("Invalid format of external versions domain.", domain=domain)
+                raise InvalidExternalDomainError(domain=domain)
 
+        if public_domain in domain or external_domain in domain:
             # NOTE: This can catch some possibly valid domains (docs.readthedocs.io.com)
-            # for example, but these might be phishing, so let's block them for now.
-            log.warning("Weird variation of our domain.", domain=domain)
-            raise SuspiciousHostnameError(domain=domain)
-
-        # Serve PR builds on external_domain host.
-        if external_domain in domain:
-            if external_domain == root_domain:
-                try:
-                    project_slug, version_slug = subdomain.rsplit("--", maxsplit=1)
-                    log.debug("External versions domain.", domain=domain)
-                    return UnresolvedDomain(
-                        source_domain=domain,
-                        source=DomainSourceType.external_domain,
-                        project=self._resolve_project_slug(project_slug, domain),
-                        external_version_slug=version_slug,
-                    )
-                except ValueError:
-                    log.info(
-                        "Invalid format of external versions domain.", domain=domain
-                    )
-                    raise InvalidExternalDomainError(domain=domain)
-
-            # NOTE: This can catch some possibly valid domains (docs.readthedocs.build.com)
             # for example, but these might be phishing, so let's block them for now.
             log.warning("Weird variation of our domain.", domain=domain)
             raise SuspiciousHostnameError(domain=domain)

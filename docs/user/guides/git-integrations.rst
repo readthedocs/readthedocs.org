@@ -114,7 +114,7 @@ Provider-specific instructions
 Additional integration
 ----------------------
 
-You can configure multiple webhooks.
+You can configure multiple :term:`webhooks <webhook>`.
 
 To manually set up an integration, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
 dashboard page and select the integration type you'd like to add.
