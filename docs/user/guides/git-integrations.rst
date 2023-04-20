@@ -116,7 +116,7 @@ This will make Read the Docs build your documentation when a new commit, branch 
 Additional integration
 ----------------------
 
-You can configure multiple incoming webhooks.
+You can configure multiple incoming :term:`webhooks <webhook>`.
 
 To manually set up an integration, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
 dashboard page and select the integration type you'd like to add.
