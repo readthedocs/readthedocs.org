@@ -76,4 +76,4 @@ you only need to add it to each submodule repository.
 
 .. seealso::
 
-   :doc:`guides/importing-private-repositories`
+   :doc:`/guides/importing-private-repositories`
