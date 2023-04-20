@@ -1967,7 +1967,7 @@ class Feature(models.Model):
         (
             CDN_ENABLED,
             _(
-                "Hosting: CDN support for a project's public versions when privacy levels "
+                "Proxito: CDN support for a project's public versions when privacy levels "
                 "are enabled."
             ),
         ),
@@ -1977,15 +1977,15 @@ class Feature(models.Model):
         ),
         (
             RECORD_404_PAGE_VIEWS,
-            _("Hosting: Record 404s page views."),
+            _("Proxito: Record 404s page views."),
         ),
         (
             ALLOW_FORCED_REDIRECTS,
-            _("Hosting: Allow forced redirects."),
+            _("Proxito: Allow forced redirects."),
         ),
         (
             DISABLE_PAGEVIEWS,
-            _("Hosting: Disable all page views"),
+            _("Proxito: Disable all page views"),
         ),
         (
             DISABLE_SPHINX_DOMAINS,
@@ -1993,12 +1993,12 @@ class Feature(models.Model):
         ),
         (
             RESOLVE_PROJECT_FROM_HEADER,
-            _("Hosting: Allow usage of the X-RTD-Slug header"),
+            _("Proxito: Allow usage of the X-RTD-Slug header"),
         ),
         (
             USE_UNRESOLVER_WITH_PROXITO,
             _(
-                "Hosting: Use new unresolver implementation for serving documentation files."
+                "Proxito: Use new unresolver implementation for serving documentation files."
             ),
         ),
 
@@ -2097,7 +2097,7 @@ class Feature(models.Model):
         (
             HOSTING_INTEGRATIONS,
             _(
-                "Hosting: Inject 'readthedocs-client.js' as <script> HTML tag in responses."
+                "Proxito: Inject 'readthedocs-client.js' as <script> HTML tag in responses."
             ),
         ),
     )
