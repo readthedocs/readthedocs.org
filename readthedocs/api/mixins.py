@@ -1,7 +1,7 @@
 import functools
-from django.http import Http404
 
 import structlog
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.functional import cached_property
 

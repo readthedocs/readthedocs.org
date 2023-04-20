@@ -10,12 +10,12 @@ from django.conf import settings
 from django.core.cache import cache
 from rest_framework import status
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
-from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from selectolax.parser import HTMLParser
 
 from readthedocs.api.mixins import CDNCacheTagsMixin, EmbedAPIMixin
+from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v3.permissions import HasEmbedAPIAccess
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.utils import clean_references
@@ -111,7 +111,9 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             project = self.unresolved_url.project
             version = self.unresolved_url.version
             filename = self.unresolved_url.filename
-            page_content = self._get_page_content_from_storage(project, version, filename)
+            page_content = self._get_page_content_from_storage(
+                project, version, filename
+            )
 
         return self._parse_based_on_doctool(page_content, fragment, doctool, doctoolversion)
 
