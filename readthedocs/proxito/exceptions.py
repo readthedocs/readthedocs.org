@@ -49,6 +49,16 @@ class DomainDNSHttp404(ContextualizedHttp404):
         "Names an object not found in a 404 error", "matching DNS record"
     )
 
+    def __init__(self, domain, **kwargs):
+        """
+        Raised when DNS for a custom domain is bad.
+
+        :param domain: The domain for which DNS is misconfigured.
+        :param kwargs:
+        """
+        kwargs["domain"] = domain
+        super().__init__(**kwargs)
+
 
 class ProjectHttp404(ContextualizedHttp404):
 
@@ -64,6 +74,16 @@ class ProjectHttp404(ContextualizedHttp404):
         "Names an object not found in a 404 error", "project"
     )
 
+    def __init__(self, domain=None, **kwargs):
+        """
+        Raised when a project wasn't found for a given domain.
+
+        :param domain: The domain (custom and hosted) that was not found.
+        :param kwargs:
+        """
+        kwargs["domain"] = domain
+        super().__init__(**kwargs)
+
 
 class SubprojectHttp404(ContextualizedHttp404):
 
@@ -74,6 +94,16 @@ class SubprojectHttp404(ContextualizedHttp404):
         "Names an object not found in a 404 error", "subproject"
     )
 
+    def __init__(self, project, **kwargs):
+        """
+        Raised if a subproject was not found.
+
+        :param project: The project in which the subproject could not be found
+        :param kwargs: Context dictionary of the rendered template
+        """
+        kwargs["project"] = project
+        super().__init__(**kwargs)
+
 
 class ProjectFilenameHttp404(ContextualizedHttp404):
 
@@ -83,6 +113,16 @@ class ProjectFilenameHttp404(ContextualizedHttp404):
     not_found_subject = pgettext_lazy(
         "Names an object not found in a 404 error", "documentation page"
     )
+
+    def __init__(self, project, **kwargs):
+        """
+        Raised if a page inside an existing project was not found.
+
+        :param project: The project in which the file could not be found
+        :param kwargs: Context dictionary of the rendered template
+        """
+        kwargs["project"] = project
+        super().__init__(**kwargs)
 
 
 class ProjectTranslationHttp404(ContextualizedHttp404):
@@ -99,6 +139,16 @@ class ProjectTranslationHttp404(ContextualizedHttp404):
         "Names an object not found in a 404 error", "translation"
     )
 
+    def __init__(self, project, **kwargs):
+        """
+        Raised if a translation of a project was not found.
+
+        :param project: The project in which the translation could not be found
+        :param kwargs: Context dictionary of the rendered template
+        """
+        kwargs["project"] = project
+        super().__init__(**kwargs)
+
 
 class ProjectVersionHttp404(ContextualizedHttp404):
 
@@ -112,3 +162,13 @@ class ProjectVersionHttp404(ContextualizedHttp404):
     not_found_subject = pgettext_lazy(
         "Names an object not found in a 404 error", "documentation version"
     )
+
+    def __init__(self, project, **kwargs):
+        """
+        Raised if a version was not found.
+
+        :param project: The project in which the version could not be found
+        :param kwargs: Context dictionary of the rendered template
+        """
+        kwargs["project"] = project
+        super().__init__(**kwargs)

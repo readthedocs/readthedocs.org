@@ -849,11 +849,10 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             return response
 
         # No custom 404 page, use our contextualized 404 response
+        # Several additional context variables can be added if the templates
+        # or other error handling is developed (version, language, filename).
         raise contextualized_404_class(
             project=project,
-            version=version,
-            filename=filename,
-            lang_slug=project.language,
             path_not_found=path,
         )
 
