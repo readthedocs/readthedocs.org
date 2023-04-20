@@ -1925,7 +1925,7 @@ class Feature(models.Model):
         ),
         (
             DONT_SHALLOW_CLONE,
-            _("Git: Do not shallow clone when cloning git repos"),
+            _("Build: Do not shallow clone when cloning git repos"),
         ),
         (
             USE_TESTING_BUILD_IMAGE,
