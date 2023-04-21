@@ -1933,7 +1933,7 @@ class Feature(models.Model):
         ),
         (
             API_LARGE_DATA,
-            _("API: Try alternative method of posting large data"),
+            _("Build: Try alternative method of posting large data"),
         ),
         (
             CLEAN_AFTER_BUILD,
