@@ -16,10 +16,16 @@ from readthedocs.proxito.middleware import ProxitoMiddleware
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 from readthedocs.rtd_tests.utils import create_user
+from readthedocs.subscriptions.constants import TYPE_CNAME
 
 
 @pytest.mark.proxito
-@override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
+@override_settings(
+    PUBLIC_DOMAIN="dev.readthedocs.io",
+    RTD_DEFAULT_FEATURES={
+        TYPE_CNAME: 1,
+    },
+)
 class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
     def setUp(self):
@@ -39,7 +45,9 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
     def test_proper_cname(self):
         domain = 'docs.random.com'
         get(Domain, project=self.pip, domain=domain)
-        request = self.request(method='get', path=self.url, HTTP_HOST=domain)
+        request = self.request(
+            method="get", secure=True, path=self.url, HTTP_HOST=domain
+        )
         res = self.run_middleware(request)
         self.assertIsNone(res)
         self.assertTrue(request.unresolved_domain.is_from_custom_domain)
@@ -116,26 +124,12 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         )
         resp = self.client.get(self.url, HTTP_HOST="subproject.dev.readthedocs.io")
         self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp["location"], f"http://pip.dev.readthedocs.io/")
-        self.assertEqual(resp["X-RTD-Redirect"], RedirectType.to_canonical_domain.name)
-
-    # We are not canonicalizing custom domains -> public domain for now
-    @pytest.mark.xfail(strict=True)
-    def test_canonical_cname_redirect_public_domain(self):
-        """Requests to a custom domain should redirect to the public domain or canonical domain if not canonical."""
-        cname = 'docs.random.com'
-        domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
-
-        resp = self.client.get(self.url, HTTP_HOST=cname)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp["X-RTD-Redirect"], "noncanonical-cname")
-
-        # Make the domain canonical and make sure we don't redirect
-        domain.canonical = True
-        domain.save()
-        for url in (self.url, '/subdir/'):
-            resp = self.client.get(url, HTTP_HOST=cname)
-            self.assertNotIn("X-RTD-Redirect", resp)
+        self.assertEqual(
+            resp["location"], f"http://pip.dev.readthedocs.io/projects/subproject/"
+        )
+        self.assertEqual(
+            resp["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
+        )
 
     def test_proper_cname_uppercase(self):
         get(Domain, project=self.pip, domain='docs.random.com')
@@ -252,6 +246,18 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.assertEqual(res.status_code, 302)
         self.assertEqual(
             res['Location'], '/google.com',
+        )
+
+
+class ProxitoV2MiddlewareTests(MiddlewareTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
         )
 
 

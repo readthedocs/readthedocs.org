@@ -10,10 +10,8 @@ from django.utils.translation import gettext_lazy as _
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.utils import slugify
 from readthedocs.organizations.models import Organization
-from readthedocs.subscriptions.managers import (
-    PlanFeatureManager,
-    SubscriptionManager,
-)
+from readthedocs.subscriptions.constants import FEATURE_TYPES
+from readthedocs.subscriptions.managers import PlanFeatureManager, SubscriptionManager
 
 
 class Plan(models.Model):
@@ -87,41 +85,6 @@ class PlanFeature(models.Model):
         db_table = 'organizations_planfeature'
         unique_together = (('plan', 'feature_type'),)
 
-    # Constants
-    UNLIMITED_VALUES = [None, -1]
-    """Values from `value` that represent an unlimited value."""
-
-    TYPE_CNAME = 'cname'
-    TYPE_CDN = 'cdn'
-    TYPE_SSL = 'ssl'
-    TYPE_SUPPORT = 'support'
-
-    TYPE_PRIVATE_DOCS = 'private_docs'
-    TYPE_EMBED_API = 'embed_api'
-    TYPE_SEARCH_ANALYTICS = 'search_analytics'
-    TYPE_PAGEVIEW_ANALYTICS = 'pageviews_analytics'
-    TYPE_CONCURRENT_BUILDS = 'concurrent_builds'
-    TYPE_SSO = 'sso'
-    TYPE_CUSTOM_URL = 'urls'
-    TYPE_AUDIT_LOGS = 'audit-logs'
-    TYPE_AUDIT_PAGEVIEWS = 'audit-pageviews'
-
-    TYPES = (
-        (TYPE_CNAME, _('Custom domain')),
-        (TYPE_CDN, _('CDN public documentation')),
-        (TYPE_SSL, _('Custom SSL configuration')),
-        (TYPE_SUPPORT, _('Support SLA')),
-        (TYPE_PRIVATE_DOCS, _('Private documentation')),
-        (TYPE_EMBED_API, _('Embed content via API')),
-        (TYPE_SEARCH_ANALYTICS, _('Search analytics')),
-        (TYPE_PAGEVIEW_ANALYTICS, _('Pageview analytics')),
-        (TYPE_CONCURRENT_BUILDS, _('Concurrent builds')),
-        (TYPE_SSO, _('Single sign on (SSO) with Google')),
-        (TYPE_CUSTOM_URL, _('Custom URLs')),
-        (TYPE_AUDIT_LOGS, _('Audit logs')),
-        (TYPE_AUDIT_PAGEVIEWS, _('Record every page view')),
-    )
-
     # Auto fields
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
@@ -131,8 +94,8 @@ class PlanFeature(models.Model):
         related_name='features',
         on_delete=models.CASCADE,
     )
-    feature_type = models.CharField(_('Type'), max_length=32, choices=TYPES)
-    value = models.IntegerField(_('Numeric value'), null=True, blank=True)
+    feature_type = models.CharField(_("Type"), max_length=32, choices=FEATURE_TYPES)
+    value = models.IntegerField(_("Numeric value"), null=True, blank=True)
     description = models.CharField(
         _('Description'),
         max_length=255,

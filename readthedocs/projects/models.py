@@ -31,6 +31,7 @@ from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import slugify
+from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
@@ -43,6 +44,7 @@ from readthedocs.projects.querysets import (
 )
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
+    validate_build_config_file,
     validate_domain_name,
     validate_no_ip,
     validate_repository_url,
@@ -143,6 +145,9 @@ class Project(models.Model):
         help_text=_('Hosted documentation repository URL'),
         db_index=True,
     )
+
+    # NOTE: this field is going to be completely removed soon.
+    # We only accept Git for new repositories
     repo_type = models.CharField(
         _('Repository type'),
         max_length=10,
@@ -323,14 +328,14 @@ class Project(models.Model):
     # Sphinx specific build options.
     enable_epub_build = models.BooleanField(
         _('Enable EPUB build'),
-        default=True,
+        default=False,
         help_text=_(
             'Create a EPUB version of your documentation with each build.',
         ),
     )
     enable_pdf_build = models.BooleanField(
         _('Enable PDF build'),
-        default=True,
+        default=False,
         help_text=_(
             'Create a PDF version of your documentation with each build.',
         ),
@@ -349,13 +354,28 @@ class Project(models.Model):
     conf_py_file = models.CharField(
         _('Python configuration file'),
         max_length=255,
-        default='',
+        default="",
         blank=True,
         help_text=_(
-            'Path from project root to <code>conf.py</code> file '
-            '(ex. <code>docs/conf.py</code>). '
-            'Leave blank if you want us to find it for you.',
+            "Path from project root to <code>conf.py</code> file "
+            "(ex. <code>docs/conf.py</code>). "
+            "Leave blank if you want us to find it for you.",
         ),
+    )
+
+    readthedocs_yaml_path = models.CharField(
+        _("Path for .readthedocs.yaml"),
+        max_length=1024,
+        default=None,
+        blank=True,
+        null=True,
+        help_text=_(
+            "<strong>Warning: experimental feature</strong>. "
+            "Custom path from repository top-level to your <code>.readthedocs.yaml</code>, "
+            "ex. <code>subpath/docs/.readthedocs.yaml</code>. "
+            "Leave blank for default value: <code>.readthedocs.yaml</code>.",
+        ),
+        validators=[validate_build_config_file],
     )
 
     featured = models.BooleanField(_('Featured'), default=False)
@@ -645,8 +665,8 @@ class Project(models.Model):
         if self.urlconf:
             # Add our proxied api host at the first place we have a $variable
             # This supports both subpaths & normal root hosting
-            url_prefix = self.urlconf.split('$', 1)[0]
-            return '/' + url_prefix.strip('/') + '/_'
+            path_prefix = self.custom_path_prefix
+            return unsafe_join_url_path(path_prefix, "/_")
         return '/_'
 
     @property
@@ -662,6 +682,19 @@ class Project(models.Model):
     def proxied_static_path(self):
         """Path for static files hosted on the user's doc domain."""
         return f"{self.proxied_api_host}/static/"
+
+    @property
+    def custom_path_prefix(self):
+        """
+        Get the path prefix from the custom urlconf.
+
+        Returns `None` if the project doesn't have a custom urlconf.
+        """
+        if self.urlconf:
+            # Return the value before the first defined variable,
+            # as that is a prefix and not part of our normal doc patterns.
+            return self.urlconf.split("$", 1)[0]
+        return None
 
     @property
     def regex_urlconf(self):
@@ -768,12 +801,12 @@ class Project(models.Model):
 
         return ProxitoURLConf
 
-    @property
+    @cached_property
     def is_subproject(self):
         """Return whether or not this project is a subproject."""
         return self.superprojects.exists()
 
-    @property
+    @cached_property
     def superproject(self):
         relationship = self.get_parent_relationship()
         if relationship:
@@ -840,7 +873,7 @@ class Project(models.Model):
         return os.path.join(self.checkout_path(version=version), "_readthedocs", type_)
 
     def conf_file(self, version=LATEST):
-        """Find a ``conf.py`` file in the project checkout."""
+        """Find a Sphinx ``conf.py`` file in the project checkout."""
         if self.conf_py_file:
             conf_path = os.path.join(
                 self.checkout_path(version),
@@ -1673,7 +1706,7 @@ class Domain(TimeStampedModel):
     )
     https = models.BooleanField(
         _('Use HTTPS'),
-        default=False,
+        default=True,
         help_text=_('Always use HTTPS for this domain'),
     )
     count = models.IntegerField(
@@ -1774,13 +1807,14 @@ class HTTPHeader(TimeStampedModel, models.Model):
     """
 
     HEADERS_CHOICES = (
-        ('access_control_allow_origin', 'Access-Control-Allow-Origin'),
-        ('access_control_allow_headers', 'Access-Control-Allow-Headers'),
-        ('content_security_policy', 'Content-Security-Policy'),
-        ('feature_policy', 'Feature-Policy'),
-        ('permissions_policy', 'Permissions-Policy'),
-        ('referrer_policy', 'Referrer-Policy'),
-        ('x_frame_options', 'X-Frame-Options'),
+        ("access_control_allow_origin", "Access-Control-Allow-Origin"),
+        ("access_control_allow_headers", "Access-Control-Allow-Headers"),
+        ("content_security_policy", "Content-Security-Policy"),
+        ("feature_policy", "Feature-Policy"),
+        ("permissions_policy", "Permissions-Policy"),
+        ("referrer_policy", "Referrer-Policy"),
+        ("x_frame_options", "X-Frame-Options"),
+        ("x_content_type_options", "X-Content-Type-Options"),
     )
 
     domain = models.ForeignKey(
@@ -1839,6 +1873,7 @@ class Feature(models.Model):
     DISABLE_PAGEVIEWS = "disable_pageviews"
     DISABLE_SPHINX_DOMAINS = "disable_sphinx_domains"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
+    USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1868,6 +1903,7 @@ class Feature(models.Model):
     CANCEL_OLD_BUILDS = "cancel_old_builds"
     DONT_CREATE_INDEX = "dont_create_index"
     USE_RCLONE = "use_rclone"
+    HOSTING_INTEGRATIONS = "hosting_integrations"
 
     FEATURES = (
         (ALLOW_DEPRECATED_WEBHOOKS, _('Allow deprecated webhook views')),
@@ -1954,6 +1990,10 @@ class Feature(models.Model):
             RESOLVE_PROJECT_FROM_HEADER,
             _("Allow usage of the X-RTD-Slug header"),
         ),
+        (
+            USE_UNRESOLVER_WITH_PROXITO,
+            _("Use new unresolver implementation for serving documentation files."),
+        ),
 
         # Versions sync related features
         (
@@ -2037,6 +2077,10 @@ class Feature(models.Model):
         (
             USE_RCLONE,
             _("Use rclone for syncing files to the media storage."),
+        ),
+        (
+            HOSTING_INTEGRATIONS,
+            _("Inject 'readthedocs-client.js' as <script> HTML tag in responses."),
         ),
     )
 

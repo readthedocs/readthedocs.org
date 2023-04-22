@@ -39,9 +39,6 @@ jobs:
       - name: Run pip-compile on requirements/testing.in
         run: pip-compile --upgrade --resolver=backtracking --output-file=requirements/testing.txt requirements/testing.in
 
-      - name: Run pip-compile on requirements/lint.in
-        run: pip-compile --upgrade --resolver=backtracking --output-file=requirements/lint.txt requirements/lint.in
-
       - name: Run pip-compile on requirements/docs.in
         run: pip-compile --upgrade --resolver=backtracking --output-file=requirements/docs.txt requirements/docs.in
 
@@ -51,7 +48,7 @@ jobs:
         run: pip-compile --upgrade --resolver=backtracking --output-file=requirements/deploy.txt requirements/deploy.in
 
       - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v4
+        uses: peter-evans/create-pull-request@v5
         with:
           add-paths: |
             requirements/*.txt

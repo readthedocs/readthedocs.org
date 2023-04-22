@@ -32,10 +32,10 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-28 14:58+0000\n"
+"POT-Creation-Date: 2023-04-11 13:41+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: JY3, 2022-2023\n"
-"Language-Team: Chinese (China) (http://www.transifex.com/readthedocs/"
+"Language-Team: Chinese (China) (http://app.transifex.com/readthedocs/"
 "readthedocs/language/zh_CN/)\n"
 "Language: zh_CN\n"
 "MIME-Version: 1.0\n"
@@ -43,8 +43,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: analytics/models.py:69 builds/models.py:616 projects/models.py:1390
-#: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:257
+#: analytics/models.py:69 builds/models.py:631 projects/models.py:1411
+#: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:262
 msgid "Version"
 msgstr "版本"
 
@@ -85,7 +85,7 @@ msgstr "在 Read the Docs 上"
 msgid "Project Home"
 msgstr "项目主页"
 
-#: api/v2/templates/restapi/footer.html:72 builds/apps.py:12
+#: api/v2/templates/restapi/footer.html:72 builds/apps.py:13
 #: templates/core/project_bar_base.html:49
 msgid "Builds"
 msgstr "构建"
@@ -133,26 +133,26 @@ msgstr "搜索文档"
 msgid "Hosted by"
 msgstr "托管于"
 
-#: api/v2/templates/restapi/footer.html:136 templates/base.html:229
+#: api/v2/templates/restapi/footer.html:136 templates/base.html:234
 msgid "Privacy Policy"
 msgstr "隐私政策"
 
-#: api/v3/serializers.py:496
+#: api/v3/serializers.py:516
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr "无效的项目名称「{0}」：未生成网址标识。"
 
-#: api/v3/serializers.py:500
+#: api/v3/serializers.py:520
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr "网址标识为「{0}」的项目已存在。"
 
-#: api/v3/serializers.py:706
+#: api/v3/serializers.py:738
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "带有 {slug_name}={value} 的项目不能作为子项目。"
 
-#: api/v3/serializers.py:714 projects/forms.py:465
+#: api/v3/serializers.py:746 projects/forms.py:465
 msgid "A subproject with this alias already exists"
 msgstr "存在具有此名称的子项目"
 
@@ -178,8 +178,8 @@ msgstr "认证失败"
 msgid "Log out"
 msgstr "退出登录"
 
-#: audit/models.py:91 organizations/views/private.py:104
-#: organizations/views/private.py:169 projects/views/private.py:475
+#: audit/models.py:91 organizations/views/private.py:105
+#: organizations/views/private.py:170 projects/views/private.py:480
 msgid "Invitation sent"
 msgstr ""
 
@@ -195,8 +195,8 @@ msgstr ""
 msgid "Invitation declined"
 msgstr ""
 
-#: audit/models.py:116 core/models.py:21 gold/models.py:35
-#: projects/models.py:128
+#: audit/models.py:116 core/models.py:21 gold/models.py:33
+#: projects/models.py:129
 msgid "User"
 msgstr "用户"
 
@@ -208,8 +208,8 @@ msgstr "用户 ID"
 msgid "Username"
 msgstr "用户名"
 
-#: audit/models.py:138 builds/models.py:110 builds/models.py:610
-#: projects/models.py:1384 redirects/models.py:57
+#: audit/models.py:138 builds/models.py:108 builds/models.py:625
+#: projects/models.py:1405 redirects/models.py:57
 msgid "Project"
 msgstr "项目"
 
@@ -221,7 +221,7 @@ msgstr "项目 ID"
 msgid "Project slug"
 msgstr "项目网址标识"
 
-#: audit/models.py:160 oauth/models.py:122 subscriptions/models.py:175
+#: audit/models.py:160 oauth/models.py:122 subscriptions/models.py:138
 msgid "Organization"
 msgstr "组织"
 
@@ -233,7 +233,7 @@ msgstr "组织 ID"
 msgid "Organization slug"
 msgstr "组织网址标识"
 
-#: audit/models.py:180 builds/models.py:1120
+#: audit/models.py:180 builds/models.py:1135
 msgid "Action"
 msgstr ""
 
@@ -440,32 +440,46 @@ msgstr "语义化版本(SemVer)"
 msgid "Custom match"
 msgstr "自定义匹配"
 
-#: builds/filters.py:18 builds/models.py:149 redirects/models.py:23
+#: builds/filters.py:26 builds/models.py:147 redirects/models.py:23
 msgid "Active"
 msgstr "激活"
 
-#: builds/filters.py:19
-msgid "Build finished"
-msgstr "构建成功"
+#: builds/filters.py:27
+msgid "Build successful"
+msgstr ""
 
-#: builds/filters.py:20 projects/models.py:1509
+#: builds/filters.py:28 projects/models.py:1530
 #: templates/builds/build_detail.html:143
 msgid "Build failed"
 msgstr "构建失败"
 
-#: builds/filters.py:26 builds/models.py:151 builds/models.py:632
+#: builds/filters.py:34
+msgid "Normal"
+msgstr ""
+
+#: builds/filters.py:35
+msgid "Pull/merge request"
+msgstr ""
+
+#: builds/filters.py:41 builds/models.py:149 builds/models.py:647
 msgid "State"
 msgstr "状态"
 
-#: builds/filters.py:28 projects/filters.py:146 projects/filters.py:156
+#: builds/filters.py:43 builds/filters.py:49 projects/filters.py:183
+#: projects/filters.py:193
 msgid "Any"
 msgstr "任何"
+
+#: builds/filters.py:47 builds/models.py:113 builds/models.py:637
+#: sphinx_domains/models.py:59 subscriptions/models.py:97
+msgid "Type"
+msgstr "类型"
 
 #: builds/forms.py:45
 msgid "States"
 msgstr "状态"
 
-#: builds/forms.py:54 projects/filters.py:144
+#: builds/forms.py:54 projects/filters.py:181
 msgid "Privacy"
 msgstr "隐私"
 
@@ -482,268 +496,299 @@ msgstr "自定义匹配内容不应当为空。"
 msgid "Invalid Python regular expression."
 msgstr "无效的 Python 正则表达式。"
 
-#: builds/models.py:98 projects/models.py:1472 projects/models.py:1640
+#: builds/models.py:96 projects/models.py:1493 projects/models.py:1661
 msgid "created"
 msgstr "创建的"
 
-#: builds/models.py:103 projects/models.py:1477
+#: builds/models.py:101 projects/models.py:1498
 msgid "modified"
 msgstr "修改的"
 
-#: builds/models.py:115 builds/models.py:622 sphinx_domains/models.py:59
-#: subscriptions/models.py:134
-msgid "Type"
-msgstr "类型"
-
-#: builds/models.py:129
+#: builds/models.py:127
 msgid "Identifier"
 msgstr "标识符"
 
-#: builds/models.py:136
+#: builds/models.py:134
 msgid "Verbose Name"
 msgstr "长名称"
 
-#: builds/models.py:143 oauth/models.py:32 organizations/models.py:52
-#: projects/models.py:133 subscriptions/models.py:35
+#: builds/models.py:141 oauth/models.py:32 organizations/models.py:52
+#: projects/models.py:134 subscriptions/models.py:33
 msgid "Slug"
 msgstr "网址标识"
 
-#: builds/models.py:148
+#: builds/models.py:146
 msgid "Supported"
 msgstr "支持"
 
-#: builds/models.py:156
+#: builds/models.py:154
 msgid "State of the PR/MR associated to this version."
 msgstr "与此版本相关的 PR/MR 状态。"
 
-#: builds/models.py:158
+#: builds/models.py:156
 msgid "Built"
 msgstr "构建"
 
-#: builds/models.py:159
+#: builds/models.py:157
 msgid "Uploaded"
 msgstr "已上传"
 
-#: builds/models.py:161 projects/models.py:405
+#: builds/models.py:159 projects/models.py:413
 msgid "Privacy Level"
 msgstr "隐私级别"
 
-#: builds/models.py:165
+#: builds/models.py:163
 msgid "Level of privacy for this Version."
 msgstr "此版本的隐私级别。"
 
-#: builds/models.py:168
+#: builds/models.py:166
 msgid "Hidden"
 msgstr "隐藏"
 
-#: builds/models.py:170
+#: builds/models.py:168
 msgid "Hide this version from the version (flyout) menu and search results?"
 msgstr "从项目菜单(弹出)以及搜索结果中隐藏这个版本?"
 
-#: builds/models.py:172
+#: builds/models.py:170
 msgid "Machine Created"
 msgstr "由机器创建"
 
-#: builds/models.py:175
+#: builds/models.py:173
 msgid "Has PDF"
 msgstr "存在PDF"
 
-#: builds/models.py:176
+#: builds/models.py:174
 msgid "Has ePub"
 msgstr "存在ePub"
 
-#: builds/models.py:177
+#: builds/models.py:175
 msgid "Has HTML Zip"
 msgstr "存在HTML Zip"
 
-#: builds/models.py:180 projects/models.py:205
+#: builds/models.py:178 projects/models.py:209
 msgid "Documentation type"
 msgstr "文档类型"
 
-#: builds/models.py:185
+#: builds/models.py:183
 msgid "Type of documentation the version was built with."
 msgstr "构建版本时使用的文档类型。"
 
-#: builds/models.py:201
+#: builds/models.py:188
+msgid "Data generated at build time by the doctool (`readthedocs-build.yaml`)."
+msgstr ""
+
+#: builds/models.py:205
 #, python-brace-format
 msgid "Version {version} of {project} ({pk})"
 msgstr "版本 {version}  {project} ({pk})"
 
-#: builds/models.py:644
+#: builds/models.py:659
 msgid "Status"
 msgstr "状态"
 
-#: builds/models.py:651 integrations/models.py:147
+#: builds/models.py:666 integrations/models.py:147
 msgid "Date"
 msgstr "日期"
 
-#: builds/models.py:652
+#: builds/models.py:667
 msgid "Success"
 msgstr "成功"
 
-#: builds/models.py:657
+#: builds/models.py:672
 msgid "Setup"
 msgstr "安装"
 
-#: builds/models.py:658
+#: builds/models.py:673
 msgid "Setup error"
 msgstr "安装错误"
 
-#: builds/models.py:659
+#: builds/models.py:674
 msgid "Output"
 msgstr "输出"
 
-#: builds/models.py:660 templates/builds/build_detail.html:224
+#: builds/models.py:675 templates/builds/build_detail.html:224
 msgid "Error"
 msgstr "错误"
 
-#: builds/models.py:661
+#: builds/models.py:676
 msgid "Exit code"
 msgstr "退出码"
 
-#: builds/models.py:666 projects/models.py:1401 sphinx_domains/models.py:43
+#: builds/models.py:681 projects/models.py:1422 sphinx_domains/models.py:43
 msgid "Commit"
 msgstr "提交"
 
-#: builds/models.py:672
+#: builds/models.py:687
 msgid "Version slug"
 msgstr "版本网址标识"
 
-#: builds/models.py:678
+#: builds/models.py:693
 msgid "Version name"
 msgstr "项目名称"
 
-#: builds/models.py:684 builds/models.py:1133
+#: builds/models.py:699 builds/models.py:1148
 msgid "Version type"
 msgstr "项目类型"
 
-#: builds/models.py:691
+#: builds/models.py:706
 msgid "Configuration used in the build"
 msgstr "在构建中使用的配置"
 
-#: builds/models.py:696
+#: builds/models.py:711
 msgid "Build Length"
 msgstr "构建长度"
 
-#: builds/models.py:699
+#: builds/models.py:714
 msgid "Builder"
 msgstr "构建者"
 
-#: builds/models.py:706
+#: builds/models.py:721
 msgid "Cold Storage"
 msgstr "冷存储"
 
-#: builds/models.py:712
+#: builds/models.py:727
 msgid "Celery task id"
 msgstr ""
 
-#: builds/models.py:823
+#: builds/models.py:838
 #, python-brace-format
 msgid "Build {project} for {usernames} ({pk})"
 msgstr "为 {usernames} 构建 {project}  ({pk})"
 
-#: builds/models.py:1031
+#: builds/models.py:1046
 msgid "Build"
 msgstr "构建"
 
-#: builds/models.py:1036
+#: builds/models.py:1051
 msgid "Command"
 msgstr "命令"
 
-#: builds/models.py:1037 builds/models.py:1097 oauth/models.py:135
-#: organizations/models.py:66 projects/models.py:135 subscriptions/models.py:30
-#: subscriptions/models.py:137 templates/core/project_details.html:78
+#: builds/models.py:1052 builds/models.py:1112 oauth/models.py:135
+#: organizations/models.py:66 projects/models.py:136 subscriptions/models.py:28
+#: subscriptions/models.py:100 templates/core/project_details.html:78
 msgid "Description"
 msgstr "说明"
 
-#: builds/models.py:1038
+#: builds/models.py:1053
 msgid "Command output"
 msgstr "命令输出"
 
-#: builds/models.py:1039
+#: builds/models.py:1054
 msgid "Command exit code"
 msgstr "命令退出码"
 
-#: builds/models.py:1041
+#: builds/models.py:1056
 msgid "Start time"
 msgstr "开始时间"
 
-#: builds/models.py:1042
+#: builds/models.py:1057
 msgid "End time"
 msgstr "结束时间"
 
-#: builds/models.py:1052
+#: builds/models.py:1067
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
 msgstr "构建命令 {pk} 为了构建 {build}"
 
-#: builds/models.py:1076
+#: builds/models.py:1091
 msgid "Activate version"
 msgstr ""
 
-#: builds/models.py:1077
+#: builds/models.py:1092
 msgid "Hide version"
 msgstr ""
 
-#: builds/models.py:1078
+#: builds/models.py:1093
 msgid "Make version public"
 msgstr ""
 
-#: builds/models.py:1079
+#: builds/models.py:1094
 msgid "Make version private"
 msgstr ""
 
-#: builds/models.py:1080
+#: builds/models.py:1095
 msgid "Set version as default"
 msgstr ""
 
-#: builds/models.py:1081
-msgid "Delete version (on branch/tag deletion)"
-msgstr ""
+#: builds/models.py:1096
+#, fuzzy
+#| msgid "Default version"
+msgid "Delete version"
+msgstr "默认版本"
 
-#: builds/models.py:1093
+#: builds/models.py:1108
 msgid "Rule priority"
 msgstr ""
 
-#: builds/models.py:1094
+#: builds/models.py:1109
 msgid "A lower number (0) means a higher priority"
 msgstr ""
 
-#: builds/models.py:1103
+#: builds/models.py:1118
 msgid "Match argument"
 msgstr ""
 
-#: builds/models.py:1104
+#: builds/models.py:1119
 msgid "Value used for the rule to match the version"
 msgstr ""
 
-#: builds/models.py:1108
+#: builds/models.py:1123
 msgid "Predefined match argument"
 msgstr ""
 
-#: builds/models.py:1110
+#: builds/models.py:1125
 msgid ""
 "Match argument defined by us, it is used if is not None, otherwise match_arg "
 "will be used."
 msgstr ""
 
-#: builds/models.py:1121
+#: builds/models.py:1136
 msgid "Action to apply to matching versions"
 msgstr ""
 
-#: builds/models.py:1126
+#: builds/models.py:1141
 msgid "Action argument"
 msgstr ""
 
-#: builds/models.py:1127
+#: builds/models.py:1142
 msgid "Value used for the action to perfom an operation"
 msgstr ""
 
-#: builds/models.py:1134
+#: builds/models.py:1149
 msgid "Type of version the rule should be applied to"
 msgstr ""
 
-#: builds/models.py:1358
+#: builds/models.py:1373
+#, fuzzy
+#| msgid "Webhook activated"
+msgid "Version activated"
+msgstr "Webhook 已激活"
+
+#: builds/models.py:1374
+#, fuzzy
+#| msgid "Version name"
+msgid "Version hidden"
+msgstr "项目名称"
+
+#: builds/models.py:1376
+msgid "Version set to public privacy"
+msgstr ""
+
+#: builds/models.py:1379
+msgid "Version set to private privacy"
+msgstr ""
+
+#: builds/models.py:1381
+msgid "Version set as default"
+msgstr ""
+
+#: builds/models.py:1382
+#, fuzzy
+#| msgid "Version type"
+msgid "Version deleted"
+msgstr "项目类型"
+
+#: builds/models.py:1387
 msgid "Matched rule"
 msgstr ""
 
@@ -862,7 +907,7 @@ msgstr ""
 "在Read the Docs控制面板为你的项目添加自定义域名 (点击指定项目&gt;&gt; 管理 "
 "&gt;&gt; 域)"
 
-#: doc_builder/director.py:66
+#: doc_builder/director.py:68
 #, python-brace-format
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr ""
@@ -878,19 +923,19 @@ msgstr ""
 msgid "Command exited abnormally"
 msgstr "程序终止异常"
 
-#: doc_builder/environments.py:653
+#: doc_builder/environments.py:651
 msgid "A build environment is currently running for this version"
 msgstr "当前版本的创建环境正在运行"
 
-#: doc_builder/environments.py:813
+#: doc_builder/environments.py:811
 msgid "Build exited due to time out"
 msgstr "版本创建因超时终止"
 
-#: doc_builder/environments.py:818
+#: doc_builder/environments.py:816
 msgid "Build exited due to excessive memory consumption"
 msgstr "构建因超过内存占用限制而终止"
 
-#: doc_builder/environments.py:824
+#: doc_builder/environments.py:822
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr "构建因未知错误: {0} 而退出"
@@ -936,101 +981,108 @@ msgstr ""
 msgid ""
 "Build output directory for format \"{artifact_type}\" contains multiple "
 "files and it is not currently supported. Please, remove all the files but "
-"the \"{artifact_type}\" your want to upload."
+"the \"{artifact_type}\" you want to upload."
 msgstr ""
 
-#: doc_builder/exceptions.py:58
-msgid "This build was manually skipped using a command exit code."
+#: doc_builder/exceptions.py:56
+msgid ""
+"Some files were detected in an unsupported output path, '_build/html'. "
+"Ensure your project is configured to use the output path "
+"'$READTHEDOCS_OUTPUT/html' instead."
 msgstr ""
 
 #: doc_builder/exceptions.py:63
+msgid "This build was manually skipped using a command exit code."
+msgstr ""
+
+#: doc_builder/exceptions.py:68
 msgid "Builds for this project are temporarily disabled"
 msgstr "此项目创建被临时禁用"
 
-#: doc_builder/exceptions.py:68
+#: doc_builder/exceptions.py:73
 #, python-brace-format
 msgid "Problem in your project's configuration. {exception}"
 msgstr "项目配置中的问题. {exception}"
 
-#: doc_builder/exceptions.py:73
+#: doc_builder/exceptions.py:78
 #, python-brace-format
 msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
 msgstr ""
 
-#: doc_builder/exceptions.py:77
+#: doc_builder/exceptions.py:82
 msgid "Build cancelled by user."
 msgstr ""
 
-#: doc_builder/exceptions.py:83
+#: doc_builder/exceptions.py:88
 msgid ""
 "PDF file was not generated/found in \"_readthedocs/pdf\" output directory."
 msgstr ""
 
-#: doc_builder/exceptions.py:89
+#: doc_builder/exceptions.py:94
 #, python-brace-format
 msgid "Problem parsing MkDocs YAML configuration. {exception}"
 msgstr "解析 MkDocs YAML 配置时的问题。{exception}"
 
-#: doc_builder/exceptions.py:93
+#: doc_builder/exceptions.py:98
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file has to be a string "
 "with relative or absolute path."
 msgstr ""
 
-#: doc_builder/exceptions.py:98
+#: doc_builder/exceptions.py:103
 msgid ""
 "The \"docs_dir\" config from your MkDocs YAML config file does not contain a "
 "valid path."
 msgstr ""
 
-#: doc_builder/exceptions.py:103
+#: doc_builder/exceptions.py:108
 #, python-brace-format
 msgid ""
 "The \"{config}\" config from your MkDocs YAML config file has to be a list "
 "of relative paths."
 msgstr ""
 
-#: doc_builder/exceptions.py:108
+#: doc_builder/exceptions.py:113
 msgid "Please make sure the MkDocs YAML configuration file is not empty."
 msgstr ""
 
-#: doc_builder/exceptions.py:112
+#: doc_builder/exceptions.py:117
 msgid ""
 "Your MkDocs YAML config file is incorrect. Please follow the user guide "
 "https://www.mkdocs.org/user-guide/configuration/ to configure the file "
 "properly."
 msgstr ""
 
-#: doc_builder/exceptions.py:120
+#: doc_builder/exceptions.py:125
 msgid "Symlinks are not fully supported"
 msgstr ""
 
-#: gold/forms.py:52
+#: gold/forms.py:51
 msgid "No project found."
 msgstr "没有项目"
 
-#: gold/forms.py:54
+#: gold/forms.py:53
 msgid "This project is already Ad-Free."
 msgstr ""
 
-#: gold/models.py:30 organizations/models.py:33 organizations/models.py:218
-#: organizations/models.py:292 projects/models.py:122
-#: subscriptions/models.py:24 subscriptions/models.py:126
+#: gold/models.py:28 organizations/models.py:33 organizations/models.py:218
+#: organizations/models.py:292 projects/models.py:123
+#: subscriptions/models.py:22 subscriptions/models.py:89
 msgid "Publication date"
 msgstr "发布日期"
 
-#: gold/models.py:31 organizations/models.py:34 organizations/models.py:219
-#: organizations/models.py:293 projects/models.py:123 projects/models.py:1403
-#: subscriptions/models.py:25 subscriptions/models.py:127
-#: subscriptions/models.py:183
+#: gold/models.py:29 organizations/models.py:34 organizations/models.py:219
+#: organizations/models.py:293 projects/models.py:124 projects/models.py:1424
+#: subscriptions/models.py:23 subscriptions/models.py:90
+#: subscriptions/models.py:146
 msgid "Modified date"
 msgstr "修改日期"
 
-#: gold/models.py:41 gold/templates/gold/subscription_detail.html:87
+#: gold/models.py:39 gold/templates/gold/subscription_detail.html:87
 msgid "Level"
 msgstr "级别"
 
-#: gold/models.py:48 organizations/models.py:39 organizations/models.py:229
+#: gold/models.py:46 organizations/models.py:39 organizations/models.py:229
 #: organizations/templates/organizations/team_detail.html:49
 #: organizations/templates/organizations/team_project_edit.html:13
 #: templates/core/project_bar.html:7 templates/core/project_bar_base.html:20
@@ -1299,7 +1351,7 @@ msgstr ""
 msgid "Decline"
 msgstr ""
 
-#: notifications/forms.py:29
+#: notifications/forms.py:28
 msgid "Notification"
 msgstr "通知"
 
@@ -1308,13 +1360,13 @@ msgid "Users"
 msgstr "用户"
 
 #: oauth/models.py:33 oauth/models.py:128 organizations/models.py:50
-#: organizations/models.py:242 projects/filters.py:29 projects/filters.py:113
-#: projects/models.py:132 projects/models.py:1395 sphinx_domains/models.py:51
-#: subscriptions/models.py:28
+#: organizations/models.py:242 projects/filters.py:42 projects/filters.py:107
+#: projects/models.py:133 projects/models.py:1416 sphinx_domains/models.py:51
+#: subscriptions/models.py:26
 msgid "Name"
 msgstr "名称"
 
-#: oauth/models.py:34 templates/base.html:158
+#: oauth/models.py:34 templates/base.html:163
 msgid "Email"
 msgstr "电子邮件"
 
@@ -1528,7 +1580,7 @@ msgstr ""
 msgid "team"
 msgstr "团队"
 
-#: organizations/models.py:303 templates/base.html:194
+#: organizations/models.py:303 templates/base.html:199
 msgid "Team"
 msgstr "团队"
 
@@ -1857,35 +1909,35 @@ msgstr ""
 msgid "Verify your email address"
 msgstr "验证你的邮箱地址"
 
-#: organizations/views/private.py:113
+#: organizations/views/private.py:114
 msgid "Owner removed"
 msgstr ""
 
-#: organizations/views/private.py:118
+#: organizations/views/private.py:119
 msgid "User is the last owner, can't be removed"
 msgstr ""
 
-#: organizations/views/private.py:126
+#: organizations/views/private.py:127
 msgid "Team added"
 msgstr ""
 
-#: organizations/views/private.py:136
+#: organizations/views/private.py:137
 msgid "Team deleted"
 msgstr ""
 
-#: organizations/views/private.py:153
+#: organizations/views/private.py:154
 msgid "Team updated"
 msgstr ""
 
-#: organizations/views/private.py:158
+#: organizations/views/private.py:159
 msgid "Team projects updated"
 msgstr ""
 
-#: organizations/views/private.py:171
+#: organizations/views/private.py:172
 msgid "Member added to team"
 msgstr ""
 
-#: organizations/views/private.py:176
+#: organizations/views/private.py:177
 msgid "Member removed from team"
 msgstr ""
 
@@ -1977,7 +2029,7 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:99 projects/models.py:2095
+#: projects/constants.py:99 projects/models.py:2127
 msgid "Public"
 msgstr "公开"
 
@@ -2057,60 +2109,56 @@ msgid ""
 "for more information."
 msgstr ""
 
-#: projects/filters.py:30 projects/filters.py:79
-msgid "Name (descending)"
+#: projects/filters.py:35 projects/filters.py:98
+msgid "Recently built"
 msgstr ""
 
-#: projects/filters.py:31 projects/filters.py:82
-msgid "Most recently built"
-msgstr ""
-
-#: projects/filters.py:32 projects/filters.py:83
+#: projects/filters.py:39 projects/filters.py:102
 msgid "Least recently built"
 msgstr ""
 
-#: projects/filters.py:80
-msgid "Most recently modified"
+#: projects/filters.py:40 projects/filters.py:103
+msgid "Frequently built"
 msgstr ""
 
-#: projects/filters.py:81
-msgid "Least recently modified"
-msgstr ""
-
-#: projects/filters.py:84
-msgid "Most frequently built"
-msgstr ""
-
-#: projects/filters.py:85
+#: projects/filters.py:41 projects/filters.py:104
 msgid "Least frequently built"
 msgstr ""
 
-#: projects/filters.py:112 projects/filters.py:161
+#: projects/filters.py:43 projects/filters.py:108
+msgid "Name (descending)"
+msgstr ""
+
+#: projects/filters.py:105
+msgid "Recently modified"
+msgstr ""
+
+#: projects/filters.py:106
+msgid "Least recently modified"
+msgstr ""
+
+#: projects/filters.py:150 projects/filters.py:198
 msgid "Sort by"
 msgstr ""
 
-#: projects/filters.py:131
+#: projects/filters.py:168
 msgid "Hidden versions"
 msgstr ""
 
-#: projects/filters.py:132
+#: projects/filters.py:169
 msgid "Visible versions"
 msgstr ""
 
-#: projects/filters.py:136
+#: projects/filters.py:173
 msgid "Public versions"
 msgstr ""
 
-#: projects/filters.py:137
+#: projects/filters.py:174
 msgid "Private versions"
 msgstr ""
 
-#: projects/filters.py:153
+#: projects/filters.py:190
 msgid "Visibility"
-msgstr ""
-
-#: projects/filters.py:162
-msgid "Relevance"
 msgstr ""
 
 #: projects/forms.py:102
@@ -2170,79 +2218,79 @@ msgstr ""
 msgid "The payload must be a valid JSON object."
 msgstr ""
 
-#: projects/forms.py:751
+#: projects/forms.py:756
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:858
+#: projects/forms.py:859
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "变量名不能以__开头(双下划线)"
 
-#: projects/forms.py:862
+#: projects/forms.py:863
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "变量名不能以 READTHEDOCS 开头"
 
-#: projects/forms.py:867
+#: projects/forms.py:868
 msgid "There is already a variable with this name for this project"
 msgstr "该项目已经有一个具有此名称的变量"
 
-#: projects/forms.py:872
+#: projects/forms.py:873
 msgid "Variable name can't contain spaces"
 msgstr ""
 
-#: projects/forms.py:876
+#: projects/forms.py:877
 msgid "Only letters, numbers and underscore are allowed"
 msgstr ""
 
-#: projects/models.py:84
+#: projects/models.py:85
 msgid "Main project"
 msgstr ""
 
-#: projects/models.py:90
+#: projects/models.py:91
 msgid "Subproject"
 msgstr ""
 
-#: projects/models.py:95
+#: projects/models.py:96
 msgid "Alias"
 msgstr "别名"
 
-#: projects/models.py:137
+#: projects/models.py:138
 msgid "Short description of this project"
 msgstr ""
 
-#: projects/models.py:140
+#: projects/models.py:141
 msgid "Repository URL"
 msgstr "代码库地址"
 
-#: projects/models.py:143
+#: projects/models.py:144
 msgid "Hosted documentation repository URL"
 msgstr "托管文档仓库 URL"
 
-#: projects/models.py:147
+#: projects/models.py:151
 msgid "Repository type"
 msgstr "代码库类型"
 
-#: projects/models.py:153
+#: projects/models.py:157
 msgid "Project homepage"
 msgstr "项目主页"
 
-#: projects/models.py:155
+#: projects/models.py:159
 msgid "The project's homepage"
 msgstr "项目的主页"
 
-#: projects/models.py:158
+#: projects/models.py:162
 msgid "Canonical URL"
 msgstr "官方网址"
 
-#: projects/models.py:160
+#: projects/models.py:164
 msgid "URL that documentation is expected to serve from"
 msgstr "访问文档的URL"
 
-#: projects/models.py:163
+#: projects/models.py:167
 msgid "Single version"
 msgstr "单一版本"
 
-#: projects/models.py:166
+#: projects/models.py:170
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
@@ -2251,29 +2299,29 @@ msgstr ""
 "单一版本的站点不含多个翻译版本，只有一个「latest」版本，使用根域名进行托管。"
 "请谨慎使用，仅在您的文档<b>永远不会用到</b>多版本时使用它。"
 
-#: projects/models.py:173
+#: projects/models.py:177
 msgid "Default version"
 msgstr "默认版本"
 
-#: projects/models.py:176
+#: projects/models.py:180
 msgid "The version of your project that / redirects to"
 msgstr "访问项目根目录时重定向的目标版本"
 
-#: projects/models.py:181
+#: projects/models.py:185
 msgid "Default branch"
 msgstr "默认分支"
 
-#: projects/models.py:187
+#: projects/models.py:191
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS."
 msgstr ""
 
-#: projects/models.py:192
+#: projects/models.py:196
 msgid "Requirements file"
 msgstr "所需求的文件"
 
-#: projects/models.py:198
+#: projects/models.py:202
 msgid ""
 "A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
 "files\">pip requirements file</a> needed to build your documentation. Path "
@@ -2282,50 +2330,50 @@ msgstr ""
 "需要 <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
 "files\">pip 要求文件</a> 来构建你的文档。 路径从你项目的根目录开始。"
 
-#: projects/models.py:210
+#: projects/models.py:214
 msgid ""
 "Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
 "en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
 "info on sphinx builders</a>."
 msgstr ""
 
-#: projects/models.py:216
+#: projects/models.py:220
 msgid "Documentation URL Configuration"
 msgstr ""
 
-#: projects/models.py:222
+#: projects/models.py:226
 msgid ""
 "Supports the following keys: $language, $version, $subproject, $filename. An "
 "example: `$language/$version/$filename`."
 msgstr ""
 
-#: projects/models.py:229
+#: projects/models.py:233
 msgid "Build pull requests for this project"
 msgstr ""
 
-#: projects/models.py:232
+#: projects/models.py:236
 msgid ""
 "More information in <a href=\"https://docs.readthedocs.io/page/guides/"
 "autobuild-docs-for-pull-requests.html\">our docs</a>."
 msgstr ""
 
-#: projects/models.py:236
+#: projects/models.py:240
 msgid "Privacy level of Pull Requests"
 msgstr ""
 
-#: projects/models.py:243
+#: projects/models.py:247
 msgid "Should builds from pull requests be public?"
 msgstr ""
 
-#: projects/models.py:248
+#: projects/models.py:252
 msgid "CDN Enabled"
 msgstr "CDN 已启用"
 
-#: projects/models.py:250
+#: projects/models.py:254
 msgid "Analytics code"
 msgstr "分析代码"
 
-#: projects/models.py:255
+#: projects/models.py:259
 msgid ""
 "Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow "
 "down your page loads."
@@ -2333,99 +2381,99 @@ msgstr ""
 "Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). 这将减慢你的页"
 "面加载速度。"
 
-#: projects/models.py:261
+#: projects/models.py:265
 msgid "Disable Analytics"
 msgstr ""
 
-#: projects/models.py:265
+#: projects/models.py:269
 msgid ""
 "Disable Google Analytics completely for this project (requires rebuilding "
 "documentation)"
 msgstr ""
 
-#: projects/models.py:270
+#: projects/models.py:274
 msgid "Alternative container image"
 msgstr "备选容器镜像"
 
-#: projects/models.py:276
+#: projects/models.py:280
 msgid "Container memory limit"
 msgstr "容器内存限制"
 
-#: projects/models.py:281
+#: projects/models.py:285
 msgid ""
 "Memory limit in Docker format -- example: <code>512m</code> or <code>1g</"
 "code>"
 msgstr "Docker 格式的内存限制 -- 例: <code>512m</code> or <code>1g</code>"
 
-#: projects/models.py:286
+#: projects/models.py:290
 msgid "Container time limit in seconds"
 msgstr "容器的时间限制秒数"
 
-#: projects/models.py:291
+#: projects/models.py:295
 msgid "Alternate build queue id"
 msgstr "备用构建的队列id"
 
-#: projects/models.py:297
+#: projects/models.py:301
 msgid "Maximum concurrent builds allowed for this project"
 msgstr ""
 
-#: projects/models.py:302
+#: projects/models.py:306
 msgid "Allow paid advertising"
 msgstr "允许已付费广告"
 
-#: projects/models.py:304
+#: projects/models.py:308
 msgid "If unchecked, users will still see community ads."
 msgstr "如果未选中的话，你仍然会看到社区广告。"
 
-#: projects/models.py:307
+#: projects/models.py:311
 msgid "Ad-free"
 msgstr "去广告"
 
-#: projects/models.py:312
+#: projects/models.py:316
 msgid "Is spam?"
 msgstr ""
 
-#: projects/models.py:315
+#: projects/models.py:319
 msgid "Manually marked as (not) spam"
 msgstr ""
 
-#: projects/models.py:318
+#: projects/models.py:322
 msgid "Show version warning"
 msgstr ""
 
-#: projects/models.py:320
+#: projects/models.py:324
 msgid "Show warning banner in non-stable nor latest versions."
 msgstr "在非 stable（稳定）或 latest（最新）版本中展示警告横幅。"
 
-#: projects/models.py:325
+#: projects/models.py:329
 msgid "Enable EPUB build"
 msgstr "启用 EPUB 构建"
 
-#: projects/models.py:328
+#: projects/models.py:332
 msgid "Create a EPUB version of your documentation with each build."
 msgstr "为你文档的每次构建创建  EPUB 版本。"
 
-#: projects/models.py:332
+#: projects/models.py:336
 msgid "Enable PDF build"
 msgstr "启用 PDF 构建"
 
-#: projects/models.py:335
+#: projects/models.py:339
 msgid "Create a PDF version of your documentation with each build."
 msgstr "为你文档的每次构建创建  PDF 版本。"
 
-#: projects/models.py:341 projects/models.py:1400
+#: projects/models.py:345 projects/models.py:1421
 msgid "Path"
 msgstr "路径"
 
-#: projects/models.py:345
+#: projects/models.py:349
 msgid "The directory where <code>conf.py</code> lives"
 msgstr "保存 <code>conf.py</code> 用的目录"
 
-#: projects/models.py:350
+#: projects/models.py:354
 msgid "Python configuration file"
 msgstr "Python 配置文件"
 
-#: projects/models.py:355
+#: projects/models.py:359
 msgid ""
 "Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</"
 "code>). Leave blank if you want us to find it for you."
@@ -2433,404 +2481,410 @@ msgstr ""
 "相对项目根目录的 <code>conf.py</code> 文件路径 (如： <code>docs/conf.py</"
 "code>). 留空则自动查找。"
 
-#: projects/models.py:361
+#: projects/models.py:365
 msgid "Featured"
 msgstr "精选"
 
-#: projects/models.py:363
+#: projects/models.py:367
 msgid "Skip (disable) building this project"
 msgstr ""
 
-#: projects/models.py:367
-#, fuzzy
-#| msgid "Whitelisted"
+#: projects/models.py:375
 msgid "Delisted"
-msgstr "已列入白名单"
+msgstr ""
 
-#: projects/models.py:369
+#: projects/models.py:377
 msgid ""
 "Delisting a project removes it from Read the Docs search indexing and asks "
 "external search engines to remove it via robots.txt"
 msgstr ""
 
-#: projects/models.py:375
+#: projects/models.py:383
 msgid "Install Project"
 msgstr "安装项目"
 
-#: projects/models.py:377
+#: projects/models.py:385
 msgid ""
 "Install your project inside a virtualenv using <code>setup.py install</code>"
 msgstr "在一个 virtualenv 中使用<code>setup.py install</code> 来安装你的项目"
 
-#: projects/models.py:386
+#: projects/models.py:394
 msgid "Python Interpreter"
 msgstr "Python 解释器"
 
-#: projects/models.py:391
+#: projects/models.py:399
 msgid "The Python interpreter used to create the virtual environment."
 msgstr ""
 
-#: projects/models.py:397
+#: projects/models.py:405
 msgid "Use system packages"
 msgstr "使用系统包"
 
-#: projects/models.py:399
+#: projects/models.py:407
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr "让虚拟环境可以访问全局 site-packages 目录。"
 
-#: projects/models.py:410
+#: projects/models.py:418
 msgid "Should the project dashboard be public?"
 msgstr ""
 
-#: projects/models.py:417
+#: projects/models.py:425
 msgid "Related projects"
 msgstr "相关项目"
 
-#: projects/models.py:425 templates/search/elastic_search.html:57
+#: projects/models.py:433 templates/search/elastic_search.html:57
 msgid "Language"
 msgstr "语言"
 
-#: projects/models.py:429
+#: projects/models.py:437
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
 msgstr "该项目的文档所呈现的语言。注意：这影响您的项目的 URL。"
 
-#: projects/models.py:437
+#: projects/models.py:445
 msgid "Programming Language"
 msgstr "编程语言"
 
-#: projects/models.py:441
+#: projects/models.py:449
 msgid "The primary programming language the project is written in."
 msgstr "项目使用的主要编程语言"
 
-#: projects/models.py:457
+#: projects/models.py:465
 msgid "This project has been built with a webhook"
 msgstr "项目构建同时包含webhook"
 
-#: projects/models.py:461
+#: projects/models.py:469
 msgid "This project has been successfully cloned"
 msgstr "此项目已成功被克隆"
 
-#: projects/models.py:481
+#: projects/models.py:489
 msgid "project"
 msgstr ""
 
-#: projects/models.py:491
+#: projects/models.py:499
 msgid "Model must have slug"
 msgstr "Model 必须包含 slug"
 
-#: projects/models.py:1282
+#: projects/models.py:1303
 msgid "Subproject nesting is not supported"
 msgstr "不支持嵌套子项目"
 
-#: projects/models.py:1402 sphinx_domains/models.py:44
+#: projects/models.py:1423 sphinx_domains/models.py:44
 msgid "Build id"
 msgstr ""
 
-#: projects/models.py:1405
+#: projects/models.py:1426
 msgid "Page search rank"
 msgstr ""
 
-#: projects/models.py:1410
+#: projects/models.py:1431
 msgid "Ignore this file from operations like indexing"
 msgstr ""
 
-#: projects/models.py:1507
+#: projects/models.py:1528
 msgid "Build triggered"
 msgstr ""
 
-#: projects/models.py:1508
+#: projects/models.py:1529
 msgid "Build passed"
 msgstr ""
 
-#: projects/models.py:1525
+#: projects/models.py:1546
 msgid "URL"
 msgstr ""
 
-#: projects/models.py:1527
+#: projects/models.py:1548
 msgid "URL to send the webhook to"
 msgstr "发送 webhook 到"
 
-#: projects/models.py:1530
+#: projects/models.py:1551
 msgid "Secret used to sign the payload of the webhook"
 msgstr ""
 
-#: projects/models.py:1538
+#: projects/models.py:1559
 msgid "Events to subscribe"
 msgstr ""
 
-#: projects/models.py:1541
+#: projects/models.py:1562
 msgid "JSON payload"
 msgstr ""
 
-#: projects/models.py:1543
+#: projects/models.py:1564
 msgid ""
 "JSON payload to send to the webhook. Check <a href=\"https://docs."
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
 "reference\">the docs</a> for available substitutions."
 msgstr ""
 
-#: projects/models.py:1651 sphinx_domains/models.py:47
+#: projects/models.py:1672 sphinx_domains/models.py:47
 msgid "Domain"
 msgstr "域"
 
-#: projects/models.py:1658
+#: projects/models.py:1679
 msgid "This domain was auto-created"
 msgstr ""
 
-#: projects/models.py:1662
+#: projects/models.py:1683
 msgid "This domain is a CNAME for the project"
 msgstr ""
 
-#: projects/models.py:1667
+#: projects/models.py:1688
 msgid "This domain is the primary one where the documentation is served from"
 msgstr ""
 
-#: projects/models.py:1671
+#: projects/models.py:1692
 msgid "Use HTTPS"
 msgstr "使用 HTTPS"
 
-#: projects/models.py:1673
+#: projects/models.py:1694
 msgid "Always use HTTPS for this domain"
 msgstr ""
 
-#: projects/models.py:1677
+#: projects/models.py:1698
 msgid "Number of times this domain has been hit"
 msgstr "此域访问次数"
 
-#: projects/models.py:1682 templates/projects/domain_form.html:49
+#: projects/models.py:1703 templates/projects/domain_form.html:49
 msgid "SSL certificate status"
 msgstr ""
 
-#: projects/models.py:1691
+#: projects/models.py:1712
 msgid "Skip validation process."
 msgstr ""
 
-#: projects/models.py:1697
+#: projects/models.py:1718
 msgid "Start date of the validation process."
 msgstr ""
 
-#: projects/models.py:1708
+#: projects/models.py:1729
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
 msgstr ""
 
-#: projects/models.py:1712
+#: projects/models.py:1733
 msgid ""
 "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1716
+#: projects/models.py:1737
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1869
+#: projects/models.py:1893
 msgid "Allow deprecated webhook views"
 msgstr ""
 
-#: projects/models.py:1873
+#: projects/models.py:1897
 msgid "Do not overwrite context vars in conf.py with Read the Docs context"
 msgstr ""
 
-#: projects/models.py:1879
+#: projects/models.py:1903
 msgid "Do not define html_theme_path on Sphinx < 6.0"
 msgstr ""
 
-#: projects/models.py:1884
+#: projects/models.py:1908
 msgid "Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 
-#: projects/models.py:1888
+#: projects/models.py:1912
 msgid "Do not shallow clone when cloning git repos"
 msgstr ""
 
-#: projects/models.py:1892
+#: projects/models.py:1916
 msgid "Use Docker image labelled as `testing` to build the docs"
 msgstr ""
 
-#: projects/models.py:1896
+#: projects/models.py:1920
 msgid "Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1900
+#: projects/models.py:1924
 msgid "Clean all files used in the build process"
 msgstr ""
 
-#: projects/models.py:1904
+#: projects/models.py:1928
 msgid "Upgrade conda before creating the environment"
 msgstr ""
 
-#: projects/models.py:1908
+#: projects/models.py:1932
 msgid "Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1913
+#: projects/models.py:1937
 msgid ""
 "Pass all versions (including private) into the html context when building "
 "with Sphinx"
 msgstr ""
 
-#: projects/models.py:1919
+#: projects/models.py:1943
 msgid ""
 "Cache the environment (virtualenv, conda, pip cache, repository) in storage"
 msgstr ""
 
-#: projects/models.py:1923
+#: projects/models.py:1947
 msgid "Limit the amount of concurrent builds"
 msgstr ""
 
-#: projects/models.py:1927
+#: projects/models.py:1951
 msgid ""
 "CDN support for a project's public versions when privacy levels are enabled."
 msgstr ""
 
-#: projects/models.py:1931
+#: projects/models.py:1955
 msgid "Use Docker gVisor runtime to create build container."
 msgstr ""
 
-#: projects/models.py:1935
+#: projects/models.py:1959
 msgid "Record 404s page views."
 msgstr ""
 
-#: projects/models.py:1939
+#: projects/models.py:1963
 msgid "Allow forced redirects."
 msgstr ""
 
-#: projects/models.py:1943
+#: projects/models.py:1967
 msgid "Disable all page views"
 msgstr ""
 
-#: projects/models.py:1947
+#: projects/models.py:1971
 msgid "Disable indexing of sphinx domains"
 msgstr ""
 
-#: projects/models.py:1951
+#: projects/models.py:1975
 msgid "Allow usage of the X-RTD-Slug header"
 msgstr ""
 
-#: projects/models.py:1957
+#: projects/models.py:1979
+msgid "Use new unresolver implementation for serving documentation files."
+msgstr ""
+
+#: projects/models.py:1985
 msgid "Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:1961
+#: projects/models.py:1989
 msgid "Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:1965
+#: projects/models.py:1993
 msgid "Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:1969
+#: projects/models.py:1997
 msgid "Always run pip install --upgrade"
 msgstr "一直运行run pip install --upgrade"
 
-#: projects/models.py:1970
+#: projects/models.py:1998
 msgid "Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:1973
+#: projects/models.py:2001
 msgid "Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:1975
+#: projects/models.py:2003
 msgid "Use latest version of Sphinx"
 msgstr "使用最新版 Sphinx"
 
-#: projects/models.py:1978
+#: projects/models.py:2006
 msgid "Install mkdocs 0.17.3 by default"
 msgstr ""
 
-#: projects/models.py:1980
+#: projects/models.py:2008
 msgid "Use latest version of MkDocs"
 msgstr "使用最新版 MkDocs"
 
-#: projects/models.py:1983
+#: projects/models.py:2011
 msgid "Use latest version of the Read the Docs Sphinx extension"
 msgstr "使用最新版 Read the Docs Sphinx 扩展"
 
-#: projects/models.py:1989
+#: projects/models.py:2017
 msgid "Disable server side search"
 msgstr ""
 
-#: projects/models.py:1993
+#: projects/models.py:2021
 msgid "Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:1997
+#: projects/models.py:2025
 msgid "Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:2001
+#: projects/models.py:2029
 msgid ""
 "Index content directly from html files instead or relying in other sources"
 msgstr ""
 
-#: projects/models.py:2007
+#: projects/models.py:2035
 msgid ""
 "List packages installed in the environment (\"pip list\" or \"conda list\") "
 "on build's output"
 msgstr ""
 
-#: projects/models.py:2013
+#: projects/models.py:2041
 msgid ""
 "Use remote listing in VCS (e.g. git ls-remote) if supported for sync versions"
 msgstr ""
 
-#: projects/models.py:2017
+#: projects/models.py:2045
 msgid "Use \"-j auto\" when calling sphinx-build"
 msgstr ""
 
-#: projects/models.py:2021
+#: projects/models.py:2049
 msgid "Use regular sphinx builders instead of custom RTD builders"
 msgstr ""
 
-#: projects/models.py:2026
+#: projects/models.py:2054
 msgid ""
 "Cancel triggered/running builds when a new one with same project/version "
 "arrives"
 msgstr ""
 
-#: projects/models.py:2031
+#: projects/models.py:2059
 msgid "Do not create index.md or README.rst if the project does not have one."
 msgstr ""
 
-#: projects/models.py:2035
+#: projects/models.py:2063
 msgid "Use rclone for syncing files to the media storage."
 msgstr ""
 
-#: projects/models.py:2046
+#: projects/models.py:2067
+msgid "Inject 'readthedocs-client.js' as <script> HTML tag in responses."
+msgstr ""
+
+#: projects/models.py:2078
 msgid "Feature identifier"
 msgstr ""
 
-#: projects/models.py:2051
+#: projects/models.py:2083
 msgid "Date feature was added"
 msgstr "添加了日期功能"
 
-#: projects/models.py:2057
+#: projects/models.py:2089
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:2061
+#: projects/models.py:2093
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2083
+#: projects/models.py:2115
 msgid "Name of the environment variable"
 msgstr ""
 
-#: projects/models.py:2087
+#: projects/models.py:2119
 msgid "Value of the environment variable"
 msgstr ""
 
-#: projects/models.py:2092
+#: projects/models.py:2124
 msgid "Project where this variable will be used"
 msgstr ""
 
-#: projects/models.py:2098
+#: projects/models.py:2130
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
-#: projects/notifications.py:27
+#: projects/notifications.py:26
 msgid ""
 "Your primary email address is not verified. Please <a "
 "href=\"{{account_email_url}}\">verify it here</a>."
@@ -2858,15 +2912,15 @@ msgstr ""
 msgid "Invalid scheme for URL"
 msgstr ""
 
-#: projects/views/private.py:150 projects/views/private.py:160
+#: projects/views/private.py:155 projects/views/private.py:165
 msgid "Project settings updated"
 msgstr "项目设置已更新"
 
-#: projects/views/private.py:169
+#: projects/views/private.py:174
 msgid "Project deleted"
 msgstr "项目已删除"
 
-#: projects/views/private.py:387
+#: projects/views/private.py:392
 #, python-brace-format
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
@@ -2875,12 +2929,12 @@ msgstr ""
 "您的 {service} 账号出现了问题，尝试重新连接 <a href=\"{url}\">已连接服务页面"
 "</a>上的账号。"
 
-#: projects/views/private.py:509
+#: projects/views/private.py:514
 #, python-brace-format
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:975
+#: projects/views/private.py:968
 msgid "Project has been opted out from advertisement support"
 msgstr "项目已从广告支持中退出"
 
@@ -3019,67 +3073,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:412
+#: settings/base.py:432
 msgid "Catalan"
 msgstr "加泰罗尼亚语"
 
-#: settings/base.py:413
+#: settings/base.py:433
 msgid "English"
 msgstr "英语"
 
-#: settings/base.py:414
+#: settings/base.py:434
 msgid "Spanish"
 msgstr "西班牙语"
 
-#: settings/base.py:415
+#: settings/base.py:435
 msgid "Brazilian Portuguese"
 msgstr "巴西葡萄牙语"
 
-#: settings/base.py:416
+#: settings/base.py:436
 msgid "Norwegian Bokmål"
 msgstr "挪威语"
 
-#: settings/base.py:417
+#: settings/base.py:437
 msgid "French"
 msgstr "法语"
 
-#: settings/base.py:418
+#: settings/base.py:438
 msgid "Russian"
 msgstr "俄语"
 
-#: settings/base.py:419
+#: settings/base.py:439
 msgid "German"
 msgstr "德语"
 
-#: settings/base.py:420
+#: settings/base.py:440
 msgid "Galician"
 msgstr "加利西亚语"
 
-#: settings/base.py:421
+#: settings/base.py:441
 msgid "Vietnamese"
 msgstr "越南语"
 
-#: settings/base.py:422
+#: settings/base.py:442
 msgid "Simplified Chinese"
 msgstr "简体中文"
 
-#: settings/base.py:423
+#: settings/base.py:443
 msgid "Traditional Chinese"
 msgstr "繁体中文"
 
-#: settings/base.py:424
+#: settings/base.py:444
 msgid "Japanese"
 msgstr "日语"
 
-#: settings/base.py:425
+#: settings/base.py:445
 msgid "Ukrainian"
 msgstr "乌克兰语"
 
-#: settings/base.py:426
+#: settings/base.py:446
 msgid "Italian"
 msgstr "意大利语"
 
-#: settings/base.py:427
+#: settings/base.py:447
 msgid "Korean"
 msgstr "韩语"
 
@@ -3103,6 +3157,58 @@ msgstr ""
 msgid "Anchor"
 msgstr ""
 
+#: subscriptions/constants.py:26
+msgid "Custom domain"
+msgstr ""
+
+#: subscriptions/constants.py:27
+msgid "CDN public documentation"
+msgstr ""
+
+#: subscriptions/constants.py:28
+msgid "Custom SSL configuration"
+msgstr ""
+
+#: subscriptions/constants.py:29
+msgid "Support SLA"
+msgstr ""
+
+#: subscriptions/constants.py:30
+msgid "Private documentation"
+msgstr ""
+
+#: subscriptions/constants.py:31
+msgid "Embed content via API"
+msgstr ""
+
+#: subscriptions/constants.py:32
+msgid "Search analytics"
+msgstr ""
+
+#: subscriptions/constants.py:33
+msgid "Pageview analytics"
+msgstr ""
+
+#: subscriptions/constants.py:34
+msgid "Concurrent builds"
+msgstr ""
+
+#: subscriptions/constants.py:35
+msgid "Single sign on (SSO) with Google"
+msgstr ""
+
+#: subscriptions/constants.py:36
+msgid "Custom URLs"
+msgstr ""
+
+#: subscriptions/constants.py:37
+msgid "Audit logs"
+msgstr ""
+
+#: subscriptions/constants.py:38
+msgid "Record every page view"
+msgstr ""
+
 #: subscriptions/forms.py:24
 #, python-brace-format
 msgid ""
@@ -3110,113 +3216,61 @@ msgid ""
 "about each plan."
 msgstr ""
 
-#: subscriptions/models.py:36
+#: subscriptions/models.py:34
 msgid "Stripe ID"
 msgstr ""
 
-#: subscriptions/models.py:37
+#: subscriptions/models.py:35
 msgid "Price"
 msgstr ""
 
-#: subscriptions/models.py:38
+#: subscriptions/models.py:36
 msgid "Trial"
 msgstr ""
 
-#: subscriptions/models.py:43
+#: subscriptions/models.py:41
 msgid "For organizations"
 msgstr ""
 
-#: subscriptions/models.py:51
+#: subscriptions/models.py:49
 msgid "Published"
 msgstr ""
 
-#: subscriptions/models.py:110
-msgid "Custom domain"
-msgstr ""
-
-#: subscriptions/models.py:111
-msgid "CDN public documentation"
-msgstr ""
-
-#: subscriptions/models.py:112
-msgid "Custom SSL configuration"
-msgstr ""
-
-#: subscriptions/models.py:113
-msgid "Support SLA"
-msgstr ""
-
-#: subscriptions/models.py:114
-msgid "Private documentation"
-msgstr ""
-
-#: subscriptions/models.py:115
-msgid "Embed content via API"
-msgstr ""
-
-#: subscriptions/models.py:116
-msgid "Search analytics"
-msgstr ""
-
-#: subscriptions/models.py:117
-msgid "Pageview analytics"
-msgstr ""
-
-#: subscriptions/models.py:118
-msgid "Concurrent builds"
-msgstr ""
-
-#: subscriptions/models.py:119
-msgid "Single sign on (SSO) with Google"
-msgstr ""
-
-#: subscriptions/models.py:120
-msgid "Custom URLs"
-msgstr ""
-
-#: subscriptions/models.py:121
-msgid "Audit logs"
-msgstr ""
-
-#: subscriptions/models.py:122
-msgid "Record every page view"
-msgstr ""
-
-#: subscriptions/models.py:135
+#: subscriptions/models.py:98
 msgid "Numeric value"
 msgstr ""
 
-#: subscriptions/models.py:169
+#: subscriptions/models.py:132
 #: subscriptions/templates/subscriptions/subscription_detail.html:31
 msgid "Plan"
 msgstr ""
 
-#: subscriptions/models.py:179
+#: subscriptions/models.py:142
 msgid "Locked plan"
 msgstr ""
 
-#: subscriptions/models.py:181
+#: subscriptions/models.py:144
 msgid "Locked plan for custom contracts"
 msgstr ""
 
-#: subscriptions/models.py:188
+#: subscriptions/models.py:151
 msgid "Stripe subscription ID"
 msgstr ""
 
-#: subscriptions/models.py:193
+#: subscriptions/models.py:156
 #: subscriptions/templates/subscriptions/subscription_detail.html:62
 msgid "Subscription status"
 msgstr ""
 
-#: subscriptions/models.py:194
+#: subscriptions/models.py:157
 msgid "Start date"
 msgstr ""
 
-#: subscriptions/models.py:196
+#: subscriptions/models.py:159
 msgid "End date"
 msgstr ""
 
-#: subscriptions/models.py:202
+#: subscriptions/models.py:165
 msgid "Trial end date"
 msgstr ""
 
@@ -3468,89 +3522,89 @@ msgstr ""
 msgid "Read the Docs Archive"
 msgstr "Read the Docs 存档"
 
-#: templates/base.html:109
+#: templates/base.html:114
 msgid "Close notification"
 msgstr ""
 
-#: templates/base.html:144
+#: templates/base.html:149
 msgid "Stay Updated"
 msgstr ""
 
-#: templates/base.html:148
+#: templates/base.html:153
 msgid "Blog"
 msgstr "博客"
 
-#: templates/base.html:152
+#: templates/base.html:157
 msgid ""
 "Sign up for our newsletter to get our latest blog updates delivered to your "
 "inbox weekly."
 msgstr ""
 
-#: templates/base.html:165
+#: templates/base.html:170
 msgid "Subscribe"
 msgstr "订阅"
 
-#: templates/base.html:173
+#: templates/base.html:178
 msgid "Thank you!"
 msgstr "谢谢你！"
 
-#: templates/base.html:174
+#: templates/base.html:179
 msgid "You have successfully joined our subscriber list."
 msgstr ""
 
-#: templates/base.html:187
+#: templates/base.html:192
 msgid "Resources"
 msgstr "资源"
 
-#: templates/base.html:191
+#: templates/base.html:196
 msgid "Tutorial"
 msgstr "教程"
 
-#: templates/base.html:197
+#: templates/base.html:202
 msgid "Documentation"
 msgstr "文档"
 
-#: templates/base.html:200
+#: templates/base.html:205
 msgid "Going Ad-free"
 msgstr "去广告"
 
-#: templates/base.html:203
+#: templates/base.html:208
 msgid "Site Support"
 msgstr "站点支持"
 
-#: templates/base.html:206
+#: templates/base.html:211
 msgid "Site Status"
 msgstr "站点状态"
 
-#: templates/base.html:213
+#: templates/base.html:218
 msgid "Company"
 msgstr "公司"
 
-#: templates/base.html:217
+#: templates/base.html:222
 msgid "Jobs"
 msgstr ""
 
-#: templates/base.html:220
+#: templates/base.html:225
 msgid "Advertise with Us"
 msgstr ""
 
-#: templates/base.html:223
+#: templates/base.html:228
 msgid "Read the Docs for Business"
 msgstr "Read the Docs 商业版"
 
-#: templates/base.html:226
+#: templates/base.html:231
 msgid "Branding & Media Kit"
 msgstr ""
 
-#: templates/base.html:232
+#: templates/base.html:237
 msgid "Terms of Service"
 msgstr "服务条款"
 
-#: templates/base.html:253
+#: templates/base.html:258
 msgid "Read the Docs, Inc & contributors"
 msgstr ""
 
-#: templates/base.html:276
+#: templates/base.html:281
 msgid "Change Language"
 msgstr ""
 
@@ -3808,10 +3862,8 @@ msgid "View Docs"
 msgstr "阅读文档"
 
 #: templates/core/project_bar_base.html:25
-#, fuzzy
-#| msgid "Whitelisted"
 msgid "delisted"
-msgstr "已列入白名单"
+msgstr ""
 
 #: templates/core/project_bar_base.html:34
 #, python-format
@@ -5351,6 +5403,3 @@ msgid ""
 "OAuth connection of Read the Docs. On GitHub, this is located in "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
-
-#~ msgid "Skip"
-#~ msgstr "跳过"

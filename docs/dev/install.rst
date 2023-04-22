@@ -32,6 +32,27 @@ Set up your environment
 
       git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
 
+#. Install or clone additional repositories:
+
+   .. note::
+
+      This step is only required for Read the Docs core team members.
+
+   Core team should at very least have all required packages installed in their development image.
+   To install these packages you must define a GitHub token before building your image:
+
+   .. prompt:: bash
+
+      export GITHUB_TOKEN="..."
+      export GITHUB_USER="..."
+
+   In order to make development changes on any of our private repositories,
+   such as ``ext`` or ``ext-theme``, you will also need to check these repositories out:
+
+   .. prompt:: bash
+
+      git clone --recurse-submodules https://github.com/readthedocs/ext/
+
 #. Install the requirements from ``common`` submodule:
 
    .. prompt:: bash
@@ -48,10 +69,6 @@ Set up your environment
 
       inv docker.build
 
-   .. tip::
-
-      If you pass the ``GITHUB_TOKEN`` and ``GITHUB_USER`` environment variables to this command,
-      it will add support for readthedocs-ext.
 
 #. Pull down Docker images for the builders:
 
@@ -98,6 +115,8 @@ save some work while typing docker compose commands. This section explains these
     * ``--no-reload`` makes all celery processes and django runserver
       to use no reload and do not watch for files changes
     * ``--ngrok`` is useful when it's required to access the local instance from outside (e.g. GitHub webhook)
+    * ``--ext-theme`` to use the new dashboard templates
+    * ``--webpack`` to start the Webpack dev server for the new dashboard templates
 
 ``inv docker.shell``
     Opens a shell in a container (web by default).

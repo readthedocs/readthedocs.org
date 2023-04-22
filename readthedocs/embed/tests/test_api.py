@@ -12,6 +12,7 @@ from rest_framework import status
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.constants import MKDOCS, PUBLIC
 from readthedocs.projects.models import Project
+from readthedocs.subscriptions.constants import TYPE_EMBED_API
 
 data_path = Path(__file__).parent.resolve() / 'data'
 
@@ -34,6 +35,9 @@ class BaseTestEmbedAPI:
 
         settings.USE_SUBDOMAIN = True
         settings.PUBLIC_DOMAIN = 'readthedocs.io'
+        settings.RTD_DEFAULT_FEATURES = {
+            TYPE_EMBED_API: 1,
+        }
 
     def get(self, client, *args, **kwargs):
         """Wrapper around ``client.get`` to be overridden in the proxied api tests."""
@@ -128,6 +132,16 @@ class BaseTestEmbedAPI:
         for param in query_params:
             r = self.get(client, api_endpoint, param)
             assert r.status_code == status.HTTP_200_OK
+
+    def test_no_access(self, client, settings):
+        settings.RTD_DEFAULT_FEATURES = {}
+        api_endpoint = reverse("embed_api")
+        r = self.get(
+            client,
+            api_endpoint,
+            {"url": "https://project.readthedocs.io/en/latest/index.html#title-one"},
+        )
+        assert r.status_code == status.HTTP_403_FORBIDDEN
 
     @mock.patch('readthedocs.embed.views.build_media_storage')
     def test_embed_unknown_section(self, storage_mock, client):
@@ -314,6 +328,19 @@ class BaseTestEmbedAPI:
         assert response.status_code == status.HTTP_200_OK
         assert response.data == expected
 
+    def test_no_access(self, client, settings):
+        settings.RTD_DEFAULT_FEATURES = {}
+        response = self.get(
+            client,
+            reverse("embed_api"),
+            {
+                "project": self.project.slug,
+                "version": self.version.slug,
+                "path": "index.html",
+                "section": "title-one",
+            },
+        )
+        assert response.status_code == status.HTTP_403_FORBIDDEN
 
 class TestEmbedAPI(BaseTestEmbedAPI):
 

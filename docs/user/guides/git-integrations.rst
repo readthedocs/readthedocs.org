@@ -1,7 +1,9 @@
 How to manually connect your Git repository
 ===========================================
 
-In this guide, you will find the simple steps to integrating your Read the Docs project with GitHub, Bitbucket, GitLab, Gitea or any other Git provider that supports our generic API.
+In this guide,
+you will find the simple steps to manually integrating your Read the Docs project with all Git providers that supports our generic API.
+This includes most Git providers, for example |git_providers_and|.
 
 .. note::
 
@@ -112,7 +114,7 @@ Provider-specific instructions
 Additional integration
 ----------------------
 
-You can configure multiple webhooks.
+You can configure multiple :term:`webhooks <webhook>`.
 
 To manually set up an integration, go to :guilabel:`Admin` > :guilabel:`Integrations` >  :guilabel:`Add integration`
 dashboard page and select the integration type you'd like to add.

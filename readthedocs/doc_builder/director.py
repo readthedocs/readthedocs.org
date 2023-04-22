@@ -1,11 +1,22 @@
+"""
+The ``director`` module can be seen as the entrypoint of the build process.
+
+It "directs" all of the high-level build jobs:
+
+* checking out the repo
+* setting up the environment
+* fetching instructions etc.
+"""
 import os
 import tarfile
 
 import structlog
+import yaml
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import EXTERNAL
+from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.doc_builder.loader import get_builder_class
@@ -187,6 +198,7 @@ class BuildDirector:
         self.build_epub()
 
         self.run_build_job("post_build")
+        self.store_readthedocs_build_yaml()
 
         after_build.send(
             sender=self.data.version,
@@ -194,17 +206,34 @@ class BuildDirector:
 
     # VCS checkout
     def checkout(self):
-        log.info(
-            "Clonning repository.",
-        )
+        """Checkout Git repo and load build config file."""
+
+        log.info("Cloning repository.")
         self.vcs_repository.update()
 
         identifier = self.data.build_commit or self.data.version.identifier
         log.info("Checking out.", identifier=identifier)
         self.vcs_repository.checkout(identifier)
 
-        self.data.config = load_yaml_config(version=self.data.version)
+        # The director is responsible for understanding which config file to use for a build.
+        # In order to reproduce a build 1:1, we may use readthedocs_yaml_path defined by the build
+        # instead of per-version or per-project.
+        # Use the below line to fetch the readthedocs_yaml_path defined per-build.
+        # custom_config_file = self.data.build.get("readthedocs_yaml_path", None)
+        custom_config_file = None
+
+        # This logic can be extended with version-specific config files
+        if not custom_config_file and self.data.version.project.readthedocs_yaml_path:
+            custom_config_file = self.data.version.project.readthedocs_yaml_path
+
+        if custom_config_file:
+            log.info("Using a custom .readthedocs.yaml file.", path=custom_config_file)
+        self.data.config = load_yaml_config(
+            version=self.data.version,
+            readthedocs_yaml_path=custom_config_file,
+        )
         self.data.build["config"] = self.data.config.as_dict()
+        self.data.build["readthedocs_yaml_path"] = custom_config_file
 
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)
@@ -330,9 +359,34 @@ class BuildDirector:
 
         commands = getattr(self.data.config.build.jobs, job, [])
         for command in commands:
-            environment.run(*command.split(), escape_command=False, cwd=cwd)
+            environment.run(command, escape_command=False, cwd=cwd)
+
+    def check_old_output_directory(self):
+        """
+        Check if there the directory '_build/html' exists and fail the build if so.
+
+        Read the Docs used to build artifacts into '_build/html' and there are
+        some projects with this path hardcoded in their files. Those builds are
+        having unexpected behavior since we are not using that path anymore.
+
+        In case we detect they are keep using that path, we fail the build
+        explaining this.
+        """
+        command = self.build_environment.run(
+            "test",
+            "-x",
+            "_build/html",
+            cwd=self.data.project.checkout_path(self.data.version.slug),
+            record=False,
+        )
+        if command.exit_code == 0:
+            log.warning(
+                "Directory '_build/html' exists. This may lead to unexpected behavior."
+            )
+            raise BuildUserError(BuildUserError.BUILD_OUTPUT_OLD_DIRECTORY_USED)
 
     def run_build_commands(self):
+        """Runs each build command in the build environment."""
         reshim_commands = (
             {"pip", "install"},
             {"conda", "create"},
@@ -344,7 +398,7 @@ class BuildDirector:
         cwd = self.data.project.checkout_path(self.data.version.slug)
         environment = self.build_environment
         for command in self.data.config.build.commands:
-            environment.run(*command.split(), escape_command=False, cwd=cwd)
+            environment.run(command, escape_command=False, cwd=cwd)
 
             # Execute ``asdf reshim python`` if the user is installing a
             # package since the package may contain an executable
@@ -368,6 +422,7 @@ class BuildDirector:
         # Update the `Version.documentation_type` to match the doctype defined
         # by the config file. When using `build.commands` it will be `GENERIC`
         self.data.version.documentation_type = self.data.config.doctype
+        self.store_readthedocs_build_yaml()
 
     def install_build_tools(self):
         """
@@ -546,6 +601,12 @@ class BuildDirector:
             "READTHEDOCS_OUTPUT": os.path.join(
                 self.data.project.checkout_path(self.data.version.slug), "_readthedocs/"
             ),
+            "READTHEDOCS_GIT_CLONE_URL": self.data.project.repo,
+            # TODO: we don't have access to the database from the builder.
+            # We need to find a way to expose HTML_URL here as well.
+            # "READTHEDOCS_GIT_HTML_URL": self.data.project.remote_repository.html_url,
+            "READTHEDOCS_GIT_IDENTIFIER": self.data.version.identifier,
+            "READTHEDOCS_GIT_COMMIT_HASH": self.data.build["commit"],
         }
         return env
 
@@ -587,6 +648,12 @@ class BuildDirector:
                 }
             )
 
+        env.update(
+            {
+                "READTHEDOCS_CANONICAL_URL": self.data.version.canonical_url,
+            }
+        )
+
         # Update environment from Project's specific environment variables,
         # avoiding to expose private environment variables
         # if the version is external (i.e. a PR build).
@@ -601,3 +668,37 @@ class BuildDirector:
     def is_type_sphinx(self):
         """Is documentation type Sphinx."""
         return "sphinx" in self.data.config.doctype
+
+    def store_readthedocs_build_yaml(self):
+        # load YAML from user
+        yaml_path = os.path.join(
+            self.data.project.artifact_path(
+                version=self.data.version.slug, type_="html"
+            ),
+            "readthedocs-build.yaml",
+        )
+
+        if not os.path.exists(yaml_path):
+            log.debug("Build output YAML file (readtehdocs-build.yaml) does not exist.")
+            return
+
+        try:
+            with safe_open(yaml_path, "r") as f:
+                data = yaml.safe_load(f)
+        except Exception:
+            # NOTE: skip this work for now until we decide whether or not this
+            # YAML file is required.
+            #
+            # NOTE: decide whether or not we want this
+            # file to be mandatory and raise an exception here.
+            return
+
+        log.info("readthedocs-build.yaml loaded.", path=yaml_path)
+
+        # TODO: validate the YAML generated by the user
+        # self._validate_readthedocs_build_yaml(data)
+
+        # Copy the YAML data into `Version.build_data`.
+        # It will be saved when the API is hit.
+        # This data will be used by the `/_/readthedocs-config.json` API endpoint.
+        self.data.version.build_data = data

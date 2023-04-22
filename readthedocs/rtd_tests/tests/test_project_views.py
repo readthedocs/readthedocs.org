@@ -177,7 +177,6 @@ class TestBasicsForm(WizardTestCase):
         self.step_data['basics'] = {'advanced': True}
         resp = self.post_step('basics')
         self.assertWizardFailure(resp, 'name')
-        self.assertWizardFailure(resp, 'repo_type')
 
 
 @mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())

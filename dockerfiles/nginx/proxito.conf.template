@@ -82,10 +82,23 @@ server {
         add_header Access-Control-Allow-Headers $access_control_allow_headers always;
         set $x_frame_options $upstream_http_x_frame_options;
         add_header X-Frame-Options $x_frame_options always;
+        set $x_content_type_options $upstream_http_x_content_type_options;
+        add_header X-Content-Type-Options $x_content_type_options always;
         # Minio sets this header on the response, and we don't want to copy it to the response
         proxy_hide_header Content-Security-Policy;
         set $content_security_policy $upstream_http_content_security_policy;
         add_header Content-Security-Policy $content_security_policy always;
+
+        # This header allows us to decide whether or not inject the script at CloudFlare level
+        # Now, I'm injecting it in all the NGINX responses because `sub_filter` is not allowed inside an `if` statement.
+        set $rtd_hosting_integrations $upstream_http_x_rtd_hosting_integrations;
+        add_header X-RTD-Hosting-Integrations $rtd_hosting_integrations always;
+
+        # Inject our own script dynamically
+        # TODO: find a way to make this work _without_ running `npm run dev` from the `readthedocs-client` repository
+        sub_filter '</head>' '<script language="javascript" src="http://localhost:8000/readthedocs-client.js"></script>\n</head>';
+        sub_filter_last_modified on;
+        sub_filter_once on;
     }
 
     # Serve 404 pages here
