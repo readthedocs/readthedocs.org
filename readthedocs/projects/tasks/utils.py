@@ -151,7 +151,7 @@ def send_external_build_status(version_type, build_pk, commit, status):
     # Send status reports for only External (pull/merge request) Versions.
     if version_type == EXTERNAL:
         # call the task that actually send the build status.
-        send_build_status.delay(build=build_pk, commit=commit, status=status)
+        send_build_status.delay(build_pk, commit, status)
 
 
 class BuildRequest(Request):
