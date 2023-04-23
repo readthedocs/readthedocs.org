@@ -16,9 +16,9 @@ babel==2.12.1
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.26.114
+boto3==1.26.118
     # via django-storages
-botocore==1.29.114
+botocore==1.29.118
     # via
     #   boto3
     #   s3transfer
@@ -148,7 +148,7 @@ elasticsearch-dsl==7.4.1
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
-filelock==3.11.0
+filelock==3.12.0
     # via virtualenv
 funcy==1.18
     # via django-cacheops
@@ -196,7 +196,7 @@ prompt-toolkit==3.0.38
     # via click-repl
 pycparser==2.21
     # via cffi
-pygments==2.15.0
+pygments==2.15.1
     # via
     #   -r requirements/pip.in
     #   sphinx
@@ -273,7 +273,7 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-sqlparse==0.4.3
+sqlparse==0.4.4
     # via
     #   django
     #   django-debug-toolbar
@@ -306,7 +306,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.21.0
+virtualenv==20.22.0
     # via -r requirements/pip.in
 wcwidth==0.2.6
     # via prompt-toolkit

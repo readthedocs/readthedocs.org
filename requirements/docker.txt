@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.114
+boto3==1.26.118
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.114
+botocore==1.29.118
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -207,7 +207,7 @@ executing==1.2.0
     # via stack-data
 fancycompleter==0.9.1
     # via pdbpp
-filelock==3.11.0
+filelock==3.12.0
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -317,7 +317,7 @@ pycparser==2.21
     # via
     #   -r requirements/pip.txt
     #   cffi
-pygments==2.15.0
+pygments==2.15.1
     # via
     #   -r requirements/pip.txt
     #   ipython
@@ -428,7 +428,7 @@ sphinxcontrib-serializinghtml==1.1.5
     # via
     #   -r requirements/pip.txt
     #   sphinx
-sqlparse==0.4.3
+sqlparse==0.4.4
     # via
     #   -r requirements/pip.txt
     #   django
@@ -483,7 +483,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.21.0
+virtualenv==20.22.0
     # via
     #   -r requirements/pip.txt
     #   tox
