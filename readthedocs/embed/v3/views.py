@@ -24,6 +24,21 @@ from readthedocs.storage import build_media_storage
 log = structlog.get_logger(__name__)
 
 
+class IsAuthorizedToGetContenFromVersion(IsAuthorizedToViewVersion):
+
+    """
+    Checks if the user from the request has permissions to get content from the version.
+
+    If the URL is from an external project, we return ``True``,
+    since we don't have a project to check for.
+    """
+
+    def has_permission(self, request, view):
+        if view.external:
+            return True
+        return super().has_permission(request, view)
+
+
 class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     # pylint: disable=line-too-long
@@ -44,10 +59,10 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     """  # noqa
 
-    permission_classes = [HasEmbedAPIAccess, IsAuthorizedToViewVersion]
+    permission_classes = [HasEmbedAPIAccess, IsAuthorizedToGetContenFromVersion]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
-    # API V3 doesn't allow passing a version or project query parameter.
+    # API V3 doesn't allow passing a version or project query parameters.
     support_url_parameter_only = True
 
     @property
