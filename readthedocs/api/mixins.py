@@ -77,6 +77,9 @@ class EmbedAPIMixin:
     to avoid hitting the database multiple times on the same request.
     """
 
+    # This class is shared between EmbedAPI v2 and v3.
+    # In v3, we only support the `url` parameter,
+    # but in v2 we support `project` and `version` as well.
     support_url_parameter_only = False
 
     @cached_property
