@@ -116,5 +116,5 @@ class TestProxiedEmbedAPIV3Access(TestEmbedAPIV3Access):
     def get(self, *args, **kwargs):
         return self.client.get(*args, HTTP_HOST="docs.readthedocs.io", **kwargs)
 
-    def test_get_content_private_version_logged_in_user(self, storage_mock):
+    def test_get_content_private_version_logged_in_user(self):
         """Proxied API on .org doesn't log in users."""
