@@ -27,16 +27,22 @@ from readthedocs.projects import constants
 from readthedocs.projects.models import Domain, Feature
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
+from readthedocs.proxito.exceptions import (
+    ContextualizedHttp404,
+    ProjectFilenameHttp404,
+    ProjectTranslationHttp404,
+    ProjectVersionHttp404,
+)
 from readthedocs.proxito.redirects import canonical_redirect
-from readthedocs.redirects.exceptions import InfiniteRedirectException
-from readthedocs.storage import build_media_storage
-
-from .mixins import (
+from readthedocs.proxito.views.mixins import (
     InvalidPathError,
     ServeDocsMixin,
     ServeRedirectMixin,
     StorageFileNotFound,
 )
+from readthedocs.redirects.exceptions import InfiniteRedirectException
+from readthedocs.storage import build_media_storage
+
 from .utils import _get_project_data_from_request
 
 log = structlog.get_logger(__name__)  # noqa
@@ -138,7 +144,13 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
 
         original_version_slug = version_slug
         version_slug = self.get_version_from_host(request, version_slug)
-        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
+
+        (
+            final_project,
+            lang_slug,
+            version_slug,
+            filename,
+        ) = _get_project_data_from_request(  # noqa
             request,
             project_slug=project_slug,
             subproject_slug=subproject_slug,
@@ -240,7 +252,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 'Invalid URL for project with versions.',
                 filename=filename,
             )
-            raise Http404('Invalid URL for project with versions')
+            raise Http404("Invalid URL for project with versions")
 
         redirect_path, http_status = self.get_redirect(
             project=final_project,
@@ -322,6 +334,9 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         if unresolved_domain.is_from_external_domain:
             self.version_type = EXTERNAL
 
+        # 404 errors aren't contextualized here because all 404s use the internal nginx redirect,
+        # where the path will be 'unresolved' again when handling the 404 error
+        # See: ServeError404Base
         try:
             unresolved = unresolver.unresolve_path(
                 unresolved_domain=unresolved_domain,
@@ -497,13 +512,18 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         version_slug = kwargs.get('version_slug')
         version_slug = self.get_version_from_host(request, version_slug)
-        final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
+        (
+            final_project,
+            lang_slug,
+            version_slug,
+            filename,
+        ) = _get_project_data_from_request(  # noqa
             request,
-            project_slug=kwargs.get('project_slug'),
-            subproject_slug=kwargs.get('subproject_slug'),
-            lang_slug=kwargs.get('lang_slug'),
+            project_slug=kwargs.get("project_slug"),
+            subproject_slug=kwargs.get("subproject_slug"),
+            lang_slug=kwargs.get("lang_slug"),
             version_slug=version_slug,
-            filename=kwargs.get('filename', ''),
+            filename=kwargs.get("filename", ""),
         )
 
         log.bind(
@@ -566,7 +586,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         if response:
             return response
 
-        raise Http404('No custom 404 page found.')
+        raise Http404("No custom 404 page found.")
 
     def _register_broken_link(self, project, version, path, full_path):
         try:
@@ -731,6 +751,9 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         # Try to map the current path to a project/version/filename.
         # If that fails, we fill the variables with the information we have
         # available in the exceptions.
+
+        contextualized_404_class = ContextualizedHttp404
+
         try:
             unresolved = unresolver.unresolve_path(
                 unresolved_domain=unresolved_domain,
@@ -742,21 +765,26 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             filename = unresolved.filename
             lang_slug = project.language
             version_slug = version.slug
+            contextualized_404_class = ProjectFilenameHttp404
         except VersionNotFoundError as exc:
             project = exc.project
             lang_slug = project.language
             version_slug = exc.version_slug
             filename = exc.filename
+            contextualized_404_class = ProjectVersionHttp404
         except TranslationNotFoundError as exc:
             project = exc.project
             lang_slug = exc.language
             version_slug = exc.version_slug
             filename = exc.filename
+            contextualized_404_class = ProjectTranslationHttp404
         except InvalidExternalVersionError as exc:
             project = exc.project
+            # TODO: Use a contextualized 404
         except InvalidPathForVersionedProjectError as exc:
             project = exc.project
             filename = exc.path
+            # TODO: Use a contextualized 404
 
         log.bind(
             project_slug=project.slug,
@@ -819,7 +847,14 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         )
         if response:
             return response
-        raise Http404("No custom 404 page found.")
+
+        # No custom 404 page, use our contextualized 404 response
+        # Several additional context variables can be added if the templates
+        # or other error handling is developed (version, language, filename).
+        raise contextualized_404_class(
+            project=project,
+            path_not_found=path,
+        )
 
 
 class ServeError404(SettingsOverrideObject):
@@ -1015,7 +1050,7 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
             only_active=True,
         )
         if not public_versions.exists():
-            raise Http404
+            raise Http404()
 
         sorted_versions = sort_version_aware(public_versions)
 
