@@ -74,7 +74,7 @@ class ProjectHttp404(ContextualizedHttp404):
         "Names an object not found in a 404 error", "project"
     )
 
-    def __init__(self, domain=None, **kwargs):
+    def __init__(self, domain, **kwargs):
         """
         Raised when a project wasn't found for a given domain.
 
