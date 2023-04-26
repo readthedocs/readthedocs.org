@@ -1,6 +1,12 @@
 from django.http import Http404
 from django.utils.translation import pgettext_lazy
 
+_not_found_subject_translation_context = (
+    "Names a subject that was not found in a 404 error message. Used like "
+    "'The {{ not_found_subject }} you are looking for at <code>{{ path_not_found }}</code> "
+    "was not found.'"
+)
+
 
 class ContextualizedHttp404(Http404):
 
@@ -14,9 +20,7 @@ class ContextualizedHttp404(Http404):
     """
 
     template_name = "errors/404/base.html"
-    not_found_subject = pgettext_lazy(
-        "Names an object not found in a 404 error", "page"
-    )
+    not_found_subject = pgettext_lazy(_not_found_subject_translation_context, "page")
 
     def __init__(self, http_status=404, path_not_found=None, **kwargs):
         """
@@ -46,7 +50,7 @@ class DomainDNSHttp404(ContextualizedHttp404):
 
     template_name = "errors/404/dns.html"
     not_found_subject = pgettext_lazy(
-        "Names an object not found in a 404 error", "matching DNS record"
+        _not_found_subject_translation_context, "matching DNS record"
     )
 
     def __init__(self, domain, **kwargs):
@@ -70,9 +74,7 @@ class ProjectHttp404(ContextualizedHttp404):
     """
 
     template_name = "errors/404/no_project.html"
-    not_found_subject = pgettext_lazy(
-        "Names an object not found in a 404 error", "project"
-    )
+    not_found_subject = pgettext_lazy(_not_found_subject_translation_context, "project")
 
     def __init__(self, domain, **kwargs):
         """
@@ -111,7 +113,7 @@ class ProjectFilenameHttp404(ContextualizedHttp404):
 
     template_name = "errors/404/no_project_page.html"
     not_found_subject = pgettext_lazy(
-        "Names an object not found in a 404 error", "documentation page"
+        _not_found_subject_translation_context, "documentation page"
     )
 
     def __init__(self, project, **kwargs):
@@ -160,7 +162,7 @@ class ProjectVersionHttp404(ContextualizedHttp404):
 
     template_name = "errors/404/no_version.html"
     not_found_subject = pgettext_lazy(
-        "Names an object not found in a 404 error", "documentation version"
+        _not_found_subject_translation_context, "documentation version"
     )
 
     def __init__(self, project, **kwargs):
