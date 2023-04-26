@@ -212,7 +212,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         assert cm.exception.http_status == 400
 
         # test all the exception handling combined
-        client_without_exception_handling = Client(rause_request_exception=False)
+        client_without_exception_handling = Client(raise_request_exception=False)
         r = client_without_exception_handling.request(
             method="get", path=self.url, HTTP_HOST=domain
         )
