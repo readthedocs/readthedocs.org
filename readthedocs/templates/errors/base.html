@@ -1,6 +1,8 @@
+{% extends "base.html" %}
+{% load core_tags %}
 {% load i18n %}
-{# this template is deprecated, please extend from errors/base.html #}
 
+{% block header-wrapper %}
     <div id="rtfd-header">
       <div class="wrapper">
     <!-- BEGIN header-->
@@ -18,3 +20,9 @@
       </div>
     </div>
     <!-- END header-->
+{% endblock %}
+
+{% block notify %}{% endblock %}
+
+{# Hide the language select form so we don't set a CSRF cookie #}
+{% block language-select-form %}{% endblock %}
