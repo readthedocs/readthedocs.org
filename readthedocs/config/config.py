@@ -283,6 +283,14 @@ class BuildConfigBase:
         return self.conda is not None
 
     @property
+    def is_using_setup_py_install(self):
+        """Check if this project is using `setup.py install` as installation method."""
+        for install in self.python.install:
+            if isinstance(install, PythonInstall) and install.method == SETUPTOOLS:
+                return True
+        return False
+
+    @property
     def python_interpreter(self):
         if self.using_build_tools:
             tool = self.build.tools.get('python')

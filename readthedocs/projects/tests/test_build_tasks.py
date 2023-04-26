@@ -708,7 +708,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--upgrade",
                     "--no-cache-dir",
                     "pip",
-                    "setuptools<58.3.0",
+                    "setuptools",
                     bin_path=mock.ANY,
                     cwd=mock.ANY,
                 ),
@@ -981,7 +981,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "-U",
                     "virtualenv",
-                    "setuptools<58.3.0",
+                    "setuptools",
                 ),
                 mock.call("asdf", "install", "nodejs", nodejs_version),
                 mock.call("asdf", "global", "nodejs", nodejs_version),
@@ -1138,7 +1138,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "-U",
                     "virtualenv",
-                    "setuptools<58.3.0",
+                    "setuptools",
                 ),
                 # NOTE: when running commands from `build.jobs` or
                 # `build.commands` they are not split to allow multi-line
