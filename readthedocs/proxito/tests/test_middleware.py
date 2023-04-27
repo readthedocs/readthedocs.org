@@ -37,8 +37,9 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             Project,
             slug='pip',
             users=[self.owner],
-            privacy_level='public'
+            privacy_level=PUBLIC,
         )
+        self.pip.versions.update(privacy_level=PUBLIC)
 
     def run_middleware(self, request):
         return self.middleware.process_request(request)
