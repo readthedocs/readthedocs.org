@@ -63,12 +63,6 @@ class TestProject(ProjectMixin, TestCase):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(resp['subprojects'][0]['id'], 23)
 
-    def test_token(self):
-        r = self.client.get('/api/v2/project/6/token/', {})
-        resp = json.loads(r.content)
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(resp['token'], None)
-
     def test_has_pdf(self):
         # The project has a pdf if the PDF file exists on disk.
         with fake_paths_by_regex(r'\.pdf$'):
