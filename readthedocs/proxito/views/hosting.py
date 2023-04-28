@@ -23,10 +23,14 @@ ADDONS_VERSIONS_SUPPORTED = (0, 1)
 
 class ClientError(Exception):
     VERSION_NOT_CURRENTLY_SUPPORTED = (
-        "The version specified in 'X-RTD-Hosting-Integrations-Version'"
-        " is currently not supported"
+        "The version specified in 'X-RTD-Hosting-Integrations-Version' "
+        "or 'X-RTD-Hosting-Integrations-API-Version' "
+        "is currently not supported"
     )
-    VERSION_INVALID = "'X-RTD-Hosting-Integrations-Version' header version is invalid"
+    VERSION_INVALID = (
+        "'X-RTD-Hosting-Integrations-Version' or 'X-RTD-Hosting-Integrations-API-Version' "
+        "header version is invalid"
+    )
     VERSION_HEADER_MISSING = (
         "'X-RTD-Hosting-Integrations-Version' header attribute is required"
     )
@@ -44,6 +48,16 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
 
       url (required): absolute URL from where the request is performed
         (e.g. ``window.location.href``)
+
+    Headers:
+
+      X-RTD-Hosting-Integrations-Version (required): javascript client version.
+        It's used by the endpoint to decide what's the JSON structure compatible with the client
+        (e.g. ``1.0.2``)
+
+      X-RTD-Hosting-Integrations-API-Version (optional): force the endpoint to return a specific
+        JSON structure in particular. Used by theme authors to keep compatibility with
+        their integration (e.g. ``1``)
     """
 
     def get(self, request):
@@ -63,10 +77,22 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                 },
                 status=400,
             )
+
+        addons_version_explicit = request.headers.get(
+            "X-RTD-Hosting-Integrations-API-Version"
+        )
         try:
             addons_version = packaging.version.parse(addons_version)
             if addons_version.major not in ADDONS_VERSIONS_SUPPORTED:
                 raise ClientError
+
+            if addons_version_explicit:
+                addons_version_explicit = packaging.version.parse(
+                    addons_version_explicit
+                )
+                if addons_version_explicit.major not in ADDONS_VERSIONS_SUPPORTED:
+                    raise ClientError
+
         except packaging.version.InvalidVersion:
             return JsonResponse(
                 {
@@ -90,7 +116,13 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
         project.get_default_version()
         build = version.builds.last()
 
-        data = AddonsResponse().get(addons_version, project, version, build, filename)
+        data = AddonsResponse().get(
+            addons_version_explicit or addons_version,
+            project,
+            version,
+            build,
+            filename,
+        )
         return JsonResponse(data, json_dumps_params=dict(indent=4))
 
 
@@ -160,6 +192,7 @@ class AddonsResponse:
         """
 
         data = {
+            "api_version": "0",
             "comment": (
                 "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY"
                 " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
@@ -270,5 +303,6 @@ class AddonsResponse:
 
     def _v1(self, project, version, build, filename):
         return {
+            "api_version": "1",
             "comment": "Undefined yet. Use v0 for now",
         }
