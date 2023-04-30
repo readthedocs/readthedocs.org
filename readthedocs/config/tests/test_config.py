@@ -1086,7 +1086,12 @@ class TestBuildConfigV2:
             build.validate()
         assert excinfo.value.key == 'python.version'
 
-    def test_commands_build_config(self):
+    def test_commands_build_config_with_legacy_tools(self):
+        """
+        build.tools used to be required for build.commands but it isn't anymore.
+
+        It should remain possible, though.
+        """
         build = self.get_build_config(
             {
                 "build": {
@@ -1126,7 +1131,8 @@ class TestBuildConfigV2:
             build.validate()
         assert excinfo.value.key == "build.commands"
 
-    def test_commands_build_config_invalid_no_tools(self):
+    def test_commands_build_config_valid(self):
+        """It's valid to build with just build.os and build.commands."""
         build = self.get_build_config(
             {
                 "build": {
@@ -1135,9 +1141,9 @@ class TestBuildConfigV2:
                 },
             },
         )
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == "build.tools"
+        build.validate()
+        assert isinstance(build.build, BuildWithTools)
+        assert build.build.commands == ["pip install pelican", "pelican content"]
 
     @pytest.mark.parametrize("value", ["", None, "pre_invalid"])
     def test_jobs_build_config_invalid_jobs(self, value):
