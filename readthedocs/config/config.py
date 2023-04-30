@@ -782,10 +782,10 @@ class BuildConfigV2(BuildConfigBase):
         return conda
 
     # NOTE: I think we should rename `BuildWithTools` to `BuildWithOs` since
-    # `os` is the main and mandatory key that makes the diference
+    # `os` is the main and mandatory key that makes the difference
     #
     # NOTE: `build.jobs` can't be used without using `build.os`
-    def validate_build_config_with_tools(self):
+    def validate_build_config_with_os(self):
         """
         Validates the build object (new format).
 
@@ -799,9 +799,10 @@ class BuildConfigV2(BuildConfigBase):
         tools = {}
         with self.catch_validation_error('build.tools'):
             tools = self.pop_config('build.tools')
-            validate_dict(tools)
-            for tool in tools.keys():
-                validate_choice(tool, self.settings['tools'].keys())
+            if tools:
+                validate_dict(tools)
+                for tool in tools.keys():
+                    validate_choice(tool, self.settings["tools"].keys())
 
         jobs = {}
         with self.catch_validation_error("build.jobs"):
@@ -824,13 +825,11 @@ class BuildConfigV2(BuildConfigBase):
             commands = self.pop_config("build.commands", default=[])
             validate_list(commands)
 
-        if not tools:
+        if not (tools or commands):
             self.error(
-                key='build.tools',
+                key="build.tools",
                 message=(
-                    'At least one tools of [{}] must be provided.'.format(
-                        ' ,'.join(self.settings['tools'].keys())
-                    )
+                    "At least one item should be provided in 'tools' or 'commands'"
                 ),
                 code=CONFIG_REQUIRED,
             )
@@ -856,12 +855,13 @@ class BuildConfigV2(BuildConfigBase):
                 build["commands"].append(validate_string(command))
 
         build['tools'] = {}
-        for tool, version in tools.items():
-            with self.catch_validation_error(f'build.tools.{tool}'):
-                build['tools'][tool] = validate_choice(
-                    version,
-                    self.settings['tools'][tool].keys(),
-                )
+        if tools:
+            for tool, version in tools.items():
+                with self.catch_validation_error(f"build.tools.{tool}"):
+                    build["tools"][tool] = validate_choice(
+                        version,
+                        self.settings["tools"][tool].keys(),
+                    )
 
         build['apt_packages'] = self.validate_apt_packages()
         return build
@@ -914,8 +914,8 @@ class BuildConfigV2(BuildConfigBase):
         raw_build = self._raw_config.get('build', {})
         with self.catch_validation_error('build'):
             validate_dict(raw_build)
-        if 'os' in raw_build:
-            return self.validate_build_config_with_tools()
+        if "os" in raw_build or "commands" in raw_build or "tools" in raw_build:
+            return self.validate_build_config_with_os()
         return self.validate_old_build_config()
 
     def validate_apt_package(self, index):

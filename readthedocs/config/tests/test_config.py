@@ -1129,7 +1129,7 @@ class TestBuildConfigV2:
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.commands"
+        assert excinfo.value.key == "build.os"
 
     def test_commands_build_config_valid(self):
         """It's valid to build with just build.os and build.commands."""
