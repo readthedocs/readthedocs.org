@@ -12,8 +12,7 @@ from urllib.parse import urlparse
 import structlog
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
-from django.http import Http404
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
@@ -29,6 +28,8 @@ from readthedocs.core.utils import get_cache_tag
 from readthedocs.projects.models import Feature, Project
 from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
 from readthedocs.proxito.redirects import redirect_to_https
+
+from .exceptions import DomainDNSHttp404, ProjectHttp404
 
 log = structlog.get_logger(__name__)
 
@@ -212,20 +213,23 @@ class ProxitoMiddleware(MiddlewareMixin):
             unresolved_domain = unresolver.unresolve_domain_from_request(request)
         except SuspiciousHostnameError as exc:
             log.warning("Weird variation on our hostname.", domain=exc.domain)
-            return render(
-                request,
-                "core/dns-404.html",
-                context={"host": exc.domain},
-                status=400,
+            # Raise a contextualized 404 that will be handled by proxito's 404 handler
+            raise DomainDNSHttp404(
+                http_status=400,
+                domain=exc.domain,
             )
-        except (InvalidSubdomainError, InvalidExternalDomainError):
+        except (InvalidSubdomainError, InvalidExternalDomainError) as exc:
             log.debug("Invalid project set on the subdomain.")
-            raise Http404
+            # Raise a contextualized 404 that will be handled by proxito's 404 handler
+            raise ProjectHttp404(
+                domain=exc.domain,
+            )
         except InvalidCustomDomainError as exc:
             # Some person is CNAMEing to us without configuring a domain - 404.
             log.debug("CNAME 404.", domain=exc.domain)
-            return render(
-                request, "core/dns-404.html", context={"host": exc.domain}, status=404
+            # Raise a contextualized 404 that will be handled by proxito's 404 handler
+            raise DomainDNSHttp404(
+                domain=exc.domain,
             )
         except InvalidXRTDSlugHeaderError:
             raise SuspiciousOperation("Invalid X-RTD-Slug header.")
