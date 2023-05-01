@@ -1086,11 +1086,9 @@ class TestBuildConfigV2:
             build.validate()
         assert excinfo.value.key == 'python.version'
 
-    def test_commands_build_config_with_legacy_tools(self):
+    def test_commands_build_config_tools_and_commands_valid(self):
         """
-        build.tools used to be required for build.commands but it isn't anymore.
-
-        It should remain possible, though.
+        Test that build.tools and build.commands are valid together.
         """
         build = self.get_build_config(
             {
