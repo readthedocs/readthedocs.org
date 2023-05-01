@@ -189,16 +189,12 @@ class AddonsResponse:
             "addons": {
                 "analytics": {
                     "enabled": True,
-                    # TODO: consider adding this field into the ProjectSerializer itself.
-                    "code": project.analytics_code,
                 },
                 "external_version_warning": {
                     "enabled": True,
-                    "query_selector": "[role=main]",
                 },
                 "non_latest_version_warning": {
                     "enabled": True,
-                    "query_selector": "[role=main]",
                     "versions": list(
                         project.versions.filter(active=True)
                         .only("slug")
@@ -215,12 +211,6 @@ class AddonsResponse:
                         filename=filename,
                     ),
                     "root_selector": "[role=main]",
-                    "inject_styles": True,
-                    # NOTE: `base_host` and `base_page` are not required, since
-                    # we are constructing the `base_url` in the backend instead
-                    # of the frontend, as the doc-diff extension does.
-                    "base_host": "",
-                    "base_page": "",
                 },
                 "flyout": {
                     "translations": [],
@@ -243,8 +233,6 @@ class AddonsResponse:
                 },
                 "search": {
                     "enabled": True,
-                    "project": project.slug,
-                    "version": version.slug,
                     "api_endpoint": "/_/api/v3/search/",
                     # TODO: figure it out where this data comes from
                     "filters": [
