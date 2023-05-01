@@ -1105,6 +1105,24 @@ class TestBuildConfigV2:
         assert isinstance(build.build, BuildWithTools)
         assert build.build.commands == ["pip install pelican", "pelican content"]
 
+    def test_build_jobs_without_build_os_is_invalid(self):
+        """
+        build.jobs can't be used without build.os
+        """
+        build = self.get_build_config(
+            {
+                "build": {
+                    "tools": {"python": "3.8"},
+                    "jobs": {
+                        "pre_checkout": ["echo pre_checkout"],
+                    },
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.os"
+
     def test_commands_build_config_invalid_command(self):
         build = self.get_build_config(
             {

@@ -781,10 +781,6 @@ class BuildConfigV2(BuildConfigBase):
             conda['environment'] = validate_path(environment, self.base_path)
         return conda
 
-    # NOTE: I think we should rename `BuildWithTools` to `BuildWithOs` since
-    # `os` is the main and mandatory key that makes the difference
-    #
-    # NOTE: `build.jobs` can't be used without using `build.os`
     def validate_build_config_with_os(self):
         """
         Validates the build object (new format).
