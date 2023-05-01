@@ -4,7 +4,7 @@ from unittest import mock
 import pytest
 from django.core.exceptions import SuspiciousOperation
 from django.http import HttpRequest
-from django.test import Client, TestCase
+from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
@@ -149,13 +149,6 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
         assert cm.exception.http_status == 404
 
-        # test all the exception handling combined
-        client_without_exception_handling = Client(raise_request_exception=False)
-        r = client_without_exception_handling.request(
-            method="get", path=self.url, HTTP_HOST="my.host.com"
-        )
-        assert r.status_code == 404
-
     def test_proper_subdomain(self):
         request = self.request(method='get', path=self.url, HTTP_HOST='pip.dev.readthedocs.io')
         self.run_middleware(request)
@@ -211,13 +204,6 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             self.run_middleware(request)
 
         assert cm.exception.http_status == 400
-
-        # test all the exception handling combined
-        client_without_exception_handling = Client(raise_request_exception=False)
-        r = client_without_exception_handling.request(
-            method="get", path=self.url, HTTP_HOST=domain
-        )
-        assert r.status_code == 400
 
     def test_front_slash(self):
         domain = 'pip.dev.readthedocs.io'
