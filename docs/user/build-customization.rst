@@ -372,7 +372,7 @@ Supported :ref:`formats <downloadable-documentation:accessing offline formats>` 
 .. note::
 
    Remember to create the folders before adding content to them.
-   For instance, you can add a folder with:
+   You can ensure that the output folder exists by adding the following command:
 
    .. code-block:: console
 
