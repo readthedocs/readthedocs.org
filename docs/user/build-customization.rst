@@ -362,12 +362,14 @@ Where to put files
 It is your responsibility to generate HTML and other formats of your documentation using :ref:`config-file/v2:build.commands`.
 The contents of the ``_readthedocs/<format>/`` directory will be hosted as part of your documentation.
 
+We store the the base folder name ``_readthedocs/`` in the environment variable ``$READTHEDOCS_OUTPUT`` and encourage that you use this to generate paths.
+
 Supported :ref:`formats <downloadable-documentation:accessing offline formats>` are published if they exist in the following directories:
 
-* ``_readthedocs/html/`` (required)
-* ``_readthedocs/htmlzip/``
-* ``_readthedocs/pdf/``
-* ``_readthedocs/epub/``
+* ``$READTHEDOCS_OUTPUT/html/`` (required)
+* ``$READTHEDOCS_OUTPUT/htmlzip/``
+* ``$READTHEDOCS_OUTPUT/pdf/``
+* ``$READTHEDOCS_OUTPUT/epub/``
 
 .. note::
 
@@ -376,7 +378,7 @@ Supported :ref:`formats <downloadable-documentation:accessing offline formats>` 
 
    .. code-block:: console
 
-       mkdir -p _readthedocs/html/
+       mkdir -p $READTHEDOCS_OUTPUT/html/
 
 Search support
 ~~~~~~~~~~~~~~
