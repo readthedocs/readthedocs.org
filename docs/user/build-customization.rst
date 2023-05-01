@@ -369,6 +369,15 @@ Supported :ref:`formats <downloadable-documentation:accessing offline formats>` 
 * ``_readthedocs/pdf/``
 * ``_readthedocs/epub/``
 
+.. note::
+
+   Remember to create the folders before adding content to them.
+   For instance, you can add a folder with:
+
+   .. code-block:: console
+
+       mkdir -p _readthedocs/html/
+
 Search support
 ~~~~~~~~~~~~~~
 
