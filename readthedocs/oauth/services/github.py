@@ -11,7 +11,7 @@ from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
-from readthedocs.builds.constants import BUILD_FINAL_STATES, SELECT_BUILD_STATUS
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
 from readthedocs.integrations.models import Integration
 
 from ..constants import GITHUB
@@ -429,14 +429,14 @@ class GitHubService(Service):
         integration.remove_secret()
         return (False, resp)
 
-    def send_build_status(self, build, commit, state):
+    def send_build_status(self, build, commit, status):
         """
         Create GitHub commit status for project.
 
         :param build: Build to set up commit status for
         :type build: Build
-        :param state: build state failure, pending, or success.
-        :type state: str
+        :param status: build state failure, pending, or success.
+        :type status: str
         :param commit: commit sha of the pull request
         :type commit: str
         :returns: boolean based on commit status creation was successful or not.
@@ -447,11 +447,11 @@ class GitHubService(Service):
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
         # select the correct state and description.
-        github_build_state = SELECT_BUILD_STATUS[state]['github']
-        description = SELECT_BUILD_STATUS[state]['description']
-        statuses_url = f'https://api.github.com/repos/{owner}/{repo}/statuses/{commit}'
+        github_build_state = SELECT_BUILD_STATUS[status]["github"]
+        description = SELECT_BUILD_STATUS[status]["description"]
+        statuses_url = f"https://api.github.com/repos/{owner}/{repo}/statuses/{commit}"
 
-        if build.state in BUILD_FINAL_STATES and build.success:
+        if status == BUILD_STATUS_SUCCESS:
             # Link to the documentation for this version
             target_url = build.version.get_absolute_url()
         else:
