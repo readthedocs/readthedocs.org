@@ -29,7 +29,7 @@ class IsAuthorizedToGetContenFromVersion(IsAuthorizedToViewVersion):
     """
     Checks if the user from the request has permissions to get content from the version.
 
-    If the URL is from an external project, we return ``True``,
+    If the URL is from an external site, we return ``True``,
     since we don't have a project to check for.
     """
 

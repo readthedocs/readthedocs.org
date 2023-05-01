@@ -67,6 +67,7 @@ class TestEmbedAPIV3Access(TestCase):
         self.client.logout()
         resp = self.get(self.url)
         self.assertEqual(resp.status_code, 200)
+        self.assertIn("Content", resp.json()["content"])
 
     def test_get_content_private_version_anonymous_user(self, storage_mock):
         self._mock_storage(storage_mock)
@@ -84,6 +85,7 @@ class TestEmbedAPIV3Access(TestCase):
 
         resp = self.get(self.url)
         self.assertEqual(resp.status_code, 200)
+        self.assertIn("Content", resp.json()["content"])
 
     def test_get_content_private_version_logged_in_user(self, storage_mock):
         self._mock_storage(storage_mock)
@@ -94,6 +96,7 @@ class TestEmbedAPIV3Access(TestCase):
 
         resp = self.get(self.url)
         self.assertEqual(resp.status_code, 200)
+        self.assertIn("Content", resp.json()["content"])
 
     @mock.patch.object(EmbedAPIBase, "_download_page_content")
     def test_get_content_allowed_external_page(
@@ -105,6 +108,7 @@ class TestEmbedAPIV3Access(TestCase):
             reverse("embed_api_v3") + "?url=https://docs.python.org/en/latest/"
         )
         self.assertEqual(resp.status_code, 200)
+        self.assertIn("Content", resp.json()["content"])
 
     def test_get_content_not_allowed_external_page(self, storage_mock):
         resp = self.get(reverse("embed_api_v3") + "?url=https://example.com/en/latest/")
@@ -117,4 +121,4 @@ class TestProxiedEmbedAPIV3Access(TestEmbedAPIV3Access):
         return self.client.get(*args, HTTP_HOST="docs.readthedocs.io", **kwargs)
 
     def test_get_content_private_version_logged_in_user(self):
-        """Proxied API on .org doesn't log in users."""
+        """This test is skipped, since the proxied API on .org doesn't log in users."""
