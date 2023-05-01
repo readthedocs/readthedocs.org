@@ -1153,13 +1153,15 @@ class TestBuildConfigV2:
             {
                 "build": {
                     "os": "ubuntu-22.04",
-                    "commands": ["pip install pelican", "pelican content"],
+                    "commands": ["echo 'hello world' > _readthedocs/html/index.html"],
                 },
             },
         )
         build.validate()
         assert isinstance(build.build, BuildWithOs)
-        assert build.build.commands == ["pip install pelican", "pelican content"]
+        assert build.build.commands == [
+            "echo 'hello world' > _readthedocs/html/index.html"
+        ]
 
     @pytest.mark.parametrize("value", ["", None, "pre_invalid"])
     def test_jobs_build_config_invalid_jobs(self, value):
