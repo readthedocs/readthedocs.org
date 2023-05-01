@@ -360,7 +360,7 @@ Where to put files
 ~~~~~~~~~~~~~~~~~~
 
 It is your responsibility to generate HTML and other formats of your documentation using :ref:`config-file/v2:build.commands`.
-The contents of the ``_readthedocs/<format>/`` directory will be hosted as part of your documentation.
+The contents of the ``$READTHEDOCS_OUTPUT/<format>/`` directory will be hosted as part of your documentation.
 
 We store the the base folder name ``_readthedocs/`` in the environment variable ``$READTHEDOCS_OUTPUT`` and encourage that you use this to generate paths.
 
