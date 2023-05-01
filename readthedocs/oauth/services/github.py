@@ -11,8 +11,7 @@ from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
-from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, BUILD_FINAL_STATES, SELECT_BUILD_STATUS
-from readthedocs.core.permissions import AdminPermission
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, SELECT_BUILD_STATUS
 from readthedocs.integrations.models import Integration
 
 from ..constants import GITHUB
