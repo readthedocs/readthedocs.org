@@ -35,7 +35,7 @@ from readthedocs.config.config import (
 from readthedocs.config.models import (
     Build,
     BuildJobs,
-    BuildWithTools,
+    BuildWithOs,
     Conda,
     PythonInstall,
     PythonInstallRequirements,
@@ -1051,7 +1051,7 @@ class TestBuildConfigV2:
         )
         build.validate()
         assert build.using_build_tools
-        assert isinstance(build.build, BuildWithTools)
+        assert isinstance(build.build, BuildWithOs)
         assert build.build.os == 'ubuntu-20.04'
         assert build.build.tools['python'].version == '3.9'
         full_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9']
@@ -1102,7 +1102,7 @@ class TestBuildConfigV2:
             },
         )
         build.validate()
-        assert isinstance(build.build, BuildWithTools)
+        assert isinstance(build.build, BuildWithOs)
         assert build.build.commands == ["pip install pelican", "pelican content"]
 
     def test_build_jobs_without_build_os_is_invalid(self):
@@ -1160,7 +1160,7 @@ class TestBuildConfigV2:
             },
         )
         build.validate()
-        assert isinstance(build.build, BuildWithTools)
+        assert isinstance(build.build, BuildWithOs)
         assert build.build.commands == ["pip install pelican", "pelican content"]
 
     @pytest.mark.parametrize("value", ["", None, "pre_invalid"])
@@ -1220,7 +1220,7 @@ class TestBuildConfigV2:
             },
         )
         build.validate()
-        assert isinstance(build.build, BuildWithTools)
+        assert isinstance(build.build, BuildWithOs)
         assert isinstance(build.build.jobs, BuildJobs)
         assert build.build.jobs.pre_checkout == ["echo pre_checkout"]
         assert build.build.jobs.post_checkout == ["echo post_checkout"]

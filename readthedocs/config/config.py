@@ -19,7 +19,7 @@ from .models import (
     Build,
     BuildJobs,
     BuildTool,
-    BuildWithTools,
+    BuildWithOs,
     Conda,
     Mkdocs,
     Python,
@@ -274,7 +274,7 @@ class BuildConfigBase:
 
     @property
     def using_build_tools(self):
-        return isinstance(self.build, BuildWithTools)
+        return isinstance(self.build, BuildWithOs)
 
     @property
     def is_using_conda(self):
@@ -1331,7 +1331,7 @@ class BuildConfigV2(BuildConfigBase):
                 )
                 for tool, version in build['tools'].items()
             }
-            return BuildWithTools(
+            return BuildWithOs(
                 os=build['os'],
                 tools=tools,
                 jobs=BuildJobs(**build["jobs"]),
