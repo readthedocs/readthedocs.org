@@ -431,9 +431,9 @@ def send_build_status(build_pk, commit, status):
                 service = service_class(relation.user, relation.account)
                 # Send status report using the API.
                 success = service.send_build_status(
-                    build=build,
-                    commit=commit,
-                    state=status,
+                    build,
+                    commit,
+                    status,
                 )
 
                 if success:

@@ -7,6 +7,7 @@ from django.utils.functional import cached_property
 from readthedocs.core.unresolver import UnresolverError, unresolve
 from readthedocs.core.utils import get_cache_tag
 from readthedocs.projects.models import Project
+from readthedocs.proxito.cache import add_cache_tags
 
 log = structlog.get_logger(__name__)
 
@@ -31,7 +32,7 @@ class CDNCacheTagsMixin:
         response = super().dispatch(request, *args, **kwargs)
         cache_tags = self._get_cache_tags()
         if cache_tags:
-            response["Cache-Tag"] = ",".join(cache_tags)
+            add_cache_tags(response, cache_tags)
         return response
 
     def _get_cache_tags(self):

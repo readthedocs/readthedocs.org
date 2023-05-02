@@ -52,7 +52,8 @@ pip:
   Latest version by default.
 
 setuptools:
-  ``58.2.0`` or older.
+  Projects using ``setup.py install`` as installation method use ``58.2.0`` or older.
+  All other projects use the latest version.
 
 mock:
   ``1.0.1`` (could be removed in the future).

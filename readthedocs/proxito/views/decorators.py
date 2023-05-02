@@ -20,7 +20,7 @@ def map_subproject_slug(view_func):
 
     @wraps(view_func)
     def inner_view(  # noqa
-            request, subproject=None, subproject_slug=None, *args, **kwargs
+        request, subproject=None, subproject_slug=None, *args, **kwargs
     ):
         if subproject is None and subproject_slug:
             # Try to fetch by subproject alias first, otherwise we might end up
