@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("projects", "0099_alter_domain_https"),
+        ("projects", "0100_project_readthedocs_yaml_path"),
     ]
 
     operations = [
