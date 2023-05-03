@@ -451,7 +451,7 @@ class TestPythonEnvironment(TestCase):
             "sphinx-rtd-theme",
             "readthedocs-sphinx-ext",
             "jinja2<3.1.0",
-            "setuptools<58.3.0",
+            "setuptools",
         ]
 
         self.assertEqual(self.build_env_mock.run.call_count, 2)
