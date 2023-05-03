@@ -10,6 +10,7 @@ from django.urls import reverse
 from packaging.version import Version
 
 from readthedocs.projects.models import Project
+from readthedocs.subscriptions.constants import TYPE_EMBED_API
 
 from .utils import srcdir
 
@@ -23,6 +24,9 @@ class TestEmbedAPIv3InternalPages:
         settings.USE_SUBDOMAIN = True
         settings.PUBLIC_DOMAIN = 'readthedocs.io'
         settings.RTD_EMBED_API_EXTERNAL_DOMAINS = []
+        settings.RTD_DEFAULT_FEATURES = {
+            TYPE_EMBED_API: 1,
+        }
 
         self.api_url = reverse('embed_api_v3')
 

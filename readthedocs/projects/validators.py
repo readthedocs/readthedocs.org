@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils.deconstruct import deconstructible
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 
@@ -98,6 +99,70 @@ class SubmoduleURLValidator(RepositoryURLValidator):
 
 validate_repository_url = RepositoryURLValidator()
 validate_submodule_url = SubmoduleURLValidator()
+
+
+def validate_build_config_file(path):
+    """
+    Validate that user input is a good relative repository path.
+
+    By 'good', we mean that it's a valid unix path,
+    but not all valid unix paths are good repository paths.
+
+    This validator checks for common mistakes.
+    """
+    invalid_characters = "[]{}()`'\"\\%&<>|,"
+    valid_filenames = [".readthedocs.yaml"]
+
+    if path.startswith("/"):
+        raise ValidationError(
+            _(
+                "Use a relative path. It should not begin with '/'. "
+                "The path is relative to the root of your repository."
+            ),
+            code="path_invalid",
+        )
+    if path.endswith("/"):
+        raise ValidationError(
+            _("The path cannot end with '/', as it cannot be a directory."),
+            code="path_invalid",
+        )
+    if ".." in path:
+        raise ValidationError(
+            _("Found invalid sequence in path: '..'"),
+            code="path_invalid",
+        )
+    if any(ch in path for ch in invalid_characters):
+        raise ValidationError(
+            mark_safe(
+                _(
+                    "Found invalid character. Avoid these characters: "
+                    "<code>{invalid_characters}</code>"
+                ).format(invalid_characters=invalid_characters),
+            ),
+            code="path_invalid",
+        )
+
+    is_valid = any(fn == path for fn in valid_filenames) or any(
+        path.endswith(f"/{fn}") for fn in valid_filenames
+    )
+    if not is_valid and len(valid_filenames) == 1:
+        raise ValidationError(
+            mark_safe(
+                _("The only allowed filename is <code>{filename}</code>.").format(
+                    filename=valid_filenames[0]
+                ),
+            ),
+            code="path_invalid",
+        )
+    if not is_valid:
+        raise ValidationError(
+            mark_safe(
+                _("The only allowed filenames are <code>{filenames}</code>.").format(
+                    filenames=", ".join(valid_filenames)
+                ),
+            ),
+            code="path_invalid",
+        )
 
 
 def validate_custom_prefix(project, prefix):

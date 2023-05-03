@@ -16,8 +16,8 @@ from readthedocs.config import (
     BuildConfigV1,
     BuildConfigV2,
     ConfigError,
-    ConfigFileNotFound,
     ConfigOptionNotSupportedError,
+    DefaultConfigFileNotFound,
     InvalidConfig,
     load,
 )
@@ -35,7 +35,7 @@ from readthedocs.config.config import (
 from readthedocs.config.models import (
     Build,
     BuildJobs,
-    BuildWithTools,
+    BuildWithOs,
     Conda,
     PythonInstall,
     PythonInstallRequirements,
@@ -80,7 +80,7 @@ def get_build_config(config, env_config=None, source_file='readthedocs.yml'):
 def test_load_no_config_file(tmpdir, files):
     apply_fs(tmpdir, files)
     base = str(tmpdir)
-    with raises(ConfigFileNotFound) as e:
+    with raises(DefaultConfigFileNotFound) as e:
         with override_settings(DOCROOT=tmpdir):
             load(base, {})
     assert e.value.code == CONFIG_FILE_REQUIRED
@@ -194,6 +194,67 @@ def test_build_config_has_source_file(tmpdir):
     with override_settings(DOCROOT=tmpdir):
         build = load(base, {})
     assert build.source_file == os.path.join(base, 'readthedocs.yml')
+
+
+def test_load_non_default_filename(tmpdir):
+    """
+    Load a config file name with a non-default name.
+
+    Verifies that we can load a custom config path and that an existing default config file is
+    correctly ignored.
+
+    Note: Our CharField validator for readthedocs_yaml_path currently ONLY allows a file to be
+    called .readthedocs.yaml.
+    This test just verifies that the loader doesn't care since we support different file names
+    in the backend.
+    """
+    non_default_filename = "myconfig.yaml"
+    apply_fs(
+        tmpdir,
+        {
+            non_default_filename: textwrap.dedent(
+                """
+                version: 2
+                """
+            ),
+            ".readthedocs.yaml": "illegal syntax but should not load",
+        },
+    )
+    base = str(tmpdir)
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {}, readthedocs_yaml_path="myconfig.yaml")
+    assert isinstance(build, BuildConfigV2)
+    assert build.source_file == os.path.join(base, non_default_filename)
+
+
+def test_load_non_yaml_extension(tmpdir):
+    """
+    Load a config file name from non-default path.
+
+    In this version, we verify that we can handle non-yaml extensions
+    because we allow the user to do that.
+
+    See docstring of test_load_non_default_filename.
+    """
+    non_default_filename = ".readthedocs.skrammel"
+    apply_fs(
+        tmpdir,
+        {
+            "subdir": {
+                non_default_filename: textwrap.dedent(
+                    """
+                    version: 2
+                    """
+                ),
+            },
+            ".readthedocs.yaml": "illegal syntax but should not load",
+        },
+    )
+    base = str(tmpdir)
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {}, readthedocs_yaml_path="subdir/.readthedocs.skrammel")
+    assert isinstance(build, BuildConfigV2)
+    assert build.source_file == os.path.join(base, "subdir/.readthedocs.skrammel")
 
 
 def test_build_config_has_list_with_single_empty_value(tmpdir):
@@ -990,7 +1051,7 @@ class TestBuildConfigV2:
         )
         build.validate()
         assert build.using_build_tools
-        assert isinstance(build.build, BuildWithTools)
+        assert isinstance(build.build, BuildWithOs)
         assert build.build.os == 'ubuntu-20.04'
         assert build.build.tools['python'].version == '3.9'
         full_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9']
@@ -1025,7 +1086,10 @@ class TestBuildConfigV2:
             build.validate()
         assert excinfo.value.key == 'python.version'
 
-    def test_commands_build_config(self):
+    def test_commands_build_config_tools_and_commands_valid(self):
+        """
+        Test that build.tools and build.commands are valid together.
+        """
         build = self.get_build_config(
             {
                 "build": {
@@ -1036,8 +1100,26 @@ class TestBuildConfigV2:
             },
         )
         build.validate()
-        assert isinstance(build.build, BuildWithTools)
+        assert isinstance(build.build, BuildWithOs)
         assert build.build.commands == ["pip install pelican", "pelican content"]
+
+    def test_build_jobs_without_build_os_is_invalid(self):
+        """
+        build.jobs can't be used without build.os
+        """
+        build = self.get_build_config(
+            {
+                "build": {
+                    "tools": {"python": "3.8"},
+                    "jobs": {
+                        "pre_checkout": ["echo pre_checkout"],
+                    },
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.os"
 
     def test_commands_build_config_invalid_command(self):
         build = self.get_build_config(
@@ -1063,20 +1145,23 @@ class TestBuildConfigV2:
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.commands"
+        assert excinfo.value.key == "build.os"
 
-    def test_commands_build_config_invalid_no_tools(self):
+    def test_commands_build_config_valid(self):
+        """It's valid to build with just build.os and build.commands."""
         build = self.get_build_config(
             {
                 "build": {
                     "os": "ubuntu-22.04",
-                    "commands": ["pip install pelican", "pelican content"],
+                    "commands": ["echo 'hello world' > _readthedocs/html/index.html"],
                 },
             },
         )
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == "build.tools"
+        build.validate()
+        assert isinstance(build.build, BuildWithOs)
+        assert build.build.commands == [
+            "echo 'hello world' > _readthedocs/html/index.html"
+        ]
 
     @pytest.mark.parametrize("value", ["", None, "pre_invalid"])
     def test_jobs_build_config_invalid_jobs(self, value):
@@ -1135,7 +1220,7 @@ class TestBuildConfigV2:
             },
         )
         build.validate()
-        assert isinstance(build.build, BuildWithTools)
+        assert isinstance(build.build, BuildWithOs)
         assert isinstance(build.build.jobs, BuildJobs)
         assert build.build.jobs.pre_checkout == ["echo pre_checkout"]
         assert build.build.jobs.post_checkout == ["echo post_checkout"]

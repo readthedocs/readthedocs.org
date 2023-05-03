@@ -103,10 +103,8 @@ class TaskData:
     build_commit: str = None
 
     start_time: timezone.datetime = None
-
     # pylint: disable=unsubscriptable-object
     environment_class: type[DockerBuildEnvironment] | type[LocalBuildEnvironment] = None
-
     build_director: BuildDirector = None
     config: BuildConfigV1 | BuildConfigV2 = None
     project: APIProject = None

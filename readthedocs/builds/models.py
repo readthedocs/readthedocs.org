@@ -81,6 +81,7 @@ from readthedocs.projects.constants import (
     SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import APIProject, Project
+from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
 
 log = structlog.get_logger(__name__)
@@ -706,6 +707,14 @@ class Build(models.Model):
         _('Configuration used in the build'),
         null=True,
         blank=True,
+    )
+    readthedocs_yaml_path = models.CharField(
+        _("Custom build configuration file path used in this build"),
+        max_length=1024,
+        default=None,
+        blank=True,
+        null=True,
+        validators=[validate_build_config_file],
     )
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)
