@@ -44,9 +44,9 @@ from readthedocs.projects.querysets import (
 )
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
+    validate_build_config_file,
     validate_custom_prefix,
     validate_custom_subproject_prefix,
-    validate_build_config_file,
     validate_domain_name,
     validate_no_ip,
     validate_repository_url,

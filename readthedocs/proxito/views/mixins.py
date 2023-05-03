@@ -395,7 +395,7 @@ class ServeRedirectMixin:
         if from_url == to:
             # check that we do have a response and avoid infinite redirect
             log.warning(
-                'Infinite Redirect: FROM URL is the same than TO URL.',
+                "Infinite Redirect: FROM URL is the same than TO URL.",
                 url=to,
             )
             raise InfiniteRedirectException()
