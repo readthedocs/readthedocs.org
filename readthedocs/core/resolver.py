@@ -154,9 +154,9 @@ class ResolverBase:
         single_version = bool(project.single_version or single_version)
 
         # If the project is a subproject, we use the custom prefix
-        # of the child of the relationship. For a project that
-        # isn't a subproject, we use the custom prefix of the
-        # parent project.
+        # of the child of the relationship, this is since the project
+        # could be a translation. For a project that isn't a subproject,
+        # we use the custom prefix of the parent project.
         if project_relationship:
             custom_prefix = project_relationship.child.custom_prefix
         else:
