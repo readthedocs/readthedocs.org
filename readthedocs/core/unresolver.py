@@ -263,7 +263,7 @@ class Unresolver:
         if custom_prefix:
             if not path.startswith(custom_prefix):
                 return None
-            # pep8 and blank don't agree on having a space before :.
+            # pep8 and black don't agree on having a space before :.
             path = self._normalize_filename(path[len(custom_prefix) :])  # noqa
 
         match = self.multiversion_pattern.match(path)
@@ -315,7 +315,7 @@ class Unresolver:
         custom_prefix = parent_project.custom_subproject_prefix or "/projects/"
         if not path.startswith(custom_prefix):
             return None
-        # pep8 and blank don't agree on having a space before :.
+        # pep8 and black don't agree on having a space before :.
         path = self._normalize_filename(path[len(custom_prefix) :])  # noqa
 
         match = self.subproject_pattern.match(path)
@@ -361,7 +361,7 @@ class Unresolver:
         if custom_prefix:
             if not path.startswith(custom_prefix):
                 return None
-            # pep8 and blank don't agree on having a space before :.
+            # pep8 and black don't agree on having a space before :.
             path = path[len(custom_prefix) :]  # noqa
 
         # In single version projects, any path is allowed,

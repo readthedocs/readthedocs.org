@@ -67,7 +67,12 @@ class ResolverBase:
         urlconf=None,
         custom_prefix=None,
     ):
-        """Resolve a with nothing smart, just filling in the blanks."""
+        """
+        Build a path using the given fields.
+
+        We first build a format string based on the given fields,
+        then we just call ``string.format()`` with the given values.
+        """
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
         if subdomain or cname or self._use_subdomain():
@@ -87,7 +92,7 @@ class ResolverBase:
         else:
             path = unsafe_join_url_path(path, "{language}/{version}/{filename}")
 
-        # TODO: remove this when all projects have migrated to URL patterns.
+        # TODO: remove this when all projects have migrated to path prefixes.
         # Allow users to override their own URLConf
         # This logic could be cleaned up with a standard set of variable replacements
         if urlconf:
