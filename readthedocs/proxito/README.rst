@@ -26,7 +26,7 @@ filename:
 path prefix:
    The path prefix of the URL without version or language,
    for a normal project this is ``/``, and for subprojects this is ``/projects/<subproject-alias>/``.
-   This prefix can be different for project defining their own urlconf.
+   This prefix can be different for project defining a custom prefix.
 
 .. code:: text
 
@@ -51,7 +51,7 @@ By default we serve documentation from the following paths:
 - Single version project: ``/<filename>``
 - Subproject: ``/projects/<subproject-alias>/<subproject-path>``
 
-Custom path prefixes can be used to change from where the documentation is served from,
+Custom path prefixes can be used to change the prefix from where the documentation is served from,
 and even change the ``/projects`` prefix for subprojects.
 These prefixes can be changed per project, with the following Project model attributes:
 
@@ -67,10 +67,13 @@ Where to define the custom path prefix
 
 To change the path prefix of a project,
 define the prefix in the ``custom_prefix`` attribute of the project itself.
-For a translation, change the main language project ``custom_prefix``.
+For a translation, change the main language project ``custom_prefix`` attribute.
 
 And to change the prefix of subprojects (``/projects``),
 define the prefix in the ``custom_subproject_prefix`` attribute of the super project.
+
+We have validations in place to ensure that the custom prefix is defined in the correct project
+(this validations are run when the project is saved from a form or the admin).
 
 CDN
 ---
