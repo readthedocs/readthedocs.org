@@ -368,6 +368,8 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             request.path_project_slug = project.slug
             request.path_version_slug = version_slug
 
+            # Support redirecting to the default version from
+            # the root path and the custom path prefix.
             empty_paths = ["/"]
             if project.custom_prefix:
                 # We need to check custom path prefixes with and without the trailing slash,
