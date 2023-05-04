@@ -61,6 +61,7 @@ from readthedocs.builds.utils import (
 )
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
+from readthedocs.core.utils import extract_valid_attributes_for_model
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
@@ -611,7 +612,17 @@ class APIVersion(Version):
                 del kwargs[key]
             except KeyError:
                 pass
-        super().__init__(*args, **kwargs)
+        valid_attributes, invalid_attributes = extract_valid_attributes_for_model(
+            model=Version,
+            attributes=kwargs,
+        )
+        if invalid_attributes:
+            log.warning(
+                "APIVersion got unexpected attributes.",
+                invalid_attributes=invalid_attributes,
+            )
+
+        super().__init__(*args, **valid_attributes)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         return 0

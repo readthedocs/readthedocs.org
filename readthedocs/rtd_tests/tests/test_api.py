@@ -46,7 +46,7 @@ from readthedocs.builds.constants import (
     EXTERNAL_VERSION_STATE_CLOSED,
     LATEST,
 )
-from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import (
     RemoteOrganization,
@@ -853,6 +853,29 @@ class APITests(TestCase):
             api_project.environment_variables(public_only=True),
             {'RELEASE': 'prod'},
         )
+
+    def test_invalid_attributes_api_project(self):
+        invalid_attribute = "invalid_attribute"
+        project_data = {
+            "name": "Test Project",
+            "slug": "test-project",
+            "show_advertising": True,
+            invalid_attribute: "nope",
+        }
+        api_project = APIProject(**project_data)
+        self.assertFalse(hasattr(api_project, invalid_attribute))
+
+    def test_invalid_attributes_api_version(self):
+        invalid_attribute = "invalid_attribute"
+        version_data = {
+            "type": "branch",
+            "identifier": "main",
+            "verbose_name": "main",
+            "slug": "v2",
+            invalid_attribute: "nope",
+        }
+        api_version = APIVersion(**version_data)
+        self.assertFalse(hasattr(api_version, invalid_attribute))
 
     @override_settings(
         RTD_DEFAULT_FEATURES={
