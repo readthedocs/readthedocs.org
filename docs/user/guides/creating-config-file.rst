@@ -32,13 +32,17 @@ root directory is the top-most location of your repository.
 To make the file, navigate to your root directory and create a new 
 file with the name ``.readthedocs.yaml``.
 
-.. note::
+*************************
+The config file is hidden
+*************************
 
-   The ``.`` at the beginning of the file indicates that the file is hidden. If
-   the file browser you are using is not configured to show hidden files, you 
-   may not be able to see the file after you create it! If this happens, use 
-   your favorite search engine to find instructions on showing hidden files for
-   your specific operating system.
+The ``.`` at the beginning of the file indicates that the file is hidden. If 
+the file browser you are using is not configured to show hidden files, you may 
+not be able to see the file after you create it!
+
+If you cannot see ``.readthedocs.yaml`` after creating it, use your favorite 
+search engine to find instructions on showing hidden files for your specific 
+operating system.
 
 #############################################
 The required parts of your configuration file
