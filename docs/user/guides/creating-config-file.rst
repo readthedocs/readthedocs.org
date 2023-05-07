@@ -48,3 +48,53 @@ operating system.
 The required parts of your configuration file
 #############################################
 
+The configuration file is a YAML file. YAML files are a "map": a collection of
+key-value pairs that can be nested. This is not unlike a JSON file or ``dict``
+object in Python.
+
+This page won't explain the structure of YAML files, but many resources exist 
+online.
+
+***********
+File header
+***********
+
+As a best practice, begin your file by providing the following.
+
+#. The name of the file
+#. A quick explanation of what the file is
+#. A link to 
+   :doc:`the configuration file reference page </docs/user/config-file/index.rst>`.
+
+.. code-block:: yaml
+   :linenos:
+
+   # .readthedocs.yaml
+   # Read the Docs configuration file
+   # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+   # <--Remove this comment and leave this line blank-->
+
+************************************
+Version of configuration file schema
+************************************
+
+The version key tells the system how to read the rest of the configuration 
+file. The current and only supported version is **version 2**.
+
+.. code-block:: yaml
+   :linenos:
+   :lineno-start: 5
+
+   version: 2
+   # <--Remove this comment and leave this line blank-->
+
+*******************
+Python requirements
+*******************
+
+The ``python`` key contains several sub-keys, but only one sub-key is required:
+``requirements``. However, since ``requirements`` is required, ``python`` is 
+too.
+
+The ``requirements`` key is a file path that points to a text (``.txt``) file
+that lists the Python packages you want Read the Docs to install.
