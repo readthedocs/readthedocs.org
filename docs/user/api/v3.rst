@@ -580,6 +580,9 @@ Version update
 
     Update a version.
 
+    When a version is deactivated, its documentation is removed,
+    and when it's activated, a new build is triggered.
+
     **Example request**:
 
     .. tabs::

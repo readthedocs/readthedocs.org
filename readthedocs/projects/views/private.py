@@ -218,16 +218,7 @@ class ProjectVersionEditMixin(ProjectVersionMixin):
         version = form.save()
         if form.has_changed():
             if 'active' in form.changed_data and version.active is False:
-                log.info(
-                    'Removing files for version.',
-                    version_slug=version.slug,
-                )
-                clean_project_resources(
-                    version.project,
-                    version,
-                )
-                version.built = False
-                version.save()
+                version.clean_resources()
         return HttpResponseRedirect(self.get_success_url())
 
 

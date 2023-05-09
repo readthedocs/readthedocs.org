@@ -1,4 +1,5 @@
 import django_filters.rest_framework as filters
+from readthedocs.builds.signals import version_changed
 from django.db.models import Exists, OuterRef
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
@@ -296,6 +297,33 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         if self.action in ('list', 'retrieve'):
             return VersionSerializer
         return VersionUpdateSerializer
+
+    def update(self, request, *args, **kwargs):
+        """
+        Run extra steps after updating a version.
+
+        - When a version is deactivated, we need to clean up its
+          files from storage, and search index.
+        - When a version is activated, we need to trigger a build.
+        - We also need to purge the cache from the CDN,
+          since the version could have been activated/deactivated,
+          or its privacy level could have changed.
+        """
+        # Get the current value before updating.
+        version = self.get_object()
+        was_active = version.active
+        result = super().update(request, *args, **kwargs)
+        # Get the updated version.
+        version = self.get_object()
+        # If the version is deactivated, we need to clean up the files.
+        if was_active and not version.active:
+            version.clean_resources()
+        # If the version is activated, we need to trigger a build.
+        if not was_active and version.active:
+            trigger_build(project=version.project, version=version)
+        # Purge the cache from the CDN.
+        version_changed.send(sender=self.__class__, version=version)
+        return result
 
 
 class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,

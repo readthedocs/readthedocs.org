@@ -381,6 +381,17 @@ class Version(TimeStampedModel):
         clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
 
+    def clean_resources(self):
+        from readthedocs.projects.tasks.utils import clean_project_resources
+        log.info(
+            "Removing files for version.",
+            project_slug=self.project.slug,
+            version_slug=self.slug,
+        )
+        clean_project_resources(project=self.project, version=self)
+        self.built = False
+        self.save()
+
     @property
     def identifier_friendly(self):
         """Return display friendly identifier."""
