@@ -370,14 +370,14 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
 
             # Support redirecting to the default version from
             # the root path and the custom path prefix.
-            empty_paths = ["/"]
+            root_paths = ["/"]
             if project.custom_prefix:
                 # We need to check custom path prefixes with and without the trailing slash,
                 # e.g: /foo and /foo/.
-                empty_paths.append(project.custom_prefix)
-                empty_paths.append(project.custom_prefix.rstrip("/"))
+                root_paths.append(project.custom_prefix)
+                root_paths.append(project.custom_prefix.rstrip("/"))
 
-            if exc.path in empty_paths:
+            if exc.path in root_paths:
                 # When the path is empty, the project didn't have an explicit version,
                 # so we need to redirect to the default version.
                 # This is `/ -> /en/latest/` or
