@@ -382,6 +382,12 @@ class Version(TimeStampedModel):
         super().delete(*args, **kwargs)
 
     def clean_resources(self):
+        """
+        Remove all resources from this version.
+
+        This includes removing files from storage,
+        and removing its search index.
+        """
         from readthedocs.projects.tasks.utils import clean_project_resources
         log.info(
             "Removing files for version.",
