@@ -389,6 +389,7 @@ class Version(TimeStampedModel):
         and removing its search index.
         """
         from readthedocs.projects.tasks.utils import clean_project_resources
+
         log.info(
             "Removing files for version.",
             project_slug=self.project.slug,

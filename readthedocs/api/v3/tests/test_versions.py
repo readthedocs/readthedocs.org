@@ -1,6 +1,7 @@
+from unittest import mock
+
 import django_dynamic_fixture as fixture
 from django.test import override_settings
-from unittest import mock
 from django.urls import reverse
 
 from readthedocs.builds.constants import EXTERNAL, TAG
@@ -140,7 +141,9 @@ class VersionsEndpointTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 200)
 
-    @mock.patch('readthedocs.projects.tasks.utils.clean_project_resources', new=mock.MagicMock)
+    @mock.patch(
+        "readthedocs.projects.tasks.utils.clean_project_resources", new=mock.MagicMock
+    )
     def test_projects_versions_partial_update(self):
         self.assertTrue(self.version.active)
         self.assertFalse(self.version.hidden)
@@ -230,7 +233,7 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.version.privacy_level, "public")
 
     @mock.patch("readthedocs.api.v3.views.trigger_build")
-    @mock.patch('readthedocs.projects.tasks.utils.clean_project_resources')
+    @mock.patch("readthedocs.projects.tasks.utils.clean_project_resources")
     def test_activate_version(self, clean_project_resources, trigger_build):
         self.version.active = False
         self.version.save()
@@ -254,7 +257,7 @@ class VersionsEndpointTests(APIEndpointMixin):
         trigger_build.assert_called_once()
 
     @mock.patch("readthedocs.api.v3.views.trigger_build")
-    @mock.patch('readthedocs.projects.tasks.utils.clean_project_resources')
+    @mock.patch("readthedocs.projects.tasks.utils.clean_project_resources")
     def test_deactivate_version(self, clean_project_resources, trigger_build):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         data = {"active": False}
