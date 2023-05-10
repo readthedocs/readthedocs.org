@@ -418,7 +418,7 @@ class TestPythonEnvironment(TestCase):
         self.assertEqual(self.build_env_mock.run.call_count, 2)
         calls = self.build_env_mock.run.call_args_list
 
-        core_args = self.pip_install_args + ['pip', 'setuptools<58.3.0']
+        core_args = self.pip_install_args + ["pip", "setuptools"]
         self.assertArgsStartsWith(core_args, calls[0])
 
         requirements = self.base_requirements + requirements_sphinx
@@ -451,13 +451,13 @@ class TestPythonEnvironment(TestCase):
             "sphinx-rtd-theme",
             "readthedocs-sphinx-ext",
             "jinja2<3.1.0",
-            "setuptools<58.3.0",
+            "setuptools",
         ]
 
         self.assertEqual(self.build_env_mock.run.call_count, 2)
         calls = self.build_env_mock.run.call_args_list
 
-        core_args = self.pip_install_args + ['pip', 'setuptools<58.3.0']
+        core_args = self.pip_install_args + ["pip", "setuptools"]
         self.assertArgsStartsWith(core_args, calls[0])
 
         requirements = self.base_requirements + requirements_sphinx
@@ -482,7 +482,7 @@ class TestPythonEnvironment(TestCase):
         self.assertEqual(self.build_env_mock.run.call_count, 2)
         calls = self.build_env_mock.run.call_args_list
 
-        core_args = self.pip_install_args + ['pip', 'setuptools<58.3.0']
+        core_args = self.pip_install_args + ["pip", "setuptools"]
         self.assertArgsStartsWith(core_args, calls[0])
 
         requirements = self.base_requirements + requirements_mkdocs

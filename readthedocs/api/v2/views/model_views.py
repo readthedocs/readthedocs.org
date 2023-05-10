@@ -17,7 +17,7 @@ from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.oauth.services import GitHubService, registry
+from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Domain, Project
 from readthedocs.storage import build_commands_storage
 
@@ -183,20 +183,6 @@ class ProjectViewSet(DisableListEndpoint, UserSelectViewSet):
         versions = project.versions(manager=INTERNAL).filter(active=True)
         return Response({
             'versions': VersionSerializer(versions, many=True).data,
-        })
-
-    @decorators.action(
-        detail=True,
-        permission_classes=[permissions.IsAdminUser],
-    )
-    def token(self, request, **kwargs):
-        project = get_object_or_404(
-            Project.objects.api(request.user),
-            pk=kwargs['pk'],
-        )
-        token = GitHubService.get_token_for_project(project, force_local=True)
-        return Response({
-            'token': token,
         })
 
     @decorators.action(detail=True)

@@ -1,3 +1,50 @@
+Version 9.12.0
+--------------
+
+:Date: May 02, 2023
+
+* `@benjaoming <https://github.com/benjaoming>`__: Allow build.commands without build.tools (`#10281 <https://github.com/readthedocs/readthedocs.org/pull/10281>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Remove raise_for_exception=False tests (`#10280 <https://github.com/readthedocs/readthedocs.org/pull/10280>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10278 <https://github.com/readthedocs/readthedocs.org/pull/10278>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove dead code (`#10275 <https://github.com/readthedocs/readthedocs.org/pull/10275>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Dev: Disable cacheops in proxito docker environment (`#10274 <https://github.com/readthedocs/readthedocs.org/pull/10274>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: be explicit about the privacy level (`#10273 <https://github.com/readthedocs/readthedocs.org/pull/10273>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix typo in tests (`#10271 <https://github.com/readthedocs/readthedocs.org/pull/10271>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update docs about setuptools dependency (`#10270 <https://github.com/readthedocs/readthedocs.org/pull/10270>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: Pin setuptools only when required (`#10268 <https://github.com/readthedocs/readthedocs.org/pull/10268>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10267 <https://github.com/readthedocs/readthedocs.org/pull/10267>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Backend: Make Features ordered in a nice way (`#10262 <https://github.com/readthedocs/readthedocs.org/pull/10262>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: allow overlapping public and external version domains (`#10260 <https://github.com/readthedocs/readthedocs.org/pull/10260>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Revert "Proxito: inject hosting integration header for `build.commands` (#10219)" (`#10259 <https://github.com/readthedocs/readthedocs.org/pull/10259>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test explicitly without organizations (`#10258 <https://github.com/readthedocs/readthedocs.org/pull/10258>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 9.11.0 (`#10255 <https://github.com/readthedocs/readthedocs.org/pull/10255>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: set production domain explicitly (`#10253 <https://github.com/readthedocs/readthedocs.org/pull/10253>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Style guide stash (`#10250 <https://github.com/readthedocs/readthedocs.org/pull/10250>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: New entries to glossary (`#10249 <https://github.com/readthedocs/readthedocs.org/pull/10249>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: handle http to https redirects for all requests (`#10199 <https://github.com/readthedocs/readthedocs.org/pull/10199>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix checking of PR status (`#10085 <https://github.com/readthedocs/readthedocs.org/pull/10085>`__)
+* `@ewdurbin <https://github.com/ewdurbin>`__: implement multiple .readthedocs.yml files per repo (`#10001 <https://github.com/readthedocs/readthedocs.org/pull/10001>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Contextualize 404 page (`#9657 <https://github.com/readthedocs/readthedocs.org/pull/9657>`__)
+
+Version 9.11.0
+--------------
+
+:Date: April 18, 2023
+
+* `@benjaoming <https://github.com/benjaoming>`__: Fix a little test failure (`#10248 <https://github.com/readthedocs/readthedocs.org/pull/10248>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Scripts: Add export statements and instruction to fetch awscli (compile_version_upload_s3.sh) (`#10245 <https://github.com/readthedocs/readthedocs.org/pull/10245>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10244 <https://github.com/readthedocs/readthedocs.org/pull/10244>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V3: make tests explicit (`#10236 <https://github.com/readthedocs/readthedocs.org/pull/10236>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 9.10.1 (`#10235 <https://github.com/readthedocs/readthedocs.org/pull/10235>`__)
+* `@dependabot[bot] <https://github.com/dependabot[bot]>`__: Bump peter-evans/create-pull-request from 4 to 5 (`#10233 <https://github.com/readthedocs/readthedocs.org/pull/10233>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10232 <https://github.com/readthedocs/readthedocs.org/pull/10232>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add notes on private repo support in our install docs (`#10230 <https://github.com/readthedocs/readthedocs.org/pull/10230>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics API: check if absolute_uri isn't present (`#10227 <https://github.com/readthedocs/readthedocs.org/pull/10227>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: inject hosting integration header for `build.commands` (`#10219 <https://github.com/readthedocs/readthedocs.org/pull/10219>`__)
+* `@humitos <https://github.com/humitos>`__: API: hosting integrations endpoint versioning/structure (`#10216 <https://github.com/readthedocs/readthedocs.org/pull/10216>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Search: index <dl>s as sections and remove Sphinx domain logic (`#10128 <https://github.com/readthedocs/readthedocs.org/pull/10128>`__)
+* `@ewdurbin <https://github.com/ewdurbin>`__: implement multiple .readthedocs.yml files per repo (`#10001 <https://github.com/readthedocs/readthedocs.org/pull/10001>`__)
+
 Version 9.10.1
 --------------
 

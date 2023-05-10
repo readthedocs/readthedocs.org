@@ -1587,14 +1587,12 @@ class TestCDNCache(BaseDocServing):
             resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
         )
 
-        # Slash redirect is done at the middleware level.
-        # So, it doesn't take into consideration the privacy level of the
-        # version, and always defaults to private.
+        # Slash redirects can always be cached.
         url = '/en//latest//'
         resp = self.client.get(url, secure=True, HTTP_HOST=host)
-        self.assertEqual(resp['Location'], '/en/latest/', url)
-        self.assertEqual(resp.headers['CDN-Cache-Control'], 'private', url)
-        self.assertNotIn('Cache-Tag', resp.headers, url)
+        self.assertEqual(resp["Location"], "/en/latest/", url)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+        self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         # Forced redirects will be cached only if the version is public.
         get(
@@ -1652,14 +1650,12 @@ class TestCDNCache(BaseDocServing):
             resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
         )
 
-        # Slash redirect is done at the middleware level.
-        # So, it doesn't take into consideration the privacy level of the
-        # version, and always defaults to private.
+        # Slash redirects can always be cached.
         url = '/projects//subproject//'
         resp = self.client.get(url, secure=True, HTTP_HOST=host)
-        self.assertEqual(resp['Location'], '/projects/subproject/', url)
-        self.assertEqual(resp.headers['CDN-Cache-Control'], 'private', url)
-        self.assertNotIn('Cache-Tag', resp.headers, url)
+        self.assertEqual(resp["Location"], "/projects/subproject/", url)
+        self.assertEqual(resp.headers["CDN-Cache-Control"], "public", url)
+        self.assertEqual(resp.headers["Cache-Tag"], "project")
 
     def test_cache_on_private_versions(self):
         self.project.versions.update(privacy_level=PRIVATE)

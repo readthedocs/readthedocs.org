@@ -12,6 +12,7 @@ from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Domain, Feature, Project, ProjectRelationship
 from readthedocs.proxito.constants import RedirectType
+from readthedocs.proxito.exceptions import DomainDNSHttp404
 from readthedocs.proxito.middleware import ProxitoMiddleware
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
@@ -35,8 +36,9 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             Project,
             slug='pip',
             users=[self.owner],
-            privacy_level='public'
+            privacy_level=PUBLIC,
         )
+        self.pip.versions.update(privacy_level=PUBLIC)
 
     def run_middleware(self, request):
         return self.middleware.process_request(request)
@@ -44,7 +46,9 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
     def test_proper_cname(self):
         domain = 'docs.random.com'
         get(Domain, project=self.pip, domain=domain)
-        request = self.request(method='get', path=self.url, HTTP_HOST=domain)
+        request = self.request(
+            method="get", secure=True, path=self.url, HTTP_HOST=domain
+        )
         res = self.run_middleware(request)
         self.assertIsNone(res)
         self.assertTrue(request.unresolved_domain.is_from_custom_domain)
@@ -138,9 +142,11 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
     def test_invalid_cname(self):
         self.assertFalse(Domain.objects.filter(domain='my.host.com').exists())
         request = self.request(method='get', path=self.url, HTTP_HOST='my.host.com')
-        r = self.run_middleware(request)
-        # We show the 404 error page
-        self.assertContains(r, 'my.host.com', status_code=404)
+
+        with self.assertRaises(DomainDNSHttp404) as cm:
+            self.run_middleware(request)
+
+        assert cm.exception.http_status == 404
 
     def test_proper_subdomain(self):
         request = self.request(method='get', path=self.url, HTTP_HOST='pip.dev.readthedocs.io')
@@ -193,8 +199,10 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
     def test_long_bad_subdomain(self):
         domain = 'www.pip.dev.readthedocs.io'
         request = self.request(method='get', path=self.url, HTTP_HOST=domain)
-        res = self.run_middleware(request)
-        self.assertEqual(res.status_code, 400)
+        with self.assertRaises(DomainDNSHttp404) as cm:
+            self.run_middleware(request)
+
+        assert cm.exception.http_status == 400
 
     def test_front_slash(self):
         domain = 'pip.dev.readthedocs.io'

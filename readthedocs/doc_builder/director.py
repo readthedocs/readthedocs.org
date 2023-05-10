@@ -542,6 +542,14 @@ class BuildDirector:
                     self.data.config.python_interpreter not in ("conda", "mamba"),
                 ]
             ):
+                # We cap setuptools to avoid breakage of projects
+                # relying on setup.py invokations,
+                # see https://github.com/readthedocs/readthedocs.org/issues/8659
+                setuptools_version = (
+                    "setuptools<58.3.0"
+                    if self.data.config.is_using_setup_py_install
+                    else "setuptools"
+                )
                 # Install our own requirements if the version is compiled
                 cmd = [
                     "python",
@@ -549,10 +557,7 @@ class BuildDirector:
                     "install",
                     "-U",
                     "virtualenv",
-                    # We cap setuptools to avoid breakage of projects
-                    # relying on setup.py invokations,
-                    # see https://github.com/readthedocs/readthedocs.org/issues/8659
-                    "setuptools<58.3.0",
+                    setuptools_version,
                 ]
                 self.build_environment.run(
                     *cmd,
