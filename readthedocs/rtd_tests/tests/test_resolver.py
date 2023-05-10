@@ -628,12 +628,6 @@ class ResolverTests(ResolverBase):
         relation = self.pip.subprojects.first()
         relation.alias = 'sub_alias'
         relation.save()
-        with override_settings(USE_SUBDOMAIN=False):
-            url = resolve(project=self.subproject)
-            self.assertEqual(
-                url,
-                'http://readthedocs.org/docs/pip/projects/sub_alias/ja/latest/',
-            )
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve(project=self.subproject)
             self.assertEqual(
@@ -866,8 +860,12 @@ class TestSubprojectsWithTranslations(TestCase):
                 subproject=self.subproject_en,
             ),
         )
-        # yapf: enable
 
+    @override_settings(
+        RTD_DEFAULT_FEATURES={
+            TYPE_CNAME: 1,
+        },
+    )
     def test_subproject_with_translation_with_custom_domain(self):
         fixture.get(
             Domain,
