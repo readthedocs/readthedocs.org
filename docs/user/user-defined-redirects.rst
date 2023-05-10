@@ -84,6 +84,20 @@ For example::
 You can choose which is the :term:`default version` for Read the Docs to display.
 This usually corresponds to the most recent official release from your project.
 
+Root language redirect at ``/<lang>/``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A link to the root language of your documentation (`<slug>.readthedocs.io/en/`)
+will redirect to the  :term:`default version` of that translation,
+as set in your project settings.
+
+This works for readthedocs.io (|org_brand|) and :doc:`custom domains </custom-domains>`.
+For |com_brand| this can be enabled by contacting :doc:`support </support>`.
+
+For example::
+
+   https://docs.readthedocs.io/en/ -> https://docs.readthedocs.io/en/stable/
+
 Shortlink with ``https://<slug>.rtfd.io``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
