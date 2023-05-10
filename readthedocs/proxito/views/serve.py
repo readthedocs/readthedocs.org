@@ -765,7 +765,9 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         project = None
         version = None
-        filename = None
+        # If we weren't able to resolve a filename,
+        # then the path is the filename.
+        filename = path
         lang_slug = None
         version_slug = None
         # Try to map the current path to a project/version/filename.
@@ -798,6 +800,10 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             version_slug = exc.version_slug
             filename = exc.filename
             contextualized_404_class = ProjectTranslationHttp404
+        except TranslationWithoutVersionError as exc:
+            project = exc.project
+            lang_slug = exc.language
+            # TODO: Use a contextualized 404
         except InvalidExternalVersionError as exc:
             project = exc.project
             # TODO: Use a contextualized 404
