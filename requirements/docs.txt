@@ -82,7 +82,7 @@ pyyaml==6.0
     # via myst-parser
 readthedocs-sphinx-search==0.3.1
     # via -r requirements/docs.in
-requests==2.29.0
+requests==2.30.0
     # via sphinx
 six==1.16.0
     # via
@@ -151,7 +151,7 @@ sphinxext-opengraph==0.8.2
     # via -r requirements/docs.in
 tornado==6.3.1
     # via livereload
-urllib3==1.26.15
+urllib3==2.0.2
     # via requests
 
 # The following packages are considered to be unsafe in a requirements file:
