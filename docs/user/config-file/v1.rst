@@ -1,6 +1,6 @@
 :orphan:
 
-Configuration File V1 (Deprecated)
+Configuration file v1 (Deprecated)
 ==================================
 
 Read the Docs has support for configuring builds with a YAML file.
@@ -114,7 +114,7 @@ The ``build`` block configures specific aspects of the documentation build.
 build.image
 ```````````
 
-* Default: :djangosetting:`DOCKER_DEFAULT_VERSION`
+* Default: ``latest``
 * Options: ``stable``, ``latest``
 
 The build image to use for specific builds.
@@ -124,8 +124,10 @@ if they want to be on the cutting edge.
 Certain Python versions require a certain build image,
 as defined here:
 
-* ``stable``: :buildpyversions:`stable`
-* ``latest``: :buildpyversions:`latest`
+* ``stable``:
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``pypy3.5``
+* ``latest``:
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``, ``pypy3.5``
 
 .. code-block:: yaml
 
@@ -147,7 +149,7 @@ python.version
 ``````````````
 
 * Default: ``3.7``
-* Options: :buildpyversions:`latest`
+* Options: ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``, ``pypy3.5``
 
 This is the version of Python to use when building your documentation.
 If you specify only the major version of Python,
@@ -230,16 +232,11 @@ Let's say your Python package has a ``setup.py`` which looks like this:
     setup(
         name="my_package",
         # (...)
-        install_requires=[
-            'requests',
-            'simplejson'],
+        install_requires=["requests", "simplejson"],
         extras_require={
-            'tests': [
-                'nose',
-                'pycodestyle >= 2.1.0'],
-            'docs': [
-                'sphinx >= 1.4',
-                'sphinx_rtd_theme']}
+            "tests": ["nose", "pycodestyle >= 2.1.0"],
+            "docs": ["sphinx >= 1.4", "sphinx_rtd_theme"],
+        },
     )
 
 Then to have all dependencies from the ``tests`` and ``docs`` sections

@@ -1,9 +1,7 @@
-from unittest import mock
 
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils.translation import gettext_lazy as _
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
@@ -25,11 +23,7 @@ from readthedocs.projects.forms import (
     UpdateProjectForm,
     WebHookForm,
 )
-from readthedocs.projects.models import (
-    EnvironmentVariable,
-    Project,
-    WebHookEvent,
-)
+from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
 
 
 class TestProjectForms(TestCase):
@@ -105,25 +99,6 @@ class TestProjectForms(TestCase):
         form = ProjectBasicsForm(initial)
         self.assertFalse(form.is_valid())
         self.assertIn('name', form.errors)
-
-    def test_changing_vcs_should_change_latest(self):
-        """When changing the project's VCS, latest should be changed too."""
-        project = get(Project, repo_type=REPO_TYPE_HG, default_branch=None)
-        latest = project.versions.get(slug=LATEST)
-        self.assertEqual(latest.identifier, 'default')
-
-        form = ProjectBasicsForm(
-            {
-                'repo': 'http://github.com/test/test',
-                'name': 'name',
-                'repo_type': REPO_TYPE_GIT,
-            },
-            instance=project,
-        )
-        self.assertTrue(form.is_valid())
-        form.save()
-        latest.refresh_from_db()
-        self.assertEqual(latest.identifier, 'master')
 
     def test_changing_vcs_should_not_change_latest_is_not_none(self):
         """
@@ -283,6 +258,24 @@ class TestProjectAdvancedForm(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(self.project.privacy_level, PRIVATE)
 
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_custom_readthedocs_yaml(self):
+        custom_readthedocs_yaml_path = "folder/.readthedocs.yaml"
+        form = ProjectAdvancedForm(
+            {
+                "default_version": LATEST,
+                "documentation_type": SPHINX,
+                "python_interpreter": "python3",
+                "privacy_level": PRIVATE,
+                "readthedocs_yaml_path": custom_readthedocs_yaml_path,
+            },
+            instance=self.project,
+        )
+        # The form is valid, but the field is ignored
+        self.assertTrue(form.is_valid())
+        self.assertEqual(self.project.privacy_level, PUBLIC)
+        project = form.save()
+        self.assertEqual(project.readthedocs_yaml_path, custom_readthedocs_yaml_path)
 
 class TestProjectAdvancedFormDefaultBranch(TestCase):
 

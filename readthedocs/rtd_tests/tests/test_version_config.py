@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django_dynamic_fixture import get
 
+from readthedocs.builds.constants import BUILD_STATE_BUILDING, BUILD_STATE_FINISHED
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import Project
 
@@ -16,23 +17,26 @@ class VersionConfigTests(TestCase):
             project=self.project,
             version=self.version,
             _config={'version': 1},
+            state=BUILD_STATE_FINISHED,
         )
         build_new = Build.objects.create(
             project=self.project,
             version=self.version,
             _config={'version': 2},
+            state=BUILD_STATE_FINISHED,
         )
         build_new_error = Build.objects.create(
             project=self.project,
             version=self.version,
             _config={'version': 3},
             success=False,
+            state=BUILD_STATE_FINISHED,
         )
         build_new_unfinish = Build.objects.create(
             project=self.project,
             version=self.version,
             _config={'version': 4},
-            state='building',
+            state=BUILD_STATE_BUILDING,
         )
         self.assertEqual(self.version.config, {'version': 2})
 
@@ -42,6 +46,7 @@ class VersionConfigTests(TestCase):
             project=self.project,
             version=self.version,
             _config={},
+            state=BUILD_STATE_FINISHED,
         )
         build_old.config = {'version': 1}
         build_old.save()
@@ -51,6 +56,7 @@ class VersionConfigTests(TestCase):
             project=self.project,
             version=self.version,
             _config={},
+            state=BUILD_STATE_FINISHED,
         )
         build_new.config = {'version': 1}
         build_new.save()
@@ -61,6 +67,7 @@ class VersionConfigTests(TestCase):
             version=self.version,
             _config={},
             success=False,
+            state=BUILD_STATE_FINISHED,
         )
         build_new_error.config = {'version': 3}
         build_new_error.save()
@@ -70,7 +77,7 @@ class VersionConfigTests(TestCase):
             project=self.project,
             version=self.version,
             _config={},
-            state='building',
+            state=BUILD_STATE_BUILDING,
         )
         build_new_unfinish.config = {'version': 1}
         build_new_unfinish.save()

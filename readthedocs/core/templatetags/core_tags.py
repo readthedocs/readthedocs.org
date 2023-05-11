@@ -5,15 +5,12 @@ import json
 from urllib.parse import urlencode
 
 from django import template
-from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
-from django.utils.encoding import force_bytes, force_str
 from django.utils.safestring import mark_safe
 
 from readthedocs import __version__
 from readthedocs.core.resolver import resolve
 from readthedocs.projects.models import Project
-
 
 register = template.Library()
 
@@ -70,9 +67,9 @@ def get_version(slug):
 
 
 @register.simple_tag
-def url_replace(request, field, value):
+def url_replace(request, field, *values):
     dict_ = request.GET.copy()
-    dict_[field] = value
+    dict_[field] = "".join(values)
     return dict_.urlencode()
 
 

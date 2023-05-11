@@ -58,6 +58,11 @@
   <!-- End Google Analytics -->
   {% endif %}
 
+  {% if request.user.is_authenticated %}
+  {# Only tack logged-in users to avoid sending a lot of (maybe unrelevant) traffic #}
+  <script defer data-domain="{{ PRODUCTION_DOMAIN }}" src="https://plausible.io/js/script.js"></script>
+  {% endif %}
+
   <!-- css -->
   <link rel="stylesheet" href="{% static 'css/core.css' %}">
   {% block extra_links %}{% endblock %}
@@ -67,7 +72,9 @@
   <script src="{% static 'vendor/jquery-migrate.js' %}"></script>
   <script src="{% static 'vendor/jquery-ui.js' %}"></script>
   <script >
-    require('jquery');
+    // Set jQuery to its expected globals.
+    window.$ = require('jquery');
+    window.jQuery = window.$;
   </script>
 
   <script src="{% static 'javascript/base.js' %}"></script>

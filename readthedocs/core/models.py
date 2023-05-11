@@ -6,10 +6,6 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from django_extensions.db.fields import (
-    CreationDateTimeField,
-    ModificationDateTimeField,
-)
 from django_extensions.db.models import TimeStampedModel
 from simple_history import register
 
@@ -20,33 +16,34 @@ class UserProfile(TimeStampedModel):
 
     """Additional information about a User."""
 
-    # TODO: Overridden from TimeStampedModel just to allow null values,
-    # remove after deploy.
-    created = CreationDateTimeField(
-        _('created'),
-        null=True,
-        blank=True,
-    )
-    modified = ModificationDateTimeField(
-        _('modified'),
-        null=True,
-        blank=True,
-    )
-
     user = AutoOneToOneField(
         User,
         verbose_name=_('User'),
         related_name='profile',
         on_delete=models.CASCADE,
     )
-    whitelisted = models.BooleanField(_('Whitelisted'), default=False)
-    banned = models.BooleanField(_('Banned'), default=False)
+    # Shown on the users profile
     homepage = models.CharField(_('Homepage'), max_length=100, blank=True)
+
+    # User configuration options
     allow_ads = models.BooleanField(
         _('See paid advertising'),
         help_text=_('If unchecked, you will still see community ads.'),
         default=True,
     )
+
+    mailing_list = models.BooleanField(
+        default=False,
+        help_text=_(
+            "Subscribe to our mailing list, and get helpful onboarding suggestions."
+        ),
+    )
+
+    # Internal tracking
+    whitelisted = models.BooleanField(_("Whitelisted"), default=False)
+    banned = models.BooleanField(_("Banned"), default=False)
+
+    # Model history
     history = ExtraHistoricalRecords()
 
     def __str__(self):

@@ -8,11 +8,20 @@ from readthedocs.projects.models import Project
 
 class ProjectFilter(filters.FilterSet):
 
+    # TODO this is copying the patterns from other filter sets, where the fields
+    # are all ``icontains`` lookups by default. We discussed reversing this
+    # pattern in the future though, see:
+    # https://github.com/readthedocs/readthedocs.org/issues/9862
+    name = filters.CharFilter(lookup_expr="icontains")
+    slug = filters.CharFilter(lookup_expr="icontains")
+
     class Meta:
         model = Project
         fields = [
-            'language',
-            'programming_language',
+            "name",
+            "slug",
+            "language",
+            "programming_language",
         ]
 
 

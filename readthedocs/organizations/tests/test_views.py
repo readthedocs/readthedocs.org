@@ -16,6 +16,7 @@ from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
+from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
@@ -147,7 +148,12 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         self.assertNotIn(user_b, self.organization.owners.all())
 
 
-@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    RTD_DEFAULT_FEATURES={
+        TYPE_AUDIT_LOGS: 90,
+    },
+)
 class OrganizationSecurityLogTests(TestCase):
 
     def setUp(self):
@@ -193,6 +199,7 @@ class OrganizationSecurityLogTests(TestCase):
             '10.10.10.2',
         ]
         users = [self.owner, self.member, self.another_owner, self.another_member]
+        projects = [self.project, self.project_b, self.another_project]
         AuditLog.objects.all().delete()
         for action, ip, user in itertools.product(actions, ips, users):
             get(
@@ -201,7 +208,7 @@ class OrganizationSecurityLogTests(TestCase):
                 action=action,
                 ip=ip,
             )
-            for project in [self.project, self.project_b, self.another_project]:
+            for project in projects:
                 get(
                     AuditLog,
                     user=user,
@@ -210,22 +217,25 @@ class OrganizationSecurityLogTests(TestCase):
                     ip=ip,
                 )
 
-        self.url = reverse('organization_security_log', args=[self.organization.slug])
+        self.url = reverse("organization_security_log", args=[self.organization.slug])
+        self.queryset = AuditLog.objects.filter(
+            log_organization_id=self.organization.pk
+        )
 
     def test_list_security_logs(self):
-        self.assertEqual(AuditLog.objects.count(), 160)
-
         # Show logs for self.organization only.
         resp = self.client.get(self.url)
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 64)
+        self.assertQuerysetEqual(auditlogs, self.queryset)
 
         # Show logs filtered by project.
         resp = self.client.get(self.url + '?project=project')
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 32)
+        auditlogs = resp.context_data["object_list"]
+        self.assertQuerysetEqual(
+            auditlogs, self.queryset.filter(log_project_slug="project")
+        )
 
         resp = self.client.get(self.url + '?project=another-project')
         self.assertEqual(resp.status_code, 200)
@@ -233,23 +243,26 @@ class OrganizationSecurityLogTests(TestCase):
         self.assertEqual(auditlogs.count(), 0)
 
         # Show logs filtered by IP.
-        resp = self.client.get(self.url + '?ip=10.10.10.2')
+        ip = "10.10.10.2"
+        resp = self.client.get(self.url + f"?ip={ip}")
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 32)
+        self.assertQuerysetEqual(auditlogs, self.queryset.filter(ip=ip))
 
         # Show logs filtered by action.
         for action in [AuditLog.AUTHN, AuditLog.AUTHN_FAILURE, AuditLog.PAGEVIEW, AuditLog.DOWNLOAD]:
             resp = self.client.get(self.url + f'?action={action}')
             self.assertEqual(resp.status_code, 200)
             auditlogs = resp.context_data['object_list']
-            self.assertEqual(auditlogs.count(), 16)
+            self.assertQuerysetEqual(auditlogs, self.queryset.filter(action=action))
 
         # Show logs filtered by user.
         resp = self.client.get(self.url + '?user=member')
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 16)
+        auditlogs = resp.context_data["object_list"]
+        self.assertQuerysetEqual(
+            auditlogs, self.queryset.filter(log_user_username="member")
+        )
 
     @mock.patch('django.utils.timezone.now')
     def test_filter_by_date(self, now_mock):
@@ -280,17 +293,21 @@ class OrganizationSecurityLogTests(TestCase):
         resp = self.client.get(self.url + '?date_before=2021-03-9')
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 16)
+        self.assertQuerysetEqual(auditlogs, self.queryset.filter(action=AuditLog.AUTHN))
 
         resp = self.client.get(self.url + '?date_after=2021-03-11')
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 16)
+        auditlogs = resp.context_data["object_list"]
+        self.assertQuerysetEqual(
+            auditlogs, self.queryset.filter(action=AuditLog.AUTHN_FAILURE)
+        )
 
         resp = self.client.get(self.url + '?date_after=2021-01-01&date_before=2021-03-10')
         self.assertEqual(resp.status_code, 200)
-        auditlogs = resp.context_data['object_list']
-        self.assertEqual(auditlogs.count(), 48)
+        auditlogs = resp.context_data["object_list"]
+        self.assertQuerysetEqual(
+            auditlogs, self.queryset.exclude(action=AuditLog.AUTHN_FAILURE)
+        )
 
     def test_download_csv(self):
         self.assertEqual(AuditLog.objects.count(), 160)
@@ -308,7 +325,11 @@ class OrganizationSecurityLogTests(TestCase):
         ]
         csv_data = list(csv.reader(content))
         # All records + the header.
-        self.assertEqual(len(csv_data), 64 + 1)
+        self.assertEqual(
+            len(csv_data),
+            AuditLog.objects.filter(log_organization_id=self.organization.pk).count()
+            + 1,
+        )
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)

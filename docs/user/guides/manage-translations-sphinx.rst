@@ -1,5 +1,5 @@
-Manage Translations for Sphinx projects
-=======================================
+How to manage translations for Sphinx projects
+==============================================
 
 This guide walks through the process needed to manage translations of your documentation.
 Once this work is done, you can setup your project under Read the Docs to build each language of your documentation by reading :doc:`/localization`.
@@ -187,9 +187,9 @@ Finally, to build our documentation in Spanish(Argentina) we need to tell Sphinx
 
 .. note::
 
-   There is no need to create a new ``conf.py`` to redefine the ``language`` for the Spanish version of this documentation, 
+   There is no need to create a new ``conf.py`` to redefine the ``language`` for the Spanish version of this documentation,
    but you need to set locale_dirs_ to ``["locale"]`` for Sphinx to find the translated content.
-   
+
    .. _locale_dirs: https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-locale_dirs
 
 After running this command, the Spanish(Argentina) version of your documentation will be under ``_build/html/es_AR``.

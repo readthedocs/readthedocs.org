@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
@@ -177,7 +177,6 @@ class TestBasicsForm(WizardTestCase):
         self.step_data['basics'] = {'advanced': True}
         resp = self.post_step('basics')
         self.assertWizardFailure(resp, 'name')
-        self.assertWizardFailure(resp, 'repo_type')
 
 
 @mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
@@ -517,28 +516,56 @@ class TestBadges(TestCase):
         self.assertTrue('no-cache' in res['Cache-Control'])
 
     def test_passing_badge(self):
-        get(Build, project=self.project, version=self.version, success=True)
-        res = self.client.get(self.badge_url, {'version': self.version.slug})
-        self.assertContains(res, 'passing')
-        self.assertEqual(res['Content-Type'], 'image/svg+xml')
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=True,
+            state=BUILD_STATE_FINISHED,
+        )
+        res = self.client.get(self.badge_url, {"version": self.version.slug})
+        self.assertContains(res, "passing")
+        self.assertEqual(res["Content-Type"], "image/svg+xml")
 
     def test_failing_badge(self):
-        get(Build, project=self.project, version=self.version, success=False)
-        res = self.client.get(self.badge_url, {'version': self.version.slug})
-        self.assertContains(res, 'failing')
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=False,
+            state=BUILD_STATE_FINISHED,
+        )
+        res = self.client.get(self.badge_url, {"version": self.version.slug})
+        self.assertContains(res, "failing")
 
     def test_plastic_failing_badge(self):
-        get(Build, project=self.project, version=self.version, success=False)
-        res = self.client.get(self.badge_url, {'version': self.version.slug, 'style': 'plastic'})
-        self.assertContains(res, 'failing')
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=False,
+            state=BUILD_STATE_FINISHED,
+        )
+        res = self.client.get(
+            self.badge_url, {"version": self.version.slug, "style": "plastic"}
+        )
+        self.assertContains(res, "failing")
 
         # The plastic badge has slightly more rounding
         self.assertContains(res, 'rx="4"')
 
     def test_social_passing_badge(self):
-        get(Build, project=self.project, version=self.version, success=True)
-        res = self.client.get(self.badge_url, {'version': self.version.slug, 'style': 'social'})
-        self.assertContains(res, 'passing')
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=True,
+            state=BUILD_STATE_FINISHED,
+        )
+        res = self.client.get(
+            self.badge_url, {"version": self.version.slug, "style": "social"}
+        )
+        self.assertContains(res, "passing")
 
         # The social badge (but not the other badges) has this element
         self.assertContains(res, 'rlink')
@@ -556,9 +583,15 @@ class TestBadges(TestCase):
         self.version.save()
 
         # Without a token, badge is unknown
-        get(Build, project=self.project, version=self.version, success=True)
-        res = self.client.get(self.badge_url, {'version': self.version.slug})
-        self.assertContains(res, 'unknown')
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=True,
+            state=BUILD_STATE_FINISHED,
+        )
+        res = self.client.get(self.badge_url, {"version": self.version.slug})
+        self.assertContains(res, "unknown")
 
         # With an invalid token, the badge is unknown
         res = self.client.get(

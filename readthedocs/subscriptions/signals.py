@@ -51,6 +51,12 @@ def update_stripe_customer(sender, instance, created, **kwargs):
     if organization.email != stripe_customer.email:
         fields_to_update["email"] = organization.email
 
+    if organization.name != stripe_customer.description:
+        fields_to_update["description"] = organization.name
+
+    if organization.name != stripe_customer.name:
+        fields_to_update["name"] = organization.name
+
     org_metadata = organization.get_stripe_metadata()
     current_metadata = stripe_customer.metadata or {}
     for key, value in org_metadata.items():
@@ -70,22 +76,3 @@ def update_stripe_customer(sender, instance, created, **kwargs):
             log.exception("Unable to update stripe customer.")
         except Exception:
             log.exception("Unknown error when updating stripe customer.")
-
-
-# pylint: disable=unused-argument
-@receiver(pre_delete, sender=Organization)
-def remove_subscription(sender, instance, using, **kwargs):
-    """
-    Deletes the subscription object and cancels it from Stripe.
-
-    This is used as complement to ``remove_organization_completely``.
-    """
-    organization = instance
-    try:
-        subscription = organization.subscription
-        subscription.delete()
-    except Subscription.DoesNotExist:
-        log.error(
-            "Organization doesn't have a subscription to cancel.",
-            organization_slug=organization.slug,
-        )

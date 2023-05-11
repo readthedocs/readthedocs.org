@@ -4,7 +4,6 @@ import datetime
 import structlog
 from django.contrib.auth.models import User
 from django.db.models import Count
-from django.http import HttpRequest
 from django.utils import timezone
 
 from readthedocs.builds.models import Build
@@ -14,12 +13,9 @@ from readthedocs.projects.models import Domain, Project
 from readthedocs.subscriptions.models import Subscription
 from readthedocs.subscriptions.notifications import (
     OrganizationDisabledNotification,
-    SubscriptionEndedNotification,
-    SubscriptionRequiredNotification,
     TrialEndingNotification,
 )
 from readthedocs.worker import app
-
 
 log = structlog.get_logger(__name__)
 
@@ -27,32 +23,40 @@ log = structlog.get_logger(__name__)
 @app.task(queue='web')
 def daily_email():
     """Daily email beat task for organization notifications."""
-    notifications = (
-        TrialEndingNotification,
-        SubscriptionRequiredNotification,
-        SubscriptionEndedNotification,
-        OrganizationDisabledNotification,
-    )
-
-    orgs_sent = Organization.objects.none()
-
-    for cls in notifications:
-        orgs = cls.for_organizations().exclude(id__in=orgs_sent).distinct()
-        orgs_sent |= orgs
-        for org in orgs:
-            log.info(
-                'Sending notification',
-                notification_name=cls.name,
-                organization_slug=org.slug,
+    organizations = OrganizationDisabledNotification.for_organizations().distinct()
+    for organization in organizations:
+        for owner in organization.owners.all():
+            notification = OrganizationDisabledNotification(
+                context_object=organization,
+                user=owner,
             )
-            for owner in org.owners.all():
-                notification = cls(
-                    context_object=org,
-                    request=HttpRequest(),
-                    user=owner,
-                )
-                log.info('Notification sent.', recipient=owner)
-                notification.send()
+            log.info(
+                "Notification sent.",
+                recipient=owner,
+                organization_slug=organization.slug,
+            )
+            notification.send()
+
+    for subscription in TrialEndingNotification.for_subscriptions():
+        organization = subscription.customer.rtd_organization
+        if not organization:
+            log.error(
+                "Susbscription isn't attached to an organization",
+                stripe_subscription_id=subscription.id,
+            )
+            continue
+
+        for owner in organization.owners.all():
+            notification = TrialEndingNotification(
+                context_object=organization,
+                user=owner,
+            )
+            log.info(
+                "Notification sent.",
+                recipient=owner,
+                organization_slug=organization.slug,
+            )
+            notification.send()
 
 
 @app.task(queue='web')

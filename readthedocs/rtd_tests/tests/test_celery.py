@@ -8,11 +8,7 @@ from django_dynamic_fixture import get
 from messages_extends.models import Message
 
 from readthedocs.builds import tasks as build_tasks
-from readthedocs.builds.constants import (
-    BUILD_STATUS_SUCCESS,
-    EXTERNAL,
-    LATEST,
-)
+from readthedocs.builds.constants import BUILD_STATUS_SUCCESS, EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
 from readthedocs.projects.models import Project
@@ -102,10 +98,9 @@ class TestCeleryBuilding(TestCase):
         )
 
         send_build_status.assert_called_once_with(
-            build=external_build,
-            commit=external_build.commit,
-            state=BUILD_STATUS_SUCCESS,
-            link_to_build=False,
+            external_build,
+            external_build.commit,
+            BUILD_STATUS_SUCCESS,
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 
@@ -125,7 +120,9 @@ class TestCeleryBuilding(TestCase):
         )
 
         send_build_status.assert_called_once_with(
-            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+            external_build,
+            external_build.commit,
+            BUILD_STATUS_SUCCESS,
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 
@@ -168,10 +165,9 @@ class TestCeleryBuilding(TestCase):
         )
 
         send_build_status.assert_called_once_with(
-            build=external_build,
-            commit=external_build.commit,
-            state=BUILD_STATUS_SUCCESS,
-            link_to_build=False,
+            external_build,
+            external_build.commit,
+            BUILD_STATUS_SUCCESS,
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 
@@ -191,7 +187,9 @@ class TestCeleryBuilding(TestCase):
         )
 
         send_build_status.assert_called_once_with(
-            external_build, external_build.commit, BUILD_STATUS_SUCCESS
+            external_build,
+            external_build.commit,
+            BUILD_STATUS_SUCCESS,
         )
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 0)
 
@@ -209,4 +207,3 @@ class TestCeleryBuilding(TestCase):
 
         send_build_status.assert_not_called()
         self.assertEqual(Message.objects.filter(user=self.eric).count(), 1)
-

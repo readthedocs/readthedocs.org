@@ -13,7 +13,6 @@ from readthedocs.audit.filters import OrganizationSecurityLogFilter
 from readthedocs.audit.models import AuditLog
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import PrivateViewMixin
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.forms import (
     OrganizationSignupForm,
@@ -28,6 +27,8 @@ from readthedocs.organizations.views.base import (
     OrganizationView,
 )
 from readthedocs.projects.utils import get_csv_file
+from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
+from readthedocs.subscriptions.models import PlanFeature
 
 
 # Organization views
@@ -50,7 +51,7 @@ class CreateOrganizationSignup(PrivateViewMixin, OrganizationView, CreateView):
 
         .. note::
 
-            This method is overriden here from
+            This method is overridden here from
             ``OrganizationView.get_success_url`` because that method
             redirects to Organization's Edit page.
         """
@@ -183,12 +184,13 @@ class DeleteOrganizationTeamMember(PrivateViewMixin, OrganizationTeamMemberView,
         return resp
 
 
-class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView):
+class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
 
     """Display security logs related to this organization."""
 
     model = AuditLog
     template_name = 'organizations/security_log.html'
+    feature_type = TYPE_AUDIT_LOGS
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get('download', False)
@@ -200,14 +202,15 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
         organization = self.get_organization()
         current_timezone = settings.TIME_ZONE
         values = [
-            (f'Date ({current_timezone})', 'created'),
-            ('User', 'log_user_username'),
-            ('Project', 'log_project_slug'),
-            ('Organization', 'log_organization_slug'),
-            ('Action', 'action'),
-            ('Resource', 'resource'),
-            ('IP', 'ip'),
-            ('Browser', 'browser'),
+            (f"Date ({current_timezone})", "created"),
+            ("User", "log_user_username"),
+            ("Project", "log_project_slug"),
+            ("Organization", "log_organization_slug"),
+            ("Action", "action"),
+            ("Resource", "resource"),
+            ("IP", "ip"),
+            ("Browser", "browser"),
+            ("Extra data", "data"),
         ]
         data = self.get_queryset().values_list(*[value for _, value in values])
 
@@ -233,10 +236,10 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
     def get_context_data(self, **kwargs):
         organization = self.get_organization()
         context = super().get_context_data(**kwargs)
-        context['enabled'] = self._is_enabled(organization)
-        context['days_limit'] = self._get_retention_days_limit(organization)
-        context['filter'] = self.filter
-        context['AuditLog'] = AuditLog
+        context["enabled"] = self._is_feature_enabled(organization)
+        context["days_limit"] = self._get_retention_days_limit(organization)
+        context["filter"] = self.filter
+        context["AuditLog"] = AuditLog
         return context
 
     def _get_start_date(self):
@@ -254,16 +257,13 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
     def _get_queryset(self):
         """Return the queryset without filters."""
         organization = self.get_organization()
-        if not self._is_enabled(organization):
+        if not self._is_feature_enabled(organization):
             return AuditLog.objects.none()
         start_date = self._get_start_date()
         queryset = AuditLog.objects.filter(
             log_organization_id=organization.id,
             action__in=[
-                AuditLog.AUTHN,
-                AuditLog.AUTHN_FAILURE,
-                AuditLog.PAGEVIEW,
-                AuditLog.DOWNLOAD,
+                action for action, _ in OrganizationSecurityLogFilter.allowed_actions
             ],
             created__gte=start_date,
         )
@@ -286,14 +286,15 @@ class OrganizationSecurityLogBase(PrivateViewMixin, OrganizationMixin, ListView)
         )
         return self.filter.qs
 
-    def _get_retention_days_limit(self, organization):  # noqa
-        """From how many days we need to show data for this project?"""
-        return settings.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS
+    def _get_retention_days_limit(self, organization):
+        """From how many days we need to show data for this organization?"""
+        return PlanFeature.objects.get_feature_value(
+            organization,
+            type=self.feature_type,
+        )
 
-    def _is_enabled(self, organization):  # noqa
-        """Should we show audit logs for this organization?"""
-        return True
-
-
-class OrganizationSecurityLog(SettingsOverrideObject):
-    _default_class = OrganizationSecurityLogBase
+    def _is_feature_enabled(self, organization):
+        return PlanFeature.objects.has_feature(
+            organization,
+            type=self.feature_type,
+        )

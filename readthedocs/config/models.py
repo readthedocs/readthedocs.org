@@ -35,7 +35,7 @@ class Build(Base):
         super().__init__(**kwargs)
 
 
-class BuildWithTools(Base):
+class BuildWithOs(Base):
 
     __slots__ = ("os", "tools", "jobs", "apt_packages", "commands")
 

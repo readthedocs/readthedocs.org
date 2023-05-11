@@ -2,17 +2,17 @@ Read the Docs tutorial
 ======================
 
 In this tutorial you will create a documentation project on Read the Docs
-by importing an Sphinx project from a GitHub repository,
+by importing a Sphinx project from a GitHub repository,
 tailor its configuration, and explore several useful features of the platform.
 
 The tutorial is aimed at people interested in learning
 how to use Read the Docs to host their documentation projects.
 You will fork a fictional software library
 similar to the one developed in the :doc:`official Sphinx tutorial <sphinx:tutorial/index>`.
-No prior experience with Sphinx is required,
+No prior experience with Sphinx is required
 and you can follow this tutorial without having done the Sphinx one.
 
-The only things you will need to follow are
+The only things you will need are
 a web browser, an Internet connection, and a GitHub account
 (you can `register for a free account <https://github.com/signup>`_ if you don't have one).
 You will use Read the Docs Community, which means that the project will be public.
@@ -50,8 +50,7 @@ and it contains the following files:
 
 ``docs/``
   Directory holding all the Sphinx documentation sources,
-  including some required dependencies in ``docs/requirements.txt``,
-  the Sphinx configuration ``docs/source/conf.py``,
+  including the Sphinx configuration ``docs/source/conf.py``
   and the root document ``docs/source/index.rst`` written in reStructuredText.
 
 .. figure:: /_static/images/tutorial/github-template.png
@@ -80,7 +79,7 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
 
    Read the Docs needs elevated permissions to perform certain operations
    that ensure that the workflow is as smooth as possible,
-   like installing webhooks.
+   like installing :term:`webhooks <webhook>`.
    If you want to learn more,
    check out :ref:`connected-accounts:permissions for connected accounts`.
 
@@ -97,8 +96,8 @@ By now, you should have two email notifications:
 * Another one from Read the Docs, prompting you to "verify your email
   address". Click on the link to finalize the process.
 
-Finally, you created your account on Read the Docs
-and are ready to import your first project.
+Once done, your Read the Docs account is created
+and ready to import your first project.
 
 Welcome!
 
@@ -353,8 +352,8 @@ Making warnings more visible
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you navigate to your HTML documentation,
-you will notice that the index page looks correct,
-but actually the API section is empty.
+you will notice that the index page looks correct
+but the API section is empty.
 This is a very common issue with Sphinx,
 and the reason is stated in the build logs.
 On the build page you opened before,
@@ -581,7 +580,7 @@ how readers are using your documentation, addressing some common questions like:
 
 Read the Docs offers you some analytics tools to find out the answers.
 
-Browsing Traffic Analytics
+Browsing traffic analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The :doc:`/analytics` view shows the top viewed documentation pages of the past 30 days,
@@ -622,11 +621,11 @@ and click on the :guilabel:`Download all data` button.
 That will prompt you to download a :abbr:`CSV (Comma-Separated Values)` file
 that you can process any way you want.
 
-Browsing Search Analytics
+Browsing search analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Apart from traffic analytics, Read the Docs also offers the possibility
-to inspect :ref:`what search terms your readers use <server-side-search:Search Analytics>`
+to inspect :doc:`what search terms your readers use </guides/search-analytics>`
 on your documentation.
 This can inform decisions on what areas to reinforce,
 or what parts of your project are less understood or more difficult to find.
@@ -666,7 +665,7 @@ Here you have some resources to continue learning about documentation
 and Read the Docs:
 
 - You can learn more about the functionality of the platform
-  by going over our :doc:`/features` page.
+  by going over our :doc:`features </reference/features>` page.
 - To make the most of the documentation generators that are supported,
   you can read the :doc:`Sphinx tutorial <sphinx:tutorial/index>`
   or the `MkDocs User Guide <https://www.mkdocs.org/user-guide/>`_.
@@ -674,9 +673,6 @@ and Read the Docs:
 - Whether you are a documentation author, a project administrator, a developer, or a designer,
   you can follow our how-to guides that cover specific tasks,
   available under :doc:`/guides/index`.
-- You can check out some of the
-  :ref:`index:Advanced features of Read the Docs`,
-  like :doc:`/subprojects` or :doc:`/automation-rules`, to name a few.
 - For private project support and other enterprise features,
   you can use :doc:`our commercial service </commercial/index>`
   (and if in doubt, check out :doc:`/choosing-a-site`).

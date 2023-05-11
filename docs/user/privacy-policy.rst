@@ -4,7 +4,7 @@
 Privacy Policy
 ==============
 
-Effective date: **September  30, 2019**
+Effective date: **February 21, 2023**
 
 Welcome to Read the Docs.
 At Read the Docs, we believe in protecting the privacy of our
@@ -194,12 +194,11 @@ Analytics
 We go into detail on analytics in a
 :ref:`separate section specific to analytics <privacy-policy:Google Analytics>`.
 
-Support Desk
+Support desk
 ++++++++++++
 
-Read the Docs uses Intercom to manage support requests
-for documentation hosted through Read the Docs for Business.
-If you request support -- typically via email -- Intercom may process
+Read the Docs uses Front to manage support requests.
+If you request support -- typically via email -- Front may process
 your contact information.
 
 Email newsletter
@@ -214,7 +213,7 @@ You can manage your email subscription
 including unsubscribing and deleting your records with MailerLite.
 There is a link to do so in the footer of any newsletter you receive from us.
 
-Public Information on Read the Docs
+Public information on Read the Docs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Most of Read the Docs is public-facing including
@@ -342,7 +341,7 @@ In particular:
 * We also provide our users a method of recourse and enforcement.
 
 
-Resolving Complaints
+Resolving complaints
 --------------------
 
 If you have concerns about the way Read the Docs is handling your User Personal Information,

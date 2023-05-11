@@ -10,79 +10,112 @@ This is useful when listing logs for the same user.
     <ul>
       {% for log in object_list %}
       <li class="module-item">
-        {% if log.action == AuditLog.AUTHN %}
-          {% if omit_user %}
-            {% blocktrans trimmed with action=log.action method=log.auth_backend_display %}
-              <a href="?action={{ action }}" title="{{ method }}">Authenticated</a>
+        {# Log entry description #}
+        <div>
+          {% if log.action == AuditLog.AUTHN %}
+            {% blocktrans trimmed with action=log.action %}
+              User authenticated
             {% endblocktrans %}
-          {% elif log.log_user_id %}
-            {% blocktrans trimmed with action=log.action user=log.log_user_username method=log.auth_backend_display %}
-              <a href="?user={{ user }}">
-                <code>{{ user }}</code>
-              </a>
-              <a href="?action={{ action }}" title="{{ method }}">authenticated</a>
+          {% elif log.action == AuditLog.AUTHN_FAILURE %}
+            {% blocktrans trimmed with action=log.action %}
+              User failed to authenticate
             {% endblocktrans %}
-          {% else %}
-            {% blocktrans trimmed with action=log.action method=log.auth_backend_display %}
-              User <a href="?action={{ action }}" title="{{ method }}">authenticated</a>
+          {% elif log.action == AuditLog.LOGOUT %}
+            {% blocktrans trimmed with action=log.action %}
+              User logged out
             {% endblocktrans %}
-          {% endif %}
-        {% elif log.action == AuditLog.AUTHN_FAILURE %}
-          {% blocktrans trimmed with action=log.action method=log.auth_backend_display %}
-            <a href="?action={{ action }}" title="{{ method }}">Authentication failed</a>
-          {% endblocktrans %}
-        {% elif log.action == AuditLog.PAGEVIEW %}
-          {% if log.log_user_id %}
-            {% blocktrans trimmed with action=log.action user=log.log_user_username path=log.resource %}
-              <a href="?user={{ user }}">
-                <code>{{ user }}</code>
-              </a>
-              <a href="?action={{ action }}" title="{{ path }}">visited</a> a page
+          {% elif log.action == AuditLog.PAGEVIEW %}
+            {% blocktrans trimmed with action=log.action %}
+              User visited a page
             {% endblocktrans %}
-          {% else %}
-            {% blocktrans trimmed with action=log.action user=log.log_user_username path=log.resource %}
-              A user <a href="?action={{ action }}" title="{{ path }}">visited</a> a page
+          {% elif log.action == AuditLog.DOWNLOAD %}
+            {% blocktrans trimmed with action=log.action %}
+              User downloaded a document
             {% endblocktrans %}
-          {% endif %}
-        {% elif log.action == AuditLog.DOWNLOAD %}
-          {% if log.log_user_id %}
-            {% blocktrans trimmed with action=log.action user=log.log_user_username path=log.resource %}
-              <a href="?user={{ user }}">
-                <code>{{ user }}</code>
-              </a>
-              <a href="?action={{ action }}" title="{{ path }}">downloaded</a> a document
+          {% elif log.action == AuditLog.INVITATION_SENT %}
+            {% blocktrans trimmed with action=log.action %}
+              User sent an invitation
             {% endblocktrans %}
-          {% else %}
-            {% blocktrans trimmed with action=log.action user=log.log_user_username path=log.resource %}
-              A user <a href="?action={{ action }}" title="{{ path }}">downloaded</a> a document
+          {% elif log.action == AuditLog.INVITATION_REVOKED %}
+            {% blocktrans trimmed with action=log.action %}
+              User revoked an invitation
+            {% endblocktrans %}
+          {% elif log.action == AuditLog.INVITATION_ACCEPTED %}
+            {% blocktrans trimmed with action=log.action %}
+              User accepted an invitation
+            {% endblocktrans %}
+          {% elif log.action == AuditLog.INVITATION_DECLINED %}
+            {% blocktrans trimmed with action=log.action %}
+              User declined an invitation
             {% endblocktrans %}
           {% endif %}
-        {% endif %}
-
-        {% trans "from" %}
-
-        <a href="?ip={{ log.ip }}" title="{{ log.browser }}">
-          <code>{{ log.ip }}</code>
-        </a>
-
-        {# If the authentication was on a doc domain. #}
-        {% if log.log_project_id %}
-          {% trans "on" %}
-          {% if log.project %}
-            <a href="{% url 'projects_detail' log.log_project_slug %}">
-              <code>{{ log.log_project_slug }}</code>
-            </a>
-          {% else %}
-            {# The original project has been deleted, don't link to it. #}
-            <code title="{{ log.resource }}">{{ log.log_project_slug }}</code>
-          {% endif %}
-        {% endif %}
+        </div>
 
         <span class="quiet right" title="{{ log.created|date:"DATETIME_FORMAT" }}">
           {% blocktrans trimmed with log.created|timesince as date %}
             {{ date }} ago
           {% endblocktrans %}
         </span>
+
+        {# Data about the log entry #}
+        <div>
+          {% trans 'actor:' %}
+          {% if log.log_user_username %}
+            <code>{{ log.log_user_username }}</code>
+          {% else %}
+            {% trans 'anonymous' %}
+          {% endif %}
+
+          |
+
+          {% if log.action == AuditLog.AUTHN or log.action == AuditLog.AUTHN_FAILURE or log.action == AuditLog.LOGOUT or log.action == AuditLog.PAGEVIEW or log.action == AuditLog.DOWNLOAD %}
+            {% if log.log_project_slug %}
+              {% trans 'project:' %}
+              <code>{{ log.log_project_slug }}</code>
+              |
+            {% endif %}
+            {% if log.action == AuditLog.PAGEVIEW or log.action == AuditLog.DOWNLOAD %}
+              {% trans 'page:' %}
+              <code title="{{ log.resource }}">{{ log.resource|truncatechars:30 }}</code>
+              |
+            {% endif %}
+          {% elif log.action == AuditLog.INVITATION_SENT or log.action == AuditLog.INVITATION_REVOKED or log.action == AuditLog.INVITATION_ACCEPTED or log.action == AuditLog.INVITATION_DECLINED %}
+            {% if log.data.to_user %}
+              {% trans 'to user:' %}
+              <code>{{ log.data.to_user.username }}</code>
+            {% elif log.data.to_email %}
+              {% trans 'to email:' %}
+              <code>{{ log.data.to_email }}</code>
+            {% endif %}
+
+            |
+
+            {% if log.data.object_type == "project" %}
+              {% trans 'project:' %}
+              <code>{{ log.data.object.slug }}</code>
+
+              {% if log.data.object.organization %}
+                |
+                {% trans 'organization:' %}
+                <code>{{ log.data.object.organization.slug }}</code>
+              {% endif %}
+            {% elif log.data.object_type == "team" %}
+              {% trans 'team:' %}
+              <code>{{ log.data.object.slug }}</code>
+              |
+              {% trans 'organization:' %}
+              <code>{{ log.data.object.organization.slug }}</code>
+            {% elif log.data.object_type == "organization" %}
+              {% trans 'organization:' %}
+              <code>{{ log.data.object.slug }}</code>
+            {% endif %}
+
+            |
+          {% endif %}
+
+          {% trans 'IP:' %}
+          <code title="{{ log.browser }}">{{ log.ip }}</code>
+        </div>
       </li>
       {% empty %}
       <li class="module-item">

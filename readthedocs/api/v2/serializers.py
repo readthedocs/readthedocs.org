@@ -1,8 +1,11 @@
 """Defines serializers for each of our models."""
 
+
 from allauth.socialaccount.models import SocialAccount
 from rest_framework import serializers
 
+from readthedocs.api.v2.utils import normalize_build_command
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, Project
@@ -70,26 +73,27 @@ class ProjectAdminSerializer(ProjectSerializer):
 
     class Meta(ProjectSerializer.Meta):
         fields = ProjectSerializer.Meta.fields + (
-            'enable_epub_build',
-            'enable_pdf_build',
-            'conf_py_file',
-            'analytics_code',
-            'analytics_disabled',
-            'cdn_enabled',
-            'container_image',
-            'container_mem_limit',
-            'container_time_limit',
-            'install_project',
-            'use_system_packages',
-            'skip',
-            'requirements_file',
-            'python_interpreter',
-            'features',
-            'has_valid_clone',
-            'has_valid_webhook',
-            'show_advertising',
-            'environment_variables',
-            'max_concurrent_builds',
+            "enable_epub_build",
+            "enable_pdf_build",
+            "conf_py_file",
+            "analytics_code",
+            "analytics_disabled",
+            "cdn_enabled",
+            "container_image",
+            "container_mem_limit",
+            "container_time_limit",
+            "install_project",
+            "use_system_packages",
+            "skip",
+            "requirements_file",
+            "python_interpreter",
+            "features",
+            "has_valid_clone",
+            "has_valid_webhook",
+            "show_advertising",
+            "environment_variables",
+            "max_concurrent_builds",
+            "readthedocs_yaml_path",
         )
 
 
@@ -99,7 +103,7 @@ class VersionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Version
-        fields = (
+        fields = [
             'id',
             'project',
             'slug',
@@ -114,7 +118,7 @@ class VersionSerializer(serializers.ModelSerializer):
             'has_epub',
             'has_htmlzip',
             'documentation_type',
-        )
+        ]
 
 
 class VersionAdminSerializer(VersionSerializer):
@@ -122,6 +126,21 @@ class VersionAdminSerializer(VersionSerializer):
     """Version serializer that returns admin project data."""
 
     project = ProjectAdminSerializer()
+    canonical_url = serializers.SerializerMethodField()
+    build_data = serializers.JSONField(required=False, write_only=True, allow_null=True)
+
+    def get_canonical_url(self, obj):
+        return obj.project.get_docs_url(
+            lang_slug=obj.project.language,
+            version_slug=obj.slug,
+            external=obj.type == EXTERNAL,
+        )
+
+    class Meta(VersionSerializer.Meta):
+        fields = VersionSerializer.Meta.fields + [
+            "build_data",
+            "canonical_url",
+        ]
 
 
 class BuildCommandSerializer(serializers.ModelSerializer):
@@ -133,11 +152,50 @@ class BuildCommandSerializer(serializers.ModelSerializer):
         exclude = []
 
 
+class BuildCommandReadOnlySerializer(BuildCommandSerializer):
+
+    """
+    Serializer used on GETs to trim the commands' path.
+
+    Remove unreadable paths from the command outputs when returning it from the API.
+    We could make this change at build level, but we want to avoid undoable issues from now
+    and hack a small solution to fix the immediate problem.
+
+    This converts:
+        $ /usr/src/app/checkouts/readthedocs.org/user_builds/
+            <container_hash>/<project_slug>/envs/<version_slug>/bin/python
+        $ /home/docs/checkouts/readthedocs.org/user_builds/
+            <project_slug>/envs/<version_slug>/bin/python
+    into
+        $ python
+    """
+
+    command = serializers.SerializerMethodField()
+
+    def get_command(self, obj):
+        return normalize_build_command(
+            obj.command, obj.build.project.slug, obj.build.version.slug
+        )
+
+
 class BuildSerializer(serializers.ModelSerializer):
 
-    """Build serializer for user display, doesn't display internal fields."""
+    """
+    Build serializer for user display.
 
-    commands = BuildCommandSerializer(many=True, read_only=True)
+    This is the default serializer for Build objects over read-only operations from regular users.
+    Take into account that:
+
+    - It doesn't display internal fields (builder, _config)
+    - It's read-only for multiple fields (commands, project_slug, etc)
+
+    Staff users should use either:
+
+    - BuildAdminSerializer for write operations (e.g. builders hitting the API),
+    - BuildAdminReadOnlySerializer for read-only actions (e.g. dashboard retrieving build details)
+    """
+
+    commands = BuildCommandReadOnlySerializer(many=True, read_only=True)
     project_slug = serializers.ReadOnlyField(source='project.slug')
     version_slug = serializers.ReadOnlyField(source='get_version_slug')
     docs_url = serializers.SerializerMethodField()
@@ -160,11 +218,30 @@ class BuildSerializer(serializers.ModelSerializer):
 
 class BuildAdminSerializer(BuildSerializer):
 
-    """Build serializer for display to admin users and build instances."""
+    """
+    Build serializer to update Build objects from build instances.
+
+    It allows write operations on `commands` and display fields (e.g. builder)
+    that are allowed for admin purposes only.
+    """
+
+    commands = BuildCommandSerializer(many=True, read_only=True)
 
     class Meta(BuildSerializer.Meta):
         # `_config` should be excluded to avoid conflicts with `config`
         exclude = ('_config',)
+
+
+class BuildAdminReadOnlySerializer(BuildAdminSerializer):
+
+    """
+    Build serializer to retrieve Build objects from the dashboard.
+
+    It uses `BuildCommandReadOnlySerializer` to automatically parse the command
+    and trim the useless path.
+    """
+
+    commands = BuildCommandReadOnlySerializer(many=True, read_only=True)
 
 
 class SearchIndexSerializer(serializers.Serializer):

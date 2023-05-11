@@ -86,7 +86,7 @@ class ProjectBasicsForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ('name', 'repo', 'repo_type', 'default_branch')
+        fields = ("name", "repo", "default_branch")
 
     remote_repository = forms.IntegerField(
         widget=forms.HiddenInput(),
@@ -198,15 +198,16 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     class Meta:
         model = Project
         per_project_settings = (
-            'default_version',
-            'default_branch',
-            'privacy_level',
-            'analytics_code',
-            'analytics_disabled',
-            'show_version_warning',
-            'single_version',
-            'external_builds_enabled',
-            'external_builds_privacy_level',
+            "default_version",
+            "default_branch",
+            "privacy_level",
+            "analytics_code",
+            "analytics_disabled",
+            "show_version_warning",
+            "single_version",
+            "external_builds_enabled",
+            "external_builds_privacy_level",
+            "readthedocs_yaml_path",
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -347,14 +348,25 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         return False
 
     def clean_conf_py_file(self):
-        filename = self.cleaned_data.get('conf_py_file', '').strip()
-        if filename and 'conf.py' not in filename:
+        filename = self.cleaned_data.get("conf_py_file", "").strip()
+        if filename and "conf.py" not in filename:
             raise forms.ValidationError(
                 _(
                     'Your configuration file is invalid, make sure it contains '
                     'conf.py in it.',
                 ),
             )  # yapf: disable
+        return filename
+
+    def clean_readthedocs_yaml_path(self):
+        """
+        Validate user input to help user.
+
+        We also validate this path during the build process, so this validation step is
+        only considered as helpful to a user, not a security measure.
+        """
+        filename = self.cleaned_data.get("readthedocs_yaml_path")
+        filename = (filename or "").strip()
         return filename
 
     def get_all_active_versions(self):
@@ -379,13 +391,15 @@ class UpdateProjectForm(
         ProjectExtraForm,
 ):
 
-    class Meta:
+    """Basic project settings form for Admin."""
+
+    class Meta:  # noqa
         model = Project
         fields = (
             # Basics
             'name',
             'repo',
-            'repo_type',
+            "repo_type",
             # Extra
             'description',
             'language',
@@ -395,6 +409,7 @@ class UpdateProjectForm(
         )
 
     def clean_language(self):
+        """Ensure that language isn't already active."""
         language = self.cleaned_data['language']
         project = self.instance
         if project:
@@ -433,7 +448,7 @@ class ProjectRelationshipForm(forms.ModelForm):
 
     class Meta:
         model = ProjectRelationship
-        fields = '__all__'
+        fields = "__all__"
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project')
@@ -528,6 +543,8 @@ class EmailHookForm(forms.Form):
 
 class WebHookForm(forms.ModelForm):
 
+    """Webhook form."""
+
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
@@ -595,6 +612,8 @@ class TranslationBaseForm(forms.Form):
         ) for project in self.get_translation_queryset().all()]
 
     def clean_project(self):
+        """Ensures that selected project is valid as a translation."""
+
         translation_project_slug = self.cleaned_data['project']
 
         # Ensure parent project isn't already itself a translation
@@ -691,7 +710,7 @@ class RedirectForm(forms.ModelForm):
         return self.project
 
 
-class DomainBaseForm(forms.ModelForm):
+class DomainForm(forms.ModelForm):
 
     """Form to configure a custom domain name for a project."""
 
@@ -706,14 +725,20 @@ class DomainBaseForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Disable domain manipulation on Update, but allow on Create
-        instance = getattr(self, 'instance', None)
-        if instance and instance.pk:
+        if self.instance.pk:
             self.fields['domain'].disabled = True
+
+        # Remove the https option at creation,
+        # but show it if the domain is already marked as http only,
+        # so users can upgrade.
+        if not self.instance.pk or self.instance.https:
+            self.fields.pop("https")
 
     def clean_project(self):
         return self.project
 
     def clean_domain(self):
+        """Validates domain."""
         domain = self.cleaned_data['domain'].lower()
         parsed = urlparse(domain)
 
@@ -751,10 +776,6 @@ class DomainBaseForm(forms.ModelForm):
                 _('Only one domain can be canonical at a time.'),
             )
         return canonical
-
-
-class DomainForm(SettingsOverrideObject):
-    _default_class = DomainBaseForm
 
 
 class IntegrationForm(forms.ModelForm):
@@ -852,6 +873,7 @@ class EnvironmentVariableForm(forms.ModelForm):
         return self.project
 
     def clean_name(self):
+        """Validate environment variable name chosen."""
         name = self.cleaned_data['name']
         if name.startswith('__'):
             raise forms.ValidationError(

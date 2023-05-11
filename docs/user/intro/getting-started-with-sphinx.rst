@@ -1,4 +1,4 @@
-Getting Started with Sphinx
+Getting started with Sphinx
 ===========================
 
 .. meta::
@@ -72,7 +72,7 @@ by :doc:`importing your docs </intro/import-guide>`.
 
 .. warning::
 
-   We strongly recommend to :ref:`pin the Sphinx version <guides/reproducible-builds:pinning dependencies>`
+   We strongly recommend to :doc:`pin the Sphinx version </guides/reproducible-builds>`
    used for your project to build the docs to avoid potential future incompatibilities.
 
 .. _this template: https://www.writethedocs.org/guide/writing/beginners-guide-to-docs/#id1
@@ -91,7 +91,7 @@ Then in your ``conf.py``:
 
 .. code-block:: python
 
-   extensions = ['myst_parser']
+   extensions = ["myst_parser"]
 
 You can now continue writing your docs in ``.md`` files and it will work with Sphinx.
 Read the `Getting started with MyST in Sphinx`_ docs for additional instructions.

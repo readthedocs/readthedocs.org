@@ -1,11 +1,11 @@
-Development Installation
+Development installation
 ========================
 
 .. meta::
    :description lang=en: Install a local development instance of Read the Docs with our step by step guide.
 
-These are development setup and :ref:`standards <install:Core team standards>` that are followed to by the core development team. If you are a contributor to Read the Docs,
-it might a be a good idea to follow these guidelines as well.
+These are development setup and :ref:`standards <install:Core team standards>` that are followed to by the core development team.
+If you are a contributor to Read the Docs, it might a be a good idea to follow these guidelines as well.
 
 Requirements
 ------------
@@ -32,6 +32,27 @@ Set up your environment
 
       git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
 
+#. Install or clone additional repositories:
+
+   .. note::
+
+      This step is only required for Read the Docs core team members.
+
+   Core team should at very least have all required packages installed in their development image.
+   To install these packages you must define a GitHub token before building your image:
+
+   .. prompt:: bash
+
+      export GITHUB_TOKEN="..."
+      export GITHUB_USER="..."
+
+   In order to make development changes on any of our private repositories,
+   such as ``ext`` or ``ext-theme``, you will also need to check these repositories out:
+
+   .. prompt:: bash
+
+      git clone --recurse-submodules https://github.com/readthedocs/ext/
+
 #. Install the requirements from ``common`` submodule:
 
    .. prompt:: bash
@@ -48,10 +69,6 @@ Set up your environment
 
       inv docker.build
 
-   .. tip::
-
-      If you pass the ``GITHUB_TOKEN`` and ``GITHUB_USER`` environment variables to this command,
-      it will add support for readthedocs-ext.
 
 #. Pull down Docker images for the builders:
 
@@ -98,6 +115,8 @@ save some work while typing docker compose commands. This section explains these
     * ``--no-reload`` makes all celery processes and django runserver
       to use no reload and do not watch for files changes
     * ``--ngrok`` is useful when it's required to access the local instance from outside (e.g. GitHub webhook)
+    * ``--ext-theme`` to use the new dashboard templates
+    * ``--webpack`` to start the Webpack dev server for the new dashboard templates
 
 ``inv docker.shell``
     Opens a shell in a container (web by default).
@@ -175,7 +194,9 @@ you can use ``celery.contrib.rdb``:
 
 .. code-block:: python
 
-    from celery.contrib import rdb; rdb.set_trace()
+    from celery.contrib import rdb
+
+    rdb.set_trace()
 
 When the breakpoint is hit, the Celery worker will pause on the breakpoint and
 will alert you on STDOUT of a port to connect to. You can open a shell into the container
@@ -194,7 +215,7 @@ Configuring connected accounts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 These are optional steps to setup the :doc:`connected accounts <rtd:connected-accounts>`
-(GitHub, GitLab, and BitBucket) in your development environment.
+(GitHub, GitLab, and Bitbucket) in your development environment.
 This will allow you to login to your local development instance
 using your GitHub, Bitbucket, or GitLab credentials
 and this makes the process of importing repositories easier.
@@ -221,6 +242,17 @@ For others, the webhook will simply fail to connect when there are new commits t
 
 Troubleshooting
 ---------------
+
+.. warning::
+
+    The environment is developed and mainly tested on Docker Compose v1.x.
+    If you are running Docker Compose 2.x, please make sure you have ``COMPOSE_COMPATIBILITY=true`` set.
+    This is automatically loaded via the ``.env`` file.
+    If you want to ensure that the file is loaded, run:
+
+    .. code-block:: console
+
+        source .env
 
 Builds fail with a generic error
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -264,6 +296,7 @@ you have to follow these steps:
       docker tag readthedocs/build:ubuntu-22.04-2022.03.15 readthedocs/build:ubuntu-22.04
 
 Once this is done, you should be able to trigger a new build on that project and it should succeed.
+
 
 Core team standards
 -------------------

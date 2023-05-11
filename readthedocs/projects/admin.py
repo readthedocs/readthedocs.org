@@ -37,6 +37,22 @@ from .tag_utils import import_tags
 from .tasks.utils import clean_project_resources
 
 
+class ReadOnlyInlineMixin:
+
+    """Make admin inlines read-only."""
+
+    show_change_link = True
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 class ProjectSendNotificationView(SendNotificationView):
     notification_classes = [
         ResourceUsageNotification,
@@ -69,7 +85,7 @@ class VersionInlineFormSet(BaseInlineFormSet):
         self.queryset = self.queryset[:self.LIMIT]
 
 
-class VersionInline(admin.TabularInline):
+class VersionInline(ReadOnlyInlineMixin, admin.TabularInline):
 
     """Version inline relationship view for :py:class:`ProjectAdmin`."""
 
@@ -237,8 +253,8 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
     inlines = [
         ProjectRelationshipInline,
         RedirectInline,
-        VersionInline,
         DomainInline,
+        VersionInline,
     ]
     readonly_fields = ('pub_date', 'feature_flags', 'matching_spam_rules')
     raw_id_fields = ('users', 'main_language_project', 'remote_repository')

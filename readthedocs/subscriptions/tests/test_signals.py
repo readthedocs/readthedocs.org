@@ -15,15 +15,18 @@ class TestSignals(TestCase):
         self.stripe_customer = get(
             djstripe.Customer,
             email=email,
+            name="org",
         )
         self.organization = get(
             Organization,
             slug="org",
+            name="org",
             owners=[self.user],
             email=email,
             stripe_customer=self.stripe_customer,
         )
         self.stripe_customer.metadata = self.organization.get_stripe_metadata()
+        self.stripe_customer.description = self.organization.name
         self.stripe_customer.save()
 
     @mock.patch("readthedocs.subscriptions.signals.stripe.Customer")
@@ -34,6 +37,17 @@ class TestSignals(TestCase):
         customer.modify.assert_called_once_with(
             self.stripe_customer.id,
             email=new_email,
+        )
+
+    @mock.patch("readthedocs.subscriptions.signals.stripe.Customer")
+    def test_update_organization_name(self, customer):
+        new_name = "New organization"
+        self.organization.name = new_name
+        self.organization.save()
+        customer.modify.assert_called_once_with(
+            self.stripe_customer.id,
+            description=new_name,
+            name=self.organization.name,
         )
 
     @mock.patch("readthedocs.subscriptions.signals.stripe.Customer")

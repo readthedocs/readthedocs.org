@@ -13,6 +13,10 @@ from djstripe.enums import SubscriptionStatus
 from readthedocs.organizations.models import Organization
 from readthedocs.payments.utils import cancel_subscription as cancel_stripe_subscription
 from readthedocs.subscriptions.models import Subscription
+from readthedocs.subscriptions.notifications import (
+    SubscriptionEndedNotification,
+    SubscriptionRequiredNotification,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -92,6 +96,49 @@ def update_subscription(event):
     )
 
 
+@handler("customer.subscription.deleted")
+def subscription_canceled(event):
+    """
+    Send a notification to all owners if the subscription has ended.
+
+    We send a different notification if the subscription
+    that ended was a "trial subscription",
+    since those are from new users.
+    """
+    stripe_subscription_id = event.data["object"]["id"]
+    log.bind(stripe_subscription_id=stripe_subscription_id)
+    stripe_subscription = djstripe.Subscription.objects.filter(
+        id=stripe_subscription_id
+    ).first()
+    if not stripe_subscription:
+        log.info("Stripe subscription not found.")
+        return
+
+    # Using `getattr` to avoid the `RelatedObjectDoesNotExist` exception
+    # when the subscription doesn't have an organization attached to it.
+    organization = getattr(stripe_subscription.customer, "rtd_organization", None)
+    if not organization:
+        log.error("Subscription isn't attached to an organization")
+        return
+
+    log.bind(organization_slug=organization.slug)
+    is_trial_subscription = stripe_subscription.items.filter(
+        price__id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
+    ).exists()
+    notification_class = (
+        SubscriptionRequiredNotification
+        if is_trial_subscription
+        else SubscriptionEndedNotification
+    )
+    for owner in organization.owners.all():
+        notification = notification_class(
+            context_object=organization,
+            user=owner,
+        )
+        notification.send()
+        log.info("Notification sent.", recipient=owner)
+
+
 @handler("checkout.session.completed")
 def checkout_completed(event):
     """
@@ -110,6 +157,15 @@ def checkout_completed(event):
         return
 
     stripe_subscription_id = event.data["object"]["subscription"]
+    stripe_subscription = djstripe.Subscription.objects.filter(
+        id=stripe_subscription_id
+    ).first()
+    if not stripe_subscription:
+        log.info("Stripe subscription not found.")
+        return
+    organization.stripe_subscription = stripe_subscription
+    organization.save()
+
     _update_subscription_from_stripe(
         rtd_subscription=organization.subscription,
         stripe_subscription_id=stripe_subscription_id,

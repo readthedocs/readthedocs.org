@@ -1,10 +1,10 @@
 import os
 import socket
 
-from .dev import CommunityDevSettings
+from .base import CommunityBaseSettings
 
 
-class DockerBaseSettings(CommunityDevSettings):
+class DockerBaseSettings(CommunityBaseSettings):
 
     """Settings for local development with Docker"""
 
@@ -70,6 +70,9 @@ class DockerBaseSettings(CommunityDevSettings):
 
     RTD_CLEAN_AFTER_BUILD = True
 
+    # Disable password validators on development
+    AUTH_PASSWORD_VALIDATORS = []
+
     @property
     def RTD_EMBED_API_EXTERNAL_DOMAINS(self):
         domains = super().RTD_EMBED_API_EXTERNAL_DOMAINS
@@ -84,6 +87,12 @@ class DockerBaseSettings(CommunityDevSettings):
     @property
     def LOGGING(self):
         logging = super().LOGGING
+
+        logging['handlers']['console']['level'] = os.environ.get("RTD_LOGGING_LEVEL", 'INFO')
+        logging['formatters']['default']['format'] = '[%(asctime)s] ' + self.LOG_FORMAT
+        # Allow Sphinx and other tools to create loggers
+        logging['disable_existing_loggers'] = False
+
         logging['handlers']['console']['formatter'] = 'colored_console'
         logging['loggers'].update({
             # Disable Django access requests logging (e.g. GET /path/to/url)
@@ -143,16 +152,19 @@ class DockerBaseSettings(CommunityDevSettings):
     SESSION_COOKIE_DOMAIN = None
     CACHES = {
         'default': {
-            'BACKEND': 'redis_cache.RedisCache',
-            'LOCATION': 'cache:6379',
-        }
+            "BACKEND": "django_redis.cache.RedisCache",
+            'LOCATION': 'redis://cache:6379',
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "PASSWORD": "redispassword",
+            },
+        },
     }
 
-    BROKER_URL = "redis://cache:6379/0"
-    CELERY_RESULT_BACKEND = "redis://cache:6379/0"
-    CELERY_RESULT_SERIALIZER = "json"
+    CACHEOPS_REDIS = f"redis://:{CACHES['default']['OPTIONS']['PASSWORD']}@cache:6379/1"
+    BROKER_URL = f"redis://:{CACHES['default']['OPTIONS']['PASSWORD']}@cache:6379/0"
+
     CELERY_ALWAYS_EAGER = False
-    CELERY_TASK_IGNORE_RESULT = False
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
@@ -186,8 +198,8 @@ class DockerBaseSettings(CommunityDevSettings):
     BUILD_COLD_STORAGE_URL = 'http://storage:9000/builds'
 
     STATICFILES_DIRS = [
-        os.path.join(CommunityDevSettings.SITE_ROOT, 'readthedocs', 'static'),
-        os.path.join(CommunityDevSettings.SITE_ROOT, 'media'),
+        os.path.join(CommunityBaseSettings.SITE_ROOT, 'readthedocs', 'static'),
+        os.path.join(CommunityBaseSettings.SITE_ROOT, 'media'),
     ]
 
     # Remove the checks on the number of fields being submitted
@@ -196,3 +208,6 @@ class DockerBaseSettings(CommunityDevSettings):
 
     # This allows us to have CORS work well in dev
     CORS_ORIGIN_ALLOW_ALL = True
+
+
+DockerBaseSettings.load_settings(__name__)

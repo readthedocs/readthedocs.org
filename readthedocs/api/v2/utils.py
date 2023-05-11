@@ -1,8 +1,10 @@
 """Utility functions that are used by both views and celery tasks."""
 
 import itertools
+import re
 
 import structlog
+from django.conf import settings
 from rest_framework.pagination import PageNumberPagination
 
 from readthedocs.builds.constants import (
@@ -258,6 +260,36 @@ def run_automation_rules(project, added_versions, deleted_active_versions):
         rules = project.automation_rules.filter(action__in=allowed_actions)
         for version, rule in itertools.product(versions, rules):
             rule.run(version)
+
+
+def normalize_build_command(command, project_slug, version_slug):
+    """
+    Sanitize the build command to be shown to users.
+
+    It removes internal variables and long paths to make them nicer.
+    """
+    docroot = settings.DOCROOT.rstrip("/")  # remove trailing '/'
+
+    # Remove Docker hash from DOCROOT when running it locally
+    # DOCROOT contains the Docker container hash (e.g. b7703d1b5854).
+    # We have to remove it from the DOCROOT it self since it changes each time
+    # we spin up a new Docker instance locally.
+    container_hash = "/"
+    if settings.RTD_DOCKER_COMPOSE:
+        docroot = re.sub("/[0-9a-z]+/?$", "", settings.DOCROOT, count=1)
+        container_hash = "/([0-9a-z]+/)?"
+
+    regex = f"{docroot}{container_hash}{project_slug}/envs/{version_slug}(/bin/)?"
+    command = re.sub(regex, "", command, count=1)
+
+    # Remove explicit variable names we use to run commands,
+    # since users don't care about these.
+    regex = r"^\$READTHEDOCS_VIRTUALENV_PATH/bin/"
+    command = re.sub(regex, "", command, count=1)
+
+    regex = r"^\$CONDA_ENVS_PATH/\$CONDA_DEFAULT_ENV/bin/"
+    command = re.sub(regex, "", command, count=1)
+    return command
 
 
 class RemoteOrganizationPagination(PageNumberPagination):

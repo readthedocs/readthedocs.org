@@ -1,9 +1,7 @@
-Sharing
-=======
+Private documentation sharing
+=============================
 
-.. note::
-
-   This feature only exists on `Read the Docs for Business <https://readthedocs.com/>`__.
+.. include:: /shared/admonition-rtd-business.rst
 
 You can share your project with users outside of your company:
 
@@ -15,7 +13,7 @@ These methods will allow them to view specific projects or versions of a project
 Additionally, you can use a HTTP Authorization Header.
 This is useful to have access from a script.
 
-Enabling Sharing
+Enabling sharing
 ----------------
 
 * Go into your project's :guilabel:`Admin` page and click on :guilabel:`Sharing`.
@@ -34,15 +32,15 @@ Enabling Sharing
 * Give that information to the person who you want to give access.
 
 .. note::
-   
+
    You can always revoke access in the same panel.
 
 Users can log out by using the :ref:`Log Out <versions:Logging out>` link in the RTD flyout menu.
 
-Sharing Methods
+Sharing methods
 ---------------
 
-Secret Link
+Secret link
 ***********
 
 Once the person you send the link to clicks the link,
@@ -85,7 +83,7 @@ The header has the form ``Authorization: Token <ACCESS_TOKEN>``.
 For example:
 
 .. prompt:: bash $
-   
+
    curl -H "Authorization: Token 19okmz5k0i6yk17jp70jlnv91v" https://docs.example.com/en/latest/example.html
 
 Basic Authorization
@@ -95,5 +93,5 @@ You can also use basic authorization, with the token as user and an empty passwo
 For example:
 
 .. prompt:: bash $
-   
+
    curl --url https://docs.example.com/en/latest/example.html --user '19okmz5k0i6yk17jp70jlnv91v:'

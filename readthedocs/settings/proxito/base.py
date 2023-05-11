@@ -37,6 +37,8 @@ class CommunityProxitoSettingsMixin:
         classes.append('readthedocs.proxito.middleware.ProxitoMiddleware')
 
         middleware_to_remove = (
+            # We don't need or want to allow cross site requests in proxito.
+            'corsheaders.middleware.CorsMiddleware',
             'csp.middleware.CSPMiddleware',
             'django.middleware.clickjacking.XFrameOptionsMiddleware',
         )

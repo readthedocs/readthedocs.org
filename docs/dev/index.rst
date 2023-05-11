@@ -22,6 +22,7 @@ or taking the open source Read the Docs codebase for your own custom installatio
    guides/index
    design
    docs
+   style-guide
    front-end
    i18n
    server-side-search

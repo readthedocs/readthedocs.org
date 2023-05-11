@@ -11,9 +11,11 @@ import yaml
 from django.conf import settings
 from django.template import loader as template_loader
 
+from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
+from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Feature
 
 log = structlog.get_logger(__name__)
@@ -43,11 +45,9 @@ class BaseMkdocs(BaseBuilder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # This is the *MkDocs* yaml file
         self.yaml_file = self.get_yaml_config()
-        self.old_artifact_path = os.path.join(
-            os.path.dirname(self.yaml_file),
-            self.build_dir,
-        )
 
         # README: historically, the default theme was ``readthedocs`` but in
         # https://github.com/rtfd/readthedocs.org/pull/4556 we change it to
@@ -71,8 +71,11 @@ class BaseMkdocs(BaseBuilder):
 
         https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
         """
-        with open(self.yaml_file, 'r') as f:
-            config = yaml_load_safely(f)
+        # Allow symlinks, but only the ones that resolve inside the base directory.
+        with safe_open(
+            self.yaml_file, "r", allow_symlinks=True, base_path=self.project_path
+        ) as fh:
+            config = yaml_load_safely(fh)
             use_directory_urls = config.get('use_directory_urls', True)
             return MKDOCS if use_directory_urls else MKDOCS_HTML
 
@@ -93,7 +96,16 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to syntax errors.
         """
         try:
-            config = yaml_load_safely(open(self.yaml_file, 'r'))
+            # Allow symlinks, but only the ones that resolve inside the base directory.
+            result = safe_open(
+                self.yaml_file, "r", allow_symlinks=True, base_path=self.project_path
+            )
+            if not result:
+                raise UserFileNotFound(
+                    UserFileNotFound.FILE_NOT_FOUND.format(self.yaml_file)
+                )
+
+            config = yaml_load_safely(result)
 
             if not config:
                 raise MkDocsYAMLParseError(
@@ -264,13 +276,9 @@ class BaseMkdocs(BaseBuilder):
             'global_analytics_code': (
                 None if self.project.analytics_disabled else settings.GLOBAL_ANALYTICS_CODE
             ),
-            'user_analytics_code': analytics_code,
-            'features': {
-                'docsearch_disabled': (
-                    not self.project.has_feature(Feature.ENABLE_MKDOCS_SERVER_SIDE_SEARCH)
-                    or self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH)
-                )
-            },
+            "user_analytics_code": analytics_code,
+            "proxied_static_path": self.project.proxied_static_path,
+            "proxied_api_host": self.project.proxied_api_host,
         }
 
         data_ctx = {
@@ -289,10 +297,10 @@ class BaseMkdocs(BaseBuilder):
             '-m',
             'mkdocs',
             self.builder,
-            '--clean',
-            '--site-dir',
-            self.build_dir,
-            '--config-file',
+            "--clean",
+            "--site-dir",
+            os.path.join("$READTHEDOCS_OUTPUT", "html"),
+            "--config-file",
             os.path.relpath(self.yaml_file, self.project_path),
         ]
         if self.config.mkdocs.fail_on_warning:
@@ -333,9 +341,8 @@ class BaseMkdocs(BaseBuilder):
 
 class MkdocsHTML(BaseMkdocs):
 
-    type = 'mkdocs'
-    builder = 'build'
-    build_dir = '_build/html'
+    builder = "build"
+    build_dir = "_readthedocs/html"
 
 
 # TODO: find a better way to integrate with MkDocs.

@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring
 
 import os
+import re
 import subprocess
 import socket
 
@@ -9,6 +10,7 @@ import structlog
 from celery.schedules import crontab
 
 from readthedocs.core.logs import shared_processors
+from corsheaders.defaults import default_headers
 from readthedocs.core.settings import Settings
 
 
@@ -155,6 +157,26 @@ class CommunityBaseSettings(Settings):
     # Number of days an invitation is valid.
     RTD_INVITATIONS_EXPIRATION_DAYS = 15
 
+    @property
+    def RTD_DEFAULT_FEATURES(self):
+        # Features listed here will be available to users that don't have a
+        # subscription or if their subscription doesn't include the feature.
+        # Depending on the feature type, the numeric value represents a
+        # number of days or limit of the feature.
+        from readthedocs.subscriptions import constants
+        return {
+            constants.TYPE_CNAME: 1,
+            constants.TYPE_EMBED_API: 1,
+            # Retention days for search analytics.
+            constants.TYPE_SEARCH_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            # Retention days for page view analytics.
+            constants.TYPE_PAGEVIEW_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            # Retention days for audit logs.
+            constants.TYPE_AUDIT_LOGS: self.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS,
+            # Max number of concurrent builds.
+            constants.TYPE_CONCURRENT_BUILDS: self.RTD_MAX_CONCURRENT_BUILDS,
+        }
+
     # Database and API hitting settings
     DONT_HIT_API = False
     DONT_HIT_DB = True
@@ -243,6 +265,7 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.gitlab',
             'allauth.socialaccount.providers.bitbucket',
             'allauth.socialaccount.providers.bitbucket_oauth2',
+            'cacheops',
         ]
         if ext:
             apps.append('readthedocsext.cdn')
@@ -277,6 +300,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.core.middleware.NullCharactersMiddleware',
             'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
             'django.middleware.locale.LocaleMiddleware',
+            'corsheaders.middleware.CorsMiddleware',
             'django.middleware.common.CommonMiddleware',
             'django.middleware.security.SecurityMiddleware',
             'django.middleware.csrf.CsrfViewMiddleware',
@@ -284,7 +308,6 @@ class CommunityBaseSettings(Settings):
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'django.contrib.messages.middleware.MessageMiddleware',
             'dj_pagination.middleware.PaginationMiddleware',
-            'corsheaders.middleware.CorsMiddleware',
             'csp.middleware.CSPMiddleware',
             'readthedocs.core.middleware.ReferrerPolicyMiddleware',
             'simple_history.middleware.HistoryRequestMiddleware',
@@ -351,6 +374,7 @@ class CommunityBaseSettings(Settings):
     STATICFILES_FINDERS = [
         'readthedocs.core.static.SelectiveFileSystemFinder',
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+        'readthedocs.core.finders.DebugToolbarFinder',
     ]
     PYTHON_MEDIA = False
 
@@ -360,7 +384,7 @@ class CommunityBaseSettings(Settings):
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_TOOLS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
-    RTD_STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    RTD_STATICFILES_STORAGE = 'readthedocs.builds.storage.StaticFilesStorage'
 
     @property
     def TEMPLATES(self):
@@ -433,6 +457,7 @@ class CommunityBaseSettings(Settings):
     CELERY_ALWAYS_EAGER = True
     CELERYD_TASK_TIME_LIMIT = 60 * 60  # 60 minutes
     CELERY_SEND_TASK_ERROR_EMAILS = False
+    CELERY_IGNORE_RESULT = True
     CELERYD_HIJACK_ROOT_LOGGER = False
     # This stops us from pre-fetching a task that then sits around on the builder
     CELERY_ACKS_LATE = True
@@ -501,7 +526,12 @@ class CommunityBaseSettings(Settings):
             'task': 'readthedocs.domains.tasks.email_pending_custom_domains',
             'schedule': crontab(minute=0, hour=3),
             'options': {'queue': 'web'},
-        }
+        },
+        'every-15m-delete-pidbox-objects': {
+            'task': 'readthedocs.core.tasks.cleanup_pidbox_keys',
+            'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
     }
 
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
@@ -612,11 +642,11 @@ class CommunityBaseSettings(Settings):
             'python': {
                 '2.7': '2.7.18',
                 '3.6': '3.6.15',
-                '3.7': '3.7.13',
-                '3.8': '3.8.13',
-                '3.9': '3.9.13',
-                '3.10': '3.10.4',
-                '3.11': '3.11.0b3',
+                '3.7': '3.7.15',
+                '3.8': '3.8.15',
+                '3.9': '3.9.15',
+                '3.10': '3.10.8',
+                '3.11': '3.11.0',
                 'pypy3.7': 'pypy3.7-7.3.9',
                 'pypy3.8': 'pypy3.8-7.3.9',
                 'pypy3.9': 'pypy3.9-7.3.9',
@@ -624,22 +654,25 @@ class CommunityBaseSettings(Settings):
                 'mambaforge-4.10': 'mambaforge-4.10.3-10',
             },
             'nodejs': {
-                '14': '14.19.3',
-                '16': '16.15.0',
-                '18': '18.2.0',
+                '14': '14.20.1',
+                '16': '16.18.0',
+                '18': '18.11.0',
+                '19': '19.0.0',
             },
             'rust': {
                 '1.55': '1.55.0',
                 '1.61': '1.61.0',
+                '1.64': '1.64.0',
             },
             'golang': {
-                '1.17': '1.17.10',
-                '1.18': '1.18.2',
+                '1.17': '1.17.13',
+                '1.18': '1.18.7',
+                '1.19': '1.19.2',
             },
         },
     }
     # Always point to the latest stable release.
-    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.10']
+    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.11']
 
     def _get_docker_memory_limit(self):
         try:
@@ -697,11 +730,16 @@ class CommunityBaseSettings(Settings):
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
+
+    # Make email verification mandatory.
+    # Users won't be able to login until they verify the email address.
     ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-    ACCOUNT_ACTIVATION_DAYS = 7
+    ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_STORE_TOKENS = True
+
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
             'SCOPE': [
@@ -724,23 +762,43 @@ class CommunityBaseSettings(Settings):
     }
 
     # CORS
-    # So cookies can be included in cross-domain requests where needed (eg. sustainability API).
-    CORS_ALLOW_CREDENTIALS = True
-    CORS_ALLOW_HEADERS = (
-        'x-requested-with',
-        'content-type',
-        'accept',
-        'origin',
-        'authorization',
+    # Don't allow sending cookies in cross-domain requests, this is so we can
+    # relax our CORS headers for more views, but at the same time not opening
+    # users to CSRF attacks. The sustainability API is the only view that requires
+    # cookies to be send cross-site, we override that for that view only.
+    CORS_ALLOW_CREDENTIALS = False
+
+    # Allow cross-site requests from any origin,
+    # all information from our allowed endpoits is public.
+    #
+    # NOTE: We don't use `CORS_ALLOW_ALL_ORIGINS=True`,
+    # since that will set the `Access-Control-Allow-Origin` header to `*`,
+    # we won't be able to pass credentials fo the sustainability API with that value.
+    CORS_ALLOWED_ORIGIN_REGEXES = [re.compile(".+")]
+    CORS_ALLOW_HEADERS = list(default_headers) + [
         'x-hoverxref-version',
-        'x-csrftoken'
-    )
+    ]
     # Additional protection to allow only idempotent methods.
     CORS_ALLOW_METHODS = [
         'GET',
         'OPTIONS',
         'HEAD',
     ]
+
+    # URLs to allow CORS to read from unauthed.
+    CORS_URLS_REGEX = re.compile(
+        r"""
+        ^(
+            /api/v2/footer_html
+            |/api/v2/search
+            |/api/v2/docsearch
+            |/api/v2/embed
+            |/api/v3/embed
+            |/api/v2/sustainability
+        )
+        """,
+        re.VERBOSE,
+    )
 
     # RTD Settings
     ALLOW_PRIVATE_REPOS = False
@@ -971,6 +1029,8 @@ class CommunityBaseSettings(Settings):
 
     # MailerLite API for newsletter signups
     MAILERLITE_API_SUBSCRIBERS_URL = 'https://api.mailerlite.com/api/v2/subscribers'
+    MAILERLITE_API_ONBOARDING_GROUP_ID = None
+    MAILERLITE_API_ONBOARDING_GROUP_URL = None
     MAILERLITE_API_KEY = None
 
     RTD_EMBED_API_EXTERNAL_DOMAINS = [
@@ -990,3 +1050,45 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS = 500
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
     RTD_SPAM_MAX_SCORE = 9999
+
+    CACHEOPS_ENABLED = False
+    CACHEOPS_TIMEOUT = 60 * 60  # seconds
+    CACHEOPS_OPS = {'get', 'fetch'}
+    CACHEOPS_DEGRADE_ON_FAILURE = True
+    CACHEOPS = {
+        # readthedocs.projects.*
+        'projects.project': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.feature': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.projectrelationship': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.domain': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.builds.*
+        'builds.version': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.organizations.*
+        'organizations.organization': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.subscriptions.*
+        'subscriptions.planfeature': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+    }

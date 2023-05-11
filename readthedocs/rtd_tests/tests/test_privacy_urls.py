@@ -15,7 +15,6 @@ from readthedocs.builds.models import (
     RegexAutomationRule,
     VersionAutomationRule,
 )
-from readthedocs.core.utils.tasks import TaskNoPermission
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, EnvironmentVariable, Project, WebHook
@@ -39,6 +38,16 @@ class URLAccessMixin:
 
     def get_url_path_ctx(self):
         return {}
+
+    def _test_cache_poisoning(self, path):
+        # Test for cache poisoning in URLs,
+        # to avoid problems like GHSA-7fcx-wwr3-99jv.
+        original_path = path
+        if not path.endswith("/"):
+            path += "/"
+        path += "lib.js"
+        r = self.client.head(path)
+        self.assertNotEqual(r.status_code, 200, f"Path vulnerable to cache poisoning. path={original_path}")
 
     def assertResponse(self, path, name=None, method=None, data=None, **kwargs):
         self.login()
@@ -82,6 +91,8 @@ class URLAccessMixin:
                      value=resp_val,
                  )),
             )
+
+        self._test_cache_poisoning(path)
         return response
 
     def _test_context(self, response):
@@ -220,10 +231,11 @@ class PublicProjectMixin(ProjectMixin):
     }
     response_data = {
         # Public
-        '/projects/': {'status_code': 301},
-        '/projects/pip/downloads/pdf/latest/': {'status_code': 200},
-        '/projects/pip/badge/': {'status_code': 200},
-        '/projects/invalid_slug/': {'status_code': 302},
+        "/projects/": {"status_code": 301},
+        "/projects/pip/downloads/pdf/latest/": {"status_code": 200},
+        "/projects/pip/badge/": {"status_code": 200},
+        "/projects/invalid_slug/": {"status_code": 302},
+        "/projects/pip/search/": {"status_code": 302},
     }
 
     def test_public_urls(self):
@@ -437,21 +449,6 @@ class APIMixin(URLAccessMixin):
             'remoteaccount-detail': {'status_code': 404},
             'version-list': {'status_code': 410},
         }
-
-
-class APIUnauthAccessTest(APIMixin, TestCase):
-
-    @mock.patch('readthedocs.api.v2.views.task_views.get_public_task_data')
-    def test_api_urls(self, get_public_task_data):
-        from readthedocs.api.v2.urls import urlpatterns
-        get_public_task_data.side_effect = TaskNoPermission('Nope')
-        self._test_url(urlpatterns)
-
-    def login(self):
-        pass
-
-    def is_admin(self):
-        return False
 
 
 class PublicUserProfileMixin(URLAccessMixin):

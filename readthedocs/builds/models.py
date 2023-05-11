@@ -65,11 +65,9 @@ from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
     DOCTYPE_CHOICES,
-    GITHUB_BRAND,
     GITHUB_COMMIT_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
     GITHUB_URL,
-    GITLAB_BRAND,
     GITLAB_COMMIT_URL,
     GITLAB_MERGE_REQUEST_COMMIT_URL,
     GITLAB_URL,
@@ -83,6 +81,7 @@ from readthedocs.projects.constants import (
     SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import APIProject, Project
+from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
 
 log = structlog.get_logger(__name__)
@@ -119,11 +118,15 @@ class Version(TimeStampedModel):
     )
     # used by the vcs backend
 
-    #: The identifier is the ID for the revision this is version is for. This
-    #: might be the revision number (e.g. in SVN), or the commit hash (e.g. in
-    #: Git). If the this version is pointing to a branch, then ``identifier``
-    #: will contain the branch name.
-    identifier = models.CharField(_('Identifier'), max_length=255)
+    #: The identifier is the ID for the revision this is version is for.
+    #: This might be the revision number (e.g. in SVN),
+    #: or the commit hash (e.g. in Git).
+    #: If the this version is pointing to a branch,
+    #: then ``identifier`` will contain the branch name.
+    #: `None`/`null` means it will use the VCS default branch.
+    identifier = models.CharField(
+        _("Identifier"), max_length=255, null=True, blank=True
+    )
 
     #: This is the actual name that we got for the commit stored in
     #: ``identifier``. This might be the tag or branch name like ``"v1.0.4"``.
@@ -182,6 +185,12 @@ class Version(TimeStampedModel):
         ),
     )
 
+    build_data = models.JSONField(
+        _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
+        default=None,
+        null=True,
+    )
+
     objects = VersionManager.from_queryset(VersionQuerySet)()
     # Only include BRANCH, TAG, UNKNOWN type Versions.
     internal = InternalVersionManager.from_queryset(partial(VersionQuerySet, internal_only=True))()
@@ -212,6 +221,16 @@ class Version(TimeStampedModel):
         if self.is_external:
             return self.project.external_builds_privacy_level == PRIVATE
         return self.privacy_level == PRIVATE
+
+    @property
+    def is_public(self):
+        """
+        Check if the version is public (taking external versions into consideration).
+
+        This is basically ``is_private`` negated,
+        ``is_private`` understands both normal and external versions
+        """
+        return not self.is_private
 
     @property
     def is_external(self):
@@ -286,7 +305,9 @@ class Version(TimeStampedModel):
             .only('_config')
             .first()
         )
-        return last_build.config
+        if last_build:
+            return last_build.config
+        return None
 
     @property
     def commit_name(self):
@@ -363,6 +384,11 @@ class Version(TimeStampedModel):
     @property
     def identifier_friendly(self):
         """Return display friendly identifier."""
+        if not self.identifier:
+            # Text shown to user when we don't know yet what's the ``identifier`` for this version.
+            # This usually happens when we haven't pulled the ``default_branch`` for LATEST.
+            return "Unknown yet"
+
         if re.match(r'^[0-9a-f]{40}$', self.identifier, re.I):
             return self.identifier[:8]
         return self.identifier
@@ -576,7 +602,8 @@ class APIVersion(Version):
         proxy = True
 
     def __init__(self, *args, **kwargs):
-        self.project = APIProject(**kwargs.pop('project', {}))
+        self.project = APIProject(**kwargs.pop("project", {}))
+        self.canonical_url = kwargs.pop("canonical_url", None)
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
         for key in ['resource_uri', 'absolute_url', 'downloads']:
@@ -621,7 +648,7 @@ class Build(models.Model):
         _('State'),
         max_length=55,
         choices=BUILD_STATE,
-        default='finished',
+        default=BUILD_STATE_TRIGGERED,
         db_index=True,
     )
 
@@ -680,6 +707,14 @@ class Build(models.Model):
         _('Configuration used in the build'),
         null=True,
         blank=True,
+    )
+    readthedocs_yaml_path = models.CharField(
+        _("Custom build configuration file path used in this build"),
+        max_length=1024,
+        default=None,
+        blank=True,
+        null=True,
+        validators=[validate_build_config_file],
     )
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)
@@ -886,7 +921,7 @@ class Build(models.Model):
                     number=self.get_version_name(),
                     commit=self.commit
                 )
-            # TODO: Add External Version Commit URL for BitBucket.
+            # TODO: Add External Version Commit URL for Bitbucket.
         else:
             if 'github' in repo_url:
                 user, repo = get_github_username_repo(repo_url)
@@ -1062,12 +1097,12 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
 
     ACTIONS = (
-        (ACTIVATE_VERSION_ACTION, _('Activate version')),
-        (HIDE_VERSION_ACTION, _('Hide version')),
-        (MAKE_VERSION_PUBLIC_ACTION, _('Make version public')),
-        (MAKE_VERSION_PRIVATE_ACTION, _('Make version private')),
-        (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
-        (DELETE_VERSION_ACTION, _('Delete version (on branch/tag deletion)')),
+        (ACTIVATE_VERSION_ACTION, _("Activate version")),
+        (HIDE_VERSION_ACTION, _("Hide version")),
+        (MAKE_VERSION_PUBLIC_ACTION, _("Make version public")),
+        (MAKE_VERSION_PRIVATE_ACTION, _("Make version private")),
+        (SET_DEFAULT_VERSION_ACTION, _("Set version as default")),
+        (DELETE_VERSION_ACTION, _("Delete version")),
     )
 
     allowed_actions_on_create = {}
@@ -1342,6 +1377,20 @@ class RegexAutomationRule(VersionAutomationRule):
 
 
 class AutomationRuleMatch(TimeStampedModel):
+
+    ACTIONS_PAST_TENSE = {
+        VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
+        VersionAutomationRule.HIDE_VERSION_ACTION: _("Version hidden"),
+        VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: _(
+            "Version set to public privacy"
+        ),
+        VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: _(
+            "Version set to private privacy"
+        ),
+        VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: _("Version set as default"),
+        VersionAutomationRule.DELETE_VERSION_ACTION: _("Version deleted"),
+    }
+
     rule = models.ForeignKey(
         VersionAutomationRule,
         verbose_name=_('Matched rule'),
@@ -1365,3 +1414,6 @@ class AutomationRuleMatch(TimeStampedModel):
 
     class Meta:
         ordering = ('-modified', '-created')
+
+    def get_action_past_tense(self):
+        return self.ACTIONS_PAST_TENSE.get(self.action)

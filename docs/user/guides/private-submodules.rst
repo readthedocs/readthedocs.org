@@ -1,9 +1,12 @@
-Using Private Git Submodules
-============================
+How to use private Git submodules
+=================================
 
 .. warning::
 
    This guide is for :doc:`/commercial/index`.
+
+If you are using private Git repositories and they also contain private Git submodules,
+you need to follow a few special steps.
 
 Read the Docs uses SSH keys (with read only permissions) in order to clone private repositories.
 A SSH key is automatically generated and added to your main repository, but not to your submodules.

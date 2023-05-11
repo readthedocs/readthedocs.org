@@ -1,6 +1,8 @@
 """Organization level notifications."""
 
+
 from django.urls import reverse
+from djstripe import models as djstripe
 from messages_extends.constants import WARNING_PERSISTENT
 
 from readthedocs.notifications import Notification, SiteNotification
@@ -25,17 +27,13 @@ class TrialEndingNotification(SubscriptionNotificationMixin, Notification):
     subject = 'Your trial is ending soon'
     level = REQUIREMENT
 
-    @classmethod
-    def for_organizations(cls):
-        advanced_plan_subscription_trial_ending = (
-            Organization.objects.subscription_trial_ending()
-            .created_days_ago(days=24)
+    @staticmethod
+    def for_subscriptions():
+        return (
+            djstripe.Subscription.readthedocs.trial_ending()
+            .created_days_ago(24)
+            .prefetch_related("customer__rtd_organization")
         )
-        trial_plan_subscription_trial_ending = (
-            Organization.objects.subscription_trial_plan_ending()
-            .created_days_ago(days=24)
-        )
-        return advanced_plan_subscription_trial_ending | trial_plan_subscription_trial_ending
 
 
 class SubscriptionRequiredNotification(SubscriptionNotificationMixin, Notification):
@@ -47,23 +45,11 @@ class SubscriptionRequiredNotification(SubscriptionNotificationMixin, Notificati
     subject = 'We hope you enjoyed your trial of Read the Docs!'
     level = REQUIREMENT
 
-    @classmethod
-    def for_organizations(cls):
-        advanced_plan_subscription_trial_ended = (
-            Organization.objects.subscription_trial_ended()
-            .created_days_ago(days=30)
-        )
-        trial_plan_subscription_ended = (
-            Organization.objects.subscription_trial_plan_ended()
-            .created_days_ago(days=30)
-        )
-        return advanced_plan_subscription_trial_ended | trial_plan_subscription_ended
-
 
 class SubscriptionEndedNotification(SubscriptionNotificationMixin, Notification):
 
     """
-    Subscription has ended days ago.
+    Subscription has ended.
 
     Notify the customer that the Organization will be disabled *soon* if the
     subscription is not renewed for the organization.
@@ -74,18 +60,8 @@ class SubscriptionEndedNotification(SubscriptionNotificationMixin, Notification)
     subject = 'Your subscription to Read the Docs has ended'
     level = REQUIREMENT
 
-    days_after_end = 5
 
-    @classmethod
-    def for_organizations(cls):
-        organizations = Organization.objects.disable_soon(
-            days=cls.days_after_end,
-            exact=True,
-        )
-        return organizations
-
-
-class OrganizationDisabledNotification(SubscriptionEndedNotification):
+class OrganizationDisabledNotification(SubscriptionNotificationMixin, Notification):
 
     """
     Subscription has ended a month ago.
@@ -95,10 +71,20 @@ class OrganizationDisabledNotification(SubscriptionEndedNotification):
     customer was notified twice.
     """
 
-    name = 'organization_disabled'
-    subject = 'Your Read the Docs organization will be disabled soon'
+    name = "organization_disabled"
+    context_object_name = "organization"
+    subject = "Your Read the Docs organization will be disabled soon"
+    level = REQUIREMENT
 
     days_after_end = DISABLE_AFTER_DAYS
+
+    @classmethod
+    def for_organizations(cls):
+        organizations = Organization.objects.disable_soon(
+            days=cls.days_after_end,
+            exact=True,
+        )
+        return organizations
 
 
 class OrganizationDisabledSiteNotification(SubscriptionNotificationMixin, SiteNotification):

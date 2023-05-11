@@ -109,7 +109,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
         We retry the operation when the user visits the subscription page.
         """
         org = self.get_organization()
-        return org.stripe_subscription
+        return org.get_or_create_stripe_subscription()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

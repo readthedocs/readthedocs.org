@@ -293,7 +293,7 @@ class Service:
         """
         raise NotImplementedError
 
-    def send_build_status(self, build, commit, state, link_to_build=False):
+    def send_build_status(self, build, commit, status):
         """
         Create commit status for project.
 
@@ -301,9 +301,8 @@ class Service:
         :type build: Build
         :param commit: commit sha of the pull/merge request
         :type commit: str
-        :param state: build state failure, pending, or success.
-        :type state: str
-        :param link_to_build: If true, link to the build page regardless the state.
+        :param status: build state failure, pending, or success.
+        :type status: str
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """

@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 from rest_flex_fields import FlexFieldsModelSerializer
 from rest_flex_fields.serializers import FlexFieldsSerializerMixin
 from rest_framework import serializers
+from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify
@@ -276,6 +277,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
             'downloads',
             'urls',
             '_links',
+            "privacy_level",
         ]
 
         expandable_fields = {
@@ -305,7 +307,7 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
     """
     Used when modifying (update action) a ``Version``.
 
-    It only allows to make the Version active/non-active.
+    It allows to change the version states and privacy level only.
     """
 
     class Meta:
@@ -313,7 +315,16 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
         fields = [
             'active',
             'hidden',
+            "privacy_level",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # If privacy levels are not allowed,
+        # everything is public, we don't allow changing it.
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("privacy_level")
 
 
 class LanguageSerializer(serializers.Serializer):
@@ -457,22 +468,34 @@ class ProjectLinksSerializer(BaseLinksSerializer):
         return self._absolute_url(path)
 
 
-class ProjectCreateSerializerBase(FlexFieldsModelSerializer):
+class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
 
     """Serializer used to Import a Project."""
 
     repository = RepositorySerializer(source='*')
     homepage = serializers.URLField(source='project_url', required=False)
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Project
         fields = (
-            'name',
-            'language',
-            'programming_language',
-            'repository',
-            'homepage',
+            "name",
+            "language",
+            "programming_language",
+            "repository",
+            "homepage",
+            "tags",
+            "privacy_level",
+            "external_builds_privacy_level",
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If privacy levels are not allowed,
+        # everything is public, we don't allow changing it.
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("privacy_level")
+            self.fields.pop("external_builds_privacy_level")
 
     def _validate_remote_repository(self, data):
         """
@@ -533,7 +556,7 @@ class ProjectCreateSerializer(SettingsOverrideObject):
     _default_class = ProjectCreateSerializerBase
 
 
-class ProjectUpdateSerializerBase(FlexFieldsModelSerializer):
+class ProjectUpdateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
 
     """Serializer used to modify a Project once imported."""
 
@@ -542,17 +565,18 @@ class ProjectUpdateSerializerBase(FlexFieldsModelSerializer):
         source='project_url',
         required=False,
     )
+    tags = TagListSerializerField(required=False)
 
     class Meta:
         model = Project
         fields = (
             # Settings
-            'name',
-            'repository',
-            'language',
-            'programming_language',
-            'homepage',
-
+            "name",
+            "repository",
+            "language",
+            "programming_language",
+            "homepage",
+            "tags",
             # Advanced Settings -> General Settings
             'default_version',
             'default_branch',
@@ -561,10 +585,20 @@ class ProjectUpdateSerializerBase(FlexFieldsModelSerializer):
             'show_version_warning',
             'single_version',
             'external_builds_enabled',
+            "privacy_level",
+            "external_builds_privacy_level",
 
             # NOTE: we do not allow to change any setting that can be set via
             # the YAML config file.
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If privacy levels are not allowed,
+        # everything is public, we don't allow changing it.
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("privacy_level")
+            self.fields.pop("external_builds_privacy_level")
 
 
 class ProjectUpdateSerializer(SettingsOverrideObject):
@@ -618,6 +652,8 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             'translation_of',
             'urls',
             'tags',
+            "privacy_level",
+            "external_builds_privacy_level",
 
             # NOTE: ``expandable_fields`` must not be included here. Otherwise,
             # they will be tried to be rendered and fail

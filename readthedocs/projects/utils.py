@@ -1,28 +1,14 @@
 """Utility functions used by projects."""
 
 import csv
-import structlog
 import os
 
-from django.conf import settings
+import structlog
 from django.http import StreamingHttpResponse
 
+from readthedocs.core.utils.filesystem import safe_open
+
 log = structlog.get_logger(__name__)
-
-
-# TODO make this a classmethod of Version
-def version_from_slug(slug, version):
-    from readthedocs.builds.models import Version, APIVersion
-    from readthedocs.api.v2.client import api
-    if settings.DONT_HIT_DB:
-        version_data = api.version().get(
-            project=slug,
-            slug=version,
-        )['results'][0]
-        v = APIVersion(**version_data)
-    else:
-        v = Version.objects.get(project__slug=slug, slug=version)
-    return v
 
 
 def safe_write(filename, contents):
@@ -40,7 +26,7 @@ def safe_write(filename, contents):
     if not os.path.exists(dirname):
         os.makedirs(dirname)
 
-    with open(filename, 'w', encoding='utf-8', errors='ignore') as fh:
+    with safe_open(filename, "w", encoding="utf-8", errors="ignore") as fh:
         fh.write(contents)
         fh.close()
 

@@ -1,4 +1,4 @@
-Security Policy
+Security policy
 ===============
 
 Read the Docs adheres to the following security policies and procedures with
@@ -58,7 +58,7 @@ Payment security
     stored with our payment provider, Stripe -- a PCI-certified level 1 payment
     provider.
 
-Engineering and Operational Practices
+Engineering and operational practices
 -------------------------------------
 
 Immutable infrastructure
@@ -73,3 +73,17 @@ Continuous integration
 Incident response
     Our engineering team is on a rotating on-call schedule to respond to
     security or availability incidents.
+
+Account security
+----------------
+
+* All traffic is encrypted in transit so your login is protected.
+* Read the Docs stores only one-way hashes of all passwords.
+  Nobody at Read the Docs has access to your passwords.
+* Account login is protected from brute force attacks with rate limiting.
+* While most projects and docs on Read the Docs are public,
+  we treat your private repositories and private documentation as confidential
+  and Read the Docs employees may only view them
+  with your explicit permission in response to your support requests,
+  or when required for security purposes.
+* You can read more about account privacy in our :doc:`/privacy-policy`.

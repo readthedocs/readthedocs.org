@@ -1,8 +1,7 @@
 """Define routes between URL paths and views/endpoints."""
 
 from django.conf import settings
-from django.conf.urls import re_path
-from django.urls import include
+from django.urls import include, path, re_path
 from rest_framework import routers
 
 from readthedocs.api.v2.views import core_views, footer_views, integrations, task_views
@@ -47,18 +46,18 @@ urlpatterns = [
 ]
 
 function_urls = [
-    re_path(r'docurl/', core_views.docurl, name='docurl'),
-    re_path(r'footer_html/', footer_views.FooterHTML.as_view(), name='footer_html'),
+    path("docurl/", core_views.docurl, name="docurl"),
+    path("footer_html/", footer_views.FooterHTML.as_view(), name="footer_html"),
 ]
 
 task_urls = [
     re_path(
-        r'jobs/status/(?P<task_id>[^/]+)/',
+        r"jobs/status/(?P<task_id>[^/]+)/$",
         task_views.job_status,
         name='api_job_status',
     ),
-    re_path(
-        r'jobs/sync-remote-repositories/',
+    path(
+        "jobs/sync-remote-repositories/",
         task_views.sync_remote_repositories,
         name='api_sync_remote_repositories',
     ),
@@ -107,7 +106,7 @@ urlpatterns += function_urls
 urlpatterns += task_urls
 urlpatterns += integration_urls
 urlpatterns += [
-    re_path(r'^webhook/stripe/', StripeEventView.as_view(), name='api_webhook_stripe'),
+    path("webhook/stripe/", StripeEventView.as_view(), name="api_webhook_stripe"),
 ]
 
 if 'readthedocsext.donate' in settings.INSTALLED_APPS:

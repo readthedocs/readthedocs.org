@@ -12,7 +12,7 @@ Default versions of dependencies
 
 Read the Docs supports two tools to build your documentation:
 `Sphinx <https://www.sphinx-doc.org/>`__ and `MkDocs <https://www.mkdocs.org/>`__.
-In order to provide :doc:`several features </features>`,
+In order to provide :doc:`several features </reference/features>`,
 Read the Docs injects or modifies some content while building your docs.
 
 In particular, if you don't specify the dependencies of your project,
@@ -52,7 +52,8 @@ pip:
   Latest version by default.
 
 setuptools:
-  ``58.2.0`` or older.
+  Projects using ``setup.py install`` as installation method use ``58.2.0`` or older.
+  All other projects use the latest version.
 
 mock:
   ``1.0.1`` (could be removed in the future).

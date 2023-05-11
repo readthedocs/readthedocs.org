@@ -160,6 +160,7 @@ class OrganizationOwnerForm(forms.Form):
             from_user=self.request.user,
             to_user=self.cleaned_data["username_or_email"],
             obj=self.organization,
+            request=self.request,
         )
         return invitation
 
@@ -277,11 +278,13 @@ class OrganizationTeamMemberForm(forms.Form):
                 from_user=self.request.user,
                 to_user=user,
                 obj=self.team,
+                request=self.request,
             )
             return invitation
         invitation, _ = Invitation.objects.invite(
             from_user=self.request.user,
             to_email=user,
             obj=self.team,
+            request=self.request,
         )
         return invitation

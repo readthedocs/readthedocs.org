@@ -1,10 +1,6 @@
-# -*- coding: utf-8 -*-
 from django.test import TestCase, override_settings
 
-from readthedocs.core.utils.extend import (
-    SettingsOverrideObject,
-    get_override_class,
-)
+from readthedocs.core.utils.extend import SettingsOverrideObject, get_override_class
 
 
 # Top level to ensure module name is correct

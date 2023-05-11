@@ -1,9 +1,9 @@
 """Base classes for VCS backends."""
 import os
-import shutil
 
 import structlog
 
+from readthedocs.core.utils.filesystem import safe_rmtree
 from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
 from readthedocs.projects.exceptions import RepositoryError
 
@@ -81,7 +81,7 @@ class BaseVCS:
 
     def make_clean_working_dir(self):
         """Ensures that the working dir exists and is empty."""
-        shutil.rmtree(self.working_dir, ignore_errors=True)
+        safe_rmtree(self.working_dir, ignore_errors=True)
         self.check_working_dir()
 
     def update(self):

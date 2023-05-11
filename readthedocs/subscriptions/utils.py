@@ -12,6 +12,7 @@ def create_stripe_customer(organization):
     """Create a stripe customer for organization."""
     stripe_data = stripe.Customer.create(
         email=organization.email,
+        name=organization.name,
         description=organization.name,
         metadata=organization.get_stripe_metadata(),
     )
@@ -86,4 +87,7 @@ def get_or_create_stripe_subscription(organization):
             trial_period_days=settings.RTD_ORG_TRIAL_PERIOD_DAYS,
         )
         stripe_subscription = stripe_customer.subscriptions.latest()
+    if organization.stripe_subscription != stripe_subscription:
+        organization.stripe_subscription = stripe_subscription
+        organization.save()
     return stripe_subscription

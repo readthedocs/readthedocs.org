@@ -9,16 +9,40 @@ in our Docker Development environment.
 
 # Disable abstract method because we are not overriding all the methods
 # pylint: disable=abstract-method
+from functools import cached_property
+
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from storages.backends.s3boto3 import S3Boto3Storage, S3ManifestStaticStorage
 
 from readthedocs.builds.storage import BuildMediaStorageMixin
+from readthedocs.storage.rclone import RCloneS3Remote
 
 from .mixins import OverrideHostnameMixin, S3PrivateBucketMixin
 
 
-class S3BuildMediaStorage(BuildMediaStorageMixin, OverrideHostnameMixin, S3Boto3Storage):
+class S3BuildMediaStorageMixin(BuildMediaStorageMixin, S3Boto3Storage):
+    @cached_property
+    def _rclone(self):
+        provider = "AWS"
+        # If a custom endpoint URL is given and
+        # we are running in DEBUG mode, use minio as provider.
+        if self.endpoint_url and settings.DEBUG:
+            provider = "minio"
+
+        return RCloneS3Remote(
+            bucket_name=self.bucket_name,
+            access_key_id=self.access_key,
+            secret_acces_key=self.secret_key,
+            region=self.region_name or "",
+            acl=self.default_acl,
+            endpoint=self.endpoint_url,
+            provider=provider,
+        )
+
+
+# pylint: disable=too-many-ancestors
+class S3BuildMediaStorage(OverrideHostnameMixin, S3BuildMediaStorageMixin):
 
     """An AWS S3 Storage backend for build artifacts."""
 
@@ -93,8 +117,12 @@ class NoManifestS3StaticStorage(
     this way we can get the URL of any file in that bucket, even hashed ones.
     """
 
+    # Root path of the nginx internal redirect
+    # that will serve files from this storage.
+    internal_redirect_root_path = "proxito-static"
 
-class S3BuildEnvironmentStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3Boto3Storage):
+
+class S3BuildEnvironmentStorage(S3PrivateBucketMixin, S3BuildMediaStorageMixin):
 
     bucket_name = getattr(settings, 'S3_BUILD_ENVIRONMENT_STORAGE_BUCKET', None)
 
@@ -108,7 +136,7 @@ class S3BuildEnvironmentStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3
             )
 
 
-class S3BuildToolsStorage(S3PrivateBucketMixin, BuildMediaStorageMixin, S3Boto3Storage):
+class S3BuildToolsStorage(S3PrivateBucketMixin, S3BuildMediaStorageMixin):
 
     bucket_name = getattr(settings, 'S3_BUILD_TOOLS_STORAGE_BUCKET', None)
 

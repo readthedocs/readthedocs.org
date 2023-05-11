@@ -1,19 +1,17 @@
-# -*- coding: utf-8 -*-
 
 """Support for templating of notifications."""
 
 import structlog
-from readthedocs.core.context_processors import readthedocs_processor
-
 from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
 from django.template import Context, Template
 from django.template.loader import render_to_string
 
+from readthedocs.core.context_processors import readthedocs_processor
+
 from . import constants
 from .backends import send_notification
-
 
 log = structlog.get_logger(__name__)
 
@@ -39,9 +37,9 @@ class Notification:
     send_email = True
     extra_tags = ''
 
-    def __init__(self, context_object, request, user=None):
+    def __init__(self, context_object, request=None, user=None):
         self.object = context_object
-        self.request = request
+        self.request = request or HttpRequest()
         self.user = user
         if self.user is None:
             self.user = request.user

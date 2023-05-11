@@ -8,12 +8,13 @@ from rest_framework.views import APIView
 
 from readthedocs.analytics.models import PageView
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
-from readthedocs.core.unresolver import unresolve
+from readthedocs.core.mixins import CDNCacheControlMixin
+from readthedocs.core.unresolver import UnresolverError, unresolve
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Project
 
 
-class BaseAnalyticsView(APIView):
+class BaseAnalyticsView(CDNCacheControlMixin, APIView):
 
     """
     Track page views.
@@ -25,6 +26,9 @@ class BaseAnalyticsView(APIView):
     - absolute_uri: Full path with domain.
     """
 
+    # We always want to hit our analytics endpoint,
+    # so we capture all views/interactions.
+    cache_response = False
     http_method_names = ['get']
     permission_classes = [IsAuthorizedToViewVersion]
 
@@ -49,18 +53,25 @@ class BaseAnalyticsView(APIView):
         project = self._get_project()
         version = self._get_version()
         absolute_uri = self.request.GET.get('absolute_uri')
-        self.increase_page_view_count(
-            project=project,
-            version=version,
-            absolute_uri=absolute_uri,
-        )
+        if absolute_uri:
+            self.increase_page_view_count(
+                project=project,
+                version=version,
+                absolute_uri=absolute_uri,
+            )
         return Response(status=200)
 
     # pylint: disable=no-self-use
     def increase_page_view_count(self, project, version, absolute_uri):
         """Increase the page view count for the given project."""
-        unresolved = unresolve(absolute_uri)
-        if not unresolved or not unresolved.filename:
+        try:
+            unresolved = unresolve(absolute_uri)
+        except UnresolverError:
+            # If we were unable to resolve the URL, it
+            # isn't pointing to a valid RTD project.
+            return
+
+        if not unresolved.filename:
             return
 
         path = unresolved.filename

@@ -229,11 +229,10 @@ class SiteNotificationTests(TestCase):
 
     def test_context_data(self):
         context = {
-            'object': {'name': 'object name'},
-            'request': None,
-            'production_uri': 'https://readthedocs.org',
-            'other': {'name': 'other name'},
-
+            "object": {"name": "object name"},
+            "request": mock.ANY,
+            "production_uri": "https://readthedocs.org",
+            "other": {"name": "other name"},
             # readthedocs_processor context
             'DASHBOARD_ANALYTICS_CODE': mock.ANY,
             'DO_NOT_TRACK_ENABLED': mock.ANY,

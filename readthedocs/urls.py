@@ -23,7 +23,7 @@ handler500 = server_error_500
 
 basic_urls = [
     path("", HomepageView.as_view(), name="homepage"),
-    re_path(r"^security/", TemplateView.as_view(template_name="security.html")),
+    path("security/", TemplateView.as_view(template_name="security.html")),
     re_path(
         r'^\.well-known/security.txt$',
         TemplateView
@@ -79,10 +79,10 @@ organization_urls = [
         include('readthedocs.subscriptions.urls'),
     ),
     # NOTE: This is overridden in .com to serve a real pricing page.
-    re_path(
-        r'^pricing/',
-        RedirectView.as_view(url='https://readthedocs.org/sustainability/'),
-        name='pricing',
+    path(
+        "pricing/",
+        RedirectView.as_view(url="https://readthedocs.org/sustainability/"),
+        name="pricing",
     ),
 ]
 
@@ -90,7 +90,8 @@ organization_urls = [
 api_urls = [
     re_path(r'^api/v2/', include('readthedocs.api.v2.urls')),
     # Keep `search_api` at root level, so the test does not fail for other API
-    re_path(r"^api/v2/search/$", include("readthedocs.search.api.v2.urls")),
+    path("api/v2/search/", include("readthedocs.search.api.v2.urls")),
+    path("api/v3/search/", include("readthedocs.search.api.v3.urls")),
     # Deprecated
     re_path(r'^api/v1/embed/', include('readthedocs.embed.urls')),
     re_path(r'^api/v2/embed/', include('readthedocs.embed.urls')),
