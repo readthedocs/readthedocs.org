@@ -5,6 +5,7 @@ import hmac
 import json
 import re
 from functools import namedtuple
+from typing import List, Tuple
 
 import structlog
 from django.shortcuts import get_object_or_404
@@ -15,11 +16,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
-from readthedocs.builds.constants import (
-    EXTERNAL_VERSION_STATE_CLOSED,
-    EXTERNAL_VERSION_STATE_OPEN,
-    LATEST,
-)
+from readthedocs.builds.constants import LATEST
 from readthedocs.core.signals import webhook_bitbucket, webhook_github, webhook_gitlab
 from readthedocs.core.views.hooks import (
     build_branches,
@@ -176,7 +173,7 @@ class WebhookMixin:
             )
         return integration
 
-    def get_response_push(self, project, branches):
+    def get_response_push(self, project, branches_and_commits: List[Tuple[str, str]]):
         """
         Build branches on push events and return API response.
 
@@ -190,14 +187,14 @@ class WebhookMixin:
 
         :param project: Project instance
         :type project: Project
-        :param branches: List of branch names to build
-        :type branches: list(str)
+        :param branches_and_commits: List of pairs ("branch", "commit") or ("branch", None) to
+            build the latest commit.
         """
-        to_build, not_building = build_branches(project, branches)
+        to_build, not_building = build_branches(project, branches_and_commits)
         if not_building:
             log.info(
                 'Skipping project branches.',
-                branches=branches,
+                branches_and_commits=branches_and_commits,
             )
         triggered = bool(to_build)
         return {
@@ -499,9 +496,24 @@ class GitHubWebhookView(WebhookMixin, APIView):
         if event == GITHUB_PUSH:
             try:
                 branch = self._normalize_ref(self.data["ref"])
-                return self.get_response_push(self.project, [branch])
             except KeyError:
-                raise ParseError('Parameter "ref" is required')
+                raise ParseError('Parameter "ref" is required.')
+
+            try:
+                commit = self.data["head_commit"]["id"]
+            except IndexError:
+                raise ParseError("No commits found in push event.")
+            except KeyError:
+                raise ParseError(
+                    'Push event received with either no "head_commit" or no "id" key for commit.'
+                )
+
+            log.info(
+                "Handling push event for branch and commit",
+                branch=branch,
+                commit=commit,
+            )
+            return self.get_response_push(self.project, [(branch, commit)])
 
         return None
 
@@ -623,9 +635,19 @@ class GitLabWebhookView(WebhookMixin, APIView):
             # Normal push to master
             try:
                 branch = self._normalize_ref(data["ref"])
-                return self.get_response_push(self.project, [branch])
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
+
+            try:
+                commit = self.data["commits"][0]["id"]
+            except IndexError:
+                raise ParseError("No commits found in push event.")
+            except KeyError:
+                raise ParseError(
+                    'Push event received with either no "commits" or no "id" key for commit.'
+                )
+
+            return self.get_response_push(self.project, [(branch, commit)])
 
         if self.project.external_builds_enabled and event == GITLAB_MERGE_REQUEST:
             if (
@@ -708,21 +730,25 @@ class BitbucketWebhookView(WebhookMixin, APIView):
             try:
                 data = self.request.data
                 changes = data['push']['changes']
-                branches = []
+                branches_and_commits = []
                 for change in changes:
                     old = change['old']
                     new = change['new']
+                    # Fix the 'target', which should map to the latest commit pushed
+                    # if it's available.
+                    # See: https://support.atlassian.com/bitbucket-cloud/docs/event-payloads/
+                    commit = change.get("new", {}).get("target", {}).get("hash", None)
                     # Normal push to master
                     if old is not None and new is not None:
-                        branches.append(new['name'])
+                        branches_and_commits.append((new["name"], commit))
                 # BitBuck returns an array of changes rather than
                 # one webhook per change. If we have at least one normal push
                 # we don't trigger the sync versions, because that
                 # will be triggered with the normal push.
-                if branches:
+                if branches_and_commits:
                     return self.get_response_push(
                         self.project,
-                        branches,
+                        branches_and_commits,
                     )
                 log.debug("Triggered sync_versions.")
                 return self.sync_versions_response(self.project)
@@ -808,7 +834,10 @@ class APIWebhookView(WebhookMixin, APIView):
             if default_branch and isinstance(default_branch, str):
                 self.update_default_branch(default_branch)
 
-            return self.get_response_push(self.project, branches)
+            # We do not handle commit hashes in the generic webhook push event.
+            branches_and_commits = [(b, None) for b in branches]
+
+            return self.get_response_push(self.project, branches_and_commits)
         except TypeError:
             raise ParseError('Invalid request')
 

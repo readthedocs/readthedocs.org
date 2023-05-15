@@ -7,11 +7,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.builds.constants import (
-    BUILD_FINAL_STATES,
-    BUILD_STATE_CANCELLED,
-    EXTERNAL,
-)
+from readthedocs.builds.constants import BUILD_FINAL_STATES, BUILD_STATE_CANCELLED
 from readthedocs.builds.models import Build
 from readthedocs.builds.tasks import send_build_status
 from readthedocs.core.utils.filesystem import safe_rmtree
@@ -138,20 +134,18 @@ def finish_inactive_builds():
     )
 
 
-def send_external_build_status(version_type, build_pk, commit, status):
+def trigger_send_build_status(version_type, build_pk, commit, status):
     """
-    Check if build is external and Send Build Status for project external versions.
+    Triggers the build send_build_status task.
 
-     :param version_type: Version type e.g EXTERNAL, BRANCH, TAG
-     :param build_pk: Build pk
-     :param commit: commit sha of the pull/merge request
-     :param status: build status failed, pending, or success to be sent.
+    :param version_type: Version type e.g EXTERNAL, BRANCH, TAG
+    :param build_pk: Build pk
+    :param commit: commit sha of the pull/merge request
+    :param status: build status failed, pending, or success to be sent.
     """
 
-    # Send status reports for only External (pull/merge request) Versions.
-    if version_type == EXTERNAL:
-        # call the task that actually send the build status.
-        send_build_status.delay(build_pk, commit, status)
+    # call the task that actually send the build status.
+    send_build_status.delay(build_pk, commit, status)
 
 
 class BuildRequest(Request):

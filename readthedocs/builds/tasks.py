@@ -249,6 +249,7 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
     The commit status is updated to link to the build page, as the docs are removed.
     """
     days_ago = timezone.now() - timezone.timedelta(days=days)
+    # TODO: Might need to expand what we are cleaning up
     queryset = Version.external.filter(
         state=EXTERNAL_VERSION_STATE_CLOSED,
         modified__lte=days_ago,
@@ -381,7 +382,7 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
 )
 def send_build_status(build_pk, commit, status):
     """
-    Send Build Status to Git Status API for project external versions.
+    Send Build Status to Git Status API for all commits.
 
     It tries using these services' account in order:
 
@@ -480,7 +481,7 @@ def send_build_status(build_pk, commit, status):
 @app.task(queue='web')
 def send_build_notifications(version_pk, build_pk, event):
     version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version or version.type == EXTERNAL:
+    if not version:
         return
 
     build = Build.objects.filter(pk=build_pk).first()

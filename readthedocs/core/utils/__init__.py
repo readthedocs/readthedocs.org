@@ -47,7 +47,7 @@ def prepare_build(
     from readthedocs.builds.tasks import send_build_notifications
     from readthedocs.projects.models import Feature, Project, WebHookEvent
     from readthedocs.projects.tasks.builds import update_docs_task
-    from readthedocs.projects.tasks.utils import send_external_build_status
+    from readthedocs.projects.tasks.utils import trigger_send_build_status
 
     log.bind(project_slug=project.slug)
 
@@ -102,7 +102,7 @@ def prepare_build(
         log.bind(commit=commit)
 
         # Send pending Build Status using Git Status API for External Builds.
-        send_external_build_status(
+        trigger_send_build_status(
             version_type=version.type,
             build_pk=build.id,
             commit=commit,

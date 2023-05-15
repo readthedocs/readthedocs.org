@@ -66,7 +66,7 @@ from ..models import APIProject, Feature, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import fileify
-from .utils import BuildRequest, clean_build, send_external_build_status
+from .utils import BuildRequest, clean_build, trigger_send_build_status
 
 log = structlog.get_logger(__name__)
 
@@ -512,7 +512,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # was skipped on purpose.
                 status = BUILD_STATUS_SUCCESS
 
-            send_external_build_status(
+            trigger_send_build_status(
                 version_type=version_type,
                 build_pk=self.data.build['id'],
                 commit=self.data.build_commit,
@@ -629,7 +629,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         )
 
         if self.data.build_commit:
-            send_external_build_status(
+            trigger_send_build_status(
                 version_type=self.data.version.type,
                 build_pk=self.data.build['id'],
                 commit=self.data.build_commit,

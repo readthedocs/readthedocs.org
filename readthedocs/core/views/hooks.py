@@ -1,5 +1,7 @@
 """Views pertaining to builds."""
 
+from typing import List, Tuple
+
 import structlog
 
 from readthedocs.builds.constants import (
@@ -14,11 +16,13 @@ from readthedocs.projects.tasks.builds import sync_repository_task
 log = structlog.get_logger(__name__)
 
 
-def _build_version(project, slug, already_built=()):
+def _build_version(project, slug, already_built=(), commit: str = None):
     """
     Where we actually trigger builds for a project and slug.
 
     All webhook logic should route here to call ``trigger_build``.
+
+    :param commit: Specifies the commit that originally triggered the build (optional)
     """
     if not project.has_valid_webhook:
         project.has_valid_webhook = True
@@ -33,14 +37,14 @@ def _build_version(project, slug, already_built=()):
             project_slug=project.slug,
             version_slug=version.slug,
         )
-        trigger_build(project=project, version=version)
+        trigger_build(project=project, version=version, commit=commit)
         return slug
 
     log.info('Not building.', version_slug=slug)
     return None
 
 
-def build_branches(project, branch_list):
+def build_branches(project, branches_and_commits: List[Tuple[str, str]]):
     """
     Build the branches for a specific project.
 
@@ -50,7 +54,7 @@ def build_branches(project, branch_list):
     """
     to_build = set()
     not_building = set()
-    for branch in branch_list:
+    for branch, commit in branches_and_commits:
         versions = project.versions_from_branch_name(branch)
         for version in versions:
             log.debug(
@@ -58,7 +62,9 @@ def build_branches(project, branch_list):
                 project_slug=project.slug,
                 version_slug=version.slug,
             )
-            ret = _build_version(project, version.slug, already_built=to_build)
+            ret = _build_version(
+                project, version.slug, already_built=to_build, commit=commit
+            )
             if ret:
                 to_build.add(ret)
             else:
