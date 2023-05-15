@@ -583,6 +583,8 @@ Version update
     When a version is deactivated, its documentation is removed,
     and when it's activated, a new build is triggered.
 
+    Updates to a version also invalidates its CDN cache.
+
     **Example request**:
 
     .. tabs::
