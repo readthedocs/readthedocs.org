@@ -65,6 +65,9 @@ class VersionForm(forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(*field_sets)
+        # We need to know if the version was active before the update.
+        # We use this value in the save method.
+        self._was_active = self.instance.active if self.instance else False
 
     def clean_active(self):
         active = self.cleaned_data['active']
@@ -83,12 +86,8 @@ class VersionForm(forms.ModelForm):
         return project.default_version == self.instance.slug
 
     def save(self, commit=True):
-        # If the version is created, it's not active yet.
-        was_active = False
-        if self.instance:
-            was_active = self.instance.active
         obj = super().save(commit=commit)
-        obj.post_save(was_active=was_active)
+        obj.post_save(was_active=self._was_active)
         return obj
 
 
