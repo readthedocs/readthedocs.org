@@ -215,10 +215,7 @@ class ProjectVersionEditMixin(ProjectVersionMixin):
         return self.get_form_class()(data, files, **kwargs)
 
     def form_valid(self, form):
-        version = form.save()
-        if form.has_changed():
-            if 'active' in form.changed_data and version.active is False:
-                version.clean_resources()
+        form.save()
         return HttpResponseRedirect(self.get_success_url())
 
 

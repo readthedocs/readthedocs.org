@@ -1,5 +1,4 @@
 """Models for the builds app."""
-
 import datetime
 import os.path
 import re
@@ -52,6 +51,7 @@ from readthedocs.builds.querysets import (
     RelatedBuildQuerySet,
     VersionQuerySet,
 )
+from readthedocs.builds.signals import version_changed
 from readthedocs.builds.utils import (
     external_version_name,
     get_bitbucket_username_repo,
@@ -61,6 +61,7 @@ from readthedocs.builds.utils import (
 )
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
+from readthedocs.core.utils import trigger_build
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
@@ -398,6 +399,29 @@ class Version(TimeStampedModel):
         clean_project_resources(project=self.project, version=self)
         self.built = False
         self.save()
+
+    def post_save(self, was_active=False):
+        """
+        Run extra steps after updating a version.
+
+        Useful to run after the version has been saved/updated
+        by the user, like from a form or API.
+
+        - When a version is deactivated, we need to clean up its
+          files from storage, and search index.
+        - When a version is activated, we need to trigger a build.
+        - We also need to purge the cache from the CDN,
+          since the version could have been activated/deactivated,
+          or its privacy level could have changed.
+        """
+        # If the version is deactivated, we need to clean up the files.
+        if was_active and not self.active:
+            self.clean_resources()
+        # If the version is activated, we need to trigger a build.
+        if not was_active and self.active:
+            trigger_build(project=self.project, version=self)
+        # Purge the cache from the CDN.
+        version_changed.send(sender=self.__class__, version=self)
 
     @property
     def identifier_friendly(self):

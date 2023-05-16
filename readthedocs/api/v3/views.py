@@ -21,7 +21,6 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelV
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.builds.signals import version_changed
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.oauth.models import (
@@ -299,30 +298,14 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         return VersionUpdateSerializer
 
     def update(self, request, *args, **kwargs):
-        """
-        Run extra steps after updating a version.
-
-        - When a version is deactivated, we need to clean up its
-          files from storage, and search index.
-        - When a version is activated, we need to trigger a build.
-        - We also need to purge the cache from the CDN,
-          since the version could have been activated/deactivated,
-          or its privacy level could have changed.
-        """
+        """Overridden to call ``post_save`` method on the updated version."""
         # Get the current value before updating.
         version = self.get_object()
         was_active = version.active
         result = super().update(request, *args, **kwargs)
         # Get the updated version.
         version = self.get_object()
-        # If the version is deactivated, we need to clean up the files.
-        if was_active and not version.active:
-            version.clean_resources()
-        # If the version is activated, we need to trigger a build.
-        if not was_active and version.active:
-            trigger_build(project=version.project, version=version)
-        # Purge the cache from the CDN.
-        version_changed.send(sender=self.__class__, version=version)
+        version.post_save(was_active=was_active)
         return result
 
 
