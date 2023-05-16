@@ -232,7 +232,7 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.version.privacy_level, "public")
 
-    @mock.patch("readthedocs.api.v3.views.trigger_build")
+    @mock.patch("readthedocs.builds.models.trigger_build")
     @mock.patch("readthedocs.projects.tasks.utils.clean_project_resources")
     def test_activate_version(self, clean_project_resources, trigger_build):
         self.version.active = False
@@ -256,7 +256,7 @@ class VersionsEndpointTests(APIEndpointMixin):
         clean_project_resources.assert_not_called()
         trigger_build.assert_called_once()
 
-    @mock.patch("readthedocs.api.v3.views.trigger_build")
+    @mock.patch("readthedocs.builds.models.trigger_build")
     @mock.patch("readthedocs.projects.tasks.utils.clean_project_resources")
     def test_deactivate_version(self, clean_project_resources, trigger_build):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
