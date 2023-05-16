@@ -471,11 +471,12 @@ class Unresolver:
                 log.info("Invalid format of external versions domain.", domain=domain)
                 raise InvalidExternalDomainError(domain=domain)
 
-        if public_domain in domain or external_domain in domain:
-            # NOTE: This can catch some possibly valid domains (docs.readthedocs.io.com)
-            # for example, but these might be phishing, so let's block them for now.
-            log.warning("Weird variation of our domain.", domain=domain)
-            raise SuspiciousHostnameError(domain=domain)
+        if not getattr(settings, "PROXITO_DEV_DISABLE_SUSPICIOUS_HOST_CHECK", False):
+            if public_domain in domain or external_domain in domain:
+                # NOTE: This can catch some possibly valid domains (docs.readthedocs.io.com)
+                # for example, but these might be phishing, so let's block them for now.
+                log.warning("Weird variation of our domain.", domain=domain)
+                raise SuspiciousHostnameError(domain=domain)
 
         # Custom domain.
         domain_object = (
