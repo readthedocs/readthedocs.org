@@ -1012,10 +1012,15 @@ class IntegrationsTests(TestCase):
             },
         }
         self.gitlab_payload = {
-            'object_kind': GITLAB_PUSH,
-            'ref': 'master',
-            'before': '95790bf891e76fee5e1747ab589903a6a1f80f22',
-            'after': '95790bf891e76fee5e1747ab589903a6a1f80f23',
+            "object_kind": GITLAB_PUSH,
+            "ref": "master",
+            "before": "95790bf891e76fee5e1747ab589903a6a1f80f22",
+            "after": "95790bf891e76fee5e1747ab589903a6a1f80f23",
+            "commits": [
+                {
+                    "id": "546b4f481e58e7f3a55785d36fd69725009c9b69",
+                }
+            ],
         }
         self.bitbucket_payload = {
             'push': {
@@ -1719,15 +1724,16 @@ class IntegrationsTests(TestCase):
     def test_gitlab_webhook_for_branches(self, trigger_build):
         """GitLab webhook API."""
         client = APIClient()
-        client.post(
+        r = client.post(
             '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
             self.gitlab_payload,
             format='json',
         )
+        self.assertEqual(r.status_code, 200)
         trigger_build.assert_called_with(
             version=mock.ANY,
             project=self.project,
-            commit=None,
+            commit="546b4f481e58e7f3a55785d36fd69725009c9b69",
         )
 
         trigger_build.reset_mock()
@@ -1747,6 +1753,8 @@ class IntegrationsTests(TestCase):
             object_kind=GITLAB_TAG_PUSH,
             ref='v1.0',
         )
+        # There is no commit data in gitlab tag pushes
+        del self.gitlab_payload["commits"]
         client.post(
             '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
             self.gitlab_payload,

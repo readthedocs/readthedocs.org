@@ -644,14 +644,10 @@ class GitLabWebhookView(WebhookMixin, APIView):
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
 
-            try:
+            commit = None
+            # Commits are not present in GITLAB_TAG_PUSH
+            if "commits" in self.data and self.data["commits"]:
                 commit = self.data["commits"][0]["id"]
-            except IndexError:
-                raise ParseError("No commits found in push event.")
-            except KeyError:
-                raise ParseError(
-                    'Push event received with either no "commits" or no "id" key for commit.'
-                )
 
             return self.get_response_push(self.project, [(branch, commit)])
 
