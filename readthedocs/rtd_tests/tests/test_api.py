@@ -1073,8 +1073,12 @@ class IntegrationsTests(TestCase):
             queue='specific-build-queue',
         )
 
-    def test_github_webhook_for_branches(self, trigger_build):
-        """GitHub webhook API."""
+    def test_github_webhook_for_existing_branch_ref(self, trigger_build):
+        """
+        GitHub webhook API with a shortened ref spec.
+
+        @benjaoming: Not sure where this comes from, perhaps old versions of GitHub.
+        """
         client = APIClient()
 
         client.post(
@@ -1083,29 +1087,105 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=self.version, project=self.project)],
+            [mock.call(version=self.version, project=self.project, commit=None)],
         )
+
+    def test_github_webhook_for_non_existing_branch(self, trigger_build):
+        """GitHub webhook API."""
+        client = APIClient()
 
         client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             {'ref': 'non-existent'},
             format='json',
         )
+        trigger_build.assert_not_called()
+
+    def test_github_webhook_for_real_test_data(self, trigger_build):
+        """GitHub webhook API."""
+        client = APIClient()
+
+        client.post(
+            "/api/v2/webhook/github/{}/".format(self.project.slug),
+            {
+                "ref": "refs/heads/master",
+                "before": "09bde3fbd3921b562282a0f106f96156166f88f5",
+                "after": "1e971a0a2d46a508eba480495bfcf76fccf2e015",
+                "commits": [
+                    {
+                        "id": "18a0c2208427d7046ff510d06441e8992c11db7e",
+                        "tree_id": "8a554ecd9431fa78b630254e56ce2112fd032f1b",
+                        "distinct": True,
+                        "message": "Mention cache invalidation",
+                        "timestamp": "2023-05-15T17:58:24-05:00",
+                        "url": "https://github.com/readthedocs/readthedocs.org/commit/18a0c2208427d7046ff510d06441e8992c11db7e",
+                        "author": {
+                            "name": "Santos Gallegos",
+                            "email": "stsewd@proton.me",
+                            "username": "stsewd",
+                        },
+                        "committer": {
+                            "name": "Santos Gallegos",
+                            "email": "stsewd@proton.me",
+                            "username": "stsewd",
+                        },
+                        "added": [],
+                        "removed": [],
+                        "modified": ["docs/user/api/v3.rst"],
+                    },
+                ],
+                "head_commit": {
+                    "id": "1e971a0a2d46a508eba480495bfcf76fccf2e015",
+                    "tree_id": "ca02d396d1f089afa540d43b39c049346defee6b",
+                    "distinct": True,
+                    "message": "Fix",
+                    "timestamp": "2023-05-15T19:56:05-05:00",
+                    "url": "https://github.com/readthedocs/readthedocs.org/commit/1e971a0a2d46a508eba480495bfcf76fccf2e015",
+                    "author": {
+                        "name": "Santos Gallegos",
+                        "email": "stsewd@proton.me",
+                        "username": "stsewd",
+                    },
+                    "committer": {
+                        "name": "Santos Gallegos",
+                        "email": "stsewd@proton.me",
+                        "username": "stsewd",
+                    },
+                    "added": [],
+                    "removed": [],
+                    "modified": ["readthedocs/builds/forms.py"],
+                },
+            },
+            format="json",
+        )
         trigger_build.assert_has_calls(
-            [mock.call(version=mock.ANY, project=self.project)],
+            [
+                mock.call(
+                    version=self.version,
+                    project=self.project,
+                    commit="1e971a0a2d46a508eba480495bfcf76fccf2e015",
+                )
+            ],
         )
 
+    def test_github_webhook_for_actual_branch_spec(self, trigger_build):
+        """GitHub webhook API."""
+        client = APIClient()
         client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             {'ref': 'refs/heads/master'},
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=self.version, project=self.project)],
+            [mock.call(version=self.version, project=self.project, commit=None)],
         )
 
     def test_github_webhook_for_tags(self, trigger_build):
-        """GitHub webhook API."""
+        """
+        GitHub webhook API with a shortened tag ref spec.
+
+        @benjaoming: Not sure where this comes from, perhaps old versions of GitHub.
+        """
         client = APIClient()
 
         client.post(
@@ -1114,26 +1194,34 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=self.version_tag, project=self.project)],
+            [mock.call(version=self.version_tag, project=self.project, commit=None)],
         )
 
-        client.post(
-            '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            {'ref': 'refs/heads/non-existent'},
-            format='json',
-        )
-        trigger_build.assert_has_calls(
-            [mock.call(version=mock.ANY, project=self.project)],
-        )
+        def test_github_webhook_for_tags_no_version(self, trigger_build):
+            """GitHub webhook API."""
 
-        client.post(
-            '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            {'ref': 'refs/tags/v1.0'},
-            format='json',
-        )
-        trigger_build.assert_has_calls(
-            [mock.call(version=self.version_tag, project=self.project)],
-        )
+            client.post(
+                "/api/v2/webhook/github/{}/".format(self.project.slug),
+                {"ref": "refs/heads/non-existent"},
+                format="json",
+            )
+            trigger_build.assert_not_called()
+
+        def test_github_webhook_for_tags_real_ref(self, trigger_build):
+            """Assert that we can use the real ref spec for a tag."""
+
+            client.post(
+                "/api/v2/webhook/github/{}/".format(self.project.slug),
+                {"ref": "refs/tags/v1.0"},
+                format="json",
+            )
+            trigger_build.assert_has_calls(
+                [
+                    mock.call(
+                        version=self.version_tag, project=self.project, commit=None
+                    )
+                ],
+            )
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_github_webhook_no_build_on_delete(self, sync_repository_task, trigger_build):
@@ -1512,6 +1600,7 @@ class IntegrationsTests(TestCase):
         )
 
     def test_github_skip_signature_validation(self, trigger_build):
+        """Integration without a secret signature configured should skip verification."""
         client = APIClient()
         payload = '{"ref":"master"}'
         integration = Integration.objects.create(
@@ -1636,7 +1725,9 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_called_with(
-            version=mock.ANY, project=self.project,
+            version=mock.ANY,
+            project=self.project,
+            commit=None,
         )
 
         trigger_build.reset_mock()
@@ -1662,7 +1753,9 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_called_with(
-            version=self.version_tag, project=self.project,
+            version=self.version_tag,
+            project=self.project,
+            commit=None,
         )
 
         trigger_build.reset_mock()
@@ -1675,7 +1768,9 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_called_with(
-            version=self.version_tag, project=self.project,
+            version=self.version_tag,
+            project=self.project,
+            commit=None,
         )
 
         trigger_build.reset_mock()
@@ -2236,7 +2331,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertTrue(resp.data["build_triggered"])
         self.assertEqual(resp.data["project"], self.project.slug)
-        self.assertEqual(resp.data["versions"], [LATEST, "master"])
+        self.assertIn(LATEST, resp.data["versions"])
+        self.assertIn("master", resp.data["versions"])
+        self.assertEqual(len(resp.data["versions"]), 2)
         trigger_build.assert_has_calls(
             [
                 mock.call(

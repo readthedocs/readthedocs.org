@@ -471,6 +471,8 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 return self.get_closed_external_version_response(self.project)
 
         # Sync versions when push event is created/deleted action
+        # TODO: This returns immediately and will not trigger a build if a branch is deleted
+        # and created again.
         if all([
                 event == GITHUB_PUSH,
                 (created or deleted),
@@ -500,13 +502,17 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 raise ParseError('Parameter "ref" is required.')
 
             try:
-                commit = self.data["head_commit"]["id"]
-            except IndexError:
-                raise ParseError("No commits found in push event.")
-            except KeyError:
-                raise ParseError(
-                    'Push event received with either no "head_commit" or no "id" key for commit.'
+                commit = self.data.get("head_commit", {}).get("id", None)
+            except (KeyError, TypeError):
+                # Introducing this change very carefully, but we probably want to raise a
+                # ParseError here instead.
+                commit = None
+                log.warning(
+                    "We were not expecting this payload from GitHub", payload=self.data
                 )
+                # raise ParseError(
+                #     'Push event received with either no "head_commit" or no "id" key for commit.'
+                # )
 
             log.info(
                 "Handling push event for branch and commit",
