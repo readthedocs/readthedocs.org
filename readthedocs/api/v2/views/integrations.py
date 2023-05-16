@@ -732,14 +732,16 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 changes = data['push']['changes']
                 branches_and_commits = []
                 for change in changes:
-                    old = change['old']
                     new = change['new']
-                    # Fix the 'target', which should map to the latest commit pushed
-                    # if it's available.
-                    # See: https://support.atlassian.com/bitbucket-cloud/docs/event-payloads/
-                    commit = change.get("new", {}).get("target", {}).get("hash", None)
-                    # Normal push to master
-                    if old is not None and new is not None:
+
+                    # Consider changes only in the 'new' part.
+                    # Builds are only triggered when a branch is created and a version
+                    # matches the branch name.
+                    if new:
+                        # push.changes.new.target:
+                        # The details of the most recent commit after the push
+                        # See: https://support.atlassian.com/bitbucket-cloud/docs/event-payloads/
+                        commit = new.get("target", {}).get("hash", None)
                         branches_and_commits.append((new["name"], commit))
                 # BitBuck returns an array of changes rather than
                 # one webhook per change. If we have at least one normal push
@@ -750,6 +752,8 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                         self.project,
                         branches_and_commits,
                     )
+                # No matching versions found for the push event, might be because of
+                # branch creation, hence we will update versions.
                 log.debug("Triggered sync_versions.")
                 return self.sync_versions_response(self.project)
             except KeyError:

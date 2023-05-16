@@ -2160,7 +2160,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project, commit=None)],
         )
         client.post(
             '/api/v2/webhook/bitbucket/{}/'.format(self.project.slug),
@@ -2177,7 +2177,7 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         trigger_build.assert_has_calls(
-            [mock.call(version=mock.ANY, project=self.project)],
+            [mock.call(version=mock.ANY, project=self.project, commit=None)],
         )
 
         trigger_build_call_count = trigger_build.call_count
@@ -2196,11 +2196,37 @@ class IntegrationsTests(TestCase):
         )
         self.assertEqual(trigger_build_call_count, trigger_build.call_count)
 
+    def test_bitbucket_webhook_commit_hash(self, trigger_build):
+        """Tests to verify that everything works"""
+
+        # This is reset in setUp for every test
+        self.bitbucket_payload["push"]["changes"][0]["new"]["target"] = {
+            "hash": "298a019fa2e1579d2dbf5973bae74afef9b9a627"
+        }
+
+        client = APIClient()
+        client.post(
+            "/api/v2/webhook/bitbucket/{}/".format(self.project.slug),
+            self.bitbucket_payload,
+            format="json",
+        )
+        trigger_build.assert_has_calls(
+            [
+                mock.call(
+                    version=mock.ANY,
+                    project=self.project,
+                    commit="298a019fa2e1579d2dbf5973bae74afef9b9a627",
+                )
+            ],
+        )
+
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_bitbucket_push_hook_creation(
             self, sync_repository_task, trigger_build,
     ):
+        """Verify that a new branch triggers a build when the version exists."""
         client = APIClient()
+        # On Bitbucket, a branch is created when 'old' is empty
         self.bitbucket_payload['push']['changes'][0]['old'] = None
         resp = client.post(
             '/api/v2/webhook/bitbucket/{}/'.format(self.project.slug),
@@ -2208,12 +2234,18 @@ class IntegrationsTests(TestCase):
             format='json',
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
-        self.assertFalse(resp.data['build_triggered'])
-        self.assertEqual(resp.data['project'], self.project.slug)
-        self.assertEqual(resp.data['versions'], [LATEST])
-        trigger_build.assert_not_called()
-        latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
+        self.assertTrue(resp.data["build_triggered"])
+        self.assertEqual(resp.data["project"], self.project.slug)
+        self.assertEqual(resp.data["versions"], [LATEST, "master"])
+        trigger_build.assert_has_calls(
+            [
+                mock.call(
+                    version=mock.ANY,
+                    project=self.project,
+                    commit=None,
+                )
+            ],
+        )
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_bitbucket_push_hook_deletion(
