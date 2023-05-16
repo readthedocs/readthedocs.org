@@ -399,7 +399,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
     @mock.patch("readthedocs.projects.tasks.builds.fileify")
     @mock.patch("readthedocs.projects.tasks.builds.build_complete")
-    @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
+    @mock.patch("readthedocs.projects.tasks.builds.trigger_send_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
@@ -408,7 +408,7 @@ class TestBuildTask(BuildEnvironmentBase):
         load_yaml_config,
         clean_build,
         send_notifications,
-        send_external_build_status,
+        trigger_send_build_status,
         build_complete,
         fileify,
     ):
@@ -451,7 +451,7 @@ class TestBuildTask(BuildEnvironmentBase):
             event=WebHookEvent.BUILD_PASSED,
         )
 
-        send_external_build_status.assert_called_once_with(
+        trigger_send_build_status.assert_called_once_with(
             version_type=self.version.type,
             build_pk=self.build.pk,
             commit=self.build.commit,
@@ -591,7 +591,7 @@ class TestBuildTask(BuildEnvironmentBase):
         # build_media_storage.delete_directory
 
     @mock.patch("readthedocs.projects.tasks.builds.build_complete")
-    @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
+    @mock.patch("readthedocs.projects.tasks.builds.trigger_send_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.execute")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build")
@@ -600,7 +600,7 @@ class TestBuildTask(BuildEnvironmentBase):
         clean_build,
         send_notifications,
         execute,
-        send_external_build_status,
+        trigger_send_build_status,
         build_complete,
     ):
         assert not BuildData.objects.all().exists()
@@ -624,7 +624,7 @@ class TestBuildTask(BuildEnvironmentBase):
             event=WebHookEvent.BUILD_FAILED,
         )
 
-        send_external_build_status.assert_called_once_with(
+        trigger_send_build_status.assert_called_once_with(
             version_type=self.version.type,
             build_pk=self.build.pk,
             commit=self.build.commit,
