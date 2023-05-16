@@ -481,7 +481,9 @@ def send_build_status(build_pk, commit, status):
 @app.task(queue='web')
 def send_build_notifications(version_pk, build_pk, event):
     version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
+
+    # We do not send user notifications for external builds (pull requests)
+    if not version or version.type == EXTERNAL:
         return
 
     build = Build.objects.filter(pk=build_pk).first()
