@@ -403,8 +403,8 @@ class Version(TimeStampedModel):
     def post_save(self, was_active=False):
         """
         Run extra steps after updating a version.
-        
-        This method isn't called automatically by a signal but is called explicitly 
+
+        This method isn't called automatically by a signal but is called explicitly
         from other processes.
 
         Useful to run after the version has been saved/updated
