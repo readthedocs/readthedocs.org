@@ -122,6 +122,33 @@ and the user that is attached to that token is removed from the project.
 This is, if the user is removed while the build is running,
 the builders won't be able to access the API.
 
+Alternative implementation with Django REST Framework API Key
+-------------------------------------------------------------
+
+Instead of using knox, we can use `DRF API key`_,
+it has the same features as knox, with the exception of:
+
+- It is only used for authorization,
+  it can't be used for authentication (or it can't be out of the box).
+- It doesn't expose views to revoke the tokens (but this should be easy to manually implement)
+- Changing the behaviour of some things require sub-classing instead of defining settings.
+
+The implementation will be very similar to the one described for knox,
+with the exception that tokens won't be attached to users,
+but just a project. And we won't be needing to handle authentication,
+since the token itself will grant access to the projects.
+
+To avoid breaking builders,
+we need to be able to make the old and the new implementation work together,
+this is, allow authentication and handle tokens at the same time.
+This means passing valid user credentials together with the token,
+this "feature" can be removed in the next deploy
+(with knox we also need to handle both implementations,
+but it doesn't require passing credentials with the token,
+since it also handles authentication).
+
+.. _DRF API key: https://florimondmanca.github.io/djangorestframework-api-key/
+
 Future work
 -----------
 
