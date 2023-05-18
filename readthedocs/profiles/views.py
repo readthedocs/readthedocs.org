@@ -1,7 +1,5 @@
 """Views for creating, editing and viewing site-specific user profiles."""
 
-from django.http import Http404
-
 from allauth.account.views import LoginView as AllAuthLoginView
 from allauth.account.views import LogoutView as AllAuthLogoutView
 from django.conf import settings
@@ -9,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _

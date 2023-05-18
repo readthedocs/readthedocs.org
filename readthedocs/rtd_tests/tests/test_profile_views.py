@@ -242,18 +242,17 @@ class ProfileViewsTest(TestCase):
     RTD_ALLOW_ORGANIZATIONS=True,
 )
 class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
-
     def setUp(self):
         super().setUp()
-        self.owner = get(User, username='owner')
-        self.team_mate = get(User, username='teammate')
+        self.owner = get(User, username="owner")
+        self.team_mate = get(User, username="teammate")
         self.org = get(Organization, owners=[self.owner])
 
         self.team = get(
             Team,
             organization=self.org,
-            name='admin',
-            access='admin',
+            name="admin",
+            access="admin",
             projects=[],
         )
         self.org.add_member(
@@ -267,8 +266,8 @@ class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
         self.team2 = get(
             Team,
             organization=self.org,
-            name='another-team',
-            access='readonly',
+            name="another-team",
+            access="readonly",
             projects=[],
         )
         self.org.add_member(
@@ -276,14 +275,14 @@ class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
             self.team2,
         )
 
-        self.another_owner = get(User, username='another_owner')
-        self.another_user = get(User, username='another_user')
+        self.another_owner = get(User, username="another_owner")
+        self.another_user = get(User, username="another_user")
         self.another_org = get(Organization, owners=[self.another_owner])
         self.another_team = get(
             Team,
             organization=self.another_org,
-            name='admin',
-            access='admin',
+            name="admin",
+            access="admin",
             projects=[],
         )
         self.another_org.add_member(
@@ -293,13 +292,17 @@ class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
 
     def test_user_can_see_the_profile(self):
         self.client.force_login(self.user)
-        url = reverse('profiles_profile_detail', kwargs={'username': self.user.username})
+        url = reverse(
+            "profiles_profile_detail", kwargs={"username": self.user.username}
+        )
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
 
     def test_unrelated_user_can_not_see_the_profile(self):
         self.client.force_login(self.another_user)
-        url = reverse('profiles_profile_detail', kwargs={'username': self.user.username})
+        url = reverse(
+            "profiles_profile_detail", kwargs={"username": self.user.username}
+        )
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 404)
 
@@ -309,7 +312,9 @@ class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
 
     def test_related_user_can_see_the_profile(self):
         self.client.force_login(self.owner)
-        url = reverse('profiles_profile_detail', kwargs={'username': self.user.username})
+        url = reverse(
+            "profiles_profile_detail", kwargs={"username": self.user.username}
+        )
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
 
@@ -320,6 +325,6 @@ class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
     def test_user_without_orgs_can_see_their_own_profile(self):
         new_user = get(User)
         self.client.force_login(new_user)
-        url = reverse('profiles_profile_detail', kwargs={'username': new_user.username})
+        url = reverse("profiles_profile_detail", kwargs={"username": new_user.username})
         resp = self.client.get(url)
         self.assertEqual(resp.status_code, 200)
