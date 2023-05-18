@@ -1,8 +1,8 @@
 import functools
 
 from django.conf import settings
-from django.http import Http404
-from django.shortcuts import redirect
+from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import resolve_url
 
 
 def redirect_if_organization_unspecified(dispatch):
@@ -27,12 +27,17 @@ def redirect_if_organization_unspecified(dispatch):
             current_url_kwargs = cbv_object.request.resolver_match.kwargs
             current_url_args = cbv_object.request.resolver_match.args
 
+            querystring = cbv_object.request.QUERY_STRING
+
             # User controls exactly 1 organization, so we can redirect here.
             if organizations.count() == 1:
                 current_url_kwargs["slug"] = organizations.first().slug
-                return redirect(
+                destination_url = resolve_url(
                     current_url_name, *current_url_args, **current_url_kwargs
                 )
+                if querystring:
+                    destination_url += "?" + querystring
+                return HttpResponseRedirect(destination_url)
 
             # TODO: Otherwise, here, we're going to redirect to a page where the user can
             # choose the organization.
