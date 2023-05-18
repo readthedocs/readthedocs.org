@@ -1,9 +1,7 @@
 """Base classes for organization views."""
 from functools import lru_cache
 
-from django.conf import settings
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 
@@ -20,27 +18,14 @@ from readthedocs.organizations.models import (
     Team,
     TeamMember,
 )
-
-
-class CheckOrganizationsEnabled:
-
-    """
-    Return 404 if organizations aren't enabled.
-
-    All organization views should inherit this class.
-    This is mainly for our tests to work,
-    adding the organization urls conditionally on readthedocs/urls.py
-    doesn't work as the file is evaluated only once, not per-test case.
-    """
-
-    def dispatch(self, *args, **kwargs):
-        if not settings.RTD_ALLOW_ORGANIZATIONS:
-            raise Http404
-        return super().dispatch(*args, **kwargs)
+from readthedocs.organizations.views.decorators import (
+    redirect_if_organization_unspecified,
+    redirect_if_organizations_disabled,
+)
 
 
 # Mixins
-class OrganizationMixin(CheckOrganizationsEnabled):
+class OrganizationMixin:
 
     """
     Mixin class that provides organization sublevel objects.
@@ -57,6 +42,11 @@ class OrganizationMixin(CheckOrganizationsEnabled):
 
     org_url_field = 'slug'
     admin_only = True
+
+    @redirect_if_organizations_disabled
+    @redirect_if_organization_unspecified
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     def get_queryset(self):
         """Return queryset that returns organizations for user."""
@@ -128,15 +118,22 @@ class OrganizationTeamMixin(OrganizationMixin):
 
 
 # Base views
-class OrganizationView(CheckOrganizationsEnabled):
+class OrganizationView:
 
     """Mixin for an organization view that doesn't have nested components."""
 
     model = Organization
-    lookup_field = 'slug'
-    lookup_url_field = 'slug'
     form_class = OrganizationForm
     admin_only = True
+
+    # Only relevant when mixed into
+    lookup_field = 'slug'
+    lookup_url_field = 'slug'
+
+    @redirect_if_organizations_disabled
+    @redirect_if_organization_unspecified
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     def get_queryset(self):
         if self.admin_only:

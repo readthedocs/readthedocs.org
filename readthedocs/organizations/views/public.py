@@ -8,20 +8,26 @@ from vanilla import DetailView, GenericView, ListView
 
 from readthedocs.organizations.models import Team
 from readthedocs.organizations.views.base import (
-    CheckOrganizationsEnabled,
     OrganizationMixin,
     OrganizationTeamMemberView,
     OrganizationTeamView,
     OrganizationView,
+)
+from readthedocs.organizations.views.decorators import (
+    redirect_if_organizations_disabled,
 )
 from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
 
 
-class OrganizationTemplateView(CheckOrganizationsEnabled, TemplateView):
+class OrganizationTemplateView(TemplateView):
 
     """Wrapper around `TemplateView` to check if organizations are enabled."""
+
+    @redirect_if_organizations_disabled
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 
 # Organization
@@ -92,9 +98,13 @@ class ListOrganizationTeamMembers(OrganizationTeamMemberView, ListView):
         return context
 
 
-class RedirectRedeemTeamInvitation(CheckOrganizationsEnabled, GenericView):
+class RedirectRedeemTeamInvitation(GenericView):
 
     """Redirect invitation links to the new view."""
+
+    @redirect_if_organizations_disabled
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
     # pylint: disable=unused-argument
     def get(self, request, *args, **kwargs):
