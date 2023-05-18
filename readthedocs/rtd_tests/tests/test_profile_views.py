@@ -1,15 +1,19 @@
 import itertools
 
 from django.contrib.auth.models import User
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
 from rest_framework.authtoken.models import Token
 
 from readthedocs.audit.models import AuditLog
+from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.models import Project
 
 
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=False,
+)
 class ProfileViewsTest(TestCase):
 
     def setUp(self):
@@ -232,3 +236,90 @@ class ProfileViewsTest(TestCase):
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
         self.assertQuerysetEqual(auditlogs, queryset)
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+)
+class ProfileViewsWithOrganizationsTest(ProfileViewsTest):
+
+    def setUp(self):
+        super().setUp()
+        self.owner = get(User, username='owner')
+        self.team_mate = get(User, username='teammate')
+        self.org = get(Organization, owners=[self.owner])
+
+        self.team = get(
+            Team,
+            organization=self.org,
+            name='admin',
+            access='admin',
+            projects=[],
+        )
+        self.org.add_member(
+            self.user,
+            self.team,
+        )
+        self.org.add_member(
+            self.team_mate,
+            self.team,
+        )
+        self.team2 = get(
+            Team,
+            organization=self.org,
+            name='another-team',
+            access='readonly',
+            projects=[],
+        )
+        self.org.add_member(
+            self.team_mate,
+            self.team2,
+        )
+
+        self.another_owner = get(User, username='another_owner')
+        self.another_user = get(User, username='another_user')
+        self.another_org = get(Organization, owners=[self.another_owner])
+        self.another_team = get(
+            Team,
+            organization=self.another_org,
+            name='admin',
+            access='admin',
+            projects=[],
+        )
+        self.another_org.add_member(
+            self.another_user,
+            self.another_team,
+        )
+
+    def test_user_can_see_the_profile(self):
+        self.client.force_login(self.user)
+        url = reverse('profiles_profile_detail', kwargs={'username': self.user.username})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+    def test_unrelated_user_can_not_see_the_profile(self):
+        self.client.force_login(self.another_user)
+        url = reverse('profiles_profile_detail', kwargs={'username': self.user.username})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)
+
+        self.client.force_login(self.another_owner)
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 404)
+
+    def test_related_user_can_see_the_profile(self):
+        self.client.force_login(self.owner)
+        url = reverse('profiles_profile_detail', kwargs={'username': self.user.username})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+        self.client.force_login(self.team_mate)
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
+
+    def test_user_without_orgs_can_see_their_own_profile(self):
+        new_user = get(User)
+        self.client.force_login(new_user)
+        url = reverse('profiles_profile_detail', kwargs={'username': new_user.username})
+        resp = self.client.get(url)
+        self.assertEqual(resp.status_code, 200)
