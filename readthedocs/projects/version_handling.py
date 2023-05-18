@@ -3,11 +3,7 @@ import unicodedata
 
 from packaging.version import InvalidVersion, Version
 
-from readthedocs.builds.constants import (
-    LATEST_VERBOSE_NAME,
-    STABLE_VERBOSE_NAME,
-    TAG,
-)
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME, TAG
 from readthedocs.vcs_support.backends import backend_cls
 
 
@@ -42,7 +38,7 @@ def parse_version_failsafe(version_string):
         # Handle the special case of 1.x, 2.x or 1.0.x, 1.1.x
         if final_form and '.x' in final_form:
             # Replace the .x with .999999 so it's sorted last.
-            final_form = final_form.replace('.x', '.999999')
+            final_form = final_form.replace(".x", ".999999")
             return parse_version_failsafe(final_form)
     except UnicodeError:
         pass
