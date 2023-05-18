@@ -41,7 +41,9 @@ def parse_version_failsafe(version_string):
     except InvalidVersion:
         # Handle the special case of 1.x, 2.x or 1.0.x, 1.1.x
         if final_form and '.x' in final_form:
-            return parse_version_failsafe(final_form.replace('.x', '.0'))
+            # Replace the .x with .999999 so it's sorted last.
+            final_form = final_form.replace('.x', '.999999')
+            return parse_version_failsafe(final_form)
     except UnicodeError:
         pass
 
