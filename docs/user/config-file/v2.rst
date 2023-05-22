@@ -194,7 +194,7 @@ The path to the requirements file, relative to the root of the project.
 
 :Key: ``requirements``
 :Type: ``path``
-:Required: ``true``
+:Required: ``false``
 
 Example:
 
@@ -222,7 +222,7 @@ The path to the package, relative to the root of the project.
 
 :Key: ``path``
 :Type: ``path``
-:Required: ``true``
+:Required: ``false``
 
 The installation method.
 
@@ -297,7 +297,7 @@ conda.environment
 The path to the Conda `environment file <https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_, relative to the root of the project.
 
 :Type: ``path``
-:Required: ``true``
+:Required: ``false``
 
 build
 ~~~~~
