@@ -389,27 +389,15 @@ class OrganizationUnspecifiedChooser(TestCase):
         self.owner = get(User, username="owner")
         self.member = get(User, username="member")
         self.project = get(Project, slug="project")
-        self.project_b = get(Project, slug="project-b")
         self.organization = get(
             Organization,
             owners=[self.owner],
             projects=[self.project, self.project_b],
         )
-        self.team = get(
-            Team,
-            organization=self.organization,
-            members=[self.member],
-        )
-
         self.another_organization = get(
             Organization,
             owners=[self.owner],
             projects=[self.project],
-        )
-        self.another_team = get(
-            Team,
-            organization=self.another_organization,
-            members=[self.owner],
         )
         self.client.force_login(self.owner)
 
@@ -442,16 +430,10 @@ class OrganizationUnspecifiedSingleOrganizationRedirect(TestCase):
         self.owner = get(User, username="owner")
         self.member = get(User, username="member")
         self.project = get(Project, slug="project")
-        self.project_b = get(Project, slug="project-b")
         self.organization = get(
             Organization,
             owners=[self.owner],
             projects=[self.project, self.project_b],
-        )
-        self.team = get(
-            Team,
-            organization=self.organization,
-            members=[self.member],
         )
         self.client.force_login(self.owner)
 
@@ -461,3 +443,34 @@ class OrganizationUnspecifiedSingleOrganizationRedirect(TestCase):
         self.assertRedirects(
             resp, reverse("organization_edit", kwargs={"slug": self.organization.slug})
         )
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    RTD_DEFAULT_FEATURES={
+        TYPE_AUDIT_LOGS: 90,
+    },
+)
+class OrganizationUnspecifiedNoOrganizationRedirect(TestCase):
+    def setUp(self):
+        self.owner = get(User, username="owner")
+        self.member = get(User, username="member")
+        self.project = get(Project, slug="project")
+        self.client.force_login(self.owner)
+
+    def test_unspecified_slug_redirects_to_organization_edit(self):
+        self.assertEqual(Organization.objects.count(), 0)
+        resp = self.client.get(reverse("organization_members", kwargs={"slug": "-"}))
+        self.assertRedirects(
+            resp,
+            reverse(
+                "organization_choose", kwargs={"next_name": "organization_members"}
+            ),
+        )
+
+    def test_choose_organization_edit(self):
+        self.assertEqual(Organization.objects.count(), 0)
+        resp = self.client.get(
+            reverse("organization_choose", kwargs={"next_name": "organization_edit"})
+        )
+        self.assertContains(resp, "You aren't currently a member of any organizations")
