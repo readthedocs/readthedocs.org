@@ -376,3 +376,88 @@ class OrganizationSignupTestCase(TestCase):
             resp,
             reverse('organization_detail', kwargs={'slug': org.slug}),
         )
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    RTD_DEFAULT_FEATURES={
+        TYPE_AUDIT_LOGS: 90,
+    },
+)
+class OrganizationUnspecifiedChooser(TestCase):
+    def setUp(self):
+        self.owner = get(User, username="owner")
+        self.member = get(User, username="member")
+        self.project = get(Project, slug="project")
+        self.project_b = get(Project, slug="project-b")
+        self.organization = get(
+            Organization,
+            owners=[self.owner],
+            projects=[self.project, self.project_b],
+        )
+        self.team = get(
+            Team,
+            organization=self.organization,
+            members=[self.member],
+        )
+
+        self.another_organization = get(
+            Organization,
+            owners=[self.owner],
+            projects=[self.project],
+        )
+        self.another_team = get(
+            Team,
+            organization=self.another_organization,
+            members=[self.owner],
+        )
+        self.client.force_login(self.owner)
+
+    def test_members_list_redirects_to_organization_choose(self):
+        self.assertEqual(Organization.objects.count(), 2)
+        resp = self.client.get(reverse("organization_members", kwargs={"slug": "-"}))
+        self.assertRedirects(
+            resp,
+            reverse(
+                "organization_choose", kwargs={"next_name": "organization_members"}
+            ),
+        )
+
+    def test_choose_organization_edit(self):
+        self.assertEqual(Organization.objects.count(), 2)
+        resp = self.client.get(
+            reverse("organization_choose", kwargs={"next_name": "organization_edit"})
+        )
+        self.assertEqual(resp.status_code, 200)
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    RTD_DEFAULT_FEATURES={
+        TYPE_AUDIT_LOGS: 90,
+    },
+)
+class OrganizationUnspecifiedSingleOrganizationRedirect(TestCase):
+    def setUp(self):
+        self.owner = get(User, username="owner")
+        self.member = get(User, username="member")
+        self.project = get(Project, slug="project")
+        self.project_b = get(Project, slug="project-b")
+        self.organization = get(
+            Organization,
+            owners=[self.owner],
+            projects=[self.project, self.project_b],
+        )
+        self.team = get(
+            Team,
+            organization=self.organization,
+            members=[self.member],
+        )
+        self.client.force_login(self.owner)
+
+    def test_unspecified_slug_redirects_to_organization_edit(self):
+        self.assertEqual(Organization.objects.count(), 1)
+        resp = self.client.get(reverse("organization_edit", kwargs={"slug": "-"}))
+        self.assertRedirects(
+            resp, reverse("organization_edit", kwargs={"slug": self.organization.slug})
+        )

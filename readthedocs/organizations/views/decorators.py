@@ -26,6 +26,8 @@ def redirect_if_organization_unspecified(dispatch):
 
     @functools.wraps(dispatch)
     def inner(cbv_object, *args, **kwargs):
+
+        # Some views don't have a slug, skip those
         slug = cbv_object.kwargs.get("slug", "")
 
         # Magic '-' slug means that an organization hasn't been set in the URL.
