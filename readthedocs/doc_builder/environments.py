@@ -376,7 +376,7 @@ class DockerBuildCommand(BuildCommand):
                 for part in self.command
             )
         )
-        return "/bin/sh -c '{prefix}{cmd}'".format(
+        return "/bin/sh -c '{prefix}\n{cmd}'".format(
             prefix=prefix,
             cmd=command,
         )
