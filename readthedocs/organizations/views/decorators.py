@@ -3,6 +3,7 @@ import functools
 from django.conf import settings
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import resolve_url
+from django.urls import NoReverseMatch
 from django.utils.http import urlencode
 from structlog import get_logger
 
@@ -53,9 +54,15 @@ def redirect_if_organization_unspecified(dispatch):
 
             # User is a member of exactly 1 organization, so we can redirect here.
             if organizations.count() == 1:
-                destination_url = resolve_url(
-                    current_url_name, slug=organizations.first().slug
-                )
+                try:
+                    destination_url = resolve_url(
+                        current_url_name, slug=organizations.first().slug
+                    )
+                except NoReverseMatch:
+                    log.warning(
+                        "Tried to redirect from unspecified slug to a URL name that doesn't exist"
+                    )
+                    raise Http404
                 if querystring:
                     destination_url += "?" + querystring
                 return HttpResponseRedirect(destination_url)

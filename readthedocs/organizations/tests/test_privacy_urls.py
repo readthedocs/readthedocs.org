@@ -19,11 +19,12 @@ class OrganizationMixin(URLAccessMixin):
         self.invite = get(TeamInvite, organization=self.organization, team=self.team)
         self.default_kwargs.update(
             {
-                'slug': self.organization.slug,
-                'team': self.team.slug,
-                'hash': self.invite.hash,
-                'owner': self.org_owner.pk,
-                'member': self.team_member.pk,
+                "slug": self.organization.slug,
+                "team": self.team.slug,
+                "hash": self.invite.hash,
+                "owner": self.org_owner.pk,
+                "member": self.team_member.pk,
+                "next_name": "organization_detail",
             }
         )
 
