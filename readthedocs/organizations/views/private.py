@@ -69,6 +69,16 @@ class ListOrganization(PrivateViewMixin, OrganizationView, ListView):
         return Organization.objects.for_user(user=self.request.user)
 
 
+class ChooseOrganization(ListOrganization):
+    template_name = "organizations/organization_choose.html"
+
+    def get_context_data(self, **kwargs):
+        c = super().get_context_data(**kwargs)
+        c["next_name"] = self.kwargs["next_name"]
+        c["next_querystring"] = self.request.GET.get("next_querystring")
+        return c
+
+
 class EditOrganization(
         PrivateViewMixin,
         UpdateChangeReasonPostView,

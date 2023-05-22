@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load gravatar %}
+{% load organizations %}
+
+{% block title %}{% trans "Before continuing, choose an organization..." %}{% endblock %}
+
+{% block organization-bar-organization %}active{% endblock %}
+
+{% block content %}
+  <div class="col-major organization-major">
+    <div class="module organizations organizations-list">
+      <div class="module-wrapper">
+
+        <h2>{% trans "Before continuing, choose an organization..." %}</h2>
+
+        <p>
+          {% trans "You are a member of several organizations." %}<br>
+          {% trans "Click the organization that you want to use:" %}
+        </p>
+
+        {% with orgs=request.user|organization %}
+          {% if orgs %}
+            <!-- BEGIN organization list -->
+            <div class="module-list">
+              <div class="module-list-wrapper">
+
+                <ul>
+                  {% for org in orgs %}
+                    <li>
+                      <a href="{% url next_name slug=org.slug %}{% if next_querystring %}?{{ next_querystring }}{% endif %}">
+                        {% gravatar org.email 48 %}
+                        {{ org.name }}
+                      </a>
+                    </li>
+                  {% endfor %}
+                </ul>
+
+              </div>
+            </div>
+            <!-- END organization list -->
+          {% else %}
+            <p>You aren't currently a member of any organizations</p>
+          {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
