@@ -171,7 +171,7 @@ djangorestframework==3.14.0
     #   drf-extensions
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
-docker==6.1.0
+docker==6.1.2
     # via -r requirements/pip.txt
 docutils==0.17.1
     # via
