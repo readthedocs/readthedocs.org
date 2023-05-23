@@ -102,6 +102,11 @@ since we can re-use the code from knox package.
 
 Attaching tokens to projects only is possible,
 but it will require to manage the authentication manually.
+This is since Knox requires a user to be attached to the token,
+and this user is used in their ``TokenAuthentication`` class.
+An alternative is to use the DRF API key package, which doesn't require a user,
+but then if we wanted to extend this functionality to our normal APIs, we will have
+to implement the authentication manually.
 
 Kepping backwards compatibility
 -------------------------------
@@ -121,6 +126,8 @@ There is a race condition when using the token,
 and the user that is attached to that token is removed from the project.
 This is, if the user is removed while the build is running,
 the builders won't be able to access the API.
+We could avoid this by not relying on the user attached to the token,
+only on the projects attached to it (this would be for our build APIs only).
 
 Alternative implementation with Django REST Framework API Key
 -------------------------------------------------------------
