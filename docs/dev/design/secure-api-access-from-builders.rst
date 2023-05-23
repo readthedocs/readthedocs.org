@@ -51,7 +51,7 @@ some relevant features of knox are:
 - Support for several tokens per user.
 - Tokens are stored in a hashed format in the database.
   We don't have access the tokens after they are created.
-- Tokens can hava an expiration date.
+- Tokens can have an expiration date.
 - Tokens can be created with a prefix (rtd_xxx) (unreleased)
 - Support for custom token model (unreleased)
 
