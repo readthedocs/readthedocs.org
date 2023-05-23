@@ -30,7 +30,7 @@ from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
-from readthedocs.core.utils import slugify
+from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.projects import constants
@@ -1446,7 +1446,18 @@ class APIProject(Project):
                 del kwargs[key]
             except KeyError:
                 pass
-        super().__init__(*args, **kwargs)
+
+        valid_attributes, invalid_attributes = extract_valid_attributes_for_model(
+            model=Project,
+            attributes=kwargs,
+        )
+        if invalid_attributes:
+            log.warning(
+                "APIProject got unexpected attributes.",
+                invalid_attributes=invalid_attributes,
+            )
+
+        super().__init__(*args, **valid_attributes)
 
         # Overwrite the database property with the value from the API
         self.ad_free = ad_free

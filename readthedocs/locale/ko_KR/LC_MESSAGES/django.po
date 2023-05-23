@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-02 15:39+0000\n"
+"POT-Creation-Date: 2023-05-23 04:24+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Chanyoung Oh <ndcd607@gmail.com>, 2016,2018\n"
 "Language-Team: Korean (Korea) (http://app.transifex.com/readthedocs/"
@@ -19,7 +19,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: analytics/models.py:69 builds/models.py:632 projects/models.py:1427
+#: analytics/models.py:69 builds/models.py:677 projects/models.py:1427
 #: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:262
 msgid "Version"
 msgstr "버전"
@@ -155,7 +155,7 @@ msgid "Log out"
 msgstr ""
 
 #: audit/models.py:91 organizations/views/private.py:105
-#: organizations/views/private.py:170 projects/views/private.py:480
+#: organizations/views/private.py:170 projects/views/private.py:468
 msgid "Invitation sent"
 msgstr ""
 
@@ -184,7 +184,7 @@ msgstr ""
 msgid "Username"
 msgstr ""
 
-#: audit/models.py:138 builds/models.py:109 builds/models.py:626
+#: audit/models.py:138 builds/models.py:110 builds/models.py:671
 #: projects/models.py:1421 redirects/models.py:57
 msgid "Project"
 msgstr "프로젝트"
@@ -209,7 +209,7 @@ msgstr ""
 msgid "Organization slug"
 msgstr ""
 
-#: audit/models.py:180 builds/models.py:1144
+#: audit/models.py:180 builds/models.py:1189
 msgid "Action"
 msgstr ""
 
@@ -416,7 +416,7 @@ msgstr ""
 msgid "Custom match"
 msgstr ""
 
-#: builds/filters.py:26 builds/models.py:148 redirects/models.py:23
+#: builds/filters.py:26 builds/models.py:149 redirects/models.py:23
 msgid "Active"
 msgstr "활성"
 
@@ -437,7 +437,7 @@ msgstr ""
 msgid "Pull/merge request"
 msgstr ""
 
-#: builds/filters.py:41 builds/models.py:150 builds/models.py:648
+#: builds/filters.py:41 builds/models.py:151 builds/models.py:693
 msgid "State"
 msgstr "상태"
 
@@ -446,321 +446,321 @@ msgstr "상태"
 msgid "Any"
 msgstr ""
 
-#: builds/filters.py:47 builds/models.py:114 builds/models.py:638
+#: builds/filters.py:47 builds/models.py:115 builds/models.py:683
 #: sphinx_domains/models.py:59 subscriptions/models.py:97
 msgid "Type"
 msgstr "종류"
 
-#: builds/forms.py:45
+#: builds/forms.py:43
 msgid "States"
 msgstr ""
 
-#: builds/forms.py:54 projects/filters.py:181
+#: builds/forms.py:52 projects/filters.py:181
 msgid "Privacy"
 msgstr ""
 
-#: builds/forms.py:75
+#: builds/forms.py:76
 #, python-brace-format
 msgid "{version} is the default version of the project, it should be active."
 msgstr ""
 
-#: builds/forms.py:168
+#: builds/forms.py:166
 msgid "Custom match should not be empty."
 msgstr ""
 
-#: builds/forms.py:175
+#: builds/forms.py:173
 msgid "Invalid Python regular expression."
 msgstr ""
 
-#: builds/models.py:97 projects/models.py:1509 projects/models.py:1677
+#: builds/models.py:98 projects/models.py:1509 projects/models.py:1677
 msgid "created"
 msgstr ""
 
-#: builds/models.py:102 projects/models.py:1514
+#: builds/models.py:103 projects/models.py:1514
 msgid "modified"
 msgstr ""
 
-#: builds/models.py:128
+#: builds/models.py:129
 msgid "Identifier"
 msgstr "식별자"
 
-#: builds/models.py:135
+#: builds/models.py:136
 msgid "Verbose Name"
 msgstr ""
 
-#: builds/models.py:142 oauth/models.py:32 organizations/models.py:52
+#: builds/models.py:143 oauth/models.py:32 organizations/models.py:52
 #: projects/models.py:135 subscriptions/models.py:33
 msgid "Slug"
 msgstr ""
 
-#: builds/models.py:147
+#: builds/models.py:148
 msgid "Supported"
 msgstr "지원함"
 
-#: builds/models.py:155
+#: builds/models.py:156
 msgid "State of the PR/MR associated to this version."
 msgstr ""
 
-#: builds/models.py:157
+#: builds/models.py:158
 msgid "Built"
 msgstr "빌드됨"
 
-#: builds/models.py:158
+#: builds/models.py:159
 msgid "Uploaded"
 msgstr "업로드됨"
 
-#: builds/models.py:160 projects/models.py:429
+#: builds/models.py:161 projects/models.py:429
 msgid "Privacy Level"
 msgstr "보안 수준"
 
-#: builds/models.py:164
+#: builds/models.py:165
 msgid "Level of privacy for this Version."
 msgstr "이 버전의 보안 수준"
 
-#: builds/models.py:167
+#: builds/models.py:168
 msgid "Hidden"
 msgstr ""
 
-#: builds/models.py:169
+#: builds/models.py:170
 msgid "Hide this version from the version (flyout) menu and search results?"
 msgstr ""
 
-#: builds/models.py:171
+#: builds/models.py:172
 msgid "Machine Created"
 msgstr "머신 생성됨"
 
-#: builds/models.py:174
+#: builds/models.py:175
 msgid "Has PDF"
 msgstr ""
 
-#: builds/models.py:175
+#: builds/models.py:176
 msgid "Has ePub"
 msgstr ""
 
-#: builds/models.py:176
+#: builds/models.py:177
 msgid "Has HTML Zip"
 msgstr ""
 
-#: builds/models.py:179 projects/models.py:210
+#: builds/models.py:180 projects/models.py:210
 msgid "Documentation type"
 msgstr "문서 종류"
 
-#: builds/models.py:184
+#: builds/models.py:185
 msgid "Type of documentation the version was built with."
 msgstr ""
 
-#: builds/models.py:189
+#: builds/models.py:190
 msgid "Data generated at build time by the doctool (`readthedocs-build.yaml`)."
 msgstr ""
 
-#: builds/models.py:206
+#: builds/models.py:207
 #, python-brace-format
 msgid "Version {version} of {project} ({pk})"
 msgstr "{project} ({pk})의 버전 {version}"
 
-#: builds/models.py:660
+#: builds/models.py:705
 msgid "Status"
 msgstr ""
 
-#: builds/models.py:667 integrations/models.py:147
+#: builds/models.py:712 integrations/models.py:147
 msgid "Date"
 msgstr "날짜"
 
-#: builds/models.py:668
+#: builds/models.py:713
 msgid "Success"
 msgstr "성공"
 
-#: builds/models.py:673
+#: builds/models.py:718
 msgid "Setup"
 msgstr "설치"
 
-#: builds/models.py:674
+#: builds/models.py:719
 msgid "Setup error"
 msgstr "설치 오류"
 
-#: builds/models.py:675
+#: builds/models.py:720
 msgid "Output"
 msgstr "결과물"
 
-#: builds/models.py:676 templates/builds/build_detail.html:224
+#: builds/models.py:721 templates/builds/build_detail.html:224
 msgid "Error"
 msgstr "오류"
 
-#: builds/models.py:677
+#: builds/models.py:722
 msgid "Exit code"
 msgstr "종료 코드"
 
-#: builds/models.py:682 projects/models.py:1438 sphinx_domains/models.py:43
+#: builds/models.py:727 projects/models.py:1438 sphinx_domains/models.py:43
 msgid "Commit"
 msgstr "커밋"
 
-#: builds/models.py:688
+#: builds/models.py:733
 msgid "Version slug"
 msgstr ""
 
-#: builds/models.py:694
+#: builds/models.py:739
 msgid "Version name"
 msgstr ""
 
-#: builds/models.py:700 builds/models.py:1157
+#: builds/models.py:745 builds/models.py:1202
 msgid "Version type"
 msgstr ""
 
-#: builds/models.py:707
+#: builds/models.py:752
 msgid "Configuration used in the build"
 msgstr ""
 
-#: builds/models.py:712
+#: builds/models.py:757
 msgid "Custom build configuration file path used in this build"
 msgstr ""
 
-#: builds/models.py:720
+#: builds/models.py:765
 msgid "Build Length"
 msgstr "빌드 길이"
 
-#: builds/models.py:723
+#: builds/models.py:768
 msgid "Builder"
 msgstr "빌더"
 
-#: builds/models.py:730
+#: builds/models.py:775
 msgid "Cold Storage"
 msgstr ""
 
-#: builds/models.py:736
+#: builds/models.py:781
 msgid "Celery task id"
 msgstr ""
 
-#: builds/models.py:847
+#: builds/models.py:892
 #, python-brace-format
 msgid "Build {project} for {usernames} ({pk})"
 msgstr ""
 
-#: builds/models.py:1055
+#: builds/models.py:1100
 msgid "Build"
 msgstr "빌드"
 
-#: builds/models.py:1060
+#: builds/models.py:1105
 msgid "Command"
 msgstr "명령어"
 
-#: builds/models.py:1061 builds/models.py:1121 oauth/models.py:135
+#: builds/models.py:1106 builds/models.py:1166 oauth/models.py:135
 #: organizations/models.py:66 projects/models.py:137 subscriptions/models.py:28
 #: subscriptions/models.py:100 templates/core/project_details.html:78
 msgid "Description"
 msgstr "설명"
 
-#: builds/models.py:1062
+#: builds/models.py:1107
 msgid "Command output"
 msgstr ""
 
-#: builds/models.py:1063
+#: builds/models.py:1108
 msgid "Command exit code"
 msgstr ""
 
-#: builds/models.py:1065
+#: builds/models.py:1110
 msgid "Start time"
 msgstr "시작 시간"
 
-#: builds/models.py:1066
+#: builds/models.py:1111
 msgid "End time"
 msgstr "종료 시간"
 
-#: builds/models.py:1076
+#: builds/models.py:1121
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
 msgstr ""
 
-#: builds/models.py:1100
+#: builds/models.py:1145
 msgid "Activate version"
 msgstr ""
 
-#: builds/models.py:1101
+#: builds/models.py:1146
 msgid "Hide version"
 msgstr ""
 
-#: builds/models.py:1102
+#: builds/models.py:1147
 msgid "Make version public"
 msgstr ""
 
-#: builds/models.py:1103
+#: builds/models.py:1148
 msgid "Make version private"
 msgstr ""
 
-#: builds/models.py:1104
+#: builds/models.py:1149
 msgid "Set version as default"
 msgstr ""
 
-#: builds/models.py:1105
+#: builds/models.py:1150
 msgid "Delete version"
 msgstr ""
 
-#: builds/models.py:1117
+#: builds/models.py:1162
 msgid "Rule priority"
 msgstr ""
 
-#: builds/models.py:1118
+#: builds/models.py:1163
 msgid "A lower number (0) means a higher priority"
 msgstr ""
 
-#: builds/models.py:1127
+#: builds/models.py:1172
 msgid "Match argument"
 msgstr ""
 
-#: builds/models.py:1128
+#: builds/models.py:1173
 msgid "Value used for the rule to match the version"
 msgstr ""
 
-#: builds/models.py:1132
+#: builds/models.py:1177
 msgid "Predefined match argument"
 msgstr ""
 
-#: builds/models.py:1134
+#: builds/models.py:1179
 msgid ""
 "Match argument defined by us, it is used if is not None, otherwise match_arg "
 "will be used."
 msgstr ""
 
-#: builds/models.py:1145
+#: builds/models.py:1190
 msgid "Action to apply to matching versions"
 msgstr ""
 
-#: builds/models.py:1150
+#: builds/models.py:1195
 msgid "Action argument"
 msgstr ""
 
-#: builds/models.py:1151
+#: builds/models.py:1196
 msgid "Value used for the action to perfom an operation"
 msgstr ""
 
-#: builds/models.py:1158
+#: builds/models.py:1203
 msgid "Type of version the rule should be applied to"
 msgstr ""
 
-#: builds/models.py:1382
+#: builds/models.py:1427
 msgid "Version activated"
 msgstr ""
 
-#: builds/models.py:1383
+#: builds/models.py:1428
 msgid "Version hidden"
 msgstr ""
 
-#: builds/models.py:1385
+#: builds/models.py:1430
 msgid "Version set to public privacy"
 msgstr ""
 
-#: builds/models.py:1388
+#: builds/models.py:1433
 msgid "Version set to private privacy"
 msgstr ""
 
-#: builds/models.py:1390
+#: builds/models.py:1435
 msgid "Version set as default"
 msgstr ""
 
-#: builds/models.py:1391
+#: builds/models.py:1436
 msgid "Version deleted"
 msgstr ""
 
-#: builds/models.py:1396
+#: builds/models.py:1441
 msgid "Matched rule"
 msgstr ""
 
@@ -859,19 +859,19 @@ msgstr ""
 msgid "Command exited abnormally"
 msgstr "명령어가 비정상적으로 종료됨"
 
-#: doc_builder/environments.py:651
+#: doc_builder/environments.py:654
 msgid "A build environment is currently running for this version"
 msgstr ""
 
-#: doc_builder/environments.py:811
+#: doc_builder/environments.py:814
 msgid "Build exited due to time out"
 msgstr "시간 초과로 빌드가 종료됨"
 
-#: doc_builder/environments.py:816
+#: doc_builder/environments.py:819
 msgid "Build exited due to excessive memory consumption"
 msgstr "지나친 메모리 사용으로 빌드가 종료됨"
 
-#: doc_builder/environments.py:822
+#: doc_builder/environments.py:825
 #, python-brace-format
 msgid "Build exited due to unknown error: {0}"
 msgstr "알 수 없는 이유로 빌드가 종료됨: {0}"
@@ -1876,11 +1876,11 @@ msgstr ""
 msgid "Member removed from team"
 msgstr ""
 
-#: profiles/views.py:72
+#: profiles/views.py:73
 msgid "You have successfully deleted your account"
 msgstr ""
 
-#: profiles/views.py:127
+#: profiles/views.py:147
 msgid "Updated your advertising preferences"
 msgstr "광고 설정 변경됨"
 
@@ -2728,32 +2728,24 @@ msgid "Build: Use new pip resolver"
 msgstr ""
 
 #: projects/models.py:2024
-#, fuzzy
-#| msgid "Use latest version of Sphinx"
 msgid "Build: Don't install the latest version of pip"
-msgstr "최신 버전의 Sphinx를 사용하세요"
+msgstr ""
 
 #: projects/models.py:2026
-#, fuzzy
-#| msgid "Use latest version of Sphinx"
 msgid "Sphinx: Use latest version of Sphinx"
-msgstr "최신 버전의 Sphinx를 사용하세요"
+msgstr ""
 
 #: projects/models.py:2029
 msgid "MkDOcs: Install mkdocs 0.17.3 by default"
 msgstr ""
 
 #: projects/models.py:2031
-#, fuzzy
-#| msgid "Use latest version of Sphinx"
 msgid "MkDocs: Use latest version of MkDocs"
-msgstr "최신 버전의 Sphinx를 사용하세요"
+msgstr ""
 
 #: projects/models.py:2034
-#, fuzzy
-#| msgid "Use latest version of Sphinx"
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
-msgstr "최신 버전의 Sphinx를 사용하세요"
+msgstr ""
 
 #: projects/models.py:2040
 msgid "Search: Disable server side search"
@@ -2913,35 +2905,31 @@ msgstr ""
 msgid "Project deleted"
 msgstr "프로젝트 삭제됨"
 
-#: projects/views/private.py:392
+#: projects/views/private.py:380
 #, python-brace-format
 msgid ""
 "There is a problem with your {service} account, try reconnecting your "
 "account on your <a href=\"{url}\">connected services page</a>."
 msgstr ""
 
-#: projects/views/private.py:514
+#: projects/views/private.py:502
 #, python-brace-format
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:968
+#: projects/views/private.py:956
 msgid "Project has been opted out from advertisement support"
 msgstr ""
 
 #: proxito/exceptions.py:96
-#, fuzzy
-#| msgid "Subprojects"
 msgctxt "Names an object not found in a 404 error"
 msgid "subproject"
-msgstr "하위 프로젝트"
+msgstr ""
 
 #: proxito/exceptions.py:141
-#, fuzzy
-#| msgid "Translations"
 msgctxt "Names an object not found in a 404 error"
 msgid "translation"
-msgstr "번역"
+msgstr ""
 
 #: redirects/models.py:18
 msgid "301 - Permanent Redirect"
@@ -4067,10 +4055,8 @@ msgid "Create redirects when you move contents:"
 msgstr ""
 
 #: templates/errors/404/no_project.html:9
-#, fuzzy
-#| msgid "Domain"
 msgid "no domain"
-msgstr "도메인"
+msgstr ""
 
 #: templates/errors/404/no_project.html:9
 #, python-format
