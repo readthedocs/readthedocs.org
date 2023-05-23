@@ -376,10 +376,13 @@ class DockerBuildCommand(BuildCommand):
                 for part in self.command
             )
         )
-        return "/bin/sh -c '{prefix}\n{cmd}'".format(
-            prefix=prefix,
-            cmd=command,
-        )
+        if prefix:
+            # Using `;` or `\n` to separate the `prefix` where we define the
+            # variables with the `command` itself, have the same effect.
+            # However, using `;` is more explicit.
+            # See https://github.com/readthedocs/readthedocs.org/pull/10334
+            return f"/bin/sh -c '{prefix}; {command}'"
+        return f"/bin/sh -c '{command}'"
 
     def _escape_command(self, cmd):
         r"""Escape the command by prefixing suspicious chars with `\`."""
