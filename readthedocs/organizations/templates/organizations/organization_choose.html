@@ -16,8 +16,10 @@
         <h2>{% trans "Before continuing, choose an organization..." %}</h2>
 
         <p>
-          {% trans "You are a member of several organizations." %}<br>
-          {% trans "Select the organization that you want to use:" %}
+          {% blocktrans trimmed %}
+            You are a member of several organizations.
+            Select the organization that you want to use:
+          {% endblocktrans %}
         </p>
 
           {% if organization_list %}
