@@ -848,7 +848,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         if response:
             return response
 
-        # No custom 404 page, use our contextualized 404 response
+        # Don't use the custom 404 page, use our general contextualized 404 response
         # Several additional context variables can be added if the templates
         # or other error handling is developed (version, language, filename).
         raise contextualized_404_class(
