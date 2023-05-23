@@ -75,6 +75,35 @@ define the prefix in the ``custom_subproject_prefix`` attribute of the super pro
 We have validations in place to ensure that the custom prefix is defined in the correct project
 (this validations are run when the project is saved from a form or the admin).
 
+Examples
+~~~~~~~~
+
+Say we have the following projects:
+
+- docs (main project)
+- docs-es (spanish translation of the docs project)
+- subproject (subproject of the docs project)
+- subproject-es (spanish translation of the subproject project)
+
+They are normally served from:
+
+- docs.rtd.io/en/latest/
+- docs.rtd.io/es/latest/
+- docs.rtd.io/projects/subproject/en/latest/
+- docs.rtd.io/projects/subproject/es/latest/
+
+Then we add a custom path prefix like:
+
+- docs with a custom path prefix of ``/prefix/``
+- docs with a custom subproject path of ``/s/``
+
+Now they will be served from:
+
+- docs.rtd.io/prefix/en/latest/
+- docs.rtd.io/prefix/es/latest/
+- docs.rtd.io/s/subproject/en/latest/
+- docs.rtd.io/s/subproject/es/latest/
+
 CDN
 ---
 
