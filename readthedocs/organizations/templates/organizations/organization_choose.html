@@ -17,7 +17,7 @@
 
         <p>
           {% trans "You are a member of several organizations." %}<br>
-          {% trans "Click the organization that you want to use:" %}
+          {% trans "Select the organization that you want to use:" %}
         </p>
 
           {% if organization_list %}
@@ -40,7 +40,7 @@
             </div>
             <!-- END organization list -->
           {% else %}
-            <p>You aren't currently a member of any organizations</p>
+            <p>{% trans "You aren't currently a member of any organizations." %}</p>
           {% endif %}
       </div>
     </div>
