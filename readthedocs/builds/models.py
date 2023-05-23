@@ -61,8 +61,7 @@ from readthedocs.builds.utils import (
 )
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
-from readthedocs.core.utils import extract_valid_attributes_for_model
-from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils import extract_valid_attributes_for_model, trigger_build
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
