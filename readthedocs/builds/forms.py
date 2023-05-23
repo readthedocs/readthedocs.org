@@ -22,8 +22,6 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
-from readthedocs.builds.signals import version_changed
-from readthedocs.core.utils import trigger_build
 
 
 class VersionForm(forms.ModelForm):
@@ -67,6 +65,9 @@ class VersionForm(forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(*field_sets)
+        # We need to know if the version was active before the update.
+        # We use this value in the save method.
+        self._was_active = self.instance.active if self.instance else False
 
     def clean_active(self):
         active = self.cleaned_data['active']
@@ -86,10 +87,7 @@ class VersionForm(forms.ModelForm):
 
     def save(self, commit=True):
         obj = super().save(commit=commit)
-        if obj.active and not obj.built and not obj.uploaded:
-            trigger_build(project=obj.project, version=obj)
-        if self.has_changed():
-            version_changed.send(sender=self.__class__, version=obj)
+        obj.post_save(was_active=self._was_active)
         return obj
 
 
