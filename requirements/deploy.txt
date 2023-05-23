@@ -136,7 +136,7 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.7
     # via -r requirements/pip.txt
-django-debug-toolbar==4.0.0
+django-debug-toolbar==4.1.0
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==7.3
     # via -r requirements/pip.txt
