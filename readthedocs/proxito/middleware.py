@@ -299,14 +299,16 @@ class ProxitoMiddleware(MiddlewareMixin):
             # Check for the feature flag
             if project.has_feature(Feature.HOSTING_INTEGRATIONS):
                 addons = True
+            else:
+                # Check if the version forces injecting the addons (e.g. using `build.commands`)
+                version = (
+                    project.versions.filter(slug=version_slug).only("addons").first()
+                )
+                if version and version.addons:
+                    addons = True
 
-            # Check if the version forces injecting the addons (e.g. using `build.commands`)
-            version = project.versions.filter(slug=version_slug).first()
-            if version and version.addons:
-                addons = True
-
-        if addons:
-            response["X-RTD-Hosting-Integrations"] = "true"
+            if addons:
+                response["X-RTD-Hosting-Integrations"] = "true"
 
     def _get_https_redirect(self, request):
         """
