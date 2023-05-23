@@ -20,14 +20,13 @@
           {% trans "Click the organization that you want to use:" %}
         </p>
 
-        {% with orgs=request.user|organization %}
-          {% if orgs %}
+          {% if organization_list %}
             <!-- BEGIN organization list -->
             <div class="module-list">
               <div class="module-list-wrapper">
 
                 <ul>
-                  {% for org in orgs %}
+                  {% for org in organization_list %}
                     <li>
                       <a href="{% url next_name slug=org.slug %}{% if next_querystring %}?{{ next_querystring }}{% endif %}">
                         {% gravatar org.email 48 %}
@@ -43,7 +42,6 @@
           {% else %}
             <p>You aren't currently a member of any organizations</p>
           {% endif %}
-        {% endwith %}
       </div>
     </div>
   </div>
