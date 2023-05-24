@@ -1,3 +1,23 @@
+Version 9.13.0
+--------------
+
+:Date: May 23, 2023
+
+* `@humitos <https://github.com/humitos>`__: Build: allow multi-line commands on `build.commands` (`#10334 <https://github.com/readthedocs/readthedocs.org/pull/10334>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: allow users without organizations to see their own profiles (`#10329 <https://github.com/readthedocs/readthedocs.org/pull/10329>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version comparing: sort 1.x versions last  (`#10326 <https://github.com/readthedocs/readthedocs.org/pull/10326>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Proxito: Search scope narrowed to active project (version, translation or subproject 404s) (`#10324 <https://github.com/readthedocs/readthedocs.org/pull/10324>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix resolver tests on .com (`#10316 <https://github.com/readthedocs/readthedocs.org/pull/10316>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: fix when searching an empty query (`#10312 <https://github.com/readthedocs/readthedocs.org/pull/10312>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V3: clean version when deactivated and build version when activated (`#10308 <https://github.com/readthedocs/readthedocs.org/pull/10308>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Change a few configuration file options from required to not required (`#10303 <https://github.com/readthedocs/readthedocs.org/pull/10303>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10298 <https://github.com/readthedocs/readthedocs.org/pull/10298>`__)
+* `@stsewd <https://github.com/stsewd>`__: GitHub: add feature request template (`#10294 <https://github.com/readthedocs/readthedocs.org/pull/10294>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use same version of setuptools when using `system_packages` (`#10287 <https://github.com/readthedocs/readthedocs.org/pull/10287>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 9.12.0 (`#10284 <https://github.com/readthedocs/readthedocs.org/pull/10284>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Allow build.commands without build.tools (`#10281 <https://github.com/readthedocs/readthedocs.org/pull/10281>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed API V3: allow private versions (`#10261 <https://github.com/readthedocs/readthedocs.org/pull/10261>`__)
+
 Version 9.12.0
 --------------
 
