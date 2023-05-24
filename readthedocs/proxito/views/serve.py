@@ -19,6 +19,7 @@ from readthedocs.core.unresolver import (
     InvalidExternalVersionError,
     InvalidPathForVersionedProjectError,
     TranslationNotFoundError,
+    TranslationWithoutVersionError,
     VersionNotFoundError,
     unresolver,
 )
@@ -357,6 +358,25 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             # TODO: find a better way to pass this to the middleware.
             request.path_project_slug = exc.project.slug
             raise Http404
+        except TranslationWithoutVersionError as exc:
+            project = exc.project
+            # TODO: find a better way to pass this to the middleware.
+            request.path_project_slug = project.slug
+
+            if unresolved_domain.is_from_external_domain:
+                version_slug = unresolved_domain.external_version_slug
+            else:
+                version_slug = None
+            # Redirect to the default version of the current translation.
+            # This is `/en -> /en/latest/` or
+            # `/projects/subproject/en/ -> /projects/subproject/en/latest/`.
+            return self.system_redirect(
+                request=request,
+                final_project=project,
+                version_slug=version_slug,
+                filename="",
+                is_external_version=unresolved_domain.is_from_external_domain,
+            )
         except InvalidPathForVersionedProjectError as exc:
             project = exc.project
             if unresolved_domain.is_from_external_domain:
@@ -745,7 +765,9 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         project = None
         version = None
-        filename = None
+        # If we weren't able to resolve a filename,
+        # then the path is the filename.
+        filename = path
         lang_slug = None
         version_slug = None
         # Try to map the current path to a project/version/filename.
@@ -778,6 +800,10 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             version_slug = exc.version_slug
             filename = exc.filename
             contextualized_404_class = ProjectTranslationHttp404
+        except TranslationWithoutVersionError as exc:
+            project = exc.project
+            lang_slug = exc.language
+            # TODO: Use a contextualized 404
         except InvalidExternalVersionError as exc:
             project = exc.project
             # TODO: Use a contextualized 404
