@@ -433,7 +433,7 @@ We don't currently support PPA's or other custom repositories.
 
 .. warning::
 
-   Currently, it's not possible to use this option when using :ref:`build.commands`.
+   Currently, it's not possible to use this option when using :ref:`config-file/v2:build.commands`.
 
 
 build.jobs
