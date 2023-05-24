@@ -88,7 +88,7 @@ Root language redirect at ``/<lang>/``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A link to the root language of your documentation (``<slug>.readthedocs.io/en/``)
-will redirect to the  :term:`default version` of that translation.
+will redirect to the  :term:`default version` of that language.
 
 .. TODO: Remove this once the feature is default on .com
 
@@ -96,7 +96,7 @@ This redirect is currently only active on |org_brand| (``<slug>.readthedocs.io``
 
 Root language redirects on |com_brand| can be enabled by contacting :doc:`support </support>`.
 
-For example::
+For example, accessing the English language of the project will redirect you to the its version (``stable``)::
 
    https://docs.readthedocs.io/en/ -> https://docs.readthedocs.io/en/stable/
 
