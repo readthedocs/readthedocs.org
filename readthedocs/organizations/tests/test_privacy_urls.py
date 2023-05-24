@@ -58,8 +58,8 @@ class AuthUserOrganizationsTest(OrganizationMixin, TestCase):
 
     response_data = {
         # Places where we 302 on success.
-        '/organizations/invite/{hash}/redeem/': {'status_code': 302},
-
+        "/organizations/choose/{next_name}/": {"status_code": 302},
+        "/organizations/invite/{hash}/redeem/": {"status_code": 302},
         # 405's where we should be POST'ing
         '/organizations/{slug}/owners/{owner}/delete/': {'status_code': 405},
         '/organizations/{slug}/teams/{team}/members/{member}/revoke/': {'status_code': 405},

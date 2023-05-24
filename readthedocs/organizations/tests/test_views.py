@@ -406,16 +406,6 @@ class OrganizationUnspecifiedChooser(TestCase):
         )
         self.client.force_login(self.owner)
 
-    def test_members_list_redirects_to_organization_choose(self):
-        self.assertEqual(Organization.objects.count(), 2)
-        resp = self.client.get(reverse("organization_members", kwargs={"slug": "-"}))
-        self.assertRedirects(
-            resp,
-            reverse(
-                "organization_choose", kwargs={"next_name": "organization_members"}
-            ),
-        )
-
     def test_choose_organization_edit(self):
         """
         Verify that the choose page works.
@@ -434,17 +424,6 @@ class OrganizationUnspecifiedChooser(TestCase):
                 "organization_edit", kwargs={"slug": self.another_organization.slug}
             ),
         )
-
-    def test_no_redirect_organization_team_detail(self):
-        """
-        Verify that organization views w extra URL kwargs just return 404 if unspecified slug.
-        """
-        resp = self.client.get(
-            reverse(
-                "organization_team_detail", kwargs={"slug": "-", "team": self.team.pk}
-            )
-        )
-        self.assertEqual(resp.status_code, 404)
 
 
 @override_settings(
@@ -467,7 +446,9 @@ class OrganizationUnspecifiedSingleOrganizationRedirect(TestCase):
 
     def test_unspecified_slug_redirects_to_organization_edit(self):
         self.assertEqual(Organization.objects.count(), 1)
-        resp = self.client.get(reverse("organization_edit", kwargs={"slug": "-"}))
+        resp = self.client.get(
+            reverse("organization_choose", kwargs={"next_name": "organization_edit"})
+        )
         self.assertRedirects(
             resp, reverse("organization_edit", kwargs={"slug": self.organization.slug})
         )
@@ -485,16 +466,6 @@ class OrganizationUnspecifiedNoOrganizationRedirect(TestCase):
         self.member = get(User, username="member")
         self.project = get(Project, slug="project")
         self.client.force_login(self.owner)
-
-    def test_unspecified_slug_redirects_to_organization_edit(self):
-        self.assertEqual(Organization.objects.count(), 0)
-        resp = self.client.get(reverse("organization_members", kwargs={"slug": "-"}))
-        self.assertRedirects(
-            resp,
-            reverse(
-                "organization_choose", kwargs={"next_name": "organization_members"}
-            ),
-        )
 
     def test_choose_organization_edit(self):
         self.assertEqual(Organization.objects.count(), 0)
