@@ -1,5 +1,4 @@
 """Models for the builds app."""
-
 import datetime
 import os.path
 import re
@@ -52,6 +51,7 @@ from readthedocs.builds.querysets import (
     RelatedBuildQuerySet,
     VersionQuerySet,
 )
+from readthedocs.builds.signals import version_changed
 from readthedocs.builds.utils import (
     external_version_name,
     get_bitbucket_username_repo,
@@ -61,6 +61,7 @@ from readthedocs.builds.utils import (
 )
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
+from readthedocs.core.utils import extract_valid_attributes_for_model, trigger_build
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
@@ -144,7 +145,11 @@ class Version(TimeStampedModel):
         populate_from='verbose_name',
     )
 
+    # TODO: this field (`supported`) could be removed. It's returned only on
+    # the footer API response but I don't think anybody is using this field at
+    # all.
     supported = models.BooleanField(_('Supported'), default=True)
+
     active = models.BooleanField(_('Active'), default=False)
     state = models.CharField(
         _("State"),
@@ -155,7 +160,12 @@ class Version(TimeStampedModel):
         help_text=_("State of the PR/MR associated to this version."),
     )
     built = models.BooleanField(_("Built"), default=False)
+
+    # TODO: this field (`uploaded`) could be removed. It was used to mark a
+    # version as "Manually uploaded" by the core team, but this is not required
+    # anymore. Users can use `build.commands` for these cases now.
     uploaded = models.BooleanField(_("Uploaded"), default=False)
+
     privacy_level = models.CharField(
         _('Privacy Level'),
         max_length=20,
@@ -189,6 +199,13 @@ class Version(TimeStampedModel):
         _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
         default=None,
         null=True,
+    )
+
+    addons = models.BooleanField(
+        _("Inject new addons js library for this version"),
+        null=True,
+        blank=True,
+        default=False,
     )
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
@@ -380,6 +397,50 @@ class Version(TimeStampedModel):
         log.info('Removing files for version.', version_slug=self.slug)
         clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
+
+    def clean_resources(self):
+        """
+        Remove all resources from this version.
+
+        This includes removing files from storage,
+        and removing its search index.
+        """
+        from readthedocs.projects.tasks.utils import clean_project_resources
+
+        log.info(
+            "Removing files for version.",
+            project_slug=self.project.slug,
+            version_slug=self.slug,
+        )
+        clean_project_resources(project=self.project, version=self)
+        self.built = False
+        self.save()
+
+    def post_save(self, was_active=False):
+        """
+        Run extra steps after updating a version.
+
+        This method isn't called automatically by a signal but is called explicitly
+        from other processes.
+
+        Useful to run after the version has been saved/updated
+        by the user, like from a form or API.
+
+        - When a version is deactivated, we need to clean up its
+          files from storage, and search index.
+        - When a version is activated, we need to trigger a build.
+        - We also need to purge the cache from the CDN,
+          since the version could have been activated/deactivated,
+          or its privacy level could have changed.
+        """
+        # If the version is deactivated, we need to clean up the files.
+        if was_active and not self.active:
+            self.clean_resources()
+        # If the version is activated, we need to trigger a build.
+        if not was_active and self.active:
+            trigger_build(project=self.project, version=self)
+        # Purge the cache from the CDN.
+        version_changed.send(sender=self.__class__, version=self)
 
     @property
     def identifier_friendly(self):
@@ -611,7 +672,17 @@ class APIVersion(Version):
                 del kwargs[key]
             except KeyError:
                 pass
-        super().__init__(*args, **kwargs)
+        valid_attributes, invalid_attributes = extract_valid_attributes_for_model(
+            model=Version,
+            attributes=kwargs,
+        )
+        if invalid_attributes:
+            log.warning(
+                "APIVersion got unexpected attributes.",
+                invalid_attributes=invalid_attributes,
+            )
+
+        super().__init__(*args, **valid_attributes)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         return 0
