@@ -431,6 +431,10 @@ We don't currently support PPA's or other custom repositories.
    When possible avoid installing Python packages using apt (``python3-numpy`` for example),
    :doc:`use pip or conda instead </guides/reproducible-builds>`.
 
+.. warning::
+
+   Currently, it's not possible to use this option when using :ref:`build.commands`.
+
 
 build.jobs
 ``````````
