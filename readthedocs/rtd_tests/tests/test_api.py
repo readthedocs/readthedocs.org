@@ -46,7 +46,7 @@ from readthedocs.builds.constants import (
     EXTERNAL_VERSION_STATE_CLOSED,
     LATEST,
 )
-from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import (
     RemoteOrganization,
@@ -705,19 +705,27 @@ class APITests(TestCase):
     def test_user_doesnt_get_full_api_return(self):
         user_normal = get(User, is_staff=False)
         user_admin = get(User, is_staff=True)
-        project = get(Project, main_language_project=None, conf_py_file='foo')
+        project = get(
+            Project,
+            main_language_project=None,
+            conf_py_file="foo",
+            readthedocs_yaml_path="bar",
+        )
         client = APIClient()
 
         client.force_authenticate(user=user_normal)
         resp = client.get('/api/v2/project/%s/' % (project.pk))
         self.assertEqual(resp.status_code, 200)
-        self.assertNotIn('conf_py_file', resp.data)
+        self.assertNotIn("conf_py_file", resp.data)
+        self.assertNotIn("readthedocs_yaml_path", resp.data)
 
         client.force_authenticate(user=user_admin)
         resp = client.get('/api/v2/project/%s/' % (project.pk))
         self.assertEqual(resp.status_code, 200)
-        self.assertIn('conf_py_file', resp.data)
-        self.assertEqual(resp.data['conf_py_file'], 'foo')
+        self.assertIn("conf_py_file", resp.data)
+        self.assertEqual(resp.data["conf_py_file"], "foo")
+        self.assertIn("readthedocs_yaml_path", resp.data)
+        self.assertEqual(resp.data["readthedocs_yaml_path"], "bar")
 
     def test_project_features(self):
         user = get(User, is_staff=True)
@@ -845,6 +853,29 @@ class APITests(TestCase):
             api_project.environment_variables(public_only=True),
             {'RELEASE': 'prod'},
         )
+
+    def test_invalid_attributes_api_project(self):
+        invalid_attribute = "invalid_attribute"
+        project_data = {
+            "name": "Test Project",
+            "slug": "test-project",
+            "show_advertising": True,
+            invalid_attribute: "nope",
+        }
+        api_project = APIProject(**project_data)
+        self.assertFalse(hasattr(api_project, invalid_attribute))
+
+    def test_invalid_attributes_api_version(self):
+        invalid_attribute = "invalid_attribute"
+        version_data = {
+            "type": "branch",
+            "identifier": "main",
+            "verbose_name": "main",
+            "slug": "v2",
+            invalid_attribute: "nope",
+        }
+        api_version = APIVersion(**version_data)
+        self.assertFalse(hasattr(api_version, invalid_attribute))
 
     @override_settings(
         RTD_DEFAULT_FEATURES={
@@ -2478,6 +2509,7 @@ class APIVersionTests(TestCase):
                 "repo": "https://github.com/pypa/pip",
                 "repo_type": "git",
                 "requirements_file": None,
+                "readthedocs_yaml_path": None,
                 "show_advertising": True,
                 "skip": False,
                 "slug": "pip",

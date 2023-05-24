@@ -171,7 +171,15 @@ class Virtualenv(PythonEnvironment):
             positive='pip<20.3',
             negative='pip',
         )
-        cmd = pip_install_cmd + [pip_version, 'setuptools<58.3.0']
+        # Installing a project with setup.py install is deprecated
+        # in new versions of setuptools, so we need to pin setuptools
+        # to a supported version if the project is using setup.py install.
+        setuptools_version = (
+            "setuptools<58.3.0"
+            if self.config.is_using_setup_py_install
+            else "setuptools"
+        )
+        cmd = pip_install_cmd + [pip_version, setuptools_version]
         self.build_env.run(
             *cmd,
             bin_path=self.venv_bin(),
@@ -240,15 +248,13 @@ class Virtualenv(PythonEnvironment):
             # even if it is already installed system-wide (and
             # --system-site-packages is used)
             cmd.append('-I')
-            # If this flag is present,
-            # we need to cap setuptools again.
-            # See https://github.com/readthedocs/readthedocs.org/issues/8775
-            requirements.append('setuptools<58.3.0')
+            # The same version of setuptools used above needs to be used here.
+            requirements.append(setuptools_version)
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
             bin_path=self.venv_bin(),
-            cwd=self.checkout_path  # noqa - no comma here in py27 :/
+            cwd=self.checkout_path,
         )
 
     def install_requirements_file(self, install):

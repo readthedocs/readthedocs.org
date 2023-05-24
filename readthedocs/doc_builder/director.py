@@ -1,3 +1,12 @@
+"""
+The ``director`` module can be seen as the entrypoint of the build process.
+
+It "directs" all of the high-level build jobs:
+
+* checking out the repo
+* setting up the environment
+* fetching instructions etc.
+"""
 import os
 import tarfile
 
@@ -197,17 +206,34 @@ class BuildDirector:
 
     # VCS checkout
     def checkout(self):
-        log.info(
-            "Clonning repository.",
-        )
+        """Checkout Git repo and load build config file."""
+
+        log.info("Cloning repository.")
         self.vcs_repository.update()
 
         identifier = self.data.build_commit or self.data.version.identifier
         log.info("Checking out.", identifier=identifier)
         self.vcs_repository.checkout(identifier)
 
-        self.data.config = load_yaml_config(version=self.data.version)
+        # The director is responsible for understanding which config file to use for a build.
+        # In order to reproduce a build 1:1, we may use readthedocs_yaml_path defined by the build
+        # instead of per-version or per-project.
+        # Use the below line to fetch the readthedocs_yaml_path defined per-build.
+        # custom_config_file = self.data.build.get("readthedocs_yaml_path", None)
+        custom_config_file = None
+
+        # This logic can be extended with version-specific config files
+        if not custom_config_file and self.data.version.project.readthedocs_yaml_path:
+            custom_config_file = self.data.version.project.readthedocs_yaml_path
+
+        if custom_config_file:
+            log.info("Using a custom .readthedocs.yaml file.", path=custom_config_file)
+        self.data.config = load_yaml_config(
+            version=self.data.version,
+            readthedocs_yaml_path=custom_config_file,
+        )
         self.data.build["config"] = self.data.config.as_dict()
+        self.data.build["readthedocs_yaml_path"] = custom_config_file
 
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)
@@ -360,6 +386,7 @@ class BuildDirector:
             raise BuildUserError(BuildUserError.BUILD_OUTPUT_OLD_DIRECTORY_USED)
 
     def run_build_commands(self):
+        """Runs each build command in the build environment."""
         reshim_commands = (
             {"pip", "install"},
             {"conda", "create"},
@@ -515,6 +542,14 @@ class BuildDirector:
                     self.data.config.python_interpreter not in ("conda", "mamba"),
                 ]
             ):
+                # We cap setuptools to avoid breakage of projects
+                # relying on setup.py invokations,
+                # see https://github.com/readthedocs/readthedocs.org/issues/8659
+                setuptools_version = (
+                    "setuptools<58.3.0"
+                    if self.data.config.is_using_setup_py_install
+                    else "setuptools"
+                )
                 # Install our own requirements if the version is compiled
                 cmd = [
                     "python",
@@ -522,10 +557,7 @@ class BuildDirector:
                     "install",
                     "-U",
                     "virtualenv",
-                    # We cap setuptools to avoid breakage of projects
-                    # relying on setup.py invokations,
-                    # see https://github.com/readthedocs/readthedocs.org/issues/8659
-                    "setuptools<58.3.0",
+                    setuptools_version,
                 ]
                 self.build_environment.run(
                     *cmd,
