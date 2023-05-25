@@ -137,4 +137,4 @@ so that you have a reference for how we're using them.
       * Git providers have webhooks which are special URLs that Read the Docs can call in order to notify about documentation builds.
       * Read the Docs has a unique webhook for each project that the Git provider calls when changes happen in Git.
 
-      See also: :doc:`/guides/git-integrations` and :doc:`/build-notifications`
+      See also: :doc:`/guides/setup/git-repo-manual` and :doc:`/build-notifications`
