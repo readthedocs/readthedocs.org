@@ -49,7 +49,8 @@ By default we serve documentation from the following paths:
 
 - Multi version project: ``/<language>/<version>/<filename>``
 - Single version project: ``/<filename>``
-- Subproject: ``/projects/<subproject-alias>/<subproject-path>``
+- Subproject (multi version): ``/projects/<subproject-alias>/<language>/<version>/<filename>``
+- Subproject (single version): ``/projects/<subproject-alias>/<filename>``
 
 Custom path prefixes can be used to change the prefix from where the documentation is served from,
 and even change the ``/projects`` prefix for subprojects.

@@ -72,6 +72,10 @@ class ResolverBase:
 
         We first build a format string based on the given fields,
         then we just call ``string.format()`` with the given values.
+
+        For example, if custom prefix is given, the path will be prefixed with it.
+        In case of a subproject (project_relationship is given),
+        the path will be prefixed with the subproject prefix (defaults to ``/projects/<subproject-slug>/``).
         """
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
@@ -116,7 +120,7 @@ class ResolverBase:
             if "$" in path:
                 log.warning(
                     "Unconverted variable in a resolver URLConf.",
-                    url=path,
+                    path=path,
                 )
 
         subproject_alias = project_relationship.alias if project_relationship else ""

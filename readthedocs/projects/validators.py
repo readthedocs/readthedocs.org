@@ -209,7 +209,7 @@ def validate_custom_subproject_prefix(project, prefix):
     if main_project.is_subproject:
         raise ValidationError(
             "This project is a subproject, the subproject prefix must "
-            "be defined in the parent project custom_subproject_prefix attribute.",
+            'be defined in the parent project "custom_subproject_prefix" attribute.',
             code="invalid_project",
         )
 
