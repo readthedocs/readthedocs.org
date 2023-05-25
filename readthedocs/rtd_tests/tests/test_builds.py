@@ -260,12 +260,12 @@ class BuildModelTests(TestCase):
             state='finished',
         )
 
-        self.assertFalse(build.deprecated_config_used())
+        self.assertTrue(build.deprecated_config_used())
 
         build.config = {'version': 2}
         build.save()
 
-        self.assertTrue(build.deprecated_config_used())
+        self.assertFalse(build.deprecated_config_used())
 
     def test_build_is_external(self):
         # Turn the build version to EXTERNAL type.
