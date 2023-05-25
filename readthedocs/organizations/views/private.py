@@ -3,7 +3,7 @@
 
 from django.conf import settings
 from django.contrib import messages
-from django.http import Http404, HttpResponseBadRequest
+from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
@@ -74,11 +74,7 @@ class ListOrganization(PrivateViewMixin, OrganizationView, ListView):
 class ChooseOrganization(ListOrganization):
     template_name = "organizations/organization_choose.html"
 
-    def dispatch(self, request, *args, **kwargs):
-
-        # We're overwriting a mixin dispatch()
-        if not settings.RTD_ALLOW_ORGANIZATIONS:
-            raise Http404
+    def get(self, request, *args, **kwargs):
 
         self.next_name = self.kwargs["next_name"]
         self.next_querystring = self.request.GET.get("next_querystring")
@@ -93,7 +89,7 @@ class ChooseOrganization(ListOrganization):
                 redirect_url += "?" + urlencode(self.next_querystring)
             return redirect(redirect_url)
 
-        return super().dispatch(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         c = super().get_context_data(**kwargs)
