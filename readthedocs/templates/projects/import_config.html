@@ -1,0 +1,50 @@
+{% extends "projects/import_base.html" %}
+{% load i18n %}
+
+{% block content %}
+<h3>{% trans "Project configuration file (<code>.readthedocs.yaml</code>)" %}</h3>
+
+<p class="info">
+    {% blocktrans trimmed %}
+    Make sure your project has a <code>.readthedocs.yaml</code> at the root of your repository. This file is required by Read the Docs to be able to build your documentation. You can read more about this at https://docs.readthedocs.io/en/stable/config-file/v2.html
+    {% endblocktrans %}
+</p>
+
+<p class="info">
+    Here you have an example for a Sphinx project:
+
+    <code><pre>
+# .readthedocs.yaml
+# Read the Docs configuration file
+# See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
+
+# Required
+version: 2
+
+# Set the version of Python and other tools you might need
+build:
+  os: ubuntu-22.04
+  tools:
+    python: "3.11"
+    # You can also specify other tool versions:
+    # nodejs: "19"
+    # rust: "1.64"
+    # golang: "1.19"
+
+# Build documentation in the docs/ directory with Sphinx
+sphinx:
+   configuration: docs/conf.py
+
+# If using Sphinx, optionally build your docs in additional formats such as PDF
+# formats:
+#    - pdf
+
+# Optionally declare the Python requirements required to build your docs
+python:
+   install:
+   - requirements: docs/requirements.txt
+    </pre></code>
+</p>
+
+{{ block.super }}
+{% endblock %}

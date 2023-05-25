@@ -191,6 +191,21 @@ class ProjectExtraForm(ProjectForm):
         return tags
 
 
+class ProjectConfigForm(forms.Form):
+
+    """Simple intermediate step to communicate about the .readthedocs.yaml file."""
+
+    confirm = forms.BooleanField(
+        help_text="I've already added a '.readthedocs.yaml' file to my project",
+        required=True,
+    )
+
+    def __init__(self, *args, **kwargs):
+        # Remove 'user' field since it's not expected by BaseForm.
+        kwargs.pop("user")
+        super().__init__(*args, **kwargs)
+
+
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
