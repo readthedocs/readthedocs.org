@@ -10,7 +10,7 @@ please read :doc:`/commercial/single-sign-on`
 Prerequisites
 -------------
 
-.. include:: /_includes/organization-permissions.rst
+.. include:: /shared/organization-permissions.rst
 
 User setup
 ~~~~~~~~~~
