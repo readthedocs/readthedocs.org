@@ -11,7 +11,7 @@ For private repositories, please use :doc:`Read the Docs for Business </commerci
 Automatically import your docs
 ------------------------------
 
-If you have :doc:`connected your Read the Docs account <../connected-accounts>` to GitHub, Bitbucket, or GitLab,
+If you have :doc:`connected your Read the Docs account </guides/connecting-git-account>` to GitHub, Bitbucket, or GitLab,
 you will see a list of your repositories that we are able to import.
 To import one of these projects, just click the import
 icon next to the repository you'd like to import. This will bring up a form that
@@ -55,7 +55,7 @@ configure a new webhook.
 
 .. seealso::
 
-   :doc:`/guides/git-integrations`
+   :doc:`/guides/setup/git-repo-manual`
       Once you have imported your git project, use this guide to manually set up basic and additional *webhook* integration.
 
 .. note::

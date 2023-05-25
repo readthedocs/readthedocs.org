@@ -60,6 +60,12 @@ class TranslationNotFoundError(UnresolverError):
         self.version_slug = version_slug
 
 
+class TranslationWithoutVersionError(UnresolverError):
+    def __init__(self, project, language):
+        self.project = project
+        self.language = language
+
+
 class InvalidPathForVersionedProjectError(UnresolverError):
     def __init__(self, project, path):
         self.project = project
@@ -271,6 +277,14 @@ class Unresolver:
                     version_slug=version_slug,
                     filename=file,
                 )
+
+        # If only the language part was given,
+        # we can't resolve the version.
+        if version_slug is None:
+            raise TranslationWithoutVersionError(
+                project=project,
+                language=language,
+            )
 
         if external_version_slug and external_version_slug != version_slug:
             raise InvalidExternalVersionError(
