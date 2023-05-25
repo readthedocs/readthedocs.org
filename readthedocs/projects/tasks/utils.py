@@ -3,9 +3,11 @@ import os
 
 import structlog
 from celery.worker.request import Request
+from django.core.cache import cache
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from messages_extends.constants import WARNING_PERSISTENT
 
 from readthedocs.builds.constants import (
     BUILD_FINAL_STATES,
@@ -14,7 +16,11 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Build
 from readthedocs.builds.tasks import send_build_status
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.filesystem import safe_rmtree
+from readthedocs.notifications import Notification, SiteNotification
+from readthedocs.notifications.backends import EmailBackend
+from readthedocs.notifications.constants import REQUIREMENT
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -152,6 +158,81 @@ def send_external_build_status(version_type, build_pk, commit, status):
     if version_type == EXTERNAL:
         # call the task that actually send the build status.
         send_build_status.delay(build_pk, commit, status)
+
+
+class DeprecatedConfigFileSiteNotification(SiteNotification):
+
+    failure_message = (
+        "Your project '{{ object.slug }}' doesn't have a "
+        '<a href="https://docs.readthedocs.io/en/stable/config-file/v2.html">.readthedocs.yaml</a> '
+        "configuration file. "
+        "This feature is <strong>deprecated and will be removed soon</strong>. "
+        "Make sure to create one for your project to keep your builds working."
+    )
+    failure_level = WARNING_PERSISTENT
+
+
+class DeprecatedConfigFileEmailNotification(Notification):
+
+    app_templates = "projects"
+    name = "deprecated_config_file_used"
+    context_object_name = "project"
+    subject = "Your project will start failing soon"
+    level = REQUIREMENT
+
+    def send(self):
+        """Method overwritten to remove on-site backend."""
+        backend = EmailBackend(self.request)
+        backend.send(self)
+
+
+@app.task(queue="web")
+def deprecated_config_file_used_notification(build_pk):
+    """
+    Create a notification about not using a config file for all the maintainers of the project.
+
+    This task is triggered by the build process to be executed on the webs,
+    since we don't have access to the db from the build.
+    """
+    build = Build.objects.filter(pk=build_pk).first()
+    if not build or not build.deprecated_config_used:
+        return
+
+    log.bind(
+        build_pk=build_pk,
+        project_slug=build.project.slug,
+    )
+
+    users = AdminPermission.owners(build.project)
+    log.bind(users=len(users))
+
+    log.info("Sending deprecation config file onsite notification.")
+    for user in users:
+        n = DeprecatedConfigFileSiteNotification(
+            user=user,
+            context_object=build.project,
+            success=False,
+        )
+        n.send()
+
+    # Send email notifications only once a week
+    cache_prefix = "deprecated-config-file-notification"
+    cached = cache.get(f"{cache_prefix}-{build.project.slug}")
+    if cached:
+        log.info("Deprecation config file email sent recently. Skipping.")
+        return
+
+    log.info("Sending deprecation config file email notification.")
+    for user in users:
+        n = DeprecatedConfigFileEmailNotification(
+            user=user,
+            context_object=build.project,
+        )
+        n.send()
+
+    # Cache this notification for a week
+    # TODO: reduce this notification period to 3 days after having this deployed for some weeks
+    cache.set(f"{cache_prefix}-{build.project.slug}", "sent", timeout=7 * 24 * 60 * 60)
 
 
 class BuildRequest(Request):

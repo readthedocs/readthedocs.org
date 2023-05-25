@@ -66,7 +66,12 @@ from ..models import APIProject, Feature, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import fileify
-from .utils import BuildRequest, clean_build, send_external_build_status
+from .utils import (
+    BuildRequest,
+    clean_build,
+    deprecated_config_file_used_notification,
+    send_external_build_status,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -678,6 +683,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # previous to finishing the task.
         if self.data.build.get("state") not in BUILD_FINAL_STATES:
             build_state = BUILD_STATE_FINISHED
+
+        # Trigger a Celery task here to check if the build is using v1 or not a
+        # config file at all to create a on-site/email notifications. Note we
+        # can't create the notification from here since we don't have access to
+        # the database from the builders.
+        deprecated_config_file_used_notification.delay(self.data.build["id"])
 
         self.update_build(build_state)
         self.save_build_data()

@@ -1,0 +1,9 @@
+{% extends "core/email/common.txt" %}
+{% block content %}
+Your project "{{ project.slug }}" is not using a <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html">.readthedocs.yaml</a> configuration file and will stop working soon.
+
+We strongly recommend you to add a configuration file to keep your builds working.
+
+Get in touch with us at {{ production_uri }}{% url 'support' %}
+and let us know if you are unable to migrate to a config file for any reason.
+{% endblock %}
