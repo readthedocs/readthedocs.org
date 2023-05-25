@@ -1915,6 +1915,7 @@ class Feature(models.Model):
     DONT_CREATE_INDEX = "dont_create_index"
     USE_RCLONE = "use_rclone"
     HOSTING_INTEGRATIONS = "hosting_integrations"
+    NO_CONFIG_FILE_DEPRECATED = "no_config_file"
 
     FEATURES = (
         (ALLOW_DEPRECATED_WEBHOOKS, _("Webhook: Allow deprecated webhook views")),
@@ -2110,6 +2111,10 @@ class Feature(models.Model):
             _(
                 "Proxito: Inject 'readthedocs-client.js' as <script> HTML tag in responses."
             ),
+        ),
+        (
+            NO_CONFIG_FILE_DEPRECATED,
+            _("Build: Building without a configuration file is deprecated."),
         ),
     )
 
