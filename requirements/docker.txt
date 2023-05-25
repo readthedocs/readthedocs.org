@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.123
+boto3==1.26.137
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.123
+botocore==1.29.137
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -45,7 +45,7 @@ cachetools==5.3.0
     # via tox
 celery==5.2.7
     # via -r requirements/pip.txt
-certifi==2022.12.7
+certifi==2023.5.7
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -111,7 +111,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==3.2.18
+django==3.2.19
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -137,21 +137,21 @@ django-annoying==0.10.6
     # via -r requirements/pip.txt
 django-autoslug==1.9.9
     # via -r requirements/pip.txt
-django-cacheops==7.0
+django-cacheops==7.0.1
     # via -r requirements/pip.txt
-django-cors-headers==3.14.0
+django-cors-headers==4.0.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.7
     # via -r requirements/pip.txt
-django-debug-toolbar==4.0.0
+django-debug-toolbar==4.1.0
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==7.3
     # via -r requirements/pip.txt
 django-extensions==3.2.1
     # via -r requirements/pip.txt
-django-filter==23.1
+django-filter==23.2
     # via -r requirements/pip.txt
 django-formtools==2.3
     # via -r requirements/pip.txt
@@ -173,7 +173,7 @@ django-storages[boto3]==1.13.2
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
-django-taggit==3.1.0
+django-taggit==4.0.0
     # via -r requirements/pip.txt
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
@@ -183,7 +183,7 @@ djangorestframework==3.14.0
     #   drf-extensions
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
-docker==6.0.1
+docker==6.1.2
     # via -r requirements/pip.txt
 docutils==0.17.1
     # via
@@ -234,7 +234,7 @@ imagesize==1.4.1
     #   sphinx
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==8.13.1
+ipython==8.13.2
     # via ipdb
 jedi==0.18.2
     # via ipython
@@ -275,7 +275,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.8.11
+orjson==3.8.12
     # via -r requirements/pip.txt
 packaging==23.1
     # via
@@ -295,7 +295,7 @@ pickleshare==0.7.5
     # via ipython
 pillow==9.5.0
     # via -r requirements/docker.in
-platformdirs==3.5.0
+platformdirs==3.5.1
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -324,7 +324,7 @@ pygments==2.15.1
     #   pdbpp
     #   rich
     #   sphinx
-pyjwt[crypto]==2.6.0
+pyjwt[crypto]==2.7.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -351,14 +351,14 @@ pytz==2023.3
     #   djangorestframework
 pyyaml==5.4.1
     # via -r requirements/pip.txt
-redis==4.5.4
+redis==4.5.5
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
     #   django-redis
-regex==2023.3.23
+regex==2023.5.5
     # via -r requirements/pip.txt
-requests==2.29.0
+requests==2.30.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -372,11 +372,11 @@ requests-oauthlib==1.3.1
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-requests-toolbelt==0.10.1
+requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rich==13.3.5
     # via -r requirements/docker.in
-s3transfer==0.6.0
+s3transfer==0.6.1
     # via
     #   -r requirements/pip.txt
     #   boto3

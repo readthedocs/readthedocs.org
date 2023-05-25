@@ -600,6 +600,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                         "has_epub": "epub" in valid_artifacts,
                         "has_htmlzip": "htmlzip" in valid_artifacts,
                         "build_data": self.data.version.build_data,
+                        "addons": self.data.version.addons,
                     }
                 )
             except HttpClientError:
