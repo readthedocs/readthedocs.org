@@ -299,6 +299,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[7]._request.method == "PATCH"
         assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[7].json() == {
+            "addons": False,
             "build_data": None,
             "built": True,
             "documentation_type": "mkdocs",
@@ -552,6 +553,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[7]._request.method == "PATCH"
         assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[7].json() == {
+            "addons": False,
             "build_data": None,
             "built": True,
             "documentation_type": "sphinx",
@@ -708,7 +710,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--upgrade",
                     "--no-cache-dir",
                     "pip",
-                    "setuptools<58.3.0",
+                    "setuptools",
                     bin_path=mock.ANY,
                     cwd=mock.ANY,
                 ),
@@ -981,7 +983,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "-U",
                     "virtualenv",
-                    "setuptools<58.3.0",
+                    "setuptools",
                 ),
                 mock.call("asdf", "install", "nodejs", nodejs_version),
                 mock.call("asdf", "global", "nodejs", nodejs_version),
@@ -1138,7 +1140,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "-U",
                     "virtualenv",
-                    "setuptools<58.3.0",
+                    "setuptools",
                 ),
                 # NOTE: when running commands from `build.jobs` or
                 # `build.commands` they are not split to allow multi-line

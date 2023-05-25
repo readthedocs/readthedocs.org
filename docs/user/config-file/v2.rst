@@ -194,7 +194,7 @@ The path to the requirements file, relative to the root of the project.
 
 :Key: ``requirements``
 :Type: ``path``
-:Required: ``true``
+:Required: ``false``
 
 Example:
 
@@ -222,7 +222,7 @@ The path to the package, relative to the root of the project.
 
 :Key: ``path``
 :Type: ``path``
-:Required: ``true``
+:Required: ``false``
 
 The installation method.
 
@@ -297,7 +297,7 @@ conda.environment
 The path to the Conda `environment file <https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_, relative to the root of the project.
 
 :Type: ``path``
-:Required: ``true``
+:Required: ``false``
 
 build
 ~~~~~
@@ -430,6 +430,10 @@ We don't currently support PPA's or other custom repositories.
 
    When possible avoid installing Python packages using apt (``python3-numpy`` for example),
    :doc:`use pip or conda instead </guides/reproducible-builds>`.
+
+.. warning::
+
+   Currently, it's not possible to use this option when using :ref:`config-file/v2:build.commands`.
 
 
 build.jobs
