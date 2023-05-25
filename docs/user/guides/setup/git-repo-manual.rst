@@ -133,10 +133,9 @@ Use this URL when setting up a new integration with your provider ^^ these steps
 
 .. warning::
 
-   :doc:`/guides/pull-requests`
-      Git repositories that are imported manually **do not** have the required setup to send back a **commit status**.
-      If you need this integration,
-      you have to :doc:`configure the repository automatically </guides/setup/git-repo-automatic>`.
+   Git repositories that are imported manually **do not** have the required setup to send back a **commit status**.
+   If you need this integration,
+   you have to :doc:`configure the repository automatically </guides/setup/git-repo-automatic>`.
 
 .. seealso::
 
