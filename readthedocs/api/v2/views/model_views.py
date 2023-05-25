@@ -9,6 +9,7 @@ from django.db.models import BooleanField, Case, Value, When
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
+from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
@@ -21,7 +22,7 @@ from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Domain, Project
 from readthedocs.storage import build_commands_storage
 
-from ..permissions import APIPermission, APIRestrictedPermission, IsOwner
+from ..permissions import APIRestrictedPermission, IsOwner
 from ..serializers import (
     BuildAdminReadOnlySerializer,
     BuildAdminSerializer,
@@ -117,7 +118,7 @@ class DisableListEndpoint:
         )
 
 
-class UserSelectViewSet(viewsets.ModelViewSet):
+class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
 
     """
     View set that varies serializer class based on request user credentials.
@@ -125,6 +126,9 @@ class UserSelectViewSet(viewsets.ModelViewSet):
     Viewsets using this class should have an attribute `admin_serializer_class`,
     which is a serializer that might have more fields that only admin/staff
     users require. If the user is staff, this class will be returned instead.
+
+    By default read-only endpoints will be allowed,
+    to allow write endpoints, inherit from the proper ``rest_framework.mixins.*`` classes.
     """
 
     def get_serializer_class(self):
@@ -143,11 +147,11 @@ class UserSelectViewSet(viewsets.ModelViewSet):
         return self.model.objects.api(self.request.user)
 
 
-class ProjectViewSet(DisableListEndpoint, UserSelectViewSet):
+class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     """List, filter, etc, Projects."""
 
-    permission_classes = [APIPermission]
+    permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
     admin_serializer_class = ProjectAdminSerializer
@@ -196,7 +200,7 @@ class ProjectViewSet(DisableListEndpoint, UserSelectViewSet):
         })
 
 
-class VersionViewSet(DisableListEndpoint, UserSelectViewSet):
+class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
@@ -209,7 +213,7 @@ class VersionViewSet(DisableListEndpoint, UserSelectViewSet):
     )
 
 
-class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
+class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     model = Build
@@ -297,7 +301,7 @@ class BuildViewSet(DisableListEndpoint, UserSelectViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class BuildCommandViewSet(DisableListEndpoint, UserSelectViewSet):
+class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
     parser_classes = [JSONParser, MultiPartParser]
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
