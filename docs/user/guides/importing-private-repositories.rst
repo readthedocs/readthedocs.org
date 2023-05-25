@@ -31,7 +31,7 @@ Git repositories aren't automatically listed for setups that are not connected t
    :align: right
    :alt: A cropped screenshot showing the first step of a manual import on |com_brand|.
 
-That is the reason why this guide is an extension of the :doc:`manual Git repository setup </guides/git-integrations>`,
+That is the reason why this guide is an extension of the :doc:`manual Git repository setup </guides/setup/git-repo-manual>`,
 with the following exception:
 
 #. Go to https://readthedocs.com/dashboard/import/manual/
@@ -134,4 +134,4 @@ Finally, since this is a manual project import:
 **Don't forget to add the Read the Docs webhook!**
 
 To automatically trigger new builds on Read the Docs,
-you'll need to manually add a webhook, see :doc:`/guides/git-integrations`.
+you'll need to manually add a webhook, see :doc:`/guides/setup/git-repo-manual`.
