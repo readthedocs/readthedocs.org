@@ -16,15 +16,15 @@ babel==2.12.1
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.26.114
+boto3==1.26.137
     # via django-storages
-botocore==1.29.114
+botocore==1.29.137
     # via
     #   boto3
     #   s3transfer
 celery==5.2.7
     # via -r requirements/pip.in
-certifi==2022.12.7
+certifi==2023.5.7
     # via
     #   elasticsearch
     #   requests
@@ -58,7 +58,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.6.3
     # via -r requirements/pip.in
-django==3.2.18
+django==3.2.19
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -84,21 +84,21 @@ django-annoying==0.10.6
     # via -r requirements/pip.in
 django-autoslug==1.9.9
     # via -r requirements/pip.in
-django-cacheops==7.0
+django-cacheops==7.0.1
     # via -r requirements/pip.in
-django-cors-headers==3.14.0
+django-cors-headers==4.0.0
     # via -r requirements/pip.in
 django-crispy-forms==1.14.0
     # via -r requirements/pip.in
 django-csp==3.7
     # via -r requirements/pip.in
-django-debug-toolbar==4.0.0
+django-debug-toolbar==4.1.0
     # via -r requirements/pip.in
 django-elasticsearch-dsl==7.3
     # via -r requirements/pip.in
 django-extensions==3.2.1
     # via -r requirements/pip.in
-django-filter==23.1
+django-filter==23.2
     # via -r requirements/pip.in
 django-formtools==2.3
     # via -r requirements/pip.in
@@ -118,7 +118,7 @@ django-storages[boto3]==1.13.2
     # via -r requirements/pip.in
 django-structlog==2.2.0
     # via -r requirements/pip.in
-django-taggit==3.1.0
+django-taggit==4.0.0
     # via -r requirements/pip.in
 django-vanilla-views==3.0.0
     # via -r requirements/pip.in
@@ -128,7 +128,7 @@ djangorestframework==3.14.0
     #   drf-extensions
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.in
-docker==6.0.1
+docker==6.1.2
     # via -r requirements/pip.in
 docutils==0.17.1
     # via
@@ -148,7 +148,7 @@ elasticsearch-dsl==7.4.1
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
-filelock==3.11.0
+filelock==3.12.0
     # via virtualenv
 funcy==1.18
     # via django-cacheops
@@ -182,7 +182,7 @@ markupsafe==2.1.2
     # via jinja2
 oauthlib==3.2.2
     # via requests-oauthlib
-orjson==3.8.10
+orjson==3.8.12
     # via -r requirements/pip.in
 packaging==23.1
     # via
@@ -190,17 +190,17 @@ packaging==23.1
     #   docker
     #   dparse
     #   sphinx
-platformdirs==3.2.0
+platformdirs==3.5.1
     # via virtualenv
 prompt-toolkit==3.0.38
     # via click-repl
 pycparser==2.21
     # via cffi
-pygments==2.15.0
+pygments==2.15.1
     # via
     #   -r requirements/pip.in
     #   sphinx
-pyjwt[crypto]==2.6.0
+pyjwt[crypto]==2.7.0
     # via django-allauth
 pyquery==2.0.0
     # via -r requirements/pip.in
@@ -219,13 +219,13 @@ pytz==2023.3
     #   djangorestframework
 pyyaml==5.4.1
     # via -r requirements/pip.in
-redis==4.5.4
+redis==4.5.5
     # via
     #   django-cacheops
     #   django-redis
-regex==2023.3.23
+regex==2023.5.5
     # via -r requirements/pip.in
-requests==2.28.2
+requests==2.30.0
     # via
     #   -r requirements/pip.in
     #   django-allauth
@@ -239,11 +239,11 @@ requests-oauthlib==1.3.1
     # via
     #   -r requirements/pip.in
     #   django-allauth
-requests-toolbelt==0.10.1
+requests-toolbelt==1.0.0
     # via -r requirements/pip.in
-s3transfer==0.6.0
+s3transfer==0.6.1
     # via boto3
-selectolax==0.3.12
+selectolax==0.3.13
     # via -r requirements/pip.in
 six==1.16.0
     # via
@@ -273,7 +273,7 @@ sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.5
     # via sphinx
-sqlparse==0.4.3
+sqlparse==0.4.4
     # via
     #   django
     #   django-debug-toolbar
@@ -306,7 +306,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.21.0
+virtualenv==20.23.0
     # via -r requirements/pip.in
 wcwidth==0.2.6
     # via prompt-toolkit

@@ -79,9 +79,9 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
 
    Read the Docs needs elevated permissions to perform certain operations
    that ensure that the workflow is as smooth as possible,
-   like installing webhooks.
+   like installing :term:`webhooks <webhook>`.
    If you want to learn more,
-   check out :ref:`connected-accounts:permissions for connected accounts`.
+   check out :ref:`guides/setup/git-repo-automatic:permissions for connected accounts`.
 
 After that, you will be redirected to Read the Docs,
 where you will need to confirm your e-mail and username.

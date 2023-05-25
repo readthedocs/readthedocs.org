@@ -9,7 +9,7 @@ Email notifications:
   This makes sure you know when your builds have failed.
 
 Build Status Webhooks:
-  Build notifications can happen via webhooks.
+  Build notifications can happen via :term:`webhooks <webhook>`.
   This means that we are able to support a wide variety of services that receive notifications.
 
   Slack and Discord are supported through ready-made templates.

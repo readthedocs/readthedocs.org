@@ -9,7 +9,7 @@ so that you have a reference for how we're using them.
    CI/CD
       CI/CD is a common way to write *Continuous Integration and Continuous Deployment*.
       In some scenarios, they exist as two separate platforms.
-      Read the Docs contains a combined CI/CD platform made for documentation.
+      Read the Docs is a combined CI/CD platform made for documentation.
 
    dashboard
       The "admin" site where Read the Docs projects are managed and configured.
@@ -44,24 +44,33 @@ so that you have a reference for how we're using them.
       and rules for publication of documentation can be :doc:`automated </automation-rules>`.
       Similar to :term:`Docs as Code`.
 
-   webhooks
-      A webhook is a special URL that can be called from another service,
-      usually with a secret token.
-      It is commonly used to start a build or a deployment or to send a status update.
+   pinning
+      To *pin* a requirement means to explicitly specify which version should be used.
+      *Pinning* software requirements is the most important technique to make a project :term:`reproducible`.
 
-      There are two important types of webhooks for Read the Docs:
+      When documentation builds,
+      software dependencies are installed in their latest versions permitted by the pinning specification.
+      Since software packages are frequently released,
+      we are usually trying to avoid incompatibilities in a new release from suddenly breaking a documentation build.
 
-      * Git providers have webhooks which are special URLs that Read the Docs can call in order to notify about documentation builds.
-      * Read the Docs has a unique webhook for each project that the Git provider calls when changes happen in Git.
+      Examples of Python dependencies::
 
-      See also: :doc:`/guides/git-integrations` and :doc:`/build-notifications`
+          # Exact pinning: Only allow Sphinx 5.3.0
+          sphinx==5.3.0
+
+          # Loose pinning: Lower and upper bounds result in the latest 5.3.x release
+          sphinx>=5.3,<5.4
+
+          # Very loose pinning: Lower and upper bounds result in the latest 5.x release
+          sphinx>=5,<6
+
+      Read the Docs recommends using **exact pinning**.
+
+      See: :doc:`/guides/reproducible-builds`.
 
    pre-defined build jobs
       Commands executed by Read the Docs when performing the build process.
       They cannot be overwritten by the user.
-
-   profile page
-      Page where you can see the projects of a certain user.
 
    project home
       Page where you can access all the features of Read the Docs,
@@ -69,6 +78,24 @@ so that you have a reference for how we're using them.
 
    project page
       Another name for :term:`project home`.
+
+   reproducible
+      A documentation project is said to be *reproducible* when its sources build correctly on Read the Docs over a periode of many years.
+      You can also think of being *reproducible* as being *robust* or *resillient*.
+
+      Being "reproducible" is an important positive quality goal of documentation.
+
+      When builds are not reproducible and break due to external factors,
+      they need frequent troubleshooting and manual fixing.
+
+      The most common external factor is that new versions of software dependencies are released.
+
+      See: :doc:`/guides/reproducible-builds`.
+
+   root URL
+      Home URL of your documentation without the ``/<lang>`` and ``/<version>`` segments.
+      For projects without custom domains, the one ending in ``.readthedocs.io/``
+      (for example, ``https://docs.readthedocs.io`` as opposed to ``https://docs.readthedocs.io/en/latest``).
 
    slug
       A unique identifier for a project or version. This value comes from the
@@ -97,10 +124,17 @@ so that you have a reference for how we're using them.
       In this case, *project B* is the subproject.
       Read more in :doc:`/subprojects`.
 
-   root URL
-      Home URL of your documentation without the ``/<lang>`` and ``/<version>`` segments.
-      For projects without custom domains, the one ending in ``.readthedocs.io/``
-      (for example, ``https://docs.readthedocs.io`` as opposed to ``https://docs.readthedocs.io/en/latest``).
-
    user-defined build jobs
       Commands defined by the user that Read the Docs will execute when performing the build process.
+
+   webhook
+      A webhook is a special URL that can be called from another service,
+      usually with a secret token.
+      It is commonly used to start a build or a deployment or to send a status update.
+
+      There are two important types of webhooks for Read the Docs:
+
+      * Git providers have webhooks which are special URLs that Read the Docs can call in order to notify about documentation builds.
+      * Read the Docs has a unique webhook for each project that the Git provider calls when changes happen in Git.
+
+      See also: :doc:`/guides/setup/git-repo-manual` and :doc:`/build-notifications`

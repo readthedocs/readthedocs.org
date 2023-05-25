@@ -89,7 +89,7 @@ Your version setup is ultimately captured by the :term:`flyout menu`.
 
 .. seealso::
 
-    :doc:`/guides/git-integrations`
+    :doc:`/guides/setup/git-repo-manual`
         Information on setting up your Git repository to make Read the Docs automatically build your documentation project.
     :doc:`/automation-rules`
         Information on setting up your Git repository to make Read the Docs automatically build your documentation project.

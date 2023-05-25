@@ -12,6 +12,7 @@ from readthedocs.core.unresolver import (
     InvalidPathForVersionedProjectError,
     SuspiciousHostnameError,
     TranslationNotFoundError,
+    TranslationWithoutVersionError,
     VersionNotFoundError,
     unresolve,
 )
@@ -99,10 +100,34 @@ class UnResolverTests(ResolverBase):
             "https://pip.readthedocs.io/en/",
         ]
         for url in urls:
-            with pytest.raises(VersionNotFoundError) as excinfo:
+            with pytest.raises(TranslationWithoutVersionError) as excinfo:
                 unresolve(url)
             exc = excinfo.value
             self.assertEqual(exc.project, self.pip)
+            self.assertEqual(exc.language, "en")
+
+        urls = [
+            "https://pip.readthedocs.io/ja",
+            "https://pip.readthedocs.io/ja/",
+        ]
+        for url in urls:
+            with pytest.raises(TranslationWithoutVersionError) as excinfo:
+                unresolve(url)
+            exc = excinfo.value
+            self.assertEqual(exc.project, self.translation)
+            self.assertEqual(exc.language, "ja")
+
+    def test_invalid_language_no_version(self):
+        urls = [
+            "https://pip.readthedocs.io/es",
+            "https://pip.readthedocs.io/es/",
+        ]
+        for url in urls:
+            with pytest.raises(TranslationNotFoundError) as excinfo:
+                unresolve(url)
+            exc = excinfo.value
+            self.assertEqual(exc.project, self.pip)
+            self.assertEqual(exc.language, "es")
             self.assertEqual(exc.version_slug, None)
             self.assertEqual(exc.filename, "/")
 
@@ -323,3 +348,27 @@ class UnResolverTests(ResolverBase):
 
         with pytest.raises(SuspiciousHostnameError):
             unresolve("https://dev.readthedocs.build.phishing.com/en/latest/")
+
+    @override_settings(
+        PUBLIC_DOMAIN="readthedocs.dev",
+        RTD_EXTERNAL_VERSION_DOMAIN="build.readthedocs.dev",
+    )
+    def test_unresolve_overlapping_public_and_external_domains(self):
+        external_version = get(
+            Version,
+            project=self.pip,
+            type=EXTERNAL,
+            slug="10",
+            active=True,
+        )
+        parts = unresolve("https://pip.readthedocs.dev/en/latest/")
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, self.pip)
+        self.assertEqual(parts.version, self.version)
+        self.assertEqual(parts.filename, "/index.html")
+
+        parts = unresolve("https://pip--10.build.readthedocs.dev/en/10/")
+        self.assertEqual(parts.parent_project, self.pip)
+        self.assertEqual(parts.project, self.pip)
+        self.assertEqual(parts.version, external_version)
+        self.assertEqual(parts.filename, "/index.html")

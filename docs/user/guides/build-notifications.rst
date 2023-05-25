@@ -6,7 +6,7 @@ Build notifications can alert you when your builds fail so you can take immediat
 
 .. note::
 
-   Currently we don't send notifications or trigger webhooks
+   Currently we don't send notifications or trigger :term:`webhooks <webhook>`
    on :doc:`builds from pull requests </pull-requests>`.
 
 
