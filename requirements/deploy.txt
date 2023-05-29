@@ -172,7 +172,7 @@ djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
 docker==6.1.2
     # via -r requirements/pip.txt
-docutils==0.17.1
+docutils==0.20.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
@@ -370,7 +370,7 @@ snowballstemmer==2.2.0
     # via
     #   -r requirements/pip.txt
     #   sphinx
-sphinx==4.5.0
+sphinx==7.0.1
     # via -r requirements/pip.txt
 sphinxcontrib-applehelp==1.0.4
     # via
