@@ -3,7 +3,6 @@ import os
 
 import structlog
 from celery.worker.request import Request
-from django.core.cache import cache
 from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -21,6 +20,7 @@ from readthedocs.core.utils.filesystem import safe_rmtree
 from readthedocs.notifications import Notification, SiteNotification
 from readthedocs.notifications.backends import EmailBackend
 from readthedocs.notifications.constants import REQUIREMENT
+from readthedocs.projects.models import Project
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -189,52 +189,56 @@ class DeprecatedConfigFileEmailNotification(Notification):
 
 
 @app.task(queue="web")
-def deprecated_config_file_used_notification(build_pk):
+def deprecated_config_file_used_notification():
     """
     Create a notification about not using a config file for all the maintainers of the project.
 
-    This task is triggered by the build process to be executed on the webs,
-    since we don't have access to the db from the build.
+    This is a scheduled task to be executed on the webs.
+    Note the code uses `.iterator` and `.only` to avoid killing the db with this query.
     """
-    build = Build.objects.filter(pk=build_pk).first()
-    if not build or not build.deprecated_config_used():
-        return
+    projects = set()
+    # NOTE: we could skip the projects with a spam score > 150,
+    # to reduce the amount of email/onsite notifications we send
+    start_datetime = datetime.datetime.now()
+    for project in Project.objects.all().only("slug", "default_version").iterator():
+        # NOTE: instead of iterating over all the active versions,
+        # we can only consider the default one
+        for version in (
+            project.versions.filter(Q(active=True) | Q(slug=project.default_version))
+            # Add a limit of 15 to protect ourselves against projects with
+            # hundred of active versions
+            .only("id")[:15].iterator()
+        ):
+            build = version.builds.filter(success=True).only("_config").first()
+            if build and build.deprecated_config_used():
+                projects.add(project.slug)
+                # Do not continue iterating over the
+                # other versions when we know this project
+                # will get the notification
+                break
 
-    log.bind(
-        build_pk=build_pk,
-        project_slug=build.project.slug,
+    log.info(
+        "Sending deprecated config file notification.",
+        query_seconds=(datetime.datetime.now() - start_datetime).seconds,
+        projects=len(projects),
     )
 
-    users = AdminPermission.owners(build.project)
-    log.bind(users=len(users))
+    for project in Project.objects.filter(slug__in=projects):
+        users = AdminPermission.owners(project)
+        for user in users:
+            n = DeprecatedConfigFileSiteNotification(
+                user=user,
+                context_object=project,
+                success=False,
+            )
+            n.send()
 
-    log.info("Sending deprecation config file onsite notification.")
-    for user in users:
-        n = DeprecatedConfigFileSiteNotification(
-            user=user,
-            context_object=build.project,
-            success=False,
-        )
-        n.send()
-
-    # Send email notifications only once a week
-    cache_prefix = "deprecated-config-file-notification"
-    cached = cache.get(f"{cache_prefix}-{build.project.slug}")
-    if cached:
-        log.info("Deprecation config file email sent recently. Skipping.")
-        return
-
-    log.info("Sending deprecation config file email notification.")
-    for user in users:
-        n = DeprecatedConfigFileEmailNotification(
-            user=user,
-            context_object=build.project,
-        )
-        n.send()
-
-    # Cache this notification for a week
-    # TODO: reduce this notification period to 3 days after having this deployed for some weeks
-    cache.set(f"{cache_prefix}-{build.project.slug}", "sent", timeout=7 * 24 * 60 * 60)
+        for user in users:
+            n = DeprecatedConfigFileEmailNotification(
+                user=user,
+                context_object=project,
+            )
+            n.send()
 
 
 class BuildRequest(Request):
