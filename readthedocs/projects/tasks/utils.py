@@ -197,7 +197,7 @@ def deprecated_config_file_used_notification(build_pk):
     since we don't have access to the db from the build.
     """
     build = Build.objects.filter(pk=build_pk).first()
-    if not build or not build.deprecated_config_used:
+    if not build or not build.deprecated_config_used():
         return
 
     log.bind(
