@@ -166,8 +166,10 @@ class DeprecatedConfigFileSiteNotification(SiteNotification):
         "Your project '{{ object.slug }}' doesn't have a "
         '<a href="https://docs.readthedocs.io/en/stable/config-file/v2.html">.readthedocs.yaml</a> '
         "configuration file. "
-        "This feature is <strong>deprecated and will be removed soon</strong>. "
-        "Make sure to create one for your project to keep your builds working."
+        "Configuration files will <strong>soon be required</strong> by projects, "
+        "and will no longer be optional. "
+        "Make sure to create one for your project to ensure your project continues "
+        "building successfully."
     )
     failure_level = WARNING_PERSISTENT
 
