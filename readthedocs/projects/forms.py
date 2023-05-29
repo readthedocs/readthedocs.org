@@ -197,7 +197,7 @@ class ProjectConfigForm(forms.Form):
 
     confirm = forms.BooleanField(
         label="",
-        help_text="I've already added a '.readthedocs.yaml' file to my project",
+        help_text="I've already added a <code>.readthedocs.yaml</code> file to my project",
         required=True,
     )
 
