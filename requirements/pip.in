@@ -14,9 +14,7 @@ django-simple-history==3.0.0
 djangorestframework
 
 # For intersphinx during builds
-# We need these pinned to build the docs properly
-Sphinx==4.5.0
-docutils==0.17.1
+Sphinx
 
 # Filtering for the REST API
 django-filter

@@ -61,7 +61,7 @@ from readthedocs.builds.utils import (
 )
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
-from readthedocs.core.utils import trigger_build
+from readthedocs.core.utils import extract_valid_attributes_for_model, trigger_build
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
@@ -145,7 +145,11 @@ class Version(TimeStampedModel):
         populate_from='verbose_name',
     )
 
+    # TODO: this field (`supported`) could be removed. It's returned only on
+    # the footer API response but I don't think anybody is using this field at
+    # all.
     supported = models.BooleanField(_('Supported'), default=True)
+
     active = models.BooleanField(_('Active'), default=False)
     state = models.CharField(
         _("State"),
@@ -156,7 +160,12 @@ class Version(TimeStampedModel):
         help_text=_("State of the PR/MR associated to this version."),
     )
     built = models.BooleanField(_("Built"), default=False)
+
+    # TODO: this field (`uploaded`) could be removed. It was used to mark a
+    # version as "Manually uploaded" by the core team, but this is not required
+    # anymore. Users can use `build.commands` for these cases now.
     uploaded = models.BooleanField(_("Uploaded"), default=False)
+
     privacy_level = models.CharField(
         _('Privacy Level'),
         max_length=20,
@@ -190,6 +199,13 @@ class Version(TimeStampedModel):
         _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
         default=None,
         null=True,
+    )
+
+    addons = models.BooleanField(
+        _("Inject new addons js library for this version"),
+        null=True,
+        blank=True,
+        default=False,
     )
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
@@ -656,7 +672,17 @@ class APIVersion(Version):
                 del kwargs[key]
             except KeyError:
                 pass
-        super().__init__(*args, **kwargs)
+        valid_attributes, invalid_attributes = extract_valid_attributes_for_model(
+            model=Version,
+            attributes=kwargs,
+        )
+        if invalid_attributes:
+            log.warning(
+                "APIVersion got unexpected attributes.",
+                invalid_attributes=invalid_attributes,
+            )
+
+        super().__init__(*args, **valid_attributes)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
         return 0
