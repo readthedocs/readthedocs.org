@@ -196,8 +196,7 @@ class ProjectConfigForm(forms.Form):
     """Simple intermediate step to communicate about the .readthedocs.yaml file."""
 
     confirm = forms.BooleanField(
-        label="",
-        help_text="I've already added a <code>.readthedocs.yaml</code> file to my project",
+        label="I've already added a <code>.readthedocs.yaml</code> file to my project",
         required=True,
     )
 
