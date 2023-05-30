@@ -73,7 +73,7 @@ class BuildJobs(Base):
 
 class Python(Base):
 
-    __slots__ = ('version', 'install', 'use_system_site_packages')
+    __slots__ = ("install",)
 
 
 class PythonInstallRequirements(Base):

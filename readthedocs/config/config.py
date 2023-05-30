@@ -528,8 +528,6 @@ class BuildConfigV2(BuildConfigBase):
         .. note::
            - ``version`` can be a string or number type.
            - ``extra_requirements`` needs to be used with ``install: 'pip'``.
-           - If the new build config is used (``build.os``),
-             ``python.version`` shouldn't exist.
         """
         raw_python = self._raw_config.get('python', {})
         with self.catch_validation_error('python'):
@@ -877,10 +875,9 @@ class BuildConfigV2(BuildConfigBase):
                 python_install.append(PythonInstallRequirements(**install),)
             elif 'path' in install:
                 python_install.append(PythonInstall(**install),)
+
         return Python(
-            version=python.get('version'),
             install=python_install,
-            use_system_site_packages=python['use_system_site_packages'],
         )
 
     @property
