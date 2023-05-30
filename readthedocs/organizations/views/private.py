@@ -4,8 +4,10 @@
 from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponseBadRequest
-from django.urls import reverse_lazy
+from django.shortcuts import redirect
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from vanilla import CreateView, DeleteView, FormView, ListView, UpdateView
 
@@ -67,6 +69,33 @@ class ListOrganization(PrivateViewMixin, OrganizationView, ListView):
 
     def get_queryset(self):
         return Organization.objects.for_user(user=self.request.user)
+
+
+class ChooseOrganization(ListOrganization):
+    template_name = "organizations/organization_choose.html"
+
+    def get(self, request, *args, **kwargs):
+
+        self.next_name = self.kwargs["next_name"]
+        self.next_querystring = self.request.GET.get("next_querystring")
+
+        # Check if user has exactly 1 organization and automatically redirect in this case
+        organizations = self.get_queryset()
+        if organizations.count() == 1:
+            redirect_url = reverse(
+                self.next_name, kwargs={"slug": organizations[0].slug}
+            )
+            if self.next_querystring:
+                redirect_url += "?" + urlencode(self.next_querystring)
+            return redirect(redirect_url)
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        c = super().get_context_data(**kwargs)
+        c["next_name"] = self.next_name
+        c["next_querystring"] = self.next_querystring
+        return c
 
 
 class EditOrganization(
