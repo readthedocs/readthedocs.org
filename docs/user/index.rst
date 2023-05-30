@@ -160,7 +160,7 @@ These guides provide step-by-step instructions in key areas to get you up to spe
 Reference
 ---------
 
-Need to know how something works? 
+Need to know how something works?
 Here are a few of the most important reference docs:
 
 .. Descriptions here sound like reference
