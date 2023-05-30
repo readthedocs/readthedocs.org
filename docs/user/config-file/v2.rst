@@ -166,16 +166,6 @@ Configuration of the Python environment to be used.
          path: another/package
      system_packages: true
 
-python.version
-``````````````
-
-.. warning::
-
-   This option is now deprecated
-   and replaced by :ref:`config-file/v2:build.tools.python`.
-   See :ref:`config-file/v2:python.version (legacy)`
-   for the description of this option.
-
 python.install
 ``````````````
 
@@ -278,6 +268,11 @@ Give the virtual environment access to the global site-packages directory.
   If you are using a :ref:`Conda <config-file/v2:conda>` environment
   to manage the build, this setting will not have any effect, since
   the virtual environment creation is managed by Conda.
+
+.. warning::
+
+   This option is now deprecated.
+   Use :ref:`config-file/v2:requirements-file` to specify your dependencies.
 
 conda
 ~~~~~
