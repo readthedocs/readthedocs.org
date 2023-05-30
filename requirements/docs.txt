@@ -82,7 +82,7 @@ pyyaml==6.0
     # via myst-parser
 readthedocs-sphinx-search==0.3.1
     # via -r requirements/docs.in
-requests==2.30.0
+requests==2.31.0
     # via sphinx
 six==1.16.0
     # via
