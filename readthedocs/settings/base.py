@@ -542,8 +542,6 @@ class CommunityBaseSettings(Settings):
     # Docker
     DOCKER_ENABLE = False
     DOCKER_SOCKET = 'unix:///var/run/docker.sock'
-    # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
-    DOCKER_BUILD_IMAGES = None
 
     # User used to create the container.
     # In production we use the same user than the one defined by the
@@ -559,64 +557,8 @@ class CommunityBaseSettings(Settings):
 
     DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
     DOCKER_VERSION = 'auto'
-    DOCKER_DEFAULT_VERSION = 'latest'
+    DOCKER_DEFAULT_VERSION = 'ubuntu-22.04'
     DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
-    DOCKER_IMAGE_SETTINGS = {
-        # A large number of users still have this pinned in their config file.
-        # We must have documented it at some point.
-        'readthedocs/build:2.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5'],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.5',
-                },
-            },
-        },
-        'readthedocs/build:4.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', 3.7],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.7',
-                },
-            },
-        },
-        'readthedocs/build:5.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', 'pypy3.5'],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.7',
-                },
-            },
-        },
-        'readthedocs/build:6.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', 'pypy3.5'],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.7',
-                },
-            },
-        },
-        'readthedocs/build:7.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10', 'pypy3.5'],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.7',
-                },
-            },
-        },
-    }
-
-    # Alias tagged via ``docker tag`` on the build servers
-    DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
-        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:6.0'),
-        'readthedocs/build:testing': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:7.0'),
-    })
     # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
 

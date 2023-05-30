@@ -346,10 +346,7 @@ class Conda(PythonEnvironment):
 
         See https://github.com/QuantStack/mamba
         """
-        # Config file using ``build.tools.python``
-        if self.config.using_build_tools:
-            return self.config.python_interpreter
-        return 'conda'
+        return self.config.python_interpreter
 
     def _update_conda_startup(self):
         """

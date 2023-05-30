@@ -5,7 +5,7 @@ from re import fullmatch
 from urllib.parse import urlparse
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Fieldset, Layout, Submit
+from crispy_forms.layout import Fieldset, Layout, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -209,20 +209,8 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             "external_builds_privacy_level",
             "readthedocs_yaml_path",
         )
-        # These that can be set per-version using a config file.
-        per_version_settings = (
-            'documentation_type',
-            'requirements_file',
-            'python_interpreter',
-            'install_project',
-            'use_system_packages',
-            'conf_py_file',
-            'enable_pdf_build',
-            'enable_epub_build',
-        )
         fields = (
             *per_project_settings,
-            *per_version_settings,
         )
 
     def __init__(self, *args, **kwargs):
@@ -243,15 +231,15 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
                 self.fields.pop(field)
                 per_project_settings.remove(field)
 
+        # TODO: remove the "Global settings" fieldset since we only have one
+        # fieldset not. Also, considering merging this "Advanced settings" with
+        # the regular "Settings" tab. Also also, take into account that we may
+        # want to add a new tab for "Read the Docs Addons" to configure each of
+        # them from there.
         field_sets = [
             Fieldset(
                 _("Global settings"),
                 *per_project_settings,
-            ),
-            Fieldset(
-                _("Default settings"),
-                HTML(help_text),
-                *self.Meta.per_version_settings,
             ),
         ]
         self.helper.layout = Layout(*field_sets)
