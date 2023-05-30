@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-05-23 04:24+0000\n"
+"POT-Creation-Date: 2023-05-30 15:11+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019,2022-2023\n"
 "Language-Team: Hebrew (http://app.transifex.com/readthedocs/readthedocs/"
@@ -20,7 +20,7 @@ msgstr ""
 "Plural-Forms: nplurals=4; plural=(n == 1 && n % 1 == 0) ? 0 : (n == 2 && n % "
 "1 == 0) ? 1: (n % 10 == 0 && n % 1 == 0 && n > 10) ? 2 : 3;\n"
 
-#: analytics/models.py:69 builds/models.py:677 projects/models.py:1427
+#: analytics/models.py:69 builds/models.py:703 projects/models.py:1438
 #: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:262
 msgid "Version"
 msgstr "גרסה"
@@ -155,8 +155,8 @@ msgstr "האימות נכשל"
 msgid "Log out"
 msgstr "יציאה"
 
-#: audit/models.py:91 organizations/views/private.py:105
-#: organizations/views/private.py:170 projects/views/private.py:468
+#: audit/models.py:91 organizations/views/private.py:134
+#: organizations/views/private.py:199 projects/views/private.py:468
 msgid "Invitation sent"
 msgstr "נשלחה הזמנה"
 
@@ -185,8 +185,8 @@ msgstr "מזהה משתמש"
 msgid "Username"
 msgstr "שם משתמש"
 
-#: audit/models.py:138 builds/models.py:110 builds/models.py:671
-#: projects/models.py:1421 redirects/models.py:57
+#: audit/models.py:138 builds/models.py:110 builds/models.py:697
+#: projects/models.py:1432 redirects/models.py:57
 msgid "Project"
 msgstr "מיזם"
 
@@ -210,7 +210,7 @@ msgstr "מזהה ארגון"
 msgid "Organization slug"
 msgstr "שם ארגון מפושט"
 
-#: audit/models.py:180 builds/models.py:1189
+#: audit/models.py:180 builds/models.py:1215
 msgid "Action"
 msgstr "פעולה"
 
@@ -417,7 +417,7 @@ msgstr "גרסאות SemVer"
 msgid "Custom match"
 msgstr "התאמה משלך"
 
-#: builds/filters.py:26 builds/models.py:149 redirects/models.py:23
+#: builds/filters.py:26 builds/models.py:153 redirects/models.py:23
 msgid "Active"
 msgstr "פעיל"
 
@@ -425,7 +425,7 @@ msgstr "פעיל"
 msgid "Build successful"
 msgstr "הבנייה הצליחה"
 
-#: builds/filters.py:28 projects/models.py:1546
+#: builds/filters.py:28 projects/models.py:1557
 #: templates/builds/build_detail.html:143
 msgid "Build failed"
 msgstr "הבנייה נכשלה"
@@ -438,7 +438,7 @@ msgstr "רגיל"
 msgid "Pull/merge request"
 msgstr "בקשת משיכה/דחיפה"
 
-#: builds/filters.py:41 builds/models.py:151 builds/models.py:693
+#: builds/filters.py:41 builds/models.py:155 builds/models.py:719
 msgid "State"
 msgstr "מצב"
 
@@ -447,7 +447,7 @@ msgstr "מצב"
 msgid "Any"
 msgstr "כלשהו"
 
-#: builds/filters.py:47 builds/models.py:115 builds/models.py:683
+#: builds/filters.py:47 builds/models.py:115 builds/models.py:709
 #: sphinx_domains/models.py:59 subscriptions/models.py:97
 msgid "Type"
 msgstr "סוג"
@@ -473,11 +473,11 @@ msgstr "התאמה מותאמת אישית לא אמורה להיות ריקה."
 msgid "Invalid Python regular expression."
 msgstr "ביטוי רגולרי של Python שגוי"
 
-#: builds/models.py:98 projects/models.py:1509 projects/models.py:1677
+#: builds/models.py:98 projects/models.py:1520 projects/models.py:1688
 msgid "created"
 msgstr "נוצר"
 
-#: builds/models.py:103 projects/models.py:1514
+#: builds/models.py:103 projects/models.py:1525
 msgid "modified"
 msgstr "נערך"
 
@@ -494,228 +494,234 @@ msgstr "שם מפורש"
 msgid "Slug"
 msgstr "שם ייצוגי"
 
-#: builds/models.py:148
+#: builds/models.py:151
 msgid "Supported"
 msgstr "נתמך"
 
-#: builds/models.py:156
+#: builds/models.py:160
 msgid "State of the PR/MR associated to this version."
 msgstr "מצב בקשת הדחיפה/מיזוג שמשויכים לגרסה הזאת."
 
-#: builds/models.py:158
+#: builds/models.py:162
 msgid "Built"
 msgstr "נבנה"
 
-#: builds/models.py:159
+#: builds/models.py:167
 msgid "Uploaded"
 msgstr "הועלה"
 
-#: builds/models.py:161 projects/models.py:429
+#: builds/models.py:170 projects/models.py:429
 msgid "Privacy Level"
 msgstr "רמת פרטיות"
 
-#: builds/models.py:165
+#: builds/models.py:174
 msgid "Level of privacy for this Version."
 msgstr "רמת הפרטיות של הגרסה הזו."
 
-#: builds/models.py:168
+#: builds/models.py:177
 msgid "Hidden"
 msgstr "מוסתר"
 
-#: builds/models.py:170
+#: builds/models.py:179
 msgid "Hide this version from the version (flyout) menu and search results?"
 msgstr "להסתיר את הגרסה הזאת מתפריט הגרסאות (flyout) ומתוצאות החיפוש?"
 
-#: builds/models.py:172
+#: builds/models.py:181
 msgid "Machine Created"
 msgstr "ביצירת מכונה"
 
-#: builds/models.py:175
+#: builds/models.py:184
 msgid "Has PDF"
 msgstr "יש PDF"
 
-#: builds/models.py:176
+#: builds/models.py:185
 msgid "Has ePub"
 msgstr "יש ePub"
 
-#: builds/models.py:177
+#: builds/models.py:186
 msgid "Has HTML Zip"
 msgstr "יש Zip של HTML"
 
-#: builds/models.py:180 projects/models.py:210
+#: builds/models.py:189 projects/models.py:210
 msgid "Documentation type"
 msgstr "סוג התיעוד"
 
-#: builds/models.py:185
+#: builds/models.py:194
 msgid "Type of documentation the version was built with."
 msgstr "סוג התיעוד אתו נבנתה הגרסה."
 
-#: builds/models.py:190
+#: builds/models.py:199
 msgid "Data generated at build time by the doctool (`readthedocs-build.yaml`)."
 msgstr "נתונים שנוצרו בזמן הבנייה על ידי ה־doctool‏ (`readthedocs-build.yaml`)."
 
-#: builds/models.py:207
+#: builds/models.py:205
+#, fuzzy
+#| msgid "Level of privacy for this Version."
+msgid "Inject new addons js library for this version"
+msgstr "רמת הפרטיות של הגרסה הזו."
+
+#: builds/models.py:223
 #, python-brace-format
 msgid "Version {version} of {project} ({pk})"
 msgstr "גרסה {version} של {project} ({pk})"
 
-#: builds/models.py:705
+#: builds/models.py:731
 msgid "Status"
 msgstr "מצב"
 
-#: builds/models.py:712 integrations/models.py:147
+#: builds/models.py:738 integrations/models.py:147
 msgid "Date"
 msgstr "תאריך"
 
-#: builds/models.py:713
+#: builds/models.py:739
 msgid "Success"
 msgstr "הצלחה"
 
-#: builds/models.py:718
+#: builds/models.py:744
 msgid "Setup"
 msgstr "התקנה"
 
-#: builds/models.py:719
+#: builds/models.py:745
 msgid "Setup error"
 msgstr "שגיאת התקנה"
 
-#: builds/models.py:720
+#: builds/models.py:746
 msgid "Output"
 msgstr "פלט"
 
-#: builds/models.py:721 templates/builds/build_detail.html:224
+#: builds/models.py:747 templates/builds/build_detail.html:224
 msgid "Error"
 msgstr "שגיאה"
 
-#: builds/models.py:722
+#: builds/models.py:748
 msgid "Exit code"
 msgstr "קוד שגיאה"
 
-#: builds/models.py:727 projects/models.py:1438 sphinx_domains/models.py:43
+#: builds/models.py:753 projects/models.py:1449 sphinx_domains/models.py:43
 msgid "Commit"
 msgstr "ביצוע"
 
-#: builds/models.py:733
+#: builds/models.py:759
 msgid "Version slug"
 msgstr "שם גרסה מפושט"
 
-#: builds/models.py:739
+#: builds/models.py:765
 msgid "Version name"
 msgstr "שם גרסה"
 
-#: builds/models.py:745 builds/models.py:1202
+#: builds/models.py:771 builds/models.py:1228
 msgid "Version type"
 msgstr "סוג גרסה"
 
-#: builds/models.py:752
+#: builds/models.py:778
 msgid "Configuration used in the build"
 msgstr "הגדרות המשמשות את הבנייה"
 
-#: builds/models.py:757
+#: builds/models.py:783
 msgid "Custom build configuration file path used in this build"
 msgstr "נתיב קובץ הגדרות בנייה מותאם אישית שמשמש את הבנייה הזאת"
 
-#: builds/models.py:765
+#: builds/models.py:791
 msgid "Build Length"
 msgstr "אורך הבנייה"
 
-#: builds/models.py:768
+#: builds/models.py:794
 msgid "Builder"
 msgstr "בונה"
 
-#: builds/models.py:775
+#: builds/models.py:801
 msgid "Cold Storage"
 msgstr "אחסון קר"
 
-#: builds/models.py:781
+#: builds/models.py:807
 msgid "Celery task id"
 msgstr "מזהה משימת Celery"
 
-#: builds/models.py:892
+#: builds/models.py:918
 #, python-brace-format
 msgid "Build {project} for {usernames} ({pk})"
 msgstr "בניית {project} עבור {usernames} ({pk})"
 
-#: builds/models.py:1100
+#: builds/models.py:1126
 msgid "Build"
 msgstr "בנייה"
 
-#: builds/models.py:1105
+#: builds/models.py:1131
 msgid "Command"
 msgstr "פקודה"
 
-#: builds/models.py:1106 builds/models.py:1166 oauth/models.py:135
+#: builds/models.py:1132 builds/models.py:1192 oauth/models.py:135
 #: organizations/models.py:66 projects/models.py:137 subscriptions/models.py:28
 #: subscriptions/models.py:100 templates/core/project_details.html:78
 msgid "Description"
 msgstr "תיאור"
 
-#: builds/models.py:1107
+#: builds/models.py:1133
 msgid "Command output"
 msgstr "פלט פקודה"
 
-#: builds/models.py:1108
+#: builds/models.py:1134
 msgid "Command exit code"
 msgstr "קוד היציאה של הפקודה"
 
-#: builds/models.py:1110
+#: builds/models.py:1136
 msgid "Start time"
 msgstr "מועד התחלה"
 
-#: builds/models.py:1111
+#: builds/models.py:1137
 msgid "End time"
 msgstr "מועד סיום"
 
-#: builds/models.py:1121
+#: builds/models.py:1147
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
 msgstr "פקודת בנייה {pk} עבור הבנייה {build}"
 
-#: builds/models.py:1145
+#: builds/models.py:1171
 msgid "Activate version"
 msgstr "הפעלת גרסה"
 
-#: builds/models.py:1146
+#: builds/models.py:1172
 msgid "Hide version"
 msgstr "הסתרת גרסה"
 
-#: builds/models.py:1147
+#: builds/models.py:1173
 msgid "Make version public"
 msgstr "החצנת הגרסה"
 
-#: builds/models.py:1148
+#: builds/models.py:1174
 msgid "Make version private"
 msgstr "הפרטת הגרסה"
 
-#: builds/models.py:1149
+#: builds/models.py:1175
 msgid "Set version as default"
 msgstr "הגדרת גרסה כברירת מחדל"
 
-#: builds/models.py:1150
+#: builds/models.py:1176
 msgid "Delete version"
 msgstr "מחיקת גרסה"
 
-#: builds/models.py:1162
+#: builds/models.py:1188
 msgid "Rule priority"
 msgstr "עדיפות כלל"
 
-#: builds/models.py:1163
+#: builds/models.py:1189
 msgid "A lower number (0) means a higher priority"
 msgstr "מספר נמוך יותר (0) משמעו עדיפות גבוהה יותר"
 
-#: builds/models.py:1172
+#: builds/models.py:1198
 msgid "Match argument"
 msgstr "ארגומנט התאמה"
 
-#: builds/models.py:1173
+#: builds/models.py:1199
 msgid "Value used for the rule to match the version"
 msgstr "ערך שמשמש את הכלל כדי למצוא גרסה"
 
-#: builds/models.py:1177
+#: builds/models.py:1203
 msgid "Predefined match argument"
 msgstr "ארגומנט התאמה שהוגדר מראש"
 
-#: builds/models.py:1179
+#: builds/models.py:1205
 msgid ""
 "Match argument defined by us, it is used if is not None, otherwise match_arg "
 "will be used."
@@ -723,47 +729,47 @@ msgstr ""
 "ארגומנט התאמה שהוגדר על ידינו, הוא משמש אם אינו ריק (None), אחרת ייעשה שימוש "
 "ב־match_arg."
 
-#: builds/models.py:1190
+#: builds/models.py:1216
 msgid "Action to apply to matching versions"
 msgstr "פעולה שתחול על גרסות תואמות"
 
-#: builds/models.py:1195
+#: builds/models.py:1221
 msgid "Action argument"
 msgstr "ארגומנט של פקודה"
 
-#: builds/models.py:1196
+#: builds/models.py:1222
 msgid "Value used for the action to perfom an operation"
 msgstr "ערך שמשמש את הפקודה לביצוע הפעולה"
 
-#: builds/models.py:1203
+#: builds/models.py:1229
 msgid "Type of version the rule should be applied to"
 msgstr "סוג הגרסה עליה יחול הכלל"
 
-#: builds/models.py:1427
+#: builds/models.py:1453
 msgid "Version activated"
 msgstr "גרסה הופעלה"
 
-#: builds/models.py:1428
+#: builds/models.py:1454
 msgid "Version hidden"
 msgstr "גרסה הוסתרה"
 
-#: builds/models.py:1430
+#: builds/models.py:1456
 msgid "Version set to public privacy"
 msgstr "הגרסה הוגדרה לפרטיות ציבורית"
 
-#: builds/models.py:1433
+#: builds/models.py:1459
 msgid "Version set to private privacy"
 msgstr "הגרסה הוגדרה לפרטיות פרטית"
 
-#: builds/models.py:1435
+#: builds/models.py:1461
 msgid "Version set as default"
 msgstr "הגרסה הוגדרה כברירת מחדל"
 
-#: builds/models.py:1436
+#: builds/models.py:1462
 msgid "Version deleted"
 msgstr "גרסה נמחקה"
 
-#: builds/models.py:1441
+#: builds/models.py:1467
 msgid "Matched rule"
 msgstr "כלל תואם"
 
@@ -848,7 +854,7 @@ msgstr "נחסם"
 msgid "%(username)s's profile"
 msgstr "הפרופיל של %(username)s"
 
-#: doc_builder/director.py:77
+#: doc_builder/director.py:80
 #, python-brace-format
 msgid "Repository type \"{repo_type}\" unknown"
 msgstr "סוג המאגר „{repo_type}” אינו ידוע"
@@ -1034,7 +1040,7 @@ msgid "Publication date"
 msgstr "תאריך פרסום"
 
 #: gold/models.py:29 organizations/models.py:34 organizations/models.py:219
-#: organizations/models.py:293 projects/models.py:125 projects/models.py:1440
+#: organizations/models.py:293 projects/models.py:125 projects/models.py:1451
 #: subscriptions/models.py:23 subscriptions/models.py:90
 #: subscriptions/models.py:146
 msgid "Modified date"
@@ -1343,7 +1349,7 @@ msgstr "משתמשים"
 
 #: oauth/models.py:33 oauth/models.py:128 organizations/models.py:50
 #: organizations/models.py:242 projects/filters.py:42 projects/filters.py:107
-#: projects/models.py:134 projects/models.py:1432 sphinx_domains/models.py:51
+#: projects/models.py:134 projects/models.py:1443 sphinx_domains/models.py:51
 #: subscriptions/models.py:26
 msgid "Name"
 msgstr "שם"
@@ -1787,6 +1793,23 @@ msgstr ""
 msgid "Create a Team"
 msgstr "יצירת צוות"
 
+#: organizations/templates/organizations/organization_choose.html:7
+#: organizations/templates/organizations/organization_choose.html:16
+#, fuzzy
+#| msgid "Create an Organization"
+msgid "Choose an organization"
+msgstr "יצירת ארגון"
+
+#: organizations/templates/organizations/organization_choose.html:19
+msgid ""
+"You are a member of several organizations. Select the organization that you "
+"want to use:"
+msgstr ""
+
+#: organizations/templates/organizations/organization_choose.html:45
+msgid "You aren't currently a member of any organizations."
+msgstr ""
+
 #: organizations/templates/organizations/organization_create.html:23
 msgid "Get Started"
 msgstr "איך מתחילים"
@@ -1952,35 +1975,35 @@ msgstr "עדכון מיזמים"
 msgid "Verify your email address"
 msgstr "נא לאמת את כתובת הדוא״ל שלך"
 
-#: organizations/views/private.py:114
+#: organizations/views/private.py:143
 msgid "Owner removed"
 msgstr "הוסרו בעלים"
 
-#: organizations/views/private.py:119
+#: organizations/views/private.py:148
 msgid "User is the last owner, can't be removed"
 msgstr "המשתמש הוא הבעלים האחרונים, לא ניתן להסיר"
 
-#: organizations/views/private.py:127
+#: organizations/views/private.py:156
 msgid "Team added"
 msgstr "נוספה קבוצה"
 
-#: organizations/views/private.py:137
+#: organizations/views/private.py:166
 msgid "Team deleted"
 msgstr "נמחקה קבוצה"
 
-#: organizations/views/private.py:154
+#: organizations/views/private.py:183
 msgid "Team updated"
 msgstr "עודכנה קבוצה"
 
-#: organizations/views/private.py:159
+#: organizations/views/private.py:188
 msgid "Team projects updated"
 msgstr "מיזמי הצוות עודכנו"
 
-#: organizations/views/private.py:172
+#: organizations/views/private.py:201
 msgid "Member added to team"
 msgstr "נוספו חברים לצוות"
 
-#: organizations/views/private.py:177
+#: organizations/views/private.py:206
 msgid "Member removed from team"
 msgstr "חברים הוסרו מהצוות"
 
@@ -2072,7 +2095,7 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:99 projects/models.py:2163
+#: projects/constants.py:99 projects/models.py:2174
 msgid "Public"
 msgstr "ציבורי"
 
@@ -2525,7 +2548,7 @@ msgstr "הפעלת בניית PDF"
 msgid "Create a PDF version of your documentation with each build."
 msgstr "יצירת גרסת PDF של התיעוד שלך עם כל בנייה."
 
-#: projects/models.py:346 projects/models.py:1437
+#: projects/models.py:346 projects/models.py:1448
 msgid "Path"
 msgstr "נתיב"
 
@@ -2654,47 +2677,47 @@ msgstr "לדגם חייב להיות שם ייצוגי"
 msgid "Subproject nesting is not supported"
 msgstr "אין תמיכה בקינון תת־מיזמים"
 
-#: projects/models.py:1439 sphinx_domains/models.py:44
+#: projects/models.py:1450 sphinx_domains/models.py:44
 msgid "Build id"
 msgstr "מזהה בנייה"
 
-#: projects/models.py:1442
+#: projects/models.py:1453
 msgid "Page search rank"
 msgstr "דירוג חיפוש עמוד"
 
-#: projects/models.py:1447
+#: projects/models.py:1458
 msgid "Ignore this file from operations like indexing"
 msgstr "להתעלם מהקובץ הזה בפעולות כמו סידור באינדקס"
 
-#: projects/models.py:1544
+#: projects/models.py:1555
 msgid "Build triggered"
 msgstr "בנייה הופעלה"
 
-#: projects/models.py:1545
+#: projects/models.py:1556
 msgid "Build passed"
 msgstr "בנייה עברה"
 
-#: projects/models.py:1562
+#: projects/models.py:1573
 msgid "URL"
 msgstr "כתובת"
 
-#: projects/models.py:1564
+#: projects/models.py:1575
 msgid "URL to send the webhook to"
 msgstr "כתובת אליה לשלוח את ההתלייה"
 
-#: projects/models.py:1567
+#: projects/models.py:1578
 msgid "Secret used to sign the payload of the webhook"
 msgstr "סוד שמשמש לחתום על המטען של ההתליה"
 
-#: projects/models.py:1575
+#: projects/models.py:1586
 msgid "Events to subscribe"
 msgstr "אירועים להירשם אליהם"
 
-#: projects/models.py:1578
+#: projects/models.py:1589
 msgid "JSON payload"
 msgstr "מטען JSON"
 
-#: projects/models.py:1580
+#: projects/models.py:1591
 msgid ""
 "JSON payload to send to the webhook. Check <a href=\"https://docs."
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
@@ -2704,213 +2727,213 @@ msgstr ""
 "build-notifications.html#variable-substitutions-reference\">תיעוד</a> מה "
 "ההחלפות המתאימות."
 
-#: projects/models.py:1688 sphinx_domains/models.py:47
+#: projects/models.py:1699 sphinx_domains/models.py:47
 msgid "Domain"
 msgstr "שם מתחם"
 
-#: projects/models.py:1695
+#: projects/models.py:1706
 msgid "This domain was auto-created"
 msgstr "שם תחום זה נוצר אוטומטית"
 
-#: projects/models.py:1699
+#: projects/models.py:1710
 msgid "This domain is a CNAME for the project"
 msgstr "שם תחום זה הוא CNAME למיזם"
 
-#: projects/models.py:1704
+#: projects/models.py:1715
 msgid "This domain is the primary one where the documentation is served from"
 msgstr "שם תחום זה הוא הראשי ממנו מוגש התיעוד"
 
-#: projects/models.py:1708
+#: projects/models.py:1719
 msgid "Use HTTPS"
 msgstr "שימוש ב־HTTPS"
 
-#: projects/models.py:1710
+#: projects/models.py:1721
 msgid "Always use HTTPS for this domain"
 msgstr "תמיד להשתמש ב־HTTPS לשם מתחם זה"
 
-#: projects/models.py:1714
+#: projects/models.py:1725
 msgid "Number of times this domain has been hit"
 msgstr "מספר הפעמים שביקרו בשם מתחם זה"
 
-#: projects/models.py:1719 templates/projects/domain_form.html:49
+#: projects/models.py:1730 templates/projects/domain_form.html:49
 msgid "SSL certificate status"
 msgstr "מצב אישור SSL"
 
-#: projects/models.py:1728
+#: projects/models.py:1739
 msgid "Skip validation process."
 msgstr "דילוג על תהליך אימות."
 
-#: projects/models.py:1734
+#: projects/models.py:1745
 msgid "Start date of the validation process."
 msgstr "תאריך התחלת תהליך האימות."
 
-#: projects/models.py:1745
+#: projects/models.py:1756
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
 msgstr "הגדרת max-age (גיל מרבי, למשל: 31536000) לכותרת ה־HSTS."
 
-#: projects/models.py:1749
+#: projects/models.py:1760
 msgid ""
 "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
 msgstr ""
 "אם hsts_max_age > 0, להגדיר את הדגלון includeSubDomains יחד עם כותרת ה־HSTS."
 
-#: projects/models.py:1753
+#: projects/models.py:1764
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 "אם hsts_max_age > 0, להגדיר את הדגלון preload (טעינה מקדימה) יחד עם כותרת "
 "ה־HSTS."
 
-#: projects/models.py:1909
+#: projects/models.py:1920
 msgid "Webhook: Allow deprecated webhook views"
 msgstr "התליות: לאפשר תצוגות התליות שהשימוש בהן הופסק"
 
-#: projects/models.py:1913
+#: projects/models.py:1924
 msgid ""
 "Sphinx: Do not overwrite context vars in conf.py with Read the Docs context"
 msgstr ""
 "Sphinx: משתני ההקשר לא יידרסו בתוך conf.py על ידי ההקשר של Read the Docs"
 
-#: projects/models.py:1919
+#: projects/models.py:1930
 msgid "Sphinx: Do not define html_theme_path on Sphinx < 6.0"
 msgstr "Sphinx: לא יוגדר html_theme_path על גבי Sphinx < 6.0"
 
-#: projects/models.py:1924
+#: projects/models.py:1935
 msgid "MkDocs: Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 "MkDocs: להשתמש בערכת העיצוב של Read the Docs theme עבור MkDocs כברירת המחדל"
 
-#: projects/models.py:1928
+#: projects/models.py:1939
 msgid "Build: Do not shallow clone when cloning git repos"
 msgstr "בנייה: לא לשכפל בצורה שטחית בעת שכפול מאגרי git"
 
-#: projects/models.py:1932
+#: projects/models.py:1943
 msgid "Build: Use Docker image labelled as `testing` to build the docs"
 msgstr ""
 "בנייה: לעשות שימוש בדמויות Docker עם התווית `testing` (בדיקה) כדי לבנות את "
 "המסמכים"
 
-#: projects/models.py:1936
+#: projects/models.py:1947
 msgid "Build: Try alternative method of posting large data"
 msgstr "בנייה: לנסות שיטה חלופית לפרסום נתונים גדולים"
 
-#: projects/models.py:1940
+#: projects/models.py:1951
 msgid "Build: Clean all files used in the build process"
 msgstr "בנייה: לנקות את כל הקבצים בהם נעשה שימוש בתהליך הבנייה"
 
-#: projects/models.py:1944
+#: projects/models.py:1955
 msgid "Conda: Upgrade conda before creating the environment"
 msgstr "Conda: לשדרג את conda בטרם יצירת הסביבה"
 
-#: projects/models.py:1948
+#: projects/models.py:1959
 msgid "Conda: Append Read the Docs core requirements to environment.yml file"
 msgstr "Conda: הוספת דרישות ליבה של Read the Docs לקובץ environment.yml"
 
-#: projects/models.py:1953
+#: projects/models.py:1964
 msgid ""
 "Sphinx: Pass all versions (including private) into the html context when "
 "building with Sphinx"
 msgstr ""
 "Sphinx: להעביר את כל הגרסאות (כולל הפרטיות) להקשר ה־html בעת בנייה עם Sphinx"
 
-#: projects/models.py:1960
+#: projects/models.py:1971
 msgid ""
 "Build: Cache the environment (virtualenv, conda, pip cache, repository) in "
 "storage"
 msgstr "בנייה: לשמור את הסביבה (virtualenv,‏ conda,‏ pip cache, מאגר) באחסון"
 
-#: projects/models.py:1965
+#: projects/models.py:1976
 msgid "Build: Limit the amount of concurrent builds"
 msgstr "בנייה: הגבלת כמות הבניות במקביל"
 
-#: projects/models.py:1970
+#: projects/models.py:1981
 msgid ""
 "Proxito: CDN support for a project's public versions when privacy levels are "
 "enabled."
 msgstr ""
 "Proxito: תמיכה ב־CDN לגרסאות הציבוריות של המיזם כאשר רמות פרטיות פעילות."
 
-#: projects/models.py:1976
+#: projects/models.py:1987
 msgid "Build: Use Docker gVisor runtime to create build container."
 msgstr "Build: להשתמש בסביבת הריצה Docker gVisor כדי ליצור קונטיינר לבנייה."
 
-#: projects/models.py:1980
+#: projects/models.py:1991
 msgid "Proxito: Record 404s page views."
 msgstr "Proxito: תיעוד צפיות בעמודי 404."
 
-#: projects/models.py:1984
+#: projects/models.py:1995
 msgid "Proxito: Allow forced redirects."
 msgstr "Proxito: לאפשר הפניות בכוח."
 
-#: projects/models.py:1988
+#: projects/models.py:1999
 msgid "Proxito: Disable all page views"
 msgstr "Proxito: השבתת כל צפיות העמודים"
 
-#: projects/models.py:1992
+#: projects/models.py:2003
 msgid "Sphinx: Disable indexing of sphinx domains"
 msgstr "Sphinx: השבתת תיעוד במפתח של שמות תחום sphinx"
 
-#: projects/models.py:1996
+#: projects/models.py:2007
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr "Proxito: לאפשר שימוש בכותרת X-RTD-Slug"
 
-#: projects/models.py:2001
+#: projects/models.py:2012
 msgid ""
 "Proxito: Use new unresolver implementation for serving documentation files."
 msgstr "Proxito: ייעשה שימוש במימוש חדש של unresolver להגשת קובצי תיעוד."
 
-#: projects/models.py:2008
+#: projects/models.py:2019
 msgid "Webhook: Skip syncing branches"
 msgstr "התליה: דילוג על סנכרון ענפים"
 
-#: projects/models.py:2012
+#: projects/models.py:2023
 msgid "Webhook: Skip syncing tags"
 msgstr "התליה: דילוג על סנכרון תגיות"
 
-#: projects/models.py:2016
+#: projects/models.py:2027
 msgid "Webhook: Skip sync versions task"
 msgstr "התליה: דילוג על משימת סנכרון גרסאות"
 
-#: projects/models.py:2020
+#: projects/models.py:2031
 msgid "Build: Always run pip install --upgrade"
 msgstr "בנייה: תמיד להריץ את pip install --upgrade"
 
-#: projects/models.py:2021
+#: projects/models.py:2032
 msgid "Build: Use new pip resolver"
 msgstr "בנייה: ייעשה שימוש בפותר ה־pip החדש"
 
-#: projects/models.py:2024
+#: projects/models.py:2035
 msgid "Build: Don't install the latest version of pip"
 msgstr "בנייה: לא להתקין את הגרסה העדכנית ביותר של pip"
 
-#: projects/models.py:2026
+#: projects/models.py:2037
 msgid "Sphinx: Use latest version of Sphinx"
 msgstr "Sphinx: להשתמש בגרסה העדכנית ביותר של Sphinx"
 
-#: projects/models.py:2029
+#: projects/models.py:2040
 msgid "MkDOcs: Install mkdocs 0.17.3 by default"
 msgstr "MkDOcs: התקנת mkdocs 0.17.3 כברירת מחדל"
 
-#: projects/models.py:2031
+#: projects/models.py:2042
 msgid "MkDocs: Use latest version of MkDocs"
 msgstr "MkDocs: שימוש בגרסה העדכנית ביותר של MkDocs"
 
-#: projects/models.py:2034
+#: projects/models.py:2045
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr "Sphinx: להשתמש בגרסה העדכנית ביותר של הרחבת Sphinx ל־Read the Docs"
 
-#: projects/models.py:2040
+#: projects/models.py:2051
 msgid "Search: Disable server side search"
 msgstr "חיפוש: השבתת חיפוש בצד השרת"
 
-#: projects/models.py:2044
+#: projects/models.py:2055
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr "חיפוש: הפעלת חיפוש בצד השרת למיזמי MkDocs"
 
-#: projects/models.py:2048
+#: projects/models.py:2059
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr "חיפוש: ברירת המחדל תיסוג לחיפוש מעורפל לשאילתות חיפוש פשוטות"
 
-#: projects/models.py:2053
+#: projects/models.py:2064
 msgid ""
 "Search: Index content directly from html files instead or relying in other "
 "sources"
@@ -2918,14 +2941,14 @@ msgstr ""
 "חיפוש: להוסיף תוכן למפתח העניינים ישירות מקובצי html במקום לסמוך על מקורות "
 "אחרים"
 
-#: projects/models.py:2061
+#: projects/models.py:2072
 msgid ""
 "Build: List packages installed in the environment (\"pip list\" or \"conda "
 "list\") on build's output"
 msgstr ""
 "בנייה: להציג חבילות שמותקנות בסביבה („pip list” או „conda list”) בפלט הבנייה"
 
-#: projects/models.py:2068
+#: projects/models.py:2079
 msgid ""
 "Build: Use remote listing in VCS (e.g. git ls-remote) if supported for sync "
 "versions"
@@ -2933,67 +2956,67 @@ msgstr ""
 "בנייה: להשתמש בהצגה מרוחקת במערכת בקרת הגרסאות (למשל: git ls-remote) אם נתמך "
 "בגרסאות סנכרון"
 
-#: projects/models.py:2074
+#: projects/models.py:2085
 msgid "Sphinx: Use \"-j auto\" when calling sphinx-build"
 msgstr "Sphinx: שימוש ב־„‎-j auto” בעת קריאה ל־sphinx-build"
 
-#: projects/models.py:2078
+#: projects/models.py:2089
 msgid "Sphinx: Use regular sphinx builders instead of custom RTD builders"
 msgstr ""
 "Sphinx: להשתמש בבנאים רגילים של sphinx builders במקום בבנאים מותאמים של RTD"
 
-#: projects/models.py:2083
+#: projects/models.py:2094
 msgid ""
 "Build: Cancel triggered/running builds when a new one with same project/"
 "version arrives"
 msgstr ""
 "בנייה: לבטל בניות שהופעלו/פעילות כאשר בנייה חדשה אם אותו מיזם/גרסה מגיעה"
 
-#: projects/models.py:2090
+#: projects/models.py:2101
 msgid ""
 "Sphinx: Do not create index.md or README.rst if the project does not have "
 "one."
 msgstr "Sphinx: לא ליצור index.md או README.rst אם למיזם אין כאלה."
 
-#: projects/models.py:2095
+#: projects/models.py:2106
 msgid "Build: Use rclone for syncing files to the media storage."
 msgstr "בנייה: להשתמש ב־rclone לסנכרון קבצים לאחסון המדיה."
 
-#: projects/models.py:2100
+#: projects/models.py:2111
 msgid ""
 "Proxito: Inject 'readthedocs-client.js' as <script> HTML tag in responses."
 msgstr ""
 "Proxito: הזרקת ‚readthedocs-client.js’ בתור תגית HTML מסוג <script> בתגובות."
 
-#: projects/models.py:2114
+#: projects/models.py:2125
 msgid "Feature identifier"
 msgstr "מזהה תכונות"
 
-#: projects/models.py:2119
+#: projects/models.py:2130
 msgid "Date feature was added"
 msgstr "התאריך בו נוספה התכונה"
 
-#: projects/models.py:2125
+#: projects/models.py:2136
 msgid "Default all past projects to True"
 msgstr "ברירת המחדל של כל מיזמי העבר הוא אמת (True)"
 
-#: projects/models.py:2129
+#: projects/models.py:2140
 msgid "Default all future projects to True"
 msgstr "ברירת המחדל של כל מיזמי העתיד הוא אמת (True)"
 
-#: projects/models.py:2151
+#: projects/models.py:2162
 msgid "Name of the environment variable"
 msgstr "שם משתנה הסביבה"
 
-#: projects/models.py:2155
+#: projects/models.py:2166
 msgid "Value of the environment variable"
 msgstr "ערך משתנה הסביבה"
 
-#: projects/models.py:2160
+#: projects/models.py:2171
 msgid "Project where this variable will be used"
 msgstr "מיזם בו יעשה שימוש במשתנה"
 
-#: projects/models.py:2166
+#: projects/models.py:2177
 msgid "Expose this environment variable in PR builds?"
 msgstr "לחשוף את משתנה הסביבה בבניות של בקשות משיכה (PR)?"
 
