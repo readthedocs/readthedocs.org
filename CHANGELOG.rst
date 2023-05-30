@@ -1,3 +1,30 @@
+Version 9.13.1
+--------------
+
+:Date: May 30, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10362 <https://github.com/readthedocs/readthedocs.org/pull/10362>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Small index page tweak (`#10358 <https://github.com/readthedocs/readthedocs.org/pull/10358>`__)
+* `@humitos <https://github.com/humitos>`__: Email: trust GH and GL emails and mark them as verified (`#10357 <https://github.com/readthedocs/readthedocs.org/pull/10357>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: note explaining `build.apt_packages` doesn't work with `build.commands` (`#10347 <https://github.com/readthedocs/readthedocs.org/pull/10347>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: upgrade Docker (`#10341 <https://github.com/readthedocs/readthedocs.org/pull/10341>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: upgrade DDT to avoid an issue (`#10340 <https://github.com/readthedocs/readthedocs.org/pull/10340>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Bump sphinx-rtd-theme to 1.2.1 (`#10338 <https://github.com/readthedocs/readthedocs.org/pull/10338>`__)
+* `@humitos <https://github.com/humitos>`__: Version: new field `addons` (`#10337 <https://github.com/readthedocs/readthedocs.org/pull/10337>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.13.0 (`#10336 <https://github.com/readthedocs/readthedocs.org/pull/10336>`__)
+* `@humitos <https://github.com/humitos>`__: Build: allow multi-line commands on `build.commands` (`#10334 <https://github.com/readthedocs/readthedocs.org/pull/10334>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10330 <https://github.com/readthedocs/readthedocs.org/pull/10330>`__)
+* `@stsewd <https://github.com/stsewd>`__: Organizations: allow users without organizations to see their own profiles (`#10329 <https://github.com/readthedocs/readthedocs.org/pull/10329>`__)
+* `@stsewd <https://github.com/stsewd>`__: Version comparing: sort 1.x versions last  (`#10326 <https://github.com/readthedocs/readthedocs.org/pull/10326>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Organizations: Organization chooser page (`#10325 <https://github.com/readthedocs/readthedocs.org/pull/10325>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Proxito: Search scope narrowed to active project (version, translation or subproject 404s) (`#10324 <https://github.com/readthedocs/readthedocs.org/pull/10324>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: redirect to default version from root language (`#10313 <https://github.com/readthedocs/readthedocs.org/pull/10313>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V3: clean version when deactivated and build version when activated (`#10308 <https://github.com/readthedocs/readthedocs.org/pull/10308>`__)
+* `@stsewd <https://github.com/stsewd>`__: Builds: avoid breaking builds when adding a new field to our APIs (`#10295 <https://github.com/readthedocs/readthedocs.org/pull/10295>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Update "How to import private repositories" (Diátaxis) (`#10251 <https://github.com/readthedocs/readthedocs.org/pull/10251>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Relabel howto guides for Git repository configuration (Diátaxis) (`#10247 <https://github.com/readthedocs/readthedocs.org/pull/10247>`__)
+* `@stsewd <https://github.com/stsewd>`__: PageView: use BigAutoField for primary key (`#9670 <https://github.com/readthedocs/readthedocs.org/pull/9670>`__)
+
 Version 9.13.0
 --------------
 
