@@ -429,6 +429,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         """
         Celery handler to be executed when a task fails.
 
+        Updates build data, adds tasks to send build notifications.
+
         .. note::
 
            Since the task has failed, some attributes from the `self.data`
@@ -520,7 +522,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
 
         # Update build object
-        self.data.build['success'] = False
+        if isinstance(exc, BuildUserSkip):
+            self.data.build["success"] = True
+        else:
+            self.data.build["success"] = False
 
     def get_valid_artifact_types(self):
         """

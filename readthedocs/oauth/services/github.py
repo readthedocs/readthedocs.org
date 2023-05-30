@@ -446,8 +446,8 @@ class GitHubService(Service):
         project = build.project
         owner, repo = build_utils.get_github_username_repo(url=project.repo)
 
-        # select the correct state and description.
-        github_build_state = SELECT_BUILD_STATUS[status]["github"]
+        # select the correct status and description.
+        github_build_status = SELECT_BUILD_STATUS[status]["github"]
         description = SELECT_BUILD_STATUS[status]["description"]
         statuses_url = f"https://api.github.com/repos/{owner}/{repo}/statuses/{commit}"
 
@@ -461,15 +461,15 @@ class GitHubService(Service):
         context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'
 
         data = {
-            'state': github_build_state,
-            'target_url': target_url,
-            'description': description,
-            'context': context,
+            "state": github_build_status,
+            "target_url": target_url,
+            "description": description,
+            "context": context,
         }
 
         log.bind(
             project_slug=project.slug,
-            commit_status=github_build_state,
+            commit_status=github_build_status,
             user_username=self.user.username,
             statuses_url=statuses_url,
         )
