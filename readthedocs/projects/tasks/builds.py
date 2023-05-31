@@ -422,12 +422,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     def _reset_build(self):
         # Reset build only if it has some commands already.
         if self.data.build.get("commands"):
-            log.info("Reseting build.")
+            log.info("Resetting build.")
             api_v2.build(self.data.build["id"]).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """
         Celery handler to be executed when a task fails.
+
+        Updates build data, adds tasks to send build notifications.
 
         .. note::
 
@@ -520,7 +522,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
 
         # Update build object
-        self.data.build['success'] = False
+        self.data.build["success"] = False
 
     def get_valid_artifact_types(self):
         """
