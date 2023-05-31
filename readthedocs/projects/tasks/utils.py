@@ -3,6 +3,7 @@ import os
 
 import structlog
 from celery.worker.request import Request
+from django.conf import settings
 from django.db.models import Q, Sum
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -202,12 +203,14 @@ def deprecated_config_file_used_notification():
 
     projects = set()
     start_datetime = datetime.datetime.now()
-    queryset = (
-        Project.objects.exclude(users__profile__banned=True)
-        .annotate(spam_score=Sum("spam_rules__value"))
-        .filter(Q(spam_score__lt=spam_score) | Q(is_spam=False))
-        .only("slug", "default_version")
-    )
+    queryset = Project.objects.exclude(users__profile__banned=True)
+    if not settings.ALLOW_PRIVATE_REPOS:
+        # Take into account spam score on community
+        queryset = queryset.annotate(spam_score=Sum("spam_rules__value")).filter(
+            Q(spam_score__lt=spam_score) | Q(is_spam=False)
+        )
+    queryset = queryset.only("slug", "default_version")
+
     for project in queryset.iterator():
         # NOTE: instead of iterating over all the active versions,
         # we can only consider the default one
