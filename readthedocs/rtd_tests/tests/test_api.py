@@ -6,6 +6,7 @@ from unittest import mock
 import dateutil
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
+from django.core.validators import URLValidator
 from django.http import QueryDict
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -299,12 +300,17 @@ class APIBuildTests(TestCase):
                 'version_slug': version.slug,
             },
         )
+
         build = resp.data
-        self.assertEqual(build['state'], 'cloning')
-        self.assertEqual(build['error'], '')
-        self.assertEqual(build['exit_code'], 0)
-        self.assertEqual(build['success'], True)
-        self.assertEqual(build['docs_url'], dashboard_url)
+        self.assertEqual(build["state"], "cloning")
+        self.assertEqual(build["error"], "")
+        self.assertEqual(build["exit_code"], 0)
+        self.assertEqual(build["success"], True)
+        self.assertTrue(build["docs_url"].endswith(dashboard_url))
+
+        # Validate received URL (fails with ValidationError if incorrect value)
+        url_validator = URLValidator(schemes=["https"])
+        url_validator(build["docs_url"])
 
     @override_settings(DOCROOT="/home/docs/checkouts/readthedocs.org/user_builds")
     def test_response_finished_and_success(self):
@@ -390,11 +396,15 @@ class APIBuildTests(TestCase):
             },
         )
         build = resp.data
-        self.assertEqual(build['state'], 'finished')
-        self.assertEqual(build['error'], '')
-        self.assertEqual(build['exit_code'], 1)
-        self.assertEqual(build['success'], False)
-        self.assertEqual(build['docs_url'], dashboard_url)
+        self.assertEqual(build["state"], "finished")
+        self.assertEqual(build["error"], "")
+        self.assertEqual(build["exit_code"], 1)
+        self.assertEqual(build["success"], False)
+        self.assertTrue(build["docs_url"].endswith(dashboard_url))
+
+        # Validate received URL (fails with ValidationError if incorrect value)
+        url_validator = URLValidator(schemes=["https"])
+        url_validator(build["docs_url"])
 
     def test_make_build_without_permission(self):
         """Ensure anonymous/non-staff users cannot write the build endpoint."""
