@@ -26,6 +26,27 @@ class TestImportProjectBannedUser(RequestFactoryTestMixin, TestCase):
 
     url = '/dashboard/import/manual/'
 
+    def setUp(self):
+        super().setUp()
+        data = {
+            "basics": {
+                "name": "foobar",
+                "repo": "http://example.com/foobar",
+                "repo_type": "git",
+            },
+            "extra": {
+                "description": "Describe foobar",
+                "language": "en",
+                "documentation_type": "sphinx",
+            },
+        }
+        self.data = {}
+        for key in data:
+            self.data.update(
+                {("{}-{}".format(key, k), v) for (k, v) in list(data[key].items())}
+            )
+        self.data["{}-current_step".format(self.wizard_class_slug)] = "extra"
+
     def test_banned_user(self):
         """User is banned."""
         req = self.request(method="post", path=self.url, data=self.data)
