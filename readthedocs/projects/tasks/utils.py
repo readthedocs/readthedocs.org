@@ -205,7 +205,7 @@ def deprecated_config_file_used_notification():
     queryset = (
         Project.objects.exclude(users__profile__banned=True)
         .annotate(spam_score=Sum("spam_rules__value"))
-        .filter(Q(spam_score__gte=1, spam_score__lt=spam_score) | Q(is_spam=False))
+        .filter(Q(spam_score__lt=spam_score) | Q(is_spam=False))
         .only("slug", "default_version")
     )
     for project in queryset.iterator():
