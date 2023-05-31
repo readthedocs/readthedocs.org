@@ -167,7 +167,7 @@ class DeprecatedConfigFileSiteNotification(SiteNotification):
         "<code>.readthedocs.yaml</code> configuration file. "
         "Configuration files will <strong>soon be required</strong> by projects, "
         "and will no longer be optional. "
-        '<a href="https://blog.readthedocs.com/migrate-configuration-v2/">Read our blog post to create one</a>'  # noqa
+        '<a href="https://blog.readthedocs.com/migrate-configuration-v2/">Read our blog post to create one</a> '  # noqa
         "to ensure your project continues building successfully."
     )
     failure_level = WARNING_PERSISTENT
