@@ -3,7 +3,7 @@ import os
 
 import structlog
 from celery.worker.request import Request
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from messages_extends.constants import WARNING_PERSISTENT
@@ -194,12 +194,21 @@ def deprecated_config_file_used_notification():
 
     This is a scheduled task to be executed on the webs.
     Note the code uses `.iterator` and `.only` to avoid killing the db with this query.
+    Besdies, it excludes projects with enough spam score to be skipped.
     """
+    # Skip projects with a spam score bigger than this value.
+    # Currently, this gives us ~250k in total (from ~550k we have in our database)
+    spam_score = 300
+
     projects = set()
-    # NOTE: we could skip the projects with a spam score > 150,
-    # to reduce the amount of email/onsite notifications we send
     start_datetime = datetime.datetime.now()
-    for project in Project.objects.all().only("slug", "default_version").iterator():
+    queryset = (
+        Project.objects.exclude(users__profile__banned=True)
+        .annotate(spam_score=Sum("spam_rules__value"))
+        .filter(Q(spam_score__gte=1, spam_score__lt=spam_score) | Q(is_spam=False))
+        .only("slug", "default_version")
+    )
+    for project in queryset.iterator():
         # NOTE: instead of iterating over all the active versions,
         # we can only consider the default one
         for version in (
