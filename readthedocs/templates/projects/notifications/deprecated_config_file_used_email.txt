@@ -1,9 +1,12 @@
 {% extends "core/email/common.txt" %}
 {% block content %}
-Your project "{{ project.slug }}" is not using a .readthedocs.yaml configuration file (https://docs.readthedocs.io/en/stable/config-file/v2.html) and will stop working soon.
+Your project "{{ project.slug }}" is not using a .readthedocs.yaml configuration file and builds will stop working soon.
 
 Configuration files will soon be required by projects, and will no longer be optional.
 You will need to add a configuration file to your project to ensure your project continues building successfully.
+
+For more information on our configuration file, see:
+https://docs.readthedocs.io/en/stable/config-file/v2.html
 
 Get in touch with us at {{ production_uri }}{% url 'support' %}
 and let us know if you are unable to use a configuration file for any reason.

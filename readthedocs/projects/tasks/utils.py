@@ -164,8 +164,8 @@ class DeprecatedConfigFileSiteNotification(SiteNotification):
 
     failure_message = (
         "Your project '{{ object.slug }}' doesn't have a "
-        '<a href="https://docs.readthedocs.io/en/stable/config-file/v2.html">.readthedocs.yaml</a> '
-        "configuration file. "
+        '<a href="https://docs.readthedocs.io/en/stable/config-file/v2.html">.readthedocs.yaml '
+        "configuration file</a>. "
         "Configuration files will <strong>soon be required</strong> by projects, "
         "and will no longer be optional. "
         "Make sure to create one for your project to ensure your project continues "
@@ -179,7 +179,7 @@ class DeprecatedConfigFileEmailNotification(Notification):
     app_templates = "projects"
     name = "deprecated_config_file_used"
     context_object_name = "project"
-    subject = "Your project will start failing soon"
+    subject = "Add a configuration file to your project to continue building"
     level = REQUIREMENT
 
     def send(self):
@@ -205,6 +205,7 @@ def deprecated_config_file_used_notification():
         # we can only consider the default one
         for version in (
             project.versions.filter(Q(active=True) | Q(slug=project.default_version))
+            .order_by("-modified")
             # Add a limit of 15 to protect ourselves against projects with
             # hundred of active versions
             .only("id")[:15].iterator()
@@ -217,28 +218,36 @@ def deprecated_config_file_used_notification():
                 # will get the notification
                 break
 
+    n_projects = len(projects)
     log.info(
         "Sending deprecated config file notification.",
         query_seconds=(datetime.datetime.now() - start_datetime).seconds,
-        projects=len(projects),
+        projects=n_projects,
     )
 
-    for project in Project.objects.filter(slug__in=projects):
+    projects = Project.objects.filter(slug__in=projects)
+    for i, project in enumerate(projects):
+
+        if i % 500 == 0:
+            log.info(
+                "Sending deprecated config file notifications.",
+                progress=f"{i}/{n_projects}",
+            )
+
         users = AdminPermission.owners(project)
         for user in users:
-            n = DeprecatedConfigFileSiteNotification(
+            n_site = DeprecatedConfigFileSiteNotification(
                 user=user,
                 context_object=project,
                 success=False,
             )
-            n.send()
+            n_site.send()
 
-        for user in users:
-            n = DeprecatedConfigFileEmailNotification(
+            n_email = DeprecatedConfigFileEmailNotification(
                 user=user,
                 context_object=project,
             )
-            n.send()
+            n_email.send()
 
 
 class BuildRequest(Request):
