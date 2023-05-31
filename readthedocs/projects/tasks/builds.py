@@ -522,10 +522,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
 
         # Update build object
-        if isinstance(exc, BuildUserSkip):
-            self.data.build["success"] = True
-        else:
-            self.data.build["success"] = False
+        self.data.build["success"] = False
 
     def get_valid_artifact_types(self):
         """
