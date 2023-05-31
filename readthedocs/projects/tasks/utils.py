@@ -208,7 +208,8 @@ def deprecated_config_file_used_notification():
             .order_by("-modified")
             # Add a limit of 15 to protect ourselves against projects with
             # hundred of active versions
-            .only("id")[:15].iterator()
+            .only("id")[:15]
+            .iterator()
         ):
             build = version.builds.filter(success=True).only("_config").first()
             if build and build.deprecated_config_used():
