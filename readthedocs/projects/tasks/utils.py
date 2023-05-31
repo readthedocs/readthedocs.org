@@ -226,6 +226,7 @@ def deprecated_config_file_used_notification():
     )
 
     projects = Project.objects.filter(slug__in=projects)
+    start_datetime = datetime.datetime.now()
     for i, project in enumerate(projects):
 
         if i % 500 == 0:
@@ -248,6 +249,11 @@ def deprecated_config_file_used_notification():
                 context_object=project,
             )
             n_email.send()
+
+    log.info(
+        "Finish sending deprecated config file notifications.",
+        notification_seconds=(datetime.datetime.now() - start_datetime).seconds,
+    )
 
 
 class BuildRequest(Request):
