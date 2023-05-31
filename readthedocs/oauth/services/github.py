@@ -472,6 +472,8 @@ class GitHubService(Service):
             commit_status=github_build_status,
             user_username=self.user.username,
             statuses_url=statuses_url,
+            target_url=target_url,
+            status=status,
         )
         resp = None
         try:
