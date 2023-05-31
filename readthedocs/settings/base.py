@@ -747,6 +747,7 @@ class CommunityBaseSettings(Settings):
 
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
+            "VERIFIED_EMAIL": True,
             'SCOPE': [
                 'user:email',
                 'read:org',
@@ -755,6 +756,7 @@ class CommunityBaseSettings(Settings):
             ],
         },
         'gitlab': {
+            "VERIFIED_EMAIL": True,
             'SCOPE': [
                 'api',
                 'read_user',
