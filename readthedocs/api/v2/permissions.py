@@ -3,7 +3,6 @@
 from rest_framework import permissions
 
 from readthedocs.builds.models import Version
-from readthedocs.core.permissions import AdminPermission
 
 
 class IsOwner(permissions.BasePermission):
@@ -13,29 +12,6 @@ class IsOwner(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         # Write permissions are only allowed to the owner of the snippet
         return request.user in obj.users.all()
-
-
-class CommentModeratorOrReadOnly(permissions.BasePermission):
-
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True  # TODO: Similar logic to #1084
-        return AdminPermission.is_admin(request.user, obj.node.project)
-
-
-class RelatedProjectIsOwner(permissions.BasePermission):
-
-    """Custom permission to only allow owners of an object to edit it."""
-
-    def has_permission(self, request, view):
-        return (request.method in permissions.SAFE_METHODS)
-
-    def has_object_permission(self, request, view, obj):
-        # Write permissions are only allowed to the owner of the snippet
-        return (
-            request.method in permissions.SAFE_METHODS or
-            (request.user in obj.project.users.all())
-        )
 
 
 class APIRestrictedPermission(permissions.BasePermission):
