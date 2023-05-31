@@ -195,11 +195,6 @@ class ProjectConfigForm(forms.Form):
 
     """Simple intermediate step to communicate about the .readthedocs.yaml file."""
 
-    confirm = forms.BooleanField(
-        label="I've already added a <code>.readthedocs.yaml</code> file to my project",
-        required=True,
-    )
-
     def __init__(self, *args, **kwargs):
         # Remove 'user' field since it's not expected by BaseForm.
         kwargs.pop("user")
