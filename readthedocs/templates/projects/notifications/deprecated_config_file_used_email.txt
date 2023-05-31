@@ -5,8 +5,8 @@ Your project "{{ project.slug }}" is not using a .readthedocs.yaml configuration
 Configuration files will soon be required by projects, and will no longer be optional.
 You will need to add a configuration file to your project to ensure your project continues building successfully.
 
-For more information on our configuration file, see:
-https://docs.readthedocs.io/en/stable/config-file/v2.html
+For more information on how to create a required configuration file, see:
+https://blog.readthedocs.com/migrate-configuration-v2/
 
 Get in touch with us at {{ production_uri }}{% url 'support' %}
 and let us know if you are unable to use a configuration file for any reason.

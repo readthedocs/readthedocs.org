@@ -166,10 +166,11 @@ $(document).ready(function () {
       {% if build.finished and build.deprecated_config_used %}
         <div class="build-ideas">
           <p>
-            {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/config-file/v2.html" %}
+            {% blocktrans trimmed with config_file_link="https://blog.readthedocs.com/migrate-configuration-v2/" %}
               <strong>Your builds will stop working soon!</strong><br/>
               Configuration files will <strong>soon be required</strong> by projects, and will no longer be optional.
-              Add a <a href="{{ config_file_link }}">.readthedocs.yaml config file</a> to your project to ensure your project continues building successfully.
+              <a href="{{ config_file_link }}">Read our blog post to create one</a>
+              to ensure your project continues building successfully.
             {% endblocktrans %}
           </p>
         </div>
