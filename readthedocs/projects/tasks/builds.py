@@ -15,7 +15,8 @@ from django.conf import settings
 from django.utils import timezone
 from slumber.exceptions import HttpClientError
 
-from readthedocs.api.v2.client import api as api_v2
+from readthedocs.api.v2.client import setup_api
+from slumber import API
 from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
     ARTIFACT_TYPES,
@@ -102,6 +103,8 @@ class TaskData:
     build_pk: int = None
     build_commit: str = None
 
+    api_client: API = None
+
     start_time: timezone.datetime = None
     # pylint: disable=unsubscriptable-object
     environment_class: type[DockerBuildEnvironment] | type[LocalBuildEnvironment] = None
@@ -152,6 +155,8 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         # Comes from the signature of the task and it's the only required
         # argument
         self.data.version_pk = args[0]
+
+        self.data.api_client = setup_api(kwargs['build_api_key'])
 
         # load all data from the API required for the build
         self.data.version = self.get_version(self.data.version_pk)
@@ -238,7 +243,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     base=SyncRepositoryTask,
     bind=True,
 )
-def sync_repository_task(self, version_id, **kwargs):
+def sync_repository_task(self, version_id, build_api_key, **kwargs):
     # In case we pass more arguments than expected, log them and ignore them,
     # so we don't break builds while we deploy a change that requires an extra argument.
     if kwargs:
@@ -339,7 +344,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def _check_concurrency_limit(self):
         try:
-            response = api_v2.build.concurrent.get(project__slug=self.data.project.slug)
+            response = self.data.api_client.build.concurrent.get(project__slug=self.data.project.slug)
             concurrency_limit_reached = response.get('limit_reached', False)
             max_concurrent_builds = response.get(
                 'max_concurrent',
@@ -390,6 +395,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # anymore and we are not using it
             self.data.environment_class = LocalBuildEnvironment
 
+        self.data.api_client = setup_api(kwargs['build_api_key'])
+
         self.data.build = self.get_build(self.data.build_pk)
         self.data.version = self.get_version(self.data.version_pk)
         self.data.project = self.data.version.project
@@ -427,7 +434,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Reset build only if it has some commands already.
         if self.data.build.get("commands"):
             log.info("Resetting build.")
-            api_v2.build(self.data.build["id"]).reset.post()
+            self.data.api_client.build(self.data.build["id"]).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """
@@ -598,7 +605,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # TODO: remove this condition and *always* update the DB Version instance
         if "html" in valid_artifacts:
             try:
-                api_v2.version(self.data.version.pk).patch(
+                self.data.api_client.version(self.data.version.pk).patch(
                     {
                         "built": True,
                         "documentation_type": self.data.version.documentation_type,
@@ -709,7 +716,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         #         self.data.build[key] = val.decode('utf-8', 'ignore')
 
         try:
-            api_v2.build(self.data.build['id']).patch(self.data.build)
+            self.data.api_client.build(self.data.build['id']).patch(self.data.build)
         except Exception:
             # NOTE: we are updating the "Build" object on each `state`.
             # Only if the last update fails, there may be some inconsistency
@@ -802,14 +809,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         except Exception:
             log.exception("Error while saving build data")
 
-    @staticmethod
-    def get_project(project_pk):
-        """Get project from API."""
-        project_data = api_v2.project(project_pk).get()
-        return APIProject(**project_data)
-
-    @staticmethod
-    def get_build(build_pk):
+    def get_build(self, build_pk):
         """
         Retrieve build object from API.
 
@@ -817,7 +817,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         """
         build = {}
         if build_pk:
-            build = api_v2.build(build_pk).get()
+            build = self.data.api_client.build(build_pk).get()
         private_keys = [
             'project',
             'version',
@@ -834,7 +834,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     # build has finished to reduce API calls.
     def set_valid_clone(self):
         """Mark on the project that it has been cloned properly."""
-        api_v2.project(self.data.project.pk).patch(
+        self.data.api_client.project(self.data.project.pk).patch(
             {'has_valid_clone': True}
         )
         self.data.project.has_valid_clone = True
@@ -943,7 +943,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     bind=True,
     ignore_result=True,
 )
-def update_docs_task(self, version_id, build_id, build_commit=None, **kwargs):
+def update_docs_task(self, version_id, build_id, build_api_key, build_commit=None, **kwargs):
     # In case we pass more arguments than expected, log them and ignore them,
     # so we don't break builds while we deploy a change that requires an extra argument.
     if kwargs:

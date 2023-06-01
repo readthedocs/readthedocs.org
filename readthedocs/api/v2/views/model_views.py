@@ -1,5 +1,4 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
-
 import json
 
 import structlog
@@ -22,7 +21,7 @@ from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Domain, Project
 from readthedocs.storage import build_commands_storage
 
-from ..permissions import APIRestrictedPermission, IsOwner
+from readthedocs.api.v2.permissions import APIRestrictedPermission, HasBuildAPIKey, IsOwner
 from ..serializers import (
     BuildAdminReadOnlySerializer,
     BuildAdminSerializer,
@@ -134,8 +133,8 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
     def get_serializer_class(self):
         try:
             if (
-                self.request.user.is_staff and
-                self.admin_serializer_class is not None
+                (self.request.user.is_staff or self.request.build_api_key)
+                and self.admin_serializer_class is not None
             ):
                 return self.admin_serializer_class
         except AttributeError:
@@ -151,7 +150,7 @@ class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     """List, filter, etc, Projects."""
 
-    permission_classes = [APIRestrictedPermission]
+    permission_classes = [HasBuildAPIKey | APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
     admin_serializer_class = ProjectAdminSerializer
@@ -168,10 +167,7 @@ class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(detail=True)
     def subprojects(self, request, **kwargs):
-        project = get_object_or_404(
-            Project.objects.api(request.user),
-            pk=kwargs['pk'],
-        )
+        project = self.get_object()
         rels = project.subprojects.all()
         children = [rel.child for rel in rels]
         return Response({
@@ -180,10 +176,7 @@ class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(detail=True)
     def active_versions(self, request, **kwargs):
-        project = get_object_or_404(
-            Project.objects.api(request.user),
-            pk=kwargs['pk'],
-        )
+        project = self.get_object()
         versions = project.versions(manager=INTERNAL).filter(active=True)
         return Response({
             'versions': VersionSerializer(versions, many=True).data,
@@ -191,18 +184,21 @@ class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(detail=True)
     def canonical_url(self, request, **kwargs):
-        project = get_object_or_404(
-            Project.objects.api(request.user),
-            pk=kwargs['pk'],
-        )
+        project = self.get_object()
         return Response({
             'url': project.get_docs_url(),
         })
 
+    def get_queryset(self):
+        api_key = self.request.build_api_key
+        if api_key:
+            return self.model.objects.filter(pk=api_key.project.pk)
+        return super().get_queryset()
+
 
 class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
-    permission_classes = [APIRestrictedPermission]
+    permission_classes = [HasBuildAPIKey | APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = VersionSerializer
     admin_serializer_class = VersionAdminSerializer
@@ -212,9 +208,15 @@ class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         'project__slug',
     )
 
+    def get_queryset(self):
+        api_key = self.request.build_api_key
+        if api_key:
+            return self.model.objects.filter(project=api_key.project)
+        return super().get_queryset()
+
 
 class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
-    permission_classes = [APIRestrictedPermission]
+    permission_classes = [HasBuildAPIKey | APIRestrictedPermission]
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     model = Build
     filterset_fields = ('project__slug', 'commit')
@@ -227,7 +229,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         pre-process the `command` field before returning it to the user, and we
         also want to have a specific serializer for admins.
         """
-        if self.request.user.is_staff:
+        if self.request.user.is_staff or self.request.build_api_key:
             # Logic copied from `UserSelectViewSet.get_serializer_class`
             # and extended to choose serializer from self.action
             if self.action not in ["list", "retrieve"]:
@@ -237,12 +239,15 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(
         detail=False,
-        permission_classes=[permissions.IsAdminUser],
+        permission_classes=[HasBuildAPIKey | permissions.IsAdminUser],
         methods=['get'],
     )
     def concurrent(self, request, **kwargs):
         project_slug = request.GET.get('project__slug')
-        project = get_object_or_404(Project, slug=project_slug)
+        if request.build_api_key:
+            project = request.build_api_key.project
+        else:
+            project = get_object_or_404(Project, slug=project_slug)
         limit_reached, concurrent, max_concurrent = Build.objects.concurrent(project)
         data = {
             'limit_reached': limit_reached,
@@ -291,7 +296,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(
         detail=True,
-        permission_classes=[permissions.IsAdminUser],
+        permission_classes=[HasBuildAPIKey | permissions.IsAdminUser],
         methods=['post'],
     )
     def reset(self, request, **kwargs):
@@ -300,13 +305,25 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         instance.reset()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    def get_queryset(self):
+        api_key = self.request.build_api_key
+        if api_key:
+            return self.model.objects.filter(project=api_key.project)
+        return super().get_queryset()
+
 
 class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
     parser_classes = [JSONParser, MultiPartParser]
-    permission_classes = [APIRestrictedPermission]
+    permission_classes = [HasBuildAPIKey | APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = BuildCommandSerializer
     model = BuildCommandResult
+
+    def get_queryset(self):
+        api_key = self.request.build_api_key
+        if api_key:
+            return self.model.objects.filter(build__project=api_key.project)
+        return super().get_queryset()
 
 
 class DomainViewSet(DisableListEndpoint, UserSelectViewSet):

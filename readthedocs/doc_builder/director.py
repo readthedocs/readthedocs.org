@@ -121,6 +121,7 @@ class BuildDirector:
             # Force the ``container_image`` to use one that has the latest
             # ca-certificate package which is compatible with Lets Encrypt
             container_image=settings.RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-20.04"],
+            api_client=self.data.api_client,
         )
 
     def create_build_environment(self):
@@ -132,6 +133,7 @@ class BuildDirector:
             build=self.data.build,
             environment=self.get_build_env_vars(),
             use_gvisor=use_gvisor,
+            api_client=self.data.api_client,
         )
 
     def setup_environment(self):
@@ -585,6 +587,7 @@ class BuildDirector:
         builder = get_builder_class(builder_class)(
             build_env=self.build_environment,
             python_env=self.language_environment,
+            api_client=self.data.api_client,
         )
 
         if builder_class == self.data.config.doctype:

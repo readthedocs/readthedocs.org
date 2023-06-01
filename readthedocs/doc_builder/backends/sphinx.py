@@ -16,7 +16,6 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from requests.exceptions import ConnectionError
 
-from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.exceptions import PDFNotFound
@@ -167,33 +166,25 @@ class BaseSphinx(BaseBuilder):
         versions = []
         downloads = []
         subproject_urls = []
-        # Avoid hitting database and API if using Docker build environment
-        if settings.DONT_HIT_API:
-            if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
-                versions = self.project.active_versions()
-            else:
-                versions = self.project.active_versions().filter(
-                    privacy_level=PUBLIC,
-                )
-            downloads = self.version.get_downloads(pretty=True)
-            subproject_urls = self.project.get_subproject_urls()
-        else:
-            try:
-                versions = self.project.api_versions()
-                if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
-                    versions = [
-                        v
-                        for v in versions
-                        if v.privacy_level == PUBLIC
-                    ]
-                downloads = api.version(self.version.pk).get()['downloads']
-                subproject_urls = self.project.get_subproject_urls()
-            except ConnectionError:
-                log.exception(
-                    'Timeout while fetching versions/downloads/subproject_urls for Sphinx context.',
-                    project_slug=self.project.slug,
-                    version_slug=self.version.slug,
-                )
+        try:
+            versions = self.project.api_versions(self.api_client)
+            if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+                versions = [
+                    v
+                    for v in versions
+                    if v.privacy_level == PUBLIC
+                ]
+            downloads = self.api_client.version(self.version.pk).get()['downloads']
+            subproject_urls = [
+                (proj['slug'], proj['canonical_url'])
+                for proj in self.api_client.project(self.project.pk).subprojects().get()['subprojects']
+            ]
+        except ConnectionError:
+            log.exception(
+                'Timeout while fetching versions/downloads/subproject_urls for Sphinx context.',
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
+            )
 
         build_id = self.build_env.build.get('id')
         build_url = None

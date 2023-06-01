@@ -1,6 +1,8 @@
 """Defines access permissions for the API."""
 
 from rest_framework import permissions
+from rest_framework_api_key.permissions import BaseHasAPIKey, KeyParser
+from readthedocs.api.v2.models import BuildAPIKey
 
 from readthedocs.builds.models import Version
 
@@ -65,3 +67,21 @@ class IsAuthorizedToViewVersion(permissions.BasePermission):
             .exists()
         )
         return has_access
+
+
+class TokenKeyParser(KeyParser):
+    keyword = "Token"
+
+
+class HasBuildAPIKey(BaseHasAPIKey):
+    model = BuildAPIKey
+    key_parser = TokenKeyParser()
+
+    def has_permission(self, request, view):
+        build_api_key = None
+        has_permission =  super().has_permission(request, view)
+        if has_permission:
+            key = self.get_key(request)
+            build_api_key =  self.model.objects.get_from_key(key)
+        request.build_api_key = build_api_key
+        return has_permission

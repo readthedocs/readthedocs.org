@@ -30,13 +30,14 @@ class BaseBuilder:
 
     ignore_patterns = []
 
-    def __init__(self, build_env, python_env):
+    def __init__(self, build_env, python_env, api_client):
         self.build_env = build_env
         self.python_env = python_env
         self.version = build_env.version
         self.project = build_env.project
         self.config = python_env.config if python_env else None
         self.project_path = self.project.checkout_path(self.version.slug)
+        self.api_client = api_client
 
     def get_final_doctype(self):
         """Some builders may have a different doctype at build time."""
