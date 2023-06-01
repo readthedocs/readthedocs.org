@@ -212,9 +212,19 @@ def deprecated_config_file_used_notification():
         queryset = queryset.annotate(spam_score=Sum("spam_rules__value")).filter(
             Q(spam_score__lt=spam_score) | Q(is_spam=False)
         )
-    queryset = queryset.only("slug", "default_version")
+    queryset = queryset.only("slug", "default_version").order_by("id")
+    n_projects = queryset.count()
 
-    for project in queryset.iterator():
+    for i, project in enumerate(queryset.iterator()):
+
+        if i % 500 == 0:
+            log.info(
+                "Finding projects without a configuration file.",
+                progress=f"{i}/{n_projects}",
+                current_project_pk=project.pk,
+                current_project_slug=project.slug,
+            )
+
         # Only check for the default version because if the project is using tags
         # they won't be able to update those and we will send them emails forever.
         # We can update this query if we consider later.
