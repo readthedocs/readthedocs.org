@@ -245,16 +245,10 @@ def deprecated_config_file_used_notification():
             if build and build.deprecated_config_used():
                 projects.add(project.slug)
 
-    n_projects = len(projects)
-    log.info(
-        "Sending deprecated config file notification.",
-        query_seconds=(datetime.datetime.now() - start_datetime).seconds,
-        projects=n_projects,
-    )
-
     # Store all the users we want to contact
     users = set()
 
+    n_projects = len(projects)
     queryset = Project.objects.filter(slug__in=projects).order_by("id")
     for i, project in enumerate(queryset.iterator()):
         if i % 500 == 0:
@@ -263,6 +257,7 @@ def deprecated_config_file_used_notification():
                 progress=f"{i}/{n_projects}",
                 current_project_pk=project.pk,
                 current_project_slug=project.slug,
+                users_found=len(users),
                 time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
             )
 
@@ -278,7 +273,7 @@ def deprecated_config_file_used_notification():
     for i, user in enumerate(queryset.iterator()):
         if i % 500 == 0:
             log.info(
-                "Querying all the users we want to contact.",
+                "Sending deprecated config file notification to users.",
                 progress=f"{i}/{n_users}",
                 current_user_pk=user.pk,
                 current_user_username=user.username,
