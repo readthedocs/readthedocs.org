@@ -4,6 +4,7 @@ import os
 import structlog
 from celery.worker.request import Request
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db.models import Q, Sum
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -163,6 +164,8 @@ def send_external_build_status(version_type, build_pk, commit, status):
 
 class DeprecatedConfigFileSiteNotification(SiteNotification):
 
+    # TODO: mention all the project slugs here
+    # Maybe trim them to up to 5 projects to avoid sending a huge blob of text
     failure_message = (
         "Your project '{{ object.slug }}' doesn't have a "
         "<code>.readthedocs.yaml</code> configuration file. "
@@ -216,7 +219,6 @@ def deprecated_config_file_used_notification():
     n_projects = queryset.count()
 
     for i, project in enumerate(queryset.iterator()):
-
         if i % 500 == 0:
             log.info(
                 "Finding projects without a configuration file.",
@@ -250,32 +252,56 @@ def deprecated_config_file_used_notification():
         projects=n_projects,
     )
 
+    # Store all the users we want to contact
+    users = set()
+
     queryset = Project.objects.filter(slug__in=projects).order_by("id")
     start_datetime = datetime.datetime.now()
     for i, project in enumerate(queryset.iterator()):
-
         if i % 500 == 0:
             log.info(
-                "Sending deprecated config file notifications.",
+                "Querying all the users we want to contact.",
                 progress=f"{i}/{n_projects}",
                 current_project_pk=project.pk,
                 current_project_slug=project.slug,
             )
 
-        users = AdminPermission.owners(project)
-        for user in users:
-            n_site = DeprecatedConfigFileSiteNotification(
-                user=user,
-                context_object=project,
-                success=False,
-            )
-            n_site.send()
+        users.update(AdminPermission.owners(project).values_list("username", flat=True))
 
-            n_email = DeprecatedConfigFileEmailNotification(
-                user=user,
-                context_object=project,
+    # Only send 1 email per user,
+    # even if that user has multiple projects without a configuration file.
+    # The notification will mention all the projects.
+    queryset = User.objects.filter(username__in=users, profile__banned=False).order_by(
+        "id"
+    )
+    n_users = queryset.count()
+    for i, user in enumerate(queryset.iterator()):
+        if i % 500 == 0:
+            log.info(
+                "Querying all the users we want to contact.",
+                progress=f"{i}/{n_users}",
+                current_user_pk=user.pk,
+                current_user_username=user.username,
             )
-            n_email.send()
+
+        # All the projects for this user that don't have a configuration file
+        user_projects = (
+            AdminPermission.projects(user, admin=True)
+            .filter(slug__in=projects)
+            .only("slug")
+        )
+        n_site = DeprecatedConfigFileSiteNotification(
+            user=user,
+            context_object=user_projects,
+            success=False,
+        )
+        n_site.send()
+
+        n_email = DeprecatedConfigFileEmailNotification(
+            user=user,
+            context_object=user_projects,
+        )
+        n_email.send()
 
     log.info(
         "Finish sending deprecated config file notifications.",
