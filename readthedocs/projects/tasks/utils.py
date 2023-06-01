@@ -240,9 +240,9 @@ def deprecated_config_file_used_notification():
         projects=n_projects,
     )
 
-    projects = Project.objects.filter(slug__in=projects).order_by("id")
+    queryset = Project.objects.filter(slug__in=projects).order_by("id")
     start_datetime = datetime.datetime.now()
-    for i, project in enumerate(projects.iterator()):
+    for i, project in enumerate(queryset.iterator()):
 
         if i % 500 == 0:
             log.info(
