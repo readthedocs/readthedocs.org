@@ -204,7 +204,10 @@ def deprecated_config_file_used_notification():
     projects = set()
     start_datetime = datetime.datetime.now()
     queryset = Project.objects.exclude(users__profile__banned=True)
-    if not settings.ALLOW_PRIVATE_REPOS:
+    if settings.ALLOW_PRIVATE_REPOS:
+        # Only send emails to active customers
+        queryset = queryset.filter(organizations__subscription__status="active")
+    else:
         # Take into account spam score on community
         queryset = queryset.annotate(spam_score=Sum("spam_rules__value")).filter(
             Q(spam_score__lt=spam_score) | Q(is_spam=False)
