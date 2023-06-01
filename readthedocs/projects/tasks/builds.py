@@ -238,7 +238,11 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     base=SyncRepositoryTask,
     bind=True,
 )
-def sync_repository_task(self, version_id):
+def sync_repository_task(self, version_id, **kwargs):
+    # In case we pass more arguments than expected, log them and ignore them,
+    # so we don't break builds while we deploy a change that requires an extra argument.
+    if kwargs:
+        log.warning("Extra arguments passed to sync_repository_task", arguments=kwargs)
     lock_id = f"{self.name}-lock-{self.data.project.slug}"
     with memcache_lock(
         lock_id=lock_id, lock_expire=60, app_identifier=self.app.oid
@@ -939,5 +943,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     bind=True,
     ignore_result=True,
 )
-def update_docs_task(self, version_id, build_id, build_commit=None):
+def update_docs_task(self, version_id, build_id, build_commit=None, **kwargs):
+    # In case we pass more arguments than expected, log them and ignore them,
+    # so we don't break builds while we deploy a change that requires an extra argument.
+    if kwargs:
+        log.warning("Extra arguments passed to update_docs_task", arguments=kwargs)
     self.execute()
