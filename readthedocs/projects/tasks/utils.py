@@ -223,6 +223,8 @@ def deprecated_config_file_used_notification():
                 progress=f"{i}/{n_projects}",
                 current_project_pk=project.pk,
                 current_project_slug=project.slug,
+                projects_found=len(projects),
+                time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
             )
 
         # Only check for the default version because if the project is using tags
