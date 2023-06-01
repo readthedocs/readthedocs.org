@@ -430,7 +430,7 @@ class BaseBuildEnvironment:
         environment=None,
         record=True,
     ):
-        self.project= project
+        self.project = project
         self._environment = environment or {}
         self.commands = []
         self.version = version
