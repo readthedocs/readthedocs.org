@@ -242,7 +242,7 @@ def deprecated_config_file_used_notification():
                 .order_by("-date")
                 .first()
             )
-            if build and not build.using_latest_config():
+            if build and build.deprecated_config_used():
                 projects.add(project.slug)
 
     n_projects = len(projects)
