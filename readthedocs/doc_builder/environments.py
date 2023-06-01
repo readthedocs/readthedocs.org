@@ -429,6 +429,7 @@ class BaseBuildEnvironment:
         config=None,
         environment=None,
         record=True,
+        **kwargs,
     ):
         self.project = project
         self._environment = environment or {}
@@ -447,7 +448,8 @@ class BaseBuildEnvironment:
         return
 
     def record_command(self, command):
-        pass
+        if self.record:
+            command.save()
 
     def run(self, *cmd, **kwargs):
         """Shortcut to run command from environment."""
