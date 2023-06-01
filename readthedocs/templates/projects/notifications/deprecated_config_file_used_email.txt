@@ -1,9 +1,20 @@
 {% extends "core/email/common.txt" %}
 {% block content %}
-Your project "{{ project.slug }}" is not using a .readthedocs.yaml configuration file and builds will stop working soon.
+The Read the Docs build system will start requiring a configuration file v2 (.readthedocs.yaml) starting on September 4, 2023.
+We are scheduling brownout days to provide extra reminders by failing build without a configuration file v2 during some hours before the final day.
+Keep these dates in mind to avoid unexpected behaviours:
 
-Configuration files will soon be required by projects, and will no longer be optional.
-You will need to add a configuration file to your project to ensure your project continues building successfully.
+* Monday, July 24, 2023: Do the first brownout (temporarily enforce this deprecation) for 12 hours.
+* Monday, August 7, 2023: Do a second brownout (temporarily enforce this deprecation) for 24 hours.
+* Monday, September 4, 2023: Fully remove support for building documentation without configuration file v2.
+
+We have identified the following projects where you are admin are impacted by this deprecation:
+
+{% for project in object %}
+* {{ project.slug }}
+{% endfor %}
+
+You require to add a configuration file to your projects to ensure they continues building successfully and stop receiving these notifications.
 
 For more information on how to create a required configuration file, see:
 https://blog.readthedocs.com/migrate-configuration-v2/
