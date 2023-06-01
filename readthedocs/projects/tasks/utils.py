@@ -228,16 +228,18 @@ def deprecated_config_file_used_notification():
         # Only check for the default version because if the project is using tags
         # they won't be able to update those and we will send them emails forever.
         # We can update this query if we consider later.
-        for version in (
-            project.versions.filter(slug=project.default_version).only("id").iterator()
-        ):
-            build = version.builds.filter(success=True).only("_config").first()
-            if build and build.deprecated_config_used():
+        version = (
+            project.versions.filter(slug=project.default_version).only("id").first()
+        )
+        if version:
+            build = (
+                version.builds.filter(success=True)
+                .only("_config")
+                .order_by("-date")
+                .first()
+            )
+            if build and not build.using_latest_config():
                 projects.add(project.slug)
-                # Do not continue iterating over the
-                # other versions when we know this project
-                # will get the notification
-                break
 
     n_projects = len(projects)
     log.info(
