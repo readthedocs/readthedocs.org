@@ -215,15 +215,11 @@ def deprecated_config_file_used_notification():
     queryset = queryset.only("slug", "default_version")
 
     for project in queryset.iterator():
-        # NOTE: instead of iterating over all the active versions,
-        # we can only consider the default one
+        # Only check for the default version because if the project is using tags
+        # they won't be able to update those and we will send them emails forever.
+        # We can update this query if we consider later.
         for version in (
-            project.versions.filter(Q(active=True) | Q(slug=project.default_version))
-            .order_by("-modified")
-            # Add a limit of 15 to protect ourselves against projects with
-            # hundred of active versions
-            .only("id")[:15]
-            .iterator()
+            project.versions.filter(slug=project.default_version).only("id").iterator()
         ):
             build = version.builds.filter(success=True).only("_config").first()
             if build and build.deprecated_config_used():
