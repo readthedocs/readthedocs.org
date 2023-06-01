@@ -256,7 +256,6 @@ def deprecated_config_file_used_notification():
     users = set()
 
     queryset = Project.objects.filter(slug__in=projects).order_by("id")
-    start_datetime = datetime.datetime.now()
     for i, project in enumerate(queryset.iterator()):
         if i % 500 == 0:
             log.info(
@@ -264,6 +263,7 @@ def deprecated_config_file_used_notification():
                 progress=f"{i}/{n_projects}",
                 current_project_pk=project.pk,
                 current_project_slug=project.slug,
+                time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
             )
 
         users.update(AdminPermission.owners(project).values_list("username", flat=True))
@@ -282,6 +282,7 @@ def deprecated_config_file_used_notification():
                 progress=f"{i}/{n_users}",
                 current_user_pk=user.pk,
                 current_user_username=user.username,
+                time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
             )
 
         # All the projects for this user that don't have a configuration file
@@ -305,7 +306,7 @@ def deprecated_config_file_used_notification():
 
     log.info(
         "Finish sending deprecated config file notifications.",
-        notification_seconds=(datetime.datetime.now() - start_datetime).seconds,
+        time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
     )
 
 
