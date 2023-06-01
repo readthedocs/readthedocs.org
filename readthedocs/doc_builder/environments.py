@@ -400,19 +400,51 @@ class DockerBuildCommand(BuildCommand):
         return command
 
 
-class BaseEnvironment:
+class BaseBuildEnvironment:
 
     """
-    Base environment class.
+    Base build environment.
 
-    Used to run arbitrary commands outside a build.
+    Base class for wrapping command execution for build steps. This class is in
+    charge of raising ``BuildAppError`` for internal application errors that
+    should be communicated to the user as a general unknown error and
+    ``BuildUserError`` that will be exposed to the user with a proper message
+    for them to debug by themselves since they are _not_ a Read the Docs issue.
+
+    :param project: Project that is being built
+    :param version: Project version that is being built
+    :param build: Build instance
+    :param environment: shell environment variables
+    :param record: whether or not record a build commands in the databse via
+    the API. The only case where we want this to be `False` is when
+    instantiating this class from `sync_repository_task` because it's a
+    background task that does not expose commands to the user.
     """
 
-    def __init__(self, project, environment=None):
-        # TODO: maybe we can remove this Project dependency also
-        self.project = project
+    def __init__(
+        self,
+        project=None,
+        version=None,
+        build=None,
+        config=None,
+        environment=None,
+        record=True,
+    ):
+        self.project= project
         self._environment = environment or {}
         self.commands = []
+        self.version = version
+        self.build = build
+        self.config = config
+        self.record = record
+
+    # TODO: remove these methods, we are not using LocalEnvironment anymore. We
+    # need to find a way for tests to not require this anymore
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, tb):
+        return
 
     def record_command(self, command):
         pass
@@ -456,7 +488,7 @@ class BaseEnvironment:
 
         # ``build_env`` is passed as ``kwargs`` when it's called from a
         # ``*BuildEnvironment``
-        build_cmd = cls(cmd, **kwargs)
+        build_cmd = cls(cmd, build_env=self, **kwargs)
         build_cmd.run()
 
         if record:
@@ -497,82 +529,14 @@ class BaseEnvironment:
         return build_cmd
 
 
-class LocalEnvironment(BaseEnvironment):
-
-    # TODO: BuildCommand name doesn't make sense here, should be just Command
-    command_class = BuildCommand
-
-
-class BuildEnvironment(BaseEnvironment):
-
-    """
-    Base build environment.
-
-    Base class for wrapping command execution for build steps. This class is in
-    charge of raising ``BuildAppError`` for internal application errors that
-    should be communicated to the user as a general unknown error and
-    ``BuildUserError`` that will be exposed to the user with a proper message
-    for them to debug by themselves since they are _not_ a Read the Docs issue.
-
-    :param project: Project that is being built
-    :param version: Project version that is being built
-    :param build: Build instance
-    :param environment: shell environment variables
-    :param record: whether or not record a build commands in the databse via
-    the API. The only case where we want this to be `False` is when
-    instantiating this class from `sync_repository_task` because it's a
-    background task that does not expose commands to the user.
-    """
-
-    def __init__(
-        self,
-        project=None,
-        version=None,
-        build=None,
-        config=None,
-        environment=None,
-        record=True,
-        **kwargs,
-    ):
-        super().__init__(project, environment)
-        self.version = version
-        self.build = build
-        self.config = config
-        self.record = record
-
-    # TODO: remove these methods, we are not using LocalEnvironment anymore. We
-    # need to find a way for tests to not require this anymore
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, tb):
-        return
-
-    def record_command(self, command):
-        if self.record:
-            command.save()
-
-    def run(self, *cmd, **kwargs):
-        kwargs.update({
-            'build_env': self,
-        })
-        return super().run(*cmd, **kwargs)
-
-    def run_command_class(self, *cmd, **kwargs):  # pylint: disable=arguments-differ
-        kwargs.update({
-            'build_env': self,
-        })
-        return super().run_command_class(*cmd, **kwargs)
-
-
-class LocalBuildEnvironment(BuildEnvironment):
+class LocalBuildEnvironment(BaseBuildEnvironment):
 
     """Local execution build environment."""
 
     command_class = BuildCommand
 
 
-class DockerBuildEnvironment(BuildEnvironment):
+class DockerBuildEnvironment(BaseBuildEnvironment):
 
     """
     Docker build environment, uses docker to contain builds.
