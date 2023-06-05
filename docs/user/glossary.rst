@@ -44,6 +44,19 @@ so that you have a reference for how we're using them.
       and rules for publication of documentation can be :doc:`automated </automation-rules>`.
       Similar to :term:`Docs as Code`.
 
+   maintainer
+      A *maintainer* is a special role that only exists on |org_brand|.
+      The creator of a project on |org_brand| can invite other collaborators as *maintainers* with full ownership rights.
+
+      At least one maintainer of a Read the Docs project should have admin rights to the Git repository.
+      This ensures that all settings of the Git repository can remain updated over time.
+
+      Git provider integration is active through the authentication of the maintainter that creates the integration.
+      If a maintainer is removed,
+      make sure to verify and potentially recreate all Git integration *if* removing the maintainer that originally configured this.
+
+      On |com_brand|, you can use :doc:`/commercial/organizations`.
+
    pinning
       To *pin* a requirement means to explicitly specify which version should be used.
       *Pinning* software requirements is the most important technique to make a project :term:`reproducible`.
