@@ -1,5 +1,3 @@
-import os
-
 from readthedocs.settings.proxito.base import CommunityProxitoSettingsMixin
 
 from .docker_compose import DockerBaseSettings
@@ -20,9 +18,6 @@ class ProxitoDevSettings(CommunityProxitoSettingsMixin, DockerBaseSettings):
         return {
             'SHOW_TOOLBAR_CALLBACK': lambda request: False,
         }
-
-    if os.environ.get("RTD_FORCE_HTTPS"):
-        PROXITO_DEV_DISABLE_SUSPICIOUS_HOST_CHECK = True
 
 
 ProxitoDevSettings.load_settings(__name__)
