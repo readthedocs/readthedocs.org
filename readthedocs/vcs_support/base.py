@@ -55,7 +55,7 @@ class BaseVCS:
     # Defining a base API, so we'll have unused args
     # pylint: disable=unused-argument
     def __init__(
-            self, project, version_slug, environment=None,
+            self, project, version_slug, environment,
             verbose_name=None, version_type=None, **kwargs
     ):
         self.default_branch = project.default_branch
@@ -67,13 +67,7 @@ class BaseVCS:
         self.verbose_name = verbose_name
         self.version_type = version_type
 
-        # TODO: always pass an explicit environment
-        # This is only used in tests #6546
-        #
-        # TODO: we should not allow ``environment=None`` and always use the
-        # environment defined by the settings
-        from readthedocs.doc_builder.environments import LocalBuildEnvironment
-        self.environment = environment or LocalBuildEnvironment()
+        self.environment = environment
 
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):

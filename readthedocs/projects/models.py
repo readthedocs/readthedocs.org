@@ -947,10 +947,8 @@ class Project(models.Model):
             version_type=version_type
         )
 
-    # NOTE: if `environment=None` everything fails, because it cannot execute
-    # any command.
     def vcs_repo(
-            self, version=LATEST, environment=None,
+            self, environment, version=LATEST,
             verbose_name=None, version_type=None
     ):
         """
