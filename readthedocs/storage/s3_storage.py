@@ -79,6 +79,7 @@ class S3StaticStorageMixin:
 
     bucket_name = getattr(settings, "S3_STATIC_STORAGE_BUCKET", None)
     override_hostname = getattr(settings, "S3_STATIC_STORAGE_OVERRIDE_HOSTNAME", None)
+    override_protocol = getattr(settings, "S3_STATIC_STORAGE_OVERRIDE_PROTOCOL", None)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

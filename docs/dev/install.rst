@@ -115,9 +115,8 @@ save some work while typing docker compose commands. This section explains these
     * ``--no-reload`` makes all celery processes and django runserver
       to use no reload and do not watch for files changes
     * ``--no-django-debug`` runs all containers with ``DEBUG=False``
-    * ``--http-domain`` configures an external domain for the environment (useful for Ngrok or other http proxy).
-      Note that https proxies aren't supported.
-      There will also be issues with "suspicious domain" failures on Proxito.
+    * ``--http-domain`` configures an external domain for the environment (useful for Ngrok or other https proxy)
+    * ``--https`` if using an HTTPS proxy, you may need to force the ``https://`` protocol for settings that otherwise automatically detect it as ``http://``
     * ``--ext-theme`` to use the new dashboard templates
     * ``--webpack`` to start the Webpack dev server for the new dashboard templates
 
