@@ -94,11 +94,10 @@ We also use the token to send back build statuses and preview URLs for :doc:`pul
 Projects with several admins
 ----------------------------
 
-If your project is using :doc:`Organizations </commercial/organizations>` (|com_brand|) or :term:`maintainers` (|org_brand|),
+If your project is using :doc:`Organizations </commercial/organizations>` (|com_brand|) or :term:`maintainers <maintainer>` (|org_brand|),
 then you need to be aware of *who* is setting up the integration for the project.
 
-At least one admin of a Read the Docs project should have admin rights to the Git repository.
-This ensures that all settings of the Git repository can remain updated over time.
+The admin of the Read the Docs project who sets up the project through the automatic import should also have admin rights to the Git repository.
 
 Git provider integration is active through the authentication of the admin that creates the integration.
 If an admin is removed,

@@ -50,7 +50,7 @@ so that you have a reference for how we're using them.
 
       The *maintainer* role does not exist on |com_brand|, which instead provides :doc:`/commercial/organizations`.
 
-      Please see :ref:`guides/git-repo-automatic:Projects with several admins` for more information.
+      Please see :ref:`guides/setup/git-repo-automatic:Projects with several admins` for more information.
 
    pinning
       To *pin* a requirement means to explicitly specify which version should be used.
