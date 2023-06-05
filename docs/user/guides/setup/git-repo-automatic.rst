@@ -91,6 +91,18 @@ We also use the token to send back build statuses and preview URLs for :doc:`pul
   This is a function offered by all Git providers.
 
 
+Projects with several admins
+----------------------------
+
+If your project is using :doc:`Organizations </commercial/organizations>` (|com_brand|) or :term:`maintainers` (|org_brand|),
+then you need to be aware of *who* is setting up the integration for the project.
+
+At least one admin of a Read the Docs project should have admin rights to the Git repository.
+This ensures that all settings of the Git repository can remain updated over time.
+
+Git provider integration is active through the authentication of the admin that creates the integration.
+If an admin is removed,
+make sure to verify and potentially recreate all Git integration *if* removing the maintainer that originally configured this.
 
 Permissions for connected accounts
 ----------------------------------

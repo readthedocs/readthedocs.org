@@ -48,14 +48,9 @@ so that you have a reference for how we're using them.
       A *maintainer* is a special role that only exists on |org_brand|.
       The creator of a project on |org_brand| can invite other collaborators as *maintainers* with full ownership rights.
 
-      At least one maintainer of a Read the Docs project should have admin rights to the Git repository.
-      This ensures that all settings of the Git repository can remain updated over time.
+      The *maintainer* role does not exist on |com_brand|, which instead provides :doc:`/commercial/organizations`.
 
-      Git provider integration is active through the authentication of the maintainter that creates the integration.
-      If a maintainer is removed,
-      make sure to verify and potentially recreate all Git integration *if* removing the maintainer that originally configured this.
-
-      On |com_brand|, you can use :doc:`/commercial/organizations`.
+      Please see :ref:`guides/git-repo-automatic:Projects with several admins` for more information.
 
    pinning
       To *pin* a requirement means to explicitly specify which version should be used.
