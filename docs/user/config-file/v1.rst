@@ -8,8 +8,8 @@ Read the Docs has support for configuring builds with a YAML file.
 
 .. warning::
 
-   Version 1 is deprecated and shouldn't be used.
-   The version 2 of the configuration file is now available.
+   Version 1 is deprecated and :doc:`support is removed in September 2023 <rtd-blog:migrate-configuration-v2>`.
+   Instead, use the version 2 of the configuration file.
    See the :ref:`new features <config-file/v2:New settings>`
    and :ref:`how to migrate from v1 <config-file/v2:Migrating from v1>`.
 

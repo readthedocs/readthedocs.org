@@ -287,6 +287,11 @@ When you are satisfied, you can merge the pull request!
 Customizing the build process
 -----------------------------
 
+.. warning::
+
+   We are updating this tutorial.
+   :doc:`As of September 2023, you need to add a configuration file as mentioned in these steps <rtd-blog:migrate-configuration-v2>`.
+
 The Settings page of the :term:`project home` allows you
 to change some *global* configuration values of your project.
 In addition, you can further customize the building process
@@ -300,6 +305,7 @@ This has several advantages:
 Read the Docs works without this configuration
 by :ref:`making some decisions on your behalf <build-default-versions:Default versions of dependencies>`.
 For example, what Python version to use, how to install the requirements, and others.
+
 
 .. tip::
 
