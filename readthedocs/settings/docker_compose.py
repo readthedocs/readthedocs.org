@@ -32,10 +32,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     # In the local docker environment, nginx should be trusted to set the host correctly
     USE_X_FORWARDED_HOST = True
 
-    # Assume running on forwarded https
-    if os.environ.get("RTD_FORCE_HTTPS"):
-        SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-
     MULTIPLE_BUILD_SERVERS = ['build']
 
     # https://docs.docker.com/engine/reference/commandline/run/#add-entries-to-container-hosts-file---add-host
@@ -156,12 +152,6 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     ACCOUNT_EMAIL_VERIFICATION = "none"
 
-    # Assume running on forwarded https, needs a special option for socialauth because
-    # it detects HTTPS from the request automatically, and we may be running the app
-    # on :80 behind a :443 proxy.
-    if os.environ.get("RTD_FORCE_HTTPS"):
-        ACCOUNT_DEFAULT_HTTP_PROTOCOL = "https"
-
     SESSION_COOKIE_DOMAIN = None
     CACHES = {
         'default': {
@@ -205,12 +195,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     AWS_S3_USE_SSL = False
     AWS_S3_ENDPOINT_URL = 'http://storage:9000/'
     AWS_QUERYSTRING_AUTH = False
-
-    # Force the protocol for generated URLs to be https://, otherwise
-    # http:// is used because the storage server is running in a http
-    # container.
-    if os.environ.get("RTD_FORCE_HTTPS"):
-        S3_STATIC_STORAGE_OVERRIDE_PROTOCOL = "https"
 
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
     RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.storage.s3_storage.S3BuildCommandsStorage'

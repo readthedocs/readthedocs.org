@@ -1053,8 +1053,6 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
     RTD_SPAM_MAX_SCORE = 9999
 
-    PROXITO_DEV_DISABLE_SUSPICIOUS_HOST_CHECK = False
-
     CACHEOPS_ENABLED = False
     CACHEOPS_TIMEOUT = 60 * 60  # seconds
     CACHEOPS_OPS = {'get', 'fetch'}
