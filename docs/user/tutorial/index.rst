@@ -302,10 +302,13 @@ This has several advantages:
 - It can be different for every version (more on versioning in the next section).
 - Some configurations are only available using the config file.
 
-Read the Docs works without this configuration
-by :ref:`making some decisions on your behalf <build-default-versions:Default versions of dependencies>`.
-For example, what Python version to use, how to install the requirements, and others.
+This configuration file should be part of your Git repository.
+It should be located in the base folder of the repository and be named ``.readthedocs.yaml``.
 
+.. TODO: We are adding a how-to that we need to include in this tutorial.
+.. Maybe by reference or maybe as full-featured content.
+
+In this section, we will show you some examples of what a configuration file should contain.
 
 .. tip::
 
