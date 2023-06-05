@@ -481,16 +481,14 @@ class BaseBuildEnvironment:
 
         # Remove PATH from env, and set it to bin_path if it isn't passed in
         environment = self._environment.copy()
-        env_path = environment.pop('BIN_PATH', None)
-        if 'bin_path' not in kwargs and env_path:
-            kwargs['bin_path'] = env_path
-        if 'environment' in kwargs:
-            raise BuildAppError('environment can\'t be passed in via commands.')
-        kwargs['environment'] = environment
-
-        # ``build_env`` is passed as ``kwargs`` when it's called from a
-        # ``*BuildEnvironment``
-        build_cmd = cls(cmd, build_env=self, **kwargs)
+        env_path = environment.pop("BIN_PATH", None)
+        if "bin_path" not in kwargs and env_path:
+            kwargs["bin_path"] = env_path
+        if "environment" in kwargs:
+            raise BuildAppError("environment can't be passed in via commands.")
+        kwargs["environment"] = environment
+        kwargs["build_env"] = self
+        build_cmd = cls(cmd, **kwargs)
         build_cmd.run()
 
         if record:
