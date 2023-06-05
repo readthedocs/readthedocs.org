@@ -948,8 +948,7 @@ class Project(models.Model):
         )
 
     def vcs_repo(
-            self, environment, version=LATEST,
-            verbose_name=None, version_type=None
+        self, environment, version=LATEST, verbose_name=None, version_type=None
     ):
         """
         Return a Backend object for this project able to handle VCS commands.

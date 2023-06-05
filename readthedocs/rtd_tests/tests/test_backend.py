@@ -403,9 +403,13 @@ class TestHgBackend(TestCase):
         default
         """
 
-        expected_ids = ['stable', 'default']
-        given_ids = [x.identifier for x in
-                     self.project.vcs_repo(environment=self.build_environment).parse_branches(data)]
+        expected_ids = ["stable", "default"]
+        given_ids = [
+            x.identifier
+            for x in self.project.vcs_repo(
+                environment=self.build_environment
+            ).parse_branches(data)
+        ]
         self.assertEqual(expected_ids, given_ids)
 
     def test_update_and_checkout(self):
@@ -441,6 +445,10 @@ class TestHgBackend(TestCase):
             ('2b2155623ee2', '1.7.5'),
         ]
 
-        given_ids = [(x.identifier, x.verbose_name) for x in
-                     self.project.vcs_repo(environment=self.build_environment).parse_tags(data)]
+        given_ids = [
+            (x.identifier, x.verbose_name)
+            for x in self.project.vcs_repo(
+                environment=self.build_environment
+            ).parse_tags(data)
+        ]
         self.assertEqual(expected_tags, given_ids)

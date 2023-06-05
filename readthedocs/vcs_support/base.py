@@ -55,8 +55,13 @@ class BaseVCS:
     # Defining a base API, so we'll have unused args
     # pylint: disable=unused-argument
     def __init__(
-            self, project, version_slug, environment,
-            verbose_name=None, version_type=None, **kwargs
+        self,
+        project,
+        version_slug,
+        environment,
+        verbose_name=None,
+        version_type=None,
+        **kwargs
     ):
         self.default_branch = project.default_branch
         self.project = project
