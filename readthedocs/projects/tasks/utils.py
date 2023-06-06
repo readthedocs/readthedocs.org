@@ -167,13 +167,12 @@ class DeprecatedConfigFileSiteNotification(SiteNotification):
 
     # TODO: mention all the project slugs here
     # Maybe trim them to up to 5 projects to avoid sending a huge blob of text
-    failure_message = (
-        "Your project '{{ object.slug }}' doesn't have a "
-        "<code>.readthedocs.yaml</code> configuration file. "
+    failure_message = _(
+        'Your project(s) "{{ project_slugs }}" don\'t have a configuration file. '
         "Configuration files will <strong>soon be required</strong> by projects, "
         "and will no longer be optional. "
         '<a href="https://blog.readthedocs.com/migrate-configuration-v2/">Read our blog post to create one</a> '  # noqa
-        "to ensure your project continues building successfully."
+        "and ensure your project continues building successfully."
     )
     failure_level = WARNING_PERSISTENT
 
@@ -289,9 +288,15 @@ def deprecated_config_file_used_notification():
             .filter(slug__in=projects)
             .only("slug")
         )
+
+        user_project_slugs = ", ".join([p.slug for p in user_projects[:5]])
+        if user_projects.count() > 5:
+            user_project_slugs += " and others..."
+
         n_site = DeprecatedConfigFileSiteNotification(
             user=user,
             context_object=user_projects,
+            extra_context={"project_slugs": user_project_slugs},
             success=False,
         )
         n_site.send()
