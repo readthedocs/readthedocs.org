@@ -305,6 +305,7 @@ def deprecated_config_file_used_notification():
         # n_email = DeprecatedConfigFileEmailNotification(
         #     user=user,
         #     context_object=user_projects,
+        #     extra_context={"project_slugs": user_project_slugs},
         # )
         # n_email.send()
 
