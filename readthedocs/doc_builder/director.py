@@ -590,7 +590,7 @@ class BuildDirector:
         )
 
         if builder_class == self.data.config.doctype:
-            builder.append_conf(self.data.api_client)
+            builder.append_conf()
             self.data.version.documentation_type = builder.get_final_doctype()
 
         success = builder.build()

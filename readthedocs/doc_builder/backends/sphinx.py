@@ -293,7 +293,7 @@ class BaseSphinx(BaseBuilder):
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
-        rendered = tmpl.render(self.get_config_params(self.api_client))
+        rendered = tmpl.render(self.get_config_params())
 
         with outfile:
             outfile.write('\n')
