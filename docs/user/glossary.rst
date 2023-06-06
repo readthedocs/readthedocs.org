@@ -44,6 +44,14 @@ so that you have a reference for how we're using them.
       and rules for publication of documentation can be :doc:`automated </automation-rules>`.
       Similar to :term:`Docs as Code`.
 
+   maintainer
+      A *maintainer* is a special role that only exists on |org_brand|.
+      The creator of a project on |org_brand| can invite other collaborators as *maintainers* with full ownership rights.
+
+      The *maintainer* role does not exist on |com_brand|, which instead provides :doc:`/commercial/organizations`.
+
+      Please see :ref:`guides/setup/git-repo-automatic:Projects with several admins` for more information.
+
    pinning
       To *pin* a requirement means to explicitly specify which version should be used.
       *Pinning* software requirements is the most important technique to make a project :term:`reproducible`.
