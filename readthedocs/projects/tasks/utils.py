@@ -183,7 +183,7 @@ class DeprecatedConfigFileEmailNotification(Notification):
     app_templates = "projects"
     name = "deprecated_config_file_used"
     context_object_name = "project"
-    subject = "Add a configuration file to your project to continue building"
+    subject = "[Action required] Add a configuration file to your project to prevent build failure"
     level = REQUIREMENT
 
     def send(self):
