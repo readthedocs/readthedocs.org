@@ -191,6 +191,16 @@ class ProjectExtraForm(ProjectForm):
         return tags
 
 
+class ProjectConfigForm(forms.Form):
+
+    """Simple intermediate step to communicate about the .readthedocs.yaml file."""
+
+    def __init__(self, *args, **kwargs):
+        # Remove 'user' field since it's not expected by BaseForm.
+        kwargs.pop("user")
+        super().__init__(*args, **kwargs)
+
+
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""

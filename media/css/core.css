@@ -1397,3 +1397,7 @@ div.highlight pre .vc { color: #bb60d5 } /* Name.Variable.Class */
 div.highlight pre .vg { color: #bb60d5 } /* Name.Variable.Global */
 div.highlight pre .vi { color: #bb60d5 } /* Name.Variable.Instance */
 div.highlight pre .il { color: #40a070 } /* Literal.Number.Integer.Long */
+
+pre.small {
+    font-size: 0.85em;
+}
