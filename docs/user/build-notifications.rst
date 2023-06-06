@@ -17,8 +17,12 @@ Build Status Webhooks:
   Webhooks can be customized through your own template and a variety of variable substitutions.
 
 .. seealso::
-    :doc:`/guides/build-notifications`
-        All the practical steps for setting up build notifications
+    :doc:`/guides/build/email-notifications`
+        Enable email notifications in a second.
+
+    :doc:`/guides/build/webhooks`
+        Steps for setting up build notifications with webhooks,
+        including examples for popular platforms like Slack and Discord.
 
     :doc:`pull-requests`
         Similarly to build notifications, you can also configure automated feedback for your pull requests.

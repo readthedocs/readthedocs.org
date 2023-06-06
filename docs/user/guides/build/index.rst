@@ -1,11 +1,14 @@
 How-to guides: build process
 ============================
 
-⏩️ :doc:`Setup build notifications and webhooks </guides/build-notifications>`
-    Build notifications can alert you when your builds fail so you can take immediate action.
-    In this guide,
-    you will learn how to get notified through various available channel integrations,
-    including email and chat.
+⏩️ :doc:`Enable email notifications </guides/build/email-notifications>`
+    Email notifications can alert you when your builds fail.
+    This is the most simple way to monitor your documentation builds,
+    it only requires you to switch it on.
+
+⏩️ :doc:`Setup webhook notifications </guides/build/webhooks>`
+    Webhook notifications can alert you when your builds fail so you can take immediate action.
+    We show examples of how to use the webhooks on popular platforms like Slack and Discord.
 
 ⏩️ :doc:`Configuring pull request builds </guides/pull-requests>`
     Have your documentation built and access a preview for every :doc:`pull request builds </pull-requests>`.
@@ -28,7 +31,8 @@ How-to guides: build process
    :maxdepth: 1
    :hidden:
 
-   Setup build notifications and webhooks </guides/build-notifications>
+   Enable email notifications </guides/build/email-notifications>
+   Setup webhook notifications </guides/build/webhooks>
    Configuring pull request builds </guides/pull-requests>
    Using custom environment variables </guides/environment-variables>
    Managing versions automatically </guides/automation-rules>

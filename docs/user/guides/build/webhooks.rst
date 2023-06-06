@@ -1,37 +1,18 @@
-How to setup build notifications and webhooks
-=============================================
+How to setup webhook notifications
+==================================
 
-In this guide, you can learn how to setup a number of build notification mechanisms.
+In this guide, you can learn how to setup build notification with webhooks.
 Build notifications can alert you when your builds fail so you can take immediate action.
 
 .. note::
 
-   Currently we don't send notifications or trigger :term:`webhooks <webhook>`
-   on :doc:`builds from pull requests </pull-requests>`.
+   Currently we don't trigger :term:`webhooks <webhook>` on :doc:`builds from pull requests </pull-requests>`.
 
 
 .. tip::
     :doc:`/pull-requests`
-        Similarly to build notifications, you can also configure automated feedback for your pull requests.
-
-
-.. contents:: Contents
-    :local:
-
-
-Email notifications
--------------------
-
-Read the Docs allows you to configure emails that can be sent on failing builds.
-This makes sure you know when your builds have failed.
-
-Take these steps to enable build notifications using email:
-
-* Go to :guilabel:`Admin` > :guilabel:`Notifications` in your project.
-* Fill in the **Email** field under the **New Email Notifications** heading
-* Submit the form
-
-You should now get notified by email when your builds fail!
+        Similarly to webhook notifications,
+        you can also configure automated feedback for your pull requests.
 
 Build status webhooks
 ---------------------
@@ -40,7 +21,7 @@ Read the Docs can also send webhooks when builds are triggered, successful or fa
 
 Take these steps to enable build notifications using a webhook:
 
-* Go to :guilabel:`Admin` > :guilabel:`Webhooks` in your project.
+* Go to :menuselection:`Admin --> Webhooks` in your project.
 * Fill in the **URL** field and select what events will trigger the webhook
 * Modify the payload or leave the default (see below)
 * Click on :guilabel:`Save`
@@ -80,7 +61,7 @@ you will see the server response, the webhook request, and the payload.
    Activity of a webhook
 
 Custom payload examples
-~~~~~~~~~~~~~~~~~~~~~~~
+-----------------------
 
 You can customize the payload of the webhook to suit your needs,
 as long as it is valid JSON. Below you have a couple of examples,
@@ -93,84 +74,84 @@ and in the following section you will find all the available variables.
 
    Custom payload
 
-Slack
-+++++
+.. tabs::
 
-.. code-block:: json
+   .. tab:: Slack
 
-   {
-     "attachments": [
-       {
-         "color": "#db3238",
-         "blocks": [
-           {
-             "type": "section",
-             "text": {
-               "type": "mrkdwn",
-               "text": "*Read the Docs build failed*"
+      .. code-block:: json
+
+         {
+           "attachments": [
+             {
+               "color": "#db3238",
+               "blocks": [
+                 {
+                   "type": "section",
+                   "text": {
+                     "type": "mrkdwn",
+                     "text": "*Read the Docs build failed*"
+                   }
+                 },
+                 {
+                   "type": "section",
+                   "fields": [
+                     {
+                       "type": "mrkdwn",
+                       "text": "*Project*: <{{ project.url }}|{{ project.name }}>"
+                     },
+                     {
+                       "type": "mrkdwn",
+                       "text": "*Version*: {{ version.name }} ({{ build.commit }})"
+                     },
+                     {
+                       "type": "mrkdwn",
+                       "text": "*Build*: <{{ build.url }}|{{ build.id }}>"
+                     }
+                   ]
+                 }
+               ]
              }
-           },
-           {
-             "type": "section",
-             "fields": [
-               {
-                 "type": "mrkdwn",
-                 "text": "*Project*: <{{ project.url }}|{{ project.name }}>"
-               },
-               {
-                 "type": "mrkdwn",
-                 "text": "*Version*: {{ version.name }} ({{ build.commit }})"
-               },
-               {
-                 "type": "mrkdwn",
-                 "text": "*Build*: <{{ build.url }}|{{ build.id }}>"
-               }
-             ]
-           }
-         ]
-       }
-     ]
-   }
+           ]
+         }
 
-More information on `the Slack Incoming Webhooks documentation <https://api.slack.com/messaging/webhooks>`_.
+      More information on `the Slack Incoming Webhooks documentation <https://api.slack.com/messaging/webhooks>`_.
 
-Discord
-+++++++
+   .. tab:: Discord
 
-.. code-block:: json
+      .. code-block:: json
 
-   {
-     "username": "Read the Docs",
-     "content": "Read the Docs build failed",
-     "embeds": [
-       {
-         "title": "Build logs",
-         "url": "{{ build.url }}",
-         "color": 15258703,
-         "fields": [
-           {
-             "name": "*Project*",
-             "value": "{{ project.url }}",
-             "inline": true
-           },
-           {
-             "name": "*Version*",
-             "value": "{{ version.name }} ({{ build.commit }})",
-             "inline": true
-           },
-           {
-             "name": "*Build*",
-             "value": "{{ build.url }}"
-           }
-         ]
-       }
-     ]
-   }
+         {
+           "username": "Read the Docs",
+           "content": "Read the Docs build failed",
+           "embeds": [
+             {
+               "title": "Build logs",
+               "url": "{{ build.url }}",
+               "color": 15258703,
+               "fields": [
+                 {
+                   "name": "*Project*",
+                   "value": "{{ project.url }}",
+                   "inline": true
+                 },
+                 {
+                   "name": "*Version*",
+                   "value": "{{ version.name }} ({{ build.commit }})",
+                   "inline": true
+                 },
+                 {
+                   "name": "*Build*",
+                   "value": "{{ build.url }}"
+                 }
+               ]
+             }
+           ]
+         }
 
-More information on `the Discord webhooks documentation <https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks>`_.
+      More information on `the Discord webhooks documentation <https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks>`_.
 
 Variable substitutions reference
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------------
 
 ``{{ event }}``
   Event that triggered the webhook, one of ``build:triggered``, ``build:failed``, or ``build:passed``.
@@ -213,7 +194,7 @@ Variable substitutions reference
   Version name.
 
 Validating the payload
-~~~~~~~~~~~~~~~~~~~~~~
+----------------------
 
 After you add a new webhook, Read the Docs will generate a secret key for it
 and uses it to generate a hash signature (HMAC-SHA256) for each payload
@@ -255,7 +236,7 @@ like this:
        )
 
 Legacy webhooks
-~~~~~~~~~~~~~~~
+---------------
 
 Webhooks created before the custom payloads functionality was added to Read the Docs
 send a payload with the following structure:
