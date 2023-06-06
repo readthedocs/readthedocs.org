@@ -301,11 +301,12 @@ def deprecated_config_file_used_notification():
         )
         n_site.send()
 
-        n_email = DeprecatedConfigFileEmailNotification(
-            user=user,
-            context_object=user_projects,
-        )
-        n_email.send()
+        # TODO: uncomment this code when we are ready to send email notifications
+        # n_email = DeprecatedConfigFileEmailNotification(
+        #     user=user,
+        #     context_object=user_projects,
+        # )
+        # n_email.send()
 
     log.info(
         "Finish sending deprecated config file notifications.",
