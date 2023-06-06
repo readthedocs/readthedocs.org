@@ -35,23 +35,24 @@ SAMPLE_UTF8_BYTES = SAMPLE_UNICODE.encode('utf-8')
 class TestLocalBuildEnvironment(TestCase):
 
 
-    @patch('readthedocs.doc_builder.environments.api_v2')
-    def test_command_not_recorded(self, api_v2):
-        build_env = LocalBuildEnvironment()
+    def test_command_not_recorded(self):
+        api_client = mock.MagicMock()
+        build_env = LocalBuildEnvironment(api_client=api_client)
 
         with build_env:
             build_env.run('true', record=False)
         self.assertEqual(len(build_env.commands), 0)
-        api_v2.command.post.assert_not_called()
+        api_client.command.post.assert_not_called()
 
-    @patch('readthedocs.doc_builder.environments.api_v2')
-    def test_record_command_as_success(self, api_v2):
+    def test_record_command_as_success(self):
+        api_client = mock.MagicMock()
         project = get(Project)
         build_env = LocalBuildEnvironment(
             project=project,
             build={
                 'id': 1,
             },
+            api_client=api_client,
         )
 
         with build_env:
@@ -60,15 +61,16 @@ class TestLocalBuildEnvironment(TestCase):
 
         command = build_env.commands[0]
         self.assertEqual(command.exit_code, 0)
-        api_v2.command.post.assert_called_once_with({
-            'build': mock.ANY,
-            'command': command.get_command(),
-            'output': command.output,
-            'exit_code': 0,
-            'start_time': command.start_time,
-            'end_time': command.end_time,
-        })
-
+        api_client.command.post.assert_called_once_with(
+            {
+                "build": mock.ANY,
+                "command": command.get_command(),
+                "output": command.output,
+                "exit_code": 0,
+                "start_time": command.start_time,
+                "end_time": command.end_time,
+            }
+        )
 
 
 # TODO: translate these tests into

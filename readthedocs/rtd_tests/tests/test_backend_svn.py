@@ -1,5 +1,7 @@
 """Tests For SVN."""
 
+from unittest import mock
+
 from django.test import TestCase
 from django_dynamic_fixture import get
 
@@ -14,7 +16,7 @@ class TestSvnBackend(TestCase):
     def test_get_url(self):
         project = get(Project)
         version = get(Version, project=project)
-        environment = LocalBuildEnvironment()
+        environment = LocalBuildEnvironment(api_client=mock.MagicMock())
         backend_obj = SvnBackend(project, version.slug, environment=environment)
 
         base = 'http://example.com/'

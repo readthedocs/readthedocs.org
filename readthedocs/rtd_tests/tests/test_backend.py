@@ -46,7 +46,7 @@ class TestGitBackend(TestCase):
         # These are the default values from v1
         self.dummy_conf.submodules.include = ALL
         self.dummy_conf.submodules.exclude = []
-        self.build_environment = LocalBuildEnvironment()
+        self.build_environment = LocalBuildEnvironment(api_client=mock.MagicMock())
 
     def test_git_lsremote(self):
         repo_path = self.project.repo
@@ -395,7 +395,7 @@ class TestHgBackend(TestCase):
             repo=hg_repo,
         )
         self.project.users.add(self.eric)
-        self.build_environment = LocalBuildEnvironment()
+        self.build_environment = LocalBuildEnvironment(api_client=mock.MagicMock())
 
     def test_parse_branches(self):
         data = """\

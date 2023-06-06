@@ -1,8 +1,7 @@
 """Simple client to access our API with Slumber credentials."""
 
-import structlog
-
 import requests
+import structlog
 from django.conf import settings
 from rest_framework.renderers import JSONRenderer
 from slumber import API, serialize
@@ -71,6 +70,3 @@ def setup_api():
     else:
         log.warning('SLUMBER_USERNAME/PASSWORD settings are not set')
     return API(**api_config)
-
-
-api = setup_api()
