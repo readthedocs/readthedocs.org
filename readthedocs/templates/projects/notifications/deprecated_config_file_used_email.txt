@@ -1,12 +1,13 @@
 {% extends "core/email/common.txt" %}
 {% block content %}
-The Read the Docs build system will start requiring a configuration file v2 (.readthedocs.yaml) starting on September 4, 2023.
+The Read the Docs build system will start requiring a configuration file v2 (.readthedocs.yaml) starting on September 25, 2023.
 We are scheduling brownout days to provide extra reminders by failing build without a configuration file v2 during some hours before the final day.
 Keep these dates in mind to avoid unexpected behaviours:
 
-* Monday, July 24, 2023: Do the first brownout (temporarily enforce this deprecation) for 12 hours.
-* Monday, August 7, 2023: Do a second brownout (temporarily enforce this deprecation) for 24 hours.
-* Monday, September 4, 2023: Fully remove support for building documentation without configuration file v2.
+* Monday, July 24, 2023: Do the first brownout (temporarily enforce this deprecation) for 12 hours: 00:01 PST to 11:59 PST (noon)
+* Monday, August 14, 2023: Do a second brownout (temporarily enforce this deprecation) for 24 hours: 00:01 PST to 23:59 PST (midnight)
+* Monday, September 4, 2023: Do a third and final brownout (temporarily enforce this deprecation) for 48 hours: 00:01 PST to 23:59 PST (midnight)
+* Monday, September 25, 2023: Fully remove support for building documentation without configuration file v2.
 
 We have identified the following projects where you are admin are impacted by this deprecation:
 

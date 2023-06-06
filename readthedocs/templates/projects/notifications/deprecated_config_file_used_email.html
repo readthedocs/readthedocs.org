@@ -1,12 +1,28 @@
 {% extends "core/email/common.html" %}
 {% block content %}
-Your project "{{ project.slug }}" is not using a .readthedocs.yaml configuration file and <strong>builds will stop working soon</strong>.
+The Read the Docs build system will start requiring a configuration file v2 (<code>.readthedocs.yaml</code>) starting on <strong>September 25, 2023</strong>.
+We are scheduling brownout days to provide extra reminders by failing build without a configuration file v2 during some hours before the final day.
+Keep these dates in mind to avoid unexpected behaviours:
 
-Configuration files will <strong>soon be required</strong> by projects, and will no longer be optional.
-You will need to add a configuration file to your project to ensure your project continues building successfully.
+<ul>
+    <li><strong>Monday, July 24, 2023</strong>: Do the first brownout (temporarily enforce this deprecation) for 12 hours: 00:01 PST to 11:59 PST (noon)</li>
+    <li><strong>Monday, August 14, 2023</strong>: Do a second brownout (temporarily enforce this deprecation) for 24 hours: 00:01 PST to 23:59 PST (midnight)</li>
+    <li><strong>Monday, September 4, 2023</strong> Do a third and final brownout (temporarily enforce this deprecation) for 48 hours: 00:01 PST to 23:59 PST (midnight)</li>
+    <li><strong>Monday, September 25, 2023</strong>: Fully remove support for building documentation without configuration file v2.</li>
+</ul>
 
-<a href="https://blog.readthedocs.com/migrate-configuration-v2/">Read our blog post to create one</a> to ensure your project continues building successfully.
+We have identified the following projects where you are admin are impacted by this deprecation:
 
+<ul>
+{% for project in object %}
+    <li>{{ project.slug }}</li>
+{% endfor %}
+</ul>
+
+You require to add a configuration file to your projects to ensure they continues building successfully and stop receiving these notifications.
+
+For more information on how to create a required configuration file,
+<a href="https://blog.readthedocs.com/migrate-configuration-v2/">read our blog post</a>
 
 Get in touch with us <a href="{{ production_uri }}{% url 'support' %}">via our support</a>
 and let us know if you are unable to use a configuration file for any reason.
