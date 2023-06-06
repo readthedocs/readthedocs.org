@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.db.models import Q, Sum
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from djstripe.enums import SubscriptionStatus
 from messages_extends.constants import WARNING_PERSISTENT
 
 from readthedocs.builds.constants import (
@@ -209,7 +210,9 @@ def deprecated_config_file_used_notification():
     queryset = Project.objects.exclude(users__profile__banned=True)
     if settings.ALLOW_PRIVATE_REPOS:
         # Only send emails to active customers
-        queryset = queryset.filter(organizations__subscription__status="active")
+        queryset = queryset.filter(
+            organizations__stripe_subscription__status=SubscriptionStatus.active
+        )
     else:
         # Take into account spam score on community
         queryset = queryset.annotate(spam_score=Sum("spam_rules__value")).filter(
