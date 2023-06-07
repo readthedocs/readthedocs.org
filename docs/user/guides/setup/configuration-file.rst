@@ -37,8 +37,8 @@ Add a new file with the exact name ``.readthedocs.yaml`` in the repository's roo
 We will get to the contents of the file in a moment.
 
 
-Examples to get started
------------------------
+Getting started with a template
+-------------------------------
 
 Here are some variations of the configuration file that can help you get started.
 Pick the one that resembles your project the most.
@@ -51,6 +51,7 @@ Pick the one that resembles your project the most.
         we offer a special builder optimized for Sphinx projects.
 
         .. literalinclude:: /config-file/examples/sphinx/.readthedocs.yaml
+           :language: yaml
            :linenos:
 
 
@@ -60,16 +61,23 @@ Pick the one that resembles your project the most.
         we offer a special builder optimized for MkDocs projects.
 
         .. literalinclude:: /config-file/examples/mkdocs/.readthedocs.yaml
+           :language: yaml
            :linenos:
 
-    .. tab:: Custom builder
+    .. tab:: Other tools
 
-        If you are using another tool,
+        If you are using another documentation tool,
         you can configure the commands of your documentation tool in the following code.
 
+        You will need to create the output directories and direct your documentation tool to write its outputs into those directories.
 
-The required parts of your configuration file
----------------------------------------------
+        .. literalinclude:: /config-file/examples/custom-commands-echo/.readthedocs.yaml
+           :language: yaml
+           :linenos:
+
+
+Editing the template
+--------------------
 
 The configuration file is a `YAML`_ file. YAML files are a "map": a collection of
 key-value pairs that can be nested. This is not unlike a JSON file or ``dict``
@@ -83,41 +91,40 @@ online.
 File header
 ~~~~~~~~~~~
 
-As a best practice, begin your file by providing the following.
+The first part of the file does not need to be edited:
 
-#. The name of the file
-#. A quick explanation of what the file is
-#. A link to
+#. A comment explaning the configuration file.
+#. A convenient comment with a link to
    :doc:`the configuration file reference page </config-file/index>`.
-
-.. code-block:: yaml
-   :linenos:
-
-   # .readthedocs.yaml
-   # Read the Docs configuration file
-   # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-   # <--Remove this comment and leave this line blank-->
-
-
-Version of configuration file schema
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The version key tells the system how to read the rest of the configuration
+#. The version key tells the system how to read the rest of the configuration
 file. The current and only supported version is **version 2**.
 
 .. code-block:: yaml
-   :linenos:
-   :lineno-start: 5
+
+   # .readthedocs.yaml
+   # See the reference for the Read the Docs configuration file:
+   # https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
    version: 2
-   # <--Remove this comment and leave this line blank-->
 
 Python requirements
 ~~~~~~~~~~~~~~~~~~~
 
-The ``python`` key contains several sub-keys, but only one sub-key is required:
-``requirements``. However, since ``requirements`` is required, ``python`` is
-too.
+If you are using Python in your builds,
+you should define the Python version.
+You can also define your additional Python requirements.
+
+The ``python`` key contains a list of sub-keys,
+specifying the requirements to install.
 
 The ``requirements`` key is a file path that points to a text (``.txt``) file
 that lists the Python packages you want Read the Docs to install.
+
+.. code-block:: yaml
+
+   # Optional but recommended, declare the Python requirements required
+   # to build your documentation
+   # See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
+   python:
+     install:
+     - requirements: docs/requirements.txt

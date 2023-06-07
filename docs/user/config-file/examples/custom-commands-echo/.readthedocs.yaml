@@ -1,0 +1,17 @@
+# .readthedocs.yaml
+# A bare Read the Docs configuration file for custom commands
+#
+# Introduction to custom build commands:
+# https://docs.readthedocs.io/en/stable/build-customization.html
+#
+# Complete config file reference:
+# https://docs.readthedocs.io/en/stable/config-file/v2.html
+version: 2
+
+build:
+  os: ubuntu-22.04
+  commands:
+    # Create the directory that we should write html outputs to
+    - mkdir -p $READTHEDOCS_OUTPUT/html/
+    # Write an index.html (it will be uploaded and published automatically)
+    - echo "Hola mundo!" > $READTHEDOCS_OUTPUT/html/index.html
