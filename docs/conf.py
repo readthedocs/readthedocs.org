@@ -22,6 +22,7 @@ extensions = [
     "multiproject",
     "myst_parser",
     "notfound.extension",
+    "sphinx_copybutton",
     "sphinx_design",
     "sphinx_search.extension",
     "sphinx_tabs.tabs",
