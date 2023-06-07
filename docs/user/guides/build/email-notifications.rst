@@ -9,12 +9,12 @@ This makes sure that you are aware of failures happening in an otherwise automat
 
 .. seealso::
 
+    :doc:`/guides/build/webhooks`
+        How to use webhooks to be notified about builds on popular platforms like Slack and Discord.
+
     :doc:`/pull-requests`
         Similarly to email notifications,
         you can also configure automated feedback for your pull requests.
-
-    :doc:`/guides/build/webhooks`
-        How to use webhooks to be notified about builds on popular platforms like Slack and Discord.
 
 
 Email notifications

@@ -18,7 +18,8 @@ Build Status Webhooks:
 
 .. seealso::
     :doc:`/guides/build/email-notifications`
-        Enable email notifications in a second.
+        Enable email notifications on failed builds,
+        so you always know that your docs are deploying successfully.
 
     :doc:`/guides/build/webhooks`
         Steps for setting up build notifications with webhooks,

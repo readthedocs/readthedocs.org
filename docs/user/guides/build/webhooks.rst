@@ -9,6 +9,10 @@ Build notifications can alert you when your builds fail so you can take immediat
     :doc:`/guides/build/email-notifications`
         How to setup a basic email notification for build failures.
 
+    :doc:`/pull-requests`
+        Similarly to email notifications,
+        you can also configure automated feedback for your pull requests.
+
 Build status webhooks
 ---------------------
 
