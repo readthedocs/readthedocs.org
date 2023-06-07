@@ -41,7 +41,8 @@ Getting started with a template
 -------------------------------
 
 Here are some variations of the configuration file that can help you get started.
-Pick the one that resembles your project the most.
+Pick the one that resembles your project the most,
+copy its contents to ``.readthedocs.yaml`` and add the file to your Git repository.
 
 .. tabs::
 
@@ -78,6 +79,11 @@ Pick the one that resembles your project the most.
 
 Editing the template
 --------------------
+
+Now that you have a ``.readthedocs.yaml`` file added to your Git repository,
+you should see Read the Docs trying to build your project with the file.
+
+But the file probably needs some changes to accomodate exactly your project setup.
 
 The configuration file is a `YAML`_ file. YAML files are a "map": a collection of
 key-value pairs that can be nested. This is not unlike a JSON file or ``dict``
