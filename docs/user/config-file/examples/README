@@ -1,0 +1,12 @@
+README
+
+What is config-file/examples for?
+
+We are collecting all examples of configurations used in documentation and on
+the website here.
+
+We are putting examples into subfolders and calling them `.readthedocs.yaml`
+because each example might turn into a fully runnable example at some point.
+
+Examples should ultimately be possible to install as Read the Docs projects
+using a custom configuration file path.

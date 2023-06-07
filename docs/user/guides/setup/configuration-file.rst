@@ -37,6 +37,37 @@ Add a new file with the exact name ``.readthedocs.yaml`` in the repository's roo
 We will get to the contents of the file in a moment.
 
 
+Examples to get started
+-----------------------
+
+Here are some variations of the configuration file that can help you get started.
+Pick the one that resembles your project the most.
+
+.. tabs::
+
+    .. tab:: Sphinx
+
+        If your project uses Sphinx,
+        we offer a special builder optimized for Sphinx projects.
+
+        .. literalinclude:: /config-file/examples/sphinx/.readthedocs.yaml
+           :linenos:
+
+
+    .. tab:: MkDocs
+
+        If your project uses MkDocs,
+        we offer a special builder optimized for MkDocs projects.
+
+        .. literalinclude:: /config-file/examples/mkdocs/.readthedocs.yaml
+           :linenos:
+
+    .. tab:: Custom builder
+
+        If you are using another tool,
+        you can configure the commands of your documentation tool in the following code.
+
+
 The required parts of your configuration file
 ---------------------------------------------
 
