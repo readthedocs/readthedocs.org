@@ -73,6 +73,11 @@ For a translation, change the main language project ``custom_prefix`` attribute.
 And to change the prefix of subprojects (``/projects``),
 define the prefix in the ``custom_subproject_prefix`` attribute of the super project.
 
+The custom prefix and subproject prefix can overlap
+as long as the first non-overlapping part doesn't match a language code.
+For example ``/``/``/``, ``/projects/``/``/projects/``, ``/prefix/``/``/prefix/more/`` are valid,
+but ``/``/``/en/``, ``/prefix/``/``/prefix/en/``, ``/prefix/``/``/prefix/en/foo/`` are not.
+
 We have validations in place to ensure that the custom prefix is defined in the correct project
 (this validations are run when the project is saved from a form or the admin).
 

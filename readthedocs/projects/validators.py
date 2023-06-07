@@ -10,6 +10,8 @@ from django.utils.deconstruct import deconstructible
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from readthedocs.projects.constants import LANGUAGES
+
 
 @deconstructible
 class DomainNameValidator(RegexValidator):
@@ -213,7 +215,24 @@ def validate_custom_subproject_prefix(project, prefix):
             code="invalid_project",
         )
 
-    return _clean_prefix(prefix)
+    prefix = _clean_prefix(prefix)
+
+    project_prefix = project.custom_prefix or "/"
+    # If the custom project prefix and subproject prefix overlap,
+    # we need to check that the first non-overlapping component isn't a valid language.
+    # Since this will result in an ambiguous path that can't be resolved as a subproject.
+    # This check is only needed if the project is a multiversion project,
+    # a single version project will resolve the subproject correctly.
+    if not project.single_version and prefix.startswith(project_prefix):
+        first_component = prefix.removeprefix(project_prefix).split("/")[0]
+        valid_languages = [language[0] for language in LANGUAGES]
+        if first_component in valid_languages:
+            raise ValidationError(
+                "Ambiguous path from overlapping prefixes. The component after "
+                f"{project_prefix} from the custom subproject prefix can't be a language.",
+                code="ambiguous_path",
+            )
+    return prefix
 
 
 def _clean_prefix(prefix):

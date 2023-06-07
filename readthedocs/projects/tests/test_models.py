@@ -87,3 +87,31 @@ class TestURLPatternsUtils(TestCase):
             self.subproject_translation.custom_subproject_prefix = "/projects/"
             self.subproject_translation.clean()
         self.assertEqual(excinfo.value.code, "invalid_project")
+
+    def test_overlapping_prefixes(self):
+        self.project.custom_prefix = "/projects/"
+        self.project.custom_subproject_prefix = "/projects/es"
+
+        with pytest.raises(ValidationError) as excinfo:
+            self.project.clean()
+        self.assertEqual(excinfo.value.code, "ambiguous_path")
+
+        self.project.custom_prefix = None
+        self.project.custom_subproject_prefix = "es"
+        with pytest.raises(ValidationError) as excinfo:
+            self.project.clean()
+        self.assertEqual(excinfo.value.code, "ambiguous_path")
+
+        self.project.custom_prefix = "/projects/foo"
+        self.project.custom_subproject_prefix = "/projects/foo/es"
+
+        with pytest.raises(ValidationError) as excinfo:
+            self.project.clean()
+        self.assertEqual(excinfo.value.code, "ambiguous_path")
+
+        self.project.custom_prefix = "/projects/foo"
+        self.project.custom_subproject_prefix = "/projects/foo/es/bar/"
+
+        with pytest.raises(ValidationError) as excinfo:
+            self.project.clean()
+        self.assertEqual(excinfo.value.code, "ambiguous_path")

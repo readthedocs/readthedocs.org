@@ -437,3 +437,131 @@ class TestCustomPathPrefixes(BaseDocServing):
             resp["x-accel-redirect"],
             "/proxito/media/html/subproject/latest/api/index.html",
         )
+
+    def test_same_prefixes(self):
+        self.project.custom_prefix = "/prefix/"
+        self.project.custom_subproject_prefix = "/prefix/"
+        self.project.save()
+        host = "project.readthedocs.io"
+
+        resp = self.client.get("/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["Location"], "http://project.readthedocs.io/prefix/en/latest/"
+        )
+
+        resp = self.client.get("/en/latest/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+        # Serving works on the main project.
+        resp = self.client.get("/prefix/en/latest/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"], "/proxito/media/html/project/latest/index.html"
+        )
+
+        # Root redirect for the subproject
+        resp = self.client.get("/prefix/subproject", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["Location"],
+            "http://project.readthedocs.io/prefix/subproject/en/latest/",
+        )
+
+        # Normal serving
+        resp = self.client.get("/prefix/subproject/en/latest/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/subproject/latest/index.html",
+        )
+
+        resp = self.client.get(
+            "/prefix/subproject/en/latest/api/index.html", HTTP_HOST=host
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/subproject/latest/api/index.html",
+        )
+
+    def test_valid_overlapping_prefixes(self):
+        self.project.custom_prefix = "/prefix/"
+        self.project.custom_subproject_prefix = "/prefix/s/"
+        self.project.save()
+        host = "project.readthedocs.io"
+
+        resp = self.client.get("/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["Location"], "http://project.readthedocs.io/prefix/en/latest/"
+        )
+
+        resp = self.client.get("/en/latest/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+        # Serving works on the main project.
+        resp = self.client.get("/prefix/en/latest/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"], "/proxito/media/html/project/latest/index.html"
+        )
+
+        # Root redirect for the subproject
+        resp = self.client.get("/prefix/s/subproject", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["Location"],
+            "http://project.readthedocs.io/prefix/s/subproject/en/latest/",
+        )
+
+        # Normal serving
+        resp = self.client.get("/prefix/s/subproject/en/latest/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/subproject/latest/index.html",
+        )
+
+        resp = self.client.get(
+            "/prefix/s/subproject/en/latest/api/index.html", HTTP_HOST=host
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/subproject/latest/api/index.html",
+        )
+
+    def test_invalid_overlapping_prefixes(self):
+        self.project.custom_prefix = "/prefix/"
+        self.project.custom_subproject_prefix = "/prefix/es/"
+        self.project.save()
+        host = "project.readthedocs.io"
+
+        resp = self.client.get("/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["Location"], "http://project.readthedocs.io/prefix/en/latest/"
+        )
+
+        resp = self.client.get("/en/latest/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+        # Serving works on the main project.
+        resp = self.client.get("/prefix/en/latest/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"], "/proxito/media/html/project/latest/index.html"
+        )
+
+        # We can't access to the subproject.
+        resp = self.client.get("/prefix/es/subproject/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+        resp = self.client.get("/prefix/es/subproject/en/latest/", HTTP_HOST=host)
+        self.assertEqual(resp.status_code, 404)
+
+        resp = self.client.get(
+            "/prefix/es/subproject/en/latest/api/index.html", HTTP_HOST=host
+        )
+        self.assertEqual(resp.status_code, 404)
