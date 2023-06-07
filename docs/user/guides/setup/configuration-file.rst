@@ -3,31 +3,19 @@ How to add a configuration file
 
 As part of the initial setup for your Read the Docs site,
 you need to create a **configuration file** called ``.readthedocs.yaml``.
-
-The configuration file tells the platform what specific settings to use for your project.
-
-.. TODO: This isn't really how-to content. We might want to add "Configuration as Code" or similar to our features in order to deal with this.
-.. I have another PR open where this is added.
-
-.. By using a configuration file,
-.. you can tailor the behavior of Read the Docs to match your project's specific needs.
-.. In addition that that,
-.. using a configuration file can capture important configuration options that might otherwise break in the future if left undefined.
+The configuration file tells Read the Docs what specific settings to use for your project.
 
 This how-to guide covers:
 
 #. Where to put your configuration file.
 #. Templates to setup your configuration file from scratch.
 #. The most basic sections in the configuration file that can help you get started.
+#. Next steps
 
 .. seealso::
 
    :doc:`/tutorial/index`.
      Following the steps in our tutorial will help you setup your first documentation project.
-
-   :doc:`/config-file/index`.
-     The complete list of all possible ``.readthedocs.yaml`` settings,
-     including the optional settings not covered in on this page.
 
 
 Where to put your configuration file
@@ -137,3 +125,17 @@ that lists the Python packages you want Read the Docs to install.
    python:
      install:
      - requirements: docs/requirements.txt
+
+Next steps
+----------
+
+Once you have your configuration file added to your Git repository,
+and you can see that Read the Docs is building your documentation using the file,
+you should have a look at the complete configuration file reference for options that might apply to your project.
+
+
+.. seealso::
+
+   :doc:`/config-file/v2`.
+     The complete list of all possible ``.readthedocs.yaml`` settings,
+     including the optional settings not covered in on this page.
