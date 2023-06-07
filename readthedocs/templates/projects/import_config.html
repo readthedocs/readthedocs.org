@@ -2,19 +2,25 @@
 {% load i18n %}
 
 {% block content %}
-<h3>{% trans "Project configuration file (<code>.readthedocs.yaml</code>)" %}</h3>
+  <h3>{% trans "Add a project configuration file" %}</h3>
 
-<p class="info">
+  <p class="info">
     {% blocktrans trimmed %}
-    Make sure your project has a <code>.readthedocs.yaml</code> at the root of your repository. This file is required by Read the Docs to be able to build your documentation. You can <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html">read more about this in our documentation</a>.
+      Make sure your project has a <code>.readthedocs.yaml</code> configuration file at the root directory of your repository.
+      This file is required by Read the Docs to build your documentation.
+      You can <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html">read more about our configuration file in our documentation</a>.
     {% endblocktrans %}
-</p>
+  </p>
 
-<p class="info">
-    Here you have an example for a common Sphinx project:
+  <p>
+    {% blocktrans trimmed %}
+      Here is an example configuration file for a project using Sphinx:
+    {% endblocktrans %}
+  </p>
 
-    <pre class="small">
-        <code># .readthedocs.yaml
+  <div class="highlight">
+    <pre>
+# .readthedocs.yaml
 # Read the Docs configuration file
 # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
@@ -40,14 +46,13 @@ sphinx:
 #    - pdf
 #    - epub
 
-# Optionally but recommended, declare the Python requirements required
+# Optional but recommended, declare the Python requirements required
 # to build your documentation
 # See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
 # python:
 #    install:
-#    - requirements: docs/requirements.txt</code>
-    </pre>
-</p>
+#    - requirements: docs/requirements.txt</pre>
+  </div>
 
-{{ block.super }}
+  {{ block.super }}
 {% endblock %}
