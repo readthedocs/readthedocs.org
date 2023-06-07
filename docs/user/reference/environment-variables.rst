@@ -51,6 +51,19 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     :Example: ``/home/docs/checkouts/readthedocs.org/user_builds/project/envs/version``
 
+.. envvar:: READTHEDOCS_OUTPUT
+
+    Base path for output formats when using custom :doc:`build.commands </build-customization>` to generate output.
+    You need to concatenate an output format,
+    for instance ``$READTHEDOCS_OUTPUT/html/`` or ``$READTHEDOCS_OUTPUT/pdf/``.
+    You also need to create the directory,
+    for instance by adding a command ``mkdir -p $READTHEDOCS_OUTPUT/html/`` before moving outputs into the destination.
+
+    .. seealso::
+
+       :ref:`build-customization:where to put files`
+          Information about using custom commands to generate output that will automatically be published once your build succeeds.
+
 .. envvar:: READTHEDOCS_CANONICAL_URL
 
     Canonical base URL for the version that is built.
