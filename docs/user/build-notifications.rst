@@ -2,6 +2,7 @@ Build notifications via webhooks and email
 ==========================================
 
 Build notifications can alert you when your builds fail so you can take immediate action.
+We offer the following methods for being notified:
 
 Email notifications:
   Read the Docs allows you to configure build notifications via email.
@@ -22,7 +23,7 @@ Build Status Webhooks:
         so you always know that your docs are deploying successfully.
 
     :doc:`/guides/build/webhooks`
-        Steps for setting up build notifications with webhooks,
+        Steps for setting up build notifications via webhooks,
         including examples for popular platforms like Slack and Discord.
 
     :doc:`pull-requests`
