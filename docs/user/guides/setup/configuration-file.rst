@@ -32,9 +32,7 @@ Where to put your configuration file
 ------------------------------------
 
 The ``.readthedocs.yaml`` file should be placed in the top-most directory of your project's repository.
-
-Add a new file with the exact name ``.readthedocs.yaml`` in the repository's root directory.
-We will get to the contents of the file in a moment.
+We will get to the contents of the file in the next steps.
 
 
 Getting started with a template
