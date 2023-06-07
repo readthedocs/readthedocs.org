@@ -1,15 +1,18 @@
-Creating your configuration file
-================================
+How to add a configuration file
+===============================
 
-As part of the initial setup for your Read the Docs site, you need to create a
-**configuration file** called ``.readthedocs.yaml``.
+As part of the initial setup for your Read the Docs site,
+you need to create a **configuration file** called ``.readthedocs.yaml``.
 
-The configuration file is like a personalized guidebook that tells the platform what specific settings to use for your project.
-By using a configuration file,
-you can tailor the behavior of Read the Docs to match your project's specific needs.
+The configuration file tells the platform what specific settings to use for your project.
 
-In addition that that,
-using a configuration file can capture important configuration options that might otherwise break in the future if left undefined.
+.. TODO: This isn't really how-to content. We might want to add "Configuration as Code" or similar to our features in order to deal with this.
+.. I have another PR open where this is added.
+
+.. By using a configuration file,
+.. you can tailor the behavior of Read the Docs to match your project's specific needs.
+.. In addition that that,
+.. using a configuration file can capture important configuration options that might otherwise break in the future if left undefined.
 
 This how-to guide covers:
 
