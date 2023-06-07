@@ -1010,11 +1010,8 @@ class Project(models.Model):
             version_type=version_type
         )
 
-    # NOTE: if `environment=None` everything fails, because it cannot execute
-    # any command.
     def vcs_repo(
-            self, version=LATEST, environment=None,
-            verbose_name=None, version_type=None
+        self, environment, version=LATEST, verbose_name=None, version_type=None
     ):
         """
         Return a Backend object for this project able to handle VCS commands.
@@ -1929,7 +1926,6 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     ALLOW_DEPRECATED_WEBHOOKS = "allow_deprecated_webhooks"
-    DONT_OVERWRITE_SPHINX_CONTEXT = "dont_overwrite_sphinx_context"
     SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
@@ -1982,12 +1978,6 @@ class Feature(models.Model):
 
     FEATURES = (
         (ALLOW_DEPRECATED_WEBHOOKS, _("Webhook: Allow deprecated webhook views")),
-        (
-            DONT_OVERWRITE_SPHINX_CONTEXT,
-            _(
-                "Sphinx: Do not overwrite context vars in conf.py with Read the Docs context",
-            ),
-        ),
         (
             SKIP_SPHINX_HTML_THEME_PATH,
             _(
