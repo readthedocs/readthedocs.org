@@ -2,7 +2,7 @@
 Creating your configuration file
 ================================
 
-As part of the initial setup for your Read the Docs site, you need to create a 
+As part of the initial setup for your Read the Docs site, you need to create a
 **configuration file** called ``.readthedocs.yaml``.
 
 The configuration file is like a personalized guidebook that tells the platform what specific settings to use for your project.
@@ -20,10 +20,10 @@ This how-to guide covers:
 This should be enough to get you started!
 
 .. tip::
-   
-   The complete list of all possible ``.readthedocs.yaml`` settings, including 
-   the optional settings not covered in on this page, is found on 
-   :doc:`the configuration file reference page </config-file/index.rst>`.
+
+   The complete list of all possible ``.readthedocs.yaml`` settings, including
+   the optional settings not covered in on this page, is found on
+   :doc:`the configuration file reference page </config-file/index>`.
 
 ####################################
 Where to put your configuration file
@@ -43,7 +43,7 @@ The configuration file is a YAML file. YAML files are a "map": a collection of
 key-value pairs that can be nested. This is not unlike a JSON file or ``dict``
 object in Python.
 
-This page won't explain the structure of YAML files, but many resources exist 
+This page won't explain the structure of YAML files, but many resources exist
 online.
 
 ***********
@@ -54,8 +54,8 @@ As a best practice, begin your file by providing the following.
 
 #. The name of the file
 #. A quick explanation of what the file is
-#. A link to 
-   :doc:`the configuration file reference page </docs/user/config-file/index.rst>`.
+#. A link to
+   :doc:`the configuration file reference page </config-file/index>`.
 
 .. code-block:: yaml
    :linenos:
@@ -69,7 +69,7 @@ As a best practice, begin your file by providing the following.
 Version of configuration file schema
 ************************************
 
-The version key tells the system how to read the rest of the configuration 
+The version key tells the system how to read the rest of the configuration
 file. The current and only supported version is **version 2**.
 
 .. code-block:: yaml
@@ -84,7 +84,7 @@ Python requirements
 *******************
 
 The ``python`` key contains several sub-keys, but only one sub-key is required:
-``requirements``. However, since ``requirements`` is required, ``python`` is 
+``requirements``. However, since ``requirements`` is required, ``python`` is
 too.
 
 The ``requirements`` key is a file path that points to a text (``.txt``) file
