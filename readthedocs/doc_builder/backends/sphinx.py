@@ -17,11 +17,13 @@ from django.urls import reverse
 from requests.exceptions import ConnectionError
 
 from readthedocs.builds import utils as version_utils
+from readthedocs.builds.models import APIVersion
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.exceptions import PDFNotFound
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
 from readthedocs.projects.models import Feature
+from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.utils import safe_write
 
 from ..base import BaseBuilder
@@ -167,7 +169,12 @@ class BaseSphinx(BaseBuilder):
         downloads = []
         subproject_urls = []
         try:
-            versions = self.project.api_versions(self.api_client)
+            active_versions_data = self.api_client.project(
+                self.pk
+            ).active_versions.get()["versions"]
+            versions = sort_version_aware(
+                [APIVersion(**version_data) for version_data in active_versions_data]
+            )
             if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
                 versions = [v for v in versions if v.privacy_level == PUBLIC]
             downloads = self.api_client.version(self.version.pk).get()["downloads"]

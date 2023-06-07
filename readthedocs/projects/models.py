@@ -1029,18 +1029,6 @@ class Project(models.Model):
             kwargs['state'] = 'finished'
         return self.builds(manager=INTERNAL).filter(**kwargs).first()
 
-    def api_versions(self, api_client):
-        """
-        Get active versions from the API.
-
-        :param api_client: API v2 client instance (readthedocs.v2.client).
-        """
-        from readthedocs.builds.models import APIVersion
-
-        versions_data = api_client.project(self.pk).active_versions.get()["versions"]
-        versions = [APIVersion(**version_data) for version_data in versions_data]
-        return sort_version_aware(versions)
-
     def active_versions(self):
         from readthedocs.builds.models import Version
         versions = Version.internal.public(project=self, only_active=True)

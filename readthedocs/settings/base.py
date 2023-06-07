@@ -178,7 +178,6 @@ class CommunityBaseSettings(Settings):
         }
 
     # Database and API hitting settings
-    DONT_HIT_API = False
     DONT_HIT_DB = True
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
     DATABASE_ROUTERS = ['readthedocs.core.db.MapAppsRouter']
