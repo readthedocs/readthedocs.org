@@ -170,7 +170,7 @@ class BaseSphinx(BaseBuilder):
         subproject_urls = []
         try:
             active_versions_data = self.api_client.project(
-                self.pk
+                self.project.pk
             ).active_versions.get()["versions"]
             versions = sort_version_aware(
                 [APIVersion(**version_data) for version_data in active_versions_data]
