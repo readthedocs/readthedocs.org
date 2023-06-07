@@ -96,8 +96,8 @@ The first part of the file does not need to be edited:
 #. A comment explaning the configuration file.
 #. A convenient comment with a link to
    :doc:`the configuration file reference page </config-file/index>`.
-#. The version key tells the system how to read the rest of the configuration
-file. The current and only supported version is **version 2**.
+#. The version key tells the system how to read the rest of the configuration file.
+   The current and only supported version is **version 2**.
 
 .. code-block:: yaml
 
