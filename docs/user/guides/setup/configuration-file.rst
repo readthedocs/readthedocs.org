@@ -21,11 +21,11 @@ This how-to guide covers:
 
 This should be enough to get you started!
 
-.. tip::
+.. seealso::
 
-   The complete list of all possible ``.readthedocs.yaml`` settings, including
-   the optional settings not covered in on this page, is found on
-   :doc:`the configuration file reference page </config-file/index>`.
+   :doc:`/config-file/index`.
+     The complete list of all possible ``.readthedocs.yaml`` settings,
+     including the optional settings not covered in on this page.
 
 
 Where to put your configuration file
