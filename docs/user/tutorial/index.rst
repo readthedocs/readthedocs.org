@@ -287,11 +287,11 @@ When you are satisfied, you can merge the pull request!
 Adding a configuration file
 ---------------------------
 
-We are currently updating this tutorial.
-:doc:`As of September 2023, you need to add a configuration file as mentioned in these steps <rtd-blog:migrate-configuration-v2>`.
+As of September 2023, 
+:doc:`you will need to add a configuration file to build your documentation <rtd-blog:migrate-configuration-v2>`.
 Until then,
-the tutorial's example project will build without the configuration file.
-But we **highly** recommend completing this section in order to add a configuration file.
+this example project will build without the configuration file,
+but we **strongly recommend** completing this section in order to add a configuration file.
 
 The Settings page of the :term:`project home` allows you
 to change some *global* configuration values of your project.
