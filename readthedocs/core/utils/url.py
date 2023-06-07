@@ -1,4 +1,4 @@
-"""URL hadling utilities."""
+"""URL handling utilities."""
 
 
 def unsafe_join_url_path(base, *args):
