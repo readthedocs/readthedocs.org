@@ -4,15 +4,10 @@ How to setup webhook notifications
 In this guide, you can learn how to setup build notification with webhooks.
 Build notifications can alert you when your builds fail so you can take immediate action.
 
-.. note::
+.. seealso::
 
-   Currently we don't trigger :term:`webhooks <webhook>` on :doc:`builds from pull requests </pull-requests>`.
-
-
-.. tip::
-    :doc:`/pull-requests`
-        Similarly to webhook notifications,
-        you can also configure automated feedback for your pull requests.
+    :doc:`/guides/build/email-notifications`
+        How to setup a basic email notification for build failures.
 
 Build status webhooks
 ---------------------
@@ -60,8 +55,13 @@ you will see the server response, the webhook request, and the payload.
 
    Activity of a webhook
 
+.. note::
+
+   We don't trigger :term:`webhooks <webhook>` on :doc:`builds from pull requests </pull-requests>`.
+
+
 Custom payload examples
------------------------
+~~~~~~~~~~~~~~~~~~~~~~~
 
 You can customize the payload of the webhook to suit your needs,
 as long as it is valid JSON. Below you have a couple of examples,
@@ -151,7 +151,7 @@ and in the following section you will find all the available variables.
       More information on `the Discord webhooks documentation <https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks>`_.
 
 Variable substitutions reference
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``{{ event }}``
   Event that triggered the webhook, one of ``build:triggered``, ``build:failed``, or ``build:passed``.

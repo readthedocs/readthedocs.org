@@ -1,12 +1,12 @@
-Build Notifications and Webhooks
-================================
+Build notifications via webhooks and email
+==========================================
 
-Read the Docs features a number of build notification mechanisms.
 Build notifications can alert you when your builds fail so you can take immediate action.
 
 Email notifications:
-  Read the Docs allows you to configure emails that can be sent on failing builds.
-  This makes sure you know when your builds have failed.
+  Read the Docs allows you to configure build notifications via email.
+  When builds fail,
+  configured email addresses are notified.
 
 Build Status Webhooks:
   Build notifications can happen via :term:`webhooks <webhook>`.

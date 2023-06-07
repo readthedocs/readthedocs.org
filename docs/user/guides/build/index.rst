@@ -1,7 +1,7 @@
 How-to guides: build process
 ============================
 
-⏩️ :doc:`Enable email notifications </guides/build/email-notifications>`
+⏩️ :doc:`Setup email notifications </guides/build/email-notifications>`
     Email notifications can alert you when your builds fail.
     This is the most simple way to monitor your documentation builds,
     it only requires you to switch it on.
@@ -31,7 +31,7 @@ How-to guides: build process
    :maxdepth: 1
    :hidden:
 
-   Enable email notifications </guides/build/email-notifications>
+   Setup email notifications </guides/build/email-notifications>
    Setup webhook notifications </guides/build/webhooks>
    Configuring pull request builds </guides/pull-requests>
    Using custom environment variables </guides/environment-variables>

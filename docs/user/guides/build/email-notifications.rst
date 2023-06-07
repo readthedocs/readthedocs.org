@@ -1,40 +1,34 @@
-How to enable email notifications
-=================================
+How to setup email notifications
+================================
 
-In this guide, you can learn how to setup build notification via email.
+In this guide,
+you can learn how to setup a simple build notification via email.
 
-.. note::
+Read the Docs allows you to configure emails that will be notified on failing builds.
+This makes sure that you are aware of failures happening in an otherwise automated process.
 
-   Currently we don't send email notifications on :doc:`builds from pull requests </pull-requests>`.
+.. seealso::
 
-.. tip::
     :doc:`/pull-requests`
         Similarly to email notifications,
         you can also configure automated feedback for your pull requests.
+
+    :doc:`/guides/build/webhooks`
+        How to use webhooks to be notified about builds on popular platforms like Slack and Discord.
 
 
 Email notifications
 -------------------
 
-Read the Docs allows you to configure emails that can be sent on failing builds.
-This makes sure you know when your builds have failed.
-
 Take these steps to enable build notifications using email:
 
 * Go to :menuselection:`Admin --> Notifications` in your project.
 * Fill in the **Email** field under the **New Email Notifications** heading
-* Submit the form
+* Press :guilabel:`Add` and the email is saved and will be displayed in the list of **Existing notifications**.
 
-Who is notified?
-----------------
+A newly added email will be notified once a build fails.
 
-If you are a single owner of a project,
-*you* will get notified.
 
-If your project has several members,
-then the following are notified:
+.. note::
 
-* All :term:`maintainers <maintainer>` (|org_brand|)
-* All owners of an :doc:`organization </commercial/organizations>` (|com_brand|)
-  that owns the project,
-  or members of teams with admin access to the project.
+   We don't send email notifications on :doc:`builds from pull requests </pull-requests>`.
