@@ -258,9 +258,6 @@ class BaseSphinx(BaseBuilder):
             'display_gitlab': display_gitlab,
 
             # Features
-            'dont_overwrite_sphinx_context': self.project.has_feature(
-                Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
-            ),
             "docsearch_disabled": self.project.has_feature(
                 Feature.DISABLE_SERVER_SIDE_SEARCH
             ),

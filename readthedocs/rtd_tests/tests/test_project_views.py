@@ -24,40 +24,33 @@ from readthedocs.rtd_tests.base import RequestFactoryTestMixin, WizardTestCase
 @mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class TestImportProjectBannedUser(RequestFactoryTestMixin, TestCase):
 
-    wizard_class_slug = 'import_wizard_view'
-    url = '/dashboard/import/manual/'
+    wizard_class_slug = "import_wizard_view"
+    url = "/dashboard/import/manual/"
 
     def setUp(self):
         super().setUp()
         data = {
-            'basics': {
-                'name': 'foobar',
-                'repo': 'http://example.com/foobar',
-                'repo_type': 'git',
+            "basics": {
+                "name": "foobar",
+                "repo": "http://example.com/foobar",
+                "repo_type": "git",
             },
-            'extra': {
-                'description': 'Describe foobar',
-                'language': 'en',
-                'documentation_type': 'sphinx',
+            "extra": {
+                "description": "Describe foobar",
+                "language": "en",
+                "documentation_type": "sphinx",
             },
         }
         self.data = {}
         for key in data:
-            self.data.update({('{}-{}'.format(key, k), v)
-                              for (k, v) in list(data[key].items())})
-        self.data['{}-current_step'.format(self.wizard_class_slug)] = 'extra'
-
-    def test_not_banned_user(self):
-        """User without profile and isn't banned."""
-        req = self.request(method='post', path='/projects/import', data=self.data)
-        req.user = get(User, profile=None)
-        resp = ImportWizardView.as_view()(req)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['location'], '/projects/foobar/')
+            self.data.update(
+                {("{}-{}".format(key, k), v) for (k, v) in list(data[key].items())}
+            )
+        self.data["{}-current_step".format(self.wizard_class_slug)] = "extra"
 
     def test_banned_user(self):
         """User is banned."""
-        req = self.request(method='post', path='/projects/import', data=self.data)
+        req = self.request(method="post", path=self.url, data=self.data)
         req.user = get(User)
         req.user.profile.banned = True
         req.user.profile.save()
@@ -80,6 +73,9 @@ class TestBasicsForm(WizardTestCase):
             'name': 'foobar',
             'repo': 'http://example.com/foobar',
             'repo_type': 'git',
+        }
+        self.step_data["config"] = {
+            "confirm": True,
         }
 
     def tearDown(self):
@@ -114,6 +110,10 @@ class TestBasicsForm(WizardTestCase):
     def test_form_pass(self):
         """Only submit the basics."""
         resp = self.post_step('basics')
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.post_step("config", session=list(resp._request.session.items()))
+
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
@@ -135,6 +135,9 @@ class TestBasicsForm(WizardTestCase):
         )
         self.step_data['basics']['remote_repository'] = remote_repo.pk
         resp = self.post_step('basics')
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.post_step("config", session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
@@ -184,7 +187,10 @@ class TestAdvancedForm(TestBasicsForm):
 
     def setUp(self):
         super().setUp()
-        self.step_data['basics']['advanced'] = True
+        self.step_data["basics"]["advanced"] = True
+        self.step_data["config"] = {
+            "confirm": True,
+        }
         self.step_data['extra'] = {
             'description': 'Describe foobar',
             'language': 'en',
@@ -197,6 +203,9 @@ class TestAdvancedForm(TestBasicsForm):
             'description': 'An amazing project',
             'project_url': "https://foo.bar",
         }
+        config_initial = {
+            "confirm": True,
+        }
         basic_initial = {
             'name': 'foobar',
             'repo': 'https://github.com/foo/bar',
@@ -204,7 +213,7 @@ class TestAdvancedForm(TestBasicsForm):
             'default_branch': 'main',
             'remote_repository': '',
         }
-        initial = dict(**extra_initial, **basic_initial)
+        initial = dict(**extra_initial, **config_initial, **basic_initial)
         self.client.force_login(self.user)
 
         # User selects a remote repo to import.
@@ -223,14 +232,21 @@ class TestAdvancedForm(TestBasicsForm):
         step_data[f'{self.wizard_class_slug}-current_step'] = 'basics'
         resp = self.client.post(self.url, step_data)
 
+        step_data = {f"config-{k}": v for k, v in config_initial.items()}
+        step_data[f"{self.wizard_class_slug}-current_step"] = "config"
+        resp = self.client.post(self.url, step_data)
+
         # The correct initial data for the advanced form is set.
         form = resp.context_data['form']
         self.assertEqual(form.initial, extra_initial)
 
     def test_form_pass(self):
         """Test all forms pass validation."""
-        resp = self.post_step('basics')
-        self.assertWizardResponse(resp, 'extra')
+        resp = self.post_step("basics")
+        self.assertWizardResponse(resp, "config")
+        resp = self.post_step("config", session=list(resp._request.session.items()))
+        self.assertWizardResponse(resp, "extra")
+        self.assertEqual(resp.status_code, 200)
         resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
@@ -254,9 +270,11 @@ class TestAdvancedForm(TestBasicsForm):
         # Remove extra data to trigger validation errors
         self.step_data['extra'] = {}
 
-        resp = self.post_step('basics')
-        self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=list(resp._request.session.items()))
+        resp = self.post_step("basics")
+        self.assertWizardResponse(resp, "config")
+        resp = self.post_step("config", session=list(resp._request.session.items()))
+        self.assertWizardResponse(resp, "extra")
+        resp = self.post_step("extra", session=list(resp._request.session.items()))
 
         self.assertWizardFailure(resp, 'language')
         self.assertWizardFailure(resp, 'documentation_type')
@@ -270,10 +288,12 @@ class TestAdvancedForm(TestBasicsForm):
             user=self.user,
             account=socialaccount
         )
-        self.step_data['basics']['remote_repository'] = remote_repo.pk
-        resp = self.post_step('basics')
-        self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=list(resp._request.session.items()))
+        self.step_data["basics"]["remote_repository"] = remote_repo.pk
+        resp = self.post_step("basics")
+        self.assertWizardResponse(resp, "config")
+        resp = self.post_step("config", session=list(resp._request.session.items()))
+        self.assertWizardResponse(resp, "extra")
+        resp = self.post_step("extra", session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')

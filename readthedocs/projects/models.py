@@ -30,7 +30,7 @@ from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
-from readthedocs.core.utils import slugify
+from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.projects import constants
@@ -947,11 +947,8 @@ class Project(models.Model):
             version_type=version_type
         )
 
-    # NOTE: if `environment=None` everything fails, because it cannot execute
-    # any command.
     def vcs_repo(
-            self, version=LATEST, environment=None,
-            verbose_name=None, version_type=None
+        self, environment, version=LATEST, verbose_name=None, version_type=None
     ):
         """
         Return a Backend object for this project able to handle VCS commands.
@@ -1382,7 +1379,18 @@ class APIProject(Project):
                 del kwargs[key]
             except KeyError:
                 pass
-        super().__init__(*args, **kwargs)
+
+        valid_attributes, invalid_attributes = extract_valid_attributes_for_model(
+            model=Project,
+            attributes=kwargs,
+        )
+        if invalid_attributes:
+            log.warning(
+                "APIProject got unexpected attributes.",
+                invalid_attributes=invalid_attributes,
+            )
+
+        super().__init__(*args, **valid_attributes)
 
         # Overwrite the database property with the value from the API
         self.ad_free = ad_free
@@ -1854,7 +1862,6 @@ class Feature(models.Model):
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
     ALLOW_DEPRECATED_WEBHOOKS = "allow_deprecated_webhooks"
-    DONT_OVERWRITE_SPHINX_CONTEXT = "dont_overwrite_sphinx_context"
     SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
@@ -1907,12 +1914,6 @@ class Feature(models.Model):
 
     FEATURES = (
         (ALLOW_DEPRECATED_WEBHOOKS, _("Webhook: Allow deprecated webhook views")),
-        (
-            DONT_OVERWRITE_SPHINX_CONTEXT,
-            _(
-                "Sphinx: Do not overwrite context vars in conf.py with Read the Docs context",
-            ),
-        ),
         (
             SKIP_SPHINX_HTML_THEME_PATH,
             _(

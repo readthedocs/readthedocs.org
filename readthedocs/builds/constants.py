@@ -3,6 +3,9 @@
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+# BUILD_STATE is our *INTERNAL* representation of build states.
+# This is not to be confused with external representations of 'status'
+# that are sent back to Git providers.
 BUILD_STATE_TRIGGERED = "triggered"
 BUILD_STATE_CLONING = "cloning"
 BUILD_STATE_INSTALLING = "installing"
@@ -78,7 +81,9 @@ NON_REPOSITORY_VERSIONS = (
     STABLE,
 )
 
-# General Build Statuses
+# General build statuses, i.e. the status that is reported back to the
+# user on a Git Provider. This not the same as BUILD_STATE which the internal
+# representation.
 BUILD_STATUS_FAILURE = 'failed'
 BUILD_STATUS_PENDING = 'pending'
 BUILD_STATUS_SUCCESS = 'success'

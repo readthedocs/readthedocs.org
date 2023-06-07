@@ -297,6 +297,17 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
             return VersionSerializer
         return VersionUpdateSerializer
 
+    def update(self, request, *args, **kwargs):
+        """Overridden to call ``post_save`` method on the updated version."""
+        # Get the current value before updating.
+        version = self.get_object()
+        was_active = version.active
+        result = super().update(request, *args, **kwargs)
+        # Get the updated version.
+        version = self.get_object()
+        version.post_save(was_active=was_active)
+        return result
+
 
 class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
                     FlexFieldsMixin, ReadOnlyModelViewSet):

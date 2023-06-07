@@ -1309,7 +1309,8 @@ div.httpexchange dl dd:after {
     content: '';
 }
 
-div.httpexchange div.highlight pre {
+div.httpexchange div.highlight pre,
+div.highlight > pre {
     padding: 1em;
     background: #f4f4f4;
     border: 1px solid #ccc;

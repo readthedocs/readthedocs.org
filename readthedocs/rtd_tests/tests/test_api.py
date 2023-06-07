@@ -46,7 +46,7 @@ from readthedocs.builds.constants import (
     EXTERNAL_VERSION_STATE_CLOSED,
     LATEST,
 )
-from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, Version
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import (
     RemoteOrganization,
@@ -54,8 +54,10 @@ from readthedocs.oauth.models import (
     RemoteRepository,
     RemoteRepositoryRelation,
 )
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import (
     APIProject,
+    Domain,
     EnvironmentVariable,
     Feature,
     Project,
@@ -73,33 +75,6 @@ class APIBuildTests(TestCase):
         self.user = User.objects.get(username='eric')
         self.project = get(Project, users=[self.user])
         self.version = self.project.versions.get(slug=LATEST)
-
-    def test_make_build(self):
-        """Test that a superuser can use the API."""
-        client = APIClient()
-        client.login(username='super', password='test')
-        resp = client.post(
-            '/api/v2/build/',
-            {
-                'project': 1,
-                'version': 1,
-                'success': True,
-                'output': 'Test Output',
-                'error': 'Test Error',
-                'state': 'cloning',
-            },
-            format='json',
-        )
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-        build = resp.data
-        self.assertEqual(build['state_display'], 'Cloning')
-        self.assertIsNone(build['config'])
-
-        resp = client.get('/api/v2/build/%s/' % build['id'])
-        self.assertEqual(resp.status_code, 200)
-        build = resp.data
-        self.assertEqual(build['output'], 'Test Output')
-        self.assertEqual(build['state_display'], 'Cloning')
 
     def test_reset_build(self):
         build = get(
@@ -163,72 +138,6 @@ class APIBuildTests(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertIn('config', resp.data)
         self.assertNotIn('_config', resp.data)
-
-    def test_save_config(self):
-        client = APIClient()
-        client.login(username='super', password='test')
-        resp = client.post(
-            '/api/v2/build/',
-            {
-                'project': 1,
-                'version': 1,
-                'config': {'one': 'two'},
-            },
-            format='json',
-        )
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-        build_one = resp.data
-        self.assertEqual(build_one['config'], {'one': 'two'})
-
-        resp = client.get('/api/v2/build/%s/' % build_one['id'])
-        self.assertEqual(resp.status_code, 200)
-        build = resp.data
-        self.assertEqual(build['config'], {'one': 'two'})
-
-    def test_save_same_config(self):
-        client = APIClient()
-        client.login(username='super', password='test')
-        resp = client.post(
-            '/api/v2/build/',
-            {
-                'project': 1,
-                'version': 1,
-                'config': {'one': 'two'},
-            },
-            format='json',
-        )
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-        build_one = resp.data
-        self.assertEqual(build_one['config'], {'one': 'two'})
-
-        resp = client.post(
-            '/api/v2/build/',
-            {
-                'project': 1,
-                'version': 1,
-                'config': {'one': 'two'},
-            },
-            format='json',
-        )
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-        build_two = resp.data
-        self.assertEqual(build_two['config'], {'one': 'two'})
-
-        resp = client.get('/api/v2/build/%s/' % build_one['id'])
-        self.assertEqual(resp.status_code, 200)
-        build = resp.data
-        self.assertEqual(build['config'], {'one': 'two'})
-
-        # Checking the values from the db, just to be sure the
-        # api isn't lying.
-        self.assertEqual(
-            Build.objects.get(pk=build_one['id'])._config,
-            {'one': 'two'},
-        )
-        self.assertEqual(
-            Build.objects.get(pk=build_two['id'])._config,
-            {Build.CONFIG_KEY: build_one['id']},
-        )
 
     def test_save_same_config_using_patch(self):
         client = APIClient()
@@ -299,12 +208,14 @@ class APIBuildTests(TestCase):
                 'version_slug': version.slug,
             },
         )
+
         build = resp.data
-        self.assertEqual(build['state'], 'cloning')
-        self.assertEqual(build['error'], '')
-        self.assertEqual(build['exit_code'], 0)
-        self.assertEqual(build['success'], True)
-        self.assertEqual(build['docs_url'], dashboard_url)
+        self.assertEqual(build["state"], "cloning")
+        self.assertEqual(build["error"], "")
+        self.assertEqual(build["exit_code"], 0)
+        self.assertEqual(build["success"], True)
+        self.assertTrue(build["docs_url"].endswith(dashboard_url))
+        self.assertTrue(build["docs_url"].startswith("https://"))
 
     @override_settings(DOCROOT="/home/docs/checkouts/readthedocs.org/user_builds")
     def test_response_finished_and_success(self):
@@ -390,11 +301,12 @@ class APIBuildTests(TestCase):
             },
         )
         build = resp.data
-        self.assertEqual(build['state'], 'finished')
-        self.assertEqual(build['error'], '')
-        self.assertEqual(build['exit_code'], 1)
-        self.assertEqual(build['success'], False)
-        self.assertEqual(build['docs_url'], dashboard_url)
+        self.assertEqual(build["state"], "finished")
+        self.assertEqual(build["error"], "")
+        self.assertEqual(build["exit_code"], 1)
+        self.assertEqual(build["success"], False)
+        self.assertTrue(build["docs_url"].endswith(dashboard_url))
+        self.assertTrue(build["docs_url"].startswith("https://"))
 
     def test_make_build_without_permission(self):
         """Ensure anonymous/non-staff users cannot write the build endpoint."""
@@ -463,27 +375,17 @@ class APIBuildTests(TestCase):
         self.assertIn('builder', resp.data)
 
     def test_make_build_commands(self):
-        """Create build and build commands."""
+        """Create build commands."""
         client = APIClient()
         client.login(username='super', password='test')
-        resp = client.post(
-            '/api/v2/build/',
-            {
-                'project': 1,
-                'version': 1,
-                'success': True,
-            },
-            format='json',
-        )
-        self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-        build = resp.data
+        build = get(Build, project=self.project, version=self.version, success=True)
         now = timezone.now()
         start_time = now - datetime.timedelta(seconds=5)
         end_time = now
         resp = client.post(
             '/api/v2/command/',
             {
-                "build": build["id"],
+                "build": build.pk,
                 "command": "$CONDA_ENVS_PATH/$CONDA_DEFAULT_ENV/bin/python -m sphinx",
                 "description": "Conda and Sphinx command",
                 "exit_code": 0,
@@ -495,7 +397,7 @@ class APIBuildTests(TestCase):
         resp = client.post(
             "/api/v2/command/",
             {
-                "build": build["id"],
+                "build": build.pk,
                 "command": "$READTHEDOCS_VIRTUALENV_PATH/bin/python -m sphinx",
                 "description": "Python and Sphinx command",
                 "exit_code": 0,
@@ -505,7 +407,7 @@ class APIBuildTests(TestCase):
             format='json',
         )
         self.assertEqual(resp.status_code, status.HTTP_201_CREATED)
-        resp = client.get('/api/v2/build/%s/' % build['id'])
+        resp = client.get(f"/api/v2/build/{build.pk}/")
         self.assertEqual(resp.status_code, 200)
         build = resp.data
         self.assertEqual(len(build["commands"]), 2)
@@ -727,6 +629,398 @@ class APITests(TestCase):
         self.assertIn("readthedocs_yaml_path", resp.data)
         self.assertEqual(resp.data["readthedocs_yaml_path"], "bar")
 
+    def test_project_read_only_endpoints_for_normal_user(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        client = APIClient()
+
+        client.force_authenticate(user=user_normal)
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/project/")
+        self.assertEqual(resp.status_code, 410)
+
+        # We don't allow creating projects.
+        resp = client.post("/api/v2/project/")
+        self.assertEqual(resp.status_code, 403)
+
+        projects = [
+            project_a,
+            project_b,
+            project_c,
+        ]
+        for project in projects:
+            resp = client.get(f"/api/v2/project/{project.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+            resp = client.delete(f"/api/v2/project/{project.pk}/")
+            self.assertEqual(resp.status_code, 403)
+
+            resp = client.patch(f"/api/v2/project/{project.pk}/")
+            self.assertEqual(resp.status_code, 403)
+
+    def test_project_read_and_write_endpoints_for_staff_user(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        client = APIClient()
+
+        client.force_authenticate(user=user_admin)
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/project/")
+        self.assertEqual(resp.status_code, 410)
+
+        # We don't allow creating projects.
+        resp = client.post("/api/v2/project/")
+        self.assertEqual(resp.status_code, 405)
+
+        projects = [
+            project_a,
+            project_b,
+            project_c,
+        ]
+        for project in projects:
+            resp = client.get(f"/api/v2/project/{project.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+            # We don't allow deleting projects.
+            resp = client.delete(f"/api/v2/project/{project.pk}/")
+            self.assertEqual(resp.status_code, 405)
+
+            # Update them is fine.
+            resp = client.patch(f"/api/v2/project/{project.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+    def test_build_read_only_endpoints_for_normal_user(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        client = APIClient()
+
+        client.force_authenticate(user=user_normal)
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/build/")
+        self.assertEqual(resp.status_code, 410)
+
+        # We don't allow creating builds for normal users.
+        resp = client.post("/api/v2/build/")
+        self.assertEqual(resp.status_code, 403)
+
+        Version.objects.all().update(privacy_level=PUBLIC)
+
+        builds = [
+            get(Build, project=project_a, version=project_a.versions.first()),
+            get(Build, project=project_b, version=project_b.versions.first()),
+            get(Build, project=project_c, version=project_c.versions.first()),
+        ]
+        for build in builds:
+            resp = client.get(f"/api/v2/build/{build.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+            # We don't allow deleting builds.
+            resp = client.delete(f"/api/v2/build/{build.pk}/")
+            self.assertEqual(resp.status_code, 403)
+
+            # Neither update them.
+            resp = client.patch(f"/api/v2/build/{build.pk}/")
+            self.assertEqual(resp.status_code, 403)
+
+    def test_build_read_and_write_endpoints_for_staff_user(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        client = APIClient()
+
+        client.force_authenticate(user=user_admin)
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/build/")
+        self.assertEqual(resp.status_code, 410)
+
+        # We don't allow to create builds.
+        resp = client.post("/api/v2/build/")
+        self.assertEqual(resp.status_code, 405)
+
+        Version.objects.all().update(privacy_level=PUBLIC)
+
+        builds = [
+            get(Build, project=project_a, version=project_a.versions.first()),
+            get(Build, project=project_b, version=project_b.versions.first()),
+            get(Build, project=project_c, version=project_c.versions.first()),
+        ]
+        for build in builds:
+            resp = client.get(f"/api/v2/build/{build.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+            # We don't allow deleting builds.
+            resp = client.delete(f"/api/v2/build/{build.pk}/")
+            self.assertEqual(resp.status_code, 405)
+
+            # Update them is fine.
+            resp = client.patch(f"/api/v2/build/{build.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+    def test_build_commands_read_only_endpoints_for_normal_user(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        client = APIClient()
+
+        client.force_authenticate(user=user_normal)
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/build/")
+        self.assertEqual(resp.status_code, 410)
+
+        # We don't allow creating commands for normal users.
+        resp = client.post("/api/v2/command/")
+        self.assertEqual(resp.status_code, 403)
+
+        Version.objects.all().update(privacy_level=PUBLIC)
+
+        builds = [
+            get(Build, project=project_a, version=project_a.versions.first()),
+            get(Build, project=project_b, version=project_b.versions.first()),
+            get(Build, project=project_c, version=project_c.versions.first()),
+        ]
+        build_commands = [get(BuildCommandResult, build=build) for build in builds]
+
+        for command in build_commands:
+            resp = client.get(f"/api/v2/command/{command.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+            # We don't allow deleting builds.
+            resp = client.delete(f"/api/v2/command/{command.pk}/")
+            self.assertEqual(resp.status_code, 403)
+
+            # Neither update them.
+            resp = client.patch(f"/api/v2/command/{command.pk}/")
+            self.assertEqual(resp.status_code, 403)
+
+    def test_build_commands_read_and_write_endpoints_for_staff_user(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        client = APIClient()
+
+        client.force_authenticate(user=user_admin)
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/command/")
+        self.assertEqual(resp.status_code, 410)
+
+        Version.objects.all().update(privacy_level=PUBLIC)
+
+        builds = [
+            get(Build, project=project_a, version=project_a.versions.first()),
+            get(Build, project=project_b, version=project_b.versions.first()),
+            get(Build, project=project_c, version=project_c.versions.first()),
+        ]
+        build_commands = [get(BuildCommandResult, build=build) for build in builds]
+
+        # We do allow to create build commands from the API for staff users.
+        resp = client.post(
+            "/api/v2/command/",
+            {
+                "build": builds[0].pk,
+                "command": "test",
+                "output": "test",
+                "exit_code": 0,
+                "start_time": datetime.datetime.utcnow(),
+                "end_time": datetime.datetime.utcnow(),
+            },
+        )
+        self.assertEqual(resp.status_code, 201)
+
+        for command in build_commands:
+            resp = client.get(f"/api/v2/command/{command.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+            # We don't allow deleting commands.
+            resp = client.delete(f"/api/v2/command/{command.pk}/")
+            self.assertEqual(resp.status_code, 405)
+
+            # Neither updating them.
+            resp = client.patch(f"/api/v2/command/{command.pk}/")
+            self.assertEqual(resp.status_code, 405)
+
+    def test_versions_read_only_endpoints_for_normal_user(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        Version.objects.all().update(privacy_level=PUBLIC)
+
+        client = APIClient()
+
+        client.force_authenticate(user=user_normal)
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/version/")
+        self.assertEqual(resp.status_code, 410)
+
+        # We don't allow creating versions.
+        resp = client.post("/api/v2/version/")
+        self.assertEqual(resp.status_code, 403)
+
+        versions = [
+            project_a.versions.first(),
+            project_b.versions.first(),
+            project_c.versions.first(),
+        ]
+
+        for version in versions:
+            resp = client.get(f"/api/v2/version/{version.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+            # We don't allow deleting versions.
+            resp = client.delete(f"/api/v2/version/{version.pk}/")
+            self.assertEqual(resp.status_code, 403)
+
+            # Neither update them.
+            resp = client.patch(f"/api/v2/version/{version.pk}/")
+            self.assertEqual(resp.status_code, 403)
+
+    def test_versions_read_and_write_endpoints_for_staff_user(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        Version.objects.all().update(privacy_level=PUBLIC)
+
+        client = APIClient()
+
+        client.force_authenticate(user=user_admin)
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/version/")
+        self.assertEqual(resp.status_code, 410)
+
+        # We don't allow to create versions.
+        resp = client.post("/api/v2/version/")
+        self.assertEqual(resp.status_code, 405)
+
+        versions = [
+            project_a.versions.first(),
+            project_b.versions.first(),
+            project_c.versions.first(),
+        ]
+
+        for version in versions:
+            resp = client.get(f"/api/v2/version/{version.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+            # We don't allow deleting versions.
+            resp = client.delete(f"/api/v2/version/{version.pk}/")
+            self.assertEqual(resp.status_code, 405)
+
+            # Update them is fine.
+            resp = client.patch(f"/api/v2/version/{version.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+    def test_domains_read_only_endpoints_for_normal_user(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        Version.objects.all().update(privacy_level=PUBLIC)
+
+        client = APIClient()
+
+        client.force_authenticate(user=user_normal)
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/domain/")
+        self.assertEqual(resp.status_code, 410)
+
+        # We don't allow creating domains.
+        resp = client.post("/api/v2/domain/")
+        self.assertEqual(resp.status_code, 403)
+
+        domains = [
+            get(Domain, project=project_a),
+            get(Domain, project=project_b),
+            get(Domain, project=project_c),
+        ]
+
+        for domain in domains:
+            resp = client.get(f"/api/v2/domain/{domain.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+            # We don't allow deleting domains.
+            resp = client.delete(f"/api/v2/domain/{domain.pk}/")
+            self.assertEqual(resp.status_code, 403)
+
+            # Neither update them.
+            resp = client.patch(f"/api/v2/domain/{domain.pk}/")
+            self.assertEqual(resp.status_code, 403)
+
+    def test_domains_read_and_write_endpoints_for_staff_user(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        Version.objects.all().update(privacy_level=PUBLIC)
+
+        client = APIClient()
+
+        client.force_authenticate(user=user_admin)
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/domain/")
+        self.assertEqual(resp.status_code, 410)
+
+        # We don't allow to create domains.
+        resp = client.post("/api/v2/domain/")
+        self.assertEqual(resp.status_code, 405)
+
+        domains = [
+            get(Domain, project=project_a),
+            get(Domain, project=project_b),
+            get(Domain, project=project_c),
+        ]
+
+        for domain in domains:
+            resp = client.get(f"/api/v2/domain/{domain.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+            # We don't allow deleting domains.
+            resp = client.delete(f"/api/v2/domain/{domain.pk}/")
+            self.assertEqual(resp.status_code, 405)
+
+            # Neither update them.
+            resp = client.patch(f"/api/v2/domain/{domain.pk}/")
+            self.assertEqual(resp.status_code, 405)
+
     def test_project_features(self):
         user = get(User, is_staff=True)
         project = get(Project, main_language_project=None)
@@ -853,6 +1147,29 @@ class APITests(TestCase):
             api_project.environment_variables(public_only=True),
             {'RELEASE': 'prod'},
         )
+
+    def test_invalid_attributes_api_project(self):
+        invalid_attribute = "invalid_attribute"
+        project_data = {
+            "name": "Test Project",
+            "slug": "test-project",
+            "show_advertising": True,
+            invalid_attribute: "nope",
+        }
+        api_project = APIProject(**project_data)
+        self.assertFalse(hasattr(api_project, invalid_attribute))
+
+    def test_invalid_attributes_api_version(self):
+        invalid_attribute = "invalid_attribute"
+        version_data = {
+            "type": "branch",
+            "identifier": "main",
+            "verbose_name": "main",
+            "slug": "v2",
+            invalid_attribute: "nope",
+        }
+        api_version = APIVersion(**version_data)
+        self.assertFalse(hasattr(api_version, invalid_attribute))
 
     @override_settings(
         RTD_DEFAULT_FEATURES={
