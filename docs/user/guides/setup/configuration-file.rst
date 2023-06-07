@@ -40,12 +40,14 @@ We will get to the contents of the file in a moment.
 The required parts of your configuration file
 ---------------------------------------------
 
-The configuration file is a YAML file. YAML files are a "map": a collection of
+The configuration file is a `YAML`_ file. YAML files are a "map": a collection of
 key-value pairs that can be nested. This is not unlike a JSON file or ``dict``
 object in Python.
 
 This page won't explain the structure of YAML files, but many resources exist
 online.
+
+.. _YAML: https://en.wikipedia.org/wiki/YAML
 
 File header
 ~~~~~~~~~~~
