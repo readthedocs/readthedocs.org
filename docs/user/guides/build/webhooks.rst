@@ -1,22 +1,24 @@
-How to setup webhook notifications
+How to setup build status webhooks
 ==================================
 
-In this guide, you can learn how to setup build notification with webhooks.
-Build notifications can alert you when your builds fail so you can take immediate action.
+In this guide,
+you can learn how to setup build notifications via webhooks.
+
+Read the Docs can notify external :term:`webhooks <webhook>` when builds are triggered, successful or failed.
+In that way,
+you can receive build notifications in your own monitoring channels and be alerted you when your builds fail so you can take immediate action.
 
 .. seealso::
 
     :doc:`/guides/build/email-notifications`
-        How to setup a basic email notification for build failures.
+        Setup basic email notifications for build failures.
 
     :doc:`/pull-requests`
-        Similarly to email notifications,
-        you can also configure automated feedback for your pull requests.
+        Configure automated feedback and documentation site previews for your pull requests.
+
 
 Build status webhooks
 ---------------------
-
-Read the Docs can also send webhooks when builds are triggered, successful or failed.
 
 Take these steps to enable build notifications using a webhook:
 
