@@ -1,4 +1,3 @@
-================================
 Creating your configuration file
 ================================
 
@@ -25,9 +24,9 @@ This should be enough to get you started!
    the optional settings not covered in on this page, is found on
    :doc:`the configuration file reference page </config-file/index>`.
 
-####################################
+
 Where to put your configuration file
-####################################
+------------------------------------
 
 The ``.readthedocs.yaml`` file should be placed in the top-most directory of your project's repository.
 
@@ -35,9 +34,8 @@ Add a new file with the exact name ``.readthedocs.yaml`` in the repository's roo
 We will get to the contents of the file in a moment.
 
 
-#############################################
 The required parts of your configuration file
-#############################################
+---------------------------------------------
 
 The configuration file is a YAML file. YAML files are a "map": a collection of
 key-value pairs that can be nested. This is not unlike a JSON file or ``dict``
@@ -46,9 +44,8 @@ object in Python.
 This page won't explain the structure of YAML files, but many resources exist
 online.
 
-***********
 File header
-***********
+~~~~~~~~~~~
 
 As a best practice, begin your file by providing the following.
 
@@ -65,9 +62,9 @@ As a best practice, begin your file by providing the following.
    # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
    # <--Remove this comment and leave this line blank-->
 
-************************************
+
 Version of configuration file schema
-************************************
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The version key tells the system how to read the rest of the configuration
 file. The current and only supported version is **version 2**.
@@ -79,9 +76,8 @@ file. The current and only supported version is **version 2**.
    version: 2
    # <--Remove this comment and leave this line blank-->
 
-*******************
 Python requirements
-*******************
+~~~~~~~~~~~~~~~~~~~
 
 The ``python`` key contains several sub-keys, but only one sub-key is required:
 ``requirements``. However, since ``requirements`` is required, ``python`` is
