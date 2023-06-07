@@ -8,6 +8,8 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     """Settings for local development with Docker"""
 
+    DEBUG = bool(os.environ.get('RTD_DJANGO_DEBUG', True))
+
     DOCKER_ENABLE = True
     RTD_DOCKER_COMPOSE = True
     RTD_DOCKER_COMPOSE_VOLUME = 'community_build-user-builds'
@@ -149,6 +151,7 @@ class DockerBaseSettings(CommunityBaseSettings):
         }
 
     ACCOUNT_EMAIL_VERIFICATION = "none"
+
     SESSION_COOKIE_DOMAIN = None
     CACHES = {
         'default': {

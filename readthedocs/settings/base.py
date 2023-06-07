@@ -531,6 +531,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
+        'weekly-config-file-notification': {
+            'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
+            'schedule': crontab(day_of_week='wednesday', hour=11, minute=15),
+            'options': {'queue': 'web'},
+        },
     }
 
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]

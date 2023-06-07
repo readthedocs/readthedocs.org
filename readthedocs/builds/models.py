@@ -1084,10 +1084,20 @@ class Build(models.Model):
     def external_version_name(self):
         return external_version_name(self)
 
-    def using_latest_config(self):
-        if self.config:
-            return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
-        return False
+    def deprecated_config_used(self):
+        """
+        Check whether this particular build is using a deprecated config file.
+
+        When using v1 or not having a config file at all, it returns ``True``.
+        Returns ``False`` only when it has a config file and it is using v2.
+
+        Note we are using this to communicate deprecation of v1 file and not using a config file.
+        See https://github.com/readthedocs/readthedocs.org/issues/10342
+        """
+        if not self.config:
+            return True
+
+        return int(self.config.get("version", "1")) != LATEST_CONFIGURATION_VERSION
 
     def reset(self):
         """
