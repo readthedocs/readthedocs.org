@@ -17,11 +17,13 @@ The configuration file tells the platform what specific settings to use for your
 This how-to guide covers:
 
 #. Where to put your configuration file.
-#. What to add to your configuration file.
-
-This should be enough to get you started!
+#. Templates to setup your configuration file from scratch.
+#. The most basic sections in the configuration file that can help you get started.
 
 .. seealso::
+
+   :doc:`/tutorial/index`.
+     Following the steps in our tutorial will help you setup your first documentation project.
 
    :doc:`/config-file/index`.
      The complete list of all possible ``.readthedocs.yaml`` settings,
@@ -34,6 +36,9 @@ Where to put your configuration file
 The ``.readthedocs.yaml`` file should be placed in the top-most directory of your project's repository.
 We will get to the contents of the file in the next steps.
 
+When you have changed the configuration file,
+you need to commit and push the changes to your Git repository.
+Read the Docs will then automatical find and use the configuration to build your project.
 
 Getting started with a template
 -------------------------------
@@ -79,7 +84,7 @@ Editing the template
 --------------------
 
 Now that you have a ``.readthedocs.yaml`` file added to your Git repository,
-you should see Read the Docs trying to build your project with the file.
+you should see Read the Docs trying to build your project with the configuration file.
 
 But the file probably needs some changes to accomodate exactly your project setup.
 
