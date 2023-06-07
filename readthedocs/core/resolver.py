@@ -75,7 +75,8 @@ class ResolverBase:
 
         For example, if custom prefix is given, the path will be prefixed with it.
         In case of a subproject (project_relationship is given),
-        the path will be prefixed with the subproject prefix (defaults to ``/projects/<subproject-slug>/``).
+        the path will be prefixed with the subproject prefix
+        (defaults to ``/projects/<subproject-slug>/``).
         """
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
