@@ -22,6 +22,7 @@ class TestBuildDataCollector(TestCase):
             project=self.project,
             build={"id": 1},
             config=self._get_build_config({}),
+            api_client=mock.MagicMock(),
         )
         self.collector = BuildDataCollector(self.environment)
 

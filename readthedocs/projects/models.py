@@ -25,7 +25,6 @@ from django_extensions.db.fields import CreationDateTimeField, ModificationDateT
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
-from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
@@ -609,23 +608,6 @@ class Project(models.Model):
             },
         )
 
-    def get_canonical_url(self):
-        if settings.DONT_HIT_DB:
-            return api.project(self.pk).canonical_url().get()['url']
-        return self.get_docs_url()
-
-    def get_subproject_urls(self):
-        """
-        List subproject URLs.
-
-        This is used in search result linking
-        """
-        if settings.DONT_HIT_DB:
-            return [(proj['slug'], proj['canonical_url']) for proj in
-                    (api.project(self.pk).subprojects().get()['subprojects'])]
-        return [(proj.child.slug, proj.child.get_docs_url())
-                for proj in self.subprojects.all()]
-
     def get_storage_paths(self):
         """
         Get the paths of all artifacts used by the project.
@@ -1109,14 +1091,6 @@ class Project(models.Model):
         if finished:
             kwargs['state'] = 'finished'
         return self.builds(manager=INTERNAL).filter(**kwargs).first()
-
-    def api_versions(self):
-        from readthedocs.builds.models import APIVersion
-        ret = []
-        for version_data in api.project(self.pk).active_versions.get()['versions']:
-            version = APIVersion(**version_data)
-            ret.append(version)
-        return sort_version_aware(ret)
 
     def active_versions(self):
         from readthedocs.builds.models import Version
