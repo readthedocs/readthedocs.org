@@ -17,6 +17,10 @@ Build Status Webhooks:
 
   Webhooks can be customized through your own template and a variety of variable substitutions.
 
+.. note::
+
+   We don't trigger email notifications or build status webhooks on :doc:`builds from pull requests </pull-requests>`.
+
 .. seealso::
     :doc:`/guides/build/email-notifications`
         Enable email notifications on failed builds,
@@ -27,4 +31,5 @@ Build Status Webhooks:
         including examples for popular platforms like Slack and Discord.
 
     :doc:`pull-requests`
-        Similarly to build notifications, you can also configure automated feedback for your pull requests.
+        Similarly to build notifications,
+        you can also configure automated feedback for your pull requests.

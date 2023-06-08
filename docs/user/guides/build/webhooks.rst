@@ -4,7 +4,8 @@ How to setup build status webhooks
 In this guide,
 you can learn how to setup build notifications via webhooks.
 
-Read the Docs can notify external :term:`webhooks <webhook>` when builds are triggered, successful or failed.
+When a documentation build is *triggered*, *successful* or *failed*,
+Read the Docs can notify external APIs using :term:`webhooks <webhook>`.
 In that way,
 you can receive build notifications in your own monitoring channels and be alerted you when your builds fail so you can take immediate action.
 
