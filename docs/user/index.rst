@@ -129,6 +129,9 @@ Get a high-level overview of our platform:
 💡 :doc:`/choosing-a-site`
   Learn about the differences between |org_brand| and |com_brand|.
 
+💡 :doc:`All explanation articles </explanation/index>`
+  Browser all our explanation articles.
+
 .. TODO: This next item needs its article to be finished in a separate PR
 .. https://github.com/readthedocs/readthedocs.org/pull/10071
 .. TODO: 💡 Advanced topics: Deep-dive into Read the Docs
