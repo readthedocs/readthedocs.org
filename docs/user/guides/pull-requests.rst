@@ -14,6 +14,12 @@ If your account is already connected:
 #. Enable the :guilabel:`Build pull requests for this project` option
 #. Click on :guilabel:`Save`
 
+.. tip::
+
+   Pull requests that existed before enabling pull request builds will not be detected immediately.
+   But once you push a new commit to an existing pull request,
+   it will start building.
+
 Privacy levels
 --------------
 
