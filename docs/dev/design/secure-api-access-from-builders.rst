@@ -139,6 +139,8 @@ it has the same features as knox, with the exception of:
   it can't be used for authentication (or it can't be out of the box).
 - It doesn't expose views to revoke the tokens (but this should be easy to manually implement)
 - Changing the behaviour of some things require sub-classing instead of defining settings.
+- It supports several token models (not just one like knox).
+- All features that we need are already released.
 
 The implementation will be very similar to the one described for knox,
 with the exception that tokens won't be attached to users,
@@ -156,9 +158,16 @@ since it also handles authentication).
 
 .. _DRF API key: https://florimondmanca.github.io/djangorestframework-api-key/
 
+Decision
+--------
+
+Due to the fact that the required featues from knox are not released yet,
+we have decided to use DRF API key instead.
+
 Future work
 -----------
 
 This work can be extended to API V3, and be exposed to users in the future.
 We only need to take into consideration that the token model will be shared by both,
-API V2 and API V3.
+API V2 and API V3 if using knox, if we use API key, we can have different token models
+for each use case.
