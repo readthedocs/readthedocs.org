@@ -29,7 +29,3 @@ Build Status Webhooks:
     :doc:`/guides/build/webhooks`
         Steps for setting up build notifications via webhooks,
         including examples for popular platforms like Slack and Discord.
-
-    :doc:`pull-requests`
-        Similarly to build notifications,
-        you can also configure automated feedback for your pull requests.
