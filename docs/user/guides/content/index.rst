@@ -1,7 +1,7 @@
 How-to guides: content, themes and SEO
 ======================================
 
-⏩️ :doc:`Search Engine Optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>`
+⏩️ :doc:`Search engine optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>`
     This article explains how documentation can be optimized to appear in search results,
     ultimately increasing traffic to your docs.
 
@@ -65,7 +65,7 @@ How-to guides: content, themes and SEO
    :maxdepth: 1
    :hidden:
 
-   Search Engine Optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>
+   Search engine optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>
    Using traffic analytics </analytics>
    Using search analytics </guides/search-analytics>
    Enabling canonical URLs </guides/canonical-urls>

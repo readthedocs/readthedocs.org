@@ -1,4 +1,4 @@
-How to do Search Engine Optimization (SEO) for documentation projects
+How to do search engine optimization (SEO) for documentation projects
 =====================================================================
 
 .. meta::
