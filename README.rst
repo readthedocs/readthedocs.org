@@ -1,6 +1,8 @@
 Welcome to Read the Docs
 ========================
 
+Test that this PR is skipped
+
 |build-status| |docs| |coverage|
 
 Purpose
