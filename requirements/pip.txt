@@ -8,7 +8,7 @@ alabaster==0.7.13
     # via sphinx
 amqp==5.1.1
     # via kombu
-asgiref==3.6.0
+asgiref==3.7.2
     # via django
 async-timeout==4.0.2
     # via redis
@@ -16,15 +16,15 @@ babel==2.12.1
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.26.123
+boto3==1.26.146
     # via django-storages
-botocore==1.29.123
+botocore==1.29.146
     # via
     #   boto3
     #   s3transfer
 celery==5.2.7
     # via -r requirements/pip.in
-certifi==2022.12.7
+certifi==2023.5.7
     # via
     #   elasticsearch
     #   requests
@@ -44,12 +44,10 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.2.0
     # via celery
-cryptography==40.0.2
+cryptography==41.0.1
     # via pyjwt
 cssselect==1.2.0
     # via pyquery
-cython==0.29.34
-    # via selectolax
 defusedxml==0.7.1
     # via python3-openid
 distlib==0.3.6
@@ -58,7 +56,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.6.3
     # via -r requirements/pip.in
-django==3.2.18
+django==3.2.19
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -84,21 +82,21 @@ django-annoying==0.10.6
     # via -r requirements/pip.in
 django-autoslug==1.9.9
     # via -r requirements/pip.in
-django-cacheops==7.0
+django-cacheops==7.0.1
     # via -r requirements/pip.in
-django-cors-headers==3.14.0
+django-cors-headers==4.0.0
     # via -r requirements/pip.in
 django-crispy-forms==1.14.0
     # via -r requirements/pip.in
 django-csp==3.7
     # via -r requirements/pip.in
-django-debug-toolbar==4.0.0
+django-debug-toolbar==4.1.0
     # via -r requirements/pip.in
 django-elasticsearch-dsl==7.3
     # via -r requirements/pip.in
 django-extensions==3.2.1
     # via -r requirements/pip.in
-django-filter==23.1
+django-filter==23.2
     # via -r requirements/pip.in
 django-formtools==2.3
     # via -r requirements/pip.in
@@ -118,7 +116,7 @@ django-storages[boto3]==1.13.2
     # via -r requirements/pip.in
 django-structlog==2.2.0
     # via -r requirements/pip.in
-django-taggit==3.1.0
+django-taggit==4.0.0
     # via -r requirements/pip.in
 django-vanilla-views==3.0.0
     # via -r requirements/pip.in
@@ -128,12 +126,10 @@ djangorestframework==3.14.0
     #   drf-extensions
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.in
-docker==6.0.1
+docker==6.1.2
     # via -r requirements/pip.in
-docutils==0.17.1
-    # via
-    #   -r requirements/pip.in
-    #   sphinx
+docutils==0.20.1
+    # via sphinx
 dparse==0.6.2
     # via -r requirements/pip.in
 drf-extensions==0.7.1
@@ -172,17 +168,17 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.in
     #   dj-stripe
-kombu==5.2.4
+kombu==5.3.0
     # via celery
 lxml==4.9.2
     # via pyquery
 markdown==3.4.3
     # via -r requirements/pip.in
-markupsafe==2.1.2
+markupsafe==2.1.3
     # via jinja2
 oauthlib==3.2.2
     # via requests-oauthlib
-orjson==3.8.11
+orjson==3.9.0
     # via -r requirements/pip.in
 packaging==23.1
     # via
@@ -190,7 +186,7 @@ packaging==23.1
     #   docker
     #   dparse
     #   sphinx
-platformdirs==3.5.0
+platformdirs==3.5.1
     # via virtualenv
 prompt-toolkit==3.0.38
     # via click-repl
@@ -200,7 +196,7 @@ pygments==2.15.1
     # via
     #   -r requirements/pip.in
     #   sphinx
-pyjwt[crypto]==2.6.0
+pyjwt[crypto]==2.7.0
     # via django-allauth
 pyquery==2.0.0
     # via -r requirements/pip.in
@@ -219,13 +215,13 @@ pytz==2023.3
     #   djangorestframework
 pyyaml==5.4.1
     # via -r requirements/pip.in
-redis==4.5.4
+redis==4.5.5
     # via
     #   django-cacheops
     #   django-redis
-regex==2023.3.23
+regex==2023.6.3
     # via -r requirements/pip.in
-requests==2.29.0
+requests==2.31.0
     # via
     #   -r requirements/pip.in
     #   django-allauth
@@ -239,11 +235,11 @@ requests-oauthlib==1.3.1
     # via
     #   -r requirements/pip.in
     #   django-allauth
-requests-toolbelt==0.10.1
+requests-toolbelt==1.0.0
     # via -r requirements/pip.in
-s3transfer==0.6.0
+s3transfer==0.6.1
     # via boto3
-selectolax==0.3.13
+selectolax==0.3.14
     # via -r requirements/pip.in
 six==1.16.0
     # via
@@ -259,7 +255,7 @@ smmap==5.0.0
     # via gitdb
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==4.5.0
+sphinx==7.0.1
     # via -r requirements/pip.in
 sphinxcontrib-applehelp==1.0.4
     # via sphinx
@@ -287,13 +283,15 @@ structlog==23.1.0
     #   django-structlog
 toml==0.10.2
     # via dparse
+typing-extensions==4.6.3
+    # via asgiref
 ua-parser==0.16.1
     # via user-agents
 unicode-slugify @ git+https://github.com/mozilla/unicode-slugify@b696c37
     # via -r requirements/pip.in
 unidecode==1.3.6
     # via unicode-slugify
-urllib3==1.26.15
+urllib3==1.26.16
     # via
     #   botocore
     #   docker
@@ -310,7 +308,7 @@ virtualenv==20.23.0
     # via -r requirements/pip.in
 wcwidth==0.2.6
     # via prompt-toolkit
-websocket-client==1.5.1
+websocket-client==1.5.2
     # via docker
 
 # The following packages are considered to be unsafe in a requirements file:

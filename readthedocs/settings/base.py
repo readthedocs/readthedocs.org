@@ -178,7 +178,6 @@ class CommunityBaseSettings(Settings):
         }
 
     # Database and API hitting settings
-    DONT_HIT_API = False
     DONT_HIT_DB = True
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
     DATABASE_ROUTERS = ['readthedocs.core.db.MapAppsRouter']
@@ -532,6 +531,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
+        'weekly-config-file-notification': {
+            'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
+            'schedule': crontab(day_of_week='wednesday', hour=11, minute=15),
+            'options': {'queue': 'web'},
+        },
     }
 
     MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
@@ -742,6 +746,7 @@ class CommunityBaseSettings(Settings):
 
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
+            "VERIFIED_EMAIL": True,
             'SCOPE': [
                 'user:email',
                 'read:org',
@@ -750,6 +755,7 @@ class CommunityBaseSettings(Settings):
             ],
         },
         'gitlab': {
+            "VERIFIED_EMAIL": True,
             'SCOPE': [
                 'api',
                 'read_user',

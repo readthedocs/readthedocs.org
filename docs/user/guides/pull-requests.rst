@@ -74,7 +74,7 @@ Build status is not being reported to your Git provider
    your account with your Git provider.
 
 .. seealso::
-   - :ref:`guides/git-integrations:Debugging webhooks`
+   - :ref:`guides/setup/git-repo-manual:Debugging webhooks`
    - :ref:`github-permission-troubleshooting`
 
 .. _OAuth App: https://github.com/settings/applications

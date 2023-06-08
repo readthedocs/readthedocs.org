@@ -128,6 +128,15 @@ class TestProjectSearch:
         )
         assert len(results) == 0
 
+    def test_search_empty_query(self, client):
+        results, facets = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={"q": "", "type": "project"},
+        )
+        assert results == []
+        assert facets == {}
+
 
 @pytest.mark.django_db
 @pytest.mark.search

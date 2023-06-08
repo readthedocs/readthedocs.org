@@ -10,6 +10,11 @@ urlpatterns = [
         name='organization_list',
     ),
     re_path(
+        r"^choose/(?P<next_name>[\w.-]+)/$",
+        views.ChooseOrganization.as_view(),
+        name="organization_choose",
+    ),
+    re_path(
         r'^create/$',
         views.CreateOrganizationSignup.as_view(),
         name='organization_create',
