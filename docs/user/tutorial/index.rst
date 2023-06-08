@@ -287,7 +287,7 @@ When you are satisfied, you can merge the pull request!
 Adding a configuration file
 ---------------------------
 
-As of September 2023, 
+As of September 2023,
 :doc:`you will need to add a configuration file to build your documentation <rtd-blog:migrate-configuration-v2>`.
 Until then,
 this example project will build without the configuration file,
