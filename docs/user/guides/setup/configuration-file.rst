@@ -39,6 +39,7 @@ Read the Docs will then automatically find and use the configuration to build yo
 
 .. _YAML: https://en.wikipedia.org/wiki/YAML
 
+.. _howto_templates:
 
 Getting started with a template
 -------------------------------
@@ -192,6 +193,9 @@ Adjust: Custom tools
 
 It's possible to build documentation using almost any documentation tool,
 as long as an environment is available (see :ref:`the previous step <config_howto_build.tools>`).
+Adding your own build commands is done by listing them in ``build.commands``.
+
+The :ref:`Other tools <howto_templates>` template shows an example of how to do that.
 
 .. seealso::
 
