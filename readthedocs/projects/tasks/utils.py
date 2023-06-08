@@ -291,13 +291,15 @@ def deprecated_config_file_used_notification():
             )
 
         # All the projects for this user that don't have a configuration file
-        user_projects = (
-            AdminPermission.projects(user, admin=True)
-            .filter(slug__in=projects)
-            .only("slug")
+        # Use set() intersection in Python that's pretty quick and only pass
+        # these few projects slugs to the db query.
+        # Otherwise we pass 82k, which makes the query pretty slow.
+        user_projects = AdminPermission.projects(user, admin=True).values_list(
+            "slug", flat=True
         )
+        user_projects = list(set(user_projects) & projects)
 
-        user_project_slugs = ", ".join([p.slug for p in user_projects[:5]])
+        user_project_slugs = ", ".join(user_projects[:5])
         if user_projects.count() > 5:
             user_project_slugs += " and others..."
 
