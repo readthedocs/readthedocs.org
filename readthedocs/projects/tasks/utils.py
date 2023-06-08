@@ -291,9 +291,8 @@ def deprecated_config_file_used_notification():
             )
 
         # All the projects for this user that don't have a configuration file
-        # Use set() intersection in Python that's pretty quick and only pass
-        # these few projects slugs to the db query.
-        # Otherwise we pass 82k, which makes the query pretty slow.
+        # Use set() intersection in Python that's pretty quick since we only need the slugs.
+        # Otherwise we have to pass 82k slugs to the DB query, which makes it pretty slow.
         user_projects = AdminPermission.projects(user, admin=True).values_list(
             "slug", flat=True
         )
