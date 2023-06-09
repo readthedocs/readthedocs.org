@@ -10,7 +10,7 @@ Explanation
   Users often ask what the differences are between Read the Docs Community and Read the Docs for Business: here's an overview.
 
 ⏩️ :doc:`/integrations`
-  A high-level introduction to *Continuous Documentation Deployment*
+  A high-level introduction to *Continuous Documentation Deployment*.
 
 ⏩️ :doc:`/subprojects`
   Learn more about how several documentation projects can be combined and presented to the reader on the same website.
