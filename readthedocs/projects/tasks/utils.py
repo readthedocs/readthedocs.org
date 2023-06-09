@@ -299,7 +299,7 @@ def deprecated_config_file_used_notification():
         user_projects = list(set(user_projects) & projects)
 
         user_project_slugs = ", ".join(user_projects[:5])
-        if user_projects.count() > 5:
+        if len(user_projects) > 5:
             user_project_slugs += " and others..."
 
         n_site = DeprecatedConfigFileSiteNotification(
