@@ -1,16 +1,15 @@
 How to add a configuration file
 ===============================
 
-As part of the initial setup for your Read the Docs site,
+As part of the initial set up for your Read the Docs site,
 you need to create a **configuration file** called ``.readthedocs.yaml``.
 The configuration file tells Read the Docs what specific settings to use for your project.
 
 This how-to guide covers:
 
 #. Where to put your configuration file.
-#. Templates to setup your configuration file from scratch.
-#. The most basic sections in the configuration file that can help you get started.
-#. Next steps...
+#. What to put in the configuration file.
+#. How to customize the configuration for your project.
 
 .. seealso::
 
@@ -44,8 +43,8 @@ Read the Docs will then automatically find and use the configuration to build yo
 Getting started with a template
 -------------------------------
 
-Here are some variations of the configuration file that can help you get started.
-Pick the one that resembles your project the most,
+Here are some configuration file examples to help you get started.
+Pick an example based on the tool that your project is using,
 copy its contents to ``.readthedocs.yaml`` and add the file to your Git repository.
 
 .. tabs::
@@ -58,6 +57,7 @@ copy its contents to ``.readthedocs.yaml`` and add the file to your Git reposito
         .. literalinclude:: /config-file/examples/sphinx/.readthedocs.yaml
            :language: yaml
            :linenos:
+           :caption: .readthedocs.yaml
 
 
     .. tab:: MkDocs
@@ -68,6 +68,7 @@ copy its contents to ``.readthedocs.yaml`` and add the file to your Git reposito
         .. literalinclude:: /config-file/examples/mkdocs/.readthedocs.yaml
            :language: yaml
            :linenos:
+           :caption: .readthedocs.yaml
 
     .. tab:: Other tools
 
@@ -102,12 +103,13 @@ Skip: file header and comments
 There are some parts of the templates that you can leave in place:
 
 Comments
-  We added a lot of comments that explain stuff. They begin with a ``#``.
+  We added comments that explain the configuration options and optional features.
+  These lines begin with a ``#``.
 
 Commented out features
-  Similar to comments, we also use the ``#`` in front of some configuration options that may or may not be relevant.
-  To enable something that's commented out,
-  simply delete the ``#`` and a blank space in front of the YAML code that you want to enable.
+  We use the ``#`` in front of some popular configuration options.
+  They are there as examples,
+  which you can choose to enable, delete or save for later.
 
 ``version`` key
   The version key tells the system how to read the rest of the configuration file.
@@ -123,7 +125,7 @@ LTS means long-term support,
 meaning that your builds should not break within next many years.
 
 However,
-you should pay attention to this field if your current project needs to build on an older version of Ubuntu,
+you should pay attention to this field if your project needs to build on an older version of Ubuntu,
 or in the future when you need features from a newer Ubuntu.
 
 .. seealso::
@@ -177,11 +179,11 @@ that lists the Python packages you want Read the Docs to install.
 
 .. _config_howto_build.tools:
 
-Adjust: Additional build environments?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Adjust: Additional build tools
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you need software from additional platforms (nodejs, rust, golang),
-you can add and enable such an environment so you can install the packages you need.
+If you need additional build tools (Node.js, Rust, Go),
+you can define the versions of these tools to install as well, using the ``build.tools`` key.
 
 .. seealso::
 
@@ -212,7 +214,7 @@ Next steps
 The configuration options that we mentioned in this guide aren't all.
 There are more.
 
-Once you have your configuration file added to your Git repository,
+After you add a configuration file your Git repository,
 and you can see that Read the Docs is building your documentation using the file,
 you should have a look at the complete configuration file reference for options that might apply to your project.
 

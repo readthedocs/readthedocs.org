@@ -15,7 +15,7 @@ The following how-to guides help you solve common tasks and challenges in the se
     this guide tells you how to add and configure the webhook **manually**.
 
 ⏩ :doc:`Adding a configuration file </guides/setup/configuration-file>`
-    When setting up a new project,
+    To build your documentation project,
     you need to add a ``.readthedocs.yaml`` configuration file.
     This guide gets you started.
 

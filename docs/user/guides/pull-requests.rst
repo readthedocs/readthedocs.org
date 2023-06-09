@@ -16,9 +16,8 @@ If your account is already connected:
 
 .. tip::
 
-   Pull requests that existed before enabling pull request builds will not be detected immediately.
-   But once you push a new commit to an existing pull request,
-   it will start building.
+   Pull requests opened before enabling pull request builds will not trigger new builds automatically.
+   Push a new commit to the pull request to trigger its first build.
 
 Privacy levels
 --------------

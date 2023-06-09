@@ -15,12 +15,14 @@ Below is an example YAML file which shows the most common configuration options:
         .. literalinclude:: /config-file/examples/sphinx/.readthedocs.yaml
               :language: yaml
               :linenos:
+              :caption: .readthedocs.yaml
 
    .. tab:: MkDocs
 
         .. literalinclude:: /config-file/examples/mkdocs/.readthedocs.yaml
            :language: yaml
            :linenos:
+           :caption: .readthedocs.yaml
 
 
 Supported settings
