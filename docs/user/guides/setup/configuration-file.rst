@@ -70,28 +70,6 @@ copy its contents to ``.readthedocs.yaml`` and add the file to your Git reposito
            :linenos:
            :caption: .readthedocs.yaml
 
-    .. tab:: Docusaurus
-
-        If you are using `Docusaurus <https://docusaurus.io/>`__,
-        we provide support through the following template.
-
-        Each step is explained in the comments and elaborated in this how-to.
-
-        .. literalinclude:: /config-file/examples/docusaurus/.readthedocs.yaml
-           :language: yaml
-           :linenos:
-
-    .. tab:: Other tools
-
-        Using another documentation tool than the ones shown here?
-
-        You can overwrite the commands of your documentation tool in a similar fashion shown in the Docusaurus template.
-        We recommend looking at :ref:`build_commands_introduction` for a more complete introduction to setting up a custom documentation tool.
-
-        Meanwhile, we are brewing together templates for additional documentation tools,
-        and we welcome your proposal in `our GitHub issue tracker <https://github.com/readthedocs/readthedocs.org/issues>`__ 🍰️
-
-
 Editing the template
 --------------------
 
