@@ -53,7 +53,8 @@ All :doc:`build processes </builds>` have the following environment variables au
 
 .. envvar:: READTHEDOCS_OUTPUT
 
-    Base path for output formats when using custom :doc:`build.commands </build-customization>` to generate output.
+    Base path for well-known output directories. Files in these directories will automatically be found, uploaded and published.
+
     You need to concatenate an output format,
     for instance ``$READTHEDOCS_OUTPUT/html/`` or ``$READTHEDOCS_OUTPUT/pdf/``.
     You also need to create the directory,
