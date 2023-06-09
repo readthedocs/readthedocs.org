@@ -89,7 +89,7 @@ copy its contents to ``.readthedocs.yaml`` and add the file to your Git reposito
         We recommend looking at :ref:`build_commands_introduction` for a more complete introduction to setting up a custom documentation tool.
 
         Meanwhile, we are brewing together templates for additional documentation tools,
-        and we very much welcome you to proposals in `our GitHub issue tracker <https://github.com/readthedocs/readthedocs.org/issues>`__ 🍰️
+        and we welcome your proposal in `our GitHub issue tracker <https://github.com/readthedocs/readthedocs.org/issues>`__ 🍰️
 
 
 Editing the template
