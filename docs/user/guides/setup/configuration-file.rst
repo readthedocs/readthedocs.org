@@ -165,26 +165,6 @@ that lists the Python packages you want Read the Docs to install.
    :ref:`config-file/v2:mkdocs`
      Configuration file reference for configuring the MkDocs builder.
 
-Adjust: Docusaurus
-~~~~~~~~~~~~~~~~~~
-
-The template for :ref:`Docusaurus <howto_templates>` shows a slightly more complex example of using a custom documentation tool.
-
-What's needed are the following steps:
-
-1. Install the custom documentation tool in its environment.
-   To build a Docusaurus project,
-   we need to enable a Node.js environment and then we install docusarus.
-
-2. Run the documentation tool!
-
-3. Move the outputs into their expected location.
-   Here, we use the pre-defined ``$READTHEDOCS_OUTPUT`` :doc:`environment variable </reference/environment-variables>`.
-
-Notice in the template that ``docs/`` is used as the path for your Docusaurus project.
-If it's stored in another location,
-you should adjust this.
-
 Next steps
 ----------
 
