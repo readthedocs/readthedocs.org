@@ -272,13 +272,6 @@ def deprecated_config_file_used_notification():
         "id"
     )
 
-    # Exclude users that already have an unread notification.
-    # Our notifications backend already performs de-duplication of notifications automatically.
-    # However, this is only to speed up things here since this loop takes the most time.
-    queryset = queryset.exclude(
-        message__message__startswith="Your project(s)", message__read=False
-    )
-
     n_users = queryset.count()
     for i, user in enumerate(queryset.iterator()):
         if i % 500 == 0:
