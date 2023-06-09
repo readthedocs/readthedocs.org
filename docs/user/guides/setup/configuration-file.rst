@@ -29,14 +29,12 @@ Read the Docs will then automatically find and use the configuration to build yo
 
 .. note::
 
-    Why is it called .yaml? What is that?
-      The configuration file is a `YAML`_ file. YAML files are a "map": a collection of
-      key-value pairs that can be nested. This is not unlike a JSON file or ``dict``
-      object in Python. This page won't explain the structure of YAML files, but many resources exist
-      online.
-
-
-.. _YAML: https://en.wikipedia.org/wiki/YAML
+    The Read the Docs configuration file is a `YAML`_ file.
+    YAML is a human-friendly data serialization language for all programming languages.
+    To learn more about the structure of these files, see the `YAML language overview`_.
+    
+.. _YAML: https://yaml.org/
+.. _YAML language overview: https://yaml.org/spec/1.2.2/#chapter-1-introduction-to-yaml
 
 .. _howto_templates:
 
