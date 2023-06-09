@@ -207,11 +207,6 @@ Notice in the template that ``docs/`` is used as the path for your Docusaurus pr
 If it's stored in another location,
 you should adjust this.
 
-.. seealso::
-
-   :ref:`build_commands_introduction`
-     Read more about how to add your own commands in the build process.
-
 Next steps
 ----------
 
