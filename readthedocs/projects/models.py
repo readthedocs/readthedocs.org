@@ -25,7 +25,6 @@ from django_extensions.db.fields import CreationDateTimeField, ModificationDateT
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
-from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
@@ -45,6 +44,8 @@ from readthedocs.projects.querysets import (
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
     validate_build_config_file,
+    validate_custom_prefix,
+    validate_custom_subproject_prefix,
     validate_domain_name,
     validate_no_ip,
     validate_repository_url,
@@ -114,6 +115,18 @@ class ProjectRelationship(models.Model):
     # HACK
     def get_absolute_url(self):
         return resolve(self.child)
+
+    @cached_property
+    def subproject_prefix(self):
+        """
+        Returns the path prefix of the subproject.
+
+        This normally is ``/projects/<subproject-alias>/``,
+        but if the project has a custom subproject prefix,
+        that will be used.
+        """
+        prefix = self.parent.custom_subproject_prefix or "/projects/"
+        return unsafe_join_url_path(prefix, self.alias, "/")
 
 
 class Project(models.Model):
@@ -217,6 +230,7 @@ class Project(models.Model):
             'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
         ),
     )
+    # NOTE: This is deprecated, use the `custom_prefix*` attributes instead.
     urlconf = models.CharField(
         _('Documentation URL Configuration'),
         max_length=255,
@@ -226,6 +240,29 @@ class Project(models.Model):
         help_text=_(
             'Supports the following keys: $language, $version, $subproject, $filename. '
             'An example: `$language/$version/$filename`.'
+        ),
+    )
+
+    custom_prefix = models.CharField(
+        _("Custom path prefix"),
+        max_length=255,
+        default=None,
+        blank=True,
+        null=True,
+        help_text=_(
+            "A custom path prefix used when serving documentation from this project. "
+            "By default we serve documentation at the root (/) of a domain."
+        ),
+    )
+    custom_subproject_prefix = models.CharField(
+        _("Custom subproject path prefix"),
+        max_length=255,
+        default=None,
+        blank=True,
+        null=True,
+        help_text=_(
+            "A custom path prefix used when evaluating the root of a subproject. "
+            "By default we serve documentation from subprojects under the `/projects/` prefix."
         ),
     )
 
@@ -538,6 +575,15 @@ class Project(models.Model):
 
         super().delete(*args, **kwargs)
 
+    def clean(self):
+        if self.custom_prefix:
+            self.custom_prefix = validate_custom_prefix(self, self.custom_prefix)
+
+        if self.custom_subproject_prefix:
+            self.custom_subproject_prefix = validate_custom_subproject_prefix(
+                self, self.custom_subproject_prefix
+            )
+
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
 
@@ -561,23 +607,6 @@ class Project(models.Model):
                 'project_slug': self.slug,
             },
         )
-
-    def get_canonical_url(self):
-        if settings.DONT_HIT_DB:
-            return api.project(self.pk).canonical_url().get()['url']
-        return self.get_docs_url()
-
-    def get_subproject_urls(self):
-        """
-        List subproject URLs.
-
-        This is used in search result linking
-        """
-        if settings.DONT_HIT_DB:
-            return [(proj['slug'], proj['canonical_url']) for proj in
-                    (api.project(self.pk).subprojects().get()['subprojects'])]
-        return [(proj.child.slug, proj.child.get_docs_url())
-                for proj in self.subprojects.all()]
 
     def get_storage_paths(self):
         """
@@ -696,6 +725,22 @@ class Project(models.Model):
             return self.urlconf.split("$", 1)[0]
         return None
 
+    @cached_property
+    def subproject_prefix(self):
+        """
+        Returns the path prefix of a subproject.
+
+        This normally is ``/projects/<subproject-alias>/``,
+        but if the project has a custom subproject prefix,
+        that will be used.
+
+        Returns `None` if the project isn't a subproject.
+        """
+        parent_relationship = self.parent_relationship
+        if not parent_relationship:
+            return None
+        return parent_relationship.subproject_prefix
+
     @property
     def regex_urlconf(self):
         """
@@ -808,7 +853,7 @@ class Project(models.Model):
 
     @cached_property
     def superproject(self):
-        relationship = self.get_parent_relationship()
+        relationship = self.parent_relationship
         if relationship:
             return relationship.parent
         return None
@@ -1047,14 +1092,6 @@ class Project(models.Model):
             kwargs['state'] = 'finished'
         return self.builds(manager=INTERNAL).filter(**kwargs).first()
 
-    def api_versions(self):
-        from readthedocs.builds.models import APIVersion
-        ret = []
-        for version_data in api.project(self.pk).active_versions.get()['versions']:
-            version = APIVersion(**version_data)
-            ret.append(version)
-        return sort_version_aware(ret)
-
     def active_versions(self):
         from readthedocs.builds.models import Version
         versions = Version.internal.public(project=self, only_active=True)
@@ -1225,7 +1262,8 @@ class Project(models.Model):
     def remove_subproject(self, child):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
 
-    def get_parent_relationship(self):
+    @cached_property
+    def parent_relationship(self):
         """
         Get parent project relationship.
 

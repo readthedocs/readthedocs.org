@@ -103,6 +103,7 @@ intersphinx_mapping = {
     "rst-to-myst": ("https://rst-to-myst.readthedocs.io/en/stable/", None),
     "rtd": ("https://docs.readthedocs.io/en/stable/", None),
     "rtd-dev": ("https://dev.readthedocs.io/en/latest/", None),
+    "rtd-blog": ("https://blog.readthedocs.com/", None),
     "jupyter": ("https://docs.jupyter.org/en/latest/", None),
 }
 

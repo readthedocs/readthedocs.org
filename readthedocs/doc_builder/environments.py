@@ -17,7 +17,6 @@ from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError, ReadTimeout
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
-from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.models import Feature
@@ -227,7 +226,7 @@ class BuildCommand(BuildCommandResultMixin):
             return ' '.join(self.command)
         return self.command
 
-    def save(self):
+    def save(self, api_client):
         """Save this command and result via the API."""
         # Force record this command as success to avoid Build reporting errors
         # on commands that are just for checking purposes and do not interferes
@@ -251,7 +250,7 @@ class BuildCommand(BuildCommandResultMixin):
             encoder = MultipartEncoder(
                 {key: str(value) for key, value in data.items()}
             )
-            resource = api_v2.command
+            resource = api_client.command
             resp = resource._store["session"].post(
                 resource._store["base_url"] + "/",
                 data=encoder,
@@ -261,7 +260,7 @@ class BuildCommand(BuildCommandResultMixin):
             )
             log.debug('Post response via multipart form.', response=resp)
         else:
-            resp = api_v2.command.post(data)
+            resp = api_client.command.post(data)
             log.debug('Post response via JSON encoded data.', response=resp)
 
 
@@ -416,9 +415,12 @@ class BaseBuildEnvironment:
     :param build: Build instance
     :param environment: shell environment variables
     :param record: whether or not record a build commands in the databse via
-    the API. The only case where we want this to be `False` is when
-    instantiating this class from `sync_repository_task` because it's a
-    background task that does not expose commands to the user.
+     the API. The only case where we want this to be `False` is when
+     instantiating this class from `sync_repository_task` because it's a
+     background task that does not expose commands to the user.
+    :param api_client: API v2 client instance (readthedocs.v2.client).
+     This is used to record commands in the database, if `record=True`
+     this argument is required.
     """
 
     def __init__(
@@ -429,6 +431,7 @@ class BaseBuildEnvironment:
         config=None,
         environment=None,
         record=True,
+        api_client=None,
         **kwargs,
     ):
         self.project = project
@@ -438,6 +441,10 @@ class BaseBuildEnvironment:
         self.build = build
         self.config = config
         self.record = record
+        self.api_client = api_client
+
+        if self.record and not self.api_client:
+            raise ValueError("api_client is required when record=True")
 
     # TODO: remove these methods, we are not using LocalEnvironment anymore. We
     # need to find a way for tests to not require this anymore
@@ -449,7 +456,7 @@ class BaseBuildEnvironment:
 
     def record_command(self, command):
         if self.record:
-            command.save()
+            command.save(self.api_client)
 
     def run(self, *cmd, **kwargs):
         """Shortcut to run command from environment."""
