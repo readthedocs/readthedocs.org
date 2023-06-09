@@ -32,7 +32,7 @@ Read the Docs will then automatically find and use the configuration to build yo
     The Read the Docs configuration file is a `YAML`_ file.
     YAML is a human-friendly data serialization language for all programming languages.
     To learn more about the structure of these files, see the `YAML language overview`_.
-    
+
 .. _YAML: https://yaml.org/
 .. _YAML language overview: https://yaml.org/spec/1.2.2/#chapter-1-introduction-to-yaml
 
