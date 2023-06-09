@@ -23,6 +23,7 @@ Read the Docs: documentation simplified
    /environment-variables
    /subprojects
    /localization
+   /explanation/methodology
 
 .. toctree::
    :maxdepth: 2
