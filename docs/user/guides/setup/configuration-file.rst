@@ -77,7 +77,7 @@ copy its contents to ``.readthedocs.yaml`` and add the file to your Git reposito
 
         Each step is explained in the comments and elaborated in this how-to.
 
-        .. literalinclude:: /config-file/examples/custom-commands-echo/.readthedocs.yaml
+        .. literalinclude:: /config-file/examples/docusaurus/.readthedocs.yaml
            :language: yaml
            :linenos:
 
@@ -86,7 +86,7 @@ copy its contents to ``.readthedocs.yaml`` and add the file to your Git reposito
         Using another documentation tool than the ones shown here?
 
         You can overwrite the commands of your documentation tool in a similar fashion shown in the Docusaurus template.
-        We recommend looking at :ref:`build-customization:build_commands_introduction` for a more complete introduction to setting up a custom documentation tool.
+        We recommend looking at :ref:`build_commands_introduction` for a more complete introduction to setting up a custom documentation tool.
 
         Meanwhile, we are brewing together templates for additional documentation tools,
         and we very much welcome you to proposals in `our GitHub issue tracker <https://github.com/readthedocs/readthedocs.org/issues>`__ 🍰️
@@ -209,7 +209,7 @@ you should adjust this.
 
 .. seealso::
 
-   :ref:`build-customization:build_commands_introduction`
+   :ref:`build_commands_introduction`
      Read more about how to add your own commands in the build process.
 
 Next steps
