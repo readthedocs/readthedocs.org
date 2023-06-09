@@ -106,12 +106,11 @@ Adjust: ``build.os``
 ~~~~~~~~~~~~~~~~~~~~
 
 In our examples,
-we are using Read the Docs' custom image based on the latest Ubuntu LTS release.
-LTS means long-term support,
-meaning that your builds should not break within next many years.
+we are using Read the Docs' custom image based on the latest Ubuntu release.
+Package versions in these images will not change drastically,
+though will receive periodic security updates.
 
-However,
-you should pay attention to this field if your project needs to build on an older version of Ubuntu,
+You should pay attention to this field if your project needs to build on an older version of Ubuntu,
 or in the future when you need features from a newer Ubuntu.
 
 .. seealso::
