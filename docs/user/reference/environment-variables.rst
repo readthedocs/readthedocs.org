@@ -55,10 +55,13 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     Base path for well-known output directories. Files in these directories will automatically be found, uploaded and published.
 
-    You need to concatenate an output format,
-    for instance ``$READTHEDOCS_OUTPUT/html/`` or ``$READTHEDOCS_OUTPUT/pdf/``.
-    You also need to create the directory,
-    for instance by adding a command ``mkdir -p $READTHEDOCS_OUTPUT/html/`` before moving outputs into the destination.
+    You need to concatenate an output format to this variable.
+    Currently valid formats are ``html``, ``pdf``, ``htmlzip`` and ``epub``.
+    (e.g. ``$READTHEDOCS_OUTPUT/html/`` or ``$READTHEDOCS_OUTPUT/pdf/``)
+    You also need to create the directory before moving outputs into the destination.
+    You can create it with the following command ``mkdir -p $READTHEDOCS_OUTPUT/html/``.
+    Note that only ``html`` supports multiple files,
+    the other formats should have one and only one file to be uploaded.
 
     .. seealso::
 
