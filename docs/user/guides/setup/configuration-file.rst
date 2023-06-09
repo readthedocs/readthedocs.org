@@ -70,16 +70,26 @@ copy its contents to ``.readthedocs.yaml`` and add the file to your Git reposito
            :linenos:
            :caption: .readthedocs.yaml
 
-    .. tab:: Other tools
+    .. tab:: Docusaurus
 
-        If you are using another documentation tool,
-        you can configure the commands of your documentation tool in the following code.
+        If you are using `Docusaurus <https://docusaurus.io/>`__,
+        we provide support through the following template.
 
-        You will need to create the output directories and direct your documentation tool to write its outputs into those directories.
+        Each step is explained in the comments and elaborated in this how-to.
 
         .. literalinclude:: /config-file/examples/custom-commands-echo/.readthedocs.yaml
            :language: yaml
            :linenos:
+
+    .. tab:: Other tools
+
+        Using another documentation tool than the ones shown here?
+
+        You can overwrite the commands of your documentation tool in a similar fashion shown in the Docusaurus template.
+        We recommend looking at :ref:`build-customization:build_commands_introduction` for a more complete introduction to setting up a custom documentation tool.
+
+        Meanwhile, we are brewing together templates for additional documentation tools,
+        and we very much welcome you to proposals in `our GitHub issue tracker <https://github.com/readthedocs/readthedocs.org/issues>`__ 🍰️
 
 
 Editing the template
@@ -177,42 +187,35 @@ that lists the Python packages you want Read the Docs to install.
    :ref:`config-file/v2:mkdocs`
      Configuration file reference for configuring the MkDocs builder.
 
-.. _config_howto_build.tools:
+Adjust: Docusaurus
+~~~~~~~~~~~~~~~~~~
 
-Adjust: Additional build tools
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The template for :ref:`Docusaurus <howto_templates>` shows a slightly more complex example of using a custom documentation tool.
 
-If you need additional build tools (Node.js, Rust, Go),
-you can define the versions of these tools to install as well, using the ``build.tools`` key.
+What's needed are the following steps:
 
-.. seealso::
+1. Install the custom documentation tool in its environment.
+   To build a Docusaurus project,
+   we need to enable a Node.js environment and then we install docusarus.
 
-   :ref:`config-file/v2:build.tools`
-     List of all tools that are possible to enable.
+2. Run the documentation tool!
 
-Adjust: Custom tools
-~~~~~~~~~~~~~~~~~~~~
+3. Move the outputs into their expected location.
+   Here, we use the pre-defined ``$READTHEDOCS_OUTPUT`` :doc:`environment variable </reference/environment-variables>`.
 
-It's possible to build documentation using almost any documentation tool,
-as long as an environment is available (see :ref:`the previous step <config_howto_build.tools>`).
-Adding your own build commands is done by listing them in ``build.commands``.
-
-The :ref:`Other tools <howto_templates>` template shows an example of how to do that.
+Notice in the template that ``docs/`` is used as the path for your Docusaurus project.
+If it's stored in another location,
+you should adjust this.
 
 .. seealso::
 
-   :doc:`/build-customization`
-     Jump to a full guide explaining how to setup (almost) any documentation tool.
-
-   :ref:`config-file/v2:build.commands`
-     Configuration file reference for custom build commands.
-
+   :ref:`build-customization:build_commands_introduction`
+     Read more about how to add your own commands in the build process.
 
 Next steps
 ----------
 
-The configuration options that we mentioned in this guide aren't all.
-There are more.
+There are more configuration options that the ones mentioned in this guide.
 
 After you add a configuration file your Git repository,
 and you can see that Read the Docs is building your documentation using the file,
@@ -223,3 +226,8 @@ you should have a look at the complete configuration file reference for options 
    :doc:`/config-file/v2`.
      The complete list of all possible ``.readthedocs.yaml`` settings,
      including the optional settings not covered in on this page.
+
+   :doc:`/build-customization`
+     Are familiar with running a command line?
+     Perhaps there are special commands that you know you want Read the Docs to run.
+     Read this guide and learn more about how you add your own commands to ``.readthedocs.yaml``.
