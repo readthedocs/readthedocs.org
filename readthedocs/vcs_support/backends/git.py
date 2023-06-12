@@ -35,8 +35,6 @@ class Backend(BaseVCS):
     repo_depth = 50
 
     def __init__(self, *args, **kwargs):
-        # This branch name is used for speeding up git clones.
-        # If it's not specified, the remote HEAD will be used.
         super().__init__(*args, **kwargs)
         self.token = kwargs.get('token')
         self.repo_url = self._get_clone_url()
@@ -58,11 +56,7 @@ class Backend(BaseVCS):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 
     def update(self):
-        """
-        Clone or update the repository.
-
-        :param branch_name: Specifies the branch name in case we need to clone a Git repo.
-        """
+        """Clone or update the repository."""
         super().update()
         if self.repo_exists():
             self.set_remote_url(self.repo_url)
@@ -74,9 +68,6 @@ class Backend(BaseVCS):
         if self.version_type == EXTERNAL:
             self.clone()
             return self.fetch()
-
-        if self.version_type == BRANCH:
-            return self.clone()
 
         return self.clone()
 
@@ -216,15 +207,14 @@ class Backend(BaseVCS):
             # elif self.version_type == TAG and self.version_identifier:
             #    cmd.extend(["--branch", self.version_identifier])
 
-            # Legacy behavior (tags)
+            # Legacy behavior (this is intended for tags)
             # If we cannot specify the branch to clone, we should get history for all remote types
-            # We always have to fetch after external versions are cloned.
             # External builds aren't relevant, there is always an individual fetch operation.
             # See self.update()
             elif not self.version_type == EXTERNAL:
                 cmd.extend(["--no-single-branch"])
 
-            # External builds / GitHub and GitLab pull requests:
+            # Notes about external builds / GitHub and GitLab pull requests:
             # We could clone the special branch 'refs/pull/<1234>' on GitHub
             # However, this trick is already 'pulled' (punintended) in .fetch() so all we need to do
             # here is to avoid --no-single-branch and other expensive things.
