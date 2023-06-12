@@ -1905,7 +1905,6 @@ class Feature(models.Model):
     API_LARGE_DATA = "api_large_data"
     DONT_SHALLOW_CLONE = "dont_shallow_clone"
     USE_TESTING_BUILD_IMAGE = "use_testing_build_image"
-    CLEAN_AFTER_BUILD = "clean_after_build"
     UPDATE_CONDA_STARTUP = "update_conda_startup"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
@@ -1971,10 +1970,6 @@ class Feature(models.Model):
         (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
-        ),
-        (
-            CLEAN_AFTER_BUILD,
-            _("Build: Clean all files used in the build process"),
         ),
         (
             UPDATE_CONDA_STARTUP,
