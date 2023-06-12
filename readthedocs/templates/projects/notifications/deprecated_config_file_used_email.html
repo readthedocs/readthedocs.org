@@ -20,7 +20,7 @@ We have identified the following projects where you are a maintainer are impacte
     <li><a href="{{ production_uri }}{{ project.get_absolute_url }}">{{ project.slug }}</a></li>
 {% endfor %}
 {% if projects.count > 15 %}
-    <li>... and other {{ projects.count|add:"-15" }} more.</li>
+    <li>... and other {{ projects.count|add:"-15" }} more projects.</li>
 {% endif %}
 </ul>
 
