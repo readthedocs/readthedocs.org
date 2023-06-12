@@ -1941,7 +1941,6 @@ class Feature(models.Model):
 
     # Build related features
     DONT_CREATE_INDEX = "dont_create_index"
-    USE_RCLONE = "use_rclone"
     HOSTING_INTEGRATIONS = "hosting_integrations"
 
     FEATURES = (
@@ -2089,10 +2088,6 @@ class Feature(models.Model):
             _(
                 "Sphinx: Do not create index.md or README.rst if the project does not have one."
             ),
-        ),
-        (
-            USE_RCLONE,
-            _("Build: Use rclone for syncing files to the media storage."),
         ),
         (
             HOSTING_INTEGRATIONS,

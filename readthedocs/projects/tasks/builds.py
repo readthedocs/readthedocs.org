@@ -63,7 +63,7 @@ from ..exceptions import (
     RepositoryError,
     SyncRepositoryLocked,
 )
-from ..models import APIProject, Feature, WebHookEvent
+from ..models import APIProject, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import fileify
@@ -877,10 +877,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version_type=self.data.version.type,
             )
             try:
-                if self.data.project.has_feature(Feature.USE_RCLONE):
-                    build_media_storage.rclone_sync_directory(from_path, to_path)
-                else:
-                    build_media_storage.sync_directory(from_path, to_path)
+                build_media_storage.rclone_sync_directory(from_path, to_path)
             except Exception:
                 # NOTE: the exceptions reported so far are:
                 #  - botocore.exceptions:HTTPClientError
