@@ -1944,7 +1944,6 @@ class Feature(models.Model):
     LIST_PACKAGES_INSTALLED_ENV = "list_packages_installed_env"
     VCS_REMOTE_LISTING = "vcs_remote_listing"
     SPHINX_PARALLEL = "sphinx_parallel"
-    USE_SPHINX_BUILDERS = "use_sphinx_builders"
     CANCEL_OLD_BUILDS = "cancel_old_builds"
     DONT_CREATE_INDEX = "dont_create_index"
     USE_RCLONE = "use_rclone"
@@ -2111,10 +2110,6 @@ class Feature(models.Model):
         (
             SPHINX_PARALLEL,
             _('Sphinx: Use "-j auto" when calling sphinx-build'),
-        ),
-        (
-            USE_SPHINX_BUILDERS,
-            _("Sphinx: Use regular sphinx builders instead of custom RTD builders"),
         ),
         (
             CANCEL_OLD_BUILDS,
