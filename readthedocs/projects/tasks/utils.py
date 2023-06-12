@@ -271,6 +271,7 @@ def deprecated_config_file_used_notification():
     queryset = User.objects.filter(username__in=users, profile__banned=False).order_by(
         "id"
     )
+
     n_users = queryset.count()
     for i, user in enumerate(queryset.iterator()):
         if i % 500 == 0:
@@ -283,14 +284,15 @@ def deprecated_config_file_used_notification():
             )
 
         # All the projects for this user that don't have a configuration file
-        user_projects = (
-            AdminPermission.projects(user, admin=True)
-            .filter(slug__in=projects)
-            .only("slug")
+        # Use set() intersection in Python that's pretty quick since we only need the slugs.
+        # Otherwise we have to pass 82k slugs to the DB query, which makes it pretty slow.
+        user_projects = AdminPermission.projects(user, admin=True).values_list(
+            "slug", flat=True
         )
+        user_projects = list(set(user_projects) & projects)
 
-        user_project_slugs = ", ".join([p.slug for p in user_projects[:5]])
-        if user_projects.count() > 5:
+        user_project_slugs = ", ".join(user_projects[:5])
+        if len(user_projects) > 5:
             user_project_slugs += " and others..."
 
         n_site = DeprecatedConfigFileSiteNotification(
