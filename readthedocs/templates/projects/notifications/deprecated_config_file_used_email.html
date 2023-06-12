@@ -9,18 +9,18 @@ The timeline for this deprecation is as follows:
 <ul>
     <li><strong>Monday, July 24, 2023</strong>: Do the first brownout (temporarily enforce this deprecation) for 12 hours: 00:01 PST to 11:59 PST (noon)</li>
     <li><strong>Monday, August 14, 2023</strong>: Do a second brownout (temporarily enforce this deprecation) for 24 hours: 00:01 PST to 23:59 PST (midnight)</li>
-    <li><strong>Monday, September 4, 2023</strong> Do a third and final brownout (temporarily enforce this deprecation) for 48 hours: 00:01 PST to September 5, 2023 23:59 PST (midnight)</li>
+    <li><strong>Monday, September 4, 2023</strong>: Do a third and final brownout (temporarily enforce this deprecation) for 48 hours: 00:01 PST to September 5, 2023 23:59 PST (midnight)</li>
     <li><strong>Monday, September 25, 2023</strong>: Fully remove support for building documentation without configuration file v2.</li>
 </ul>
 
-We have identified the following projects where you are a maintainer and are impacted by this deprecation:
+We have identified the following projects where you are a maintainer are impacted by this deprecation:
 
 <ul>
-{% for project in object|slice:":15" %}
-    <li><a href="{{ production_uri }}{% project.get_absolute_url %}">{{ project.slug }}</a></li>
+{% for project in projects|slice:":15" %}
+    <li><a href="{{ production_uri }}{{ project.get_absolute_url }}">{{ project.slug }}</a></li>
 {% endfor %}
-{% if object.count() > 15 %}
-    <li>... and other {{ object.count()|add:"-15" }} more.</li>
+{% if projects.count > 15 %}
+    <li>... and other {{ projects.count|add:"-15" }} more.</li>
 {% endif %}
 </ul>
 
