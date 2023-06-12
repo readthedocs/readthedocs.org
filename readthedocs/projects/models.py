@@ -1899,7 +1899,6 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    ALLOW_DEPRECATED_WEBHOOKS = "allow_deprecated_webhooks"
     SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
@@ -1943,7 +1942,6 @@ class Feature(models.Model):
     HOSTING_INTEGRATIONS = "hosting_integrations"
 
     FEATURES = (
-        (ALLOW_DEPRECATED_WEBHOOKS, _("Webhook: Allow deprecated webhook views")),
         (
             SKIP_SPHINX_HTML_THEME_PATH,
             _(
