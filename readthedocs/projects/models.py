@@ -993,7 +993,12 @@ class Project(models.Model):
         )
 
     def vcs_repo(
-        self, environment, version=LATEST, verbose_name=None, version_type=None
+        self,
+        environment,
+        version=LATEST,
+        verbose_name=None,
+        version_type=None,
+        version_identifier=None,
     ):
         """
         Return a Backend object for this project able to handle VCS commands.
@@ -1012,8 +1017,12 @@ class Project(models.Model):
             repo = None
         else:
             repo = backend(
-                self, version, environment=environment,
-                verbose_name=verbose_name, version_type=version_type
+                self,
+                version,
+                environment=environment,
+                verbose_name=verbose_name,
+                version_type=version_type,
+                version_identifier=version_identifier,
             )
         return repo
 
@@ -1941,6 +1950,7 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
+    GIT_CLONE_SINGLE_BRANCH = "git_clone_single_branch"
     LIST_PACKAGES_INSTALLED_ENV = "list_packages_installed_env"
     VCS_REMOTE_LISTING = "vcs_remote_listing"
     SPHINX_PARALLEL = "sphinx_parallel"
@@ -2099,6 +2109,13 @@ class Feature(models.Model):
             _(
                 'Build: List packages installed in the environment ("pip list" or "conda list") '
                 'on build\'s output',
+            ),
+        ),
+        (
+            GIT_CLONE_SINGLE_BRANCH,
+            _(
+                "Build: Single branch clone - when cloning a repository, only fetch the single "
+                "relevant branch of the build."
             ),
         ),
         (

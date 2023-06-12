@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from git.exc import BadName, InvalidGitRepositoryError, NoSuchPathError
 from gitdb.util import hex_to_bin
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import BRANCH, EXTERNAL
 from readthedocs.config import ALL
 from readthedocs.projects.constants import (
     GITHUB_BRAND,
@@ -35,6 +35,8 @@ class Backend(BaseVCS):
     repo_depth = 50
 
     def __init__(self, *args, **kwargs):
+        # This branch name is used for speeding up git clones.
+        # If it's not specified, the remote HEAD will be used.
         super().__init__(*args, **kwargs)
         self.token = kwargs.get('token')
         self.repo_url = self._get_clone_url()
@@ -56,16 +58,26 @@ class Backend(BaseVCS):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 
     def update(self):
-        """Clone or update the repository."""
+        """
+        Clone or update the repository.
+
+        :param branch_name: Specifies the branch name in case we need to clone a Git repo.
+        """
         super().update()
         if self.repo_exists():
             self.set_remote_url(self.repo_url)
             return self.fetch()
         self.make_clean_working_dir()
         # A fetch is always required to get external versions properly
+        # This is because the HEAD from the clone action usually does not contain
+        # the repo history.
         if self.version_type == EXTERNAL:
             self.clone()
             return self.fetch()
+
+        if self.version_type == BRANCH:
+            return self.clone()
+
         return self.clone()
 
     def repo_exists(self):
@@ -150,6 +162,13 @@ class Backend(BaseVCS):
         from readthedocs.projects.models import Feature
         return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
 
+    def use_clone_single_branch(self):
+        """Test whether git clone commands should contain --branch <name>."""
+        from readthedocs.projects.models import Feature
+
+        # TODO: Remove the 'not'
+        return not self.project.has_feature(Feature.GIT_CLONE_SINGLE_BRANCH)
+
     def fetch(self):
         # --force lets us checkout branches that are not fast-forwarded
         # https://github.com/readthedocs/readthedocs.org/issues/6097
@@ -185,7 +204,35 @@ class Backend(BaseVCS):
 
     def clone(self):
         """Clones the repository."""
-        cmd = ['git', 'clone', '--no-single-branch']
+        cmd = ["git", "clone"]
+
+        # If we are building a branch, we can use self.version_identifier to tell Git to clone
+        # this branch history.
+        if self.use_clone_single_branch():
+            if self.version_type == BRANCH and self.version_identifier:
+                cmd.extend(["--branch", self.version_identifier])
+
+            # We could also enable this behavior for tags as shown below
+            # elif self.version_type == TAG and self.version_identifier:
+            #    cmd.extend(["--branch", self.version_identifier])
+
+            # Legacy behavior (tags)
+            # If we cannot specify the branch to clone, we should get history for all remote types
+            # We always have to fetch after external versions are cloned.
+            # External builds aren't relevant, there is always an individual fetch operation.
+            # See self.update()
+            elif not self.version_type == EXTERNAL:
+                cmd.extend(["--no-single-branch"])
+
+            # External builds / GitHub and GitLab pull requests:
+            # We could clone the special branch 'refs/pull/<1234>' on GitHub
+            # However, this trick is already 'pulled' (punintended) in .fetch() so all we need to do
+            # here is to avoid --no-single-branch and other expensive things.
+            # We might actually add something like --no-checkout --depth 1.
+
+        # Legacy: Use --no-single-branch on everything (it's expensive)
+        else:
+            cmd.extend(["--no-single-branch"])
 
         if self.use_shallow_clone():
             cmd.extend(['--depth', str(self.repo_depth)])
@@ -205,7 +252,7 @@ class Backend(BaseVCS):
             #
             # The idea is to hit the APIv2 here to update the `latest` version with
             # the `default_branch` we just got from the repository itself,
-            # after clonning it.
+            # after cloning it.
             # However, we don't know the PK for the version we want to update.
             #
             # api_v2.version(pk).patch(

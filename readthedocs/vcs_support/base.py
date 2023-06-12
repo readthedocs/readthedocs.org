@@ -61,6 +61,7 @@ class BaseVCS:
         environment,
         verbose_name=None,
         version_type=None,
+        version_identifier=None,
         **kwargs
     ):
         self.default_branch = project.default_branch
@@ -71,6 +72,11 @@ class BaseVCS:
         # required for External versions
         self.verbose_name = verbose_name
         self.version_type = version_type
+
+        # It's possible to specify which Git identifier that this VCS instance expects to
+        # fetch data for.
+        # This only works for branch and tag names. Not commit IDs.
+        self.version_identifier = version_identifier
 
         self.environment = environment
 
