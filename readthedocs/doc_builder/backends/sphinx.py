@@ -320,7 +320,6 @@ class BaseSphinx(BaseBuilder):
             *self.get_sphinx_cmd(),
             '-T',
             '-E',
-            *self.sphinx_parallel_arg(),
         ]
         if self.config.sphinx.fail_on_warning:
             build_command.extend(["-W", "--keep-going"])
@@ -358,11 +357,6 @@ class BaseSphinx(BaseBuilder):
             '-m',
             'sphinx',
         )
-
-    def sphinx_parallel_arg(self):
-        if self.project.has_feature(Feature.SPHINX_PARALLEL):
-            return ['-j', 'auto']
-        return []
 
 
 class HtmlBuilder(BaseSphinx):
@@ -512,7 +506,6 @@ class PdfBuilder(BaseSphinx):
             *self.get_sphinx_cmd(),
             "-T",
             "-E",
-            *self.sphinx_parallel_arg(),
             "-b",
             self.sphinx_builder,
             "-d",

@@ -1943,7 +1943,6 @@ class Feature(models.Model):
     # Build related features
     LIST_PACKAGES_INSTALLED_ENV = "list_packages_installed_env"
     VCS_REMOTE_LISTING = "vcs_remote_listing"
-    SPHINX_PARALLEL = "sphinx_parallel"
     CANCEL_OLD_BUILDS = "cancel_old_builds"
     DONT_CREATE_INDEX = "dont_create_index"
     USE_RCLONE = "use_rclone"
@@ -2106,10 +2105,6 @@ class Feature(models.Model):
                 "Build: Use remote listing in VCS (e.g. git ls-remote) if supported for sync "
                 "versions"
             ),
-        ),
-        (
-            SPHINX_PARALLEL,
-            _('Sphinx: Use "-j auto" when calling sphinx-build'),
         ),
         (
             CANCEL_OLD_BUILDS,
