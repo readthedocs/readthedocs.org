@@ -1940,7 +1940,6 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    VCS_REMOTE_LISTING = "vcs_remote_listing"
     DONT_CREATE_INDEX = "dont_create_index"
     USE_RCLONE = "use_rclone"
     HOSTING_INTEGRATIONS = "hosting_integrations"
@@ -2085,13 +2084,6 @@ class Feature(models.Model):
             ),
         ),
 
-        (
-            VCS_REMOTE_LISTING,
-            _(
-                "Build: Use remote listing in VCS (e.g. git ls-remote) if supported for sync "
-                "versions"
-            ),
-        ),
         (
             DONT_CREATE_INDEX,
             _(
