@@ -1942,7 +1942,6 @@ class Feature(models.Model):
     # Build related features
     LIST_PACKAGES_INSTALLED_ENV = "list_packages_installed_env"
     VCS_REMOTE_LISTING = "vcs_remote_listing"
-    CANCEL_OLD_BUILDS = "cancel_old_builds"
     DONT_CREATE_INDEX = "dont_create_index"
     USE_RCLONE = "use_rclone"
     HOSTING_INTEGRATIONS = "hosting_integrations"
@@ -2099,13 +2098,6 @@ class Feature(models.Model):
             _(
                 "Build: Use remote listing in VCS (e.g. git ls-remote) if supported for sync "
                 "versions"
-            ),
-        ),
-        (
-            CANCEL_OLD_BUILDS,
-            _(
-                "Build: Cancel triggered/running builds when a new one with same project/version "
-                "arrives"
             ),
         ),
         (

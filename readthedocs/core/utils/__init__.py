@@ -118,28 +118,28 @@ def prepare_build(
         )
 
     # Reduce overhead when doing multiple push on the same version.
-    if project.has_feature(Feature.CANCEL_OLD_BUILDS):
-        running_builds = (
-            Build.objects
-            .filter(
-                project=project,
-                version=version,
-            ).exclude(
-                state__in=BUILD_FINAL_STATES,
-            ).exclude(
-                pk=build.pk,
-            )
+    running_builds = (
+        Build.objects.filter(
+            project=project,
+            version=version,
         )
-        if running_builds.count() > 0:
-            log.warning(
-                "Canceling running builds automatically due a new one arrived.",
-                running_builds=running_builds.count(),
-            )
+        .exclude(
+            state__in=BUILD_FINAL_STATES,
+        )
+        .exclude(
+            pk=build.pk,
+        )
+    )
+    if running_builds.count() > 0:
+        log.warning(
+            "Canceling running builds automatically due a new one arrived.",
+            running_builds=running_builds.count(),
+        )
 
-        # If there are builds triggered/running for this particular project and version,
-        # we cancel all of them and trigger a new one for the latest commit received.
-        for running_build in running_builds:
-            cancel_build(running_build)
+    # If there are builds triggered/running for this particular project and version,
+    # we cancel all of them and trigger a new one for the latest commit received.
+    for running_build in running_builds:
+        cancel_build(running_build)
 
     # Start the build in X minutes and mark it as limited
     if project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
