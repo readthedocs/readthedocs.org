@@ -45,7 +45,7 @@ def prepare_build(
     # Avoid circular import
     from readthedocs.builds.models import Build
     from readthedocs.builds.tasks import send_build_notifications
-    from readthedocs.projects.models import Feature, Project, WebHookEvent
+    from readthedocs.projects.models import Project, WebHookEvent
     from readthedocs.projects.tasks.builds import update_docs_task
     from readthedocs.projects.tasks.utils import send_external_build_status
 
@@ -142,21 +142,20 @@ def prepare_build(
         cancel_build(running_build)
 
     # Start the build in X minutes and mark it as limited
-    if project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
-        limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
-        if limit_reached:
-            log.warning(
-                'Delaying tasks at trigger step due to concurrency limit.',
-            )
-            # Delay the start of the build for the build retry delay.
-            # We're still triggering the task, but it won't run immediately,
-            # and the user will be alerted in the UI from the Error below.
-            options['countdown'] = settings.RTD_BUILDS_RETRY_DELAY
-            options['max_retries'] = settings.RTD_BUILDS_MAX_RETRIES
-            build.error = BuildMaxConcurrencyError.message.format(
-                limit=max_concurrent_builds,
-            )
-            build.save()
+    limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
+    if limit_reached:
+        log.warning(
+            "Delaying tasks at trigger step due to concurrency limit.",
+        )
+        # Delay the start of the build for the build retry delay.
+        # We're still triggering the task, but it won't run immediately,
+        # and the user will be alerted in the UI from the Error below.
+        options["countdown"] = settings.RTD_BUILDS_RETRY_DELAY
+        options["max_retries"] = settings.RTD_BUILDS_MAX_RETRIES
+        build.error = BuildMaxConcurrencyError.message.format(
+            limit=max_concurrent_builds,
+        )
+        build.save()
 
     return (
         update_docs_task.signature(
