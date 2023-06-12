@@ -1940,7 +1940,6 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    LIST_PACKAGES_INSTALLED_ENV = "list_packages_installed_env"
     VCS_REMOTE_LISTING = "vcs_remote_listing"
     DONT_CREATE_INDEX = "dont_create_index"
     USE_RCLONE = "use_rclone"
@@ -2086,13 +2085,6 @@ class Feature(models.Model):
             ),
         ),
 
-        (
-            LIST_PACKAGES_INSTALLED_ENV,
-            _(
-                'Build: List packages installed in the environment ("pip list" or "conda list") '
-                'on build\'s output',
-            ),
-        ),
         (
             VCS_REMOTE_LISTING,
             _(

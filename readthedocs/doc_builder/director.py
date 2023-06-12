@@ -23,7 +23,6 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import Feature
 from readthedocs.projects.signals import after_build, before_build, before_vcs
 from readthedocs.storage import build_tools_storage
 
@@ -179,10 +178,6 @@ class BuildDirector:
         self.run_build_job("pre_install")
         self.install()
         self.run_build_job("post_install")
-
-        # TODO: remove this and document how to do it on `build.jobs.post_install`
-        if self.data.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
-            self.language_environment.list_packages_installed()
 
     def build(self):
         """
