@@ -1903,7 +1903,6 @@ class Feature(models.Model):
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
     DONT_SHALLOW_CLONE = "dont_shallow_clone"
-    USE_TESTING_BUILD_IMAGE = "use_testing_build_image"
     UPDATE_CONDA_STARTUP = "update_conda_startup"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
@@ -1955,10 +1954,6 @@ class Feature(models.Model):
         (
             DONT_SHALLOW_CLONE,
             _("Build: Do not shallow clone when cloning git repos"),
-        ),
-        (
-            USE_TESTING_BUILD_IMAGE,
-            _("Build: Use Docker image labelled as `testing` to build the docs"),
         ),
         (
             API_LARGE_DATA,
