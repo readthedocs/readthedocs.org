@@ -2,7 +2,7 @@
 {% block content %}
 The Read the Docs build system will start requiring a configuration file v2 (<code>.readthedocs.yaml</code>) starting on <strong>September 25, 2023</strong>.
 We are sending weekly notifications about this issue to all impacted users,
-as well as temporarily failures (brownouts) as the date approaches for those who haven't migrated their projects.
+as well as temporary build failures (brownouts) as the date approaches for those who haven't migrated their projects.
 
 The timeline for this deprecation is as follows:
 
@@ -13,7 +13,7 @@ The timeline for this deprecation is as follows:
     <li><strong>Monday, September 25, 2023</strong>: Fully remove support for building documentation without configuration file v2.</li>
 </ul>
 
-We have identified the following projects where you are a maintainer, and are impacted by this deprecation:
+We have identified the following projects where you are a maintainer and are impacted by this deprecation:
 
 <ul>
 {% for project in object|slice:":15" %}
@@ -24,7 +24,7 @@ We have identified the following projects where you are a maintainer, and are im
 {% endif %}
 </ul>
 
-Please add configuration file to your projects to ensure they continue building successfully and stop receiving these notifications.
+Please add a configuration file to your projects to ensure that they continue building successfully and to stop receiving these notifications.
 
 For more information on how to create a required configuration file,
 <a href="https://blog.readthedocs.com/migrate-configuration-v2/">read our blog post</a>
