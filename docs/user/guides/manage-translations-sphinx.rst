@@ -113,44 +113,46 @@ These features includes a great web based UI, `Translation Memory`_, collaborati
 
 You need to create an account in their service and a new project before start.
 
-After that, you need to install the `transifex-client`_ tool which will help you in the process to upload source files, update them and also download translated files.
+After that, you need to install the `Transifex CLI`_ tool which will help you in the process to upload source files, update them and also download translated files.
 To do this, run this command:
 
-.. _transifex-client: https://docs.transifex.com/client/introduction
+.. _Transifex CLI: https://docs.transifex.com/client/introduction
 
 .. prompt:: bash $
 
-   pip install transifex-client
+   curl -o- https://raw.githubusercontent.com/transifex/cli/master/install.sh | bash
 
 After installing it, you need to configure your account.
 For this, you need to create an API Token for your user to access this service through the command line.
 This can be done under your `User's Settings`_.
 
-.. _User's Settings: https://www.transifex.com/user/settings/api/
+.. _User's Settings: https://app.transifex.com/user/settings/api/
+
+With the token, you have two options: to export as ``TX_TOKEN`` environment variable or to store it in ``~/.transifexrc``.
+
+Exporting simply takes ``export TX_TOKEN=1/xxxx`` (where ``1/xxxx`` is the API token you generated). Storing in the ``~/.transifexrc`` should look like:
+
+.. code-block::
+
+   [https://www.transifex.com]
+   rest_hostname = https://rest.api.transifex.com
+   token         = 1/xxxx
 
 
-Now, you need to setup it to use this token:
-
-.. prompt:: bash $
-
-   tx init --token $TOKEN --no-interactive
-
-
-The next step is to map every ``.pot`` file you have created in the previous step to a resource under Transifex.
+Now, it is time to set the project's Transifex configuration and to map every ``.pot`` file you have created in the previous step to a resource under Transifex.
 To achieve this, you need to run this command:
 
 .. prompt:: bash $
 
-   tx config mapping-bulk \
-       --project $TRANSIFEX_PROJECT \
-       --file-extension '.pot' \
-       --source-file-dir docs/_build/gettext \
-       --source-lang en \
-       --type PO \
-       --expression 'locale/<lang>/LC_MESSAGES/{filepath}/{filename}.po' \
-       --execute
+   sphinx-intl create-txconfig
+   sphinx-intl update-txconfig-resources \
+       --pot-dir _build/gettext \
+       --locale-dir locale \
+       --transifex-organization-name $TRANSIFEX_ORGANIZATION \
+       --transifex-project-name $TRANSIFEX_PROJECT
 
-This command will generate a file at ``.tx/config`` with all the information needed by the ``transifext-client`` tool to keep your translation synchronized.
+
+This command will generate a file at ``.tx/config`` with all the information needed by the ``tx`` tool to keep your translation synchronized.
 
 Finally, you need to upload these files to Transifex platform so translators can start their work.
 To do this, you can run this command:
