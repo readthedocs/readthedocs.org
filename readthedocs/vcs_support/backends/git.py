@@ -55,7 +55,7 @@ class Backend(BaseVCS):
     def set_remote_url(self, url):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 
-    def update(self, identifier=None):
+    def update(self):
         """
         Clone or update the repository.
 
@@ -63,7 +63,7 @@ class Backend(BaseVCS):
                            PR references are generated automatically for certain Git providers.
         :return:
         """
-        super().update(identifier=identifier)
+        super().update()
 
         if self.use_clone_fetch_checkout_pattern():
 
@@ -72,7 +72,11 @@ class Backend(BaseVCS):
             self.clone_ng()
             # New behavior: No confusing return value. We are not using return values
             # in the callers.
-            self.fetch_ng(identifier=identifier)
+            # TODO: We are using self.verbose_name as the identifier. This is not a very
+            # clear understanding, but it's a continuation of how PR patterns are generating
+            # remote references already from verbose_name. We need to fix this by providing
+            # a targeted field on the Build model, for instance "git_reference".
+            self.fetch_ng(identifier=self.verbose_name)
 
         else:
             if self.repo_exists():
