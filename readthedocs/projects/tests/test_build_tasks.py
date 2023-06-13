@@ -1685,10 +1685,10 @@ class TestBuildTask(BuildEnvironmentBase):
     @pytest.mark.parametrize(
         "value,command",
         [
-            ("html", "readthedocs"),
-            ("htmldir", "readthedocsdirhtml"),
-            ("dirhtml", "readthedocsdirhtml"),
-            ("singlehtml", "readthedocssinglehtml"),
+            ("html", "html"),
+            ("htmldir", "dirhtml"),
+            ("dirhtml", "dirhtml"),
+            ("singlehtml", "singlehtml"),
         ],
     )
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
