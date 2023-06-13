@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from git.exc import BadName, InvalidGitRepositoryError, NoSuchPathError
 from gitdb.util import hex_to_bin
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import BRANCH, EXTERNAL, TAG
 from readthedocs.config import ALL
 from readthedocs.projects.constants import (
     GITHUB_BRAND,
@@ -35,6 +35,7 @@ class Backend(BaseVCS):
     repo_depth = 50
 
     def __init__(self, *args, **kwargs):
+        self.version_identifier = kwargs.pop("version_identifier", None)
         super().__init__(*args, **kwargs)
         self.token = kwargs.get('token')
         self.repo_url = self._get_clone_url()
@@ -58,15 +59,76 @@ class Backend(BaseVCS):
     def update(self):
         """Clone or update the repository."""
         super().update()
-        if self.repo_exists():
-            self.set_remote_url(self.repo_url)
-            return self.fetch()
-        self.make_clean_working_dir()
-        # A fetch is always required to get external versions properly
+
+        if self.use_clone_fetch_checkout_pattern():
+
+            # New behavior: Clone is responsible for skipping the operation if the
+            # repo is already cloned.
+            self.clone_ng()
+            # New behavior: No confusing return value. We are not using return values
+            # in the callers.
+            self.fetch_ng()
+
+        else:
+            if self.repo_exists():
+                self.set_remote_url(self.repo_url)
+                return self.fetch()
+            self.make_clean_working_dir()
+            # A fetch is always required to get external versions properly
+            if self.version_type == EXTERNAL:
+                self.clone()
+                return self.fetch()
+            return self.clone()
+
+    def get_remote_reference(self):
+        # Tags and branches have the tag/branch identifier set by the caller who instantiated the
+        # Git backend -- this means that the build process needs to know this from build data,
+        # essentially from an incoming webhook call.
+        if self.version_type in (BRANCH, TAG):
+            return self.version_identifier
         if self.version_type == EXTERNAL:
-            self.clone()
-            return self.fetch()
-        return self.clone()
+            git_provider_name = self.project.git_provider_name
+            if git_provider_name == GITHUB_BRAND:
+                return GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name)
+            if self.project.git_provider_name == GITLAB_BRAND:
+                return GITLAB_MR_PULL_PATTERN
+
+            # This seems to be the default behavior when we don't know the remote
+            # reference for a PR/MR: Just fetch everything
+            return None
+
+    def clone_ng(self):
+        # If the repository is already cloned, we don't do anything.
+        # TODO: Why is it already cloned?
+        if self.repo_exists():
+            return
+
+        # --no-checkout: Makes it explicit what we are doing here. Nothing is checked out
+        #                until it's explcitly done.
+        # --depth 1: Shallow clone, fetch as little data as possible.
+        cmd = ["git", "clone", "--no-checkout", "--depth", "1"]
+
+        code, stdout, stderr = self.run(*cmd)
+        return code, stdout, stderr
+
+    def fetch_ng(self):
+        """Implementation for new clone+fetch+checkout pattern."""
+
+        # --force: ?
+        # --tags: We need to fetch tags in order to resolve these references in the checkout
+        # --prune: ?
+        # --prune-tags: ?
+        cmd = ["git", "fetch", "origin", "--force", "--tags", "--prune", "--prune-tags"]
+        remote_reference = self.get_remote_reference()
+
+        if remote_reference:
+            # TODO: If we are fetching just one reference, what should the depth be?
+            # A PR might have another commit added after the build has started...
+            cmd.append("--depth 1")
+            cmd.append(remote_reference)
+
+        code, stdout, stderr = self.run(*cmd)
+        return code, stdout, stderr
 
     def repo_exists(self):
         try:
@@ -149,6 +211,13 @@ class Backend(BaseVCS):
         """
         from readthedocs.projects.models import Feature
         return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
+
+    def use_clone_fetch_checkout_pattern(self):
+        """Use the new and optimized clone / fetch / checkout pattern."""
+        from readthedocs.projects.models import Feature
+
+        # TODO: Remove the 'not'
+        return not self.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN)
 
     def fetch(self):
         # --force lets us checkout branches that are not fast-forwarded

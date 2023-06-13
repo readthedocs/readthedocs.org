@@ -1941,6 +1941,7 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
+    GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout"
     LIST_PACKAGES_INSTALLED_ENV = "list_packages_installed_env"
     VCS_REMOTE_LISTING = "vcs_remote_listing"
     SPHINX_PARALLEL = "sphinx_parallel"
@@ -2106,6 +2107,12 @@ class Feature(models.Model):
             _(
                 "Build: Use remote listing in VCS (e.g. git ls-remote) if supported for sync "
                 "versions"
+            ),
+        ),
+        (
+            GIT_CLONE_FETCH_CHECKOUT_PATTERN,
+            _(
+                "Build: Use simplified and optimized git clone + git fetch + git checkout patterns"
             ),
         ),
         (
