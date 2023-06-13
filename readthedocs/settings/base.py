@@ -511,7 +511,7 @@ class CommunityBaseSettings(Settings):
                 'delete': True,
             },
         },
-        'every-three-hour-delete-inactive-external-versions': {
+        'every-three-hours-delete-inactive-external-versions': {
             'task': 'readthedocs.builds.tasks.delete_closed_external_versions',
             # Increase the frequency because we have 255k closed versions and they keep growing.
             # It's better to increase this frequency than the `limit=` of the task.
