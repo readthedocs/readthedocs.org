@@ -1,8 +1,8 @@
 """Views pertaining to builds."""
 
 import structlog
-from readthedocs.api.v2.models import BuildAPIKey
 
+from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import (
     EXTERNAL,
     EXTERNAL_VERSION_STATE_CLOSED,
@@ -107,7 +107,9 @@ def trigger_sync_versions(project):
             # respect the queue for this project
             options['queue'] = project.build_queue
 
-        _, build_api_key = BuildAPIKey.objects.create_key(name=project.slug, project=project)
+        _, build_api_key = BuildAPIKey.objects.create_key(
+            name=project.slug, project=project
+        )
 
         log.debug(
             'Triggering sync repository.',
@@ -116,7 +118,7 @@ def trigger_sync_versions(project):
         )
         sync_repository_task.apply_async(
             args=[version.pk],
-            kwargs={'build_api_key': build_api_key},
+            kwargs={"build_api_key": build_api_key},
             **options,
         )
         return version.slug

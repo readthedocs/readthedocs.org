@@ -48,8 +48,8 @@ def setup_api(build_api_key):
         settings.SLUMBER_API_HOST,
         adapter_class(max_retries=retry),
     )
-    session.headers.update({'Host': settings.PRODUCTION_DOMAIN})
-    session.headers['Authorization'] = f'Token {build_api_key}'
+    session.headers.update({"Host": settings.PRODUCTION_DOMAIN})
+    session.headers["Authorization"] = f"Token {build_api_key}"
     api_config = {
         'base_url': '%s/api/v2/' % settings.SLUMBER_API_HOST,
         'serializer': serialize.Serializer(

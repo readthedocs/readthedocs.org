@@ -159,7 +159,9 @@ def prepare_build(
             )
             build.save()
 
-    _, build_api_key = BuildAPIKey.objects.create_key(name=project.slug, project=project)
+    _, build_api_key = BuildAPIKey.objects.create_key(
+        name=project.slug, project=project
+    )
 
     return (
         update_docs_task.signature(
@@ -168,8 +170,8 @@ def prepare_build(
                 build.pk,
             ),
             kwargs={
-                'build_commit': commit,
-                'build_api_key': build_api_key,
+                "build_commit": commit,
+                "build_api_key": build_api_key,
             },
             options=options,
             immutable=True,

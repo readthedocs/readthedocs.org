@@ -4,6 +4,7 @@ from rest_framework_api_key.models import AbstractAPIKey
 
 from readthedocs.projects.models import Project
 
+
 class BuildAPIKey(AbstractAPIKey):
 
     """

@@ -2,8 +2,8 @@
 
 from rest_framework import permissions
 from rest_framework_api_key.permissions import BaseHasAPIKey, KeyParser
-from readthedocs.api.v2.models import BuildAPIKey
 
+from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.models import Version
 
 
@@ -71,6 +71,7 @@ class IsAuthorizedToViewVersion(permissions.BasePermission):
 
 class TokenKeyParser(KeyParser):
     """Custom key parser to use ``Token {TOKEN}`` as format."""
+
     keyword = "Token"
 
 
@@ -82,14 +83,15 @@ class HasBuildAPIKey(BaseHasAPIKey):
     The key is injected in the ``request.build_api_key`` attribute
     only if it's valid, otherwise it's set to ``None``.
     """
+
     model = BuildAPIKey
     key_parser = TokenKeyParser()
 
     def has_permission(self, request, view):
         build_api_key = None
-        has_permission =  super().has_permission(request, view)
+        has_permission = super().has_permission(request, view)
         if has_permission:
             key = self.get_key(request)
-            build_api_key =  self.model.objects.get_from_key(key)
+            build_api_key = self.model.objects.get_from_key(key)
         request.build_api_key = build_api_key
         return has_permission

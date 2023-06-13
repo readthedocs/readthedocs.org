@@ -13,6 +13,11 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
+from readthedocs.api.v2.permissions import (
+    APIRestrictedPermission,
+    HasBuildAPIKey,
+    IsOwner,
+)
 from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
@@ -21,7 +26,6 @@ from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Domain, Project
 from readthedocs.storage import build_commands_storage
 
-from readthedocs.api.v2.permissions import APIRestrictedPermission, HasBuildAPIKey, IsOwner
 from ..serializers import (
     BuildAdminReadOnlySerializer,
     BuildAdminSerializer,
@@ -133,9 +137,8 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
     def get_serializer_class(self):
         try:
             if (
-                (self.request.user.is_staff or self.request.build_api_key)
-                and self.admin_serializer_class is not None
-            ):
+                self.request.user.is_staff or self.request.build_api_key
+            ) and self.admin_serializer_class is not None:
                 return self.admin_serializer_class
         except AttributeError:
             pass
