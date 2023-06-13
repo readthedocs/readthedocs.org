@@ -2,6 +2,7 @@
 import django_dynamic_fixture as fixture
 import pytest
 
+from readthedocs.api.v2.client import setup_api
 from readthedocs.builds.models import Build
 from readthedocs.doc_builder.environments import DockerBuildEnvironment
 from readthedocs.projects.models import Project
@@ -30,6 +31,7 @@ class TestDockerBuildEnvironmentNew:
             project=self.project,
             version=self.version,
             build={'id': self.build.pk},
+            api_client=setup_api(),
         )
 
     def test_container_id(self):

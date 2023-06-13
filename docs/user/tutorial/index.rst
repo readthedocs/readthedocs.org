@@ -284,8 +284,14 @@ you will access the build logs,
 otherwise it will take you directly to the documentation.
 When you are satisfied, you can merge the pull request!
 
-Customizing the build process
------------------------------
+Adding a configuration file
+---------------------------
+
+As of September 2023,
+:doc:`you will need to add a configuration file to build your documentation <rtd-blog:migrate-configuration-v2>`.
+Until then,
+this example project will build without the configuration file,
+but we **strongly recommend** completing this section in order to add a configuration file.
 
 The Settings page of the :term:`project home` allows you
 to change some *global* configuration values of your project.
@@ -297,9 +303,13 @@ This has several advantages:
 - It can be different for every version (more on versioning in the next section).
 - Some configurations are only available using the config file.
 
-Read the Docs works without this configuration
-by :ref:`making some decisions on your behalf <build-default-versions:Default versions of dependencies>`.
-For example, what Python version to use, how to install the requirements, and others.
+This configuration file should be part of your Git repository.
+It should be located in the base folder of the repository and be named ``.readthedocs.yaml``.
+
+.. TODO: We are adding a how-to that we need to include in this tutorial.
+.. Maybe by reference or maybe as full-featured content.
+
+In this section, we will show you some examples of what a configuration file should contain.
 
 .. tip::
 

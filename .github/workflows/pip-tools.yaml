@@ -61,4 +61,3 @@ jobs:
           delete-branch: true
           branch: dependencies/pip-tools
           branch-suffix: short-commit-hash
-          team-reviewers: readthedocs/backend
