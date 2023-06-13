@@ -35,7 +35,6 @@ class Backend(BaseVCS):
     repo_depth = 50
 
     def __init__(self, *args, **kwargs):
-        self.version_identifier = kwargs.pop("version_identifier", None)
         super().__init__(*args, **kwargs)
         self.token = kwargs.get('token')
         self.repo_url = self._get_clone_url()
@@ -56,9 +55,15 @@ class Backend(BaseVCS):
     def set_remote_url(self, url):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 
-    def update(self):
-        """Clone or update the repository."""
-        super().update()
+    def update(self, identifier=None):
+        """
+        Clone or update the repository.
+
+        :param identifier: This is the optional identifier for git fetch - a branch or tag name.
+                           PR references are generated automatically for certain Git providers.
+        :return:
+        """
+        super().update(identifier=identifier)
 
         if self.use_clone_fetch_checkout_pattern():
 
@@ -67,7 +72,7 @@ class Backend(BaseVCS):
             self.clone_ng()
             # New behavior: No confusing return value. We are not using return values
             # in the callers.
-            self.fetch_ng()
+            self.fetch_ng(identifier=identifier)
 
         else:
             if self.repo_exists():
@@ -80,52 +85,65 @@ class Backend(BaseVCS):
                 return self.fetch()
             return self.clone()
 
-    def get_remote_reference(self):
+    def get_remote_fetch_reference(self, identifier):
+        """
+        Gets a valid remote reference for the identifier.
+
+        :param identifier: Should be a branch or tag name when building branches or tags.
+        :return: A reference valid for fetch operation
+        """
         # Tags and branches have the tag/branch identifier set by the caller who instantiated the
         # Git backend -- this means that the build process needs to know this from build data,
         # essentially from an incoming webhook call.
         if self.version_type in (BRANCH, TAG):
-            return self.version_identifier
+            return identifier
         if self.version_type == EXTERNAL:
+
+            # TODO: We should be able to resolve this without looking up in oauth registry
             git_provider_name = self.project.git_provider_name
+
+            # TODO: Why are these our only patterns?
             if git_provider_name == GITHUB_BRAND:
                 return GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name)
             if self.project.git_provider_name == GITLAB_BRAND:
-                return GITLAB_MR_PULL_PATTERN
+                return GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
 
             # This seems to be the default behavior when we don't know the remote
             # reference for a PR/MR: Just fetch everything
+            # TODO: Provide more information about fetch operations without references
             return None
 
     def clone_ng(self):
         # If the repository is already cloned, we don't do anything.
-        # TODO: Why is it already cloned?
+        # This is likely legacy, but we may want to be able to call .update()
+        # several times in the same build
         if self.repo_exists():
             return
 
         # --no-checkout: Makes it explicit what we are doing here. Nothing is checked out
-        #                until it's explcitly done.
+        #                until it's explicitly done.
         # --depth 1: Shallow clone, fetch as little data as possible.
-        cmd = ["git", "clone", "--no-checkout", "--depth", "1"]
+        cmd = ["git", "clone", "--no-checkout", "--depth", "1", self.repo_url, "."]
 
         code, stdout, stderr = self.run(*cmd)
         return code, stdout, stderr
 
-    def fetch_ng(self):
+    def fetch_ng(self, identifier):
         """Implementation for new clone+fetch+checkout pattern."""
 
-        # --force: ?
+        # --force: Likely legacy, it seems to be irrelevant to this usage
         # --tags: We need to fetch tags in order to resolve these references in the checkout
-        # --prune: ?
-        # --prune-tags: ?
+        # --prune: Likely legacy, we don't expect a previous fetch command to have run
+        # --prune-tags: Likely legacy, we don't expect a previous fetch command to have run
+        # --tags: This flag was used in the previous approach such that all tags were fetched
+        #         in order to checkout a tag afterwards.
         cmd = ["git", "fetch", "origin", "--force", "--tags", "--prune", "--prune-tags"]
-        remote_reference = self.get_remote_reference()
+        remote_reference = self.get_remote_fetch_reference(identifier)
 
         if remote_reference:
-            # TODO: If we are fetching just one reference, what should the depth be?
+            # TODO: We are still fetching the latest 50 commits.
             # A PR might have another commit added after the build has started...
-            cmd.append("--depth 1")
-            cmd.append(remote_reference)
+            cmd.extend(["--depth", self.repo_depth, remote_reference])
 
         code, stdout, stderr = self.run(*cmd)
         return code, stdout, stderr

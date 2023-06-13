@@ -26,8 +26,8 @@ class Backend(BaseVCS):
         else:
             self.base_url = self.repo_url
 
-    def update(self):
-        super().update()
+    def update(self, identifier=None):
+        super().update(identifier=identifier)
         if self.repo_exists():
             return self.up()
         return self.co()

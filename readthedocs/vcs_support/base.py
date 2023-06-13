@@ -83,7 +83,7 @@ class BaseVCS:
         safe_rmtree(self.working_dir, ignore_errors=True)
         self.check_working_dir()
 
-    def update(self):
+    def update(self, identifier=None):
         """
         Update a local copy of the repository in self.working_dir.
 
