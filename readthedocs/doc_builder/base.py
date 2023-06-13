@@ -37,6 +37,7 @@ class BaseBuilder:
         self.project = build_env.project
         self.config = python_env.config if python_env else None
         self.project_path = self.project.checkout_path(self.version.slug)
+        self.api_client = self.build_env.api_client
 
     def get_final_doctype(self):
         """Some builders may have a different doctype at build time."""
@@ -52,11 +53,8 @@ class BaseBuilder:
     def _post_build(self):
         """Execute extra steps (e.g. create ZIP, rename PDF, etc) after building if required."""
 
-    def docs_dir(self, docs_dir=None, **__):
+    def docs_dir(self):
         """Handle creating a custom docs_dir if it doesn't exist."""
-        if docs_dir:
-            return docs_dir
-
         for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
             possible_path = os.path.join(self.project_path, doc_dir_name)
             if os.path.exists(possible_path):

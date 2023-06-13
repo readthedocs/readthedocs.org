@@ -2,24 +2,9 @@ from collections import Counter
 
 import structlog
 
-from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds import tasks as build_tasks
-from readthedocs.builds.constants import (
-    BUILD_STATE_BUILDING,
-    BUILD_STATE_CLONING,
-    BUILD_STATE_FINISHED,
-    BUILD_STATE_INSTALLING,
-    BUILD_STATUS_FAILURE,
-    BUILD_STATUS_SUCCESS,
-    EXTERNAL,
-    LATEST_VERBOSE_NAME,
-    STABLE_VERBOSE_NAME,
-)
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME
 from readthedocs.builds.models import APIVersion
-from readthedocs.doc_builder.environments import (
-    DockerBuildEnvironment,
-    LocalBuildEnvironment,
-)
 
 from ..exceptions import RepositoryError
 from ..models import Feature
@@ -31,8 +16,7 @@ class SyncRepositoryMixin:
 
     """Mixin that handles the VCS sync/update."""
 
-    @staticmethod
-    def get_version(version_pk):
+    def get_version(self, version_pk):
         """
         Retrieve version data from the API.
 
@@ -41,7 +25,7 @@ class SyncRepositoryMixin:
         :returns: a data-complete version object
         :rtype: builds.models.APIVersion
         """
-        version_data = api_v2.version(version_pk).get()
+        version_data = self.data.api_client.version(version_pk).get()
         return APIVersion(**version_data)
 
     def sync_versions(self, vcs_repository):
