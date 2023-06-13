@@ -67,11 +67,7 @@ from ..models import APIProject, Feature, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import fileify
-from .utils import (
-    BuildRequest,
-    clean_build,
-    send_external_build_status,
-)
+from .utils import BuildRequest, clean_build, send_external_build_status
 
 log = structlog.get_logger(__name__)
 
