@@ -288,10 +288,11 @@ def deprecated_config_file_used_notification():
         user_projects = AdminPermission.projects(user, admin=True).values_list(
             "slug", flat=True
         )
-        user_projects = list(set(user_projects) & projects)
+        user_projects_slugs = list(set(user_projects) & projects)
+        user_projects = Project.objects.filter(slug__in=user_projects_slugs)
 
         # Create slug string for onsite notification
-        user_project_slugs = ", ".join(user_projects[:5])
+        user_project_slugs = ", ".join(user_projects_slugs[:5])
         if len(user_projects) > 5:
             user_project_slugs += " and others..."
 
