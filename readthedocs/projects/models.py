@@ -107,7 +107,7 @@ class ProjectRelationship(models.Model):
     def __str__(self):
         return '{} -> {}'.format(self.parent, self.child)
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         if not self.alias:
             self.alias = self.child.slug
         super().save(*args, **kwargs)
@@ -544,12 +544,14 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
             if not self.slug:
-                raise Exception(_('Model must have slug'))
+                raise Exception(  # pylint: disable=broad-exception-raised
+                    _("Model must have slug")
+                )
         super().save(*args, **kwargs)
 
         try:
@@ -567,7 +569,7 @@ class Project(models.Model):
         )
         self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
 
         # Remove extra resources
@@ -1747,7 +1749,7 @@ class Domain(TimeStampedModel):
     canonical = models.BooleanField(
         default=False,
         help_text=_(
-            "This domain is the primary one where the documentation is " "served from",
+            "This domain is the primary one where the documentation is served from",
         ),
     )
     https = models.BooleanField(
@@ -1830,7 +1832,7 @@ class Domain(TimeStampedModel):
             self.validation_process_start = timezone.now()
             self.save()
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
             self.domain = parsed.netloc
@@ -2215,6 +2217,6 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         self.value = quote(self.value)
         return super().save(*args, **kwargs)
