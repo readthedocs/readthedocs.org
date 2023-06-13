@@ -13,7 +13,7 @@ from readthedocs.api.v3.serializers import (
 )
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolver
-from readthedocs.core.unresolver import unresolver
+from readthedocs.core.unresolver import InvalidPathForVersionedProjectError, unresolver
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -83,7 +83,16 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
         unresolved_domain = request.unresolved_domain
         project = unresolved_domain.project
 
-        unresolved_url = unresolver.unresolve_url(url)
+        try:
+            unresolved_url = unresolver.unresolve_url(url)
+        except InvalidPathForVersionedProjectError:
+            # TODO: determine what to do on unresolver errors.
+            # The new unresolver raises some exceptions depending on the error.
+            # What do we need to do in these cases here?
+            # This URL, raises the `InvalidPathForVersionedProjectError` exception and returns 404
+            # https://appium.readthedocs.io/cn/advanced-concepts/chromedriver/
+            pass
+
         version = unresolved_url.version
         filename = unresolved_url.filename
 
@@ -91,7 +100,7 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
         build = version.builds.last()
 
         data = AddonsResponse().get(addons_version, project, version, build, filename)
-        return JsonResponse(data, json_dumps_params=dict(indent=4))
+        return JsonResponse(data, json_dumps_params={"indent": 4})
 
 
 class NoLinksMixin:
@@ -104,7 +113,7 @@ class NoLinksMixin:
     )
 
     def __init__(self, *args, **kwargs):
-        super(NoLinksMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for field in self.FIELDS_TO_REMOVE:
             if field in self.fields:
