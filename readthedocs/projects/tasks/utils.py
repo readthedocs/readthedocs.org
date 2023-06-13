@@ -3,9 +3,13 @@ import os
 
 import structlog
 from celery.worker.request import Request
-from django.db.models import Q
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.db.models import Q, Sum
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from djstripe.enums import SubscriptionStatus
+from messages_extends.constants import WARNING_PERSISTENT
 
 from readthedocs.builds.constants import (
     BUILD_FINAL_STATES,
@@ -14,7 +18,12 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Build
 from readthedocs.builds.tasks import send_build_status
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.filesystem import safe_rmtree
+from readthedocs.notifications import Notification, SiteNotification
+from readthedocs.notifications.backends import EmailBackend
+from readthedocs.notifications.constants import REQUIREMENT
+from readthedocs.projects.models import Project
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -152,6 +161,160 @@ def send_external_build_status(version_type, build_pk, commit, status):
     if version_type == EXTERNAL:
         # call the task that actually send the build status.
         send_build_status.delay(build_pk, commit, status)
+
+
+class DeprecatedConfigFileSiteNotification(SiteNotification):
+
+    # TODO: mention all the project slugs here
+    # Maybe trim them to up to 5 projects to avoid sending a huge blob of text
+    failure_message = _(
+        'Your project(s) "{{ project_slugs }}" don\'t have a configuration file. '
+        "Configuration files will <strong>soon be required</strong> by projects, "
+        "and will no longer be optional. "
+        '<a href="https://blog.readthedocs.com/migrate-configuration-v2/">Read our blog post to create one</a> '  # noqa
+        "and ensure your project continues building successfully."
+    )
+    failure_level = WARNING_PERSISTENT
+
+
+class DeprecatedConfigFileEmailNotification(Notification):
+
+    app_templates = "projects"
+    name = "deprecated_config_file_used"
+    subject = "[Action required] Add a configuration file to your project to prevent build failures"
+    level = REQUIREMENT
+
+    def send(self):
+        """Method overwritten to remove on-site backend."""
+        backend = EmailBackend(self.request)
+        backend.send(self)
+
+
+@app.task(queue="web")
+def deprecated_config_file_used_notification():
+    """
+    Create a notification about not using a config file for all the maintainers of the project.
+
+    This is a scheduled task to be executed on the webs.
+    Note the code uses `.iterator` and `.only` to avoid killing the db with this query.
+    Besdies, it excludes projects with enough spam score to be skipped.
+    """
+    # Skip projects with a spam score bigger than this value.
+    # Currently, this gives us ~250k in total (from ~550k we have in our database)
+    spam_score = 300
+
+    projects = set()
+    start_datetime = datetime.datetime.now()
+    queryset = Project.objects.exclude(users__profile__banned=True)
+    if settings.ALLOW_PRIVATE_REPOS:
+        # Only send emails to active customers
+        queryset = queryset.filter(
+            organizations__stripe_subscription__status=SubscriptionStatus.active
+        )
+    else:
+        # Take into account spam score on community
+        queryset = queryset.annotate(spam_score=Sum("spam_rules__value")).filter(
+            Q(spam_score__lt=spam_score) | Q(is_spam=False)
+        )
+    queryset = queryset.only("slug", "default_version").order_by("id")
+    n_projects = queryset.count()
+
+    for i, project in enumerate(queryset.iterator()):
+        if i % 500 == 0:
+            log.info(
+                "Finding projects without a configuration file.",
+                progress=f"{i}/{n_projects}",
+                current_project_pk=project.pk,
+                current_project_slug=project.slug,
+                projects_found=len(projects),
+                time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
+            )
+
+        # Only check for the default version because if the project is using tags
+        # they won't be able to update those and we will send them emails forever.
+        # We can update this query if we consider later.
+        version = (
+            project.versions.filter(slug=project.default_version).only("id").first()
+        )
+        if version:
+            build = (
+                version.builds.filter(success=True)
+                .only("_config")
+                .order_by("-date")
+                .first()
+            )
+            if build and build.deprecated_config_used():
+                projects.add(project.slug)
+
+    # Store all the users we want to contact
+    users = set()
+
+    n_projects = len(projects)
+    queryset = Project.objects.filter(slug__in=projects).order_by("id")
+    for i, project in enumerate(queryset.iterator()):
+        if i % 500 == 0:
+            log.info(
+                "Querying all the users we want to contact.",
+                progress=f"{i}/{n_projects}",
+                current_project_pk=project.pk,
+                current_project_slug=project.slug,
+                users_found=len(users),
+                time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
+            )
+
+        users.update(AdminPermission.owners(project).values_list("username", flat=True))
+
+    # Only send 1 email per user,
+    # even if that user has multiple projects without a configuration file.
+    # The notification will mention all the projects.
+    queryset = User.objects.filter(username__in=users, profile__banned=False).order_by(
+        "id"
+    )
+
+    n_users = queryset.count()
+    for i, user in enumerate(queryset.iterator()):
+        if i % 500 == 0:
+            log.info(
+                "Sending deprecated config file notification to users.",
+                progress=f"{i}/{n_users}",
+                current_user_pk=user.pk,
+                current_user_username=user.username,
+                time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
+            )
+
+        # All the projects for this user that don't have a configuration file
+        # Use set() intersection in Python that's pretty quick since we only need the slugs.
+        # Otherwise we have to pass 82k slugs to the DB query, which makes it pretty slow.
+        user_projects = AdminPermission.projects(user, admin=True).values_list(
+            "slug", flat=True
+        )
+        user_projects_slugs = list(set(user_projects) & projects)
+        user_projects = Project.objects.filter(slug__in=user_projects_slugs)
+
+        # Create slug string for onsite notification
+        user_project_slugs = ", ".join(user_projects_slugs[:5])
+        if len(user_projects) > 5:
+            user_project_slugs += " and others..."
+
+        n_site = DeprecatedConfigFileSiteNotification(
+            user=user,
+            context_object=user,
+            extra_context={"project_slugs": user_project_slugs},
+            success=False,
+        )
+        n_site.send()
+
+        n_email = DeprecatedConfigFileEmailNotification(
+            user=user,
+            context_object=user,
+            extra_context={"projects": user_projects},
+        )
+        n_email.send()
+
+    log.info(
+        "Finish sending deprecated config file notifications.",
+        time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
+    )
 
 
 class BuildRequest(Request):

@@ -415,9 +415,12 @@ class BaseBuildEnvironment:
     :param build: Build instance
     :param environment: shell environment variables
     :param record: whether or not record a build commands in the databse via
-    the API. The only case where we want this to be `False` is when
-    instantiating this class from `sync_repository_task` because it's a
-    background task that does not expose commands to the user.
+     the API. The only case where we want this to be `False` is when
+     instantiating this class from `sync_repository_task` because it's a
+     background task that does not expose commands to the user.
+    :param api_client: API v2 client instance (readthedocs.v2.client).
+     This is used to record commands in the database, if `record=True`
+     this argument is required.
     """
 
     def __init__(
@@ -431,7 +434,7 @@ class BaseBuildEnvironment:
         api_client=None,
         **kwargs,
     ):
-        self.project= project
+        self.project = project
         self._environment = environment or {}
         self.commands = []
         self.version = version
@@ -441,7 +444,7 @@ class BaseBuildEnvironment:
         self.api_client = api_client
 
         if self.record and not self.api_client:
-            raise ValueError('api_client is required when record=True')
+            raise ValueError("api_client is required when record=True")
 
     # TODO: remove these methods, we are not using LocalEnvironment anymore. We
     # need to find a way for tests to not require this anymore
@@ -485,16 +488,14 @@ class BaseBuildEnvironment:
 
         # Remove PATH from env, and set it to bin_path if it isn't passed in
         environment = self._environment.copy()
-        env_path = environment.pop('BIN_PATH', None)
-        if 'bin_path' not in kwargs and env_path:
-            kwargs['bin_path'] = env_path
-        if 'environment' in kwargs:
-            raise BuildAppError('environment can\'t be passed in via commands.')
-        kwargs['environment'] = environment
-
-        # ``build_env`` is passed as ``kwargs`` when it's called from a
-        # ``*BuildEnvironment``
-        build_cmd = cls(cmd, build_env=self, **kwargs)
+        env_path = environment.pop("BIN_PATH", None)
+        if "bin_path" not in kwargs and env_path:
+            kwargs["bin_path"] = env_path
+        if "environment" in kwargs:
+            raise BuildAppError("environment can't be passed in via commands.")
+        kwargs["environment"] = environment
+        kwargs["build_env"] = self
+        build_cmd = cls(cmd, **kwargs)
         build_cmd.run()
 
         if record:

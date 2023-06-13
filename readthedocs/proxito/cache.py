@@ -45,11 +45,6 @@ def cache_response(response, cache_tags=None, force=True):
     if cache_tags:
         add_cache_tags(response, cache_tags)
     if force or CDN_CACHE_CONTROL_HEADER not in response.headers:
-        if not response.headers.get(CACHE_TAG_HEADER):
-            # Caching a response at the CDN level without cache tags is
-            # incorrect, since we won't be able to purge it otherwise.
-            log.warning("Caching response without cache tags.")
-
         response.headers[CDN_CACHE_CONTROL_HEADER] = "public"
 
 

@@ -1,9 +1,9 @@
 {% load i18n %}
 <p class="empty">
-  {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/config-file/v2.html" %}
-    These settings can be configured using a
-    <a href="{{ config_file_link }}">configuration file</a>.
-    That's the recommended way to set up your project.
-    <strong>Settings listed here are ignored when using a configuration file.</strong
+  {% blocktrans trimmed with deprecation_link="https://blog.readthedocs.com/migrate-configuration-v2/" %}
+    Usage of the below settings is <strong>deprecated</strong> and support for these fields will be removed on <strong>September 25th, 2023</strong>.
+    <br><br>
+    For more information, see our blog post:
+    <a href="{{ deprecation_link }}" target="_blank">migrating your configuration to .readthedocs.yaml</a>.
   {% endblocktrans %}
 </p>

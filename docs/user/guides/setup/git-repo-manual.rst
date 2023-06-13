@@ -139,8 +139,11 @@ Use this URL when setting up a new integration with your provider ^^ these steps
 
 .. seealso::
 
-   :doc:`/guides/build-notifications`
-      Learn how to add custom build notifications.
+   :doc:`/guides/build/email-notifications`
+      Quickly enable email notifications.
+
+   :doc:`/guides/build/webhooks`
+      Learn how to add custom webhook notifications.
 
 
 .. _webhook-integration-generic:

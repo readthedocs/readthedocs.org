@@ -13,10 +13,10 @@ import structlog
 from celery import Task
 from django.conf import settings
 from django.utils import timezone
+from slumber import API
 from slumber.exceptions import HttpClientError
 
 from readthedocs.api.v2.client import setup_api
-from slumber import API
 from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
     ARTIFACT_TYPES,
@@ -103,6 +103,7 @@ class TaskData:
     build_pk: int = None
     build_commit: str = None
 
+    # Slumber client to interact with the API v2.
     api_client: API = None
 
     start_time: timezone.datetime = None
@@ -156,7 +157,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         # argument
         self.data.version_pk = args[0]
 
-        self.data.api_client = setup_api(kwargs['build_api_key'])
+        self.data.api_client = setup_api()
 
         # load all data from the API required for the build
         self.data.version = self.get_version(self.data.version_pk)
@@ -243,7 +244,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     base=SyncRepositoryTask,
     bind=True,
 )
-def sync_repository_task(self, version_id, build_api_key, **kwargs):
+def sync_repository_task(self, version_id, **kwargs):
     # In case we pass more arguments than expected, log them and ignore them,
     # so we don't break builds while we deploy a change that requires an extra argument.
     if kwargs:
@@ -344,8 +345,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def _check_concurrency_limit(self):
         try:
-            response = self.data.api_client.build.concurrent.get(project__slug=self.data.project.slug)
-            concurrency_limit_reached = response.get('limit_reached', False)
+            response = self.data.api_client.build.concurrent.get(
+                project__slug=self.data.project.slug
+            )
+            concurrency_limit_reached = response.get("limit_reached", False)
             max_concurrent_builds = response.get(
                 'max_concurrent',
                 settings.RTD_MAX_CONCURRENT_BUILDS,
@@ -395,7 +398,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # anymore and we are not using it
             self.data.environment_class = LocalBuildEnvironment
 
-        self.data.api_client = setup_api(kwargs['build_api_key'])
+        self.data.api_client = setup_api()
 
         self.data.build = self.get_build(self.data.build_pk)
         self.data.version = self.get_version(self.data.version_pk)
@@ -716,7 +719,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         #         self.data.build[key] = val.decode('utf-8', 'ignore')
 
         try:
-            self.data.api_client.build(self.data.build['id']).patch(self.data.build)
+            self.data.api_client.build(self.data.build["id"]).patch(self.data.build)
         except Exception:
             # NOTE: we are updating the "Build" object on each `state`.
             # Only if the last update fails, there may be some inconsistency
@@ -943,7 +946,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     bind=True,
     ignore_result=True,
 )
-def update_docs_task(self, version_id, build_id, build_api_key, build_commit=None, **kwargs):
+def update_docs_task(self, version_id, build_id, build_commit=None, **kwargs):
     # In case we pass more arguments than expected, log them and ignore them,
     # so we don't break builds while we deploy a change that requires an extra argument.
     if kwargs:

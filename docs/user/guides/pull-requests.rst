@@ -14,6 +14,11 @@ If your account is already connected:
 #. Enable the :guilabel:`Build pull requests for this project` option
 #. Click on :guilabel:`Save`
 
+.. tip::
+
+   Pull requests opened before enabling pull request builds will not trigger new builds automatically.
+   Push a new commit to the pull request to trigger its first build.
+
 Privacy levels
 --------------
 

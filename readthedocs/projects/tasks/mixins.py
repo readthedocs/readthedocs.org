@@ -3,10 +3,7 @@ from collections import Counter
 import structlog
 
 from readthedocs.builds import tasks as build_tasks
-from readthedocs.builds.constants import (
-    LATEST_VERBOSE_NAME,
-    STABLE_VERBOSE_NAME,
-)
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME
 from readthedocs.builds.models import APIVersion
 
 from ..exceptions import RepositoryError
