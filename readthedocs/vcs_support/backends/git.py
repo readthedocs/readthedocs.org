@@ -143,7 +143,7 @@ class Backend(BaseVCS):
         if remote_reference:
             # TODO: We are still fetching the latest 50 commits.
             # A PR might have another commit added after the build has started...
-            cmd.extend(["--depth", self.repo_depth, remote_reference])
+            cmd.extend(["--depth", str(self.repo_depth), remote_reference])
 
         code, stdout, stderr = self.run(*cmd)
         return code, stdout, stderr
