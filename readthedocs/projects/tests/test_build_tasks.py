@@ -197,7 +197,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 "-T",
                 "-E",
                 "-b",
-                "readthedocs",
+                "html",
                 "-d",
                 "_build/doctrees",
                 "-D",
@@ -749,7 +749,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-T",
                     "-E",
                     "-b",
-                    "readthedocs",
+                    "html",
                     "-d",
                     "_build/doctrees",
                     "-D",
@@ -1335,7 +1335,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-W",  # fail on warning flag
                     "--keep-going",  # fail on warning flag
                     "-b",
-                    "readthedocs",
+                    "html",
                     "-d",
                     "_build/doctrees",
                     "-D",
@@ -1780,20 +1780,13 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
     def test_check_duplicate_reserved_version_latest(self, on_failure, verbose_name):
         # `repository.tags` and `repository.branch` both will return a tag/branch named `latest/stable`
         with mock.patch(
-                'readthedocs.vcs_support.backends.git.Backend.branches',
-                new_callable=mock.PropertyMock,
-                return_value=[
-                    mock.MagicMock(identifier='a1b2c3', verbose_name=verbose_name),
-                ],
+            "readthedocs.vcs_support.backends.git.Backend.lsremote",
+            return_value=[
+                [mock.MagicMock(identifier="branch/a1b2c3", verbose_name=verbose_name)],
+                [mock.MagicMock(identifier="tag/a1b2c3", verbose_name=verbose_name)],
+            ],
         ):
-            with mock.patch(
-                    'readthedocs.vcs_support.backends.git.Backend.tags',
-                    new_callable=mock.PropertyMock,
-                    return_value=[
-                        mock.MagicMock(identifier='a1b2c3', verbose_name=verbose_name),
-                    ],
-            ):
-                self._trigger_sync_repository_task()
+            self._trigger_sync_repository_task()
 
         on_failure.assert_called_once_with(
             # This argument is the exception we are intereste, but I don't know
