@@ -13,9 +13,10 @@ import structlog
 from celery import Task
 from django.conf import settings
 from django.utils import timezone
+from slumber import API
 from slumber.exceptions import HttpClientError
 
-from readthedocs.api.v2.client import api as api_v2
+from readthedocs.api.v2.client import setup_api
 from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
     ARTIFACT_TYPES,
@@ -107,6 +108,9 @@ class TaskData:
     build_pk: int = None
     build_commit: str = None
 
+    # Slumber client to interact with the API v2.
+    api_client: API = None
+
     start_time: timezone.datetime = None
     # pylint: disable=unsubscriptable-object
     environment_class: type[DockerBuildEnvironment] | type[LocalBuildEnvironment] = None
@@ -157,6 +161,8 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         # Comes from the signature of the task and it's the only required
         # argument
         self.data.version_pk = args[0]
+
+        self.data.api_client = setup_api()
 
         # load all data from the API required for the build
         self.data.version = self.get_version(self.data.version_pk)
@@ -243,7 +249,11 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     base=SyncRepositoryTask,
     bind=True,
 )
-def sync_repository_task(self, version_id):
+def sync_repository_task(self, version_id, **kwargs):
+    # In case we pass more arguments than expected, log them and ignore them,
+    # so we don't break builds while we deploy a change that requires an extra argument.
+    if kwargs:
+        log.warning("Extra arguments passed to sync_repository_task", arguments=kwargs)
     lock_id = f"{self.name}-lock-{self.data.project.slug}"
     with memcache_lock(
         lock_id=lock_id, lock_expire=60, app_identifier=self.app.oid
@@ -340,8 +350,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     def _check_concurrency_limit(self):
         try:
-            response = api_v2.build.concurrent.get(project__slug=self.data.project.slug)
-            concurrency_limit_reached = response.get('limit_reached', False)
+            response = self.data.api_client.build.concurrent.get(
+                project__slug=self.data.project.slug
+            )
+            concurrency_limit_reached = response.get("limit_reached", False)
             max_concurrent_builds = response.get(
                 'max_concurrent',
                 settings.RTD_MAX_CONCURRENT_BUILDS,
@@ -391,6 +403,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # anymore and we are not using it
             self.data.environment_class = LocalBuildEnvironment
 
+        self.data.api_client = setup_api()
+
         self.data.build = self.get_build(self.data.build_pk)
         self.data.version = self.get_version(self.data.version_pk)
         self.data.project = self.data.version.project
@@ -427,12 +441,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     def _reset_build(self):
         # Reset build only if it has some commands already.
         if self.data.build.get("commands"):
-            log.info("Reseting build.")
-            api_v2.build(self.data.build["id"]).reset.post()
+            log.info("Resetting build.")
+            self.data.api_client.build(self.data.build["id"]).reset.post()
 
     def on_failure(self, exc, task_id, args, kwargs, einfo):
         """
         Celery handler to be executed when a task fails.
+
+        Updates build data, adds tasks to send build notifications.
 
         .. note::
 
@@ -525,7 +541,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
 
         # Update build object
-        self.data.build['success'] = False
+        self.data.build["success"] = False
 
     def get_valid_artifact_types(self):
         """
@@ -597,7 +613,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # TODO: remove this condition and *always* update the DB Version instance
         if "html" in valid_artifacts:
             try:
-                api_v2.version(self.data.version.pk).patch(
+                self.data.api_client.version(self.data.version.pk).patch(
                     {
                         "built": True,
                         "documentation_type": self.data.version.documentation_type,
@@ -714,7 +730,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         #         self.data.build[key] = val.decode('utf-8', 'ignore')
 
         try:
-            api_v2.build(self.data.build['id']).patch(self.data.build)
+            self.data.api_client.build(self.data.build["id"]).patch(self.data.build)
         except Exception:
             # NOTE: we are updating the "Build" object on each `state`.
             # Only if the last update fails, there may be some inconsistency
@@ -807,14 +823,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         except Exception:
             log.exception("Error while saving build data")
 
-    @staticmethod
-    def get_project(project_pk):
-        """Get project from API."""
-        project_data = api_v2.project(project_pk).get()
-        return APIProject(**project_data)
-
-    @staticmethod
-    def get_build(build_pk):
+    def get_build(self, build_pk):
         """
         Retrieve build object from API.
 
@@ -822,7 +831,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         """
         build = {}
         if build_pk:
-            build = api_v2.build(build_pk).get()
+            build = self.data.api_client.build(build_pk).get()
         private_keys = [
             'project',
             'version',
@@ -839,7 +848,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     # build has finished to reduce API calls.
     def set_valid_clone(self):
         """Mark on the project that it has been cloned properly."""
-        api_v2.project(self.data.project.pk).patch(
+        self.data.api_client.project(self.data.project.pk).patch(
             {'has_valid_clone': True}
         )
         self.data.project.has_valid_clone = True
@@ -948,5 +957,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     bind=True,
     ignore_result=True,
 )
-def update_docs_task(self, version_id, build_id, build_commit=None):
+def update_docs_task(self, version_id, build_id, build_commit=None, **kwargs):
+    # In case we pass more arguments than expected, log them and ignore them,
+    # so we don't break builds while we deploy a change that requires an extra argument.
+    if kwargs:
+        log.warning("Extra arguments passed to update_docs_task", arguments=kwargs)
     self.execute()

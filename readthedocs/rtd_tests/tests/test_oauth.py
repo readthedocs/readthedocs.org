@@ -350,6 +350,8 @@ class GitHubOAuthTests(TestCase):
             commit_status='success',
             user_username=self.user.username,
             statuses_url='https://api.github.com/repos/pypa/pip/statuses/1234',
+            target_url=mock.ANY,
+            status="success",
         )
         mock_logger.exception.assert_called_with(
             'GitHub commit status creation failed for project.',

@@ -178,7 +178,6 @@ class CommunityBaseSettings(Settings):
         }
 
     # Database and API hitting settings
-    DONT_HIT_API = False
     DONT_HIT_DB = True
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
     DATABASE_ROUTERS = ['readthedocs.core.db.MapAppsRouter']
@@ -530,6 +529,11 @@ class CommunityBaseSettings(Settings):
         'every-15m-delete-pidbox-objects': {
             'task': 'readthedocs.core.tasks.cleanup_pidbox_keys',
             'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
+        'weekly-config-file-notification': {
+            'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
+            'schedule': crontab(day_of_week='wednesday', hour=11, minute=15),
             'options': {'queue': 'web'},
         },
     }

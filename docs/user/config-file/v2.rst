@@ -12,62 +12,18 @@ Below is an example YAML file which shows the most common configuration options:
 
    .. tab:: Sphinx
 
-      .. code:: yaml
-
-         # .readthedocs.yaml
-         # Read the Docs configuration file
-         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-         # Required
-         version: 2
-
-         # Set the version of Python and other tools you might need
-         build:
-           os: ubuntu-22.04
-           tools:
-             python: "3.11"
-             # You can also specify other tool versions:
-             # nodejs: "19"
-             # rust: "1.64"
-             # golang: "1.19"
-
-         # Build documentation in the docs/ directory with Sphinx
-         sphinx:
-            configuration: docs/conf.py
-
-         # If using Sphinx, optionally build your docs in additional formats such as PDF
-         # formats:
-         #    - pdf
-
-         # Optionally declare the Python requirements required to build your docs
-         python:
-            install:
-            - requirements: docs/requirements.txt
+        .. literalinclude:: /config-file/examples/sphinx/.readthedocs.yaml
+              :language: yaml
+              :linenos:
+              :caption: .readthedocs.yaml
 
    .. tab:: MkDocs
 
-      .. code:: yaml
+        .. literalinclude:: /config-file/examples/mkdocs/.readthedocs.yaml
+           :language: yaml
+           :linenos:
+           :caption: .readthedocs.yaml
 
-         # .readthedocs.yaml
-         # Read the Docs configuration file
-         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-         # Required
-         version: 2
-
-         # Set the version of Python and other tools you might need
-         build:
-           os: ubuntu-22.04
-           tools:
-             python: "3.11"
-
-         mkdocs:
-           configuration: mkdocs.yml
-
-         # Optionally declare the Python requirements required to build your docs
-         python:
-            install:
-            - requirements: docs/requirements.txt
 
 Supported settings
 ------------------

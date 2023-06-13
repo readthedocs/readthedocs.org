@@ -377,14 +377,29 @@ class Version(TimeStampedModel):
         return self.identifier
 
     def get_absolute_url(self):
-        """Get absolute url to the docs of the version."""
+        """
+        Get the absolute URL to the docs of the version.
+
+        If the version doesn't have a successfully uploaded build, then we return the project's
+        dashboard page.
+
+        Because documentation projects can be hosted on separate domains, this function ALWAYS
+        returns with a full "http(s)://<domain>/" prefix.
+        """
         if not self.built and not self.uploaded:
-            return reverse(
-                'project_version_detail',
-                kwargs={
-                    'project_slug': self.project.slug,
-                    'version_slug': self.slug,
-                },
+            # TODO: Stop assuming protocol based on settings.DEBUG
+            # (this pattern is also used in builds.tasks for sending emails)
+            protocol = "http" if settings.DEBUG else "https"
+            return "{}://{}{}".format(
+                protocol,
+                settings.PRODUCTION_DOMAIN,
+                reverse(
+                    "project_version_detail",
+                    kwargs={
+                        "project_slug": self.project.slug,
+                        "version_slug": self.slug,
+                    },
+                ),
             )
         external = self.type == EXTERNAL
         return self.project.get_docs_url(

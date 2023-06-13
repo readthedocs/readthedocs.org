@@ -48,6 +48,7 @@ class SphinxBuilderTest(TestCase):
         self.build_env.build = {
             'id': 123,
         }
+        self.build_env.api_client = mock.MagicMock()
 
         BaseSphinx.type = 'base'
         BaseSphinx.sphinx_build_dir = tempfile.mkdtemp()
@@ -55,7 +56,6 @@ class SphinxBuilderTest(TestCase):
 
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
     @patch('readthedocs.projects.models.Project.checkout_path')
-    @override_settings(DONT_HIT_API=True)
     def test_conf_py_path(self, checkout_path, docs_dir):
         """
         Test the conf_py_path that is added to the conf.py file.
@@ -88,7 +88,6 @@ class SphinxBuilderTest(TestCase):
 
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
     @patch('readthedocs.projects.models.Project.checkout_path')
-    @override_settings(DONT_HIT_API=True)
     def test_conf_py_external_version(self, checkout_path, docs_dir):
         self.version.type = EXTERNAL
         self.version.verbose_name = '123'
@@ -113,22 +112,22 @@ class SphinxBuilderTest(TestCase):
         self.assertEqual(params['version'], self.version)
         self.assertEqual(params['build_url'], 'https://readthedocs.org/projects/pip/builds/123/')
 
-    @patch('readthedocs.doc_builder.backends.sphinx.api')
-    @patch('readthedocs.projects.models.api')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
     @patch('readthedocs.builds.models.Version.get_conf_py_path')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_html_context_only_has_public_versions(
-            self, checkout_path, get_conf_py_path,
-            docs_dir, api_project, api_version,
+        self,
+        checkout_path,
+        get_conf_py_path,
+        docs_dir,
     ):
         tmp_dir = tempfile.mkdtemp()
         checkout_path.return_value = tmp_dir
         docs_dir.return_value = tmp_dir
         get_conf_py_path.side_effect = ProjectConfigurationError
 
-        api_version.version().get.return_value = {'downloads': []}
-        api_project.project().active_versions.get.return_value = {
+        self.build_env.api_client.version().get.return_value = {"downloads": []}
+        self.build_env.api_client.project().active_versions.get.return_value = {
             'versions': [
                 {
                     'slug': 'v1',
@@ -325,7 +324,7 @@ class MkdocsBuilderTest(TestCase):
         self.project = get(Project, documentation_type='mkdocs', name='mkdocs')
         self.version = get(Version, project=self.project)
 
-        self.build_env = LocalBuildEnvironment()
+        self.build_env = LocalBuildEnvironment(api_client=mock.MagicMock())
         self.build_env.project = self.project
         self.build_env.version = self.version
 
