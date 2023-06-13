@@ -6,6 +6,13 @@ from readthedocs.projects.models import Project
 
 class BuildAPIKey(AbstractAPIKey):
 
+    """
+    API key for securely interacting with the API from the builders.
+
+    The key is attached to a single project,
+    it can be used to have write access to the API V2.
+    """
+
     project = models.ForeignKey(
         Project,
         on_delete=models.CASCADE,

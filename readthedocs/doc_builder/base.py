@@ -30,7 +30,7 @@ class BaseBuilder:
 
     ignore_patterns = []
 
-    def __init__(self, build_env, python_env, api_client):
+    def __init__(self, build_env, python_env):
         self.build_env = build_env
         self.python_env = python_env
         self.version = build_env.version

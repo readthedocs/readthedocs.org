@@ -70,10 +70,18 @@ class IsAuthorizedToViewVersion(permissions.BasePermission):
 
 
 class TokenKeyParser(KeyParser):
+    """Custom key parser to use ``Token {TOKEN}`` as format."""
     keyword = "Token"
 
 
 class HasBuildAPIKey(BaseHasAPIKey):
+    """
+    Custom permission to inject the build API key into the request.
+
+    This avoids having to parse the key again on each view.
+    The key is injected in the ``request.build_api_key`` attribute
+    only if it's valid, otherwise it's set to ``None``.
+    """
     model = BuildAPIKey
     key_parser = TokenKeyParser()
 
