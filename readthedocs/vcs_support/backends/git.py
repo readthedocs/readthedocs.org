@@ -89,14 +89,26 @@ class Backend(BaseVCS):
         """
         Gets a valid remote reference for the identifier.
 
+        This method is terrible. It decides how to treat the incoming identifier from
+        knowledge of how the caller (the build process) uses build data.
+
+        Build.identifier = a branch name (branches)
+        Build.identifier = commit (tags)
+        Build.identifier = commit (external versions)
+        Build.verbose_name = branch alias, e.g. latest (branches)
+        Build.verbose_name = tag name (tags)
+        Build.verbose_name = PR number (external versions)
+
         :param identifier: Should be a branch or tag name when building branches or tags.
         :return: A reference valid for fetch operation
         """
-        # Tags and branches have the tag/branch identifier set by the caller who instantiated the
-        # Git backend -- this means that the build process needs to know this from build data,
-        # essentially from an incoming webhook call.
-        if self.version_type in (BRANCH, TAG):
+        # Branches have the branch identifier set by the caller who instantiated the
+        # Git backend
+        if self.version_type == BRANCH:
             return identifier
+        # Tags
+        if self.version_type == TAG:
+            return self.verbose_name
         if self.version_type == EXTERNAL:
 
             # TODO: We should be able to resolve this without looking up in oauth registry
