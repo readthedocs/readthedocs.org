@@ -15,11 +15,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
-from readthedocs.builds.constants import (
-    EXTERNAL_VERSION_STATE_CLOSED,
-    EXTERNAL_VERSION_STATE_OPEN,
-    LATEST,
-)
+from readthedocs.builds.constants import LATEST
 from readthedocs.core.signals import webhook_bitbucket, webhook_github, webhook_gitlab
 from readthedocs.core.views.hooks import (
     build_branches,
@@ -190,7 +186,7 @@ class WebhookMixin:
 
         :param project: Project instance
         :type project: Project
-        :param branches: List of branch names to build
+        :param branches: List of branch/tag names to build
         :type branches: list(str)
         """
         to_build, not_building = build_branches(project, branches)
