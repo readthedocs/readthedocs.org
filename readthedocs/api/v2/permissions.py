@@ -70,6 +70,7 @@ class IsAuthorizedToViewVersion(permissions.BasePermission):
 
 
 class TokenKeyParser(KeyParser):
+
     """Custom key parser to use ``Token {TOKEN}`` as format."""
 
     keyword = "Token"
