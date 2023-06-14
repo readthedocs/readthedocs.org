@@ -143,6 +143,18 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r[http_header], http_header_value)
         self.assertEqual(r[http_header_secure], http_header_value)
 
+    def test_hosting_integrations_header(self):
+        version = self.project.versions.get(slug=LATEST)
+        version.addons = True
+        version.save()
+
+        r = self.client.get(
+            "/en/latest/", secure=True, HTTP_HOST="project.dev.readthedocs.io"
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertIsNotNone(r.get("X-RTD-Hosting-Integrations"))
+        self.assertEqual(r["X-RTD-Hosting-Integrations"], "true")
+
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cache_headers_public_version_with_private_projects_not_allowed(self):
         r = self.client.get(

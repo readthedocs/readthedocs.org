@@ -12,62 +12,18 @@ Below is an example YAML file which shows the most common configuration options:
 
    .. tab:: Sphinx
 
-      .. code:: yaml
-
-         # .readthedocs.yaml
-         # Read the Docs configuration file
-         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-         # Required
-         version: 2
-
-         # Set the version of Python and other tools you might need
-         build:
-           os: ubuntu-22.04
-           tools:
-             python: "3.11"
-             # You can also specify other tool versions:
-             # nodejs: "19"
-             # rust: "1.64"
-             # golang: "1.19"
-
-         # Build documentation in the docs/ directory with Sphinx
-         sphinx:
-            configuration: docs/conf.py
-
-         # If using Sphinx, optionally build your docs in additional formats such as PDF
-         # formats:
-         #    - pdf
-
-         # Optionally declare the Python requirements required to build your docs
-         python:
-            install:
-            - requirements: docs/requirements.txt
+        .. literalinclude:: /config-file/examples/sphinx/.readthedocs.yaml
+              :language: yaml
+              :linenos:
+              :caption: .readthedocs.yaml
 
    .. tab:: MkDocs
 
-      .. code:: yaml
+        .. literalinclude:: /config-file/examples/mkdocs/.readthedocs.yaml
+           :language: yaml
+           :linenos:
+           :caption: .readthedocs.yaml
 
-         # .readthedocs.yaml
-         # Read the Docs configuration file
-         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-         # Required
-         version: 2
-
-         # Set the version of Python and other tools you might need
-         build:
-           os: ubuntu-22.04
-           tools:
-             python: "3.11"
-
-         mkdocs:
-           configuration: mkdocs.yml
-
-         # Optionally declare the Python requirements required to build your docs
-         python:
-            install:
-            - requirements: docs/requirements.txt
 
 Supported settings
 ------------------
@@ -430,6 +386,10 @@ We don't currently support PPA's or other custom repositories.
 
    When possible avoid installing Python packages using apt (``python3-numpy`` for example),
    :doc:`use pip or conda instead </guides/reproducible-builds>`.
+
+.. warning::
+
+   Currently, it's not possible to use this option when using :ref:`config-file/v2:build.commands`.
 
 
 build.jobs

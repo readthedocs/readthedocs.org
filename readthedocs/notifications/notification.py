@@ -37,9 +37,10 @@ class Notification:
     send_email = True
     extra_tags = ''
 
-    def __init__(self, context_object, request=None, user=None):
+    def __init__(self, context_object, request=None, user=None, extra_context=None):
         self.object = context_object
         self.request = request or HttpRequest()
+        self.extra_context = extra_context or {}
         self.user = user
         if self.user is None:
             self.user = request.user
@@ -57,6 +58,7 @@ class Notification:
                 host=settings.PRODUCTION_DOMAIN,
             ),
         }
+        context.update(self.extra_context)
         context.update(readthedocs_processor(self.request))
         return context
 
@@ -125,13 +127,13 @@ class SiteNotification(Notification):
     failure_level = constants.ERROR_NON_PERSISTENT
 
     def __init__(
-            self,
-            user,
-            success,
-            reason=None,
-            context_object=None,
-            request=None,
-            extra_context=None,
+        self,
+        user,
+        success,
+        reason=None,
+        context_object=None,
+        request=None,
+        extra_context=None,
     ):
         self.object = context_object
 
@@ -143,13 +145,7 @@ class SiteNotification(Notification):
 
         self.success = success
         self.reason = reason
-        self.extra_context = extra_context or {}
-        super().__init__(context_object, request, user)
-
-    def get_context_data(self):
-        context = super().get_context_data()
-        context.update(self.extra_context)
-        return context
+        super().__init__(context_object, request, user, extra_context)
 
     def get_message_level(self):
         if self.success:

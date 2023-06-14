@@ -129,6 +129,9 @@ Get a high-level overview of our platform:
 💡 :doc:`/choosing-a-site`
   Learn about the differences between |org_brand| and |com_brand|.
 
+💡 :doc:`All explanation articles </explanation/index>`
+  Browser all our explanation articles.
+
 .. TODO: This next item needs its article to be finished in a separate PR
 .. https://github.com/readthedocs/readthedocs.org/pull/10071
 .. TODO: 💡 Advanced topics: Deep-dive into Read the Docs
@@ -138,7 +141,8 @@ Get a high-level overview of our platform:
 How-to guides
 -------------
 
-Need to get something specific done? These guides provide step-by-step instructions on various areas:
+Need to get something specific done?
+These guides provide step-by-step instructions in key areas to get you up to speed faster:
 
 .. Descriptions here are active, learn, setup, etc.
 .. The chosen sample of how-tos is intended reflect to width of the how-to section
@@ -159,7 +163,8 @@ Need to get something specific done? These guides provide step-by-step instructi
 Reference
 ---------
 
-Need to know how something works? Our references provide the details:
+Need to know how something works?
+Here are a few of the most important reference docs:
 
 .. Descriptions here sound like reference
 

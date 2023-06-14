@@ -1,16 +1,16 @@
-How to manually connect your Git repository
-===========================================
+How to manually configure a Git repository
+==========================================
 
 In this guide,
-you will find the simple steps to manually integrating your Read the Docs project with all Git providers that supports our generic API.
+you will find the simple steps to manually integrating your Read the Docs project with all Git providers that support our generic API.
 This includes most Git providers, for example |git_providers_and|.
 
-.. note::
+.. seealso::
 
-   If your account is connected to the provider,
-   we'll try to setup the integration automatically.
-   If something fails, you can still setup the integration manually.
-
+   :doc:`/guides/setup/git-repo-automatic`
+     You are now reading the guide to configuring a Git repository manually.
+     If your Read the Docs account is :doc:`connected to the Git provider </guides/connecting-git-account>`,
+     we can setup the integration automatically.
 
 
 ..
@@ -32,6 +32,8 @@ This includes most Git providers, for example |git_providers_and|.
 Provider-specific instructions
 ------------------------------
 
+You need to configure your Git provider to call a webhook on Read the Docs.
+This will make Read the Docs build your documentation when a new commit, branch or tag is pushed to your repository.
 
 .. tabs::
 
@@ -110,6 +112,10 @@ Provider-specific instructions
 
       .. _issue #8364: https://github.com/readthedocs/readthedocs.org/issues/8364
 
+   .. tab:: Others
+
+      Other providers are supported through a generic webhook, see :ref:`webhook-integration-generic`.
+
 
 Additional integration
 ----------------------
@@ -123,6 +129,21 @@ After you have added the integration, you'll see a link to information about the
 As an example, the URL pattern looks like this: ``https://readthedocs.org/api/v2/webhook/<project-name>/<id>/*``.
 
 Use this URL when setting up a new integration with your provider ^^ these steps vary depending on the provider.
+
+
+.. warning::
+
+   Git repositories that are imported manually **do not** have the required setup to send back a **commit status**.
+   If you need this integration,
+   you have to :doc:`configure the repository automatically </guides/setup/git-repo-automatic>`.
+
+.. seealso::
+
+   :doc:`/guides/build/email-notifications`
+      Quickly enable email notifications.
+
+   :doc:`/guides/build/webhooks`
+      Learn how to add custom webhook notifications.
 
 
 .. _webhook-integration-generic:

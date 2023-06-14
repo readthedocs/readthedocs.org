@@ -6,13 +6,18 @@ The following how-to guides help you solve common tasks and challenges in the se
 ⏩️ :doc:`Connecting your Read the Docs account to your Git provider </guides/connecting-git-account>`
     Steps to connect an account on |git_providers_or| with your Read the Docs account.
 
-⏩️ :doc:`Connecting your Git repository automatically </connected-accounts>`
+⏩️ :doc:`Configuring a Git repository automatically </guides/setup/git-repo-automatic>`
     Once your account is connected to your Git provider,
     adding and configuring a Git repository **automatically** is possible for |git_providers_and|.
 
-⏩️ :doc:`Connecting your Git repository manually </guides/git-integrations>`
+⏩️ :doc:`Configuring a Git repository manually </guides/setup/git-repo-manual>`
     If you are connecting a Git repository from another provider (for instance Gitea or Codeberg),
-    this guide tells you how to add and configure the Webhook **manually**.
+    this guide tells you how to add and configure the webhook **manually**.
+
+⏩ :doc:`Adding a configuration file </guides/setup/configuration-file>`
+    To build your documentation project,
+    you need to add a ``.readthedocs.yaml`` configuration file.
+    This guide gets you started.
 
 ⏩️ :doc:`Managing custom domains </guides/custom-domains>`
     Hosting your documentation using your own domain name, such as ``docs.example.com``.
@@ -43,8 +48,9 @@ The following how-to guides help you solve common tasks and challenges in the se
    :hidden:
 
    Connecting your Read the Docs account to your Git provider </guides/connecting-git-account>
-   Connecting your Git repository automatically </connected-accounts>
-   Connecting your Git repository manually </guides/git-integrations>
+   Configuring a Git repository automatically </guides/setup/git-repo-automatic>
+   Configuring a Git repository manually </guides/setup/git-repo-manual>
+   Adding a configuration file </guides/setup/configuration-file>
    Managing custom domains </guides/custom-domains>
    Managing subprojects </guides/subprojects>
    Hiding a version </guides/hiding-a-version>

@@ -178,7 +178,6 @@ class CommunityBaseSettings(Settings):
         }
 
     # Database and API hitting settings
-    DONT_HIT_API = False
     DONT_HIT_DB = True
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
     DATABASE_ROUTERS = ['readthedocs.core.db.MapAppsRouter']
@@ -512,9 +511,11 @@ class CommunityBaseSettings(Settings):
                 'delete': True,
             },
         },
-        'every-day-delete-inactive-external-versions': {
+        'every-three-hours-delete-inactive-external-versions': {
             'task': 'readthedocs.builds.tasks.delete_closed_external_versions',
-            'schedule': crontab(minute=0, hour=1),
+            # Increase the frequency because we have 255k closed versions and they keep growing.
+            # It's better to increase this frequency than the `limit=` of the task.
+            'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
         'every-day-resync-remote-repositories': {
@@ -530,6 +531,11 @@ class CommunityBaseSettings(Settings):
         'every-15m-delete-pidbox-objects': {
             'task': 'readthedocs.core.tasks.cleanup_pidbox_keys',
             'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
+        'weekly-config-file-notification': {
+            'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
+            'schedule': crontab(day_of_week='wednesday', hour=11, minute=15),
             'options': {'queue': 'web'},
         },
     }
@@ -742,6 +748,7 @@ class CommunityBaseSettings(Settings):
 
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
+            "VERIFIED_EMAIL": True,
             'SCOPE': [
                 'user:email',
                 'read:org',
@@ -750,6 +757,7 @@ class CommunityBaseSettings(Settings):
             ],
         },
         'gitlab': {
+            "VERIFIED_EMAIL": True,
             'SCOPE': [
                 'api',
                 'read_user',
