@@ -292,8 +292,10 @@ class BaseSphinx(BaseBuilder):
                 raise UserFileNotFound(
                     UserFileNotFound.FILE_NOT_FOUND.format(self.config_file)
                 )
-        except IOError:
-            raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
+        except IOError as exc:
+            raise ProjectConfigurationError(
+                ProjectConfigurationError.NOT_FOUND
+            ) from exc
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')

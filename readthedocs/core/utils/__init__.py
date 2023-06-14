@@ -262,7 +262,7 @@ def cancel_build(build):
 def send_email(
         recipient, subject, template, template_html, context=None, request=None,
         from_email=None, **kwargs
-):  # pylint: disable=unused-argument
+):
     """
     Alter context passed in and call email send task.
 
