@@ -587,7 +587,7 @@ class BuildDirector:
         builder = get_builder_class(builder_class)(
             build_env=self.build_environment,
             python_env=self.language_environment,
-       )
+        )
 
         if builder_class == self.data.config.doctype:
             builder.append_conf()

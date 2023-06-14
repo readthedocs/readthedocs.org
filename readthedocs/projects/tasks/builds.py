@@ -946,7 +946,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     bind=True,
     ignore_result=True,
 )
-def update_docs_task(self, version_id, build_id, *, build_api_key, build_commit=None, **kwargs):
+def update_docs_task(
+    self, version_id, build_id, *, build_api_key, build_commit=None, **kwargs
+):
     # In case we pass more arguments than expected, log them and ignore them,
     # so we don't break builds while we deploy a change that requires an extra argument.
     if kwargs:
