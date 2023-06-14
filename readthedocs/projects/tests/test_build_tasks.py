@@ -67,6 +67,7 @@ class BuildEnvironmentBase:
         return update_docs_task.delay(
             self.version.pk,
             self.build.pk,
+            build_api_key="1234",
             build_commit=self.build.commit,
         )
 
@@ -1754,7 +1755,7 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
 
 class TestSyncRepositoryTask(BuildEnvironmentBase):
     def _trigger_sync_repository_task(self):
-        sync_repository_task.delay(self.version.pk)
+        sync_repository_task.delay(self.version.pk, build_api_key="1234")
 
     @mock.patch('readthedocs.projects.tasks.builds.clean_build')
     def test_clean_build_after_sync_repository(self, clean_build):
@@ -1801,7 +1802,9 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
             mock.ANY,
             mock.ANY,
             [self.version.pk],
-            {},
+            {
+                "build_api_key": mock.ANY,
+            },
             mock.ANY,
         )
 

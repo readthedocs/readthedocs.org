@@ -1386,7 +1386,9 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
         sync_repository_task.apply_async.assert_called_with(
-            args=[latest_version.pk,],
+            args=[
+                latest_version.pk,
+            ],
             kwargs={
                 "build_api_key": mock.ANY,
             },
@@ -1473,7 +1475,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with(args=[latest_version.pk], kwargs={"build_api_key": mock.ANY})
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     @mock.patch("readthedocs.core.views.hooks.sync_repository_task")
     def test_github_ping_event(self, sync_repository_task, trigger_build):
@@ -1508,7 +1512,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with(args=[latest_version.pk], kwargs={"build_api_key": mock.ANY})
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     @mock.patch('readthedocs.core.utils.trigger_build')
     def test_github_pull_request_opened_event(self, trigger_build, core_trigger_build):
@@ -1729,7 +1735,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with(args=[latest_version.pk], kwargs={"build_api_key": mock.ANY})
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     def test_github_parse_ref(self, trigger_build):
         wh = GitHubWebhookView()
@@ -2029,7 +2037,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with(args=[latest_version.pk], kwargs={"build_api_key": mock.ANY})
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_gitlab_push_hook_deletion(
@@ -2051,7 +2061,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with(args=[latest_version.pk], kwargs={"build_api_key": mock.ANY})
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_gitlab_tag_push_hook_creation(
@@ -2074,7 +2086,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with(args=[latest_version.pk], kwargs={"build_api_key": mock.ANY})
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_gitlab_tag_push_hook_deletion(
@@ -2097,7 +2111,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with(args=[latest_version.pk], kwargs={"build_api_key": mock.ANY})
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     def test_gitlab_invalid_webhook(self, trigger_build):
         """GitLab webhook unhandled event."""
@@ -2533,7 +2549,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with(args=[latest_version.pk], kwargs={"build_api_key": mock.ANY})
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_bitbucket_push_hook_deletion(
@@ -2552,7 +2570,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with(args=[latest_version.pk], kwargs={"build_api_key": mock.ANY})
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     def test_bitbucket_invalid_webhook(self, trigger_build):
         """Bitbucket webhook unhandled event."""
