@@ -135,7 +135,7 @@ You can export the token to an environment variable, using an ``export`` command
 .. prompt:: bash $
 
     # ``1/xxxx`` is the API token you generated
-    export TX_TOKEN=1/xxxx`` (where ).
+    export TX_TOKEN=1/xxxx
 
 In order to store the token permanently, you can save it in a ``~/.transifexrc`` file. It should look like this:
 
