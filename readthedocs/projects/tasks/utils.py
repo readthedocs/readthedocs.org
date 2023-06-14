@@ -237,8 +237,9 @@ def deprecated_config_file_used_notification():
             project.versions.filter(slug=project.default_version).only("id").first()
         )
         if version:
+            years_ago = timezone.now() - timezone.timedelta(days=365)  # 1 years ago
             build = (
-                version.builds.filter(success=True)
+                version.builds.filter(success=True, date__gt=years_ago)
                 .only("_config")
                 .order_by("-date")
                 .first()
