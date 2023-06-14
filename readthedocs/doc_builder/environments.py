@@ -10,13 +10,13 @@ from datetime import datetime
 import structlog
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+from docker import APIClient
 from docker.errors import APIError as DockerAPIError
 from docker.errors import DockerException
 from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError, ReadTimeout
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
-from docker import APIClient
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.models import Feature
@@ -156,7 +156,7 @@ class BuildCommand(BuildCommandResultMixin):
                 command = self.get_command()
 
             stderr = subprocess.PIPE if self.demux else subprocess.STDOUT
-            proc = subprocess.Popen(
+            proc = subprocess.Popen(  # pylint: disable=consider-using-with
                 command,
                 shell=self.shell,
                 cwd=self.cwd,
@@ -630,8 +630,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 )
                 client = self.get_client()
                 client.remove_container(self.container_id)
-        except (DockerAPIError, ConnectionError) as e:
-            raise BuildAppError(e.explanation)
+        except (DockerAPIError, ConnectionError) as exc:
+            raise BuildAppError(exc.explanation) from exc
 
         # Create the checkout path if it doesn't exist to avoid Docker creation
         if not os.path.exists(self.project.doc_path):
@@ -704,8 +704,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                     version=DOCKER_VERSION,
                 )
             return self.client
-        except DockerException as e:
-            raise BuildAppError(e.explanation)
+        except DockerException as exc:
+            raise BuildAppError(exc.explanation) from exc
 
     def _get_binds(self):
         """
@@ -822,5 +822,5 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 runtime=docker_runtime,
             )
             client.start(container=self.container_id)
-        except (DockerAPIError, ConnectionError) as e:
-            raise BuildAppError(e.explanation)
+        except (DockerAPIError, ConnectionError) as exc:
+            raise BuildAppError(exc.explanation) from exc

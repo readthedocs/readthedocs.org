@@ -28,9 +28,7 @@ from .models import (
     WebHook,
     WebHookEvent,
 )
-from .notifications import (
-    ResourceUsageNotification,
-)
+from .notifications import ResourceUsageNotification
 from .tag_utils import import_tags
 from .tasks.utils import clean_project_resources
 
