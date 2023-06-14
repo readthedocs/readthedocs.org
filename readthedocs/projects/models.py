@@ -107,7 +107,7 @@ class ProjectRelationship(models.Model):
     def __str__(self):
         return '{} -> {}'.format(self.parent, self.child)
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         if not self.alias:
             self.alias = self.child.slug
         super().save(*args, **kwargs)
@@ -544,12 +544,14 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
             if not self.slug:
-                raise Exception(_('Model must have slug'))
+                raise Exception(  # pylint: disable=broad-exception-raised
+                    _("Model must have slug")
+                )
         super().save(*args, **kwargs)
 
         try:
@@ -567,7 +569,7 @@ class Project(models.Model):
         )
         self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
 
         # Remove extra resources
@@ -1751,7 +1753,7 @@ class Domain(TimeStampedModel):
     canonical = models.BooleanField(
         default=False,
         help_text=_(
-            "This domain is the primary one where the documentation is " "served from",
+            "This domain is the primary one where the documentation is served from",
         ),
     )
     https = models.BooleanField(
@@ -1834,7 +1836,7 @@ class Domain(TimeStampedModel):
             self.validation_process_start = timezone.now()
             self.save()
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
             self.domain = parsed.netloc
@@ -1903,18 +1905,13 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    ALLOW_DEPRECATED_WEBHOOKS = "allow_deprecated_webhooks"
     SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
     DONT_SHALLOW_CLONE = "dont_shallow_clone"
-    USE_TESTING_BUILD_IMAGE = "use_testing_build_image"
-    CLEAN_AFTER_BUILD = "clean_after_build"
     UPDATE_CONDA_STARTUP = "update_conda_startup"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
-    CACHED_ENVIRONMENT = "cached_environment"
-    LIMIT_CONCURRENT_BUILDS = "limit_concurrent_builds"
     CDN_ENABLED = "cdn_enabled"
     DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
@@ -1946,17 +1943,11 @@ class Feature(models.Model):
 
     # Build related features
     GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout"
-    LIST_PACKAGES_INSTALLED_ENV = "list_packages_installed_env"
-    VCS_REMOTE_LISTING = "vcs_remote_listing"
-    SPHINX_PARALLEL = "sphinx_parallel"
-    USE_SPHINX_BUILDERS = "use_sphinx_builders"
-    CANCEL_OLD_BUILDS = "cancel_old_builds"
     DONT_CREATE_INDEX = "dont_create_index"
-    USE_RCLONE = "use_rclone"
     HOSTING_INTEGRATIONS = "hosting_integrations"
+    NO_CONFIG_FILE_DEPRECATED = "no_config_file"
 
     FEATURES = (
-        (ALLOW_DEPRECATED_WEBHOOKS, _("Webhook: Allow deprecated webhook views")),
         (
             SKIP_SPHINX_HTML_THEME_PATH,
             _(
@@ -1972,16 +1963,8 @@ class Feature(models.Model):
             _("Build: Do not shallow clone when cloning git repos"),
         ),
         (
-            USE_TESTING_BUILD_IMAGE,
-            _("Build: Use Docker image labelled as `testing` to build the docs"),
-        ),
-        (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
-        ),
-        (
-            CLEAN_AFTER_BUILD,
-            _("Build: Clean all files used in the build process"),
         ),
         (
             UPDATE_CONDA_STARTUP,
@@ -1997,16 +1980,6 @@ class Feature(models.Model):
                 "Sphinx: Pass all versions (including private) into the html context "
                 "when building with Sphinx"
             ),
-        ),
-        (
-            CACHED_ENVIRONMENT,
-            _(
-                "Build: Cache the environment (virtualenv, conda, pip cache, repository) in storage"
-            ),
-        ),
-        (
-            LIMIT_CONCURRENT_BUILDS,
-            _("Build: Limit the amount of concurrent builds"),
         ),
         (
             CDN_ENABLED,
@@ -2098,40 +2071,10 @@ class Feature(models.Model):
                 "sources"
             ),
         ),
-
-        (
-            LIST_PACKAGES_INSTALLED_ENV,
-            _(
-                'Build: List packages installed in the environment ("pip list" or "conda list") '
-                'on build\'s output',
-            ),
-        ),
-        (
-            VCS_REMOTE_LISTING,
-            _(
-                "Build: Use remote listing in VCS (e.g. git ls-remote) if supported for sync "
-                "versions"
-            ),
-        ),
         (
             GIT_CLONE_FETCH_CHECKOUT_PATTERN,
             _(
                 "Build: Use simplified and optimized git clone + git fetch + git checkout patterns"
-            ),
-        ),
-        (
-            SPHINX_PARALLEL,
-            _('Sphinx: Use "-j auto" when calling sphinx-build'),
-        ),
-        (
-            USE_SPHINX_BUILDERS,
-            _("Sphinx: Use regular sphinx builders instead of custom RTD builders"),
-        ),
-        (
-            CANCEL_OLD_BUILDS,
-            _(
-                "Build: Cancel triggered/running builds when a new one with same project/version "
-                "arrives"
             ),
         ),
         (
@@ -2141,14 +2084,14 @@ class Feature(models.Model):
             ),
         ),
         (
-            USE_RCLONE,
-            _("Build: Use rclone for syncing files to the media storage."),
-        ),
-        (
             HOSTING_INTEGRATIONS,
             _(
                 "Proxito: Inject 'readthedocs-client.js' as <script> HTML tag in responses."
             ),
+        ),
+        (
+            NO_CONFIG_FILE_DEPRECATED,
+            _("Build: Building without a configuration file is deprecated."),
         ),
     )
 
@@ -2221,6 +2164,6 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         self.value = quote(self.value)
         return super().save(*args, **kwargs)

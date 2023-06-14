@@ -10,7 +10,7 @@ from readthedocs.builds.constants import BUILD_STATE_BUILDING, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 
 
 class CoreUtilTests(TestCase):
@@ -168,11 +168,6 @@ class CoreUtilTests(TestCase):
     @pytest.mark.xfail(reason='Fails while we work out Docker time limits', strict=True)
     @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_trigger_max_concurrency_reached(self, update_docs):
-        get(
-            Feature,
-            feature_id=Feature.LIMIT_CONCURRENT_BUILDS,
-            projects=[self.project],
-        )
         max_concurrent_builds = 2
         for _ in range(max_concurrent_builds):
             get(

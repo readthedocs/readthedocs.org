@@ -156,7 +156,7 @@ class BuildCommand(BuildCommandResultMixin):
                 command = self.get_command()
 
             stderr = subprocess.PIPE if self.demux else subprocess.STDOUT
-            proc = subprocess.Popen(
+            proc = subprocess.Popen(  # pylint: disable=consider-using-with
                 command,
                 shell=self.shell,
                 cwd=self.cwd,
@@ -574,10 +574,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             self.use_gvisor = True
 
         # Decide what Docker image to use, based on priorities:
-        # Use the Docker image set by our feature flag: ``testing`` or,
-        if self.project.has_feature(Feature.USE_TESTING_BUILD_IMAGE):
-            self.container_image = 'readthedocs/build:testing'
-        # the image set by user or,
+        # The image set by user or,
         if self.config and self.config.docker_image:
             self.container_image = self.config.docker_image
         # the image overridden by the project (manually set by an admin).
@@ -633,8 +630,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 )
                 client = self.get_client()
                 client.remove_container(self.container_id)
-        except (DockerAPIError, ConnectionError) as e:
-            raise BuildAppError(e.explanation)
+        except (DockerAPIError, ConnectionError) as exc:
+            raise BuildAppError(exc.explanation) from exc
 
         # Create the checkout path if it doesn't exist to avoid Docker creation
         if not os.path.exists(self.project.doc_path):
@@ -707,8 +704,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                     version=DOCKER_VERSION,
                 )
             return self.client
-        except DockerException as e:
-            raise BuildAppError(e.explanation)
+        except DockerException as exc:
+            raise BuildAppError(exc.explanation) from exc
 
     def _get_binds(self):
         """
@@ -825,5 +822,5 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 runtime=docker_runtime,
             )
             client.start(container=self.container_id)
-        except (DockerAPIError, ConnectionError) as e:
-            raise BuildAppError(e.explanation)
+        except (DockerAPIError, ConnectionError) as exc:
+            raise BuildAppError(exc.explanation) from exc

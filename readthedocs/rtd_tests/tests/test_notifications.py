@@ -6,7 +6,6 @@ from unittest import mock
 import django_dynamic_fixture as fixture
 from allauth.account.models import EmailAddress
 from django.contrib.auth.models import AnonymousUser, User
-from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
 from messages_extends.models import Message as PersistentMessage
@@ -18,11 +17,6 @@ from readthedocs.notifications.constants import (
     ERROR,
     INFO_NON_PERSISTENT,
     WARNING_NON_PERSISTENT,
-)
-from readthedocs.projects.models import Project
-from readthedocs.projects.notifications import (
-    DeprecatedBuildWebhookNotification,
-    DeprecatedGitHubWebhookNotification,
 )
 
 
@@ -272,43 +266,3 @@ class SiteNotificationTests(TestCase):
         with mock.patch('readthedocs.notifications.notification.log') as mock_log:
             self.assertEqual(self.n.get_message(False), '')
             mock_log.error.assert_called_once()
-
-
-class DeprecatedWebhookEndpointNotificationTests(TestCase):
-
-    def setUp(self):
-        PersistentMessage.objects.all().delete()
-
-        self.user = fixture.get(User)
-        self.project = fixture.get(Project, users=[self.user])
-        self.request = HttpRequest()
-
-        self.notification = DeprecatedBuildWebhookNotification(
-            self.project,
-            self.request,
-            self.user,
-        )
-
-    @mock.patch('readthedocs.notifications.backends.send_email')
-    def test_dedupliation(self, send_email):
-        user = fixture.get(User)
-        project = fixture.get(Project, main_language_project=None)
-        project.users.add(user)
-        project.refresh_from_db()
-        self.assertEqual(project.users.count(), 1)
-
-        self.assertEqual(PersistentMessage.objects.filter(user=user).count(), 0)
-        DeprecatedGitHubWebhookNotification.notify_project_users([project])
-
-        # Site and email notification will go out, site message doesn't have
-        # any reason to deduplicate yet
-        self.assertEqual(PersistentMessage.objects.filter(user=user).count(), 1)
-        self.assertTrue(send_email.called)
-        send_email.reset_mock()
-        self.assertFalse(send_email.called)
-
-        # Expect the site message to deduplicate, the email won't
-        DeprecatedGitHubWebhookNotification.notify_project_users([project])
-        self.assertEqual(PersistentMessage.objects.filter(user=user).count(), 1)
-        self.assertTrue(send_email.called)
-        send_email.reset_mock()

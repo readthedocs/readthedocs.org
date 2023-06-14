@@ -2790,7 +2790,7 @@ class APIVersionTests(TestCase):
                 "environment_variables": {},
                 "enable_epub_build": True,
                 "enable_pdf_build": True,
-                "features": ["allow_deprecated_webhooks"],
+                "features": [],
                 "has_valid_clone": False,
                 "has_valid_webhook": False,
                 "id": 6,

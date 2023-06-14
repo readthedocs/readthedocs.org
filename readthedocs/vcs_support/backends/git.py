@@ -149,13 +149,25 @@ class Backend(BaseVCS):
         # --prune-tags: Likely legacy, we don't expect a previous fetch command to have run
         # --tags: This flag was used in the previous approach such that all tags were fetched
         #         in order to checkout a tag afterwards.
-        cmd = ["git", "fetch", "origin", "--force", "--tags", "--prune", "--prune-tags"]
+        # --depth: This flag should be made unnecessary, it's downloading commit data that's
+        #          never used.
+        cmd = [
+            "git",
+            "fetch",
+            "origin",
+            "--force",
+            "--tags",
+            "--prune",
+            "--prune-tags",
+            "--depth",
+            str(self.repo_depth)
+        ]
         remote_reference = self.get_remote_fetch_reference(identifier)
 
         if remote_reference:
             # TODO: We are still fetching the latest 50 commits.
             # A PR might have another commit added after the build has started...
-            cmd.extend(["--depth", str(self.repo_depth), remote_reference])
+            cmd.append(remote_reference)
 
         code, stdout, stderr = self.run(*cmd)
         return code, stdout, stderr
