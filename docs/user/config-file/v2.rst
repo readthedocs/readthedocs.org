@@ -1,14 +1,14 @@
-Configuration file .readthedocs.yaml
-====================================
+Configuration file v2 (.readthedocs.yaml)
+=========================================
 
-Read the Docs supports configuring your documentation builds with a YAML file.
-It's required to be named ``.readthedocs.yaml`` and be placed in the root of your Git repository.
+Read the Docs supports configuring your documentation builds with a configuration file.
+This file is named ``.readthedocs.yaml`` and should be placed in the top level of your Git repository.
 
-The file can contain a number of settings that are not accessible through the Read the Docs website.
+The ``.readthedocs.yaml``  file can contain a number of settings that are not accessible through the Read the Docs website.
 
 Because the file is stored in Git,
 the configuration will apply to the exact version that is being built.
-This allows you to store different configurations for different versions of your documentation.
+**This allows you to store different configurations for different versions of your documentation.**
 
 Below is an example YAML file which shows the most common configuration options:
 
@@ -907,11 +907,11 @@ These settings aren't supported via the configuration file.
 * ``Privacy level``
 * ``Analytics code``
 
-Custom sub-folder for .readthedocs.yaml
----------------------------------------
+Custom paths for .readthedocs.yaml
+----------------------------------
 
 In order to support *monorepo* layouts,
-it's possible to configure the sub-folder where your ``.readthedocs.yaml`` is found.
+it's possible to configure the path to where your ``.readthedocs.yaml`` is found.
 
 Using this configuration makes it possible to create several Read the Docs projects pointing at the same Git repository.
 This is recommended for monorepo layouts that host several documentation projects in the same repository.
@@ -925,4 +925,4 @@ Previous version: v1
 --------------------
 
 Version 1 is deprecated and using it is discouraged,
-view its reference here :doc:`/config-file/v2`.
+view its reference here :doc:`/config-file/v1`.
