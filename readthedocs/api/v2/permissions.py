@@ -71,12 +71,17 @@ class IsAuthorizedToViewVersion(permissions.BasePermission):
 
 class TokenKeyParser(KeyParser):
 
-    """Custom key parser to use ``Token {TOKEN}`` as format."""
+    """
+    Custom key parser to use ``Token {TOKEN}`` as format.
+
+    This is the same format we use in API V3 for auth/authz.
+    """
 
     keyword = "Token"
 
 
 class HasBuildAPIKey(BaseHasAPIKey):
+
     """
     Custom permission to inject the build API key into the request.
 
