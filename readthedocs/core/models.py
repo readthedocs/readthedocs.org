@@ -47,7 +47,9 @@ class UserProfile(TimeStampedModel):
     # NOTE: this is a temporary field that we can remove after September 25, 2023
     # See https://blog.readthedocs.com/migrate-configuration-v2/
     optout_email_config_file_deprecation = models.BooleanField(
-        _("Opt-out from email about 'Config file deprecation'."), default=False
+        _("Opt-out from email about 'Config file deprecation'"),
+        default=False,
+        null=True,
     )
 
     # Model history
