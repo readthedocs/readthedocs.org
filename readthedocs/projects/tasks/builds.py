@@ -21,6 +21,8 @@ from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
     ARTIFACT_TYPES,
     ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT,
+    ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT_NO_PDF,
+    ARTIFACTS_WITH_RESTRICTED_EXTENSIONS,
     BUILD_FINAL_STATES,
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
@@ -63,7 +65,7 @@ from ..exceptions import (
     RepositoryError,
     SyncRepositoryLocked,
 )
-from ..models import APIProject, WebHookEvent
+from ..models import APIProject, Feature, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import fileify
@@ -539,11 +541,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         It performs the following checks on each output format type path:
          - it exists
          - it is a directory
-         - does not contains more than 1 files (only PDF, HTMLZip, ePUB)
+         - does not contains more than 1 files (HTMLZip, ePUB)
 
         TODO: remove the limitation of only 1 file.
         Add support for multiple PDF files in the output directory and
-        grab them by using glob syntaxt between other files that could be garbage.
+        grab them by using glob syntax between other files that could be garbage.
         """
         valid_artifacts = []
         for artifact_type in ARTIFACT_TYPES:
@@ -570,7 +572,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # Check if there are multiple files on artifact directories.
             # These output format does not support multiple files yet.
             # In case multiple files are found, the upload for this format is not performed.
-            if artifact_type in ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT:
+            if self.data.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS):
+                single_file_artifacts = (
+                    ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT_NO_PDF
+                )
+            else:
+                single_file_artifacts = ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT
+            if artifact_type in single_file_artifacts:
                 artifact_format_files = len(os.listdir(artifact_directory))
                 if artifact_format_files > 1:
                     log.error(
@@ -876,7 +884,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version_type=self.data.version.type,
             )
             try:
-                build_media_storage.rclone_sync_directory(from_path, to_path)
+                rclone_kwargs = {}
+                if media_type in ARTIFACTS_WITH_RESTRICTED_EXTENSIONS:
+                    rclone_kwargs[
+                        "filter_extensions"
+                    ] = ARTIFACTS_WITH_RESTRICTED_EXTENSIONS[media_type]
+                build_media_storage.rclone_sync_directory(
+                    from_path, to_path, **rclone_kwargs
+                )
             except Exception as exc:
                 # NOTE: the exceptions reported so far are:
                 #  - botocore.exceptions:HTTPClientError

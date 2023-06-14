@@ -121,6 +121,25 @@ class TestBuildMediaStorage(TestCase):
             with pytest.raises(SuspiciousFileOperation, match="outside the docroot"):
                 self.storage.copy_directory(tmp_dir, "files")
 
+    def test_sync_directory_with_filter(self):
+        """Test that we can as the rclone_sync_directory method to only include a specific extension."""
+        tmp_files_dir = os.path.join(tempfile.mkdtemp(), "files")
+        # Copy files_dir (with all test files) into tmp_files_dir
+        shutil.copytree(files_dir, tmp_files_dir, symlinks=True)
+        storage_dir = "files"
+
+        tree = [
+            ("api", ["index.html"]),
+            "api.fjson",
+            "conf.py",
+            "test.html",
+        ]
+        with override_settings(DOCROOT=tmp_files_dir):
+            self.storage.rclone_sync_directory(
+                tmp_files_dir, storage_dir, filter_extensions=["html"]
+            )
+        self.assertFileTree(storage_dir, [("api", ["index.html"]), "test.html"])
+
     def test_delete_directory(self):
         with override_settings(DOCROOT=files_dir):
             self.storage.copy_directory(files_dir, "files")

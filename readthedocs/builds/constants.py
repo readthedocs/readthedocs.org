@@ -177,3 +177,16 @@ ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT = (
     "epub",
     "pdf",
 )
+
+# Should replace ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT
+# Currently hidden behind a feature flag
+ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT_NO_PDF = (
+    "htmlzip",
+    "epub",
+)
+
+# For certain media types, we only want to copy out specific file extensions.
+# This is treated case-insensitive.
+ARTIFACTS_WITH_RESTRICTED_EXTENSIONS = {
+    "pdf": ["pdf"],
+}

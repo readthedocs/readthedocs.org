@@ -1941,6 +1941,7 @@ class Feature(models.Model):
     DONT_CREATE_INDEX = "dont_create_index"
     HOSTING_INTEGRATIONS = "hosting_integrations"
     NO_CONFIG_FILE_DEPRECATED = "no_config_file"
+    ENABLE_MULTIPLE_PDFS = "mutliple_pdfs"
 
     FEATURES = (
         (
@@ -2083,6 +2084,7 @@ class Feature(models.Model):
             NO_CONFIG_FILE_DEPRECATED,
             _("Build: Building without a configuration file is deprecated."),
         ),
+        (ENABLE_MULTIPLE_PDFS, _("Build: Enable multiple PDF support during builds.")),
     )
 
     FEATURES = sorted(FEATURES, key=lambda l: l[1])

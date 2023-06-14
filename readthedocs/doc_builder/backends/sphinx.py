@@ -504,6 +504,7 @@ class PdfBuilder(BaseSphinx):
     pdf_file_name = None
 
     def build(self):
+        """Runs Sphinx to convert to LaTeX, uses latexmk to build PDFs."""
         self.run(
             *self.get_sphinx_cmd(),
             "-T",
@@ -516,7 +517,7 @@ class PdfBuilder(BaseSphinx):
             f"language={self.project.language}",
             # Sphinx's source directory (SOURCEDIR).
             # We are executing this command at the location of the `conf.py` file (CWD).
-            # TODO: ideally we should execute it from where the repository was clonned,
+            # TODO: ideally we should execute it from where the repository was cloned,
             # but that could lead unexpected behavior to some users:
             # https://github.com/readthedocs/readthedocs.org/pull/9888#issuecomment-1384649346
             ".",
