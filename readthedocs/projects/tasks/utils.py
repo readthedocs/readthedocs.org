@@ -267,9 +267,11 @@ def deprecated_config_file_used_notification():
     # Only send 1 email per user,
     # even if that user has multiple projects without a configuration file.
     # The notification will mention all the projects.
-    queryset = User.objects.filter(username__in=users, profile__banned=False).order_by(
-        "id"
-    )
+    queryset = User.objects.filter(
+        username__in=users,
+        profile__banned=False,
+        profile__optout_email_config_file_deprecation=False,
+    ).order_by("id")
 
     n_users = queryset.count()
     for i, user in enumerate(queryset.iterator()):
