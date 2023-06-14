@@ -128,60 +128,6 @@ class BuildMediaStorageMixin:
             log.error(msg, path=str(path), resolved_path=str(resolved_path))
             raise SuspiciousFileOperation(msg)
 
-    def sync_directory(self, source, destination):
-        """
-        Sync a directory recursively to storage.
-
-        Overwrites files in remote storage with files from ``source`` (no timstamp/hash checking).
-        Removes files and folders in remote storage that are not present in ``source``.
-
-        :param source: the source path on the local disk
-        :param destination: the destination path in storage
-        """
-        if destination in ('', '/'):
-            raise SuspiciousFileOperation('Syncing all storage cannot be right')
-
-        source = Path(source)
-        self._check_suspicious_path(source)
-
-        log.debug(
-            'Syncing to media storage.',
-            source=str(source),
-            destination=destination,
-        )
-
-        copied_files = set()
-        copied_dirs = set()
-        for filepath in source.iterdir():
-            sub_destination = self.join(destination, filepath.name)
-            # Don't follow symlinks when uploading to storage.
-            if filepath.is_symlink():
-                log.info(
-                    "Skipping symlink upload.",
-                    path_resolved=str(filepath.resolve()),
-                )
-                continue
-
-            if filepath.is_dir():
-                # Recursively sync the subdirectory
-                self.sync_directory(filepath, sub_destination)
-                copied_dirs.add(filepath.name)
-            elif filepath.is_file():
-                with safe_open(filepath, "rb") as fd:
-                    self.save(sub_destination, fd)
-                copied_files.add(filepath.name)
-
-        # Remove files that are not present in ``source``
-        dest_folders, dest_files = self.listdir(self._dirpath(destination))
-        for folder in dest_folders:
-            if folder not in copied_dirs:
-                self.delete_directory(self.join(destination, folder))
-        for filename in dest_files:
-            if filename not in copied_files:
-                filepath = self.join(destination, filename)
-                log.debug('Deleting file from media storage.', filepath=filepath)
-                self.delete(filepath)
-
     @cached_property
     def _rclone(self):
         raise NotImplementedError

@@ -512,9 +512,11 @@ class CommunityBaseSettings(Settings):
                 'delete': True,
             },
         },
-        'every-day-delete-inactive-external-versions': {
+        'every-three-hours-delete-inactive-external-versions': {
             'task': 'readthedocs.builds.tasks.delete_closed_external_versions',
-            'schedule': crontab(minute=0, hour=1),
+            # Increase the frequency because we have 255k closed versions and they keep growing.
+            # It's better to increase this frequency than the `limit=` of the task.
+            'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
         'every-day-resync-remote-repositories': {

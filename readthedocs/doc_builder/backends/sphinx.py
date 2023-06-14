@@ -292,8 +292,10 @@ class BaseSphinx(BaseBuilder):
                 raise UserFileNotFound(
                     UserFileNotFound.FILE_NOT_FOUND.format(self.config_file)
                 )
-        except IOError:
-            raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
+        except IOError as exc:
+            raise ProjectConfigurationError(
+                ProjectConfigurationError.NOT_FOUND
+            ) from exc
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
@@ -320,7 +322,6 @@ class BaseSphinx(BaseBuilder):
             *self.get_sphinx_cmd(),
             '-T',
             '-E',
-            *self.sphinx_parallel_arg(),
         ]
         if self.config.sphinx.fail_on_warning:
             build_command.extend(["-W", "--keep-going"])
@@ -359,38 +360,27 @@ class BaseSphinx(BaseBuilder):
             'sphinx',
         )
 
-    def sphinx_parallel_arg(self):
-        if self.project.has_feature(Feature.SPHINX_PARALLEL):
-            return ['-j', 'auto']
-        return []
-
 
 class HtmlBuilder(BaseSphinx):
     relative_output_dir = "html"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.sphinx_builder = 'readthedocs'
-        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
-            self.sphinx_builder = 'html'
+        self.sphinx_builder = "html"
 
 
 class HtmlDirBuilder(HtmlBuilder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.sphinx_builder = 'readthedocsdirhtml'
-        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
-            self.sphinx_builder = 'dirhtml'
+        self.sphinx_builder = "dirhtml"
 
 
 class SingleHtmlBuilder(HtmlBuilder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.sphinx_builder = 'readthedocssinglehtml'
-        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
-            self.sphinx_builder = 'singlehtml'
+        self.sphinx_builder = "singlehtml"
 
 
 class LocalMediaBuilder(BaseSphinx):
@@ -518,7 +508,6 @@ class PdfBuilder(BaseSphinx):
             *self.get_sphinx_cmd(),
             "-T",
             "-E",
-            *self.sphinx_parallel_arg(),
             "-b",
             self.sphinx_builder,
             "-d",
