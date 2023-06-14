@@ -22,6 +22,7 @@ extensions = [
     "multiproject",
     "myst_parser",
     "notfound.extension",
+    "sphinx_copybutton",
     "sphinx_design",
     "sphinx_search.extension",
     "sphinx_tabs.tabs",
@@ -74,7 +75,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "9.13.2"
+version = "9.13.3"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
