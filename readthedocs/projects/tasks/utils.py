@@ -181,8 +181,7 @@ class DeprecatedConfigFileEmailNotification(Notification):
 
     app_templates = "projects"
     name = "deprecated_config_file_used"
-    context_object_name = "project"
-    subject = "[Action required] Add a configuration file to your project to prevent build failure"
+    subject = "[Action required] Add a configuration file to your project to prevent build failures"
     level = REQUIREMENT
 
     def send(self):
@@ -289,27 +288,28 @@ def deprecated_config_file_used_notification():
         user_projects = AdminPermission.projects(user, admin=True).values_list(
             "slug", flat=True
         )
-        user_projects = list(set(user_projects) & projects)
+        user_projects_slugs = list(set(user_projects) & projects)
+        user_projects = Project.objects.filter(slug__in=user_projects_slugs)
 
-        user_project_slugs = ", ".join(user_projects[:5])
+        # Create slug string for onsite notification
+        user_project_slugs = ", ".join(user_projects_slugs[:5])
         if len(user_projects) > 5:
             user_project_slugs += " and others..."
 
         n_site = DeprecatedConfigFileSiteNotification(
             user=user,
-            context_object=user_projects,
+            context_object=user,
             extra_context={"project_slugs": user_project_slugs},
             success=False,
         )
         n_site.send()
 
-        # TODO: uncomment this code when we are ready to send email notifications
-        # n_email = DeprecatedConfigFileEmailNotification(
-        #     user=user,
-        #     context_object=user_projects,
-        #     extra_context={"project_slugs": user_project_slugs},
-        # )
-        # n_email.send()
+        n_email = DeprecatedConfigFileEmailNotification(
+            user=user,
+            context_object=user,
+            extra_context={"projects": user_projects},
+        )
+        n_email.send()
 
     log.info(
         "Finish sending deprecated config file notifications.",

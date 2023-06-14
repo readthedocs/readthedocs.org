@@ -23,6 +23,7 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.exceptions import RepositoryError
+from readthedocs.projects.models import Feature
 from readthedocs.projects.signals import after_build, before_build, before_vcs
 from readthedocs.storage import build_tools_storage
 
@@ -234,6 +235,12 @@ class BuildDirector:
         )
         self.data.build["config"] = self.data.config.as_dict()
         self.data.build["readthedocs_yaml_path"] = custom_config_file
+
+        # Raise a build error if the project is not using a config file or using v1
+        if self.data.project.has_feature(
+            Feature.NO_CONFIG_FILE_DEPRECATED
+        ) and self.data.config.version not in ("2", 2):
+            raise BuildUserError(BuildUserError.NO_CONFIG_FILE_DEPRECATED)
 
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)
