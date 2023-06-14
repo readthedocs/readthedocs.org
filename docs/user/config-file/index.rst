@@ -1,16 +1,15 @@
 Using a configuration file
 ==========================
 
-The lifecycle of a documentation project changes both the content and the structure of the documentation.
-In addition to this,
-**the whole configuration of a project also changes**.
+During a documentation project's life, both content and structure of the documentation may undergo big and small changes.
+And eventually, the configuration of a documentation project also changes.
 
 In this article,
-we cover the major concepts that are applied in our configuration file:
+we cover the major concepts that are applied by having a configuration file:
 
 Versioning the configuration
-  When the documentation project changes,
-  its configuration often changes alongside.
+  A documentation project and its configuration file live together in a Git repository
+  and are versioned together.
 
 Configuration as code
   A commonly used term which is good to know the background and meaning of.
