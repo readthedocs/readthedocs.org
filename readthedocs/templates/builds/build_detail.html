@@ -174,16 +174,11 @@ $(document).ready(function () {
             {% endblocktrans %}
           </p>
         </div>
-      {% else %}
+      {% elif build.finished and not build.deprecated_config_used  %}
         <div class="build-ideas">
           <p>
             {% blocktrans trimmed %}
               <strong>Your build is properly using a configuration file ✅</strong><br/>
-              {% if build.readthedocs_yaml_path %}}
-                The configuration file used was: <code>{{ build.readthedocs_yaml_path }}</code>.
-              {% else %}
-                The configuration file used was: <code>.readthedocs.yaml</code>.
-              {% endif %}
             {% endblocktrans %}
           </p>
         </div>

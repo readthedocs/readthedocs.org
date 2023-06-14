@@ -106,6 +106,20 @@ class BuildDirector:
         #
         # self.run_build_job("pre_checkout")
         self.checkout()
+
+        # Output the path for the config file used.
+        # This works as confirmation for us & the user about which file is used,
+        # as well as the fact that *any* config file is used.
+        if self.data.config.source_file:
+            command = self.vcs_environment.run(
+                "cat",
+                # Show user the relative path to the config file
+                self.data.config.source_file.replace(
+                    self.data.config.base_path + "/", ""
+                ),
+                cwd=self.data.config.base_path,
+            )
+
         self.run_build_job("post_checkout")
 
         commit = self.data.build_commit or self.vcs_repository.commit
