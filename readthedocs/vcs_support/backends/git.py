@@ -160,7 +160,7 @@ class Backend(BaseVCS):
             "--prune",
             "--prune-tags",
             "--depth",
-            str(self.repo_depth)
+            str(self.repo_depth),
         ]
         remote_reference = self.get_remote_fetch_reference(identifier)
 
