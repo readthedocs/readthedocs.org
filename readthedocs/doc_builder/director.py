@@ -180,10 +180,6 @@ class BuildDirector:
         self.install()
         self.run_build_job("post_install")
 
-        # TODO: remove this and document how to do it on `build.jobs.post_install`
-        if self.data.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
-            self.language_environment.list_packages_installed()
-
     def build(self):
         """
         Build all the formats specified by the user.

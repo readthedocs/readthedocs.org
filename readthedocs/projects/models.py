@@ -1901,18 +1901,13 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    ALLOW_DEPRECATED_WEBHOOKS = "allow_deprecated_webhooks"
     SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
     DONT_SHALLOW_CLONE = "dont_shallow_clone"
-    USE_TESTING_BUILD_IMAGE = "use_testing_build_image"
-    CLEAN_AFTER_BUILD = "clean_after_build"
     UPDATE_CONDA_STARTUP = "update_conda_startup"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
-    CACHED_ENVIRONMENT = "cached_environment"
-    LIMIT_CONCURRENT_BUILDS = "limit_concurrent_builds"
     CDN_ENABLED = "cdn_enabled"
     DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
@@ -1943,18 +1938,11 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    LIST_PACKAGES_INSTALLED_ENV = "list_packages_installed_env"
-    VCS_REMOTE_LISTING = "vcs_remote_listing"
-    SPHINX_PARALLEL = "sphinx_parallel"
-    USE_SPHINX_BUILDERS = "use_sphinx_builders"
-    CANCEL_OLD_BUILDS = "cancel_old_builds"
     DONT_CREATE_INDEX = "dont_create_index"
-    USE_RCLONE = "use_rclone"
     HOSTING_INTEGRATIONS = "hosting_integrations"
     NO_CONFIG_FILE_DEPRECATED = "no_config_file"
 
     FEATURES = (
-        (ALLOW_DEPRECATED_WEBHOOKS, _("Webhook: Allow deprecated webhook views")),
         (
             SKIP_SPHINX_HTML_THEME_PATH,
             _(
@@ -1970,16 +1958,8 @@ class Feature(models.Model):
             _("Build: Do not shallow clone when cloning git repos"),
         ),
         (
-            USE_TESTING_BUILD_IMAGE,
-            _("Build: Use Docker image labelled as `testing` to build the docs"),
-        ),
-        (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
-        ),
-        (
-            CLEAN_AFTER_BUILD,
-            _("Build: Clean all files used in the build process"),
         ),
         (
             UPDATE_CONDA_STARTUP,
@@ -1995,16 +1975,6 @@ class Feature(models.Model):
                 "Sphinx: Pass all versions (including private) into the html context "
                 "when building with Sphinx"
             ),
-        ),
-        (
-            CACHED_ENVIRONMENT,
-            _(
-                "Build: Cache the environment (virtualenv, conda, pip cache, repository) in storage"
-            ),
-        ),
-        (
-            LIMIT_CONCURRENT_BUILDS,
-            _("Build: Limit the amount of concurrent builds"),
         ),
         (
             CDN_ENABLED,
@@ -2098,43 +2068,10 @@ class Feature(models.Model):
         ),
 
         (
-            LIST_PACKAGES_INSTALLED_ENV,
-            _(
-                'Build: List packages installed in the environment ("pip list" or "conda list") '
-                'on build\'s output',
-            ),
-        ),
-        (
-            VCS_REMOTE_LISTING,
-            _(
-                "Build: Use remote listing in VCS (e.g. git ls-remote) if supported for sync "
-                "versions"
-            ),
-        ),
-        (
-            SPHINX_PARALLEL,
-            _('Sphinx: Use "-j auto" when calling sphinx-build'),
-        ),
-        (
-            USE_SPHINX_BUILDERS,
-            _("Sphinx: Use regular sphinx builders instead of custom RTD builders"),
-        ),
-        (
-            CANCEL_OLD_BUILDS,
-            _(
-                "Build: Cancel triggered/running builds when a new one with same project/version "
-                "arrives"
-            ),
-        ),
-        (
             DONT_CREATE_INDEX,
             _(
                 "Sphinx: Do not create index.md or README.rst if the project does not have one."
             ),
-        ),
-        (
-            USE_RCLONE,
-            _("Build: Use rclone for syncing files to the media storage."),
         ),
         (
             HOSTING_INTEGRATIONS,
