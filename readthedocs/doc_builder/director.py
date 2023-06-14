@@ -240,6 +240,12 @@ class BuildDirector:
         self.data.build["config"] = self.data.config.as_dict()
         self.data.build["readthedocs_yaml_path"] = custom_config_file
 
+        # Raise a build error if the project is not using a config file or using v1
+        if self.data.project.has_feature(
+            Feature.NO_CONFIG_FILE_DEPRECATED
+        ) and self.data.config.version not in ("2", 2):
+            raise BuildUserError(BuildUserError.NO_CONFIG_FILE_DEPRECATED)
+
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)
 
