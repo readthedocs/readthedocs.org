@@ -130,7 +130,15 @@ This can be done under your `User's Settings`_.
 
 With the token, you have two options: to export as ``TX_TOKEN`` environment variable or to store it in ``~/.transifexrc``.
 
-Exporting simply takes ``export TX_TOKEN=1/xxxx`` (where ``1/xxxx`` is the API token you generated). Storing in the ``~/.transifexrc`` should look like:
+You can export the token to an environment variable, using an ``export`` command, which activates it in your current command line session:
+
+.. prompt:: bash $
+
+    # ``1/xxxx`` is the API token you generated
+    export TX_TOKEN=1/xxxx`` (where ).
+
+In order to store the token permanently, you can save it in a ``~/.transifexrc`` file. It should look like this:
+
 
 .. code-block::
 
@@ -153,6 +161,11 @@ To achieve this, you need to run this command:
 
 
 This command will generate a file at ``.tx/config`` with all the information needed by the ``tx`` tool to keep your translation synchronized.
+
+.. seealso:
+
+   `Transifex documentation for the tx command <https://developers.transifex.com/docs/using-the-client>`__
+       If you prefer a more direct approach to setting up Transifex, you can also interact directly with the ``tx`` command
 
 Finally, you need to upload these files to Transifex platform so translators can start their work.
 To do this, you can run this command:
