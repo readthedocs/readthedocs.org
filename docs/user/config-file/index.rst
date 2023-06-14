@@ -17,12 +17,14 @@ Configuration as code
 Options that are **not** found in the configuration file
   Not everything is suitable for *configuration as code*.
 
-.. TODO: Add upcoming configuration file how-to
-
 .. seealso::
+
+   :doc:`/guides/setup/configuration-file`
+      Here are the practical steps to add a configuration file to your documentation project.
 
    :doc:`/config-file/v2`
       Reference of all the settings offered in the build configuration file.
+
 
 Why version your project's configuration?
 -----------------------------------------
