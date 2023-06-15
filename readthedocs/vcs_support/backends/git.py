@@ -73,7 +73,6 @@ class Backend(BaseVCS):
 
         # TODO: Remove the 'not'
         if not self.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN):
-
             # New behavior: Clone is responsible for skipping the operation if the
             # repo is already cloned.
             self.clone_ng()
@@ -116,7 +115,6 @@ class Backend(BaseVCS):
         if self.version_type == TAG:
             return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
         if self.version_type == EXTERNAL:
-
             # TODO: We should be able to resolve this without looking up in oauth registry
             git_provider_name = self.project.git_provider_name
 
