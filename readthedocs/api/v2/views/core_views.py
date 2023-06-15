@@ -13,6 +13,14 @@ from readthedocs.projects.models import Project
 
 
 class RevokeBuildAPIKeyView(APIView):
+
+    """
+    Revoke a build API key.
+
+    This is done by hitting the /api/v2/revoke/ endpoint with a POST request,
+    while using the API key to be revoked as the authorization key.
+    """
+
     http_method_names = ["post"]
     permission_classes = [HasBuildAPIKey]
     renderer_classes = [JSONRenderer]
