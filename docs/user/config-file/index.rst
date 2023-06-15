@@ -49,7 +49,7 @@ Documentation tools change ⚙️
   In order to switch between how you are invoking the tool and setting up its environment,
   you will need external build configuration.
 
-Comparing changes over time
+Comparing changes over time ⚖️
   As your project changes, you will need to change your configuration.
   You might wonder how something was done in the past,
   and having it versioned means you can see each commit as it has changed.
