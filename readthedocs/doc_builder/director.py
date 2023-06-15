@@ -209,10 +209,10 @@ class BuildDirector:
     def checkout(self):
         """Checkout Git repo and load build config file."""
 
-        identifier = self.data.build_commit or self.data.version.identifier
-        log.info("Cloning and fetching.", identifier=identifier)
-        self.vcs_repository.update(identifier=identifier)
+        log.info("Cloning and fetching.")
+        self.vcs_repository.update()
 
+        identifier = self.data.build_commit or self.data.version.identifier
         log.info("Checking out.", identifier=identifier)
         self.vcs_repository.checkout(identifier)
 

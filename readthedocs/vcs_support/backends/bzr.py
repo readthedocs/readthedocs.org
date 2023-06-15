@@ -16,8 +16,8 @@ class Backend(BaseVCS):
     supports_tags = True
     fallback_branch = ''
 
-    def update(self, identifier=None):
-        super().update(identifier=identifier)
+    def update(self):
+        super().update()
         if self.repo_exists():
             return self.up()
         return self.clone()
