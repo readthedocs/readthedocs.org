@@ -73,8 +73,8 @@ class Backend(BaseVCS):
 
         # TODO: Remove the 'not'
         if not self.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN):
-            # New behavior: Clone is responsible for skipping the operation if the
-            # repo is already cloned.
+            # New behavior: Clone is responsible for calling .repo_exists() and skipping
+            # the operation when the repo exists.
             self.clone_ng()
             # TODO: We are still using return values in this function that are legacy.
             # This should be either explained or removed.
@@ -182,10 +182,10 @@ class Backend(BaseVCS):
             # This is expensive, so log the event.
             log.info(
                 "Git fetch: Could not decide a remote reference for version. Is it an empty default branch?",
-                version_id=self.version_identifier,
                 project=getattr(self.project, "id", "unknown"),
                 verbose_name=self.verbose_name,
-                identifier=self.identifier,
+                version_type=self.version_type,
+                identifier=self.version_identifier,
             )
 
         # TODO: Explain or remove the return value
