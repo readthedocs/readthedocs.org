@@ -107,9 +107,7 @@ def trigger_sync_versions(project):
             # respect the queue for this project
             options['queue'] = project.build_queue
 
-        _, build_api_key = BuildAPIKey.objects.create_key(
-            name=project.slug, project=project
-        )
+        _, build_api_key = BuildAPIKey.objects.create_key(project=project)
 
         log.debug(
             'Triggering sync repository.',

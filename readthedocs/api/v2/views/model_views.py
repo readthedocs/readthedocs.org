@@ -5,6 +5,7 @@ import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.db.models import BooleanField, Case, Value, When
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
@@ -247,8 +248,11 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     )
     def concurrent(self, request, **kwargs):
         project_slug = request.GET.get('project__slug')
-        if request.build_api_key:
-            project = request.build_api_key.project
+        build_api_key = request.build_api_key
+        if build_api_key:
+            if project_slug != build_api_key.project.slug:
+                raise Http404
+            project = build_api_key.project
         else:
             project = get_object_or_404(Project, slug=project_slug)
         limit_reached, concurrent, max_concurrent = Build.objects.concurrent(project)

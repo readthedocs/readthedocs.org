@@ -1,14 +1,27 @@
 """Utility endpoints relating to canonical urls, embedded content, etc."""
-
 from django.shortcuts import get_object_or_404
 from rest_framework import decorators, permissions, status
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from readthedocs.api.v2.permissions import HasBuildAPIKey
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.templatetags.core_tags import make_document_url
 from readthedocs.projects.models import Project
+
+
+class RevokeBuildAPIKeyView(APIView):
+    http_method_names = ["post"]
+    permission_classes = [HasBuildAPIKey]
+    renderer_classes = [JSONRenderer]
+
+    def post(self, request, *args, **kwargs):
+        build_api_key = request.build_api_key
+        build_api_key.revoked = True
+        build_api_key.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @decorators.api_view(['GET'])

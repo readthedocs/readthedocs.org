@@ -700,6 +700,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         if self.data.version:
             clean_build(self.data.version)
 
+        try:
+            self.data.api_client.revoke.post()
+        except Exception:
+            log.exception("Failed to revoke build api key.", exc_info=True)
+
         log.info(
             'Build finished.',
             length=self.data.build['length'],
