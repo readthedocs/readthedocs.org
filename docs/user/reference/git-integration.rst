@@ -2,15 +2,21 @@ Git provider account connection
 ===============================
 
 Your Read the Docs account can be connected to your Git provider's account.
-Connecting your account allows you to:
+Connecting your account provides the following features:
 
-* Log in to Read the Docs with your |git_providers_or| credentials.
+🔑️ Easy login
+  Log in to Read the Docs with your |git_providers_or| credentials.
 
-* Select a project to automatically import from all your Git repositories and organizations.
+🔁️ List your projects
+  Select a project to automatically import from all your Git repositories and organizations.
   See: :doc:`/intro/import-guide`.
 
-* Have your Git repository automatically configured with your Read the Docs :term:`webhook`,
+⚙️ Automatic configuration
+  Have your Git repository automatically configured with your Read the Docs :term:`webhook`,
   which allows Read the Docs to build your docs on every change to your repository.
+
+🚥️ Commit status
+  See your documentation build status as a commit status indicator on :doc:`pull request builds </pull-requests>`.
 
 
 .. note::
