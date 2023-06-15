@@ -3,7 +3,7 @@
 from unittest import mock
 
 import pytest
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_BUILDING, LATEST
@@ -11,8 +11,14 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.projects.models import Project
+from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 
 
+@override_settings(
+    RTD_DEFAULT_FEATURES={
+        TYPE_CONCURRENT_BUILDS: 4,
+    }
+)
 class CoreUtilTests(TestCase):
 
     def setUp(self):
