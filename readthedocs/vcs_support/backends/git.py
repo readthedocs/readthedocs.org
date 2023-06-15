@@ -114,7 +114,7 @@ class Backend(BaseVCS):
             return self.version_identifier
         # Tags
         if self.version_type == TAG:
-            return self.verbose_name
+            return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
         if self.version_type == EXTERNAL:
 
             # TODO: We should be able to resolve this without looking up in oauth registry
@@ -166,7 +166,6 @@ class Backend(BaseVCS):
             "fetch",
             "origin",
             "--force",
-            "--tags",
             "--prune",
             "--prune-tags",
             "--depth",
