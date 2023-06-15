@@ -237,7 +237,8 @@ def deprecated_config_file_used_notification():
             project.versions.filter(slug=project.default_version).only("id").first()
         )
         if version:
-            years_ago = timezone.now() - timezone.timedelta(days=365)  # 1 years ago
+            # Use a fixed date here to avoid changing the date on each run
+            years_ago = timezone.datetime(2022, 6, 1)
             build = (
                 version.builds.filter(success=True, date__gt=years_ago)
                 .only("_config")
