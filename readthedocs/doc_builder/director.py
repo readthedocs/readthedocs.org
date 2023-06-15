@@ -115,10 +115,10 @@ class BuildDirector:
             command = self.vcs_environment.run(
                 "cat",
                 # Show user the relative path to the config file
-                self.data.config.source_file.replace(
-                    checkout_path + "/", ""
-                ),
-                cwd=checkout_path,
+                # TODO: Have our standard path replacement code catch this.
+                # https://github.com/readthedocs/readthedocs.org/pull/10413#discussion_r1230765843
+                self.data.config.source_file.replace(cwd + "/", ""),
+                cwd=cwd,
             )
 
         self.run_build_job("post_checkout")
