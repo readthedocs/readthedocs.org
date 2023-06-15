@@ -144,10 +144,12 @@ class Backend(BaseVCS):
         #                until it's explicitly done.
         # --depth 1: Shallow clone, fetch as little data as possible.
         cmd = ["git", "clone", "--no-checkout", "--depth", "1", self.repo_url, "."]
-
-        # TODO: Explain or remove the return value
-        code, stdout, stderr = self.run(*cmd)
-        return code, stdout, stderr
+        try:
+            # TODO: Explain or remove the return value
+            code, stdout, stderr = self.run(*cmd)
+            return code, stdout, stderr
+        except RepositoryError as exc:
+            raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
 
     def fetch_ng(self):
         """Implementation for new clone+fetch+checkout pattern."""
