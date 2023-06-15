@@ -93,8 +93,8 @@ class WebhookMixin:
             if not Project.objects.is_active(self.project):
                 resp = {'detail': 'This project is currently disabled'}
                 return Response(resp, status=status.HTTP_406_NOT_ACCEPTABLE)
-        except Project.DoesNotExist:
-            raise NotFound('Project not found')
+        except Project.DoesNotExist as exc:
+            raise NotFound("Project not found") from exc
         if not self.is_payload_valid():
             log.warning('Invalid payload for project and integration.')
             return Response(
@@ -361,7 +361,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
             return data
         except KeyError as e:
             key = e.args[0]
-            raise ParseError(f"Invalid payload. {key} is required.")
+            raise ParseError(f"Invalid payload. {key} is required.") from e
 
     def is_payload_valid(self):
         """
@@ -496,8 +496,8 @@ class GitHubWebhookView(WebhookMixin, APIView):
             try:
                 branch = self._normalize_ref(self.data["ref"])
                 return self.get_response_push(self.project, [branch])
-            except KeyError:
-                raise ParseError('Parameter "ref" is required')
+            except KeyError as exc:
+                raise ParseError('Parameter "ref" is required') from exc
 
         return None
 
@@ -577,7 +577,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
             return data
         except KeyError as e:
             key = e.args[0]
-            raise ParseError(f"Invalid payload. {key} is required.")
+            raise ParseError(f"Invalid payload. {key} is required.") from e
 
     def handle_webhook(self):
         """
@@ -620,8 +620,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
             try:
                 branch = self._normalize_ref(data["ref"])
                 return self.get_response_push(self.project, [branch])
-            except KeyError:
-                raise ParseError('Parameter "ref" is required')
+            except KeyError as exc:
+                raise ParseError('Parameter "ref" is required') from exc
 
         if self.project.external_builds_enabled and event == GITLAB_MERGE_REQUEST:
             if (
@@ -722,8 +722,8 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                     )
                 log.debug("Triggered sync_versions.")
                 return self.sync_versions_response(self.project)
-            except KeyError:
-                raise ParseError('Invalid request')
+            except KeyError as exc:
+                raise ParseError("Invalid request") from exc
         return None
 
     def is_payload_valid(self):
@@ -805,8 +805,8 @@ class APIWebhookView(WebhookMixin, APIView):
                 self.update_default_branch(default_branch)
 
             return self.get_response_push(self.project, branches)
-        except TypeError:
-            raise ParseError('Invalid request')
+        except TypeError as exc:
+            raise ParseError("Invalid request") from exc
 
     def is_payload_valid(self):
         """
