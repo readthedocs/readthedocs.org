@@ -73,9 +73,10 @@ class Backend(BaseVCS):
 
         # TODO: Remove the 'not'
         if not self.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN):
-            # New behavior: Clone is responsible for calling .repo_exists() and skipping
-            # the operation when the repo exists.
+            # New behavior: Clone is responsible for calling .repo_exists() and
+            # .make_clean_working_dir()
             self.clone_ng()
+
             # TODO: We are still using return values in this function that are legacy.
             # This should be either explained or removed.
             return self.fetch_ng()
@@ -112,8 +113,9 @@ class Backend(BaseVCS):
         if self.version_type == BRANCH:
             return self.version_identifier
         # Tags
-        if self.version_type == TAG:
+        if self.version_type == TAG and self.verbose_name:
             return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
+
         if self.version_type == EXTERNAL:
             # TODO: We should be able to resolve this without looking up in oauth registry
             git_provider_name = self.project.git_provider_name
@@ -124,14 +126,6 @@ class Backend(BaseVCS):
             if self.project.git_provider_name == GITLAB_BRAND:
                 return GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
 
-        log.warning(
-            "Git backend: Could not resolve a remote identifier",
-            project_id=self.project.id,
-            version_type=self.version_type,
-            verbose_name=self.verbose_name,
-            version_identifier=self.version_identifier,
-        )
-
     def clone_ng(self):
         # If the repository is already cloned, we don't do anything.
         # This is legacy from when cached the repository on disk,
@@ -139,6 +133,9 @@ class Backend(BaseVCS):
         # several times in the same build
         if self.repo_exists():
             return
+
+        # This seems to be required for test cases to work
+        self.make_clean_working_dir()
 
         # --no-checkout: Makes it explicit what we are doing here. Nothing is checked out
         #                until it's explicitly done.
