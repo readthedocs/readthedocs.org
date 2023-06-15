@@ -69,30 +69,27 @@ class Backend(BaseVCS):
         :return:
         """
         super().update()
+        from readthedocs.projects.models import Feature
 
-        if self.use_clone_fetch_checkout_pattern():
+        # TODO: Remove the 'not'
+        if not self.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN):
 
             # New behavior: Clone is responsible for skipping the operation if the
             # repo is already cloned.
             self.clone_ng()
-            # New behavior: No confusing return value. We are not using return values
-            # in the callers.
-            # TODO: We are using self.verbose_name as the identifier. This is not a very
-            # clear understanding, but it's a continuation of how PR patterns are generating
-            # remote references already from verbose_name. We need to fix this by providing
-            # a targeted field on the Build model, for instance "git_reference".
-            self.fetch_ng()
+            # TODO: We are still using return values in this function that are legacy.
+            # This should be either explained or removed.
+            return self.fetch_ng()
 
-        else:
-            if self.repo_exists():
-                self.set_remote_url(self.repo_url)
-                return self.fetch()
-            self.make_clean_working_dir()
-            # A fetch is always required to get external versions properly
-            if self.version_type == EXTERNAL:
-                self.clone()
-                return self.fetch()
-            return self.clone()
+        if self.repo_exists():
+            self.set_remote_url(self.repo_url)
+            return self.fetch()
+        self.make_clean_working_dir()
+        # A fetch is always required to get external versions properly
+        if self.version_type == EXTERNAL:
+            self.clone()
+            return self.fetch()
+        return self.clone()
 
     def get_remote_fetch_reference(self):
         """
@@ -123,16 +120,19 @@ class Backend(BaseVCS):
             # TODO: We should be able to resolve this without looking up in oauth registry
             git_provider_name = self.project.git_provider_name
 
-            # TODO: Why are these our only patterns?
+            # Remote reference for Git providers where pull request builds are supported
             if git_provider_name == GITHUB_BRAND:
                 return GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name)
             if self.project.git_provider_name == GITLAB_BRAND:
                 return GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
 
-            # This seems to be the default behavior when we don't know the remote
-            # reference for a PR/MR: Just fetch everything
-            # TODO: Provide more information about fetch operations without references
-            return None
+        log.warning(
+            "Git backend: Could not resolve a remote identifier",
+            project_id=self.project.id,
+            version_type=self.version_type,
+            verbose_name=self.verbose_name,
+            version_identifier=self.version_identifier,
+        )
 
     def clone_ng(self):
         # If the repository is already cloned, we don't do anything.
@@ -146,6 +146,7 @@ class Backend(BaseVCS):
         # --depth 1: Shallow clone, fetch as little data as possible.
         cmd = ["git", "clone", "--no-checkout", "--depth", "1", self.repo_url, "."]
 
+        # TODO: Explain or remove the return value
         code, stdout, stderr = self.run(*cmd)
         return code, stdout, stderr
 
@@ -176,7 +177,18 @@ class Backend(BaseVCS):
             # TODO: We are still fetching the latest 50 commits.
             # A PR might have another commit added after the build has started...
             cmd.append(remote_reference)
+        else:
+            # We are doing a fetch without knowing the remote reference.
+            # This is expensive, so log the event.
+            log.info(
+                "Git fetch: Could not decide a remote reference for version. Is it an empty default branch?",
+                version_id=self.version_identifier,
+                project=getattr(self.project, "id", "unknown"),
+                verbose_name=self.verbose_name,
+                identifier=self.identifier,
+            )
 
+        # TODO: Explain or remove the return value
         code, stdout, stderr = self.run(*cmd)
         return code, stdout, stderr
 
@@ -262,13 +274,6 @@ class Backend(BaseVCS):
         from readthedocs.projects.models import Feature
         return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
 
-    def use_clone_fetch_checkout_pattern(self):
-        """Use the new and optimized clone / fetch / checkout pattern."""
-        from readthedocs.projects.models import Feature
-
-        # TODO: Remove the 'not'
-        return not self.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN)
-
     def fetch(self):
         # --force lets us checkout branches that are not fast-forwarded
         # https://github.com/readthedocs/readthedocs.org/issues/6097
@@ -297,10 +302,10 @@ class Backend(BaseVCS):
         try:
             code, out, err = self.run('git', 'checkout', '--force', revision)
             return [code, out, err]
-        except RepositoryError:
+        except RepositoryError as exc:
             raise RepositoryError(
                 RepositoryError.FAILED_TO_CHECKOUT.format(revision),
-            )
+            ) from exc
 
     def clone(self):
         """Clones the repository."""
@@ -332,8 +337,8 @@ class Backend(BaseVCS):
             # )
 
             return code, stdout, stderr
-        except RepositoryError:
-            raise RepositoryError(RepositoryError.CLONE_ERROR())
+        except RepositoryError as exc:
+            raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
 
     def lsremote(self, include_tags=True, include_branches=True):
         """
