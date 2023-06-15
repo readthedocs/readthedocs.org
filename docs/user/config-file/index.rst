@@ -109,7 +109,7 @@ Git settings
 
 Domain-level settings
   Since many settings apply to the domain a project is hosted on,
-  they are configured for the project itself, and not a specific verison.
+  they are configured for the project itself, and not a specific version.
 
 The goal over time is to have everything that can be managed in a version-specific YAML file configured that way.
 
