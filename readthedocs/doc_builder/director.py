@@ -121,6 +121,7 @@ class BuildDirector:
             # Force the ``container_image`` to use one that has the latest
             # ca-certificate package which is compatible with Lets Encrypt
             container_image=settings.RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-20.04"],
+            api_client=self.data.api_client,
         )
 
     def create_build_environment(self):
@@ -132,6 +133,7 @@ class BuildDirector:
             build=self.data.build,
             environment=self.get_build_env_vars(),
             use_gvisor=use_gvisor,
+            api_client=self.data.api_client,
         )
 
     def setup_environment(self):
@@ -177,10 +179,6 @@ class BuildDirector:
         self.run_build_job("pre_install")
         self.install()
         self.run_build_job("post_install")
-
-        # TODO: remove this and document how to do it on `build.jobs.post_install`
-        if self.data.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
-            self.language_environment.list_packages_installed()
 
     def build(self):
         """
@@ -237,6 +235,12 @@ class BuildDirector:
         )
         self.data.build["config"] = self.data.config.as_dict()
         self.data.build["readthedocs_yaml_path"] = custom_config_file
+
+        # Raise a build error if the project is not using a config file or using v1
+        if self.data.project.has_feature(
+            Feature.NO_CONFIG_FILE_DEPRECATED
+        ) and self.data.config.version not in ("2", 2):
+            raise BuildUserError(BuildUserError.NO_CONFIG_FILE_DEPRECATED)
 
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)

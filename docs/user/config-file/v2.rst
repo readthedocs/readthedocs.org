@@ -1,73 +1,39 @@
-Configuration file v2
-=====================
+Configuration file v2 (.readthedocs.yaml)
+=========================================
 
-Read the Docs supports configuring your documentation builds with a YAML file.
-The :doc:`configuration file <index>` must be in the root directory of your project
-and be named ``.readthedocs.yaml``.
+Read the Docs supports configuring your documentation builds with a configuration file.
+This file is named ``.readthedocs.yaml`` and should be placed in the top level of your Git repository.
 
-All options are applied to the version containing this file.
+The ``.readthedocs.yaml``  file can contain a number of settings that are not accessible through the Read the Docs website.
+
+Because the file is stored in Git,
+the configuration will apply to the exact version that is being built.
+**This allows you to store different configurations for different versions of your documentation.**
+
 Below is an example YAML file which shows the most common configuration options:
 
 .. tabs::
 
    .. tab:: Sphinx
 
-      .. code:: yaml
-
-         # .readthedocs.yaml
-         # Read the Docs configuration file
-         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-         # Required
-         version: 2
-
-         # Set the version of Python and other tools you might need
-         build:
-           os: ubuntu-22.04
-           tools:
-             python: "3.11"
-             # You can also specify other tool versions:
-             # nodejs: "19"
-             # rust: "1.64"
-             # golang: "1.19"
-
-         # Build documentation in the docs/ directory with Sphinx
-         sphinx:
-            configuration: docs/conf.py
-
-         # If using Sphinx, optionally build your docs in additional formats such as PDF
-         # formats:
-         #    - pdf
-
-         # Optionally declare the Python requirements required to build your docs
-         python:
-            install:
-            - requirements: docs/requirements.txt
+        .. literalinclude:: /config-file/examples/sphinx/.readthedocs.yaml
+              :language: yaml
+              :linenos:
+              :caption: .readthedocs.yaml
 
    .. tab:: MkDocs
 
-      .. code:: yaml
+        .. literalinclude:: /config-file/examples/mkdocs/.readthedocs.yaml
+           :language: yaml
+           :linenos:
+           :caption: .readthedocs.yaml
 
-         # .readthedocs.yaml
-         # Read the Docs configuration file
-         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
-         # Required
-         version: 2
+.. seealso::
 
-         # Set the version of Python and other tools you might need
-         build:
-           os: ubuntu-22.04
-           tools:
-             python: "3.11"
+   :doc:`/guides/setup/configuration-file`
+      Practical steps to add a configuration file to your documentation project.
 
-         mkdocs:
-           configuration: mkdocs.yml
-
-         # Optionally declare the Python requirements required to build your docs
-         python:
-            install:
-            - requirements: docs/requirements.txt
 
 Supported settings
 ------------------
@@ -946,3 +912,23 @@ These settings aren't supported via the configuration file.
 * ``Show versions warning``
 * ``Privacy level``
 * ``Analytics code``
+
+Custom paths for .readthedocs.yaml
+----------------------------------
+
+In order to support *monorepo* layouts,
+it's possible to configure the path to where your ``.readthedocs.yaml`` is found.
+
+Using this configuration makes it possible to create several Read the Docs projects pointing at the same Git repository.
+This is recommended for monorepo layouts that host several documentation projects in the same repository.
+
+.. seealso::
+
+   :doc:`/guides/setup/monorepo`
+      This guide explains how to use the configuration.
+
+Previous version: v1
+--------------------
+
+Version 1 is deprecated and using it is discouraged,
+view its reference here :doc:`/config-file/v1`.

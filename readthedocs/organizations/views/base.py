@@ -133,10 +133,12 @@ class OrganizationView(CheckOrganizationsEnabled):
     """Mixin for an organization view that doesn't have nested components."""
 
     model = Organization
-    lookup_field = 'slug'
-    lookup_url_field = 'slug'
     form_class = OrganizationForm
     admin_only = True
+
+    # Only relevant when mixed into
+    lookup_field = 'slug'
+    lookup_url_field = 'slug'
 
     def get_queryset(self):
         if self.admin_only:

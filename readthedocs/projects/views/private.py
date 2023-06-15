@@ -53,6 +53,7 @@ from readthedocs.projects.forms import (
     ProjectAdvancedForm,
     ProjectAdvertisingForm,
     ProjectBasicsForm,
+    ProjectConfigForm,
     ProjectExtraForm,
     ProjectRelationshipForm,
     RedirectForm,
@@ -260,8 +261,9 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
     """
 
     form_list = [
-        ('basics', ProjectBasicsForm),
-        ('extra', ProjectExtraForm),
+        ("basics", ProjectBasicsForm),
+        ("config", ProjectConfigForm),
+        ("extra", ProjectExtraForm),
     ]
     condition_dict = {'extra': lambda self: self.is_advanced()}
 
@@ -315,9 +317,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         """
         form_data = self.get_all_cleaned_data()
         extra_fields = ProjectExtraForm.Meta.fields
-        # expect the first form; manually wrap in a list in case it's a
-        # View Object, as it is in Python 3.
-        basics_form = list(form_list)[0]
+        basics_form = form_list[0]
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()

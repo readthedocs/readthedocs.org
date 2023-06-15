@@ -307,22 +307,6 @@ class Virtualenv(PythonEnvironment):
                 bin_path=self.venv_bin(),
             )
 
-    def list_packages_installed(self):
-        """List packages installed in pip."""
-        args = [
-            self.venv_bin(filename='python'),
-            '-m',
-            'pip',
-            'list',
-            # Include pre-release versions.
-            '--pre',
-        ]
-        self.build_env.run(
-            *args,
-            cwd=self.checkout_path,
-            bin_path=self.venv_bin(),
-        )
-
 
 class Conda(PythonEnvironment):
 
@@ -542,17 +526,3 @@ class Conda(PythonEnvironment):
         # as the conda environment was created by using the ``environment.yml``
         # defined by the user, there is nothing to update at this point
         pass
-
-    def list_packages_installed(self):
-        """List packages installed in conda."""
-        args = [
-            self.conda_bin_name(),
-            'list',
-            '--name',
-            self.version.slug,
-        ]
-        self.build_env.run(
-            *args,
-            cwd=self.checkout_path,
-            bin_path=self.venv_bin(),
-        )

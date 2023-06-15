@@ -41,7 +41,7 @@ Read the Docs: documentation simplified
    :caption: 📚 Reference
 
    /reference/features
-   /config-file/index
+   /config-file/v2
    /builds
    /build-customization
    /server-side-search/syntax
@@ -117,9 +117,6 @@ Get a high-level overview of our platform:
 
 .. Descriptions here are focused on learning
 
-.. TODO: This next item needs its article to be finished in a separate PR
-.. https://github.com/readthedocs/readthedocs.org/pull/10071
-
 💡 :doc:`/explanation/dedicated-platform`
   An introduction to the reasons behind choosing a dedicated documentation platform.
 
@@ -127,12 +124,16 @@ Get a high-level overview of our platform:
   Discover the advantages of having your documentation continuously deployed.
 
 💡 :doc:`/explanation/advanced`
-  Get familiar with some of the more advanced topics of building and deploying documentation.
+  Get familiar with some of the more advanced topics of building and deploying documentation with Read the Docs.
+
+💡 :doc:`All explanation articles </explanation/index>`
+  Browser all our explanation articles.
 
 How-to guides
 -------------
 
-Need to get something specific done? These guides provide step-by-step instructions on various areas:
+Need to get something specific done?
+These guides provide step-by-step instructions in key areas to get you up to speed faster:
 
 .. Descriptions here are active, learn, setup, etc.
 .. The chosen sample of how-tos is intended reflect to width of the how-to section
@@ -153,14 +154,15 @@ Need to get something specific done? These guides provide step-by-step instructi
 Reference
 ---------
 
-Need to know how something works? Our references provide the details:
+Need to know how something works?
+Here are a few of the most important reference docs:
 
 .. Descriptions here sound like reference
 
 📚 :doc:`/reference/features`
   Overview of all the main features of Read the Docs.
 
-📚 :doc:`/config-file/index`
+📚 :doc:`/config-file/v2`
   Information for our configuration file: ``.readthedocs.yaml``.
 
 📚 :doc:`/builds`
