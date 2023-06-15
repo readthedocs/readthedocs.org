@@ -19,7 +19,7 @@ Configuration as code
 
 Options that are not found in the configuration file
   Not everything is suitable for version-specific configuration,
-  like the Git repository where the config file is read after cloning.
+  like the Git repository where the configuration file is read after cloning.
 
 .. seealso::
 
@@ -38,7 +38,7 @@ Consider the following aspects of a documentation project:
 Build environments change 📦️
   You may depend on a number of packages but your method for installing them changes.
   What is installed, how it's installed and what installs can change,
-  especially across multiple verisons.
+  especially across multiple versions.
 
   You might change between Pip and Poetry.
   You might also jump between Python 2 and 3 or Python 3.8 and Python 3.10.
