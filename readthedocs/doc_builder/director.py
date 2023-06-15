@@ -111,7 +111,7 @@ class BuildDirector:
         # This works as confirmation for us & the user about which file is used,
         # as well as the fact that *any* config file is used.
         if self.data.config.source_file:
-            checkout_path = self.data.project.checkout_path(self.data.version.slug)
+            cwd = self.data.project.checkout_path(self.data.version.slug)
             command = self.vcs_environment.run(
                 "cat",
                 # Show user the relative path to the config file
