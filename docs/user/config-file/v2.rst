@@ -29,6 +29,12 @@ Below is an example YAML file which shows the most common configuration options:
            :caption: .readthedocs.yaml
 
 
+.. seealso::
+
+   :doc:`/guides/setup/configuration-file`
+      Practical steps to add a configuration file to your documentation project.
+
+
 Supported settings
 ------------------
 
