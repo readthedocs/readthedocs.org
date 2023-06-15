@@ -174,14 +174,6 @@ $(document).ready(function () {
             {% endblocktrans %}
           </p>
         </div>
-      {% elif build.finished and not build.deprecated_config_used  %}
-        <div class="build-ideas">
-          <p>
-            {% blocktrans trimmed %}
-              <strong>Your build is properly using a configuration file ✅</strong><br/>
-            {% endblocktrans %}
-          </p>
-        </div>
       {% endif %}
 
     {% endif %}
