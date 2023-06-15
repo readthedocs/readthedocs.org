@@ -1000,6 +1000,7 @@ class Project(models.Model):
         version=LATEST,
         verbose_name=None,
         version_type=None,
+        version_identifier=None,
     ):
         """
         Return a Backend object for this project able to handle VCS commands.
@@ -1018,8 +1019,12 @@ class Project(models.Model):
             repo = None
         else:
             repo = backend(
-                self, version, environment=environment,
-                verbose_name=verbose_name, version_type=version_type
+                self,
+                version,
+                environment=environment,
+                verbose_name=verbose_name,
+                version_type=version_type,
+                version_identifier=version_identifier,
             )
         return repo
 

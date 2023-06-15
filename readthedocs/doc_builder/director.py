@@ -94,6 +94,7 @@ class BuildDirector:
             environment=self.vcs_environment,
             verbose_name=self.data.version.verbose_name,
             version_type=self.data.version.type,
+            version_identifier=self.data.version.identifier,
         )
 
         # We can't do too much on ``pre_checkout`` because we haven't

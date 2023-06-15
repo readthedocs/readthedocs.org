@@ -35,6 +35,11 @@ class Backend(BaseVCS):
     repo_depth = 50
 
     def __init__(self, *args, **kwargs):
+        # The version_identifier is a Version.identifier value passed from the build process.
+        # It has a special meaning since it's unfortunately not consistent, you need to be aware of
+        # exactly how and where to use this.
+        # See more in the .get_remote_fetch_reference() docstring
+        self.version_identifier = kwargs.pop("version_identifier")
         super().__init__(*args, **kwargs)
         self.token = kwargs.get('token')
         self.repo_url = self._get_clone_url()
@@ -76,7 +81,7 @@ class Backend(BaseVCS):
             # clear understanding, but it's a continuation of how PR patterns are generating
             # remote references already from verbose_name. We need to fix this by providing
             # a targeted field on the Build model, for instance "git_reference".
-            self.fetch_ng(identifier=self.verbose_name)
+            self.fetch_ng()
 
         else:
             if self.repo_exists():
@@ -89,27 +94,27 @@ class Backend(BaseVCS):
                 return self.fetch()
             return self.clone()
 
-    def get_remote_fetch_reference(self, identifier):
+    def get_remote_fetch_reference(self):
         """
         Gets a valid remote reference for the identifier.
 
-        This method is terrible. It decides how to treat the incoming identifier from
+        This method sits on top of a lot of legacy design.
+        It decides how to treat the incoming ``Version.identifier`` from
         knowledge of how the caller (the build process) uses build data.
 
-        Build.identifier = a branch name (branches)
-        Build.identifier = commit (tags)
-        Build.identifier = commit (external versions)
-        Build.verbose_name = branch alias, e.g. latest (branches)
-        Build.verbose_name = tag name (tags)
-        Build.verbose_name = PR number (external versions)
+        Version.identifier = a branch name (branches)
+        Version.identifier = commit (tags)
+        Version.identifier = commit (external versions)
+        Version.verbose_name = branch alias, e.g. latest (branches)
+        Version.verbose_name = tag name (tags)
+        Version.verbose_name = PR number (external versions)
 
-        :param identifier: Should be a branch or tag name when building branches or tags.
         :return: A reference valid for fetch operation
         """
         # Branches have the branch identifier set by the caller who instantiated the
         # Git backend
         if self.version_type == BRANCH:
-            return identifier
+            return self.version_identifier
         # Tags
         if self.version_type == TAG:
             return self.verbose_name
@@ -144,11 +149,10 @@ class Backend(BaseVCS):
         code, stdout, stderr = self.run(*cmd)
         return code, stdout, stderr
 
-    def fetch_ng(self, identifier):
+    def fetch_ng(self):
         """Implementation for new clone+fetch+checkout pattern."""
 
         # --force: Likely legacy, it seems to be irrelevant to this usage
-        # --tags: We need to fetch tags in order to resolve these references in the checkout
         # --prune: Likely legacy, we don't expect a previous fetch command to have run
         # --prune-tags: Likely legacy, we don't expect a previous fetch command to have run
         # --tags: This flag was used in the previous approach such that all tags were fetched
@@ -166,7 +170,7 @@ class Backend(BaseVCS):
             "--depth",
             str(self.repo_depth),
         ]
-        remote_reference = self.get_remote_fetch_reference(identifier)
+        remote_reference = self.get_remote_fetch_reference()
 
         if remote_reference:
             # TODO: We are still fetching the latest 50 commits.
