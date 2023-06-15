@@ -136,7 +136,8 @@ class Backend(BaseVCS):
 
     def clone_ng(self):
         # If the repository is already cloned, we don't do anything.
-        # This is likely legacy, but we may want to be able to call .update()
+        # This is legacy from when cached the repository on disk,
+        # but we may want to be able to call .update()
         # several times in the same build
         if self.repo_exists():
             return
