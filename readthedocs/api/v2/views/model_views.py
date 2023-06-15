@@ -4,6 +4,7 @@ import json
 import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.db.models import BooleanField, Case, Value, When
 from django.http import Http404
 from django.shortcuts import get_object_or_404
@@ -251,7 +252,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         build_api_key = request.build_api_key
         if build_api_key:
             if project_slug != build_api_key.project.slug:
-                raise Http404
+                raise Http404()
             project = build_api_key.project
         else:
             project = get_object_or_404(Project, slug=project_slug)
@@ -325,6 +326,16 @@ class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
     renderer_classes = (JSONRenderer,)
     serializer_class = BuildCommandSerializer
     model = BuildCommandResult
+
+    def perform_create(self, serializer):
+        """Restrict creation to builds attached to the project from the api key."""
+        build_pk = serializer.validated_data["build"].pk
+        api_key = self.request.build_api_key
+        if api_key and not api_key.project.builds.filter(pk=build_pk).exists():
+            raise PermissionDenied()
+        # If the request isn't attached to a build api key,
+        # the user doing the request is a superuser, so it has access to all projects.
+        return super().perform_create(serializer)
 
     def get_queryset(self):
         api_key = self.request.build_api_key
