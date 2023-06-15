@@ -88,7 +88,7 @@ Such configurations are hard to copy between projects and also hard to introspec
 *Configuration as code* is considered by many to be the easier option.
 It might seem harder to have to write the configuration code from scratch,
 but in order to use Read the Docs,
-you can usually start with a template and adapting it.
+you can usually start with a template and adapt it.
 
 Read the Docs has chosen to offer as much configuration as possible through the usage of ``.readthedocs.yaml``.
 Our experience is that projects benefit from such a setup,
