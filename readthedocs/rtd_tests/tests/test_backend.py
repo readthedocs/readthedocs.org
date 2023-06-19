@@ -9,7 +9,7 @@ import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import BRANCH, EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.config import ALL
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
@@ -49,8 +49,14 @@ class TestGitBackend(TestCase):
         self.build_environment = LocalBuildEnvironment(api_client=mock.MagicMock())
 
     def tearDown(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.make_clean_working_dir()
+        if self._outcome and self._outcome.success:
+            repo = self.project.vcs_repo(environment=self.build_environment)
+            repo.make_clean_working_dir()
+        else:
+            print(
+                "FAILED TEST: Cancelling tearDown() and keeping the working directory for "
+                "introspection. Notice that this affects subsequent tests."
+            )
         super().tearDown()
 
     def test_git_lsremote(self):
@@ -412,7 +418,14 @@ class TestGitBackendNew(TestGitBackend):
         )
 
     def test_check_for_submodules(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
+        """
+        Test that we can get a branch called 'submodule' containing a submodule
+        """
+        repo = self.project.vcs_repo(
+            environment=self.build_environment,
+            version_type=BRANCH,
+            version_identifier="submodule",
+        )
 
         repo.update()
         self.assertFalse(repo.are_submodules_available(self.dummy_conf))
@@ -420,6 +433,90 @@ class TestGitBackendNew(TestGitBackend):
         # The submodule branch contains one submodule
         repo.checkout("submodule")
         self.assertTrue(repo.are_submodules_available(self.dummy_conf))
+
+    def test_check_invalid_submodule_urls(self):
+        repo = self.project.vcs_repo(
+            environment=self.build_environment,
+            version_type=BRANCH,
+            version_identifier="invalidsubmodule",
+        )
+        repo.update()
+        repo.checkout("invalidsubmodule")
+        with self.assertRaises(RepositoryError) as e:
+            repo.update_submodules(self.dummy_conf)
+        # `invalid` is created in `make_test_git`
+        # it's a url in ssh form.
+        self.assertEqual(
+            str(e.exception),
+            RepositoryError.INVALID_SUBMODULES.format(["invalid"]),
+        )
+
+    def test_check_submodule_urls(self):
+        repo = self.project.vcs_repo(
+            environment=self.build_environment,
+            version_type=BRANCH,
+            version_identifier="submodule",
+        )
+        repo.update()
+        repo.checkout("submodule")
+        valid, _ = repo.validate_submodules(self.dummy_conf)
+        self.assertTrue(valid)
+
+    # TODO: Update fetch_ng to just fetch when factoring out the Feature flag
+    @patch("readthedocs.vcs_support.backends.git.Backend.fetch_ng")
+    def test_git_update_with_external_version(self, fetch):
+        version = fixture.get(
+            Version,
+            project=self.project,
+            type=EXTERNAL,
+            active=True,
+        )
+        repo = self.project.vcs_repo(
+            verbose_name=version.verbose_name,
+            version_type=version.type,
+            version_identifier="84492ad53ff8aba83015123f4e68d5897a1fd5bc",
+            environment=self.build_environment,
+        )
+        repo.update()
+        fetch.assert_called_once()
+
+    def test_invalid_submodule_is_ignored(self):
+        repo = self.project.vcs_repo(
+            environment=self.build_environment,
+            version_type=BRANCH,
+            version_identifier="submodule",
+        )
+        repo.update()
+        repo.checkout("submodule")
+        gitmodules_path = os.path.join(repo.working_dir, ".gitmodules")
+
+        with open(gitmodules_path, "a") as f:
+            content = textwrap.dedent(
+                """
+                [submodule "not-valid-path"]
+                    path = not-valid-path
+                    url = https://github.com/readthedocs/readthedocs.org
+            """
+            )
+            f.write(content)
+
+        valid, submodules = repo.validate_submodules(self.dummy_conf)
+        self.assertTrue(valid)
+        self.assertEqual(list(submodules), ["foobar"])
+
+    def test_skip_submodule_checkout(self):
+        repo = self.project.vcs_repo(
+            environment=self.build_environment,
+            version_type=BRANCH,
+            version_identifier="submodule",
+        )
+        repo.update()
+        repo.checkout("submodule")
+        self.assertTrue(repo.are_submodules_available(self.dummy_conf))
+
+    def test_use_shallow_clone(self):
+        # We should not be calling test_use_shallow_clone
+        return True
 
 
 # Avoid trying to save the commands via the API
