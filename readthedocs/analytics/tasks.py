@@ -80,7 +80,11 @@ def delete_old_page_counts():
     """
     retention_days = settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
     days_ago = timezone.now().date() - timezone.timedelta(days=retention_days)
-    return PageView.objects.filter(
-        date__lt=days_ago,
-        date__gt=days_ago - timezone.timedelta(days=90),
-    ).delete()
+    return (
+        PageView.objects.filter(
+            date__lt=days_ago,
+            date__gt=days_ago - timezone.timedelta(days=90),
+        )
+        .only("id")
+        .delete()
+    )
