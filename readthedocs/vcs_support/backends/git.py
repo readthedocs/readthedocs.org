@@ -107,10 +107,19 @@ class Backend(BaseVCS):
 
         :return: A reference valid for fetch operation
         """
+
+        if not self.version_type:
+            log.warning(
+                "Trying to resolve a remote reference without setting version_type is not "
+                "possible",
+                project=self.project,
+            )
+            return None
+
         # Branches have the branch identifier set by the caller who instantiated the
         # Git backend
         if self.version_type == BRANCH:
-            return self.version_identifier
+            return f"refs/heads/{self.version_identifier}:{self.version_identifier}"
         # Tags
         if self.version_type == TAG and self.verbose_name:
             return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
