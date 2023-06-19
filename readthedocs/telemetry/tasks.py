@@ -33,7 +33,11 @@ def delete_old_build_data():
     """
     retention_days = settings.RTD_TELEMETRY_DATA_RETENTION_DAYS
     days_ago = timezone.now().date() - timezone.timedelta(days=retention_days)
-    return BuildData.objects.filter(
-        created__lt=days_ago,
-        created__gt=days_ago - timezone.timedelta(days=90),
-    ).delete()
+    return (
+        BuildData.objects.filter(
+            created__lt=days_ago,
+            created__gt=days_ago - timezone.timedelta(days=90),
+        )
+        .only("id")
+        .delete()
+    )
