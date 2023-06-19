@@ -378,6 +378,39 @@ class TestGitBackend(TestCase):
         )
 
 
+class TestGitBackendNew(TestGitBackend):
+    """
+    Test all relevant aspects of Git backend.
+
+    This test class was largely rewritten while introducing new clone+fetch patterns.
+
+    Methods have been copied and adapted.
+    Once the feature ``GIT_CLONE_FETCH_CHECKOUT_PATTERN`` has become the default for all projects,
+    we can discard of TestGitBackend.
+    """
+
+    def setUp(self):
+        super().setUp()
+        fixture.get(
+            Feature,
+            projects=[self.project],
+            feature_id=Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN,
+        )
+        self.assertTrue(
+            self.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN)
+        )
+
+    def test_check_for_submodules(self):
+        repo = self.project.vcs_repo(environment=self.build_environment)
+
+        repo.update()
+        self.assertFalse(repo.are_submodules_available(self.dummy_conf))
+
+        # The submodule branch contains one submodule
+        repo.checkout("submodule")
+        self.assertTrue(repo.are_submodules_available(self.dummy_conf))
+
+
 # Avoid trying to save the commands via the API
 @mock.patch('readthedocs.doc_builder.environments.BuildCommand.save', mock.MagicMock())
 class TestHgBackend(TestCase):

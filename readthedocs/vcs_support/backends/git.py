@@ -71,8 +71,7 @@ class Backend(BaseVCS):
         super().update()
         from readthedocs.projects.models import Feature
 
-        # TODO: Remove the 'not'
-        if not self.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN):
+        if self.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN):
             # New behavior: Clone is responsible for calling .repo_exists() and
             # .make_clean_working_dir()
             self.clone_ng()
