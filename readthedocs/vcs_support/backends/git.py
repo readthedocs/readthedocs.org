@@ -61,13 +61,7 @@ class Backend(BaseVCS):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 
     def update(self):
-        """
-        Clone or update the repository.
-
-        :param identifier: This is the optional identifier for git fetch - a branch or tag name.
-                           PR references are generated automatically for certain Git providers.
-        :return:
-        """
+        """Clone and/or fetch remote repository."""
         super().update()
         from readthedocs.projects.models import Feature
 
