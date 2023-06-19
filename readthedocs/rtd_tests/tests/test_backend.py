@@ -48,6 +48,11 @@ class TestGitBackend(TestCase):
         self.dummy_conf.submodules.exclude = []
         self.build_environment = LocalBuildEnvironment(api_client=mock.MagicMock())
 
+    def tearDown(self):
+        repo = self.project.vcs_repo(environment=self.build_environment)
+        repo.make_clean_working_dir()
+        super().tearDown()
+
     def test_git_lsremote(self):
         repo_path = self.project.repo
         default_branches = [
@@ -378,11 +383,17 @@ class TestGitBackend(TestCase):
         )
 
 
+@mock.patch("readthedocs.doc_builder.environments.BuildCommand.save", mock.MagicMock())
+class TestGitBackendTwiceInARow(TestGitBackend):
+    """Test that we can run everything twice without test leakage."""
+
+
+@mock.patch("readthedocs.doc_builder.environments.BuildCommand.save", mock.MagicMock())
 class TestGitBackendNew(TestGitBackend):
     """
-    Test all relevant aspects of Git backend.
+    Test known relevant aspects of Git backend.
 
-    This test class was largely rewritten while introducing new clone+fetch patterns.
+    This test class is intended to maintain all backwards compatibility when introducing new git clone+fetch commands.
 
     Methods have been copied and adapted.
     Once the feature ``GIT_CLONE_FETCH_CHECKOUT_PATTERN`` has become the default for all projects,
