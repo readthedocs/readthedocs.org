@@ -80,6 +80,7 @@ class Backend(BaseVCS):
             # This should be either explained or removed.
             return self.fetch_ng()
 
+        # Old behavior
         if self.repo_exists():
             self.set_remote_url(self.repo_url)
             return self.fetch()
@@ -117,9 +118,16 @@ class Backend(BaseVCS):
             return None
 
         # Branches have the branch identifier set by the caller who instantiated the
-        # Git backend
+        # Git backend.
         if self.version_type == BRANCH:
-            return f"refs/heads/{self.version_identifier}:{self.version_identifier}"
+            # Here we point directly to the remote branch name and update our local remote
+            # refspec to point here. Failing to specify the branch name or simply specifying
+            # a local branch name, breaks assumptions that we have in .branches() for iterating
+            # over everything in refs/remotes/origin.
+            return (
+                f"refs/heads/{self.version_identifier}:refs/remotes/origin/"
+                f"{self.version_identifier}"
+            )
         # Tags
         if self.version_type == TAG and self.verbose_name:
             return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
@@ -135,14 +143,18 @@ class Backend(BaseVCS):
                 return GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
 
     def clone_ng(self):
-        # If the repository is already cloned, we don't do anything.
-        # This is legacy from when cached the repository on disk,
-        # but we may want to be able to call .update()
-        # several times in the same build
+        # TODO: This seems to be legacy that can be removed.
+        #  If the repository is already cloned, we don't do anything.
+        #  It seems to originate from when a cloned repository was cached on disk,
+        #  and so we can call call .update() several times in the same build.
         if self.repo_exists():
             return
 
-        # This seems to be required for test cases to work
+        # TODO: This seems to be legacy that can be removed.
+        #  There shouldn't be cases where we are asked to
+        #  clone the repo in a non-clean working directory.
+        #  The prior call to repo_exists() will return if a repo already exist with
+        #  unclear guarantees about whether that even needs to be a fully consistent clone.
         self.make_clean_working_dir()
 
         # --no-checkout: Makes it explicit what we are doing here. Nothing is checked out
@@ -186,7 +198,8 @@ class Backend(BaseVCS):
             # We are doing a fetch without knowing the remote reference.
             # This is expensive, so log the event.
             log.info(
-                "Git fetch: Could not decide a remote reference for version. Is it an empty default branch?",
+                "Git fetch: Could not decide a remote reference for version. "
+                "Is it an empty default branch?",
                 project=getattr(self.project, "id", "unknown"),
                 verbose_name=self.verbose_name,
                 version_type=self.version_type,
