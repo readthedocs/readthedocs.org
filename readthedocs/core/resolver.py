@@ -100,7 +100,7 @@ class ResolverBase:
         # TODO: remove this when all projects have migrated to path prefixes.
         # Allow users to override their own URLConf
         # This logic could be cleaned up with a standard set of variable replacements
-        if urlconf:
+        if urlconf and not custom_prefix:
             path = urlconf
             path = path.replace(
                 "$version",
