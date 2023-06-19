@@ -518,6 +518,73 @@ class TestGitBackendNew(TestGitBackend):
         # We should not be calling test_use_shallow_clone
         return True
 
+    def test_git_fetch_with_external_version(self):
+        version = fixture.get(Version, project=self.project, type=EXTERNAL, active=True)
+        repo = self.project.vcs_repo(
+            verbose_name=version.verbose_name,
+            version_type=version.type,
+            environment=self.build_environment,
+        )
+        repo.update()
+        code, _, _ = repo.fetch_ng()
+        self.assertEqual(code, 0)
+
+    def test_git_branches(self):
+        """
+        Test a source repository with multiple branches, can be cloned and fetched.
+
+        For each branch, we clone and fetch and check that we get exactly what we expect.
+        """
+        repo_path = self.project.repo
+        branches = [
+            "develop",
+            "master",
+            "2.0.X",
+            "release/2.0.0",
+            "release/foo/bar",
+        ]
+        for branch in branches:
+            create_git_branch(repo_path, branch)
+
+        for branch in branches:
+
+            # Create a repo that we want to clone and fetch a specific branch for
+            repo = self.project.vcs_repo(
+                environment=self.build_environment,
+                version_identifier=branch,
+                version_type=BRANCH,
+            )
+            # Because current behavior is to reuse already cloned destinations, we should
+            # clear the working dir instead of reusing it.
+            repo.make_clean_working_dir()
+
+            repo.update()
+
+            self.assertEqual(
+                set([branch, "master"]),
+                {branch.verbose_name for branch in repo.branches},
+            )
+
+    def test_git_branches_unicode(self):
+        """Test to verify that we can clone+fetch a unicode branch name."""
+
+        # Add a branch to the repo.
+        # Note: It's assumed that the source repo is re-created in setUp()
+        create_git_branch(self.project.repo, "release-ünîø∂é")
+
+        repo = self.project.vcs_repo(
+            environment=self.build_environment,
+            version_identifier="release-ünîø∂é",
+            version_type=BRANCH,
+        )
+        repo.update()
+
+        # Note here that the original default branch 'master' got created during the clone
+        self.assertEqual(
+            set(["release-ünîø∂é", "master"]),
+            {branch.verbose_name for branch in repo.branches},
+        )
+
 
 # Avoid trying to save the commands via the API
 @mock.patch('readthedocs.doc_builder.environments.BuildCommand.save', mock.MagicMock())
