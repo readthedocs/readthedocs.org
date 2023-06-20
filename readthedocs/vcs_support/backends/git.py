@@ -40,6 +40,8 @@ class Backend(BaseVCS):
         # exactly how and where to use this.
         # See more in the .get_remote_fetch_reference() docstring
         self.version_identifier = kwargs.pop("version_identifier")
+        # We also need to know about Version.machine
+        self.version_machine = kwargs.pop("version_machine")
         super().__init__(*args, **kwargs)
         self.token = kwargs.get('token')
         self.repo_url = self._get_clone_url()
@@ -124,6 +126,15 @@ class Backend(BaseVCS):
             )
         # Tags
         if self.version_type == TAG and self.verbose_name:
+            # A "stable" tag is automatically created with Version.machine=True,
+            # denoting that it's not a tag that really exists.
+            # Because we don't know if it originates from the default branch or some
+            # other tagged release, we will fetch everything.
+            log.info(
+                "Is this an auto-created version?", version_machine=self.version_machine
+            )
+            if self.version_machine:
+                return None
             return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
 
         if self.version_type == EXTERNAL:
@@ -191,7 +202,7 @@ class Backend(BaseVCS):
         else:
             # We are doing a fetch without knowing the remote reference.
             # This is expensive, so log the event.
-            log.info(
+            log.warning(
                 "Git fetch: Could not decide a remote reference for version. "
                 "Is it an empty default branch?",
                 project=getattr(self.project, "id", "unknown"),

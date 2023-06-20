@@ -55,10 +55,10 @@ class ProjectAdminSerializer(ProjectSerializer):
     def get_environment_variables(self, obj):
         """Get all environment variables, including public ones."""
         return {
-            variable.name: dict(
-                value=variable.value,
-                public=variable.public,
-            )
+            variable.name: {
+                "value": variable.value,
+                "public": variable.public,
+            }
             for variable in obj.environmentvariable_set.all()
         }
 
@@ -104,20 +104,21 @@ class VersionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Version
         fields = [
-            'id',
-            'project',
-            'slug',
-            'identifier',
-            'verbose_name',
-            'privacy_level',
-            'active',
-            'built',
-            'downloads',
-            'type',
-            'has_pdf',
-            'has_epub',
-            'has_htmlzip',
-            'documentation_type',
+            "id",
+            "project",
+            "slug",
+            "identifier",
+            "verbose_name",
+            "privacy_level",
+            "active",
+            "built",
+            "downloads",
+            "type",
+            "has_pdf",
+            "has_epub",
+            "has_htmlzip",
+            "documentation_type",
+            "machine",
         ]
 
 

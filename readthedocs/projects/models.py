@@ -1001,6 +1001,7 @@ class Project(models.Model):
         verbose_name=None,
         version_type=None,
         version_identifier=None,
+        version_machine=None,
     ):
         """
         Return a Backend object for this project able to handle VCS commands.
@@ -1025,6 +1026,7 @@ class Project(models.Model):
                 verbose_name=verbose_name,
                 version_type=version_type,
                 version_identifier=version_identifier,
+                version_machine=version_machine,
             )
         return repo
 

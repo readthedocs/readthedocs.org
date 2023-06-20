@@ -95,7 +95,9 @@ class BuildDirector:
             verbose_name=self.data.version.verbose_name,
             version_type=self.data.version.type,
             version_identifier=self.data.version.identifier,
+            version_machine=self.data.version.machine,
         )
+        log.info("creating repo for version", version=self.data.version)
 
         # We can't do too much on ``pre_checkout`` because we haven't
         # cloned the repository yet and we don't know what the user wrote
