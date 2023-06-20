@@ -1,3 +1,28 @@
+Version 9.14.0
+--------------
+
+:Date: June 20, 2023
+
+* `@stsewd <https://github.com/stsewd>`__: Test with explicit number of concurrent builds (`#10444 <https://github.com/readthedocs/readthedocs.org/pull/10444>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Do not show paths in 404s (`#10443 <https://github.com/readthedocs/readthedocs.org/pull/10443>`__)
+* `@humitos <https://github.com/humitos>`__: Deprecation: opt-out from config file email (`#10440 <https://github.com/readthedocs/readthedocs.org/pull/10440>`__)
+* `@humitos <https://github.com/humitos>`__: Deprecation: send emails to "active projects" only (`#10439 <https://github.com/readthedocs/readthedocs.org/pull/10439>`__)
+* `@humitos <https://github.com/humitos>`__: Use latest `common/` (`#10436 <https://github.com/readthedocs/readthedocs.org/pull/10436>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Add email template to report abandoned projects (`#10435 <https://github.com/readthedocs/readthedocs.org/pull/10435>`__)
+* `@rffontenelle <https://github.com/rffontenelle>`__: Update instructions for using transifex client tool (`#10434 <https://github.com/readthedocs/readthedocs.org/pull/10434>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: trigger circleci job on readthedocs-ext on merge (`#10433 <https://github.com/readthedocs/readthedocs.org/pull/10433>`__)
+* `@humitos <https://github.com/humitos>`__: Deprecation: show the project slug/link correctly on email (`#10432 <https://github.com/readthedocs/readthedocs.org/pull/10432>`__)
+* `@ericholscher <https://github.com/ericholscher>`__:     Add the api_client into the sync_repo task (`#10431 <https://github.com/readthedocs/readthedocs.org/pull/10431>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.13.3 (`#10428 <https://github.com/readthedocs/readthedocs.org/pull/10428>`__)
+* `@humitos <https://github.com/humitos>`__: Analytics: create DB index on `PageView.date` (`#10426 <https://github.com/readthedocs/readthedocs.org/pull/10426>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: increase frequency of `delete_closed_external_versions` task (`#10425 <https://github.com/readthedocs/readthedocs.org/pull/10425>`__)
+* `@humitos <https://github.com/humitos>`__: Feature flag: remove unused ones (`#10423 <https://github.com/readthedocs/readthedocs.org/pull/10423>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Configuration file pages as explanation and reference (Diátaxis) (`#10416 <https://github.com/readthedocs/readthedocs.org/pull/10416>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Deprecation: send email notifications for config file v2 (`#10415 <https://github.com/readthedocs/readthedocs.org/pull/10415>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add a `cat` command and note in the build output when a config file is properly used. (`#10413 <https://github.com/readthedocs/readthedocs.org/pull/10413>`__)
+* `@humitos <https://github.com/humitos>`__: Build: fail builds without configuration file or using v1 (`#10355 <https://github.com/readthedocs/readthedocs.org/pull/10355>`__)
+* `@stsewd <https://github.com/stsewd>`__: Design doc: secure access to APIs from builders (`#10289 <https://github.com/readthedocs/readthedocs.org/pull/10289>`__)
+
 Version 9.13.3
 --------------
 
