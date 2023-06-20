@@ -66,6 +66,16 @@ def make_test_git():
 
     # Checkout to master branch again
     check_output(['git', 'checkout', 'master'], env=env)
+
+    # Add something unique to the master branch (so we can verify it's correctly checked out)
+    open("only-on-default-branch", "w").write(
+        "This file only exists in the default branch"
+    )
+    check_output(["git", "add", "only-on-default-branch"], env=env)
+    check_output(
+        ["git", "commit", '-m"Add something unique to master branch"'], env=env
+    )
+
     return directory
 
 

@@ -584,6 +584,35 @@ class TestGitBackendNew(TestGitBackend):
             {branch.verbose_name for branch in repo.branches},
         )
 
+    def test_update_without_branch_name(self):
+        """
+        Test that we get expected default branch when not specifying a branch name.
+
+        Covers:
+        * Manually imported projects +
+        * Automatically imported projects that had their default branch name deliberately removed
+          during import wizard (and before the first branch sync from webhook)
+        """
+        repo_path = self.project.repo
+        create_git_branch(repo_path, "develop")
+
+        repo = self.project.vcs_repo(
+            environment=self.build_environment,
+            version_type=BRANCH,
+        )
+        repo.update()
+
+        # Check that the README file from the fixture exists
+        self.assertTrue(os.path.isfile(os.path.join(repo.working_dir, "README")))
+
+        # Check that "only-on-default-branch" exists (it doesn't exist on other branches)
+        self.assertTrue(
+            os.path.isfile(os.path.join(repo.working_dir, "only-on-default-branch"))
+        )
+
+        # Check that we don't for instance have foobar
+        self.assertFalse(os.path.isfile(os.path.join(repo.working_dir, "foobar")))
+
 
 # Avoid trying to save the commands via the API
 @mock.patch('readthedocs.doc_builder.environments.BuildCommand.save', mock.MagicMock())
