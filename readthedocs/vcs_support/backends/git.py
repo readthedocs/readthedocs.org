@@ -199,7 +199,10 @@ class Backend(BaseVCS):
             # TODO: We are still fetching the latest 50 commits.
             # A PR might have another commit added after the build has started...
             cmd.append(remote_reference)
-        else:
+
+        # Log a warning, except for machine versions since it's a known bug that
+        # we haven't stored a remote refspec in Version for those "stable" versions.
+        elif not self.version_machine:
             # We are doing a fetch without knowing the remote reference.
             # This is expensive, so log the event.
             log.warning(
