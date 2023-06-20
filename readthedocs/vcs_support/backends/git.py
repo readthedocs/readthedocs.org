@@ -139,6 +139,12 @@ class Backend(BaseVCS):
             # Because we don't know if it originates from the default branch or some
             # other tagged release, we will fetch everything.
             if self.version_machine and self.verbose_name == "stable":
+                if self.version_identifier:
+                    return f"{self.version_identifier}:readthedocs/stable"
+                log.error(
+                    "'stable' version without a commit hash",
+                    version_identifier=self.version_identifier,
+                )
                 return None
             return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
 
