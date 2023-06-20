@@ -116,20 +116,21 @@ class BaseRClone:
         """
         Run the `rclone sync` command.
 
-        See https://rclone.org/commands/rclone_sync/.
+        See:
+        https://rclone.org/commands/rclone_sync/
+        https://rclone.org/filtering/
 
         :params source: Local path to the source directory.
         :params destination: Remote path to the destination directory.
-        :params filter_extensions: Only copy files in listed file extensions
+        :params filter_extensions: Only top-level copy files with the listed file extensions.
         """
         options = []
-        # See:
-        # https://rclone.org/filtering/
+
         if filter_extensions:
             options += ["--ignore-case", "--include"]
             # Python escape rule: {{ = {
-            # What we want to have is for instance '*.{pdf}'
-            filter_pattern = "*.{{{extensions}}}".format(
+            # What we want to have is for instance '/*.{pdf}'
+            filter_pattern = "/*.{{{extensions}}}".format(
                 extensions=",".join(filter_extensions)
             )
             options.append(filter_pattern)

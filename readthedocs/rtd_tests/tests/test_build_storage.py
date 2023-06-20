@@ -138,7 +138,8 @@ class TestBuildMediaStorage(TestCase):
             self.storage.rclone_sync_directory(
                 tmp_files_dir, storage_dir, filter_extensions=["html"]
             )
-        self.assertFileTree(storage_dir, [("api", ["index.html"]), "test.html"])
+        # We only accept TOP-LEVEL files, so only test.html and not api/index.html
+        self.assertFileTree(storage_dir, [("test.html",)])
 
     def test_delete_directory(self):
         with override_settings(DOCROOT=files_dir):
