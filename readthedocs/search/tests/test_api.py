@@ -18,7 +18,6 @@ from readthedocs.projects.models import Feature, HTMLFile, Project
 from readthedocs.search.api.v2.views import PageSearchAPIView
 from readthedocs.search.documents import PageDocument
 from readthedocs.search.tests.utils import (
-    DOMAIN_FIELDS,
     SECTION_FIELDS,
     get_search_query_from_project_file,
 )
@@ -74,9 +73,9 @@ class BaseTestDocumentSearch:
         assert len(title_highlight) == 1
         assert query.lower() in title_highlight[0].lower()
 
-    @pytest.mark.parametrize('data_type', SECTION_FIELDS + DOMAIN_FIELDS)
+    @pytest.mark.parametrize('data_type', SECTION_FIELDS)
     @pytest.mark.parametrize('page_num', [0, 1])
-    def test_search_works_with_sections_and_domains_query(
+    def test_search_works_with_sections(
         self,
         api_client,
         project,
