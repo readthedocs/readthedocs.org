@@ -46,6 +46,9 @@ class Backend(BaseVCS):
         self.token = kwargs.get('token')
         self.repo_url = self._get_clone_url()
 
+        # While cloning, we can decide that we are not going to fetch anything
+        self._skip_fetch = False
+
     def _get_clone_url(self):
         if '://' in self.repo_url:
             hacked_url = self.repo_url.split('://')[1]
@@ -178,9 +181,13 @@ class Backend(BaseVCS):
         # --depth 1: Shallow clone, fetch as little data as possible.
         cmd = ["git", "clone", "--depth", "1"]
 
-        # Everything EXCEPT unnamed branch builds can have "--no-checkout"
-        # This is the case for building a manually imported project for the first time.
-        if not (self.version_type == BRANCH and not self.version_identifier):
+        # We add "--no-checkout" in all git clone operations, except:
+        # There exists a case of version_type=BRANCH without a branch name.
+        # This case is relevant for building projects for the first time without knowing the name
+        # of the default branch.
+        if self.version_type == BRANCH and not self.version_identifier:
+            self._skip_fetch = True
+        else:
             cmd.append("--no-checkout")
 
         cmd += [self.repo_url, "."]
@@ -194,6 +201,12 @@ class Backend(BaseVCS):
 
     def fetch_ng(self):
         """Implementation for new clone+fetch+checkout pattern."""
+
+        # When git clone does NOT add --no-checkout, it's because we are going
+        # to use the remote HEAD, so we don't have to fetch nor check out.
+        if self._skip_fetch:
+            log.info("Skipping git fetch")
+            return
 
         # --force: Likely legacy, it seems to be irrelevant to this usage
         # --prune: Likely legacy, we don't expect a previous fetch command to have run
