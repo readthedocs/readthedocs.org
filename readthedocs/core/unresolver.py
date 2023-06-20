@@ -18,6 +18,11 @@ class UnresolverError(Exception):
     pass
 
 
+class InvalidSchemeError(UnresolverError):
+    def __init__(self, scheme):
+        self.scheme = scheme
+
+
 class InvalidXRTDSlugHeaderError(UnresolverError):
 
     pass
@@ -187,6 +192,8 @@ class Unresolver:
          to end with ``/index.html``.
         """
         parsed_url = urlparse(url)
+        if parsed_url.scheme not in ["http", "https"]:
+            raise InvalidSchemeError(parsed_url.scheme)
         domain = self.get_domain_from_host(parsed_url.netloc)
         unresolved_domain = self.unresolve_domain(domain)
         return self._unresolve(
