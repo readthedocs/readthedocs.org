@@ -117,7 +117,11 @@ class Backend(BaseVCS):
 
         # Branches have the branch identifier set by the caller who instantiated the
         # Git backend.
-        if self.version_type == BRANCH:
+        # If version_identifier is empty, then the fetch operation cannot know what to fetch
+        # and will fetch everything, in order to build what might be defined elsewhere
+        # as the "default branch". This can be the case for an initial build started BEFORE
+        # a webhook or sync versions task has concluded what the default branch is.
+        if self.version_type == BRANCH and self.version_identifier:
             # Here we point directly to the remote branch name and update our local remote
             # refspec to point here.
             # The original motivation for putting 'refs/remotes/origin/<branch>' as the local refspec
@@ -169,7 +173,15 @@ class Backend(BaseVCS):
         # --no-checkout: Makes it explicit what we are doing here. Nothing is checked out
         #                until it's explicitly done.
         # --depth 1: Shallow clone, fetch as little data as possible.
-        cmd = ["git", "clone", "--no-checkout", "--depth", "1", self.repo_url, "."]
+        cmd = ["git", "clone", "--depth", "1"]
+
+        # Everything EXCEPT unnamed branch builds can have "--no-checkout"
+        # This is the case for building a manually imported project for the first time.
+        if not (self.version_type == BRANCH and not self.version_identifier):
+            cmd.append("--no-checkout")
+
+        cmd += [self.repo_url, "."]
+
         try:
             # TODO: Explain or remove the return value
             code, stdout, stderr = self.run(*cmd)
