@@ -73,16 +73,10 @@ class BaseTestDocumentSearch:
         assert len(title_highlight) == 1
         assert query.lower() in title_highlight[0].lower()
 
-    @pytest.mark.parametrize('data_type', SECTION_FIELDS)
-    @pytest.mark.parametrize('page_num', [0, 1])
-    def test_search_works_with_sections(
-        self,
-        api_client,
-        project,
-        page_num,
-        data_type
-    ):
-        type, field = data_type.split('.')
+    @pytest.mark.parametrize("data_type", SECTION_FIELDS)
+    @pytest.mark.parametrize("page_num", [0, 1])
+    def test_search_works_with_sections(self, api_client, project, page_num, data_type):
+        type, field = data_type.split(".")
         query = get_search_query_from_project_file(
             project_slug=project.slug,
             page_num=page_num,
