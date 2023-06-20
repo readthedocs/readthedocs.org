@@ -547,7 +547,6 @@ class TestGitBackendNew(TestGitBackend):
             create_git_branch(repo_path, branch)
 
         for branch in branches:
-
             # Create a repo that we want to clone and fetch a specific branch for
             repo = self.project.vcs_repo(
                 environment=self.build_environment,
