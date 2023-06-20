@@ -32,7 +32,7 @@ namespace.add_collection(
 
 @task
 def docs(ctx, regenerate_config=False, push=False):
-    """Pull and push translations to Transifex for our docs"""
+    """Pull and push translations to Transifex for our docs."""
     with ctx.cd(os.path.join(ROOT_PATH, "docs")):
         # Update our translations
         ctx.run("tx pull -a")
