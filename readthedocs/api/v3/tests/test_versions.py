@@ -15,15 +15,19 @@ from .mixins import APIEndpointMixin
 class VersionsEndpointTests(APIEndpointMixin):
 
     def test_projects_versions_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse(
-                'projects-versions-list',
-                kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
-                },
-            ),
+        url = reverse(
+            "projects-versions-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
         )
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = response.json()
         self.assertEqual(len(response["results"]), 2)
@@ -43,16 +47,20 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 403)
 
     def test_projects_versions_detail(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse(
-                'projects-versions-detail',
-                kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
-                    'version_slug': 'v1.0',
-                },
-            ),
+        url = reverse(
+            "projects-versions-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "version_slug": "v1.0",
+            },
         )
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(
             response.json(),
@@ -147,22 +155,24 @@ class VersionsEndpointTests(APIEndpointMixin):
     def test_projects_versions_partial_update(self):
         self.assertTrue(self.version.active)
         self.assertFalse(self.version.hidden)
+        url = reverse(
+            "projects-versions-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "version_slug": self.version.slug,
+            },
+        )
         data = {
             'active': False,
             'hidden': True,
         }
 
+        self.client.logout()
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 401)
+
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.patch(
-            reverse(
-                'projects-versions-detail',
-                kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
-                    'version_slug': self.version.slug,
-                },
-            ),
-            data,
-        )
+        response = self.client.patch(url, data)
         self.assertEqual(response.status_code, 204)
 
         self.version.refresh_from_db()

@@ -170,23 +170,25 @@ class RedirectsEndpointTests(APIEndpointMixin):
 
 
     def test_projects_redirects_detail_put(self):
+        url = reverse(
+            "projects-redirects-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "redirect_pk": self.redirect.pk,
+            },
+        )
         data = {
             'from_url': '/changed/',
             'to_url': '/toanother/',
             'type': 'page',
         }
 
+        self.client.logout()
+        response = self.client.put(url, data)
+        self.assertEqual(response.status_code, 401)
+
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.put(
-            reverse(
-                'projects-redirects-detail',
-                kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
-                    'redirect_pk': self.redirect.pk,
-                },
-            ),
-            data,
-        )
+        response = self.client.put(url, data)
         self.assertEqual(response.status_code, 200)
 
         response_json = response.json()
@@ -197,16 +199,20 @@ class RedirectsEndpointTests(APIEndpointMixin):
         )
 
     def test_projects_redirects_detail_delete(self):
-        self.assertEqual(self.project.redirects.count(), 1)
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.delete(
-            reverse(
-                'projects-redirects-detail',
-                kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
-                    'redirect_pk': self.redirect.pk,
-                },
-            ),
+        url = reverse(
+            "projects-redirects-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "redirect_pk": self.redirect.pk,
+            },
         )
+
+        self.client.logout()
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.assertEqual(self.project.redirects.count(), 1)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(self.project.redirects.count(), 0)
