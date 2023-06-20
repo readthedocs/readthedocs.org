@@ -274,7 +274,7 @@ class PageSearch(RTDFacetedSearch):
     _outer_fields = ['title^1.5']
     _section_fields = ['sections.title^2', 'sections.content']
     fields = _outer_fields
-    excludes = ['rank', 'sections', 'commit', 'build']
+    excludes = ["rank", "sections", "commit", "build"]
 
     def _get_projects_query(self):
         """
