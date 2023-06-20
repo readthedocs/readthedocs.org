@@ -9,7 +9,7 @@ import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
 from django.test import TestCase
 
-from readthedocs.builds.constants import BRANCH, EXTERNAL
+from readthedocs.builds.constants import BRANCH, EXTERNAL, TAG
 from readthedocs.builds.models import Version
 from readthedocs.config import ALL
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
@@ -607,11 +607,24 @@ class TestGitBackendNew(TestGitBackend):
 
         # Check that "only-on-default-branch" exists (it doesn't exist on other branches)
         self.assertTrue(
-            os.path.isfile(os.path.join(repo.working_dir, "only-on-default-branch"))
+            os.path.exists(os.path.join(repo.working_dir, "only-on-default-branch"))
         )
 
         # Check that we don't for instance have foobar
         self.assertFalse(os.path.isfile(os.path.join(repo.working_dir, "foobar")))
+
+    def test_special_tag_stable(self):
+        """Test that an auto-generated 'stable' tag works."""
+        repo = self.project.vcs_repo(
+            environment=self.build_environment,
+            version_type=TAG,
+            version_machine=True,
+        )
+        repo.update()
+
+        # Checkout the master branch to verify that we can checkout something
+        # from the above clone+fetch
+        repo.checkout("master")
 
 
 # Avoid trying to save the commands via the API
