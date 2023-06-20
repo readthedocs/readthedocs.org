@@ -138,9 +138,6 @@ class Backend(BaseVCS):
             # denoting that it's not a tag that really exists.
             # Because we don't know if it originates from the default branch or some
             # other tagged release, we will fetch everything.
-            log.info(
-                "Is this an auto-created version?", version_machine=self.version_machine
-            )
             if self.version_machine and self.verbose_name == "stable":
                 return None
             return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
