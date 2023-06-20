@@ -3,12 +3,17 @@ from unittest import mock
 from django.test import override_settings
 from django.urls import reverse
 
+from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
+
 from .mixins import APIEndpointMixin
 
 
 @override_settings(
     RTD_ALLOW_ORGANIZATIONS=False,
     ALLOW_PRIVATE_REPOS=False,
+    RTD_DEFAULT_FEATURES={
+        TYPE_CONCURRENT_BUILDS: 4,
+    },
 )
 @mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class BuildsEndpointTests(APIEndpointMixin):

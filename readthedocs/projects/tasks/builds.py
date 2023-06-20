@@ -63,7 +63,7 @@ from ..exceptions import (
     RepositoryError,
     SyncRepositoryLocked,
 )
-from ..models import APIProject, Feature, WebHookEvent
+from ..models import APIProject, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import fileify
@@ -107,7 +107,6 @@ class TaskData:
     api_client: API = None
 
     start_time: timezone.datetime = None
-    # pylint: disable=unsubscriptable-object
     environment_class: type[DockerBuildEnvironment] | type[LocalBuildEnvironment] = None
     build_director: BuildDirector = None
     config: BuildConfigV1 | BuildConfigV2 = None
@@ -229,12 +228,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
                 verbose_name=self.data.version.verbose_name,
                 version_type=self.data.version.type,
             )
-            if any(
-                [
-                    not vcs_repository.supports_lsremote,
-                    not self.data.project.has_feature(Feature.VCS_REMOTE_LISTING),
-                ]
-            ):
+            if not vcs_repository.supports_lsremote:
                 log.info("Syncing repository via full clone.")
                 vcs_repository.update()
             else:
@@ -885,11 +879,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version_type=self.data.version.type,
             )
             try:
-                if self.data.project.has_feature(Feature.USE_RCLONE):
-                    build_media_storage.rclone_sync_directory(from_path, to_path)
-                else:
-                    build_media_storage.sync_directory(from_path, to_path)
-            except Exception:
+                build_media_storage.rclone_sync_directory(from_path, to_path)
+            except Exception as exc:
                 # NOTE: the exceptions reported so far are:
                 #  - botocore.exceptions:HTTPClientError
                 #  - botocore.exceptions:ClientError
@@ -903,7 +894,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # Re-raise the exception to fail the build and handle it
                 # automatically at `on_failure`.
                 # It will clearly communicate the error to the user.
-                raise BuildAppError("Error uploading files to the storage.")
+                raise BuildAppError("Error uploading files to the storage.") from exc
 
         # Delete formats
         for media_type in types_to_delete:
@@ -915,7 +906,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
             try:
                 build_media_storage.delete_directory(media_path)
-            except Exception:
+            except Exception as exc:
                 # NOTE: I didn't find any log line for this case yet
                 log.exception(
                     "Error deleting files from storage",
@@ -925,7 +916,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # Re-raise the exception to fail the build and handle it
                 # automatically at `on_failure`.
                 # It will clearly communicate the error to the user.
-                raise BuildAppError("Error deleting files from storage.")
+                raise BuildAppError("Error deleting files from storage.") from exc
 
         log.info(
             "Store build artifacts finished.",
