@@ -141,7 +141,7 @@ class Backend(BaseVCS):
             log.info(
                 "Is this an auto-created version?", version_machine=self.version_machine
             )
-            if self.version_machine:
+            if self.version_machine and self.verbose_name == "stable":
                 return None
             return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
 
