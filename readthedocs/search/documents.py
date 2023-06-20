@@ -3,7 +3,7 @@ from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
 from elasticsearch import Elasticsearch
 
-from readthedocs.projects.models import Feature, HTMLFile, Project
+from readthedocs.projects.models import HTMLFile, Project
 
 project_conf = settings.ES_INDEXES['project']
 project_index = Index(project_conf['name'])
@@ -104,25 +104,6 @@ class PageDocument(RTDDocTypeMixin, Document):
             ),
         }
     )
-    domains = fields.NestedField(
-        properties={
-            'role_name': fields.KeywordField(),
-
-            # For linking to the URL
-            'anchor': fields.KeywordField(),
-
-            # For showing in the search result
-            'type_display': fields.TextField(),
-            'docstrings': fields.TextField(
-                term_vector='with_positions_offsets',
-            ),
-            'name': fields.TextField(
-                # Simple analyzer breaks on `.`,
-                # otherwise search results are too strict for this use case
-                analyzer='simple',
-            ),
-        }
-    )
 
     modified_model_field = 'modified_date'
 
@@ -135,55 +116,6 @@ class PageDocument(RTDDocTypeMixin, Document):
         if not (-10 <= html_file.rank <= 10):
             return 0
         return html_file.rank
-
-    def prepare_domains(self, html_file):
-        """Prepares and returns the values for domains field."""
-
-        # XXX: Don't access the sphinx domains table while we migrate the ID type
-        # https://github.com/readthedocs/readthedocs.org/pull/9482.
-        if html_file.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
-            return []
-
-        if not html_file.version.is_sphinx_type:
-            return []
-
-        all_domains = []
-        try:
-            domains_qs = html_file.sphinx_domains.exclude(
-                domain='std',
-                type__in=['doc', 'label']
-            ).iterator()
-
-            all_domains = [
-                {
-                    'role_name': domain.role_name,
-                    'anchor': domain.anchor,
-                    'type_display': domain.type_display,
-                    'docstrings': html_file.processed_json.get(
-                        'domain_data', {}
-                    ).get(domain.anchor, ''),
-                    'name': domain.name,
-                }
-                for domain in domains_qs
-            ]
-
-            log.debug(
-                "[%s] [%s] Total domains for file %s are: %s",
-                html_file.project.slug,
-                html_file.version.slug,
-                html_file.path,
-                len(all_domains)
-            )
-
-        except Exception:
-            log.exception(
-                "[%s] [%s] Error preparing domain data for file %s",
-                html_file.project.slug,
-                html_file.version.slug,
-                html_file.path
-            )
-
-        return all_domains
 
     def get_queryset(self):
         """Don't include ignored files and delisted projects."""
