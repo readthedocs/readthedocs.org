@@ -397,13 +397,15 @@ class TestGitBackendTwiceInARow(TestGitBackend):
 @mock.patch("readthedocs.doc_builder.environments.BuildCommand.save", mock.MagicMock())
 class TestGitBackendNew(TestGitBackend):
     """
-    Test known relevant aspects of Git backend.
+    Test the entire Git backend (with the GIT_CLONE_FETCH_CHECKOUT_PATTERN feature flag).
 
-    This test class is intended to maintain all backwards compatibility when introducing new git clone+fetch commands.
+    This test class is intended to maintain all backwards compatibility when introducing new
+    git clone+fetch commands, hence inheriting from the former test class.
 
     Methods have been copied and adapted.
     Once the feature ``GIT_CLONE_FETCH_CHECKOUT_PATTERN`` has become the default for all projects,
-    we can discard of TestGitBackend.
+    we can discard of TestGitBackend by moving the methods that aren't overwritten into this class
+    and renaming it.
     """
 
     def setUp(self):
@@ -419,7 +421,7 @@ class TestGitBackendNew(TestGitBackend):
 
     def test_check_for_submodules(self):
         """
-        Test that we can get a branch called 'submodule' containing a submodule
+        Test that we can get a branch called 'submodule' containing a valid submodule.
         """
         repo = self.project.vcs_repo(
             environment=self.build_environment,
@@ -435,6 +437,7 @@ class TestGitBackendNew(TestGitBackend):
         self.assertTrue(repo.are_submodules_available(self.dummy_conf))
 
     def test_check_invalid_submodule_urls(self):
+        """Test that a branch with an invalid submodule fails correctly."""
         repo = self.project.vcs_repo(
             environment=self.build_environment,
             version_type=BRANCH,
@@ -452,6 +455,7 @@ class TestGitBackendNew(TestGitBackend):
         )
 
     def test_check_submodule_urls(self):
+        """Test that a valid submodule is found in the 'submodule' branch."""
         repo = self.project.vcs_repo(
             environment=self.build_environment,
             version_type=BRANCH,
@@ -462,9 +466,9 @@ class TestGitBackendNew(TestGitBackend):
         valid, _ = repo.validate_submodules(self.dummy_conf)
         self.assertTrue(valid)
 
-    # TODO: Update fetch_ng to just fetch when factoring out the Feature flag
     @patch("readthedocs.vcs_support.backends.git.Backend.fetch_ng")
     def test_git_update_with_external_version(self, fetch):
+        """Test that an external Version (PR) is correctly cloned and fetched."""
         version = fixture.get(
             Version,
             project=self.project,
@@ -481,6 +485,7 @@ class TestGitBackendNew(TestGitBackend):
         fetch.assert_called_once()
 
     def test_invalid_submodule_is_ignored(self):
+        """Test that an invalid submodule isn't listed."""
         repo = self.project.vcs_repo(
             environment=self.build_environment,
             version_type=BRANCH,
@@ -505,6 +510,7 @@ class TestGitBackendNew(TestGitBackend):
         self.assertEqual(list(submodules), ["foobar"])
 
     def test_skip_submodule_checkout(self):
+        """Test that a submodule is listed as available."""
         repo = self.project.vcs_repo(
             environment=self.build_environment,
             version_type=BRANCH,
@@ -515,10 +521,12 @@ class TestGitBackendNew(TestGitBackend):
         self.assertTrue(repo.are_submodules_available(self.dummy_conf))
 
     def test_use_shallow_clone(self):
+        """A test that should be removed because shallow clones are the new default."""
         # We should not be calling test_use_shallow_clone
         return True
 
     def test_git_fetch_with_external_version(self):
+        """Test that fetching an external build (PR branch) correctly executes."""
         version = fixture.get(Version, project=self.project, type=EXTERNAL, active=True)
         repo = self.project.vcs_repo(
             verbose_name=version.verbose_name,

@@ -62,6 +62,7 @@ class Backend(BaseVCS):
             #     clone_url = 'git://%s' % (hacked_url)
         return self.repo_url
 
+    # TODO: Remove when removing GIT_CLONE_FETCH_CHECKOUT_PATTERN
     def set_remote_url(self, url):
         return self.run('git', 'remote', 'set-url', 'origin', url)
 
