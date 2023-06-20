@@ -87,9 +87,11 @@ class Backend(BaseVCS):
             return self.fetch()
         return self.clone()
 
-    def get_remote_fetch_reference(self):
+    def get_remote_fetch_refspec(self):
         """
         Gets a valid remote reference for the identifier.
+
+        See also: The <refspec> section from ``git help fetch``
 
         This method sits on top of a lot of legacy design.
         It decides how to treat the incoming ``Version.identifier`` from
@@ -102,7 +104,7 @@ class Backend(BaseVCS):
         Version.verbose_name = tag name (tags)
         Version.verbose_name = PR number (external versions)
 
-        :return: A reference valid for fetch operation
+        :return: A refspec valid for fetch operation
         """
 
         if not self.version_type:
@@ -117,9 +119,11 @@ class Backend(BaseVCS):
         # Git backend.
         if self.version_type == BRANCH:
             # Here we point directly to the remote branch name and update our local remote
-            # refspec to point here. Failing to specify the branch name or simply specifying
-            # a local branch name, breaks assumptions that we have in .branches() for iterating
-            # over everything in refs/remotes/origin.
+            # refspec to point here.
+            # The original motivation for putting 'refs/remotes/origin/<branch>' as the local refspec
+            # was an assumption in the .branches property that iterates over everything in
+            # refs/remotes/origin. We might still keep this pattern as it seems to be the most solid
+            # convention for storing a remote:local refspec mapping.
             return (
                 f"refs/heads/{self.version_identifier}:refs/remotes/origin/"
                 f"{self.version_identifier}"
@@ -193,7 +197,7 @@ class Backend(BaseVCS):
             "--depth",
             str(self.repo_depth),
         ]
-        remote_reference = self.get_remote_fetch_reference()
+        remote_reference = self.get_remote_fetch_refspec()
 
         if remote_reference:
             # TODO: We are still fetching the latest 50 commits.
