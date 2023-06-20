@@ -45,10 +45,12 @@ class SyncRepositoryMixin:
         # Do not use ``ls-remote`` if the VCS does not support it or if we
         # have already cloned the repository locally. The latter happens
         # when triggering a normal build.
-        use_lsremote = (
-            vcs_repository.supports_lsremote
-            and not vcs_repository.repo_exists()
-        )
+        # ALWAYS use lsremote when we have GIT_CLONE_FETCH_CHECKOUT_PATTERN on.
+        # The new pattern does not fetch branch and tag data, so we always
+        # have to do ls-remote.
+        use_lsremote = self.data.project.has_feature(
+            Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN
+        ) or (vcs_repository.supports_lsremote and not vcs_repository.repo_exists())
         sync_tags = vcs_repository.supports_tags and not self.data.project.has_feature(
             Feature.SKIP_SYNC_TAGS
         )
@@ -63,6 +65,9 @@ class SyncRepositoryMixin:
                 include_tags=sync_tags,
                 include_branches=sync_branches,
             )
+
+        # GIT_CLONE_FETCH_CHECKOUT_PATTERN: When the feature flag becomes default, we
+        # can start removing this. Maybe also remove dependency on gitpython.
         else:
             if sync_tags:
                 tags = vcs_repository.tags
