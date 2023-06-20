@@ -83,8 +83,6 @@ def update(ctx, package=None):
 
 
 namespace.add_collection(
-    Collection(
-        update,
-    ),
-    name="deps",
+    Collection(update),
+    name="requirements",
 )
