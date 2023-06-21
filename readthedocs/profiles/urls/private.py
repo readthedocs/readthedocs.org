@@ -1,8 +1,7 @@
 """URL patterns for views to modify user profiles."""
 
-from django.conf.urls import url
+from django.urls import path
 
-from readthedocs.core.forms import UserProfileForm
 from readthedocs.profiles import views
 
 # Split URLs into different lists to be able to selectively import them from a
@@ -11,28 +10,33 @@ from readthedocs.profiles import views
 urlpatterns = []
 
 account_urls = [
-    url(
-        r'^login',
+    path(
+        "login/",
         views.LoginView.as_view(),
         name='account_login',
     ),
-    url(
-        r'^logout/',
+    path(
+        "logout/",
         views.LogoutView.as_view(),
         name='account_logout',
     ),
-    url(
-        r'^edit/',
+    path(
+        "edit/",
         views.ProfileEdit.as_view(),
         name='profiles_profile_edit',
     ),
-    url(
-        r'^delete/',
+    path(
+        "delete/",
         views.AccountDelete.as_view(),
         name='delete_account',
     ),
-    url(
-        r'^advertising/$',
+    path(
+        "security-log/",
+        views.UserSecurityLogView.as_view(),
+        name='profiles_security_log',
+    ),
+    path(
+        "advertising/",
         views.AccountAdvertisingEdit.as_view(),
         name='account_advertising',
     ),
@@ -41,18 +45,18 @@ account_urls = [
 urlpatterns += account_urls
 
 tokens_urls = [
-    url(
-        r'^tokens/$',
+    path(
+        "tokens/",
         views.TokenListView.as_view(),
         name='profiles_tokens',
     ),
-    url(
-        r'^tokens/create/$',
+    path(
+        "tokens/create/",
         views.TokenCreateView.as_view(),
         name='profiles_tokens_create',
     ),
-    url(
-        r'^tokens/delete/$',
+    path(
+        "tokens/delete/",
         views.TokenDeleteView.as_view(),
         name='profiles_tokens_delete',
     ),

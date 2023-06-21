@@ -7,5 +7,6 @@
     "modified": "2019-04-29T12:00:00Z",
     "pk": 1,
     "project": "project",
+    "public": false,
     "name": "ENVVAR"
 }

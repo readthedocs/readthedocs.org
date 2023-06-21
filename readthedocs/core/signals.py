@@ -1,104 +1,108 @@
-# -*- coding: utf-8 -*-
-
 """Signal handling for core app."""
 
-import logging
-from urllib.parse import urlparse
-
-from corsheaders import signals
+import requests
+import structlog
+from allauth.account.signals import email_confirmed
 from django.conf import settings
-from django.db.models import Count, Q
 from django.db.models.signals import pre_delete
 from django.dispatch import Signal, receiver
-from rest_framework.permissions import SAFE_METHODS
+from simple_history.models import HistoricalRecords
+from simple_history.signals import pre_create_historical_record
 
-from readthedocs.oauth.models import RemoteOrganization
-from readthedocs.projects.models import Domain, Project
+from readthedocs.analytics.utils import get_client_ip
+from readthedocs.core.models import UserProfile
+from readthedocs.organizations.models import Organization
+from readthedocs.projects.models import Project
 
+log = structlog.get_logger(__name__)
 
-log = logging.getLogger(__name__)
-
-WHITELIST_URLS = [
-    '/api/v2/footer_html',
-    '/api/v2/search',
-    '/api/v2/docsearch',
-    '/api/v2/sustainability',
-]
-
-webhook_github = Signal(providing_args=['project', 'data', 'event'])
-webhook_gitlab = Signal(providing_args=['project', 'data', 'event'])
-webhook_bitbucket = Signal(providing_args=['project', 'data', 'event'])
+webhook_github = Signal()
+webhook_gitlab = Signal()
+webhook_bitbucket = Signal()
 
 pre_collectstatic = Signal()
 post_collectstatic = Signal()
 
 
-def decide_if_cors(sender, request, **kwargs):  # pylint: disable=unused-argument
+@receiver(email_confirmed)
+def process_email_confirmed(request, email_address, **kwargs):
     """
-    Decide whether a request should be given CORS access.
+    Steps to take after a users email address is confirmed.
 
-    This checks that:
-    * The URL is whitelisted against our CORS-allowed domains
-    * The Domain exists in our database, and belongs to the project being queried.
+    We currently:
 
-    Returns True when a request should be given CORS access.
+    * Subscribe the user to the mailing list if they set this in their signup.
+    * Add them to a drip campaign for new users in the new user group.
     """
-    if 'HTTP_ORIGIN' not in request.META:
-        return False
-    host = urlparse(request.META['HTTP_ORIGIN']).netloc.split(':')[0]
 
-    # Don't do domain checking for this API for now
-    if request.path_info.startswith('/api/v2/sustainability'):
-        return True
-
-    # Don't do domain checking for APIv2 when the Domain is known
-    if request.path_info.startswith('/api/v2/') and request.method in SAFE_METHODS:
-        domain = Domain.objects.filter(domain__icontains=host)
-        if domain.exists():
-            return True
-
-    valid_url = False
-    for url in WHITELIST_URLS:
-        if request.path_info.startswith(url):
-            valid_url = True
-            break
-
-    if valid_url:
-        project_slug = request.GET.get('project', None)
-        try:
-            project = Project.objects.get(slug=project_slug)
-        except Project.DoesNotExist:
-            log.warning(
-                'Invalid project passed to domain. [%s:%s]',
-                project_slug,
-                host,
-            )
-            return False
-
-        domain = Domain.objects.filter(
-            Q(domain__icontains=host),
-            Q(project=project) | Q(project__subprojects__child=project),
+    # email_address is an object
+    # https://github.com/pennersr/django-allauth/blob/6315e25/allauth/account/models.py#L15
+    user = email_address.user
+    profile = UserProfile.objects.filter(user=user).first()
+    if profile and profile.mailing_list:
+        # TODO: Unsubscribe users if they unset `mailing_list`.
+        log.bind(
+            email=email_address.email,
+            username=user.username,
         )
-        if domain.exists():
-            return True
+        log.info("Subscribing user to newsletter and onboarding group.")
 
-    return False
+        # Try subscribing user to a group, then fallback to normal subscription API
+        url = settings.MAILERLITE_API_ONBOARDING_GROUP_URL
+        if not url:
+            url = settings.MAILERLITE_API_SUBSCRIBERS_URL
+
+        payload = {
+            "email": email_address.email,
+            "resubscribe": True,
+        }
+        headers = {
+            "X-MailerLite-ApiKey": settings.MAILERLITE_API_KEY,
+        }
+        try:
+            # TODO: migrate this signal to a Celery task since it has a `requests.post` on it.
+            resp = requests.post(
+                url,
+                json=payload,
+                headers=headers,
+                timeout=3,  # seconds
+            )
+            resp.raise_for_status()
+        except requests.Timeout:
+            log.warning("Timeout subscribing user to newsletter.")
+        except Exception:  # noqa
+            log.exception("Unknown error subscribing user to newsletter.")
 
 
 @receiver(pre_delete, sender=settings.AUTH_USER_MODEL)
-def delete_projects(sender, instance, *args, **kwargs):
-    # Here we count the owner list from the projects that the user own
-    # Then exclude the projects where there are more than one owner
-    # Add annotate before filter
-    # https://github.com/rtfd/readthedocs.org/pull/4577
-    # https://docs.djangoproject.com/en/2.1/topics/db/aggregation/#order-of-annotate-and-filter-clauses # noqa
-    projects = (
-        Project.objects.annotate(num_users=Count('users')
-                                 ).filter(users=instance.id
-                                          ).exclude(num_users__gt=1)
-    )
+def delete_projects_and_organizations(sender, instance, *args, **kwargs):
+    """
+    Delete projects and organizations where the user is the only owner.
 
-    projects.delete()
+    We delete projects that don't belong to an organization first,
+    then full organizations.
+    """
+    user = instance
+
+    for project in Project.objects.single_owner(user):
+        project.delete()
+
+    for organization in Organization.objects.single_owner(user):
+        organization.delete()
 
 
-signals.check_request_enabled.connect(decide_if_cors)
+@receiver(pre_create_historical_record)
+def add_extra_historical_fields(sender, **kwargs):
+    history_instance = kwargs['history_instance']
+    if not history_instance:
+        return
+
+    history_user = kwargs['history_user']
+    if history_user:
+        history_instance.extra_history_user_id = history_user.id
+        history_instance.extra_history_user_username = history_user.username
+
+    request = getattr(HistoricalRecords.context, 'request', None)
+    if request:
+        history_instance.extra_history_ip = get_client_ip(request)
+        history_instance.extra_history_browser = request.headers.get('User-Agent')

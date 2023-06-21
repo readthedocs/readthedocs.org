@@ -10,8 +10,8 @@ from readthedocs.builds.constants import (
     SEMVER_VERSIONS_REGEX,
     TAG,
 )
-from readthedocs.builds.forms import RegexAutomationRuleForm
 from readthedocs.builds.models import VersionAutomationRule
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
 
 
@@ -19,7 +19,9 @@ from readthedocs.projects.models import Project
 class TestAutomationRulesViews:
 
     @pytest.fixture(autouse=True)
-    def setup(self, client, django_user_model):
+    def setup(self, client, django_user_model, settings):
+        settings.RTD_ALLOW_ORGANIZATIONS = False
+
         self.user = get(django_user_model)
         self.client = client
         self.client.force_login(self.user)
@@ -371,3 +373,15 @@ class TestAutomationRulesViews:
         assert rule_0.priority == 0
         assert rule_2.priority == 1
         assert rule_1.priority == 2
+
+
+class TestAutomationRulesViewsWithOrganizations(TestAutomationRulesViews):
+
+    @pytest.fixture(autouse=True)
+    def setup_organization(self, settings):
+        settings.RTD_ALLOW_ORGANIZATIONS = True
+        self.organization = get(
+            Organization,
+            owners=[self.user],
+            projects=[self.project],
+        )

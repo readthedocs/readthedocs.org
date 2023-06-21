@@ -2,7 +2,7 @@
   "body": "",
   "alabaster_version": "0.7.10",
   "display_toc": false,
-  "title": "Welcome to Read The Docs",
+  "title": "Welcome to Read the Docs",
   "sourcename": "index.rst.txt",
   "customsidebar": null,
   "metatags": "",
@@ -40,7 +40,7 @@
   "meta": {},
   "parents": [],
   "sidebars": null,
-  "toc": "<ul>\n<li><a class=\"reference internal\" href=\"#\">Welcome to Read The Docs</a><ul>\n</ul>\n</li>\n</ul>\n",
+  "toc": "<ul>\n<li><a class=\"reference internal\" href=\"#\">Welcome to Read the Docs</a><ul>\n</ul>\n</li>\n</ul>\n",
   "prev": null,
   "page_source_suffix": ".rst"
 }

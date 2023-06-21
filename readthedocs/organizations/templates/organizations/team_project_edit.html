@@ -1,0 +1,29 @@
+{% extends "organizations/base_team.html" %}
+
+{% load i18n gravatar %}
+
+{% block title %}{% trans "Team's Projects" %}{% endblock %}
+
+{% block content %}
+
+<div id="team_project_edit">
+
+  <!-- BEGIN organization team member add -->
+  <div class="module">
+    <h2>{% trans "Projects" %}</h2>
+    <p>
+      {% blocktrans %}
+        Select the projects that you would like this team to have access to.
+      {% endblocktrans %}
+    </p>
+    <form method="post" action="{% url "organization_team_project_edit" organization.slug team.slug %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="{% trans "Update Projects" %}">
+    </form>
+  </div>
+  <!-- END organization team member add -->
+
+</div>
+
+{% endblock %}

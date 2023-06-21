@@ -1,5 +1,6 @@
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
+ARG GITHUB_USER
 ARG GITHUB_TOKEN
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -11,6 +12,7 @@ RUN apt-get -y update
 RUN apt-get -y install \
         curl \
         g++ \
+        gettext \
         git-core \
         libevent-dev \
         libpq-dev \
@@ -23,20 +25,22 @@ RUN apt-get -y install \
         libmysqlclient-dev \
         libfreetype6 \
         libjpeg-dev \
+        postgresql-client \
         sqlite \
         netcat \
         telnet \
-        lsb-release
+        lsb-release \
+        npm \
+        rclone
 
-# https://www.postgresql.org/download/linux/ubuntu/
-# Use PostgreSQL client 12 from official PostgreSQL Ubuntu's repository to avoid this WARNING
-# WARNING: psql major version 10, server major version 12.
-# Some psql features might not work.
-# TODO: remove this when upgrading to Ubuntu 20.04 LTS
-RUN sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-RUN curl -s https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
-RUN apt-get -y update
-RUN apt-get -y install postgresql-client-12
+# Gets the MinIO mc client used to add buckets upon initialization
+# If this client should have issues running inside this image, it is also
+# fine to defer it to a separate image.
+# The current minio/mc Docker image could be a lot smaller
+RUN curl --disable https://dl.min.io/client/mc/release/linux-amd64/archive/mc.RELEASE.2022-06-11T21-10-36Z -o /usr/bin/mc && \
+    chmod +x /usr/bin/mc
+
+RUN npm install -g nodemon
 
 # Uncomment en_US.UTF-8 locale and generate it
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
@@ -57,9 +61,9 @@ RUN pip3 install --no-cache-dir -r docker.txt
 WORKDIR /usr/src/app/checkouts/
 RUN if [ -n "$GITHUB_TOKEN" ] ; \
         then \
-        git clone --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \
+        git clone --depth 1 https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \
         pip3 install --no-cache-dir -e readthedocs-ext ; \
-        git clone --depth 1 https://${GITHUB_TOKEN}@github.com/readthedocs/ext-theme ; \
+        git clone --depth 1 https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/readthedocs/ext-theme ; \
         pip3 install --no-cache-dir -e ext-theme ; \
         fi
 

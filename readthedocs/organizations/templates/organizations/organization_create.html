@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Create an Organization" %}{% endblock %}
+
+{% block dash-nav-profile %}active{% endblock %}
+
+{% block content-header %}
+  <h3>{% trans "Create an Organization" %}</h3>
+{% endblock %}
+
+{% block content %}
+  <div class="col-bisect">
+
+    <div class="wizard wizard-org">
+      <form action="" method="post">
+
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <div class="actions wizard-actions">
+          <input class="action action-primary" type="submit" value="{% trans "Get Started" %}" />
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <div class="col-bisect">
+    <div class="onboard">
+      <p>
+        {% blocktrans %}
+          To start building documentation, we will first help you create an
+          organization.
+        {% endblocktrans %}
+      </p>
+
+      <dl>
+        <dt>Limited Access</dt>
+        <dd>
+          {% blocktrans %}
+            Access to your documentation is limited to
+            <b>only those inside your organization</b>, or inside a team with access.
+          {% endblocktrans %}
+        </dd>
+
+        <dt>30 Day Trial</dt>
+        <dd>
+          {% blocktrans %}
+            No need to decide now, you can pick a plan that fits your organization
+            after a <b>30 day trial</b>.
+          {% endblocktrans %}
+        </dd>
+      </dl>
+    </div>
+  </div>
+{% endblock %}

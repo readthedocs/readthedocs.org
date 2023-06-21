@@ -1,13 +1,12 @@
 """Git-related utilities."""
 
-import logging
-import os
 import re
 
 import git
-from gitdb.util import hex_to_bin
+import structlog
 from django.core.exceptions import ValidationError
 from git.exc import BadName, InvalidGitRepositoryError, NoSuchPathError
+from gitdb.util import hex_to_bin
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.config import ALL
@@ -21,8 +20,7 @@ from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Backend(BaseVCS):
@@ -72,10 +70,15 @@ class Backend(BaseVCS):
 
     def repo_exists(self):
         try:
-            git.Repo(self.working_dir)
+            self._repo
         except (InvalidGitRepositoryError, NoSuchPathError):
             return False
         return True
+
+    @property
+    def _repo(self):
+        """Get a `git.Repo` instance from the current `self.working_dir`."""
+        return git.Repo(self.working_dir, expand_vars=False)
 
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
@@ -94,7 +97,7 @@ class Backend(BaseVCS):
 
         .. note::
 
-           Allways call after `self.are_submodules_available`.
+           Always call after `self.are_submodules_available`.
 
         :returns: tuple(bool, list)
 
@@ -103,7 +106,7 @@ class Backend(BaseVCS):
         - Include is `ALL`, returns all submodules available.
         - Include is a list, returns just those.
         - Exclude is `ALL` - this should never happen.
-        - Exlude is a list, returns all available submodules
+        - Exclude is a list, returns all available submodules
           but those from the list.
 
         Returns `False` if at least one submodule is invalid.
@@ -169,21 +172,16 @@ class Backend(BaseVCS):
                 )
 
         code, stdout, stderr = self.run(*cmd)
-        if code != 0:
-            raise RepositoryError
         return code, stdout, stderr
 
-    def checkout_revision(self, revision=None):
-        if not revision:
-            branch = self.default_branch or self.fallback_branch
-            revision = 'origin/%s' % branch
-
-        code, out, err = self.run('git', 'checkout', '--force', revision)
-        if code != 0:
+    def checkout_revision(self, revision):
+        try:
+            code, out, err = self.run('git', 'checkout', '--force', revision)
+            return [code, out, err]
+        except RepositoryError:
             raise RepositoryError(
                 RepositoryError.FAILED_TO_CHECKOUT.format(revision),
             )
-        return [code, out, err]
 
     def clone(self):
         """Clones the repository."""
@@ -194,51 +192,87 @@ class Backend(BaseVCS):
 
         cmd.extend([self.repo_url, '.'])
 
-        code, stdout, stderr = self.run(*cmd)
-        if code != 0:
-            raise RepositoryError
-        return code, stdout, stderr
+        try:
+            code, stdout, stderr = self.run(*cmd)
 
-    @property
-    def lsremote(self):
+            # TODO: for those VCS providers that don't tell us the `default_branch`
+            # of the repository in the incoming webhook,
+            # we need to get it from the cloned repository itself.
+            #
+            # cmd = ['git', 'symbolic-ref', 'refs/remotes/origin/HEAD']
+            # _, default_branch, _ = self.run(*cmd)
+            # default_branch = default_branch.replace('refs/remotes/origin/', '')
+            #
+            # The idea is to hit the APIv2 here to update the `latest` version with
+            # the `default_branch` we just got from the repository itself,
+            # after clonning it.
+            # However, we don't know the PK for the version we want to update.
+            #
+            # api_v2.version(pk).patch(
+            #     {'default_branch': default_branch}
+            # )
+
+            return code, stdout, stderr
+        except RepositoryError:
+            raise RepositoryError(RepositoryError.CLONE_ERROR())
+
+    def lsremote(self, include_tags=True, include_branches=True):
         """
-        Use ``git ls-remote`` to list branches and tags without clonning the repository.
+        Use ``git ls-remote`` to list branches and tags without cloning the repository.
 
         :returns: tuple containing a list of branch and tags
         """
-        cmd = ['git', 'ls-remote', self.repo_url]
+        if not include_tags and not include_branches:
+            return [], []
+
+        extra_args = []
+        if include_tags:
+            extra_args.append("--tags")
+        if include_branches:
+            extra_args.append("--heads")
+
+        cmd = ["git", "ls-remote", *extra_args, self.repo_url]
 
         self.check_working_dir()
-        code, stdout, stderr = self.run(*cmd)
-        if code != 0:
-            raise RepositoryError
+        _, stdout, _ = self.run(*cmd, demux=True, record=False)
 
-        tags = []
         branches = []
-        for line in stdout.splitlines()[1:]:  # skip HEAD
-            commit, ref = line.split()
-            if ref.startswith('refs/heads/'):
-                branch = ref.replace('refs/heads/', '')
+        # Git has two types of tags: lightweight and annotated.
+        # Lightweight tags are the "normal" ones.
+        all_tags = {}
+        light_tags = {}
+        for line in stdout.splitlines():
+            commit, ref = line.split(maxsplit=1)
+            if ref.startswith("refs/heads/"):
+                branch = ref.replace("refs/heads/", "", 1)
                 branches.append(VCSVersion(self, branch, branch))
-            if ref.startswith('refs/tags/'):
-                tag = ref.replace('refs/tags/', '')
+
+            if ref.startswith("refs/tags/"):
+                tag = ref.replace("refs/tags/", "", 1)
+                # If the tag is annotated, then the real commit
+                # will be on the ref ending with ^{}.
                 if tag.endswith('^{}'):
-                    # skip annotated tags since they are duplicated
-                    continue
-                tags.append(VCSVersion(self, commit, tag))
+                    light_tags[tag[:-3]] = commit
+                else:
+                    all_tags[tag] = commit
+
+        # Merge both tags, lightweight tags will have
+        # priority over annotated tags.
+        all_tags.update(light_tags)
+        tags = [VCSVersion(self, commit, tag) for tag, commit in all_tags.items()]
 
         return branches, tags
 
     @property
     def tags(self):
         versions = []
-        repo = git.Repo(self.working_dir)
+        repo = self._repo
 
         # Build a cache of tag -> commit
         # GitPython is not very optimized for reading large numbers of tags
         ref_cache = {}  # 'ref/tags/<tag>' -> hexsha
         # This code is the same that is executed for each tag in gitpython,
-        # we excute it only once for all tags.
+        # we execute it only once for all tags.
         for hexsha, ref in git.TagReference._iter_packed_refs(repo):
             gitobject = git.Object.new_from_sha(repo, hex_to_bin(hexsha))
             if gitobject.type == 'commit':
@@ -257,7 +291,7 @@ class Backend(BaseVCS):
                     # blob object - use the `.object` property instead to access it
                     # This is not a real tag for us, so we skip it
                     # https://github.com/rtfd/readthedocs.org/issues/4440
-                    log.warning('Git tag skipped: %s', tag, exc_info=True)
+                    log.warning('Git tag skipped.', tag=tag, exc_info=True)
                     continue
 
             versions.append(VCSVersion(self, hexsha, str(tag)))
@@ -265,7 +299,7 @@ class Backend(BaseVCS):
 
     @property
     def branches(self):
-        repo = git.Repo(self.working_dir)
+        repo = self._repo
         versions = []
         branches = []
 
@@ -275,38 +309,41 @@ class Backend(BaseVCS):
 
         for branch in branches:
             verbose_name = branch.name
-            if verbose_name.startswith('origin/'):
-                verbose_name = verbose_name.replace('origin/', '')
-            if verbose_name == 'HEAD':
+            if verbose_name.startswith("origin/"):
+                verbose_name = verbose_name.replace("origin/", "", 1)
+            if verbose_name == "HEAD":
                 continue
-            versions.append(VCSVersion(self, str(branch), verbose_name))
+            versions.append(
+                VCSVersion(
+                    repository=self,
+                    identifier=verbose_name,
+                    verbose_name=verbose_name,
+                )
+            )
         return versions
 
     @property
     def commit(self):
         if self.repo_exists():
-            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD')
+            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD', record=False)
             return stdout.strip()
         return None
 
     @property
     def submodules(self):
-        repo = git.Repo(self.working_dir)
-        return list(repo.submodules)
+        return list(self._repo.submodules)
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
         super().checkout()
-        # Find proper identifier
+
+        # NOTE: if there is no identifier, we default to default branch cloned
         if not identifier:
-            identifier = self.default_branch or self.fallback_branch
+            return
 
         identifier = self.find_ref(identifier)
-
         # Checkout the correct identifier for this branch.
         code, out, err = self.checkout_revision(identifier)
-        if code != 0:
-            return code, out, err
 
         # Clean any remains of previous checkouts
         self.run('git', 'clean', '-d', '-f', '-f')
@@ -350,17 +387,8 @@ class Backend(BaseVCS):
 
     def ref_exists(self, ref):
         try:
-            r = git.Repo(self.working_dir)
-            if r.commit(ref):
+            if self._repo.commit(ref):
                 return True
         except (BadName, ValueError):
             return False
         return False
-
-    @property
-    def env(self):
-        env = super().env
-        env['GIT_DIR'] = os.path.join(self.working_dir, '.git')
-        # Don't prompt for username, this requires Git 2.3+
-        env['GIT_TERMINAL_PROMPT'] = '0'
-        return env

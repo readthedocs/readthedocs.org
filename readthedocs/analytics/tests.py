@@ -8,7 +8,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 
 from .models import PageView
 from .utils import anonymize_ip_address, anonymize_user_agent, get_client_ip
@@ -88,9 +88,9 @@ class UtilsTests(TestCase):
 
     def test_get_client_ip_with_remote_addr(self):
 
-        request = RequestFactory().get('/')
-        self.assertIsNone(request.META.get('HTTP_X_FORWARDED_FOR'))
-        request.META['REMOTE_ADDR'] = '203.0.113.195'
+        request = RequestFactory().get("/")
+        self.assertIsNone(request.headers.get("X-Forwarded-For"))
+        request.META["REMOTE_ADDR"] = "203.0.113.195"
         client_ip = get_client_ip(request)
         self.assertEqual(client_ip, '203.0.113.195')
 
@@ -118,6 +118,21 @@ class AnalyticsPageViewsTests(TestCase):
         self.tomorrow = timezone.now() + timezone.timedelta(days=1)
         self.yesterday = timezone.now() - timezone.timedelta(days=1)
 
+    def test_invalid_uri(self):
+        assert PageView.objects.all().count() == 0
+        url = (
+            reverse("analytics_api")
+            + f"?project={self.project.slug}&version={self.version.slug}"
+            f"&absolute_uri=https://docs.example.com"
+        )
+        self.client.get(url, HTTP_HOST=self.host)
+        assert PageView.objects.all().count() == 0
+
+    def test_cache_headers(self):
+        resp = self.client.get(self.url, HTTP_HOST=self.host)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["CDN-Cache-Control"], "private")
+
     def test_increase_page_view_count(self):
         assert (
             PageView.objects.all().count() == 0
@@ -140,8 +155,8 @@ class AnalyticsPageViewsTests(TestCase):
 
             assert (
                 PageView.objects.all().count() == 1
-            ), f'PageView object for path \'{self.absolute_uri}\' is already created'
-            assert PageView.objects.filter(path='index.html').count() == 1
+            ), f"PageView object for path '{self.absolute_uri}' is already created"
+            assert PageView.objects.filter(path="/index.html").count() == 1
             assert (
                 PageView.objects.all().first().view_count == 2
             ), f'\'{self.absolute_uri}\' has 2 views now'
@@ -154,8 +169,8 @@ class AnalyticsPageViewsTests(TestCase):
 
             assert (
                 PageView.objects.all().count() == 2
-            ), f'PageView object for path \'{self.absolute_uri}\' is created for two days (yesterday and today)'
-            assert PageView.objects.filter(path='index.html').count() == 2
+            ), f"PageView object for path '{self.absolute_uri}' is created for two days (yesterday and today)"
+            assert PageView.objects.filter(path="/index.html").count() == 2
             assert (
                 PageView.objects.all().order_by('-date').first().view_count == 1
             ), f'\'{self.absolute_uri}\' has 1 view today'
@@ -168,8 +183,8 @@ class AnalyticsPageViewsTests(TestCase):
 
             assert (
                 PageView.objects.all().count() == 3
-            ), f'PageView object for path \'{self.absolute_uri}\' is created for three days (yesterday, today & tomorrow)'
-            assert PageView.objects.filter(path='index.html').count() == 3
+            ), f"PageView object for path '{self.absolute_uri}' is created for three days (yesterday, today & tomorrow)"
+            assert PageView.objects.filter(path="/index.html").count() == 3
             assert (
                 PageView.objects.all().order_by('-date').first().view_count == 1
             ), f'\'{self.absolute_uri}\' has 1 view tomorrow'

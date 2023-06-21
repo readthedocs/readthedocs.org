@@ -1,0 +1,38 @@
+{% extends "profiles/base_profile_edit.html" %}
+
+{% load i18n %}
+{% load pagination_tags %}
+
+{% block title %}{% trans "Security Log" %}{% endblock %}
+
+{% block profile-admin-security-log %}active{% endblock %}
+
+{% block edit_content_header %} {% trans "Security Log" %} {% endblock %}
+
+{% block edit_content %}
+
+<p class="help_text">
+  {% blocktrans trimmed with days_limit=days_limit docs_url='https://docs.readthedocs.io/page/security-log.html#user-security-log'%}
+  The <a href="{{ docs_url }}">user security log</a> allows you to see what has happened recently in your account.
+  Showing logs from the last {{ days_limit }} days.
+  {% endblocktrans %}
+</p>
+
+{% autopaginate object_list 15 %}
+
+<div class="module">
+  <div class="button-bar">
+    <ul>
+      <li>
+        <a class="button"
+           href="?download=true&{{ request.GET.urlencode }}">
+          {% trans "Download" %}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  {% include "audit/list_logs.html" with omit_user=True %}
+</div>
+{% paginate %}
+{% endblock %}

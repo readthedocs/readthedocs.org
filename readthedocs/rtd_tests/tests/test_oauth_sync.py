@@ -1,8 +1,7 @@
-from allauth.socialaccount.models import SocialAccount, SocialToken
-from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 import django_dynamic_fixture as fixture
 import requests_mock
-
+from allauth.socialaccount.models import SocialAccount, SocialToken
+from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.contrib.auth.models import User
 from django.test import TestCase
 
@@ -13,9 +12,7 @@ from readthedocs.oauth.models import (
     RemoteRepository,
     RemoteRepositoryRelation,
 )
-from readthedocs.oauth.services import (
-    GitHubService,
-)
+from readthedocs.oauth.services import GitHubService
 from readthedocs.projects.models import Project
 
 
@@ -109,11 +106,11 @@ class GitHubOAuthSyncTests(TestCase):
         project = fixture.get(Project)
         repo_3 = fixture.get(
             RemoteRepository,
-            project=project,
             full_name='organization/project-linked-repository',
             remote_id='54321',
             vcs_provider=GITHUB
         )
+        repo_3.projects.add(project)
         fixture.get(
             RemoteRepositoryRelation,
             remote_repository=repo_3,
@@ -165,6 +162,87 @@ class GitHubOAuthSyncTests(TestCase):
         self.assertIsInstance(remote_repository, RemoteRepository)
         self.assertEqual(remote_repository.full_name, 'organization/repository')
         self.assertEqual(remote_repository.name, 'repository')
+        self.assertFalse(remote_repository.remote_repository_relations.first().admin)
+        self.assertFalse(remote_repository.private)
+
+    @requests_mock.Mocker(kw='mock_request')
+    def test_sync_repositories_relation_with_organization(self, mock_request):
+        """
+        Sync repositories relations for a user where the RemoteRepository and RemoteOrganization already exist.
+
+        Note that ``repository.owner.type == 'Organization'`` in the GitHub response.
+        """
+        self.payload_user_repos[0]['owner']['type'] = 'Organization'
+        mock_request.get('https://api.github.com/user/repos', json=self.payload_user_repos)
+
+        self.assertEqual(RemoteRepository.objects.count(), 0)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 0)
+        self.assertEqual(RemoteOrganization.objects.count(), 0)
+
+        remote_organization = fixture.get(
+            RemoteOrganization,
+            remote_id=11111,
+            slug='organization',
+            vcs_provider='github'
+        )
+        remote_repository = fixture.get(
+            RemoteRepository,
+            remote_id=11111,
+            organization=remote_organization,
+            vcs_provider='github',
+        )
+        remote_repositories = self.service.sync_repositories()
+
+        self.assertEqual(RemoteRepository.objects.count(), 1)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
+        self.assertEqual(RemoteOrganization.objects.count(), 1)
+
+        self.assertEqual(len(remote_repositories), 1)
+        remote_repository = remote_repositories[0]
+        self.assertIsInstance(remote_repository, RemoteRepository)
+        self.assertEqual(remote_repository.full_name, 'organization/repository')
+        self.assertEqual(remote_repository.name, 'repository')
+        self.assertEqual(remote_repository.organization.slug, 'organization')
+        self.assertFalse(remote_repository.remote_repository_relations.first().admin)
+        self.assertFalse(remote_repository.private)
+
+    @requests_mock.Mocker(kw='mock_request')
+    def test_sync_repositories_moved_from_org_to_user(self, mock_request):
+        """
+        Sync repositories for a repo that was part of a GH organization and was moved to a GH user.
+
+        Note that ``repository.owner.type == 'User'`` in the GitHub response.
+        """
+        mock_request.get('https://api.github.com/user/repos', json=self.payload_user_repos)
+
+        self.assertEqual(RemoteRepository.objects.count(), 0)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 0)
+        self.assertEqual(RemoteOrganization.objects.count(), 0)
+
+        remote_organization = fixture.get(
+            RemoteOrganization,
+            remote_id=11111,
+            slug='organization',
+            vcs_provider='github'
+        )
+        remote_repository = fixture.get(
+            RemoteRepository,
+            remote_id=11111,
+            organization=remote_organization,
+            vcs_provider='github',
+        )
+        remote_repositories = self.service.sync_repositories()
+
+        self.assertEqual(RemoteRepository.objects.count(), 1)
+        self.assertEqual(RemoteRepositoryRelation.objects.count(), 1)
+        self.assertEqual(RemoteOrganization.objects.count(), 1)
+
+        self.assertEqual(len(remote_repositories), 1)
+        remote_repository = remote_repositories[0]
+        self.assertIsInstance(remote_repository, RemoteRepository)
+        self.assertEqual(remote_repository.full_name, 'organization/repository')
+        self.assertEqual(remote_repository.name, 'repository')
+        self.assertIsNone(remote_repository.organization)
         self.assertFalse(remote_repository.remote_repository_relations.first().admin)
         self.assertFalse(remote_repository.private)
 

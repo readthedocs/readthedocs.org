@@ -12,11 +12,22 @@
 {% block project_edit_content_header %}{% trans "Domains" %}{% endblock %}
 
 {% block project_edit_content %}
-  <p class="help_text">
-    {% blocktrans trimmed with docs_url='https://docs.readthedocs.io/page/custom_domains.html' %}
-        Configuring a custom domain allows you to serve your documentation from a domain other than "{{ default_domain }}". <a href="{{ docs_url }}">Learn more</a>.
-    {% endblocktrans %}
-  </p>
+  {% if superproject %}
+    {% url "projects_detail" superproject.slug as superproject_url %}
+    <p>
+      {% blocktrans trimmed with superproject=superproject.name superproject_url=superproject_url domain=project.subdomain %}
+        This project is a subproject of <a href="{{ superproject_url }}">{{ superproject }}</a>,
+        its documentation will always be served from the <code>{{ domain }}</code> domain.
+        <a href="https://docs.readthedocs.io/page/subprojects.html#custom-domain-on-subprojects">Learn more</a>.
+      {% endblocktrans %}
+    </p>
+  {% else %}
+    <p class="help_text">
+      {% blocktrans trimmed with docs_url='https://docs.readthedocs.io/page/custom_domains.html' %}
+          Configuring a custom domain allows you to serve your documentation from a domain other than "{{ default_domain }}". <a href="{{ docs_url }}">Learn more</a>.
+      {% endblocktrans %}
+    </p>
+  {% endif %}
 
   {% if object_list %}
   <h3> {% trans "Existing Domains" %} </h3>
@@ -33,11 +44,18 @@
   </p>
   {% endif %}
 
-  <h3> {% trans "Add new Domain" %} </h3>
-  <form method="post" action="{% url 'projects_domains_create' project.slug %}">{% csrf_token %}
-    {{ form.as_p }}
-    <p>
-      <input style="display: inline;" type="submit" value="{% trans "Add" %}">
-    </p>
-  </form>
+  {% if not superproject %}
+    <h3>{% trans "Add new domain" %}</h3>
+
+    {% if not enabled %}
+      {% include 'projects/includes/feature_disabled.html' with project=project %}
+    {% else %}
+      <form method="post" action="{% url 'projects_domains_create' project.slug %}">{% csrf_token %}
+        {{ form.as_p }}
+        <p>
+          <input style="display: inline;" type="submit" value="{% trans "Add" %}">
+        </p>
+      </form>
+    {% endif %}
+  {% endif %}
 {% endblock %}

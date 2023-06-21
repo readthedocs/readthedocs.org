@@ -1,27 +1,19 @@
-import logging
 import time
 
+import structlog
 from django.conf import settings
-from django.contrib.sessions.backends.base import SessionBase
-from django.contrib.sessions.backends.base import UpdateError
+from django.contrib.sessions.backends.base import SessionBase, UpdateError
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.core.exceptions import SuspiciousOperation
-from django.core.exceptions import ImproperlyConfigured, MiddlewareNotUsed
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.http import Http404, HttpResponseBadRequest
-from django.urls.base import set_urlconf
+from django.core.exceptions import (
+    ImproperlyConfigured,
+    MiddlewareNotUsed,
+    SuspiciousOperation,
+)
+from django.http import HttpResponse
 from django.utils.cache import patch_vary_headers
-from django.utils.deprecation import MiddlewareMixin
 from django.utils.http import http_date
-from django.utils.translation import ugettext_lazy as _
-from django.shortcuts import render
 
-from readthedocs.projects.models import Domain, Project
-
-
-log = logging.getLogger(__name__)
-
-LOG_TEMPLATE = '(Middleware) %(msg)s [%(host)s%(path)s]'
+log = structlog.get_logger(__name__)
 
 
 class ReadTheDocsSessionMiddleware(SessionMiddleware):
@@ -200,3 +192,34 @@ class ReferrerPolicyMiddleware:
         response = self.get_response(request)
         response['Referrer-Policy'] = settings.SECURE_REFERRER_POLICY
         return response
+
+
+class NullCharactersMiddleware:
+
+    """
+    Block all requests that contains NULL characters (0x00) on their GET attributes.
+
+    Requests containing NULL characters make our code to break. In particular,
+    when trying to save the content containing a NULL character into the
+    database, producing a 500 and creating an event in Sentry.
+
+    NULL characters are also used as an explotation technique, known as "Null Byte Injection".
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        for key, value in request.GET.items():
+            if "\x00" in value:
+                log.info(
+                    "NULL (0x00) characters in GET attributes.",
+                    attribute=key,
+                    value=value,
+                    url=request.build_absolute_uri(),
+                )
+                return HttpResponse(
+                    f"There are NULL (0x00) characters in at least one of the parameters ({key}) passed to the request.",  # noqa
+                    status=400,
+                )
+        return self.get_response(request)

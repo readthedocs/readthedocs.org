@@ -1,0 +1,27 @@
+{% extends "core/email/common.html" %}
+{% block content %}
+<p>The trial period for <b>{{ organization.name }}<b> has ended. If
+you'd like to continue using Read the Docs to host and manage your
+documentation, please sign up for a subscription soon.
+</p>
+
+<p>You can sign up here:</p>
+
+<p><a href="{{ production_uri }}{% url 'subscription_detail' organization.slug %}">{{ production_uri }}{% url 'subscription_detail' organization.slug %}</a></p>
+
+<p><b>If you don't upgrade your account, your builds will be disabled,
+and access to your documentation will be removed.</b></p>
+
+<p>
+  If you need more information on the various plan options available to you,
+  see <a href="{{ production_uri }}{% url 'pricing' %}">our pricing page</a>
+  or always feel free to <a href="{{ production_uri }}{% url 'support' %}">get in touch with us</a>.
+</p>
+
+
+<p>
+    If you need more help with Read the Docs, we'd love to help you!
+    <a href="{{ production_uri }}{% url 'support' %}">Get in touch with us</a>
+    and let us know what problems you're having.
+</p>
+{% endblock %}

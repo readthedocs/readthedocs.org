@@ -8,7 +8,7 @@ from crispy_forms.layout import HTML, Fieldset, Layout
 from django import forms
 from django.conf import settings
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import (
     ALL_VERSIONS,
@@ -22,12 +22,9 @@ from readthedocs.builds.models import (
     Version,
     VersionAutomationRule,
 )
-from readthedocs.builds.signals import version_changed
-from readthedocs.core.mixins import HideProtectedLevelMixin
-from readthedocs.core.utils import trigger_build
 
 
-class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
+class VersionForm(forms.ModelForm):
 
     class Meta:
         model = Version
@@ -68,6 +65,9 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
 
         self.helper = FormHelper()
         self.helper.layout = Layout(*field_sets)
+        # We need to know if the version was active before the update.
+        # We use this value in the save method.
+        self._was_active = self.instance.active if self.instance else False
 
     def clean_active(self):
         active = self.cleaned_data['active']
@@ -87,10 +87,7 @@ class VersionForm(HideProtectedLevelMixin, forms.ModelForm):
 
     def save(self, commit=True):
         obj = super().save(commit=commit)
-        if obj.active and not obj.built and not obj.uploaded:
-            trigger_build(project=obj.project, version=obj)
-        if self.has_changed():
-            version_changed.send(sender=self.__class__, version=obj)
+        obj.post_save(was_active=self._was_active)
         return obj
 
 

@@ -1,0 +1,34 @@
+{% extends "organizations/base.html" %}
+
+{% load i18n %}
+{% load gravatar %}
+{% load organizations %}
+
+{% block title %}{% trans "Members" %}{% endblock %}
+
+{% block organization-bar-members %}active{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-major">
+
+      <div class="module">
+        {% include "organizations/includes/member_list.html" with members=members %}
+      </div>
+
+    </div>
+    <div class="col col-minor">
+      <div class="onboard">
+        <h3>All Members</h3>
+
+        <p>
+          {% url 'organization_team_list' organization.slug as invite_url %}
+          {% blocktrans %}
+            This is a list of all the team members and owners inside your organization.
+            To invite members, <a href="{{ invite_url }}">invite them to a team</a>
+          {% endblocktrans %}
+        </p>
+      </div>
+    </div>
+  </div>
+{% endblock %}

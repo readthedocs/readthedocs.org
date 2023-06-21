@@ -1,20 +1,15 @@
 """Public project views."""
 
 import hashlib
-import json
-import logging
 import mimetypes
-import operator
 import os
 from collections import OrderedDict
-from urllib.parse import urlparse
 
-import requests
+import structlog
 from django.conf import settings
 from django.contrib import messages
-from django.core.cache import cache
 from django.db.models import prefetch_related_objects
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.crypto import constant_time_compare
@@ -24,25 +19,28 @@ from django.views.decorators.cache import never_cache
 from django.views.generic import DetailView, ListView
 from taggit.models import Tag
 
-from readthedocs.analytics.tasks import analytics_event
-from readthedocs.analytics.utils import get_client_ip
-from readthedocs.builds.constants import LATEST, BUILD_STATUS_DUPLICATED
+from readthedocs.builds.constants import (
+    BUILD_STATE_FINISHED,
+    EXTERNAL,
+    INTERNAL,
+    LATEST,
+)
 from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
+from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.filters import ProjectVersionListFilterSet
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
-from readthedocs.proxito.views.utils import _get_project_data_from_request
-from readthedocs.storage import build_media_storage
 
 from ..constants import PRIVATE
-from .base import ProjectOnboardMixin
+from .base import ProjectOnboardMixin, ProjectSpamMixin
 
-log = logging.getLogger(__name__)
-search_log = logging.getLogger(__name__ + '.search')
+log = structlog.get_logger(__name__)
+search_log = structlog.get_logger(__name__ + '.search')
 mimetypes.add_type('application/epub+zip', '.epub')
 
 
@@ -87,10 +85,11 @@ def project_redirect(request, invalid_project_slug):
 
 
 class ProjectDetailViewBase(
+        ProjectSpamMixin,
         ProjectRelationListMixin,
         BuildTriggerMixin,
         ProjectOnboardMixin,
-        DetailView
+        DetailView,
 ):
 
     """Display project onboard steps."""
@@ -99,7 +98,7 @@ class ProjectDetailViewBase(
     slug_url_kwarg = 'project_slug'
 
     def get_queryset(self):
-        return Project.objects.protected(self.request.user)
+        return Project.objects.public(self.request.user)
 
     def get_project(self):
         return self.get_object()
@@ -108,7 +107,17 @@ class ProjectDetailViewBase(
         context = super().get_context_data(**kwargs)
 
         project = self.get_project()
-        context['versions'] = self._get_versions(project)
+
+        # Get filtered and sorted versions
+        versions = self._get_versions(project)
+        if settings.RTD_EXT_THEME_ENABLED:
+            filter = ProjectVersionListFilterSet(
+                self.request.GET,
+                queryset=versions,
+            )
+            context['filter'] = filter
+            versions = filter.qs
+        context['versions'] = versions
 
         protocol = 'http'
         if self.request.is_secure():
@@ -178,10 +187,8 @@ class ProjectBadgeView(View):
 
         if version:
             last_build = (
-                version.builds
-                .filter(type='html', state='finished')
-                .exclude(status=BUILD_STATUS_DUPLICATED)
-                .order_by('-date')
+                version.builds.filter(type="html", state=BUILD_STATE_FINISHED)
+                .order_by("-date")
                 .first()
             )
             if last_build:
@@ -277,7 +284,7 @@ project_badge = never_cache(ProjectBadgeView.as_view())
 def project_downloads(request, project_slug):
     """A detail view for a project with various downloads."""
     project = get_object_or_404(
-        Project.objects.protected(request.user),
+        Project.objects.public(request.user),
         slug=project_slug,
     )
     versions = Version.internal.public(user=request.user, project=project)
@@ -300,7 +307,7 @@ def project_downloads(request, project_slug):
     )
 
 
-class ProjectDownloadMediaBase(ServeDocsMixin, View):
+class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
 
     # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
     same_domain_url = False
@@ -331,59 +338,55 @@ class ProjectDownloadMediaBase(ServeDocsMixin, View):
                      not the actual Project permissions.
         """
         if self.same_domain_url:
-            # It uses the request to get the ``project``. The rest of arguments come
-            # from the URL.
-            final_project, lang_slug, version_slug, filename = _get_project_data_from_request(  # noqa
-                request,
-                project_slug=None,
-                subproject_slug=subproject_slug,
-                lang_slug=lang_slug,
-                version_slug=version_slug,
-            )
+            unresolved_domain = request.unresolved_domain
+            is_external = request.unresolved_domain.is_from_external_domain
+            manager = EXTERNAL if is_external else INTERNAL
 
-            if not self.allowed_user(request, final_project, version_slug):
-                return self.get_unauthed_response(request, final_project)
+            # Additional protection to force all storage calls
+            # to use the external or internal versions storage.
+            # TODO: We already force the manager to match the type,
+            # so we could probably just remove this.
+            self.version_type = manager
 
-            # We don't use ``.public`` in this filter because the access
-            # permission was already granted by ``.allowed_user``
+            # It uses the request to get the ``project``.
+            # The rest of arguments come from the URL.
+            project = unresolved_domain.project
+
+            # Use the project from the domain, or use the subproject slug.
+            if subproject_slug:
+                project = get_object_or_404(
+                    project.subprojects, alias=subproject_slug
+                ).child
+
+            if project.language != lang_slug:
+                project = get_object_or_404(project.translations, language=lang_slug)
+
+            if is_external and unresolved_domain.external_version_slug != version_slug:
+                raise Http404
+
             version = get_object_or_404(
-                final_project.versions,
+                project.versions(manager=manager),
                 slug=version_slug,
             )
 
+            if not self.allowed_user(request, version):
+                return self.get_unauthed_response(request, project)
+
+            # All public versions can be cached.
+            self.cache_response = version.is_public
         else:
             # All the arguments come from the URL.
             version = get_object_or_404(
-                Version.objects.public(user=request.user),
+                Version.internal.public(user=request.user),
                 project__slug=project_slug,
                 slug=version_slug,
             )
 
-        # Send media download to analytics - sensitive data is anonymized
-        analytics_event.delay(
-            event_category='Build Media',
-            event_action=f'Download {type_}',
-            event_label=str(version),
-            ua=request.META.get('HTTP_USER_AGENT'),
-            uip=get_client_ip(request),
-        )
-
-        storage_path = version.project.get_storage_path(
+        return self._serve_dowload(
+            request=request,
+            project=version.project,
+            version=version,
             type_=type_,
-            version_slug=version_slug,
-            version_type=version.type,
-        )
-
-        # URL without scheme and domain to perform an NGINX internal redirect
-        url = build_media_storage.url(storage_path)
-        url = urlparse(url)._replace(scheme='', netloc='').geturl()
-
-        return self._serve_docs(
-            request,
-            final_project=version.project,
-            version_slug=version.slug,
-            path=url,
-            download=True,
         )
 
 
@@ -400,7 +403,7 @@ def project_versions(request, project_slug):
     max_inactive_versions = 100
 
     project = get_object_or_404(
-        Project.objects.protected(request.user),
+        Project.objects.public(request.user),
         slug=project_slug,
     )
 
@@ -441,91 +444,5 @@ def project_versions(request, project_slug):
             'is_project_admin': AdminPermission.is_admin(request.user, project),
             'max_inactive_versions': max_inactive_versions,
             'total_inactive_versions_count': total_inactive_versions_count,
-        },
-    )
-
-
-def project_analytics(request, project_slug):
-    """Have a analytics API placeholder."""
-    project = get_object_or_404(
-        Project.objects.protected(request.user),
-        slug=project_slug,
-    )
-    analytics_cache = cache.get('analytics:%s' % project_slug)
-    if analytics_cache:
-        analytics = json.loads(analytics_cache)
-    else:
-        try:
-            resp = requests.get(
-                '{host}/api/v1/index/1/heatmap/'.format(
-                    host=settings.GROK_API_HOST,
-                ),
-                params={'project': project.slug, 'days': 7, 'compare': True},
-            )
-            analytics = resp.json()
-            cache.set('analytics:%s' % project_slug, resp.content, 1800)
-        except requests.exceptions.RequestException:
-            analytics = None
-
-    if analytics:
-        page_list = list(
-            reversed(
-                sorted(
-                    list(analytics['page'].items()),
-                    key=operator.itemgetter(1),
-                ),
-            ),
-        )
-        version_list = list(
-            reversed(
-                sorted(
-                    list(analytics['version'].items()),
-                    key=operator.itemgetter(1),
-                ),
-            ),
-        )
-    else:
-        page_list = []
-        version_list = []
-
-    full = request.GET.get('full')
-    if not full:
-        page_list = page_list[:20]
-        version_list = version_list[:20]
-
-    return render(
-        request,
-        'projects/project_analytics.html',
-        {
-            'project': project,
-            'analytics': analytics,
-            'page_list': page_list,
-            'version_list': version_list,
-            'full': full,
-        },
-    )
-
-
-def project_embed(request, project_slug):
-    """Have a content API placeholder."""
-    project = get_object_or_404(
-        Project.objects.protected(request.user),
-        slug=project_slug,
-    )
-    version = project.versions.get(slug=LATEST)
-    files = version.imported_files.filter(
-        name__endswith='.html',
-    ).order_by('path')
-
-    return render(
-        request,
-        'projects/project_embed.html',
-        {
-            'project': project,
-            'files': files,
-            'settings': {
-                'PUBLIC_API_URL': settings.PUBLIC_API_URL,
-                'URI': request.build_absolute_uri(location='/').rstrip('/'),
-            },
         },
     )

@@ -1,32 +1,30 @@
 """Endpoints for listing Projects, Versions, Builds, etc."""
 
 import json
-import logging
 
+import structlog
 from allauth.socialaccount.models import SocialAccount
 from django.conf import settings
 from django.db.models import BooleanField, Case, Value, When
 from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
 from rest_framework import decorators, permissions, status, viewsets
+from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
+from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
-from readthedocs.builds.tasks import sync_versions_task
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
-from readthedocs.oauth.services import GitHubService, registry
+from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Domain, Project
 from readthedocs.storage import build_commands_storage
 
-from ..permissions import (
-    APIPermission,
-    APIRestrictedPermission,
-    IsOwner,
-)
+from ..permissions import APIRestrictedPermission, IsOwner
 from ..serializers import (
+    BuildAdminReadOnlySerializer,
     BuildAdminSerializer,
     BuildCommandSerializer,
     BuildSerializer,
@@ -45,7 +43,7 @@ from ..utils import (
     RemoteProjectPagination,
 )
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class PlainTextBuildRenderer(BaseRenderer):
@@ -71,7 +69,56 @@ class PlainTextBuildRenderer(BaseRenderer):
         return data.encode(self.charset)
 
 
-class UserSelectViewSet(viewsets.ModelViewSet):
+class DisableListEndpoint:
+
+    """
+    Helper to disable APIv2 listing endpoint.
+
+    We are disablng the listing endpoint because it could cause DOS without
+    using any type of filtering.
+
+    This class disables these endpoints except:
+
+     - version resource when passing ``?project__slug=``
+     - build resource when using ``?commit=``
+
+    All the other type of listings are disabled and return 409 CONFLICT with an
+    error message pointing the user to APIv3.
+    """
+
+    def list(self, *args, **kwargs):
+        # Using private repos will list resources the user has access to.
+        if settings.ALLOW_PRIVATE_REPOS:
+            return super().list(*args, **kwargs)
+
+        disabled = True
+
+        # NOTE: keep list endpoint that specifies a resource
+        if any([
+                self.basename == 'version' and 'project__slug' in self.request.GET,
+                self.basename == 'build'
+                and ('commit' in self.request.GET or 'project__slug' in self.request.GET),
+                self.basename == 'project' and 'slug' in self.request.GET,
+        ]):
+            disabled = False
+
+        if not disabled:
+            return super().list(*args, **kwargs)
+
+        return Response(
+            {
+                'error': 'disabled',
+                'msg': (
+                    'List endpoint have been disabled due to heavy resource usage. '
+                    'Take into account than APIv2 is planned to be deprecated soon. '
+                    'Please use APIv3: https://docs.readthedocs.io/page/api/v3.html'
+                )
+            },
+            status=status.HTTP_410_GONE,
+        )
+
+
+class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
 
     """
     View set that varies serializer class based on request user credentials.
@@ -79,6 +126,9 @@ class UserSelectViewSet(viewsets.ModelViewSet):
     Viewsets using this class should have an attribute `admin_serializer_class`,
     which is a serializer that might have more fields that only admin/staff
     users require. If the user is staff, this class will be returned instead.
+
+    By default read-only endpoints will be allowed,
+    to allow write endpoints, inherit from the proper ``rest_framework.mixins.*`` classes.
     """
 
     def get_serializer_class(self):
@@ -97,11 +147,11 @@ class UserSelectViewSet(viewsets.ModelViewSet):
         return self.model.objects.api(self.request.user)
 
 
-class ProjectViewSet(UserSelectViewSet):
+class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     """List, filter, etc, Projects."""
 
-    permission_classes = [APIPermission]
+    permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
     admin_serializer_class = ProjectAdminSerializer
@@ -139,20 +189,6 @@ class ProjectViewSet(UserSelectViewSet):
             'versions': VersionSerializer(versions, many=True).data,
         })
 
-    @decorators.action(
-        detail=True,
-        permission_classes=[permissions.IsAdminUser],
-    )
-    def token(self, request, **kwargs):
-        project = get_object_or_404(
-            Project.objects.api(request.user),
-            pk=kwargs['pk'],
-        )
-        token = GitHubService.get_token_for_project(project, force_local=True)
-        return Response({
-            'token': token,
-        })
-
     @decorators.action(detail=True)
     def canonical_url(self, request, **kwargs):
         project = get_object_or_404(
@@ -163,55 +199,8 @@ class ProjectViewSet(UserSelectViewSet):
             'url': project.get_docs_url(),
         })
 
-    @decorators.action(
-        detail=True,
-        permission_classes=[permissions.IsAdminUser],
-        methods=['post'],
-    )
-    def sync_versions(self, request, **kwargs):  # noqa
-        """
-        Sync the version data in the repo (on the build server).
 
-        Version data in the repo is synced with what we have in the database.
-
-        :returns: the identifiers for the versions that have been deleted.
-
-        .. note::
-
-           This endpoint is deprecated in favor of `sync_versions_task`.
-        """
-        project = get_object_or_404(
-            Project.objects.api(request.user),
-            pk=kwargs['pk'],
-        )
-
-        added_versions = []
-        deleted_versions = []
-
-        try:
-            data = request.data
-            # Calling the task synchronically to keep backward compatibility
-            added_versions, deleted_versions = sync_versions_task(
-                project_pk=project.pk,
-                tags_data=data.get('tags', []),
-                branches_data=data.get('branches', []),
-            )
-        except Exception as e:
-            log.exception('Sync Versions Error')
-            return Response(
-                {
-                    'error': str(e),
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        return Response({
-            'added_versions': added_versions,
-            'deleted_versions': deleted_versions,
-        })
-
-
-class VersionViewSet(UserSelectViewSet):
+class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
@@ -224,13 +213,27 @@ class VersionViewSet(UserSelectViewSet):
     )
 
 
-class BuildViewSet(UserSelectViewSet):
+class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
-    serializer_class = BuildSerializer
-    admin_serializer_class = BuildAdminSerializer
     model = Build
     filterset_fields = ('project__slug', 'commit')
+
+    def get_serializer_class(self):
+        """
+        Return the proper serializer for UI and Admin.
+
+        This ViewSet has a sligtly different pattern since we want to
+        pre-process the `command` field before returning it to the user, and we
+        also want to have a specific serializer for admins.
+        """
+        if self.request.user.is_staff:
+            # Logic copied from `UserSelectViewSet.get_serializer_class`
+            # and extended to choose serializer from self.action
+            if self.action not in ["list", "retrieve"]:
+                return BuildAdminSerializer  # Staff write-only
+            return BuildAdminReadOnlySerializer  # Staff read-only
+        return BuildSerializer  # Non-staff
 
     @decorators.action(
         detail=False,
@@ -270,10 +273,19 @@ class BuildViewSet(UserSelectViewSet):
                 try:
                     json_resp = build_commands_storage.open(storage_path).read()
                     data['commands'] = json.loads(json_resp)
+
+                    # Normalize commands in the same way than when returning
+                    # them using the serializer
+                    for buildcommand in data["commands"]:
+                        buildcommand["command"] = normalize_build_command(
+                            buildcommand["command"],
+                            instance.project.slug,
+                            instance.version.slug,
+                        )
                 except Exception:
                     log.exception(
-                        'Failed to read build data from storage. path=%s.',
-                        storage_path,
+                        'Failed to read build data from storage.',
+                        path=storage_path,
                     )
         return Response(data)
 
@@ -289,7 +301,7 @@ class BuildViewSet(UserSelectViewSet):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class BuildCommandViewSet(UserSelectViewSet):
+class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
     parser_classes = [JSONParser, MultiPartParser]
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
@@ -297,7 +309,7 @@ class BuildCommandViewSet(UserSelectViewSet):
     model = BuildCommandResult
 
 
-class DomainViewSet(UserSelectViewSet):
+class DomainViewSet(DisableListEndpoint, UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = DomainSerializer

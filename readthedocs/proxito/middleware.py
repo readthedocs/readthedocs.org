@@ -5,121 +5,49 @@ This is used to take the request and map the host to the proper project slug.
 
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
-import logging
-import sys
 import re
+import sys
 from urllib.parse import urlparse
 
+import structlog
 from django.conf import settings
-from django.shortcuts import render, redirect
-from django.utils.deprecation import MiddlewareMixin
+from django.core.exceptions import SuspiciousOperation
+from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.deprecation import MiddlewareMixin
 
-from readthedocs.projects.models import Domain, Project
+from readthedocs.core.unresolver import (
+    InvalidCustomDomainError,
+    InvalidExternalDomainError,
+    InvalidSubdomainError,
+    InvalidXRTDSlugHeaderError,
+    SuspiciousHostnameError,
+    unresolver,
+)
+from readthedocs.core.utils import get_cache_tag
+from readthedocs.projects.models import Feature, Project
+from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
+from readthedocs.proxito.redirects import redirect_to_https
 
-log = logging.getLogger(__name__)  # noqa
+from .exceptions import DomainDNSHttp404, ProjectHttp404
 
-
-def map_host_to_project_slug(request):  # pylint: disable=too-many-return-statements
-    """
-    Take the request and map the host to the proper project slug.
-
-    We check, in order:
-
-    * The ``HTTP_X_RTD_SLUG`` host header for explicit Project mapping
-        - This sets ``request.rtdheader`` True
-    * The ``PUBLIC_DOMAIN`` where we can use the subdomain as the project name
-        - This sets ``request.subdomain`` True
-    * The hostname without port information, which maps to ``Domain`` objects
-        - This sets ``request.cname`` True
-    * The domain is the canonical one and using HTTPS if supported
-        - This sets ``request.canonicalize`` with the value as the reason
-    """
-
-    host = request.get_host().lower().split(':')[0]
-    public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
-    external_domain = settings.RTD_EXTERNAL_VERSION_DOMAIN.lower().split(':')[0]
-
-    host_parts = host.split('.')
-    public_domain_parts = public_domain.split('.')
-    external_domain_parts = external_domain.split('.')
-
-    project_slug = None
-
-    # Explicit Project slug being passed in
-    if 'HTTP_X_RTD_SLUG' in request.META:
-        project_slug = request.META['HTTP_X_RTD_SLUG'].lower()
-        if Project.objects.filter(slug=project_slug).exists():
-            request.rtdheader = True
-            log.info('Setting project based on X_RTD_SLUG header: %s', project_slug)
-            return project_slug
-
-    if public_domain in host or host == 'proxito':
-        # Serve from the PUBLIC_DOMAIN, ensuring it looks like `foo.PUBLIC_DOMAIN`
-        if public_domain_parts == host_parts[1:]:
-            project_slug = host_parts[0]
-            request.subdomain = True
-            log.debug('Proxito Public Domain: host=%s', host)
-            if Domain.objects.filter(project__slug=project_slug).filter(
-                canonical=True,
-                https=True,
-            ).exists():
-                log.debug('Proxito Public Domain -> Canonical Domain Redirect: host=%s', host)
-                request.canonicalize = 'canonical-cname'
-            return project_slug
-
-        # TODO: This can catch some possibly valid domains (docs.readthedocs.io.com) for example
-        # But these feel like they might be phishing, etc. so let's block them for now.
-        log.warning('Weird variation on our hostname: host=%s', host)
-        return render(
-            request, 'core/dns-404.html', context={'host': host}, status=400
-        )
-
-    if external_domain in host:
-        # Serve custom versions on external-host-domain
-        if external_domain_parts == host_parts[1:]:
-            try:
-                project_slug, version_slug = host_parts[0].split('--', 1)
-                request.external_domain = True
-                request.host_version_slug = version_slug
-                log.debug('Proxito External Version Domain: host=%s', host)
-                return project_slug
-            except ValueError:
-                log.warning('Weird variation on our hostname: host=%s', host)
-                return render(
-                    request, 'core/dns-404.html', context={'host': host}, status=400
-                )
-
-    # Serve CNAMEs
-    domain = Domain.objects.filter(domain=host).first()
-    if domain:
-        project_slug = domain.project.slug
-        request.cname = True
-        request.domain = domain
-        log.debug('Proxito CNAME: host=%s', host)
-
-        if domain.https and not request.is_secure():
-            # Redirect HTTP -> HTTPS (302) for this custom domain
-            log.debug('Proxito CNAME HTTPS Redirect: host=%s', host)
-            request.canonicalize = 'https'
-
-        # NOTE: consider redirecting non-canonical custom domains to the canonical one
-        # Whether that is another custom domain or the public domain
-
-        return project_slug
-
-    # Some person is CNAMEing to us without configuring a domain - 404.
-    log.debug('CNAME 404: host=%s', host)
-    return render(
-        request, 'core/dns-404.html', context={'host': host}, status=404
-    )
+log = structlog.get_logger(__name__)
 
 
 class ProxitoMiddleware(MiddlewareMixin):
 
     """The actual middleware we'll be using in prod."""
 
-    # pylint: disable=no-self-use
+    # None of these need the proxito request middleware (response is needed).
+    # The analytics API isn't listed because it depends on the unresolver,
+    # which depends on the proxito middleware.
+    skip_views = (
+        'health_check',
+        'footer_html',
+        'search_api',
+        'embed_api',
+    )
+
     def add_proxito_headers(self, request, response):
         """Add debugging and cache headers to proxito responses."""
 
@@ -137,88 +65,56 @@ class ProxitoMiddleware(MiddlewareMixin):
             response['X-RTD-Path'] = path
 
         # Include the project & project-version so we can do larger purges if needed
-        cache_tag = response.get('Cache-Tag')
-        cache_tags = [cache_tag] if cache_tag else []
+        cache_tags = []
         if project_slug:
             cache_tags.append(project_slug)
         if version_slug:
-            cache_tags.append(f'{project_slug}-{version_slug}')
+            cache_tags.append(get_cache_tag(project_slug, version_slug))
 
         if cache_tags:
-            response['Cache-Tag'] = ','.join(cache_tags)
+            add_cache_tags(response, cache_tags)
 
-        if hasattr(request, 'rtdheader'):
-            response['X-RTD-Project-Method'] = 'rtdheader'
-        elif hasattr(request, 'subdomain'):
-            response['X-RTD-Project-Method'] = 'subdomain'
-        elif hasattr(request, 'cname'):
-            response['X-RTD-Project-Method'] = 'cname'
+        unresolved_domain = request.unresolved_domain
+        if unresolved_domain:
+            response["X-RTD-Project-Method"] = unresolved_domain.source.name
+            if unresolved_domain.is_from_external_domain:
+                response["X-RTD-Version-Method"] = "domain"
+            else:
+                response["X-RTD-Version-Method"] = "path"
 
-        if hasattr(request, 'external_domain'):
-            response['X-RTD-Version-Method'] = 'domain'
-        else:
-            response['X-RTD-Version-Method'] = 'path'
+    def add_user_headers(self, request, response):
+        """
+        Set specific HTTP headers requested by the user.
 
-    def process_request(self, request):  # noqa
-        if any([
-            not settings.USE_SUBDOMAIN,
-            'localhost' in request.get_host(),
-            'testserver' in request.get_host(),
-            request.path.startswith(reverse('health_check')),
-        ]):
-            log.debug('Not processing Proxito middleware')
-            return None
+        The headers added come from ``projects.models.HTTPHeader`` associated
+        with the ``Domain`` object.
+        """
+        unresolved_domain = request.unresolved_domain
+        if unresolved_domain and unresolved_domain.is_from_custom_domain:
+            response_headers = [header.lower() for header in response.headers.keys()]
+            domain = unresolved_domain.domain
+            for http_header in domain.http_headers.all():
+                if http_header.name.lower() in response_headers:
+                    log.error(
+                        'Overriding an existing response HTTP header.',
+                        http_header=http_header.name,
+                        domain=domain.domain,
+                    )
+                log.info(
+                    'Adding custom response HTTP header.',
+                    http_header=http_header.name,
+                    domain=domain.domain,
+                )
 
-        ret = map_host_to_project_slug(request)
+                if http_header.only_if_secure_request and not request.is_secure():
+                    continue
 
-        # Handle returning a response
-        if hasattr(ret, 'status_code'):
-            return ret
+                # HTTP headers here are limited to
+                # ``HTTPHeader.HEADERS_CHOICES`` since adding arbitrary HTTP
+                # headers is potentially dangerous
+                response[http_header.name] = http_header.value
 
-        # Remove multiple slashes from URL's
-        if '//' in request.path:
-            url_parsed = urlparse(request.get_full_path())
-            clean_path = re.sub('//+', '/', url_parsed.path)
-            new_parsed = url_parsed._replace(path=clean_path)
-            final_url = new_parsed.geturl()
-            # This will happen on multiple leading slashes (eg. `//`)
-            # urlparse treats those as completely empty URLs
-            if not final_url.startswith('/'):
-                final_url = '/' + final_url
-            log.info('Proxito Slash Redirect: from=%s to=%s', request.get_full_path(), final_url)
-            return redirect(final_url)
-
-        log.debug('Proxito Project: slug=%s', ret)
-
-        # Otherwise set the slug on the request
-        request.host_project_slug = request.slug = ret
-
-        try:
-            project = Project.objects.get(slug=request.host_project_slug)
-        except Project.DoesNotExist:
-            log.warning('No host_project_slug set on project')
-            return None
-
-        # This is hacky because Django wants a module for the URLConf,
-        # instead of also accepting string
-        if project.urlconf:
-
-            # Stop Django from caching URLs
-            # https://github.com/django/django/blob/stable/2.2.x/django/urls/resolvers.py#L65-L69  # noqa
-            project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S%f")
-            url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
-
-            log.info(
-                'Setting URLConf: project=%s url_key=%s urlconf=%s',
-                project, url_key, project.urlconf,
-            )
-            if url_key not in sys.modules:
-                sys.modules[url_key] = project.proxito_urlconf
-            request.urlconf = url_key
-
-        return None
-
-    def process_response(self, request, response):  # noqa
+    def add_hsts_headers(self, request, response):
         """
         Set the Strict-Transport-Security (HSTS) header for docs sites.
 
@@ -226,25 +122,26 @@ class ProxitoMiddleware(MiddlewareMixin):
         * For custom domains, check the HSTS values on the Domain object.
           The domain object should be saved already in request.domain.
         """
-        host = request.get_host().lower().split(':')[0]
-        public_domain = settings.PUBLIC_DOMAIN.lower().split(':')[0]
-
-        hsts_header_values = []
-
-        self.add_proxito_headers(request, response)
-
         if not request.is_secure():
             # Only set the HSTS header if the request is over HTTPS
             return response
 
-        if settings.PUBLIC_DOMAIN_USES_HTTPS and public_domain in host:
+        hsts_header_values = []
+        unresolved_domain = request.unresolved_domain
+        if (
+            settings.PUBLIC_DOMAIN_USES_HTTPS
+            and unresolved_domain
+            and unresolved_domain.is_from_public_domain
+        ):
             hsts_header_values = [
                 'max-age=31536000',
                 'includeSubDomains',
                 'preload',
             ]
-        elif hasattr(request, 'domain'):
-            domain = request.domain
+        elif unresolved_domain and unresolved_domain.is_from_custom_domain:
+            domain = unresolved_domain.domain
+            # TODO: migrate Domains with HSTS set using these fields to
+            # ``HTTPHeader`` and remove this chunk of code from here.
             if domain.hsts_max_age:
                 hsts_header_values.append(f'max-age={domain.hsts_max_age}')
                 # These other options don't make sense without max_age > 0
@@ -257,4 +154,197 @@ class ProxitoMiddleware(MiddlewareMixin):
             # See https://tools.ietf.org/html/rfc6797
             response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
 
+    def add_cache_headers(self, request, response):
+        """
+        Add Cache-Control headers.
+
+        If the `CDN-Cache-Control` header isn't already present, set the cache
+        level to public or private, depending if we allow private repos or not.
+        Or if the request was from the `X-RTD-Slug` header, we don't cache the
+        response, since we could be caching a response in another domain.
+
+        We use ``CDN-Cache-Control``, to control caching at the CDN level only.
+        This doesn't affect caching at the browser level (``Cache-Control``).
+
+        See https://developers.cloudflare.com/cache/about/cdn-cache-control.
+        """
+        unresolved_domain = request.unresolved_domain
+        # Never trust projects resolving from the X-RTD-Slug header,
+        # we don't want to cache their content on domains from other
+        # projects, see GHSA-mp38-vprc-7hf5.
+        if unresolved_domain and unresolved_domain.is_from_http_header:
+            private_response(response, force=True)
+            # SECURITY: Return early, we never want to cache this response.
+            return
+
+        # Mark the response as private or cache it, if it hasn't been marked as so already.
+        if settings.ALLOW_PRIVATE_REPOS:
+            private_response(response, force=False)
+        else:
+            cache_response(response, force=False)
+
+    def _set_request_attributes(self, request, unresolved_domain):
+        """
+        Set attributes in the request from the unresolved domain.
+
+        - Set ``request.unresolved_domain`` to the unresolved domain.
+        """
+        request.unresolved_domain = unresolved_domain
+
+    def process_request(self, request):  # noqa
+        # Initialize our custom request attributes.
+        request.unresolved_domain = None
+
+        skip = any(
+            request.path.startswith(reverse(view))
+            for view in self.skip_views
+        )
+        if (
+            skip
+            or not settings.USE_SUBDOMAIN
+            or 'localhost' in request.get_host()
+            or 'testserver' in request.get_host()
+        ):
+            log.debug('Not processing Proxito middleware')
+            return None
+
+        try:
+            unresolved_domain = unresolver.unresolve_domain_from_request(request)
+        except SuspiciousHostnameError as exc:
+            log.warning("Weird variation on our hostname.", domain=exc.domain)
+            # Raise a contextualized 404 that will be handled by proxito's 404 handler
+            raise DomainDNSHttp404(
+                http_status=400,
+                domain=exc.domain,
+            ) from exc
+        except (InvalidSubdomainError, InvalidExternalDomainError) as exc:
+            log.debug("Invalid project set on the subdomain.")
+            # Raise a contextualized 404 that will be handled by proxito's 404 handler
+            raise ProjectHttp404(
+                domain=exc.domain,
+            ) from exc
+        except InvalidCustomDomainError as exc:
+            # Some person is CNAMEing to us without configuring a domain - 404.
+            log.debug("CNAME 404.", domain=exc.domain)
+            # Raise a contextualized 404 that will be handled by proxito's 404 handler
+            raise DomainDNSHttp404(
+                domain=exc.domain,
+            ) from exc
+        except InvalidXRTDSlugHeaderError as exc:
+            raise SuspiciousOperation("Invalid X-RTD-Slug header.") from exc
+
+        self._set_request_attributes(request, unresolved_domain)
+
+        response = self._get_https_redirect(request)
+        if response:
+            return response
+
+        # Remove multiple slashes from URL's
+        if '//' in request.path:
+            url_parsed = urlparse(request.get_full_path())
+            clean_path = re.sub('//+', '/', url_parsed.path)
+            new_parsed = url_parsed._replace(path=clean_path)
+            final_url = new_parsed.geturl()
+            # This protects against a couple issues:
+            # * First is a URL like `//` which urlparse will return as a path of ''
+            # * Second is URLs like `//google.com` which urlparse will return as `//google.com`
+            #   We make sure there is _always_ a single slash in front to ensure relative redirects,
+            #   instead of `//` redirects which are actually alternative domains.
+            final_url = '/' + final_url.lstrip('/')
+            log.debug(
+                'Proxito Slash Redirect.',
+                from_url=request.get_full_path(),
+                to_url=final_url,
+            )
+            response = redirect(final_url)
+            cache_response(response, cache_tags=[unresolved_domain.project.slug])
+            return response
+
+        project = unresolved_domain.project
+        log.debug(
+            'Proxito Project.',
+            project_slug=project.slug,
+        )
+
+        # This is hacky because Django wants a module for the URLConf,
+        # instead of also accepting string
+        if project.urlconf and not project.has_feature(
+            Feature.USE_UNRESOLVER_WITH_PROXITO
+        ):
+            # Stop Django from caching URLs
+            # https://github.com/django/django/blob/7cf7d74/django/urls/resolvers.py#L65-L69  # noqa
+            project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S%f")
+            url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
+
+            log.info(
+                'Setting URLConf',
+                project_slug=project.slug,
+                url_key=url_key,
+                urlconf=project.urlconf,
+            )
+            if url_key not in sys.modules:
+                sys.modules[url_key] = project.proxito_urlconf
+            request.urlconf = url_key
+
+        return None
+
+    def add_hosting_integrations_headers(self, request, response):
+        addons = False
+        project_slug = getattr(request, "path_project_slug", "")
+        version_slug = getattr(request, "path_version_slug", "")
+
+        if project_slug:
+            project = Project.objects.get(slug=project_slug)
+
+            # Check for the feature flag
+            if project.has_feature(Feature.HOSTING_INTEGRATIONS):
+                addons = True
+            else:
+                # Check if the version forces injecting the addons (e.g. using `build.commands`)
+                version = (
+                    project.versions.filter(slug=version_slug).only("addons").first()
+                )
+                if version and version.addons:
+                    addons = True
+
+            if addons:
+                response["X-RTD-Hosting-Integrations"] = "true"
+
+    def _get_https_redirect(self, request):
+        """
+        Get a redirect response if the request should be redirected to HTTPS.
+
+        A request should be redirected to HTTPS if any of the following conditions are met:
+
+        - It's from a custom domain and the domain has HTTPS enabled.
+        - It's from a public domain, and the public domain uses HTTPS.
+        """
+        if request.is_secure():
+            # The request is already HTTPS, so we skip redirecting it.
+            return None
+
+        unresolved_domain = request.unresolved_domain
+
+        # HTTPS redirect for custom domains.
+        if unresolved_domain.is_from_custom_domain:
+            domain = unresolved_domain.domain
+            if domain.https:
+                return redirect_to_https(request, project=unresolved_domain.project)
+            return None
+
+        # HTTPS redirect for public domains.
+        if (
+            unresolved_domain.is_from_public_domain
+            or unresolved_domain.is_from_external_domain
+        ) and settings.PUBLIC_DOMAIN_USES_HTTPS:
+            return redirect_to_https(request, project=unresolved_domain.project)
+
+        return None
+
+    def process_response(self, request, response):  # noqa
+        self.add_proxito_headers(request, response)
+        self.add_cache_headers(request, response)
+        self.add_hsts_headers(request, response)
+        self.add_user_headers(request, response)
+        self.add_hosting_integrations_headers(request, response)
         return response

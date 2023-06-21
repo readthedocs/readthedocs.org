@@ -5,23 +5,28 @@ Default values and other various configuration for projects, including available
 theme names and repository types.
 """
 
+import os
 import re
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 SPHINX = 'sphinx'
 MKDOCS = 'mkdocs'
 SPHINX_HTMLDIR = 'sphinx_htmldir'
 SPHINX_SINGLEHTML = 'sphinx_singlehtml'
 # This type is defined by the users in their mkdocs.yml file.
-MKDOCS_HTML = 'mkdocs_html'
+MKDOCS_HTML = "mkdocs_html"
+GENERIC = "generic"
 DOCUMENTATION_CHOICES = (
     (SPHINX, _('Sphinx Html')),
-    (MKDOCS, _('Mkdocs (Markdown)')),
+    (MKDOCS, _('Mkdocs')),
     (SPHINX_HTMLDIR, _('Sphinx HtmlDir')),
     (SPHINX_SINGLEHTML, _('Sphinx Single Page HTML')),
 )
-DOCTYPE_CHOICES = DOCUMENTATION_CHOICES + ((MKDOCS_HTML, _('Mkdocs Html Pages')),)
+DOCTYPE_CHOICES = DOCUMENTATION_CHOICES + (
+    (MKDOCS_HTML, _("Mkdocs Html Pages")),
+    (GENERIC, _("Generic")),
+)
 
 
 MEDIA_TYPE_HTML = 'html'
@@ -29,6 +34,11 @@ MEDIA_TYPE_PDF = 'pdf'
 MEDIA_TYPE_EPUB = 'epub'
 MEDIA_TYPE_HTMLZIP = 'htmlzip'
 MEDIA_TYPE_JSON = 'json'
+DOWNLOADABLE_MEDIA_TYPES = (
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPE_EPUB,
+    MEDIA_TYPE_HTMLZIP,
+)
 MEDIA_TYPES = (
     MEDIA_TYPE_HTML,
     MEDIA_TYPE_PDF,
@@ -36,6 +46,9 @@ MEDIA_TYPES = (
     MEDIA_TYPE_HTMLZIP,
     MEDIA_TYPE_JSON,
 )
+
+BUILD_COMMANDS_OUTPUT_PATH = "_readthedocs/"
+BUILD_COMMANDS_OUTPUT_PATH_HTML = os.path.join(BUILD_COMMANDS_OUTPUT_PATH, "html")
 
 SAMPLE_FILES = (
     ('Installation', 'projects/samples/installation.rst.html'),
@@ -80,12 +93,10 @@ REPO_CHOICES = (
 )
 
 PUBLIC = 'public'
-PROTECTED = 'protected'
 PRIVATE = 'private'
 
 PRIVACY_CHOICES = (
     (PUBLIC, _('Public')),
-    (PROTECTED, _('Protected')),
     (PRIVATE, _('Private')),
 )
 
@@ -305,8 +316,6 @@ PROGRAMMING_LANGUAGES = (
     ('other', 'Other'),
 )
 
-LOG_TEMPLATE = '(Build) [%(project)s:%(version)s] %(msg)s'
-
 PROJECT_PK_REGEX = r'(?:[-\w]+)'
 PROJECT_SLUG_REGEX = r'(?:[-\w]+)'
 
@@ -380,13 +389,6 @@ GITLAB_MR_PULL_PATTERN = 'merge-requests/{id}/head:external-{id}'
 # Git provider names
 GITHUB_BRAND = 'GitHub'
 GITLAB_BRAND = 'GitLab'
-
-# Set 3 priorities, [low, medium, high] -- default is medium
-# Leave some space on each side of the set to expand if needed
-CELERY_LOW = 3
-CELERY_MEDIUM = 5
-CELERY_HIGH = 7
-
 
 # SSL statuses
 SSL_STATUS_VALID = 'valid'

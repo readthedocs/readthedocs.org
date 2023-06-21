@@ -1,44 +1,67 @@
 """Queryset for the redirects app."""
+from urllib.parse import urlparse
 
-import logging
-
+import structlog
 from django.db import models
-from django.db.models import Value, CharField, Q, F
+from django.db.models import CharField, F, Q, Value
 
-from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.permissions import AdminPermission
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
-class RedirectQuerySetBase(models.QuerySet):
+class RedirectQuerySet(models.QuerySet):
 
     """Redirects take into account their own privacy_level setting."""
 
     use_for_related_fields = True
 
-    def _add_user_repos(self, queryset, user):
+    def _add_from_user_projects(self, queryset, user):
         if user.is_authenticated:
-            projects_pk = user.projects.all().values_list('pk', flat=True)
+            projects_pk = (
+                AdminPermission.projects(
+                    user=user,
+                    admin=True,
+                    member=True,
+                )
+                .values_list('pk', flat=True)
+            )
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset.distinct()
 
-    def api(self, user=None, detail=True):
+    def api(self, user=None):
         queryset = self.none()
         if user:
-            queryset = self._add_user_repos(queryset, user)
+            queryset = self._add_from_user_projects(queryset, user)
         return queryset
 
-    def get_redirect_path_with_status(self, path, full_path=None, language=None, version_slug=None):
+    def get_redirect_path_with_status(
+        self, path, full_path=None, language=None, version_slug=None, forced_only=False
+    ):
+        """
+        Get the final redirect with its status code.
+
+        :param path: Is the path without the language and version parts.
+        :param full_path: Is the full path including the language and version parts.
+        :param forced_only: Include only forced redirects in the results.
+        """
+        # Small optimization to skip executing the big query below.
+        if forced_only and not self.filter(force=True).exists():
+            return None, None
+
+        normalized_path = self._normalize_path(path)
+        normalized_full_path = self._normalize_path(full_path)
+
         # add extra fields with the ``path`` and ``full_path`` to perform a
-        # filter at db level instead with Python
+        # filter at db level instead with Python.
         queryset = self.annotate(
             path=Value(
-                path,
+                normalized_path,
                 output_field=CharField(),
             ),
             full_path=Value(
-                full_path,
+                normalized_full_path,
                 output_field=CharField(),
             ),
         )
@@ -75,13 +98,16 @@ class RedirectQuerySetBase(models.QuerySet):
         )
 
         queryset = queryset.filter(prefix | page | exact | sphinx_html | sphinx_htmldir)
+        if forced_only:
+            queryset = queryset.filter(force=True)
 
         # There should be one and only one redirect returned by this query. I
         # can't think in a case where there can be more at this point. I'm
         # leaving the loop just in case for now
         for redirect in queryset.select_related('project'):
             new_path = redirect.get_redirect_path(
-                path=path,
+                path=normalized_path,
+                full_path=normalized_full_path,
                 language=language,
                 version_slug=version_slug,
             )
@@ -89,6 +115,21 @@ class RedirectQuerySetBase(models.QuerySet):
                 return new_path, redirect.http_status
         return (None, None)
 
+    def _normalize_path(self, path):
+        r"""
+        Normalize path.
 
-class RedirectQuerySet(SettingsOverrideObject):
-    _default_class = RedirectQuerySetBase
+        We normalize ``path`` to:
+
+        - Remove the query params.
+        - Remove any invalid URL chars (\r, \n, \t).
+        - Always start the path with ``/``.
+
+        We don't use ``.path`` to avoid parsing the filename as a full url.
+        For example if the path is ``http://example.com/my-path``,
+        ``.path`` would return ``my-path``.
+        """
+        parsed_path = urlparse(path)
+        normalized_path = parsed_path._replace(query="").geturl()
+        normalized_path = "/" + normalized_path.lstrip("/")
+        return normalized_path

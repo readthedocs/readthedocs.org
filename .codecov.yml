@@ -1,5 +1,13 @@
 comment: off
 coverage:
   status:
-    project: off
-    patch: off
+    project:
+      default:
+        informational: true
+    patch:
+      default:
+        informational: true
+codecov:
+  require_ci_to_pass: false
+github_checks:
+  annotations: false

@@ -70,7 +70,7 @@ class TestVersionModel(VersionMixin, TestCase):
         self.assertEqual(self.external_version.vcs_url, expected_url)
 
     def test_vcs_url_for_latest_version(self):
-        slug = self.pip.default_branch or self.pip.vcs_repo().fallback_branch
+        slug = self.pip.default_branch or self.pip.vcs_class().fallback_branch
         expected_url = f'https://github.com/pypa/pip/tree/{slug}/'
         self.assertEqual(self.tag_version.vcs_url, expected_url)
 
@@ -86,12 +86,6 @@ class TestVersionModel(VersionMixin, TestCase):
 
     def test_commit_name_for_external_version(self):
         self.assertEqual(self.external_version.commit_name, self.external_version.identifier)
-
-    def test_version_does_not_support_wipe(self):
-        self.assertFalse(self.external_version.supports_wipe)
-
-    def test_version_supports_wipe(self):
-        self.assertTrue(self.branch_version.supports_wipe)
 
     @override_settings(
         PRODUCTION_DOMAIN='readthedocs.org',

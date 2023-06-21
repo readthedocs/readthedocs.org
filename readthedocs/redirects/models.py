@@ -1,21 +1,18 @@
-# -*- coding: utf-8 -*-
-
 """Django models for the redirects app."""
 
-import logging
 import re
 
+import structlog
 from django.db import models
-from django.utils.translation import ugettext
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext
+from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.resolver import resolve_path
 from readthedocs.projects.models import Project
 
 from .querysets import RedirectQuerySet
 
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 HTTP_STATUS_CHOICES = (
     (301, _('301 - Permanent Redirect')),
@@ -94,6 +91,12 @@ class Redirect(models.Model):
         help_text=to_url_helptext,
         blank=True,
     )
+    force = models.BooleanField(
+        _("Force redirect"),
+        null=True,
+        default=False,
+        help_text=_("Apply the redirect even if the page exists."),
+    )
 
     http_status = models.SmallIntegerField(
         _('HTTP Status'),
@@ -124,7 +127,7 @@ class Redirect(models.Model):
                 type=self.get_redirect_type_display(),
                 from_to_url=self.get_from_to_url_display(),
             )
-        return ugettext(
+        return gettext(
             'Redirect: {}'.format(
                 self.get_redirect_type_display(),
             ),
@@ -163,19 +166,22 @@ class Redirect(models.Model):
             filename=filename,
         )
 
-    def get_redirect_path(self, path, language=None, version_slug=None):
+    def get_redirect_path(self, path, full_path=None, language=None, version_slug=None):
         method = getattr(
             self,
             'redirect_{type}'.format(
                 type=self.redirect_type,
             ),
         )
-        return method(path, language=language, version_slug=version_slug)
+        return method(
+            path, full_path=full_path, language=language, version_slug=version_slug
+        )
 
-    def redirect_prefix(self, path, language=None, version_slug=None):
+    def redirect_prefix(self, path, full_path, language=None, version_slug=None):
         if path.startswith(self.from_url):
-            log.debug('Redirecting %s', self)
-            cut_path = re.sub('^%s' % self.from_url, '', path)
+            log.debug("Redirecting...", redirect=self)
+            # pep8 and blank don't agree on having a space before :.
+            cut_path = path[len(self.from_url) :]  # noqa
 
             to = self.get_full_path(
                 filename=cut_path,
@@ -185,9 +191,9 @@ class Redirect(models.Model):
             )
             return to
 
-    def redirect_page(self, path, language=None, version_slug=None):
+    def redirect_page(self, path, full_path, language=None, version_slug=None):
         if path == self.from_url:
-            log.debug('Redirecting %s', self)
+            log.debug('Redirecting...', redirect=self)
             to = self.get_full_path(
                 filename=self.to_url.lstrip('/'),
                 language=language,
@@ -196,25 +202,21 @@ class Redirect(models.Model):
             )
             return to
 
-    def redirect_exact(self, path, language=None, version_slug=None):
-        full_path = path
-        if language and version_slug:
-            # reconstruct the full path for an exact redirect
-            full_path = self.get_full_path(path, language, version_slug, allow_crossdomain=False)
+    def redirect_exact(self, path, full_path, language=None, version_slug=None):
         if full_path == self.from_url:
-            log.debug('Redirecting %s', self)
+            log.debug('Redirecting...', redirect=self)
             return self.to_url
         # Handle full sub-level redirects
         if '$rest' in self.from_url:
             match = self.from_url.split('$rest')[0]
             if full_path.startswith(match):
-                cut_path = re.sub('^%s' % match, self.to_url, full_path)
+                cut_path = full_path.replace(match, self.to_url, 1)
                 return cut_path
 
-    def redirect_sphinx_html(self, path, language=None, version_slug=None):
+    def redirect_sphinx_html(self, path, full_path, language=None, version_slug=None):
         for ending in ['/', '/index.html']:
             if path.endswith(ending):
-                log.debug('Redirecting %s', self)
+                log.debug('Redirecting...', redirect=self)
                 path = path[1:]  # Strip leading slash.
                 to = re.sub(ending + '$', '.html', path)
                 return self.get_full_path(
@@ -224,9 +226,11 @@ class Redirect(models.Model):
                     allow_crossdomain=False,
                 )
 
-    def redirect_sphinx_htmldir(self, path, language=None, version_slug=None):
-        if path.endswith('.html'):
-            log.debug('Redirecting %s', self)
+    def redirect_sphinx_htmldir(
+        self, path, full_path, language=None, version_slug=None
+    ):
+        if path.endswith(".html"):
+            log.debug("Redirecting...", redirect=self)
             path = path[1:]  # Strip leading slash.
             to = re.sub('.html$', '/', path)
             return self.get_full_path(

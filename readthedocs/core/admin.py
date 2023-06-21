@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Django admin interface for core models."""
 
 from datetime import timedelta
@@ -7,16 +5,19 @@ from datetime import timedelta
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import User
+from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
-
+from django.utils.html import format_html
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from messages_extends.admin import MessageAdmin
 from messages_extends.models import Message
 from rest_framework.authtoken.admin import TokenAdmin
 
+from readthedocs.core.history import ExtraSimpleHistoryAdmin
 from readthedocs.core.models import UserProfile
+from readthedocs.oauth.tasks import sync_remote_repositories
 from readthedocs.projects.models import Project
-
 
 # Monkeypatch raw_id_fields onto the TokenAdmin
 # https://www.django-rest-framework.org/api-guide/authentication/#with-django-admin
@@ -65,7 +66,7 @@ class UserProjectFilter(admin.SimpleListFilter):
             return queryset.filter(projects__builds__date__gt=recent_date)
 
 
-class UserAdminExtra(UserAdmin):
+class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
 
     """Admin configuration for User."""
 
@@ -78,7 +79,7 @@ class UserAdminExtra(UserAdmin):
         'is_banned',
     )
     list_filter = (UserProjectFilter,) + UserAdmin.list_filter
-    actions = ['ban_user']
+    actions = ["ban_user", "sync_remote_repositories_action"]
     inlines = [UserProjectInline]
 
     def is_banned(self, obj):
@@ -97,8 +98,30 @@ class UserAdminExtra(UserAdmin):
 
     ban_user.short_description = 'Ban user'
 
+    def sync_remote_repositories_action(self, request, queryset):
+        formatted_task_urls = []
 
-class UserProfileAdmin(admin.ModelAdmin):
+        for user_id, username in queryset.values_list("id", "username"):
+            result = sync_remote_repositories.delay(user_id=user_id)
+            job_status_url = reverse(
+                "api_job_status", kwargs={"task_id": result.task_id}
+            )
+            formatted_task_urls.append(
+                format_html("<a href='{}'>{} task</a>", job_status_url, username)
+            )
+
+        self.message_user(
+            request,
+            mark_safe(
+                "Following sync remote repository tasks were "
+                "triggered: {}".format(", ".join(formatted_task_urls))
+            ),
+        )
+
+    sync_remote_repositories_action.short_description = "Sync remote repositories"
+
+
+class UserProfileAdmin(ExtraSimpleHistoryAdmin):
     list_display = ('user', 'homepage')
     search_fields = ('user__username', 'homepage')
     raw_id_fields = ('user',)

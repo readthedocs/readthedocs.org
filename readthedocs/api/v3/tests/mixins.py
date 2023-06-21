@@ -13,6 +13,7 @@ from rest_framework.test import APIClient
 
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build, Version
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
 
@@ -22,6 +23,7 @@ from readthedocs.redirects.models import Redirect
     PRODUCTION_DOMAIN='readthedocs.org',
     USE_SUBDOMAIN=True,
     RTD_BUILD_MEDIA_STORAGE='readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest',
+    RTD_ALLOW_ORGANIZATIONS=False,
 )
 class APIEndpointMixin(TestCase):
 
@@ -42,6 +44,7 @@ class APIEndpointMixin(TestCase):
         # objects (like a Project for translations/subprojects)
         self.project = fixture.get(
             Project,
+            id=1,
             pub_date=self.created,
             modified_date=self.modified,
             description='Project description',
@@ -53,7 +56,9 @@ class APIEndpointMixin(TestCase):
             main_language_project=None,
             users=[self.me],
             versions=[],
-            external_builds_enabled=False
+            external_builds_enabled=False,
+            external_builds_privacy_level=PUBLIC,
+            privacy_level=PUBLIC,
         )
         for tag in ('tag', 'project', 'test'):
             self.project.tags.add(tag)
@@ -78,6 +83,10 @@ class APIEndpointMixin(TestCase):
             active=True,
             built=True,
             type=TAG,
+            has_pdf=True,
+            has_epub=True,
+            has_htmlzip=True,
+            privacy_level=PUBLIC,
         )
 
         self.build = fixture.get(
@@ -99,11 +108,14 @@ class APIEndpointMixin(TestCase):
         self.others_token = fixture.get(Token, key='other', user=self.other)
         self.others_project = fixture.get(
             Project,
+            id=2,
             slug='others-project',
             related_projects=[],
             main_language_project=None,
             users=[self.other],
             versions=[],
+            external_builds_privacy_level=PUBLIC,
+            privacy_level=PUBLIC,
         )
 
         # Make all non-html true so responses are complete
@@ -134,6 +146,8 @@ class APIEndpointMixin(TestCase):
             main_language_project=None,
             users=[self.me],
             versions=[],
+            external_builds_privacy_level=PUBLIC,
+            privacy_level=PUBLIC,
         )
 
     def _create_subproject(self):
@@ -151,6 +165,8 @@ class APIEndpointMixin(TestCase):
             main_language_project=None,
             users=[self.me],
             versions=[],
+            external_builds_privacy_level=PUBLIC,
+            privacy_level=PUBLIC,
         )
         self.project_relationship = self.project.add_subproject(self.subproject)
 
@@ -165,5 +181,10 @@ class APIEndpointMixin(TestCase):
 
         It's just a helper for debugging API responses.
         """
-        import datadiff
-        return super().assertDictEqual(d1, d2, datadiff.diff(d1, d2))
+        message = ''
+        try:
+            import datadiff
+            message = datadiff.diff(d1, d2)
+        except ImportError:
+            pass
+        return super().assertDictEqual(d1, d2, message)

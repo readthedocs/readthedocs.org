@@ -1,10 +1,13 @@
-from .mixins import APIEndpointMixin
+from django.test import override_settings
 from django.urls import reverse
-import django_dynamic_fixture as fixture
 
-from readthedocs.projects.models import Project
+from .mixins import APIEndpointMixin
 
 
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=False,
+    ALLOW_PRIVATE_REPOS=False,
+)
 class SubprojectsEndpointTests(APIEndpointMixin):
 
     def setUp(self):
@@ -107,8 +110,8 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn(
-            'Project can not be subproject of itself',
-            response.json()['child'],
+            'Project with slug=new-project is not valid as subproject',
+            response.json()['child'][0],
         )
         self.assertEqual(newproject.subprojects.count(), 0)
 
@@ -132,8 +135,8 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn(
-            'Child is already a superproject',
-            response.json()['child'],
+            'Project with slug=project is not valid as subproject',
+            response.json()['child'][0],
         )
         self.assertEqual(newproject.subprojects.count(), 0)
 
@@ -157,8 +160,8 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 400)
         self.assertIn(
-            'Child is already a subproject of another project',
-            response.json()['child'],
+            'Project with slug=subproject is not valid as subproject',
+            response.json()['child'][0],
         )
         self.assertEqual(newproject.subprojects.count(), 0)
 

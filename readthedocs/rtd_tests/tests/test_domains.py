@@ -1,5 +1,3 @@
-import json
-
 from django.conf import settings
 from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
@@ -42,11 +40,11 @@ class FormTests(TestCase):
         )
         self.assertTrue(form.is_valid())
         domain = form.save()
-        self.assertFalse(domain.https)
+        self.assertTrue(domain.https)
         form = DomainForm(
             {
-                'domain': 'example.com', 'canonical': True,
-                'https': True,
+                "domain": "example.com",
+                "canonical": True,
             },
             project=self.project,
         )
@@ -123,15 +121,19 @@ class FormTests(TestCase):
 
     def test_invalid_domains(self):
         domains = [
-            'python..org',
-            '****.foo.com',
-            'domain',
-            'domain.com.',
-            'My domain.org',
-            'i.o',
-            '[special].com',
-            'some_thing.org',
-            'invalid-.com',
+            "python..org",
+            "****.foo.com",
+            "domain",
+            "domain.com.",
+            "My domain.org",
+            "i.o",
+            "[special].com",
+            "some_thing.org",
+            "invalid-.com",
+            "1.1.1.1",
+            "1.23.45.67",
+            "127.0.0.1",
+            "127.0.0.10",
         ]
         for domain in domains:
             form = DomainForm(
@@ -171,17 +173,24 @@ class FormTests(TestCase):
         self.assertEqual(domain.domain, 'example.com')
         self.assertFalse(domain.canonical)
 
+    def test_allow_change_http_to_https(self):
+        domain = get(Domain, domain="docs.example.com", https=False)
+        form = DomainForm(
+            {"https": True},
+            project=self.project,
+            instance=domain,
+        )
+        self.assertTrue(form.is_valid())
+        domain = form.save()
+        self.assertTrue(domain.https)
 
-class TestAPI(TestCase):
-
-    def setUp(self):
-        self.project = get(Project)
-        self.domain = self.project.domains.create(domain='djangokong.com')
-
-    def test_basic_api(self):
-        resp = self.client.get('/api/v2/domain/')
-        self.assertEqual(resp.status_code, 200)
-        obj = json.loads(resp.content)
-        self.assertEqual(obj['results'][0]['domain'], 'djangokong.com')
-        self.assertEqual(obj['results'][0]['canonical'], False)
-        self.assertNotIn('https', obj['results'][0])
+    def test_dont_allow_changin_https_to_http(self):
+        domain = get(Domain, domain="docs.example.com", https=True)
+        form = DomainForm(
+            {"https": False},
+            project=self.project,
+            instance=domain,
+        )
+        self.assertTrue(form.is_valid())
+        domain = form.save()
+        self.assertTrue(domain.https)

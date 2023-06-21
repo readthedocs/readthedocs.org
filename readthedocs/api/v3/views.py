@@ -1,5 +1,6 @@
 import django_filters.rest_framework as filters
-from django.utils.safestring import mark_safe
+from django.db.models import Exists, OuterRef
+from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
 from rest_framework.authentication import SessionAuthentication, TokenAuthentication
@@ -16,24 +17,44 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import BrowsableAPIRenderer
 from rest_framework.response import Response
 from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
-from rest_framework.viewsets import GenericViewSet, ReadOnlyModelViewSet, ModelViewSet
+from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelViewSet
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.oauth.models import (
+    RemoteOrganization,
+    RemoteRepository,
+    RemoteRepositoryRelation,
+)
 from readthedocs.organizations.models import Organization
-from readthedocs.projects.models import Project, EnvironmentVariable, ProjectRelationship
+from readthedocs.projects.models import (
+    EnvironmentVariable,
+    Project,
+    ProjectRelationship,
+)
 from readthedocs.projects.views.mixins import ProjectImportMixin
 from readthedocs.redirects.models import Redirect
 
-
-from .filters import BuildFilter, ProjectFilter, VersionFilter
-from .mixins import OrganizationQuerySetMixin, ProjectQuerySetMixin, UpdateMixin
+from .filters import (
+    BuildFilter,
+    ProjectFilter,
+    RemoteOrganizationFilter,
+    RemoteRepositoryFilter,
+    VersionFilter,
+)
+from .mixins import (
+    OrganizationQuerySetMixin,
+    ProjectQuerySetMixin,
+    RemoteQuerySetMixin,
+    UpdateChangeReasonMixin,
+    UpdateMixin,
+)
 from .permissions import (
     CommonPermissions,
+    IsOrganizationAdminMember,
     IsProjectAdmin,
-    IsOrganizationAdmin,
     UserOrganizationsListing,
 )
 from .renderers import AlphabeticalSortedJSONRenderer
@@ -42,14 +63,16 @@ from .serializers import (
     BuildSerializer,
     EnvironmentVariableSerializer,
     OrganizationSerializer,
-    ProjectSerializer,
     ProjectCreateSerializer,
+    ProjectSerializer,
     ProjectUpdateSerializer,
     RedirectCreateSerializer,
     RedirectDetailSerializer,
+    RemoteOrganizationSerializer,
+    RemoteRepositorySerializer,
     SubprojectCreateSerializer,
-    SubprojectSerializer,
     SubprojectDestroySerializer,
+    SubprojectSerializer,
     VersionSerializer,
     VersionUpdateSerializer,
 )
@@ -82,8 +105,8 @@ class APIv3Settings:
 
 
 class ProjectsViewSetBase(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
-                          FlexFieldsMixin, ProjectImportMixin, CreateModelMixin,
-                          UpdateMixin, UpdateModelMixin,
+                          FlexFieldsMixin, ProjectImportMixin, UpdateChangeReasonMixin,
+                          CreateModelMixin, UpdateMixin, UpdateModelMixin,
                           ReadOnlyModelViewSet):
 
     model = Project
@@ -95,6 +118,8 @@ class ProjectsViewSetBase(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixi
         'active_versions',
         'active_versions.last_build',
         'active_versions.last_build.config',
+        'organization',
+        'teams',
     ]
 
     def get_view_name(self):
@@ -160,7 +185,7 @@ class ProjectsViewSetBase(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixi
         Trigger our internal mechanism to import a project after it's saved in
         the database.
         """
-        project = serializer.save()
+        project = super().perform_create(serializer)
         self.finish_import_project(self.request, project)
 
     @action(detail=True, methods=['get'])
@@ -207,10 +232,15 @@ class SubprojectRelationshipViewSet(APIv3Settings, NestedViewSetMixin,
 
         return SubprojectSerializer
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['parent'] = self._get_parent_project()
+        return context
+
     def create(self, request, *args, **kwargs):
         """Define a Project as subproject of another Project."""
         parent = self._get_parent_project()
-        serializer = self.get_serializer(parent=parent, data=request.data)
+        serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(parent=parent)
         headers = self.get_success_headers(serializer.data)
@@ -266,6 +296,17 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
         if self.action in ('list', 'retrieve'):
             return VersionSerializer
         return VersionUpdateSerializer
+
+    def update(self, request, *args, **kwargs):
+        """Overridden to call ``post_save`` method on the updated version."""
+        # Get the current value before updating.
+        version = self.get_object()
+        was_active = version.active
+        result = super().update(request, *args, **kwargs)
+        # Get the updated version.
+        version = self.get_object()
+        version.post_save(was_active=was_active)
+        return result
 
 
 class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
@@ -361,16 +402,19 @@ class EnvironmentVariablesViewSet(APIv3Settings, NestedViewSetMixin,
         serializer.save()
 
 
-class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
-                               OrganizationQuerySetMixin,
-                               ReadOnlyModelViewSet):
+class OrganizationsViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    OrganizationQuerySetMixin,
+    ReadOnlyModelViewSet,
+):
 
     model = Organization
     lookup_field = 'slug'
     lookup_url_kwarg = 'organization_slug'
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
-
+    permission_classes = [UserOrganizationsListing | IsOrganizationAdminMember]
     permit_list_expands = [
         'projects',
         'teams',
@@ -381,7 +425,7 @@ class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
         return f'Organizations {self.suffix}'
 
     def get_queryset(self):
-        # Allow hitting ``/api/v3/organizations/`` to list their own organizaions
+        # Allow hitting ``/api/v3/organizations/`` to list their own organizations
         if self.basename == 'organizations' and self.action == 'list':
             # We force returning ``Organization`` objects here because it's
             # under the ``organizations`` view.
@@ -390,19 +434,16 @@ class OrganizationsViewSetBase(APIv3Settings, NestedViewSetMixin,
         return super().get_queryset()
 
 
-class OrganizationsViewSet(SettingsOverrideObject):
-    _default_class = OrganizationsViewSetBase
-
-
-class OrganizationsProjectsViewSetBase(APIv3Settings, NestedViewSetMixin,
-                                       OrganizationQuerySetMixin,
-                                       ReadOnlyModelViewSet):
+class OrganizationsProjectsViewSet(
+    APIv3Settings, NestedViewSetMixin, OrganizationQuerySetMixin, ReadOnlyModelViewSet
+):
 
     model = Project
     lookup_field = 'slug'
     lookup_url_kwarg = 'project_slug'
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+    permission_classes = [IsOrganizationAdminMember]
     permit_list_expands = [
         'organization',
         'organization.teams',
@@ -412,5 +453,51 @@ class OrganizationsProjectsViewSetBase(APIv3Settings, NestedViewSetMixin,
         return f'Organizations Projects {self.suffix}'
 
 
-class OrganizationsProjectsViewSet(SettingsOverrideObject):
-    _default_class = OrganizationsProjectsViewSetBase
+class RemoteRepositoryViewSet(
+    APIv3Settings,
+    RemoteQuerySetMixin,
+    FlexFieldsMixin,
+    ListModelMixin,
+    GenericViewSet
+):
+    model = RemoteRepository
+    serializer_class = RemoteRepositorySerializer
+    filterset_class = RemoteRepositoryFilter
+    queryset = RemoteRepository.objects.all()
+    permission_classes = (IsAuthenticated,)
+    permit_list_expands = [
+        'remote_organization',
+        'projects'
+    ]
+
+    def get_queryset(self):
+        queryset = super().get_queryset().annotate(
+            _admin=Exists(
+                RemoteRepositoryRelation.objects.filter(
+                    remote_repository=OuterRef('pk'),
+                    user=self.request.user,
+                    admin=True
+                )
+            )
+        )
+
+        if is_expanded(self.request, 'remote_organization'):
+            queryset = queryset.select_related('organization')
+
+        if is_expanded(self.request, 'projects'):
+            queryset = queryset.prefetch_related('projects__users')
+
+        return queryset.order_by('organization__name', 'full_name').distinct()
+
+
+class RemoteOrganizationViewSet(
+    APIv3Settings,
+    RemoteQuerySetMixin,
+    ListModelMixin,
+    GenericViewSet
+):
+    model = RemoteOrganization
+    serializer_class = RemoteOrganizationSerializer
+    filterset_class = RemoteOrganizationFilter
+    queryset = RemoteOrganization.objects.all()
+    permission_classes = (IsAuthenticated,)

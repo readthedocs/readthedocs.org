@@ -22,5 +22,5 @@ class TestProxiedSearchAPI(BaseTestDocumentSearch):
         }
         resp = self.get_search(api_client, search_params)
         assert resp.status_code == 200
-        cache_tags = f'{project.slug},{project.slug}-{version.slug},{project.slug}-rtd-search'
+        cache_tags = f'{project.slug},{project.slug}:{version.slug},{project.slug}:rtd-search'
         assert resp['Cache-Tag'] == cache_tags

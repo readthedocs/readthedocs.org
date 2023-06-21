@@ -1,12 +1,11 @@
 import django_dynamic_fixture as fixture
-from django.conf import settings
 from django.test import TestCase
-from django.test.utils import override_settings
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.tasks import TaskRouter
 from readthedocs.projects.models import Project
+
 
 class TaskRouterTests(TestCase):
 
@@ -19,15 +18,16 @@ class TaskRouterTests(TestCase):
         self.build = fixture.get(
             Build,
             version=self.version,
+            success=True,
         )
-        for _ in range(TaskRouter.N_BUILDS + 5):
+        for _ in range(TaskRouter.MIN_SUCCESSFUL_BUILDS + 5):
             fixture.get(
                 Build,
                 version=self.version,
 
             )
 
-        self.task = 'readthedocs.projects.tasks.update_docs_task'
+        self.task = 'readthedocs.projects.tasks.builds.update_docs_task'
         self.args = (
             self.version.pk,
         )
@@ -47,6 +47,16 @@ class TaskRouterTests(TestCase):
 
     def test_used_conda_in_last_builds(self):
         self.build._config = {'conda': {'file': 'docs/environment.yml'}}
+        self.build.save()
+
+        self.assertEqual(
+            self.router.route_for_task(self.task, self.args, self.kwargs),
+            TaskRouter.BUILD_LARGE_QUEUE,
+        )
+
+    def test_used_conda_in_last_failed_build(self):
+        self.build._config = {'conda': {'file': 'docs/environment.yml'}}
+        self.build.success = False
         self.build.save()
 
         self.assertEqual(

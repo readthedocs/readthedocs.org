@@ -37,7 +37,19 @@ class SortVersionsTest(TestCase):
         )
 
     def test_sort_wildcard(self):
-        identifiers = ['1.0.x', '2.0.x', '1.1.x', '1.9.x', '1.10.x']
+        identifiers = [
+            "1.0.x",
+            "2.0.x",
+            "1.1.x",
+            "1.9.x",
+            "1.10.x",
+            "1.0.0",
+            "1.0.1",
+            "2.1.0",
+            "2.1.99",
+            "1.11.0",
+            "1.10.8",
+        ]
         for identifier in identifiers:
             get(
                 Version,
@@ -50,7 +62,20 @@ class SortVersionsTest(TestCase):
 
         versions = list(Version.objects.filter(project=self.project))
         self.assertEqual(
-            ['latest', '2.0.x', '1.10.x', '1.9.x', '1.1.x', '1.0.x'],
+            [
+                "latest",
+                "2.1.99",
+                "2.1.0",
+                "2.0.x",
+                "1.11.0",
+                "1.10.x",
+                "1.10.8",
+                "1.9.x",
+                "1.1.x",
+                "1.0.x",
+                "1.0.1",
+                "1.0.0",
+            ],
             [v.slug for v in sort_version_aware(versions)],
         )
 
@@ -96,7 +121,7 @@ class SortVersionsTest(TestCase):
 
     def test_sort_git_master_and_latest(self):
         """
-        The branch named master should havea a higher priority
+        The branch named master should have a higher priority
         than latest, ideally users should only have one of the two activated.
         """
         identifiers = ['latest', 'master', '1.0', '2.0', '1.1', '1.9', '1.10']

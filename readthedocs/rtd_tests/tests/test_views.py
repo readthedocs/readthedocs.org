@@ -4,7 +4,7 @@ from urllib.parse import urlsplit
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get, new
@@ -15,6 +15,7 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Feature, Project
+from readthedocs.subscriptions.constants import TYPE_SEARCH_ANALYTICS
 
 
 @mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())
@@ -83,10 +84,6 @@ class PrivateViewsAreProtectedTests(TestCase):
         response = self.client.get('/dashboard/import/manual/')
         self.assertRedirectToLogin(response)
 
-    def test_import_wizard_demo(self):
-        response = self.client.get('/dashboard/import/manual/demo/')
-        self.assertRedirectToLogin(response)
-
     def test_edit(self):
         response = self.client.get('/dashboard/pip/edit/')
         self.assertRedirectToLogin(response)
@@ -100,7 +97,7 @@ class PrivateViewsAreProtectedTests(TestCase):
         self.assertRedirectToLogin(response)
 
     def test_version_detail(self):
-        response = self.client.get('/dashboard/pip/version/0.8.1/')
+        response = self.client.get('/dashboard/pip/version/0.8.1/edit/')
         self.assertRedirectToLogin(response)
 
     def test_project_delete(self):
@@ -154,7 +151,9 @@ class PrivateViewsAreProtectedTests(TestCase):
         self.assertRedirectToLogin(response)
 
     def test_project_redirects_delete(self):
-        response = self.client.get('/dashboard/pip/redirects/delete/')
+        response = self.client.get(
+            reverse("projects_redirects_delete", args=["pip", 3])
+        )
         self.assertRedirectToLogin(response)
 
 
@@ -226,21 +225,25 @@ class SubprojectViewTests(TestCase):
         )
 
 
-@mock.patch('readthedocs.projects.tasks.update_docs_task', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class BuildViewTests(TestCase):
     fixtures = ['eric', 'test_data']
 
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
+        self.pip.privacy_level = PUBLIC
+        self.pip.external_builds_privacy_level = PUBLIC
+        self.pip.save()
+        self.pip.versions.update(privacy_level=PUBLIC)
 
-    @mock.patch('readthedocs.projects.tasks.update_docs_task')
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_build_redirect(self, mock):
         r = self.client.post('/projects/pip/builds/', {'version_slug': '0.8.1'})
         build = Build.objects.filter(project__slug='pip').latest()
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r._headers['location'][1],
+            r.headers['location'],
             '/projects/pip/builds/%s/' % build.pk,
         )
 
@@ -265,7 +268,78 @@ class BuildViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(external_version_build, response.context['build_qs'])
 
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    @mock.patch("readthedocs.core.utils.cancel_build")
+    def test_rebuild_specific_commit(self, mock_update_docs_task, mock_cancel_build):
+        builds_count = Build.objects.count()
 
+        version = self.pip.versions.first()
+        version.type = 'external'
+        version.save()
+
+        build = get(
+            Build,
+            version=version,
+            project=self.pip,
+            commit='a1b2c3',
+        )
+
+        r = self.client.post(
+            '/projects/pip/builds/',
+            {
+                'version_slug': version.slug,
+                'build_pk': build.pk,
+            }
+        )
+
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(Build.objects.count(), builds_count + 2)
+
+        newbuild = Build.objects.first()
+        self.assertEqual(
+            r.headers['location'],
+            f'/projects/pip/builds/{newbuild.pk}/',
+        )
+        self.assertEqual(newbuild.commit, 'a1b2c3')
+
+
+    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
+    def test_rebuild_invalid_specific_commit(self, mock):
+        version = self.pip.versions.first()
+        version.type = 'external'
+        version.save()
+
+        for i in range(3):
+            get(
+                Build,
+                version=version,
+                project=self.pip,
+                commit=f'a1b2c3-{i}',
+            )
+
+        build = Build.objects.filter(
+            version=version,
+            project=self.pip,
+        ).last()
+
+        r = self.client.post(
+            '/projects/pip/builds/',
+            {
+                'version_slug': version.slug,
+                'build_pk': build.pk,
+            }
+        )
+
+        # It should return 302 and show a message to the user because we are
+        # re-triggering a build of a non-lastest build for that version
+        self.assertEqual(r.status_code, 302)
+
+
+@override_settings(
+    RTD_DEFAULT_FEATURES={
+        TYPE_SEARCH_ANALYTICS: 90,
+    }
+)
 class TestSearchAnalyticsView(TestCase):
 
     """Tests for search analytics page."""

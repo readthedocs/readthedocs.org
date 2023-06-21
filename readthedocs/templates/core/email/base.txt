@@ -1,5 +1,5 @@
 {% load i18n %}
-{% block salutation %}Hello!{% endblock %}
+{% block salutation %}Hello,{% endblock %}
 
 {% block content %}{% endblock %}
 

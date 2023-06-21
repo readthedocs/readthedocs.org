@@ -5,33 +5,49 @@ Including the main homepage, documentation and header rendering,
 and server errors.
 """
 
-import logging
-
+import structlog
 from django.conf import settings
-from django.http import Http404, JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import View, TemplateView
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.views.generic import TemplateView, View
 
-from readthedocs.builds.models import Version
-from readthedocs.core.utils.general import wipe_version_via_slugs
-from readthedocs.core.mixins import PrivateViewMixin
+from readthedocs.core.mixins import CDNCacheControlMixin, PrivateViewMixin
 from readthedocs.projects.models import Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class NoProjectException(Exception):
     pass
 
 
-class HealthCheckView(View):
-    def get(self, request, *args, **kwargs):
+class HealthCheckView(CDNCacheControlMixin, View):
+    # Never cache this view, we always want to get the live response from the server.
+    # In production we should configure the health check to hit the LB directly,
+    # but it's useful to be careful here in case of a misconfiguration.
+    cache_response = False
+
+    def get(self, request, *_, **__):
         return JsonResponse({'status': 200}, status=200)
 
 
 class HomepageView(TemplateView):
 
+    """
+    Conditionally show the home page or redirect to the login page.
+
+    On the current dashboard, this shows the application homepage. However, we
+    no longer require this page in our application as we have a similar page on
+    our website. Instead, redirect to our login page on the new dashboard.
+    """
+
     template_name = 'homepage.html'
+
+    def get(self, request, *args, **kwargs):
+        if settings.RTD_EXT_THEME_ENABLED:
+            return redirect(reverse("account_login"))
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         """Add latest builds and featured projects."""
@@ -51,30 +67,6 @@ class SupportView(PrivateViewMixin, TemplateView):
         return context
 
 
-def wipe_version(request, project_slug, version_slug):
-    version = get_object_or_404(
-        Version.internal.all(),
-        project__slug=project_slug,
-        slug=version_slug,
-    )
-    # We need to check by ``for_admin_user`` here to allow members of the
-    # ``Admin`` team (which doesn't own the project) under the corporate site.
-    if version.project not in Project.objects.for_admin_user(user=request.user):
-        raise Http404('You must own this project to wipe it.')
-
-    if request.method == 'POST':
-        wipe_version_via_slugs(
-            version_slug=version_slug,
-            project_slug=project_slug,
-        )
-        return redirect('project_version_list', project_slug)
-    return render(
-        request,
-        'wipe_version.html',
-        {'version': version, 'project': version.project},
-    )
-
-
 def server_error_500(request, template_name='500.html'):
     """A simple 500 handler so we get media."""
     r = render(request, template_name)
@@ -83,7 +75,7 @@ def server_error_500(request, template_name='500.html'):
 
 
 def do_not_track(request):
-    dnt_header = request.META.get('HTTP_DNT')
+    dnt_header = request.headers.get("Dnt")
 
     # https://w3c.github.io/dnt/drafts/tracking-dnt.html#status-representation
     return JsonResponse(  # pylint: disable=redundant-content-type-for-json-response

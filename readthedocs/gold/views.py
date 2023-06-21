@@ -1,11 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Gold subscription views."""
 
 import json
-import logging
-import stripe
 
+import stripe
+import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -13,23 +11,20 @@ from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
-
-from vanilla import DetailView, FormView, GenericView
-from rest_framework.exceptions import APIException
-from rest_framework.views import APIView
+from django.utils.translation import gettext_lazy as _
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.views import APIView
+from vanilla import DetailView, FormView, GenericView
 
 from readthedocs.core.mixins import PrivateViewMixin
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Project
 
 from .forms import GoldProjectForm, GoldSubscriptionForm
-from .models import GoldUser, LEVEL_CHOICES
+from .models import GoldUser
 
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class GoldSubscription(
@@ -137,7 +132,7 @@ class GoldCreateCheckoutSession(GenericView):
             url = reverse_lazy('gold_detail')
             url = f'{schema}://{settings.PRODUCTION_DOMAIN}{url}'
             price = json.loads(request.body).get('priceId')
-            log.info('Creating Stripe Checkout Session. user=%s price=%s', user, price)
+            log.info('Creating Stripe Checkout Session.', user_username=user.username, price=price)
             checkout_session = stripe.checkout.Session.create(
                 client_reference_id=user.username,
                 customer_email=user.emailaddress_set.filter(verified=True).first() or user.email,
@@ -184,9 +179,9 @@ class GoldSubscriptionPortal(GenericView):
             return HttpResponseRedirect(billing_portal.url)
         except:  # noqa
             log.exception(
-                'There was an error connecting to Stripe. user=%s stripe_customer=%s',
-                user.username,
-                stripe_customer,
+                'There was an error connecting to Stripe.',
+                user_userame=user.username,
+                stripe_customer=stripe_customer,
             )
             messages.error(
                 request,
@@ -222,27 +217,33 @@ class StripeEventView(APIView):
     def post(self, request, format=None):
         try:
             event = stripe.Event.construct_from(request.data, settings.STRIPE_SECRET)
+            log.bind(event=event.type)
             if event.type not in self.EVENTS:
-                log.warning('Unhandled Stripe event. event=%s', event.type)
+                log.warning('Unhandled Stripe event.', event_type=event.type)
                 return Response({
                     'OK': False,
                     'msg': f'Unhandled event. event={event.type}'
                 })
 
             stripe_customer = event.data.object.customer
+            log.bind(stripe_customer=stripe_customer)
 
             if event.type == self.EVENT_CHECKOUT_COMPLETED:
                 username = event.data.object.client_reference_id
+                log.bind(user_username=username)
                 mode = event.data.object.mode
                 if mode == 'subscription':
                     # Gold Membership
                     user = User.objects.get(username=username)
                     subscription = stripe.Subscription.retrieve(event.data.object.subscription)
+                    stripe_price = self._get_stripe_price(subscription)
+                    log.bind(stripe_price=stripe_price.id)
+                    log.info('Gold Membership subscription.')
                     gold, _ = GoldUser.objects.get_or_create(
                         user=user,
                         stripe_id=stripe_customer,
                     )
-                    gold.level = subscription.plan.id
+                    gold.level = stripe_price.id
                     gold.subscribed = True
                     gold.save()
                 elif mode == 'payment':
@@ -252,6 +253,10 @@ class StripeEventView(APIView):
                         from readthedocsext.donate.utils import handle_payment_webhook
                         stripe_session = event.data.object.id
                         price_in_cents = event.data.object.amount_total
+                        log.info(
+                            'Gold Membership one-time donation.',
+                            price_in_cents=price_in_cents,
+                        )
                         handle_payment_webhook(
                             username,
                             stripe_customer,
@@ -266,37 +271,29 @@ class StripeEventView(APIView):
 
             elif event.type == self.EVENT_CHECKOUT_PAYMENT_FAILED:
                 username = event.data.object.client_reference_id
+                log.bind(user_username=username)
                 # TODO: add user notification saying it failed
-                log.exception(
-                    'Gold User payment failed. username=%s customer=%s',
-                    username,
-                    stripe_customer,
-                )
+                log.exception('Gold User payment failed.')
 
             elif event.type == self.EVENT_CUSTOMER_SUBSCRIPTION_UPDATED:
                 subscription = event.data.object
-                level = subscription.plan.id
+                stripe_price = self._get_stripe_price(subscription)
                 log.info(
-                    'Gold User subscription updated. customer=%s level=%s',
-                    stripe_customer,
-                    level,
+                    'Gold User subscription updated.',
+                    stripe_price=stripe_price.id,
                 )
                 (
                     GoldUser.objects
                     .filter(stripe_id=stripe_customer)
                     .update(
-                        level=level,
+                        level=stripe_price.id,
                         modified_date=timezone.now(),
                     )
                 )
 
                 if subscription.status != 'active':
-                    # TODO: check if the subscription was canceled, past due, etc
-                    # and take the according action. Only acummulate errors on Sentry for now.
-                    log.error(
-                        'GoldUser is not active anymore. '
-                        'stripe_customer=%s',
-                        stripe_customer,
+                    log.warning(
+                        'GoldUser is not active anymore.',
                     )
         except Exception:
             log.exception('Unexpected data in Stripe Event object')
@@ -310,3 +307,12 @@ class StripeEventView(APIView):
         return Response({
             'OK': True,
         })
+
+    def _get_stripe_price(self, stripe_subscription):
+        subscription_items = stripe_subscription["items"].data
+        if len(subscription_items) > 1:
+            log.info(
+                "Subscription with more than one item.",
+                subscription_items=subscription_items,
+            )
+        return subscription_items[0].price

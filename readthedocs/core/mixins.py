@@ -1,10 +1,8 @@
 """Common mixin classes for views."""
-
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.utils.translation import ugettext_lazy as _
 from vanilla import ListView
 
-from readthedocs.projects.constants import PRIVACY_CHOICES, PROTECTED
+from readthedocs.proxito.cache import cache_response, private_response
 
 
 class ListViewWithForm(ListView):
@@ -22,24 +20,48 @@ class PrivateViewMixin(LoginRequiredMixin):
     pass
 
 
-class HideProtectedLevelMixin:
+class ProxiedAPIMixin:
+
+    # DRF has BasicAuthentication and SessionAuthentication as default classes.
+    # We don't support neither in the community site.
+    authentication_classes = []
+
+
+class CDNCacheControlMixin:
 
     """
-    Hide ``protected`` privacy level from Form.
+    Explicitly cache or not a view at the CDN level.
 
-    Remove Protected for now since it causes confusions to users.
+    The cache control header is used to mark the response as public/private,
+    so it can be cached or not.
 
-    If the current ``privacy_level`` is ``protected`` we show it (so users keep
-    seeing consistency values), and hide it otherwise (so it can't be selected).
+    Views that can be cached should always return the same response for all
+    users (anonymous and authenticated users), like when the version attached
+    to the request is public.
 
-    There is a better way to manage this by using Version states.
-    See: https://github.com/rtfd/readthedocs.org/issues/5321
+    To explicitly cache a view you can either set the `cache_response`
+    attribute to `True`/`False`, or override the `can_be_cached` method
+    (which defaults to return the `cache_response` attribute).
+    If set to `None` (default), the cache header won't be set, so the default
+    value can be set by our middleware (public for .org and private for .com).
+
+    We use ``CDN-Cache-Control``, to control caching at the CDN level only.
+    This doesn't affect caching at the browser level (``Cache-Control``).
+
+    See https://developers.cloudflare.com/cache/about/cdn-cache-control.
     """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    cache_response = None
 
-        if self.instance is None or self.instance.privacy_level != PROTECTED:
-            privacy_level = list(PRIVACY_CHOICES)
-            privacy_level.remove((PROTECTED, _('Protected')))
-            self.fields['privacy_level'].choices = privacy_level
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        can_be_cached = self.can_be_cached(request)
+        if can_be_cached is not None:
+            if can_be_cached:
+                cache_response(response)
+            else:
+                private_response(response)
+        return response
+
+    def can_be_cached(self, request):
+        return self.cache_response

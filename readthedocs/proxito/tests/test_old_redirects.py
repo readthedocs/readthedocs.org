@@ -13,9 +13,11 @@ import django_dynamic_fixture as fixture
 import pytest
 from django.http import Http404
 from django.test.utils import override_settings
-from django.urls import reverse
+from django.urls import Resolver404
+from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
+from readthedocs.projects.models import Feature
 from readthedocs.redirects.models import Redirect
 
 from .base import BaseDocServing
@@ -152,6 +154,18 @@ class InternalRedirectTests(BaseDocServing):
         )
 
 
+class ProxitoV2InternalRedirectTests(InternalRedirectTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
+
+
 # Use ``PYTHON_MEDIA`` here to raise a 404 when trying to serve the file
 # from disk and execute the code for the handler404 (the file does not
 # exist). On production, this will happen when trying to serve from
@@ -164,6 +178,66 @@ class InternalRedirectTests(BaseDocServing):
     ROOT_URLCONF='readthedocs.proxito.tests.handler_404_urls',
 )
 class UserRedirectTests(MockStorageMixin, BaseDocServing):
+    def test_forced_redirect(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
+
+    def test_infinite_redirect(self):
+        host = "project.dev.readthedocs.io"
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/install.html",
+        )
+        with pytest.raises(Http404):
+            self.client.get(
+                "/en/latest/install.html",
+                HTTP_HOST=host,
+            )
+
+        with pytest.raises(Http404):
+            self.client.get(
+                "/en/latest/install.html?foo=bar",
+                HTTP_HOST=host,
+            )
+
+    def test_infinite_redirect_changing_protocol(self):
+        host = "project.dev.readthedocs.io"
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/install.html",
+            to_url=f"https://{host}/en/latest/install.html",
+        )
+        with pytest.raises(Http404):
+            self.client.get(
+                "/en/latest/install.html",
+                HTTP_HOST=host,
+            )
+
+        with pytest.raises(Http404):
+            self.client.get(
+                "/en/latest/install.html?foo=bar",
+                HTTP_HOST=host,
+            )
 
     def test_redirect_prefix_infinite(self):
         """
@@ -240,7 +314,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             'http://project.dev.readthedocs.io/en/latest/tutorial/install.html',
         )
 
-    def test_redirect_with_query_params(self):
+    def test_redirect_with_query_params_from_url(self):
         self._storage_exists([
             '/media/html/project/latest/tutorial/install.html',
         ])
@@ -258,6 +332,38 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         self.assertEqual(
             r['Location'],
             'http://project.dev.readthedocs.io/en/latest/tutorial/install.html?foo=bar',
+        )
+
+    def test_redirect_with_query_params_to_url(self):
+        self._storage_exists(
+            [
+                "/media/html/project/latest/tutorial/install.html",
+            ]
+        )
+        Redirect.objects.create(
+            project=self.project,
+            redirect_type="page",
+            from_url="/install.html",
+            to_url="/tutorial/install.html?query=one",
+        )
+        r = self.client.get(
+            "/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html?query=one",
+        )
+
+        r = self.client.get(
+            "/install.html?query=two",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html?query=two&query=one",
         )
 
     def test_redirect_exact(self):
@@ -280,6 +386,24 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         self.assertEqual(
             r['Location'],
             'http://project.dev.readthedocs.io/en/latest/tutorial/install.html',
+        )
+
+    def test_redirect_exact_looks_like_version(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/versions.json",
+            to_url="/en/latest/versions.json",
+        )
+        r = self.client.get(
+            "/en/versions.json",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/versions.json",
         )
 
     def test_redirect_exact_with_rest(self):
@@ -402,6 +526,11 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             redirect_type='page',
             from_url='/install.html',
             to_url='/tutorial/install.html',
+        )
+        fixture.get(
+            Feature,
+            feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER,
+            projects=[self.project],
         )
         r = self.client.get(
             '/install.html',
@@ -533,40 +662,441 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             )
 
 
-# FIXME: these tests are valid, but the problem I'm facing is that the request
-# is received as ``GET '//my.host/path/'`` (note that we are loosing the http:)
-@pytest.mark.xfail(strict=True)
+class ProxitoV2UserRedirectTests(UserRedirectTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
+
+    def test_redirect_using_projects_prefix(self):
+        """
+        Test that we can support redirects using the ``/projects/`` prefix.
+
+        https://github.com/readthedocs/readthedocs.org/issues/7552
+        """
+        redirect = fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/projects/$rest",
+            to_url="https://example.com/projects/",
+        )
+        self.assertEqual(self.project.redirects.count(), 1)
+        r = self.client.get(
+            "/projects/deleted-subproject/en/latest/guides/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "https://example.com/projects/deleted-subproject/en/latest/guides/install.html",
+        )
+
+        redirect.from_url = "/projects/not-found/$rest"
+        redirect.to_url = "/projects/subproject/"
+        redirect.save()
+        r = self.client.get(
+            "/projects/not-found/en/latest/guides/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/projects/subproject/en/latest/guides/install.html",
+        )
+
+
+@override_settings(PUBLIC_DOMAIN="dev.readthedocs.io")
+class UserForcedRedirectTests(BaseDocServing):
+    def test_no_forced_redirect(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            force=False,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 200)
+
+    def test_prefix_redirect(self):
+        """
+        Test prefix redirect.
+
+        Prefix redirects don't match a version,
+        so they will return 404, and the redirect will
+        be handled there.
+        """
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="prefix",
+            from_url="/woot/",
+            force=True,
+        )
+        r = self.client.get(
+            "/woot/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 404)
+
+    def test_infinite_redirect(self):
+        host = "project.dev.readthedocs.io"
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="page",
+            from_url="/install.html",
+            to_url="/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST=host,
+        )
+        self.assertEqual(r.status_code, 200)
+
+        r = self.client.get(
+            "/en/latest/install.html?foo=bar",
+            HTTP_HOST=host,
+        )
+        self.assertEqual(r.status_code, 200)
+
+    def test_infinite_redirect_changing_protocol(self):
+        host = "project.dev.readthedocs.io"
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/install.html",
+            to_url=f"https://{host}/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST=host,
+        )
+        self.assertEqual(r.status_code, 200)
+
+        r = self.client.get(
+            "/en/latest/install.html?foo=bar",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 200)
+
+    def test_redirect_page(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="page",
+            from_url="/install.html",
+            to_url="/tutorial/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
+
+    def test_redirect_with_query_params(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="page",
+            from_url="/install.html",
+            to_url="/tutorial/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html?foo=bar",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html?foo=bar",
+        )
+
+    def test_redirect_exact(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
+
+    def test_redirect_exact_with_rest(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/$rest",
+            to_url="/en/version/",
+            force=True,
+        )
+        self.assertEqual(self.project.redirects.count(), 1)
+        r = self.client.get(
+            "/en/latest/guides/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/version/guides/install.html",
+        )
+
+        fixture.get(
+            Redirect,
+            project=self.translation,
+            redirect_type="exact",
+            from_url="/es/latest/$rest",
+            to_url="/en/master/",
+            force=True,
+        )
+        r = self.client.get(
+            "/es/latest/guides/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/master/guides/install.html",
+        )
+
+    def test_redirect_keeps_language(self):
+        self.project.language = "de"
+        self.project.save()
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="page",
+            from_url="/how_to_install.html",
+            to_url="/install.html",
+            force=True,
+        )
+        r = self.client.get(
+            "/de/latest/how_to_install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/de/latest/install.html",
+        )
+
+    def test_redirect_recognizes_custom_cname(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="page",
+            from_url="/install.html",
+            to_url="/tutorial/install.html",
+            force=True,
+        )
+        fixture.get(
+            Feature,
+            feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER,
+            projects=[self.project],
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST="docs.project.io",
+            HTTP_X_RTD_SLUG="project",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://docs.project.io/en/latest/tutorial/install.html",
+        )
+
+    def test_redirect_html(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="sphinx_html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/faq/",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/faq.html",
+        )
+
+    def test_redirect_html_index(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="sphinx_html",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/faq/index.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/faq.html",
+        )
+
+    def test_redirect_htmldir(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="sphinx_htmldir",
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/faq.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/faq/",
+        )
+
+    def test_redirect_with_301_status(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            http_status=301,
+            force=True,
+        )
+        r = self.client.get(
+            "/en/latest/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 301)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
+
+
+class ProxitoV2UserForcedRedirectTests(UserForcedRedirectTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
+
+
+@override_settings(
+    PYTHON_MEDIA=True,
+    PUBLIC_DOMAIN="dev.readthedocs.io",
+    ROOT_URLCONF="readthedocs.proxito.tests.handler_404_urls",
+)
 class UserRedirectCrossdomainTest(BaseDocServing):
 
     def test_redirect_prefix_crossdomain(self):
         """
-        Avoid redirecting to an external site unless the external site is in to_url
+        Avoid redirecting to an external site unless the external site is in to_url.
+
+        We also test by trying to bypass the protocol check with the special chars listed at
+        https://github.com/python/cpython/blob/c3ffbbdf3d5645ee07c22649f2028f9dffc762ba/Lib/urllib/parse.py#L80-L81.
         """
         fixture.get(
             Redirect,
-            project=self.project, redirect_type='prefix',
-            from_url='/',
+            project=self.project,
+            redirect_type="prefix",
+            from_url="/",
         )
 
-        r = self.client.get(
-            'http://testserver/http://my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path.html',
-        )
+        urls = [
+            # Plain protocol, these are caught by the slash redirect.
+            (
+                "http://project.dev.readthedocs.io/http://my.host/path.html",
+                "/http:/my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io//my.host/path.html",
+                "/my.host/path.html",
+            ),
+            # Trying to bypass the protocol check by including a `\r` char.
+            (
+                "http://project.dev.readthedocs.io/http:/%0D/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%0D/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path.html",
+            ),
+            # Trying to bypass the protocol check by including a `\t` char.
+            (
+                "http://project.dev.readthedocs.io/http:/%09/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%09/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path.html",
+            ),
+        ]
+        for url, expected_location in urls:
+            r = self.client.get(
+                url,
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)
 
-        r = self.client.get(
-            'http://testserver//my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
+    def test_redirect_prefix_crossdomain_with_newline_chars(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="prefix",
+            from_url="/",
         )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/my.host/path.html',
-        )
+        # We make use of Django's URL resolve in the current implementation,
+        # which doesn't handle these chars and raises an exception
+        # instead of redirecting.
+        urls = [
+            # Trying to bypass the protocol check by including a `\n` char.
+            "http://project.dev.readthedocs.io/http:/%0A/my.host/path.html",
+            "http://project.dev.readthedocs.io/%0A/my.host/path.html",
+        ]
+        for url in urls:
+            with pytest.raises(Resolver404):
+                self.client.get(
+                    url,
+                    HTTP_HOST="project.dev.readthedocs.io",
+                )
 
     def test_redirect_sphinx_htmldir_crossdomain(self):
         """
@@ -577,122 +1107,108 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             project=self.project, redirect_type='sphinx_htmldir',
         )
 
-        r = self.client.get(
-            'http://testserver/http://my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path/',
-        )
+        urls = [
+            # Plain protocol, these are caught by the slash redirect.
+            (
+                "http://project.dev.readthedocs.io/http://my.host/path.html",
+                "/http:/my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io//my.host/path.html",
+                "/my.host/path.html",
+            ),
+            # Trying to bypass the protocol check by including a `\r` char.
+            (
+                "http://project.dev.readthedocs.io/http:/%0D/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path/",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%0D/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path/",
+            ),
+        ]
 
-        r = self.client.get(
-            'http://testserver//my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/my.host/path/',
-        )
+        for url, expected_location in urls:
+            r = self.client.get(
+                url,
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)
 
     def test_redirect_sphinx_html_crossdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in to_url
-        """
+        """Avoid redirecting to an external site unless the external site is in to_url."""
         fixture.get(
             Redirect,
             project=self.project,
             redirect_type='sphinx_html',
         )
 
-        r = self.client.get(
-            'http://testserver/http://my.host/path/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path.html',
+        urls = [
+            # Plain protocol, these are caught by the slash redirect.
+            (
+                "http://project.dev.readthedocs.io/http://my.host/path/",
+                "/http:/my.host/path/",
+            ),
+            ("http://project.dev.readthedocs.io//my.host/path/", "/my.host/path/"),
+            # Trying to bypass the protocol check by including a `\r` char.
+            (
+                "http://project.dev.readthedocs.io/http:/%0D/my.host/path/",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%0D/my.host/path/",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path.html",
+            ),
+        ]
+
+        for url, expected_location in urls:
+            r = self.client.get(
+                url,
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)
+
+
+class ProxitoV2UserRedirectCrossdomainTest(UserRedirectCrossdomainTest):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
         )
 
-        r = self.client.get(
-            'http://testserver//my.host/path/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/my.host/path.html',
-        )
-
-    def test_redirect_sphinx_htmldir_crossdomain(self):
+    def test_redirect_prefix_crossdomain_with_newline_chars(self):
         """
-        Avoid redirecting to an external site unless the external site is in ``to_url``.
-        """
-        fixture.get(
-            Redirect,
-            project=self.project,
-            redirect_type='sphinx_htmldir',
-        )
+        Overridden to make it compatible with the new implementation.
 
-        r = self.client.get(
-            '/http://my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path/',
-        )
-
-        r = self.client.get(
-            '//my.host/path.html',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'], 'http://project.dev.readthedocs.io/en/latest/my.host/path/',
-        )
-
-    # (Pdb) proxito_path
-    # '//http://my.host/path/'
-    # (Pdb) urlparse(proxito_path)
-    # ParseResult(scheme='', netloc='http:', path='//my.host/path/', params='', query='', fragment='')
-    # (Pdb)
-    # since there is a netloc inside the path
-    # I'm expecting,
-    # ParseResult(scheme='', netloc='', path='//http://my.host/path/', params='', query='', fragment='')
-    # https://github.com/readthedocs/readthedocs.org/blob/c3001be7a3ef41ebc181c194805f86fed6a009c8/readthedocs/redirects/utils.py#L78
-    def test_redirect_sphinx_html_crossdomain_nosubdomain(self):
-        """
-        Avoid redirecting to an external site unless the external site is in to_url
+        In the new implementation we will correctly redirect,
+        instead of raising an exception.
         """
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type='sphinx_html',
+            redirect_type="prefix",
+            from_url="/",
         )
-
-        # NOTE: it's mandatory to use http://testserver/ URL here, otherwise the
-        # request does not receive the proper URL.
-        r = self.client.get(
-            'http://testserver//http://my.host/path/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/http://my.host/path.html',
-        )
-
-        r = self.client.get(
-            '//my.host/path/',
-            HTTP_HOST='project.dev.readthedocs.io',
-        )
-        self.assertEqual(r.status_code, 302)
-        self.assertEqual(
-            r['Location'],
-            'http://project.dev.readthedocs.io/en/latest/my.host/path.html',
-        )
+        urls = [
+            (
+                "http://project.dev.readthedocs.io/http:/%0A/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%0A/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path.html",
+            ),
+        ]
+        for url, expected_location in urls:
+            r = self.client.get(
+                url,
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)

@@ -1,0 +1,21 @@
+{% extends "organizations/admin/base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Edit Organization" %}{% endblock %}
+
+{% block organization-admin-details %}active{% endblock %}
+
+{% block edit_content_header %}{% trans "Details" %}{% endblock %}
+
+{% block edit_content %}
+  <form method="POST" action=".">{% csrf_token %}
+    {{ form.as_p }}
+    <p>
+      <input type="submit" name="submit" value="{% trans "Save" %}" id="submit"/>
+      {% comment %}Translators: The 'or' here is in between 'Save' and 'Delete organization'.{% endcomment %}
+      {% trans "or" %}
+      <a href="{% url "organization_delete" organization.slug %}">{% trans "Delete organization" %}</a>
+    </p>
+  </form>
+{% endblock %}

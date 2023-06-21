@@ -1,0 +1,23 @@
+{% load organizations %}
+{% load gravatar %}
+
+<div class="team-list {% if large %}team-list-large{% endif %}">
+  <h3>
+    <a href="{{ team.get_absolute_url }}">{% if show_org %}{{ team.organization.name }}&nbsp;/&nbsp;{% endif %}{{ team.name }}</a>
+    {% if show_meta %}
+      <span class="detail detail-team-projects">
+        {% with team.projects.all|length as num_projects %}
+        {{ num_projects }} Project{{ num_projects|pluralize }}
+        {% endwith %}
+      </span>
+    {% endif %}
+  </h3>
+
+  <p>
+    {% for member in team.members.all %}
+      <a href="{% url "profiles_profile_detail" member.username %}">
+        <img src="{% gravatar_url member.email 48 %}" class="gravatar" width="24" height="24" class="gravatar" title="{{ member.username }}" />
+      </a>
+    {% endfor %}
+  </p>
+</div>

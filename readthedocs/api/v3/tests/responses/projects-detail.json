@@ -29,7 +29,7 @@
                 "urls": {
                     "build": "https://readthedocs.org/projects/project/builds/1/",
                     "project": "https://readthedocs.org/projects/project/",
-                    "version": "https://readthedocs.org/dashboard/project/version/v1.0/"
+                    "version": "https://readthedocs.org/dashboard/project/version/v1.0/edit/"
                 },
                 "project": "project",
                 "state": {
@@ -48,10 +48,14 @@
             "slug": "v1.0",
             "type": "tag",
             "urls": {
+                "dashboard": {
+                    "edit": "https://readthedocs.org/dashboard/project/version/v1.0/edit/"
+                },
                 "documentation": "http://project.readthedocs.io/en/v1.0/",
                 "vcs": "https://github.com/rtfd/project/tree/v1.0/"
             },
-            "verbose_name": "v1.0"
+            "verbose_name": "v1.0",
+            "privacy_level": "public"
         }
     ],
     "created": "2019-04-29T10:00:00Z",
@@ -86,8 +90,8 @@
     "slug": "project",
     "subproject_of": null,
     "tags": [
-        "tag",
         "project",
+        "tag",
         "test"
     ],
     "translation_of": null,
@@ -101,5 +105,7 @@
         {
             "username": "testuser"
         }
-    ]
+    ],
+    "privacy_level": "public",
+    "external_builds_privacy_level": "public"
 }

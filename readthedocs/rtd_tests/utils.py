@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 """Utility functions for use in tests."""
 
-import logging
 import subprocess
 import textwrap
 from os import chdir, environ, mkdir
@@ -10,13 +8,13 @@ from os.path import join as pjoin
 from shutil import copytree
 from tempfile import mkdtemp
 
+import structlog
 from django.contrib.auth.models import User
 from django_dynamic_fixture import new
 
 from readthedocs.doc_builder.base import restoring_chdir
 
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def get_readthedocs_app_path():
@@ -193,6 +191,16 @@ def create_git_submodule(
     check_output(command, env=env)
     check_output(['git', 'add', '.'], env=env)
     check_output(['git', 'commit', '-m', '"{}"'.format(msg)], env=env)
+
+
+@restoring_chdir
+def get_current_commit(directory):
+    env = environ.copy()
+    env["GIT_DIR"] = pjoin(directory, ".git")
+    chdir(directory)
+
+    command = ["git", "rev-parse", "HEAD"]
+    return check_output(command, env=env).decode().strip()
 
 
 @restoring_chdir

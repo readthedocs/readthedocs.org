@@ -1,0 +1,22 @@
+{% extends "organizations/onboard/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create an Organization" %}{% endblock %}
+
+{% block content %}
+  <h3>{% trans "Invite your Company" %}</h3>
+
+  {% if onboarding %}
+    <p class="info">
+      {% blocktrans %}
+        Finally, if you'd like to <b>invite your company to join you</b>,
+        invite some members to share documentation with below.
+        More members can be invited to your team later,
+        in the organization admin dashboard.
+      {% endblocktrans %}
+    </p>
+  {% endif %}
+
+  {{ block.super }}
+
+{% endblock %}

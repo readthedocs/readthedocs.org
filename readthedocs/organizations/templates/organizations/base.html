@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+{% load core_tags %}
+{% load privacy_tags %}
+{% load gravatar %}
+{% load organizations %}
+
+{% block subnav-bar %}
+<!-- BEGIN organization bar -->
+<div class="subnav-bar subnav-organizations">
+  <div class="wrapper">
+
+    <div class="subnav-title">
+      <h1>
+        <span class="subnav-breadcrumb">
+          {% block subnav-breadcrumb %}
+            <a href="{% url "organization_list" %}">{% trans "Organizations" %}</a>&nbsp;&gt;
+          {% endblock %}
+        </span>
+
+        {% block subnav-title %}
+          <a href="{{ organization.get_absolute_url }}">{{ organization.name }}</a>
+        {% endblock %}
+      </h1>
+    </div>
+
+    {% block subnav-navbar %}
+      <div class="options">
+        <ul>
+          <li class="{% block organization-bar-details %}{% endblock %}"><a href="{{ organization.get_absolute_url }}">{% trans "Details" %}</a></li>
+          <li class="{% block organization-bar-teams %}{% endblock %}"><a href="{% url "organization_team_list" organization.slug %}">{% trans "Teams" %}</a></li>
+          {% if not organization|has_sso_enabled:'allauth' %}
+          <li class="{% block organization-bar-members %}{% endblock %}"><a href="{% url "organization_members" organization.slug %}">{% trans "Members" %}</a></li>
+          {% endif %}
+          {% if request.user|is_admin:organization %}
+          <li class="{% block organization-bar-admin %}{% endblock %}"><a href="{% url "organization_edit" organization.slug %}"><i class="gear"></i>{% trans "Settings" %}</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    {% endblock %}
+  </div>
+</div>
+<!-- END organization bar -->
+
+{% endblock %}

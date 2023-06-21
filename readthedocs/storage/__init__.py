@@ -6,7 +6,6 @@ Some storage backends (notably S3) have a slow instantiation time
 so doing those upfront improves performance.
 """
 from django.conf import settings
-
 from django.core.files.storage import get_storage_class
 from django.utils.functional import LazyObject
 
@@ -26,6 +25,18 @@ class ConfiguredBuildCommandsStorage(LazyObject):
         self._wrapped = get_storage_class(settings.RTD_BUILD_COMMANDS_STORAGE)()
 
 
+class ConfiguredBuildToolsStorage(LazyObject):
+    def _setup(self):
+        self._wrapped = get_storage_class(settings.RTD_BUILD_TOOLS_STORAGE)()
+
+
+class ConfiguredStaticStorage(LazyObject):
+    def _setup(self):
+        self._wrapped = get_storage_class(settings.RTD_STATICFILES_STORAGE)()
+
+
 build_media_storage = ConfiguredBuildMediaStorage()
 build_environment_storage = ConfiguredBuildEnvironmentStorage()
 build_commands_storage = ConfiguredBuildCommandsStorage()
+build_tools_storage = ConfiguredBuildToolsStorage()
+staticfiles_storage = ConfiguredStaticStorage()

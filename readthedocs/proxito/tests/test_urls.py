@@ -3,8 +3,11 @@
 """Test URL config."""
 
 import pytest
-from django.test import TestCase, override_settings
+from django.test import TestCase
 from django.urls import resolve
+from django_dynamic_fixture import get
+
+from readthedocs.projects.models import Feature
 
 
 @pytest.mark.proxito
@@ -16,8 +19,6 @@ class TestSingleVersionURLs(TestCase):
         self.assertEqual(match.args, ())
         self.assertEqual(
             match.kwargs, {
-                'subproject_slug': None,
-                'subproject_slash': None,
                 'filename': '',
             },
         )
@@ -28,7 +29,6 @@ class TestSingleVersionURLs(TestCase):
         self.assertEqual(match.args, ())
         self.assertEqual(
             match.kwargs, {
-                'subproject_slug': None,
                 'lang_slug': 'en',
                 'version_slug': 'latest',
                 'filename': '',
@@ -41,7 +41,6 @@ class TestSingleVersionURLs(TestCase):
         self.assertEqual(match.args, ())
         self.assertEqual(
             match.kwargs, {
-                'subproject_slug': None,
                 'lang_slug': 'en',
                 'version_slug': 'latest',
                 'filename': 'foo.html',
@@ -104,8 +103,18 @@ class TestSingleVersionURLs(TestCase):
         self.assertEqual(match.args, ())
         self.assertEqual(
             match.kwargs, {
-                'subproject_slash': None,
-                'subproject_slug': None,
                 'filename': 'some/path/index.html',
             },
+        )
+
+
+class ProxitoV2TestSingleVersionURLs(TestSingleVersionURLs):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
         )

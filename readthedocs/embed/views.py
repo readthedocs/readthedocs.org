@@ -1,14 +1,10 @@
 """Views for the embed app."""
 
-import functools
 import json
-import logging
 import re
-from urllib.parse import urlparse
 
-from django.shortcuts import get_object_or_404
+import structlog
 from django.template.defaultfilters import slugify
-from django.utils.functional import cached_property
 from docutils.nodes import make_id
 from pyquery import PyQuery as PQ  # noqa
 from rest_framework import status
@@ -16,16 +12,15 @@ from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from readthedocs.api.mixins import CDNCacheTagsMixin, EmbedAPIMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
+from readthedocs.api.v3.permissions import HasEmbedAPIAccess
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.resolver import resolve
-from readthedocs.core.unresolver import unresolve
-from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.embed.utils import recurse_while_none
-from readthedocs.projects.models import Project
+from readthedocs.embed.utils import clean_references, recurse_while_none
 from readthedocs.storage import build_media_storage
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def escape_selector(selector):
@@ -35,52 +30,7 @@ def escape_selector(selector):
     return ret
 
 
-def clean_links(obj, url):
-    """
-    Rewrite (internal) links to make them absolute.
-
-    1. external links are not changed
-    2. prepend URL to links that are just fragments (e.g. #section)
-    3. prepend URL (without filename) to internal relative links
-    """
-    if url is None:
-        return obj
-
-    for link in obj.find('a'):
-        base_url = urlparse(url)
-        # We need to make all internal links, to be absolute
-        href = link.attrib['href']
-        parsed_href = urlparse(href)
-        if parsed_href.scheme or parsed_href.path.startswith('/'):
-            # don't change external links
-            continue
-
-        if not parsed_href.path and parsed_href.fragment:
-            # href="#section-link"
-            new_href = base_url.geturl() + href
-            link.attrib['href'] = new_href
-            continue
-
-        if not base_url.path.endswith('/'):
-            # internal relative link
-            # href="../../another.html" and ``base_url`` is not HTMLDir
-            # (e.g. /en/latest/deep/internal/section/page.html)
-            # we want to remove the trailing filename (page.html) and use the rest as base URL
-            # The resulting absolute link should be
-            # https://slug.readthedocs.io/en/latest/deep/internal/section/../../another.html
-
-            # remove the filename (page.html) from the original document URL (base_url) and,
-            path, _ = base_url.path.rsplit('/', 1)
-            # append the value of href (../../another.html) to the base URL.
-            base_url = base_url._replace(path=path + '/')
-
-        new_href = base_url.geturl() + href
-        link.attrib['href'] = new_href
-
-    return obj
-
-
-class EmbedAPIBase(APIView):
+class EmbedAPI(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     # pylint: disable=line-too-long
 
@@ -110,32 +60,13 @@ class EmbedAPIBase(APIView):
     # Current Request
     """  # noqa
 
-    permission_classes = [IsAuthorizedToViewVersion]
+    permission_classes = [HasEmbedAPIAccess, IsAuthorizedToViewVersion]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
 
-    @functools.lru_cache(maxsize=1)
-    def _get_project(self):
-        if self.unresolved_url:
-            project_slug = self.unresolved_url.project.slug
-        else:
-            project_slug = self.request.GET.get('project')
-        return get_object_or_404(Project, slug=project_slug)
-
-    @functools.lru_cache(maxsize=1)
-    def _get_version(self):
-        if self.unresolved_url:
-            version_slug = self.unresolved_url.version_slug
-        else:
-            version_slug = self.request.GET.get('version', 'latest')
-        project = self._get_project()
-        return get_object_or_404(project.versions.all(), slug=version_slug)
-
-    @cached_property
-    def unresolved_url(self):
-        url = self.request.GET.get('url')
-        if not url:
-            return None
-        return unresolve(url)
+    @property
+    def external(self):
+        # Always return False because APIv2 does not support external domains
+        return False
 
     def get(self, request):
         """Handle the get request."""
@@ -150,7 +81,7 @@ class EmbedAPIBase(APIView):
         if url:
             unresolved = self.unresolved_url
             path = unresolved.filename
-            section = unresolved.fragment
+            section = unresolved.parsed_url.fragment
         elif not path and not doc:
             return Response(
                 {
@@ -162,12 +93,10 @@ class EmbedAPIBase(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Update doc from path
+        # Generate the docname from path
+        # by removing the ``.html`` extension and trailing ``/``.
         if path:
-            if path.endswith('/'):
-                doc = doc.path.rstrip('/')
-            else:
-                doc = path.split('.html', 1)[0]
+            doc = re.sub(r'(.+)\.html$', r'\1', path.strip('/'))
 
         response = do_embed(
             project=project,
@@ -189,15 +118,22 @@ class EmbedAPIBase(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
+        log.info(
+            'EmbedAPI successful response.',
+            project_slug=project.slug,
+            version_slug=version.slug,
+            doc=doc,
+            section=section,
+            path=path,
+            url=url,
+            referer=request.headers.get("Referer"),
+            hoverxref_version=request.headers.get("X-Hoverxref-Version"),
+        )
         return Response(response)
 
 
-class EmbedAPI(SettingsOverrideObject):
-    _default_class = EmbedAPIBase
-
-
 def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
-    """Get the embed reponse from a document section."""
+    """Get the embed response from a document section."""
     if not url:
         external = version.type == EXTERNAL
         url = resolve(
@@ -268,7 +204,7 @@ def _get_doc_content(project, version, doc):
         with build_media_storage.open(file_path) as file:
             return json.load(file)
     except Exception:  # noqa
-        log.warning('Unable to read file. file_path=%s', file_path)
+        log.warning('Unable to read file.', file_path=file_path)
 
     return None
 
@@ -308,9 +244,16 @@ def parse_sphinx(content, section, url):
     for element_id in elements_id:
         if not element_id:
             continue
-        query_result = body_obj(f'#{element_id}')
-        if query_result:
-            break
+        try:
+            query_result = body_obj(f'#{element_id}')
+            if query_result:
+                break
+        except Exception:  # noqa
+            log.info(
+                'Failed to query section.',
+                url=url,
+                element_id=element_id,
+            )
 
     if not query_result:
         selector = f':header:contains("{escaped_section}")'
@@ -365,10 +308,7 @@ def parse_sphinx(content, section, url):
             return obj.parent().outerHtml()
         return obj.outerHtml()
 
-    ret = [
-        dump(clean_links(PQ(obj), url))
-        for obj in query_result
-    ]
+    ret = [dump(clean_references(obj, url)) for obj in query_result]
     return ret, headers, section
 
 

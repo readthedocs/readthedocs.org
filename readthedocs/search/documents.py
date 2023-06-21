@@ -1,10 +1,9 @@
-import logging
-
+import structlog
 from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
 from elasticsearch import Elasticsearch
 
-from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.models import Feature, HTMLFile, Project
 
 project_conf = settings.ES_INDEXES['project']
 project_index = Index(project_conf['name'])
@@ -14,7 +13,7 @@ page_conf = settings.ES_INDEXES['page']
 page_index = Index(page_conf['name'])
 page_index.settings(**page_conf['settings'])
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class RTDDocTypeMixin:
@@ -31,6 +30,8 @@ class RTDDocTypeMixin:
 @project_index.document
 class ProjectDocument(RTDDocTypeMixin, Document):
 
+    """Document representation of a Project."""
+
     # Metadata
     url = fields.TextField(attr='get_absolute_url')
     users = fields.NestedField(
@@ -41,11 +42,26 @@ class ProjectDocument(RTDDocTypeMixin, Document):
     )
     language = fields.KeywordField()
 
+    name = fields.TextField(attr='name')
+    slug = fields.TextField(attr='slug')
+    description = fields.TextField(attr='description')
+
     modified_model_field = 'modified_date'
+
+    def get_queryset(self):
+        """
+        Additional filtering of default queryset.
+
+        Don't include delisted projects.
+        This will also break in-doc search for these projects,
+        but it's not a priority to find a solution for this as long as "delisted" projects are
+        understood to be projects with a negative reason for being delisted.
+        """
+        return super().get_queryset().exclude(delisted=True).exclude(is_spam=True)
 
     class Django:
         model = Project
-        fields = ('name', 'slug', 'description')
+        fields = []
         ignore_signals = True
 
 
@@ -75,13 +91,17 @@ class PageDocument(RTDDocTypeMixin, Document):
     rank = fields.IntegerField()
 
     # Searchable content
-    title = fields.TextField(attr='processed_json.title')
+    title = fields.TextField(
+        attr='processed_json.title',
+    )
     sections = fields.NestedField(
         attr='processed_json.sections',
         properties={
             'id': fields.KeywordField(),
             'title': fields.TextField(),
-            'content': fields.TextField(term_vector='with_positions_offsets'),
+            'content': fields.TextField(
+                term_vector='with_positions_offsets',
+            ),
         }
     )
     domains = fields.NestedField(
@@ -93,11 +113,14 @@ class PageDocument(RTDDocTypeMixin, Document):
 
             # For showing in the search result
             'type_display': fields.TextField(),
-            'docstrings': fields.TextField(term_vector='with_positions_offsets'),
-
-            # Simple analyzer breaks on `.`,
-            # otherwise search results are too strict for this use case
-            'name': fields.TextField(analyzer='simple'),
+            'docstrings': fields.TextField(
+                term_vector='with_positions_offsets',
+            ),
+            'name': fields.TextField(
+                # Simple analyzer breaks on `.`,
+                # otherwise search results are too strict for this use case
+                analyzer='simple',
+            ),
         }
     )
 
@@ -115,6 +138,12 @@ class PageDocument(RTDDocTypeMixin, Document):
 
     def prepare_domains(self, html_file):
         """Prepares and returns the values for domains field."""
+
+        # XXX: Don't access the sphinx domains table while we migrate the ID type
+        # https://github.com/readthedocs/readthedocs.org/pull/9482.
+        if html_file.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
+            return []
+
         if not html_file.version.is_sphinx_type:
             return []
 
@@ -157,16 +186,13 @@ class PageDocument(RTDDocTypeMixin, Document):
         return all_domains
 
     def get_queryset(self):
-        """
-        Ignore certain files from indexing.
-
-        - Files from external versions
-        - Ignored files
-        """
+        """Don't include ignored files and delisted projects."""
         queryset = super().get_queryset()
         queryset = (
             queryset
-            .internal()
             .exclude(ignore=True)
+            .exclude(project__delisted=True)
+            .exclude(project__is_spam=True)
+            .select_related('version', 'project')
         )
         return queryset

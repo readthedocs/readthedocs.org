@@ -1,0 +1,27 @@
+{% extends "organizations/base_team.html" %}
+
+{% load i18n gravatar %}
+
+{% block title %}{% trans "Delete Team" %}{% endblock %}
+
+{% block content %}
+
+  <!-- BEGIN organization team delete -->
+  <div class="module">
+    <h2>{% trans "Delete Team" %}</h2>
+    <p>
+      {% blocktrans %}
+        Deleting this team will revoke access for users that were in the team.
+        Are you sure that it is safe to remove these users?
+      {% endblocktrans %}
+    </p>
+
+    <form method="post" action="{% url "organization_team_delete" organization.slug team.slug %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="{% trans "Remove" %}">
+    </form>
+  </div>
+  <!-- END organization team delete -->
+
+{% endblock %}

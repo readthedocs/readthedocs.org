@@ -17,6 +17,7 @@ class EnvironmentVariablessEndpointTests(APIEndpointMixin):
             project=self.project,
             name='ENVVAR',
             value='a1b2c3',
+            public=False,
         )
 
     def test_unauthed_projects_environmentvariables_list(self):
@@ -104,6 +105,7 @@ class EnvironmentVariablessEndpointTests(APIEndpointMixin):
         data = {
             'name': 'NEWENVVAR',
             'value': 'c3b2a1',
+            'public': True,
         }
 
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')

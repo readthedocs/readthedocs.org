@@ -1,23 +1,32 @@
 """Constants for the builds app."""
 
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
-
-BUILD_STATE_TRIGGERED = 'triggered'
-BUILD_STATE_CLONING = 'cloning'
-BUILD_STATE_INSTALLING = 'installing'
-BUILD_STATE_BUILDING = 'building'
-BUILD_STATE_UPLOADING = 'uploading'
-BUILD_STATE_FINISHED = 'finished'
+# BUILD_STATE is our *INTERNAL* representation of build states.
+# This is not to be confused with external representations of 'status'
+# that are sent back to Git providers.
+BUILD_STATE_TRIGGERED = "triggered"
+BUILD_STATE_CLONING = "cloning"
+BUILD_STATE_INSTALLING = "installing"
+BUILD_STATE_BUILDING = "building"
+BUILD_STATE_UPLOADING = "uploading"
+BUILD_STATE_FINISHED = "finished"
+BUILD_STATE_CANCELLED = "cancelled"
 
 BUILD_STATE = (
-    (BUILD_STATE_TRIGGERED, _('Triggered')),
-    (BUILD_STATE_CLONING, _('Cloning')),
-    (BUILD_STATE_INSTALLING, _('Installing')),
-    (BUILD_STATE_BUILDING, _('Building')),
-    (BUILD_STATE_UPLOADING, _('Uploading')),
-    (BUILD_STATE_FINISHED, _('Finished')),
+    (BUILD_STATE_TRIGGERED, _("Triggered")),
+    (BUILD_STATE_CLONING, _("Cloning")),
+    (BUILD_STATE_INSTALLING, _("Installing")),
+    (BUILD_STATE_BUILDING, _("Building")),
+    (BUILD_STATE_UPLOADING, _("Uploading")),
+    (BUILD_STATE_FINISHED, _("Finished")),
+    (BUILD_STATE_CANCELLED, _("Cancelled")),
+)
+
+BUILD_FINAL_STATES = (
+    BUILD_STATE_FINISHED,
+    BUILD_STATE_CANCELLED,
 )
 
 BUILD_TYPES = (
@@ -52,6 +61,12 @@ VERSION_TYPES = (
     (EXTERNAL, EXTERNAL_TEXT),
     (UNKNOWN, UNKNOWN_TEXT),
 )
+EXTERNAL_VERSION_STATE_OPEN = "open"
+EXTERNAL_VERSION_STATE_CLOSED = "closed"
+EXTERNAL_VERSION_STATES = (
+    (EXTERNAL_VERSION_STATE_OPEN, _("Open")),
+    (EXTERNAL_VERSION_STATE_CLOSED, _("Closed")),
+)
 
 LATEST = settings.RTD_LATEST
 LATEST_VERBOSE_NAME = settings.RTD_LATEST_VERBOSE_NAME
@@ -66,7 +81,9 @@ NON_REPOSITORY_VERSIONS = (
     STABLE,
 )
 
-# General Build Statuses
+# General build statuses, i.e. the status that is reported back to the
+# user on a Git Provider. This not the same as BUILD_STATE which the internal
+# representation.
 BUILD_STATUS_FAILURE = 'failed'
 BUILD_STATUS_PENDING = 'pending'
 BUILD_STATUS_SUCCESS = 'success'
@@ -128,11 +145,35 @@ PREDEFINED_MATCH_ARGS_VALUES = {
 }
 
 BUILD_STATUS_NORMAL = 'normal'
-BUILD_STATUS_DUPLICATED = 'duplicated'
 BUILD_STATUS_CHOICES = (
     (BUILD_STATUS_NORMAL, 'Normal'),
-    (BUILD_STATUS_DUPLICATED, 'Duplicated'),
 )
 
 
 MAX_BUILD_COMMAND_SIZE = 1000000  # This keeps us under Azure's upload limit
+
+LOCK_EXPIRE = 60 * 180  # Lock expires in 3 hours
+
+# All artifact types supported by Read the Docs.
+# They match the output directory (`_readthedocs/<artifact type>`)
+ARTIFACT_TYPES = (
+    "html",
+    "json",
+    "htmlzip",
+    "pdf",
+    "epub",
+)
+# Artifacts that are not deleted when uploading to the storage,
+# even if they weren't re-built in the build process.
+UNDELETABLE_ARTIFACT_TYPES = (
+    "html",
+    "json",
+)
+# Artifacts that expect one and only one file in the output directory.
+# NOTE: currently, this is a limitation that we are consider to remove
+# https://github.com/readthedocs/readthedocs.org/issues/9931#issuecomment-1403415757
+ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT = (
+    "htmlzip",
+    "epub",
+    "pdf",
+)

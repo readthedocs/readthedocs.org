@@ -32,8 +32,11 @@ function BuildDetailView(instance) {
     /* Instance variables */
     self.state = ko.observable(instance.state);
     self.state_display = ko.observable(instance.state_display);
+    self.cancelled = ko.computed(function () {
+        return self.state() === 'cancelled';
+    });
     self.finished = ko.computed(function () {
-        return self.state() === 'finished';
+        return self.state() === 'finished' || self.state() === 'cancelled';
     });
     self.date = ko.observable(instance.date);
     self.success = ko.observable(instance.success);

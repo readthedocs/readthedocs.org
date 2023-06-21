@@ -1,23 +1,18 @@
-from unittest import mock
 
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.test.utils import override_settings
-from django.utils.translation import ugettext_lazy as _
 from django_dynamic_fixture import get
-from textclassifier.validators import ClassifierValidator
 
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
     PRIVATE,
-    PROTECTED,
     PUBLIC,
     REPO_TYPE_GIT,
     REPO_TYPE_HG,
     SPHINX,
 )
-from readthedocs.projects.exceptions import ProjectSpamError
 from readthedocs.projects.forms import (
     EmailHookForm,
     EnvironmentVariableForm,
@@ -28,24 +23,10 @@ from readthedocs.projects.forms import (
     UpdateProjectForm,
     WebHookForm,
 )
-from readthedocs.projects.models import EnvironmentVariable, Project
+from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
 
 
 class TestProjectForms(TestCase):
-
-    @mock.patch.object(ClassifierValidator, '__call__')
-    def test_form_spam(self, mocked_validator):
-        """Form description field fails spam validation."""
-        mocked_validator.side_effect = ProjectSpamError
-
-        data = {
-            'description': 'foo',
-            'documentation_type': 'sphinx',
-            'language': 'en',
-        }
-        form = ProjectExtraForm(data)
-        with self.assertRaises(ProjectSpamError):
-            form.is_valid()
 
     def test_import_repo_url(self):
         """Validate different type of repository URLs on importing a Project."""
@@ -118,25 +99,6 @@ class TestProjectForms(TestCase):
         form = ProjectBasicsForm(initial)
         self.assertFalse(form.is_valid())
         self.assertIn('name', form.errors)
-
-    def test_changing_vcs_should_change_latest(self):
-        """When changing the project's VCS, latest should be changed too."""
-        project = get(Project, repo_type=REPO_TYPE_HG, default_branch=None)
-        latest = project.versions.get(slug=LATEST)
-        self.assertEqual(latest.identifier, 'default')
-
-        form = ProjectBasicsForm(
-            {
-                'repo': 'http://github.com/test/test',
-                'name': 'name',
-                'repo_type': REPO_TYPE_GIT,
-            },
-            instance=project,
-        )
-        self.assertTrue(form.is_valid())
-        form.save()
-        latest.refresh_from_db()
-        self.assertEqual(latest.identifier, 'master')
 
     def test_changing_vcs_should_not_change_latest_is_not_none(self):
         """
@@ -220,7 +182,7 @@ class TestProjectAdvancedForm(TestCase):
             project=self.project,
             slug='public-3',
             active=False,
-            privacy_level=PROTECTED,
+            privacy_level=PUBLIC,
             identifier='public-3',
             verbose_name='public-3',
         )
@@ -242,15 +204,6 @@ class TestProjectAdvancedForm(TestCase):
             identifier='private',
             verbose_name='private',
         )
-        get(
-            Version,
-            project=self.project,
-            slug='protected',
-            active=True,
-            privacy_level=PROTECTED,
-            identifier='protected',
-            verbose_name='protected',
-        )
 
     def test_list_only_active_versions_on_default_version(self):
         form = ProjectAdvancedForm(instance=self.project)
@@ -261,7 +214,7 @@ class TestProjectAdvancedForm(TestCase):
                 slug
                 for slug, _ in form.fields['default_version'].widget.choices
             },
-            {'latest', 'public-1', 'public-2', 'private', 'protected'},
+            {'latest', 'public-1', 'public-2', 'private'},
         )
 
     def test_default_version_field_if_no_active_version(self):
@@ -298,12 +251,31 @@ class TestProjectAdvancedForm(TestCase):
                 'documentation_type': SPHINX,
                 'python_interpreter': 'python3',
                 'privacy_level': PRIVATE,
+                'external_builds_privacy_level': PRIVATE,
             },
             instance=self.project,
         )
         self.assertTrue(form.is_valid())
         self.assertEqual(self.project.privacy_level, PRIVATE)
 
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_custom_readthedocs_yaml(self):
+        custom_readthedocs_yaml_path = "folder/.readthedocs.yaml"
+        form = ProjectAdvancedForm(
+            {
+                "default_version": LATEST,
+                "documentation_type": SPHINX,
+                "python_interpreter": "python3",
+                "privacy_level": PRIVATE,
+                "readthedocs_yaml_path": custom_readthedocs_yaml_path,
+            },
+            instance=self.project,
+        )
+        # The form is valid, but the field is ignored
+        self.assertTrue(form.is_valid())
+        self.assertEqual(self.project.privacy_level, PUBLIC)
+        project = form.save()
+        self.assertEqual(project.readthedocs_yaml_path, custom_readthedocs_yaml_path)
 
 class TestProjectAdvancedFormDefaultBranch(TestCase):
 
@@ -336,15 +308,6 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
             identifier='private',
             verbose_name='private',
         )
-        get(
-            Version,
-            project=self.project,
-            slug='protected',
-            active=True,
-            privacy_level=PROTECTED,
-            identifier='protected',
-            verbose_name='protected',
-        )
 
     def test_list_only_non_auto_generated_versions_in_default_branch_choices(self):
         form = ProjectAdvancedForm(instance=self.project)
@@ -358,7 +321,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
                 for identifier, _ in form.fields['default_branch'].widget.choices
             },
             {
-                None, 'stable', 'public-1', 'protected', 'private',
+                None, 'stable', 'public-1', 'private',
             },
         )
         # Auto generated version `latest` should not be among the choices
@@ -683,7 +646,7 @@ class TestTranslationForms(TestCase):
         self.assertTrue(form.is_valid())
 
 
-class TestNotificationForm(TestCase):
+class TestWebhookForm(TestCase):
 
     def setUp(self):
         self.project = get(Project)
@@ -692,7 +655,9 @@ class TestNotificationForm(TestCase):
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
 
         data = {
-            'url': 'http://www.example.com/'
+            'url': 'http://www.example.com/',
+            'payload': '{}',
+            'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
         }
         form = WebHookForm(data=data, project=self.project)
         self.assertTrue(form.is_valid())
@@ -700,7 +665,9 @@ class TestNotificationForm(TestCase):
         self.assertEqual(self.project.webhook_notifications.all().count(), 1)
 
         data = {
-            'url': 'https://www.example.com/'
+            'url': 'https://www.example.com/',
+            'payload': '{}',
+            'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_PASSED).id],
         }
         form = WebHookForm(data=data, project=self.project)
         self.assertTrue(form.is_valid())
@@ -711,7 +678,9 @@ class TestNotificationForm(TestCase):
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
 
         data = {
-            'url': ''
+            'url': '',
+            'payload': '{}',
+            'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
         }
         form = WebHookForm(data=data, project=self.project)
         self.assertFalse(form.is_valid())
@@ -719,12 +688,40 @@ class TestNotificationForm(TestCase):
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
 
         data = {
-            'url': 'wrong-url'
+            'url': 'wrong-url',
+            'payload': '{}',
+            'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
         }
         form = WebHookForm(data=data, project=self.project)
         self.assertFalse(form.is_valid())
         self.assertDictEqual(form.errors, {'url': ['Enter a valid URL.']})
         self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+        data = {
+            'url': 'https://example.com/webhook/',
+            'payload': '{wrong json object}',
+            'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
+        }
+        form = WebHookForm(data=data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors, {'payload': ['The payload must be a valid JSON object.']})
+        self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+        data = {
+            'url': 'https://example.com/webhook/',
+            'payload': '{}',
+            'events': [],
+        }
+        form = WebHookForm(data=data, project=self.project)
+        self.assertFalse(form.is_valid())
+        self.assertDictEqual(form.errors, {'events': ['This field is required.']})
+        self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+
+class TestNotificationForm(TestCase):
+
+    def setUp(self):
+        self.project = get(Project)
 
     def test_emailhookform(self):
         self.assertEqual(self.project.emailhook_notifications.all().count(), 0)

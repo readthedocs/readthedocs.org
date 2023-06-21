@@ -1,12 +1,14 @@
 import os
 import socket
 
-from .dev import CommunityDevSettings
+from .base import CommunityBaseSettings
 
 
-class DockerBaseSettings(CommunityDevSettings):
+class DockerBaseSettings(CommunityBaseSettings):
 
     """Settings for local development with Docker"""
+
+    DEBUG = bool(os.environ.get('RTD_DJANGO_DEBUG', True))
 
     DOCKER_ENABLE = True
     RTD_DOCKER_COMPOSE = True
@@ -15,22 +17,21 @@ class DockerBaseSettings(CommunityDevSettings):
     DOCKER_LIMITS = {'memory': '1g', 'time': 900}
     USE_SUBDOMAIN = True
 
-    PRODUCTION_DOMAIN = 'community.dev.readthedocs.io'
-    PUBLIC_DOMAIN = 'community.dev.readthedocs.io'
+    PRODUCTION_DOMAIN = os.environ.get('RTD_PRODUCTION_DOMAIN', 'devthedocs.org')
+    PUBLIC_DOMAIN = os.environ.get('RTD_PUBLIC_DOMAIN', 'devthedocs.org')
     PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
 
     SLUMBER_API_HOST = 'http://web:8000'
     SLUMBER_USERNAME = 'admin'
     SLUMBER_PASSWORD = 'admin'
 
-    RTD_EXTERNAL_VERSION_DOMAIN = 'org.dev.readthedocs.build'
+    RTD_EXTERNAL_VERSION_DOMAIN = 'build.devthedocs.org'
 
     STATIC_URL = '/static/'
 
     # In the local docker environment, nginx should be trusted to set the host correctly
     USE_X_FORWARDED_HOST = True
 
-    MULTIPLE_APP_SERVERS = ['web']
     MULTIPLE_BUILD_SERVERS = ['build']
 
     # https://docs.docker.com/engine/reference/commandline/run/#add-entries-to-container-hosts-file---add-host
@@ -49,6 +50,13 @@ class DockerBaseSettings(CommunityDevSettings):
     ADSERVER_API_KEY = None
     ADSERVER_API_TIMEOUT = 2  # seconds - Docker for Mac is very slow
 
+    @property
+    def DOCROOT(self):
+        # Add an extra directory level using the container's hostname.
+        # This allows us to run development environment with multiple builders (`--scale-build=2` or more),
+        # and avoid the builders overwritting each others when building the same project/version
+        return os.path.join(super().DOCROOT, socket.gethostname())
+
     # New templates
     @property
     def RTD_EXT_THEME_DEV_SERVER_ENABLED(self):
@@ -57,17 +65,44 @@ class DockerBaseSettings(CommunityDevSettings):
     @property
     def RTD_EXT_THEME_DEV_SERVER(self):
         if self.RTD_EXT_THEME_DEV_SERVER_ENABLED:
-            return "http://assets.community.dev.readthedocs.io:10001"
+            return "http://assets.devthedocs.org:10001"
 
     # Enable auto syncing elasticsearch documents
     ELASTICSEARCH_DSL_AUTOSYNC = 'SEARCH' in os.environ
 
     RTD_CLEAN_AFTER_BUILD = True
 
+    # Disable password validators on development
+    AUTH_PASSWORD_VALIDATORS = []
+
+    @property
+    def RTD_EMBED_API_EXTERNAL_DOMAINS(self):
+        domains = super().RTD_EMBED_API_EXTERNAL_DOMAINS
+        domains.extend([
+            r'.*\.readthedocs\.io',
+            r'.*\.org\.readthedocs\.build',
+            r'.*\.readthedocs-hosted\.com',
+            r'.*\.com\.readthedocs\.build',
+        ])
+        return domains
+
     @property
     def LOGGING(self):
         logging = super().LOGGING
+
+        logging['handlers']['console']['level'] = os.environ.get("RTD_LOGGING_LEVEL", 'INFO')
+        logging['formatters']['default']['format'] = '[%(asctime)s] ' + self.LOG_FORMAT
+        # Allow Sphinx and other tools to create loggers
+        logging['disable_existing_loggers'] = False
+
+        logging['handlers']['console']['formatter'] = 'colored_console'
         logging['loggers'].update({
+            # Disable Django access requests logging (e.g. GET /path/to/url)
+            # https://github.com/django/django/blob/ca9872905559026af82000e46cde6f7dedc897b6/django/core/servers/basehttp.py#L24
+            'django.server': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
             # Disable S3 logging
             'boto3': {
                 'handlers': ['null'],
@@ -104,52 +139,57 @@ class DockerBaseSettings(CommunityDevSettings):
                 "PASSWORD": os.environ.get("DB_PWD", "docs_pwd"),
                 "HOST": os.environ.get("DB_HOST", "database"),
                 "PORT": "",
-            }
+            },
+            "telemetry": {
+                "ENGINE": "django.db.backends.postgresql_psycopg2",
+                "NAME": "telemetry",
+                "USER": os.environ.get("DB_USER", "docs_user"),
+                "PASSWORD": os.environ.get("DB_PWD", "docs_pwd"),
+                "HOST": os.environ.get("DB_HOST", "database"),
+                "PORT": "",
+            },
         }
 
-    def show_debug_toolbar(request):
-        from django.conf import settings
-        return settings.DEBUG
-
-    DEBUG_TOOLBAR_CONFIG = {
-        'SHOW_TOOLBAR_CALLBACK': show_debug_toolbar,
-    }
-
     ACCOUNT_EMAIL_VERIFICATION = "none"
+
     SESSION_COOKIE_DOMAIN = None
     CACHES = {
         'default': {
-            'BACKEND': 'redis_cache.RedisCache',
-            'LOCATION': 'cache:6379',
-        }
+            "BACKEND": "django_redis.cache.RedisCache",
+            'LOCATION': 'redis://cache:6379',
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "PASSWORD": "redispassword",
+            },
+        },
     }
 
-    BROKER_URL = "redis://cache:6379/0"
-    CELERY_RESULT_BACKEND = "redis://cache:6379/0"
-    CELERY_RESULT_SERIALIZER = "json"
+    CACHEOPS_REDIS = f"redis://:{CACHES['default']['OPTIONS']['PASSWORD']}@cache:6379/1"
+    BROKER_URL = f"redis://:{CACHES['default']['OPTIONS']['PASSWORD']}@cache:6379/0"
+
     CELERY_ALWAYS_EAGER = False
-    CELERY_TASK_IGNORE_RESULT = False
 
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
     RTD_BUILD_MEDIA_STORAGE = 'readthedocs.storage.s3_storage.S3BuildMediaStorage'
     # Storage backend for build cached environments
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.storage.s3_storage.S3BuildEnvironmentStorage'
+    # Storage backend for build languages
+    RTD_BUILD_TOOLS_STORAGE = 'readthedocs.storage.s3_storage.S3BuildToolsStorage'
     # Storage for static files (those collected with `collectstatic`)
     STATICFILES_STORAGE = 'readthedocs.storage.s3_storage.S3StaticStorage'
+    RTD_STATICFILES_STORAGE = 'readthedocs.storage.s3_storage.NoManifestS3StaticStorage'
 
     AWS_ACCESS_KEY_ID = 'admin'
     AWS_SECRET_ACCESS_KEY = 'password'
     S3_MEDIA_STORAGE_BUCKET = 'media'
     S3_BUILD_COMMANDS_STORAGE_BUCKET = 'builds'
     S3_BUILD_ENVIRONMENT_STORAGE_BUCKET = 'envs'
+    S3_BUILD_TOOLS_STORAGE_BUCKET = 'build-tools'
     S3_STATIC_STORAGE_BUCKET = 'static'
-    S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'
-    S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = 'community.dev.readthedocs.io'
+    S3_STATIC_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
+    S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = PRODUCTION_DOMAIN
 
-    AWS_AUTO_CREATE_BUCKET = True
-    AWS_DEFAULT_ACL = 'public-read'
-    AWS_BUCKET_ACL = 'public-read'
     AWS_S3_ENCRYPTION = False
     AWS_S3_SECURE_URLS = False
     AWS_S3_USE_SSL = False
@@ -161,8 +201,8 @@ class DockerBaseSettings(CommunityDevSettings):
     BUILD_COLD_STORAGE_URL = 'http://storage:9000/builds'
 
     STATICFILES_DIRS = [
-        os.path.join(CommunityDevSettings.SITE_ROOT, 'readthedocs', 'static'),
-        os.path.join(CommunityDevSettings.SITE_ROOT, 'media'),
+        os.path.join(CommunityBaseSettings.SITE_ROOT, 'readthedocs', 'static'),
+        os.path.join(CommunityBaseSettings.SITE_ROOT, 'media'),
     ]
 
     # Remove the checks on the number of fields being submitted
@@ -171,3 +211,6 @@ class DockerBaseSettings(CommunityDevSettings):
 
     # This allows us to have CORS work well in dev
     CORS_ORIGIN_ALLOW_ALL = True
+
+
+DockerBaseSettings.load_settings(__name__)

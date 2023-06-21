@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
 """Notification tests."""
 
 
-import django_dynamic_fixture as fixture
 from unittest import mock
+
+import django_dynamic_fixture as fixture
+from allauth.account.models import EmailAddress
 from django.contrib.auth.models import AnonymousUser, User
-from django.http import HttpRequest
 from django.test import TestCase
 from django.test.utils import override_settings
 from messages_extends.models import Message as PersistentMessage
-from allauth.account.models import EmailAddress
 
 from readthedocs.builds.models import Build
 from readthedocs.notifications import Notification, SiteNotification
@@ -18,11 +17,6 @@ from readthedocs.notifications.constants import (
     ERROR,
     INFO_NON_PERSISTENT,
     WARNING_NON_PERSISTENT,
-)
-from readthedocs.projects.models import Project
-from readthedocs.projects.notifications import (
-    DeprecatedBuildWebhookNotification,
-    DeprecatedGitHubWebhookNotification,
 )
 
 
@@ -92,13 +86,10 @@ class NotificationTests(TestCase):
         ])
 
 
-@mock.patch('readthedocs.notifications.notification.render_to_string')
 class NotificationBackendTests(TestCase):
 
     @mock.patch('readthedocs.notifications.backends.send_email')
-    def test_email_backend(self, send_email, render_to_string):
-        render_to_string.return_value = 'Test'
-
+    def test_email_backend(self, send_email):
         class TestNotification(Notification):
             name = 'foo'
             subject = 'This is {{ foo.id }}'
@@ -112,18 +103,19 @@ class NotificationBackendTests(TestCase):
         backend = EmailBackend(request=req)
         backend.send(notify)
 
-        self.assertEqual(render_to_string.call_count, 1)
-        send_email.assert_has_calls([
-            mock.call(
-                request=mock.ANY,
-                template='core/email/common.txt',
-                context={'content': 'Test'},
-                subject='This is {}'.format(build.id),
-                template_html='core/email/common.html',
-                recipient=user.email,
-            ),
-        ])
+        send_email.assert_has_calls(
+            [
+                mock.call(
+                    template=["builds/notifications/foo_email.txt"],
+                    context=notify.get_context_data(),
+                    subject="This is {}".format(build.id),
+                    template_html=["builds/notifications/foo_email.html"],
+                    recipient=user.email,
+                ),
+            ]
+        )
 
+    @mock.patch("readthedocs.notifications.notification.render_to_string")
     def test_message_backend(self, render_to_string):
         render_to_string.return_value = 'Test'
 
@@ -145,6 +137,7 @@ class NotificationBackendTests(TestCase):
         message = PersistentMessage.objects.first()
         self.assertEqual(message.user, user)
 
+    @mock.patch("readthedocs.notifications.notification.render_to_string")
     def test_message_anonymous_user(self, render_to_string):
         """Anonymous user still throwns exception on persistent messages."""
         render_to_string.return_value = 'Test'
@@ -163,7 +156,7 @@ class NotificationBackendTests(TestCase):
         self.assertEqual(PersistentMessage.objects.count(), 0)
 
         # We should never be adding persistent messages for anonymous users.
-        # Make sure message_extends sitll throws an exception here
+        # Make sure message_extends still throws an exception here
         with self.assertRaises(NotImplementedError):
             backend.send(notify)
 
@@ -171,9 +164,7 @@ class NotificationBackendTests(TestCase):
         self.assertEqual(PersistentMessage.objects.count(), 0)
 
     @mock.patch('readthedocs.notifications.backends.send_email')
-    def test_non_persistent_message(self, send_email, render_to_string):
-        render_to_string.return_value = 'Test'
-
+    def test_non_persistent_message(self, send_email):
         class TestNotification(SiteNotification):
             name = 'foo'
             success_message = 'Test success message'
@@ -232,11 +223,10 @@ class SiteNotificationTests(TestCase):
 
     def test_context_data(self):
         context = {
-            'object': {'name': 'object name'},
-            'request': None,
-            'production_uri': 'https://readthedocs.org',
-            'other': {'name': 'other name'},
-
+            "object": {"name": "object name"},
+            "request": mock.ANY,
+            "production_uri": "https://readthedocs.org",
+            "other": {"name": "other name"},
             # readthedocs_processor context
             'DASHBOARD_ANALYTICS_CODE': mock.ANY,
             'DO_NOT_TRACK_ENABLED': mock.ANY,
@@ -276,43 +266,3 @@ class SiteNotificationTests(TestCase):
         with mock.patch('readthedocs.notifications.notification.log') as mock_log:
             self.assertEqual(self.n.get_message(False), '')
             mock_log.error.assert_called_once()
-
-
-class DeprecatedWebhookEndpointNotificationTests(TestCase):
-
-    def setUp(self):
-        PersistentMessage.objects.all().delete()
-
-        self.user = fixture.get(User)
-        self.project = fixture.get(Project, users=[self.user])
-        self.request = HttpRequest()
-
-        self.notification = DeprecatedBuildWebhookNotification(
-            self.project,
-            self.request,
-            self.user,
-        )
-
-    @mock.patch('readthedocs.notifications.backends.send_email')
-    def test_dedupliation(self, send_email):
-        user = fixture.get(User)
-        project = fixture.get(Project, main_language_project=None)
-        project.users.add(user)
-        project.refresh_from_db()
-        self.assertEqual(project.users.count(), 1)
-
-        self.assertEqual(PersistentMessage.objects.filter(user=user).count(), 0)
-        DeprecatedGitHubWebhookNotification.notify_project_users([project])
-
-        # Site and email notification will go out, site message doesn't have
-        # any reason to deduplicate yet
-        self.assertEqual(PersistentMessage.objects.filter(user=user).count(), 1)
-        self.assertTrue(send_email.called)
-        send_email.reset_mock()
-        self.assertFalse(send_email.called)
-
-        # Expect the site message to deduplicate, the email won't
-        DeprecatedGitHubWebhookNotification.notify_project_users([project])
-        self.assertEqual(PersistentMessage.objects.filter(user=user).count(), 1)
-        self.assertTrue(send_email.called)
-        send_email.reset_mock()

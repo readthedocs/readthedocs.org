@@ -19,7 +19,8 @@ div.build-detail div.build-state {
 }
 
 div.build-detail div.build-state > span.build-state-successful,
-div.build-detail div.build-state > span.build-state-failed {
+div.build-detail div.build-state > span.build-state-failed,
+div.build-detail div.build-state > span.build-state-cancelled {
     padding: .3em .5em;
     border-radius: .3em;
     -moz-border-radius: .3em;
@@ -28,7 +29,8 @@ div.build-detail div.build-state > span.build-state-failed {
     color: white;
 }
 
-div.build-detail div.build-state > span.build-state-failed {
+div.build-detail div.build-state > span.build-state-failed,
+div.build-detail div.build-state > span.build-state-cancelled {
     background: #a55;
 }
 div.build-detail div.build-state > span.build-state-successful {

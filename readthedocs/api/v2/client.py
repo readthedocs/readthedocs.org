@@ -1,8 +1,7 @@
 """Simple client to access our API with Slumber credentials."""
 
-import logging
-
 import requests
+import structlog
 from django.conf import settings
 from rest_framework.renderers import JSONRenderer
 from slumber import API, serialize
@@ -10,7 +9,7 @@ from urllib3.util.retry import Retry
 
 from .adapters import TimeoutHostHeaderSSLAdapter, TimeoutHTTPAdapter
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class DrfJsonSerializer(serialize.JsonSerializer):
@@ -63,14 +62,11 @@ def setup_api():
     }
     if settings.SLUMBER_USERNAME and settings.SLUMBER_PASSWORD:
         log.debug(
-            'Using slumber v2 with user %s, pointed at %s',
-            settings.SLUMBER_USERNAME,
-            settings.SLUMBER_API_HOST,
+            'Using slumber v2.',
+            username=settings.SLUMBER_USERNAME,
+            api_host=settings.SLUMBER_API_HOST,
         )
         session.auth = (settings.SLUMBER_USERNAME, settings.SLUMBER_PASSWORD)
     else:
         log.warning('SLUMBER_USERNAME/PASSWORD settings are not set')
     return API(**api_config)
-
-
-api = setup_api()

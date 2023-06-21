@@ -1,14 +1,14 @@
 """Base classes for Builders."""
 
-import logging
 import os
-import shutil
 from functools import wraps
 
+import structlog
+
+from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.projects.models import Feature
 
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def restoring_chdir(fn):
@@ -26,74 +26,35 @@ def restoring_chdir(fn):
 
 class BaseBuilder:
 
-    """
-    The Base for all Builders. Defines the API for subclasses.
-
-    Expects subclasses to define ``old_artifact_path``, which points at the
-    directory where artifacts should be copied from.
-    """
-
-    _force = False
+    """The Base for all Builders. Defines the API for subclasses."""
 
     ignore_patterns = []
-    old_artifact_path = None
 
-    def __init__(self, build_env, python_env, force=False):
+    def __init__(self, build_env, python_env):
         self.build_env = build_env
         self.python_env = python_env
         self.version = build_env.version
         self.project = build_env.project
         self.config = python_env.config if python_env else None
-        self._force = force
         self.project_path = self.project.checkout_path(self.version.slug)
-        self.target = self.project.artifact_path(
-            version=self.version.slug,
-            type_=self.type,
-        )
+        self.api_client = self.build_env.api_client
 
     def get_final_doctype(self):
         """Some builders may have a different doctype at build time."""
         return self.config.doctype
 
-    def force(self, **__):
-        """An optional step to force a build even when nothing has changed."""
-        log.info('Forcing a build')
-        self._force = True
-
     def append_conf(self):
         """Set custom configurations for this builder."""
-        pass
 
     def build(self):
         """Do the actual building of the documentation."""
         raise NotImplementedError
 
-    def move(self, **__):
-        """Move the generated documentation to its artifact directory."""
-        if os.path.exists(self.old_artifact_path):
-            if os.path.exists(self.target):
-                shutil.rmtree(self.target)
-            log.info('Copying %s on the local filesystem', self.type)
-            log.debug('Ignoring patterns %s', self.ignore_patterns)
-            shutil.copytree(
-                self.old_artifact_path,
-                self.target,
-                ignore=shutil.ignore_patterns(*self.ignore_patterns),
-            )
-        else:
-            log.warning('Not moving docs, because the build dir is unknown.')
+    def _post_build(self):
+        """Execute extra steps (e.g. create ZIP, rename PDF, etc) after building if required."""
 
-    def clean(self, **__):
-        """Clean the path where documentation will be built."""
-        if os.path.exists(self.old_artifact_path):
-            shutil.rmtree(self.old_artifact_path)
-            log.info('Removing old artifact path: %s', self.old_artifact_path)
-
-    def docs_dir(self, docs_dir=None, **__):
+    def docs_dir(self):
         """Handle creating a custom docs_dir if it doesn't exist."""
-        if docs_dir:
-            return docs_dir
-
         for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
             possible_path = os.path.join(self.project_path, doc_dir_name)
             if os.path.exists(possible_path):
@@ -134,7 +95,7 @@ Check out our `Getting Started Guide
 familiar with Read the Docs.
                 """
 
-                with open(index_filename, 'w+') as index_file:
+                with safe_open(index_filename, "w+") as index_file:
                     index_file.write(index_text.format(dir=docs_dir, ext=extension))
 
         return 'index'

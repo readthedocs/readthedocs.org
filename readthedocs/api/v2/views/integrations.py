@@ -3,9 +3,10 @@
 import hashlib
 import hmac
 import json
-import logging
 import re
+from functools import namedtuple
 
+import structlog
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
 from rest_framework.exceptions import NotFound, ParseError
@@ -14,45 +15,53 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
 
-from readthedocs.core.signals import (
-    webhook_bitbucket,
-    webhook_github,
-    webhook_gitlab,
+from readthedocs.builds.constants import (
+    EXTERNAL_VERSION_STATE_CLOSED,
+    EXTERNAL_VERSION_STATE_OPEN,
+    LATEST,
 )
+from readthedocs.core.signals import webhook_bitbucket, webhook_github, webhook_gitlab
 from readthedocs.core.views.hooks import (
     build_branches,
     build_external_version,
-    deactivate_external_version,
+    close_external_version,
     get_or_create_external_version,
     trigger_sync_versions,
 )
 from readthedocs.integrations.models import HttpExchange, Integration
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
-GITHUB_EVENT_HEADER = 'HTTP_X_GITHUB_EVENT'
-GITHUB_SIGNATURE_HEADER = 'HTTP_X_HUB_SIGNATURE'
-GITHUB_PUSH = 'push'
-GITHUB_PULL_REQUEST = 'pull_request'
-GITHUB_PULL_REQUEST_OPENED = 'opened'
-GITHUB_PULL_REQUEST_CLOSED = 'closed'
-GITHUB_PULL_REQUEST_REOPENED = 'reopened'
-GITHUB_PULL_REQUEST_SYNC = 'synchronize'
-GITHUB_CREATE = 'create'
-GITHUB_DELETE = 'delete'
-GITLAB_MERGE_REQUEST = 'merge_request'
-GITLAB_MERGE_REQUEST_CLOSE = 'close'
-GITLAB_MERGE_REQUEST_MERGE = 'merge'
-GITLAB_MERGE_REQUEST_OPEN = 'open'
-GITLAB_MERGE_REQUEST_REOPEN = 'reopen'
-GITLAB_MERGE_REQUEST_UPDATE = 'update'
-GITLAB_TOKEN_HEADER = 'HTTP_X_GITLAB_TOKEN'
-GITLAB_PUSH = 'push'
-GITLAB_NULL_HASH = '0' * 40
-GITLAB_TAG_PUSH = 'tag_push'
-BITBUCKET_EVENT_HEADER = 'HTTP_X_EVENT_KEY'
-BITBUCKET_PUSH = 'repo:push'
+GITHUB_EVENT_HEADER = "HTTP_X_GITHUB_EVENT"
+GITHUB_SIGNATURE_HEADER = "HTTP_X_HUB_SIGNATURE"
+GITHUB_PING = "ping"
+GITHUB_PUSH = "push"
+GITHUB_PULL_REQUEST = "pull_request"
+GITHUB_PULL_REQUEST_OPENED = "opened"
+GITHUB_PULL_REQUEST_CLOSED = "closed"
+GITHUB_PULL_REQUEST_REOPENED = "reopened"
+GITHUB_PULL_REQUEST_SYNC = "synchronize"
+GITHUB_CREATE = "create"
+GITHUB_DELETE = "delete"
+GITLAB_MERGE_REQUEST = "merge_request"
+GITLAB_MERGE_REQUEST_CLOSE = "close"
+GITLAB_MERGE_REQUEST_MERGE = "merge"
+GITLAB_MERGE_REQUEST_OPEN = "open"
+GITLAB_MERGE_REQUEST_REOPEN = "reopen"
+GITLAB_MERGE_REQUEST_UPDATE = "update"
+GITLAB_TOKEN_HEADER = "HTTP_X_GITLAB_TOKEN"
+GITLAB_PUSH = "push"
+GITLAB_NULL_HASH = "0" * 40
+GITLAB_TAG_PUSH = "tag_push"
+BITBUCKET_EVENT_HEADER = "HTTP_X_EVENT_KEY"
+BITBUCKET_PUSH = "repo:push"
+
+
+ExternalVersionData = namedtuple(
+    "ExternalVersionData",
+    ["id", "source_branch", "base_branch", "commit"],
+)
 
 
 class WebhookMixin:
@@ -68,6 +77,12 @@ class WebhookMixin:
     def post(self, request, project_slug):
         """Set up webhook post view with request and project objects."""
         self.request = request
+
+        log.bind(
+            project_slug=project_slug,
+            integration_type=self.integration_type,
+        )
+
         # WARNING: this is a hack to allow us access to `request.body` later.
         # Due to a limitation of DRF, we can't access `request.body`
         # after accessing `request.data`.
@@ -85,10 +100,7 @@ class WebhookMixin:
         except Project.DoesNotExist:
             raise NotFound('Project not found')
         if not self.is_payload_valid():
-            log.warning(
-                'Invalid payload for project: %s and integration: %s',
-                project_slug, self.integration_type
-            )
+            log.warning('Invalid payload for project and integration.')
             return Response(
                 {'detail': self.invalid_payload_msg},
                 status=HTTP_400_BAD_REQUEST,
@@ -184,9 +196,8 @@ class WebhookMixin:
         to_build, not_building = build_branches(project, branches)
         if not_building:
             log.info(
-                'Skipping project branches: project=%s branches=%s',
-                project,
-                branches,
+                'Skipping project branches.',
+                branches=branches,
             )
         triggered = bool(to_build)
         return {
@@ -226,30 +237,32 @@ class WebhookMixin:
         :param project: Project instance
         :type project: readthedocs.projects.models.Project
         """
-        identifier, verbose_name = self.get_external_version_data()
+        version_data = self.get_external_version_data()
         # create or get external version object using `verbose_name`.
         external_version = get_or_create_external_version(
-            project, identifier, verbose_name
+            project=project,
+            version_data=version_data,
         )
         # returns external version verbose_name (pull/merge request number)
         to_build = build_external_version(
-            project=project, version=external_version, commit=identifier
+            project=project,
+            version=external_version,
         )
 
         return {
-            'build_triggered': True,
-            'project': project.slug,
-            'versions': [to_build],
+            "build_triggered": bool(to_build),
+            "project": project.slug,
+            "versions": [to_build] if to_build else [],
         }
 
-    def get_deactivated_external_version_response(self, project):
+    def get_closed_external_version_response(self, project):
         """
-        Deactivate the external version on merge/close events and return the API response.
+        Close the external version on merge/close events and return the API response.
 
         Return a JSON response with the following::
 
             {
-                "version_deactivated": true,
+                "closed": true,
                 "project": "project_name",
                 "versions": [verbose_name]
             }
@@ -257,15 +270,40 @@ class WebhookMixin:
         :param project: Project instance
         :type project: Project
         """
-        identifier, verbose_name = self.get_external_version_data()
-        deactivated_version = deactivate_external_version(
-            project, identifier, verbose_name
+        version_data = self.get_external_version_data()
+        version_closed = close_external_version(
+            project=project,
+            version_data=version_data,
         )
         return {
-            'version_deactivated': bool(deactivated_version),
-            'project': project.slug,
-            'versions': [deactivated_version] if deactivated_version else [],
+            "closed": bool(version_closed),
+            "project": project.slug,
+            "versions": [version_closed] if version_closed else [],
         }
+
+    def update_default_branch(self, default_branch):
+        """
+        Update the `Version.identifer` for `latest` with the VCS's `default_branch`.
+
+        The VCS's `default_branch` is the branch cloned when there is no specific branch specified
+        (e.g. `git clone <URL>`).
+
+        Some VCS providers (GitHub and GitLab) send the `default_branch` via incoming webhooks.
+        We use that data to update our database and keep it in sync.
+
+        This solves the problem about "changing the default branch in GitHub"
+        and also importing repositories with a different `default_branch` than `main` manually:
+        https://github.com/readthedocs/readthedocs.org/issues/9367
+
+        In case the user already selected a `default-branch` from the "Advanced settings",
+        it does not override it.
+        """
+        if not self.project.default_branch:
+            (
+                self.project.versions.filter(slug=LATEST).update(
+                    identifier=default_branch
+                )
+            )
 
 
 class GitHubWebhookView(WebhookMixin, APIView):
@@ -318,13 +356,16 @@ class GitHubWebhookView(WebhookMixin, APIView):
     def get_external_version_data(self):
         """Get Commit Sha and pull request number from payload."""
         try:
-            identifier = self.data['pull_request']['head']['sha']
-            verbose_name = str(self.data['number'])
-
-            return identifier, verbose_name
-
-        except KeyError:
-            raise ParseError('Parameters "sha" and "number" are required')
+            data = ExternalVersionData(
+                id=str(self.data["number"]),
+                commit=self.data["pull_request"]["head"]["sha"],
+                source_branch=self.data["pull_request"]["head"]["ref"],
+                base_branch=self.data["pull_request"]["base"]["ref"],
+            )
+            return data
+        except KeyError as e:
+            key = e.args[0]
+            raise ParseError(f"Invalid payload. {key} is required.")
 
     def is_payload_valid(self):
         """
@@ -337,10 +378,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         signature = self.request.META.get(GITHUB_SIGNATURE_HEADER)
         secret = self.get_integration().secret
         if not secret:
-            log.info(
-                'Skipping payload signature validation. project=%s',
-                self.project.slug,
-            )
+            log.debug('Skipping payload signature validation.')
             return True
         if not signature:
             return False
@@ -396,6 +434,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         created = self.data.get('created', False)
         deleted = self.data.get('deleted', False)
         event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
+        log.bind(webhook_event=event)
         webhook_github.send(
             Project,
             project=self.project,
@@ -403,18 +442,22 @@ class GitHubWebhookView(WebhookMixin, APIView):
             event=event,
         )
 
+        # Always update `latest` branch to point to the default branch in the repository
+        # even if the event is not gonna be handled. This helps us to keep our db in sync.
+        default_branch = self.data.get("repository", {}).get("default_branch", None)
+        if default_branch:
+            self.update_default_branch(default_branch)
+
+        if event == GITHUB_PING:
+            return {"detail": "Webhook configured correctly"}
+
         # Sync versions when a branch/tag was created/deleted
         if event in (GITHUB_CREATE, GITHUB_DELETE):
-            log.info('Triggered sync_versions: project=%s event=%s', self.project, event)
+            log.debug('Triggered sync_versions.')
             return self.sync_versions_response(self.project)
 
         # Handle pull request events
-        if all([
-                self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD),
-                self.project.external_builds_enabled,
-                event == GITHUB_PULL_REQUEST,
-                action,
-        ]):
+        if self.project.external_builds_enabled and event == GITHUB_PULL_REQUEST:
             if (
                 action in
                 [
@@ -428,7 +471,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
             if action == GITHUB_PULL_REQUEST_CLOSED:
                 # Delete external version when PR is closed
-                return self.get_deactivated_external_version_response(self.project)
+                return self.get_closed_external_version_response(self.project)
 
         # Sync versions when push event is created/deleted action
         if all([
@@ -436,7 +479,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 (created or deleted),
         ]):
             integration = self.get_integration()
-            events = integration.provider_data.get('events', [])
+            events = integration.provider_data.get('events', []) if integration.provider_data else []  # noqa
             if any([
                     GITHUB_CREATE in events,
                     GITHUB_DELETE in events,
@@ -446,20 +489,24 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 # already have the CREATE/DELETE events. So we don't trigger the sync twice.
                 return self.sync_versions_response(self.project, sync=False)
 
-            log.info('Triggered sync_versions: project=%s events=%s', self.project, events)
+            log.debug(
+                'Triggered sync_versions.',
+                integration_events=events,
+            )
             return self.sync_versions_response(self.project)
 
         # Trigger a build for all branches in the push
         if event == GITHUB_PUSH:
             try:
-                branches = [self._normalize_ref(self.data['ref'])]
-                return self.get_response_push(self.project, branches)
+                branch = self._normalize_ref(self.data["ref"])
+                return self.get_response_push(self.project, [branch])
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
 
         return None
 
     def _normalize_ref(self, ref):
+        """Remove `ref/(heads|tags)/` from the reference to match a Version on the db."""
         pattern = re.compile(r'^refs/(heads|tags)/')
         return pattern.sub('', ref)
 
@@ -516,10 +563,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
         token = self.request.META.get(GITLAB_TOKEN_HEADER)
         secret = self.get_integration().secret
         if not secret:
-            log.info(
-                'Skipping payload signature validation. project=%s',
-                self.project.slug,
-            )
+            log.debug('Skipping payload signature validation.')
             return True
         if not token:
             return False
@@ -528,13 +572,16 @@ class GitLabWebhookView(WebhookMixin, APIView):
     def get_external_version_data(self):
         """Get commit SHA and merge request number from payload."""
         try:
-            identifier = self.data['object_attributes']['last_commit']['id']
-            verbose_name = str(self.data['object_attributes']['iid'])
-
-            return identifier, verbose_name
-
-        except KeyError:
-            raise ParseError('Parameters "id" and "iid" are required')
+            data = ExternalVersionData(
+                id=str(self.data["object_attributes"]["iid"]),
+                commit=self.data["object_attributes"]["last_commit"]["id"],
+                source_branch=self.data["object_attributes"]["source_branch"],
+                base_branch=self.data["object_attributes"]["target_branch"],
+            )
+            return data
+        except KeyError as e:
+            key = e.args[0]
+            raise ParseError(f"Invalid payload. {key} is required.")
 
     def handle_webhook(self):
         """
@@ -546,12 +593,20 @@ class GitLabWebhookView(WebhookMixin, APIView):
         """
         event = self.request.data.get('object_kind', GITLAB_PUSH)
         action = self.data.get('object_attributes', {}).get('action', None)
+        log.bind(webhook_event=event)
         webhook_gitlab.send(
             Project,
             project=self.project,
             data=self.request.data,
             event=event,
         )
+
+        # Always update `latest` branch to point to the default branch in the repository
+        # even if the event is not gonna be handled. This helps us to keep our db in sync.
+        default_branch = self.data.get("project", {}).get("default_branch", None)
+        if default_branch:
+            self.update_default_branch(default_branch)
+
         # Handle push events and trigger builds
         if event in (GITLAB_PUSH, GITLAB_TAG_PUSH):
             data = self.request.data
@@ -559,21 +614,20 @@ class GitLabWebhookView(WebhookMixin, APIView):
             after = data.get('after')
             # Tag/branch created/deleted
             if GITLAB_NULL_HASH in (before, after):
-                log.info('Triggered sync_versions: project=%s before=%s after=%s',
-                         self.project, before, after)
+                log.debug(
+                    'Triggered sync_versions.',
+                    before=before,
+                    after=after,
+                )
                 return self.sync_versions_response(self.project)
             # Normal push to master
             try:
-                branches = [self._normalize_ref(data['ref'])]
-                return self.get_response_push(self.project, branches)
+                branch = self._normalize_ref(data["ref"])
+                return self.get_response_push(self.project, [branch])
             except KeyError:
                 raise ParseError('Parameter "ref" is required')
 
-        if (
-            self.project.has_feature(Feature.EXTERNAL_VERSION_BUILD) and
-            self.project.external_builds_enabled and
-            event == GITLAB_MERGE_REQUEST and action
-        ):
+        if self.project.external_builds_enabled and event == GITLAB_MERGE_REQUEST:
             if (
                 action in
                 [
@@ -587,7 +641,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
 
             if action in [GITLAB_MERGE_REQUEST_CLOSE, GITLAB_MERGE_REQUEST_MERGE]:
                 # Handle merge and close merge_request event.
-                return self.get_deactivated_external_version_response(self.project)
+                return self.get_closed_external_version_response(self.project)
         return None
 
     def _normalize_ref(self, ref):
@@ -631,19 +685,25 @@ class BitbucketWebhookView(WebhookMixin, APIView):
 
     def handle_webhook(self):
         """
-        Handle BitBucket events for push.
+        Handle Bitbucket events for push.
 
-        BitBucket doesn't have a separate event for creation/deletion, instead
+        Bitbucket doesn't have a separate event for creation/deletion, instead
         it sets the new attribute (null if it is a deletion) and the old
         attribute (null if it is a creation).
         """
         event = self.request.META.get(BITBUCKET_EVENT_HEADER, BITBUCKET_PUSH)
+        log.bind(webhook_event=event)
         webhook_bitbucket.send(
             Project,
             project=self.project,
             data=self.request.data,
             event=event,
         )
+
+        # NOTE: we can't call `self.update_default_branch` here because
+        # BitBucket does not tell us what is the `default_branch` for a
+        # repository in these incoming webhooks.
+
         if event == BITBUCKET_PUSH:
             try:
                 data = self.request.data
@@ -660,16 +720,18 @@ class BitbucketWebhookView(WebhookMixin, APIView):
                 # we don't trigger the sync versions, because that
                 # will be triggered with the normal push.
                 if branches:
-                    return self.get_response_push(self.project, branches)
-                log.info('Triggered sync_versions: project=%s event=%s',
-                         self.project, event)
+                    return self.get_response_push(
+                        self.project,
+                        branches,
+                    )
+                log.debug("Triggered sync_versions.")
                 return self.sync_versions_response(self.project)
             except KeyError:
                 raise ParseError('Invalid request')
         return None
 
     def is_payload_valid(self):
-        """BitBucket doesn't have an option for payload validation."""
+        """Bitbucket doesn't have an option for payload validation."""
         return True
 
 
@@ -695,7 +757,8 @@ class APIWebhookView(WebhookMixin, APIView):
     Expects the following JSON::
 
         {
-            "branches": ["master"]
+            "branches": ["master"],
+            "default_branch": "main"
         }
     """
 
@@ -738,8 +801,13 @@ class APIWebhookView(WebhookMixin, APIView):
                 'branches',
                 [self.project.get_default_branch()],
             )
+            default_branch = self.request.data.get("default_branch", None)
             if isinstance(branches, str):
                 branches = [branches]
+
+            if default_branch and isinstance(default_branch, str):
+                self.update_default_branch(default_branch)
+
             return self.get_response_push(self.project, branches)
         except TypeError:
             raise ParseError('Invalid request')
@@ -765,7 +833,7 @@ class WebhookView(APIView):
     be.
 
     .. warning::
-        We're turning off Authenication for this view.
+        We're turning off Authentication for this view.
         This fixes a bug where we were double-authenticating these views,
         because of the way we're passing the request along to the subviews.
 

@@ -1,10 +1,10 @@
 // For more details on analytics at Read the Docs, please see:
-// https://docs.readthedocs.io/en/latest/advertising-details.html#analytics
+// https://docs.readthedocs.io/en/stable/advertising/advertising-details.html#analytics
 
 
 // Skip analytics for users with Do Not Track enabled
 if (navigator.doNotTrack === '1') {
-    console.log('Respecting DNT with respect to analytics...');
+    console.debug('Respecting DNT with respect to analytics...');
 } else {
     if (typeof READTHEDOCS_DATA !== 'undefined' && READTHEDOCS_DATA.global_analytics_code) {
         (function () {
@@ -24,7 +24,7 @@ if (navigator.doNotTrack === '1') {
         // Setup the RTD global analytics code and send a pageview
         gtag('config', READTHEDOCS_DATA.global_analytics_code, {
             'anonymize_ip': true,
-            'cookie_expires': 30 * 24 * 60 * 60,  // 30 days
+            'cookie_expires': 0,  // Session cookie (non-persistent)
             'dimension1': READTHEDOCS_DATA.project,
             'dimension2': READTHEDOCS_DATA.version,
             'dimension3': READTHEDOCS_DATA.language,
@@ -38,7 +38,7 @@ if (navigator.doNotTrack === '1') {
         if (READTHEDOCS_DATA.user_analytics_code) {
             gtag('config', READTHEDOCS_DATA.user_analytics_code, {
                 'anonymize_ip': true,
-                'cookie_expires': 30 * 24 * 60 * 60  // 30 days
+                'cookie_expires': 0,  // Session cookie (non-persistent)
             });
         }
     }

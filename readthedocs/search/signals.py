@@ -1,17 +1,17 @@
 """We define custom Django signals to trigger before executing searches."""
-import logging
 
+import structlog
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django_elasticsearch_dsl.apps import DEDConfig
-from django_elasticsearch_dsl.registries import registry
 
 from readthedocs.projects.models import Project
 from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
+# pylint: disable=unused-argument
 @receiver(post_save, sender=Project)
 def index_project_save(instance, *args, **kwargs):
     """
