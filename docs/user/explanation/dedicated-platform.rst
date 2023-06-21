@@ -1,10 +1,9 @@
 .. This page seeks to put out lots of pointers to other articles in the documentation
 .. while giving an introduction that can be read consecutively.
 .. TODO:
-.. - More links and references! (remember the methodology section from a separate PR)
 .. - Tiny screenshots possible? It would be nice if examples of features had little screenshots.
 
-.. There are other reasons that we could cover:
+.. Inspiration for items to cover:
 .. - Code: If you write docs as code, you want this
 .. - When you should NOT choose a dedicated documentation CI/CD: You just need a README in your Git repo! You need WYSIWYG so badly that you're probably better off with Confluence, GitBook or Google Docs.
 .. - A dedicated platform helps to solve tasks that you otherwise end up writing and maintaining your own scripts and CI tools for.
@@ -45,9 +44,6 @@ This article gives a broad introduction to those features and their importance:
 🔋️ :ref:`batteries_included`
     Read the Docs continues to develop new projects and ideas,
     bringing additional powers to documentation projects that are hosted on the platform.
-
-.. The following sections are about using a dedicated platform as a first-choice in order to free up space for other tasks.
-.. These paragraphs can benefit from being shortened and organized, but they are intended as the summary of the introduction.
 
 Using Read the Docs allows you to focus on other critical tasks,
 such as choosing structuring and writing your documentation itself!
@@ -132,8 +128,6 @@ your static website and additional :doc:`offline formats </downloadable-document
 A documentation tool simply needs to be able to run on Linux inside a Docker container.
 Most documentation frameworks will do this.
 Some examples include:
-
-.. TODO: expand the list and add links
 
 * :doc:`Sphinx <sphinx:index>`
 * `MkDocs <https://www.mkdocs.org/>`__ and `Material for MkDocs <https://squidfunk.github.io/mkdocs-material/>`__
