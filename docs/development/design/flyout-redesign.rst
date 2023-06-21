@@ -4,7 +4,10 @@ Flyout Redesign Design Document
 
 .. warning::
 
-    This document details designs that are a **work in progress**.
+    This document detailed an initial idea that was not implemented in the end.
+    Lot of things have changed since this document was written.
+    A different approach is being implemented as part of the work done on the new addons client at
+    https://github.com/readthedocs/readthedocs-client
 
 
 This document describes the design of a new "flyout API"
