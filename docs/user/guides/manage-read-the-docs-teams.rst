@@ -13,20 +13,25 @@ Adding a user to a team
 
 Adding a user to a team gives them all the permissions available to that team,
 whether it's *read-only* or *admin*.
-This can be done by:
 
-* Navigating to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Organization name>` > :guilabel:`Teams` > :guilabel:`<Team name>`
-* Clicking :guilabel:`Invite Member`.
-* Input the user's Read the Docs username or email address.
-* Clicking :guilabel:`Add member`.
+Follow these steps:
+
+1. Navigate to the `teams management page <https://readthedocs.com/organizations/choose/organization_team_list/>`__.
+2. Click on a :guilabel:`<team name>`.
+3. Click :guilabel:`Invite Member`.
+4. Input the user's Read the Docs username or email address.
+5. Click :guilabel:`Add member`.
 
 Removing a user from a team
 ----------------------------
 
-Removing a user from a team removes all permissions that team gave them
+Removing a user from a team removes all permissions that team gave them.
 
-* Navigating to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Organization name>` > :guilabel:`Teams` > :guilabel:`<Team name>`
-* Clicking :guilabel:`Remove` next to the user.
+Follow these steps:
+
+1. Navigate to the `teams management page <https://readthedocs.com/organizations/choose/organization_team_list/>`__.
+2. Click on :guilabel:`<team name>`.
+3. Click :guilabel:`Remove` next to the user.
 
 
 Grant access to users to import a project
