@@ -603,6 +603,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         return valid_artifacts
 
+    def register_imported_file
+
     def on_success(self, retval, task_id, args, kwargs):
         valid_artifacts = self.get_valid_artifact_types()
 
@@ -736,7 +738,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             data=self.data,
         )
 
-        # Clonning
+        # Cloning
         self.update_build(state=BUILD_STATE_CLONING)
 
         # TODO: remove the ``create_vcs_environment`` hack. Ideally, this should be
