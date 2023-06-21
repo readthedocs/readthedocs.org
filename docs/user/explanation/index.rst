@@ -6,11 +6,14 @@ Explanation
 ===========
 
 
-⏩️ :doc:`/choosing-a-site`
-  Users often ask what the differences are between Read the Docs Community and Read the Docs for Business: here's an overview.
+⏩️ :doc:`/explanation/dedicated-platform`
+  An introduction to what a dedicated documentation platform like Read the Docs does offers documentation projects.
 
-⏩️ :doc:`/integrations`
+⏩️ :doc:`/explanation/continuous-documentation`
   A high-level introduction to *Continuous Documentation Deployment*.
+
+⏩️ :doc:`/config-file/index`
+    An explanation of the value of having a versioned configuration file for your project.
 
 ⏩️ :doc:`/subprojects`
   Learn more about how several documentation projects can be combined and presented to the reader on the same website.
@@ -29,9 +32,6 @@ Explanation
    :maxdepth: 1
    :hidden:
 
-   /choosing-a-site
-   /integrations
-   /subprojects
-   /localization
-   /downloadable-documentation
-   /environment-variables
+   /explanation/dedicated-platform
+   /explanation/continuous-documentation
+   /explanation/advanced
