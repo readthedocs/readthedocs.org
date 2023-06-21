@@ -301,11 +301,7 @@ class ProxitoMiddleware(MiddlewareMixin):
                 addons = True
             else:
                 # Check if the version forces injecting the addons (e.g. using `build.commands`)
-                version = (
-                    project.versions.filter(slug=version_slug).only("addons").first()
-                )
-                if version and version.addons:
-                    addons = True
+                addons = project.versions.filter(slug=version_slug, addons=True).exists()
 
             if addons:
                 response["X-RTD-Hosting-Integrations"] = "true"
