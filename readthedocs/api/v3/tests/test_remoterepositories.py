@@ -66,16 +66,15 @@ class RemoteRepositoryEndpointTests(APIEndpointMixin):
         )
 
     def test_remote_repository_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse('remoterepositories-list'),
-            {
-                'expand': (
-                    'projects,'
-                    'remote_organization'
-                )
-            }
-        )
+        url = reverse("remoterepositories-list")
+        data = {"expand": ("projects," "remote_organization")}
+
+        self.client.logout()
+        response = self.client.get(url, data)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url, data)
         self.assertEqual(response.status_code, 200)
 
         self.assertDictEqual(

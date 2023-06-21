@@ -23,8 +23,7 @@
         "title": "I'm a subtitle",
         "content": "Another content, mkdocs is great!"
       }
-    ],
-    "domain_data": {}
+    ]
   },
   {
     "path": "404.html",
@@ -35,8 +34,7 @@
         "title": "404",
         "content": "Page not found"
       }
-    ],
-    "domain_data": {}
+    ]
   },
   {
     "path": "versions.html",
@@ -47,7 +45,6 @@
         "title": "Versions & Themes",
         "content": "There are a number of versions and themes for mkdocs each of which have slight nuances with how they affect Read the Docs. You can use the version menu in the lower right to switch between versions and theme for this documentation."
       }
-    ],
-    "domain_data": {}
+    ]
   }
 ]

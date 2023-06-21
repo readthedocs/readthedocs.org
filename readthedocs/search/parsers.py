@@ -397,7 +397,6 @@ class GenericParser:
                     'content': 'Section content',
                 },
             ],
-            'domain_data': {},
         }
         """
         try:
@@ -410,7 +409,6 @@ class GenericParser:
             "path": page,
             "title": "",
             "sections": [],
-            "domain_data": {},
         }
 
     def _process_content(self, page, content):
@@ -432,7 +430,6 @@ class GenericParser:
             "path": page,
             "title": title,
             "sections": sections,
-            "domain_data": {},
         }
 
 
@@ -479,7 +476,6 @@ class SphinxParser(GenericParser):
             'path': page,
             'title': '',
             'sections': [],
-            'domain_data': {},
         }
 
     def _process_fjson(self, fjson_path):
@@ -520,7 +516,6 @@ class SphinxParser(GenericParser):
             "path": path,
             "title": title,
             "sections": sections,
-            "domain_data": {},  # deprecated
         }
 
     def _clean_body(self, body):
@@ -579,7 +574,6 @@ class MkDocsParser(GenericParser):
             'path': page,
             'title': '',
             'sections': [],
-            'domain_data': {},
         }
 
     def _process_index_file(self, json_path, page):
@@ -622,7 +616,6 @@ class MkDocsParser(GenericParser):
                 page_data.update({
                     'path': path,
                     'title': title,
-                    'domain_data': {},
                 })
             # Content without a fragment need to be indexed as well,
             # this happens when the page doesn't start with a header,
