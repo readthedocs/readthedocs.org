@@ -210,6 +210,9 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             environment={
                 "GIT_TERMINAL_PROMPT": "0",
             },
+            # Pass the api_client so that all environments have it.
+            # This is needed for ``readthedocs-corporate``.
+            api_client=self.data.api_client,
             # Do not try to save commands on the db because they are just for
             # sync repository
             record=False,

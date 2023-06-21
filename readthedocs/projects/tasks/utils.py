@@ -237,8 +237,10 @@ def deprecated_config_file_used_notification():
             project.versions.filter(slug=project.default_version).only("id").first()
         )
         if version:
+            # Use a fixed date here to avoid changing the date on each run
+            years_ago = timezone.datetime(2022, 6, 1)
             build = (
-                version.builds.filter(success=True)
+                version.builds.filter(success=True, date__gt=years_ago)
                 .only("_config")
                 .order_by("-date")
                 .first()
@@ -267,9 +269,11 @@ def deprecated_config_file_used_notification():
     # Only send 1 email per user,
     # even if that user has multiple projects without a configuration file.
     # The notification will mention all the projects.
-    queryset = User.objects.filter(username__in=users, profile__banned=False).order_by(
-        "id"
-    )
+    queryset = User.objects.filter(
+        username__in=users,
+        profile__banned=False,
+        profile__optout_email_config_file_deprecation=False,
+    ).order_by("id")
 
     n_users = queryset.count()
     for i, user in enumerate(queryset.iterator()):
