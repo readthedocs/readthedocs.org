@@ -48,7 +48,6 @@ class ProxitoMiddleware(MiddlewareMixin):
         'embed_api',
     )
 
-    # pylint: disable=no-self-use
     def add_proxito_headers(self, request, response):
         """Add debugging and cache headers to proxito responses."""
 
@@ -217,22 +216,22 @@ class ProxitoMiddleware(MiddlewareMixin):
             raise DomainDNSHttp404(
                 http_status=400,
                 domain=exc.domain,
-            )
+            ) from exc
         except (InvalidSubdomainError, InvalidExternalDomainError) as exc:
             log.debug("Invalid project set on the subdomain.")
             # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise ProjectHttp404(
                 domain=exc.domain,
-            )
+            ) from exc
         except InvalidCustomDomainError as exc:
             # Some person is CNAMEing to us without configuring a domain - 404.
             log.debug("CNAME 404.", domain=exc.domain)
             # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise DomainDNSHttp404(
                 domain=exc.domain,
-            )
-        except InvalidXRTDSlugHeaderError:
-            raise SuspiciousOperation("Invalid X-RTD-Slug header.")
+            ) from exc
+        except InvalidXRTDSlugHeaderError as exc:
+            raise SuspiciousOperation("Invalid X-RTD-Slug header.") from exc
 
         self._set_request_attributes(request, unresolved_domain)
 
@@ -269,8 +268,9 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         # This is hacky because Django wants a module for the URLConf,
         # instead of also accepting string
-        if project.urlconf:
-
+        if project.urlconf and not project.has_feature(
+            Feature.USE_UNRESOLVER_WITH_PROXITO
+        ):
             # Stop Django from caching URLs
             # https://github.com/django/django/blob/7cf7d74/django/urls/resolvers.py#L65-L69  # noqa
             project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S%f")

@@ -11,7 +11,7 @@ The timeline for this deprecation is as follows:
 * Monday, September 4, 2023: Do a third and final brownout (temporarily enforce this deprecation) for 48 hours: 00:01 PST to September 5, 2023 23:59 PST (midnight)
 * Monday, September 25, 2023: Fully remove support for building documentation without configuration file v2.
 
-We have identified the following projects where you are a maintainer are impacted by this deprecation:
+We have identified that the following projects which you maintain, and were built in the last year, are impacted by this deprecation:
 
 {% for project in projects|slice:":15" %}
 * {{ project.slug }} ({{ production_uri }}{{ project.get_absolute_url }})
@@ -21,6 +21,7 @@ We have identified the following projects where you are a maintainer are impacte
 {% endif %}
 
 Please add a configuration file to your projects to ensure that they continue building successfully and to stop receiving these notifications.
+If you want to opt-out from these emails, you can edit your preferences in your account settings, at https://readthedocs.org/accounts/edit/.
 
 For more information on how to create a required configuration file,
 read our blog post at https://blog.readthedocs.com/migrate-configuration-v2/

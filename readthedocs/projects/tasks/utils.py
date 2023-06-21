@@ -237,8 +237,10 @@ def deprecated_config_file_used_notification():
             project.versions.filter(slug=project.default_version).only("id").first()
         )
         if version:
+            # Use a fixed date here to avoid changing the date on each run
+            years_ago = timezone.datetime(2022, 6, 1)
             build = (
-                version.builds.filter(success=True)
+                version.builds.filter(success=True, date__gt=years_ago)
                 .only("_config")
                 .order_by("-date")
                 .first()
@@ -267,9 +269,11 @@ def deprecated_config_file_used_notification():
     # Only send 1 email per user,
     # even if that user has multiple projects without a configuration file.
     # The notification will mention all the projects.
-    queryset = User.objects.filter(username__in=users, profile__banned=False).order_by(
-        "id"
-    )
+    queryset = User.objects.filter(
+        username__in=users,
+        profile__banned=False,
+        profile__optout_email_config_file_deprecation=False,
+    ).order_by("id")
 
     n_users = queryset.count()
     for i, user in enumerate(queryset.iterator()):
@@ -288,10 +292,11 @@ def deprecated_config_file_used_notification():
         user_projects = AdminPermission.projects(user, admin=True).values_list(
             "slug", flat=True
         )
-        user_projects = list(set(user_projects) & projects)
+        user_projects_slugs = list(set(user_projects) & projects)
+        user_projects = Project.objects.filter(slug__in=user_projects_slugs)
 
         # Create slug string for onsite notification
-        user_project_slugs = ", ".join(user_projects[:5])
+        user_project_slugs = ", ".join(user_projects_slugs[:5])
         if len(user_projects) > 5:
             user_project_slugs += " and others..."
 

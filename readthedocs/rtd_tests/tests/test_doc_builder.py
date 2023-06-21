@@ -263,11 +263,6 @@ class SphinxBuilderTest(TestCase):
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_use_sphinx_builders(self, load_config):
-        feature = get(
-            Feature,
-            feature_id=Feature.USE_SPHINX_BUILDERS,
-        )
-
         config_data = {'version': 2, 'sphinx': {'configuration': 'docs/conf.py'}}
         load_config.side_effect = create_load(config_data)
         config = load_yaml_config(self.version)
@@ -277,27 +272,6 @@ class SphinxBuilderTest(TestCase):
             build_env=self.build_env,
             config=config,
         )
-        builder = HtmlBuilder(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-        self.assertEqual(builder.sphinx_builder, 'readthedocs')
-
-        builder = HtmlDirBuilder(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-        self.assertEqual(builder.sphinx_builder, 'readthedocsdirhtml')
-
-        builder = SingleHtmlBuilder(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-        self.assertEqual(builder.sphinx_builder, 'readthedocssinglehtml')
-
-        # Add the feature to use the regular builders
-        feature.projects.add(self.project)
-
         builder = HtmlBuilder(
             build_env=self.build_env,
             python_env=python_env,
