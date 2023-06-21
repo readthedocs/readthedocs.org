@@ -212,6 +212,9 @@ class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         'project__slug',
     )
 
+    def get_queryset(self):
+        return super().get_queryset().select_related("project")
+
 
 class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     permission_classes = [APIRestrictedPermission]
