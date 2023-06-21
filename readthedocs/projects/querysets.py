@@ -233,3 +233,17 @@ class FeatureQuerySet(models.QuerySet):
             Q(default_true=True, add_date__gt=project.pub_date) |
             Q(future_default_true=True, add_date__lte=project.pub_date)
         ).distinct()
+
+
+class ImportedFileQuerySet(models.QuerySet):
+    def html_files(self):
+        return self.filter(name__endswith=".html")
+
+    def pdf_files(self):
+        return self.filter(name__endswith=".pdf")
+
+    def htmlzip_files(self):
+        return self.filter(name__endswith=".zip")
+
+    def epub_files(self):
+        return self.filter(name__endswith=".epub")

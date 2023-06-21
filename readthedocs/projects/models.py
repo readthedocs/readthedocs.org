@@ -38,6 +38,7 @@ from readthedocs.projects.managers import HTMLFileManager
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet,
     FeatureQuerySet,
+    ImportedFileQuerySet,
     ProjectQuerySet,
     RelatedProjectQuerySet,
 )
@@ -1482,7 +1483,11 @@ class ImportedFile(models.Model):
     # max_length is set to 4096 because linux has a maximum path length
     # of 4096 characters for most filesystems (including EXT4).
     # https://github.com/rtfd/readthedocs.org/issues/5061
-    path = models.CharField(_('Path'), max_length=4096)
+    # The path of the file is relative to Project.artifact_path(type, version)
+    path = models.CharField(
+        _("Path"),
+        max_length=4096,
+    )
     commit = models.CharField(_('Commit'), max_length=255)
     build = models.IntegerField(_('Build id'), null=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
@@ -1497,6 +1502,8 @@ class ImportedFile(models.Model):
         # TODO: remove after migration
         null=True,
     )
+
+    objects = ImportedFileQuerySet.as_manager()
 
     def get_absolute_url(self):
         return resolve(

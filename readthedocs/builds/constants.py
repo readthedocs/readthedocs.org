@@ -196,8 +196,9 @@ ARTIFACTS_WITH_RESTRICTED_EXTENSIONS = {
 }
 
 # Part of Feature: ENABLE_MULTIPLE_PDFS
-ARTIFACTS_SAVED_AS_IMPORTED_FILE = (
+# These artifacts are understood as "downloadable" and will be indexed as an ImportedFile
+DOWNLOADABLE_ARTIFACTS = {
     "htmlzip",
     "epub",
     "pdf",
-)
+}

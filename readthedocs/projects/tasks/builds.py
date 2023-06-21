@@ -32,6 +32,7 @@ from readthedocs.builds.constants import (
     BUILD_STATE_UPLOADING,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
+    DOWNLOADABLE_ARTIFACTS,
     EXTERNAL,
     UNDELETABLE_ARTIFACT_TYPES,
 )
@@ -68,7 +69,7 @@ from ..exceptions import (
 from ..models import APIProject, Feature, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
-from .search import fileify
+from .search import fileify, sync_downloadable_artifacts
 from .utils import BuildRequest, clean_build, send_external_build_status
 
 log = structlog.get_logger(__name__)
@@ -606,7 +607,44 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         return valid_artifacts
 
-    def register_imported_file
+    def trigger_sync_downloadable_artifacts(self, valid_artifacts):
+        """
+        Triggers the sync_downloadable_artifacts task with the files that were found.
+
+        :param valid_artifacts: list of artifacts allowed by initial validation
+        :return: None
+        """
+        # A dictionary containing lists of files found for each artifact type.
+        # Notice that we don't support nesting in sub-folders, so we only need to
+        # look in the top level folder
+        # {"pdf": ["file.pdf"]}
+
+        artifact_types = set(valid_artifacts).intersection(DOWNLOADABLE_ARTIFACTS)
+
+        artifacts_found_for_download = {
+            artifact_type: [] for artifact_type in artifact_types
+        }
+
+        for artifact_type in artifact_types:
+            artifact_directory = self.data.project.artifact_path(
+                version=self.data.version.slug,
+                type_=artifact_type,
+            )
+            for filename in os.listdir(artifact_directory):
+                extensions_allowed = ARTIFACTS_WITH_RESTRICTED_EXTENSIONS[artifact_type]
+                if not os.path.isfile(filename):
+                    continue
+                if not any(filename.endswith(f".{ext}") for ext in extensions_allowed):
+                    continue
+                artifacts_found_for_download[artifact_type].append(filename)
+
+        # Store ImportedFiles for artifacts, using their paths in storage
+        sync_downloadable_artifacts.delay(
+            version_pk=self.data.version.pk,
+            commit=self.data.build["commit"],
+            build=self.data.build["id"],
+            artifacts_found_for_download=artifacts_found_for_download,
+        )
 
     def on_success(self, retval, task_id, args, kwargs):
         valid_artifacts = self.get_valid_artifact_types()
@@ -642,6 +680,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             search_ranking=self.data.config.search.ranking,
             search_ignore=self.data.config.search.ignore,
         )
+
+        if self.data.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS):
+            self.trigger_sync_downloadable_artifacts(valid_artifacts)
 
         if not self.data.project.has_valid_clone:
             self.set_valid_clone()

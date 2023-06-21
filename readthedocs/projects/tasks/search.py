@@ -1,4 +1,5 @@
 import json
+import os.path
 from fnmatch import fnmatch
 
 import structlog
@@ -66,6 +67,35 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
         _sync_imported_files(version, build)
     except Exception:
         log.exception('Failed during ImportedFile syncing')
+
+
+@app.task(queue="web")
+def sync_downloadable_artifacts(
+    version_pk, commit, build, artifacts_found_for_download
+):
+    """
+    Create ImportedFile objects for downloadable files.
+
+    Afterwards, ImportedFile objects are used to generate a list of files that can be downloaded
+    for each documentation version.
+    """
+    version = Version.objects.get_object_or_log(pk=version_pk)
+
+    # Don't index external version builds for now
+    if not version or version.type == EXTERNAL:
+        return
+
+    for artifact_type, artifact_path in artifacts_found_for_download:
+        name = os.path.basename(artifact_path)
+        ImportedFile.objects.create(
+            name=name,
+            project=version.project,
+            version=version,
+            path=artifact_path,
+            commit=commit,
+            build=build,
+            ignore=True,
+        )
 
 
 def _sync_imported_files(version, build):
