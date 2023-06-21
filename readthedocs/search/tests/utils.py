@@ -18,7 +18,6 @@ def get_search_query_from_project_file(project_slug, page_num=0, field='title', 
     file_data = html_file.processed_json
     internal_type = {
         'section': 'sections',
-        'domain': 'domains',
         'title': 'title',
     }
     query_data = file_data[internal_type[type or field]]
@@ -42,47 +41,6 @@ def get_search_query_from_project_file(project_slug, page_num=0, field='title', 
         # generates query from section content
         query_data = query_data[0]['content'].split()
         start = random.randint(0, 6)
-
-        # 5 words to generate query to make sure that
-        # query does not only contains 'is', 'and', 'the'
-        # and other stop words
-        end = start + 5
-
-        query = query_data[start:end]
-        query = ' '.join(query)
-
-    elif type == 'domain' and field == 'name':
-        # test data contains domains.name
-        # some of which contains '.' and some '/'
-        # and others are plain words.
-        # Splitting with '.' and '/' is done
-        # to ensure that the query contains proper words
-
-        # generates query from domains.name
-        if '.' in query_data[0]['name']:
-            query_data = query_data[0]['name'].split('.')
-            start = 0
-            end = random.randint(1, len(query_data))
-            query = '.'.join(query_data[start:end])
-
-        elif '/' in query_data[0]['name']:
-            query_data = query_data[0]['name']
-
-            # this is done to remove empty query
-            query_data = [word for word in query_data.split('/') if word]
-            start = 0
-            end = random.randint(1, len(query_data))
-            query = '/'.join(query_data[start:end])
-        else:
-            query = query_data[0]['name'].split()[0]
-
-    elif type == 'domain' and field == 'content':
-
-        # generates query from domain content
-        anchor = query_data[0]['anchor']
-        content = file_data['domain_data'][anchor]
-        query_data = content.split()
-        start = random.randint(0, 1)
 
         # 5 words to generate query to make sure that
         # query does not only contains 'is', 'and', 'the'
