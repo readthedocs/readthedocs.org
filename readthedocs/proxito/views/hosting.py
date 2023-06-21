@@ -11,6 +11,7 @@ from readthedocs.api.v3.serializers import (
     ProjectSerializer,
     VersionSerializer,
 )
+from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
@@ -171,6 +172,11 @@ class AddonsResponse:
         It tries to follow some similarity with the APIv3 for already-known resources
         (Project, Version, Build, etc).
         """
+        versions_active_built = (
+            Version.internal.public(project=project, only_active=True, only_built=True)
+            .only("slug")
+            .order_by("slug")
+        )
 
         data = {
             "comment": (
@@ -220,9 +226,7 @@ class AddonsResponse:
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
                     "versions": list(
-                        project.versions.filter(active=True)
-                        .only("slug")
-                        .values_list("slug", flat=True)
+                        versions_active_built.values_list("slug", flat=True)
                     ),
                 },
                 "doc_diff": {
@@ -251,7 +255,7 @@ class AddonsResponse:
                             "slug": version.slug,
                             "url": f"/{project.language}/{version.slug}/",
                         }
-                        for version in project.versions.filter(active=True).only("slug")
+                        for version in versions_active_built
                     ],
                     "downloads": [],
                     # TODO: get this values properly
