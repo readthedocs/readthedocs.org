@@ -301,10 +301,7 @@ class ProxitoMiddleware(MiddlewareMixin):
                 addons = True
             else:
                 # Check if the version forces injecting the addons (e.g. using `build.commands`)
-                version = (
-                    project.versions.filter(slug=version_slug).only("addons").first()
-                )
-                if version and version.addons:
+                if project.versions.filter(slug=version_slug, addons=True).exists():
                     addons = True
 
             if addons:
