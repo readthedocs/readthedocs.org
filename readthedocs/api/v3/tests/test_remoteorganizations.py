@@ -36,10 +36,14 @@ class RemoteOrganizationEndpointTests(APIEndpointMixin):
         )
 
     def test_remote_organization_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse('remoteorganizations-list')
-        )
+        url = reverse("remoteorganizations-list")
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
         self.assertDictEqual(

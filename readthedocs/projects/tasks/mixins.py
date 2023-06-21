@@ -48,7 +48,6 @@ class SyncRepositoryMixin:
         use_lsremote = (
             vcs_repository.supports_lsremote
             and not vcs_repository.repo_exists()
-            and self.data.project.has_feature(Feature.VCS_REMOTE_LISTING)
         )
         sync_tags = vcs_repository.supports_tags and not self.data.project.has_feature(
             Feature.SKIP_SYNC_TAGS

@@ -57,6 +57,11 @@ class BuildUserError(BuildBaseException):
         "Ensure your project is configured to use the output path "
         "'$READTHEDOCS_OUTPUT/html' instead."
     )
+    NO_CONFIG_FILE_DEPRECATED = gettext_noop(
+        "The configuration file required to build documentation is missing from your project. "
+        "Add a configuration file to your project to make it build successfully. "
+        "Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html"
+    )
 
 
 class BuildUserSkip(BuildUserError):

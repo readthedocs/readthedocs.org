@@ -268,8 +268,9 @@ class BuildViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(external_version_build, response.context['build_qs'])
 
-    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
-    def test_rebuild_specific_commit(self, mock):
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    @mock.patch("readthedocs.core.utils.cancel_build")
+    def test_rebuild_specific_commit(self, mock_update_docs_task, mock_cancel_build):
         builds_count = Build.objects.count()
 
         version = self.pip.versions.first()

@@ -106,6 +106,21 @@ class BuildDirector:
         #
         # self.run_build_job("pre_checkout")
         self.checkout()
+
+        # Output the path for the config file used.
+        # This works as confirmation for us & the user about which file is used,
+        # as well as the fact that *any* config file is used.
+        if self.data.config.source_file:
+            cwd = self.data.project.checkout_path(self.data.version.slug)
+            command = self.vcs_environment.run(
+                "cat",
+                # Show user the relative path to the config file
+                # TODO: Have our standard path replacement code catch this.
+                # https://github.com/readthedocs/readthedocs.org/pull/10413#discussion_r1230765843
+                self.data.config.source_file.replace(cwd + "/", ""),
+                cwd=cwd,
+            )
+
         self.run_build_job("post_checkout")
 
         commit = self.data.build_commit or self.vcs_repository.commit
@@ -180,10 +195,6 @@ class BuildDirector:
         self.install()
         self.run_build_job("post_install")
 
-        # TODO: remove this and document how to do it on `build.jobs.post_install`
-        if self.data.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
-            self.language_environment.list_packages_installed()
-
     def build(self):
         """
         Build all the formats specified by the user.
@@ -239,6 +250,12 @@ class BuildDirector:
         )
         self.data.build["config"] = self.data.config.as_dict()
         self.data.build["readthedocs_yaml_path"] = custom_config_file
+
+        # Raise a build error if the project is not using a config file or using v1
+        if self.data.project.has_feature(
+            Feature.NO_CONFIG_FILE_DEPRECATED
+        ) and self.data.config.version not in ("2", 2):
+            raise BuildUserError(BuildUserError.NO_CONFIG_FILE_DEPRECATED)
 
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)
