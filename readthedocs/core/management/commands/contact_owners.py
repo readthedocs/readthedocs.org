@@ -49,7 +49,11 @@ class Command(BaseCommand):
        to be included in the notification.
     * ``email.md`` is a Markdown file with the first line as the subject,
       and the rest is the content.
-      Note that ``user`` and ``domain`` are available in the context.
+
+      The context available is:
+        * ``user``
+        * ``projects``
+        * ``production_uri``
 
     .. code:: markdown
 
@@ -57,7 +61,7 @@ class Command(BaseCommand):
 
        Dear {{ user.firstname }},
 
-       Greetings from [Read the Docs]({{ domain }}).
+       Greetings from [Read the Docs]({{ production_uri }}).
 
     .. note::
 
@@ -143,7 +147,7 @@ class Command(BaseCommand):
             users = AdminPermission.owners(organization)
         elif usernames:
             file = Path(usernames)
-            with file.open() as f:
+            with file.open(encoding="utf8") as f:
                 usernames = f.readlines()
 
             # remove "\n" from lines
@@ -178,14 +182,14 @@ class Command(BaseCommand):
         notification_content = ''
         if options['notification']:
             file = Path(options['notification'])
-            with file.open() as f:
+            with file.open(encoding="utf8") as f:
                 notification_content = f.read()
 
         email_subject = ''
         email_content = ''
         if options['email']:
             file = Path(options['email'])
-            with file.open() as f:
+            with file.open(encoding="utf8") as f:
                 content = f.read().split('\n')
             email_subject = content[0].strip()
             email_content = '\n'.join(content[1:]).strip()

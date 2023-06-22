@@ -7,6 +7,7 @@ from django.core.mail import send_mail
 from django.template import Context, Engine
 from messages_extends import constants as message_constants
 
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.notifications import SiteNotification
 from readthedocs.notifications.backends import SiteBackend
 
@@ -40,7 +41,8 @@ def contact_users(
 
         {
             'user': <user object>,
-            'domain': https://readthedocs.org,
+            'production_uri': https://readthedocs.org,
+            'projects': QuerySet(<project object>),
         }
 
     :returns: A dictionary with a list of sent/failed emails/notifications.
@@ -67,20 +69,16 @@ def contact_users(
             success_level = message_constants.SUCCESS_PERSISTENT
 
         def render(self, *args, **kwargs):
-            context = {
-                'user': self.user,
-                'domain': f'https://{settings.PRODUCTION_DOMAIN}',
-            }
-            context.update(context_function(self.user))
             return markdown.markdown(
-                notification_template.render(Context(context))
+                notification_template.render(Context(self.get_context_data()))
             )
 
     total = users.count()
     for count, user in enumerate(users.iterator(), start=1):
         context = {
-            'user': user,
-            'domain': f'https://{settings.PRODUCTION_DOMAIN}',
+            "user": user,
+            "production_uri": f"https://{settings.PRODUCTION_DOMAIN}",
+            "projects": AdminPermission.projects(user),
         }
         context.update(context_function(user))
 
@@ -88,6 +86,7 @@ def contact_users(
             notification = TempNotification(
                 user=user,
                 success=True,
+                extra_context=context,
             )
             try:
                 if not dryrun:
@@ -132,13 +131,13 @@ def contact_users(
             )
 
             try:
-                kwargs = dict(
-                    subject=email_subject,
-                    message=email_txt_rendered,
-                    html_message=email_html_rendered,
-                    from_email=from_email,
-                    recipient_list=emails,
-                )
+                kwargs = {
+                    "subject": email_subject,
+                    "message": email_txt_rendered,
+                    "html_message": email_html_rendered,
+                    "from_email": from_email,
+                    "recipient_list": emails,
+                }
                 if not dryrun:
                     send_mail(**kwargs)
                 else:
