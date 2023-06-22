@@ -1908,7 +1908,6 @@ class Feature(models.Model):
     UPDATE_CONDA_STARTUP = "update_conda_startup"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
-    CDN_ENABLED = "cdn_enabled"
     DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
@@ -1973,13 +1972,6 @@ class Feature(models.Model):
             _(
                 "Sphinx: Pass all versions (including private) into the html context "
                 "when building with Sphinx"
-            ),
-        ),
-        (
-            CDN_ENABLED,
-            _(
-                "Proxito: CDN support for a project's public versions when privacy levels "
-                "are enabled."
             ),
         ),
         (

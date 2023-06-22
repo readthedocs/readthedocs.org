@@ -1524,14 +1524,6 @@ class ProxitoV2TestAdditionalDocViews(TestAdditionalDocViews):
 )
 class TestCDNCache(BaseDocServing):
 
-    def setUp(self):
-        super().setUp()
-        get(
-            Feature,
-            feature_id=Feature.CDN_ENABLED,
-            projects=list(Project.objects.all()),
-        )
-
     def _test_cache_control_header_project(self, expected_value, host=None):
         """
         Test the CDN-Cache-Control header on requests for `self.project`.
