@@ -1949,7 +1949,7 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout"
+    GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
     DONT_CREATE_INDEX = "dont_create_index"
     HOSTING_INTEGRATIONS = "hosting_integrations"
     NO_CONFIG_FILE_DEPRECATED = "no_config_file"
