@@ -86,6 +86,12 @@ class BaseSphinx(BaseBuilder):
             ),
             self.relative_output_dir,
         )
+        # Isolate temporary files in the _readthedocs/ folder
+        self.absolute_host_tmp_root = os.path.join(
+            self.project.checkout_path(self.version.slug),
+            "_readthedocs/tmp",
+        )
+
         self.absolute_container_output_dir = os.path.join(
             "$READTHEDOCS_OUTPUT", self.relative_output_dir
         )
@@ -389,6 +395,7 @@ class LocalMediaBuilder(BaseSphinx):
 
     def _post_build(self):
         """Internal post build to create the ZIP file from the HTML output."""
+
         target_file = os.path.join(
             self.absolute_container_output_dir,
             # TODO: shouldn't this name include the name of the version as well?
@@ -449,9 +456,12 @@ class EpubBuilder(BaseSphinx):
             # NOTE: we currently support only one .epub per version
             epub_filepath = epub_sphinx_filepaths[0]
 
+            # Move out the epub file
             self.run(
                 "mv", epub_filepath, temp_epub_file, cwd=self.project_path, record=False
             )
+
+            # Delete everything recursively
             self.run(
                 "rm",
                 "--recursive",
@@ -459,6 +469,8 @@ class EpubBuilder(BaseSphinx):
                 cwd=self.project_path,
                 record=False,
             )
+
+            # Create everything again
             self.run(
                 "mkdir",
                 "--parents",
@@ -466,6 +478,8 @@ class EpubBuilder(BaseSphinx):
                 cwd=self.project_path,
                 record=False,
             )
+
+            # Restore the epub file
             self.run(
                 "mv", temp_epub_file, target_file, cwd=self.project_path, record=False
             )
@@ -501,7 +515,6 @@ class PdfBuilder(BaseSphinx):
 
     relative_output_dir = "pdf"
     sphinx_builder = "latex"
-    pdf_file_name = None
 
     def build(self):
         """Runs Sphinx to convert to LaTeX, uses latexmk to build PDFs."""
@@ -586,11 +599,11 @@ class PdfBuilder(BaseSphinx):
             # When ``-f`` is used, latexmk will continue building if it
             # encounters errors. We still receive a failure exit code in this
             # case, but the correct steps should run.
-            '-f',
-            '-dvi-',
-            '-ps-',
-            f'-jobname={self.project.slug}',
-            '-interaction=nonstopmode',
+            "-f",
+            "-dvi-",
+            "-ps-",
+            f"-jobname={self.project.slug}_%A",
+            "-interaction=nonstopmode",
         ]
 
         cmd_ret = self.build_env.run_command_class(
@@ -600,53 +613,60 @@ class PdfBuilder(BaseSphinx):
             cwd=self.absolute_host_output_dir,
         )
 
-        self.pdf_file_name = f"{self.project.slug}.pdf"
+        pdf_files = glob(os.path.join(self.absolute_host_output_dir, "*.pdf"))
+
+        # There is only 1 PDF file. We will call it project_slug.pdf
+        # This is the old behavior.
+        if len(pdf_files) == 1:
+            os.rename(
+                pdf_files[0],
+                os.path.join(self.absolute_host_output_dir, f"{self.project.slug}.pdf"),
+            )
 
         return cmd_ret.successful
 
     def _post_build(self):
-        """Internal post build to cleanup PDF output directory and leave only one .pdf file."""
+        """Internal post build to cleanup PDF output directory and leave only .pdf files."""
 
-        if not self.pdf_file_name:
+        pdf_files = glob(os.path.join(self.absolute_host_output_dir, "*.pdf"))
+        if not pdf_files:
             raise PDFNotFound()
 
-        # TODO: merge this with ePUB since it's pretty much the same
-        temp_pdf_file = f"/tmp/{self.project.slug}-{self.version.slug}.pdf"
-        target_file = os.path.join(
-            self.absolute_container_output_dir,
-            self.pdf_file_name,
+        if not os.path.exists(self.absolute_host_tmp_root):
+            os.makedirs(self.absolute_host_tmp_root)
+
+        # We cannot use '*' in commands sent to the host machine, the asterisk gets escaped.
+        # So we opt for iterating from outside the container
+        for fname in pdf_files:
+            os.rename(
+                fname,
+                os.path.join(self.absolute_host_tmp_root, os.path.basename(fname)),
+            )
+
+        # Delete everything from the output dir
+        self.run(
+            "rm",
+            "-r",
+            self.absolute_host_output_dir,
+            cwd=self.project_path,
+            record=False,
         )
 
-        # NOTE: we currently support only one .pdf per version
-        pdf_sphinx_filepath = os.path.join(
-            self.absolute_container_output_dir, self.pdf_file_name
-        )
-        pdf_sphinx_filepath_host = os.path.join(
+        # Recreate the output dir
+        self.run(
+            "mkdir",
+            "-p",
             self.absolute_host_output_dir,
-            self.pdf_file_name,
+            cwd=self.project_path,
+            record=False,
         )
-        if os.path.exists(pdf_sphinx_filepath_host):
-            self.run(
-                "mv",
-                pdf_sphinx_filepath,
-                temp_pdf_file,
-                cwd=self.project_path,
-                record=False,
-            )
-            self.run(
-                "rm",
-                "-r",
-                self.absolute_container_output_dir,
-                cwd=self.project_path,
-                record=False,
-            )
-            self.run(
-                "mkdir",
-                "-p",
-                self.absolute_container_output_dir,
-                cwd=self.project_path,
-                record=False,
-            )
-            self.run(
-                "mv", temp_pdf_file, target_file, cwd=self.project_path, record=False
+
+        # Move the PDFs back
+        # We cannot use '*' in commands sent to the host machine, the asterisk gets escaped.
+        # So we opt for iterating from outside the container
+        pdf_files = glob(os.path.join(self.absolute_host_tmp_root, "*.pdf"))
+        for fname in pdf_files:
+            os.rename(
+                fname,
+                os.path.join(self.absolute_host_output_dir, os.path.basename(fname)),
             )

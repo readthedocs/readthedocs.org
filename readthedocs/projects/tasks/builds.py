@@ -582,6 +582,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 )
             else:
                 single_file_artifacts = ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT
+
             if artifact_type in single_file_artifacts:
                 artifact_format_files = len(os.listdir(artifact_directory))
                 if artifact_format_files > 1:
@@ -630,11 +631,19 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version=self.data.version.slug,
                 type_=artifact_type,
             )
-            for filename in os.listdir(artifact_directory):
+            artifact_directory_ls = os.listdir(artifact_directory)
+            log.info(
+                "Found artifacts in output directory",
+                artifact_directory=artifact_directory,
+                artifact_directory_ls=artifact_directory_ls,
+            )
+            for filename in artifact_directory_ls:
+                log.info("Found an artifact in output directory", filename=filename)
                 extensions_allowed = ARTIFACTS_WITH_RESTRICTED_EXTENSIONS[artifact_type]
-                if not os.path.isfile(filename):
+                if not os.path.isfile(os.path.join(artifact_directory, filename)):
                     continue
                 if not any(filename.endswith(f".{ext}") for ext in extensions_allowed):
+                    log.info("Illegal artifact found", filename=filename)
                     continue
                 artifacts_found_for_download[artifact_type].append(filename)
 
@@ -682,7 +691,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         )
 
         if self.data.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS):
-            self.trigger_sync_downloadable_artifacts(valid_artifacts)
+            if valid_artifacts:
+                self.trigger_sync_downloadable_artifacts(valid_artifacts)
 
         if not self.data.project.has_valid_clone:
             self.set_valid_clone()
