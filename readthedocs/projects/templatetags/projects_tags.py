@@ -25,3 +25,9 @@ def sort_version_aware(versions):
 def is_project_user(user, project):
     """Checks if the user has access to the project."""
     return user in AdminPermission.members(project)
+
+
+@register.filter
+def has_feature(project, feature):
+    """Check if the project has a particular feature flag."""
+    return project.has_feature(feature)
