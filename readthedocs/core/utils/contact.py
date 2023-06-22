@@ -1,5 +1,4 @@
 import structlog
-from pprint import pprint
 
 import markdown
 from django.conf import settings
@@ -34,7 +33,7 @@ def contact_users(
     :param string notification_content: Content for the sticky notification (markdown)
     :param context_function: A callable that will receive an user
      and return a dict of additional context to be used in the email/notification content
-    :param bool dryrun: If `True` don't sent the email or notification, just print the content
+    :param bool dryrun: If `True` don't sent the email or notification, just logs the content
 
     The `email_content` and `notification_content` contents will be rendered using
     a template with the following context::
@@ -91,16 +90,12 @@ def contact_users(
             try:
                 if not dryrun:
                     backend.send(notification)
-                else:
-                    pprint(markdown.markdown(
-                        notification_template.render(Context(context))
-                    ))
             except Exception:
                 log.exception('Notification failed to send')
                 failed_notifications.add(user.username)
             else:
                 log.info(
-                    'Successfully set notification.',
+                    "Successfully sent notification.",
                     user_username=user.username,
                     count=count,
                     total=total,
@@ -140,8 +135,6 @@ def contact_users(
                 }
                 if not dryrun:
                     send_mail(**kwargs)
-                else:
-                    pprint(kwargs)
             except Exception:
                 log.exception('Email failed to send')
                 failed_emails.update(emails)

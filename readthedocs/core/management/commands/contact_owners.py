@@ -1,6 +1,5 @@
 import sys
 from pathlib import Path
-from pprint import pprint
 
 import structlog
 from django.conf import settings
@@ -81,30 +80,30 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--production',
-            action='store_true',
-            dest='production',
+            "--production",
+            action="store_true",
+            dest="production",
             default=False,
             help=(
-                'Send the email/notification for real, '
-                'otherwise we only print the notification in the console (dryrun).'
-            )
-        )
-        parser.add_argument(
-            '--email',
-            help=(
-                'Path to a file with the email content in markdown. '
-                'The first line would be the subject.'
+                "Send the email/notification for real, "
+                "otherwise we only logs the notification in the console (dryrun)."
             ),
         )
         parser.add_argument(
-            '--notification',
-            help='Path to a file with the notification content in markdown.',
+            "--email",
+            help=(
+                "Path to a file with the email content in markdown. "
+                "The first line would be the subject."
+            ),
         )
         parser.add_argument(
-            '--sticky',
-            action='store_true',
-            dest='sticky',
+            "--notification",
+            help="Path to a file with the notification content in markdown.",
+        )
+        parser.add_argument(
+            "--sticky",
+            action="store_true",
+            dest="sticky",
             default=False,
             help=(
                 'Make the notification sticky '
@@ -159,62 +158,59 @@ class Command(BaseCommand):
                 organizationowner__organization__disabled=False
             ).distinct()
         else:
-            users = (
-                User.objects
-                .filter(projects__skip=False)
-                .distinct()
-            )
+            users = User.objects.filter(projects__skip=False).distinct()
 
-        print(
-            "len(owners)={} production={} email={} notification={} sticky={}".format(
-                users.count(),
-                bool(options["production"]),
-                options["email"],
-                options["notification"],
-                options["sticky"],
-            )
+        log.info(
+            "Command arguments.",
+            n_owners=users.count(),
+            production=bool(options["production"]),
+            email_filepath=options["email"],
+            notification_filepath=options["notification"],
+            sticky=options["sticky"],
         )
 
         if input("Continue? y/N: ") != "y":
             print("Aborting run.")
             return
 
-        notification_content = ''
-        if options['notification']:
-            file = Path(options['notification'])
+        notification_content = ""
+        if options["notification"]:
+            file = Path(options["notification"])
             with file.open(encoding="utf8") as f:
                 notification_content = f.read()
 
-        email_subject = ''
-        email_content = ''
-        if options['email']:
-            file = Path(options['email'])
+        email_subject = ""
+        email_content = ""
+        if options["email"]:
+            file = Path(options["email"])
             with file.open(encoding="utf8") as f:
-                content = f.read().split('\n')
+                content = f.read().split("\n")
             email_subject = content[0].strip()
-            email_content = '\n'.join(content[1:]).strip()
+            email_content = "\n".join(content[1:]).strip()
 
         resp = contact_users(
             users=users,
             email_subject=email_subject,
             email_content=email_content,
             notification_content=notification_content,
-            sticky_notification=options['sticky'],
-            dryrun=not options['production'],
+            sticky_notification=options["sticky"],
+            dryrun=not options["production"],
         )
 
-        email = resp['email']
-        total = len(email['sent'])
-        total_failed = len(email['failed'])
-        print(f'Emails sent ({total}):')
-        pprint(email['sent'])
-        print(f'Failed emails ({total_failed}):')
-        pprint(email['failed'])
+        email = resp["email"]
+        log.info(
+            "Sending emails finished.",
+            total=len(email["sent"]),
+            total_failed=len(email["failed"]),
+            sent_emails=email["sent"],
+            failed_emails=email["failed"],
+        )
 
-        notification = resp['notification']
-        total = len(notification['sent'])
-        total_failed = len(notification['failed'])
-        print(f'Notifications sent ({total})')
-        pprint(notification['sent'])
-        print(f'Failed notifications ({total_failed})')
-        pprint(notification['failed'])
+        notification = resp["notification"]
+        log.info(
+            "Sending notifications finished.",
+            total=len(notification["sent"]),
+            total_failed=len(notification["failed"]),
+            sent_notifications=notification["sent"],
+            failed_notifications=notification["failed"],
+        )
