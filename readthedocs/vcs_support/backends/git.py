@@ -38,7 +38,7 @@ class Backend(BaseVCS):
         # The version_identifier is a Version.identifier value passed from the build process.
         # It has a special meaning since it's unfortunately not consistent, you need to be aware of
         # exactly how and where to use this.
-        # See more in the .get_remote_fetch_reference() docstring
+        # See more in the .get_remote_fetch_refspec() docstring
         self.version_identifier = kwargs.pop("version_identifier")
         # We also need to know about Version.machine
         self.version_machine = kwargs.pop("version_machine")
@@ -115,7 +115,7 @@ class Backend(BaseVCS):
             log.warning(
                 "Trying to resolve a remote reference without setting version_type is not "
                 "possible",
-                project=self.project,
+                project_slug=self.project.slug,
             )
             return None
 
@@ -139,16 +139,13 @@ class Backend(BaseVCS):
         # Tags
         if self.version_type == TAG and self.verbose_name:
             # A "stable" tag is automatically created with Version.machine=True,
-            # denoting that it's not a tag that really exists.
+            # denoting that it's not a branch/tag that really exists.
             # Because we don't know if it originates from the default branch or some
-            # other tagged release, we will fetch everything.
+            # other tagged release, we will fetch the exact commit it points to.
             if self.version_machine and self.verbose_name == "stable":
                 if self.version_identifier:
                     return f"{self.version_identifier}:readthedocs/stable"
-                log.error(
-                    "'stable' version without a commit hash",
-                    version_identifier=self.version_identifier,
-                )
+                log.error("'stable' version without a commit hash.")
                 return None
             return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
 
@@ -177,8 +174,6 @@ class Backend(BaseVCS):
         #  unclear guarantees about whether that even needs to be a fully consistent clone.
         self.make_clean_working_dir()
 
-        # --no-checkout: Makes it explicit what we are doing here. Nothing is checked out
-        #                until it's explicitly done.
         # --depth 1: Shallow clone, fetch as little data as possible.
         cmd = ["git", "clone", "--depth", "1"]
 
@@ -212,9 +207,8 @@ class Backend(BaseVCS):
         # --force: Likely legacy, it seems to be irrelevant to this usage
         # --prune: Likely legacy, we don't expect a previous fetch command to have run
         # --prune-tags: Likely legacy, we don't expect a previous fetch command to have run
-        # --tags: This flag was used in the previous approach such that all tags were fetched
-        #         in order to checkout a tag afterwards.
-        # --depth: This flag should be made unnecessary, it's downloading commit data that's
+        # --depth: To keep backward compatibility for now.
+        #          This flag should be made unnecessary, it's downloading commit data that's
         #          never used.
         cmd = [
             "git",
@@ -241,10 +235,10 @@ class Backend(BaseVCS):
             log.warning(
                 "Git fetch: Could not decide a remote reference for version. "
                 "Is it an empty default branch?",
-                project=getattr(self.project, "id", "unknown"),
+                project_slug=self.project.slug,
                 verbose_name=self.verbose_name,
                 version_type=self.version_type,
-                identifier=self.version_identifier,
+                version_identifier=self.version_identifier,
             )
 
         # TODO: Explain or remove the return value
