@@ -146,8 +146,22 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
             pass
         return self.serializer_class
 
+    def get_queryset_for_api_key(self, api_key):
+        """Queryset used when an API key is used in the request."""
+        raise NotImplementedError
+
     def get_queryset(self):
-        """Use our API manager method to determine authorization on queryset."""
+        """
+        Filter objects by user or API key.
+
+        If an API key is present, we filter by the project associated with the key.
+        Otherwise, we filter using our API manager method.
+
+        With this we check if the user/api key is authorized to acccess the object.
+        """
+        api_key = getattr(self.request, "build_api_key")
+        if api_key:
+            return self.get_queryset_for_api_key(api_key)
         return self.model.objects.api(self.request.user)
 
 
@@ -194,11 +208,8 @@ class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
             'url': project.get_docs_url(),
         })
 
-    def get_queryset(self):
-        api_key = self.request.build_api_key
-        if api_key:
-            return self.model.objects.filter(pk=api_key.project.pk)
-        return super().get_queryset()
+    def get_queryset_for_api_key(self, api_key):
+        return self.model.objects.filter(pk=api_key.project.pk)
 
 
 class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
@@ -213,11 +224,8 @@ class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         'project__slug',
     )
 
-    def get_queryset(self):
-        api_key = self.request.build_api_key
-        if api_key:
-            return self.model.objects.filter(project=api_key.project)
-        return super().get_queryset()
+    def get_queryset_for_api_key(self, api_key):
+        return self.model.objects.filter(project=api_key.project)
 
 
 class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
@@ -252,6 +260,10 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         build_api_key = request.build_api_key
         if build_api_key:
             if project_slug != build_api_key.project.slug:
+                log.info(
+                    "Project slug doesn't match the one attached to the API key.",
+                    project_slug=project_slug,
+                )
                 raise Http404()
             project = build_api_key.project
         else:
@@ -313,11 +325,8 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         instance.reset()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    def get_queryset(self):
-        api_key = self.request.build_api_key
-        if api_key:
-            return self.model.objects.filter(project=api_key.project)
-        return super().get_queryset()
+    def get_queryset_for_api_key(self, api_key):
+        return self.model.objects.filter(project=api_key.project)
 
 
 class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
@@ -337,11 +346,8 @@ class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
         # the user doing the request is a superuser, so it has access to all projects.
         return super().perform_create(serializer)
 
-    def get_queryset(self):
-        api_key = self.request.build_api_key
-        if api_key:
-            return self.model.objects.filter(build__project=api_key.project)
-        return super().get_queryset()
+    def get_queryset_for_api_key(self, api_key):
+        return self.model.objects.filter(build__project=api_key.project)
 
 
 class DomainViewSet(DisableListEndpoint, UserSelectViewSet):
