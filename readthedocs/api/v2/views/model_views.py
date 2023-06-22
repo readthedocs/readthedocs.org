@@ -159,7 +159,7 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
 
         With this we check if the user/api key is authorized to acccess the object.
         """
-        api_key = getattr(self.request, "build_api_key")
+        api_key = getattr(self.request, "build_api_key", None)
         if api_key:
             return self.get_queryset_for_api_key(api_key)
         return self.model.objects.api(self.request.user)
