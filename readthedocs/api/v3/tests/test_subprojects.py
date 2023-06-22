@@ -15,15 +15,19 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         self._create_subproject()
 
     def test_projects_subprojects_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse(
+        url = reverse(
                 'projects-subprojects-list',
                 kwargs={
                     'parent_lookup_parent__slug': self.project.slug,
                 },
-            ),
         )
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(
             response.json(),
@@ -31,15 +35,20 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         )
 
     def test_projects_subprojects_detail(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse(
-                'projects-subprojects-detail',
-                kwargs={
-                    'parent_lookup_parent__slug': self.project.slug,
-                    'alias_slug': self.project_relationship.alias,
-                }),
+        url = reverse(
+            "projects-subprojects-detail",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+                "alias_slug": self.project_relationship.alias,
+            },
         )
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(
             response.json(),
@@ -49,20 +58,23 @@ class SubprojectsEndpointTests(APIEndpointMixin):
     def test_projects_subprojects_list_post(self):
         newproject = self._create_new_project()
         self.assertEqual(self.project.subprojects.count(), 1)
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        url = reverse(
+            "projects-subprojects-list",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+            },
+        )
         data = {
             'child': newproject.slug,
             'alias': 'subproject-alias',
         }
-        response = self.client.post(
-            reverse(
-                'projects-subprojects-list',
-                kwargs={
-                    'parent_lookup_parent__slug': self.project.slug,
-                },
-            ),
-            data,
-        )
+
+        self.client.logout()
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(self.project.subprojects.count(), 2)
@@ -233,17 +245,20 @@ class SubprojectsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.others_project.subprojects.count(), 0)
 
     def test_projects_subprojects_detail_delete(self):
-        self.assertEqual(self.project.subprojects.count(), 1)
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.delete(
-            reverse(
-                'projects-subprojects-detail',
-                kwargs={
-                    'parent_lookup_parent__slug': self.project.slug,
-                    'alias_slug': self.project_relationship.alias,
-                },
-            ),
+        url = reverse(
+            "projects-subprojects-detail",
+            kwargs={
+                "parent_lookup_parent__slug": self.project.slug,
+                "alias_slug": self.project_relationship.alias,
+            },
         )
+        self.client.logout()
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.assertEqual(self.project.subprojects.count(), 1)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(self.project.subprojects.count(), 0)
 
