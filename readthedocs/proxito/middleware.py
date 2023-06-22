@@ -16,6 +16,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
+from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import (
     InvalidCustomDomainError,
     InvalidExternalDomainError,
@@ -25,7 +26,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Feature
 from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
 from readthedocs.proxito.redirects import redirect_to_https
 
@@ -293,20 +294,12 @@ class ProxitoMiddleware(MiddlewareMixin):
         project_slug = getattr(request, "path_project_slug", "")
         version_slug = getattr(request, "path_version_slug", "")
 
-        if project_slug:
-            project = Project.objects.get(slug=project_slug)
-
-            # Check for the feature flag
-            if project.has_feature(Feature.HOSTING_INTEGRATIONS):
-                addons = True
-            else:
-                # Check if the version forces injecting the addons (e.g. using `build.commands`)
-                version = (
-                    project.versions.filter(slug=version_slug).only("addons").first()
-                )
-                if version and version.addons:
-                    addons = True
-
+        if project_slug and version_slug:
+            addons = Version.objects.filter(
+                project__slug=project_slug,
+                slug=version_slug,
+                addons=True,
+            ).exists()
             if addons:
                 response["X-RTD-Hosting-Integrations"] = "true"
 
