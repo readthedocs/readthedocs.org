@@ -56,11 +56,13 @@ Going ad-free
 may completely remove advertising for all visitors to their projects.
 Thank you for supporting Read the Docs.
 
-Previously, being either a Gold member or
-`Supporter <https://readthedocs.org/sustainability/#donations>`_
-meant that a user got an ad-free experience while logged-in.
-While we didn't remove this capability, the cross-site cookies needed
-to make that work are no longer well supported by major browsers outside of Chrome.
+.. note::
+
+   Previously, Gold members or
+   `Supporters <https://readthedocs.org/sustainability/#donations>`_
+   were provided an ad-free reading experience across all projects on Read the Docs while logged-in.
+   However, the cross-site cookies needed to make that work are no longer supported by major browsers outside of Chrome,
+   and this feature will soon disappear entirely.
 
 
 Statistics and data
