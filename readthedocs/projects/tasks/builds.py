@@ -940,14 +940,17 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version_type=self.data.version.type,
             )
             try:
-                rclone_kwargs = {}
-                if media_type in ARTIFACTS_WITH_RESTRICTED_EXTENSIONS:
-                    rclone_kwargs[
-                        "filter_extensions"
-                    ] = ARTIFACTS_WITH_RESTRICTED_EXTENSIONS[media_type]
-                build_media_storage.rclone_sync_directory(
-                    from_path, to_path, **rclone_kwargs
-                )
+                if self.data.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS):
+                    rclone_kwargs = {}
+                    if media_type in ARTIFACTS_WITH_RESTRICTED_EXTENSIONS:
+                        rclone_kwargs[
+                            "filter_extensions"
+                        ] = ARTIFACTS_WITH_RESTRICTED_EXTENSIONS[media_type]
+                    build_media_storage.rclone_sync_directory(
+                        from_path, to_path, **rclone_kwargs
+                    )
+                else:
+                    build_media_storage.rclone_sync_directory(from_path, to_path)
             except Exception as exc:
                 # NOTE: the exceptions reported so far are:
                 #  - botocore.exceptions:HTTPClientError

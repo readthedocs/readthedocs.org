@@ -86,7 +86,9 @@ class BaseSphinx(BaseBuilder):
             ),
             self.relative_output_dir,
         )
+
         # Isolate temporary files in the _readthedocs/ folder
+        # Used for new feature ENABLE_MULTIPLE_PDFS
         self.absolute_host_tmp_root = os.path.join(
             self.project.checkout_path(self.version.slug),
             "_readthedocs/tmp",
@@ -547,7 +549,10 @@ class PdfBuilder(BaseSphinx):
         # Run LaTeX -> PDF conversions
         success = self._build_latexmk(self.project_path)
 
-        self._post_build()
+        if self.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS):
+            self._post_build_multiple()
+        else:
+            self._post_build()
         return success
 
     def _build_latexmk(self, cwd):
@@ -602,9 +607,15 @@ class PdfBuilder(BaseSphinx):
             "-f",
             "-dvi-",
             "-ps-",
-            f"-jobname={self.project.slug}_%A",
             "-interaction=nonstopmode",
         ]
+
+        if self.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS):
+            cmd.append(f"-jobname={self.project.slug}_%A")
+        else:
+            cmd.append(
+                f"-jobname={self.project.slug}",
+            )
 
         cmd_ret = self.build_env.run_command_class(
             cls=latex_class,
@@ -613,19 +624,73 @@ class PdfBuilder(BaseSphinx):
             cwd=self.absolute_host_output_dir,
         )
 
-        pdf_files = glob(os.path.join(self.absolute_host_output_dir, "*.pdf"))
+        if self.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS):
+            pdf_files = glob(os.path.join(self.absolute_host_output_dir, "*.pdf"))
 
-        # There is only 1 PDF file. We will call it project_slug.pdf
-        # This is the old behavior.
-        if len(pdf_files) == 1:
-            os.rename(
-                pdf_files[0],
-                os.path.join(self.absolute_host_output_dir, f"{self.project.slug}.pdf"),
-            )
+            # There is only 1 PDF file. We will call it project_slug.pdf
+            # This is the old behavior.
+            if len(pdf_files) == 1:
+                os.rename(
+                    pdf_files[0],
+                    os.path.join(
+                        self.absolute_host_output_dir, f"{self.project.slug}.pdf"
+                    ),
+                )
+        else:
+            self.pdf_file_name = f"{self.project.slug}.pdf"
 
         return cmd_ret.successful
 
+    # Removed by Feature.ENABLE_MULTIPLE_PDFS
     def _post_build(self):
+        """Internal post build to cleanup PDF output directory and leave only one .pdf file."""
+
+        if not self.pdf_file_name:
+            raise PDFNotFound()
+
+        # TODO: merge this with ePUB since it's pretty much the same
+        temp_pdf_file = f"/tmp/{self.project.slug}-{self.version.slug}.pdf"
+        target_file = os.path.join(
+            self.absolute_container_output_dir,
+            self.pdf_file_name,
+        )
+
+        # NOTE: we currently support only one .pdf per version
+        pdf_sphinx_filepath = os.path.join(
+            self.absolute_container_output_dir, self.pdf_file_name
+        )
+        pdf_sphinx_filepath_host = os.path.join(
+            self.absolute_host_output_dir,
+            self.pdf_file_name,
+        )
+        if os.path.exists(pdf_sphinx_filepath_host):
+            self.run(
+                "mv",
+                pdf_sphinx_filepath,
+                temp_pdf_file,
+                cwd=self.project_path,
+                record=False,
+            )
+            self.run(
+                "rm",
+                "-r",
+                self.absolute_container_output_dir,
+                cwd=self.project_path,
+                record=False,
+            )
+            self.run(
+                "mkdir",
+                "-p",
+                self.absolute_container_output_dir,
+                cwd=self.project_path,
+                record=False,
+            )
+            self.run(
+                "mv", temp_pdf_file, target_file, cwd=self.project_path, record=False
+            )
+
+    # Introduced by Feature.ENABLE_MULTIPLE_PDFS
+    def _post_build_multiple(self):
         """Internal post build to cleanup PDF output directory and leave only .pdf files."""
 
         pdf_files = glob(os.path.join(self.absolute_host_output_dir, "*.pdf"))
