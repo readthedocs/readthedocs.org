@@ -636,7 +636,7 @@ class CommunityBaseSettings(Settings):
             'nodejs': {
                 '14': '14.20.1',
                 '16': '16.18.1',
-                '18': '18.11.0',
+                '18': '18.16.1',  # LTS
                 '19': '19.0.1',
             },
             'rust': {
