@@ -27,9 +27,9 @@ Enabling SSO
 
 You can enable this feature in your organization by:
 
-* Navigate to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Organization name>` > :guilabel:`Settings` > :guilabel:`Authorization`
-* Select :guilabel:`GitHub, GitLab or Bitbucket` on the :guilabel:`Provider` dropdown.
-* Select :guilabel:`Save`
+1. Navigate to the `authorization setting page <https://readthedocs.com/organizations/choose/organization_sso/>`__.
+2. Select :guilabel:`GitHub, GitLab or Bitbucket` on the :guilabel:`Provider` dropdown.
+3. Select :guilabel:`Save`
 
 .. warning::
     Once you enable this option,

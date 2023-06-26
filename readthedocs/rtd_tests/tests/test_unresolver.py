@@ -10,6 +10,7 @@ from readthedocs.core.unresolver import (
     InvalidExternalDomainError,
     InvalidExternalVersionError,
     InvalidPathForVersionedProjectError,
+    InvalidSchemeError,
     SuspiciousHostnameError,
     TranslationNotFoundError,
     TranslationWithoutVersionError,
@@ -365,3 +366,14 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, external_version)
         self.assertEqual(parts.filename, "/index.html")
+
+    def test_unresolve_invalid_scheme(self):
+        invalid_urls = [
+            "fttp://pip.readthedocs.io/en/latest/",
+            "fttps://pip.readthedocs.io/en/latest/",
+            "ssh://pip.readthedocs.io/en/latest/",
+            "://pip.readthedocs.io/en/latest/",
+        ]
+        for url in invalid_urls:
+            with pytest.raises(InvalidSchemeError):
+                unresolve(url)
