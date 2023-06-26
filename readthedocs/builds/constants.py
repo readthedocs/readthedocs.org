@@ -187,15 +187,6 @@ ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT_NO_PDF = (
 )
 
 # Part of Feature: ENABLE_MULTIPLE_PDFS
-# For certain media types, we only want to copy out specific file extensions.
-# This is treated case-insensitive.
-ARTIFACTS_WITH_RESTRICTED_EXTENSIONS = {
-    "pdf": ["pdf"],
-    "htmlzip": ["zip"],
-    "epub": ["epub"],
-}
-
-# Part of Feature: ENABLE_MULTIPLE_PDFS
 # These artifacts are understood as "downloadable" and will be indexed as an ImportedFile
 DOWNLOADABLE_ARTIFACTS = {
     "htmlzip",

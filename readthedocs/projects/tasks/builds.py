@@ -22,7 +22,6 @@ from readthedocs.builds.constants import (
     ARTIFACT_TYPES,
     ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT,
     ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT_NO_PDF,
-    ARTIFACTS_WITH_RESTRICTED_EXTENSIONS,
     BUILD_FINAL_STATES,
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
@@ -61,6 +60,7 @@ from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
 from readthedocs.worker import app
 
+from ..constants import MEDIA_TYPES_EXTENSIONS
 from ..exceptions import (
     ProjectConfigurationError,
     RepositoryError,
@@ -639,7 +639,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
             for filename in artifact_directory_ls:
                 log.info("Found an artifact in output directory", filename=filename)
-                extensions_allowed = ARTIFACTS_WITH_RESTRICTED_EXTENSIONS[artifact_type]
+                extensions_allowed = MEDIA_TYPES_EXTENSIONS[artifact_type]
                 if not os.path.isfile(os.path.join(artifact_directory, filename)):
                     continue
                 if not any(filename.endswith(f".{ext}") for ext in extensions_allowed):
@@ -947,10 +947,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             try:
                 if self.data.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS):
                     rclone_kwargs = {}
-                    if media_type in ARTIFACTS_WITH_RESTRICTED_EXTENSIONS:
-                        rclone_kwargs[
-                            "filter_extensions"
-                        ] = ARTIFACTS_WITH_RESTRICTED_EXTENSIONS[media_type]
+                    if media_type in MEDIA_TYPES_EXTENSIONS:
+                        rclone_kwargs["filter_extensions"] = MEDIA_TYPES_EXTENSIONS[
+                            media_type
+                        ]
                     build_media_storage.rclone_sync_directory(
                         from_path, to_path, **rclone_kwargs
                     )
