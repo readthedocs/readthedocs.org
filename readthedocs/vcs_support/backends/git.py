@@ -229,6 +229,7 @@ class Backend(BaseVCS):
 
         # Log a warning, except for machine versions since it's a known bug that
         # we haven't stored a remote refspec in Version for those "stable" versions.
+        # This could be the case for an unknown default branch.
         elif not self.version_machine:
             # We are doing a fetch without knowing the remote reference.
             # This is expensive, so log the event.
