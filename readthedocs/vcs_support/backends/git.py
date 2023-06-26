@@ -144,7 +144,7 @@ class Backend(BaseVCS):
             # other tagged release, we will fetch the exact commit it points to.
             if self.version_machine and self.verbose_name == "stable":
                 if self.version_identifier:
-                    return f"{self.version_identifier}:readthedocs/stable"
+                    return f"{self.version_identifier}"
                 log.error("'stable' version without a commit hash.")
                 return None
             return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
