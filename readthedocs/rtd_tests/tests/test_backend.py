@@ -468,11 +468,13 @@ class TestGitBackendNew(TestGitBackend):
             project=self.project,
             type=EXTERNAL,
             active=True,
+            identifier="84492ad53ff8aba83015123f4e68d5897a1fd5bc",  # commit hash
+            verbose_name="1234",  # pr number
         )
         repo = self.project.vcs_repo(
             verbose_name=version.verbose_name,
             version_type=version.type,
-            version_identifier="84492ad53ff8aba83015123f4e68d5897a1fd5bc",
+            version_identifier=version.identifier,
             environment=self.build_environment,
         )
         repo.update()
