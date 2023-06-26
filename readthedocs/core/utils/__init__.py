@@ -43,6 +43,7 @@ def prepare_build(
     :rtype: tuple
     """
     # Avoid circular import
+    from readthedocs.api.v2.models import BuildAPIKey
     from readthedocs.builds.models import Build
     from readthedocs.builds.tasks import send_build_notifications
     from readthedocs.projects.models import Project, WebHookEvent
@@ -157,6 +158,8 @@ def prepare_build(
         )
         build.save()
 
+    _, build_api_key = BuildAPIKey.objects.create_key(project=project)
+
     return (
         update_docs_task.signature(
             args=(
@@ -164,7 +167,8 @@ def prepare_build(
                 build.pk,
             ),
             kwargs={
-                'build_commit': commit,
+                "build_commit": commit,
+                "build_api_key": build_api_key,
             },
             options=options,
             immutable=True,

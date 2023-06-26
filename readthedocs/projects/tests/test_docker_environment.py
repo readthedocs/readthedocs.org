@@ -31,7 +31,7 @@ class TestDockerBuildEnvironmentNew:
             project=self.project,
             version=self.version,
             build={'id': self.build.pk},
-            api_client=setup_api(),
+            api_client=setup_api("1234"),
         )
 
     def test_container_id(self):
