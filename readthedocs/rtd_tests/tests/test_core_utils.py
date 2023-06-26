@@ -59,6 +59,7 @@ class CoreUtilTests(TestCase):
             ),
             kwargs={
                 'build_commit': None,
+                "build_api_key": mock.ANY,
             },
             options=mock.ANY,
             immutable=True,
@@ -80,6 +81,7 @@ class CoreUtilTests(TestCase):
             ),
             kwargs={
                 'build_commit': None,
+                "build_api_key": mock.ANY,
             },
             options=mock.ANY,
             immutable=True,
@@ -166,6 +168,7 @@ class CoreUtilTests(TestCase):
             ),
             kwargs={
                 'build_commit': None,
+                "build_api_key": mock.ANY,
             },
             options=options,
             immutable=True,

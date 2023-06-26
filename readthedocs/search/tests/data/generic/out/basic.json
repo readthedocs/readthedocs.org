@@ -43,7 +43,6 @@
         "title": "Title of the page",
         "content": "Content of the body. No section for me This term does not have an ID so it's not gonna get its own section"
       }
-    ],
-    "domain_data": {}
+    ]
   }
 ]

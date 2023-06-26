@@ -177,6 +177,8 @@ djangorestframework==3.14.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
+djangorestframework-api-key==2.3.0
+    # via -r requirements/pip.txt
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
 docker==6.1.2
@@ -381,7 +383,6 @@ selectolax==0.3.14
 six==1.16.0
     # via
     #   -r requirements/pip.txt
-    #   asttokens
     #   click-repl
     #   django-annoying
     #   django-elasticsearch-dsl

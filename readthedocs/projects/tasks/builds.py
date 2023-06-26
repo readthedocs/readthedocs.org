@@ -156,7 +156,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         # argument
         self.data.version_pk = args[0]
 
-        self.data.api_client = setup_api()
+        self.data.api_client = setup_api(kwargs["build_api_key"])
 
         # load all data from the API required for the build
         self.data.version = self.get_version(self.data.version_pk)
@@ -241,7 +241,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     base=SyncRepositoryTask,
     bind=True,
 )
-def sync_repository_task(self, version_id, **kwargs):
+def sync_repository_task(self, version_id, *, build_api_key, **kwargs):
     # In case we pass more arguments than expected, log them and ignore them,
     # so we don't break builds while we deploy a change that requires an extra argument.
     if kwargs:
@@ -395,7 +395,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # anymore and we are not using it
             self.data.environment_class = LocalBuildEnvironment
 
-        self.data.api_client = setup_api()
+        self.data.api_client = setup_api(kwargs["build_api_key"])
 
         self.data.build = self.get_build(self.data.build_pk)
         self.data.version = self.get_version(self.data.version_pk)
@@ -700,6 +700,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         if self.data.version:
             clean_build(self.data.version)
 
+        try:
+            self.data.api_client.revoke.post()
+        except Exception:
+            log.exception("Failed to revoke build api key.", exc_info=True)
+
         log.info(
             'Build finished.',
             length=self.data.build['length'],
@@ -940,7 +945,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     bind=True,
     ignore_result=True,
 )
-def update_docs_task(self, version_id, build_id, build_commit=None, **kwargs):
+def update_docs_task(
+    self, version_id, build_id, *, build_api_key, build_commit=None, **kwargs
+):
     # In case we pass more arguments than expected, log them and ignore them,
     # so we don't break builds while we deploy a change that requires an extra argument.
     if kwargs:

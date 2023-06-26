@@ -13,6 +13,7 @@ from django_dynamic_fixture import get
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.api.v2.views.integrations import (
     GITHUB_CREATE,
     GITHUB_DELETE,
@@ -603,6 +604,31 @@ class APIBuildTests(TestCase):
 class APITests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
+    def test_revoke_build_api_key(self):
+        user = get(User)
+        project = get(Project, users=[user])
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client = APIClient()
+        revoke_url = "/api/v2/revoke/"
+        self.assertTrue(BuildAPIKey.objects.is_valid(build_api_key))
+
+        # Anonymous request.
+        client.logout()
+        resp = client.post(revoke_url)
+        self.assertEqual(resp.status_code, 403)
+        self.assertTrue(BuildAPIKey.objects.is_valid(build_api_key))
+
+        # Using user/password.
+        client.force_login(user)
+        resp = client.post(revoke_url)
+        self.assertEqual(resp.status_code, 403)
+        self.assertTrue(BuildAPIKey.objects.is_valid(build_api_key))
+
+        client.logout()
+        resp = client.post(revoke_url, HTTP_AUTHORIZATION=f"Token {build_api_key}")
+        self.assertEqual(resp.status_code, 204)
+        self.assertFalse(BuildAPIKey.objects.is_valid(build_api_key))
+
     def test_user_doesnt_get_full_api_return(self):
         user_normal = get(User, is_staff=False)
         user_admin = get(User, is_staff=True)
@@ -698,6 +724,52 @@ class APITests(TestCase):
             resp = client.patch(f"/api/v2/project/{project.pk}/")
             self.assertEqual(resp.status_code, 200)
 
+    def test_project_read_and_write_endpoints_for_build_api_token(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        client = APIClient()
+
+        _, build_api_key = BuildAPIKey.objects.create_key(project_a)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/project/")
+        self.assertEqual(resp.status_code, 410)
+
+        # We don't allow creating projects.
+        resp = client.post("/api/v2/project/")
+        self.assertEqual(resp.status_code, 405)
+
+        # The key grants access to project_a only.
+        resp = client.get(f"/api/v2/project/{project_a.pk}/")
+        self.assertEqual(resp.status_code, 200)
+
+        # We don't allow deleting projects.
+        resp = client.delete(f"/api/v2/project/{project_a.pk}/")
+        self.assertEqual(resp.status_code, 405)
+
+        # Update is fine.
+        resp = client.patch(f"/api/v2/project/{project_a.pk}/")
+        self.assertEqual(resp.status_code, 200)
+
+        disallowed_projects = [
+            project_b,
+            project_c,
+        ]
+        for project in disallowed_projects:
+            resp = client.get(f"/api/v2/project/{project.pk}/")
+            self.assertEqual(resp.status_code, 404)
+
+            resp = client.delete(f"/api/v2/project/{project.pk}/")
+            self.assertEqual(resp.status_code, 405)
+
+            resp = client.patch(f"/api/v2/project/{project.pk}/")
+            self.assertEqual(resp.status_code, 404)
+
     def test_build_read_only_endpoints_for_normal_user(self):
         user_normal = get(User, is_staff=False)
         user_admin = get(User, is_staff=True)
@@ -773,6 +845,55 @@ class APITests(TestCase):
             # Update them is fine.
             resp = client.patch(f"/api/v2/build/{build.pk}/")
             self.assertEqual(resp.status_code, 200)
+
+    def test_build_read_and_write_endpoints_for_build_api_token(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        client = APIClient()
+
+        _, build_api_key = BuildAPIKey.objects.create_key(project_a)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/build/")
+        self.assertEqual(resp.status_code, 410)
+
+        # We don't allow to create builds.
+        resp = client.post("/api/v2/build/")
+        self.assertEqual(resp.status_code, 405)
+
+        Version.objects.all().update(privacy_level=PUBLIC)
+
+        # The key grants access to builds form project_a only.
+        build = get(Build, project=project_a, version=project_a.versions.first())
+        resp = client.get(f"/api/v2/build/{build.pk}/")
+        self.assertEqual(resp.status_code, 200)
+
+        # We don't allow deleting builds.
+        resp = client.delete(f"/api/v2/build/{build.pk}/")
+        self.assertEqual(resp.status_code, 405)
+
+        # Update them is fine.
+        resp = client.patch(f"/api/v2/build/{build.pk}/")
+        self.assertEqual(resp.status_code, 200)
+
+        disallowed_builds = [
+            get(Build, project=project_b, version=project_b.versions.first()),
+            get(Build, project=project_c, version=project_c.versions.first()),
+        ]
+        for build in disallowed_builds:
+            resp = client.get(f"/api/v2/build/{build.pk}/")
+            self.assertEqual(resp.status_code, 404)
+
+            resp = client.delete(f"/api/v2/build/{build.pk}/")
+            self.assertEqual(resp.status_code, 405)
+
+            resp = client.patch(f"/api/v2/build/{build.pk}/")
+            self.assertEqual(resp.status_code, 404)
 
     def test_build_commands_read_only_endpoints_for_normal_user(self):
         user_normal = get(User, is_staff=False)
@@ -864,6 +985,82 @@ class APITests(TestCase):
             resp = client.patch(f"/api/v2/command/{command.pk}/")
             self.assertEqual(resp.status_code, 405)
 
+    def test_build_commands_read_and_write_endpoints_for_build_api_token(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        client = APIClient()
+
+        _, build_api_key = BuildAPIKey.objects.create_key(project_a)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/command/")
+        self.assertEqual(resp.status_code, 410)
+
+        Version.objects.all().update(privacy_level=PUBLIC)
+
+        build = get(Build, project=project_a, version=project_a.versions.first())
+        command = get(BuildCommandResult, build=build)
+
+        # We allow creating build commands.
+        resp = client.post(
+            "/api/v2/command/",
+            {
+                "build": build.pk,
+                "command": "test",
+                "output": "test",
+                "exit_code": 0,
+                "start_time": datetime.datetime.utcnow(),
+                "end_time": datetime.datetime.utcnow(),
+            },
+        )
+        self.assertEqual(resp.status_code, 201)
+
+        resp = client.get(f"/api/v2/command/{command.pk}/")
+        self.assertEqual(resp.status_code, 200)
+
+        # We don't allow deleting commands.
+        resp = client.delete(f"/api/v2/command/{command.pk}/")
+        self.assertEqual(resp.status_code, 405)
+
+        # Neither updating them.
+        resp = client.patch(f"/api/v2/command/{command.pk}/")
+        self.assertEqual(resp.status_code, 405)
+
+        disallowed_builds = [
+            get(Build, project=project_b, version=project_b.versions.first()),
+            get(Build, project=project_c, version=project_c.versions.first()),
+        ]
+        disallowed_build_commands = [
+            get(BuildCommandResult, build=build) for build in disallowed_builds
+        ]
+        for command in disallowed_build_commands:
+            resp = client.post(
+                "/api/v2/command/",
+                {
+                    "build": command.build.pk,
+                    "command": "test",
+                    "output": "test",
+                    "exit_code": 0,
+                    "start_time": datetime.datetime.utcnow(),
+                    "end_time": datetime.datetime.utcnow(),
+                },
+            )
+            self.assertEqual(resp.status_code, 403)
+
+            resp = client.get(f"/api/v2/command/{command.pk}/")
+            self.assertEqual(resp.status_code, 404)
+
+            resp = client.delete(f"/api/v2/command/{command.pk}/")
+            self.assertEqual(resp.status_code, 405)
+
+            resp = client.patch(f"/api/v2/command/{command.pk}/")
+            self.assertEqual(resp.status_code, 405)
+
     def test_versions_read_only_endpoints_for_normal_user(self):
         user_normal = get(User, is_staff=False)
         user_admin = get(User, is_staff=True)
@@ -942,6 +1139,55 @@ class APITests(TestCase):
             resp = client.patch(f"/api/v2/version/{version.pk}/")
             self.assertEqual(resp.status_code, 200)
 
+    def test_versions_read_and_write_endpoints_for_build_api_token(self):
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        Version.objects.all().update(privacy_level=PUBLIC)
+
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project_a)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/version/")
+        self.assertEqual(resp.status_code, 410)
+
+        # We don't allow to create versions.
+        resp = client.post("/api/v2/version/")
+        self.assertEqual(resp.status_code, 405)
+
+        version = project_a.versions.first()
+        resp = client.get(f"/api/v2/version/{version.pk}/")
+        self.assertEqual(resp.status_code, 200)
+
+        # We don't allow deleting versions.
+        resp = client.delete(f"/api/v2/version/{version.pk}/")
+        self.assertEqual(resp.status_code, 405)
+
+        # Update them is fine.
+        resp = client.patch(f"/api/v2/version/{version.pk}/")
+        self.assertEqual(resp.status_code, 200)
+
+        disallowed_versions = [
+            project_b.versions.first(),
+            project_c.versions.first(),
+        ]
+        for version in disallowed_versions:
+            resp = client.get(f"/api/v2/version/{version.pk}/")
+            self.assertEqual(resp.status_code, 404)
+
+            # We don't allow deleting versions.
+            resp = client.delete(f"/api/v2/version/{version.pk}/")
+            self.assertEqual(resp.status_code, 405)
+
+            # Update them is fine.
+            resp = client.patch(f"/api/v2/version/{version.pk}/")
+            self.assertEqual(resp.status_code, 404)
+
     def test_domains_read_only_endpoints_for_normal_user(self):
         user_normal = get(User, is_staff=False)
         user_admin = get(User, is_staff=True)
@@ -1019,6 +1265,45 @@ class APITests(TestCase):
             # Neither update them.
             resp = client.patch(f"/api/v2/domain/{domain.pk}/")
             self.assertEqual(resp.status_code, 405)
+
+    def test_domains_read_and_write_endpoints_for_build_api_token(self):
+        # Build API tokens don't grant access to the domain endpoints.
+        user_normal = get(User, is_staff=False)
+        user_admin = get(User, is_staff=True)
+
+        project_a = get(Project, users=[user_normal], privacy_level=PUBLIC)
+        project_b = get(Project, users=[user_admin], privacy_level=PUBLIC)
+        project_c = get(Project, privacy_level=PUBLIC)
+        Version.objects.all().update(privacy_level=PUBLIC)
+
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project_a)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        # List operations without a filter aren't allowed.
+        resp = client.get("/api/v2/domain/")
+        self.assertEqual(resp.status_code, 410)
+
+        # We don't allow to create domains.
+        resp = client.post("/api/v2/domain/")
+        self.assertEqual(resp.status_code, 403)
+
+        domains = [
+            get(Domain, project=project_a),
+            get(Domain, project=project_b),
+            get(Domain, project=project_c),
+        ]
+        for domain in domains:
+            resp = client.get(f"/api/v2/domain/{domain.pk}/")
+            self.assertEqual(resp.status_code, 200)
+
+            # We don't allow deleting domains.
+            resp = client.delete(f"/api/v2/domain/{domain.pk}/")
+            self.assertEqual(resp.status_code, 403)
+
+            # Neither update them.
+            resp = client.patch(f"/api/v2/domain/{domain.pk}/")
+            self.assertEqual(resp.status_code, 403)
 
     def test_project_features(self):
         user = get(User, is_staff=True)
@@ -1385,7 +1670,12 @@ class IntegrationsTests(TestCase):
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
         sync_repository_task.apply_async.assert_called_with(
-            (latest_version.pk,),
+            args=[
+                latest_version.pk,
+            ],
+            kwargs={
+                "build_api_key": mock.ANY,
+            },
             queue='specific-build-queue',
         )
 
@@ -1469,7 +1759,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     @mock.patch("readthedocs.core.views.hooks.sync_repository_task")
     def test_github_ping_event(self, sync_repository_task, trigger_build):
@@ -1504,7 +1796,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     @mock.patch('readthedocs.core.utils.trigger_build')
     def test_github_pull_request_opened_event(self, trigger_build, core_trigger_build):
@@ -1725,7 +2019,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     def test_github_parse_ref(self, trigger_build):
         wh = GitHubWebhookView()
@@ -2025,7 +2321,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_gitlab_push_hook_deletion(
@@ -2047,7 +2345,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_gitlab_tag_push_hook_creation(
@@ -2070,7 +2370,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_gitlab_tag_push_hook_deletion(
@@ -2093,7 +2395,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     def test_gitlab_invalid_webhook(self, trigger_build):
         """GitLab webhook unhandled event."""
@@ -2529,7 +2833,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task')
     def test_bitbucket_push_hook_deletion(
@@ -2548,7 +2854,9 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], [LATEST])
         trigger_build.assert_not_called()
         latest_version = self.project.versions.get(slug=LATEST)
-        sync_repository_task.apply_async.assert_called_with((latest_version.pk,))
+        sync_repository_task.apply_async.assert_called_with(
+            args=[latest_version.pk], kwargs={"build_api_key": mock.ANY}
+        )
 
     def test_bitbucket_invalid_webhook(self, trigger_build):
         """Bitbucket webhook unhandled event."""
