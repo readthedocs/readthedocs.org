@@ -294,10 +294,7 @@ class FeatureQuerySetTests(TestCase):
         )
 
     def test_importedfile_queryset(self):
-        """
-        Asserts that queryset methods function
-        :return:
-        """
+        """Verify queryset methods for ImportedFile."""
         project1 = fixture.get(Project, main_language_project=None)
 
         imported_pdf = get(

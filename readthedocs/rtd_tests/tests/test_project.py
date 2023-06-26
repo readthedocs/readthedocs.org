@@ -281,6 +281,7 @@ class TestProject(ProjectMixin, TestCase):
         self.assertEqual(self.pip.git_service_class(), GitLabService)
 
     def test_artifact_path(self):
+        """Verify that we can generate a meaningful path from known methods and constants."""
         project1 = get(Project, main_language_project=None)
 
         imported_pdf = get(
@@ -289,9 +290,12 @@ class TestProject(ProjectMixin, TestCase):
             name="test1.pdf",
             path="test1.pdf",
         )
-        assert project1.artifact_path(imported_pdf.get_media_type()).endswith(
-            f"/{BUILD_COMMANDS_OUTPUT_PATH}pdf"
-        )
+        media_path = project1.artifact_path(imported_pdf.get_media_type())
+
+        # Verify that BUILD_COMMANDS_OUTPUT_PATH is part of the path
+        assert media_path.endswith(f"/{BUILD_COMMANDS_OUTPUT_PATH}pdf")
+        # Verify that it ends with /pdf as expected
+        assert media_path.endswith("/pdf")
 
 
 @mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())
