@@ -47,6 +47,15 @@ MEDIA_TYPES = (
     MEDIA_TYPE_JSON,
 )
 
+# Map extensions to their media type
+MEDIA_TYPES_EXTENSIONS = {
+    MEDIA_TYPE_HTML: ("html",),
+    MEDIA_TYPE_PDF: ("pdf",),
+    MEDIA_TYPE_EPUB: ("epub",),
+    MEDIA_TYPE_HTMLZIP: ("zip",),
+    MEDIA_TYPE_JSON: ("json",),
+}
+
 BUILD_COMMANDS_OUTPUT_PATH = "_readthedocs/"
 BUILD_COMMANDS_OUTPUT_PATH_HTML = os.path.join(BUILD_COMMANDS_OUTPUT_PATH, "html")
 

@@ -57,11 +57,13 @@ from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
+    BUILD_COMMANDS_OUTPUT_PATH,
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPE_EPUB,
     MEDIA_TYPE_HTMLZIP,
     MEDIA_TYPE_PDF,
     MEDIA_TYPES,
+    MEDIA_TYPES_EXTENSIONS,
 )
 
 log = structlog.get_logger(__name__)
@@ -915,10 +917,12 @@ class Project(models.Model):
         """
         The path to the build docs output for the project.
 
-        :param type_: one of `html`, `json`, `htmlzip`, `pdf`, `epub`.
+        :param type_: A type listed in constants.MEDIA_TYPES
         :param version: slug of the version.
         """
-        return os.path.join(self.checkout_path(version=version), "_readthedocs", type_)
+        return os.path.join(
+            self.checkout_path(version=version), BUILD_COMMANDS_OUTPUT_PATH, type_
+        )
 
     def conf_file(self, version=LATEST):
         """Find a Sphinx ``conf.py`` file in the project checkout."""
@@ -1513,6 +1517,16 @@ class ImportedFile(models.Model):
             # this should always be False because we don't have ImportedFile's for external versions
             external=False,
         )
+
+    def get_media_type(self):
+        """Returns a matching media type constant from constants.MEDIA_TYPES."""
+        __, extension = os.path.splitext(self.name)
+        if not extension:
+            return
+        extension = extension.lstrip(".")
+        for _type, valid_extensions in MEDIA_TYPES_EXTENSIONS.items():
+            if extension in valid_extensions:
+                return _type
 
     def __str__(self):
         return '{}: {}'.format(self.name, self.project)

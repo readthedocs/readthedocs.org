@@ -22,6 +22,7 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.services import GitHubService, GitLabService
 from readthedocs.projects.constants import (
+    BUILD_COMMANDS_OUTPUT_PATH,
     GITHUB_BRAND,
     GITLAB_BRAND,
     MEDIA_TYPE_EPUB,
@@ -31,7 +32,7 @@ from readthedocs.projects.constants import (
     MEDIA_TYPES,
 )
 from readthedocs.projects.exceptions import ProjectConfigurationError
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import ImportedFile, Project
 from readthedocs.projects.tasks.utils import finish_inactive_builds
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
@@ -278,6 +279,19 @@ class TestProject(ProjectMixin, TestCase):
         self.pip.repo = 'https://gitlab.com/pypa/pip'
         self.pip.save()
         self.assertEqual(self.pip.git_service_class(), GitLabService)
+
+    def test_artifact_path(self):
+        project1 = get(Project, main_language_project=None)
+
+        imported_pdf = get(
+            ImportedFile,
+            project=project1,
+            name="test1.pdf",
+            path="test1.pdf",
+        )
+        assert project1.artifact_path(imported_pdf.get_media_type()).endswith(
+            f"/{BUILD_COMMANDS_OUTPUT_PATH}pdf"
+        )
 
 
 @mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())

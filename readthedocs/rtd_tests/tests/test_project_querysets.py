@@ -7,7 +7,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Feature, ImportedFile, Project
 from readthedocs.projects.querysets import (
     ChildRelatedProjectQuerySet,
     ParentRelatedProjectQuerySet,
@@ -292,3 +292,48 @@ class FeatureQuerySetTests(TestCase):
             [repr(feature)],
             ordered=False,
         )
+
+    def test_importedfile_queryset(self):
+        """
+        Asserts that queryset methods function
+        :return:
+        """
+        project1 = fixture.get(Project, main_language_project=None)
+
+        imported_pdf = get(
+            ImportedFile,
+            project=project1,
+            name="test1.pdf",
+            path="test1.pdf",
+        )
+
+        imported_epub = get(
+            ImportedFile,
+            project=project1,
+            name="test1.epub",
+            path="test1.epub",
+        )
+
+        imported_html = get(
+            ImportedFile,
+            project=project1,
+            name="test1.html",
+            path="test1.html",
+        )
+
+        imported_htmlzip = get(
+            ImportedFile,
+            project=project1,
+            name="test1.zip",
+            path="test1.zip",
+        )
+
+        assert ImportedFile.objects.html_files().count() == 1
+        assert ImportedFile.objects.pdf_files().count() == 1
+        assert ImportedFile.objects.epub_files().count() == 1
+        assert ImportedFile.objects.htmlzip_files().count() == 1
+
+        assert ImportedFile.objects.html_files().first().name == "test1.html"
+        assert ImportedFile.objects.pdf_files().first().name == "test1.pdf"
+        assert ImportedFile.objects.epub_files().first().name == "test1.epub"
+        assert ImportedFile.objects.htmlzip_files().first().name == "test1.zip"
