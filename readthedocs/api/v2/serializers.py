@@ -118,7 +118,6 @@ class VersionSerializer(serializers.ModelSerializer):
             "has_epub",
             "has_htmlzip",
             "documentation_type",
-            "machine",
         ]
 
 
@@ -143,6 +142,7 @@ class VersionAdminSerializer(VersionSerializer):
             "addons",
             "build_data",
             "canonical_url",
+            "machine",
         ]
 
 
