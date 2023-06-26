@@ -135,23 +135,31 @@ class TestBuildMediaStorage(TestCase):
         # We only accept TOP-LEVEL files, so only test.html and not api/index.html
         self.assertFileTree(storage_dir, ("test.html",))
 
+        # Copy in a couple of other types of files
+        open(os.path.join(tmp_files_dir, "test.pdf"), "w").write("test")
+        open(os.path.join(tmp_files_dir, "test.exe"), "w").write("test")
+
+        # Move the .pdf file
+        with override_settings(DOCROOT=tmp_files_dir):
+            self.storage.rclone_sync_directory(
+                tmp_files_dir, storage_dir, filter_extensions=["pdf"]
+            )
+
+        # Test that the PDF file is now there
+        # ...AND the file we copied in the previos step.
+        self.assertFileTree(
+            storage_dir,
+            (
+                "test.html",
+                "test.pdf",
+            ),
+        )
+
     def test_sync_directory_with_restriction(self):
         """Test that we can as the rclone_sync_directory method to only include a specific extension."""
         tmp_files_dir = os.path.join(tempfile.mkdtemp(), "files")
         # Copy files_dir (with all test files) into tmp_files_dir
         shutil.copytree(files_dir, tmp_files_dir, symlinks=True)
-        storage_dir = "files"
-
-        open(os.path.join(tmp_files_dir, "test.pdf"), "w").write("test")
-        open(os.path.join(tmp_files_dir, "test.exe"), "w").write("test")
-
-        with override_settings(DOCROOT=tmp_files_dir):
-            self.storage.rclone_sync_directory(
-                tmp_files_dir, storage_dir, filter_extensions=["pdf"]
-            )
-        # We only accept TOP-LEVEL files, so only test.html and not test.exe
-        self.assertFileTree(storage_dir, ("test.pdf",))
-
 
     def test_delete_directory(self):
         with override_settings(DOCROOT=files_dir):
