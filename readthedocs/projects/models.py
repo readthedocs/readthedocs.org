@@ -1937,7 +1937,6 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    DONT_CREATE_INDEX = "dont_create_index"
     HOSTING_INTEGRATIONS = "hosting_integrations"
     NO_CONFIG_FILE_DEPRECATED = "no_config_file"
 
@@ -2059,13 +2058,6 @@ class Feature(models.Model):
             _(
                 "Search: Index content directly from html files instead or relying in other "
                 "sources"
-            ),
-        ),
-
-        (
-            DONT_CREATE_INDEX,
-            _(
-                "Sphinx: Do not create index.md or README.rst if the project does not have one."
             ),
         ),
         (

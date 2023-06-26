@@ -276,10 +276,6 @@ class BaseSphinx(BaseBuilder):
 
         The default content is rendered from ``doc_builder/conf.py.tmpl``.
         """
-        if self.config_file is None:
-            master_doc = self.create_index(extension='rst')
-            self._write_config(master_doc=master_doc)
-
         try:
             self.config_file = (
                 self.config_file or self.project.conf_file(self.version.slug)
