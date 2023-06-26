@@ -350,6 +350,15 @@ class TestBuildTask(BuildEnvironmentBase):
         os.makedirs(epub_dir)
         os.makedirs(pdf_dir)
 
+        # Create a .tex file because of a validation step that verifies that intermediate
+        # .tex files were created.
+        pathlib.Path(
+            os.path.join(
+                pdf_dir,
+                f"{self.project.slug}-test1.tex",
+            )
+        ).touch()
+
         # Create 1 epub and 2 pdfs
         pathlib.Path(
             os.path.join(
@@ -373,16 +382,16 @@ class TestBuildTask(BuildEnvironmentBase):
         self._trigger_update_docs_task()
 
         # Update version state
-        assert self.requests_mock.request_history[6]._request.method == "PATCH"
-        assert self.requests_mock.request_history[6].path == "/api/v2/build/1/"
-        assert self.requests_mock.request_history[6].json() == {
+        assert self.requests_mock.request_history[7]._request.method == "PATCH"
+        assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
+        assert self.requests_mock.request_history[7].json() == {
             "addons": False,
             "build_data": None,
             "built": True,
             "documentation_type": "sphinx",
             "has_pdf": True,
             "has_epub": True,
-            "has_htmlzip": True,
+            "has_htmlzip": False,
         }
 
         assert (
