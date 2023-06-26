@@ -67,7 +67,8 @@ class SyncRepositoryMixin:
             )
 
         # GIT_CLONE_FETCH_CHECKOUT_PATTERN: When the feature flag becomes default, we
-        # can start removing this. Maybe also remove dependency on gitpython.
+        # can remove this segment since lsremote is always on.
+        # We can even factor out the dependency to gitpython.
         else:
             if sync_tags:
                 tags = vcs_repository.tags
