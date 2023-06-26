@@ -1,4 +1,4 @@
-Project Privacy Level
+Project privacy level
 ---------------------
 
 .. include:: /shared/admonition-rtd-business.rst

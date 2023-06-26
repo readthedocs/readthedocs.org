@@ -1,10 +1,10 @@
-Read the Docs: Documentation Simplified
+Read the Docs: documentation simplified
 =======================================
 
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: Tutorials 🚀
+   :caption: 🚀 Tutorials
 
    /tutorial/index
    /intro/getting-started-with-sphinx
@@ -15,32 +15,33 @@ Read the Docs: Documentation Simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: Explanation 💡
+   :caption: 💡 Explanation
 
    /choosing-a-site
    /integrations
-   /downloadable-documentation
-   /environment-variables
-   /subprojects
-   /localization
+   /explanation/advanced
 
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: How-to guides 🪄
+   :caption: 🪄 How-to guides
 
-   /guides/authors
-   /guides/administrators
-   /guides/developers
-   /guides/troubleshooting/index
+   Project setup and configuration </guides/setup/index>
+   Build process </guides/build/index>
+   Upgrading and maintaining projects </guides/maintenance/index>
+   Content, themes and SEO </guides/content/index>
+   Security and access </guides/access/index>
+   Account management </guides/management/index>
+   Best practice </guides/best-practice/index>
+   Troubleshooting problems </guides/troubleshooting/index>
 
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: Reference 📚
+   :caption: 📚 Reference
 
    /reference/features
-   /config-file/index
+   /config-file/v2
    /builds
    /build-customization
    /server-side-search/syntax
@@ -48,7 +49,7 @@ Read the Docs: Documentation Simplified
    /api/index
    /changelog
    /about/index
-   Developer Documentation 🔗 <https://dev.readthedocs.io>
+   Developer Documentation <https://dev.readthedocs.io>
 
 .. meta::
    :description lang=en: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.
@@ -58,194 +59,121 @@ Read the Docs: Documentation Simplified
 
    <a style="display: none;" rel="me" href="https://fosstodon.org/@readthedocs">Mastodon</a>
 
-`Read the Docs`_ simplifies software documentation
+Read the Docs simplifies software documentation
 by building, versioning, and hosting of your docs, automatically.
-This enables many "docs like code" workflows,
-keeping your code & documentation as close as possible.
+Treating documentation like code keeps your team in the same tools,
+and your documentation up to date.
 
-Never out of sync |:arrows_counterclockwise:|
-    Whenever you push code to your favorite version control system,
-    whether that is Git or Mercurial,
+|:arrows_counterclockwise:| Up to date documentation
+    Whenever you push code to Git,
     Read the Docs will automatically build your docs
     so your code and documentation are always up-to-date.
-    Read more about :doc:`/integrations`.
+    Get started with our :doc:`tutorial </tutorial/index>`.
 
-Multiple versions |:card_index_dividers:|
-    Read the Docs can host and build multiple versions of your docs
-    so having a 1.0 version of your docs and a 2.0 version
-    of your docs is as easy as having a separate branch or tag in your version control system.
-    Read more about :doc:`/versions`.
+|:card_index_dividers:| Documentation for every version
+    Read the Docs can host multiple versions of your docs.
+    Keep your 1.0 and 2.0 documentation online,
+    pulled directly from Git.
+    Start hosting all your :doc:`versions </versions>`.
 
-Open Source and User Focused |:heartbeat:|
-    Our code is free and `open source <https://github.com/readthedocs/>`_.
-    :doc:`Our company </about/index>` is bootstrapped and 100% user focused.
+|:heartbeat:| Open source and user focused
+    Our company is bootstrapped and 100% user-focused,
+    so our product gets better for our users instead of our investors.
     |org_brand| hosts documentation for over 100,000 large
-    and small open source projects,
-    in almost every human and computer language.
+    and small open source projects.
     |com_brand| supports hundreds of organizations with product and internal documentation.
+    Learn more about :doc:`our two platforms </choosing-a-site>`.
 
-.. _Read the docs: https://readthedocs.org/
+First time here?
+----------------
 
-You can find out more about our all the :doc:`features </reference/features>` in these pages.
+We have a few places for you to get started:
 
-First steps
+.. descriptions here are active
+
+🚀 :doc:`/tutorial/index`
+  Take the first practical steps with Read the Docs.
+
+🚀 :doc:`/examples`
+  Start your journey with an example project to hit the ground running.
+
+🚀 :doc:`All tutorials </tutorials/index>`
+  Using documentation tools like Sphinx or MkDocs for the first time or importing an existing project?
+  We have the tutorials to get you started!
+
+.. TODO: This above item needs its article to be finished in a separate PR
+.. because of what seems to be a bug in Sphinx, we get two <dl> items
+.. if we put comments between items.
+.. https://github.com/readthedocs/readthedocs.org/pull/10071
+.. This page isn't ready for front page treatment
+.. doc:`Why use a dedicated documentation platform? </integrations>`
+.. An introduction to some of the most important reasons for using a *Documentation CI* and build *docs as code*.
+
+
+Explanation
 -----------
 
-Are you new to software documentation
-or are you looking to use your existing docs with Read the Docs?
-Learn about documentation authoring tools such as Sphinx and MkDocs
-to help you create fantastic documentation for your project.
+Get a high-level overview of our platform:
 
-* **Tutorial**: :doc:`/tutorial/index`
+.. Descriptions here are focused on learning
 
-* **Getting started**:
-  :doc:`With Sphinx </intro/getting-started-with-sphinx>` |
-  :doc:`With MkDocs </intro/getting-started-with-mkdocs>` |
-  :doc:`/choosing-a-site`
+.. TODO: This next item needs its article to be finished in a separate PR
+.. https://github.com/readthedocs/readthedocs.org/pull/10071
 
-* **Importing your existing documentation**:
-  :doc:`Import guide </intro/import-guide>`
+💡 :doc:`Continuous Documentation </integrations>`
+  Discover the advantages of having your documentation continuously deployed.
 
-Read the Docs feature overview
-------------------------------
+💡 :doc:`/choosing-a-site`
+  Learn about the differences between |org_brand| and |com_brand|.
 
-Learn more about configuring your automated documentation builds
-and some of the core features of Read the Docs.
+💡 :doc:`/explanation/advanced`
+  Get familiar with some of the more advanced topics of building and deploying documentation with Read the Docs.
 
-* **Overview of core features**:
-  :doc:`/custom-domains` |
-  :doc:`/versions` |
-  :doc:`/downloadable-documentation` |
-  :doc:`/server-side-search/index` |
-  :doc:`/analytics` |
-  :doc:`/pull-requests` |
-  :doc:`/build-notifications` |
-  :doc:`/user-defined-redirects` |
-  :doc:`/security-log`
-
-* **Connecting with GitHub, Bitbucket, or GitLab**:
-  :doc:`Connecting your VCS account </connected-accounts>`
-
-* **Read the Docs build process**:
-  :doc:`Configuration reference </config-file/index>` |
-  :doc:`Build process </builds>` |
-  :doc:`Build customization </build-customization>` |
-  :doc:`/environment-variables` |
-  :doc:`/reference/environment-variables` |
-  :doc:`/badges`
-
-* **Troubleshooting**:
-  :doc:`/support` |
-  :doc:`/faq`
+💡 :doc:`All explanation articles </explanation/index>`
+  Browser all our explanation articles.
 
 
-How-to Guides
+How-to guides
 -------------
 
-These guides will help you walk through specific use cases
-related to Read the Docs itself, documentation tools like Sphinx and MkDocs
-and how to write successful documentation.
+Need to get something specific done?
+These guides provide step-by-step instructions in key areas to get you up to speed faster:
 
-* **For documentation authors**:
-  :doc:`/guides/cross-referencing-with-sphinx` |
-  :doc:`/guides/intersphinx` |
-  :doc:`/guides/jupyter` |
-  :doc:`More guides for authors </guides/authors>`
+.. Descriptions here are active, learn, setup, etc.
+.. The chosen sample of how-tos is intended reflect to width of the how-to section
+.. i.e. NOT only what is most popular or easiest for beginners.
 
-* **For project administrators**:
-  :doc:`Connect Your Git Repository </guides/git-integrations>` |
-  :doc:`Manage Custom Domains </guides/custom-domains>` |
-  :doc:`/guides/technical-docs-seo-guide` |
-  :doc:`/guides/manage-translations-sphinx` |
-  :doc:`/guides/private-submodules` |
-  :doc:`Configure Pull Request Builds </guides/pull-requests>` |
-  :doc:`Use Traffic Analytics </analytics>` |
-  :doc:`/guides/build-notifications` |
-  :doc:`More guides for administrators </guides/administrators>`
+🪄 :doc:`/guides/pull-requests`
+  Setup pull request builds and enjoy previews of each commit.
 
-* **For developers and designers**:
-  :doc:`/guides/private-python-packages` |
-  :doc:`/guides/adding-custom-css` |
-  :doc:`/guides/reproducible-builds` |
-  :doc:`/guides/embedding-content` |
-  :doc:`/guides/conda` |
-  :doc:`Use Traffic Analytics </analytics>` |
-  :doc:`/guides/build-notifications` |
-  :doc:`More guides for developers and designers </guides/developers>`
+🪄 :doc:`/analytics`
+  Learn more about how users are interacting with your documentation.
 
+🪄 :doc:`/guides/cross-referencing-with-sphinx`
+  Learn how to use cross-references in a Sphinx project.
 
-Advanced features of Read the Docs
-----------------------------------
+🪄 :doc:`All how-to guides </guides/index>`
+  Browser the entire catalog for many more how-to guides.
 
-Read the Docs offers many advanced features and options.
-Learn more about these integrations and how you can get the most
-out of your documentation and Read the Docs.
+Reference
+---------
 
-* **Advanced project configuration**:
-  :doc:`subprojects` |
-  :doc:`Single version docs <single-version>` |
-  :doc:`flyout-menu` |
-  :doc:`feature-flags`
+Need to know how something works?
+Here are a few of the most important reference docs:
 
-* **Multi-language documentation**:
-  :doc:`Translations and localization <localization>`
+.. Descriptions here sound like reference
 
-* **Redirects**:
-  :doc:`Automatic redirects <automatic-redirects>`
+📚 :doc:`/reference/features`
+  Overview of all the main features of Read the Docs.
 
-* **Versions**
-  :doc:`Automation rules <automation-rules>`
+📚 :doc:`/config-file/v2`
+  Information for our configuration file: ``.readthedocs.yaml``.
 
-* **Topic specific guides**:
-  :doc:`How-to guides <guides/index>`
+📚 :doc:`/builds`
+  Overview of how documentation builds happen.
 
-* **Extending Read the Docs**:
-  :doc:`REST API <api/index>`
+📚 :doc:`/build-customization`
+  Information on how to add your own build logic or replace default build steps.
 
-
-
-Read the Docs for Business
---------------------------
-
-Read the Docs has a commercial offering with improved support and additional features.
-
-* **Read the Docs for Business**:
-  :doc:`Organizations <commercial/organizations>` |
-  :doc:`Single Sign On <commercial/single-sign-on>` |
-  :doc:`Project Privacy Level <commercial/privacy-level>` |
-  :doc:`Sharing externally <commercial/sharing>`
-
-
-The Read the Docs project and organization
-------------------------------------------
-
-Learn about Read the Docs, the project and the company,
-and find out how you can get involved and contribute to the development and success
-of Read the Docs and the larger software documentation ecosystem.
-
-* **Policies & Process**:
-  :doc:`security` |
-  :doc:`DMCA takedown policy <dmca/index>` |
-  :doc:`/abandoned-projects` |
-  :doc:`/unofficial-projects` |
-  :doc:`Release notes & changelog <changelog>`
-
-
-* **The people and philosophy behind Read the Docs**:
-  :doc:`About Us </about/index>` |
-  :doc:`Team <team>` |
-  :doc:`Open source philosophy <open-source-philosophy>` |
-  :doc:`Our story <story>`
-
-* **Financial and material support**:
-  :doc:`advertising/index` |
-  :doc:`Sponsors <sponsors>`
-
-* **Legal documents**:
-  :doc:`Terms of service <terms-of-service>` |
-  :doc:`Privacy policy <privacy-policy>` |
-  :doc:`Data processing agreement <legal/dpa/index>`
-
-* **Getting involved with Read the Docs**:
-  :doc:`/glossary` |
-  :doc:`Developer Documentation <rtd-dev:index>`
+📚 :doc:`/api/index`
+  Automate your documentation with our API and save yourself some work.

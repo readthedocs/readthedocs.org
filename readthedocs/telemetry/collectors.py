@@ -36,7 +36,7 @@ class BuildDataCollector:
 
     @staticmethod
     def _safe_json_loads(content, default=None):
-        def lowercase(d):  # pylint: disable=invalid-name
+        def lowercase(d):
             """Convert all dictionary keys to lowercase."""
             return {k.lower(): i for k, i in d.items()}
 
@@ -92,6 +92,7 @@ class BuildDataCollector:
             },
         }
         data["doctool"] = self._get_doctool()
+
         return data
 
     def _get_doctool_name(self):

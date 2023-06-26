@@ -123,6 +123,21 @@ class GenericParser:
         We can have pages that have content before the first title or that don't have a title,
         we index that content first under the title of the original page.
         """
+
+        document_title = title
+
+        indexed_nodes = []
+
+        for dd, dt, section in self._parse_dls(body):
+            indexed_nodes.append(dd)
+            indexed_nodes.append(dt)
+            yield section
+
+        # Remove all seen and indexed data outside of traversal.
+        # We want to avoid modifying the DOM tree while traversing it.
+        for node in indexed_nodes:
+            node.decompose()
+
         # Index content for pages that don't start with a title.
         # We check for sections till 3 levels to avoid indexing all the content
         # in this step.
@@ -133,28 +148,94 @@ class GenericParser:
             )
             if content:
                 yield {
-                    'id': '',
-                    'title': title,
-                    'content': content,
+                    "id": "",
+                    "title": document_title,
+                    "content": content,
                 }
         except Exception as e:
-            log.info('Unable to index section', section=str(e))
+            log.info("Unable to index section", section=str(e))
 
         # Index content from h1 to h6 headers.
-        for head_level in range(1, 7):
-            tags = body.css(f'h{head_level}')
-            for tag in tags:
+        for section in [body.css(f"h{h}") for h in range(1, 7)]:
+            for tag in section:
                 try:
-                    title, id = self._parse_section_title(tag)
+                    title, _id = self._parse_section_title(tag)
                     next_tag = self._get_header_container(tag).next
                     content, _ = self._parse_section_content(next_tag, depth=2)
                     yield {
-                        'id': id,
-                        'title': title,
-                        'content': content,
+                        "id": _id,
+                        "title": title,
+                        "content": content,
                     }
-                except Exception as e:
-                    log.info('Unable to index section.', section=str(e))
+                except Exception:
+                    log.info("Unable to index section.", exc_info=True)
+
+    def _parse_dls(self, body):
+
+        # All terms in <dl>s are treated as sections.
+        # We traverse by <dl> - traversing by <dt> has shown in experiments to render a
+        # different traversal order, which could make the tests more unstable.
+        dls = body.css("dl")
+
+        for dl in dls:
+
+            # Hack: Since we cannot use '> dt' nor ':host' in selectolax/Modest,
+            # we use an iterator to select immediate descendants.
+            dts = (node for node in dl.iter() if node.tag == "dt" and node.id)
+
+            # https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dt
+            # multiple <dt> elements in a row indicate several terms that are
+            # all defined by the immediate next <dd> element.
+            for dt in dts:
+                title, _id = self._parse_dt(dt)
+                # Select the first adjacent <dd> using a "gamble" that seems to work.
+                # In this example, we cannot use the current <dt>'s ID because they contain invalid
+                # CSS selector syntax and there's no apparent way to fix that.
+                # https://developer.mozilla.org/en-US/docs/Web/CSS/General_sibling_combinator
+                dd = dt.css_first("dt ~ dd")
+
+                # We only index a dt with an id attribute and an accompanying dd
+                if not dd or not _id:
+                    continue
+
+                # Create a copy of the node to avoid manipulating the
+                # data structure that we're iterating over
+                dd_copy = HTMLParser(dd.html).body.child
+
+                # Remove all nested domains from dd_copy.
+                # They are already parsed separately.
+                for node in dd_copy.css("dl"):
+                    # Traverse all <dt>s with an ID (the ones we index!)
+                    for _dt in node.css('dt[id]:not([id=""])'):
+                        # Fetch adjacent <dd>s and remove them
+                        _dd_dt = _dt.css_first("dt ~ dd")
+                        if _dd_dt:
+                            _dd_dt.decompose()
+                        # Remove the <dt> too
+                        _dt.decompose()
+
+                # The content of the <dt> section is the content of the accompanying <dd>
+                content = self._parse_content(dd_copy.text())
+
+                yield (
+                    dd,
+                    dt,
+                    {
+                        "id": _id,
+                        "title": title,
+                        "content": content,
+                    },
+                )
+
+    def _parse_dt(self, tag):
+        """
+        Parses a definition term <dt>.
+
+        If the <dt> does not have an id attribute, it cannot be referenced.
+        This should be understood by the caller.
+        """
+        section_id = tag.attributes.get("id", "")
+        return self._parse_content(tag.text()), section_id
 
     def _get_sections(self, title, body):
         """Get the first `self.max_inner_documents` sections."""
@@ -177,6 +258,9 @@ class GenericParser:
         """
         Removes nodes with irrelevant content before parsing its sections.
 
+        This method is documented here:
+        https://dev.readthedocs.io/page/search-integration.html#irrelevant-content
+
         .. warning::
 
            This will mutate the original `body`.
@@ -188,6 +272,10 @@ class GenericParser:
             body.css('[role=search]'),
             # Permalinks
             body.css('.headerlink'),
+            # Line numbers from code blocks, they are very noisy in contents.
+            # This convention is popular in Sphinx.
+            body.css(".linenos"),
+            body.css(".lineno"),
         )
         for node in nodes_to_be_removed:
             node.decompose()
@@ -309,7 +397,6 @@ class GenericParser:
                     'content': 'Section content',
                 },
             ],
-            'domain_data': {},
         }
         """
         try:
@@ -322,7 +409,6 @@ class GenericParser:
             "path": page,
             "title": "",
             "sections": [],
-            "domain_data": {},
         }
 
     def _process_content(self, page, content):
@@ -344,7 +430,6 @@ class GenericParser:
             "path": page,
             "title": title,
             "sections": sections,
-            "domain_data": {},
         }
 
 
@@ -391,7 +476,6 @@ class SphinxParser(GenericParser):
             'path': page,
             'title': '',
             'sections': [],
-            'domain_data': {},
         }
 
     def _process_fjson(self, fjson_path):
@@ -407,7 +491,6 @@ class SphinxParser(GenericParser):
         sections = []
         path = ''
         title = ''
-        domain_data = {}
 
         if 'current_page_name' in data:
             path = data['current_page_name']
@@ -424,136 +507,42 @@ class SphinxParser(GenericParser):
             try:
                 body = self._clean_body(HTMLParser(data["body"]))
                 sections = self._get_sections(title=title, body=body.body)
-            except Exception:
-                log.info('Unable to index sections.', path=fjson_path)
-
-            # XXX: Don't index domains while we migrate the ID type of the sphinx domains table.
-            # https://github.com/readthedocs/readthedocs.org/pull/9482.
-            from readthedocs.projects.models import Feature
-
-            if not self.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
-                try:
-                    # Create a new html object, since the previous one could have been modified.
-                    body = HTMLParser(data["body"])
-                    domain_data = self._generate_domains_data(body)
-                except Exception:
-                    log.info("Unable to index domains.", path=fjson_path)
+            except Exception as e:
+                log.info("Unable to index sections.", path=fjson_path, exception=e)
         else:
             log.info('Unable to index content.', path=fjson_path)
 
         return {
-            'path': path,
-            'title': title,
-            'sections': sections,
-            'domain_data': domain_data,
+            "path": path,
+            "title": title,
+            "sections": sections,
         }
-
-    def _get_sphinx_domains(self, body):
-        """
-        Get all nodes that are a sphinx domain.
-
-        A Sphinx domain is a <dl> tag which contains <dt> tags with an 'id' attribute,
-        dl tags that have the "footnote" class aren't domains.
-        """
-        domains = []
-        dl_tags = body.css("dl:has(dt[id])")
-        for tag in dl_tags:
-            classes = tag.attributes.get("class", "").split()
-            if "footnote" not in classes:
-                domains.append(tag)
-        return domains
 
     def _clean_body(self, body):
         """
-        Removes sphinx domain nodes.
+        Removes nodes in Sphinx-generated HTML structures.
 
         This method is overridden to remove contents that are likely
-        to be a sphinx domain (`dl` tags).
-        We already index those in another step.
+        to be useless for search indexing.
+
+        Currently: TOC elements.
         """
         body = super()._clean_body(body)
-        # XXX: Don't exclude domains from the general search
-        # while we migrate the ID type of the sphinx domains table
-        # https://github.com/readthedocs/readthedocs.org/pull/9482.
-        nodes_to_be_removed = []
-        from readthedocs.projects.models import Feature
 
-        if not self.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
-            nodes_to_be_removed = self._get_sphinx_domains(body)
-
-        # TODO: see if we really need to remove these
-        # remove `Table of Contents` elements
-        nodes_to_be_removed += body.css('.toctree-wrapper') + body.css('.contents.local.topic')
+        # TODO: see if we really need to remove TOC elements like below?
+        # benjaoming: I didn't see this in sphinx-rtd-theme, however since it wraps the menu in
+        # a <nav>, it's already covered. I didn't see this match local table of contents, neither
+        # and they are also wrapped in a <nav> so covered by _clean_body as well.
+        nodes_to_be_removed = itertools.chain(
+            body.css(".toctree-wrapper"),
+            body.css(".contents.local.topic"),
+        )
 
         # removing all nodes in list
         for node in nodes_to_be_removed:
             node.decompose()
 
         return body
-
-    def _generate_domains_data(self, body):
-        """
-        Generate sphinx domain objects' docstrings.
-
-        Returns a dict with the generated data.
-        The returned dict is in the following form::
-
-            {
-                "domain-id-1": "docstrings for the domain-id-1",
-                "domain-id-2": "docstrings for the domain-id-2",
-            }
-
-        .. note::
-
-           Only the first `self.max_inner_documents` domains are returned.
-        """
-
-        domain_data = {}
-        dl_tags = self._get_sphinx_domains(body)
-        number_of_domains = 0
-
-        for dl_tag in dl_tags:
-
-            dt = dl_tag.css('dt')
-            dd = dl_tag.css('dd')
-
-            # len(dt) should be equal to len(dd)
-            # because these tags go together.
-            for title, desc in zip(dt, dd):
-                try:
-                    id_ = title.attributes.get('id', '')
-                    if id_:
-                        # Create a copy of the node,
-                        # since _parse_domain_tag will modify it.
-                        copy_desc = HTMLParser(desc.html).body.child
-                        docstrings = self._parse_domain_tag(copy_desc)
-                        domain_data[id_] = docstrings
-                        number_of_domains += 1
-                    if number_of_domains >= self.max_inner_documents:
-                        log.warning(
-                            'Limit of inner domains exceeded.',
-                            project_slug=self.project.slug,
-                            version_slug=self.version.slug,
-                            limit=self.max_inner_documents,
-                        )
-                        break
-                except Exception:
-                    log.exception('Error parsing docstring for domains')
-
-        return domain_data
-
-    def _parse_domain_tag(self, tag):
-        """Returns the text from the description tag of the domain."""
-
-        # Remove all nested domains,
-        # since they are already parsed separately.
-        nested_domains = self._get_sphinx_domains(tag)
-        for node in nested_domains:
-            if tag != node:
-                node.decompose()
-
-        docstring = self._parse_content(tag.text())
-        return docstring
 
 
 class MkDocsParser(GenericParser):
@@ -585,7 +574,6 @@ class MkDocsParser(GenericParser):
             'path': page,
             'title': '',
             'sections': [],
-            'domain_data': {},
         }
 
     def _process_index_file(self, json_path, page):
@@ -628,7 +616,6 @@ class MkDocsParser(GenericParser):
                 page_data.update({
                     'path': path,
                     'title': title,
-                    'domain_data': {},
                 })
             # Content without a fragment need to be indexed as well,
             # this happens when the page doesn't start with a header,

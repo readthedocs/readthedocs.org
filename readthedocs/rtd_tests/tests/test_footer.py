@@ -13,6 +13,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND, PUBLIC
 from readthedocs.projects.models import Project
+from readthedocs.subscriptions.constants import TYPE_CNAME
 
 
 class BaseTestFooterHTML:
@@ -444,11 +445,16 @@ class TestVersionCompareFooter(TestCase):
 
 
 @pytest.mark.proxito
-@override_settings(PUBLIC_DOMAIN='readthedocs.io')
+@override_settings(
+    PUBLIC_DOMAIN="readthedocs.io",
+    RTD_DEFAULT_FEATURES={
+        TYPE_CNAME: 1,
+    },
+)
 class TestFooterPerformance(TestCase):
     # The expected number of queries for generating the footer
     # This shouldn't increase unless we modify the footer API
-    EXPECTED_QUERIES = 12
+    EXPECTED_QUERIES = 11
 
     def setUp(self):
         self.pip = get(

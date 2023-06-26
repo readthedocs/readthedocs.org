@@ -1,4 +1,4 @@
-Preview Documentation from Pull Requests
+Preview documentation from pull requests
 ========================================
 
 Your project can be configured to build and host documentation for every new

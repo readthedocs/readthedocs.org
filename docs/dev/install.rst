@@ -1,4 +1,4 @@
-Development Installation
+Development installation
 ========================
 
 .. meta::
@@ -32,6 +32,27 @@ Set up your environment
 
       git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
 
+#. Install or clone additional repositories:
+
+   .. note::
+
+      This step is only required for Read the Docs core team members.
+
+   Core team should at very least have all required packages installed in their development image.
+   To install these packages you must define a GitHub token before building your image:
+
+   .. prompt:: bash
+
+      export GITHUB_TOKEN="..."
+      export GITHUB_USER="..."
+
+   In order to make development changes on any of our private repositories,
+   such as ``ext`` or ``ext-theme``, you will also need to check these repositories out:
+
+   .. prompt:: bash
+
+      git clone --recurse-submodules https://github.com/readthedocs/ext/
+
 #. Install the requirements from ``common`` submodule:
 
    .. prompt:: bash
@@ -48,10 +69,6 @@ Set up your environment
 
       inv docker.build
 
-   .. tip::
-
-      If you pass the ``GITHUB_TOKEN`` and ``GITHUB_USER`` environment variables to this command,
-      it will add support for readthedocs-ext.
 
 #. Pull down Docker images for the builders:
 
@@ -97,7 +114,12 @@ save some work while typing docker compose commands. This section explains these
     * ``--init`` is used the first time this command is ran to run initial migrations, create an admin user, etc
     * ``--no-reload`` makes all celery processes and django runserver
       to use no reload and do not watch for files changes
-    * ``--ngrok`` is useful when it's required to access the local instance from outside (e.g. GitHub webhook)
+    * ``--no-django-debug`` runs all containers with ``DEBUG=False``
+    * ``--http-domain`` configures an external domain for the environment (useful for Ngrok or other http proxy).
+      Note that https proxies aren't supported.
+      There will also be issues with "suspicious domain" failures on Proxito.
+    * ``--ext-theme`` to use the new dashboard templates
+    * ``--webpack`` to start the Webpack dev server for the new dashboard templates
 
 ``inv docker.shell``
     Opens a shell in a container (web by default).
@@ -195,8 +217,8 @@ debugging currently.
 Configuring connected accounts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-These are optional steps to setup the :doc:`connected accounts <rtd:connected-accounts>`
-(GitHub, GitLab, and Bitbucket) in your development environment.
+These are optional steps to setup the :doc:`connected accounts <rtd:guides/connecting-git-account>`
+(|git_providers_and|) in your development environment.
 This will allow you to login to your local development instance
 using your GitHub, Bitbucket, or GitLab credentials
 and this makes the process of importing repositories easier.

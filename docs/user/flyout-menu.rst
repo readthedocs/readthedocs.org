@@ -1,4 +1,4 @@
-Flyout Menu
+Flyout menu
 ===========
 
 When you are using a Read the Docs site,

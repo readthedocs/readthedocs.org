@@ -17,7 +17,6 @@ from docker.errors import NotFound as DockerNotFoundError
 from requests.exceptions import ConnectionError, ReadTimeout
 from requests_toolbelt.multipart.encoder import MultipartEncoder
 
-from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds.models import BuildCommandResultMixin
 from readthedocs.core.utils import slugify
 from readthedocs.projects.models import Feature
@@ -157,7 +156,7 @@ class BuildCommand(BuildCommandResultMixin):
                 command = self.get_command()
 
             stderr = subprocess.PIPE if self.demux else subprocess.STDOUT
-            proc = subprocess.Popen(
+            proc = subprocess.Popen(  # pylint: disable=consider-using-with
                 command,
                 shell=self.shell,
                 cwd=self.cwd,
@@ -227,7 +226,7 @@ class BuildCommand(BuildCommandResultMixin):
             return ' '.join(self.command)
         return self.command
 
-    def save(self):
+    def save(self, api_client):
         """Save this command and result via the API."""
         # Force record this command as success to avoid Build reporting errors
         # on commands that are just for checking purposes and do not interferes
@@ -251,9 +250,9 @@ class BuildCommand(BuildCommandResultMixin):
             encoder = MultipartEncoder(
                 {key: str(value) for key, value in data.items()}
             )
-            resource = api_v2.command
-            resp = resource._store['session'].post(
-                resource._store['base_url'] + '/',
+            resource = api_client.command
+            resp = resource._store["session"].post(
+                resource._store["base_url"] + "/",
                 data=encoder,
                 headers={
                     'Content-Type': encoder.content_type,
@@ -261,7 +260,7 @@ class BuildCommand(BuildCommandResultMixin):
             )
             log.debug('Post response via multipart form.', response=resp)
         else:
-            resp = api_v2.command.post(data)
+            resp = api_client.command.post(data)
             log.debug('Post response via JSON encoded data.', response=resp)
 
 
@@ -365,10 +364,10 @@ class DockerBuildCommand(BuildCommand):
         ``escape_command=True`` in the init method this escapes a good majority
         of those characters.
         """
-        prefix = ''
+        prefix = ""
         if self.bin_path:
             bin_path = self._escape_command(self.bin_path)
-            prefix += f'PATH={bin_path}:$PATH '
+            prefix += f"PATH={bin_path}:$PATH "
 
         command = (
             ' '.join(
@@ -376,12 +375,13 @@ class DockerBuildCommand(BuildCommand):
                 for part in self.command
             )
         )
-        return (
-            "/bin/sh -c '{prefix}{cmd}'".format(
-                prefix=prefix,
-                cmd=command,
-            )
-        )
+        if prefix:
+            # Using `;` or `\n` to separate the `prefix` where we define the
+            # variables with the `command` itself, have the same effect.
+            # However, using `;` is more explicit.
+            # See https://github.com/readthedocs/readthedocs.org/pull/10334
+            return f"/bin/sh -c '{prefix}; {command}'"
+        return f"/bin/sh -c '{command}'"
 
     def _escape_command(self, cmd):
         r"""Escape the command by prefixing suspicious chars with `\`."""
@@ -399,22 +399,64 @@ class DockerBuildCommand(BuildCommand):
         return command
 
 
-class BaseEnvironment:
+class BaseBuildEnvironment:
 
     """
-    Base environment class.
+    Base build environment.
 
-    Used to run arbitrary commands outside a build.
+    Base class for wrapping command execution for build steps. This class is in
+    charge of raising ``BuildAppError`` for internal application errors that
+    should be communicated to the user as a general unknown error and
+    ``BuildUserError`` that will be exposed to the user with a proper message
+    for them to debug by themselves since they are _not_ a Read the Docs issue.
+
+    :param project: Project that is being built
+    :param version: Project version that is being built
+    :param build: Build instance
+    :param environment: shell environment variables
+    :param record: whether or not record a build commands in the databse via
+     the API. The only case where we want this to be `False` is when
+     instantiating this class from `sync_repository_task` because it's a
+     background task that does not expose commands to the user.
+    :param api_client: API v2 client instance (readthedocs.v2.client).
+     This is used to record commands in the database, if `record=True`
+     this argument is required.
     """
 
-    def __init__(self, project, environment=None):
-        # TODO: maybe we can remove this Project dependency also
+    def __init__(
+        self,
+        project=None,
+        version=None,
+        build=None,
+        config=None,
+        environment=None,
+        record=True,
+        api_client=None,
+        **kwargs,
+    ):
         self.project = project
         self._environment = environment or {}
         self.commands = []
+        self.version = version
+        self.build = build
+        self.config = config
+        self.record = record
+        self.api_client = api_client
+
+        if self.record and not self.api_client:
+            raise ValueError("api_client is required when record=True")
+
+    # TODO: remove these methods, we are not using LocalEnvironment anymore. We
+    # need to find a way for tests to not require this anymore
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, tb):
+        return
 
     def record_command(self, command):
-        pass
+        if self.record:
+            command.save(self.api_client)
 
     def run(self, *cmd, **kwargs):
         """Shortcut to run command from environment."""
@@ -446,15 +488,13 @@ class BaseEnvironment:
 
         # Remove PATH from env, and set it to bin_path if it isn't passed in
         environment = self._environment.copy()
-        env_path = environment.pop('BIN_PATH', None)
-        if 'bin_path' not in kwargs and env_path:
-            kwargs['bin_path'] = env_path
-        if 'environment' in kwargs:
-            raise BuildAppError('environment can\'t be passed in via commands.')
-        kwargs['environment'] = environment
-
-        # ``build_env`` is passed as ``kwargs`` when it's called from a
-        # ``*BuildEnvironment``
+        env_path = environment.pop("BIN_PATH", None)
+        if "bin_path" not in kwargs and env_path:
+            kwargs["bin_path"] = env_path
+        if "environment" in kwargs:
+            raise BuildAppError("environment can't be passed in via commands.")
+        kwargs["environment"] = environment
+        kwargs["build_env"] = self
         build_cmd = cls(cmd, **kwargs)
         build_cmd.run()
 
@@ -496,82 +536,14 @@ class BaseEnvironment:
         return build_cmd
 
 
-class LocalEnvironment(BaseEnvironment):
-
-    # TODO: BuildCommand name doesn't make sense here, should be just Command
-    command_class = BuildCommand
-
-
-class BuildEnvironment(BaseEnvironment):
-
-    """
-    Base build environment.
-
-    Base class for wrapping command execution for build steps. This class is in
-    charge of raising ``BuildAppError`` for internal application errors that
-    should be communicated to the user as a general unknown error and
-    ``BuildUserError`` that will be exposed to the user with a proper message
-    for them to debug by themselves since they are _not_ a Read the Docs issue.
-
-    :param project: Project that is being built
-    :param version: Project version that is being built
-    :param build: Build instance
-    :param environment: shell environment variables
-    :param record: whether or not record a build commands in the databse via
-    the API. The only case where we want this to be `False` is when
-    instantiating this class from `sync_repository_task` because it's a
-    background task that does not expose commands to the user.
-    """
-
-    def __init__(
-            self,
-            project=None,
-            version=None,
-            build=None,
-            config=None,
-            environment=None,
-            record=True,
-            **kwargs,
-    ):
-        super().__init__(project, environment)
-        self.version = version
-        self.build = build
-        self.config = config
-        self.record = record
-
-    # TODO: remove these methods, we are not using LocalEnvironment anymore. We
-    # need to find a way for tests to not require this anymore
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exc_type, exc_value, tb):
-        return
-
-    def record_command(self, command):
-        if self.record:
-            command.save()
-
-    def run(self, *cmd, **kwargs):
-        kwargs.update({
-            'build_env': self,
-        })
-        return super().run(*cmd, **kwargs)
-
-    def run_command_class(self, *cmd, **kwargs):  # pylint: disable=arguments-differ
-        kwargs.update({
-            'build_env': self,
-        })
-        return super().run_command_class(*cmd, **kwargs)
-
-
-class LocalBuildEnvironment(BuildEnvironment):
+class LocalBuildEnvironment(BaseBuildEnvironment):
 
     """Local execution build environment."""
 
     command_class = BuildCommand
 
 
-class DockerBuildEnvironment(BuildEnvironment):
+class DockerBuildEnvironment(BaseBuildEnvironment):
 
     """
     Docker build environment, uses docker to contain builds.
@@ -602,10 +574,7 @@ class DockerBuildEnvironment(BuildEnvironment):
             self.use_gvisor = True
 
         # Decide what Docker image to use, based on priorities:
-        # Use the Docker image set by our feature flag: ``testing`` or,
-        if self.project.has_feature(Feature.USE_TESTING_BUILD_IMAGE):
-            self.container_image = 'readthedocs/build:testing'
-        # the image set by user or,
+        # The image set by user or,
         if self.config and self.config.docker_image:
             self.container_image = self.config.docker_image
         # the image overridden by the project (manually set by an admin).
@@ -661,8 +630,8 @@ class DockerBuildEnvironment(BuildEnvironment):
                 )
                 client = self.get_client()
                 client.remove_container(self.container_id)
-        except (DockerAPIError, ConnectionError) as e:
-            raise BuildAppError(e.explanation)
+        except (DockerAPIError, ConnectionError) as exc:
+            raise BuildAppError(exc.explanation) from exc
 
         # Create the checkout path if it doesn't exist to avoid Docker creation
         if not os.path.exists(self.project.doc_path):
@@ -735,8 +704,8 @@ class DockerBuildEnvironment(BuildEnvironment):
                     version=DOCKER_VERSION,
                 )
             return self.client
-        except DockerException as e:
-            raise BuildAppError(e.explanation)
+        except DockerException as exc:
+            raise BuildAppError(exc.explanation) from exc
 
     def _get_binds(self):
         """
@@ -853,5 +822,5 @@ class DockerBuildEnvironment(BuildEnvironment):
                 runtime=docker_runtime,
             )
             client.start(container=self.container_id)
-        except (DockerAPIError, ConnectionError) as e:
-            raise BuildAppError(e.explanation)
+        except (DockerAPIError, ConnectionError) as exc:
+            raise BuildAppError(exc.explanation) from exc

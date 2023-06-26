@@ -12,11 +12,10 @@ django-autoslug
 django-simple-history==3.0.0
 
 djangorestframework
+djangorestframework-api-key
 
 # For intersphinx during builds
-# We need these pinned to build the docs properly
-Sphinx==4.5.0
-docutils==0.17.1
+Sphinx
 
 # Filtering for the REST API
 django-filter
@@ -91,9 +90,13 @@ git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.
 # "RecursionError: maximum recursion depth exceeded in comparison"
 django-formtools<2.4
 
-django-crispy-forms
+# We cannot upgrade to >=2 because it fails with
+# django.template.exceptions.TemplateDoesNotExist: bootstrap/field.html
+django-crispy-forms<2
 
-docker
+# Force to upgrade to a version with a fix for socket timeouts
+# https://docker-py.readthedocs.io/en/stable/change-log.html#bugfixes
+docker==6.1.2
 
 django-annoying
 django-messages-extends
@@ -127,3 +130,5 @@ structlog
 dparse
 
 gunicorn
+
+django-cacheops

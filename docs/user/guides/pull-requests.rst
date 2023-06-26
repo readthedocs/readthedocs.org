@@ -1,10 +1,10 @@
-How To Configure Pull Request Builds
+How to configure pull request builds
 ====================================
 
-In this section, you can learn how to configure :doc:`Pull Request builds </pull-requests>`.
+In this section, you can learn how to configure :doc:`pull request builds </pull-requests>`.
 
-To enable Pull Request Builds for your project,
-your Read the Docs account needs to be connected to an account with a supported VCS provider.
+To enable pull request builds for your project,
+your Read the Docs account needs to be connected to an account with a supported Git provider.
 See `Limitations`_ for more information.
 
 If your account is already connected:
@@ -13,6 +13,11 @@ If your account is already connected:
 #. Go to :guilabel:`Admin`, then :guilabel:`Advanced settings`
 #. Enable the :guilabel:`Build pull requests for this project` option
 #. Click on :guilabel:`Save`
+
+.. tip::
+
+   Pull requests opened before enabling pull request builds will not trigger new builds automatically.
+   Push a new commit to the pull request to trigger its first build.
 
 Privacy levels
 --------------
@@ -36,7 +41,7 @@ Limitations
 
 - Only available for **GitHub** and **GitLab** currently. Bitbucket is not yet supported.
 - To enable this feature, your Read the Docs account needs to be connected to an
-  account with your VCS provider.
+  account with your Git provider.
 - Builds from pull requests have the same memory and time limitations
   :doc:`as regular builds </builds>`.
 - Additional formats like PDF and EPUB aren't built, to reduce build time.
@@ -59,22 +64,22 @@ No new builds are started when I open a pull request
    webhook integration.
 
    You may also notice this behavior if your Read the Docs account is not
-   connected to your VCS provider account, or if it needs to be reconnected.
+   connected to your Git provider account, or if it needs to be reconnected.
    You can (re)connect your account by going to your :guilabel:`<Username dropdown>`,
    :guilabel:`Settings`, then to :guilabel:`Connected Services`.
 
 
-Build status is not being reported to your VCS provider
+Build status is not being reported to your Git provider
    If opening a pull request does start a new build, but the build status is not
-   being updated with your VCS provider, then your connected account may have out
+   being updated with your Git provider, then your connected account may have out
    dated or insufficient permisisons.
 
    Make sure that you have granted access to the Read the Docs `OAuth App`_ for
    your personal or organization GitHub account. You can also try reconnecting
-   your account with your VCS provider.
+   your account with your Git provider.
 
 .. seealso::
-   - :ref:`integrations:Debugging webhooks`
+   - :ref:`guides/setup/git-repo-manual:Debugging webhooks`
    - :ref:`github-permission-troubleshooting`
 
 .. _OAuth App: https://github.com/settings/applications

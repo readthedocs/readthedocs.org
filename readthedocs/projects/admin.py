@@ -28,11 +28,7 @@ from .models import (
     WebHook,
     WebHookEvent,
 )
-from .notifications import (
-    DeprecatedBuildWebhookNotification,
-    DeprecatedGitHubWebhookNotification,
-    ResourceUsageNotification,
-)
+from .notifications import ResourceUsageNotification
 from .tag_utils import import_tags
 from .tasks.utils import clean_project_resources
 
@@ -56,8 +52,6 @@ class ReadOnlyInlineMixin:
 class ProjectSendNotificationView(SendNotificationView):
     notification_classes = [
         ResourceUsageNotification,
-        DeprecatedBuildWebhookNotification,
-        DeprecatedGitHubWebhookNotification,
     ]
 
     def get_object_recipients(self, obj):

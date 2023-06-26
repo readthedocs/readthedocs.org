@@ -58,7 +58,7 @@ Payment security
     stored with our payment provider, Stripe -- a PCI-certified level 1 payment
     provider.
 
-Engineering and Operational Practices
+Engineering and operational practices
 -------------------------------------
 
 Immutable infrastructure

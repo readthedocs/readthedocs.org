@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.contrib.messages.views import SuccessMessageMixin
-from django.http import HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -20,6 +20,7 @@ from readthedocs.core.forms import UserAdvertisingForm, UserDeleteForm, UserProf
 from readthedocs.core.history import set_change_reason
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.models import UserProfile
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
@@ -101,21 +102,40 @@ class AccountDelete(PrivateViewMixin, SuccessMessageMixin, FormView):
         return f'origin=form class={klass}'
 
 
-class ProfileDetailBase(DetailView):
+class ProfileDetail(DetailView):
 
     model = User
     template_name = 'profiles/public/profile_detail.html'
     lookup_field = 'username'
 
+    def get_object(self):
+        """
+        Get the user object.
+
+        If organizations are enabled, show the profile to users in the same organization only.
+        Otherwise, all users can see the profile of others.
+        """
+        user = super().get_object()
+        if not settings.RTD_ALLOW_ORGANIZATIONS:
+            return user
+
+        request_user = self.request.user
+        if not request_user.is_authenticated:
+            raise Http404()
+
+        # Always allow users to see their own profile.
+        if request_user == user:
+            return user
+
+        for org in Organization.objects.for_user(request_user):
+            if AdminPermission.is_member(user=user, obj=org):
+                return user
+        raise Http404()
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['profile'] = self.get_object().profile
         return context
-
-
-class ProfileDetail(SettingsOverrideObject):
-
-    _default_class = ProfileDetailBase
 
 
 class AccountAdvertisingEdit(PrivateViewMixin, SuccessMessageMixin, UpdateView):

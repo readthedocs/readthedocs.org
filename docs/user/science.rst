@@ -102,7 +102,7 @@ Here's a brief overview of some :doc:`features </reference/features>` that peopl
     Search analytics
         What are people searching for and do they get hits? From each search query in your documentation, we collect a neat little statistic that can help to improve the discoverability and relevance of your documentation.
 
-    SEO - Don't reinvent Search Engine Optimization
+    SEO - Don't reinvent search engine optimization
         Use built-in SEO best-practices from Sphinx, its themes and Read the Docs hosting. This can give you a good ranking on search engines as a direct outcome of simply writing and publishing your documentation project.
 
 .. dropdown:: 🌱 Grow your own solutions
@@ -133,7 +133,7 @@ Ready to get started?
 .. Note that this is a deliberate repitition of a previous segment. Should it repeat? Maybe not, but for now it's nice to be sure that people see it.
 
 * All new to this? Take the official :external+jupyterbook:doc:`Jupyter Book Tutorial » <start/your-first-book>`
-* Curious for practical code? See the list of :doc:`Example Projects » </examples>`
+* Curious for practical code? See the list of :doc:`example projects » </examples>`
 * Familiar with Sphinx? Read :doc:`How to use Jupyter notebooks in Sphinx » </guides/jupyter>`
 
 

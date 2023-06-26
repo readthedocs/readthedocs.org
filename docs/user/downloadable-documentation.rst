@@ -1,4 +1,4 @@
-Understanding Offline Formats
+Understanding offline formats
 =============================
 
 This page will provide an overview of a core Read the Docs feature: building docs in multiple formats.

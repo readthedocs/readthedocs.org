@@ -10,13 +10,13 @@ please read :doc:`/commercial/single-sign-on`
 Prerequisites
 -------------
 
-.. include:: /_includes/organization-permissions.rst
+.. include:: /shared/organization-permissions.rst
 
 User setup
 ~~~~~~~~~~
 
 Users in your organization must have their GitHub, Bitbucket, or GitLab
-:doc:`account connected </connected-accounts>`,
+:doc:`account connected </guides/connecting-git-account>`,
 otherwise they won't have access to any project on Read the Docs after performing this change.
 You can read more about `granting permissions on GitHub`_ in their documentation.
 
@@ -27,9 +27,9 @@ Enabling SSO
 
 You can enable this feature in your organization by:
 
-* Navigate to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Organization name>` > :guilabel:`Settings` > :guilabel:`Authorization`
-* Select :guilabel:`GitHub, GitLab or Bitbucket` on the :guilabel:`Provider` dropdown.
-* Select :guilabel:`Save`
+1. Navigate to the `authorization setting page <https://readthedocs.com/organizations/choose/organization_sso/>`__.
+2. Select :guilabel:`GitHub, GitLab or Bitbucket` on the :guilabel:`Provider` dropdown.
+3. Select :guilabel:`Save`
 
 .. warning::
     Once you enable this option,

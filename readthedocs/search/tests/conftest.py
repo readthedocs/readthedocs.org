@@ -11,7 +11,6 @@ from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.search.documents import PageDocument
-from readthedocs.sphinx_domains.models import SphinxDomain
 
 from .dummy_data import ALL_PROJECTS, PROJECT_DATA_FILES
 
@@ -63,28 +62,6 @@ def all_projects(es_index, mock_processed_json, db, settings):
                     path=file_name,
                     build=1,
                 )
-
-                # creating sphinx domain test objects
-                file_path = get_json_file_path(project.slug, file_basename)
-                if os.path.exists(file_path):
-                    with open (file_path) as f:
-                        data = json.load(f)
-                        domains = data['domains']
-
-                        for domain_data in domains:
-                            domain_role_name = domain_data.pop('role_name')
-                            domain, type_ = domain_role_name.split(':')
-
-                            get(
-                                SphinxDomain,
-                                project=project,
-                                version=version,
-                                html_file=html_file,
-                                domain=domain,
-                                type=type_,
-                                **domain_data
-                            )
-
                 PageDocument().update(html_file)
 
         projects_list.append(project)

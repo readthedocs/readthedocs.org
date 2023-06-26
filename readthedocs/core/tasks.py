@@ -85,6 +85,6 @@ def cleanup_pidbox_keys():
         total_memory += memory
 
         if idletime > (60 * 15):  # 15 minutes
-            client.delete([key])
+            client.delete(key)
 
     log.info("Redis pidbox objects.", memory=total_memory, keys=len(keys))

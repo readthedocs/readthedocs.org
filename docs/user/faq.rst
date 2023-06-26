@@ -1,4 +1,4 @@
-Frequently Asked Questions
+Frequently asked questions
 ==========================
 
 .. contents::
@@ -38,8 +38,8 @@ you can use an important word or message from the error to search for a solution
       Common errors and solutions for build failures.
 
    Other FAQ entries
-      * :ref:`faq:My documentation requires additional dependencies`
-      * :ref:`faq:I get import errors on libraries that depend on C modules`
+      * :ref:`faq:How do I add additional software dependencies for my documentation?`
+      * :ref:`faq:why do i get import errors from libraries depending on c modules?`
 
 
 .. Old reference
@@ -60,9 +60,6 @@ Make sure you have one of the following files at the top level of your documenta
    To test if your docs actually built correctly,
    you can navigate to a specific page that you know is part of the documentation build,
    for example `/en/latest/README.html`.
-
-.. Old reference
-.. _I get import errors on libraries that depend on C modules:
 
 Why do I get import errors from libraries depending on C modules?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,7 +98,7 @@ and start suggesting the latest (or newer) one.
 
 To accomplish this, you can add a ``robots.txt`` file to your documentation's root so it ends up served at the root URL of your project
 (for example, https://yourproject.readthedocs.io/robots.txt).
-We have documented how to set this up in our :ref:`hosting:Custom robots.txt Pages` docs.
+We have documented how to set this up in :doc:`/reference/robots`.
 
 
 How do I change the version slug of my project?
@@ -126,9 +123,6 @@ We also keep an up-to-date :doc:`changelog </changelog>`.
 Additional features and configuration
 -------------------------------------
 
-.. Old reference
-.. _My documentation requires additional dependencies:
-
 How do I add additional software dependencies for my documentation?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -148,25 +142,22 @@ You can also set your project documentation to install your Python project itsel
      How to customize your builds, for example if you need to build with different tools from Sphinx or
      if you need to add additional packages for the Ubuntu-based builder.
 
-   :doc:`Configuration File <config-file/v2>`
+   :doc:`/config-file/v2`
      Reference for the main configuration file, `.readthedocs.yaml`
 
    :ref:`build.apt_packages <config-file/v2:build.apt_packages>`
      Reference for adding Debian packages with apt for the Ubuntu-based builders
 
    Other FAQ entries
-      * :ref:`faq:My documentation requires additional dependencies`
-      * :ref:`faq:I get import errors on libraries that depend on C modules`
+      * :ref:`faq:How do I add additional software dependencies for my documentation?`
+      * :ref:`faq:Why do I get import errors from libraries depending on C modules?`
 
-
-.. Old reference
-.. _My project requires some additional settings:
 
 Can I have access to additional features or settings?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If this is just a dependency issue,
-see :ref:`faq:My documentation requires additional dependencies`.
+see :ref:`faq:How do I add additional software dependencies for my documentation?`.
 
 Read the Docs offers some settings (feature flags) which can be used for a variety of purposes.
 To enable these settings,
@@ -357,13 +348,13 @@ and as a result, it tends to look a bit better with the default theme.
 .. note::
 
    To use these extensions you need to specify the dependencies on your project
-   by following this :ref:`guide <guides/reproducible-builds:using a configuration file>`.
+   by following this :doc:`guide </guides/reproducible-builds>`.
 
 
 I need to install a package in a environment with pinned versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To ensure proper installation of a Python package, the ``pip`` :ref:`install method <config-file/v2:python.install>` will automatically upgrade every dependency to its most recent version in case they aren't pinned by the package definition.
+To ensure proper installation of a Python package, the ``pip`` :ref:`install method <config-file/v2:python.install>` will automatically upgrade every dependency to its most recent version in case they aren't:term:`pinned <pinning>` by the package definition.
 If instead you'd like to pin your dependencies outside the package, you can add this line to your requirements or environment file (if you are using Conda).
 
 In your ``requirements.txt`` file::

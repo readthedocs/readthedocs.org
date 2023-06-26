@@ -43,9 +43,10 @@ def prepare_build(
     :rtype: tuple
     """
     # Avoid circular import
+    from readthedocs.api.v2.models import BuildAPIKey
     from readthedocs.builds.models import Build
     from readthedocs.builds.tasks import send_build_notifications
-    from readthedocs.projects.models import Feature, Project, WebHookEvent
+    from readthedocs.projects.models import Project, WebHookEvent
     from readthedocs.projects.tasks.builds import update_docs_task
     from readthedocs.projects.tasks.utils import send_external_build_status
 
@@ -118,45 +119,46 @@ def prepare_build(
         )
 
     # Reduce overhead when doing multiple push on the same version.
-    if project.has_feature(Feature.CANCEL_OLD_BUILDS):
-        running_builds = (
-            Build.objects
-            .filter(
-                project=project,
-                version=version,
-            ).exclude(
-                state__in=BUILD_FINAL_STATES,
-            ).exclude(
-                pk=build.pk,
-            )
+    running_builds = (
+        Build.objects.filter(
+            project=project,
+            version=version,
         )
-        if running_builds.count() > 0:
-            log.warning(
-                "Canceling running builds automatically due a new one arrived.",
-                running_builds=running_builds.count(),
-            )
+        .exclude(
+            state__in=BUILD_FINAL_STATES,
+        )
+        .exclude(
+            pk=build.pk,
+        )
+    )
+    if running_builds.count() > 0:
+        log.warning(
+            "Canceling running builds automatically due a new one arrived.",
+            running_builds=running_builds.count(),
+        )
 
-        # If there are builds triggered/running for this particular project and version,
-        # we cancel all of them and trigger a new one for the latest commit received.
-        for running_build in running_builds:
-            cancel_build(running_build)
+    # If there are builds triggered/running for this particular project and version,
+    # we cancel all of them and trigger a new one for the latest commit received.
+    for running_build in running_builds:
+        cancel_build(running_build)
 
     # Start the build in X minutes and mark it as limited
-    if project.has_feature(Feature.LIMIT_CONCURRENT_BUILDS):
-        limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
-        if limit_reached:
-            log.warning(
-                'Delaying tasks at trigger step due to concurrency limit.',
-            )
-            # Delay the start of the build for the build retry delay.
-            # We're still triggering the task, but it won't run immediately,
-            # and the user will be alerted in the UI from the Error below.
-            options['countdown'] = settings.RTD_BUILDS_RETRY_DELAY
-            options['max_retries'] = settings.RTD_BUILDS_MAX_RETRIES
-            build.error = BuildMaxConcurrencyError.message.format(
-                limit=max_concurrent_builds,
-            )
-            build.save()
+    limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
+    if limit_reached:
+        log.warning(
+            "Delaying tasks at trigger step due to concurrency limit.",
+        )
+        # Delay the start of the build for the build retry delay.
+        # We're still triggering the task, but it won't run immediately,
+        # and the user will be alerted in the UI from the Error below.
+        options["countdown"] = settings.RTD_BUILDS_RETRY_DELAY
+        options["max_retries"] = settings.RTD_BUILDS_MAX_RETRIES
+        build.error = BuildMaxConcurrencyError.message.format(
+            limit=max_concurrent_builds,
+        )
+        build.save()
+
+    _, build_api_key = BuildAPIKey.objects.create_key(project=project)
 
     return (
         update_docs_task.signature(
@@ -165,7 +167,8 @@ def prepare_build(
                 build.pk,
             ),
             kwargs={
-                'build_commit': commit,
+                "build_commit": commit,
+                "build_api_key": build_api_key,
             },
             options=options,
             immutable=True,
@@ -263,7 +266,7 @@ def cancel_build(build):
 def send_email(
         recipient, subject, template, template_html, context=None, request=None,
         from_email=None, **kwargs
-):  # pylint: disable=unused-argument
+):
     """
     Alter context passed in and call email send task.
 
@@ -322,3 +325,23 @@ def get_cache_tag(*args):
     allowed in slugs to avoid collisions.
     """
     return ':'.join(args)
+
+
+def extract_valid_attributes_for_model(model, attributes):
+    """
+    Extract the valid attributes for a model from a dictionary of attributes.
+
+    :param model: Model class to extract the attributes for.
+    :param attributes: Dictionary of attributes to extract.
+    :returns: Tuple with the valid attributes and the invalid attributes if any.
+    """
+    attributes = attributes.copy()
+    valid_field_names = {field.name for field in model._meta.get_fields()}
+    valid_attributes = {}
+    # We can't change a dictionary while interating over its keys,
+    # so we make a copy of its keys.
+    keys = list(attributes.keys())
+    for key in keys:
+        if key in valid_field_names:
+            valid_attributes[key] = attributes.pop(key)
+    return valid_attributes, attributes

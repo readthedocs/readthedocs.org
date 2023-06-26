@@ -1,4 +1,4 @@
-Server Side Search Integration
+Server side search integration
 ==============================
 
 Read the Docs provides :doc:`server side search (SSS) <rtd:server-side-search/index>`
@@ -117,6 +117,13 @@ Tags to be ignored:
 
 - ``nav``
 
+Special rules that are derived from specific documentation tools applied in the generic parser:
+
+.. https://squidfunk.github.io/mkdocs-material/reference/code-blocks/#adding-line-numbers
+
+- ``.linenos``, ``.lineno`` (line numbers in code-blocks, comes from both MkDocs and Sphinx)
+- ``.headerlink`` (added by Sphinx to links in headers)
+
 Example:
 
 .. code-block:: html
@@ -133,12 +140,27 @@ Example:
 Sections
 ~~~~~~~~
 
-Sections are composed of a title, and a content.
-A section title can be a ``h`` tag, or a ``header`` tag containing a ``h`` tag,
-the ``h`` tag or its parent can contain an ``id`` attribute, which will be used to link to the section.
+Sections are stored in a dictionary composed of an ``id``, ``title`` and ``content`` key.
 
-All content below the title, until a new section is found, will be indexed as part of the section content.
-Example:
+Sections are defined as:
+
+* ``h1-h7``, all content between one heading level and the next header on the same level is used as content for that section.
+* ``dt`` elements with an ``id`` attribute, we map the ``title`` to the ``dt`` element and the content to the ``dd`` element.
+
+All sections have to be identified by a DOM container's ``id`` attribute,
+which will be used to link to the section.
+How the id is detected varies with the type of element:
+
+* ``h1-h7`` elements use the ``id`` attribute of the header itself if present, or
+  its ``section`` parent (if exists).
+* ``dt`` elements use the ``id`` attribute of the ``dt`` element.
+
+To avoid duplication and ambiguous section references,
+all indexed ``dl`` elements are removed from the DOM before indexing of other sections happen.
+
+Here is an example of how all content below the title,
+until a new section is found,
+will be indexed as part of the section content:
 
 .. code-block:: html
    :emphasize-lines: 2-10, 12-17, 21-26

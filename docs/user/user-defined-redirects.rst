@@ -1,6 +1,3 @@
-.. old label
-.. _User-defined Redirects:
-
 Custom and built-in redirects on Read the Docs
 ==============================================
 
@@ -16,13 +13,13 @@ the bad user experience of a 404 page is usually best to avoid.
     Allows for simple and long-term sharing of external references to your documentation.
 
 `User-defined redirects`_ ⬇️
-    Makes it easier to move contents around (see: )
+    Makes it easier to move contents around
 
 .. seealso::
 
    :doc:`/guides/redirects`
      This guide shows you how to add redirects with practical examples.
-   :doc:`/automatic-redirects`
+   :doc:`/guides/best-practice/links`
      Information and tips about creating and handling external references.
    :doc:`/guides/deprecating-content`
      A guide to deprecating features and other topics in a documentation.
@@ -46,7 +43,7 @@ Built-in redirects
 
 This section explains the redirects that are automatically active for all projects and how they are useful.
 Built-in redirects are especially useful for creating and sharing incoming links,
-which is discussed indepth in :doc:`/automatic-redirects`.
+which is discussed indepth in :doc:`/guides/best-practice/links`.
 
 .. _page_redirects:
 
@@ -57,12 +54,13 @@ You can link to a specific page and have it redirect to your default version,
 allowing you to create links on external sources that are always up to date.
 This is done with the ``/page/`` URL prefix.
 
-For instance, you can reach the page you are reading now by going to https://docs.readthedocs.io/page/automatic-redirects.html.
+For instance, you can reach the page you are reading now by going to https://docs.readthedocs.io/page/guides/best-practice/links.html.
 
 Another way to handle this is the ``latest`` version.
 You can set your ``latest`` version to a specific version and just always link to ``latest``.
-You can reach this page by going to https://docs.readthedocs.io/en/latest/automatic-redirects.html.
+You can reach this page by going to https://docs.readthedocs.io/en/latest/guides/best-practice/links.html.
 
+.. _root_url_redirect:
 
 Root URL redirect at ``/``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -86,6 +84,22 @@ For example::
 You can choose which is the :term:`default version` for Read the Docs to display.
 This usually corresponds to the most recent official release from your project.
 
+Root language redirect at ``/<lang>/``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A link to the root language of your documentation (``<slug>.readthedocs.io/en/``)
+will redirect to the  :term:`default version` of that language.
+
+.. TODO: Remove this once the feature is default on .com
+
+This redirect is currently only active on |org_brand| (``<slug>.readthedocs.io`` and :doc:`custom domains </custom-domains>`).
+
+Root language redirects on |com_brand| can be enabled by contacting :doc:`support </support>`.
+
+For example, accessing the English language of the project will redirect you to the its version (``stable``)::
+
+   https://docs.readthedocs.io/en/ -> https://docs.readthedocs.io/en/stable/
+
 Shortlink with ``https://<slug>.rtfd.io``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -94,6 +108,8 @@ They are intended to be easy and short for people to type.
 
 You can reach these docs at https://docs.rtfd.io.
 
+.. old label
+.. _User-defined Redirects:
 
 User-defined redirects
 ----------------------

@@ -1,4 +1,4 @@
-How To Manage Custom Domains
+How to manage custom domains
 ============================
 
 This guide describes how to host your documentation using your own domain name, such as ``docs.example.com``.

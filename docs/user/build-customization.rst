@@ -2,7 +2,7 @@ Build process customization
 ===========================
 
 Read the Docs has a :doc:`well-defined build process </builds>` that works for many projects.
-We also allow customization of builds in primary ways:
+We also allow customization of builds in two ways:
 
 `Extend the build process`_
     Keep using the default build process,
@@ -339,6 +339,8 @@ Take a look at the following example:
      configuration: docs/conf.py
 
 
+.. _build_commands_introduction:
+
 Override the build process
 --------------------------
 
@@ -360,14 +362,25 @@ Where to put files
 ~~~~~~~~~~~~~~~~~~
 
 It is your responsibility to generate HTML and other formats of your documentation using :ref:`config-file/v2:build.commands`.
-The contents of the ``_readthedocs/<format>/`` directory will be hosted as part of your documentation.
+The contents of the ``$READTHEDOCS_OUTPUT/<format>/`` directory will be hosted as part of your documentation.
+
+We store the the base folder name ``_readthedocs/`` in the environment variable ``$READTHEDOCS_OUTPUT`` and encourage that you use this to generate paths.
 
 Supported :ref:`formats <downloadable-documentation:accessing offline formats>` are published if they exist in the following directories:
 
-* ``_readthedocs/html/`` (required)
-* ``_readthedocs/htmlzip/``
-* ``_readthedocs/pdf/``
-* ``_readthedocs/epub/``
+* ``$READTHEDOCS_OUTPUT/html/`` (required)
+* ``$READTHEDOCS_OUTPUT/htmlzip/``
+* ``$READTHEDOCS_OUTPUT/pdf/``
+* ``$READTHEDOCS_OUTPUT/epub/``
+
+.. note::
+
+   Remember to create the folders before adding content to them.
+   You can ensure that the output folder exists by adding the following command:
+
+   .. code-block:: console
+
+       mkdir -p $READTHEDOCS_OUTPUT/html/
 
 Search support
 ~~~~~~~~~~~~~~

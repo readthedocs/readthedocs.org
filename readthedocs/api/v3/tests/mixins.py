@@ -13,6 +13,7 @@ from rest_framework.test import APIClient
 
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build, Version
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
 
@@ -55,7 +56,9 @@ class APIEndpointMixin(TestCase):
             main_language_project=None,
             users=[self.me],
             versions=[],
-            external_builds_enabled=False
+            external_builds_enabled=False,
+            external_builds_privacy_level=PUBLIC,
+            privacy_level=PUBLIC,
         )
         for tag in ('tag', 'project', 'test'):
             self.project.tags.add(tag)
@@ -80,6 +83,10 @@ class APIEndpointMixin(TestCase):
             active=True,
             built=True,
             type=TAG,
+            has_pdf=True,
+            has_epub=True,
+            has_htmlzip=True,
+            privacy_level=PUBLIC,
         )
 
         self.build = fixture.get(
@@ -107,6 +114,8 @@ class APIEndpointMixin(TestCase):
             main_language_project=None,
             users=[self.other],
             versions=[],
+            external_builds_privacy_level=PUBLIC,
+            privacy_level=PUBLIC,
         )
 
         # Make all non-html true so responses are complete
@@ -137,6 +146,8 @@ class APIEndpointMixin(TestCase):
             main_language_project=None,
             users=[self.me],
             versions=[],
+            external_builds_privacy_level=PUBLIC,
+            privacy_level=PUBLIC,
         )
 
     def _create_subproject(self):
@@ -154,6 +165,8 @@ class APIEndpointMixin(TestCase):
             main_language_project=None,
             users=[self.me],
             versions=[],
+            external_builds_privacy_level=PUBLIC,
+            privacy_level=PUBLIC,
         )
         self.project_relationship = self.project.add_subproject(self.subproject)
 

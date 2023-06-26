@@ -3,6 +3,7 @@ Troubleshooting build errors
 
 .. include:: /shared/contribute-to-troubleshooting.rst
 
+This guide provides some common errors and resolutions encountered in the :doc:`build process </builds>`.
 
 Git errors
 ----------

@@ -1,9 +1,12 @@
-Using Private Git Submodules
-============================
+How to use private Git submodules
+=================================
 
 .. warning::
 
    This guide is for :doc:`/commercial/index`.
+
+If you are using private Git repositories and they also contain private Git submodules,
+you need to follow a few special steps.
 
 Read the Docs uses SSH keys (with read only permissions) in order to clone private repositories.
 A SSH key is automatically generated and added to your main repository, but not to your submodules.
@@ -62,7 +65,7 @@ Read the Docs can clone all the repositories with the same key.
 
 .. seealso::
 
-   :ref:`Allow access to your Azure DevOps repository with an SSH key <guides/importing-private-repositories:azure devops>`.
+   :ref:`Allow access to your Azure DevOps repository with an SSH key <guides/importing-private-repositories:Add the public key to your project>`.
 
 Others
 ------
@@ -73,4 +76,4 @@ you only need to add it to each submodule repository.
 
 .. seealso::
 
-   :ref:`guides/importing-private-repositories:Giving access to your project with an SSH key`
+   :doc:`/guides/importing-private-repositories`

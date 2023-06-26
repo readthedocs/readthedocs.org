@@ -24,6 +24,8 @@ from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage, staticfiles_storage
+from readthedocs.subscriptions.constants import TYPE_AUDIT_PAGEVIEWS
+from readthedocs.subscriptions.models import PlanFeature
 
 log = structlog.get_logger(__name__)
 
@@ -42,6 +44,8 @@ class ServeDocsMixin:
 
     """Class implementing all the logic to serve a document."""
 
+    # We force all storage calls to use internal versions
+    # unless explicitly set to external.
     version_type = INTERNAL
 
     def _serve_docs(self, request, project, version, filename, check_if_exists=False):
@@ -57,7 +61,9 @@ class ServeDocsMixin:
             type_=MEDIA_TYPE_HTML,
             version_slug=version.slug,
             include_file=False,
-            version_type=version.type,
+            # Force to always read from the internal or extrernal storage,
+            # according to the current request.
+            version_type=self.version_type,
         )
 
         # Handle our backend storage not supporting directory indexes,
@@ -103,7 +109,9 @@ class ServeDocsMixin:
         storage_path = project.get_storage_path(
             type_=type_,
             version_slug=version.slug,
-            version_type=version.type,
+            # Force to always read from the internal or extrernal storage,
+            # according to the current request.
+            version_type=self.version_type,
             include_file=True,
         )
         self._track_pageview(
@@ -206,7 +214,7 @@ class ServeDocsMixin:
         This feature is different from page views analytics,
         as it records every page view individually with more metadata like the user, IP, etc.
         """
-        return False
+        return PlanFeature.objects.has_feature(project, TYPE_AUDIT_PAGEVIEWS)
 
     def _serve_static_file(self, request, filename):
         return self._serve_file(
@@ -273,7 +281,7 @@ class ServeDocsMixin:
         log.debug('Unauthorized access to documentation.', project_slug=project.slug)
         return res
 
-    def allowed_user(self, *args, **kwargs):
+    def allowed_user(self, request, version):
         return True
 
     def get_version_from_host(self, request, version_slug):
@@ -323,77 +331,10 @@ class ServeRedirectMixin:
         log.debug(
             "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
         )
+        # All system redirects can be cached, since the final URL will check for authz.
+        self.cache_response = True
         resp = HttpResponseRedirect(to)
         resp["X-RTD-Redirect"] = RedirectType.system.name
-        return resp
-
-    def canonical_redirect(
-        self,
-        request,
-        final_project,
-        version_slug,
-        filename,
-        redirect_type,
-        is_external_version=False,
-    ):
-        """
-        Return a redirect to the canonical domain including scheme.
-
-        The following cases are covered:
-
-        - Redirect a custom domain from http to https (if supported)
-          http://project.rtd.io/ -> https://project.rtd.io/
-        - Redirect a domain to a canonical domain (http or https).
-          http://project.rtd.io/ -> https://docs.test.com/
-          http://project.rtd.io/foo/bar/ -> https://docs.test.com/foo/bar/
-        - Redirect from a subproject domain to the main domain
-          https://subproject.rtd.io/en/latest/foo -> https://main.rtd.io/projects/subproject/en/latest/foo  # noqa
-          https://subproject.rtd.io/en/latest/foo -> https://docs.test.com/projects/subproject/en/latest/foo  # noqa
-
-        :param request: Request object.
-        :param final_project: The current project being served.
-        :param version_slug: The current version slug being served.
-        :param filename: The filename being served.
-        :param redirect_type: The type of canonical redirect (https, canonical-cname, subproject-main-domain)
-        :param external: If the version is from a pull request preview.
-        """
-        from_url = request.build_absolute_uri()
-        parsed_from = urlparse(from_url)
-
-        if redirect_type == RedirectType.http_to_https:
-            to = parsed_from._replace(scheme="https").geturl()
-        elif redirect_type in [
-            RedirectType.to_canonical_domain,
-            RedirectType.subproject_to_main_domain,
-        ]:
-            to = resolve(
-                project=final_project,
-                version_slug=version_slug,
-                filename=filename,
-                query_params=parsed_from.query,
-                external=is_external_version,
-            )
-            # When a canonical redirect is done, only change the domain.
-            if redirect_type == RedirectType.to_canonical_domain:
-                parsed_to = urlparse(to)
-                to = parsed_from._replace(
-                    scheme=parsed_to.scheme,
-                    netloc=parsed_to.netloc,
-                ).geturl()
-        else:
-            raise NotImplementedError
-
-        if from_url == to:
-            # check that we do have a response and avoid infinite redirect
-            log.warning(
-                'Infinite Redirect: FROM URL is the same than TO URL.',
-                url=to,
-            )
-            raise InfiniteRedirectException()
-
-        log.info('Canonical Redirect.', host=request.get_host(), from_url=filename, to_url=to)
-        resp = HttpResponseRedirect(to)
-        resp["X-RTD-Redirect"] = redirect_type.name
         return resp
 
     def get_redirect(

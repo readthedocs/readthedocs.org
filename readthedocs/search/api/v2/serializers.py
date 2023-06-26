@@ -6,7 +6,6 @@ Serializers for the ES's search result object.
    They should be renamed in the ES index too.
 """
 
-import itertools
 import re
 from functools import namedtuple
 from operator import attrgetter
@@ -158,50 +157,14 @@ class PageSearchSerializer(serializers.Serializer):
 
     def get_blocks(self, obj):
         """Combine and sort inner results (domains and sections)."""
-        serializers = {
-            "domain": DomainSearchSerializer,
-            "section": SectionSearchSerializer,
-        }
-
-        inner_hits = obj.meta.inner_hits
-        sections = inner_hits.sections or []
-        domains = inner_hits.domains or []
-
-        # Make them identifiable before merging them
-        for s in sections:
-            s.type = "section"
-        for d in domains:
-            d.type = "domain"
-
+        sections = obj.meta.inner_hits.sections or []
         sorted_results = sorted(
-            itertools.chain(sections, domains),
+            sections,
             key=attrgetter("meta.score"),
             reverse=True,
         )
-        sorted_results = [serializers[hit.type](hit).data for hit in sorted_results]
+        sorted_results = [SectionSearchSerializer(hit).data for hit in sorted_results]
         return sorted_results
-
-
-class DomainHighlightSerializer(serializers.Serializer):
-
-    name = serializers.SerializerMethodField()
-    content = serializers.SerializerMethodField()
-
-    def get_name(self, obj):
-        return list(getattr(obj, "domains.name", []))
-
-    def get_content(self, obj):
-        return list(getattr(obj, "domains.docstrings", []))
-
-
-class DomainSearchSerializer(serializers.Serializer):
-
-    type = serializers.CharField(default="domain", source=None, read_only=True)
-    role = serializers.CharField(source="role_name")
-    name = serializers.CharField()
-    id = serializers.CharField(source="anchor")
-    content = serializers.CharField(source="docstrings")
-    highlights = DomainHighlightSerializer(source="meta.highlight", default=dict)
 
 
 class SectionHighlightSerializer(serializers.Serializer):

@@ -128,6 +128,11 @@ class AnalyticsPageViewsTests(TestCase):
         self.client.get(url, HTTP_HOST=self.host)
         assert PageView.objects.all().count() == 0
 
+    def test_cache_headers(self):
+        resp = self.client.get(self.url, HTTP_HOST=self.host)
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp["CDN-Cache-Control"], "private")
+
     def test_increase_page_view_count(self):
         assert (
             PageView.objects.all().count() == 0

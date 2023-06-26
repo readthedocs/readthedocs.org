@@ -39,7 +39,6 @@ from readthedocs.builds.models import (
 )
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.services import registry
@@ -54,6 +53,7 @@ from readthedocs.projects.forms import (
     ProjectAdvancedForm,
     ProjectAdvertisingForm,
     ProjectBasicsForm,
+    ProjectConfigForm,
     ProjectExtraForm,
     ProjectRelationshipForm,
     RedirectForm,
@@ -80,6 +80,12 @@ from readthedocs.projects.views.mixins import (
     ProjectRelationListMixin,
 )
 from readthedocs.search.models import SearchQuery
+from readthedocs.subscriptions.constants import (
+    TYPE_CNAME,
+    TYPE_PAGEVIEW_ANALYTICS,
+    TYPE_SEARCH_ANALYTICS,
+)
+from readthedocs.subscriptions.models import PlanFeature
 
 log = structlog.get_logger(__name__)
 
@@ -210,19 +216,7 @@ class ProjectVersionEditMixin(ProjectVersionMixin):
         return self.get_form_class()(data, files, **kwargs)
 
     def form_valid(self, form):
-        version = form.save()
-        if form.has_changed():
-            if 'active' in form.changed_data and version.active is False:
-                log.info(
-                    'Removing files for version.',
-                    version_slug=version.slug,
-                )
-                clean_project_resources(
-                    version.project,
-                    version,
-                )
-                version.built = False
-                version.save()
+        form.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -267,8 +261,9 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
     """
 
     form_list = [
-        ('basics', ProjectBasicsForm),
-        ('extra', ProjectExtraForm),
+        ("basics", ProjectBasicsForm),
+        ("config", ProjectConfigForm),
+        ("extra", ProjectExtraForm),
     ]
     condition_dict = {'extra': lambda self: self.is_advanced()}
 
@@ -322,9 +317,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         """
         form_data = self.get_all_cleaned_data()
         extra_fields = ProjectExtraForm.Meta.fields
-        # expect the first form; manually wrap in a list in case it's a
-        # View Object, as it is in Python 3.
-        basics_form = list(form_list)[0]
+        basics_form = form_list[0]
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
@@ -752,6 +745,7 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
     model = Domain
     form_class = DomainForm
     lookup_url_kwarg = 'domain_pk'
+    feature_type = TYPE_CNAME
 
     def get_success_url(self):
         return reverse('projects_domains', args=[self.get_project().slug])
@@ -763,11 +757,13 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
         return context
 
     def _is_enabled(self, project):
-        """Should we allow custom domains for this project?"""
-        return True
+        return PlanFeature.objects.has_feature(
+            project,
+            type=self.feature_type,
+        )
 
 
-class DomainListBase(DomainMixin, ListViewWithForm):
+class DomainList(DomainMixin, ListViewWithForm):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -782,12 +778,7 @@ class DomainListBase(DomainMixin, ListViewWithForm):
         return ctx
 
 
-class DomainList(SettingsOverrideObject):
-
-    _default_class = DomainListBase
-
-
-class DomainCreateBase(DomainMixin, CreateView):
+class DomainCreate(DomainMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         project = self.get_project()
@@ -806,12 +797,7 @@ class DomainCreateBase(DomainMixin, CreateView):
         )
 
 
-class DomainCreate(SettingsOverrideObject):
-
-    _default_class = DomainCreateBase
-
-
-class DomainUpdateBase(DomainMixin, UpdateView):
+class DomainUpdate(DomainMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -823,11 +809,6 @@ class DomainUpdateBase(DomainMixin, UpdateView):
         if self._is_enabled(project) and not project.superproject:
             return super().post(request, *args, **kwargs)
         return HttpResponse('Action not allowed', status=401)
-
-
-class DomainUpdate(SettingsOverrideObject):
-
-    _default_class = DomainUpdateBase
 
 
 class DomainDelete(DomainMixin, DeleteView):
@@ -1072,10 +1053,11 @@ class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
     pass
 
 
-class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     template_name = 'projects/projects_search_analytics.html'
     http_method_names = ['get']
+    feature_type = TYPE_SEARCH_ANALYTICS
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get('download', False)
@@ -1159,21 +1141,24 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     def _get_retention_days_limit(self, project):
         """From how many days we need to show data for this project?"""
-        return settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
+        return PlanFeature.objects.get_feature_value(
+            project,
+            type=self.feature_type,
+        )
 
     def _is_enabled(self, project):
         """Should we show search analytics for this project?"""
-        return True
+        return PlanFeature.objects.has_feature(
+            project,
+            type=self.feature_type,
+        )
 
 
-class SearchAnalytics(SettingsOverrideObject):
-    _default_class = SearchAnalyticsBase
-
-
-class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     template_name = 'projects/project_traffic_analytics.html'
     http_method_names = ['get']
+    feature_type = TYPE_PAGEVIEW_ANALYTICS
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get('download', False)
@@ -1259,12 +1244,14 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
 
     def _get_retention_days_limit(self, project):
         """From how many days we need to show data for this project?"""
-        return settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
+        return PlanFeature.objects.get_feature_value(
+            project,
+            type=self.feature_type,
+        )
 
     def _is_enabled(self, project):
         """Should we show traffic analytics for this project?"""
-        return True
-
-
-class TrafficAnalyticsView(SettingsOverrideObject):
-    _default_class = TrafficAnalyticsViewBase
+        return PlanFeature.objects.has_feature(
+            project,
+            type=self.feature_type,
+        )

@@ -1,5 +1,6 @@
-import structlog
+"""Django configuration for readthedocs.builds application."""
 
+import structlog
 from django.apps import AppConfig
 from django.utils.translation import gettext_lazy as _
 
@@ -12,4 +13,4 @@ class Config(AppConfig):
     verbose_name = _("Builds")
 
     def ready(self):
-        import readthedocs.builds.tasks
+        import readthedocs.builds.tasks  # noqa

@@ -36,6 +36,16 @@ class BuildEnvironmentMocker:
         for k, m in self.patches.items():
             m.stop()
 
+    def add_file_in_repo_checkout(self, path, content):
+        """
+        A quick way to emulate that a file is in the repo.
+
+        Does not change git data.
+        """
+        destination = os.path.join(self.project_repository_path, path)
+        open(destination, "w").write(content)
+        return destination
+
     def _mock_artifact_builders(self):
         # TODO: save the mock instances to be able to check them later
         # self.patches['builder.localmedia.move'] = mock.patch(
@@ -58,9 +68,9 @@ class BuildEnvironmentMocker:
             "project-slug.pdf",
         )
 
-        self.patches['builder.pdf.LatexBuildCommand.run'] = mock.patch(
-            'readthedocs.doc_builder.backends.sphinx.LatexBuildCommand.run',
-            return_value=mock.MagicMock(output='stdout', successful=True)
+        self.patches["builder.pdf.LatexBuildCommand.run"] = mock.patch(
+            "readthedocs.doc_builder.backends.sphinx.LatexBuildCommand.run",
+            return_value=mock.MagicMock(output="stdout", successful=True),
         )
         # self.patches['builder.pdf.LatexBuildCommand.output'] = mock.patch(
         #     'readthedocs.doc_builder.backends.sphinx.LatexBuildCommand.output',
@@ -116,6 +126,11 @@ class BuildEnvironmentMocker:
 
         # TODO: improve this
         self._counter = 0
+
+        # The tmp project repository should be at a unique location, but we need
+        # to hook into test setup and teardown such that we can clean up nicely.
+        # This probably means that the tmp dir should be handed to the mocker from
+        # outside.
         self.project_repository_path = '/tmp/readthedocs-tests/git-repository'
         shutil.rmtree(self.project_repository_path, ignore_errors=True)
         os.makedirs(self.project_repository_path)

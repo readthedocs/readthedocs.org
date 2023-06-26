@@ -1,4 +1,4 @@
-DMCA Takedown Policy
+DMCA takedown policy
 ====================
 
 These are the guidelines that Read the Docs follows when handling DMCA takedown
@@ -19,7 +19,7 @@ the Docs user and project names.
 
 __ https://help.github.com/articles/dmca-takedown-policy/
 
-Takedown Process
+Takedown process
 ----------------
 
 Here are the steps the Read the Docs will follow in the takedown request process:
@@ -83,7 +83,7 @@ Copyright holder may file legal action
     holder does not respond to this request, is to re-enable the author's
     project.
 
-Submitting a Request
+Submitting a request
 ~~~~~~~~~~~~~~~~~~~~
 
 Your request must:
@@ -113,7 +113,7 @@ Include your signature
 
 Please complete this :download:`takedown request template <../_static/dmca/takedown-template.txt>` and send it to: support@readthedocs.com
 
-Submitting a Counter
+Submitting a counter
 ~~~~~~~~~~~~~~~~~~~~
 
 Your counter request must:
@@ -134,7 +134,7 @@ Include your signature
 
 Requests can be submitted to: support@readthedocs.com
 
-Request Archive
+Request archive
 ---------------
 
 For better transparency into copyright ownership and the DMCA takedown process,

@@ -1,4 +1,4 @@
-Private Documentation Sharing
+Private documentation sharing
 =============================
 
 .. include:: /shared/admonition-rtd-business.rst
@@ -13,7 +13,7 @@ These methods will allow them to view specific projects or versions of a project
 Additionally, you can use a HTTP Authorization Header.
 This is useful to have access from a script.
 
-Enabling Sharing
+Enabling sharing
 ----------------
 
 * Go into your project's :guilabel:`Admin` page and click on :guilabel:`Sharing`.
@@ -37,10 +37,10 @@ Enabling Sharing
 
 Users can log out by using the :ref:`Log Out <versions:Logging out>` link in the RTD flyout menu.
 
-Sharing Methods
+Sharing methods
 ---------------
 
-Secret Link
+Secret link
 ***********
 
 Once the person you send the link to clicks the link,

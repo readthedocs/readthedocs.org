@@ -1,4 +1,4 @@
-Server Side Search
+Server side search
 ==================
 
 Read the Docs provides full-text search across all of the pages of all projects,

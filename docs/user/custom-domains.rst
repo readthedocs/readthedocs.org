@@ -1,11 +1,15 @@
-Custom Domains
+Custom domains
 ==============
 
 You can serve your documentation project from your own domain,
 for instance ``docs.example.com``.
 This is great for maintaining a consistent brand for your product and its documentation.
 
-*By default*, your documentation is served from a Read the Docs :ref:`subdomain <hosting:subdomain support>` using the project's :term:`slug`:
+.. _default-subdomain:
+
+.. rubric:: Default subdomains
+
+*By default*, your documentation is served from a Read the Docs *subdomain* using the project's :term:`slug`:
 
 * ``<slug>.readthedocs.io`` for |org_brand|
 * ``<slug>.readthedocs-hosted.com`` for |com_brand|.
@@ -73,7 +77,7 @@ In most cases, the ``CNAME`` record is used.
 This is all that's needed for a web browser to resolve your domain name to Read the Docs' servers and for our servers to match the right documentation project.
 You can find step-by-step instructions for this in :doc:`/guides/custom-domains`.
 
-Read the Docs uses a :ref:`hosting:Content Delivery Network (CDN)` to host and serve your documentation pages.
+Read the Docs uses a :doc:`/reference/cdn` to host and serve your documentation pages.
 This final step isn't changed by a custom domain
 and therefore the response times are unaffected as the delivery of resources happens through the same CDN setup.
 

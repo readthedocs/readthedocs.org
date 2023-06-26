@@ -33,8 +33,7 @@
         "title": "Install with a Package Manager",
         "content": "If your package manager does not have a recent \"MkDocs\" package, you can still use your package manager to install \"Python\" and \"pip\". $ python --version Python 3.8.2 $ pip --version pip 20.0.2 from /usr/local/lib/python3.8/site-packages/pip (python 3.8) Note If you would like manpages installed for MkDocs, the click-man tool can generate and install them for you. Simply run the following two commands: pip install click-man click-man --target path/to/man/pages mkdocs"
       }
-    ],
-    "domain_data": {}
+    ]
   },
   {
     "path": "404.html",
@@ -45,8 +44,7 @@
         "title": "404",
         "content": "Page not found"
       }
-    ],
-    "domain_data": {}
+    ]
   },
   {
     "path": "configuration.html",
@@ -87,8 +85,7 @@
         "title": "lang",
         "content": "A list of languages to use when building the search index as identified by their ISO 639-1 language codes. ar: Arabic da: Danish nl: Dutch en: English fi: Finnish fr: French de: German hu: Hungarian it: Italian ja: Japanese no: Norwegian pt: Portuguese ro: Romanian ru: Russian es: Spanish sv: Swedish th: Thai tr: Turkish vi: Vietnamese"
       }
-    ],
-    "domain_data": {}
+    ]
   },
   {
     "path": "no-title.html",
@@ -99,8 +96,7 @@
         "title": "No title - Read the Docs MkDocs Test",
         "content": "This file doesn't have a header, but it does have a content. 1 2 3 Another paragraph"
       }
-    ],
-    "domain_data": {}
+    ]
   },
   {
     "path": "no-main-header.html",
@@ -116,7 +112,6 @@
         "title": "I'm the header",
         "content": "I'm more content."
       }
-    ],
-    "domain_data": {}
+    ]
   }
 ]

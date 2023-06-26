@@ -14,7 +14,7 @@ We support CDNs on both of our sites:
     the CDN is included as part of our all of our plans.
     We use `Cloudflare`_ for this as well.
 
-CDN Benefits
+CDN benefits
 ------------
 
 Having a CDN in front of your documentation has many benefits:

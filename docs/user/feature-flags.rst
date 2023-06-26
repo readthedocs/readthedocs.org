@@ -1,4 +1,4 @@
-Feature Flags
+Feature flags
 =============
 
 .. **Please don't add more stuff here**. We want to move user-facing options to the config file.
@@ -9,15 +9,13 @@ or reaching out to the administrator of your service.
 
 .. _contacting us through our support form: https://docs.readthedocs.io/en/stable/support.html
 
-Available Flags
+Available flags
 ---------------
 
 ``CONDA_APPEND_CORE_REQUIREMENTS``: Append Read the Docs core requirements to environment.yml file.
 
 Makes Read the Docs to install all the requirements at once on ``conda create`` step.
 This helps users to pin dependencies on conda and to improve build time.
-
-``DONT_OVERWRITE_SPHINX_CONTEXT``: Do not overwrite context vars in conf.py with Read the Docs context.
 
 ``DONT_CREATE_INDEX``: Do not create index.md or README.rst if the project does not have one.
 
