@@ -518,6 +518,9 @@ class PdfBuilder(BaseSphinx):
     relative_output_dir = "pdf"
     sphinx_builder = "latex"
 
+    # TODO: Remove this when dissolving Feature.ENABLE_MULTIPLE_PDFS
+    pdf_file_name = None
+
     def build(self):
         """Runs Sphinx to convert to LaTeX, uses latexmk to build PDFs."""
         self.run(

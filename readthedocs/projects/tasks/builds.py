@@ -31,7 +31,6 @@ from readthedocs.builds.constants import (
     BUILD_STATE_UPLOADING,
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
-    DOWNLOADABLE_ARTIFACTS,
     EXTERNAL,
     UNDELETABLE_ARTIFACT_TYPES,
 )
@@ -60,7 +59,7 @@ from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
 from readthedocs.worker import app
 
-from ..constants import MEDIA_TYPES_EXTENSIONS
+from ..constants import DOWNLOADABLE_MEDIA_TYPES, MEDIA_TYPES_EXTENSIONS
 from ..exceptions import (
     ProjectConfigurationError,
     RepositoryError,
@@ -620,7 +619,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # look in the top level folder
         # {"pdf": ["file.pdf"]}
 
-        artifact_types = set(valid_artifacts).intersection(DOWNLOADABLE_ARTIFACTS)
+        artifact_types = set(valid_artifacts).intersection(
+            set(DOWNLOADABLE_MEDIA_TYPES)
+        )
 
         artifacts_found_for_download = {
             artifact_type: [] for artifact_type in artifact_types

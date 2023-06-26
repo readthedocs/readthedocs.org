@@ -156,6 +156,7 @@ LOCK_EXPIRE = 60 * 180  # Lock expires in 3 hours
 
 # All artifact types supported by Read the Docs.
 # They match the output directory (`_readthedocs/<artifact type>`)
+# TODO: Remove this and use constants.MEDIA_TYPES instead
 ARTIFACT_TYPES = (
     "html",
     "json",
@@ -185,11 +186,3 @@ ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT_NO_PDF = (
     "htmlzip",
     "epub",
 )
-
-# Part of Feature: ENABLE_MULTIPLE_PDFS
-# These artifacts are understood as "downloadable" and will be indexed as an ImportedFile
-DOWNLOADABLE_ARTIFACTS = {
-    "htmlzip",
-    "epub",
-    "pdf",
-}
