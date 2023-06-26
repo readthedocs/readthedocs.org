@@ -6,6 +6,7 @@ Sphinx_ backend for building docs.
 
 import itertools
 import os
+import shutil
 from glob import glob
 from pathlib import Path
 
@@ -634,7 +635,7 @@ class PdfBuilder(BaseSphinx):
             # This is the old behavior.
             if len(pdf_files) == 1:
                 os.rename(
-                    pdf_files[0],
+                    os.path.join(self.absolute_host_output_dir, pdf_files[0]),
                     os.path.join(
                         self.absolute_host_output_dir, f"{self.project.slug}.pdf"
                     ),
@@ -706,7 +707,7 @@ class PdfBuilder(BaseSphinx):
         # We cannot use '*' in commands sent to the host machine, the asterisk gets escaped.
         # So we opt for iterating from outside the container
         for fname in pdf_files:
-            os.rename(
+            shutil.move(
                 fname,
                 os.path.join(self.absolute_host_tmp_root, os.path.basename(fname)),
             )
@@ -734,7 +735,7 @@ class PdfBuilder(BaseSphinx):
         # So we opt for iterating from outside the container
         pdf_files = glob(os.path.join(self.absolute_host_tmp_root, "*.pdf"))
         for fname in pdf_files:
-            os.rename(
+            shutil.move(
                 fname,
                 os.path.join(self.absolute_host_output_dir, os.path.basename(fname)),
             )

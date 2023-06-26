@@ -75,10 +75,10 @@ class BuildEnvironmentMocker:
         # self.patches['builder.pdf.LatexBuildCommand.output'] = mock.patch(
         #     'readthedocs.doc_builder.backends.sphinx.LatexBuildCommand.output',
         # )
-        self.patches['builder.pdf.glob'] = mock.patch(
-            'readthedocs.doc_builder.backends.sphinx.glob',
-            return_value=['output.file'],
-        )
+        # self.patches['builder.pdf.glob'] = mock.patch(
+        #     'readthedocs.doc_builder.backends.sphinx.glob',
+        #     return_value=['output.file'],
+        # )
 
         self.patches['builder.pdf.os.path.getmtime'] = mock.patch(
             'readthedocs.doc_builder.backends.sphinx.os.path.getmtime',
