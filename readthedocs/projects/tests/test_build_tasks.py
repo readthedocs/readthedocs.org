@@ -442,6 +442,16 @@ class TestBuildTask(BuildEnvironmentBase):
         os.makedirs(epub_dir)
         os.makedirs(pdf_dir)
 
+
+        # Create a .tex file because of a validation step that verifies that intermediate
+        # .tex files were created.
+        pathlib.Path(
+            os.path.join(
+                pdf_dir,
+                f"{self.project.slug}-test1.tex",
+            )
+        ).touch()
+
         # Create 1 epub and 0 pdfs
         pathlib.Path(
             os.path.join(
@@ -452,10 +462,10 @@ class TestBuildTask(BuildEnvironmentBase):
 
         self._trigger_update_docs_task()
 
-        output_json = self.requests_mock.request_history[7].json()
+        output_json = self.requests_mock.request_history[6].json()
 
         assert "error" in output_json
-        assert output_json["output_json"]
+        assert "PDF file was not generated" in output_json["error"]
 
     @pytest.mark.parametrize(
         "config",
