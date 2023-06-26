@@ -610,15 +610,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     def trigger_sync_downloadable_artifacts(self, valid_artifacts):
         """
         Triggers the sync_downloadable_artifacts task with the files that were found.
+        Performs an additional validation on files contained in valid_artifacts.
 
-        :param valid_artifacts: list of artifacts allowed by initial validation
+        :param valid_artifacts: A list of artifacts allowed by initial validation. Example:
+                                {"pdf": ["file.pdf"]}
         :return: None
         """
-        # A dictionary containing lists of files found for each artifact type.
-        # Notice that we don't support nesting in sub-folders, so we only need to
-        # look in the top level folder
-        # {"pdf": ["file.pdf"]}
 
+        # We only look at artifacts that are part of DOWNLOADABLE_MEDIA_TYPES
         artifact_types = set(valid_artifacts).intersection(
             set(DOWNLOADABLE_MEDIA_TYPES)
         )

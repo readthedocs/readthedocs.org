@@ -47,9 +47,9 @@ MEDIA_TYPES = (
     MEDIA_TYPE_JSON,
 )
 
-# Map extensions to their media type
+# Map media types to their know extensions.
+# This is used for validating and uploading artifacts.
 MEDIA_TYPES_EXTENSIONS = {
-    MEDIA_TYPE_HTML: ("html",),
     MEDIA_TYPE_PDF: ("pdf",),
     MEDIA_TYPE_EPUB: ("epub",),
     MEDIA_TYPE_HTMLZIP: ("zip",),
