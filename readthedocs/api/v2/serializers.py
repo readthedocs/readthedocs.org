@@ -114,9 +114,12 @@ class VersionSerializer(serializers.ModelSerializer):
     Why not just rely on select_related('project')?
     Since the project is the same for all versions most of the time,
     we would be serializing the same project over and over again,
-    and since the ProjectSerializer includes a call to get_docs_url,
-    we would be calling get_docs_url for the same project over and over again,
-    generating more queries.
+    and ProjectSerializer includes a call to get_docs_url,
+    ``users``, and ``features``, get_docs_url we can cached, ``users``
+    can be included in a ``prefetch_related`` call,
+    but ``features`` is a property with a custom queryset, so it can't be added.
+
+    See https://github.com/readthedocs/readthedocs.org/pull/10460#discussion_r1238928385.
     """
 
     project = serializers.SerializerMethodField()
