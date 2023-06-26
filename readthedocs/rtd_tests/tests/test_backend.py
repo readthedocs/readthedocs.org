@@ -49,14 +49,8 @@ class TestGitBackend(TestCase):
         self.build_environment = LocalBuildEnvironment(api_client=mock.MagicMock())
 
     def tearDown(self):
-        if self._outcome and self._outcome.success:
-            repo = self.project.vcs_repo(environment=self.build_environment)
-            repo.make_clean_working_dir()
-        else:
-            print(
-                "FAILED TEST: Cancelling tearDown() and keeping the working directory for "
-                "introspection. Notice that this affects subsequent tests."
-            )
+        repo = self.project.vcs_repo(environment=self.build_environment)
+        repo.make_clean_working_dir()
         super().tearDown()
 
     def test_git_lsremote(self):
