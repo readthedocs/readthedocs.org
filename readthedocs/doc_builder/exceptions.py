@@ -52,6 +52,10 @@ class BuildUserError(BuildBaseException):
         "and it is not currently supported. "
         'Please, remove all the files but the "{artifact_type}" you want to upload.'
     )
+    BUILD_OUTPUT_HTML_NO_INDEX_FILE = gettext_noop(
+        "Your documentation did not generate an 'index.html' at its root directory. "
+        "Please, make sure to generate one to make the build to succeed."
+    )
     BUILD_OUTPUT_OLD_DIRECTORY_USED = gettext_noop(
         "Some files were detected in an unsupported output path, '_build/html'. "
         "Ensure your project is configured to use the output path "

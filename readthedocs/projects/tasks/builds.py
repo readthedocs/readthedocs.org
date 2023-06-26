@@ -543,6 +543,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
          - it exists
          - it is a directory
          - does not contains more than 1 files (only PDF, HTMLZip, ePUB)
+         - it contains an "index.html" file at its root directory (only HTML)
 
         TODO: remove the limitation of only 1 file.
         Add support for multiple PDF files in the output directory and
@@ -554,6 +555,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version=self.data.version.slug,
                 type_=artifact_type,
             )
+
+            if artifact_type == "html":
+                index_html_filepath = os.path.join(artifact_directory, "index.html")
+                if not os.path.exists(index_html_filepath):
+                    log.info(
+                        "Failing the build. "
+                        "HTML output does not contain an 'index.html' at its root directory.",
+                    )
+                    raise BuildUserError(BuildUserError.BUILD_OUTPUT_HTML_NO_INDEX_FILE)
+
             if not os.path.exists(artifact_directory):
                 # There is no output directory.
                 # Skip this format.
