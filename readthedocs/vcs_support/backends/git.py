@@ -195,7 +195,13 @@ class Backend(BaseVCS):
         # When git clone does NOT add --no-checkout, it's because we are going
         # to use the remote HEAD, so we don't have to fetch nor check out.
         if self._skip_fetch:
-            log.info("Skipping git fetch")
+            log.info(
+                "Skipping git fetch",
+                version_identifier=self.version_identifier,
+                version_machine=self.version_machine,
+                version_verbose_name=self.verbose_name,
+                version_type=self.version_type,
+            )
             return
 
         # --force: Likely legacy, it seems to be irrelevant to this usage
