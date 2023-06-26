@@ -6,7 +6,6 @@ from unittest import mock
 import dateutil
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
-from django.http import QueryDict
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -3138,34 +3137,36 @@ class APIVersionTests(TestCase):
         """Test the full response of
         ``/api/v2/version/?project__slug=pip&active=true``"""
         pip = Project.objects.get(slug='pip')
+        get(Version, project=pip, active=False, privacy_level=PUBLIC)
 
-        data = QueryDict('', mutable=True)
-        data.update({
+        data = {
             'project__slug': pip.slug,
             'active': 'true',
-        })
-        url = '{base_url}?{querystring}'.format(
-            base_url=reverse('version-list'),
-            querystring=data.urlencode(),
-        )
+        }
+        url = reverse("version-list")
+        with self.assertNumQueries(6):
+            resp = self.client.get(url, data)
 
-        resp = self.client.get(url, content_type='application/json')
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['count'], pip.versions.filter(active=True).count())
 
         # Do the same thing for inactive versions
         data.update({
-            'project__slug': pip.slug,
             'active': 'false',
         })
-        url = '{base_url}?{querystring}'.format(
-            base_url=reverse('version-list'),
-            querystring=data.urlencode(),
-        )
-
-        resp = self.client.get(url, content_type='application/json')
+        with self.assertNumQueries(6):
+            resp = self.client.get(url, data)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['count'], pip.versions.filter(active=False).count())
+
+    def test_project_get_active_versions(self):
+        pip = Project.objects.get(slug="pip")
+        url = reverse("project-active-versions", args=[pip.pk])
+        with self.assertNumQueries(6):
+            resp = self.client.get(url)
+        self.assertEqual(
+            len(resp.data["versions"]), pip.versions.filter(active=True).count()
+        )
 
     def test_modify_version(self):
         pip = Project.objects.get(slug='pip')
