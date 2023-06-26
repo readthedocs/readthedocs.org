@@ -174,19 +174,13 @@ class Backend(BaseVCS):
         #  unclear guarantees about whether that even needs to be a fully consistent clone.
         self.make_clean_working_dir()
 
+        # TODO: We should add "--no-checkout" in all git clone operations, except:
+        #  There exists a case of version_type=BRANCH without a branch name.
+        #  This case is relevant for building projects for the first time without knowing the name
+        #  of the default branch. Once this case has been made redundant, we can have
+        #  --no-checkout for all clones.
         # --depth 1: Shallow clone, fetch as little data as possible.
-        cmd = ["git", "clone", "--depth", "1"]
-
-        # We add "--no-checkout" in all git clone operations, except:
-        # There exists a case of version_type=BRANCH without a branch name.
-        # This case is relevant for building projects for the first time without knowing the name
-        # of the default branch.
-        if self.version_type == BRANCH and not self.version_identifier:
-            self._skip_fetch = True
-        else:
-            cmd.append("--no-checkout")
-
-        cmd += [self.repo_url, "."]
+        cmd = ["git", "clone", "--depth", "1", self.repo_url, "."]
 
         try:
             # TODO: Explain or remove the return value
