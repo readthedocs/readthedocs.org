@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-20 08:59+0000\n"
+"POT-Creation-Date: 2023-06-26 23:37+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Chanyoung Oh <ndcd607@gmail.com>, 2016,2018\n"
 "Language-Team: Korean (Korea) (http://app.transifex.com/readthedocs/"
@@ -34,6 +34,18 @@ msgstr ""
 
 #: analytics/models.py:88
 msgid "HTTP status code"
+msgstr ""
+
+#: api/v2/models.py:41
+msgid "Project that this API key grants access to"
+msgstr ""
+
+#: api/v2/models.py:47
+msgid "Build API key"
+msgstr ""
+
+#: api/v2/models.py:48
+msgid "Build API keys"
 msgstr ""
 
 #: api/v2/templates/restapi/footer.html:18
@@ -803,16 +815,12 @@ msgid "Last name"
 msgstr "성"
 
 #: core/forms.py:43
-#, fuzzy
-#| msgid "Settings"
 msgid "User settings"
-msgstr "설정"
+msgstr ""
 
 #: core/forms.py:47
-#, fuzzy
-#| msgid "Settings"
 msgid "Email settings"
-msgstr "설정"
+msgstr ""
 
 #: core/forms.py:52
 #: organizations/templates/organizations/admin/organization_edit.html:15
@@ -2008,7 +2016,7 @@ msgstr ""
 msgid "Bazaar"
 msgstr ""
 
-#: projects/constants.py:99 projects/models.py:2146
+#: projects/constants.py:99 projects/models.py:2141
 msgid "Public"
 msgstr "공개"
 
@@ -2680,173 +2688,169 @@ msgstr ""
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1949
+#: projects/models.py:1948
 msgid "Sphinx: Do not define html_theme_path on Sphinx < 6.0"
 msgstr ""
 
-#: projects/models.py:1954
+#: projects/models.py:1953
 msgid "MkDocs: Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 
-#: projects/models.py:1958
+#: projects/models.py:1957
 msgid "Build: Do not shallow clone when cloning git repos"
 msgstr ""
 
-#: projects/models.py:1962
+#: projects/models.py:1961
 msgid "Build: Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1966
+#: projects/models.py:1965
 msgid "Conda: Upgrade conda before creating the environment"
 msgstr ""
 
-#: projects/models.py:1970
+#: projects/models.py:1969
 msgid "Conda: Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1975
+#: projects/models.py:1974
 msgid ""
 "Sphinx: Pass all versions (including private) into the html context when "
 "building with Sphinx"
 msgstr ""
 
-#: projects/models.py:1982
+#: projects/models.py:1981
 msgid ""
 "Proxito: CDN support for a project's public versions when privacy levels are "
 "enabled."
 msgstr ""
 
-#: projects/models.py:1988
+#: projects/models.py:1987
 msgid "Build: Use Docker gVisor runtime to create build container."
 msgstr ""
 
-#: projects/models.py:1992
+#: projects/models.py:1991
 msgid "Proxito: Record 404s page views."
 msgstr ""
 
-#: projects/models.py:1996
+#: projects/models.py:1995
 msgid "Proxito: Allow forced redirects."
 msgstr ""
 
-#: projects/models.py:2000
+#: projects/models.py:1999
 msgid "Proxito: Disable all page views"
 msgstr ""
 
-#: projects/models.py:2004
-msgid "Sphinx: Disable indexing of sphinx domains"
-msgstr ""
-
-#: projects/models.py:2008
+#: projects/models.py:2003
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr ""
 
-#: projects/models.py:2013
+#: projects/models.py:2008
 msgid ""
 "Proxito: Use new unresolver implementation for serving documentation files."
 msgstr ""
 
-#: projects/models.py:2020
+#: projects/models.py:2015
 msgid "Webhook: Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:2024
+#: projects/models.py:2019
 msgid "Webhook: Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:2028
+#: projects/models.py:2023
 msgid "Webhook: Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:2032
+#: projects/models.py:2027
 msgid "Build: Always run pip install --upgrade"
 msgstr ""
 
-#: projects/models.py:2033
+#: projects/models.py:2028
 msgid "Build: Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:2036
+#: projects/models.py:2031
 msgid "Build: Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:2038
+#: projects/models.py:2033
 msgid "Sphinx: Use latest version of Sphinx"
 msgstr ""
 
-#: projects/models.py:2041
+#: projects/models.py:2036
 msgid "MkDOcs: Install mkdocs 0.17.3 by default"
 msgstr ""
 
-#: projects/models.py:2043
+#: projects/models.py:2038
 msgid "MkDocs: Use latest version of MkDocs"
 msgstr ""
 
-#: projects/models.py:2046
+#: projects/models.py:2041
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
-#: projects/models.py:2052
+#: projects/models.py:2047
 msgid "Search: Disable server side search"
 msgstr ""
 
-#: projects/models.py:2056
+#: projects/models.py:2051
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:2060
+#: projects/models.py:2055
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:2065
+#: projects/models.py:2060
 msgid ""
 "Search: Index content directly from html files instead or relying in other "
 "sources"
 msgstr ""
 
-#: projects/models.py:2073
+#: projects/models.py:2068
 msgid ""
 "Sphinx: Do not create index.md or README.rst if the project does not have "
 "one."
 msgstr ""
 
-#: projects/models.py:2079
+#: projects/models.py:2074
 msgid ""
 "Proxito: Inject 'readthedocs-client.js' as <script> HTML tag in responses."
 msgstr ""
 
-#: projects/models.py:2084
+#: projects/models.py:2079
 msgid "Build: Building without a configuration file is deprecated."
 msgstr ""
 
-#: projects/models.py:2097
+#: projects/models.py:2092
 msgid "Feature identifier"
 msgstr ""
 
-#: projects/models.py:2102
+#: projects/models.py:2097
 msgid "Date feature was added"
 msgstr ""
 
-#: projects/models.py:2108
+#: projects/models.py:2103
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:2112
+#: projects/models.py:2107
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2134
+#: projects/models.py:2129
 msgid "Name of the environment variable"
 msgstr ""
 
-#: projects/models.py:2138
+#: projects/models.py:2133
 msgid "Value of the environment variable"
 msgstr ""
 
-#: projects/models.py:2143
+#: projects/models.py:2138
 msgid "Project where this variable will be used"
 msgstr ""
 
-#: projects/models.py:2149
+#: projects/models.py:2144
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
@@ -3087,67 +3091,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:431
+#: settings/base.py:432
 msgid "Catalan"
 msgstr ""
 
-#: settings/base.py:432
+#: settings/base.py:433
 msgid "English"
 msgstr "영어"
 
-#: settings/base.py:433
+#: settings/base.py:434
 msgid "Spanish"
 msgstr "스페인어"
 
-#: settings/base.py:434
+#: settings/base.py:435
 msgid "Brazilian Portuguese"
 msgstr ""
 
-#: settings/base.py:435
+#: settings/base.py:436
 msgid "Norwegian Bokmål"
 msgstr "노르웨이어"
 
-#: settings/base.py:436
+#: settings/base.py:437
 msgid "French"
 msgstr "프랑스어"
 
-#: settings/base.py:437
+#: settings/base.py:438
 msgid "Russian"
 msgstr "러시아어"
 
-#: settings/base.py:438
+#: settings/base.py:439
 msgid "German"
 msgstr "독일어"
 
-#: settings/base.py:439
+#: settings/base.py:440
 msgid "Galician"
 msgstr "갈리시아어"
 
-#: settings/base.py:440
+#: settings/base.py:441
 msgid "Vietnamese"
 msgstr "베트남어"
 
-#: settings/base.py:441
+#: settings/base.py:442
 msgid "Simplified Chinese"
 msgstr "중국어 간체"
 
-#: settings/base.py:442
+#: settings/base.py:443
 msgid "Traditional Chinese"
 msgstr "중국어 번체"
 
-#: settings/base.py:443
+#: settings/base.py:444
 msgid "Japanese"
 msgstr "일본어"
 
-#: settings/base.py:444
+#: settings/base.py:445
 msgid "Ukrainian"
 msgstr "우크라이나어"
 
-#: settings/base.py:445
+#: settings/base.py:446
 msgid "Italian"
 msgstr "이탈리아어"
 
-#: settings/base.py:446
+#: settings/base.py:447
 msgid "Korean"
 msgstr "한국어"
 
@@ -5486,6 +5490,3 @@ msgid ""
 "OAuth connection of Read the Docs. On GitHub, this is located in "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
-
-#~ msgid "OK, save it!"
-#~ msgstr "좋아요, 저장합시다!"
