@@ -80,12 +80,10 @@
       "code": null
     },
     "external_version_warning": {
-      "enabled": true,
-      "query_selector": "[role=main]"
+      "enabled": true
     },
     "non_latest_version_warning": {
       "enabled": true,
-      "query_selector": "[role=main]",
       "versions": ["latest"]
     },
     "doc_diff": {

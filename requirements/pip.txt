@@ -124,6 +124,8 @@ djangorestframework==3.14.0
     # via
     #   -r requirements/pip.in
     #   drf-extensions
+djangorestframework-api-key==2.3.0
+    # via -r requirements/pip.in
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.in
 docker==6.1.2

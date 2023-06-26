@@ -414,7 +414,9 @@ class OrganizationsViewSet(
     lookup_url_kwarg = 'organization_slug'
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
-    permission_classes = [UserOrganizationsListing | IsOrganizationAdminMember]
+    permission_classes = [
+        IsAuthenticated & (UserOrganizationsListing | IsOrganizationAdminMember)
+    ]
     permit_list_expands = [
         'projects',
         'teams',
@@ -443,7 +445,7 @@ class OrganizationsProjectsViewSet(
     lookup_url_kwarg = 'project_slug'
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [IsOrganizationAdminMember]
+    permission_classes = [IsAuthenticated & IsOrganizationAdminMember]
     permit_list_expands = [
         'organization',
         'organization.teams',
