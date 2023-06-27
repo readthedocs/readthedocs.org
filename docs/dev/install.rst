@@ -47,11 +47,11 @@ Set up your environment
       export GITHUB_USER="..."
 
    In order to make development changes on any of our private repositories,
-   such as ``ext`` or ``ext-theme``, you will also need to check these repositories out:
+   such as ``readthedocs-ext`` or ``ext-theme``, you will also need to check these repositories out:
 
    .. prompt:: bash
 
-      git clone --recurse-submodules https://github.com/readthedocs/ext/
+      git clone --recurse-submodules https://github.com/readthedocs/readthedocs-ext/
 
 #. Install the requirements from ``common`` submodule:
 
