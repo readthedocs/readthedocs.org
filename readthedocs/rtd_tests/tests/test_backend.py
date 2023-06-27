@@ -384,11 +384,6 @@ class TestGitBackend(TestCase):
 
 
 @mock.patch("readthedocs.doc_builder.environments.BuildCommand.save", mock.MagicMock())
-class TestGitBackendTwiceInARow(TestGitBackend):
-    """Test that we can run everything twice without test leakage."""
-
-
-@mock.patch("readthedocs.doc_builder.environments.BuildCommand.save", mock.MagicMock())
 class TestGitBackendNew(TestGitBackend):
     """
     Test the entire Git backend (with the GIT_CLONE_FETCH_CHECKOUT_PATTERN feature flag).
