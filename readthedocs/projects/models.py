@@ -1924,7 +1924,6 @@ class Feature(models.Model):
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
-    DISABLE_SPHINX_DOMAINS = "disable_sphinx_domains"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
 
@@ -2010,10 +2009,6 @@ class Feature(models.Model):
         (
             DISABLE_PAGEVIEWS,
             _("Proxito: Disable all page views"),
-        ),
-        (
-            DISABLE_SPHINX_DOMAINS,
-            _("Sphinx: Disable indexing of sphinx domains"),
         ),
         (
             RESOLVE_PROJECT_FROM_HEADER,

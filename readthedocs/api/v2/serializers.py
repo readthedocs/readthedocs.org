@@ -98,7 +98,33 @@ class ProjectAdminSerializer(ProjectSerializer):
 
 
 class VersionSerializer(serializers.ModelSerializer):
-    project = ProjectSerializer()
+
+    """
+    Version serializer.
+
+    Instead of using directly a ProjectSerializer for the project,
+    we user a SerializerMethodField to have more control over the
+    serialization of the project, this allows us to optimize the
+    serialization of the same project for each version.
+
+    We usually filter all versions that belong to one project,
+    so instead of serializing the same project over and over again,
+    we cache the serialized project and reuse it for each version.
+
+    Why not just rely on select_related('project')?
+    Since the project is the same for all versions most of the time,
+    we would be serializing the same project over and over again,
+    and ProjectSerializer includes a call to get_docs_url,
+    ``users``, and ``features``, get_docs_url we can cached, ``users``
+    can be included in a ``prefetch_related`` call,
+    but ``features`` is a property with a custom queryset, so it can't be added.
+
+    See https://github.com/readthedocs/readthedocs.org/pull/10460#discussion_r1238928385.
+    """
+
+    project = serializers.SerializerMethodField()
+    project_serializer_class = ProjectSerializer
+
     downloads = serializers.DictField(source='get_downloads', read_only=True)
 
     class Meta:
@@ -120,19 +146,43 @@ class VersionSerializer(serializers.ModelSerializer):
             "documentation_type",
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._serialized_projects_cache = {}
+
+    def _get_project_serialized(self, obj):
+        """Get a serialized project from the cache or create a new one."""
+        project = obj.project
+        project_serialized = self._serialized_projects_cache.get(project.id)
+        if project_serialized:
+            return project_serialized
+
+        self._serialized_projects_cache[project.id] = self.project_serializer_class(
+            project
+        )
+        return self._serialized_projects_cache[project.id]
+
+    def get_project(self, obj):
+        project_serialized = self._get_project_serialized(obj)
+        return project_serialized.data
+
 
 class VersionAdminSerializer(VersionSerializer):
 
     """Version serializer that returns admin project data."""
 
-    project = ProjectAdminSerializer()
+    project_serializer_class = ProjectAdminSerializer
     canonical_url = serializers.SerializerMethodField()
     build_data = serializers.JSONField(required=False, write_only=True, allow_null=True)
     addons = serializers.BooleanField(required=False, write_only=True, allow_null=False)
 
     def get_canonical_url(self, obj):
-        return obj.project.get_docs_url(
-            lang_slug=obj.project.language,
+        # Use the cached object, since it has some
+        # relationships already cached from calling
+        # get_docs_url early when serializing the project.
+        project = self._get_project_serialized(obj).instance
+        return project.get_docs_url(
+            lang_slug=project.language,
             version_slug=obj.slug,
             external=obj.type == EXTERNAL,
         )

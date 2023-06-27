@@ -132,15 +132,19 @@ class EnvironmentVariablessEndpointTests(APIEndpointMixin):
         )
 
     def test_projects_environmentvariables_detail_delete(self):
-        self.assertEqual(self.project.environmentvariable_set.count(), 1)
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.delete(
-            reverse(
-                'projects-environmentvariables-detail',
-                kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
-                    'environmentvariable_pk': self.environmentvariable.pk,
-                }),
+        url = reverse(
+            "projects-environmentvariables-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "environmentvariable_pk": self.environmentvariable.pk,
+            },
         )
+        self.client.logout()
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.assertEqual(self.project.environmentvariable_set.count(), 1)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(self.project.environmentvariable_set.count(), 0)

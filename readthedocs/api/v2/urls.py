@@ -45,6 +45,14 @@ urlpatterns = [
     re_path(r'^', include(router.urls)),
 ]
 
+urlpatterns += [
+    path(
+        "revoke/",
+        core_views.RevokeBuildAPIKeyView.as_view(),
+        name="revoke_build_api_key",
+    ),
+]
+
 function_urls = [
     path("docurl/", core_views.docurl, name="docurl"),
     path("footer_html/", footer_views.FooterHTML.as_view(), name="footer_html"),
