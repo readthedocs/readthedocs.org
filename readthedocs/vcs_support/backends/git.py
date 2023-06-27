@@ -166,6 +166,11 @@ class Backend(BaseVCS):
             )
 
     def clone_ng(self):
+        """
+        Performs the next-generation (ng) git clone operation.
+
+        This method is used when GIT_CLONE_FETCH_CHECKOUT_PATTERN is on.
+        """
         # TODO: This seems to be legacy that can be removed.
         #  If the repository is already cloned, we don't do anything.
         #  It seems to originate from when a cloned repository was cached on disk,
@@ -196,7 +201,11 @@ class Backend(BaseVCS):
             raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
 
     def fetch_ng(self):
-        """Implementation for new clone+fetch+checkout pattern."""
+        """
+        Performs the next-generation (ng) git fetch operation.
+
+        This method is used when GIT_CLONE_FETCH_CHECKOUT_PATTERN is on.
+        """
 
         # When git clone does NOT add --no-checkout, it's because we are going
         # to use the remote HEAD, so we don't have to fetch nor check out.
