@@ -17,9 +17,10 @@ class BuildAPIKeyManager(BaseAPIKeyManager):
         and can be revoked at any time by hitting the /api/v2/revoke/ endpoint.
         """
         expiry_date = timezone.now() + timedelta(hours=3)
+        name_max_length = self.model._meta.get_field("name").max_length
         return super().create_key(
             # Name is required, so we use the project slug for it.
-            name=project.slug,
+            name=project.slug[:name_max_length],
             expiry_date=expiry_date,
             project=project,
         )
