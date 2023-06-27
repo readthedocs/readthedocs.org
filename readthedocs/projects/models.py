@@ -1915,6 +1915,7 @@ class Feature(models.Model):
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
+    ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -2007,6 +2008,10 @@ class Feature(models.Model):
             _(
                 "Proxito: Use new unresolver implementation for serving documentation files."
             ),
+        ),
+        (
+            ALLOW_VERSION_WARNING_BANNER,
+            _("Dashboard: Allow project to use the version warning banner."),
         ),
 
         # Versions sync related features
