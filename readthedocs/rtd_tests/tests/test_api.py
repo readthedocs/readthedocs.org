@@ -604,6 +604,13 @@ class APIBuildTests(TestCase):
 class APITests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
+    def test_create_key_for_project_with_long_slug(self):
+        user = get(User)
+        project = get(Project, users=[user], slug="a" * 60)
+        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)
+        self.assertTrue(BuildAPIKey.objects.is_valid(build_api_key))
+        self.assertEqual(build_api_key_obj.name, "a" * 50)
+
     def test_revoke_build_api_key(self):
         user = get(User)
         project = get(Project, users=[user])
