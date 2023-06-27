@@ -1,12 +1,12 @@
 """Tasks for Read the Docs' analytics."""
 
 from django.conf import settings
+from django.db import connection
 from django.utils import timezone
 
 import readthedocs
 from readthedocs.worker import app
 
-from .models import PageView
 from .utils import send_to_analytics
 
 DEFAULT_PARAMETERS = {
@@ -80,11 +80,17 @@ def delete_old_page_counts():
     """
     retention_days = settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
     days_ago = timezone.now().date() - timezone.timedelta(days=retention_days)
-    return (
-        PageView.objects.filter(
-            date__lt=days_ago,
-            date__gt=days_ago - timezone.timedelta(days=90),
+
+    # NOTE: we are using raw SQL here to avoid Django doing a SELECT first to
+    # send `pre_` and `post_` delete signals
+    # See https://docs.djangoproject.com/en/4.2/ref/models/querysets/#delete
+    with connection.cursor() as cursor:
+        cursor.execute(
+            # "SELECT COUNT(*) FROM analytics_pageview WHERE date BETWEEN %s AND %s",
+            "DELETE FROM analytics_pageview WHERE date BETWEEN %s AND %s",
+            [
+                days_ago - timezone.timedelta(days=90),
+                days_ago,
+            ],
         )
-        .only("id")
-        .delete()
-    )
+        return cursor.fetchall()
