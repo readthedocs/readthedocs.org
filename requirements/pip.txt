@@ -287,6 +287,8 @@ toml==0.10.2
     # via dparse
 typing-extensions==4.6.3
     # via asgiref
+tzdata==2023.3
+    # via -r requirements/pip.in
 ua-parser==0.16.1
     # via user-agents
 unicode-slugify @ git+https://github.com/mozilla/unicode-slugify@b696c37
