@@ -59,6 +59,8 @@ Set up your environment
 
       pip install -r common/dockerfiles/requirements.txt
 
+#. Set up gVisor following :doc:`rtd-dev:guides/gvisor`.
+
 #. Build the Docker image for the servers:
 
    .. warning::
