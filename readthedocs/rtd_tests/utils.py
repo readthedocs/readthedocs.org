@@ -177,6 +177,16 @@ def create_git_branch(directory, branch):
 
 
 @restoring_chdir
+def get_git_latest_commit_hash(directory, branch):
+    env = environ.copy()
+    env["GIT_DIR"] = pjoin(directory, ".git")
+    chdir(directory)
+
+    command = ["git", "rev-parse", branch]
+    return check_output(command, env=env).strip()
+
+
+@restoring_chdir
 def delete_git_branch(directory, branch):
     env = environ.copy()
     env['GIT_DIR'] = pjoin(directory, '.git')

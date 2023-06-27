@@ -21,6 +21,7 @@ from readthedocs.rtd_tests.utils import (
     delete_git_branch,
     delete_git_tag,
     get_current_commit,
+    get_git_latest_commit_hash,
     make_test_git,
     make_test_hg,
 )
@@ -614,10 +615,14 @@ class TestGitBackendNew(TestGitBackend):
 
     def test_special_tag_stable(self):
         """Test that an auto-generated 'stable' tag works."""
+        repo_path = self.project.repo
+        latest_actual_commit_hash = get_git_latest_commit_hash(repo_path, "master")
+
         repo = self.project.vcs_repo(
             environment=self.build_environment,
             version_type=TAG,
             version_machine=True,
+            version_identifier=latest_actual_commit_hash,
         )
         repo.update()
 
