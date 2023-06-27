@@ -40,17 +40,17 @@ jobs:
       - image: 'cimg/python:3.10'
     steps:
       - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
       # Recipe: https://pre-commit.com/#managing-ci-caches
       - run:
-          name: Combine precommit config and python versions for caching
+          name: Combine pre-commit config and python versions for caching
           command: |
             cp common/pre-commit-config.yaml pre-commit-cache-key.txt
             python --version --version >> pre-commit-cache-key.txt
       - restore_cache:
           keys:
           - v1-pc-cache-{{ checksum "pre-commit-cache-key.txt" }}
-      - run: git submodule sync
-      - run: git submodule update --init
       - run: pip install --user 'tox<5'
       - run: tox -e pre-commit
       - run: tox -e migrations
