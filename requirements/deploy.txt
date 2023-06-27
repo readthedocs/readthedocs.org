@@ -28,20 +28,20 @@ babel==2.12.1
     #   sphinx
 backcall==0.2.0
     # via ipython
-billiard==3.6.4.0
+billiard==4.1.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.146
+boto3==1.26.161
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.146
+botocore==1.29.161
     # via
     #   -r requirements/pip.txt
     #   boto3
     #   s3transfer
-celery==5.2.7
+celery==5.3.1
     # via -r requirements/pip.txt
 certifi==2023.5.7
     # via
@@ -72,7 +72,7 @@ click-plugins==1.1.1
     # via
     #   -r requirements/pip.txt
     #   celery
-click-repl==0.2.0
+click-repl==0.3.0
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -126,7 +126,7 @@ django-autoslug==1.9.9
     # via -r requirements/pip.txt
 django-cacheops==7.0.1
     # via -r requirements/pip.txt
-django-cors-headers==4.0.0
+django-cors-headers==4.1.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
@@ -136,7 +136,7 @@ django-debug-toolbar==4.1.0
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==7.3
     # via -r requirements/pip.txt
-django-extensions==3.2.1
+django-extensions==3.2.3
     # via -r requirements/pip.txt
 django-filter==23.2
     # via -r requirements/pip.txt
@@ -152,7 +152,7 @@ django-messages-extends==0.6.3
     # via -r requirements/pip.txt
 django-polymorphic==3.1.0
     # via -r requirements/pip.txt
-django-redis==5.2.0
+django-redis==5.3.0
     # via -r requirements/pip.txt
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
@@ -178,7 +178,7 @@ docutils==0.20.1
     # via
     #   -r requirements/pip.txt
     #   sphinx
-dparse==0.6.2
+dparse==0.6.3
     # via -r requirements/pip.txt
 drf-extensions==0.7.1
     # via -r requirements/pip.txt
@@ -194,7 +194,7 @@ elasticsearch-dsl==7.4.1
     #   django-elasticsearch-dsl
 executing==1.2.0
     # via stack-data
-filelock==3.12.0
+filelock==3.12.2
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -235,7 +235,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.3.0
+kombu==5.3.1
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -257,7 +257,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.9.0
+orjson==3.9.1
     # via -r requirements/pip.txt
 packaging==23.1
     # via
@@ -265,7 +265,6 @@ packaging==23.1
     #   docker
     #   dparse
     #   sphinx
-    #   structlog-sentry
 parso==0.8.3
     # via jedi
 pexpect==4.8.0
@@ -274,7 +273,7 @@ pickleshare==0.7.5
     # via ipython
 pillow==9.5.0
     # via -r requirements/deploy.in
-platformdirs==3.5.1
+platformdirs==3.8.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -308,6 +307,7 @@ python-dateutil==2.8.2
     # via
     #   -r requirements/pip.txt
     #   botocore
+    #   celery
     #   elasticsearch-dsl
 python3-openid==3.2.0
     # via
@@ -316,12 +316,11 @@ python3-openid==3.2.0
 pytz==2023.3
     # via
     #   -r requirements/pip.txt
-    #   celery
     #   django
     #   djangorestframework
 pyyaml==5.4.1
     # via -r requirements/pip.txt
-redis==4.5.5
+redis==4.6.0
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -350,12 +349,12 @@ s3transfer==0.6.1
     #   boto3
 selectolax==0.3.14
     # via -r requirements/pip.txt
-sentry-sdk==1.25.0
+sentry-sdk==1.26.0
     # via structlog-sentry
 six==1.16.0
     # via
     #   -r requirements/pip.txt
-    #   click-repl
+    #   asttokens
     #   django-annoying
     #   django-elasticsearch-dsl
     #   elasticsearch-dsl
@@ -413,9 +412,9 @@ structlog==23.1.0
     #   -r requirements/pip.txt
     #   django-structlog
     #   structlog-sentry
-structlog-sentry==2.0.2
+structlog-sentry==2.0.3
     # via -r requirements/deploy.in
-toml==0.10.2
+tomli==2.0.1
     # via
     #   -r requirements/pip.txt
     #   dparse
@@ -427,6 +426,10 @@ typing-extensions==4.6.3
     # via
     #   -r requirements/pip.txt
     #   asgiref
+tzdata==2023.3
+    # via
+    #   -r requirements/pip.txt
+    #   celery
 ua-parser==0.16.1
     # via
     #   -r requirements/pip.txt
@@ -453,13 +456,13 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.23.0
+virtualenv==20.23.1
     # via -r requirements/pip.txt
 wcwidth==0.2.6
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.5.2
+websocket-client==1.6.1
     # via
     #   -r requirements/pip.txt
     #   docker
