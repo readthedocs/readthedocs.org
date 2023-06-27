@@ -159,6 +159,12 @@ class Backend(BaseVCS):
             if self.project.git_provider_name == GITLAB_BRAND:
                 return GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
 
+            log.warning(
+                "Asked to do an external build for a Git provider that does not support "
+                "fetching a pr/mr refspec.",
+                project_slug=self.project.slug,
+            )
+
     def clone_ng(self):
         # TODO: This seems to be legacy that can be removed.
         #  If the repository is already cloned, we don't do anything.
