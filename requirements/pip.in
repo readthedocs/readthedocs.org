@@ -43,6 +43,7 @@ celery
 # Docker images need a dependency explicity marked for tzdata in order to have
 # necessary timezone data.
 # https://github.com/readthedocs/readthedocs.org/issues/10453
+# TODO: remove this dependency once we upgrade Celery. It should auto-install it.
 tzdata
 
 # 0.52.0 requires creating a new email template:
