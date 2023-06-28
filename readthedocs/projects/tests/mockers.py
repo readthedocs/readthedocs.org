@@ -262,3 +262,8 @@ class BuildEnvironmentMocker:
             f'{settings.SLUMBER_API_HOST}/api/v2/project/{self.project.pk}/',
             status_code=201,
         )
+
+        self.requestsmock.post(
+            f"{settings.SLUMBER_API_HOST}/api/v2/revoke/",
+            status_code=204,
+        )
