@@ -276,6 +276,14 @@ class BaseSphinx(BaseBuilder):
 
         The default content is rendered from ``doc_builder/conf.py.tmpl``.
         """
+
+        # Generate a `conf.py` from a template
+        #
+        # TODO: we should remove this feature at some point to move forward
+        # with the idea of remove magic from the builders.
+        if not self.config_file:
+            self._write_config()
+
         try:
             self.config_file = (
                 self.config_file or self.project.conf_file(self.version.slug)
