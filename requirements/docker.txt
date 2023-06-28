@@ -383,6 +383,7 @@ selectolax==0.3.14
 six==1.16.0
     # via
     #   -r requirements/pip.txt
+    #   asttokens
     #   click-repl
     #   django-annoying
     #   django-elasticsearch-dsl
@@ -459,6 +460,8 @@ typing-extensions==4.6.3
     # via
     #   -r requirements/pip.txt
     #   asgiref
+tzdata==2023.3
+    # via -r requirements/pip.txt
 ua-parser==0.16.1
     # via
     #   -r requirements/pip.txt

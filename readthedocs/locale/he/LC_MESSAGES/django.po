@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-06-20 08:59+0000\n"
+"POT-Creation-Date: 2023-06-26 23:37+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019,2022-2023\n"
 "Language-Team: Hebrew (http://app.transifex.com/readthedocs/readthedocs/"
@@ -36,6 +36,18 @@ msgstr "נתיב מלא כולל את חלקי הגרסה והשפה."
 #: analytics/models.py:88
 msgid "HTTP status code"
 msgstr "קוד מצב HTTP"
+
+#: api/v2/models.py:41
+msgid "Project that this API key grants access to"
+msgstr ""
+
+#: api/v2/models.py:47
+msgid "Build API key"
+msgstr ""
+
+#: api/v2/models.py:48
+msgid "Build API keys"
+msgstr ""
 
 #: api/v2/templates/restapi/footer.html:18
 msgid "Languages"
@@ -806,16 +818,12 @@ msgid "Last name"
 msgstr "שם משפחה"
 
 #: core/forms.py:43
-#, fuzzy
-#| msgid "Default settings"
 msgid "User settings"
-msgstr "הגדרות ברירת מחדל"
+msgstr "הגדרות משתמש"
 
 #: core/forms.py:47
-#, fuzzy
-#| msgid "Global settings"
 msgid "Email settings"
-msgstr "הגדרות כלליות"
+msgstr "הגדרות דוא״ל"
 
 #: core/forms.py:52
 #: organizations/templates/organizations/admin/organization_edit.html:15
@@ -872,7 +880,7 @@ msgstr "נחסם"
 
 #: core/models.py:50
 msgid "Opt-out from email about 'Config file deprecation'"
-msgstr ""
+msgstr "יציאה ממשלוח הדוא״ל על ‚הפסקת שימוש בקובץ הגדות’"
 
 #: core/models.py:60
 #, python-format
@@ -984,6 +992,9 @@ msgid ""
 "successfully. Read more at https://docs.readthedocs.io/en/stable/config-file/"
 "v2.html"
 msgstr ""
+"קובץ ההגדרות שדרוש לבניית התיעוד חסר במיזם שלך. הוספת קובץ הגדרות למיזם שלך "
+"כדי שייבנה כראוי. ניתן למצוא מידע נוסף תחת https://docs.readthedocs.io/en/"
+"stable/config-file/v2.html"
 
 #: doc_builder/exceptions.py:68
 msgid "This build was manually skipped using a command exit code."
@@ -2116,7 +2127,7 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:99 projects/models.py:2146
+#: projects/constants.py:99 projects/models.py:2141
 msgid "Public"
 msgstr "ציבורי"
 
@@ -2454,17 +2465,19 @@ msgstr ""
 
 #: projects/models.py:247
 msgid "Custom path prefix"
-msgstr ""
+msgstr "קידומת נתיב מותאמת"
 
 #: projects/models.py:253
 msgid ""
 "A custom path prefix used when serving documentation from this project. By "
 "default we serve documentation at the root (/) of a domain."
 msgstr ""
+"קידומת נתיב מותאמת בעת הגשת תיעוד מהמיזם הזה. כברירת מחדל אנו מגישים תיעוד "
+"מבסיס (/) שם התחום."
 
 #: projects/models.py:258
 msgid "Custom subproject path prefix"
-msgstr ""
+msgstr "קידומת נתיב תת־מיזם מותאמת"
 
 #: projects/models.py:264
 msgid ""
@@ -2472,6 +2485,8 @@ msgid ""
 "default we serve documentation from subprojects under the `/projects/` "
 "prefix."
 msgstr ""
+"קידומת נתיב מותאמת בעת הערכת בסיס תת־המיזם. כברירת מחדל אנו מגישים תיעוד "
+"מתת־מיזמים תחת הקידומת `/projects/`."
 
 #: projects/models.py:271
 msgid "Build pull requests for this project"
@@ -2825,127 +2840,123 @@ msgstr ""
 "אם hsts_max_age > 0, להגדיר את הדגלון preload (טעינה מקדימה) יחד עם כותרת "
 "ה־HSTS."
 
-#: projects/models.py:1949
+#: projects/models.py:1948
 msgid "Sphinx: Do not define html_theme_path on Sphinx < 6.0"
 msgstr "Sphinx: לא יוגדר html_theme_path על גבי Sphinx < 6.0"
 
-#: projects/models.py:1954
+#: projects/models.py:1953
 msgid "MkDocs: Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 "MkDocs: להשתמש בערכת העיצוב של Read the Docs theme עבור MkDocs כברירת המחדל"
 
-#: projects/models.py:1958
+#: projects/models.py:1957
 msgid "Build: Do not shallow clone when cloning git repos"
 msgstr "בנייה: לא לשכפל בצורה שטחית בעת שכפול מאגרי git"
 
-#: projects/models.py:1962
+#: projects/models.py:1961
 msgid "Build: Try alternative method of posting large data"
 msgstr "בנייה: לנסות שיטה חלופית לפרסום נתונים גדולים"
 
-#: projects/models.py:1966
+#: projects/models.py:1965
 msgid "Conda: Upgrade conda before creating the environment"
 msgstr "Conda: לשדרג את conda בטרם יצירת הסביבה"
 
-#: projects/models.py:1970
+#: projects/models.py:1969
 msgid "Conda: Append Read the Docs core requirements to environment.yml file"
 msgstr "Conda: הוספת דרישות ליבה של Read the Docs לקובץ environment.yml"
 
-#: projects/models.py:1975
+#: projects/models.py:1974
 msgid ""
 "Sphinx: Pass all versions (including private) into the html context when "
 "building with Sphinx"
 msgstr ""
 "Sphinx: להעביר את כל הגרסאות (כולל הפרטיות) להקשר ה־html בעת בנייה עם Sphinx"
 
-#: projects/models.py:1982
+#: projects/models.py:1981
 msgid ""
 "Proxito: CDN support for a project's public versions when privacy levels are "
 "enabled."
 msgstr ""
 "Proxito: תמיכה ב־CDN לגרסאות הציבוריות של המיזם כאשר רמות פרטיות פעילות."
 
-#: projects/models.py:1988
+#: projects/models.py:1987
 msgid "Build: Use Docker gVisor runtime to create build container."
 msgstr "Build: להשתמש בסביבת הריצה Docker gVisor כדי ליצור קונטיינר לבנייה."
 
-#: projects/models.py:1992
+#: projects/models.py:1991
 msgid "Proxito: Record 404s page views."
 msgstr "Proxito: תיעוד צפיות בעמודי 404."
 
-#: projects/models.py:1996
+#: projects/models.py:1995
 msgid "Proxito: Allow forced redirects."
 msgstr "Proxito: לאפשר הפניות בכוח."
 
-#: projects/models.py:2000
+#: projects/models.py:1999
 msgid "Proxito: Disable all page views"
 msgstr "Proxito: השבתת כל צפיות העמודים"
 
-#: projects/models.py:2004
-msgid "Sphinx: Disable indexing of sphinx domains"
-msgstr "Sphinx: השבתת תיעוד במפתח של שמות תחום sphinx"
-
-#: projects/models.py:2008
+#: projects/models.py:2003
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr "Proxito: לאפשר שימוש בכותרת X-RTD-Slug"
 
-#: projects/models.py:2013
+#: projects/models.py:2008
 msgid ""
 "Proxito: Use new unresolver implementation for serving documentation files."
 msgstr "Proxito: ייעשה שימוש במימוש חדש של unresolver להגשת קובצי תיעוד."
 
-#: projects/models.py:2020
+#: projects/models.py:2015
 msgid "Webhook: Skip syncing branches"
 msgstr "התליה: דילוג על סנכרון ענפים"
 
-#: projects/models.py:2024
+#: projects/models.py:2019
 msgid "Webhook: Skip syncing tags"
 msgstr "התליה: דילוג על סנכרון תגיות"
 
-#: projects/models.py:2028
+#: projects/models.py:2023
 msgid "Webhook: Skip sync versions task"
 msgstr "התליה: דילוג על משימת סנכרון גרסאות"
 
-#: projects/models.py:2032
+#: projects/models.py:2027
 msgid "Build: Always run pip install --upgrade"
 msgstr "בנייה: תמיד להריץ את pip install --upgrade"
 
-#: projects/models.py:2033
+#: projects/models.py:2028
 msgid "Build: Use new pip resolver"
 msgstr "בנייה: ייעשה שימוש בפותר ה־pip החדש"
 
-#: projects/models.py:2036
+#: projects/models.py:2031
 msgid "Build: Don't install the latest version of pip"
 msgstr "בנייה: לא להתקין את הגרסה העדכנית ביותר של pip"
 
-#: projects/models.py:2038
+#: projects/models.py:2033
 msgid "Sphinx: Use latest version of Sphinx"
 msgstr "Sphinx: להשתמש בגרסה העדכנית ביותר של Sphinx"
 
-#: projects/models.py:2041
+#: projects/models.py:2036
 msgid "MkDOcs: Install mkdocs 0.17.3 by default"
 msgstr "MkDOcs: התקנת mkdocs 0.17.3 כברירת מחדל"
 
-#: projects/models.py:2043
+#: projects/models.py:2038
 msgid "MkDocs: Use latest version of MkDocs"
 msgstr "MkDocs: שימוש בגרסה העדכנית ביותר של MkDocs"
 
-#: projects/models.py:2046
+#: projects/models.py:2041
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr "Sphinx: להשתמש בגרסה העדכנית ביותר של הרחבת Sphinx ל־Read the Docs"
 
-#: projects/models.py:2052
+#: projects/models.py:2047
 msgid "Search: Disable server side search"
 msgstr "חיפוש: השבתת חיפוש בצד השרת"
 
-#: projects/models.py:2056
+#: projects/models.py:2051
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr "חיפוש: הפעלת חיפוש בצד השרת למיזמי MkDocs"
 
-#: projects/models.py:2060
+#: projects/models.py:2055
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr "חיפוש: ברירת המחדל תיסוג לחיפוש מעורפל לשאילתות חיפוש פשוטות"
 
-#: projects/models.py:2065
+#: projects/models.py:2060
 msgid ""
 "Search: Index content directly from html files instead or relying in other "
 "sources"
@@ -2953,51 +2964,51 @@ msgstr ""
 "חיפוש: להוסיף תוכן למפתח העניינים ישירות מקובצי html במקום לסמוך על מקורות "
 "אחרים"
 
-#: projects/models.py:2073
+#: projects/models.py:2068
 msgid ""
 "Sphinx: Do not create index.md or README.rst if the project does not have "
 "one."
 msgstr "Sphinx: לא ליצור index.md או README.rst אם למיזם אין כאלה."
 
-#: projects/models.py:2079
+#: projects/models.py:2074
 msgid ""
 "Proxito: Inject 'readthedocs-client.js' as <script> HTML tag in responses."
 msgstr ""
 "Proxito: הזרקת ‚readthedocs-client.js’ בתור תגית HTML מסוג <script> בתגובות."
 
-#: projects/models.py:2084
+#: projects/models.py:2079
 msgid "Build: Building without a configuration file is deprecated."
-msgstr ""
+msgstr "בנייה: בנייה ללא קובץ הגדרות לא אפשרית עוד."
 
-#: projects/models.py:2097
+#: projects/models.py:2092
 msgid "Feature identifier"
 msgstr "מזהה תכונות"
 
-#: projects/models.py:2102
+#: projects/models.py:2097
 msgid "Date feature was added"
 msgstr "התאריך בו נוספה התכונה"
 
-#: projects/models.py:2108
+#: projects/models.py:2103
 msgid "Default all past projects to True"
 msgstr "ברירת המחדל של כל מיזמי העבר הוא אמת (True)"
 
-#: projects/models.py:2112
+#: projects/models.py:2107
 msgid "Default all future projects to True"
 msgstr "ברירת המחדל של כל מיזמי העתיד הוא אמת (True)"
 
-#: projects/models.py:2134
+#: projects/models.py:2129
 msgid "Name of the environment variable"
 msgstr "שם משתנה הסביבה"
 
-#: projects/models.py:2138
+#: projects/models.py:2133
 msgid "Value of the environment variable"
 msgstr "ערך משתנה הסביבה"
 
-#: projects/models.py:2143
+#: projects/models.py:2138
 msgid "Project where this variable will be used"
 msgstr "מיזם בו יעשה שימוש במשתנה"
 
-#: projects/models.py:2149
+#: projects/models.py:2144
 msgid "Expose this environment variable in PR builds?"
 msgstr "לחשוף את משתנה הסביבה בבניות של בקשות משיכה (PR)?"
 
@@ -3252,67 +3263,67 @@ msgstr "שאילתה"
 msgid "Total results"
 msgstr "סך כל התוצאות"
 
-#: settings/base.py:431
+#: settings/base.py:432
 msgid "Catalan"
 msgstr "קטלאנית"
 
-#: settings/base.py:432
+#: settings/base.py:433
 msgid "English"
 msgstr "אנגלי"
 
-#: settings/base.py:433
+#: settings/base.py:434
 msgid "Spanish"
 msgstr "ספרדית"
 
-#: settings/base.py:434
+#: settings/base.py:435
 msgid "Brazilian Portuguese"
 msgstr "פורטוגלית ברזילאית"
 
-#: settings/base.py:435
+#: settings/base.py:436
 msgid "Norwegian Bokmål"
 msgstr "נורווגית ספרותית"
 
-#: settings/base.py:436
+#: settings/base.py:437
 msgid "French"
 msgstr "צרפתית"
 
-#: settings/base.py:437
+#: settings/base.py:438
 msgid "Russian"
 msgstr "רוסית"
 
-#: settings/base.py:438
+#: settings/base.py:439
 msgid "German"
 msgstr "גרמנית"
 
-#: settings/base.py:439
+#: settings/base.py:440
 msgid "Galician"
 msgstr "גליסית"
 
-#: settings/base.py:440
+#: settings/base.py:441
 msgid "Vietnamese"
 msgstr "וייטנאמית"
 
-#: settings/base.py:441
+#: settings/base.py:442
 msgid "Simplified Chinese"
 msgstr "סינית מפושטת"
 
-#: settings/base.py:442
+#: settings/base.py:443
 msgid "Traditional Chinese"
 msgstr "סינית מסורתית"
 
-#: settings/base.py:443
+#: settings/base.py:444
 msgid "Japanese"
 msgstr "יפנית"
 
-#: settings/base.py:444
+#: settings/base.py:445
 msgid "Ukrainian"
 msgstr "אוקראינית"
 
-#: settings/base.py:445
+#: settings/base.py:446
 msgid "Italian"
 msgstr "איטלקית"
 
-#: settings/base.py:446
+#: settings/base.py:447
 msgid "Korean"
 msgstr "קוריאנית"
 
@@ -4259,17 +4270,13 @@ msgstr ""
 "Docs (בתוך המיזם שלך &lt;&lt; ניהול &lt;&lt; שמות מתחם)"
 
 #: templates/errors/404/include_error_message.html:4
-#, fuzzy, python-format
-#| msgid ""
-#| "You are browsing the documentation of <code>%(project_slug)s</code>. The "
-#| "%(not_found_subject)s you are looking for at <code>%(path_not_found)s</"
-#| "code> was not found."
+#, python-format
 msgid ""
 "You are browsing the documentation of <code>%(project_slug)s</code>. The "
 "%(not_found_subject)s you are looking for was not found."
 msgstr ""
-"זה התיעוד של <code>%(project_slug)s</code>. ה%(not_found_subject)s אותו "
-"חיפשת תחת <code>%(path_not_found)s</code> לא נמצא."
+"זה התיעוד של <code>%(project_slug)s</code>. ה%(not_found_subject)s שחיפשת לא "
+"נמצא."
 
 #: templates/errors/404/include_error_message.html:11
 msgid ""
@@ -4863,7 +4870,7 @@ msgstr ""
 
 #: templates/projects/import_config.html:5
 msgid "Add a project configuration file"
-msgstr ""
+msgstr "הוספת קובץ הגדרות מיזם"
 
 #: templates/projects/import_config.html:8
 msgid ""
@@ -4873,10 +4880,14 @@ msgid ""
 "readthedocs.io/en/stable/config-file/v2.html\">read more about our "
 "configuration file in our documentation</a>."
 msgstr ""
+"נא לוודא שלמיזם שלך יש את קובץ ההגדרות ‎<code>.readthedocs.yaml</code>‎ "
+"בתיקיית הבסיס של המאגר שלך. זה קובץ שנחוץ ל־Read the Docs לטובת בניית התיעוד "
+"שלך. אפשר <a href=\"https://docs.readthedocs.io/en/stable/config-file/v2."
+"html\">להרחיב על קובץ ההגדרות שלנו בתיעוד שלנו</a>."
 
 #: templates/projects/import_config.html:16
 msgid "Here is an example configuration file for a project using Sphinx:"
-msgstr ""
+msgstr "הנה קובץ הגדרות לדוגמה למיזם באמצעות Sphinx:"
 
 #: templates/projects/import_extra.html:5
 msgid "Project Extra Details"
@@ -5159,6 +5170,10 @@ msgid ""
 "href=\"%(deprecation_link)s\" target=\"_blank\">migrating your configuration "
 "to .readthedocs.yaml</a>."
 msgstr ""
+"השימוש בהגדרות שלהלן <strong>הופסק</strong> והתמיכה בשדות האלו תוסר "
+"ב־<strong>5 בספטמבר, 2023</strong>, <br><br> למידע נוסף, ניתן לעיין ברשומה "
+"בבלוג שלנו: <a href=\"%(deprecation_link)s\" target=\"_blank\">המרת ההגדרות "
+"שלך ל־‎.readthedocs.yaml</a>."
 
 #: templates/projects/project_advertising.html:5
 #: templates/projects/project_advertising.html:12
@@ -5900,56 +5915,3 @@ msgstr ""
 "מספיקה ועליך גם לבקר בהגדרות אצל ספק ה־Git שלך כדי למחוק את חיבור ה־OAuth של "
 "Read the Docs. ב־GitHub, הוא ממוקם תחת <code>Settings > Applications > "
 "Authorized OAuth Apps</code>."
-
-#~ msgid "Webhook: Allow deprecated webhook views"
-#~ msgstr "התליות: לאפשר תצוגות התליות שהשימוש בהן הופסק"
-
-#~ msgid "Build: Use Docker image labelled as `testing` to build the docs"
-#~ msgstr ""
-#~ "בנייה: לעשות שימוש בדמויות Docker עם התווית `testing` (בדיקה) כדי לבנות "
-#~ "את המסמכים"
-
-#~ msgid "Build: Clean all files used in the build process"
-#~ msgstr "בנייה: לנקות את כל הקבצים בהם נעשה שימוש בתהליך הבנייה"
-
-#~ msgid ""
-#~ "Build: Cache the environment (virtualenv, conda, pip cache, repository) "
-#~ "in storage"
-#~ msgstr "בנייה: לשמור את הסביבה (virtualenv,‏ conda,‏ pip cache, מאגר) באחסון"
-
-#~ msgid "Build: Limit the amount of concurrent builds"
-#~ msgstr "בנייה: הגבלת כמות הבניות במקביל"
-
-#~ msgid ""
-#~ "Build: List packages installed in the environment (\"pip list\" or "
-#~ "\"conda list\") on build's output"
-#~ msgstr ""
-#~ "בנייה: להציג חבילות שמותקנות בסביבה („pip list” או „conda list”) בפלט "
-#~ "הבנייה"
-
-#~ msgid ""
-#~ "Build: Use remote listing in VCS (e.g. git ls-remote) if supported for "
-#~ "sync versions"
-#~ msgstr ""
-#~ "בנייה: להשתמש בהצגה מרוחקת במערכת בקרת הגרסאות (למשל: git ls-remote) אם "
-#~ "נתמך בגרסאות סנכרון"
-
-#~ msgid "Sphinx: Use \"-j auto\" when calling sphinx-build"
-#~ msgstr "Sphinx: שימוש ב־„‎-j auto” בעת קריאה ל־sphinx-build"
-
-#~ msgid "Sphinx: Use regular sphinx builders instead of custom RTD builders"
-#~ msgstr ""
-#~ "Sphinx: להשתמש בבנאים רגילים של sphinx builders במקום בבנאים מותאמים של "
-#~ "RTD"
-
-#~ msgid ""
-#~ "Build: Cancel triggered/running builds when a new one with same project/"
-#~ "version arrives"
-#~ msgstr ""
-#~ "בנייה: לבטל בניות שהופעלו/פעילות כאשר בנייה חדשה אם אותו מיזם/גרסה מגיעה"
-
-#~ msgid "Build: Use rclone for syncing files to the media storage."
-#~ msgstr "בנייה: להשתמש ב־rclone לסנכרון קבצים לאחסון המדיה."
-
-#~ msgid "OK, save it!"
-#~ msgstr "או קיי, לשמור אותו!"
