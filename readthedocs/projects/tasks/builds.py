@@ -558,12 +558,24 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
             if artifact_type == "html":
                 index_html_filepath = os.path.join(artifact_directory, "index.html")
-                if not os.path.exists(index_html_filepath):
-                    log.info(
+                readme_html_filepath = os.path.join(artifact_directory, "README.html")
+                if not os.path.exists(index_html_filepath) and not os.path.exists(
+                    readme_html_filepath
+                ):
+                    log.warning(
                         "Failing the build. "
                         "HTML output does not contain an 'index.html' at its root directory.",
+                        index_html=index_html_filepath,
+                        readme_html=readme_html_filepath,
                     )
-                    raise BuildUserError(BuildUserError.BUILD_OUTPUT_HTML_NO_INDEX_FILE)
+                    # TODO: uncomment this line to fail the build once we have
+                    # communicated with projects without an index.html or
+                    # README.html
+                    #
+                    # NOTE: we want to deprecate serving README.html as an
+                    # index.html file as well.
+                    #
+                    # raise BuildUserError(BuildUserError.BUILD_OUTPUT_HTML_NO_INDEX_FILE)
 
             if not os.path.exists(artifact_directory):
                 # There is no output directory.
