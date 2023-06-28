@@ -21,6 +21,7 @@ from readthedocs.builds import tasks as build_tasks
 from readthedocs.builds.constants import (
     ARTIFACT_TYPES,
     ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT,
+    ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT_NO_PDF,
     BUILD_FINAL_STATES,
     BUILD_STATE_BUILDING,
     BUILD_STATE_CLONING,
@@ -58,15 +59,16 @@ from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
 from readthedocs.worker import app
 
+from ..constants import DOWNLOADABLE_MEDIA_TYPES, MEDIA_TYPES_EXTENSIONS
 from ..exceptions import (
     ProjectConfigurationError,
     RepositoryError,
     SyncRepositoryLocked,
 )
-from ..models import APIProject, WebHookEvent
+from ..models import APIProject, Feature, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
-from .search import fileify
+from .search import fileify, sync_downloadable_artifacts
 from .utils import BuildRequest, clean_build, send_external_build_status
 
 log = structlog.get_logger(__name__)
@@ -542,11 +544,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         It performs the following checks on each output format type path:
          - it exists
          - it is a directory
-         - does not contains more than 1 files (only PDF, HTMLZip, ePUB)
+         - does not contains more than 1 files (HTMLZip, ePUB)
 
         TODO: remove the limitation of only 1 file.
         Add support for multiple PDF files in the output directory and
-        grab them by using glob syntaxt between other files that could be garbage.
+        grab them by using glob syntax between other files that could be garbage.
         """
         valid_artifacts = []
         for artifact_type in ARTIFACT_TYPES:
@@ -573,7 +575,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # Check if there are multiple files on artifact directories.
             # These output format does not support multiple files yet.
             # In case multiple files are found, the upload for this format is not performed.
-            if artifact_type in ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT:
+            if self.data.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS):
+                single_file_artifacts = (
+                    ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT_NO_PDF
+                )
+            else:
+                single_file_artifacts = ARTIFACT_TYPES_WITHOUT_MULTIPLE_FILES_SUPPORT
+
+            if artifact_type in single_file_artifacts:
                 artifact_format_files = len(os.listdir(artifact_directory))
                 if artifact_format_files > 1:
                     log.error(
@@ -597,6 +606,55 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             valid_artifacts.append(artifact_type)
 
         return valid_artifacts
+
+    def trigger_sync_downloadable_artifacts(self, valid_artifacts):
+        """
+        Triggers the sync_downloadable_artifacts task with the files that were found.
+
+        Performs an additional validation on files contained in valid_artifacts.
+
+        :param valid_artifacts: A list of artifacts allowed by initial validation. Example:
+                                {"pdf": ["file.pdf"]}
+        :return: None
+        """
+
+        # We only look at artifacts that are part of DOWNLOADABLE_MEDIA_TYPES
+        artifact_types = set(valid_artifacts).intersection(
+            set(DOWNLOADABLE_MEDIA_TYPES)
+        )
+
+        artifacts_found_for_download = {
+            artifact_type: [] for artifact_type in artifact_types
+        }
+
+        for artifact_type in artifact_types:
+            artifact_directory = self.data.project.artifact_path(
+                version=self.data.version.slug,
+                type_=artifact_type,
+            )
+            artifact_directory_ls = os.listdir(artifact_directory)
+            log.info(
+                "Found artifacts in output directory",
+                artifact_directory=artifact_directory,
+                artifact_directory_ls=artifact_directory_ls,
+            )
+            for filename in artifact_directory_ls:
+                log.info("Found an artifact in output directory", filename=filename)
+                extensions_allowed = MEDIA_TYPES_EXTENSIONS[artifact_type]
+                if not os.path.isfile(os.path.join(artifact_directory, filename)):
+                    continue
+                if not any(filename.endswith(f".{ext}") for ext in extensions_allowed):
+                    log.info("Illegal artifact found", filename=filename)
+                    continue
+                artifacts_found_for_download[artifact_type].append(filename)
+
+        # Store ImportedFiles for artifacts, using their paths in storage
+        sync_downloadable_artifacts.delay(
+            version_pk=self.data.version.pk,
+            commit=self.data.build["commit"],
+            build=self.data.build["id"],
+            artifacts_found_for_download=artifacts_found_for_download,
+        )
 
     def on_success(self, retval, task_id, args, kwargs):
         valid_artifacts = self.get_valid_artifact_types()
@@ -632,6 +690,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             search_ranking=self.data.config.search.ranking,
             search_ignore=self.data.config.search.ignore,
         )
+
+        if self.data.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS):
+            if valid_artifacts:
+                self.trigger_sync_downloadable_artifacts(valid_artifacts)
 
         if not self.data.project.has_valid_clone:
             self.set_valid_clone()
@@ -736,7 +798,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             data=self.data,
         )
 
-        # Clonning
+        # Cloning
         self.update_build(state=BUILD_STATE_CLONING)
 
         # TODO: remove the ``create_vcs_environment`` hack. Ideally, this should be
@@ -884,7 +946,17 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version_type=self.data.version.type,
             )
             try:
-                build_media_storage.rclone_sync_directory(from_path, to_path)
+                if self.data.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS):
+                    rclone_kwargs = {}
+                    if media_type in MEDIA_TYPES_EXTENSIONS:
+                        rclone_kwargs["filter_extensions"] = MEDIA_TYPES_EXTENSIONS[
+                            media_type
+                        ]
+                    build_media_storage.rclone_sync_directory(
+                        from_path, to_path, **rclone_kwargs
+                    )
+                else:
+                    build_media_storage.rclone_sync_directory(from_path, to_path)
             except Exception as exc:
                 # NOTE: the exceptions reported so far are:
                 #  - botocore.exceptions:HTTPClientError

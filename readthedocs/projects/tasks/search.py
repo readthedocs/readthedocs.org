@@ -1,3 +1,4 @@
+import os
 from fnmatch import fnmatch
 
 import structlog
@@ -35,7 +36,7 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
         return
 
     log.info(
-        'Creating ImportedFiles',
+        "Creating ImportedFiles for search indexing",
         project_slug=version.project.slug,
         version_slug=version.slug,
     )
@@ -54,6 +55,45 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
         _sync_imported_files(version, build)
     except Exception:
         log.exception('Failed during ImportedFile syncing')
+
+
+@app.task(queue="web")
+def sync_downloadable_artifacts(
+    version_pk, commit, build, artifacts_found_for_download
+):
+    """
+    Create ImportedFile objects for downloadable files.
+
+    Afterwards, ImportedFile objects are used to generate a list of files that can be downloaded
+    for each documentation version.
+
+    :param artifacts_found_for_download: A dictionary with a list of files for each artifact type.
+      For example: {"pdf": ["path/to/file1.pdf", "path/to/file2.pdf"]}
+    """
+    version = Version.objects.get_object_or_log(pk=version_pk)
+    log.info(
+        "Creating ImportedFiles for artifact downloads",
+        project_slug=version.project.slug,
+        version_slug=version.slug,
+        artifacts_found_for_download=artifacts_found_for_download,
+    )
+
+    # Don't index external version builds for now
+    if not version or version.type == EXTERNAL:
+        return
+
+    for artifact_type, artifact_paths in artifacts_found_for_download.items():
+        for fpath in artifact_paths:
+            name = os.path.basename(fpath)
+            ImportedFile.objects.create(
+                name=name,
+                project=version.project,
+                version=version,
+                path=fpath,
+                commit=commit,
+                build=build,
+                ignore=True,
+            )
 
 
 def _sync_imported_files(version, build):

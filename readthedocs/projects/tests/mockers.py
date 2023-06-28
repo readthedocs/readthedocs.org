@@ -75,10 +75,10 @@ class BuildEnvironmentMocker:
         # self.patches['builder.pdf.LatexBuildCommand.output'] = mock.patch(
         #     'readthedocs.doc_builder.backends.sphinx.LatexBuildCommand.output',
         # )
-        self.patches['builder.pdf.glob'] = mock.patch(
-            'readthedocs.doc_builder.backends.sphinx.glob',
-            return_value=['output.file'],
-        )
+        # self.patches['builder.pdf.glob'] = mock.patch(
+        #     'readthedocs.doc_builder.backends.sphinx.glob',
+        #     return_value=['output.file'],
+        # )
 
         self.patches['builder.pdf.os.path.getmtime'] = mock.patch(
             'readthedocs.doc_builder.backends.sphinx.os.path.getmtime',
@@ -261,4 +261,9 @@ class BuildEnvironmentMocker:
         self.requestsmock.patch(
             f'{settings.SLUMBER_API_HOST}/api/v2/project/{self.project.pk}/',
             status_code=201,
+        )
+
+        self.requestsmock.post(
+            f"{settings.SLUMBER_API_HOST}/api/v2/revoke/",
+            status_code=204,
         )

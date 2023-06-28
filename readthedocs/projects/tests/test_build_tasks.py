@@ -16,10 +16,17 @@ from readthedocs.config import ALL, ConfigError
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
+from readthedocs.projects.models import (
+    EnvironmentVariable,
+    Feature,
+    ImportedFile,
+    Project,
+    WebHookEvent,
+)
 from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
 from readthedocs.telemetry.models import BuildData
 
+from ..constants import MEDIA_TYPES_EXTENSIONS
 from .mockers import BuildEnvironmentMocker
 
 
@@ -309,6 +316,157 @@ class TestBuildTask(BuildEnvironmentBase):
             "has_htmlzip": False,
         }
 
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_updates_multiple_artifacts(self, load_yaml_config):
+        """
+        Test that Feature.ENABLE_MULTIPLE_PDFS works.
+
+        We mock that several .pdfs were created and verify that ImportedFile objects are in place.
+        """
+
+        fixture.get(
+            Feature,
+            projects=[self.project],
+            feature_id=Feature.ENABLE_MULTIPLE_PDFS,
+        )
+
+        assert self.version.documentation_type == "sphinx"
+        load_yaml_config.return_value = self._config_file(
+            {
+                "version": 2,
+                "formats": ["epub", "pdf"],
+                "sphinx": {
+                    "configuration": "docs/conf.py",
+                },
+            }
+        )
+
+        # Create the artifact paths, so that `store_build_artifacts`
+        # properly runs: https://github.com/readthedocs/readthedocs.org/blob/faa611fad689675f81101ea643770a6b669bf529/readthedocs/projects/tasks/builds.py#L798-L804
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
+
+        # epub and pdf output dirs
+        epub_dir = self.project.artifact_path(version=self.version.slug, type_="epub")
+        pdf_dir = self.project.artifact_path(version=self.version.slug, type_="pdf")
+        os.makedirs(epub_dir)
+        os.makedirs(pdf_dir)
+
+        # Create a .tex file because of a validation step that verifies that intermediate
+        # .tex files were created.
+        pathlib.Path(
+            os.path.join(
+                pdf_dir,
+                f"{self.project.slug}-test1.tex",
+            )
+        ).touch()
+
+        # Create 1 epub and 2 pdfs
+        pathlib.Path(
+            os.path.join(
+                epub_dir,
+                f"{self.project.slug}.epub",
+            )
+        ).touch()
+        pathlib.Path(
+            os.path.join(
+                pdf_dir,
+                f"{self.project.slug}-test1.pdf",
+            )
+        ).touch()
+        pathlib.Path(
+            os.path.join(
+                pdf_dir,
+                f"{self.project.slug}-test2.pdf",
+            )
+        ).touch()
+
+        self._trigger_update_docs_task()
+
+        # Update version state
+        assert self.requests_mock.request_history[7]._request.method == "PATCH"
+        assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
+        assert self.requests_mock.request_history[7].json() == {
+            "addons": False,
+            "build_data": None,
+            "built": True,
+            "documentation_type": "sphinx",
+            "has_pdf": True,
+            "has_epub": True,
+            "has_htmlzip": False,
+        }
+
+        assert (
+            ImportedFile.objects.pdf_files()
+            .filter(project=self.project, name=f"{self.project.slug}-test1.pdf")
+            .count()
+            == 1
+        )
+        assert (
+            ImportedFile.objects.pdf_files()
+            .filter(project=self.project, name=f"{self.project.slug}-test2.pdf")
+            .count()
+            == 1
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_build_fail_if_no_artifacts(self, load_yaml_config):
+        """
+        Test that Feature.ENABLE_MULTIPLE_PDFS works but fails when there are no PDFs found
+
+        We mock that several .pdfs were created and verify that ImportedFile objects are in place.
+        """
+        assert self.version.documentation_type == "sphinx"
+
+        fixture.get(
+            Feature,
+            projects=[self.project],
+            feature_id=Feature.ENABLE_MULTIPLE_PDFS,
+        )
+
+        load_yaml_config.return_value = self._config_file(
+            {
+                "version": 2,
+                "formats": ["epub", "pdf"],
+                "sphinx": {
+                    "configuration": "docs/conf.py",
+                },
+            }
+        )
+
+        # Create the artifact paths, so that `store_build_artifacts`
+        # properly runs: https://github.com/readthedocs/readthedocs.org/blob/faa611fad689675f81101ea643770a6b669bf529/readthedocs/projects/tasks/builds.py#L798-L804
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
+
+        # epub and pdf output dirs
+        epub_dir = self.project.artifact_path(version=self.version.slug, type_="epub")
+        pdf_dir = self.project.artifact_path(version=self.version.slug, type_="pdf")
+        os.makedirs(epub_dir)
+        os.makedirs(pdf_dir)
+
+        # Create a .tex file because of a validation step that verifies that intermediate
+        # .tex files were created.
+        pathlib.Path(
+            os.path.join(
+                pdf_dir,
+                f"{self.project.slug}-test1.tex",
+            )
+        ).touch()
+
+        # Create 1 epub and 0 pdfs
+        pathlib.Path(
+            os.path.join(
+                epub_dir,
+                f"{self.project.slug}.epub",
+            )
+        ).touch()
+
+        self._trigger_update_docs_task()
+
+        output_json = self.requests_mock.request_history[6].json()
+
+        assert "error" in output_json
+        assert "PDF file was not generated" in output_json["error"]
+
     @pytest.mark.parametrize(
         "config",
         [
@@ -404,10 +562,12 @@ class TestBuildTask(BuildEnvironmentBase):
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.doc_builder.backends.sphinx.PdfBuilder._check_for_files")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_successful_build(
         self,
         load_yaml_config,
+        _check_for_files,
         clean_build,
         send_notifications,
         send_external_build_status,
@@ -667,10 +827,22 @@ class TestBuildTask(BuildEnvironmentBase):
         assert revoke_key_request.path == "/api/v2/revoke/"
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.backends.sphinx.PdfBuilder._check_for_files")
+    @mock.patch(
+        "readthedocs.doc_builder.backends.sphinx.EpubBuilder._get_epub_files_generated"
+    )
     def test_build_commands_executed(
         self,
+        _get_epub_files_generated,
+        _check_for_files,
         load_yaml_config,
     ):
+        # This test only works without the feature flag
+        # Several other tests are also made before this feature flag, so we will have to
+        # adapt them later -- this one will behave differently for sure, so let's make
+        # sure no one ends up on a long horrible test assertion debugging trip.
+        assert not self.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS)
+
         load_yaml_config.return_value = self._config_file(
             {
                 "version": 2,
@@ -680,15 +852,19 @@ class TestBuildTask(BuildEnvironmentBase):
                 },
             }
         )
+        _get_epub_files_generated.return_value = ["some file names that are not used"]
 
         # Create the artifact paths, so it's detected by the builder
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
-        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="json"))
-        os.makedirs(
-            self.project.artifact_path(version=self.version.slug, type_="htmlzip")
-        )
-        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="epub"))
-        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="pdf"))
+        for f in ("epub", "pdf", "htmlzip", "json"):
+            extension = MEDIA_TYPES_EXTENSIONS[f]
+            os.makedirs(self.project.artifact_path(version=self.version.slug, type_=f))
+            pathlib.Path(
+                os.path.join(
+                    self.project.artifact_path(version=self.version.slug, type_=f),
+                    f"{self.project.slug}.{extension}",
+                )
+            ).touch()
 
         self._trigger_update_docs_task()
 

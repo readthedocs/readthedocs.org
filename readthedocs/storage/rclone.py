@@ -112,16 +112,32 @@ class BaseRClone:
         )
         return result
 
-    def sync(self, source, destination):
+    def sync(self, source, destination, filter_extensions=None):
         """
         Run the `rclone sync` command.
 
-        See https://rclone.org/commands/rclone_sync/.
+        See:
+        https://rclone.org/commands/rclone_sync/
+        https://rclone.org/filtering/
 
         :params source: Local path to the source directory.
         :params destination: Remote path to the destination directory.
+        :params filter_extensions: Only top-level copy files with the listed file extensions.
         """
-        return self.execute("sync", args=[source, self.get_target(destination)])
+        options = []
+
+        if filter_extensions:
+            options += ["--ignore-case", "--include"]
+            # Python escape rule: {{ = {
+            # What we want to have is for instance '/*.{pdf}'
+            filter_pattern = "/*.{{{extensions}}}".format(
+                extensions=",".join(filter_extensions)
+            )
+            options.append(filter_pattern)
+
+        return self.execute(
+            "sync", args=[source, self.get_target(destination)], options=options
+        )
 
 
 class RCloneLocal(BaseRClone):
