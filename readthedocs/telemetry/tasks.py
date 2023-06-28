@@ -46,4 +46,3 @@ def delete_old_build_data():
                 days_ago,
             ],
         )
-        return cursor.fetchall()

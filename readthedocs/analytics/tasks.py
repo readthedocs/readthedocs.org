@@ -93,4 +93,3 @@ def delete_old_page_counts():
                 days_ago,
             ],
         )
-        return cursor.fetchall()
