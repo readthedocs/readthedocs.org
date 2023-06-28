@@ -87,6 +87,14 @@ def contact_users(
             try:
                 if not dryrun:
                     backend.send(notification)
+                else:
+                    # Check we can render the notification with the context properly
+                    log.debug(
+                        "Rendered notification.",
+                        notification=markdown.markdown(
+                            notification_template.render(Context(context))
+                        ),
+                    )
             except Exception:
                 log.exception('Notification failed to send')
                 failed_notifications.add(user.username)
