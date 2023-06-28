@@ -443,7 +443,6 @@ class TestBuildTask(BuildEnvironmentBase):
         os.makedirs(epub_dir)
         os.makedirs(pdf_dir)
 
-
         # Create a .tex file because of a validation step that verifies that intermediate
         # .tex files were created.
         pathlib.Path(

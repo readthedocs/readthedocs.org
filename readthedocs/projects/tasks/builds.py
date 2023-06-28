@@ -610,6 +610,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     def trigger_sync_downloadable_artifacts(self, valid_artifacts):
         """
         Triggers the sync_downloadable_artifacts task with the files that were found.
+
         Performs an additional validation on files contained in valid_artifacts.
 
         :param valid_artifacts: A list of artifacts allowed by initial validation. Example:
