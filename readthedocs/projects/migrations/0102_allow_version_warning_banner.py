@@ -8,7 +8,7 @@ def forwards_func(apps, schema_editor):
     Project = apps.get_model("projects", "Project")
     Feature = apps.get_model("projects", "Feature")
 
-    feature = Feature.objects.create(feature_id=Feature.ALLOW_VERSION_WARNING_BANNER)
+    feature = Feature.objects.create(feature_id="allow_version_warning_banner")
     for project in Project.objects.filter(show_version_warning=True).iterator():
         feature.projects.add(project)
 
