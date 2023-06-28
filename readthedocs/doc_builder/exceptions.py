@@ -54,7 +54,7 @@ class BuildUserError(BuildBaseException):
     )
     BUILD_OUTPUT_HTML_NO_INDEX_FILE = gettext_noop(
         "Your documentation did not generate an 'index.html' at its root directory. "
-        "Please, make sure to generate one to make the build to succeed."
+        "This is required for documentation serving at the root URL for this version."
     )
     BUILD_OUTPUT_OLD_DIRECTORY_USED = gettext_noop(
         "Some files were detected in an unsupported output path, '_build/html'. "
