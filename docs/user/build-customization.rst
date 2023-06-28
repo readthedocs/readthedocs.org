@@ -102,7 +102,7 @@ To avoid this, it's possible to unshallow the :program:`git clone`:
        python: "3.10"
      jobs:
        post_checkout:
-         - git fetch --unshallow
+         - git fetch --unshallow  || true
 
 
 Cancel build based on a condition
@@ -205,7 +205,7 @@ For example, `pydoc-markdown <http://niklasrosenstein.github.io/pydoc-markdown/>
        python: "3.10"
      jobs:
        pre_build:
-         - pydoc-markdown --build --site-dir "$PWD/_build/html"
+         - pydoc-markdown --build --site-dir "$READTHEDOCS_OUTPUT/html"
 
 
 Avoid having a dirty Git index
@@ -247,7 +247,7 @@ This helps ensure that all external links are still valid and readers aren't lin
        python: "3.10"
      jobs:
        pre_build:
-         - python -m sphinx -b linkcheck -D linkcheck_timeout=1 docs/ _build/linkcheck
+         - python -m sphinx -b linkcheck -D linkcheck_timeout=1 docs/ $READTHEDOCS_OUTPUT/linkcheck
 
 
 Support Git LFS (Large File Storage)
@@ -418,7 +418,7 @@ If you are building your project with Pelican you could use a configuration file
        python: "3.10"
      commands:
        - pip install pelican[markdown]
-       - pelican --settings docs/pelicanconf.py --output _readthedocs/html/ docs/
+       - pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/
 
 
 Docsify
@@ -436,5 +436,5 @@ These projects can be built using a configuration file like this:
      tools:
        nodejs: "16"
      commands:
-       - mkdir --parents _readthedocs/html/
-       - cp --recursive docs/* _readthedocs/html/
+       - mkdir --parents $READTHEDOCS_OUTPUT/html/
+       - cp --recursive docs/* $READTHEDOCS_OUTPUT/html/
