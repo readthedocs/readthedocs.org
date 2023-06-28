@@ -221,15 +221,12 @@ Example:
          path: .
          extra_requirements:
            - docs
-       - method: setuptools
-         path: package
 
 With the previous settings, Read the Docs will execute the next commands:
 
 .. prompt:: bash $
 
    pip install .[docs]
-   python package/setup.py install
 
 python.system_packages
 ``````````````````````
