@@ -1,5 +1,6 @@
 import os
 import pathlib
+import tempfile
 from unittest import mock
 
 import django_dynamic_fixture as fixture
@@ -1029,6 +1030,285 @@ class TestBuildTask(BuildEnvironmentBase):
                 mock.call(
                     "mv",
                     mock.ANY,
+                    "/tmp/project-latest.epub",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "rm",
+                    "--recursive",
+                    "$READTHEDOCS_OUTPUT/epub",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "mkdir",
+                    "--parents",
+                    "$READTHEDOCS_OUTPUT/epub",
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "mv",
+                    "/tmp/project-latest.epub",
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "test",
+                    "-x",
+                    "_build/html",
+                    record=False,
+                    cwd=mock.ANY,
+                ),
+                # FIXME: I think we are hitting this issue here:
+                # https://github.com/pytest-dev/pytest-mock/issues/234
+                mock.call("lsb_release", "--description", record=False, demux=True),
+                mock.call("python", "--version", record=False, demux=True),
+                mock.call(
+                    "dpkg-query",
+                    "--showformat",
+                    "${package} ${version}\\n",
+                    "--show",
+                    record=False,
+                    demux=True,
+                ),
+                mock.call(
+                    "python",
+                    "-m",
+                    "pip",
+                    "list",
+                    "--pre",
+                    "--local",
+                    "--format",
+                    "json",
+                    record=False,
+                    demux=True,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.backends.sphinx.PdfBuilder._check_for_files")
+    @mock.patch(
+        "readthedocs.doc_builder.backends.sphinx.PdfBuilder._pdf_files_generated"
+    )
+    @mock.patch(
+        "readthedocs.doc_builder.backends.sphinx.EpubBuilder._get_epub_files_generated"
+    )
+    def test_build_commands_executed_multiple_artifacts(
+        self,
+        _get_epub_files_generated,
+        _pdf_files_generated,
+        _check_for_files,
+        load_yaml_config,
+    ):
+        """
+        This is the new version of test_build_commands_executed with ENABLE_MULTIPLE_PDFS enabled.
+        """
+        fixture.get(
+            Feature, projects=[self.project], feature_id=Feature.ENABLE_MULTIPLE_PDFS
+        )
+
+        load_yaml_config.return_value = self._config_file(
+            {
+                "version": 2,
+                "formats": "all",
+                "sphinx": {
+                    "configuration": "docs/conf.py",
+                },
+            }
+        )
+        _get_epub_files_generated.return_value = ["output.epub"]
+
+        # Generate fake PDF output
+        tempdir_for_mock = tempfile.mkdtemp()
+        open(f"{tempdir_for_mock}/output.pdf", "w").write("")
+        _pdf_files_generated.return_value = [f"{tempdir_for_mock}/output.pdf"]
+
+        # Create the artifact paths, so it's detected by the builder
+        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
+        for f in ("epub", "pdf", "htmlzip", "json"):
+            extension = MEDIA_TYPES_EXTENSIONS[f]
+            os.makedirs(self.project.artifact_path(version=self.version.slug, type_=f))
+            pathlib.Path(
+                os.path.join(
+                    self.project.artifact_path(version=self.version.slug, type_=f),
+                    f"{self.project.slug}.{extension}",
+                )
+            ).touch()
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks["git.Backend.run"].assert_has_calls(
+            [
+                mock.call(
+                    "git", "clone", "--no-single-branch", "--depth", "50", mock.ANY, "."
+                ),
+                mock.call("git", "checkout", "--force", "a1b2c3"),
+                mock.call("git", "clean", "-d", "-f", "-f"),
+            ]
+        )
+
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call(
+                    "python3.7",
+                    "-mvirtualenv",
+                    mock.ANY,
+                    bin_path=None,
+                    cwd=None,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "--no-cache-dir",
+                    "pip",
+                    "setuptools",
+                    bin_path=mock.ANY,
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "pip",
+                    "install",
+                    "--upgrade",
+                    "--no-cache-dir",
+                    "pillow",
+                    "mock==1.0.1",
+                    "alabaster>=0.7,<0.8,!=0.7.5",
+                    "commonmark==0.9.1",
+                    "recommonmark==0.5.0",
+                    "sphinx<2",
+                    "sphinx-rtd-theme<0.5",
+                    "readthedocs-sphinx-ext<2.3",
+                    "jinja2<3.1.0",
+                    bin_path=mock.ANY,
+                    cwd=mock.ANY,
+                ),
+                # FIXME: shouldn't this one be present here? It's not now because
+                # we are mocking `append_conf` which is the one that triggers this
+                # command.
+                #
+                # mock.call(
+                #     'cat',
+                #     'docs/conf.py',
+                #     cwd=mock.ANY,
+                # ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "sphinx",
+                    "-T",
+                    "-E",
+                    "-b",
+                    "html",
+                    "-d",
+                    "_build/doctrees",
+                    "-D",
+                    "language=en",
+                    ".",
+                    "$READTHEDOCS_OUTPUT/html",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "sphinx",
+                    "-T",
+                    "-E",
+                    "-b",
+                    "readthedocssinglehtmllocalmedia",
+                    "-d",
+                    "_build/doctrees",
+                    "-D",
+                    "language=en",
+                    ".",
+                    "$READTHEDOCS_OUTPUT/htmlzip",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call(
+                    "mktemp",
+                    "--directory",
+                    record=False,
+                ),
+                mock.call(
+                    "mv",
+                    mock.ANY,
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "mkdir",
+                    "--parents",
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    "zip",
+                    "--recurse-paths",
+                    "--symlinks",
+                    mock.ANY,
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "sphinx",
+                    "-T",
+                    "-E",
+                    "-b",
+                    "latex",
+                    "-d",
+                    "_build/doctrees",
+                    "-D",
+                    "language=en",
+                    ".",
+                    "$READTHEDOCS_OUTPUT/pdf",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call("cat", "latexmkrc", cwd=mock.ANY),
+                mock.call("rm", "-r", mock.ANY, cwd=mock.ANY, record=False),
+                mock.call("mkdir", "-p", mock.ANY, cwd=mock.ANY, record=False),
+                mock.call(
+                    "mv",
+                    mock.ANY,
+                    mock.ANY,
+                    cwd=mock.ANY,
+                    record=False,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "sphinx",
+                    "-T",
+                    "-E",
+                    "-b",
+                    "epub",
+                    "-d",
+                    "_build/doctrees",
+                    "-D",
+                    "language=en",
+                    ".",
+                    "$READTHEDOCS_OUTPUT/epub",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+                mock.call(
+                    "mv",
+                    "output.epub",
                     "/tmp/project-latest.epub",
                     cwd=mock.ANY,
                     record=False,

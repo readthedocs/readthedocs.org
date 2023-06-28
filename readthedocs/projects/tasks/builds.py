@@ -691,6 +691,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             search_ignore=self.data.config.search.ignore,
         )
 
+        # For the new feature, we trigger a task that will create ImportedFile objects.
         if self.data.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS):
             if valid_artifacts:
                 self.trigger_sync_downloadable_artifacts(valid_artifacts)
