@@ -50,7 +50,7 @@ jobs:
             python --version --version >> pre-commit-cache-key.txt
       - restore_cache:
           keys:
-          - v1-pc-cache-{{ checksum "pre-commit-cache-key.txt" }}
+          - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
       - run: pip install --user 'tox<5'
       - run: tox -e pre-commit
       - run: tox -e migrations
@@ -59,7 +59,7 @@ jobs:
       - run: npm ci
       - run: tox -e eslint
       - save_cache:
-          key: v1-pc-cache-{{ checksum "pre-commit-cache-key.txt" }}
+          key: pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
           paths:
           - ~/.cache/pre-commit
 
