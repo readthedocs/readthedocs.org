@@ -378,7 +378,7 @@ class ServeRedirectMixin:
         # Redirects shouldn't change the domain, version or language.
         # However, if the new_path is already an absolute URI, just use it
         new_path = request.build_absolute_uri(new_path)
-        log.info(
+        log.debug(
             'Redirecting...',
             from_url=request.build_absolute_uri(proxito_path),
             to_url=new_path,
@@ -394,7 +394,7 @@ class ServeRedirectMixin:
             and new_path_parsed.path == old_path_parsed.path
         ):
             # check that we do have a response and avoid infinite redirect
-            log.warning(
+            log.debug(
                 'Infinite Redirect: FROM URL is the same than TO URL.',
                 url=new_path,
             )
