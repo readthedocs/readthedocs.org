@@ -221,7 +221,7 @@ Example:
          path: .
          extra_requirements:
            - docs
-       - method: pip
+       - method: setuptools
          path: package
 
 With the previous settings, Read the Docs will execute the next commands:
