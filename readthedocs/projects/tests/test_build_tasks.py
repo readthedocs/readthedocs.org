@@ -26,6 +26,7 @@ from readthedocs.projects.models import (
 from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
 from readthedocs.telemetry.models import BuildData
 
+from ..constants import MEDIA_TYPES_EXTENSIONS
 from .mockers import BuildEnvironmentMocker
 
 
@@ -562,10 +563,12 @@ class TestBuildTask(BuildEnvironmentBase):
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build")
+    @mock.patch("readthedocs.doc_builder.backends.sphinx.PdfBuilder._check_for_files")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_successful_build(
         self,
         load_yaml_config,
+        _check_for_files,
         clean_build,
         send_notifications,
         send_external_build_status,
@@ -825,10 +828,22 @@ class TestBuildTask(BuildEnvironmentBase):
         assert revoke_key_request.path == "/api/v2/revoke/"
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    @mock.patch("readthedocs.doc_builder.backends.sphinx.PdfBuilder._check_for_files")
+    @mock.patch(
+        "readthedocs.doc_builder.backends.sphinx.EpubBuilder._get_epub_files_generated"
+    )
     def test_build_commands_executed(
         self,
+        _get_epub_files_generated,
+        _check_for_files,
         load_yaml_config,
     ):
+        # This test only works without the feature flag
+        # Several other tests are also made before this feature flag, so we will have to
+        # adapt them later -- this one will behave differently for sure, so let's make
+        # sure no one ends up on a long horrible test assertion debugging trip.
+        assert not self.project.has_feature(Feature.ENABLE_MULTIPLE_PDFS)
+
         load_yaml_config.return_value = self._config_file(
             {
                 "version": 2,
@@ -838,15 +853,19 @@ class TestBuildTask(BuildEnvironmentBase):
                 },
             }
         )
+        _get_epub_files_generated.return_value = ["some file names that are not used"]
 
         # Create the artifact paths, so it's detected by the builder
         os.makedirs(self.project.artifact_path(version=self.version.slug, type_="html"))
-        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="json"))
-        os.makedirs(
-            self.project.artifact_path(version=self.version.slug, type_="htmlzip")
-        )
-        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="epub"))
-        os.makedirs(self.project.artifact_path(version=self.version.slug, type_="pdf"))
+        for f in ("epub", "pdf", "htmlzip", "json"):
+            extension = MEDIA_TYPES_EXTENSIONS[f]
+            os.makedirs(self.project.artifact_path(version=self.version.slug, type_=f))
+            pathlib.Path(
+                os.path.join(
+                    self.project.artifact_path(version=self.version.slug, type_=f),
+                    f"{self.project.slug}.{extension}",
+                )
+            ).touch()
 
         self._trigger_update_docs_task()
 
