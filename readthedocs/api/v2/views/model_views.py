@@ -227,6 +227,9 @@ class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     def get_queryset_for_api_key(self, api_key):
         return self.model.objects.filter(project=api_key.project)
 
+    def get_queryset(self):
+        return super().get_queryset().select_related("project")
+
 
 class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     permission_classes = [HasBuildAPIKey | APIRestrictedPermission]

@@ -1,3 +1,28 @@
+Version 9.15.0
+--------------
+
+:Date: June 26, 2023
+
+* `@MSanKeys963 <https://github.com/MSanKeys963>`__: Docs: Typo fix for integrations.rst (`#10474 <https://github.com/readthedocs/readthedocs.org/pull/10474>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix pip-tools GitHub action (`#10473 <https://github.com/readthedocs/readthedocs.org/pull/10473>`__)
+* `@humitos <https://github.com/humitos>`__: Script: build tools updates (`#10467 <https://github.com/readthedocs/readthedocs.org/pull/10467>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: improve db query when adding HTTP header from El Proxito (`#10461 <https://github.com/readthedocs/readthedocs.org/pull/10461>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V2: Optimize /project/active_versions and /version/ endpoints (`#10460 <https://github.com/readthedocs/readthedocs.org/pull/10460>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Replace navigation instructions with direct URLs w/ organization chooser (`#10457 <https://github.com/readthedocs/readthedocs.org/pull/10457>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: improve "active and built Versions" query (`#10455 <https://github.com/readthedocs/readthedocs.org/pull/10455>`__)
+* `@stsewd <https://github.com/stsewd>`__: API V3: add IsAuthenticated to permissions (`#10452 <https://github.com/readthedocs/readthedocs.org/pull/10452>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: stop creating SphinxDomain objects (`#10451 <https://github.com/readthedocs/readthedocs.org/pull/10451>`__)
+* `@stsewd <https://github.com/stsewd>`__: Unresolver: check for valid schemes when unresolving URL (`#10450 <https://github.com/readthedocs/readthedocs.org/pull/10450>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.14.0 (`#10449 <https://github.com/readthedocs/readthedocs.org/pull/10449>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: easy migration to custom path prefixes (`#10448 <https://github.com/readthedocs/readthedocs.org/pull/10448>`__)
+* `@stsewd <https://github.com/stsewd>`__: Add helper task to update dependencies (`#10447 <https://github.com/readthedocs/readthedocs.org/pull/10447>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: handle API exceptions from unresolver (`#10427 <https://github.com/readthedocs/readthedocs.org/pull/10427>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: increase frequency of `delete_closed_external_versions` task (`#10425 <https://github.com/readthedocs/readthedocs.org/pull/10425>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use project-scoped temporal tokens to interact with the API from the builders (`#10378 <https://github.com/readthedocs/readthedocs.org/pull/10378>`__)
+* `@EwoutH <https://github.com/EwoutH>`__: Update patch versions and add new ones for all supported languages (`#10217 <https://github.com/readthedocs/readthedocs.org/pull/10217>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: mention `docsify` on "Build customization" (`#9439 <https://github.com/readthedocs/readthedocs.org/pull/9439>`__)
+* `@davidfischer <https://github.com/davidfischer>`__: Flyout and Footer API design document (`#8052 <https://github.com/readthedocs/readthedocs.org/pull/8052>`__)
+
 Version 9.14.0
 --------------
 
