@@ -19,22 +19,6 @@ memory
     Examples: '200m' for 200MB of total memory, or '2g' for 2GB of
     total memory.
 
-SLUMBER_USERNAME
-----------------
-
-.. Don't set this automatically, lest we leak something. We are using the dev
-   settings in the conf.py, but it's probably a good idea to be safe.
-
-The username to use when connecting to the Read the Docs API. Used for hitting the API while building the docs.
-
-SLUMBER_PASSWORD
-----------------
-
-.. Don't set this automatically, lest we leak something. We are using the dev
-   settings in the conf.py, but it's probably a good idea to be safe.
-
-The password to use when connecting to the Read the Docs API. Used for hitting the API while building the docs.
-
 USE_SUBDOMAIN
 ---------------
 

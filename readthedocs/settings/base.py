@@ -86,8 +86,6 @@ class CommunityBaseSettings(Settings):
 
     # slumber settings
     SLUMBER_API_HOST = 'https://readthedocs.org'
-    SLUMBER_USERNAME = None
-    SLUMBER_PASSWORD = None
 
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'

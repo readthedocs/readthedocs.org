@@ -1,4 +1,3 @@
-import base64
 import datetime
 import json
 from unittest import mock
@@ -64,9 +63,6 @@ from readthedocs.projects.models import (
 )
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 
-super_auth = base64.b64encode(b'super:test').decode('utf-8')
-eric_auth = base64.b64encode(b'eric:test').decode('utf-8')
-
 
 class APIBuildTests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
@@ -98,7 +94,9 @@ class APIBuildTests(TestCase):
         self.assertEqual(build.commands.count(), 1)
 
         client = APIClient()
-        client.force_login(self.user)
+        _, build_api_key = BuildAPIKey.objects.create_key(self.project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
         r = client.post(reverse('build-reset', args=(build.pk,)))
 
         self.assertEqual(r.status_code, 204)
@@ -140,11 +138,14 @@ class APIBuildTests(TestCase):
         self.assertNotIn('_config', resp.data)
 
     def test_save_same_config_using_patch(self):
-        client = APIClient()
-        client.login(username='super', password='test')
         project = Project.objects.get(pk=1)
         version = project.versions.first()
         build_one = Build.objects.create(project=project, version=version)
+
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
         resp = client.patch(
             '/api/v2/build/{}/'.format(build_one.pk),
             {'config': {'one': 'two'}},
@@ -356,7 +357,7 @@ class APIBuildTests(TestCase):
         """
         Ensure build api view delegates correct serializer.
 
-        Super users should be able to read/write the `builder` property, but we
+        Build API keys should be able to read/write the `builder` property, but we
         don't expose this to end users via the API
         """
         project = Project.objects.get(pk=1)
@@ -369,15 +370,18 @@ class APIBuildTests(TestCase):
         resp = client.get('/api/v2/build/{}/'.format(build.pk), format='json')
         self.assertEqual(resp.status_code, 200)
 
-        client.force_authenticate(user=User.objects.get(username='super'))
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
         resp = client.get('/api/v2/build/{}/'.format(build.pk), format='json')
         self.assertEqual(resp.status_code, 200)
         self.assertIn('builder', resp.data)
 
     def test_make_build_commands(self):
         """Create build commands."""
+        _, build_api_key = BuildAPIKey.objects.create_key(self.project)
         client = APIClient()
-        client.login(username='super', password='test')
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
         build = get(Build, project=self.project, version=self.version, success=True)
         now = timezone.now()
         start_time = now - datetime.timedelta(seconds=5)
@@ -640,13 +644,16 @@ class APITests(TestCase):
         )
         client = APIClient()
 
-        client.force_authenticate(user=user_normal)
-        resp = client.get('/api/v2/project/%s/' % (project.pk))
-        self.assertEqual(resp.status_code, 200)
-        self.assertNotIn("conf_py_file", resp.data)
-        self.assertNotIn("readthedocs_yaml_path", resp.data)
+        for user in [user_normal, user_admin]:
+            client.force_authenticate(user=user)
+            resp = client.get('/api/v2/project/%s/' % (project.pk))
+            self.assertEqual(resp.status_code, 200)
+            self.assertNotIn("conf_py_file", resp.data)
+            self.assertNotIn("readthedocs_yaml_path", resp.data)
 
-        client.force_authenticate(user=user_admin)
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
         resp = client.get('/api/v2/project/%s/' % (project.pk))
         self.assertEqual(resp.status_code, 200)
         self.assertIn("conf_py_file", resp.data)
@@ -705,7 +712,7 @@ class APITests(TestCase):
 
         # We don't allow creating projects.
         resp = client.post("/api/v2/project/")
-        self.assertEqual(resp.status_code, 405)
+        self.assertEqual(resp.status_code, 403)
 
         projects = [
             project_a,
@@ -718,11 +725,11 @@ class APITests(TestCase):
 
             # We don't allow deleting projects.
             resp = client.delete(f"/api/v2/project/{project.pk}/")
-            self.assertEqual(resp.status_code, 405)
+            self.assertEqual(resp.status_code, 403)
 
-            # Update them is fine.
+            # We don't allow users to update projects.
             resp = client.patch(f"/api/v2/project/{project.pk}/")
-            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.status_code, 403)
 
     def test_project_read_and_write_endpoints_for_build_api_token(self):
         user_normal = get(User, is_staff=False)
@@ -825,7 +832,7 @@ class APITests(TestCase):
 
         # We don't allow to create builds.
         resp = client.post("/api/v2/build/")
-        self.assertEqual(resp.status_code, 405)
+        self.assertEqual(resp.status_code, 403)
 
         Version.objects.all().update(privacy_level=PUBLIC)
 
@@ -840,11 +847,11 @@ class APITests(TestCase):
 
             # We don't allow deleting builds.
             resp = client.delete(f"/api/v2/build/{build.pk}/")
-            self.assertEqual(resp.status_code, 405)
+            self.assertEqual(resp.status_code, 403)
 
-            # Update them is fine.
+            # We don't allow users to update them.
             resp = client.patch(f"/api/v2/build/{build.pk}/")
-            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.status_code, 403)
 
     def test_build_read_and_write_endpoints_for_build_api_token(self):
         user_normal = get(User, is_staff=False)
@@ -959,7 +966,7 @@ class APITests(TestCase):
         ]
         build_commands = [get(BuildCommandResult, build=build) for build in builds]
 
-        # We do allow to create build commands from the API for staff users.
+        # We don't allow write operations to users.
         resp = client.post(
             "/api/v2/command/",
             {
@@ -971,7 +978,7 @@ class APITests(TestCase):
                 "end_time": datetime.datetime.utcnow(),
             },
         )
-        self.assertEqual(resp.status_code, 201)
+        self.assertEqual(resp.status_code, 403)
 
         for command in build_commands:
             resp = client.get(f"/api/v2/command/{command.pk}/")
@@ -979,11 +986,11 @@ class APITests(TestCase):
 
             # We don't allow deleting commands.
             resp = client.delete(f"/api/v2/command/{command.pk}/")
-            self.assertEqual(resp.status_code, 405)
+            self.assertEqual(resp.status_code, 403)
 
             # Neither updating them.
             resp = client.patch(f"/api/v2/command/{command.pk}/")
-            self.assertEqual(resp.status_code, 405)
+            self.assertEqual(resp.status_code, 403)
 
     def test_build_commands_read_and_write_endpoints_for_build_api_token(self):
         user_normal = get(User, is_staff=False)
@@ -1119,7 +1126,7 @@ class APITests(TestCase):
 
         # We don't allow to create versions.
         resp = client.post("/api/v2/version/")
-        self.assertEqual(resp.status_code, 405)
+        self.assertEqual(resp.status_code, 403)
 
         versions = [
             project_a.versions.first(),
@@ -1131,13 +1138,13 @@ class APITests(TestCase):
             resp = client.get(f"/api/v2/version/{version.pk}/")
             self.assertEqual(resp.status_code, 200)
 
-            # We don't allow deleting versions.
+            # We don't allow users to delete versions.
             resp = client.delete(f"/api/v2/version/{version.pk}/")
-            self.assertEqual(resp.status_code, 405)
+            self.assertEqual(resp.status_code, 403)
 
-            # Update them is fine.
+            # We don't allow users to update versions.
             resp = client.patch(f"/api/v2/version/{version.pk}/")
-            self.assertEqual(resp.status_code, 200)
+            self.assertEqual(resp.status_code, 403)
 
     def test_versions_read_and_write_endpoints_for_build_api_token(self):
         user_normal = get(User, is_staff=False)
@@ -1246,7 +1253,7 @@ class APITests(TestCase):
 
         # We don't allow to create domains.
         resp = client.post("/api/v2/domain/")
-        self.assertEqual(resp.status_code, 405)
+        self.assertEqual(resp.status_code, 403)
 
         domains = [
             get(Domain, project=project_a),
@@ -1260,11 +1267,11 @@ class APITests(TestCase):
 
             # We don't allow deleting domains.
             resp = client.delete(f"/api/v2/domain/{domain.pk}/")
-            self.assertEqual(resp.status_code, 405)
+            self.assertEqual(resp.status_code, 403)
 
             # Neither update them.
             resp = client.patch(f"/api/v2/domain/{domain.pk}/")
-            self.assertEqual(resp.status_code, 405)
+            self.assertEqual(resp.status_code, 403)
 
     def test_domains_read_and_write_endpoints_for_build_api_token(self):
         # Build API tokens don't grant access to the domain endpoints.
@@ -1306,15 +1313,16 @@ class APITests(TestCase):
             self.assertEqual(resp.status_code, 403)
 
     def test_project_features(self):
-        user = get(User, is_staff=True)
         project = get(Project, main_language_project=None)
         # One explicit, one implicit feature
         feature1 = get(Feature, projects=[project])
         feature2 = get(Feature, projects=[], default_true=True)
-        feature3 = get(Feature, projects=[], default_true=False)  # noqa
-        client = APIClient()
+        get(Feature, projects=[], default_true=False)
 
-        client.force_authenticate(user=user)
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
         resp = client.get('/api/v2/project/%s/' % (project.pk))
         self.assertEqual(resp.status_code, 200)
         self.assertIn('features', resp.data)
@@ -1324,13 +1332,13 @@ class APITests(TestCase):
         )
 
     def test_project_features_multiple_projects(self):
-        user = get(User, is_staff=True)
         project1 = get(Project, main_language_project=None)
         project2 = get(Project, main_language_project=None)
         feature = get(Feature, projects=[project1, project2], default_true=True)
         client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project1)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
-        client.force_authenticate(user=user)
         resp = client.get('/api/v2/project/%s/' % (project1.pk))
         self.assertEqual(resp.status_code, 200)
         self.assertIn('features', resp.data)
@@ -1378,7 +1386,6 @@ class APITests(TestCase):
         self.assertIn('?page=2', resp.data['next'])
 
     def test_project_environment_variables(self):
-        user = get(User, is_staff=True)
         project = get(Project, main_language_project=None)
         get(
             EnvironmentVariable,
@@ -1388,7 +1395,8 @@ class APITests(TestCase):
         )
 
         client = APIClient()
-        client.force_authenticate(user=user)
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.get('/api/v2/project/%s/' % (project.pk))
         self.assertEqual(resp.status_code, 200)
@@ -1466,7 +1474,6 @@ class APITests(TestCase):
             'concurrent': 2,
             'max_concurrent': 4,
         }
-        user = get(User, is_staff=True)
         project = get(
             Project,
             max_concurrent_builds=None,
@@ -1480,7 +1487,8 @@ class APITests(TestCase):
             )
 
         client = APIClient()
-        client.force_authenticate(user=user)
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
 
         resp = client.get(f'/api/v2/build/concurrent/', data={'project__slug': project.slug})
         self.assertEqual(resp.status_code, 200)
@@ -3063,6 +3071,7 @@ class APIVersionTests(TestCase):
         """
         pip = Project.objects.get(slug='pip')
         version = pip.versions.get(slug='0.8')
+        _, build_api_key = BuildAPIKey.objects.create_key(pip)
 
         data = {
             'pk': version.pk,
@@ -3070,7 +3079,7 @@ class APIVersionTests(TestCase):
         resp = self.client.get(
             reverse('version-detail', kwargs=data),
             content_type='application/json',
-            HTTP_AUTHORIZATION='Basic {}'.format(eric_auth),
+            HTTP_AUTHORIZATION=f"Token {build_api_key}"
         )
         self.assertEqual(resp.status_code, 200)
 
@@ -3171,6 +3180,7 @@ class APIVersionTests(TestCase):
     def test_modify_version(self):
         pip = Project.objects.get(slug='pip')
         version = pip.versions.get(slug='0.8')
+        _, build_api_key = BuildAPIKey.objects.create_key(pip)
 
         data = {
             'pk': version.pk,
@@ -3179,7 +3189,7 @@ class APIVersionTests(TestCase):
             reverse('version-detail', kwargs=data),
             data=json.dumps({'built': False, 'has_pdf': True}),
             content_type='application/json',
-            HTTP_AUTHORIZATION='Basic {}'.format(eric_auth),  # Eric is staff
+            HTTP_AUTHORIZATION=f"Token {build_api_key}"
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['built'], False)

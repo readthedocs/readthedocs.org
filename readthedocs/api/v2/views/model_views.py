@@ -7,9 +7,8 @@ from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db.models import BooleanField, Case, Value, When
 from django.http import Http404
-from django.shortcuts import get_object_or_404
 from django.template.loader import render_to_string
-from rest_framework import decorators, permissions, status, viewsets
+from rest_framework import decorators, status, viewsets
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin
 from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
@@ -129,8 +128,8 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
     View set that varies serializer class based on request user credentials.
 
     Viewsets using this class should have an attribute `admin_serializer_class`,
-    which is a serializer that might have more fields that only admin/staff
-    users require. If the user is staff, this class will be returned instead.
+    which is a serializer that might have more fields that only the builders
+    require. If the request is using a Build API key, this class will be returned instead.
 
     By default read-only endpoints will be allowed,
     to allow write endpoints, inherit from the proper ``rest_framework.mixins.*`` classes.
@@ -138,9 +137,7 @@ class UserSelectViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_serializer_class(self):
         try:
-            if (
-                self.request.user.is_staff or self.request.build_api_key
-            ) and self.admin_serializer_class is not None:
+            if self.request.build_api_key and self.admin_serializer_class is not None:
                 return self.admin_serializer_class
         except AttributeError:
             pass
@@ -245,7 +242,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         pre-process the `command` field before returning it to the user, and we
         also want to have a specific serializer for admins.
         """
-        if self.request.user.is_staff or self.request.build_api_key:
+        if self.request.build_api_key:
             # Logic copied from `UserSelectViewSet.get_serializer_class`
             # and extended to choose serializer from self.action
             if self.action not in ["list", "retrieve"]:
@@ -255,22 +252,19 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(
         detail=False,
-        permission_classes=[HasBuildAPIKey | permissions.IsAdminUser],
+        permission_classes=[HasBuildAPIKey],
         methods=['get'],
     )
     def concurrent(self, request, **kwargs):
         project_slug = request.GET.get('project__slug')
         build_api_key = request.build_api_key
-        if build_api_key:
-            if project_slug != build_api_key.project.slug:
-                log.info(
-                    "Project slug doesn't match the one attached to the API key.",
-                    project_slug=project_slug,
-                )
-                raise Http404()
-            project = build_api_key.project
-        else:
-            project = get_object_or_404(Project, slug=project_slug)
+        if project_slug != build_api_key.project.slug:
+            log.info(
+                "Project slug doesn't match the one attached to the API key.",
+                project_slug=project_slug,
+            )
+            raise Http404()
+        project = build_api_key.project
         limit_reached, concurrent, max_concurrent = Build.objects.concurrent(project)
         data = {
             'limit_reached': limit_reached,
@@ -319,7 +313,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     @decorators.action(
         detail=True,
-        permission_classes=[HasBuildAPIKey | permissions.IsAdminUser],
+        permission_classes=[HasBuildAPIKey],
         methods=['post'],
     )
     def reset(self, request, **kwargs):
@@ -342,11 +336,9 @@ class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
     def perform_create(self, serializer):
         """Restrict creation to builds attached to the project from the api key."""
         build_pk = serializer.validated_data["build"].pk
-        api_key = self.request.build_api_key
-        if api_key and not api_key.project.builds.filter(pk=build_pk).exists():
+        build_api_key = self.request.build_api_key
+        if not build_api_key.project.builds.filter(pk=build_pk).exists():
             raise PermissionDenied()
-        # If the request isn't attached to a build api key,
-        # the user doing the request is a superuser, so it has access to all projects.
         return super().perform_create(serializer)
 
     def get_queryset_for_api_key(self, api_key):
