@@ -145,6 +145,7 @@ class PageSearchSerializer(serializers.Serializer):
             docs_url = project_data.version.docs_url
             path = obj.full_path
 
+            # TODO: review this logic that uses doctype
             # Generate an appropriate link for the doctypes that use htmldir,
             # and always end it with / so it goes directly to proxito.
             # For a generic doctype we just strip the index.html part if it exists.

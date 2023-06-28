@@ -145,6 +145,11 @@ def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
 
     content = None
     headers = None
+    # TODO: EmbedAPI v1 is already deprecated and shouldn't be used.
+    # So, we may be able to remove the endpoint completely, together with the usage of
+    # `is_sphinx_type` as well :)
+    # It's disabled on commercial already. We should check the stats on Cloudflare/NewRelic
+    # looking for EmbedAPI v1 and decide what to do depending on usage.
     if version.is_sphinx_type:
         file_content = _get_doc_content(
             project=project,

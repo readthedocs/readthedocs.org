@@ -441,10 +441,6 @@ class BuildDirector:
         if not os.path.exists(html_output_path):
             raise BuildUserError(BuildUserError.BUILD_COMMANDS_WITHOUT_OUTPUT)
 
-        # Update the `Version.documentation_type` to match the doctype defined
-        # by the config file. When using `build.commands` it will be `GENERIC`
-        self.data.version.documentation_type = self.data.config.doctype
-
         # Mark this version to inject the new js client when serving it via El Proxito
         self.data.version.addons = True
 
@@ -695,10 +691,6 @@ class BuildDirector:
         )
 
         return env
-
-    def is_type_sphinx(self):
-        """Is documentation type Sphinx."""
-        return "sphinx" in self.data.config.doctype
 
     def store_readthedocs_build_yaml(self):
         # load YAML from user

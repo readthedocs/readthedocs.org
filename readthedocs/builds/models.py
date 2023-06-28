@@ -352,7 +352,7 @@ class Version(TimeStampedModel):
 
         # By now we must have handled all special versions.
         if self.slug in NON_REPOSITORY_VERSIONS:
-            raise Exception('All special versions must be handled by now.')
+            raise Exception("All special versions must be handled by now.")  # noqa
 
         if self.type in (BRANCH, TAG):
             # If this version is a branch or a tag, the verbose_name will
@@ -407,7 +407,7 @@ class Version(TimeStampedModel):
             external=external,
         )
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
         log.info('Removing files for version.', version_slug=self.slug)
         clean_project_resources(self.project, self)
@@ -475,6 +475,8 @@ class Version(TimeStampedModel):
 
     @property
     def is_sphinx_type(self):
+        # TODO: this method should no be required anymore.
+        # I'm not removing it yet because there may be places still using it.
         return self.documentation_type in {SPHINX, SPHINX_HTMLDIR, SPHINX_SINGLEHTML}
 
     @property
@@ -699,7 +701,7 @@ class APIVersion(Version):
 
         super().__init__(*args, **valid_attributes)
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         return 0
 
 
@@ -1378,7 +1380,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         self.save()
         return True
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def delete(self, *args, **kwargs):
         """Override method to update the other priorities after delete."""
         current_priority = self.priority
         project = self.project
@@ -1473,7 +1475,6 @@ class RegexAutomationRule(VersionAutomationRule):
 
 
 class AutomationRuleMatch(TimeStampedModel):
-
     ACTIONS_PAST_TENSE = {
         VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
         VersionAutomationRule.HIDE_VERSION_ACTION: _("Version hidden"),
