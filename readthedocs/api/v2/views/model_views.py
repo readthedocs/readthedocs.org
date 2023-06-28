@@ -14,11 +14,7 @@ from rest_framework.parsers import JSONParser, MultiPartParser
 from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
-from readthedocs.api.v2.permissions import (
-    ReadOnlyPermission,
-    HasBuildAPIKey,
-    IsOwner,
-)
+from readthedocs.api.v2.permissions import HasBuildAPIKey, IsOwner, ReadOnlyPermission
 from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version

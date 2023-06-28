@@ -646,7 +646,7 @@ class APITests(TestCase):
 
         for user in [user_normal, user_admin]:
             client.force_authenticate(user=user)
-            resp = client.get('/api/v2/project/%s/' % (project.pk))
+            resp = client.get("/api/v2/project/%s/" % (project.pk))
             self.assertEqual(resp.status_code, 200)
             self.assertNotIn("conf_py_file", resp.data)
             self.assertNotIn("readthedocs_yaml_path", resp.data)
@@ -3077,9 +3077,9 @@ class APIVersionTests(TestCase):
             'pk': version.pk,
         }
         resp = self.client.get(
-            reverse('version-detail', kwargs=data),
-            content_type='application/json',
-            HTTP_AUTHORIZATION=f"Token {build_api_key}"
+            reverse("version-detail", kwargs=data),
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {build_api_key}",
         )
         self.assertEqual(resp.status_code, 200)
 
@@ -3186,10 +3186,10 @@ class APIVersionTests(TestCase):
             'pk': version.pk,
         }
         resp = self.client.patch(
-            reverse('version-detail', kwargs=data),
-            data=json.dumps({'built': False, 'has_pdf': True}),
-            content_type='application/json',
-            HTTP_AUTHORIZATION=f"Token {build_api_key}"
+            reverse("version-detail", kwargs=data),
+            data=json.dumps({"built": False, "has_pdf": True}),
+            content_type="application/json",
+            HTTP_AUTHORIZATION=f"Token {build_api_key}",
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['built'], False)
