@@ -705,6 +705,11 @@ class TestBuildTask(BuildEnvironmentBase):
         self.mocker.mocks["environment.run"].assert_has_calls(
             [
                 mock.call(
+                    "cat",
+                    "readthedocs.yaml",
+                    cwd="/tmp/readthedocs-tests/git-repository",
+                ),
+                mock.call(
                     "python3.7",
                     "-mvirtualenv",
                     mock.ANY,
