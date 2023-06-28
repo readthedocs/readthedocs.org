@@ -16,7 +16,7 @@ class IsOwner(permissions.BasePermission):
         return request.user in obj.users.all()
 
 
-class APIRestrictedPermission(permissions.BasePermission):
+class ReadOnlyPermission(permissions.BasePermission):
 
     """Allow read-only access to authenticated and anonymous users."""
 

@@ -15,7 +15,7 @@ from rest_framework.renderers import BaseRenderer, JSONRenderer
 from rest_framework.response import Response
 
 from readthedocs.api.v2.permissions import (
-    APIRestrictedPermission,
+    ReadOnlyPermission,
     HasBuildAPIKey,
     IsOwner,
 )
@@ -166,7 +166,7 @@ class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
     """List, filter, etc, Projects."""
 
-    permission_classes = [HasBuildAPIKey | APIRestrictedPermission]
+    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = ProjectSerializer
     admin_serializer_class = ProjectAdminSerializer
@@ -211,7 +211,7 @@ class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
 class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
-    permission_classes = [HasBuildAPIKey | APIRestrictedPermission]
+    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = VersionSerializer
     admin_serializer_class = VersionAdminSerializer
@@ -229,7 +229,7 @@ class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
 
 class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
-    permission_classes = [HasBuildAPIKey | APIRestrictedPermission]
+    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     model = Build
     filterset_fields = ('project__slug', 'commit')
@@ -328,7 +328,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
 
 class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
     parser_classes = [JSONParser, MultiPartParser]
-    permission_classes = [HasBuildAPIKey | APIRestrictedPermission]
+    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = BuildCommandSerializer
     model = BuildCommandResult
@@ -346,7 +346,7 @@ class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
 
 
 class DomainViewSet(DisableListEndpoint, UserSelectViewSet):
-    permission_classes = [APIRestrictedPermission]
+    permission_classes = [ReadOnlyPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = DomainSerializer
     model = Domain
