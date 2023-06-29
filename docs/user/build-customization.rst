@@ -339,6 +339,32 @@ Take a look at the following example:
      configuration: docs/conf.py
 
 
+Update Conda version
+^^^^^^^^^^^^^^^^^^^^
+
+Projects using Conda may need to install the latest available version of Conda.
+This can be done by using the ``pre_create_environment`` user-defined job to update Conda
+before creating the environment.
+Take a look at the following example:
+
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+    version: 2
+
+    build:
+      os: "ubuntu-22.04"
+      tools:
+        python: "miniconda3-4.7"
+      jobs:
+        pre_create_environment:
+          - conda update --yes --quiet --name=base --channel=defaults conda
+
+    conda:
+      environment: environment.yml
+
+
 .. _build_commands_introduction:
 
 Override the build process
