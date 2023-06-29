@@ -255,8 +255,9 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         project_slug = request.GET.get('project__slug')
         build_api_key = request.build_api_key
         if project_slug != build_api_key.project.slug:
-            log.info(
+            log.warning(
                 "Project slug doesn't match the one attached to the API key.",
+                api_key_id=build_api_key.id,
                 project_slug=project_slug,
             )
             raise Http404()
