@@ -16,28 +16,12 @@ class IsOwner(permissions.BasePermission):
         return request.user in obj.users.all()
 
 
-class APIRestrictedPermission(permissions.BasePermission):
+class ReadOnlyPermission(permissions.BasePermission):
 
-    """
-    Allow admin write, authenticated and anonymous read only.
-
-    This differs from :py:class:`APIPermission` by not allowing for
-    authenticated POSTs. This permission is endpoints like ``/api/v2/build/``,
-    which are used by admin users to coordinate build instance creation, but
-    only should be readable by end users.
-    """
+    """Allow read-only access to authenticated and anonymous users."""
 
     def has_permission(self, request, view):
-        return (
-            request.method in permissions.SAFE_METHODS or
-            (request.user and request.user.is_staff)
-        )
-
-    def has_object_permission(self, request, view, obj):
-        return (
-            request.method in permissions.SAFE_METHODS or
-            (request.user and request.user.is_staff)
-        )
+        return request.method in permissions.SAFE_METHODS
 
 
 class IsAuthorizedToViewVersion(permissions.BasePermission):
@@ -89,6 +73,8 @@ class HasBuildAPIKey(BaseHasAPIKey):
     to avoid having to parse and validate the key again on each view.
     The key is injected in the ``request.build_api_key`` attribute
     only if it's valid, otherwise it's set to ``None``.
+
+    This grants read and write access to the API.
     """
 
     model = BuildAPIKey
