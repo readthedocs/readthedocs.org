@@ -308,7 +308,6 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 .exists()
             )
             # For .com we need to check if the project supports custom domains.
-            # pylint: disable=protected-access
             if canonical_domain and resolver._use_cname(project):
                 log.debug(
                     "Proxito Public Domain -> Canonical Domain Redirect.",
@@ -525,7 +524,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         with the default version and finally, if none of them are found, the Read
         the Docs default page (Maze Found) is rendered by Django and served.
         """
-        # pylint: disable=too-many-locals
         log.bind(proxito_path=proxito_path)
         log.debug('Executing 404 handler.')
 
@@ -691,7 +689,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                     storage_root_path, tryfile
                 )
                 if build_media_storage.exists(storage_filename_path):
-                    log.info(
+                    log.debug(
                         "Serving custom 404.html page.",
                         version_slug_404=version_404.slug,
                         storage_filename_path=storage_filename_path,

@@ -1915,6 +1915,7 @@ class Feature(models.Model):
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
+    ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1937,7 +1938,6 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    DONT_CREATE_INDEX = "dont_create_index"
     HOSTING_INTEGRATIONS = "hosting_integrations"
     NO_CONFIG_FILE_DEPRECATED = "no_config_file"
 
@@ -2008,6 +2008,10 @@ class Feature(models.Model):
                 "Proxito: Use new unresolver implementation for serving documentation files."
             ),
         ),
+        (
+            ALLOW_VERSION_WARNING_BANNER,
+            _("Dashboard: Allow project to use the version warning banner."),
+        ),
 
         # Versions sync related features
         (
@@ -2059,13 +2063,6 @@ class Feature(models.Model):
             _(
                 "Search: Index content directly from html files instead or relying in other "
                 "sources"
-            ),
-        ),
-
-        (
-            DONT_CREATE_INDEX,
-            _(
-                "Sphinx: Do not create index.md or README.rst if the project does not have one."
             ),
         ),
         (

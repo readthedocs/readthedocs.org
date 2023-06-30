@@ -156,7 +156,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         # argument
         self.data.version_pk = args[0]
 
-        self.data.api_client = setup_api()
+        self.data.api_client = setup_api(kwargs["build_api_key"])
 
         # load all data from the API required for the build
         self.data.version = self.get_version(self.data.version_pk)
@@ -241,7 +241,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     base=SyncRepositoryTask,
     bind=True,
 )
-def sync_repository_task(self, version_id, **kwargs):
+def sync_repository_task(self, version_id, *, build_api_key, **kwargs):
     # In case we pass more arguments than expected, log them and ignore them,
     # so we don't break builds while we deploy a change that requires an extra argument.
     if kwargs:
@@ -395,7 +395,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # anymore and we are not using it
             self.data.environment_class = LocalBuildEnvironment
 
-        self.data.api_client = setup_api()
+        self.data.api_client = setup_api(kwargs["build_api_key"])
 
         self.data.build = self.get_build(self.data.build_pk)
         self.data.version = self.get_version(self.data.version_pk)
@@ -543,6 +543,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
          - it exists
          - it is a directory
          - does not contains more than 1 files (only PDF, HTMLZip, ePUB)
+         - it contains an "index.html" file at its root directory (only HTML)
 
         TODO: remove the limitation of only 1 file.
         Add support for multiple PDF files in the output directory and
@@ -554,6 +555,28 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version=self.data.version.slug,
                 type_=artifact_type,
             )
+
+            if artifact_type == "html":
+                index_html_filepath = os.path.join(artifact_directory, "index.html")
+                readme_html_filepath = os.path.join(artifact_directory, "README.html")
+                if not os.path.exists(index_html_filepath) and not os.path.exists(
+                    readme_html_filepath
+                ):
+                    log.warning(
+                        "Failing the build. "
+                        "HTML output does not contain an 'index.html' at its root directory.",
+                        index_html=index_html_filepath,
+                        readme_html=readme_html_filepath,
+                    )
+                    # TODO: uncomment this line to fail the build once we have
+                    # communicated with projects without an index.html or
+                    # README.html
+                    #
+                    # NOTE: we want to deprecate serving README.html as an
+                    # index.html file as well.
+                    #
+                    # raise BuildUserError(BuildUserError.BUILD_OUTPUT_HTML_NO_INDEX_FILE)
+
             if not os.path.exists(artifact_directory):
                 # There is no output directory.
                 # Skip this format.
@@ -699,6 +722,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         if self.data.version:
             clean_build(self.data.version)
+
+        try:
+            self.data.api_client.revoke.post()
+        except Exception:
+            log.exception("Failed to revoke build api key.", exc_info=True)
 
         log.info(
             'Build finished.',
@@ -940,7 +968,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     bind=True,
     ignore_result=True,
 )
-def update_docs_task(self, version_id, build_id, build_commit=None, **kwargs):
+def update_docs_task(
+    self, version_id, build_id, *, build_api_key, build_commit=None, **kwargs
+):
     # In case we pass more arguments than expected, log them and ignore them,
     # so we don't break builds while we deploy a change that requires an extra argument.
     if kwargs:

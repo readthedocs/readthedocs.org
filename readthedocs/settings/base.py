@@ -86,8 +86,6 @@ class CommunityBaseSettings(Settings):
 
     # slumber settings
     SLUMBER_API_HOST = 'https://readthedocs.org'
-    SLUMBER_USERNAME = None
-    SLUMBER_PASSWORD = None
 
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
@@ -219,6 +217,7 @@ class CommunityBaseSettings(Settings):
             'django_gravatar',
             'rest_framework',
             'rest_framework.authtoken',
+            "rest_framework_api_key",
             'corsheaders',
             'annoying',
             'django_extensions',
@@ -648,32 +647,35 @@ class CommunityBaseSettings(Settings):
             'python': {
                 '2.7': '2.7.18',
                 '3.6': '3.6.15',
-                '3.7': '3.7.15',
-                '3.8': '3.8.15',
-                '3.9': '3.9.15',
-                '3.10': '3.10.8',
-                '3.11': '3.11.0',
+                '3.7': '3.7.17',
+                '3.8': '3.8.17',
+                '3.9': '3.9.17',
+                '3.10': '3.10.12',
+                '3.11': '3.11.4',
                 'pypy3.7': 'pypy3.7-7.3.9',
-                'pypy3.8': 'pypy3.8-7.3.9',
-                'pypy3.9': 'pypy3.9-7.3.9',
+                'pypy3.8': 'pypy3.8-7.3.11',
+                'pypy3.9': 'pypy3.9-7.3.12',
                 'miniconda3-4.7': 'miniconda3-4.7.12',
                 'mambaforge-4.10': 'mambaforge-4.10.3-10',
             },
             'nodejs': {
                 '14': '14.20.1',
-                '16': '16.18.0',
-                '18': '18.11.0',
-                '19': '19.0.0',
+                '16': '16.18.1',
+                '18': '18.16.1',  # LTS
+                '19': '19.0.1',
+                '20': '20.3.1',
             },
             'rust': {
                 '1.55': '1.55.0',
                 '1.61': '1.61.0',
                 '1.64': '1.64.0',
+                '1.70': '1.70.0',
             },
             'golang': {
                 '1.17': '1.17.13',
-                '1.18': '1.18.7',
-                '1.19': '1.19.2',
+                '1.18': '1.18.10',
+                '1.19': '1.19.10',
+                '1.20': '1.20.5',
             },
         },
     }

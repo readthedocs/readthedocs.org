@@ -19,7 +19,7 @@ The Continuous Integration and Continuous Deployment (:term:`CI/CD`) features ar
 such as |git_providers_or|.
 With each change committed to your repository, we are notified by the configured :term:`webhook`.
 
-When a receive a *webhook* notification, we match it to a Read the Docs project.
+When a receive a :term:`webhook` notification, we match it to a Read the Docs project.
 The matching project will then process your build and publish the documentation.
 
 .. seealso::

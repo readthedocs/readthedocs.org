@@ -3,7 +3,7 @@
 import packaging
 import structlog
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.views import View
 
 from readthedocs.api.v3.serializers import (
@@ -11,9 +11,10 @@ from readthedocs.api.v3.serializers import (
     ProjectSerializer,
     VersionSerializer,
 )
+from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolver
-from readthedocs.core.unresolver import unresolver
+from readthedocs.core.unresolver import UnresolverError, unresolver
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -83,15 +84,28 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
         unresolved_domain = request.unresolved_domain
         project = unresolved_domain.project
 
-        unresolved_url = unresolver.unresolve_url(url)
-        version = unresolved_url.version
-        filename = unresolved_url.filename
+        try:
+            unresolved_url = unresolver.unresolve_url(url)
+            version = unresolved_url.version
+            filename = unresolved_url.filename
+            build = version.builds.last()
 
-        project.get_default_version()
-        build = version.builds.last()
+        except UnresolverError as exc:
+            # If an exception is raised and there is a ``project`` in the
+            # exception, it's a partial match. This could be because of an
+            # invalid URL path, but on a valid project domain. In this case, we
+            # continue with the ``project``, but without a ``version``.
+            # Otherwise, we return 404 NOT FOUND.
+            project = getattr(exc, "project", None)
+            if not project:
+                raise Http404() from exc
+
+            version = None
+            filename = None
+            build = None
 
         data = AddonsResponse().get(addons_version, project, version, build, filename)
-        return JsonResponse(data, json_dumps_params=dict(indent=4))
+        return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
 
 
 class NoLinksMixin:
@@ -104,7 +118,7 @@ class NoLinksMixin:
     )
 
     def __init__(self, *args, **kwargs):
-        super(NoLinksMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         for field in self.FIELDS_TO_REMOVE:
             if field in self.fields:
@@ -115,7 +129,7 @@ class NoLinksMixin:
 
 
 # NOTE: the following serializers are required only to remove some fields we
-# can't expose yet in this API endpoint because it running under El Proxito
+# can't expose yet in this API endpoint because it's running under El Proxito
 # which cannot resolve some dashboard URLs because they are not defined on El
 # Proxito.
 #
@@ -133,7 +147,7 @@ class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
 
 
 class AddonsResponse:
-    def get(self, addons_version, project, version, build, filename):
+    def get(self, addons_version, project, version=None, build=None, filename=None):
         """
         Unique entry point to get the proper API response.
 
@@ -158,6 +172,11 @@ class AddonsResponse:
         It tries to follow some similarity with the APIv3 for already-known resources
         (Project, Version, Build, etc).
         """
+        versions_active_built = (
+            Version.internal.public(project=project, only_active=True, only_built=True)
+            .only("slug")
+            .order_by("slug")
+        )
 
         data = {
             "comment": (
@@ -168,10 +187,10 @@ class AddonsResponse:
                 "current": ProjectSerializerNoLinks(project).data,
             },
             "versions": {
-                "current": VersionSerializerNoLinks(version).data,
+                "current": VersionSerializerNoLinks(version).data if version else None,
             },
             "builds": {
-                "current": BuildSerializerNoLinks(build).data,
+                "current": BuildSerializerNoLinks(build).data if build else None,
             },
             # TODO: consider creating one serializer per field here.
             # The resulting JSON will be the same, but maybe it's easier/cleaner?
@@ -190,19 +209,24 @@ class AddonsResponse:
                 "analytics": {
                     "enabled": True,
                     # TODO: consider adding this field into the ProjectSerializer itself.
+                    # NOTE: it seems we are removing this feature,
+                    # so we may not need the ``code`` attribute here
+                    # https://github.com/readthedocs/readthedocs.org/issues/9530
                     "code": project.analytics_code,
                 },
                 "external_version_warning": {
                     "enabled": True,
-                    "query_selector": "[role=main]",
+                    # NOTE: I think we are moving away from these selectors
+                    # since we are doing floating noticications now.
+                    # "query_selector": "[role=main]",
                 },
                 "non_latest_version_warning": {
                     "enabled": True,
-                    "query_selector": "[role=main]",
+                    # NOTE: I think we are moving away from these selectors
+                    # since we are doing floating noticications now.
+                    # "query_selector": "[role=main]",
                     "versions": list(
-                        project.versions.filter(active=True)
-                        .only("slug")
-                        .values_list("slug", flat=True)
+                        versions_active_built.values_list("slug", flat=True)
                     ),
                 },
                 "doc_diff": {
@@ -213,7 +237,9 @@ class AddonsResponse:
                         version_slug=project.get_default_version(),
                         language=project.language,
                         filename=filename,
-                    ),
+                    )
+                    if filename
+                    else None,
                     "root_selector": "[role=main]",
                     "inject_styles": True,
                     # NOTE: `base_host` and `base_page` are not required, since
@@ -229,7 +255,7 @@ class AddonsResponse:
                             "slug": version.slug,
                             "url": f"/{project.language}/{version.slug}/",
                         }
-                        for version in project.versions.filter(active=True).only("slug")
+                        for version in versions_active_built
                     ],
                     "downloads": [],
                     # TODO: get this values properly
@@ -237,14 +263,14 @@ class AddonsResponse:
                         "url": "https://github.com",
                         "username": "readthedocs",
                         "repository": "test-builds",
-                        "branch": version.identifier,
+                        "branch": version.identifier if version else None,
                         "filepath": "/docs/index.rst",
                     },
                 },
                 "search": {
                     "enabled": True,
                     "project": project.slug,
-                    "version": version.slug,
+                    "version": version.slug if version else None,
                     "api_endpoint": "/_/api/v3/search/",
                     # TODO: figure it out where this data comes from
                     "filters": [
@@ -256,14 +282,18 @@ class AddonsResponse:
                             "Search subprojects",
                             f"subprojects:{project.slug}/{version.slug}",
                         ],
-                    ],
-                    "default_filter": f"subprojects:{project.slug}/{version.slug}",
+                    ]
+                    if version
+                    else [],
+                    "default_filter": f"subprojects:{project.slug}/{version.slug}"
+                    if version
+                    else None,
                 },
             },
         }
 
         # Update this data with the one generated at build time by the doctool
-        if version.build_data:
+        if version and version.build_data:
             data.update(version.build_data)
 
         return data

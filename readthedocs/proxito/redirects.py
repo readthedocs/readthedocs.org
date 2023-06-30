@@ -76,13 +76,13 @@ def canonical_redirect(request, project, redirect_type, external_version_slug=No
 
     if from_url == to:
         # check that we do have a response and avoid infinite redirect
-        log.warning(
+        log.debug(
             "Infinite Redirect: FROM URL is the same than TO URL.",
             url=to,
         )
         raise InfiniteRedirectException()
 
-    log.info(
+    log.debug(
         "Canonical Redirect.", host=request.get_host(), from_url=from_url, to_url=to
     )
     resp = HttpResponseRedirect(to)
