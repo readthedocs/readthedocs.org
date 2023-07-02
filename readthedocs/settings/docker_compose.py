@@ -30,8 +30,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     # In the local docker environment, nginx should be trusted to set the host correctly
     USE_X_FORWARDED_HOST = True
 
-    MULTIPLE_BUILD_SERVERS = ['build']
-
     # https://docs.docker.com/engine/reference/commandline/run/#add-entries-to-container-hosts-file---add-host
     # export HOSTIP=`ip -4 addr show scope global dev wlp4s0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
     HOSTIP = os.environ.get('HOSTIP')

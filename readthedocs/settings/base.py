@@ -539,16 +539,12 @@ class CommunityBaseSettings(Settings):
         },
     }
 
-    MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
-
     # Sentry
     SENTRY_CELERY_IGNORE_EXPECTED = True
 
     # Docker
     DOCKER_ENABLE = False
     DOCKER_SOCKET = 'unix:///var/run/docker.sock'
-    # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
-    DOCKER_BUILD_IMAGES = None
 
     # User used to create the container.
     # In production we use the same user than the one defined by the
@@ -923,19 +919,6 @@ class CommunityBaseSettings(Settings):
     GRAVATAR_DEFAULT_IMAGE = 'https://assets.readthedocs.org/static/images/silhouette.png'  # NOQA
     OAUTH_AVATAR_USER_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     OAUTH_AVATAR_ORG_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
-    RESTRUCTUREDTEXT_FILTER_SETTINGS = {
-        'cloak_email_addresses': True,
-        'file_insertion_enabled': False,
-        'raw_enabled': False,
-        'strip_comments': True,
-        'doctitle_xform': True,
-        'sectsubtitle_xform': True,
-        'initial_header_level': 2,
-        'report_level': 5,
-        'syntax_highlight': 'none',
-        'math_output': 'latex',
-        'field_name_limit': 50,
-    }
     REST_FRAMEWORK = {
         'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA
