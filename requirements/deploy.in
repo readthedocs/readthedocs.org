@@ -4,9 +4,6 @@
 
 psycopg2
 
-# For resizing images
-pillow
-
 structlog-sentry
 
 # We should unpin this dependency.

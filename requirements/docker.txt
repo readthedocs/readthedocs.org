@@ -28,7 +28,7 @@ babel==2.12.1
     #   sphinx
 backcall==0.2.0
     # via ipython
-billiard==4.1.0
+billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -43,7 +43,7 @@ botocore==1.29.165
     #   s3transfer
 cachetools==5.3.1
     # via tox
-celery==5.3.1
+celery==5.2.7
     # via -r requirements/pip.txt
 certifi==2023.5.7
     # via
@@ -336,7 +336,6 @@ python-dateutil==2.8.2
     # via
     #   -r requirements/pip.txt
     #   botocore
-    #   celery
     #   elasticsearch-dsl
 python3-openid==3.2.0
     # via
@@ -345,6 +344,7 @@ python3-openid==3.2.0
 pytz==2023.3
     # via
     #   -r requirements/pip.txt
+    #   celery
     #   django
     #   djangorestframework
 pyyaml==5.4.1
@@ -458,9 +458,7 @@ typing-extensions==4.7.0
     #   -r requirements/pip.txt
     #   asgiref
 tzdata==2023.3
-    # via
-    #   -r requirements/pip.txt
-    #   celery
+    # via -r requirements/pip.txt
 ua-parser==0.16.1
     # via
     #   -r requirements/pip.txt

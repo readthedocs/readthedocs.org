@@ -14,7 +14,7 @@ async-timeout==4.0.2
     # via redis
 babel==2.12.1
     # via sphinx
-billiard==4.1.0
+billiard==3.6.4.0
     # via celery
 boto3==1.26.165
     # via django-storages
@@ -22,7 +22,7 @@ botocore==1.29.165
     # via
     #   boto3
     #   s3transfer
-celery==5.3.1
+celery==5.2.7
     # via -r requirements/pip.in
 certifi==2023.5.7
     # via
@@ -206,13 +206,13 @@ python-dateutil==2.8.2
     # via
     #   -r requirements/pip.in
     #   botocore
-    #   celery
     #   elasticsearch-dsl
 python3-openid==3.2.0
     # via django-allauth
 pytz==2023.3
     # via
     #   -r requirements/pip.in
+    #   celery
     #   django
     #   djangorestframework
 pyyaml==5.4.1
@@ -287,9 +287,7 @@ tomli==2.0.1
 typing-extensions==4.7.0
     # via asgiref
 tzdata==2023.3
-    # via
-    #   -r requirements/pip.in
-    #   celery
+    # via -r requirements/pip.in
 ua-parser==0.16.1
     # via user-agents
 unicode-slugify @ git+https://github.com/mozilla/unicode-slugify@b696c37
