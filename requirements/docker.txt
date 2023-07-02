@@ -291,8 +291,6 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-pillow==10.0.0
-    # via -r requirements/docker.in
 platformdirs==3.8.0
     # via
     #   -r requirements/pip.txt
