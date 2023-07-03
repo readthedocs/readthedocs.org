@@ -56,7 +56,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.6.3
     # via -r requirements/pip.in
-django==3.2.19
+django==3.2.20
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -284,7 +284,7 @@ structlog==23.1.0
     #   django-structlog
 tomli==2.0.1
     # via dparse
-typing-extensions==4.7.0
+typing-extensions==4.7.1
     # via asgiref
 tzdata==2023.3
     # via -r requirements/pip.in

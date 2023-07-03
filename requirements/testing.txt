@@ -93,7 +93,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==3.2.19
+django==3.2.20
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -414,7 +414,7 @@ tomli==2.0.1
     #   coverage
     #   dparse
     #   pytest
-typing-extensions==4.7.0
+typing-extensions==4.7.1
     # via
     #   -r requirements/pip.txt
     #   asgiref
