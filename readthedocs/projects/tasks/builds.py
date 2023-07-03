@@ -67,7 +67,12 @@ from ..models import APIProject, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import fileify
-from .utils import BuildRequest, clean_build, send_external_build_status
+from .utils import (
+    BuildRequest,
+    clean_build,
+    send_external_build_status,
+    set_builder_scale_in_protection,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -378,6 +383,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             raise ProjectBuildsSkippedError
 
     def before_start(self, task_id, args, kwargs):
+        # Enable scale-in protection on this instance
+        set_builder_scale_in_protection.delay(
+            instace=socket.gethostname(),
+            protected_from_scale_in=True,
+        )
+
         # Create the object to store all the task-related data
         self.data = TaskData()
 
@@ -727,6 +738,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             self.data.api_client.revoke.post()
         except Exception:
             log.exception("Failed to revoke build api key.", exc_info=True)
+
+        # Disable scale-in protection on this instance
+        set_builder_scale_in_protection.delay(
+            instace=socket.gethostname(),
+            protected_from_scale_in=False,
+        )
 
         log.info(
             'Build finished.',
