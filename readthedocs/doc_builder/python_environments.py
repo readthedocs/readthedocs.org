@@ -477,7 +477,10 @@ class Conda(PythonEnvironment):
         else:
             # Append conda dependencies directly to ``dependencies`` and pip
             # dependencies to ``dependencies.pip``
-            pip_requirements, conda_requirements = self._get_core_requirements()
+            if self.project.has_feature(Feature.INSTALL_LATEST_CORE_REQUIREMENTS):
+                pip_requirements, conda_requirements = self._get_new_core_requirements()
+            else:
+                pip_requirements, conda_requirements = self._get_old_core_requirements()
             dependencies = environment.get('dependencies', [])
             pip_dependencies = {'pip': pip_requirements}
 
@@ -515,7 +518,22 @@ class Conda(PythonEnvironment):
                     'environment file.',
                 )
 
-    def _get_core_requirements(self):
+    def _get_new_core_requirements(self):
+        # Use conda for requirements it packages
+        conda_requirements = []
+
+        # Install pip-only things.
+        pip_requirements = []
+
+        if self.config.doctype == "mkdocs":
+            pip_requirements.append("mkdocs")
+        else:
+            pip_requirements.append("readthedocs-sphinx-ext")
+            conda_requirements.extend(["sphinx", "sphinx_rtd_theme"])
+
+        return pip_requirements, conda_requirements
+
+    def _get_old_core_requirements(self):
         # Use conda for requirements it packages
         conda_requirements = [
             'mock',
@@ -544,7 +562,7 @@ class Conda(PythonEnvironment):
             # create`` step.
             return
 
-        pip_requirements, conda_requirements = self._get_core_requirements()
+        pip_requirements, conda_requirements = self._get_old_core_requirements()
         # Install requirements via ``conda install`` command if they were
         # not appended to the ``environment.yml`` file.
         cmd = [
