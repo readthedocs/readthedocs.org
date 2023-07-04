@@ -102,7 +102,7 @@ To avoid this, it's possible to unshallow the :program:`git clone`:
        python: "3.10"
      jobs:
        post_checkout:
-         - git fetch --unshallow  || true
+         - git fetch --unshallow || true
 
 
 Cancel build based on a condition
