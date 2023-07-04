@@ -56,20 +56,25 @@ setuptools:
   All other projects use the latest version.
 
 mock:
-  ``1.0.1`` (could be removed in the future).
+  ``1.0.1``.
+  Projects created after August 7, 2023 won't install this dependency by default.
+
 
 pillow:
-  ``5.4.1`` when using Python 2.7, 3.4, 3.5, 3.6, 3.7. Otherwise, its latest version
-  (could be removed in the future).
+  ``5.4.1`` when using Python 2.7, 3.4, 3.5, 3.6, 3.7. Otherwise, its latest version.
+  Projects created after August 7, 2023 won't install this dependency by default.
 
 alabaster:
-  ``0.7.x`` (could be removed in the future).
+  ``0.7.x``.
+  Projects created after August 7, 2023 won't install this dependency by default.
 
 commonmark:
-  ``0.8.1`` (could be removed in the future).
+  ``0.8.1``.
+  Projects created after August 7, 2023 won't install this dependency by default.
 
 recommonmark:
-  ``0.5.0`` (could be removed in the future).
+  ``0.5.0``.
+  Projects created after August 7, 2023 won't install this dependency by default.
 
 Conda
 ~~~~~
@@ -90,13 +95,16 @@ sphinx-rtd-theme:
   Latest version by default installed via ``conda``.
 
 mock:
-  Latest version by default installed via ``pip`` (could be removed in the future).
+  Latest version by default installed via ``pip``.
+  Projects created after August 7, 2023 won't install this dependency by default.
 
 pillow:
-  Latest version by default installed via ``pip`` (could be removed in the future).
+  Latest version by default installed via ``pip``.
+  Projects created after August 7, 2023 won't install this dependency by default.
 
 recommonmark:
-  Latest version by default installed via ``conda`` (could be removed in the future).
+  Latest version by default installed via ``conda``.
+  Projects created after August 7, 2023 won't install this dependency by default.
 
 Internal dependencies
 ---------------------
