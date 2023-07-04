@@ -188,10 +188,6 @@ class Virtualenv(PythonEnvironment):
 
         # Second, install all the latest core requirements
         requirements = [
-            "mock",
-            "alabaster",
-            "commonmark",
-            "recommonmark",
             "setuptools",
         ]
 
