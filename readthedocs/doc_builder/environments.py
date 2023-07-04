@@ -564,14 +564,10 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
 
     def __init__(self, *args, **kwargs):
         container_image = kwargs.pop("container_image", None)
-        self.use_gvisor = kwargs.pop("use_gvisor", False)
         super().__init__(*args, **kwargs)
         self.client = None
         self.container = None
         self.container_name = self.get_container_name()
-
-        if self.project.has_feature(Feature.DOCKER_GVISOR_RUNTIME):
-            self.use_gvisor = True
 
         # Decide what Docker image to use, based on priorities:
         # The image set by user or,
@@ -799,12 +795,10 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         """Create docker container."""
         client = self.get_client()
         try:
-            docker_runtime = "runsc" if self.use_gvisor else None
             log.info(
                 'Creating Docker container.',
                 container_image=self.container_image,
                 container_id=self.container_id,
-                docker_runtime=docker_runtime,
             )
             self.container = client.create_container(
                 image=self.container_image,
@@ -819,7 +813,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 host_config=self.get_container_host_config(),
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
-                runtime=docker_runtime,
+                runtime="runsc",  # gVisor runtime
             )
             client.start(container=self.container_id)
         except (DockerAPIError, ConnectionError) as exc:
