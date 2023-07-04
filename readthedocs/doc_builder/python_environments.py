@@ -163,6 +163,67 @@ class Virtualenv(PythonEnvironment):
             '--no-cache-dir',
         ]
 
+        if self.project.has_feature(Feature.INSTALL_LATEST_CORE_REQUIREMENTS):
+            self._install_latest_requirements(pip_install_cmd)
+        else:
+            self._install_old_requirements(pip_install_cmd)
+
+    def _install_latest_requirements(self, pip_install_cmd):
+        """
+        Install all the latest core requirements.
+
+        By enabling the feature flag ``INSTALL_LATEST_CORE_REQUIREMENTS``
+        projects will automatically get installed all the latest core
+        requirements: pip, sphinx, mock, alabaster, setuptools, etc.
+
+        This is the new behavior and where we are moving towards.
+        """
+        # First, upgrade pip and setuptools to their latest versions
+        cmd = pip_install_cmd + ["pip", "setuptools"]
+        self.build_env.run(
+            *cmd,
+            bin_path=self.venv_bin(),
+            cwd=self.checkout_path,
+        )
+
+        # Second, install all the latest core requirements
+        requirements = [
+            "mock",
+            "alabaster",
+            "commonmark",
+            "recommonmark",
+            "setuptools",
+        ]
+
+        if self.config.doctype == "mkdocs":
+            requirements.append("mkdocs")
+        else:
+            requirements.extend(
+                [
+                    "sphinx",
+                    "sphinx-rtd-theme",
+                    "readthedocs-sphinx-ext",
+                ]
+            )
+
+        cmd = copy.copy(pip_install_cmd)
+        cmd.extend(requirements)
+        self.build_env.run(
+            *cmd,
+            bin_path=self.venv_bin(),
+            cwd=self.checkout_path,
+        )
+
+    def _install_old_requirements(self, pip_install_cmd):
+        """
+        Install old core requirements.
+
+        There are bunch of feature flags that will be taken in consideration to
+        decide whether or not upgrade some of the core dependencies to their
+        latest versions.
+
+        This is the old behavior and the one we want to get rid off.
+        """
         # Install latest pip and setuptools first,
         # so it is used when installing the other requirements.
         pip_version = self.project.get_feature_value(
