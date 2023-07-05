@@ -7,7 +7,7 @@ import structlog
 from allauth.socialaccount.providers.github.views import GitHubOAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
-from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
@@ -517,5 +517,7 @@ class GitHubService(Service):
             log.exception('GitHub commit status creation failed for project.')
         except InvalidGrantError:
             log.info("Invalid GitHub grant for user.", exc_info=True)
+        except TokenExpiredError:
+            log.info("GitHub token expired for user.", exc_info=True)
 
         return False
