@@ -22,8 +22,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
 
     SLUMBER_API_HOST = 'http://web:8000'
-    SLUMBER_USERNAME = 'admin'
-    SLUMBER_PASSWORD = 'admin'
 
     RTD_EXTERNAL_VERSION_DOMAIN = 'build.devthedocs.org'
 

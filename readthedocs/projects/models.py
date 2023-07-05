@@ -1920,12 +1920,12 @@ class Feature(models.Model):
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     CDN_ENABLED = "cdn_enabled"
-    DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
+    ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1949,7 +1949,6 @@ class Feature(models.Model):
 
     # Build related features
     GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
-    DONT_CREATE_INDEX = "dont_create_index"
     HOSTING_INTEGRATIONS = "hosting_integrations"
     NO_CONFIG_FILE_DEPRECATED = "no_config_file"
 
@@ -1995,10 +1994,6 @@ class Feature(models.Model):
             ),
         ),
         (
-            DOCKER_GVISOR_RUNTIME,
-            _("Build: Use Docker gVisor runtime to create build container."),
-        ),
-        (
             RECORD_404_PAGE_VIEWS,
             _("Proxito: Record 404s page views."),
         ),
@@ -2019,6 +2014,10 @@ class Feature(models.Model):
             _(
                 "Proxito: Use new unresolver implementation for serving documentation files."
             ),
+        ),
+        (
+            ALLOW_VERSION_WARNING_BANNER,
+            _("Dashboard: Allow project to use the version warning banner."),
         ),
 
         # Versions sync related features
@@ -2077,12 +2076,6 @@ class Feature(models.Model):
             GIT_CLONE_FETCH_CHECKOUT_PATTERN,
             _(
                 "Build: Use simplified and optimized git clone + git fetch + git checkout patterns"
-            ),
-        ),
-        (
-            DONT_CREATE_INDEX,
-            _(
-                "Sphinx: Do not create index.md or README.rst if the project does not have one."
             ),
         ),
         (
