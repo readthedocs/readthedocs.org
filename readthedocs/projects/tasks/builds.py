@@ -385,7 +385,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     def before_start(self, task_id, args, kwargs):
         # Enable scale-in protection on this instance
         set_builder_scale_in_protection.delay(
-            instace=socket.gethostname(),
+            instance=socket.gethostname(),
             protected_from_scale_in=True,
         )
 

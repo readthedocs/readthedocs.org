@@ -347,7 +347,7 @@ def set_builder_scale_in_protection(instance, protected_from_scale_in):
     )
 
     # web-extra-i-0c3e866c4e323928f
-    hostname_match = re.match(r"([a-z\-]+)-(i-[a-z0-9]+)", instance)
+    hostname_match = re.match(r"([a-z\-]+)-(i-[a-f0-9]+)", instance)
     if not hostname_match:
         log.warning(
             "Unable to set scale-in protection. Hostname name matching not found.",
