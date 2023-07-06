@@ -272,7 +272,7 @@ Other special nodes
 Overriding the default search
 -----------------------------
 
-Static sites usually have their own static index, and search results are retrieved via JavaScript.
+Static sites usually have their own static search index, and search results are retrieved via JavaScript.
 Read the Docs overrides the default search for Sphinx projects only,
 and provides a fallback to the original search in case of an error or no results.
 
