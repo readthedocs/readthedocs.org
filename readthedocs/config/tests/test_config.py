@@ -430,15 +430,6 @@ class TestValidatePythonVersion:
         assert build.python_interpreter == 'python3.7'
         assert build.python_full_version == '3.7'
 
-    def test_it_supports_string_versions(self):
-        build = get_build_config(
-            {'python': {'version': 'pypy3.5'}},
-        )
-        build.validate()
-        assert build.python.version == 'pypy3.5'
-        assert build.python_interpreter == 'pypy3.5'
-        assert build.python_full_version == 'pypy3.5'
-
     def test_it_validates_versions_out_of_range(self):
         build = get_build_config(
             {'python': {'version': 1.0}},
@@ -1310,8 +1301,8 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize(
         'image,versions',
         [
-            ('latest', ['2', '2.7', '3', '3.5', '3.6', '3.7', 'pypy3.5']),
-            ('stable', ['2', '2.7', '3', '3.5', '3.6', '3.7']),
+            ("latest", ["2", "2.7", "3", "3.5", "3.6", "3.7"]),
+            ("stable", ["2", "2.7", "3", "3.5", "3.6", "3.7"]),
         ],
     )
     def test_python_version(self, image, versions):
