@@ -211,8 +211,8 @@ class Virtualenv(PythonEnvironment):
                     positive='mkdocs==0.17.3',
                     negative=self.project.get_feature_value(
                         Feature.USE_MKDOCS_LATEST,
-                        positive='mkdocs<1.1',
-                        negative='mkdocs',
+                        positive="mkdocs",
+                        negative="mkdocs<1.1",
                     ),
                 ),
             )
