@@ -53,6 +53,7 @@ from readthedocs.doc_builder.exceptions import (
     ProjectBuildsSkippedError,
     YAMLParseError,
 )
+from readthedocs.projects.models import Feature
 from readthedocs.storage import build_media_storage
 from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
@@ -383,12 +384,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             raise ProjectBuildsSkippedError
 
     def before_start(self, task_id, args, kwargs):
-        # Enable scale-in protection on this instance
-        set_builder_scale_in_protection.delay(
-            instance=socket.gethostname(),
-            protected_from_scale_in=True,
-        )
-
         # Create the object to store all the task-related data
         self.data = TaskData()
 
@@ -428,6 +423,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             project_slug=self.data.project.slug,
             version_slug=self.data.version.slug,
         )
+
+        # Enable scale-in protection on this instance
+        #
+        # TODO: move this to the beginning of this method
+        # once we don't need to rely on `self.data.project`.
+        if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
+            set_builder_scale_in_protection.delay(
+                instance=socket.gethostname(),
+                protected_from_scale_in=True,
+            )
 
         # Clean the build paths completely to avoid conflicts with previous run
         # (e.g. cleanup task failed for some reason)
@@ -740,10 +745,11 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception("Failed to revoke build api key.", exc_info=True)
 
         # Disable scale-in protection on this instance
-        set_builder_scale_in_protection.delay(
-            instace=socket.gethostname(),
-            protected_from_scale_in=False,
-        )
+        if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
+            set_builder_scale_in_protection.delay(
+                instace=socket.gethostname(),
+                protected_from_scale_in=False,
+            )
 
         log.info(
             'Build finished.',
