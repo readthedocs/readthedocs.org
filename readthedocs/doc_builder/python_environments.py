@@ -209,12 +209,8 @@ class Virtualenv(PythonEnvironment):
                 self.project.get_feature_value(
                     Feature.DEFAULT_TO_MKDOCS_0_17_3,
                     positive='mkdocs==0.17.3',
-                    negative=self.project.get_feature_value(
-                        Feature.USE_MKDOCS_LATEST,
-                        positive="mkdocs",
-                        negative="mkdocs<1.1",
-                    ),
-                ),
+                    negative="mkdocs",
+                )
             )
         else:
             requirements.extend(
