@@ -528,14 +528,9 @@ class SphinxParser(GenericParser):
         """
         body = super()._clean_body(body)
 
-        # TODO: see if we really need to remove TOC elements like below?
-        # benjaoming: I didn't see this in sphinx-rtd-theme, however since it wraps the menu in
-        # a <nav>, it's already covered. I didn't see this match local table of contents, neither
-        # and they are also wrapped in a <nav> so covered by _clean_body as well.
-        nodes_to_be_removed = itertools.chain(
-            body.css(".toctree-wrapper"),
-            body.css(".contents.local.topic"),
-        )
+        # Sphinx doesn't wrap the result from the `toctree` directive
+        # in a nav tag. so we need to manually remove that content.
+        nodes_to_be_removed = body.css(".toctree-wrapper")
 
         # removing all nodes in list
         for node in nodes_to_be_removed:

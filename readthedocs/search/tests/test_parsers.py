@@ -268,14 +268,68 @@ class TestParsers:
 
     @mock.patch.object(BuildMediaFileSystemStorage, "exists")
     @mock.patch.object(BuildMediaFileSystemStorage, "open")
+    def test_sphinx_local_toc(self, storage_open, storage_exists):
+        """
+        Test that the local table of contents from the ``contents``
+        directive is not included in the indexed content.
+        """
+        # Source:
+        # https://docs.readthedocs.io/en/stable/security.html
+        html_content = data_path / "sphinx/in/local-toc.html"
+        storage_open.side_effect = self._mock_open(html_content.open().read())
+        storage_exists.return_value = True
+
+        self.project.feature_set.add(self.feature)
+        self.version.documentation_type = SPHINX
+        self.version.save()
+
+        page_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="local-toc.html",
+        )
+
+        parsed_json = page_file.processed_json
+        expected_json = json.load(open(data_path / "sphinx/out/local-toc.json"))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, "exists")
+    @mock.patch.object(BuildMediaFileSystemStorage, "open")
+    def test_sphinx_toctree(self, storage_open, storage_exists):
+        """
+        Test that the table of contents from the ``toctree``
+        directive is not included in the indexed content.
+        """
+        # Source:
+        # https://docs.readthedocs.io/en/stable/api/index.html
+        html_content = data_path / "sphinx/in/toctree.html"
+        json_content = {"body": html_content.open().read()}
+        storage_open.side_effect = self._mock_open(json_content)
+        storage_exists.return_value = True
+
+        self.version.documentation_type = SPHINX
+        self.version.save()
+
+        page_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="toctree.html",
+        )
+
+        parsed_json = page_file.processed_json
+        expected_json = json.load(open(data_path / "sphinx/out/toctree.json"))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, "exists")
+    @mock.patch.object(BuildMediaFileSystemStorage, "open")
     def test_sphinx_requests(self, storage_open, storage_exists):
         # Source:
         # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#directive-automodule
-        json_file = data_path / "sphinx/in/requests.json"
         html_content = data_path / "sphinx/in/requests.html"
 
-        json_content = json.load(json_file.open())
-        json_content["body"] = html_content.open().read()
+        json_content = {"body": html_content.open().read()}
         storage_open.side_effect = self._mock_open(json.dumps(json_content))
         storage_exists.return_value = True
 
