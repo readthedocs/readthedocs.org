@@ -37,13 +37,13 @@ search:
     api/v1.html: -1
     config-file/v1.html: -5
 
-    # Surface the guide content first, this page covers the configuration file
-    # basics very well. The current configuration index is more conceptual. Bump
-    # up the reference page a little too, but the guide is the most important
-    # still.
-    guides/setup/configuration-file.html: 5
+    # Surface the tutorial content first, this page covers the configuration
+    # file basics very well. The explanation page is more conceptual and about
+    # versioning. Bump up the v2 reference page a little too, but the tutorial
+    # should be the first page the user looks at still.
+    config-file/index.html: 5
     config-file/v2.html: 2
-    config-file/index.html: -1
+    explanation/configuration-file.html: -1
 
     # Useful content, but not something we want most users finding
     changelog.html: -6
