@@ -47,6 +47,7 @@ Mkdocs:
 sphinx-rtd-theme:
   Projects created before October 20, 2020 (January 21, 2021 for :doc:`/commercial/index`) use ``0.4.3``.
   New projects use the latest version.
+  Projects created after August 7, 2023 won't install this dependency by default.
 
 pip:
   Latest version by default.
@@ -54,6 +55,7 @@ pip:
 setuptools:
   Projects using ``setup.py install`` as installation method use ``58.2.0`` or older.
   All other projects use the latest version.
+  Projects created after August 7, 2023 will always use the latest version.
 
 mock:
   ``1.0.1``.
@@ -93,6 +95,7 @@ Sphinx:
 
 sphinx-rtd-theme:
   Latest version by default installed via ``conda``.
+  Projects created after August 7, 2023 won't install this dependency by default.
 
 mock:
   Latest version by default installed via ``pip``.
