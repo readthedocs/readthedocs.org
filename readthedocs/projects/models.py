@@ -51,7 +51,7 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parsers import GenericParser, MkDocsParser, SphinxParser
+from readthedocs.search.parsers import GenericParser, SphinxParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
@@ -1527,13 +1527,12 @@ class HTMLFile(ImportedFile):
     def get_processed_json(self):
         if (
             self.version.documentation_type == constants.GENERIC
+            or self.version.is_mkdocs_type
             or self.project.has_feature(Feature.INDEX_FROM_HTML_FILES)
         ):
             parser_class = GenericParser
         elif self.version.is_sphinx_type:
             parser_class = SphinxParser
-        elif self.version.is_mkdocs_type:
-            parser_class = MkDocsParser
         else:
             log.warning(
                 "Invalid documentation type",
