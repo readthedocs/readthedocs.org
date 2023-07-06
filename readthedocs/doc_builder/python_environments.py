@@ -174,7 +174,7 @@ class Virtualenv(PythonEnvironment):
 
         By enabling the feature flag ``INSTALL_LATEST_CORE_REQUIREMENTS``
         projects will automatically get installed all the latest core
-        requirements: pip, sphinx, mock, alabaster, setuptools, etc.
+        requirements: pip, setuptools, sphinx, readthedocs-sphinx-ext and mkdocs.
 
         This is the new behavior and where we are moving towards.
         """
@@ -187,9 +187,7 @@ class Virtualenv(PythonEnvironment):
         )
 
         # Second, install all the latest core requirements
-        requirements = [
-            "setuptools",
-        ]
+        requirements = []
 
         if self.config.doctype == "mkdocs":
             requirements.append("mkdocs")
@@ -197,7 +195,6 @@ class Virtualenv(PythonEnvironment):
             requirements.extend(
                 [
                     "sphinx",
-                    "sphinx-rtd-theme",
                     "readthedocs-sphinx-ext",
                 ]
             )
@@ -529,7 +526,7 @@ class Conda(PythonEnvironment):
             pip_requirements.append("mkdocs")
         else:
             pip_requirements.append("readthedocs-sphinx-ext")
-            conda_requirements.extend(["sphinx", "sphinx_rtd_theme"])
+            conda_requirements.extend(["sphinx"])
 
         return pip_requirements, conda_requirements
 
