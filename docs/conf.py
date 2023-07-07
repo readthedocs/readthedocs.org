@@ -42,12 +42,14 @@ multiproject_projects = {
         "use_config_file": False,
         "config": {
             "project": "Read the Docs user documentation",
+            "html_title": "Read the Docs user documentation",
         },
     },
     "dev": {
         "use_config_file": False,
         "config": {
             "project": "Read the Docs developer documentation",
+            "html_title": "Read the Docs developer documentation",
         },
     },
 }
