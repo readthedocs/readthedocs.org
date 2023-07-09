@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.165
+boto3==1.28.1
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.165
+botocore==1.31.1
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -56,11 +56,11 @@ cffi==1.15.1
     #   cryptography
 chardet==5.1.0
     # via tox
-charset-normalizer==3.1.0
+charset-normalizer==3.2.0
     # via
     #   -r requirements/pip.txt
     #   requests
-click==8.1.3
+click==8.1.4
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -253,7 +253,7 @@ kombu==5.3.1
     # via
     #   -r requirements/pip.txt
     #   celery
-lxml==4.9.2
+lxml==4.9.3
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -273,7 +273,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.9.1
+orjson==3.9.2
     # via -r requirements/pip.txt
 packaging==23.1
     # via
@@ -291,14 +291,14 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-platformdirs==3.8.0
+platformdirs==3.8.1
     # via
     #   -r requirements/pip.txt
     #   tox
     #   virtualenv
 pluggy==1.2.0
     # via tox
-prompt-toolkit==3.0.38
+prompt-toolkit==3.0.39
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -324,7 +324,7 @@ pyjwt[crypto]==2.7.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pyproject-api==1.5.2
+pyproject-api==1.5.3
     # via tox
 pyquery==2.0.0
     # via -r requirements/pip.txt
@@ -445,7 +445,7 @@ tomli==2.0.1
     #   ipdb
     #   pyproject-api
     #   tox
-tox==4.6.3
+tox==4.6.4
     # via -r requirements/docker.in
 traitlets==5.9.0
     # via
@@ -457,7 +457,7 @@ typing-extensions==4.7.1
     #   asgiref
 tzdata==2023.3
     # via -r requirements/pip.txt
-ua-parser==0.16.1
+ua-parser==0.18.0
     # via
     #   -r requirements/pip.txt
     #   user-agents
