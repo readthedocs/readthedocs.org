@@ -28,11 +28,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.26.165
+boto3==1.28.1
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.29.165
+botocore==1.31.1
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -48,11 +48,11 @@ cffi==1.15.1
     # via
     #   -r requirements/pip.txt
     #   cryptography
-charset-normalizer==3.1.0
+charset-normalizer==3.2.0
     # via
     #   -r requirements/pip.txt
     #   requests
-click==8.1.3
+click==8.1.4
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -189,7 +189,7 @@ elasticsearch-dsl==7.4.1
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
-exceptiongroup==1.1.1
+exceptiongroup==1.1.2
     # via pytest
 filelock==3.12.2
     # via
@@ -234,7 +234,7 @@ kombu==5.3.1
     # via
     #   -r requirements/pip.txt
     #   celery
-lxml==4.9.2
+lxml==4.9.3
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -244,13 +244,13 @@ markupsafe==2.1.3
     # via
     #   -r requirements/pip.txt
     #   jinja2
-mercurial==6.4.5
+mercurial==6.5
     # via -r requirements/testing.in
 oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.9.1
+orjson==3.9.2
     # via -r requirements/pip.txt
 packaging==23.1
     # via
@@ -259,13 +259,13 @@ packaging==23.1
     #   dparse
     #   pytest
     #   sphinx
-platformdirs==3.8.0
+platformdirs==3.8.1
     # via
     #   -r requirements/pip.txt
     #   virtualenv
 pluggy==1.2.0
     # via pytest
-prompt-toolkit==3.0.38
+prompt-toolkit==3.0.39
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -420,7 +420,7 @@ typing-extensions==4.7.1
     #   asgiref
 tzdata==2023.3
     # via -r requirements/pip.txt
-ua-parser==0.16.1
+ua-parser==0.18.0
     # via
     #   -r requirements/pip.txt
     #   user-agents
