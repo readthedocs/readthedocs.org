@@ -261,7 +261,7 @@ class TestProjectAdvancedForm(TestCase):
 
     @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
     @override_settings(ALLOW_PRIVATE_REPOS=False)
-    def test_custom_readthedocs_yaml(self):
+    def test_custom_readthedocs_yaml(self, update_docs_task):
         custom_readthedocs_yaml_path = "folder/.readthedocs.yaml"
         form = ProjectAdvancedForm(
             {
