@@ -1,3 +1,4 @@
+from unittest import mock
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -258,6 +259,7 @@ class TestProjectAdvancedForm(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(self.project.privacy_level, PRIVATE)
 
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_custom_readthedocs_yaml(self):
         custom_readthedocs_yaml_path = "folder/.readthedocs.yaml"
