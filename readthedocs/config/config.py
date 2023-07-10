@@ -306,6 +306,9 @@ class BuildConfigBase:
                 return 'python'
             return None
         version = self.python_full_version
+        if version.startswith('pypy'):
+            # Allow to specify ``pypy3.5`` as Python interpreter
+            return version
         return f'python{version}'
 
     @property
