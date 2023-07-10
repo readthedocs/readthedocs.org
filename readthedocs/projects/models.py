@@ -995,7 +995,13 @@ class Project(models.Model):
         )
 
     def vcs_repo(
-        self, environment, version=LATEST, verbose_name=None, version_type=None
+        self,
+        environment,
+        version=LATEST,
+        verbose_name=None,
+        version_type=None,
+        version_identifier=None,
+        version_machine=None,
     ):
         """
         Return a Backend object for this project able to handle VCS commands.
@@ -1014,8 +1020,13 @@ class Project(models.Model):
             repo = None
         else:
             repo = backend(
-                self, version, environment=environment,
-                verbose_name=verbose_name, version_type=version_type
+                self,
+                version,
+                environment=environment,
+                verbose_name=verbose_name,
+                version_type=version_type,
+                version_identifier=version_identifier,
+                version_machine=version_machine,
             )
         return repo
 
@@ -1935,6 +1946,7 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
+    GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
     HOSTING_INTEGRATIONS = "hosting_integrations"
     NO_CONFIG_FILE_DEPRECATED = "no_config_file"
     SCALE_IN_PROTECTION = "scale_in_prtection"
@@ -2056,6 +2068,12 @@ class Feature(models.Model):
             _(
                 "Search: Index content directly from html files instead or relying in other "
                 "sources"
+            ),
+        ),
+        (
+            GIT_CLONE_FETCH_CHECKOUT_PATTERN,
+            _(
+                "Build: Use simplified and optimized git clone + git fetch + git checkout patterns"
             ),
         ),
         (

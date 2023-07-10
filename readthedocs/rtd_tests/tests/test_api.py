@@ -3127,14 +3127,15 @@ class APIVersionTests(TestCase):
                 "users": [1],
                 "urlconf": None,
             },
-            'privacy_level': 'public',
-            'downloads': {},
-            'identifier': '2404a34eba4ee9c48cc8bc4055b99a48354f4950',
-            'slug': '0.8',
-            'has_epub': False,
-            'has_htmlzip': False,
-            'has_pdf': False,
-            'documentation_type': 'sphinx',
+            "privacy_level": "public",
+            "downloads": {},
+            "identifier": "2404a34eba4ee9c48cc8bc4055b99a48354f4950",
+            "slug": "0.8",
+            "has_epub": False,
+            "has_htmlzip": False,
+            "has_pdf": False,
+            "documentation_type": "sphinx",
+            "machine": False,
         }
 
         self.assertDictEqual(

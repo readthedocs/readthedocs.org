@@ -94,6 +94,8 @@ class BuildDirector:
             environment=self.vcs_environment,
             verbose_name=self.data.version.verbose_name,
             version_type=self.data.version.type,
+            version_identifier=self.data.version.identifier,
+            version_machine=self.data.version.machine,
         )
 
         # We can't do too much on ``pre_checkout`` because we haven't
@@ -222,7 +224,7 @@ class BuildDirector:
     def checkout(self):
         """Checkout Git repo and load build config file."""
 
-        log.info("Cloning repository.")
+        log.info("Cloning and fetching.")
         self.vcs_repository.update()
 
         identifier = self.data.build_commit or self.data.version.identifier
