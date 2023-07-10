@@ -1,6 +1,8 @@
 import datetime
 import os
+import re
 
+import boto3
 import structlog
 from celery.worker.request import Request
 from django.conf import settings
@@ -319,6 +321,49 @@ def deprecated_config_file_used_notification():
         "Finish sending deprecated config file notifications.",
         time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
     )
+
+
+@app.task(queue="web")
+def set_builder_scale_in_protection(instance, protected_from_scale_in):
+    """
+    Set scale-in protection on this builder ``instance``.
+
+    This way, AWS will not scale-in this instance while it's building the documentation.
+    This is pretty useful for long running tasks.
+    """
+    log.bind(instance=instance, protected_from_scale_in=protected_from_scale_in)
+
+    if settings.DEBUG or settings.RTD_DOCKER_COMPOSE:
+        log.info(
+            "Running development environment. Skipping scale-in protection.",
+        )
+        return
+
+    asg = boto3.client(
+        "autoscaling",
+        aws_access_key_id=settings.RTD_AWS_SCALE_IN_ACCESS_KEY,
+        aws_secret_access_key=settings.RTD_AWS_SCALE_IN_SECRET_ACCESS_KEY,
+        region_name=settings.RTD_AWS_SCALE_IN_REGION_NAME,
+    )
+
+    # web-extra-i-0c3e866c4e323928f
+    hostname_match = re.match(r"([a-z\-]+)-(i-[a-f0-9]+)", instance)
+    if not hostname_match:
+        log.warning(
+            "Unable to set scale-in protection. Hostname name matching not found.",
+        )
+        return
+    scaling_group, instance_id = hostname_match.groups()
+
+    # Set protection on instance
+    try:
+        asg.set_instance_protection(
+            InstanceIds=[instance_id],
+            AutoScalingGroupName=scaling_group,
+            ProtectedFromScaleIn=protected_from_scale_in,
+        )
+    except Exception:
+        log.exception("Failed when trying to set instance protection.")
 
 
 class BuildRequest(Request):

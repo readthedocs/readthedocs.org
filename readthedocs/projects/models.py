@@ -1937,6 +1937,7 @@ class Feature(models.Model):
     # Build related features
     HOSTING_INTEGRATIONS = "hosting_integrations"
     NO_CONFIG_FILE_DEPRECATED = "no_config_file"
+    SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
         (
@@ -2066,6 +2067,10 @@ class Feature(models.Model):
         (
             NO_CONFIG_FILE_DEPRECATED,
             _("Build: Building without a configuration file is deprecated."),
+        ),
+        (
+            SCALE_IN_PROTECTION,
+            _("Build: Set scale-in protection before/after building."),
         ),
     )
 
