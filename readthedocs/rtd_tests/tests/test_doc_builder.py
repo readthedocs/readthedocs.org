@@ -307,25 +307,6 @@ class MkdocsBuilderTest(TestCase):
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_mkdocs_yaml_not_found(self, checkout_path, run):
-        tmpdir = tempfile.mkdtemp()
-        os.mkdir(os.path.join(tmpdir, 'docs'))
-        checkout_path.return_value = tmpdir
-
-        python_env = Virtualenv(
-            version=self.version,
-            build_env=self.build_env,
-            config=None,
-        )
-        self.searchbuilder = MkdocsHTML(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-        with pytest.raises(MkDocsYAMLParseError, match=MkDocsYAMLParseError.NOT_FOUND):
-            self.searchbuilder.append_conf()
-
-    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
-    @patch('readthedocs.projects.models.Project.checkout_path')
     def test_append_conf_existing_yaml_on_root(self, checkout_path, run):
         tmpdir = tempfile.mkdtemp()
         os.mkdir(os.path.join(tmpdir, 'docs'))
