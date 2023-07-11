@@ -2,7 +2,11 @@ from .routers import DefaultRouterWithNesting
 from .views import (
     BuildsCreateViewSet,
     BuildsViewSet,
+    EnvironmentVariablesViewSet,
     ProjectsViewSet,
+    RedirectsViewSet,
+    RemoteOrganizationViewSet,
+    RemoteRepositoryViewSet,
     SubprojectRelationshipViewSet,
     TranslationRelationshipViewSet,
     VersionsViewSet,
@@ -14,6 +18,7 @@ router = DefaultRouterWithNesting()
 # allows /api/v3/projects/
 # allows /api/v3/projects/pip/
 # allows /api/v3/projects/pip/superproject/
+# pylint: disable=assignment-from-no-return
 projects = router.register(
     r'projects',
     ProjectsViewSet,
@@ -24,15 +29,15 @@ projects = router.register(
 subprojects = projects.register(
     r'subprojects',
     SubprojectRelationshipViewSet,
-    base_name='projects-subprojects',
-    parents_query_lookups=['superprojects__parent__slug'],
+    basename='projects-subprojects',
+    parents_query_lookups=['parent__slug'],
 )
 
 # allows /api/v3/projects/pip/translations/
 translations = projects.register(
     r'translations',
     TranslationRelationshipViewSet,
-    base_name='projects-translations',
+    basename='projects-translations',
     parents_query_lookups=['main_language_project__slug'],
 )
 
@@ -41,7 +46,7 @@ translations = projects.register(
 versions = projects.register(
     r'versions',
     VersionsViewSet,
-    base_name='projects-versions',
+    basename='projects-versions',
     parents_query_lookups=['project__slug'],
 )
 
@@ -50,7 +55,7 @@ versions = projects.register(
 versions.register(
     r'builds',
     BuildsCreateViewSet,
-    base_name='projects-versions-builds',
+    basename='projects-versions-builds',
     parents_query_lookups=[
         'project__slug',
         'version__slug',
@@ -62,8 +67,40 @@ versions.register(
 projects.register(
     r'builds',
     BuildsViewSet,
-    base_name='projects-builds',
+    basename='projects-builds',
     parents_query_lookups=['project__slug'],
+)
+
+# allows /api/v3/projects/pip/redirects/
+# allows /api/v3/projects/pip/redirects/1053/
+projects.register(
+    r'redirects',
+    RedirectsViewSet,
+    basename='projects-redirects',
+    parents_query_lookups=['project__slug'],
+)
+
+# allows /api/v3/projects/pip/environmentvariables/
+# allows /api/v3/projects/pip/environmentvariables/1053/
+projects.register(
+    r'environmentvariables',
+    EnvironmentVariablesViewSet,
+    basename='projects-environmentvariables',
+    parents_query_lookups=['project__slug'],
+)
+
+# allows /api/v3/remote/repositories/
+router.register(
+    r'remote/repositories',
+    RemoteRepositoryViewSet,
+    basename='remoterepositories',
+)
+
+# allows /api/v3/remote/organizations/
+router.register(
+    r'remote/organizations',
+    RemoteOrganizationViewSet,
+    basename='remoteorganizations',
 )
 
 urlpatterns = []

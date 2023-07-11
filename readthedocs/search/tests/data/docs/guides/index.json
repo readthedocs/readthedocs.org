@@ -1,0 +1,11 @@
+{
+    "path": "guides/index",
+    "title": "Guides",
+    "sections": [
+        {
+            "id": "guides",
+            "title": "Guides",
+            "content": "Content from guides/index"
+        }
+    ]
+}

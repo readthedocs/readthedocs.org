@@ -1,7 +1,7 @@
 Read the Docs Team
 ==================
 
-The core Read the Docs team is described at http://docs.readthedocs.io/en/latest/team.html
+The core Read the Docs team is described at https://docs.readthedocs.io/en/latest/team.html
 
 Original Authors
 ===============
@@ -115,4 +115,4 @@ Awesome Contributors
 * Brandon Stafford
 * Michael R. Bernstein
 
-For a list of all the contributions: https://github.com/rtfd/readthedocs.org/contributors
+For a list of all the contributions: https://github.com/readthedocs/readthedocs.org/contributors

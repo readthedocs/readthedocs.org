@@ -1,12 +1,13 @@
-# -*- coding: utf-8 -*-
-
 """Base classes for VCS backends."""
-import logging
 import os
-import shutil
 
+import structlog
 
-log = logging.getLogger(__name__)
+from readthedocs.core.utils.filesystem import safe_rmtree
+from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
+from readthedocs.projects.exceptions import RepositoryError
+
+log = structlog.get_logger(__name__)
 
 
 class VCSVersion:
@@ -37,12 +38,15 @@ class BaseVCS:
     """
     Base for VCS Classes.
 
-    VCS commands are ran inside a ``LocalEnvironment``.
+    VCS commands are executed inside a ``BaseBuildEnvironment`` subclass.
     """
 
     supports_tags = False  # Whether this VCS supports tags or not.
     supports_branches = False  # Whether this VCS supports branches or not.
     supports_submodules = False
+
+    # Whether this VCS supports listing remotes (branches, tags) without cloning
+    supports_lsremote = False
 
     # =========================================================================
     # General methods
@@ -50,18 +54,25 @@ class BaseVCS:
 
     # Defining a base API, so we'll have unused args
     # pylint: disable=unused-argument
-    def __init__(self, project, version_slug, environment=None, **kwargs):
+    def __init__(
+        self,
+        project,
+        version_slug,
+        environment,
+        verbose_name=None,
+        version_type=None,
+        **kwargs
+    ):
         self.default_branch = project.default_branch
         self.project = project
         self.name = project.name
         self.repo_url = project.clean_repo
         self.working_dir = project.checkout_path(version_slug)
+        # required for External versions
+        self.verbose_name = verbose_name
+        self.version_type = version_type
 
-        from readthedocs.doc_builder.environments import LocalEnvironment
-        self.environment = environment or LocalEnvironment(project)
-
-        # Update the env variables with the proper VCS env variables
-        self.environment.environment.update(self.env)
+        self.environment = environment
 
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):
@@ -69,17 +80,8 @@ class BaseVCS:
 
     def make_clean_working_dir(self):
         """Ensures that the working dir exists and is empty."""
-        shutil.rmtree(self.working_dir, ignore_errors=True)
+        safe_rmtree(self.working_dir, ignore_errors=True)
         self.check_working_dir()
-
-    @property
-    def env(self):
-        environment = os.environ.copy()
-
-        # TODO: kind of a hack
-        del environment['PATH']
-
-        return environment
 
     def update(self):
         """
@@ -96,7 +98,19 @@ class BaseVCS:
             'shell': False,
         })
 
-        build_cmd = self.environment.run(*cmd, **kwargs)
+        try:
+            build_cmd = self.environment.run(*cmd, **kwargs)
+        except BuildCancelled as exc:
+            # Catch ``BuildCancelled`` here and re raise it. Otherwise, if we
+            # raise a ``RepositoryError`` then the ``on_failure`` method from
+            # Celery won't treat this problem as a ``BuildCancelled`` issue.
+            raise BuildCancelled from exc
+        except BuildUserError as exc:
+            # Re raise as RepositoryError to handle it properly from outside
+            if hasattr(exc, "message"):
+                raise RepositoryError(exc.message) from exc
+            raise RepositoryError from exc
+
         # Return a tuple to keep compatibility
         return (build_cmd.exit_code, build_cmd.output, build_cmd.error)
 
@@ -146,4 +160,7 @@ class BaseVCS:
 
         :type config: readthedocs.config.BuildConfigBase
         """
+        raise NotImplementedError
+
+    def repo_exists(self):
         raise NotImplementedError

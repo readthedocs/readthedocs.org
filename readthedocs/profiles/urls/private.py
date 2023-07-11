@@ -1,27 +1,65 @@
-# -*- coding: utf-8 -*-
-
 """URL patterns for views to modify user profiles."""
 
-from django.conf.urls import url
+from django.urls import path
 
-from readthedocs.core.forms import UserProfileForm
 from readthedocs.profiles import views
 
+# Split URLs into different lists to be able to selectively import them from a
+# another application (like Read the Docs Corporate), where we may don't need to
+# define Token URLs, for example.
+urlpatterns = []
 
-urlpatterns = [
-    url(
-        r'^edit/',
-        views.edit_profile,
-        {
-            'form_class': UserProfileForm,
-            'template_name': 'profiles/private/edit_profile.html',
-        },
+account_urls = [
+    path(
+        "login/",
+        views.LoginView.as_view(),
+        name='account_login',
+    ),
+    path(
+        "logout/",
+        views.LogoutView.as_view(),
+        name='account_logout',
+    ),
+    path(
+        "edit/",
+        views.ProfileEdit.as_view(),
         name='profiles_profile_edit',
     ),
-    url(r'^delete/', views.delete_account, name='delete_account'),
-    url(
-        r'^advertising/$',
-        views.account_advertising,
+    path(
+        "delete/",
+        views.AccountDelete.as_view(),
+        name='delete_account',
+    ),
+    path(
+        "security-log/",
+        views.UserSecurityLogView.as_view(),
+        name='profiles_security_log',
+    ),
+    path(
+        "advertising/",
+        views.AccountAdvertisingEdit.as_view(),
         name='account_advertising',
     ),
 ]
+
+urlpatterns += account_urls
+
+tokens_urls = [
+    path(
+        "tokens/",
+        views.TokenListView.as_view(),
+        name='profiles_tokens',
+    ),
+    path(
+        "tokens/create/",
+        views.TokenCreateView.as_view(),
+        name='profiles_tokens_create',
+    ),
+    path(
+        "tokens/delete/",
+        views.TokenDeleteView.as_view(),
+        name='profiles_tokens_delete',
+    ),
+]
+
+urlpatterns += tokens_urls

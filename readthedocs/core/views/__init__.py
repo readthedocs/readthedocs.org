@@ -1,100 +1,70 @@
-# -*- coding: utf-8 -*-
-
 """
-Core views, including the main homepage,
+Core views.
 
-documentation and header rendering, and server errors.
+Including the main homepage, documentation and header rendering,
+and server errors.
 """
 
-import os
-import logging
-from urllib.parse import urlparse
-
+import structlog
 from django.conf import settings
-from django.http import HttpResponseRedirect, Http404, JsonResponse
-from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import TemplateView
-from django.views.static import serve as static_serve
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.views.generic import TemplateView, View
 
-from readthedocs.builds.models import Version
-from readthedocs.core.utils.general import wipe_version_via_slugs
-from readthedocs.core.resolver import resolve_path
-from readthedocs.core.symlink import PrivateSymlink, PublicSymlink
-from readthedocs.projects.constants import PRIVATE
-from readthedocs.projects.models import HTMLFile, Project
-from readthedocs.redirects.utils import (
-    get_redirect_response,
-    project_and_path_from_request,
-    language_and_version_from_path
-)
+from readthedocs.core.mixins import CDNCacheControlMixin, PrivateViewMixin
+from readthedocs.projects.models import Project
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class NoProjectException(Exception):
     pass
 
 
+class HealthCheckView(CDNCacheControlMixin, View):
+    # Never cache this view, we always want to get the live response from the server.
+    # In production we should configure the health check to hit the LB directly,
+    # but it's useful to be careful here in case of a misconfiguration.
+    cache_response = False
+
+    def get(self, request, *_, **__):
+        return JsonResponse({'status': 200}, status=200)
+
+
 class HomepageView(TemplateView):
 
+    """
+    Conditionally show the home page or redirect to the login page.
+
+    On the current dashboard, this shows the application homepage. However, we
+    no longer require this page in our application as we have a similar page on
+    our website. Instead, redirect to our login page on the new dashboard.
+    """
+
     template_name = 'homepage.html'
+
+    def get(self, request, *args, **kwargs):
+        if settings.RTD_EXT_THEME_ENABLED:
+            return redirect(reverse("account_login"))
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         """Add latest builds and featured projects."""
         context = super().get_context_data(**kwargs)
         context['featured_list'] = Project.objects.filter(featured=True)
-        context['projects_count'] = Project.objects.count()
         return context
 
 
-class SupportView(TemplateView):
-    template_name = 'support.html'
+class SupportView(PrivateViewMixin, TemplateView):
+
+    template_name = 'support/index.html'
 
     def get_context_data(self, **kwargs):
+        """Pass along endpoint for support form."""
         context = super().get_context_data(**kwargs)
-        support_email = settings.SUPPORT_EMAIL
-        if not support_email:
-            support_email = 'support@{domain}'.format(
-                domain=settings.PRODUCTION_DOMAIN
-            )
-
-        context['support_email'] = support_email
+        context['SUPPORT_FORM_ENDPOINT'] = settings.SUPPORT_FORM_ENDPOINT
         return context
-
-
-def random_page(request, project_slug=None):  # pylint: disable=unused-argument
-    html_file = HTMLFile.objects.order_by('?')
-    if project_slug:
-        html_file = html_file.filter(project__slug=project_slug)
-    html_file = html_file.first()
-    if html_file is None:
-        raise Http404
-    url = html_file.get_absolute_url()
-    return HttpResponseRedirect(url)
-
-
-def wipe_version(request, project_slug, version_slug):
-    version = get_object_or_404(
-        Version,
-        project__slug=project_slug,
-        slug=version_slug,
-    )
-    # We need to check by ``for_admin_user`` here to allow members of the
-    # ``Admin`` team (which doesn't own the project) under the corporate site.
-    if version.project not in Project.objects.for_admin_user(user=request.user):
-        raise Http404('You must own this project to wipe it.')
-
-    if request.method == 'POST':
-        wipe_version_via_slugs(
-            version_slug=version_slug,
-            project_slug=project_slug
-        )
-        return redirect('project_version_list', project_slug)
-    return render(
-        request,
-        'wipe_version.html',
-        {'version': version, 'project': version.project},
-    )
 
 
 def server_error_500(request, template_name='500.html'):
@@ -104,118 +74,8 @@ def server_error_500(request, template_name='500.html'):
     return r
 
 
-def server_error_404(request, exception=None, template_name='404.html'):  # pylint: disable=unused-argument  # noqa
-    """
-    A simple 404 handler so we get media.
-
-    .. note::
-
-        Marking exception as optional to make /404/ testing page to work.
-    """
-    response = get_redirect_response(request, full_path=request.get_full_path())
-
-    # Return a redirect response if there is one
-    if response:
-        if response.url == request.build_absolute_uri():
-            # check that we do have a response and avoid infinite redirect
-            log.warning(
-                'Infinite Redirect: FROM URL is the same than TO URL. url=%s',
-                response.url,
-            )
-        else:
-            return response
-
-    # Try to serve custom 404 pages if it's a subdomain/cname
-    if getattr(request, 'subdomain', False) or getattr(request, 'cname', False):
-        return server_error_404_subdomain(request, template_name)
-
-    # Return the default 404 page generated by Read the Docs
-    r = render(request, template_name)
-    r.status_code = 404
-    return r
-
-
-def server_error_404_subdomain(request, template_name='404.html'):
-    """
-    Handler for 404 pages on subdomains.
-
-    Check if the project associated has a custom ``404.html`` and serve this
-    page. First search for a 404 page in the current version, then continues
-    with the default version and finally, if none of them are found, the Read
-    the Docs default page (Maze Found) is rendered by Django and served.
-    """
-
-    def resolve_404_path(project, version_slug=None, language=None):
-        """
-        Helper to resolve the path of ``404.html`` for project.
-
-        The resolution is based on ``project`` object, version slug and
-        language.
-
-        :returns: tuple containing the (basepath, filename)
-        :rtype: tuple
-        """
-        filename = resolve_path(
-            project,
-            version_slug=version_slug,
-            language=language,
-            filename='404.html',
-            subdomain=True,  # subdomain will make it a "full" path without a URL prefix
-        )
-
-        # This breaks path joining, by ignoring the root when given an "absolute" path
-        if filename[0] == '/':
-            filename = filename[1:]
-
-        version = None
-        if version_slug:
-            version_qs = project.versions.filter(slug=version_slug)
-            if version_qs.exists():
-                version = version_qs.first()
-
-        private = any([
-            version and version.privacy_level == PRIVATE,
-            not version and project.privacy_level == PRIVATE,
-        ])
-        if private:
-            symlink = PrivateSymlink(project)
-        else:
-            symlink = PublicSymlink(project)
-        basepath = symlink.project_root
-        fullpath = os.path.join(basepath, filename)
-        return (basepath, filename, fullpath)
-
-    project, full_path = project_and_path_from_request(request, request.get_full_path())
-
-    if project:
-        language = None
-        version_slug = None
-        schema, netloc, path, params, query, fragments = urlparse(full_path)
-        if not project.single_version:
-            language, version_slug, path = language_and_version_from_path(path)
-
-        # Firstly, attempt to serve the 404 of the current version (version_slug)
-        # Secondly, try to serve the 404 page for the default version (project.get_default_version())
-        for slug in (version_slug, project.get_default_version()):
-            basepath, filename, fullpath = resolve_404_path(project, slug, language)
-            if os.path.exists(fullpath):
-                log.debug(
-                    'serving 404.html page current version: [project: %s] [version: %s]',
-                    project.slug,
-                    slug,
-                )
-                r = static_serve(request, filename, basepath)
-                r.status_code = 404
-                return r
-
-    # Finally, return the default 404 page generated by Read the Docs
-    r = render(request, template_name)
-    r.status_code = 404
-    return r
-
-
 def do_not_track(request):
-    dnt_header = request.META.get('HTTP_DNT')
+    dnt_header = request.headers.get("Dnt")
 
     # https://w3c.github.io/dnt/drafts/tracking-dnt.html#status-representation
     return JsonResponse(  # pylint: disable=redundant-content-type-for-json-response

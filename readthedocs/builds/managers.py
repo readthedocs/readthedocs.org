@@ -1,34 +1,29 @@
-# -*- coding: utf-8 -*-
-
 """Build and Version class model Managers."""
 
-import logging
-
-from django.db import models
+import structlog
 from django.core.exceptions import ObjectDoesNotExist
+from django.db import models
+from polymorphic.managers import PolymorphicManager
 
-from readthedocs.core.utils.extend import (
-    SettingsOverrideObject,
-    get_override_class,
-)
-
-from .constants import (
+from readthedocs.builds.constants import (
     BRANCH,
+    EXTERNAL,
     LATEST,
     LATEST_VERBOSE_NAME,
     STABLE,
     STABLE_VERBOSE_NAME,
     TAG,
 )
-from .querysets import VersionQuerySet
+from readthedocs.builds.querysets import VersionQuerySet
+from readthedocs.core.utils.extend import get_override_class
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 __all__ = ['VersionManager']
 
 
-class VersionManagerBase(models.Manager):
+class VersionManager(models.Manager):
 
     """
     Version manager for manager only queries.
@@ -54,6 +49,12 @@ class VersionManagerBase(models.Manager):
             'verbose_name': STABLE_VERBOSE_NAME,
             'machine': True,
             'active': True,
+            # TODO: double-check if we still require the `identifier: STABLE` field.
+            # At the time of creation, we don't really know what's the branch/tag identifier
+            # for the STABLE version. It makes sense to be `None`, probably.
+            #
+            # Note that we removed the `identifier: LATEST` from `create_latest` as a way to
+            # use the default branch.
             'identifier': STABLE,
             'type': TAG,
         }
@@ -66,7 +67,6 @@ class VersionManagerBase(models.Manager):
             'verbose_name': LATEST_VERBOSE_NAME,
             'machine': True,
             'active': True,
-            'identifier': LATEST,
             'type': BRANCH,
         }
         defaults.update(kwargs)
@@ -82,9 +82,116 @@ class VersionManagerBase(models.Manager):
         try:
             return super().get(**kwargs)
         except ObjectDoesNotExist:
-            log.warning('Version not found for given kwargs. %s' % kwargs)
+            log.warning('Version not found for given kwargs.', kwargs=kwargs)
 
 
-class VersionManager(SettingsOverrideObject):
-    _default_class = VersionManagerBase
-    _override_setting = 'VERSION_MANAGER'
+class InternalVersionManager(VersionManager):
+
+    """
+    Version manager that only includes internal version.
+
+    It will exclude pull request/merge request versions from the queries
+    and only include BRANCH, TAG, UNKNOWN type Versions.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().exclude(type=EXTERNAL)
+
+
+class ExternalVersionManager(VersionManager):
+
+    """
+    Version manager that only includes external version.
+
+    It will only include pull request/merge request Versions in the queries.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().filter(type=EXTERNAL)
+
+
+class InternalBuildManager(models.Manager):
+
+    """
+    Build manager that only includes internal version builds.
+
+    It will exclude pull request/merge request version builds from the queries
+    and only include BRANCH, TAG, UNKNOWN type Version builds.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().exclude(version__type=EXTERNAL)
+
+
+class ExternalBuildManager(models.Manager):
+
+    """
+    Build manager that only includes external version builds.
+
+    It will only include pull request/merge request version builds in the queries.
+    """
+
+    def get_queryset(self):
+        return super().get_queryset().filter(version__type=EXTERNAL)
+
+
+class VersionAutomationRuleManager(PolymorphicManager):
+
+    """
+    Manager for VersionAutomationRule.
+
+    .. note::
+
+       This manager needs to inherit from PolymorphicManager,
+       since the model is a PolymorphicModel.
+       See https://django-polymorphic.readthedocs.io/page/managers.html
+    """
+
+    def add_rule(
+        self, *, project, description, match_arg, version_type,
+        action, action_arg=None, predefined_match_arg=None,
+    ):
+        """
+        Append an automation rule to `project`.
+
+        The rule is created with a priority lower than the last rule
+        in `project`.
+        """
+        last_priority = (
+            project.automation_rules
+            .values_list('priority', flat=True)
+            .order_by('priority')
+            .last()
+        )
+        if last_priority is None:
+            priority = 0
+        else:
+            priority = last_priority + 1
+
+        rule = self.create(
+            project=project,
+            priority=priority,
+            description=description,
+            match_arg=match_arg,
+            predefined_match_arg=predefined_match_arg,
+            version_type=version_type,
+            action=action,
+            action_arg=action_arg,
+        )
+        return rule
+
+
+class AutomationRuleMatchManager(models.Manager):
+
+    def register_match(self, rule, version, max_registers=15):
+        created = self.create(
+            rule=rule,
+            match_arg=rule.get_match_arg(),
+            action=rule.action,
+            version_name=version.verbose_name,
+            version_type=version.type,
+        )
+
+        for match in self.filter(rule__project=rule.project)[max_registers:]:
+            match.delete()
+        return created

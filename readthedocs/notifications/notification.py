@@ -1,20 +1,19 @@
-# -*- coding: utf-8 -*-
 
 """Support for templating of notifications."""
 
-import logging
-
+import structlog
 from django.conf import settings
 from django.db import models
 from django.http import HttpRequest
 from django.template import Context, Template
 from django.template.loader import render_to_string
 
+from readthedocs.core.context_processors import readthedocs_processor
+
 from . import constants
 from .backends import send_notification
 
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class Notification:
@@ -31,15 +30,17 @@ class Notification:
 
     name = None
     context_object_name = 'object'
+    app_templates = None
     level = constants.INFO
     subject = None
     user = None
     send_email = True
     extra_tags = ''
 
-    def __init__(self, context_object, request, user=None):
+    def __init__(self, context_object, request=None, user=None, extra_context=None):
         self.object = context_object
-        self.request = request
+        self.request = request or HttpRequest()
+        self.extra_context = extra_context or {}
         self.user = user
         if self.user is None:
             self.user = request.user
@@ -49,7 +50,7 @@ class Notification:
         return template.render(context=Context(self.get_context_data()))
 
     def get_context_data(self):
-        return {
+        context = {
             self.context_object_name: self.object,
             'request': self.request,
             'production_uri': '{scheme}://{host}'.format(
@@ -57,6 +58,9 @@ class Notification:
                 host=settings.PRODUCTION_DOMAIN,
             ),
         }
+        context.update(self.extra_context)
+        context.update(readthedocs_processor(self.request))
+        return context
 
     def get_template_names(self, backend_name, source_format=constants.HTML):
         names = []
@@ -64,7 +68,7 @@ class Notification:
             meta = self.object._meta  # pylint: disable=protected-access
             names.append(
                 '{app}/notifications/{name}_{backend}.{source_format}'.format(
-                    app=meta.app_label,
+                    app=self.app_templates or meta.app_label,
                     name=self.name or meta.model_name,
                     backend=backend_name,
                     source_format=source_format,
@@ -123,13 +127,13 @@ class SiteNotification(Notification):
     failure_level = constants.ERROR_NON_PERSISTENT
 
     def __init__(
-            self,
-            user,
-            success,
-            reason=None,
-            context_object=None,
-            request=None,
-            extra_context=None,
+        self,
+        user,
+        success,
+        reason=None,
+        context_object=None,
+        request=None,
+        extra_context=None,
     ):
         self.object = context_object
 
@@ -141,13 +145,7 @@ class SiteNotification(Notification):
 
         self.success = success
         self.reason = reason
-        self.extra_context = extra_context or {}
-        super().__init__(context_object, request, user)
-
-    def get_context_data(self):
-        context = super().get_context_data()
-        context.update(self.extra_context)
-        return context
+        super().__init__(context_object, request, user, extra_context)
 
     def get_message_level(self):
         if self.success:
@@ -168,16 +166,16 @@ class SiteNotification(Notification):
                 else:
                     # log the error but not crash
                     log.error(
-                        "Notification %s has no key '%s' for %s messages",
-                        self.__class__.__name__,
-                        self.reason,
-                        'success' if self.success else 'failure',
+                        "Notification has no key for messages",
+                        notification=self.__class__.__name__,
+                        key=self.reason,
+                        message='success' if self.success else 'failure',
                     )
             else:
                 log.error(
-                    '%s.%s_message is a dictionary but no reason was provided',
-                    self.__class__.__name__,
-                    'success' if self.success else 'failure',
+                    '{message} is a dictionary but no reason was provided',
+                    notification=self.__class__.__name__,
+                    message='success' if self.success else 'failure',
                 )
         else:
             msg = message

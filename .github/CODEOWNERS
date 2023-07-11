@@ -1,0 +1,10 @@
+*       @readthedocs/backend
+*.js    @readthedocs/frontend
+*.html  @readthedocs/frontend
+*.css   @readthedocs/frontend
+*.less  @readthedocs/frontend
+*.scss  @readthedocs/frontend
+*.svg   @readthedocs/frontend
+*.png   @readthedocs/frontend
+*.jpg   @readthedocs/frontend
+/docs/  @readthedocs/advocacy

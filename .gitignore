@@ -8,6 +8,7 @@
 .cache
 .coverage
 .coverage.*
+coverage.xml
 .idea
 .vagrant
 .vscode
@@ -22,12 +23,16 @@ contrib/supervisord.pid
 celerybeat-schedule.*
 deploy/.vagrant
 dist/*
+docker/azurite
+docker/search
 local_settings.py
 locks/**
 logs/*
 media/dash
 media/epub
 media/export
+media/external
+media/html
 media/htmlzip
 media/json
 media/man
@@ -35,7 +40,7 @@ media/pdf
 media/static
 /static
 node_modules
-package-lock.json
+nodeenv
 readthedocs/rtd_tests/builds
 readthedocs/rtd_tests/tests/builds
 user_builds
@@ -50,6 +55,7 @@ private_*
 readthedocs/htmlcov
 tags
 .python-version
+.tool-versions
 *.pyo
 .pytest_cache/
 scripts/travis/elasticsearch*
@@ -62,5 +68,11 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.direnv/
+.envrc
 
 dev.db-journal
+/readthedocs/settings/build_docker.py
+/readthedocs/settings/celery_docker.py
+/readthedocs/settings/proxito_docker.py
+/readthedocs/settings/web_docker.py

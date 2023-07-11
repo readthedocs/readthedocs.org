@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Pluggable backends for the delivery of notifications.
 
@@ -15,7 +13,7 @@ from messages_extends.constants import INFO_PERSISTENT
 
 from readthedocs.core.utils import send_email
 
-from .constants import HTML, LEVEL_MAPPING, REQUIREMENT
+from .constants import HTML, LEVEL_MAPPING, REQUIREMENT, TEXT
 
 
 def send_notification(request, notification):
@@ -26,8 +24,7 @@ def send_notification(request, notification):
     should be a list of class paths to be loaded, using the standard Django
     string module loader.
     """
-    backends = settings.NOTIFICATION_BACKENDS
-    for cls_name in backends:
+    for cls_name in settings.NOTIFICATION_BACKENDS:
         backend = import_string(cls_name)(request)
         backend.send(notification)
 
@@ -62,18 +59,18 @@ class EmailBackend(Backend):
         # it's not necessary. This behavior should be clearly documented in the
         # code
         if notification.level >= REQUIREMENT:
+            template = notification.get_template_names(
+                backend_name=self.name, source_format=TEXT
+            )
+            template_html = notification.get_template_names(
+                backend_name=self.name, source_format=HTML
+            )
             send_email(
                 recipient=notification.user.email,
                 subject=notification.get_subject(),
-                template='core/email/common.txt',
-                template_html='core/email/common.html',
-                context={
-                    'content': notification.render(
-                        self.name,
-                        source_format=HTML,
-                    ),
-                },
-                request=self.request,
+                template=template,
+                template_html=template_html,
+                context=notification.get_context_data(),
             )
 
 

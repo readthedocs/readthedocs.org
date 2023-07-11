@@ -21,6 +21,9 @@
           {% endblock %}
         </span>
         <a href="{{ project.get_absolute_url }}">{{ project }}</a>
+        {% if project.delisted %}
+          <a href="https://docs.readthedocs.io/en/stable/unofficial-projects.html" class="quiet" target="_blank">{% trans "delisted" %}</a>
+        {% endif %}
       </h1>
     </div>
 
@@ -31,7 +34,7 @@
           {% blocktrans trimmed %}
             Your project is currently disabled for abuse of the system.
             Please make sure it isn't using unreasonable amounts of resources or triggering lots of builds in a short amount of time.
-            Please <a href="https://github.com/rtfd/readthedocs.org/issues">file a ticket</a> to get your project re-enabled.
+            Please <a href="mailto:{{ SUPPORT_EMAIL }}">contact support</a> to get your project re-enabled.
           {% endblocktrans %}
       </p>
       <br>
@@ -41,17 +44,11 @@
 
         <li class="{{ downloads_active }}"><a href="{% url "project_downloads" project.slug %}" rel="nofollow,noindex">{% trans "Downloads" %}</a></li>
 
-        <li class="{{ search_active }}"><a href="{% url "elastic_project_search" project.slug %}" rel="nofollow,noindex">{% trans "Search" %}</a></li>
+        <li class="{{ search_active }}"><a href="{% url "search" %}?q=project:{{ project.slug|urlencode }}%20" rel="nofollow,noindex">{% trans "Search" %}</a></li>
 
         <li class="{{ builds_active }}"><a href="{{ project.get_builds_url }}">{% trans "Builds" %}</a></li>
 
         <li class="{{ versions_active }}"><a href="{% url "project_version_list" project.slug %}">{% trans "Versions" %}</a></li>
-
-        {% comment %}
-        {% if request.user.is_authenticated %}
-        <li class="{{ tools_active }}"><a href="{% url 'project_embed' project.slug %}">{% trans "Tools" %}</a></li>
-        {% endif %}
-        {% endcomment %}
 
         {% if request.user|is_admin:project %}
           <li class="{{ edit_active }} project-admin"><a href="{% url "projects_edit" project.slug %}"><i class="gear"></i>{% trans "Admin" %}</a></li>

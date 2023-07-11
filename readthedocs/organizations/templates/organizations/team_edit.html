@@ -1,0 +1,26 @@
+{% extends "organizations/base_team.html" %}
+
+{% load i18n %}
+{% load gravatar %}
+{% load organizations %}
+
+{% block title %}{% trans "Edit Team" %}{% endblock %}
+
+{% block content %}
+
+  <!-- BEGIN organization team edit -->
+  <div class="module">
+
+    <h2>{% trans "Edit Team" %}</h2>
+    <form method="post" action="{% url "organization_team_edit" organization.slug team.slug %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="{% trans "Update Team" %}">
+    </form>
+
+    <a href="{% url "organization_team_delete" organization.slug team.slug %}" class="button-delete button-warning">{% trans "Delete Team" %}</a>
+
+  </div>
+
+  <!-- END organization team edit -->
+{% endblock %}

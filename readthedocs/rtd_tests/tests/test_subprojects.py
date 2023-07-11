@@ -1,16 +1,19 @@
-# -*- coding: utf-8 -*-
 import django_dynamic_fixture as fixture
-import mock
 from django.contrib.auth.models import User
 from django.test import TestCase
-from django.test.utils import override_settings
 
 from readthedocs.projects.forms import ProjectRelationshipForm
 from readthedocs.projects.models import Project, ProjectRelationship
-from readthedocs.rtd_tests.utils import create_user
 
 
 class SubprojectFormTests(TestCase):
+
+    def setUp(self):
+        self.user = fixture.get(User)
+        self.project = fixture.get(Project, users=[self.user])
+        self.subproject = fixture.get(Project, users=[self.user])
+        self.project.add_subproject(self.subproject, 'subproject')
+        self.relation = self.subproject.superprojects.first()
 
     def test_empty_child(self):
         user = fixture.get(User)
@@ -66,7 +69,7 @@ class SubprojectFormTests(TestCase):
             r'Select a valid choice.',
         )
         self.assertEqual(
-            [proj_id for (proj_id, __) in form.fields['child'].choices],
+            [proj_id for (proj_id, _) in form.fields['child'].choices],
             [''],
         )
 
@@ -117,7 +120,7 @@ class SubprojectFormTests(TestCase):
         # The subsubproject is valid here, as far as the child check is
         # concerned, but the parent check should fail.
         self.assertEqual(
-            [proj_id for (proj_id, __) in form.fields['child'].choices],
+            [proj_id for (proj_id, _) in form.fields['child'].choices],
             ['', subsubproject.pk],
         )
         form.full_clean()
@@ -146,8 +149,59 @@ class SubprojectFormTests(TestCase):
             user=user,
         )
         self.assertEqual(
-            [proj_id for (proj_id, __) in form.fields['child'].choices],
+            [proj_id for (proj_id, _) in form.fields['child'].choices],
             [''],
+        )
+
+    def test_subproject_cant_be_subproject(self):
+        user = fixture.get(User)
+        project = fixture.get(Project, users=[user])
+        another_project = fixture.get(Project, users=[user])
+        subproject = fixture.get(Project, users=[user])
+        relation = fixture.get(
+            ProjectRelationship, parent=project, child=subproject,
+        )
+
+        form = ProjectRelationshipForm(
+            {'child': subproject.pk},
+            project=project,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertRegex(
+            form.errors['child'][0],
+            'Select a valid choice',
+        )
+
+        form = ProjectRelationshipForm(
+            {'child': subproject.pk},
+            project=another_project,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertRegex(
+            form.errors['child'][0],
+            'Select a valid choice',
+        )
+
+    def test_superproject_cant_be_subproject(self):
+        user = fixture.get(User)
+        project = fixture.get(Project, users=[user])
+        another_project = fixture.get(Project, users=[user])
+        subproject = fixture.get(Project, users=[user])
+        relation = fixture.get(
+            ProjectRelationship, parent=project, child=subproject,
+        )
+
+        form = ProjectRelationshipForm(
+            {'child': project.pk},
+            project=another_project,
+            user=user,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertRegex(
+            form.errors['child'][0],
+            'Select a valid choice',
         )
 
     def test_exclude_self_project_as_subproject(self):
@@ -160,6 +214,10 @@ class SubprojectFormTests(TestCase):
             user=user,
         )
         self.assertFalse(form.is_valid())
+        self.assertIn(
+            'Select a valid choice',
+            form.errors['child'][0],
+        )
         self.assertNotIn(
             project.id,
             [proj_id for (proj_id, __) in form.fields['child'].choices],
@@ -204,50 +262,52 @@ class SubprojectFormTests(TestCase):
             ['', relation.child.id],
         )
 
+    def test_change_alias(self):
+        subproject_2 = fixture.get(Project, users=[self.user])
+        self.project.add_subproject(subproject_2, 'another-subproject')
 
-@override_settings(PUBLIC_DOMAIN='readthedocs.org')
-class ResolverBase(TestCase):
+        relation = subproject_2.superprojects.first()
 
-    def setUp(self):
-        with mock.patch('readthedocs.projects.models.broadcast'):
-            self.owner = create_user(username='owner', password='test')
-            self.tester = create_user(username='tester', password='test')
-            self.pip = fixture.get(Project, slug='pip', users=[self.owner], main_language_project=None)
-            self.subproject = fixture.get(
-                Project, slug='sub', language='ja',
-                users=[self.owner],
-                main_language_project=None,
-            )
-            self.translation = fixture.get(
-                Project, slug='trans', language='ja',
-                users=[self.owner],
-                main_language_project=None,
-            )
-            self.pip.add_subproject(self.subproject)
-            self.pip.translations.add(self.translation)
-
-        relation = self.pip.subprojects.first()
-        relation.alias = 'sub_alias'
-        relation.save()
-        fixture.get(Project, slug='sub_alias', language='ya')
-
-    @override_settings(
-            PRODUCTION_DOMAIN='readthedocs.org',
-            USE_SUBDOMAIN=False,
-    )
-    def test_resolver_subproject_alias(self):
-        resp = self.client.get('/docs/pip/projects/sub_alias/')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp._headers['location'][1],
-            'http://readthedocs.org/docs/pip/projects/sub_alias/ja/latest/',
+        # Change alias to an existing alias
+        form = ProjectRelationshipForm(
+            {
+                'child': subproject_2.id,
+                'alias': 'subproject'
+            },
+            instance=relation,
+            project=self.project,
+            user=self.user,
         )
+        self.assertFalse(form.is_valid())
+        error_msg = 'A subproject with this alias already exists'
+        self.assertDictEqual(form.errors, {'alias': [error_msg]})
 
-    @override_settings(USE_SUBDOMAIN=True)
-    def test_resolver_subproject_subdomain_alias(self):
-        resp = self.client.get('/projects/sub_alias/', HTTP_HOST='pip.readthedocs.org')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(
-            resp._headers['location'][1],
-            'http://pip.readthedocs.org/projects/sub_alias/ja/latest/',
+        # Change alias to a new alias
+        form = ProjectRelationshipForm(
+            {
+                'child': subproject_2.id,
+                'alias': 'other-subproject'
+            },
+            instance=relation,
+            project=self.project,
+            user=self.user,
         )
+        self.assertTrue(form.is_valid())
+        form.save()
+        relation.refresh_from_db()
+        self.assertEqual(relation.alias, 'other-subproject')
+
+    def test_change_alias_to_same_alias(self):
+        form = ProjectRelationshipForm(
+            {
+                'child': self.subproject.id,
+                'alias': 'subproject'
+            },
+            instance=self.relation,
+            project=self.project,
+            user=self.user,
+        )
+        self.assertTrue(form.is_valid())
+        form.save()
+        self.relation.refresh_from_db()
+        self.assertEqual(self.relation.alias, 'subproject')

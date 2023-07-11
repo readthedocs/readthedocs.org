@@ -1,8 +1,10 @@
 """Defines access permissions for the API."""
 
 from rest_framework import permissions
+from rest_framework_api_key.permissions import BaseHasAPIKey, KeyParser
 
-from readthedocs.core.permissions import AdminPermission
+from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.builds.models import Version
 
 
 class IsOwner(permissions.BasePermission):
@@ -14,72 +16,83 @@ class IsOwner(permissions.BasePermission):
         return request.user in obj.users.all()
 
 
-class CommentModeratorOrReadOnly(permissions.BasePermission):
+class ReadOnlyPermission(permissions.BasePermission):
 
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True  # TODO: Similar logic to #1084
-        return AdminPermission.is_admin(request.user, obj.node.project)
-
-
-class RelatedProjectIsOwner(permissions.BasePermission):
-
-    """Custom permission to only allow owners of an object to edit it."""
+    """Allow read-only access to authenticated and anonymous users."""
 
     def has_permission(self, request, view):
-        return (request.method in permissions.SAFE_METHODS)
-
-    def has_object_permission(self, request, view, obj):
-        # Write permissions are only allowed to the owner of the snippet
-        return (
-            request.method in permissions.SAFE_METHODS or
-            (request.user in obj.project.users.all())
-        )
+        return request.method in permissions.SAFE_METHODS
 
 
-class APIPermission(permissions.IsAuthenticatedOrReadOnly):
+class IsAuthorizedToViewVersion(permissions.BasePermission):
 
     """
-    Control users access to the API.
+    Checks if the user from the request has permissions to see the version.
 
-    This permission should allow authenticated users readonly access to the API,
-    and allow admin users write access. This should be used on API resources
-    that need to implement write operations to resources that were based on the
-    ReadOnlyViewSet
+    This permission class used in the FooterHTML and PageSearchAPIView views.
+
+    .. note::
+
+       Views using this permissions should implement the
+       `_get_version` and `_get_project` methods.
     """
 
     def has_permission(self, request, view):
-        has_perm = super().has_permission(request, view)
-        return has_perm or (request.user and request.user.is_staff)
-
-    def has_object_permission(self, request, view, obj):
-        has_perm = super().has_object_permission(
-            request,
-            view,
-            obj,
+        project = view._get_project()
+        version = view._get_version()
+        has_access = (
+            Version.objects
+            .public(
+                user=request.user,
+                project=project,
+                only_active=False,
+            )
+            .filter(pk=version.pk)
+            .exists()
         )
-        return has_perm or (request.user and request.user.is_staff)
+        return has_access
 
 
-class APIRestrictedPermission(permissions.BasePermission):
+class TokenKeyParser(KeyParser):
 
     """
-    Allow admin write, authenticated and anonymous read only.
+    Custom key parser to use ``Token {TOKEN}`` as format.
 
-    This differs from :py:class:`APIPermission` by not allowing for
-    authenticated POSTs. This permission is endpoints like ``/api/v2/build/``,
-    which are used by admin users to coordinate build instance creation, but
-    only should be readable by end users.
+    This is the same format we use in API V3 for auth/authz.
     """
+
+    keyword = "Token"
+
+
+class HasBuildAPIKey(BaseHasAPIKey):
+
+    """
+    Custom permission to inject the build API key into the request.
+
+    We completely override the ``has_permission`` method
+    to avoid having to parse and validate the key again on each view.
+    The key is injected in the ``request.build_api_key`` attribute
+    only if it's valid, otherwise it's set to ``None``.
+
+    This grants read and write access to the API.
+    """
+
+    model = BuildAPIKey
+    key_parser = TokenKeyParser()
 
     def has_permission(self, request, view):
-        return (
-            request.method in permissions.SAFE_METHODS or
-            (request.user and request.user.is_staff)
-        )
+        request.build_api_key = None
+        key = self.get_key(request)
+        if not key:
+            return False
 
-    def has_object_permission(self, request, view, obj):
-        return (
-            request.method in permissions.SAFE_METHODS or
-            (request.user and request.user.is_staff)
-        )
+        try:
+            build_api_key = self.model.objects.get_from_key(key)
+        except self.model.DoesNotExist:
+            return False
+
+        if build_api_key.has_expired:
+            return False
+
+        request.build_api_key = build_api_key
+        return True

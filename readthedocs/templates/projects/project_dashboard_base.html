@@ -66,27 +66,23 @@
                       {% block project-name %}
                         {{ project.name }}
                       {% endblock %}
-                      {% with builds=project.build_count %}
-                        {% if builds == 0 %}
-                          <span class="right quiet">
-                            {% trans "No builds yet" %}
-                          </span>
-                        {% else %}
-                          <span class="right quiet">
-                            <span class="build-count">
-                              {% blocktrans trimmed count counter=builds %}
-                                1 build
-                              {% plural %}
-                                {{ builds }} builds
-                              {% endblocktrans %}
-                            </span>
-                            {% if project.latest_build_success %}
+                      {% with build=project.get_latest_build %}
+                        <span class="right quiet">
+
+                          {% if build %}
+                            <time class="build-count" datetime="{{ build.date|date:"c" }}" title="{{ build.date|date:"DATETIME_FORMAT" }}">
+                              <small>{% blocktrans with date=build.date|timesince %}{{ date }} ago{% endblocktrans %}</small>
+                            </time>
+                            {% if build.success %}
                               <span class="build-state build-state-passing">{% trans "passing" %}</span>
                             {% else %}
                               <span class="build-state build-state-failing">{% trans "failing" %}</span>
+                              {# TODO: What whould be show here when "not build.sucess and cancelled"? #}
                             {% endif %}
-                          </span>
-                        {% endif %}
+                          {% else %}
+                            <span>{% trans "No builds yet" %}</span>
+                          {% endif %}
+                        </span>
                       {% endwith %}
                     </a>
                   </li>
@@ -113,12 +109,9 @@
     <div class="module search search-dashboard">
       <form action="{% url 'search' %}" method="GET">
         <div class="text-input-wrapper search search-dashboard">
-          <input type="text" name="q" class="search" placeholder="{% trans 'Search Read the Docs' %}">
+          <input type="text" name="q" class="search" placeholder="{% trans 'Search all docs' %}">
           {% if type %}
             <input type="hidden" name="type" value="{{ type }}">
-          {% endif %}
-          {% if taxonomy %}
-            <input type="hidden" name="taxonomy" value="{{ taxonomy }}">
           {% endif %}
         </div>
       </form>

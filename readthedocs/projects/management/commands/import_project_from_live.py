@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
-
 """Import project command."""
 
 import json
 import os
 
+import requests
 from django.contrib.auth.models import User
 from django.core.management import call_command
-from django.core.management.base import BaseCommand
-import requests
+from django.core.management.base import BaseCommand, CommandError
 
 from ...models import Project
 
@@ -57,7 +55,7 @@ class Command(BaseCommand):
             if response_data['count'] == 1:
                 project_data = response_data['results'][0]
             else:
-                self.stderr.write(
+                raise CommandError(
                     'Cannot find {slug} in API. Response was:\n{response}'.format(
                         slug=slug,
                         response=json.dumps(response_data),
@@ -94,4 +92,4 @@ class Command(BaseCommand):
             if user1:
                 project.users.add(user1)
 
-            call_command('update_repos', project.slug, version='all')
+            call_command('update_repos', slugs=[project.slug], version='all')

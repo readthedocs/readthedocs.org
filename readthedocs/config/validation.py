@@ -1,16 +1,13 @@
-# -*- coding: utf-8 -*-
-
 """Validations for the RTD configuration file."""
-import os
 
+import os
 
 INVALID_BOOL = 'invalid-bool'
 INVALID_CHOICE = 'invalid-choice'
 INVALID_LIST = 'invalid-list'
 INVALID_DICT = 'invalid-dictionary'
-INVALID_DIRECTORY = 'invalid-directory'
-INVALID_FILE = 'invalid-file'
 INVALID_PATH = 'invalid-path'
+INVALID_PATH_PATTERN = 'invalid-path-pattern'
 INVALID_STRING = 'invalid-string'
 VALUE_NOT_FOUND = 'value-not-found'
 
@@ -22,10 +19,9 @@ class ValidationError(Exception):
     messages = {
         INVALID_BOOL: 'expected one of (0, 1, true, false), got {value}',
         INVALID_CHOICE: 'expected one of ({choices}), got {value}',
-        INVALID_DIRECTORY: '{value} is not a directory',
-        INVALID_FILE: '{value} is not a file',
         INVALID_DICT: '{value} is not a dictionary',
         INVALID_PATH: 'path {value} does not exist',
+        INVALID_PATH_PATTERN: '{value} isn\'t a valid path pattern',
         INVALID_STRING: 'expected string',
         INVALID_LIST: 'expected list',
         VALUE_NOT_FOUND: '{value} not found',
@@ -79,30 +75,35 @@ def validate_bool(value):
     return bool(value)
 
 
-def validate_directory(value, base_path):
-    """Check that ``value`` is a directory."""
-    path = validate_path(value, base_path)
-    if not os.path.isdir(path):
-        raise ValidationError(value, INVALID_DIRECTORY)
-    return path
-
-
-def validate_file(value, base_path):
-    """Check that ``value`` is a file."""
-    path = validate_path(value, base_path)
-    if not os.path.isfile(path):
-        raise ValidationError(value, INVALID_FILE)
-    return path
-
-
 def validate_path(value, base_path):
-    """Check that ``value`` is an existent file in ``base_path``."""
+    """Check that ``value`` is a valid path name and normamlize it."""
     string_value = validate_string(value)
-    pathed_value = os.path.join(base_path, string_value)
-    final_value = os.path.abspath(pathed_value)
-    if not os.path.exists(final_value):
+    if not string_value:
         raise ValidationError(value, INVALID_PATH)
-    return final_value
+    full_path = os.path.join(base_path, string_value)
+    rel_path = os.path.relpath(full_path, base_path)
+    return rel_path
+
+
+def validate_path_pattern(value):
+    """
+    Normalize and validates a path pattern.
+
+    - Normalizes the path stripping multiple ``/``.
+    - Expands relative paths.
+    - Checks the final path is relative to the root of the site ``/``.
+    """
+    path = validate_string(value)
+    # Start the path with ``/`` to interpret the path as absolute to ``/``.
+    path = '/' + path.lstrip('/')
+    path = os.path.normpath(path)
+    if not os.path.isabs(path):
+        raise ValidationError(value, INVALID_PATH_PATTERN)
+    # Remove ``/`` from the path once is validated.
+    path = path.lstrip('/')
+    if not path:
+        raise ValidationError(value, INVALID_PATH_PATTERN)
+    return path
 
 
 def validate_string(value):

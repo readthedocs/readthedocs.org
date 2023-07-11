@@ -1,0 +1,7 @@
+contact_links:
+- name: User support
+  url: https://readthedocs.org/support/
+  about: |
+    If you need a specific request for your project or account,
+    like more resources, a specific feature flag,
+    change of the project slug or username, etc

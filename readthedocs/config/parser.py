@@ -1,9 +1,7 @@
-# -*- coding: utf-8 -*-
 
 """YAML parser for the RTD configuration file."""
 
 import yaml
-
 
 __all__ = ('parse', 'ParseError')
 

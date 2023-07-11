@@ -18,6 +18,11 @@ schedule: "every week"
 # allowed: True, False
 search: True
 
+# list all requirements that are tracked by pip-tools
+# we have to specify them here because they are not .txt or .pip
+requirements:
+  - requirements/docs.in
+
 # configure the branch prefix the bot is using
 # default: pyup-
 branch_prefix: pyup/

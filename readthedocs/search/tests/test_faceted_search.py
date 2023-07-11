@@ -1,11 +1,11 @@
 import pytest
 
-from readthedocs.search.documents import PageDocument
+from readthedocs.search.faceted_search import PageSearch
 
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestPageSearch(object):
+class TestPageSearch:
 
     @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
     def test_search_exact_match(self, client, project, case):
@@ -14,19 +14,24 @@ class TestPageSearch(object):
         Making a query with quoted text like ``"foo bar"`` should match
         exactly ``foo bar`` or ``Foo Bar`` etc
         """
-        # `Github` word is present both in `kuma` and `pipeline` files
-        # But the phrase Github can is available only in kuma docs.
+        # `Sphinx` word is present both in `kuma` and `docs` files
+        # But the phrase `Sphinx uses` is available only in kuma docs.
         # So search with this phrase to check
-        query_text = r'"GitHub can"'
+        query_text = r'"Sphinx uses"'
         cased_query = getattr(query_text, case)
         query = cased_query()
 
-        page_search = PageDocument.faceted_search(query=query, user='')
+        page_search = PageSearch(query=query)
         results = page_search.execute()
 
-        assert len(results) == 1
+        assert len(results) == 2
         assert results[0]['project'] == 'kuma'
-        assert results[0]['path'] == 'documentation'
+        assert results[0]['path'] == 'testdocumentation'
+        assert results[0]['version'] == 'stable'
+
+        assert results[1]['project'] == 'kuma'
+        assert results[1]['path'] == 'testdocumentation'
+        assert results[1]['version'] == 'latest'
 
     def test_search_combined_result(self, client, project):
         """Check search result are combined of both `AND` and `OR` operator
@@ -36,15 +41,17 @@ class TestPageSearch(object):
         - Where both `Foo Bar` is present
         - Where `Foo` or `Bar` is present
         """
-        query = 'Official Support'
-        page_search = PageDocument.faceted_search(query=query, user='')
+        query = 'Elasticsearch Query'
+        page_search = PageSearch(query=query)
         results = page_search.execute()
-        assert len(results) == 3
+        assert len(results) == 6
 
-        result_paths = [r.path for r in results]
-        # ``open-source-philosophy`` page has both ``Official Support`` words
-        # ``docker`` page has ``Support`` word
-        # ``installation`` page has ``Official`` word
-        expected_paths = ['open-source-philosophy', 'docker', 'installation']
+        result_paths_latest = [r.path for r in results if r.version == 'latest']
+        result_paths_stable = [r.path for r in results if r.version == 'stable']
+        # ``guides/wipe-environment`` page has both ``Elasticsearch Query`` words
+        # ``docker`` page has ``Elasticsearch`` word
+        # ``installation`` page has ``Query`` word.
+        expected_paths = ['guides/wipe-environment', 'docker', 'installation']
 
-        assert result_paths == expected_paths
+        assert result_paths_latest == expected_paths
+        assert result_paths_stable == expected_paths

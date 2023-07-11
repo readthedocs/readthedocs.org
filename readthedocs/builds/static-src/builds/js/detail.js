@@ -32,8 +32,11 @@ function BuildDetailView(instance) {
     /* Instance variables */
     self.state = ko.observable(instance.state);
     self.state_display = ko.observable(instance.state_display);
+    self.cancelled = ko.computed(function () {
+        return self.state() === 'cancelled';
+    });
     self.finished = ko.computed(function () {
-        return self.state() === 'finished';
+        return self.state() === 'finished' || self.state() === 'cancelled';
     });
     self.date = ko.observable(instance.date);
     self.success = ko.observable(instance.success);
@@ -52,6 +55,7 @@ function BuildDetailView(instance) {
     });
     self.commit = ko.observable(instance.commit);
     self.docs_url = ko.observable(instance.docs_url);
+    self.commit_url = ko.observable(instance.commit_url);
 
     /* Others */
     self.legacy_output = ko.observable(false);
@@ -72,6 +76,7 @@ function BuildDetailView(instance) {
             self.length(data.length);
             self.commit(data.commit);
             self.docs_url(data.docs_url);
+            self.commit_url(data.commit_url);
             var n;
             for (n in data.commands) {
                 var command = data.commands[n];

@@ -1,69 +1,32 @@
-# -*- coding: utf-8 -*-
+"""Common utility functions."""
 
-"""Common utilty functions."""
-
-from __future__ import absolute_import
-
-import errno
-import logging
-import os
 import re
+import signal
 
+import structlog
 from django.conf import settings
+from django.template.loader import render_to_string
 from django.utils.functional import keep_lazy
 from django.utils.safestring import SafeText, mark_safe
 from django.utils.text import slugify as slugify_base
-from celery import group, chord
 
-from readthedocs.builds.constants import BUILD_STATE_TRIGGERED
-from readthedocs.doc_builder.constants import DOCKER_LIMITS
+from readthedocs.builds.constants import (
+    BUILD_FINAL_STATES,
+    BUILD_STATE_CANCELLED,
+    BUILD_STATE_TRIGGERED,
+    BUILD_STATUS_PENDING,
+    EXTERNAL,
+)
+from readthedocs.doc_builder.exceptions import BuildCancelled, BuildMaxConcurrencyError
+from readthedocs.worker import app
 
-log = logging.getLogger(__name__)
-
-SYNC_USER = settings.SYNC_USER
-
-
-def broadcast(type, task, args, kwargs=None, callback=None):  # pylint: disable=redefined-builtin
-    """
-    Run a broadcast across our servers.
-
-    Returns a task group that can be checked for results.
-
-    `callback` should be a task signature that will be run once,
-    after all of the broadcast tasks have finished running.
-    """
-    if type not in ['web', 'app', 'build']:
-        raise ValueError('allowed value of `type` are web, app and build.')
-    if kwargs is None:
-        kwargs = {}
-
-    if type in ['web', 'app']:
-        servers = settings.MULTIPLE_APP_SERVERS
-    elif type in ['build']:
-        servers = settings.MULTIPLE_BUILD_SERVERS
-
-    tasks = []
-    for server in servers:
-        task_sig = task.s(*args, **kwargs).set(queue=server)
-        tasks.append(task_sig)
-    if callback:
-        task_promise = chord(tasks, callback).apply_async()
-    else:
-        # Celery's Group class does some special handling when an iterable with
-        # len() == 1 is passed in. This will be hit if there is only one server
-        # defined in the above queue lists
-        if len(tasks) > 1:
-            task_promise = group(*tasks).apply_async()
-        else:
-            task_promise = group(tasks).apply_async()
-    return task_promise
+log = structlog.get_logger(__name__)
 
 
 def prepare_build(
         project,
         version=None,
-        record=True,
-        force=False,
+        commit=None,
         immutable=True,
 ):
     """
@@ -74,23 +37,24 @@ def prepare_build(
 
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``project.get_default_version()``
-    :param record: whether or not record the build in a new Build object
-    :param force: build the HTML documentation even if the files haven't changed
+    :param commit: commit sha of the version required for sending build status reports
     :param immutable: whether or not create an immutable Celery signature
     :returns: Celery signature of update_docs_task and Build instance
     :rtype: tuple
     """
     # Avoid circular import
+    from readthedocs.api.v2.models import BuildAPIKey
     from readthedocs.builds.models import Build
-    from readthedocs.projects.models import Project
-    from readthedocs.projects.tasks import update_docs_task
+    from readthedocs.builds.tasks import send_build_notifications
+    from readthedocs.projects.models import Project, WebHookEvent
+    from readthedocs.projects.tasks.builds import update_docs_task
+    from readthedocs.projects.tasks.utils import send_external_build_status
 
-    build = None
+    log.bind(project_slug=project.slug)
 
     if not Project.objects.is_active(project):
         log.warning(
-            'Build not triggered because Project is not active: project=%s',
-            project.slug,
+            'Build not triggered because project is not active.',
         )
         return (None, None)
 
@@ -98,43 +62,114 @@ def prepare_build(
         default_version = project.get_default_version()
         version = project.versions.get(slug=default_version)
 
-    kwargs = {
-        'version_pk': version.pk,
-        'record': record,
-        'force': force,
-    }
+    build = Build.objects.create(
+        project=project,
+        version=version,
+        type='html',
+        state=BUILD_STATE_TRIGGERED,
+        success=True,
+        commit=commit
+    )
 
-    if record:
-        build = Build.objects.create(
-            project=project,
-            version=version,
-            type='html',
-            state=BUILD_STATE_TRIGGERED,
-            success=True,
-        )
-        kwargs['build_pk'] = build.pk
+    log.bind(
+        build_id=build.id,
+        version_slug=version.slug,
+    )
 
     options = {}
     if project.build_queue:
         options['queue'] = project.build_queue
 
     # Set per-task time limit
-    time_limit = DOCKER_LIMITS['time']
+    # TODO remove the use of Docker limits or replace the logic here. This
+    # was pulling the Docker limits that were set on each stack, but we moved
+    # to dynamic setting of the Docker limits. This sets a failsafe higher
+    # limit, but if no builds hit this limit, it should be safe to remove and
+    # rely on Docker to terminate things on time.
+    # time_limit = DOCKER_LIMITS['time']
+    time_limit = 7200
     try:
         if project.container_time_limit:
             time_limit = int(project.container_time_limit)
     except ValueError:
-        log.warning('Invalid time_limit for project: %s', project.slug)
+        log.warning("Invalid time_limit for project.")
 
     # Add 20% overhead to task, to ensure the build can timeout and the task
     # will cleanly finish.
     options['soft_time_limit'] = time_limit
     options['time_limit'] = int(time_limit * 1.2)
 
+    if commit:
+        log.bind(commit=commit)
+
+        # Send pending Build Status using Git Status API for External Builds.
+        send_external_build_status(
+            version_type=version.type,
+            build_pk=build.id,
+            commit=commit,
+            status=BUILD_STATUS_PENDING,
+        )
+
+    if version.type != EXTERNAL:
+        # Send notifications for build triggered.
+        send_build_notifications.delay(
+            version_pk=version.pk,
+            build_pk=build.pk,
+            event=WebHookEvent.BUILD_TRIGGERED,
+        )
+
+    # Reduce overhead when doing multiple push on the same version.
+    running_builds = (
+        Build.objects.filter(
+            project=project,
+            version=version,
+        )
+        .exclude(
+            state__in=BUILD_FINAL_STATES,
+        )
+        .exclude(
+            pk=build.pk,
+        )
+    )
+    if running_builds.count() > 0:
+        log.warning(
+            "Canceling running builds automatically due a new one arrived.",
+            running_builds=running_builds.count(),
+        )
+
+    # If there are builds triggered/running for this particular project and version,
+    # we cancel all of them and trigger a new one for the latest commit received.
+    for running_build in running_builds:
+        cancel_build(running_build)
+
+    # Start the build in X minutes and mark it as limited
+    limit_reached, _, max_concurrent_builds = Build.objects.concurrent(project)
+    if limit_reached:
+        log.warning(
+            "Delaying tasks at trigger step due to concurrency limit.",
+        )
+        # Delay the start of the build for the build retry delay.
+        # We're still triggering the task, but it won't run immediately,
+        # and the user will be alerted in the UI from the Error below.
+        options["countdown"] = settings.RTD_BUILDS_RETRY_DELAY
+        options["max_retries"] = settings.RTD_BUILDS_MAX_RETRIES
+        build.error = BuildMaxConcurrencyError.message.format(
+            limit=max_concurrent_builds,
+        )
+        build.save()
+
+    _, build_api_key = BuildAPIKey.objects.create_key(project=project)
+
     return (
         update_docs_task.signature(
-            args=(project.pk,),
-            kwargs=kwargs,
+            args=(
+                version.pk,
+                build.pk,
+            ),
+            kwargs={
+                "build_commit": commit,
+                "build_api_key": build_api_key,
+            },
             options=options,
             immutable=True,
         ),
@@ -142,7 +177,7 @@ def prepare_build(
     )
 
 
-def trigger_build(project, version=None, record=True, force=False):
+def trigger_build(project, version=None, commit=None):
     """
     Trigger a Build.
 
@@ -151,16 +186,20 @@ def trigger_build(project, version=None, record=True, force=False):
 
     :param project: project's documentation to be built
     :param version: version of the project to be built. Default: ``latest``
-    :param record: whether or not record the build in a new Build object
-    :param force: build the HTML documentation even if the files haven't changed
+    :param commit: commit sha of the version required for sending build status reports
     :returns: Celery AsyncResult promise and Build instance
     :rtype: tuple
     """
+    log.bind(
+        project_slug=project.slug,
+        version_slug=version.slug if version else None,
+        commit=commit,
+    )
+    log.info("Triggering build.")
     update_docs_task, build = prepare_build(
-        project,
-        version,
-        record,
-        force,
+        project=project,
+        version=version,
+        commit=commit,
         immutable=True,
     )
 
@@ -168,13 +207,66 @@ def trigger_build(project, version=None, record=True, force=False):
         # Build was skipped
         return (None, None)
 
-    return (update_docs_task.apply_async(), build)
+    task = update_docs_task.apply_async()
+
+    # FIXME: I'm using `isinstance` here because I wasn't able to mock this
+    # properly when running tests and it fails when trying to save a
+    # `mock.Mock` object in the database.
+    #
+    # Store the task_id in the build object to be able to cancel it later.
+    if isinstance(task.id, (str, int)):
+        build.task_id = task.id
+        build.save()
+
+    return task, build
+
+
+def cancel_build(build):
+    """
+    Cancel a triggered/running build.
+
+    Depending on the current state of the build, it takes one approach or the other:
+
+    - Triggered:
+        Update the build status and tells Celery to revoke this task.
+        Workers will know about this and will discard it.
+    - Running:
+        Communicate Celery to force the termination of the current build
+        and rely on the worker to update the build's status.
+    """
+    # NOTE: `terminate=True` is required for the child to attend our call
+    # immediately when it's running the build. Otherwise, it finishes the
+    # task. However, to revoke a task that has not started yet, we don't
+    # need it.
+    if build.state == BUILD_STATE_TRIGGERED:
+        # Since the task won't be executed at all, we need to update the
+        # Build object here.
+        terminate = False
+        build.state = BUILD_STATE_CANCELLED
+        build.success = False
+        build.error = BuildCancelled.message
+        build.length = 0
+        build.save()
+    else:
+        # In this case, we left the update of the Build object to the task
+        # itself to be executed in the `on_failure` handler.
+        terminate = True
+
+    log.warning(
+        "Canceling build.",
+        project_slug=build.project.slug,
+        version_slug=build.version.slug,
+        build_id=build.pk,
+        build_task_id=build.task_id,
+        terminate=terminate,
+    )
+    app.control.revoke(build.task_id, signal=signal.SIGINT, terminate=terminate)
 
 
 def send_email(
         recipient, subject, template, template_html, context=None, request=None,
         from_email=None, **kwargs
-):  # pylint: disable=unused-argument
+):
     """
     Alter context passed in and call email send task.
 
@@ -191,9 +283,16 @@ def send_email(
         scheme='https',
         host=settings.PRODUCTION_DOMAIN,
     )
+    content = render_to_string(template, context)
+    content_html = None
+    if template_html:
+        content_html = render_to_string(template_html, context)
     send_email_task.delay(
-        recipient=recipient, subject=subject, template=template,
-        template_html=template_html, context=context, from_email=from_email,
+        recipient=recipient,
+        subject=subject,
+        content=content,
+        content_html=content_html,
+        from_email=from_email,
         **kwargs
     )
 
@@ -203,42 +302,46 @@ def slugify(value, *args, **kwargs):
     """
     Add a DNS safe option to slugify.
 
-    :param dns_safe: Remove underscores from slug as well
+    :param bool dns_safe: Replace special chars like underscores with ``-``.
+     And remove trailing ``-``.
     """
     dns_safe = kwargs.pop('dns_safe', True)
     value = slugify_base(value, *args, **kwargs)
     if dns_safe:
-        value = mark_safe(re.sub('[-_]+', '-', value))
+        value = re.sub('[-_]+', '-', value)
+        # DNS doesn't allow - at the beginning or end of subdomains
+        value = mark_safe(value.strip('-'))
     return value
 
 
-def safe_makedirs(directory_name):
+def get_cache_tag(*args):
     """
-    Safely create a directory.
+    Generate a cache tag from the given args.
 
-    Makedirs has an issue where it has a race condition around checking for a
-    directory and then creating it. This catches the exception in the case where
-    the dir already exists.
+    The final tag is composed of several parts
+    that form a unique tag (like project and version slug).
+
+    All parts are separated using a character that isn't
+    allowed in slugs to avoid collisions.
     """
-    try:
-        os.makedirs(directory_name)
-    except OSError as e:
-        if e.errno != errno.EEXIST:  # 17, FileExistsError
-            raise
+    return ':'.join(args)
 
 
-def safe_unlink(path):
+def extract_valid_attributes_for_model(model, attributes):
     """
-    Unlink ``path`` symlink using ``os.unlink``.
+    Extract the valid attributes for a model from a dictionary of attributes.
 
-    This helper handles the exception ``FileNotFoundError`` to avoid logging in
-    cases where the symlink does not exist already and there is nothing to
-    unlink.
-
-    :param path: symlink path to unlink
-    :type path: str
+    :param model: Model class to extract the attributes for.
+    :param attributes: Dictionary of attributes to extract.
+    :returns: Tuple with the valid attributes and the invalid attributes if any.
     """
-    try:
-        os.unlink(path)
-    except FileNotFoundError:
-        log.warning('Unlink failed. Path %s does not exists', path)
+    attributes = attributes.copy()
+    valid_field_names = {field.name for field in model._meta.get_fields()}
+    valid_attributes = {}
+    # We can't change a dictionary while interating over its keys,
+    # so we make a copy of its keys.
+    keys = list(attributes.keys())
+    for key in keys:
+        if key in valid_field_names:
+            valid_attributes[key] = attributes.pop(key)
+    return valid_attributes, attributes

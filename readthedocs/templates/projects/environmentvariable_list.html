@@ -12,7 +12,7 @@
 {% block project_edit_content_header %}{% trans "Environment Variables" %}{% endblock %}
 
 {% block project_edit_content %}
-  <p>Environment variables allow you to change the way that your build behaves. Take into account that these environment variables are available to all build steps.</p>
+  <p>{% trans "Environment variables allow you to change the way that your build behaves. Take into account that these environment variables are available to all build steps." %}</p>
 
   <div class="button-bar">
     <ul>
@@ -30,9 +30,22 @@
       <ul>
         {% for environmentvariable in object_list %}
           <li class="module-item">
-            <a href="{% url 'projects_environmentvariables_detail' project_slug=project.slug environmentvariable_pk=environmentvariable.pk %}">
-              {{ environmentvariable.name }}
-            </a>
+            {{ environmentvariable.name }}
+            <span class="quiet">
+              {% if environmentvariable.public %}
+                {% trans "public" %}
+              {% else %}
+                {% trans "private" %}
+              {% endif %}
+            </span>
+            <ul class="module-item-menu">
+              <li>
+                <form method="post" action="{% url 'projects_environmentvariables_delete' project_slug=project.slug environmentvariable_pk=environmentvariable.pk %}">
+                  {% csrf_token %}
+                  <input type="submit" value="{% trans "Remove" %}">
+                </form>
+              </li>
+            </ul>
           </li>
         {% empty %}
           <li class="module-item">

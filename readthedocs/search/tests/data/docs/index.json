@@ -1,0 +1,11 @@
+{
+    "path": "index",
+    "title": "Index",
+    "sections": [
+        {
+            "id": "title",
+            "title": "Title",
+            "content": "Some content from index"
+        }
+    ]
+}

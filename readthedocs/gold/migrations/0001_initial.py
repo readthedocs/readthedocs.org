@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.conf import settings
 from django.db import migrations, models
 
@@ -22,7 +21,7 @@ class Migration(migrations.Migration):
                 ('stripe_id', models.CharField(max_length=255)),
                 ('subscribed', models.BooleanField(default=False)),
                 ('projects', models.ManyToManyField(related_name='gold_owners', verbose_name='Projects', to='projects.Project')),
-                ('user', models.ForeignKey(related_name='gold', verbose_name='User', to=settings.AUTH_USER_MODEL, unique=True)),
+                ('user', models.ForeignKey(related_name='gold', verbose_name='User', to=settings.AUTH_USER_MODEL, unique=True, on_delete=models.CASCADE)),
             ],
         ),
     ]

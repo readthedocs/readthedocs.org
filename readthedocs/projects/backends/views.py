@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """
 Project views loaded by configuration settings.
@@ -15,9 +14,3 @@ from readthedocs.projects.views import private
 class ImportWizardView(SettingsOverrideObject):
     _default_class = private.ImportWizardView
     _override_setting = 'PROJECT_IMPORT_VIEW'
-
-
-# Project demo import
-class ImportDemoView(SettingsOverrideObject):
-    _default_class = private.ImportDemoView
-    _override_setting = 'PROJECT_IMPORT_DEMO_VIEW'

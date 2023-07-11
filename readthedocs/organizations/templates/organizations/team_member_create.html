@@ -1,0 +1,20 @@
+{% extends "organizations/base_team.html" %}
+
+{% load i18n gravatar %}
+
+{% block title %}{% trans "Add Team Member" %}{% endblock %}
+
+{% block content %}
+
+  <!-- BEGIN organization team member add -->
+  <div class="module">
+    <h3>{% trans "Invite Member" %}</h3>
+    <form method="post" action="{% url "organization_team_member_add" organization.slug team.slug %}">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <input type="submit" value="{% trans "Add Member" %}">
+    </form>
+  </div>
+  <!-- END organization team member add -->
+
+{% endblock %}

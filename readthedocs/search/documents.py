@@ -1,11 +1,9 @@
-import logging
-
+import structlog
 from django.conf import settings
-from django_elasticsearch_dsl import DocType, Index, fields
+from django_elasticsearch_dsl import Document, Index, fields
+from elasticsearch import Elasticsearch
 
 from readthedocs.projects.models import HTMLFile, Project
-from readthedocs.sphinx_domains.models import SphinxDomain
-
 
 project_conf = settings.ES_INDEXES['project']
 project_index = Index(project_conf['name'])
@@ -15,55 +13,24 @@ page_conf = settings.ES_INDEXES['page']
 page_index = Index(page_conf['name'])
 page_index.settings(**page_conf['settings'])
 
-domain_conf = settings.ES_INDEXES['domain']
-domain_index = Index(domain_conf['name'])
-domain_index.settings(**domain_conf['settings'])
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
-@domain_index.doc_type
-class SphinxDomainDocument(DocType):
-    project = fields.KeywordField(attr='project.slug')
-    version = fields.KeywordField(attr='version.slug')
-    role_name = fields.KeywordField(attr='role_name')
+class RTDDocTypeMixin:
 
-    # For linking to the URL
-    doc_name = fields.KeywordField(attr='doc_name')
-    anchor = fields.KeywordField(attr='anchor')
-
-    # For showing in the search result
-    type_display = fields.TextField(attr='type_display')
-    doc_display = fields.TextField(attr='doc_display')
-
-    # Simple analyzer breaks on `.`,
-    # otherwise search results are too strict for this use case
-    name = fields.TextField(attr='name', analyzer='simple')
-    display_name = fields.TextField(attr='display_name', analyzer='simple')
-
-    modified_model_field = 'modified'
-
-    class Meta:
-        model = SphinxDomain
-        fields = ('commit',)
-        ignore_signals = True
-
-    def get_queryset(self):
-        """Overwrite default queryset to filter certain files to index."""
-        queryset = super().get_queryset()
-
-        excluded_types = [
-            {'domain': 'std', 'type': 'doc'},
-            {'domain': 'std', 'type': 'label'},
-        ]
-
-        for exclude in excluded_types:
-            queryset = queryset.exclude(**exclude)
-        return queryset
+    def update(self, *args, **kwargs):
+        # Hack a fix to our broken connection pooling
+        # This creates a new connection on every request,
+        # but actually works :)
+        log.debug("Hacking Elastic indexing to fix connection pooling")
+        self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL["default"])
+        super().update(*args, **kwargs)
 
 
-@project_index.doc_type
-class ProjectDocument(DocType):
+@project_index.document
+class ProjectDocument(RTDDocTypeMixin, Document):
+
+    """Document representation of a Project."""
 
     # Metadata
     url = fields.TextField(attr='get_absolute_url')
@@ -75,90 +42,89 @@ class ProjectDocument(DocType):
     )
     language = fields.KeywordField()
 
+    name = fields.TextField(attr='name')
+    slug = fields.TextField(attr='slug')
+    description = fields.TextField(attr='description')
+
     modified_model_field = 'modified_date'
 
-    class Meta:
+    def get_queryset(self):
+        """
+        Additional filtering of default queryset.
+
+        Don't include delisted projects.
+        This will also break in-doc search for these projects,
+        but it's not a priority to find a solution for this as long as "delisted" projects are
+        understood to be projects with a negative reason for being delisted.
+        """
+        return super().get_queryset().exclude(delisted=True).exclude(is_spam=True)
+
+    class Django:
         model = Project
-        fields = ('name', 'slug', 'description')
+        fields = []
         ignore_signals = True
 
-    @classmethod
-    def faceted_search(cls, query, user, language=None):
-        from readthedocs.search.faceted_search import ProjectSearch
-        kwargs = {
-            'user': user,
-            'query': query,
-        }
 
-        if language:
-            kwargs['filters'] = {'language': language}
+@page_index.document
+class PageDocument(RTDDocTypeMixin, Document):
 
-        return ProjectSearch(**kwargs)
+    """
+    Document representation of a Page.
 
+    Some text fields use the simple analyzer instead of the default (standard).
+    Simple analyzer will break the text in non-letter characters,
+    so a text like ``python.submodule`` will be broken like [python, submodule]
+    instead of [python.submodule].
+    See more at https://www.elastic.co/guide/en/elasticsearch/reference/current/analysis-analyzers.html  # noqa
 
-@page_index.doc_type
-class PageDocument(DocType):
+    Some text fields use the ``with_positions_offsets`` term vector,
+    this is to have faster highlighting on big documents.
+    See more at https://www.elastic.co/guide/en/elasticsearch/reference/7.9/term-vector.html
+    """
 
     # Metadata
     project = fields.KeywordField(attr='project.slug')
     version = fields.KeywordField(attr='version.slug')
+    doctype = fields.KeywordField(attr='version.documentation_type')
     path = fields.KeywordField(attr='processed_json.path')
+    full_path = fields.KeywordField(attr='path')
+    rank = fields.IntegerField()
 
     # Searchable content
-    title = fields.TextField(attr='processed_json.title')
-    headers = fields.TextField(attr='processed_json.headers')
-    content = fields.TextField(attr='processed_json.content')
+    title = fields.TextField(
+        attr='processed_json.title',
+    )
+    sections = fields.NestedField(
+        attr='processed_json.sections',
+        properties={
+            'id': fields.KeywordField(),
+            'title': fields.TextField(),
+            'content': fields.TextField(
+                term_vector='with_positions_offsets',
+            ),
+        }
+    )
 
     modified_model_field = 'modified_date'
 
-    class Meta:
+    class Django:
         model = HTMLFile
-        fields = ('commit',)
+        fields = ('commit', 'build')
         ignore_signals = True
 
-    @classmethod
-    def faceted_search(
-            cls, query, user, projects_list=None, versions_list=None,
-            filter_by_user=True
-    ):
-        from readthedocs.search.faceted_search import PageSearch
-        kwargs = {
-            'user': user,
-            'query': query,
-            'filter_by_user': filter_by_user,
-        }
-
-        filters = {}
-        if projects_list is not None:
-            filters['project'] = projects_list
-        if versions_list is not None:
-            filters['version'] = versions_list
-
-        kwargs['filters'] = filters
-
-        return PageSearch(**kwargs)
+    def prepare_rank(self, html_file):
+        if not (-10 <= html_file.rank <= 10):
+            return 0
+        return html_file.rank
 
     def get_queryset(self):
-        """Overwrite default queryset to filter certain files to index."""
-        queryset = super(PageDocument, self).get_queryset()
-
-        # Do not index files that belong to non sphinx project
-        # Also do not index certain files
-        queryset = queryset.filter(
-            project__documentation_type__contains='sphinx'
+        """Don't include ignored files and delisted projects."""
+        queryset = super().get_queryset()
+        queryset = (
+            queryset
+            .exclude(ignore=True)
+            .exclude(project__delisted=True)
+            .exclude(project__is_spam=True)
+            .select_related('version', 'project')
         )
-
-        # TODO: Make this smarter
-        # This was causing issues excluding some valid user documentation pages
-        # excluded_files = [
-        #     'search.html',
-        #     'genindex.html',
-        #     'py-modindex.html',
-        #     'search/index.html',
-        #     'genindex/index.html',
-        #     'py-modindex/index.html',
-        # ]
-        # for ending in excluded_files:
-        #     queryset = queryset.exclude(path=ending)
-
         return queryset

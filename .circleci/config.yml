@@ -1,0 +1,75 @@
+version: 2.1
+
+orbs:
+  codecov: codecov/codecov@3.2.2
+  node: circleci/node@5.1.0
+
+jobs:
+  tests:
+    docker:
+      - image: 'cimg/python:3.10'
+        environment:
+          TOX_POSARGS: ''
+      - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.14.0'
+        name: search
+        environment:
+          discovery.type: single-node
+          ES_JAVA_OPTS: -Xms750m -Xmx750m
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run: sudo apt update
+      - run: sudo apt install -y rclone
+      - run: pip install --user 'tox<5'
+      - run: tox -e py310
+      - codecov/upload
+
+  tests-embedapi:
+    docker:
+      - image: 'cimg/python:3.10'
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run: pip install --user 'tox<4'
+      - run: tox -c tox.embedapi.ini
+
+  checks:
+    docker:
+      - image: 'cimg/python:3.10'
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      # Recipe: https://pre-commit.com/#managing-ci-caches
+      - run:
+          name: Combine pre-commit config and python versions for caching
+          command: |
+            cp common/pre-commit-config.yaml pre-commit-cache-key.txt
+            python --version --version >> pre-commit-cache-key.txt
+      - restore_cache:
+          keys:
+          - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
+      - run: pip install --user 'tox<5'
+      - run: tox -e pre-commit
+      - run: tox -e migrations
+      - node/install:
+          node-version: '10.17.0'
+      - run: npm ci
+      - run: tox -e eslint
+      - save_cache:
+          key: pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
+          paths:
+          - ~/.cache/pre-commit
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - checks
+      - tests
+      - tests-embedapi:
+          requires:
+            - checks
+            - tests

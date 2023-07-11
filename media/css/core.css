@@ -104,7 +104,7 @@ form p label { font-weight: normal; }
 form p.required label { font-weight: bold; }
 textarea, input, button, .button, select { display: block; padding: 5px; color: #444; background-color: #fff; border: 1px solid #BFBFBF; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 textarea, input, .button { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -moz-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; -webkit-box-shadow: 0 1px 0 rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset; }
-input[type="text"], input[type="password"] { width: 250px; height: 20px; margin-bottom: 5px; background: #fff; }
+input[type="text"], input[type="password"], input[type="email"] { width: 250px; height: 20px; margin-bottom: 5px; background: #fff; }
 input::-webkit-input-placeholder { color: #ccc; }
 input:-moz-placeholder { color: #ccc; opacity: 1; }
 input::-moz-placeholder { color: #ccc; opacity: 1; }
@@ -379,12 +379,11 @@ a.cta-btn:hover, a.cta-btn:active {
 
 /* search */
 
-.search {
-    border-bottom: solid 1px #bfbfbf;
-    margin-bottom: 24px;
-}
+.search { border-bottom: solid 1px #bfbfbf; margin-bottom: 24px; }
 .search input[type=text] { float: left; margin-right: 10px; padding: 8px 10px; }
 .search input[type=submit] { margin-top: 0; }
+/* this is same as the css class ".highlighted" */
+.search-result-item span { background-color: #ee9; padding: 0 1px; margin: 0 1px; border-radius: 3px; -moz-border-radius: 3px; -webkit-border-radius: 3px; }
 
 .filter { margin-bottom: 1em; }
 .filter dd { display: inline-block; margin-right: 0.75em; }
@@ -478,6 +477,9 @@ div.module.search-dashboard input {
 
 /* Admin project Translation */
 .module-translation { padding-bottom: 25px; }
+
+/* Accounts Gold Projects */
+.module-gold-projects { padding-bottom: 25px; }
 
 /* project bar */
 
@@ -611,14 +613,29 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 
 
 /* notification box */
-.notification { padding: 5px 0; color: #a55; }
+.notification {
+    padding: 5px 0;
+    color: #a55;
+    max-width: max-content;
+}
 .notification-20,
 .notification-25,
+.notification-26,
 .notification-101,
 .notification-102 {
   color: #5a5;
 }
 
+a.notification-action {
+    text-decoration: none;
+    float: right;
+    padding-left: 5px;
+}
+
+.notification-action > .icon.close:before {
+    font-family: FontAwesome;
+    content: "\f057";
+}
 
 /* warning banner */
 
@@ -696,7 +713,7 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 /* Change language form */
 #footer .footer-bottom { margin-top: 30px; }
 #footer select { float: left; width: 175px; padding: 2px; height: 24px; font-size: 12px; margin-right: 10px; }
-#footer input[type="submit"] { margin-top: 0; padding: 4px; height: 24px; font-size: 12px; line-height: 16px; }
+#footer input[type="submit"], #footer button[type="submit"] { margin-top: 0; padding: 4px; height: 24px; font-size: 12px; line-height: 16px; }
 
 /* Other footer forms */
 #footer #email-signup { margin-bottom: 20px; }
@@ -730,6 +747,7 @@ p.build-missing { font-size: .8em; color: #9d9a55; margin: 0 0 3px; }
 .empty { padding: 30px; background: #E6E6E6; background: rgba(0, 0, 0, 0.1); border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px; margin-bottom: 60px; }
 .clearfix:after, .wrapper:after { content: "\0020"; display: block; height: 0; clear: both; visibility: hidden; overflow: hidden; }
 .clearfix, .wrapper { display: block; }
+.long-list-overflow { max-height: 400px; overflow-y: scroll}
 
 /* project detail */
 .project_detail .module {
@@ -817,18 +835,25 @@ div.project-import-remote button.remote-sync:before {
     content: "\f021";
 }
 
-a.socialaccount-provider.github:before {
+button.socialaccount-provider {
+    padding: 6px 10px 6px 10px;
+    font-size: 16px;
+    margin: 10px 5px 10px 0px;
+    line-height: 24px;
+}
+
+button.socialaccount-provider.github:before {
     font-family: FontAwesome;
     content: "\f09b";
 }
 
-a.socialaccount-provider.gitlab:before {
+button.socialaccount-provider.gitlab:before {
     font-family: FontAwesome;
     content: "\f296";
 }
 
-a.socialaccount-provider.bitbucket:before,
-a.socialaccount-provider.bitbucket_oauth2:before {
+button.socialaccount-provider.bitbucket:before,
+button.socialaccount-provider.bitbucket_oauth2:before {
     font-family: FontAwesome;
     content: "\f171";
 }
@@ -872,9 +897,12 @@ div.donate-stats h2 {
     margin: .5em 0em 1.5em 0em;
 }
 
+#content ul.donate-about {
+    margin-bottom: 1em;
+}
 ul.donate-about li {
-    margin-left: 1em;
-    list-style: inside;
+    margin-left: 1.5em;
+    list-style: initial;
 }
 
 div.donate-stats-sm form {
@@ -1281,7 +1309,8 @@ div.httpexchange dl dd:after {
     content: '';
 }
 
-div.httpexchange div.highlight pre {
+div.httpexchange div.highlight pre,
+div.highlight > pre {
     padding: 1em;
     background: #f4f4f4;
     border: 1px solid #ccc;
@@ -1290,7 +1319,6 @@ div.httpexchange div.highlight pre {
 
 
 /* Subprojects */
-
 div.module.project-subprojects li.subproject a.subproject-url:before {
     padding-right: .5em;
     font-family: FontAwesome;
@@ -1304,6 +1332,8 @@ div.module.project-subprojects li.subproject a.subproject-edit:before {
     content: "\f044";
 }
 
+#content ul.normal_list {list-style: disc; margin-left: 20px;}
+#content code {background: #eee; border: 1px solid #ccc; padding: 3px; display: inline-block;}
 
 /* Pygments */
 div.highlight pre .hll { background-color: #ffffcc }

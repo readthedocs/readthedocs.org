@@ -44,7 +44,12 @@
                   {{ lang_project.name }} ({{ lang_project.get_language_display }})
                 </a>
                 <ul class="module-item-menu">
-                  <li><a href="{% url "projects_translations_delete" project.slug lang_project.slug  %}">{% trans "Remove" %}</a></li>
+                  <li>
+                    <form method="post" action="{% url "projects_translations_delete" project.slug lang_project.slug %}">
+                      {% csrf_token %}
+                      <input type="submit" value="{% trans 'Remove' %}">
+                    </form>
+                  </li>
                 </ul>
               </li>
             {% empty %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Verify your email address" %}{% endblock %}
+
+{% block dash-nav-profile %}active{% endblock %}
+
+{% block content-header %}
+  <h3>{% trans "Verify your email address" %}</h3>
+{% endblock %}
+
+{% block content %}
+  <div>
+      <p>
+          You have signed up with an email address attached to an Organization in our system.
+          Please, verify your email address before continuing to have access to this organization.
+      </p>
+  </div>
+{% endblock %}

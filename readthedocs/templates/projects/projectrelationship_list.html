@@ -21,14 +21,14 @@
 
   {% if superproject %}
     <p>
-      {% blocktrans trimmed with project=superproject.parent.name %}
+      {% blocktrans trimmed with project=superproject.name %}
         This project is already configured as a subproject of {{ project }}.
         Nested subprojects are not currently supported.
       {% endblocktrans %}
     </p>
 
-    <a href="{% url 'projects_subprojects' project_slug=superproject.parent.slug %}">
-      {% blocktrans trimmed with project=superproject.parent.name %}
+    <a href="{% url 'projects_subprojects' project_slug=superproject.slug %}">
+      {% blocktrans trimmed with project=superproject.name %}
         View subprojects of {{ project }}
       {% endblocktrans %}
     </a>
@@ -48,7 +48,7 @@
       <div class="module-list">
         <div class="module-list-wrapper">
           <ul class="subprojects">
-            {% for subproject in object_list %}
+            {% for subproject, absolute_url in subprojects_and_urls %}
               <li class="module-item subproject">
                 <div class="module-title">
                   <a
@@ -58,8 +58,8 @@
                   </a>
                   <span>
                     <a class="module-info subproject-url"
-                      href="{{ subproject.get_absolute_url }}">
-                      {{ subproject.get_absolute_url }}
+                      href="{{ absolute_url }}">
+                      {{ absolute_url }}
                     </a>
                   </span>
                 </div>

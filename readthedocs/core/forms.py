@@ -1,18 +1,18 @@
-# -*- coding: utf-8 -*-
-
 """Forms for core app."""
 
-import logging
-
+import structlog
+from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Fieldset, Layout, Submit
 from django import forms
 from django.contrib.auth.models import User
 from django.forms.fields import CharField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
+
+from readthedocs.core.history import set_change_reason
 
 from .models import UserProfile
 
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 class UserProfileForm(forms.ModelForm):
@@ -22,7 +22,12 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         # Don't allow users edit someone else's user page
-        fields = ['first_name', 'last_name', 'homepage']
+        profile_fields = ["first_name", "last_name", "homepage"]
+        optout_email_fields = ["optout_email_config_file_deprecation"]
+        fields = (
+            *profile_fields,
+            *optout_email_fields,
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -32,6 +37,20 @@ class UserProfileForm(forms.ModelForm):
         except AttributeError:
             pass
 
+        self.helper = FormHelper()
+        field_sets = [
+            Fieldset(
+                _("User settings"),
+                *self.Meta.profile_fields,
+            ),
+            Fieldset(
+                _("Email settings"),
+                *self.Meta.optout_email_fields,
+            ),
+        ]
+        self.helper.layout = Layout(*field_sets)
+        self.helper.add_input(Submit("save", _("Save")))
+
     def save(self, commit=True):
         first_name = self.cleaned_data.pop('first_name', None)
         last_name = self.cleaned_data.pop('last_name', None)
@@ -40,8 +59,15 @@ class UserProfileForm(forms.ModelForm):
             user = profile.user
             user.first_name = first_name
             user.last_name = last_name
+            # SimpleHistoryModelForm isn't used here
+            # because the model of this form is `UserProfile`, not `User`.
+            set_change_reason(user, self.get_change_reason())
             user.save()
         return profile
+
+    def get_change_reason(self):
+        klass = self.__class__.__name__
+        return f'origin=form class={klass}'
 
 
 class UserDeleteForm(forms.ModelForm):

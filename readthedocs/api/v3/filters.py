@@ -1,59 +1,44 @@
 import django_filters.rest_framework as filters
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.models import Build, Version
+from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Project
 
 
 class ProjectFilter(filters.FilterSet):
-    name__contains = filters.CharFilter(
-        field_name='name',
-        lookup_expr='contains',
-    )
-    slug__contains = filters.CharFilter(
-        field_name='slug',
-        lookup_expr='contains',
-    )
-    repository_type = filters.CharFilter(
-        field_name='repo_type',
-        lookup_expr='exact',
-    )
+
+    # TODO this is copying the patterns from other filter sets, where the fields
+    # are all ``icontains`` lookups by default. We discussed reversing this
+    # pattern in the future though, see:
+    # https://github.com/readthedocs/readthedocs.org/issues/9862
+    name = filters.CharFilter(lookup_expr="icontains")
+    slug = filters.CharFilter(lookup_expr="icontains")
 
     class Meta:
         model = Project
         fields = [
-            'name',
-            'name__contains',
-            'slug',
-            'slug__contains',
-            'language',
-            'privacy_level',
-            'programming_language',
-            'repository_type',
+            "name",
+            "slug",
+            "language",
+            "programming_language",
         ]
 
 
 class VersionFilter(filters.FilterSet):
-    verbose_name__contains = filters.CharFilter(
-        field_name='verbose_name',
-        lookup_expr='contains',
-    )
-    slug__contains = filters.CharFilter(
-        field_name='slug',
-        lookup_expr='contains',
-    )
+    slug = filters.CharFilter(lookup_expr='icontains')
+    verbose_name = filters.CharFilter(lookup_expr='icontains')
 
     class Meta:
         model = Version
         fields = [
             'verbose_name',
-            'verbose_name__contains',
-            'slug',
-            'slug__contains',
             'privacy_level',
             'active',
             'built',
             'uploaded',
+            'slug',
+            'type',
         ]
 
 
@@ -69,6 +54,30 @@ class BuildFilter(filters.FilterSet):
 
     def get_running(self, queryset, name, value):
         if value:
-            return queryset.exclude(state=BUILD_STATE_FINISHED)
+            return queryset.exclude(state__in=BUILD_FINAL_STATES)
 
-        return queryset.filter(state=BUILD_STATE_FINISHED)
+        return queryset.filter(state__in=BUILD_FINAL_STATES)
+
+
+class RemoteRepositoryFilter(filters.FilterSet):
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    organization = filters.CharFilter(field_name='organization__slug')
+
+    class Meta:
+        model = RemoteRepository
+        fields = [
+            'name',
+            'vcs_provider',
+            'organization',
+        ]
+
+
+class RemoteOrganizationFilter(filters.FilterSet):
+    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+
+    class Meta:
+        model = RemoteOrganization
+        fields = [
+            'name',
+            'vcs_provider',
+        ]

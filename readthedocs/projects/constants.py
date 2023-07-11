@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Project constants.
 
@@ -7,17 +5,50 @@ Default values and other various configuration for projects, including available
 theme names and repository types.
 """
 
+import os
 import re
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
-
+SPHINX = 'sphinx'
+MKDOCS = 'mkdocs'
+SPHINX_HTMLDIR = 'sphinx_htmldir'
+SPHINX_SINGLEHTML = 'sphinx_singlehtml'
+# This type is defined by the users in their mkdocs.yml file.
+MKDOCS_HTML = "mkdocs_html"
+GENERIC = "generic"
 DOCUMENTATION_CHOICES = (
-    ('sphinx', _('Sphinx Html')),
-    ('mkdocs', _('Mkdocs (Markdown)')),
-    ('sphinx_htmldir', _('Sphinx HtmlDir')),
-    ('sphinx_singlehtml', _('Sphinx Single Page HTML')),
+    (SPHINX, _('Sphinx Html')),
+    (MKDOCS, _('Mkdocs')),
+    (SPHINX_HTMLDIR, _('Sphinx HtmlDir')),
+    (SPHINX_SINGLEHTML, _('Sphinx Single Page HTML')),
 )
+DOCTYPE_CHOICES = DOCUMENTATION_CHOICES + (
+    (MKDOCS_HTML, _("Mkdocs Html Pages")),
+    (GENERIC, _("Generic")),
+)
+
+
+MEDIA_TYPE_HTML = 'html'
+MEDIA_TYPE_PDF = 'pdf'
+MEDIA_TYPE_EPUB = 'epub'
+MEDIA_TYPE_HTMLZIP = 'htmlzip'
+MEDIA_TYPE_JSON = 'json'
+DOWNLOADABLE_MEDIA_TYPES = (
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPE_EPUB,
+    MEDIA_TYPE_HTMLZIP,
+)
+MEDIA_TYPES = (
+    MEDIA_TYPE_HTML,
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPE_EPUB,
+    MEDIA_TYPE_HTMLZIP,
+    MEDIA_TYPE_JSON,
+)
+
+BUILD_COMMANDS_OUTPUT_PATH = "_readthedocs/"
+BUILD_COMMANDS_OUTPUT_PATH_HTML = os.path.join(BUILD_COMMANDS_OUTPUT_PATH, "html")
 
 SAMPLE_FILES = (
     ('Installation', 'projects/samples/installation.rst.html'),
@@ -62,12 +93,10 @@ REPO_CHOICES = (
 )
 
 PUBLIC = 'public'
-PROTECTED = 'protected'
 PRIVATE = 'private'
 
 PRIVACY_CHOICES = (
     (PUBLIC, _('Public')),
-    (PROTECTED, _('Protected')),
     (PRIVATE, _('Private')),
 )
 
@@ -287,24 +316,28 @@ PROGRAMMING_LANGUAGES = (
     ('other', 'Other'),
 )
 
-LOG_TEMPLATE = '(Build) [%(project)s:%(version)s] %(msg)s'
-
 PROJECT_PK_REGEX = r'(?:[-\w]+)'
 PROJECT_SLUG_REGEX = r'(?:[-\w]+)'
 
 GITHUB_REGEXS = [
     re.compile(r'github.com/(.+)/(.+)(?:\.git){1}$'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'github.com/(.+)/(.+)/'),
     re.compile(r'github.com/(.+)/(.+)'),
     re.compile(r'github.com:(.+)/(.+)\.git$'),
 ]
 BITBUCKET_REGEXS = [
     re.compile(r'bitbucket.org/(.+)/(.+)\.git$'),
     re.compile(r'@bitbucket.org/(.+)/(.+)\.git$'),
-    re.compile(r'bitbucket.org/(.+)/(.+)/?'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'bitbucket.org/(.+)/(.+)/'),
+    re.compile(r'bitbucket.org/(.+)/(.+)'),
     re.compile(r'bitbucket.org:(.+)/(.+)\.git$'),
 ]
 GITLAB_REGEXS = [
     re.compile(r'gitlab.com/(.+)/(.+)(?:\.git){1}$'),
+    # This must come before the one without a / to make sure we don't capture the /
+    re.compile(r'gitlab.com/(.+)/(.+)/'),
     re.compile(r'gitlab.com/(.+)/(.+)'),
     re.compile(r'gitlab.com:(.+)/(.+)\.git$'),
 ]
@@ -312,11 +345,59 @@ GITHUB_URL = (
     'https://github.com/{user}/{repo}/'
     '{action}/{version}{docroot}{path}{source_suffix}'
 )
+GITHUB_COMMIT_URL = (
+    'https://github.com/{user}/{repo}/'
+    'commit/{commit}'
+)
+GITHUB_PULL_REQUEST_URL = (
+    'https://github.com/{user}/{repo}/'
+    'pull/{number}'
+)
+GITHUB_PULL_REQUEST_COMMIT_URL = (
+    'https://github.com/{user}/{repo}/'
+    'pull/{number}/commits/{commit}'
+)
 BITBUCKET_URL = (
     'https://bitbucket.org/{user}/{repo}/'
     'src/{version}{docroot}{path}{source_suffix}'
 )
+BITBUCKET_COMMIT_URL = (
+    'https://bitbucket.org/{user}/{repo}/'
+    'commits/{commit}'
+)
 GITLAB_URL = (
     'https://gitlab.com/{user}/{repo}/'
     '{action}/{version}{docroot}{path}{source_suffix}'
+)
+GITLAB_COMMIT_URL = (
+    'https://gitlab.com/{user}/{repo}/'
+    'commit/{commit}'
+)
+GITLAB_MERGE_REQUEST_COMMIT_URL = (
+    'https://gitlab.com/{user}/{repo}/'
+    'commit/{commit}?merge_request_iid={number}'
+)
+GITLAB_MERGE_REQUEST_URL = (
+    'https://gitlab.com/{user}/{repo}/'
+    'merge_requests/{number}'
+)
+
+# Patterns to pull merge/pull request from providers
+GITHUB_PR_PULL_PATTERN = 'pull/{id}/head:external-{id}'
+GITLAB_MR_PULL_PATTERN = 'merge-requests/{id}/head:external-{id}'
+
+# Git provider names
+GITHUB_BRAND = 'GitHub'
+GITLAB_BRAND = 'GitLab'
+
+# SSL statuses
+SSL_STATUS_VALID = 'valid'
+SSL_STATUS_INVALID = 'invalid'
+SSL_STATUS_PENDING = 'pending'
+SSL_STATUS_UNKNOWN = 'unknown'
+SSL_STATUS_CHOICES = (
+    (SSL_STATUS_VALID, _('Valid and active')),
+    (SSL_STATUS_INVALID, _('Invalid')),
+    (SSL_STATUS_PENDING, _('Pending')),
+    (SSL_STATUS_UNKNOWN, _('Unknown')),
 )

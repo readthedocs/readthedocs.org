@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 """Utility functions for use in tests."""
 
-import logging
 import subprocess
 import textwrap
 from os import chdir, environ, mkdir
@@ -10,13 +8,13 @@ from os.path import join as pjoin
 from shutil import copytree
 from tempfile import mkdtemp
 
+import structlog
 from django.contrib.auth.models import User
 from django_dynamic_fixture import new
 
 from readthedocs.doc_builder.base import restoring_chdir
 
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def get_readthedocs_app_path():
@@ -68,6 +66,16 @@ def make_test_git():
 
     # Checkout to master branch again
     check_output(['git', 'checkout', 'master'], env=env)
+
+    # Add something unique to the master branch (so we can verify it's correctly checked out)
+    open("only-on-default-branch", "w").write(
+        "This file only exists in the default branch"
+    )
+    check_output(["git", "add", "only-on-default-branch"], env=env)
+    check_output(
+        ["git", "commit", '-m"Add something unique to master branch"'], env=env
+    )
+
     return directory
 
 
@@ -169,6 +177,16 @@ def create_git_branch(directory, branch):
 
 
 @restoring_chdir
+def get_git_latest_commit_hash(directory, branch):
+    env = environ.copy()
+    env["GIT_DIR"] = pjoin(directory, ".git")
+    chdir(directory)
+
+    command = ["git", "rev-parse", branch]
+    return check_output(command, env=env).strip()
+
+
+@restoring_chdir
 def delete_git_branch(directory, branch):
     env = environ.copy()
     env['GIT_DIR'] = pjoin(directory, '.git')
@@ -193,6 +211,16 @@ def create_git_submodule(
     check_output(command, env=env)
     check_output(['git', 'add', '.'], env=env)
     check_output(['git', 'commit', '-m', '"{}"'.format(msg)], env=env)
+
+
+@restoring_chdir
+def get_current_commit(directory):
+    env = environ.copy()
+    env["GIT_DIR"] = pjoin(directory, ".git")
+    chdir(directory)
+
+    command = ["git", "rev-parse", "HEAD"]
+    return check_output(command, env=env).decode().strip()
 
 
 @restoring_chdir

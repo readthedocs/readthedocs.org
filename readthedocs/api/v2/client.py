@@ -1,21 +1,15 @@
 """Simple client to access our API with Slumber credentials."""
 
-import logging
-
 import requests
+import structlog
 from django.conf import settings
-from requests.packages.urllib3.util.retry import Retry  # noqa
-from requests_toolbelt.adapters import host_header_ssl
 from rest_framework.renderers import JSONRenderer
 from slumber import API, serialize
+from urllib3.util.retry import Retry
 
+from .adapters import TimeoutHostHeaderSSLAdapter, TimeoutHTTPAdapter
 
-log = logging.getLogger(__name__)
-
-PRODUCTION_DOMAIN = settings.PRODUCTION_DOMAIN
-API_HOST = settings.SLUMBER_API_HOST
-USER = settings.SLUMBER_USERNAME
-PASS = settings.SLUMBER_PASSWORD
+log = structlog.get_logger(__name__)
 
 
 class DrfJsonSerializer(serialize.JsonSerializer):
@@ -29,16 +23,17 @@ class DrfJsonSerializer(serialize.JsonSerializer):
         return JSONRenderer().render(data)
 
 
-def setup_api():
+def setup_api(build_api_key):
     session = requests.Session()
-    if API_HOST.startswith('https'):
+    if settings.SLUMBER_API_HOST.startswith('https'):
         # Only use the HostHeaderSSLAdapter for HTTPS connections
-        adapter_class = host_header_ssl.HostHeaderSSLAdapter
+        adapter_class = TimeoutHostHeaderSSLAdapter
     else:
-        adapter_class = requests.adapters.HTTPAdapter
+        adapter_class = TimeoutHTTPAdapter
 
-    # Define a retry mechanism trying to attempt to not fail in the first
-    # error. Builders hit this issue frequently because the webs are high loaded
+    # Define a retry mechanism trying to attempt to not fail in the first error.
+    # Builders hit this issue frequently because the webs are high loaded
+    # (even on non-idempotent methods, sadly).
     retry = Retry(
         total=3,
         read=3,
@@ -50,12 +45,13 @@ def setup_api():
     )
 
     session.mount(
-        API_HOST,
+        settings.SLUMBER_API_HOST,
         adapter_class(max_retries=retry),
     )
-    session.headers.update({'Host': PRODUCTION_DOMAIN})
+    session.headers.update({"Host": settings.PRODUCTION_DOMAIN})
+    session.headers["Authorization"] = f"Token {build_api_key}"
     api_config = {
-        'base_url': '%s/api/v2/' % API_HOST,
+        'base_url': '%s/api/v2/' % settings.SLUMBER_API_HOST,
         'serializer': serialize.Serializer(
             default='json-drf',
             serializers=[
@@ -65,16 +61,4 @@ def setup_api():
         ),
         'session': session,
     }
-    if USER and PASS:
-        log.debug(
-            'Using slumber v2 with user %s, pointed at %s',
-            USER,
-            API_HOST,
-        )
-        session.auth = (USER, PASS)
-    else:
-        log.warning('SLUMBER_USERNAME/PASSWORD settings are not set')
     return API(**api_config)
-
-
-api = setup_api()

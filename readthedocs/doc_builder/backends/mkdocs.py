@@ -4,20 +4,21 @@ MkDocs_ backend for building docs.
 .. _MkDocs: http://www.mkdocs.org/
 """
 
-import json
-import logging
 import os
 
+import structlog
 import yaml
 from django.conf import settings
 from django.template import loader as template_loader
 
+from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
+from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
+from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Feature
 
-
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 
 def get_absolute_static_url():
@@ -28,9 +29,9 @@ def get_absolute_static_url():
     """
     static_url = settings.STATIC_URL
 
-    if not static_url.startswith('http'):
+    if not static_url.startswith("http"):
         domain = settings.PRODUCTION_DOMAIN
-        static_url = 'http://{}{}'.format(domain, static_url)
+        static_url = "http://{}{}".format(domain, static_url)
 
     return static_url
 
@@ -44,12 +45,9 @@ class BaseMkdocs(BaseBuilder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # This is the *MkDocs* yaml file
         self.yaml_file = self.get_yaml_config()
-        self.old_artifact_path = os.path.join(
-            os.path.dirname(self.yaml_file),
-            self.build_dir,
-        )
-        self.root_path = self.version.project.checkout_path(self.version.slug)
 
         # README: historically, the default theme was ``readthedocs`` but in
         # https://github.com/rtfd/readthedocs.org/pull/4556 we change it to
@@ -61,21 +59,35 @@ class BaseMkdocs(BaseBuilder):
         if self.project.has_feature(Feature.MKDOCS_THEME_RTD):
             self.DEFAULT_THEME_NAME = 'readthedocs'
             log.warning(
-                'Project using readthedocs theme as default for MkDocs: slug=%s',
-                self.project.slug,
+                "Project using readthedocs theme as default for MkDocs.",
+                project_slug=self.project.slug,
             )
         else:
             self.DEFAULT_THEME_NAME = 'mkdocs'
 
+    def get_final_doctype(self):
+        """
+        Select a doctype based on the ``use_directory_urls`` setting.
+
+        https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
+        """
+        # Allow symlinks, but only the ones that resolve inside the base directory.
+        with safe_open(
+            self.yaml_file, "r", allow_symlinks=True, base_path=self.project_path
+        ) as fh:
+            config = yaml_load_safely(fh)
+            use_directory_urls = config.get("use_directory_urls", True)
+            return MKDOCS if use_directory_urls else MKDOCS_HTML
+
     def get_yaml_config(self):
         """Find the ``mkdocs.yml`` file in the project root."""
-        mkdoc_path = self.config.mkdocs.configuration
-        if not mkdoc_path:
-            mkdoc_path = os.path.join(
-                self.project.checkout_path(self.version.slug),
-                'mkdocs.yml',
-            )
-        return mkdoc_path
+        mkdocs_path = self.config.mkdocs.configuration
+        if not mkdocs_path:
+            mkdocs_path = "mkdocs.yml"
+        return os.path.join(
+            self.project_path,
+            mkdocs_path,
+        )
 
     def load_yaml_config(self):
         """
@@ -84,7 +96,23 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to syntax errors.
         """
         try:
-            return yaml.safe_load(open(self.yaml_file, 'r'),)
+            # Allow symlinks, but only the ones that resolve inside the base directory.
+            result = safe_open(
+                self.yaml_file, "r", allow_symlinks=True, base_path=self.project_path
+            )
+            if not result:
+                raise UserFileNotFound(
+                    UserFileNotFound.FILE_NOT_FOUND.format(self.yaml_file)
+                )
+
+            config = yaml_load_safely(result)
+
+            if not config:
+                raise MkDocsYAMLParseError(MkDocsYAMLParseError.EMPTY_CONFIG)
+            if not isinstance(config, dict):
+                raise MkDocsYAMLParseError(MkDocsYAMLParseError.CONFIG_NOT_DICT)
+            return config
+
         except IOError:
             raise MkDocsYAMLParseError(MkDocsYAMLParseError.NOT_FOUND)
         except yaml.YAMLError as exc:
@@ -98,9 +126,9 @@ class BaseMkdocs(BaseBuilder):
             raise MkDocsYAMLParseError(
                 'Your mkdocs.yml could not be loaded, '
                 'possibly due to a syntax error{note}'.format(note=note),
-            )
+            ) from exc
 
-    def append_conf(self, **__):
+    def append_conf(self):
         """
         Set mkdocs config values.
 
@@ -110,48 +138,47 @@ class BaseMkdocs(BaseBuilder):
         user_config = self.load_yaml_config()
 
         # Handle custom docs dirs
-        user_docs_dir = user_config.get('docs_dir')
-        if not isinstance(user_docs_dir, (type(None), str)):
+        docs_dir = user_config.get("docs_dir", "docs")
+        if not isinstance(docs_dir, (type(None), str)):
             raise MkDocsYAMLParseError(
                 MkDocsYAMLParseError.INVALID_DOCS_DIR_CONFIG,
             )
 
-        docs_dir = self.docs_dir(docs_dir=user_docs_dir)
-
-        self.create_index(extension='md')
         user_config['docs_dir'] = docs_dir
 
-        # Set mkdocs config values
-        static_url = get_absolute_static_url()
+        # MkDocs <=0.17.x doesn't support absolute paths,
+        # it needs one with a full domain.
+        if self.project.has_feature(Feature.DEFAULT_TO_MKDOCS_0_17_3):
+            static_url = get_absolute_static_url()
+        else:
+            static_url = self.project.proxied_static_path
 
-        for config in ('extra_css', 'extra_javascript'):
-            user_value = user_config.get(config, [])
-            if not isinstance(user_value, list):
+        # Set mkdocs config values.
+        extra_assets = {
+            "extra_javascript": [
+                "readthedocs-data.js",
+                f"{static_url}core/js/readthedocs-doc-embed.js",
+                f"{static_url}javascript/readthedocs-analytics.js",
+            ],
+            "extra_css": [
+                f"{static_url}css/badge_only.css",
+                f"{static_url}css/readthedocs-doc-embed.css",
+            ],
+        }
+
+        for config, extras in extra_assets.items():
+            value = user_config.get(config, [])
+            if value is None:
+                value = []
+            if not isinstance(value, list):
                 raise MkDocsYAMLParseError(
                     MkDocsYAMLParseError.INVALID_EXTRA_CONFIG.format(
                         config=config,
                     ),
                 )
-
-        extra_javascript_list = [
-            'readthedocs-data.js',
-            '%score/js/readthedocs-doc-embed.js' % static_url,
-            '%sjavascript/readthedocs-analytics.js' % static_url,
-        ]
-        extra_css_list = [
-            '%scss/badge_only.css' % static_url,
-            '%scss/readthedocs-doc-embed.css' % static_url,
-        ]
-
-        # Only add static file if the files are not already in the list
-        user_config.setdefault('extra_javascript', []).extend(
-            [js for js in extra_javascript_list if js not in user_config.get(
-                'extra_javascript')]
-        )
-        user_config.setdefault('extra_css', []).extend(
-            [css for css in extra_css_list if css not in user_config.get(
-                'extra_css')]
-        )
+            # Add the static file only if isn't already in the list.
+            value.extend([extra for extra in extras if extra not in value])
+            user_config[config] = value
 
         # The docs path is relative to the location
         # of the mkdocs configuration file.
@@ -168,10 +195,12 @@ class BaseMkdocs(BaseBuilder):
 
         # RTD javascript writing
         rtd_data = self.generate_rtd_data(
-            docs_dir=os.path.relpath(docs_path, self.root_path),
+            docs_dir=os.path.relpath(docs_path, self.project_path),
             mkdocs_config=user_config,
         )
-        with open(os.path.join(docs_path, 'readthedocs-data.js'), 'w') as f:
+        with open(
+            os.path.join(docs_path, "readthedocs-data.js"), "w", encoding="utf-8"
+        ) as f:
             f.write(rtd_data)
 
         # Use Read the Docs' analytics setup rather than mkdocs'
@@ -186,16 +215,17 @@ class BaseMkdocs(BaseBuilder):
                 user_config['theme'] = self.DEFAULT_THEME_NAME
 
         # Write the modified mkdocs configuration
-        yaml.safe_dump(
-            user_config,
-            open(self.yaml_file, 'w'),
-        )
+        with open(self.yaml_file, "w", encoding="utf-8") as f:
+            yaml_dump_safely(
+                user_config,
+                f,
+            )
 
         # Write the mkdocs.yml to the build logs
         self.run(
             'cat',
-            os.path.relpath(self.yaml_file, self.root_path),
-            cwd=self.root_path,
+            os.path.relpath(self.yaml_file, self.project_path),
+            cwd=self.project_path,
         )
 
     def generate_rtd_data(self, docs_dir, mkdocs_config):
@@ -207,52 +237,65 @@ class BaseMkdocs(BaseBuilder):
             # http://www.mkdocs.org/user-guide/configuration/#google_analytics
             analytics_code = mkdocs_config['google_analytics'][0]
 
+        commit = (
+            self.version.project.vcs_repo(
+                version=self.version.slug,
+                environment=self.build_env,
+            ).commit,
+        )
+
         # Will be available in the JavaScript as READTHEDOCS_DATA.
         readthedocs_data = {
-            'project': self.version.project.slug,
-            'version': self.version.slug,
-            'language': self.version.project.language,
-            'programming_language': self.version.project.programming_language,
-            'page': None,
-            'theme': self.get_theme_name(mkdocs_config),
-            'builder': 'mkdocs',
-            'docroot': docs_dir,
-            'source_suffix': '.md',
-            'api_host': settings.PUBLIC_API_URL,
-            'ad_free': not self.project.show_advertising,
-            'commit': self.version.project.vcs_repo(self.version.slug).commit,
-            'global_analytics_code': settings.GLOBAL_ANALYTICS_CODE,
-            'user_analytics_code': analytics_code,
+            "project": self.version.project.slug,
+            "version": self.version.slug,
+            "language": self.version.project.language,
+            "programming_language": self.version.project.programming_language,
+            "page": None,
+            "theme": self.get_theme_name(mkdocs_config),
+            "builder": "mkdocs",
+            "docroot": docs_dir,
+            "source_suffix": ".md",
+            "api_host": settings.PUBLIC_API_URL,
+            "ad_free": not self.project.show_advertising,
+            "commit": commit,
+            "global_analytics_code": (
+                None
+                if self.project.analytics_disabled
+                else settings.GLOBAL_ANALYTICS_CODE
+            ),
+            "user_analytics_code": analytics_code,
+            "proxied_static_path": self.project.proxied_static_path,
+            "proxied_api_host": self.project.proxied_api_host,
         }
-        data_json = json.dumps(readthedocs_data, indent=4)
+
         data_ctx = {
-            'data_json': data_json,
-            'current_version': readthedocs_data['version'],
-            'slug': readthedocs_data['project'],
-            'html_theme': readthedocs_data['theme'],
-            'pagename': None,
+            "readthedocs_data": readthedocs_data,
+            "current_version": readthedocs_data["version"],
+            "slug": readthedocs_data["project"],
+            "html_theme": readthedocs_data["theme"],
+            "pagename": None,
         }
         tmpl = template_loader.get_template('doc_builder/data.js.tmpl')
         return tmpl.render(data_ctx)
 
     def build(self):
-        checkout_path = self.project.checkout_path(self.version.slug)
         build_command = [
             self.python_env.venv_bin(filename='python'),
             '-m',
             'mkdocs',
             self.builder,
-            '--clean',
-            '--site-dir',
-            self.build_dir,
-            '--config-file',
-            self.yaml_file,
+            "--clean",
+            "--site-dir",
+            os.path.join("$READTHEDOCS_OUTPUT", "html"),
+            "--config-file",
+            os.path.relpath(self.yaml_file, self.project_path),
         ]
         if self.config.mkdocs.fail_on_warning:
             build_command.append('--strict')
         cmd_ret = self.run(
-            *build_command, cwd=checkout_path,
-            bin_path=self.python_env.venv_bin()
+            *build_command,
+            cwd=self.project_path,
+            bin_path=self.python_env.venv_bin(),
         )
         return cmd_ret.successful
 
@@ -284,12 +327,73 @@ class BaseMkdocs(BaseBuilder):
 
 
 class MkdocsHTML(BaseMkdocs):
-    type = 'mkdocs'
-    builder = 'build'
-    build_dir = '_build/html'
+    builder = "build"
+    build_dir = "_readthedocs/html"
 
 
-class MkdocsJSON(BaseMkdocs):
-    type = 'mkdocs_json'
-    builder = 'json'
-    build_dir = '_build/json'
+# TODO: find a better way to integrate with MkDocs.
+# See https://github.com/readthedocs/readthedocs.org/issues/7844
+
+
+class ProxyPythonName(yaml.YAMLObject):
+    def __init__(self, value):
+        self.value = value
+
+    def __eq__(self, other):
+        return self.value == other.value
+
+
+class SafeLoader(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
+
+    """
+    Safe YAML loader.
+
+    This loader parses special ``!!python/name:`` tags without actually
+    importing or executing code. Every other special tag is ignored.
+
+    Borrowed from https://stackoverflow.com/a/57121993
+    Issue https://github.com/readthedocs/readthedocs.org/issues/7461
+    """
+
+    def ignore_unknown(self, node):  # pylint: disable=unused-argument
+        return None
+
+    def construct_python_name(self, suffix, node):  # pylint: disable=unused-argument
+        return ProxyPythonName(suffix)
+
+
+class SafeDumper(yaml.SafeDumper):
+
+    """
+    Safe YAML dumper.
+
+    This dumper allows to avoid losing values of special tags that
+    were parsed by our safe loader.
+    """
+
+    def represent_name(self, data):
+        return self.represent_scalar("tag:yaml.org,2002:python/name:" + data.value, "")
+
+
+SafeLoader.add_multi_constructor(
+    "tag:yaml.org,2002:python/name:", SafeLoader.construct_python_name
+)
+SafeLoader.add_constructor(None, SafeLoader.ignore_unknown)
+SafeDumper.add_representer(ProxyPythonName, SafeDumper.represent_name)
+
+
+def yaml_load_safely(content):
+    """
+    Uses ``SafeLoader`` loader to skip unknown tags.
+
+    When a YAML contains ``!!python/name:int`` it will store the ``int``
+    suffix temporarily to be able to re-dump it later. We need this to avoid
+    executing random code, but still support these YAML files without
+    information loss.
+    """
+    return yaml.load(content, Loader=SafeLoader)
+
+
+def yaml_dump_safely(content, stream=None):
+    """Uses ``SafeDumper`` dumper to write YAML contents."""
+    return yaml.dump(content, stream=stream, Dumper=SafeDumper)

@@ -1,0 +1,59 @@
+{
+  "parents": [
+    {
+      "link": "../",
+      "title": "Guides"
+    }
+  ],
+  "prev": {
+    "link": "../conda/",
+    "title": "Conda Support"
+  },
+  "next": {
+    "link": "../feature-flags/",
+    "title": "Feature Flags"
+  },
+  "title": "&lt;no title&gt;",
+  "meta": {},
+  "body": "",
+  "metatags": "",
+  "rellinks": [
+    [
+      "genindex",
+      "General Index",
+      "I",
+      "index"
+    ],
+    [
+      "http-routingtable",
+      "HTTP Routing Table",
+      "",
+      "routing table"
+    ],
+    [
+      "guides/feature-flags",
+      "Feature Flags",
+      "N",
+      "next"
+    ],
+    [
+      "guides/conda",
+      "Conda Support",
+      "P",
+      "previous"
+    ]
+  ],
+  "sourcename": "guides/environment-variables.rst.txt",
+  "toc": "<ul class=\"simple\">\n</ul>\n",
+  "display_toc": false,
+  "page_source_suffix": ".rst",
+  "current_page_name": "guides/environment-variables",
+  "sidebars": [
+    "localtoc.html",
+    "relations.html",
+    "sourcelink.html",
+    "searchbox.html"
+  ],
+  "customsidebar": null,
+  "alabaster_version": "0.7.12"
+}

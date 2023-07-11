@@ -1,17 +1,14 @@
-# -*- coding: utf-8 -*-
-
 """URL patterns to view user profiles."""
 
-from django.conf.urls import url
+from django.conf.urls import re_path
 
 from readthedocs.profiles import views
 
 
 urlpatterns = [
-    url(
+    re_path(
         r'^(?P<username>[+\w@.-]+)/$',
-        views.profile_detail,
-        {'template_name': 'profiles/public/profile_detail.html'},
+        views.ProfileDetail.as_view(),
         name='profiles_profile_detail',
     ),
 ]

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<!--
+  Windmill theme https://github.com/gristlabs/mkdocs-windmill
+  From https://gristlabs.github.io/mkdocs-windmill/
+-->
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MkDocs theme focused on navigation and usability.">
+    <meta name="author" content="Dmitry S">
+
+    <link rel="shortcut icon" href="./img/favicon.ico">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+    <title>Windmill MkDocs Theme</title>
+    <link href="./css/bootstrap-3.3.7.min.css" rel="stylesheet">
+    <link href="./css/font-awesome-4.7.0.css" rel="stylesheet">
+    <link href="./css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="./css/highlight.css">
+    <link href="http://community.dev.readthedocs.io/devstoreaccount1/static/css/badge_only.css" rel="stylesheet">
+    <link href="http://community.dev.readthedocs.io/devstoreaccount1/static/css/readthedocs-doc-embed.css" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+    <script src="./js/jquery-3.2.1.min.js"></script>
+    <script src="./js/bootstrap-3.3.7.min.js"></script>
+    <script src="./js/highlight.pack.js"></script>
+
+    <script src="./js/elasticlunr.min.js"></script>
+
+    <base target="_top">
+    <script>
+      var base_url = '.';
+      var is_top_frame = (window === window.parent);
+
+      var pageToc = [
+        {title: "Windmill theme", url: "#_top", children: [
+          {title: "About", url: "#about" },
+          {title: "Installation", url: "#installation" },
+          {title: "Usage", url: "#usage" },
+        ]},
+      ];
+
+    </script>
+    <script src="./js/base.js"></script>
+    <script src="readthedocs-data.js"></script>
+    <script src="http://community.dev.readthedocs.io/devstoreaccount1/static/core/js/readthedocs-doc-embed.js"></script>
+    <script src="http://community.dev.readthedocs.io/devstoreaccount1/static/javascript/readthedocs-analytics.js"></script>
+  </head>
+
+  <body>
+    <script>
+      if (is_top_frame) { $('body').addClass('wm-top-page'); }
+    </script>
+
+    <nav class="navbar wm-page-top-frame">
+      <div class="container-fluid wm-top-container">
+
+        <div class="wm-top-tool pull-right wm-vcenter">
+          <form class="dropdown wm-vcentered" id="wm-search-form" action="./search.html">
+
+            <button id="wm-search-show" class="btn btn-sm btn-default" type="submit"
+                                                                       ><i class="fa fa-search" aria-hidden="true"></i></button>
+
+            <div class="input-group input-group-sm wm-top-search">
+              <input type="text" name="q" class="form-control" id="mkdocs-search-query" placeholder="Search" autocomplete="off">
+              <span class="input-group-btn" role="search">
+
+                <button class="btn btn-default dropdown-toggle collapse" data-toggle="dropdown" type="button"><span class="caret"></span></button>
+                <ul id="mkdocs-search-results" class="dropdown-menu dropdown-menu-right"></ul>
+                <button id="wm-search-go" class="btn btn-default" type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+              </span>
+            </div>
+          </form>
+        </div>
+
+
+        <div class="wm-top-tool wm-vcenter pull-right wm-small-left">
+          <button id="wm-toc-button" type="button" class="btn btn-sm btn-default wm-vcentered"><i class="fa fa-th-list" aria-hidden="true"></i></button>
+        </div>
+
+
+
+
+
+        <a href="" class="wm-top-brand wm-top-link wm-vcenter">
+
+          <div class="wm-top-title">
+            Windmill MkDocs Theme<br>
+
+            <span class="wm-top-version">v1.0.4</span>
+
+          </div>
+        </a>
+      </div>
+    </nav>
+
+    <div id="main-content" class="wm-page-top-frame">
+
+      <nav class="wm-toc-pane">
+
+        <ul class="wm-toctree wm-toc-repo">
+          <li class="wm-toc-li wm-toc-lev1">
+            <a class="wm-article-link wm-toc-text" href="https://github.com/gristlabs/mkdocs-windmill/">
+              <i class="fa fa-github"></i>
+
+              GitHub
+            </a>
+          </li>
+        </ul>
+        <ul class="wm-toctree">
+          <li class="wm-toc-li wm-toc-lev1 "><a href="" class="wm-article-link wm-toc-text">Usage</a>
+          </li>
+          <li class="wm-toc-li wm-toc-lev1 "><a href="customization/" class="wm-article-link wm-toc-text">Customization</a>
+          </li>
+          <li class="wm-toc-li wm-toc-lev1 wm-toc-opener"><span class="wm-toc-text">Samples</span>
+          </li>
+          <li class="wm-toc-li-nested collapse">
+            <ul class="wm-toctree">
+              <li class="wm-toc-li wm-toc-lev2 "><a href="sample-a/" class="wm-article-link wm-toc-text">Sample Page A</a>
+              </li>
+              <li class="wm-toc-li wm-toc-lev2 wm-toc-opener"><span class="wm-toc-text">Sample Subfolder</span>
+              </li>
+              <li class="wm-toc-li-nested collapse">
+                <ul class="wm-toctree">
+                  <li class="wm-toc-li wm-toc-lev3 "><a href="a/sample-a1/" class="wm-article-link wm-toc-text">Sample Subpage A1</a>
+                  </li>
+                  <li class="wm-toc-li wm-toc-lev3 "><a href="a/sample-a2/" class="wm-article-link wm-toc-text">Sample Subpage A2</a>
+                  </li>
+                </ul>
+              </li>
+
+              <li class="wm-toc-li wm-toc-lev2 "><a href="sample-b/" class="wm-article-link wm-toc-text">Sample Page B</a>
+              </li>
+            </ul>
+          </li>
+
+        </ul>
+      </nav>
+
+      <div class="wm-content-pane">
+        <iframe class="wm-article" name="article"></iframe>
+      </div>
+    </div>
+
+    <div class="container-fluid wm-page-content">
+      <a name="_top"></a>
+
+
+
+
+
+
+
+      <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+
+        <div class="wm-article-nav pull-right">
+          <a href="customization/" class="btn btn-xs btn-default pull-right">
+            Next
+            <i class="fa fa-chevron-right" aria-hidden="true"></i>
+          </a>
+          <a href="customization/" class="btn btn-xs btn-link">
+            Customization
+          </a>
+        </div>
+
+      </div>
+
+
+
+      <h1 id="windmill-theme">Windmill theme<a class="headerlink" href="#windmill-theme" title="Permanent link">#</a></h1>
+      <h2 id="about">About<a class="headerlink" href="#about" title="Permanent link">#</a></h2>
+      <p>Windmill theme focuses on clean usable navigation for large documentation
+        projects. It retains the state of the menu of pages and folders across page
+        transitions, by keeping navigation to an iframe.</p>
+      <p>Within pages, it uses the default mkdocs theme, including syntax highlighting.</p>
+
+      <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">#</a></h2>
+      <p>Install the Windmill theme using <code>pip</code>:</p>
+      <pre><code class="sh">pip install mkdocs-windmill
+      </code></pre>
+
+      <h2 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">#</a></h2>
+      <p>To use the Windmill theme installed via <code>pip</code>, add this to your <code>mkdocs.yml</code>:</p>
+      <pre><code class="yaml">theme: 'windmill'
+      </code></pre>
+
+      <p>If you cloned Windmill from GitHub:</p>
+      <pre><code class="yaml">theme:
+  name: null
+  custom_dir: '{INSTALL_DIR}/mkdocs_windmill'
+  # Copy settings from mkdocs_theme.yml, which is ignored by custom_dir themes.
+  static_templates: [404.html]
+  search_index_only: true
+  include_search_page: true
+      </code></pre>
+
+      <p>Note that it's important for there to exist a homepage, e.g. a top-level root element in mkdocs 1.0+:</p>
+      <pre><code class="yaml">nav:
+  - Home: index.md
+      </code></pre>
+
+      <div class="row wm-article-nav-buttons" role="navigation" aria-label="navigation">
+
+        <div class="wm-article-nav pull-right">
+          <a href="customization/" class="btn btn-xs btn-default pull-right">
+            Next
+            <i class="fa fa-chevron-right" aria-hidden="true"></i>
+          </a>
+          <a href="customization/" class="btn btn-xs btn-link">
+            Customization
+          </a>
+        </div>
+
+      </div>
+
+      <br>
+    </div>
+
+    <footer class="container-fluid wm-page-content">
+      <p>
+        <a href="https://github.com/gristlabs/mkdocs-windmill/edit/master/docs/index.md"><i class="fa fa-github"></i>
+          Edit on GitHub</a>
+      </p>
+      <p>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a> using <a href="https://github.com/gristlabs/mkdocs-windmill">Windmill</a> theme by Grist Labs.</p>
+    </footer>
+
+  </body>
+</html>
+<!--
+  MkDocs version : 1.0.4
+  Build Date UTC : 2020-06-17 16:17:27
+-->

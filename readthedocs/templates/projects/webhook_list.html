@@ -1,0 +1,54 @@
+{% extends "projects/project_edit_base.html" %}
+
+{% load i18n %}
+
+{% block title %}{% trans "Webhooks" %}{% endblock %}
+
+{% block nav-dashboard %} class="active"{% endblock %}
+
+{% block project-webhooks-active %}active{% endblock %}
+{% block project_edit_content_header %}{% trans "Webhooks" %}{% endblock %}
+
+{% block project_edit_content %}
+  <div class="button-bar">
+    <ul>
+      <li>
+        <a class="button"
+           href="{% url 'projects_webhooks_create' project_slug=project.slug %}">
+          {% trans "Add Webhook" %}
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="module-list">
+    <div class="module-list-wrapper">
+      <ul>
+        {% for webhook in object_list %}
+          <li class="module-item">
+            <a href="{% url 'projects_webhooks_edit' project_slug=project.slug webhook_pk=webhook.pk %}" title="{{ webhook.url }}">
+              {{ webhook.url|truncatechars:35 }}
+            </a>
+            <span class="quiet">
+              {% for event in webhook.events.all|slice:":2" %}
+                {{ event.name }}{% endfor %}{% if webhook.events.all|length > 2 %}...{% endif %}
+            </span>
+            <ul class="module-item-menu">
+              <li>
+                <a href="{% url 'projects_webhooks_edit' project_slug=project.slug webhook_pk=webhook.pk %}">
+                  {% trans "Edit" %}
+                </a>
+              </li>
+            </ul>
+          </li>
+        {% empty %}
+          <li class="module-item">
+            <p class="quiet">
+              {% trans "No webhooks found." %}
+            </p>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<!--
+  Mkdocs default theme
+  From https://www.mkdocs.org/
+-->
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Project documentation with Markdown.">
+    <meta name="author" content="MkDocs Team">
+    <link rel="canonical" href="https://www.mkdocs.org/">
+    <link rel="shortcut icon" href="img/favicon.ico">
+    <title>MkDocs</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/base.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+    <link href="css/extra.css" rel="stylesheet">
+    <link href="http://community.dev.readthedocs.io/devstoreaccount1/static/css/badge_only.css" rel="stylesheet">
+    <link href="http://community.dev.readthedocs.io/devstoreaccount1/static/css/readthedocs-doc-embed.css" rel="stylesheet">
+
+    <script src="js/jquery-1.10.2.min.js" defer></script>
+    <script src="js/bootstrap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/yaml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/django.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+  </head>
+
+  <body class="homepage">
+    <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+      <div class="container">
+        <a class="navbar-brand" href=".">MkDocs</a>
+        <!-- Expander button -->
+        <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Expanded navigation -->
+        <div id="navbar-collapse" class="navbar-collapse collapse">
+          <!-- Main navigation -->
+          <ul class="nav navbar-nav">
+            <li class="navitem active">
+              <a href="." class="nav-link">Home</a>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">User Guide <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+
+                <li>
+                  <a href="user-guide/writing-your-docs/" class="dropdown-item">Writing Your Docs</a>
+                </li>
+
+                <li>
+                  <a href="user-guide/styling-your-docs/" class="dropdown-item">Styling Your Docs</a>
+                </li>
+
+                <li>
+                  <a href="user-guide/configuration/" class="dropdown-item">Configuration</a>
+                </li>
+
+                <li>
+                  <a href="user-guide/deploying-your-docs/" class="dropdown-item">Deploying Your Docs</a>
+                </li>
+
+                <li>
+                  <a href="user-guide/custom-themes/" class="dropdown-item">Custom Themes</a>
+                </li>
+
+                <li>
+                  <a href="user-guide/plugins/" class="dropdown-item">Plugins</a>
+                </li>
+              </ul>
+            </li>
+            <li class="dropdown">
+              <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">About <b class="caret"></b></a>
+              <ul class="dropdown-menu">
+
+                <li>
+                  <a href="about/release-notes/" class="dropdown-item">Release Notes</a>
+                </li>
+
+                <li>
+                  <a href="about/contributing/" class="dropdown-item">Contributing</a>
+                </li>
+
+                <li>
+                  <a href="about/license/" class="dropdown-item">License</a>
+                </li>
+              </ul>
+            </li>
+          </ul>
+
+          <ul class="nav navbar-nav ml-auto">
+            <li class="nav-item">
+              <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                <i class="fa fa-search"></i> Search
+              </a>
+            </li>
+            <li class="nav-item">
+              <a rel="prev" class="nav-link disabled">
+                <i class="fa fa-arrow-left"></i> Previous
+              </a>
+            </li>
+            <li class="nav-item">
+              <a rel="next" href="user-guide/writing-your-docs/" class="nav-link">
+                Next <i class="fa fa-arrow-right"></i>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="https://github.com/mkdocs/mkdocs/" class="nav-link"><i class="fa fa-github"></i> GitHub</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+                <span class="fa fa-angle-down"></span>
+              </button>
+            </div>
+
+
+            <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+              <ul class="nav flex-column">
+
+                <li class="nav-item" data-level="1"><a href="#mkdocs" class="nav-link">MkDocs</a>
+                  <ul class="nav flex-column">
+                    <li class="nav-item" data-level="2"><a href="#overview" class="nav-link">Overview</a>
+                      <ul class="nav flex-column">
+                      </ul>
+                    </li>
+                    <li class="nav-item" data-level="2"><a href="#installation" class="nav-link">Installation</a>
+                      <ul class="nav flex-column">
+                      </ul>
+                    </li>
+                    <li class="nav-item" data-level="2"><a href="#getting-started" class="nav-link">Getting Started</a>
+                      <ul class="nav flex-column">
+                      </ul>
+                    </li>
+                    <li class="nav-item" data-level="2"><a href="#adding-pages" class="nav-link">Adding pages</a>
+                      <ul class="nav flex-column">
+                      </ul>
+                    </li>
+                    <li class="nav-item" data-level="2"><a href="#theming-our-documentation" class="nav-link">Theming our documentation</a>
+                      <ul class="nav flex-column">
+                      </ul>
+                    </li>
+                    <li class="nav-item" data-level="2"><a href="#changing-the-favicon-icon" class="nav-link">Changing the Favicon Icon</a>
+                      <ul class="nav flex-column">
+                      </ul>
+                    </li>
+                    <li class="nav-item" data-level="2"><a href="#building-the-site" class="nav-link">Building the site</a>
+                      <ul class="nav flex-column">
+                      </ul>
+                    </li>
+                    <li class="nav-item" data-level="2"><a href="#other-commands-and-options" class="nav-link">Other Commands and Options</a>
+                      <ul class="nav flex-column">
+                      </ul>
+                    </li>
+                    <li class="nav-item" data-level="2"><a href="#deploying" class="nav-link">Deploying</a>
+                      <ul class="nav flex-column">
+                      </ul>
+                    </li>
+                    <li class="nav-item" data-level="2"><a href="#getting-help" class="nav-link">Getting help</a>
+                      <ul class="nav flex-column">
+                      </ul>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </div></div>
+          <div class="col-md-9" role="main">
+
+            <h1 id="mkdocs">MkDocs<a class="headerlink" href="#mkdocs" title="Permanent link"></a></h1>
+            <p>Project documentation with&nbsp;Markdown.</p>
+
+            <hr />
+
+            <h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link"></a></h2>
+            <p>
+              MkDocs is a <strong>fast</strong>, <strong>simple</strong> and <strong>downright gorgeous</strong> static site
+              generator that's geared towards building project documentation.
+            </p>
+
+            <h3 id="host-anywhere">Host anywhere<a class="headerlink" href="#host-anywhere" title="Permanent link"></a></h3>
+            <p>
+              MkDocs builds completely static HTML sites that you can host on GitHub pages,
+              Amazon S3, or <a href="user-guide/deploying-your-docs/">anywhere</a> else you choose.
+            </p>
+
+            <h3 id="great-themes-available">Great themes available<a class="headerlink" href="#great-themes-available" title="Permanent link"></a></h3>
+            <p>
+              There's a stack of good looking <a href="user-guide/styling-your-docs/">themes</a> available for MkDocs.
+            </p>
+
+            <hr />
+
+            <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link"></a></h2>
+            <h3 id="install-with-a-package-manager">Install with a Package Manager<a class="headerlink" href="#install-with-a-package-manager" title="Permanent link"></a></h3>
+            <p>
+              If your package manager does not have a recent "MkDocs" package, you can still
+              use your package manager to install "Python" and "pip".
+            </p>
+            <pre><code class="bash">$ python --version
+Python 3.8.2
+$ pip --version
+pip 20.0.2 from /usr/local/lib/python3.8/site-packages/pip (python 3.8)
+            </code></pre>
+
+            <div class="admonition note">
+              <p class="admonition-title">Note</p>
+              <p>If you would like manpages installed for MkDocs, the <a href="https://github.com/click-contrib/click-man">click-man</a> tool can
+                generate and install them for you. Simply run the following two commands:</p>
+              <pre><code>pip install click-man
+click-man --target path/to/man/pages mkdocs
+              </code></pre>
+            </div>
+          </div>
+      </div>
+
+      <footer class="col-md-12">
+        <hr>
+        <p>Copyright &copy; 2014 <a href="https://twitter.com/_tomchristie">Tom Christie</a>, Maintained by the <a href="/about/release-notes/#maintenance-team">MkDocs Team</a>.</p>
+        <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+      </footer>
+      <script>
+        var base_url = ".",
+          shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+      </script>
+      <script src="js/base.js" defer></script>
+      <script src="readthedocs-data.js" defer></script>
+      <script src="http://community.dev.readthedocs.io/devstoreaccount1/static/core/js/readthedocs-doc-embed.js" defer></script>
+      <script src="http://community.dev.readthedocs.io/devstoreaccount1/static/javascript/readthedocs-analytics.js" defer></script>
+      <script src="search/main.js" defer></script>
+
+      <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="searchModalLabel">Search</h4>
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <p>
+                From here you can search these documents. Enter
+                your search terms below.
+              </p>
+              <form>
+                <div class="form-group">
+                  <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                </div>
+              </form>
+              <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+          </div>
+        </div>
+      </div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+              <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+          </div>
+        </div>
+      </div>
+
+  </body>
+</html>
+
+<!--
+  MkDocs version : 1.1.2
+  Build Date UTC : 2020-06-17 14:49:23.581273+00:00
+-->

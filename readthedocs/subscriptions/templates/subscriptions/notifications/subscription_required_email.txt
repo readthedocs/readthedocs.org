@@ -1,0 +1,21 @@
+{% extends "core/email/common.txt" %}
+{% block content %}
+The trial period for "{{ organization.name }}" has ended.
+If you'd like to continue using Read the Docs to host and manage your
+documentation, please sign up for a subscription soon.
+
+You can sign up here:
+
+{{ production_uri }}{% url 'subscription_detail' organization.slug %}
+
+If you don't upgrade your account, your builds will be disabled,
+and access to your documentation will be removed.
+
+If you need more information on the various plan options available to you,
+see our pricing page at {{ production_uri }}{% url 'pricing' %}
+or always feel free to get in touch with us at {{ production_uri }}{% url 'support' %}.
+
+If you need more help with Read the Docs, we'd love to help you!
+Get in touch with us at {{ production_uri }}{% url 'support' %}
+and let us know what problems you're having.
+{% endblock %}

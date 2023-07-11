@@ -6,6 +6,18 @@
 {% block content-header %}<h1>{% blocktrans with project.name as name %}Delete {{ name }}?{% endblocktrans %}</h1>{% endblock %}
 
 {% block content %}
+
+  {% if is_superproject %}
+    {% url "projects_subprojects" project.slug as subproject_url %}
+    <p>
+      {% blocktrans trimmed %}
+        This project <a href="{{ subproject_url }}">has subprojects</a> under it.
+        Deleting this project will make them to become regular projects.
+        This will break the URLs of all its subprojects and they will be served normally as other projects.
+      {% endblocktrans %}
+    </p>
+  {% endif %}
+
   <p>{% trans "You sure?" %} O_o</p>
 
   <form method="post" action=".">{% csrf_token %}

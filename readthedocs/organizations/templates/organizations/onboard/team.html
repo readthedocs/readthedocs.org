@@ -1,0 +1,34 @@
+{% extends "organizations/onboard/base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Create an Organization" %}{% endblock %}
+
+{% block content %}
+  <h3>{% trans "Create a Team" %}</h3>
+
+    <div class="onboard">
+      <p>
+        Teams allow you to <b>group organization members together</b>,
+        and <b>limit access</b> to projects inside your organization.
+      </p>
+      <p>
+        We have created two teams for you:
+      </p>
+        <ul>
+          <li>
+            <p>
+              <b>Read Only</b> - who will only be able to read documentation.
+            </p>
+          </li>
+          <li>
+            <p>
+              <b>Admins</b> - who will be able to administer the full projects.
+            </p>
+          </li>
+        </ul>
+
+    </div>
+
+  {{ block.super }}
+
+{% endblock %}

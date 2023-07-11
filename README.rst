@@ -12,7 +12,7 @@ Bazaar_, Git_, and Mercurial_ repositories.
 Then we build documentation and host it for you.
 Think of it as *Continuous Documentation*.
 
-.. _Read the docs: http://readthedocs.org/
+.. _Read the docs: https://readthedocs.org/
 .. _Sphinx: http://www.sphinx-doc.org/
 .. _reStructuredText: http://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 .. _Subversion: http://subversion.tigris.org/
@@ -36,7 +36,7 @@ You can find information about getting in touch with Read the Docs at our `Contr
 Contributing
 ------------
 
-You can find information about contributing to Read the Docs at our `Contribution page <http://docs.readthedocs.io/en/latest/contribute.html>`_.
+You can find information about contributing to Read the Docs at our `Contribution page <https://docs.readthedocs.io/en/latest/contribute.html>`_.
 
 Quickstart for GitHub-Hosted Projects
 -------------------------------------
@@ -60,24 +60,23 @@ when you push to GitHub.
 #. All done.  Commit away and your project will auto-update.
 
 
-.. |build-status| image:: https://img.shields.io/travis/rtfd/readthedocs.org.svg?style=flat
+.. |build-status| image:: https://circleci.com/gh/readthedocs/readthedocs.org.svg?style=svg
     :alt: build status
-    :scale: 100%
-    :target: https://travis-ci.org/rtfd/readthedocs.org
+    :target: https://circleci.com/gh/readthedocs/readthedocs.org
 
 .. |docs| image:: https://readthedocs.org/projects/docs/badge/?version=latest
     :alt: Documentation Status
     :scale: 100%
     :target: https://docs.readthedocs.io/en/latest/?badge=latest
 
-.. |coverage| image:: https://codecov.io/gh/rtfd/readthedocs.org/branch/master/graph/badge.svg
+.. |coverage| image:: https://codecov.io/gh/readthedocs/readthedocs.org/branch/main/graph/badge.svg
     :alt: Test coverage
     :scale: 100%
-    :target: https://codecov.io/gh/rtfd/readthedocs.org
+    :target: https://codecov.io/gh/readthedocs/readthedocs.org
 
 License
 -------
 
-`MIT`_ © 2010-2019 Read the Docs, Inc & contributors
+`MIT`_ © 2010 Read the Docs, Inc. & contributors
 
 .. _MIT: LICENSE

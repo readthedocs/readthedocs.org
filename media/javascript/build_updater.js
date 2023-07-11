@@ -30,10 +30,15 @@
                 var el = $(this.buildDiv + ' span#build-' + prop);
 
                 if (prop == 'success') {
-                    if (data.hasOwnProperty('state') && data['state'] != 'finished') {
+                    if (data.hasOwnProperty('state') && data['state'] != 'finished') && data['state'] != 'cancelled' {
                         val = "Not yet finished";
                     }
                     else {
+                        // TODO: I'm not sure what to do with these. We are
+                        // adding a third option here ("Cancelled") that's not
+                        // "Passed" nor "Failed". There are many other places in
+                        // the code where we are assuming only two possible
+                        // options.
                         val = val ? "Passed" : "Failed";
                     }
                 }
@@ -41,7 +46,7 @@
                 if (prop == 'state') {
                     val = val.charAt(0).toUpperCase() + val.slice(1);
 
-                    if (val == 'Finished') {
+                    if (val == 'Finished' || val == 'Cancelled') {
                         _this.stopPolling();
                     }
                 }
@@ -55,18 +60,18 @@
 
     BuildUpdater.prototype.getBuild = function() {
         _this = this;
-        
+
         $.get(this.buildUrl, function(data) {
             _this.render(data);
         });
     };
 
-    // If the build with ID `this.buildId` has a state other than finished, poll
-    // the server every 5 seconds for the current status. Update the details
-    // page with the latest values from the server, to keep the user informed of
-    // progress.
+    // If the build with ID `this.buildId` has a state other than finished or
+    // cancelled, poll the server every 5 seconds for the current status. Update
+    // the details page with the latest values from the server, to keep the user
+    // informed of progress.
     //
-    // If we haven't received a 'finished' state back the server in 10 minutes,
+    // If we haven't received a 'finished'/'cancelled' state back the server in 10 minutes,
     // stop polling.
     BuildUpdater.prototype.startPolling = function() {
         var stateSpan = $(this.buildDiv + ' span#build-state');
@@ -74,7 +79,7 @@
 
         // If the build is already finished, or it isn't displayed on the page,
         // ignore it.
-        if (stateSpan.text() == 'Finished' || stateSpan.length === 0) {
+        if (stateSpan.text() == 'Finished' || stateSpan.text() == 'Cancelled' || stateSpan.length === 0) {
             return;
         }
 
@@ -117,7 +122,7 @@
                 if (prop == 'state') {
                     // Show the success value ("Passed" or "Failed") if the build
                     // finished. Otherwise, show the state value.
-                    if (val == 'Finished') {
+                    if (val == 'Finished' || val == 'Cancelled') {
                         val = data['success'];
                         _this.stopPolling();
                     } else {
@@ -134,4 +139,3 @@
 
 
 }).call(this);
-

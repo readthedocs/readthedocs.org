@@ -1,0 +1,8 @@
+{% load i18n %}
+
+<p class="empty">
+  {% url 'support' as support_url %}
+  {% blocktrans trimmed with support_url=support_url %}
+    This is a beta feature, it can be enabled by <a href="{{ support_url }}">contacting support</a>.
+  {% endblocktrans %}
+</p>

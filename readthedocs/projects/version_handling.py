@@ -1,22 +1,19 @@
-# -*- coding: utf-8 -*-
-
 """Project version handling."""
 import unicodedata
 
 from packaging.version import InvalidVersion, Version
 
-from readthedocs.builds.constants import (
-    LATEST_VERBOSE_NAME,
-    STABLE_VERBOSE_NAME,
-    TAG,
-)
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME, TAG
+from readthedocs.vcs_support.backends import backend_cls
 
 
 def parse_version_failsafe(version_string):
     """
     Parse a version in string form and return Version object.
 
-    If there is an error parsing the string, ``None`` is returned.
+    If there is an error parsing the string
+    or the version doesn't have a "comparable" version number,
+    ``None`` is returned.
 
     :param version_string: version as string object (e.g. '3.10.1')
     :type version_string: str or unicode
@@ -30,16 +27,26 @@ def parse_version_failsafe(version_string):
     else:
         uni_version = version_string
 
+    final_form = ''
+
     try:
         normalized_version = unicodedata.normalize('NFKD', uni_version)
         ascii_version = normalized_version.encode('ascii', 'ignore')
         final_form = ascii_version.decode('ascii')
         return Version(final_form)
-    except (UnicodeError, InvalidVersion):
-        return None
+    except InvalidVersion:
+        # Handle the special case of 1.x, 2.x or 1.0.x, 1.1.x
+        if final_form and '.x' in final_form:
+            # Replace the .x with .999999 so it's sorted last.
+            final_form = final_form.replace(".x", ".999999")
+            return parse_version_failsafe(final_form)
+    except UnicodeError:
+        pass
+
+    return None
 
 
-def comparable_version(version_string):
+def comparable_version(version_string, repo_type=None):
     """
     Can be used as ``key`` argument to ``sorted``.
 
@@ -47,19 +54,32 @@ def comparable_version(version_string):
     ``STABLE`` should be listed second. If we cannot figure out the version
     number then we sort it to the bottom of the list.
 
+    If `repo_type` is given, it adds the default "master" version
+    from the VCS (master, default, trunk).
+    This version is sorted higher than LATEST and STABLE.
+
     :param version_string: version as string object (e.g. '3.10.1' or 'latest')
     :type version_string: str or unicode
+
+    :param repo_type: Repository type from which the versions are generated.
 
     :returns: a comparable version object (e.g. 'latest' -> Version('99999.0'))
 
     :rtype: packaging.version.Version
     """
+    highest_versions = []
+    if repo_type:
+        backend = backend_cls.get(repo_type)
+        if backend and backend.fallback_branch:
+            highest_versions.append(backend.fallback_branch)
+    highest_versions.extend([LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME])
+
     comparable = parse_version_failsafe(version_string)
     if not comparable:
-        if version_string == LATEST_VERBOSE_NAME:
-            comparable = Version('99999.0')
-        elif version_string == STABLE_VERBOSE_NAME:
-            comparable = Version('9999.0')
+        if version_string in highest_versions:
+            position = highest_versions.index(version_string)
+            version_number = str(999999 - position)
+            comparable = Version(version_number)
         else:
             comparable = Version('0.01')
     return comparable
@@ -68,6 +88,9 @@ def comparable_version(version_string):
 def sort_versions(version_list):
     """
     Take a list of Version models and return a sorted list.
+
+    This only considers versions with comparable version numbers.
+    It excludes versions like "latest" and "stable".
 
     :param version_list: list of Version models
     :type version_list: list(readthedocs.builds.models.Version)
@@ -78,19 +101,20 @@ def sort_versions(version_list):
             packaging.version.Version))
     """
     versions = []
-    for version_obj in version_list:
+    # use ``.iterator()`` to avoid fetching all the versions at once (this may
+    # have an impact when the project has lot of tags)
+    for version_obj in version_list.iterator():
         version_slug = version_obj.verbose_name
         comparable_version = parse_version_failsafe(version_slug)
         if comparable_version:
             versions.append((version_obj, comparable_version))
 
-    return list(
-        sorted(
-            versions,
-            key=lambda version_info: version_info[1],
-            reverse=True,
-        ),
+    # sort in-place to avoid leaking memory on projects with lot of versions
+    versions.sort(
+        key=lambda version_info: version_info[1],
+        reverse=True,
     )
+    return versions
 
 
 def highest_version(version_list):

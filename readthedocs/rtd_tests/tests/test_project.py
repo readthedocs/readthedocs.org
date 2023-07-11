@@ -1,24 +1,38 @@
 import datetime
 import json
+from unittest import mock
+from unittest.mock import patch
 
+import pytest
 from django.contrib.auth.models import User
 from django.forms.models import model_to_dict
 from django.test import TestCase
 from django.utils import timezone
 from django_dynamic_fixture import get
-from mock import patch
 from rest_framework.reverse import reverse
 
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
     BUILD_STATE_FINISHED,
     BUILD_STATE_TRIGGERED,
+    EXTERNAL,
     LATEST,
+    TAG,
 )
-from readthedocs.builds.models import Build
+from readthedocs.builds.models import Build, Version
+from readthedocs.oauth.services import GitHubService, GitLabService
+from readthedocs.projects.constants import (
+    GITHUB_BRAND,
+    GITLAB_BRAND,
+    MEDIA_TYPE_EPUB,
+    MEDIA_TYPE_HTML,
+    MEDIA_TYPE_HTMLZIP,
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPES,
+)
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
-from readthedocs.projects.tasks import finish_inactive_builds
+from readthedocs.projects.tasks.utils import finish_inactive_builds
 from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
@@ -29,6 +43,16 @@ class ProjectMixin:
     def setUp(self):
         self.client.login(username='eric', password='test')
         self.pip = Project.objects.get(slug='pip')
+        # Create a External Version. ie: pull/merge request Version.
+        self.external_version = get(
+            Version,
+            identifier='pr-version',
+            verbose_name='99',
+            slug='99',
+            project=self.pip,
+            active=True,
+            type=EXTERNAL
+        )
 
 
 class TestProject(ProjectMixin, TestCase):
@@ -38,12 +62,6 @@ class TestProject(ProjectMixin, TestCase):
         resp = json.loads(r.content)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(resp['subprojects'][0]['id'], 23)
-
-    def test_token(self):
-        r = self.client.get('/api/v2/project/6/token/', {})
-        resp = json.loads(r.content)
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(resp['token'], None)
 
     def test_has_pdf(self):
         # The project has a pdf if the PDF file exists on disk.
@@ -121,20 +139,148 @@ class TestProject(ProjectMixin, TestCase):
             self.pip.conf_file()
 
     def test_get_storage_path(self):
+        for type_ in MEDIA_TYPES:
+            self.assertEqual(
+                self.pip.get_storage_path(type_, LATEST, include_file=False),
+                f"{type_}/pip/latest",
+            )
         self.assertEqual(
-            self.pip.get_storage_path('pdf', LATEST),
+            self.pip.get_storage_path(MEDIA_TYPE_PDF, LATEST),
             'pdf/pip/latest/pip.pdf',
         )
         self.assertEqual(
-            self.pip.get_storage_path('epub', LATEST),
+            self.pip.get_storage_path(MEDIA_TYPE_EPUB, LATEST),
             'epub/pip/latest/pip.epub',
         )
         self.assertEqual(
-            self.pip.get_storage_path('htmlzip', LATEST),
+            self.pip.get_storage_path(MEDIA_TYPE_HTMLZIP, LATEST),
             'htmlzip/pip/latest/pip.zip',
         )
 
+    def test_get_storage_path_invalid_inputs(self):
+        # Invalid type.
+        with pytest.raises(ValueError):
+            self.pip.get_storage_path("foo")
 
+        # Trying to get a file from a non-downloadable type.
+        with pytest.raises(ValueError):
+            self.pip.get_storage_path(MEDIA_TYPE_HTML, include_file=True)
+
+        # Trying path traversal.
+        with pytest.raises(ValueError):
+            self.pip.get_storage_path(
+                MEDIA_TYPE_HTML, version_slug="../sneaky/index.html", include_file=False
+            )
+
+    def test_get_storage_path_for_external_versions(self):
+        self.assertEqual(
+            self.pip.get_storage_path(
+                'pdf', self.external_version.slug,
+                version_type=self.external_version.type
+            ),
+            'external/pdf/pip/99/pip.pdf',
+        )
+        self.assertEqual(
+            self.pip.get_storage_path('epub', self.external_version.slug,
+                version_type=self.external_version.type
+            ),
+            'external/epub/pip/99/pip.epub',
+        )
+        self.assertEqual(
+            self.pip.get_storage_path('htmlzip', self.external_version.slug,
+                version_type=self.external_version.type
+            ),
+            'external/htmlzip/pip/99/pip.zip',
+        )
+
+    def test_ordered_active_versions_excludes_external_versions(self):
+        self.assertNotIn(self.external_version, self.pip.ordered_active_versions())
+
+    def test_active_versions_excludes_external_versions(self):
+        self.assertNotIn(self.external_version, self.pip.active_versions())
+
+    def test_all_active_versions_excludes_external_versions(self):
+        self.assertNotIn(self.external_version, self.pip.all_active_versions())
+
+    def test_update_stable_version_excludes_external_versions(self):
+        # Delete all versions excluding External Versions.
+        self.pip.versions.exclude(type=EXTERNAL).delete()
+        # Test that External Version is not considered for stable.
+        self.assertEqual(self.pip.update_stable_version(), None)
+
+    def test_update_stable_version_machine_false(self):
+        # Initial stable version from fixture
+        self.assertEqual(self.pip.update_stable_version().slug, '0.8.1')
+
+        # None, when there is no stable to promote
+        self.assertEqual(self.pip.update_stable_version(), None)
+
+        get(
+            Version,
+            identifier='9.0',
+            verbose_name='9.0',
+            slug='9.0',
+            type=TAG,
+            project=self.pip,
+            active=True,
+        )
+        # New stable now is the newly created version
+        self.assertEqual(self.pip.update_stable_version().slug, '9.0')
+
+        # Make stable version machine=False
+        stable = self.pip.get_stable_version()
+        stable.machine = False
+        stable.save()
+
+        get(
+            Version,
+            identifier='10.0',
+            verbose_name='10.0',
+            slug='10.0',
+            type=TAG,
+            project=self.pip,
+            active=True,
+        )
+        # None, since the stable version is marked as machine=False and Read
+        # the Docs does not have control over it
+        with patch('readthedocs.projects.models.determine_stable_version') as m:
+            self.assertEqual(self.pip.update_stable_version(), None)
+            m.assert_not_called()
+
+    def test_has_good_build_excludes_external_versions(self):
+        # Delete all versions excluding External Versions.
+        self.pip.versions.exclude(type=EXTERNAL).delete()
+        # Test that External Version is not considered for has_good_build.
+        self.assertFalse(self.pip.has_good_build)
+
+    def test_get_latest_build_excludes_external_versions(self):
+        # Delete all versions excluding External Versions.
+        self.pip.versions.exclude(type=EXTERNAL).delete()
+        # Test that External Version is not considered for get_latest_build.
+        self.assertEqual(self.pip.get_latest_build(), None)
+
+    def test_git_provider_name_github(self):
+        self.pip.repo = 'https://github.com/pypa/pip'
+        self.pip.save()
+        self.assertEqual(self.pip.git_provider_name, GITHUB_BRAND)
+
+    def test_git_service_class_github(self):
+        self.pip.repo = 'https://github.com/pypa/pip'
+        self.pip.save()
+        self.assertEqual(self.pip.git_service_class(), GitHubService)
+
+    def test_git_provider_name_gitlab(self):
+        self.pip.repo = 'https://gitlab.com/pypa/pip'
+        self.pip.save()
+        self.assertEqual(self.pip.git_provider_name, GITLAB_BRAND)
+
+    def test_git_service_class_gitlab(self):
+        self.pip.repo = 'https://gitlab.com/pypa/pip'
+        self.pip.save()
+        self.assertEqual(self.pip.git_service_class(), GitLabService)
+
+
+@mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())
 class TestProjectTranslations(ProjectMixin, TestCase):
 
     def test_translations(self):
@@ -372,6 +518,10 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         self.assertEqual(project_a.language, 'en')
         self.assertEqual(project_b.language, 'es')
         data = model_to_dict(project_a)
+
+        # Remove None values from data
+        data = {k: v for k, v in data.items() if v is not None}
+
         data['language'] = 'es'
         resp = self.client.post(
             reverse(
@@ -405,6 +555,10 @@ class TestProjectTranslations(ProjectMixin, TestCase):
         self.assertEqual(project_a.language, 'en')
         self.assertEqual(project_b.language, 'es')
         data = model_to_dict(project_a)
+
+        # Remove None values from data
+        data = {k: v for k, v in data.items() if v is not None}
+
         # Same language
         data['language'] = 'en'
         resp = self.client.post(
@@ -459,6 +613,7 @@ class TestFinishInactiveBuildsTask(TestCase):
         )
         self.build_3.save()
 
+    @pytest.mark.xfail(reason='Fails while we work out Docker time limits', strict=True)
     def test_finish_inactive_builds_task(self):
         finish_inactive_builds()
 

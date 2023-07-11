@@ -1,116 +1,256 @@
-# -*- coding: utf-8 -*-
+import re
 
 import pytest
-from django.core.urlresolvers import reverse
-from django_dynamic_fixture import G
-from pyquery import PyQuery as pq
+from django.contrib.auth.models import User
+from django.test import override_settings
+from django.urls import reverse
+from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import HTMLFile, Project
-from readthedocs.search.tests.utils import get_search_query_from_project_file
+from readthedocs.projects.models import Project
+from readthedocs.search.tests.utils import (
+    DATA_TYPES_VALUES,
+    get_search_query_from_project_file,
+)
 
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestProjectSearch(object):
-    url = reverse('search')
+class TestProjectSearch:
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.url =  reverse('search')
 
     def _get_search_result(self, url, client, search_params):
         resp = client.get(url, search_params)
         assert resp.status_code == 200
 
-        page = pq(resp.content)
-        result = page.find('.module-list-wrapper .module-item-title')
-        return result, page
+        results = resp.context['results']
+        facets = resp.context['facets']
+
+        return results, facets
 
     def test_search_by_project_name(self, client, project, all_projects):
-        result, _ = self._get_search_result(
-            url=self.url, client=client,
-            search_params={'q': project.name},
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={"q": project.name, "type": "project"},
         )
 
-        assert len(result) == 1
-        assert project.name.encode('utf-8') in result.text().encode('utf-8')
-        assert all_projects[1].name.encode('utf-8') not in result.text().encode('utf-8')
+        assert len(results) == 1
+        assert project.name == results[0]['name']
+        for proj in all_projects[1:]:
+            assert proj.name != results[0]['name']
 
-    def test_search_project_show_languages(self, client, project):
-        """Test that searching project should show all available languages."""
+    def test_search_project_have_correct_language_facets(self, client, project):
+        """Test that searching project should have correct language facets in the results"""
         # Create a project in bn and add it as a translation
-        G(Project, language='bn', name=project.name)
+        get(Project, language='bn', name=project.name)
 
-        result, page = self._get_search_result(
-            url=self.url, client=client,
-            search_params={'q': project.name},
+        results, facets = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={"q": project.name, "type": "project"},
         )
 
-        content = page.find('.navigable .language-list')
+        lang_facets = facets['language']
+        lang_facets_str = [facet[0] for facet in lang_facets]
         # There should be 2 languages
-        assert len(content) == 2
-        assert 'bn' in content.text()
+        assert len(lang_facets) == 2
+        assert sorted(lang_facets_str) == sorted(['en', 'bn'])
+        for facet in lang_facets:
+            assert facet[2] == False  # because none of the facets are applied
 
     def test_search_project_filter_language(self, client, project):
         """Test that searching project filtered according to language."""
         # Create a project in bn and add it as a translation
-        translate = G(Project, language='bn', name=project.name)
-        search_params = {'q': project.name, 'language': 'bn'}
+        translate = get(Project, language="bn", name=project.name)
+        search_params = {"q": project.name, "language": "bn", "type": "project"}
 
-        result, page = self._get_search_result(
-            url=self.url, client=client,
+        results, facets = self._get_search_result(
+            url=self.url,
+            client=client,
             search_params=search_params,
         )
 
         # There should be only 1 result
-        assert len(result) == 1
+        assert len(results) == 1
 
-        content = page.find('.navigable .language-list')
+        lang_facets = facets['language']
+        lang_facets_str = [facet[0] for facet in lang_facets]
+
         # There should be 2 languages because both `en` and `bn` should show there
-        assert len(content) == 2
-        assert 'bn' in content.text()
+        assert len(lang_facets) == 2
+        assert sorted(lang_facets_str) == sorted(['en', 'bn'])
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_search_only_projects_owned_by_the_user(self, client, all_projects):
+        project = Project.objects.get(slug='docs')
+        user = get(User)
+        user.projects.add(project)
+        client.force_login(user)
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={
+                # Search for all projects.
+                'q': ' '.join(project.slug for project in all_projects),
+                'type': 'project',
+            },
+        )
+        assert len(results) > 0
+
+        other_projects = [
+            project.slug
+            for project in all_projects
+            if project.slug != 'docs'
+        ]
+
+        for result in results:
+            assert result['name'] == 'docs'
+            assert result['name'] not in other_projects
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_search_no_owned_projects(self, client, all_projects):
+        user = get(User)
+        assert user.projects.all().count() == 0
+        client.force_login(user)
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={
+                # Search for all projects.
+                'q': ' '.join(project.slug for project in all_projects),
+                'type': 'project',
+            },
+        )
+        assert len(results) == 0
+
+    def test_search_empty_query(self, client):
+        results, facets = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={"q": "", "type": "project"},
+        )
+        assert results == []
+        assert facets == {}
 
 
 @pytest.mark.django_db
 @pytest.mark.search
-class TestPageSearch(object):
-    url = reverse('search')
+@pytest.mark.usefixtures("all_projects")
+class TestPageSearch:
+
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.url =  reverse('search')
 
     def _get_search_result(self, url, client, search_params):
         resp = client.get(url, search_params)
         assert resp.status_code == 200
 
-        page = pq(resp.content)
-        result = page.find('.module-list-wrapper .search-result-item')
-        return result, page
+        results = resp.context['results']
+        facets = resp.context['facets']
 
-    @pytest.mark.parametrize('data_type', ['content', 'headers', 'title'])
+        return results, facets
+
+    def _get_highlight(self, result, field, type=None):
+        # if query is from page title,
+        # highlighted title is present in 'result.meta.highlight.title'
+        if not type and field == 'title':
+            highlight = result['highlights']['title']
+
+        # if result is not from page title,
+        # then results and highlighted results are present inside 'blocks'
+        else:
+            blocks = result['blocks']
+            assert len(blocks) >= 1
+
+            # checking first inner_hit
+            inner_hit_0 = blocks[0]
+            assert inner_hit_0['type'] == type
+            highlight = inner_hit_0['highlights'][field]
+
+        return highlight
+
+    def _get_highlighted_words(self, string):
+        highlighted_words = re.findall(
+            '<span>(.*?)</span>',
+            string
+        )
+        return highlighted_words
+
+    @pytest.mark.parametrize('data_type', DATA_TYPES_VALUES)
     @pytest.mark.parametrize('page_num', [0, 1])
     def test_file_search(self, client, project, data_type, page_num):
-        query = get_search_query_from_project_file(project_slug=project.slug, page_num=page_num,
-                                                   data_type=data_type)
+        data_type = data_type.split('.')
+        type, field = None, None
+        if len(data_type) < 2:
+            field = data_type[0]
+        else:
+            type, field = data_type
+        query = get_search_query_from_project_file(
+            project_slug=project.slug,
+            page_num=page_num,
+            type=type,
+            field=field,
+        )
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={ 'q': query, 'type': 'file' }
+        )
+        assert len(results) >= 1
 
-        result, _ = self._get_search_result(url=self.url, client=client,
-                                            search_params={'q': query, 'type': 'file'})
-        assert len(result) == 1
-        assert query in result.text()
+        # checking first result
+        result_0 = results[0]
+        highlight = self._get_highlight(result_0, field, type)
+        assert len(highlight) == 1
 
+        highlighted_words = self._get_highlighted_words(highlight[0])
+        assert len(highlighted_words) >= 1
+        for word in highlighted_words:
+            # Make it lower because our search is case insensitive
+            assert word.lower() in query.lower()
+
+    @pytest.mark.parametrize('data_type', DATA_TYPES_VALUES)
     @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
-    def test_file_search_case_insensitive(self, client, project, case):
+    def test_file_search_case_insensitive(self, client, project, case, data_type):
         """
         Check File search is case insensitive.
 
-        It tests with uppercase, lowercase and camelcase
+        It tests with uppercase, lowercase and camelcase.
         """
-        query_text = get_search_query_from_project_file(project_slug=project.slug)
-
+        type, field = None, None
+        data_type = data_type.split('.')
+        if len(data_type) < 2:
+            field = data_type[0]
+        else:
+            type, field = data_type
+        query_text = get_search_query_from_project_file(
+            project_slug=project.slug,
+            type=type,
+            field=field,
+        )
         cased_query = getattr(query_text, case)
         query = cased_query()
 
-        result, _ = self._get_search_result(url=self.url, client=client,
-                                            search_params={'q': query, 'type': 'file'})
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={ 'q': query, 'type': 'file' }
+        )
+        assert len(results) >= 1
 
-        assert len(result) == 1
-        # Check the actual text is in the result, not the cased one
-        assert query_text in result.text()
+        first_result = results[0]
+        highlight = self._get_highlight(first_result, field, type)
+        assert len(highlight) == 1
+        highlighted_words = self._get_highlighted_words(highlight[0])
+        assert len(highlighted_words) >= 1
+        for word in highlighted_words:
+            assert word.lower() in query.lower()
 
     def test_file_search_exact_match(self, client, project):
         """
@@ -120,64 +260,59 @@ class TestPageSearch(object):
         ``foo bar`` phrase.
         """
 
-        # `Github` word is present both in `kuma` and `pipeline` files
-        # But the phrase Github can is available only in kuma docs.
+        # `Sphinx` word is present both in `kuma` and `docs` files
+        # But the phrase `Sphinx uses` is present only in `kuma` docs.
         # So search with this phrase to check
-        query = r'"GitHub can"'
+        query = r'"Sphinx uses"'
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={ 'q': query, 'type': 'file' })
 
-        result, _ = self._get_search_result(url=self.url, client=client,
-                                            search_params={'q': query, 'type': 'file'})
+        # There are two results,
+        # one from each version of the "kuma" project.
+        assert len(results) == 2
+        assert results[0]["version"] == {"slug": "stable"}
+        assert results[1]["version"] == {"slug": "latest"}
+        for result in results:
+            assert result["project"] == {"alias": None, "slug": "kuma"}
+            assert result["domain"] == "http://readthedocs.org"
+            assert result["path"].endswith("/documentation.html")
 
-        assert len(result) == 1
-
-    def test_file_search_show_projects(self, client, all_projects):
-        """Test that search result page shows list of projects while searching
-        for files."""
-
-        # `Github` word is present both in `kuma` and `pipeline` files
-        # so search with this phrase
-        result, page = self._get_search_result(
-            url=self.url, client=client,
-            search_params={'q': 'GitHub', 'type': 'file'},
-        )
-
-        # There should be 2 search result
-        assert len(result) == 2
-
-        # there should be 2 projects in the left side column
-        content = page.find('.navigable .project-list')
-        assert len(content) == 2
-        text = content.text()
-
-        # kuma and pipeline should be there
-        assert 'kuma' and 'pipeline' in text
+        blocks = results[0]['blocks']
+        assert len(blocks) == 1
+        assert blocks[0]['type'] == 'section'
+        highlight = self._get_highlight(results[0], 'content', 'section')
+        assert len(highlight) == 1
+        highlighted_words = self._get_highlighted_words(highlight[0])
+        assert len(highlighted_words) >= 1
+        for word in highlighted_words:
+            assert word.lower() in query.lower()
 
     def test_file_search_filter_by_project(self, client):
         """Test that search result are filtered according to project."""
 
-        # `Github` word is present both in `kuma` and `pipeline` files
+        # `environment` word is present both in `kuma` and `docs` files
         # so search with this phrase but filter through `kuma` project
-        search_params = {'q': 'GitHub', 'type': 'file', 'project': 'kuma'}
-        result, page = self._get_search_result(
-            url=self.url, client=client,
+        search_params = {
+            "q": "project:kuma environment",
+            "type": "file",
+        }
+        results, facets = self._get_search_result(
+            url=self.url,
+            client=client,
             search_params=search_params,
         )
+        project_facets = facets['project']
+        resulted_project_facets = [facet[0] for facet in project_facets]
 
         # There should be 1 search result as we have filtered
-        assert len(result) == 1
-        content = page.find('.navigable .project-list')
-
+        assert len(results) == 1
         # kuma should should be there only
-        assert 'kuma' in result.text()
-        assert 'pipeline' not in result.text()
+        assert {"alias": None, "slug": "kuma"} == results[0]["project"]
 
-        # But there should be 2 projects in the left side column
-        # as the query is present in both projects
-        content = page.find('.navigable .project-list')
-        if len(content) != 2:
-            pytest.xfail('failing because currently all projects are not showing in project list')
-        else:
-            assert 'kuma' and 'pipeline' in content.text()
+        # The projects we search is the only one included in the final results.
+        assert resulted_project_facets == ["kuma"]
 
     @pytest.mark.xfail(reason='Versions are not showing correctly! Fixme while rewrite!')
     def test_file_search_show_versions(self, client, all_projects, es_index, settings):
@@ -186,52 +321,72 @@ class TestPageSearch(object):
 
         project = all_projects[0]
         # Create some versions of the project
-        versions = [G(Version, project=project) for _ in range(3)]
-
+        versions = [get(Version, project=project) for _ in range(3)]
         query = get_search_query_from_project_file(project_slug=project.slug)
-
-        result, page = self._get_search_result(
-            url=self.url, client=client,
-            search_params={'q': query, 'type': 'file'},
+        results, facets = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={ 'q': query, 'type': 'file' },
         )
 
-        # There should be only one result because by default
-        # only latest version result should be there
-        assert len(result) == 1
+        # Results can be from other projects also
+        assert len(results) >= 1
 
-        content = page.find('.navigable .version-list')
+        version_facets = facets['version']
+        version_facets_str = [facet[0] for facet in version_facets]
         # There should be total 4 versions
         # one is latest, and other 3 that we created above
-        assert len(content) == 4
+        assert len(version_facets) == 4
 
         project_versions = [v.slug for v in versions] + [LATEST]
-        content_versions = []
-        for element in content:
-            text = element.text_content()
-            # strip and split to keep the version slug only
-            slug = text.strip().split('\n')[0]
-            content_versions.append(slug)
-
-        assert sorted(project_versions) == sorted(content_versions)
+        assert sorted(project_versions) == sorted(version_facets_str)
 
     def test_file_search_subprojects(self, client, all_projects, es_index):
-        """
-        TODO: File search should return results from subprojects also.
-
-        This is currently disabled because the UX around it is weird.
-        You filter by a project, and get results for multiple.
-        """
         project = all_projects[0]
         subproject = all_projects[1]
         # Add another project as subproject of the project
-        project.add_subproject(subproject)
+        project.add_subproject(subproject, alias="subproject")
 
         # Now search with subproject content but explicitly filter by the parent project
         query = get_search_query_from_project_file(project_slug=subproject.slug)
-        search_params = {'q': query, 'type': 'file', 'project': project.slug}
-        result, page = self._get_search_result(
-            url=self.url, client=client,
+        search_params = {
+            "q": f"subprojects:{project.slug} {query}",
+            "type": "file",
+        }
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
             search_params=search_params,
         )
+        assert len(results) == 1
+        assert results[0]["project"] == {"alias": "subproject", "slug": subproject.slug}
 
-        assert len(result) == 0
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_search_only_projects_owned_by_the_user(self, client, all_projects):
+        project = Project.objects.get(slug='docs')
+        user = get(User)
+        user.projects.add(project)
+        client.force_login(user)
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            # Search for the most common english word.
+            search_params={'q': 'the', 'type': 'file'},
+        )
+        assert len(results) > 0
+
+        for result in results:
+            assert result["project"] == {"alias": None, "slug": "docs"}
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_search_no_owned_projects(self, client, all_projects):
+        user = get(User)
+        assert user.projects.all().count() == 0
+        client.force_login(user)
+        results, _ = self._get_search_result(
+            url=self.url,
+            client=client,
+            # Search for the most common english word.
+            search_params={'q': 'the', 'type': 'file'},
+        )
+        assert len(results) == 0

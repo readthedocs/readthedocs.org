@@ -1,44 +1,14 @@
-# -*- coding: utf-8 -*-
 """Base classes and mixins for unit tests."""
-import logging
-import os
-import shutil
-import tempfile
+import structlog
 from collections import OrderedDict
+from unittest.mock import patch
 
-from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import RequestFactory, TestCase
-from mock import patch
 
-
-log = logging.getLogger(__name__)
-
-
-class RTDTestCase(TestCase):
-    def setUp(self):
-        self.original_DOCROOT = settings.DOCROOT
-        self.cwd = os.path.dirname(__file__)
-        self.build_dir = tempfile.mkdtemp()
-        log.info('build dir: %s', self.build_dir)
-        if not os.path.exists(self.build_dir):
-            os.makedirs(self.build_dir)
-        settings.DOCROOT = self.build_dir
-
-    def tearDown(self):
-        shutil.rmtree(self.build_dir)
-        settings.DOCROOT = self.original_DOCROOT
-
-
-@patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
-@patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
-class MockBuildTestCase(TestCase):
-
-    """Mock build triggers for test cases."""
-
-    pass
+log = structlog.get_logger(__name__)
 
 
 class RequestFactoryTestMixin:
@@ -49,7 +19,7 @@ class RequestFactoryTestMixin:
     This handles setting up authentication, messages, and session handling
     """
 
-    def request(self, *args, **kwargs):
+    def request(self, method, *args, **kwargs):
         """
         Perform request from factory.
 
@@ -68,7 +38,6 @@ class RequestFactoryTestMixin:
         Other keyword arguments are passed into the request method
         """
         factory = RequestFactory()
-        method = kwargs.pop('method', 'get')
         fn = getattr(factory, method)
         request = fn(*args, **kwargs)
 
@@ -96,7 +65,7 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
     wizard_class_slug = None
     wizard_class = None
 
-    @patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
+    @patch('readthedocs.core.utils.trigger_build', lambda x: None)
     def post_step(self, step, **kwargs):
         """
         Post step form data to `url`, using supplementary `kwargs`
@@ -115,7 +84,7 @@ class WizardTestCase(RequestFactoryTestMixin, TestCase):
         # Update with prefixed step data
         data['{}-current_step'.format(self.wizard_class_slug)] = step
         view = self.wizard_class.as_view()
-        req = self.request(self.url, method='post', data=data, **kwargs)
+        req = self.request('post', self.url, data=data, **kwargs)
         resp = view(req)
         self.assertIsNotNone(resp)
         return resp

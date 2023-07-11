@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Lookup tables for builders and backends."""
 from importlib import import_module
 
@@ -21,7 +19,6 @@ BUILDER_BY_NAME = {
     'sphinx_singlehtmllocalmedia': sphinx.LocalMediaBuilder,
     # Other markup
     'mkdocs': mkdocs.MkdocsHTML,
-    'mkdocs_json': mkdocs.MkdocsJSON,
 }
 
 

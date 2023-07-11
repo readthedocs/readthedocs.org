@@ -6,20 +6,26 @@ import copy
 import os
 import re
 from contextlib import contextmanager
+from functools import lru_cache
 
 from django.conf import settings
 
 from readthedocs.config.utils import list_to_dict, to_dict
-from readthedocs.projects.constants import DOCUMENTATION_CHOICES
+from readthedocs.core.utils.filesystem import safe_open
+from readthedocs.projects.constants import GENERIC
 
 from .find import find_one
 from .models import (
     Build,
+    BuildJobs,
+    BuildTool,
+    BuildWithOs,
     Conda,
     Mkdocs,
     Python,
     PythonInstall,
     PythonInstallRequirements,
+    Search,
     Sphinx,
     Submodules,
 )
@@ -30,25 +36,25 @@ from .validation import (
     validate_bool,
     validate_choice,
     validate_dict,
-    validate_directory,
-    validate_file,
     validate_list,
+    validate_path,
+    validate_path_pattern,
     validate_string,
 )
 
-
 __all__ = (
-    'ALL',
-    'load',
-    'BuildConfigV1',
-    'BuildConfigV2',
-    'ConfigError',
-    'ConfigOptionNotSupportedError',
-    'ConfigFileNotFound',
-    'InvalidConfig',
-    'PIP',
-    'SETUPTOOLS',
-    'LATEST_CONFIGURATION_VERSION',
+    "ALL",
+    "load",
+    "BuildConfigV1",
+    "BuildConfigV2",
+    "ConfigError",
+    "ConfigOptionNotSupportedError",
+    "ConfigFileNotFound",
+    "DefaultConfigFileNotFound",
+    "InvalidConfig",
+    "PIP",
+    "SETUPTOOLS",
+    "LATEST_CONFIGURATION_VERSION",
 )
 
 ALL = 'all'
@@ -65,17 +71,12 @@ PYTHON_INVALID = 'python-invalid'
 SUBMODULES_INVALID = 'submodules-invalid'
 INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
 INVALID_KEY = 'invalid-key'
-
-DOCKER_DEFAULT_IMAGE = settings.DOCKER_DEFAULT_IMAGE
-DOCKER_DEFAULT_VERSION = settings.DOCKER_DEFAULT_VERSION
-# These map to corresponding settings in the .org,
-# so they haven't been renamed.
-DOCKER_IMAGE = settings.DOCKER_IMAGE
-DOCKER_IMAGE_SETTINGS = settings.DOCKER_IMAGE_SETTINGS
+INVALID_NAME = 'invalid-name'
 
 LATEST_CONFIGURATION_VERSION = 2
 
 
+# TODO: make these exception to inherit from `BuildUserError`
 class ConfigError(Exception):
 
     """Base error for the rtd configuration file."""
@@ -91,7 +92,18 @@ class ConfigFileNotFound(ConfigError):
 
     def __init__(self, directory):
         super().__init__(
-            f"Configuration file not found in: {directory}",
+            f'Configuration file not found in: {directory}',
+            CONFIG_FILE_REQUIRED,
+        )
+
+
+class DefaultConfigFileNotFound(ConfigError):
+
+    """Error when we can't find a configuration file."""
+
+    def __init__(self, directory):
+        super().__init__(
+            f"No default configuration file in: {directory}",
             CONFIG_FILE_REQUIRED,
         )
 
@@ -122,11 +134,26 @@ class InvalidConfig(ConfigError):
         self.code = code
         self.source_file = source_file
         message = self.message_template.format(
-            key=key,
+            key=self._get_display_key(),
             code=code,
             error=error_message,
         )
         super().__init__(message, code=code)
+
+    def _get_display_key(self):
+        """
+        Display keys in a more friendly format.
+
+        Indexes are displayed like ``n``,
+        but users may be more familiar with the ``[n]`` syntax.
+        For example ``python.install.0.requirements``
+        is changed to `python.install[0].requirements`.
+        """
+        return re.sub(
+            r'^([a-zA-Z_.-]+)\.(\d+)([a-zA-Z_.-]*)$',
+            r'\1[\2]\3',
+            self.key
+        )
 
 
 class BuildConfigBase:
@@ -138,7 +165,7 @@ class BuildConfigBase:
 
        You need to call ``validate`` before the config is ready to use.
 
-    :param env_config: A dict that cointains additional information
+    :param env_config: A dict that contains additional information
                        about the environment.
     :param raw_config: A dict with all configuration without validation.
     :param source_file: The file that contains the configuration.
@@ -157,19 +184,26 @@ class BuildConfigBase:
         'sphinx',
         'mkdocs',
         'submodules',
+        'search',
     ]
 
-    default_build_image = DOCKER_DEFAULT_VERSION
+    default_build_image = settings.DOCKER_DEFAULT_VERSION
+
     version = None
 
-    def __init__(self, env_config, raw_config, source_file):
+    def __init__(self, env_config, raw_config, source_file, base_path=None):
         self.env_config = env_config
-        self.raw_config = copy.deepcopy(raw_config)
+        self._raw_config = copy.deepcopy(raw_config)
+        self.source_config = copy.deepcopy(raw_config)
         self.source_file = source_file
-        if os.path.isdir(self.source_file):
-            self.base_path = self.source_file
+        # Support explicit base_path as well as implicit base_path from config_file.
+        if base_path:
+            self.base_path = base_path
         else:
-            self.base_path = os.path.dirname(self.source_file)
+            if os.path.isdir(self.source_file):
+                self.base_path = self.source_file
+            else:
+                self.base_path = os.path.dirname(self.source_file)
         self.defaults = self.env_config.get('defaults', {})
 
         self._config = {}
@@ -202,7 +236,7 @@ class BuildConfigBase:
                 code=error.code,
                 error_message=str(error),
                 source_file=self.source_file,
-            )
+            ) from error
 
     def pop(self, name, container, default, raise_ex):
         """
@@ -231,32 +265,68 @@ class BuildConfigBase:
 
     def pop_config(self, key, default=None, raise_ex=False):
         """
-        Search and pop a key (recursively) from `self.raw_config`.
+        Search and pop a key (recursively) from `self._raw_config`.
 
         :param key: the key name in a dotted form (``key.innerkey``)
         :param default: Optionally, it can receive a default value
         :param raise_ex: If True, raises an exception when the key is not found
         """
-        return self.pop(key.split('.'), self.raw_config, default, raise_ex)
+        return self.pop(key.split('.'), self._raw_config, default, raise_ex)
 
     def validate(self):
         raise NotImplementedError()
 
     @property
+    def using_build_tools(self):
+        return isinstance(self.build, BuildWithOs)
+
+    @property
+    def is_using_conda(self):
+        if self.using_build_tools:
+            return self.python_interpreter in ("conda", "mamba")
+        return self.conda is not None
+
+    @property
+    def is_using_setup_py_install(self):
+        """Check if this project is using `setup.py install` as installation method."""
+        for install in self.python.install:
+            if isinstance(install, PythonInstall) and install.method == SETUPTOOLS:
+                return True
+        return False
+
+    @property
     def python_interpreter(self):
-        ver = self.python_full_version
-        return 'python{}'.format(ver)
+        if self.using_build_tools:
+            tool = self.build.tools.get('python')
+            if tool and tool.version.startswith('mamba'):
+                return 'mamba'
+            if tool and tool.version.startswith('miniconda'):
+                return 'conda'
+            if tool:
+                return 'python'
+            return None
+        version = self.python_full_version
+        if version.startswith('pypy'):
+            # Allow to specify ``pypy3.5`` as Python interpreter
+            return version
+        return f'python{version}'
+
+    @property
+    def docker_image(self):
+        if self.using_build_tools:
+            return self.settings['os'][self.build.os]
+        return self.build.image
 
     @property
     def python_full_version(self):
-        ver = self.python.version
-        if ver in [2, 3]:
-            # Get the highest version of the major series version if user only
-            # gave us a version of '2', or '3'
-            ver = max(
-                v for v in self.get_valid_python_versions() if v < ver + 1
+        version = self.python.version
+        if version in ['2', '3']:
+            # use default Python version if user only set '2', or '3'
+            return self.get_default_python_version_for_image(
+                self.build.image,
+                version,
             )
-        return ver
+        return version
 
     @property
     def valid_build_images(self):
@@ -265,10 +335,10 @@ class BuildConfigBase:
 
         The user can use any of this values in the YAML file. These values are
         the keys of ``DOCKER_IMAGE_SETTINGS`` Django setting (without the
-        ``readthedocs/build`` part) plus ``stable`` and ``latest``.
+        ``readthedocs/build`` part) plus ``stable``, ``latest`` and ``testing``.
         """
-        images = {'stable', 'latest'}
-        for k in DOCKER_IMAGE_SETTINGS:
+        images = {'stable', 'latest', 'testing'}
+        for k in settings.DOCKER_IMAGE_SETTINGS:
             _, version = k.split(':')
             if re.fullmatch(r'^[\d\.]+$', version):
                 images.add(version)
@@ -284,12 +354,38 @@ class BuildConfigBase:
         Returns supported versions for the ``DOCKER_DEFAULT_VERSION`` if not
         ``build_image`` found.
         """
-        if build_image not in DOCKER_IMAGE_SETTINGS:
+        if build_image not in settings.DOCKER_IMAGE_SETTINGS:
             build_image = '{}:{}'.format(
-                DOCKER_DEFAULT_IMAGE,
+                settings.DOCKER_DEFAULT_IMAGE,
                 self.default_build_image,
             )
-        return DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
+        return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
+
+    def get_default_python_version_for_image(self, build_image, python_version):
+        """
+        Return the default Python version for Docker image and Py2 or Py3.
+
+        :param build_image: the Docker image complete name, already validated
+            (``readthedocs/build:4.0``, not just ``4.0``)
+        :type build_image: str
+
+        :param python_version: major Python version (``2`` or ``3``) to get its
+            default full version
+        :type python_version: int
+
+        :returns: default version for the ``DOCKER_DEFAULT_VERSION`` if not
+                  ``build_image`` found.
+        """
+        if build_image not in settings.DOCKER_IMAGE_SETTINGS:
+            build_image = '{}:{}'.format(
+                settings.DOCKER_DEFAULT_IMAGE,
+                self.default_build_image,
+            )
+        return (
+            # For linting
+            settings.DOCKER_IMAGE_SETTINGS[build_image]['python']
+            ['default_version'][python_version]
+        )
 
     def as_dict(self):
         config = {}
@@ -326,7 +422,7 @@ class BuildConfigV1(BuildConfigBase):
             return self.env_config['python']['supported_versions']
         except (KeyError, TypeError):
             versions = set()
-            for _, options in DOCKER_IMAGE_SETTINGS.items():
+            for _, options in settings.DOCKER_IMAGE_SETTINGS.items():
                 versions = versions.union(
                     options['python']['supported_versions']
                 )
@@ -381,11 +477,11 @@ class BuildConfigV1(BuildConfigBase):
         if 'build' in self.env_config:
             build = self.env_config['build'].copy()
         else:
-            build = {'image': DOCKER_IMAGE}
+            build = {'image': settings.DOCKER_IMAGE}
 
         # User specified
-        if 'build' in self.raw_config:
-            _build = self.raw_config['build']
+        if 'build' in self._raw_config:
+            _build = self._raw_config['build']
             if 'image' in _build:
                 with self.catch_validation_error('build'):
                     build['image'] = validate_choice(
@@ -395,12 +491,14 @@ class BuildConfigV1(BuildConfigBase):
             if ':' not in build['image']:
                 # Prepend proper image name to user's image name
                 build['image'] = '{}:{}'.format(
-                    DOCKER_DEFAULT_IMAGE,
+                    settings.DOCKER_DEFAULT_IMAGE,
                     build['image'],
                 )
         # Update docker default settings from image name
-        if build['image'] in DOCKER_IMAGE_SETTINGS:
-            self.env_config.update(DOCKER_IMAGE_SETTINGS[build['image']])
+        if build['image'] in settings.DOCKER_IMAGE_SETTINGS:
+            self.env_config.update(
+                settings.DOCKER_IMAGE_SETTINGS[build['image']]
+            )
 
         # Allow to override specific project
         config_image = self.defaults.get('build_image')
@@ -412,7 +510,7 @@ class BuildConfigV1(BuildConfigBase):
         """Validates the ``python`` key, set default values it's necessary."""
         install_project = self.defaults.get('install_project', False)
         use_system_packages = self.defaults.get('use_system_packages', False)
-        version = self.defaults.get('python_version', 2)
+        version = self.defaults.get('python_version', '2')
         python = {
             'use_system_site_packages': use_system_packages,
             'install_with_pip': False,
@@ -421,8 +519,8 @@ class BuildConfigV1(BuildConfigBase):
             'version': version,
         }
 
-        if 'python' in self.raw_config:
-            raw_python = self.raw_config['python']
+        if 'python' in self._raw_config:
+            raw_python = self._raw_config['python']
             if not isinstance(raw_python, dict):
                 self.error(
                     'python',
@@ -471,17 +569,7 @@ class BuildConfigV1(BuildConfigBase):
 
             if 'version' in raw_python:
                 with self.catch_validation_error('python.version'):
-                    # Try to convert strings to an int first, to catch '2', then
-                    # a float, to catch '2.7'
-                    version = raw_python['version']
-                    if isinstance(version, str):
-                        try:
-                            version = int(version)
-                        except ValueError:
-                            try:
-                                version = float(version)
-                            except ValueError:
-                                pass
+                    version = str(raw_python['version'])
                     python['version'] = validate_choice(
                         version,
                         self.get_valid_python_versions(),
@@ -493,14 +581,14 @@ class BuildConfigV1(BuildConfigBase):
         """Validates the ``conda`` key."""
         conda = {}
 
-        if 'conda' in self.raw_config:
-            raw_conda = self.raw_config['conda']
+        if 'conda' in self._raw_config:
+            raw_conda = self._raw_config['conda']
             with self.catch_validation_error('conda'):
                 validate_dict(raw_conda)
             with self.catch_validation_error('conda.file'):
                 if 'file' not in raw_conda:
                     raise ValidationError('file', VALUE_NOT_FOUND)
-                conda_environment = validate_file(
+                conda_environment = validate_path(
                     raw_conda['file'],
                     self.base_path,
                 )
@@ -510,14 +598,14 @@ class BuildConfigV1(BuildConfigBase):
 
     def validate_requirements_file(self):
         """Validates that the requirements file exists."""
-        if 'requirements_file' not in self.raw_config:
+        if 'requirements_file' not in self._raw_config:
             requirements_file = self.defaults.get('requirements_file')
         else:
-            requirements_file = self.raw_config['requirements_file']
+            requirements_file = self._raw_config['requirements_file']
         if not requirements_file:
             return None
         with self.catch_validation_error('requirements_file'):
-            requirements_file = validate_file(
+            requirements_file = validate_path(
                 requirements_file,
                 self.base_path,
             )
@@ -525,7 +613,7 @@ class BuildConfigV1(BuildConfigBase):
 
     def validate_formats(self):
         """Validates that formats contains only valid formats."""
-        formats = self.raw_config.get('formats')
+        formats = self._raw_config.get('formats')
         if formats is None:
             return self.defaults.get('formats', [])
         if formats == ['none']:
@@ -587,6 +675,7 @@ class BuildConfigV1(BuildConfigBase):
         return None
 
     @property
+    @lru_cache(maxsize=1)
     def build(self):
         """The docker image used by the builders."""
         return Build(**self._config['build'])
@@ -621,6 +710,10 @@ class BuildConfigV1(BuildConfigBase):
             recursive=True,
         )
 
+    @property
+    def search(self):
+        return Search(ranking={}, ignore=[])
+
 
 class BuildConfigV2(BuildConfigBase):
 
@@ -632,9 +725,13 @@ class BuildConfigV2(BuildConfigBase):
     valid_sphinx_builders = {
         'html': 'sphinx',
         'htmldir': 'sphinx_htmldir',
+        'dirhtml': 'sphinx_htmldir',
         'singlehtml': 'sphinx_singlehtml',
     }
-    builders_display = dict(DOCUMENTATION_CHOICES)
+
+    @property
+    def settings(self):
+        return settings.RTD_DOCKER_BUILD_SETTINGS
 
     def validate(self):
         """
@@ -653,9 +750,8 @@ class BuildConfigV2(BuildConfigBase):
         self.validate_doc_types()
         self._config['mkdocs'] = self.validate_mkdocs()
         self._config['sphinx'] = self.validate_sphinx()
-        # TODO: remove later
-        self.validate_final_doc_type()
         self._config['submodules'] = self.validate_submodules()
+        self._config['search'] = self.validate_search()
         self.validate_keys()
 
     def validate_formats(self):
@@ -676,7 +772,7 @@ class BuildConfigV2(BuildConfigBase):
 
     def validate_conda(self):
         """Validates the conda key."""
-        raw_conda = self.raw_config.get('conda')
+        raw_conda = self._raw_config.get('conda')
         if raw_conda is None:
             return None
 
@@ -686,34 +782,182 @@ class BuildConfigV2(BuildConfigBase):
         conda = {}
         with self.catch_validation_error('conda.environment'):
             environment = self.pop_config('conda.environment', raise_ex=True)
-            conda['environment'] = validate_file(environment, self.base_path)
+            conda['environment'] = validate_path(environment, self.base_path)
         return conda
 
-    def validate_build(self):
+    def validate_build_config_with_os(self):
         """
-        Validates the build object.
+        Validates the build object (new format).
+
+        At least one element must be provided in ``build.tools``.
+        """
+        build = {}
+        with self.catch_validation_error('build.os'):
+            build_os = self.pop_config('build.os', raise_ex=True)
+            build['os'] = validate_choice(build_os, self.settings['os'].keys())
+
+        tools = {}
+        with self.catch_validation_error('build.tools'):
+            tools = self.pop_config('build.tools')
+            if tools:
+                validate_dict(tools)
+                for tool in tools.keys():
+                    validate_choice(tool, self.settings["tools"].keys())
+
+        jobs = {}
+        with self.catch_validation_error("build.jobs"):
+            # FIXME: should we use `default={}` or kept the `None` here and
+            # shortcircuit the rest of the logic?
+            jobs = self.pop_config("build.jobs", default={})
+            validate_dict(jobs)
+            # NOTE: besides validating that each key is one of the expected
+            # ones, we could validate the value of each of them is a list of
+            # commands. However, I don't think we should validate the "command"
+            # looks like a real command.
+            for job in jobs.keys():
+                validate_choice(
+                    job,
+                    BuildJobs.__slots__,
+                )
+
+        commands = []
+        with self.catch_validation_error("build.commands"):
+            commands = self.pop_config("build.commands", default=[])
+            validate_list(commands)
+
+        if not (tools or commands):
+            self.error(
+                key="build.tools",
+                message=(
+                    "At least one item should be provided in 'tools' or 'commands'"
+                ),
+                code=CONFIG_REQUIRED,
+            )
+
+        if commands and jobs:
+            self.error(
+                key="build.commands",
+                message="The keys build.jobs and build.commands can't be used together.",
+                code=INVALID_KEYS_COMBINATION,
+            )
+
+        build["jobs"] = {}
+        for job, job_commands in jobs.items():
+            with self.catch_validation_error(f"build.jobs.{job}"):
+                build["jobs"][job] = [
+                    validate_string(job_command)
+                    for job_command in validate_list(job_commands)
+                ]
+
+        build["commands"] = []
+        for command in commands:
+            with self.catch_validation_error("build.commands"):
+                build["commands"].append(validate_string(command))
+
+        build['tools'] = {}
+        if tools:
+            for tool, version in tools.items():
+                with self.catch_validation_error(f"build.tools.{tool}"):
+                    build["tools"][tool] = validate_choice(
+                        version,
+                        self.settings["tools"][tool].keys(),
+                    )
+
+        build['apt_packages'] = self.validate_apt_packages()
+        return build
+
+    def validate_old_build_config(self):
+        """
+        Validates the build object (old format).
 
         It prioritizes the value from the default image if exists.
         """
-        raw_build = self.raw_config.get('build', {})
-        with self.catch_validation_error('build'):
-            validate_dict(raw_build)
         build = {}
         with self.catch_validation_error('build.image'):
             image = self.pop_config('build.image', self.default_build_image)
             build['image'] = '{}:{}'.format(
-                DOCKER_DEFAULT_IMAGE,
+                settings.DOCKER_DEFAULT_IMAGE,
                 validate_choice(
                     image,
                     self.valid_build_images,
                 ),
             )
 
-        # Allow to override specific project
-        config_image = self.defaults.get('build_image')
-        if config_image:
-            build['image'] = config_image
+            # Allow to override specific project
+            config_image = self.defaults.get('build_image')
+            if config_image:
+                build['image'] = config_image
+
+        build['apt_packages'] = self.validate_apt_packages()
         return build
+
+    def validate_apt_packages(self):
+        apt_packages = []
+        with self.catch_validation_error('build.apt_packages'):
+            raw_packages = self._raw_config.get('build', {}).get('apt_packages', [])
+            validate_list(raw_packages)
+            # Transform to a dict, so is easy to validate individual entries.
+            self._raw_config.setdefault('build', {})['apt_packages'] = (
+                list_to_dict(raw_packages)
+            )
+
+            apt_packages = [
+                self.validate_apt_package(index)
+                for index in range(len(raw_packages))
+            ]
+            if not raw_packages:
+                self.pop_config('build.apt_packages')
+
+        return apt_packages
+
+    def validate_build(self):
+        raw_build = self._raw_config.get('build', {})
+        with self.catch_validation_error('build'):
+            validate_dict(raw_build)
+        if "os" in raw_build or "commands" in raw_build or "tools" in raw_build:
+            return self.validate_build_config_with_os()
+        return self.validate_old_build_config()
+
+    def validate_apt_package(self, index):
+        """
+        Validate the package name to avoid injections of extra options.
+
+        We validate that they aren't interpreted as an option or file.
+        See https://manpages.ubuntu.com/manpages/xenial/man8/apt-get.8.html
+        and https://www.debian.org/doc/manuals/debian-reference/ch02.en.html#_debian_package_file_names  # noqa
+        for allowed chars in packages names.
+        """
+        key = f'build.apt_packages.{index}'
+        package = self.pop_config(key)
+        with self.catch_validation_error(key):
+            validate_string(package)
+            package = package.strip()
+            invalid_starts = [
+                # Don't allow extra options.
+                '-',
+                # Don't allow to install from a path.
+                '/',
+                '.',
+            ]
+            for start in invalid_starts:
+                if package.startswith(start):
+                    self.error(
+                        key=key,
+                        message=(
+                            'Invalid package name. '
+                            f'Package can\'t start with {start}.',
+                        ),
+                        code=INVALID_NAME,
+                    )
+            # List of valid chars in packages names.
+            pattern = re.compile(r'^[a-zA-Z0-9][a-zA-Z0-9.+-]*$')
+            if not pattern.match(package):
+                self.error(
+                    key=key,
+                    message='Invalid package name.',
+                    code=INVALID_NAME,
+                )
+        return package
 
     def validate_python(self):
         """
@@ -730,52 +974,49 @@ class BuildConfigV2(BuildConfigBase):
         .. note::
            - ``version`` can be a string or number type.
            - ``extra_requirements`` needs to be used with ``install: 'pip'``.
+           - If the new build config is used (``build.os``),
+             ``python.version`` shouldn't exist.
         """
-        raw_python = self.raw_config.get('python', {})
+        raw_python = self._raw_config.get('python', {})
         with self.catch_validation_error('python'):
             validate_dict(raw_python)
 
         python = {}
-        with self.catch_validation_error('python.version'):
-            version = self.pop_config('python.version', 3)
-            if isinstance(version, str):
-                try:
-                    version = int(version)
-                except ValueError:
-                    try:
-                        version = float(version)
-                    except ValueError:
-                        pass
-            python['version'] = validate_choice(
-                version,
-                self.get_valid_python_versions(),
-            )
+        if not self.using_build_tools:
+            with self.catch_validation_error('python.version'):
+                version = self.pop_config('python.version', '3')
+                if version == 3.1:
+                    # Special case for ``python.version: 3.10``,
+                    # yaml will transform this to the numeric value of `3.1`.
+                    # Save some frustration to users.
+                    version = '3.10'
+                version = str(version)
+                python['version'] = validate_choice(
+                    version,
+                    self.get_valid_python_versions(),
+                )
 
         with self.catch_validation_error('python.install'):
-            raw_install = self.raw_config.get('python', {}).get('install', [])
+            raw_install = self._raw_config.get('python', {}).get('install', [])
             validate_list(raw_install)
             if raw_install:
                 # Transform to a dict, so it's easy to validate extra keys.
-                self.raw_config.setdefault('python', {})['install'] = (
+                self._raw_config.setdefault('python', {})['install'] = (
                     list_to_dict(raw_install)
                 )
             else:
                 self.pop_config('python.install')
 
-        raw_install = self.raw_config.get('python', {}).get('install', [])
+        raw_install = self._raw_config.get('python', {}).get('install', [])
         python['install'] = [
             self.validate_python_install(index)
             for index in range(len(raw_install))
         ]
 
         with self.catch_validation_error('python.system_packages'):
-            system_packages = self.defaults.get(
-                'use_system_packages',
-                False,
-            )
             system_packages = self.pop_config(
                 'python.system_packages',
-                system_packages,
+                False,
             )
             python['use_system_site_packages'] = validate_bool(system_packages)
 
@@ -785,14 +1026,14 @@ class BuildConfigV2(BuildConfigBase):
         """Validates the python.install.{index} key."""
         python_install = {}
         key = 'python.install.{}'.format(index)
-        raw_install = self.raw_config['python']['install'][str(index)]
+        raw_install = self._raw_config['python']['install'][str(index)]
         with self.catch_validation_error(key):
             validate_dict(raw_install)
 
         if 'requirements' in raw_install:
             requirements_key = key + '.requirements'
             with self.catch_validation_error(requirements_key):
-                requirements = validate_file(
+                requirements = validate_path(
                     self.pop_config(requirements_key),
                     self.base_path,
                 )
@@ -800,7 +1041,7 @@ class BuildConfigV2(BuildConfigBase):
         elif 'path' in raw_install:
             path_key = key + '.path'
             with self.catch_validation_error(path_key):
-                path = validate_directory(
+                path = validate_path(
                     self.pop_config(path_key),
                     self.base_path,
                 )
@@ -852,7 +1093,7 @@ class BuildConfigV2(BuildConfigBase):
         avoid innecessary validations.
         """
         with self.catch_validation_error('.'):
-            if 'sphinx' in self.raw_config and 'mkdocs' in self.raw_config:
+            if 'sphinx' in self._raw_config and 'mkdocs' in self._raw_config:
                 self.error(
                     '.',
                     'You can not have the ``sphinx`` and ``mkdocs`` '
@@ -866,7 +1107,7 @@ class BuildConfigV2(BuildConfigBase):
 
         It makes sure we are using an existing configuration file.
         """
-        raw_mkdocs = self.raw_config.get('mkdocs')
+        raw_mkdocs = self._raw_config.get('mkdocs')
         if raw_mkdocs is None:
             return None
 
@@ -877,7 +1118,7 @@ class BuildConfigV2(BuildConfigBase):
         with self.catch_validation_error('mkdocs.configuration'):
             configuration = self.pop_config('mkdocs.configuration', None)
             if configuration is not None:
-                configuration = validate_file(configuration, self.base_path)
+                configuration = validate_path(configuration, self.base_path)
             mkdocs['configuration'] = configuration
 
         with self.catch_validation_error('mkdocs.fail_on_warning'):
@@ -896,7 +1137,7 @@ class BuildConfigV2(BuildConfigBase):
            It should be called after ``validate_mkdocs``. That way
            we can default to sphinx if ``mkdocs`` is not given.
         """
-        raw_sphinx = self.raw_config.get('sphinx')
+        raw_sphinx = self._raw_config.get('sphinx')
         if raw_sphinx is None:
             if self.mkdocs is None:
                 raw_sphinx = {}
@@ -924,7 +1165,7 @@ class BuildConfigV2(BuildConfigBase):
                 configuration,
             )
             if configuration is not None:
-                configuration = validate_file(configuration, self.base_path)
+                configuration = validate_path(configuration, self.base_path)
             sphinx['configuration'] = configuration
 
         with self.catch_validation_error('sphinx.fail_on_warning'):
@@ -933,37 +1174,14 @@ class BuildConfigV2(BuildConfigBase):
 
         return sphinx
 
-    def validate_final_doc_type(self):
-        """
-        Validates that the doctype is the same as the admin panel.
-
-        This a temporal validation, as the configuration file should support per
-        version doctype, but we need to adapt the rtd code for that.
-        """
-        dashboard_doctype = self.defaults.get('doctype', 'sphinx')
-        if self.doctype != dashboard_doctype:
-            error_msg = (
-                'Your project is configured as "{}" in your admin dashboard,'
-            ).format(self.builders_display[dashboard_doctype])
-
-            if dashboard_doctype == 'mkdocs' or not self.sphinx:
-                error_msg += ' but there is no "{}" key specified.'.format(
-                    'mkdocs' if dashboard_doctype == 'mkdocs' else 'sphinx',
-                )
-            else:
-                error_msg += ' but your "sphinx.builder" key does not match.'
-
-            key = 'mkdocs' if self.doctype == 'mkdocs' else 'sphinx.builder'
-            self.error(key, error_msg, code=INVALID_KEYS_COMBINATION)
-
     def validate_submodules(self):
         """
         Validates the submodules key.
 
-        - We can use the ``ALL`` keyword in include or exlude.
-        - We can't exlude and include submodules at the same time.
+        - We can use the ``ALL`` keyword in include or exclude.
+        - We can't exclude and include submodules at the same time.
         """
-        raw_submodules = self.raw_config.get('submodules', {})
+        raw_submodules = self._raw_config.get('submodules', {})
         with self.catch_validation_error('submodules'):
             validate_dict(raw_submodules)
 
@@ -1006,12 +1224,58 @@ class BuildConfigV2(BuildConfigBase):
 
         return submodules
 
+    def validate_search(self):
+        """
+        Validates the search key.
+
+        - ``ranking`` is a map of path patterns to a rank.
+        - ``ignore`` is a list of patterns.
+        - The path pattern supports basic globs (*, ?, [seq]).
+        - The rank can be a integer number between -10 and 10.
+        """
+        raw_search = self._raw_config.get('search', {})
+        with self.catch_validation_error('search'):
+            validate_dict(raw_search)
+
+        search = {}
+        with self.catch_validation_error('search.ranking'):
+            ranking = self.pop_config('search.ranking', {})
+            validate_dict(ranking)
+
+            valid_rank_range = list(range(-10, 10 + 1))
+
+            final_ranking = {}
+            for pattern, rank in ranking.items():
+                pattern = validate_path_pattern(pattern)
+                validate_choice(rank, valid_rank_range)
+                final_ranking[pattern] = rank
+
+            search['ranking'] = final_ranking
+
+        with self.catch_validation_error('search.ignore'):
+            ignore_default = [
+                'search.html',
+                'search/index.html',
+                '404.html',
+                '404/index.html',
+            ]
+            search_ignore = self.pop_config('search.ignore', ignore_default)
+            validate_list(search_ignore)
+
+            final_ignore = [
+                validate_path_pattern(pattern)
+                for pattern in search_ignore
+            ]
+            search['ignore'] = final_ignore
+
+        return search
+
     def validate_keys(self):
         """
         Checks that we don't have extra keys (invalid ones).
 
         This should be called after all the validations are done and all keys
-        are popped from `self.raw_config`.
+        are popped from `self._raw_config`.
         """
         msg = (
             'Invalid configuration option: {}. '
@@ -1020,7 +1284,7 @@ class BuildConfigV2(BuildConfigBase):
         # The version key isn't popped, but it's
         # validated in `load`.
         self.pop_config('version', None)
-        wrong_key = '.'.join(self._get_extra_key(self.raw_config))
+        wrong_key = '.'.join(self._get_extra_key(self._raw_config))
         if wrong_key:
             self.error(
                 wrong_key,
@@ -1060,8 +1324,25 @@ class BuildConfigV2(BuildConfigBase):
         return None
 
     @property
+    @lru_cache(maxsize=1)
     def build(self):
-        return Build(**self._config['build'])
+        build = self._config['build']
+        if 'os' in build:
+            tools = {
+                tool: BuildTool(
+                    version=version,
+                    full_version=self.settings['tools'][tool][version],
+                )
+                for tool, version in build['tools'].items()
+            }
+            return BuildWithOs(
+                os=build['os'],
+                tools=tools,
+                jobs=BuildJobs(**build["jobs"]),
+                commands=build["commands"],
+                apt_packages=build["apt_packages"],
+            )
+        return Build(**build)
 
     @property
     def python(self):
@@ -1073,7 +1354,7 @@ class BuildConfigV2(BuildConfigBase):
             elif 'path' in install:
                 python_install.append(PythonInstall(**install),)
         return Python(
-            version=python['version'],
+            version=python.get('version'),
             install=python_install,
             use_system_site_packages=python['use_system_site_packages'],
         )
@@ -1092,6 +1373,9 @@ class BuildConfigV2(BuildConfigBase):
 
     @property
     def doctype(self):
+        if "commands" in self._config["build"] and self._config["build"]["commands"]:
+            return GENERIC
+
         if self.mkdocs:
             return 'mkdocs'
         return self.sphinx.builder
@@ -1100,8 +1384,12 @@ class BuildConfigV2(BuildConfigBase):
     def submodules(self):
         return Submodules(**self._config['submodules'])
 
+    @property
+    def search(self):
+        return Search(**self._config['search'])
 
-def load(path, env_config):
+
+def load(path, env_config, readthedocs_yaml_path=None):
     """
     Load a project configuration and the top-most build config for a given path.
 
@@ -1109,11 +1397,25 @@ def load(path, env_config):
     the version of the configuration a build object would be load and validated,
     ``BuildConfigV1`` is the default.
     """
-    filename = find_one(path, CONFIG_FILENAME_REGEX)
+    # Custom non-default config file location
+    if readthedocs_yaml_path:
+        filename = os.path.join(path, readthedocs_yaml_path)
+        # When a config file is specified and not found, we raise ConfigError
+        # because ConfigFileNotFound
+        if not os.path.exists(filename):
+            raise ConfigFileNotFound(os.path.relpath(filename, path))
+    # Default behavior
+    else:
+        filename = find_one(path, CONFIG_FILENAME_REGEX)
+        if not filename:
+            # This exception is current caught higher up and will result in an attempt
+            # to load the v1 config schema.
+            raise DefaultConfigFileNotFound(path)
 
-    if not filename:
-        raise ConfigFileNotFound(path)
-    with open(filename, 'r') as configuration_file:
+    # Allow symlinks, but only the ones that resolve inside the base directory.
+    with safe_open(
+        filename, "r", allow_symlinks=True, base_path=path
+    ) as configuration_file:
         try:
             config = parse(configuration_file.read())
         except ParseError as error:
@@ -1123,7 +1425,7 @@ def load(path, env_config):
                     message=str(error),
                 ),
                 code=CONFIG_SYNTAX_INVALID,
-            )
+            ) from error
         version = config.get('version', 1)
         build_config = get_configuration_class(version)(
             env_config,
@@ -1148,9 +1450,9 @@ def get_configuration_class(version):
     try:
         version = int(version)
         return configurations_class[version]
-    except (KeyError, ValueError):
+    except (KeyError, ValueError) as error:
         raise InvalidConfig(
             'version',
             code=VERSION_INVALID,
             error_message='Invalid version of the configuration file',
-        )
+        ) from error

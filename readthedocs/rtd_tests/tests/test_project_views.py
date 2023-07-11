@@ -1,80 +1,56 @@
+from unittest import mock
 
-from datetime import timedelta
-
-from allauth.account.models import EmailAddress
+from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
-from django.contrib.messages import constants as message_const
 from django.http.response import HttpResponseRedirect
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
-from django.utils import timezone
 from django.views.generic.base import ContextMixin
 from django_dynamic_fixture import get, new
-from mock import patch
 
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
 from readthedocs.builds.models import Build, Version
-from readthedocs.oauth.models import RemoteRepository
-from readthedocs.projects import tasks
-from readthedocs.projects.exceptions import ProjectSpamError
-from readthedocs.projects.models import Domain, Project
+from readthedocs.integrations.models import GenericAPIWebhook, GitHubWebhook
+from readthedocs.oauth.models import RemoteRepository, RemoteRepositoryRelation
+from readthedocs.organizations.models import Organization
+from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.models import Domain, Project, WebHook, WebHookEvent
 from readthedocs.projects.views.mixins import ProjectRelationMixin
 from readthedocs.projects.views.private import ImportWizardView
-from readthedocs.rtd_tests.base import (
-    MockBuildTestCase,
-    RequestFactoryTestMixin,
-    WizardTestCase,
-)
+from readthedocs.projects.views.public import ProjectBadgeView
+from readthedocs.rtd_tests.base import RequestFactoryTestMixin, WizardTestCase
 
 
-@patch('readthedocs.projects.views.private.trigger_build', lambda x: None)
-class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
+class TestImportProjectBannedUser(RequestFactoryTestMixin, TestCase):
 
-    wizard_class_slug = 'import_wizard_view'
-    url = '/dashboard/import/manual/'
+    wizard_class_slug = "import_wizard_view"
+    url = "/dashboard/import/manual/"
 
     def setUp(self):
         super().setUp()
         data = {
-            'basics': {
-                'name': 'foobar',
-                'repo': 'http://example.com/foobar',
-                'repo_type': 'git',
+            "basics": {
+                "name": "foobar",
+                "repo": "http://example.com/foobar",
+                "repo_type": "git",
             },
-            'extra': {
-                'description': 'Describe foobar',
-                'language': 'en',
-                'documentation_type': 'sphinx',
+            "extra": {
+                "description": "Describe foobar",
+                "language": "en",
+                "documentation_type": "sphinx",
             },
         }
         self.data = {}
         for key in data:
-            self.data.update({('{}-{}'.format(key, k), v)
-                              for (k, v) in list(data[key].items())})
-        self.data['{}-current_step'.format(self.wizard_class_slug)] = 'extra'
+            self.data.update(
+                {("{}-{}".format(key, k), v) for (k, v) in list(data[key].items())}
+            )
+        self.data["{}-current_step".format(self.wizard_class_slug)] = "extra"
 
-    def test_profile_middleware_no_profile(self):
-        """User without profile and isn't banned."""
-        req = self.request('/projects/import', method='post', data=self.data)
-        req.user = get(User, profile=None)
-        resp = ImportWizardView.as_view()(req)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['location'], '/projects/foobar/')
-
-    @patch('readthedocs.projects.views.private.ProjectBasicsForm.clean')
-    def test_profile_middleware_spam(self, form):
-        """User will be banned."""
-        form.side_effect = ProjectSpamError
-        req = self.request('/projects/import', method='post', data=self.data)
-        req.user = get(User)
-        resp = ImportWizardView.as_view()(req)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['location'], '/')
-        self.assertTrue(req.user.profile.banned)
-
-    def test_profile_middleware_banned(self):
+    def test_banned_user(self):
         """User is banned."""
-        req = self.request('/projects/import', method='post', data=self.data)
+        req = self.request(method="post", path=self.url, data=self.data)
         req.user = get(User)
         req.user.profile.banned = True
         req.user.profile.save()
@@ -84,6 +60,7 @@ class TestProfileMiddleware(RequestFactoryTestMixin, TestCase):
         self.assertEqual(resp['location'], '/')
 
 
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class TestBasicsForm(WizardTestCase):
 
     wizard_class_slug = 'import_wizard_view'
@@ -97,6 +74,9 @@ class TestBasicsForm(WizardTestCase):
             'repo': 'http://example.com/foobar',
             'repo_type': 'git',
         }
+        self.step_data["config"] = {
+            "confirm": True,
+        }
 
     def tearDown(self):
         Project.objects.filter(slug='foobar').delete()
@@ -105,9 +85,35 @@ class TestBasicsForm(WizardTestCase):
         kwargs['user'] = self.user
         return super().request(*args, **kwargs)
 
+    def test_form_import_from_remote_repo(self):
+        self.client.force_login(self.user)
+
+        data = {
+            'name': 'pipdocs',
+            'repo': 'https://github.com/fail/sauce',
+            'repo_type': 'git',
+            'remote_repository': '1234',
+            'default_branch': 'main',
+        }
+        resp = self.client.post(
+            '/dashboard/import/',
+            data,
+        )
+        self.assertEqual(resp.status_code, 200)
+
+        # The form is filled with the previous information
+        self.assertEqual(
+            resp.context['form'].initial,
+            data,
+        )
+
     def test_form_pass(self):
         """Only submit the basics."""
         resp = self.post_step('basics')
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.post_step("config", session=list(resp._request.session.items()))
+
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
@@ -119,9 +125,19 @@ class TestBasicsForm(WizardTestCase):
         self.assertEqual(proj.documentation_type, 'sphinx')
 
     def test_remote_repository_is_added(self):
-        remote_repo = get(RemoteRepository, users=[self.user])
+        remote_repo = get(RemoteRepository, default_branch="default-branch")
+        socialaccount = get(SocialAccount, user=self.user)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repo,
+            user=self.user,
+            account=socialaccount
+        )
         self.step_data['basics']['remote_repository'] = remote_repo.pk
         resp = self.post_step('basics')
+        self.assertEqual(resp.status_code, 200)
+
+        resp = self.post_step("config", session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
@@ -129,10 +145,32 @@ class TestBasicsForm(WizardTestCase):
         proj = Project.objects.get(name='foobar')
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
+        self.assertEqual(proj.get_default_branch(), remote_repo.default_branch)
+
+    def test_remote_repository_invalid_type(self):
+        self.step_data['basics']['remote_repository'] = 'Invalid id'
+        resp = self.post_step('basics')
+        self.assertEqual(resp.status_code, 200)
+        form = resp.context_data['form']
+        self.assertIn('remote_repository', form.errors)
+
+    def test_remote_repository_invalid_id(self):
+        self.step_data['basics']['remote_repository'] = 9
+        resp = self.post_step('basics')
+        self.assertEqual(resp.status_code, 200)
+        form = resp.context_data['form']
+        self.assertIn('remote_repository', form.errors)
 
     def test_remote_repository_is_not_added_for_wrong_user(self):
         user = get(User)
-        remote_repo = get(RemoteRepository, users=[user])
+        remote_repo = get(RemoteRepository)
+        socialaccount = get(SocialAccount, user=user)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repo,
+            user=user,
+            account=socialaccount
+        )
         self.step_data['basics']['remote_repository'] = remote_repo.pk
         resp = self.post_step('basics')
         self.assertWizardFailure(resp, 'remote_repository')
@@ -142,14 +180,17 @@ class TestBasicsForm(WizardTestCase):
         self.step_data['basics'] = {'advanced': True}
         resp = self.post_step('basics')
         self.assertWizardFailure(resp, 'name')
-        self.assertWizardFailure(resp, 'repo_type')
 
 
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
 class TestAdvancedForm(TestBasicsForm):
 
     def setUp(self):
         super().setUp()
-        self.step_data['basics']['advanced'] = True
+        self.step_data["basics"]["advanced"] = True
+        self.step_data["config"] = {
+            "confirm": True,
+        }
         self.step_data['extra'] = {
             'description': 'Describe foobar',
             'language': 'en',
@@ -157,10 +198,55 @@ class TestAdvancedForm(TestBasicsForm):
             'tags': 'foo, bar, baz',
         }
 
+    def test_initial_params(self):
+        extra_initial = {
+            'description': 'An amazing project',
+            'project_url': "https://foo.bar",
+        }
+        config_initial = {
+            "confirm": True,
+        }
+        basic_initial = {
+            'name': 'foobar',
+            'repo': 'https://github.com/foo/bar',
+            'repo_type': 'git',
+            'default_branch': 'main',
+            'remote_repository': '',
+        }
+        initial = dict(**extra_initial, **config_initial, **basic_initial)
+        self.client.force_login(self.user)
+
+        # User selects a remote repo to import.
+        resp = self.client.post(reverse('projects_import'), initial)
+
+        # The correct initial data for the basic form is set.
+        form = resp.context_data['form']
+        self.assertEqual(form.initial, basic_initial)
+
+        # User selects advanced.
+        basic_initial['advanced'] = True
+        step_data = {
+            f'basics-{k}': v
+            for k, v in basic_initial.items()
+        }
+        step_data[f'{self.wizard_class_slug}-current_step'] = 'basics'
+        resp = self.client.post(self.url, step_data)
+
+        step_data = {f"config-{k}": v for k, v in config_initial.items()}
+        step_data[f"{self.wizard_class_slug}-current_step"] = "config"
+        resp = self.client.post(self.url, step_data)
+
+        # The correct initial data for the advanced form is set.
+        form = resp.context_data['form']
+        self.assertEqual(form.initial, extra_initial)
+
     def test_form_pass(self):
         """Test all forms pass validation."""
-        resp = self.post_step('basics')
-        self.assertWizardResponse(resp, 'extra')
+        resp = self.post_step("basics")
+        self.assertWizardResponse(resp, "config")
+        resp = self.post_step("config", session=list(resp._request.session.items()))
+        self.assertWizardResponse(resp, "extra")
+        self.assertEqual(resp.status_code, 200)
         resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
@@ -184,19 +270,30 @@ class TestAdvancedForm(TestBasicsForm):
         # Remove extra data to trigger validation errors
         self.step_data['extra'] = {}
 
-        resp = self.post_step('basics')
-        self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=list(resp._request.session.items()))
+        resp = self.post_step("basics")
+        self.assertWizardResponse(resp, "config")
+        resp = self.post_step("config", session=list(resp._request.session.items()))
+        self.assertWizardResponse(resp, "extra")
+        resp = self.post_step("extra", session=list(resp._request.session.items()))
 
         self.assertWizardFailure(resp, 'language')
         self.assertWizardFailure(resp, 'documentation_type')
 
     def test_remote_repository_is_added(self):
-        remote_repo = get(RemoteRepository, users=[self.user])
-        self.step_data['basics']['remote_repository'] = remote_repo.pk
-        resp = self.post_step('basics')
-        self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=list(resp._request.session.items()))
+        remote_repo = get(RemoteRepository, default_branch="default-branch")
+        socialaccount = get(SocialAccount, user=self.user)
+        get(
+            RemoteRepositoryRelation,
+            remote_repository=remote_repo,
+            user=self.user,
+            account=socialaccount
+        )
+        self.step_data["basics"]["remote_repository"] = remote_repo.pk
+        resp = self.post_step("basics")
+        self.assertWizardResponse(resp, "config")
+        resp = self.post_step("config", session=list(resp._request.session.items()))
+        self.assertWizardResponse(resp, "extra")
+        resp = self.post_step("extra", session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
@@ -204,234 +301,191 @@ class TestAdvancedForm(TestBasicsForm):
         proj = Project.objects.get(name='foobar')
         self.assertIsNotNone(proj)
         self.assertEqual(proj.remote_repository, remote_repo)
-
-    @patch(
-        'readthedocs.projects.views.private.ProjectExtraForm.clean_description',
-        create=True,
-    )
-    def test_form_spam(self, mocked_validator):
-        """Don't add project on a spammy description."""
-        self.user.date_joined = timezone.now() - timedelta(days=365)
-        self.user.save()
-        mocked_validator.side_effect = ProjectSpamError
-
-        with self.assertRaises(Project.DoesNotExist):
-            proj = Project.objects.get(name='foobar')
-
-        resp = self.post_step('basics')
-        self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=list(resp._request.session.items()))
-        self.assertIsInstance(resp, HttpResponseRedirect)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['location'], '/')
-
-        with self.assertRaises(Project.DoesNotExist):
-            proj = Project.objects.get(name='foobar')
-        self.assertFalse(self.user.profile.banned)
-
-    @patch(
-        'readthedocs.projects.views.private.ProjectExtraForm.clean_description',
-        create=True,
-    )
-    def test_form_spam_ban_user(self, mocked_validator):
-        """Don't add spam and ban new user."""
-        self.user.date_joined = timezone.now()
-        self.user.save()
-        mocked_validator.side_effect = ProjectSpamError
-
-        with self.assertRaises(Project.DoesNotExist):
-            proj = Project.objects.get(name='foobar')
-
-        resp = self.post_step('basics')
-        self.assertWizardResponse(resp, 'extra')
-        resp = self.post_step('extra', session=list(resp._request.session.items()))
-        self.assertIsInstance(resp, HttpResponseRedirect)
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['location'], '/')
-
-        with self.assertRaises(Project.DoesNotExist):
-            proj = Project.objects.get(name='foobar')
-        self.assertTrue(self.user.profile.banned)
+        self.assertEqual(proj.get_default_branch(), remote_repo.default_branch)
 
 
-class TestImportDemoView(MockBuildTestCase):
-    """Test project import demo view."""
-
-    fixtures = ['test_data', 'eric']
-
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+class TestPublicViews(TestCase):
     def setUp(self):
-        self.client.login(username='eric', password='test')
-
-    def test_import_demo_pass(self):
-        resp = self.client.get('/dashboard/import/manual/demo/')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], '/projects/eric-demo/')
-        resp_redir = self.client.get(resp['Location'])
-        self.assertEqual(resp_redir.status_code, 200)
-        messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, message_const.SUCCESS)
-
-    def test_import_demo_already_imported(self):
-        """Import demo project multiple times, expect failure 2nd post."""
-        self.test_import_demo_pass()
-        project = Project.objects.get(slug='eric-demo')
-
-        resp = self.client.get('/dashboard/import/manual/demo/')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], '/projects/eric-demo/')
-
-        resp_redir = self.client.get(resp['Location'])
-        self.assertEqual(resp_redir.status_code, 200)
-        messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, message_const.SUCCESS)
-
-        self.assertEqual(
-            project,
-            Project.objects.get(slug='eric-demo'),
+        self.pip = get(Project, slug='pip', privacy_level=PUBLIC)
+        self.external_version = get(
+            Version,
+            identifier='pr-version',
+            verbose_name='pr-version',
+            slug='pr-9999',
+            project=self.pip,
+            active=True,
+            type=EXTERNAL
         )
 
-    def test_import_demo_another_user_imported(self):
-        """Import demo project after another user, expect success."""
-        self.test_import_demo_pass()
-        project = Project.objects.get(slug='eric-demo')
-
-        self.client.logout()
-        self.client.login(username='test', password='test')
-        resp = self.client.get('/dashboard/import/manual/demo/')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], '/projects/test-demo/')
-
-        resp_redir = self.client.get(resp['Location'])
-        self.assertEqual(resp_redir.status_code, 200)
-        messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, message_const.SUCCESS)
-
-    def test_import_demo_imported_renamed(self):
-        """If the demo project is renamed, don't import another."""
-        self.test_import_demo_pass()
-        project = Project.objects.get(slug='eric-demo')
-        project.name = 'eric-demo-foobar'
-        project.save()
-
-        resp = self.client.get('/dashboard/import/manual/demo/')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], '/projects/eric-demo/')
-
-        resp_redir = self.client.get(resp['Location'])
-        self.assertEqual(resp_redir.status_code, 200)
-        messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, message_const.SUCCESS)
-        self.assertRegex(
-            messages[0].message,
-            r'already imported',
-        )
-
-        self.assertEqual(
-            project,
-            Project.objects.get(slug='eric-demo'),
-        )
-
-    def test_import_demo_imported_duplicate(self):
-        """
-        If a project exists with same name, expect a failure importing demo.
-
-        This should be edge case, user would have to import a project (not the
-        demo project), named user-demo, and then manually enter the demo import
-        URL, as the onboarding isn't shown when projects > 0
-        """
-        self.test_import_demo_pass()
-        project = Project.objects.get(slug='eric-demo')
-        project.repo = 'file:///foobar'
-        project.save()
-
-        # Setting the primary and verified email of the test user.
-        user = User.objects.get(username='eric')
-        user_email = get(EmailAddress, user=user, primary=True, verified=True)
-
-        resp = self.client.get('/dashboard/import/manual/demo/')
-        self.assertEqual(resp.status_code, 302)
-        self.assertEqual(resp['Location'], '/dashboard/')
-
-        resp_redir = self.client.get(resp['Location'])
-        self.assertEqual(resp_redir.status_code, 200)
-        messages = list(resp_redir.context['messages'])
-        self.assertEqual(messages[0].level, message_const.ERROR)
-        self.assertRegex(
-            messages[0].message,
-            r'There was a problem',
-        )
-
-        self.assertEqual(
-            project,
-            Project.objects.get(slug='eric-demo'),
-        )
-
-
-class TestPublicViews(MockBuildTestCase):
-    def setUp(self):
-        self.pip = get(Project, slug='pip')
-
-    def test_project_download_media(self):
-        url = reverse('project_download_media', args=[self.pip.slug, 'pdf', LATEST])
+    def test_project_detail_view_only_shows_internal_versons(self):
+        url = reverse('projects_detail', args=[self.pip.slug])
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(self.external_version, response.context['versions'])
+
+    def test_project_downloads_only_shows_internal_versons(self):
+        url = reverse('project_downloads', args=[self.pip.slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(self.external_version, response.context['versions'])
+
+    def test_project_versions_only_shows_internal_versons(self):
+        url = reverse('project_version_list', args=[self.pip.slug])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn(self.external_version, response.context['active_versions'])
+        self.assertNotIn(self.external_version, response.context['inactive_versions'])
 
 
-class TestPrivateViews(MockBuildTestCase):
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+class TestPrivateViews(TestCase):
     def setUp(self):
         self.user = new(User, username='eric')
         self.user.set_password('test')
         self.user.save()
         self.client.login(username='eric', password='test')
+        self.project = get(Project, slug='pip', users=[self.user])
 
     def test_versions_page(self):
-        pip = get(Project, slug='pip', users=[self.user])
-        pip.versions.create(verbose_name='1.0')
+        self.project.versions.create(verbose_name='1.0')
 
         response = self.client.get('/projects/pip/versions/')
         self.assertEqual(response.status_code, 200)
 
         # Test if the versions page works with a version that contains a slash.
         # That broke in the past, see issue #1176.
-        pip.versions.create(verbose_name='1.0/with-slash')
+        self.project.versions.create(verbose_name='1.0/with-slash')
 
         response = self.client.get('/projects/pip/versions/')
         self.assertEqual(response.status_code, 200)
 
     def test_delete_project(self):
-        project = get(Project, slug='pip', users=[self.user])
-
         response = self.client.get('/dashboard/pip/delete/')
         self.assertEqual(response.status_code, 200)
 
-        with patch('readthedocs.projects.views.private.broadcast') as broadcast:
+        # Mocked like this because the function is imported inside a class method
+        # https://stackoverflow.com/a/22201798
+        with mock.patch('readthedocs.projects.tasks.utils.clean_project_resources') as clean_project_resources:
             response = self.client.post('/dashboard/pip/delete/')
             self.assertEqual(response.status_code, 302)
             self.assertFalse(Project.objects.filter(slug='pip').exists())
-            broadcast.assert_called_with(
-                type='app',
-                task=tasks.remove_dirs,
-                args=[(project.doc_path,)],
-            )
+            clean_project_resources.assert_called_once()
+            self.assertEqual(clean_project_resources.call_args[0][0].slug, self.project.slug)
 
-    def test_subproject_create(self):
-        project = get(Project, slug='pip', users=[self.user])
-        subproject = get(Project, users=[self.user])
+    def test_delete_superproject(self):
+        sub_proj = get(Project, slug='test-sub-project', users=[self.user])
 
-        with patch('readthedocs.projects.views.private.broadcast') as broadcast:
-            response = self.client.post(
-                '/dashboard/pip/subprojects/create/',
-                data={'child': subproject.pk},
-            )
-            self.assertEqual(response.status_code, 302)
-            broadcast.assert_called_with(
-                type='app',
-                task=tasks.symlink_subproject,
-                args=[project.pk],
-            )
+        self.assertFalse(self.project.subprojects.all().exists())
+        self.project.add_subproject(sub_proj)
+
+        response = self.client.get('/dashboard/pip/delete/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'This project <a href="/dashboard/pip/subprojects/">has subprojects</a> under it. '
+            'Deleting this project will make them to become regular projects. '
+            'This will break the URLs of all its subprojects and they will be served normally as other projects.',
+            count=1,
+            html=True,
+        )
+
+    @mock.patch('readthedocs.projects.views.private.attach_webhook')
+    def test_integration_create(self, attach_webhook):
+        response = self.client.post(
+            reverse('projects_integrations_create', args=[self.project.slug]),
+            data={
+                'project': self.project.pk,
+                'integration_type': GitHubWebhook.GITHUB_WEBHOOK
+            },
+        )
+        integration = GitHubWebhook.objects.filter(project=self.project)
+
+        self.assertTrue(integration.exists())
+        self.assertEqual(response.status_code, 302)
+        attach_webhook.assert_called_once_with(
+            project_pk=self.project.pk,
+            user_pk=self.user.pk,
+            integration=integration.first()
+        )
+
+    @mock.patch('readthedocs.projects.views.private.attach_webhook')
+    def test_integration_create_generic_webhook(self, attach_webhook):
+        response = self.client.post(
+            reverse('projects_integrations_create', args=[self.project.slug]),
+            data={
+                'project': self.project.pk,
+                'integration_type': GenericAPIWebhook.API_WEBHOOK
+            },
+        )
+        integration = GenericAPIWebhook.objects.filter(project=self.project)
+
+        self.assertTrue(integration.exists())
+        self.assertEqual(response.status_code, 302)
+        attach_webhook.assert_not_called()
+
+    def test_integration_webhooks_sync_no_remote_repository(self):
+        self.project.has_valid_webhook = True
+        self.project.save()
+        integration = get(
+            GitHubWebhook,
+            project=self.project,
+        )
+
+        response = self.client.post(
+            reverse(
+                'projects_integrations_webhooks_sync',
+                kwargs={
+                    'project_slug': self.project.slug,
+                    'integration_pk': integration.pk,
+                },
+            ),
+        )
+        self.project.refresh_from_db()
+
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(self.project.has_valid_webhook)
+
+    def test_remove_user(self):
+        user = get(User, username='test')
+        self.project.users.add(user)
+
+        self.assertEqual(self.project.users.count(), 2)
+        r = self.client.post(
+            reverse('projects_users_delete', args=(self.project.slug,)),
+            data={'username': 'test'}
+        )
+        self.assertTrue(r.status_code, 302)
+        self.assertEqual(self.project.users.count(), 1)
+        self.assertEqual(self.project.users.last().username, 'eric')
+
+    def test_remove_own_user(self):
+        user = get(User, username='test')
+        self.project.users.add(user)
+
+        self.assertEqual(self.project.users.count(), 2)
+        r = self.client.post(
+            reverse('projects_users_delete', args=(self.project.slug,)),
+            data={'username': 'eric'}
+        )
+        self.assertTrue(r.status_code, 302)
+        self.assertEqual(self.project.users.count(), 1)
+        self.assertEqual(self.project.users.last().username, 'test')
+
+    def test_remove_last_user(self):
+        self.assertEqual(self.project.users.count(), 1)
+        r = self.client.post(
+            reverse('projects_users_delete', args=(self.project.slug,)),
+            data={'username': 'eric'}
+        )
+        self.assertTrue(r.status_code, 400)
+        self.assertEqual(self.project.users.count(), 1)
+        self.assertEqual(self.project.users.last().username, 'eric')
 
 
-class TestPrivateMixins(MockBuildTestCase):
+@mock.patch('readthedocs.core.utils.trigger_build', mock.MagicMock())
+@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
+class TestPrivateMixins(TestCase):
 
     def setUp(self):
         self.project = get(Project, slug='kong')
@@ -472,29 +526,66 @@ class TestBadges(TestCase):
         res = self.client.get(unknown_project_url, {'version': 'latest'})
         self.assertContains(res, 'unknown')
 
-    def test_passing_badge(self):
-        get(Build, project=self.project, version=self.version, success=True)
+        # Unknown version
+        res = self.client.get(self.badge_url, {'version': 'fake-version'})
+        self.assertContains(res, 'unknown')
+
+    def test_badge_caching(self):
         res = self.client.get(self.badge_url, {'version': self.version.slug})
-        self.assertContains(res, 'passing')
-        self.assertEqual(res['Content-Type'], 'image/svg+xml')
+        self.assertTrue('must-revalidate' in res['Cache-Control'])
+        self.assertTrue('no-cache' in res['Cache-Control'])
+
+    def test_passing_badge(self):
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=True,
+            state=BUILD_STATE_FINISHED,
+        )
+        res = self.client.get(self.badge_url, {"version": self.version.slug})
+        self.assertContains(res, "passing")
+        self.assertEqual(res["Content-Type"], "image/svg+xml")
 
     def test_failing_badge(self):
-        get(Build, project=self.project, version=self.version, success=False)
-        res = self.client.get(self.badge_url, {'version': self.version.slug})
-        self.assertContains(res, 'failing')
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=False,
+            state=BUILD_STATE_FINISHED,
+        )
+        res = self.client.get(self.badge_url, {"version": self.version.slug})
+        self.assertContains(res, "failing")
 
     def test_plastic_failing_badge(self):
-        get(Build, project=self.project, version=self.version, success=False)
-        res = self.client.get(self.badge_url, {'version': self.version.slug, 'style': 'plastic'})
-        self.assertContains(res, 'failing')
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=False,
+            state=BUILD_STATE_FINISHED,
+        )
+        res = self.client.get(
+            self.badge_url, {"version": self.version.slug, "style": "plastic"}
+        )
+        self.assertContains(res, "failing")
 
         # The plastic badge has slightly more rounding
         self.assertContains(res, 'rx="4"')
 
     def test_social_passing_badge(self):
-        get(Build, project=self.project, version=self.version, success=True)
-        res = self.client.get(self.badge_url, {'version': self.version.slug, 'style': 'social'})
-        self.assertContains(res, 'passing')
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=True,
+            state=BUILD_STATE_FINISHED,
+        )
+        res = self.client.get(
+            self.badge_url, {"version": self.version.slug, "style": "social"}
+        )
+        self.assertContains(res, "passing")
 
         # The social badge (but not the other badges) has this element
         self.assertContains(res, 'rlink')
@@ -506,10 +597,109 @@ class TestBadges(TestCase):
         self.assertEqual(resp.status_code, 302)
         self.assertTrue('project-slug' in resp['location'])
 
+    def test_private_version(self):
+        # Set version to private
+        self.version.privacy_level = 'private'
+        self.version.save()
+
+        # Without a token, badge is unknown
+        get(
+            Build,
+            project=self.project,
+            version=self.version,
+            success=True,
+            state=BUILD_STATE_FINISHED,
+        )
+        res = self.client.get(self.badge_url, {"version": self.version.slug})
+        self.assertContains(res, "unknown")
+
+        # With an invalid token, the badge is unknown
+        res = self.client.get(
+            self.badge_url,
+            {
+                'token': ProjectBadgeView.get_project_token('invalid-project'),
+                'version': self.version.slug,
+            }
+        )
+        self.assertContains(res, 'unknown')
+
+        # With a valid token, the badge should work correctly
+        res = self.client.get(
+            self.badge_url,
+            {
+                'token': ProjectBadgeView.get_project_token(self.project.slug),
+                'version': self.version.slug,
+            }
+        )
+        self.assertContains(res, 'passing')
+
 
 class TestTags(TestCase):
+
     def test_project_filtering_work_with_tags_with_space_in_name(self):
-        pip = get(Project, slug='pip')
+        pip = get(Project, slug='pip', privacy_level=PUBLIC)
         pip.tags.add('tag with space')
         response = self.client.get('/projects/tags/tag-with-space/')
         self.assertContains(response, '"/projects/pip/"')
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestWebhooksViews(TestCase):
+
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, slug='test', users=[self.user])
+        self.version = get(Version, slug='1.0', project=self.project)
+        self.webhook = get(WebHook, project=self.project)
+        self.client.force_login(self.user)
+
+    def test_list(self):
+        resp = self.client.get(
+            reverse('projects_webhooks', args=[self.project.slug]),
+        )
+        self.assertEqual(resp.status_code, 200)
+        queryset = resp.context['object_list']
+        self.assertEqual(queryset.count(), 1)
+        self.assertEqual(queryset.first(), self.webhook)
+
+    def test_create(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+        resp = self.client.post(
+            reverse('projects_webhooks_create', args=[self.project.slug]),
+            data = {
+                'url': 'http://www.example.com/',
+                'payload': '{}',
+                'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(self.project.webhook_notifications.all().count(), 2)
+
+    def test_update(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+        self.client.post(
+            reverse('projects_webhooks_edit', args=[self.project.slug, self.webhook.pk]),
+            data = {
+                'url': 'http://www.example.com/new',
+                'payload': '{}',
+                'events': [WebHookEvent.objects.get(name=WebHookEvent.BUILD_FAILED).id],
+            },
+        )
+        self.webhook.refresh_from_db()
+        self.assertEqual(self.webhook.url, 'http://www.example.com/new')
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+
+    def test_delete(self):
+        self.assertEqual(self.project.webhook_notifications.all().count(), 1)
+        self.client.post(
+            reverse('projects_webhooks_delete', args=[self.project.slug, self.webhook.pk]),
+        )
+        self.assertEqual(self.project.webhook_notifications.all().count(), 0)
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+class TestWebhooksViewsWithOrganizations(TestWebhooksViews):
+
+    def setUp(self):
+        super().setUp()
+        self.organization = get(Organization, owners=[self.user], projects=[self.project])

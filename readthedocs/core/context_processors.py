@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """Template context processors for core app."""
 
@@ -17,5 +16,6 @@ def readthedocs_processor(request):
         'TEMPLATE_ROOT': settings.TEMPLATE_ROOT + '/',
         'DO_NOT_TRACK_ENABLED': settings.DO_NOT_TRACK_ENABLED,
         'USE_PROMOS': settings.USE_PROMOS,
+        'SUPPORT_EMAIL': settings.SUPPORT_EMAIL,
     }
     return exports

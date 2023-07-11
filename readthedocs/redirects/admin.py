@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """Django admin configuration for the redirects app."""
 
@@ -17,6 +16,7 @@ class RedirectAdmin(admin.ModelAdmin):
         'from_url',
         'to_url',
     )
+    readonly_fields = ('from_url_without_rest',)
 
 
 admin.site.register(Redirect, RedirectAdmin)

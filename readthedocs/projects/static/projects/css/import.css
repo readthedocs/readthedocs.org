@@ -60,7 +60,7 @@ div.project-import-remote ul.socialaccount_providers li {
   overflow: auto;
   text-align: center;
 }
-div.project-import-remote ul.socialaccount_providers li a.socialaccount-provider {
+div.project-import-remote ul.socialaccount_providers li button.socialaccount-provider {
   float: none;
   display: inline-block;
   margin-bottom: 0.5em;

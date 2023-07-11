@@ -1,24 +1,34 @@
 """Utility functions used by projects."""
 
-import logging
-import os
+import csv
 
-from django.conf import settings
+import structlog
+from django.http import StreamingHttpResponse
+
+log = structlog.get_logger(__name__)
 
 
-log = logging.getLogger(__name__)
+class Echo:
+
+    """
+    A class that implements just the write method of the file-like interface.
+
+    This class can be used for generating StreamingHttpResponse.
+    See: https://docs.djangoproject.com/en/2.2/howto/outputting-csv/#streaming-large-csv-files
+    """
+
+    def write(self, value):
+        """Write the value by returning it, instead of storing in a buffer."""
+        return value
 
 
-# TODO make this a classmethod of Version
-def version_from_slug(slug, version):
-    from readthedocs.builds.models import Version, APIVersion
-    from readthedocs.api.v2.client import api
-    if settings.DONT_HIT_DB:
-        version_data = api.version().get(
-            project=slug,
-            slug=version,
-        )['results'][0]
-        v = APIVersion(**version_data)
-    else:
-        v = Version.objects.get(project__slug=slug, slug=version)
-    return v
+def get_csv_file(filename, csv_data):
+    """Get a CSV file to be downloaded as an attachment."""
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    response = StreamingHttpResponse(
+        (writer.writerow(row) for row in csv_data),
+        content_type="text/csv",
+    )
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response

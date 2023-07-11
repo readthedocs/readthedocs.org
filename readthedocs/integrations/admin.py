@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """Integration admin models."""
 
@@ -48,6 +47,7 @@ class HttpExchangeAdmin(admin.ModelAdmin):
         'pretty_response_body',
     ]
     fields = readonly_fields
+    search_fields = ('integrations__project__slug', 'integrations__project__name')
     list_display = [
         'related_object',
         'date',
@@ -89,9 +89,11 @@ class IntegrationAdmin(admin.ModelAdmin):
     instead just links to the queryset.
     """
 
+    raw_id_fields = ('project',)
     search_fields = ('project__slug', 'project__name')
     readonly_fields = ['exchanges']
 
+    # TODO: review this now that we are using official Django's JSONField
     def exchanges(self, obj):
         """
         Manually make an inline-ish block.
@@ -108,7 +110,7 @@ class IntegrationAdmin(admin.ModelAdmin):
         return mark_safe(
             '<a href="{}?{}={}">{} HTTP transactions</a>'.format(
                 url,
-                'integrations',
+                'integrations__pk',
                 obj.pk,
                 obj.exchanges.count(),
             ),

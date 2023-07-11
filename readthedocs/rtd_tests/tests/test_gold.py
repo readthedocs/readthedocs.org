@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.test import TestCase
 from django.urls import reverse
 from django_dynamic_fixture import fixture, get
@@ -15,7 +14,11 @@ class GoldViewTests(TestCase):
 
         self.project = get(Project, slug='test', users=[fixture(), self.user])
 
-        self.golduser = get(GoldUser, user=self.user, level=LEVEL_CHOICES[0][0])
+        self.golduser = get(
+            GoldUser,
+            user=self.user,
+            level=LEVEL_CHOICES[0][0],
+        )
 
         self.client.login(username='owner', password='test')
 

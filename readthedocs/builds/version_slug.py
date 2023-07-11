@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 """
 Contains logic for handling version slugs.
@@ -25,7 +24,7 @@ import string
 from operator import truediv
 
 from django.db import models
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from slugify import slugify as unicode_slugify
 
 
@@ -70,8 +69,8 @@ class VersionSlugField(models.CharField):
         populate_from = kwargs.pop('populate_from', None)
         if populate_from is None:
             raise ValueError("missing 'populate_from' argument")
-        else:
-            self._populate_from = populate_from
+
+        self._populate_from = populate_from
         super().__init__(*args, **kwargs)
 
     def get_queryset(self, model_cls, slug_field):
@@ -205,7 +204,7 @@ class VersionSlugField(models.CharField):
         value = getattr(model_instance, self.attname)
         # We only create a new slug if none was set yet.
         if not value and add:
-            value = force_text(self.create_slug(model_instance))
+            value = force_str(self.create_slug(model_instance))
             setattr(model_instance, self.attname, value)
         return value
 

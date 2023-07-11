@@ -1,0 +1,23 @@
+.team-roster a img {
+  border-radius: 50%;
+  box-shadow: 0 0 0 7px #fff, 0 0 0 8px #cecece;
+  margin: 9px 17px 9px 3px;
+}
+
+
+/* Center the RTD placement when not wide enough to float */
+#rtd-stickybox-container {
+  text-align: center;
+}
+
+.wy-menu.wy-menu-vertical a.reference.external::after {
+  /* \00a0 = no break space */
+  content: "\00a0\f08e";
+  font-family: FontAwesome;
+  display: inline-block;
+  font-style: normal;
+  font-variant: normal;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+
+}
