@@ -42,12 +42,14 @@ multiproject_projects = {
         "use_config_file": False,
         "config": {
             "project": "Read the Docs user documentation",
+            "html_title": "Read the Docs user documentation",
         },
     },
     "dev": {
         "use_config_file": False,
         "config": {
             "project": "Read the Docs developer documentation",
+            "html_title": "Read the Docs developer documentation",
         },
     },
 }
@@ -75,7 +77,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "9.15.0"
+version = "9.16.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"

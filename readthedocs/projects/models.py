@@ -51,7 +51,7 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parsers import GenericParser, MkDocsParser, SphinxParser
+from readthedocs.search.parsers import GenericParser, SphinxParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
@@ -995,7 +995,13 @@ class Project(models.Model):
         )
 
     def vcs_repo(
-        self, environment, version=LATEST, verbose_name=None, version_type=None
+        self,
+        environment,
+        version=LATEST,
+        verbose_name=None,
+        version_type=None,
+        version_identifier=None,
+        version_machine=None,
     ):
         """
         Return a Backend object for this project able to handle VCS commands.
@@ -1014,8 +1020,13 @@ class Project(models.Model):
             repo = None
         else:
             repo = backend(
-                self, version, environment=environment,
-                verbose_name=verbose_name, version_type=version_type
+                self,
+                version,
+                environment=environment,
+                verbose_name=verbose_name,
+                version_type=version_type,
+                version_identifier=version_identifier,
+                version_machine=version_machine,
             )
         return repo
 
@@ -1527,13 +1538,12 @@ class HTMLFile(ImportedFile):
     def get_processed_json(self):
         if (
             self.version.documentation_type == constants.GENERIC
+            or self.version.is_mkdocs_type
             or self.project.has_feature(Feature.INDEX_FROM_HTML_FILES)
         ):
             parser_class = GenericParser
         elif self.version.is_sphinx_type:
             parser_class = SphinxParser
-        elif self.version.is_mkdocs_type:
-            parser_class = MkDocsParser
         else:
             log.warning(
                 "Invalid documentation type",
@@ -1909,12 +1919,12 @@ class Feature(models.Model):
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     CDN_ENABLED = "cdn_enabled"
-    DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
+    ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1927,7 +1937,6 @@ class Feature(models.Model):
     DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
     USE_SPHINX_LATEST = 'use_sphinx_latest'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
-    USE_MKDOCS_LATEST = 'use_mkdocs_latest'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
 
     # Search related features
@@ -1937,9 +1946,10 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    DONT_CREATE_INDEX = "dont_create_index"
+    GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
     HOSTING_INTEGRATIONS = "hosting_integrations"
     NO_CONFIG_FILE_DEPRECATED = "no_config_file"
+    SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
         (
@@ -1983,10 +1993,6 @@ class Feature(models.Model):
             ),
         ),
         (
-            DOCKER_GVISOR_RUNTIME,
-            _("Build: Use Docker gVisor runtime to create build container."),
-        ),
-        (
             RECORD_404_PAGE_VIEWS,
             _("Proxito: Record 404s page views."),
         ),
@@ -2007,6 +2013,10 @@ class Feature(models.Model):
             _(
                 "Proxito: Use new unresolver implementation for serving documentation files."
             ),
+        ),
+        (
+            ALLOW_VERSION_WARNING_BANNER,
+            _("Dashboard: Allow project to use the version warning banner."),
         ),
 
         # Versions sync related features
@@ -2035,7 +2045,6 @@ class Feature(models.Model):
             DEFAULT_TO_MKDOCS_0_17_3,
             _("MkDOcs: Install mkdocs 0.17.3 by default"),
         ),
-        (USE_MKDOCS_LATEST, _("MkDocs: Use latest version of MkDocs")),
         (
             USE_SPHINX_RTD_EXT_LATEST,
             _("Sphinx: Use latest version of the Read the Docs Sphinx extension"),
@@ -2061,11 +2070,10 @@ class Feature(models.Model):
                 "sources"
             ),
         ),
-
         (
-            DONT_CREATE_INDEX,
+            GIT_CLONE_FETCH_CHECKOUT_PATTERN,
             _(
-                "Sphinx: Do not create index.md or README.rst if the project does not have one."
+                "Build: Use simplified and optimized git clone + git fetch + git checkout patterns"
             ),
         ),
         (
@@ -2077,6 +2085,10 @@ class Feature(models.Model):
         (
             NO_CONFIG_FILE_DEPRECATED,
             _("Build: Building without a configuration file is deprecated."),
+        ),
+        (
+            SCALE_IN_PROTECTION,
+            _("Build: Set scale-in protection before/after building."),
         ),
     )
 

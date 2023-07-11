@@ -53,6 +53,7 @@ from readthedocs.doc_builder.exceptions import (
     ProjectBuildsSkippedError,
     YAMLParseError,
 )
+from readthedocs.projects.models import Feature
 from readthedocs.storage import build_media_storage
 from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
@@ -67,7 +68,12 @@ from ..models import APIProject, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import fileify
-from .utils import BuildRequest, clean_build, send_external_build_status
+from .utils import (
+    BuildRequest,
+    clean_build,
+    send_external_build_status,
+    set_builder_scale_in_protection,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -418,6 +424,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             version_slug=self.data.version.slug,
         )
 
+        # Enable scale-in protection on this instance
+        #
+        # TODO: move this to the beginning of this method
+        # once we don't need to rely on `self.data.project`.
+        if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
+            set_builder_scale_in_protection.delay(
+                instance=socket.gethostname(),
+                protected_from_scale_in=True,
+            )
+
         # Clean the build paths completely to avoid conflicts with previous run
         # (e.g. cleanup task failed for some reason)
         clean_build(self.data.version)
@@ -543,6 +559,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
          - it exists
          - it is a directory
          - does not contains more than 1 files (only PDF, HTMLZip, ePUB)
+         - it contains an "index.html" file at its root directory (only HTML)
 
         TODO: remove the limitation of only 1 file.
         Add support for multiple PDF files in the output directory and
@@ -554,6 +571,28 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version=self.data.version.slug,
                 type_=artifact_type,
             )
+
+            if artifact_type == "html":
+                index_html_filepath = os.path.join(artifact_directory, "index.html")
+                readme_html_filepath = os.path.join(artifact_directory, "README.html")
+                if not os.path.exists(index_html_filepath) and not os.path.exists(
+                    readme_html_filepath
+                ):
+                    log.warning(
+                        "Failing the build. "
+                        "HTML output does not contain an 'index.html' at its root directory.",
+                        index_html=index_html_filepath,
+                        readme_html=readme_html_filepath,
+                    )
+                    # TODO: uncomment this line to fail the build once we have
+                    # communicated with projects without an index.html or
+                    # README.html
+                    #
+                    # NOTE: we want to deprecate serving README.html as an
+                    # index.html file as well.
+                    #
+                    # raise BuildUserError(BuildUserError.BUILD_OUTPUT_HTML_NO_INDEX_FILE)
+
             if not os.path.exists(artifact_directory):
                 # There is no output directory.
                 # Skip this format.
@@ -704,6 +743,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             self.data.api_client.revoke.post()
         except Exception:
             log.exception("Failed to revoke build api key.", exc_info=True)
+
+        # Disable scale-in protection on this instance
+        if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
+            set_builder_scale_in_protection.delay(
+                instance=socket.gethostname(),
+                protected_from_scale_in=False,
+            )
 
         log.info(
             'Build finished.',

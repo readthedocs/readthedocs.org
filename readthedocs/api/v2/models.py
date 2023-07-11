@@ -9,6 +9,7 @@ from readthedocs.projects.models import Project
 
 
 class BuildAPIKeyManager(BaseAPIKeyManager):
+    # pylint: disable=arguments-differ
     def create_key(self, project):
         """
         Create a new API key for a project.

@@ -221,15 +221,12 @@ Example:
          path: .
          extra_requirements:
            - docs
-       - method: pip
-         path: package
 
 With the previous settings, Read the Docs will execute the next commands:
 
 .. prompt:: bash $
 
    pip install .[docs]
-   python package/setup.py install
 
 python.system_packages
 ``````````````````````
@@ -348,6 +345,7 @@ Node.js version to use.
    - ``16``
    - ``18``
    - ``19``
+   - ``20``
 
 build.tools.rust
 ````````````````
@@ -359,6 +357,7 @@ Rust version to use.
    - ``1.55``
    - ``1.61``
    - ``1.64``
+   - ``1.70``
 
 build.tools.golang
 ``````````````````
@@ -370,6 +369,7 @@ Go version to use.
    - ``1.17``
    - ``1.18``
    - ``1.19``
+   - ``1.20``
 
 build.apt_packages
 ``````````````````
