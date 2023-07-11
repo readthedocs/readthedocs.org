@@ -64,7 +64,7 @@ class BuildListFilter(FilterSet):
 
     def get_type(self, queryset, _, value):
         if value == self.TYPE_NORMAL:
-            queryset = queryset.exclude(type=EXTERNAL)
+            queryset = queryset.exclude(version__type=EXTERNAL)
         elif value == self.TYPE_EXTERNAL:
-            queryset = queryset.filter(type=EXTERNAL)
+            queryset = queryset.filter(version__type=EXTERNAL)
         return queryset
