@@ -113,8 +113,7 @@ class SphinxBuilderTest(TestCase):
             python_env=python_env,
         )
         with pytest.raises(
-                ProjectConfigurationError,
-                match=ProjectConfigurationError.NOT_FOUND
+            ProjectConfigurationError, match=ProjectConfigurationError.NOT_FOUND
         ):
             base_sphinx.append_conf()
 
@@ -124,8 +123,7 @@ class SphinxBuilderTest(TestCase):
     @patch('readthedocs.builds.models.Version.get_conf_py_path')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_multiple_conf_py(
-            self, checkout_path, get_conf_py_path,
-            _, get_config_params, docs_dir
+        self, checkout_path, get_conf_py_path, _, get_config_params, docs_dir
     ):
         """
         Test for a project with multiple ``conf.py`` files.
@@ -323,10 +321,7 @@ class MkdocsBuilderTest(TestCase):
             build_env=self.build_env,
             python_env=python_env,
         )
-        with pytest.raises(
-                MkDocsYAMLParseError,
-                match=MkDocsYAMLParseError.NOT_FOUND
-        ):
+        with pytest.raises(MkDocsYAMLParseError, match=MkDocsYAMLParseError.NOT_FOUND):
             self.searchbuilder.append_conf()
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')

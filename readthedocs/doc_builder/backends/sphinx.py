@@ -254,9 +254,7 @@ class BaseSphinx(BaseBuilder):
         The default content is rendered from ``doc_builder/conf.py.tmpl``.
         """
         if self.config_file is None:
-            raise ProjectConfigurationError(
-                ProjectConfigurationError.NOT_FOUND
-            )
+            raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
 
         try:
             self.config_file = (

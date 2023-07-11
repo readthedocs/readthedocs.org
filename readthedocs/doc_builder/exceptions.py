@@ -124,7 +124,7 @@ class MkDocsYAMLParseError(BuildUserError):
         "Please make sure the MkDocs YAML configuration file is not empty.",
     )
     NOT_FOUND = gettext_noop(
-        'A configuration file was not found. '
+        "A configuration file was not found. "
         'Make sure you have a "mkdocs.yml" file in your repository.',
     )
 
