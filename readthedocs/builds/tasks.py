@@ -292,8 +292,16 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     Creates new Version objects for tags/branches that aren't tracked in the database,
     and deletes Version objects for tags/branches that don't exists in the repository.
 
-    :param tags_data: List of dictionaries with ``verbose_name`` and ``identifier``.
-    :param branches_data: Same as ``tags_data`` but for branches.
+    :param tags_data: List of dictionaries with ``verbose_name`` and ``identifier``
+                      Example: [
+                          {"verbose_name": "v1.0.0",
+                           "identifier": "67a9035990f44cb33091026d7453d51606350519"},
+                      ].
+    :param branches_data: Same as ``tags_data`` but for branches (branch name, branch identifier).
+                      Example: [
+                          {"verbose_name": "latest",
+                           "identifier": "main"},
+                      ].
     :returns: `True` or `False` if the task succeeded.
     """
     project = Project.objects.get(pk=project_pk)
@@ -431,9 +439,9 @@ def send_build_status(build_pk, commit, status):
                 service = service_class(relation.user, relation.account)
                 # Send status report using the API.
                 success = service.send_build_status(
-                    build=build,
-                    commit=commit,
-                    state=status,
+                    build,
+                    commit,
+                    status,
                 )
 
                 if success:

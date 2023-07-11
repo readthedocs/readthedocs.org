@@ -1309,7 +1309,8 @@ div.httpexchange dl dd:after {
     content: '';
 }
 
-div.httpexchange div.highlight pre {
+div.httpexchange div.highlight pre,
+div.highlight > pre {
     padding: 1em;
     background: #f4f4f4;
     border: 1px solid #ccc;
@@ -1330,6 +1331,9 @@ div.module.project-subprojects li.subproject a.subproject-edit:before {
     font-weight: normal;
     content: "\f044";
 }
+
+#content ul.normal_list {list-style: disc; margin-left: 20px;}
+#content code {background: #eee; border: 1px solid #ccc; padding: 3px; display: inline-block;}
 
 /* Pygments */
 div.highlight pre .hll { background-color: #ffffcc }

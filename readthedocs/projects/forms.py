@@ -143,8 +143,8 @@ class ProjectBasicsForm(ProjectForm):
                 pk=remote_repo,
                 users=self.user,
             )
-        except RemoteRepository.DoesNotExist:
-            raise forms.ValidationError(_('Repository invalid'))
+        except RemoteRepository.DoesNotExist as exc:
+            raise forms.ValidationError(_("Repository invalid")) from exc
 
     def placehold_repo(self):
         return choice([
@@ -191,6 +191,16 @@ class ProjectExtraForm(ProjectForm):
         return tags
 
 
+class ProjectConfigForm(forms.Form):
+
+    """Simple intermediate step to communicate about the .readthedocs.yaml file."""
+
+    def __init__(self, *args, **kwargs):
+        # Remove 'user' field since it's not expected by BaseForm.
+        kwargs.pop("user")
+        super().__init__(*args, **kwargs)
+
+
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
@@ -198,15 +208,16 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
     class Meta:
         model = Project
         per_project_settings = (
-            'default_version',
-            'default_branch',
-            'privacy_level',
-            'analytics_code',
-            'analytics_disabled',
-            'show_version_warning',
-            'single_version',
-            'external_builds_enabled',
-            'external_builds_privacy_level',
+            "default_version",
+            "default_branch",
+            "privacy_level",
+            "analytics_code",
+            "analytics_disabled",
+            "show_version_warning",
+            "single_version",
+            "external_builds_enabled",
+            "external_builds_privacy_level",
+            "readthedocs_yaml_path",
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
@@ -237,6 +248,14 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         )
 
         per_project_settings = list(self.Meta.per_project_settings)
+
+        # NOTE: we are deprecating this feature.
+        # However, we will keep it available for projects that already using it.
+        # Old projects not using it already or new projects won't be able to enable.
+        if not self.instance.has_feature(Feature.ALLOW_VERSION_WARNING_BANNER):
+            self.fields.pop("show_version_warning")
+            per_project_settings.remove("show_version_warning")
+
         if not settings.ALLOW_PRIVATE_REPOS:
             for field in ['privacy_level', 'external_builds_privacy_level']:
                 self.fields.pop(field)
@@ -347,14 +366,25 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         return False
 
     def clean_conf_py_file(self):
-        filename = self.cleaned_data.get('conf_py_file', '').strip()
-        if filename and 'conf.py' not in filename:
+        filename = self.cleaned_data.get("conf_py_file", "").strip()
+        if filename and "conf.py" not in filename:
             raise forms.ValidationError(
                 _(
                     'Your configuration file is invalid, make sure it contains '
                     'conf.py in it.',
                 ),
             )  # yapf: disable
+        return filename
+
+    def clean_readthedocs_yaml_path(self):
+        """
+        Validate user input to help user.
+
+        We also validate this path during the build process, so this validation step is
+        only considered as helpful to a user, not a security measure.
+        """
+        filename = self.cleaned_data.get("readthedocs_yaml_path")
+        filename = (filename or "").strip()
         return filename
 
     def get_all_active_versions(self):
@@ -379,7 +409,9 @@ class UpdateProjectForm(
         ProjectExtraForm,
 ):
 
-    class Meta:
+    """Basic project settings form for Admin."""
+
+    class Meta:  # noqa
         model = Project
         fields = (
             # Basics
@@ -395,6 +427,7 @@ class UpdateProjectForm(
         )
 
     def clean_language(self):
+        """Ensure that language isn't already active."""
         language = self.cleaned_data['language']
         project = self.instance
         if project:
@@ -528,6 +561,8 @@ class EmailHookForm(forms.Form):
 
 class WebHookForm(forms.ModelForm):
 
+    """Webhook form."""
+
     project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
@@ -568,8 +603,10 @@ class WebHookForm(forms.ModelForm):
         try:
             payload = json.loads(payload)
             payload = json.dumps(payload, indent=2)
-        except Exception:
-            raise forms.ValidationError(_('The payload must be a valid JSON object.'))
+        except Exception as exc:
+            raise forms.ValidationError(
+                _("The payload must be a valid JSON object.")
+            ) from exc
         return payload
 
 
@@ -595,6 +632,8 @@ class TranslationBaseForm(forms.Form):
         ) for project in self.get_translation_queryset().all()]
 
     def clean_project(self):
+        """Ensures that selected project is valid as a translation."""
+
         translation_project_slug = self.cleaned_data['project']
 
         # Ensure parent project isn't already itself a translation
@@ -719,6 +758,7 @@ class DomainForm(forms.ModelForm):
         return self.project
 
     def clean_domain(self):
+        """Validates domain."""
         domain = self.cleaned_data['domain'].lower()
         parsed = urlparse(domain)
 
@@ -853,6 +893,7 @@ class EnvironmentVariableForm(forms.ModelForm):
         return self.project
 
     def clean_name(self):
+        """Validate environment variable name chosen."""
         name = self.cleaned_data['name']
         if name.startswith('__'):
             raise forms.ValidationError(

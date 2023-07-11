@@ -8,6 +8,8 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     """Settings for local development with Docker"""
 
+    DEBUG = bool(os.environ.get('RTD_DJANGO_DEBUG', True))
+
     DOCKER_ENABLE = True
     RTD_DOCKER_COMPOSE = True
     RTD_DOCKER_COMPOSE_VOLUME = 'community_build-user-builds'
@@ -20,8 +22,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     PUBLIC_API_URL = f'http://{PRODUCTION_DOMAIN}'
 
     SLUMBER_API_HOST = 'http://web:8000'
-    SLUMBER_USERNAME = 'admin'
-    SLUMBER_PASSWORD = 'admin'
 
     RTD_EXTERNAL_VERSION_DOMAIN = 'build.devthedocs.org'
 
@@ -29,8 +29,6 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     # In the local docker environment, nginx should be trusted to set the host correctly
     USE_X_FORWARDED_HOST = True
-
-    MULTIPLE_BUILD_SERVERS = ['build']
 
     # https://docs.docker.com/engine/reference/commandline/run/#add-entries-to-container-hosts-file---add-host
     # export HOSTIP=`ip -4 addr show scope global dev wlp4s0 | grep inet | awk '{print \$2}' | cut -d / -f 1`
@@ -149,6 +147,7 @@ class DockerBaseSettings(CommunityBaseSettings):
         }
 
     ACCOUNT_EMAIL_VERIFICATION = "none"
+
     SESSION_COOKIE_DOMAIN = None
     CACHES = {
         'default': {

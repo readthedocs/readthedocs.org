@@ -297,6 +297,17 @@ class VersionsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
             return VersionSerializer
         return VersionUpdateSerializer
 
+    def update(self, request, *args, **kwargs):
+        """Overridden to call ``post_save`` method on the updated version."""
+        # Get the current value before updating.
+        version = self.get_object()
+        was_active = version.active
+        result = super().update(request, *args, **kwargs)
+        # Get the updated version.
+        version = self.get_object()
+        version.post_save(was_active=was_active)
+        return result
+
 
 class BuildsViewSet(APIv3Settings, NestedViewSetMixin, ProjectQuerySetMixin,
                     FlexFieldsMixin, ReadOnlyModelViewSet):
@@ -403,7 +414,9 @@ class OrganizationsViewSet(
     lookup_url_kwarg = 'organization_slug'
     queryset = Organization.objects.all()
     serializer_class = OrganizationSerializer
-    permission_classes = [UserOrganizationsListing | IsOrganizationAdminMember]
+    permission_classes = [
+        IsAuthenticated & (UserOrganizationsListing | IsOrganizationAdminMember)
+    ]
     permit_list_expands = [
         'projects',
         'teams',
@@ -432,7 +445,7 @@ class OrganizationsProjectsViewSet(
     lookup_url_kwarg = 'project_slug'
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [IsOrganizationAdminMember]
+    permission_classes = [IsAuthenticated & IsOrganizationAdminMember]
     permit_list_expands = [
         'organization',
         'organization.teams',

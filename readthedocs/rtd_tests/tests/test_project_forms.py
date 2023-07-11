@@ -1,3 +1,4 @@
+from unittest import mock
 
 from django.contrib.auth.models import User
 from django.test import TestCase
@@ -258,6 +259,25 @@ class TestProjectAdvancedForm(TestCase):
         self.assertTrue(form.is_valid())
         self.assertEqual(self.project.privacy_level, PRIVATE)
 
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_custom_readthedocs_yaml(self, update_docs_task):
+        custom_readthedocs_yaml_path = "folder/.readthedocs.yaml"
+        form = ProjectAdvancedForm(
+            {
+                "default_version": LATEST,
+                "documentation_type": SPHINX,
+                "python_interpreter": "python3",
+                "privacy_level": PRIVATE,
+                "readthedocs_yaml_path": custom_readthedocs_yaml_path,
+            },
+            instance=self.project,
+        )
+        # The form is valid, but the field is ignored
+        self.assertTrue(form.is_valid())
+        self.assertEqual(self.project.privacy_level, PUBLIC)
+        project = form.save()
+        self.assertEqual(project.readthedocs_yaml_path, custom_readthedocs_yaml_path)
 
 class TestProjectAdvancedFormDefaultBranch(TestCase):
 

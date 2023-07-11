@@ -1,3 +1,5 @@
+from unittest import mock
+
 import django_dynamic_fixture as fixture
 from django.test import override_settings
 from django.urls import reverse
@@ -13,15 +15,19 @@ from .mixins import APIEndpointMixin
 class VersionsEndpointTests(APIEndpointMixin):
 
     def test_projects_versions_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse(
-                'projects-versions-list',
-                kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
-                },
-            ),
+        url = reverse(
+            "projects-versions-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
         )
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         response = response.json()
         self.assertEqual(len(response["results"]), 2)
@@ -41,16 +47,20 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 403)
 
     def test_projects_versions_detail(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse(
-                'projects-versions-detail',
-                kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
-                    'version_slug': 'v1.0',
-                },
-            ),
+        url = reverse(
+            "projects-versions-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "version_slug": "v1.0",
+            },
         )
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(
             response.json(),
@@ -139,25 +149,30 @@ class VersionsEndpointTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 200)
 
+    @mock.patch(
+        "readthedocs.projects.tasks.utils.clean_project_resources", new=mock.MagicMock
+    )
     def test_projects_versions_partial_update(self):
         self.assertTrue(self.version.active)
         self.assertFalse(self.version.hidden)
+        url = reverse(
+            "projects-versions-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "version_slug": self.version.slug,
+            },
+        )
         data = {
             'active': False,
             'hidden': True,
         }
 
+        self.client.logout()
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 401)
+
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.patch(
-            reverse(
-                'projects-versions-detail',
-                kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
-                    'version_slug': self.version.slug,
-                },
-            ),
-            data,
-        )
+        response = self.client.patch(url, data)
         self.assertEqual(response.status_code, 204)
 
         self.version.refresh_from_db()
@@ -166,7 +181,7 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.version.identifier, 'a1b2c3')
         self.assertFalse(self.version.active)
         self.assertTrue(self.version.hidden)
-        self.assertTrue(self.version.built)
+        self.assertFalse(self.version.built)
         self.assertEqual(self.version.type, TAG)
 
     def test_projects_versions_partial_update_privacy_levels_disabled(self):
@@ -226,6 +241,54 @@ class VersionsEndpointTests(APIEndpointMixin):
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(self.version.privacy_level, "public")
+
+    @mock.patch("readthedocs.builds.models.trigger_build")
+    @mock.patch("readthedocs.projects.tasks.utils.clean_project_resources")
+    def test_activate_version(self, clean_project_resources, trigger_build):
+        self.version.active = False
+        self.version.save()
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        self.assertFalse(self.version.active)
+        data = {"active": True}
+        response = self.client.patch(
+            reverse(
+                "projects-versions-detail",
+                kwargs={
+                    "parent_lookup_project__slug": self.project.slug,
+                    "version_slug": self.version.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 204)
+        self.version.refresh_from_db()
+        self.assertTrue(self.version.active)
+        clean_project_resources.assert_not_called()
+        trigger_build.assert_called_once()
+
+    @mock.patch("readthedocs.builds.models.trigger_build")
+    @mock.patch("readthedocs.projects.tasks.utils.clean_project_resources")
+    def test_deactivate_version(self, clean_project_resources, trigger_build):
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        data = {"active": False}
+        self.assertTrue(self.version.active)
+        self.assertTrue(self.version.built)
+        response = self.client.patch(
+            reverse(
+                "projects-versions-detail",
+                kwargs={
+                    "parent_lookup_project__slug": self.project.slug,
+                    "version_slug": self.version.slug,
+                },
+            ),
+            data,
+        )
+        self.assertEqual(response.status_code, 204)
+        self.version.refresh_from_db()
+        self.assertFalse(self.version.active)
+        self.assertFalse(self.version.built)
+        clean_project_resources.assert_called_once()
+        trigger_build.assert_not_called()
 
     def test_projects_version_external(self):
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")

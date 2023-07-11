@@ -1,19 +1,52 @@
 """Views for hosting features."""
 
+import packaging
 import structlog
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.views import View
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.api.v3.serializers import (
+    BuildSerializer,
+    ProjectSerializer,
+    VersionSerializer,
+)
+from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolver
-from readthedocs.core.unresolver import unresolver
+from readthedocs.core.unresolver import UnresolverError, unresolver
 
 log = structlog.get_logger(__name__)  # noqa
 
 
+ADDONS_VERSIONS_SUPPORTED = (0, 1)
+
+
+class ClientError(Exception):
+    VERSION_NOT_CURRENTLY_SUPPORTED = (
+        "The version specified in 'X-RTD-Hosting-Integrations-Version'"
+        " is currently not supported"
+    )
+    VERSION_INVALID = "'X-RTD-Hosting-Integrations-Version' header version is invalid"
+    VERSION_HEADER_MISSING = (
+        "'X-RTD-Hosting-Integrations-Version' header attribute is required"
+    )
+
+
 class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
+
+    """
+    API response consumed by our JavaScript client.
+
+    The code for the JavaScript client lives at:
+      https://github.com/readthedocs/readthedocs-client/
+
+    Attributes:
+
+      url (required): absolute URL from where the request is performed
+        (e.g. ``window.location.href``)
+    """
+
     def get(self, request):
 
         url = request.GET.get("url")
@@ -23,37 +56,144 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                 status=400,
             )
 
+        addons_version = request.headers.get("X-RTD-Hosting-Integrations-Version")
+        if not addons_version:
+            return JsonResponse(
+                {
+                    "error": ClientError.VERSION_HEADER_MISSING,
+                },
+                status=400,
+            )
+        try:
+            addons_version = packaging.version.parse(addons_version)
+            if addons_version.major not in ADDONS_VERSIONS_SUPPORTED:
+                raise ClientError
+        except packaging.version.InvalidVersion:
+            return JsonResponse(
+                {
+                    "error": ClientError.VERSION_INVALID,
+                },
+                status=400,
+            )
+        except ClientError:
+            return JsonResponse(
+                {"error": ClientError.VERSION_NOT_CURRENTLY_SUPPORTED},
+                status=400,
+            )
+
         unresolved_domain = request.unresolved_domain
         project = unresolved_domain.project
 
-        unresolved_url = unresolver.unresolve_url(url)
-        version = unresolved_url.version
+        try:
+            unresolved_url = unresolver.unresolve_url(url)
+            version = unresolved_url.version
+            filename = unresolved_url.filename
+            build = version.builds.last()
 
-        project.get_default_version()
-        build = version.builds.last()
+        except UnresolverError as exc:
+            # If an exception is raised and there is a ``project`` in the
+            # exception, it's a partial match. This could be because of an
+            # invalid URL path, but on a valid project domain. In this case, we
+            # continue with the ``project``, but without a ``version``.
+            # Otherwise, we return 404 NOT FOUND.
+            project = getattr(exc, "project", None)
+            if not project:
+                raise Http404() from exc
 
-        # TODO: define how it will be the exact JSON object returned here
-        # NOTE: we could use the APIv3 serializers for some of these objects
-        # if we want to keep consistency. However, those may require some
-        # extra db calls that we probably want to avoid.
+            version = None
+            filename = None
+            build = None
+
+        data = AddonsResponse().get(addons_version, project, version, build, filename)
+        return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
+
+
+class NoLinksMixin:
+
+    """Mixin to remove conflicting fields from serializers."""
+
+    FIELDS_TO_REMOVE = (
+        "_links",
+        "urls",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field in self.FIELDS_TO_REMOVE:
+            if field in self.fields:
+                del self.fields[field]
+
+            if field in self.Meta.fields:
+                del self.Meta.fields[self.Meta.fields.index(field)]
+
+
+# NOTE: the following serializers are required only to remove some fields we
+# can't expose yet in this API endpoint because it's running under El Proxito
+# which cannot resolve some dashboard URLs because they are not defined on El
+# Proxito.
+#
+# See https://github.com/readthedocs/readthedocs-ops/issues/1323
+class ProjectSerializerNoLinks(NoLinksMixin, ProjectSerializer):
+    pass
+
+
+class VersionSerializerNoLinks(NoLinksMixin, VersionSerializer):
+    pass
+
+
+class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
+    pass
+
+
+class AddonsResponse:
+    def get(self, addons_version, project, version=None, build=None, filename=None):
+        """
+        Unique entry point to get the proper API response.
+
+        It will evaluate the ``addons_version`` passed and decide which is the
+        best JSON structure for that particular version.
+        """
+        if addons_version.major == 0:
+            return self._v0(project, version, build, filename)
+
+        if addons_version.major == 1:
+            return self._v1(project, version, build, filename)
+
+    def _v0(self, project, version, build, filename):
+        """
+        Initial JSON data structure consumed by the JavaScript client.
+
+        This response is definitely in *alpha* state currently and shouldn't be
+        used for anyone to customize their documentation or the integration
+        with the Read the Docs JavaScript client. It's under active development
+        and anything can change without notice.
+
+        It tries to follow some similarity with the APIv3 for already-known resources
+        (Project, Version, Build, etc).
+        """
+        versions_active_built = (
+            Version.internal.public(project=project, only_active=True, only_built=True)
+            .only("slug")
+            .order_by("slug")
+        )
+
         data = {
             "comment": (
                 "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY"
                 " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
             ),
-            "project": {
-                "slug": project.slug,
-                "language": project.language,
-                "repository_url": project.repo,
-                "programming_language": project.programming_language,
+            "projects": {
+                "current": ProjectSerializerNoLinks(project).data,
             },
-            "version": {
-                "slug": version.slug,
-                "external": version.type == EXTERNAL,
+            "versions": {
+                "current": VersionSerializerNoLinks(version).data if version else None,
             },
-            "build": {
-                "id": build.pk,
+            "builds": {
+                "current": BuildSerializerNoLinks(build).data if build else None,
             },
+            # TODO: consider creating one serializer per field here.
+            # The resulting JSON will be the same, but maybe it's easier/cleaner?
             "domains": {
                 "dashboard": settings.PRODUCTION_DOMAIN,
             },
@@ -62,21 +202,31 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                     "code": settings.GLOBAL_ANALYTICS_CODE,
                 },
             },
-            "features": {
+            # TODO: the ``features`` is not polished and we expect to change drastically.
+            # Mainly, all the fields including a Project, Version or Build will use the exact same
+            # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
+            "addons": {
                 "analytics": {
+                    "enabled": True,
+                    # TODO: consider adding this field into the ProjectSerializer itself.
+                    # NOTE: it seems we are removing this feature,
+                    # so we may not need the ``code`` attribute here
+                    # https://github.com/readthedocs/readthedocs.org/issues/9530
                     "code": project.analytics_code,
                 },
                 "external_version_warning": {
                     "enabled": True,
-                    "query_selector": "[role=main]",
+                    # NOTE: I think we are moving away from these selectors
+                    # since we are doing floating noticications now.
+                    # "query_selector": "[role=main]",
                 },
                 "non_latest_version_warning": {
                     "enabled": True,
-                    "query_selector": "[role=main]",
+                    # NOTE: I think we are moving away from these selectors
+                    # since we are doing floating noticications now.
+                    # "query_selector": "[role=main]",
                     "versions": list(
-                        project.versions.filter(active=True)
-                        .only("slug")
-                        .values_list("slug", flat=True)
+                        versions_active_built.values_list("slug", flat=True)
                     ),
                 },
                 "doc_diff": {
@@ -86,8 +236,10 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                         project=project,
                         version_slug=project.get_default_version(),
                         language=project.language,
-                        filename=unresolved_url.filename,
-                    ),
+                        filename=filename,
+                    )
+                    if filename
+                    else None,
                     "root_selector": "[role=main]",
                     "inject_styles": True,
                     # NOTE: `base_host` and `base_page` are not required, since
@@ -103,7 +255,7 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                             "slug": version.slug,
                             "url": f"/{project.language}/{version.slug}/",
                         }
-                        for version in project.versions.filter(active=True).only("slug")
+                        for version in versions_active_built
                     ],
                     "downloads": [],
                     # TODO: get this values properly
@@ -111,13 +263,14 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                         "url": "https://github.com",
                         "username": "readthedocs",
                         "repository": "test-builds",
-                        "branch": version.identifier,
+                        "branch": version.identifier if version else None,
                         "filepath": "/docs/index.rst",
                     },
                 },
                 "search": {
+                    "enabled": True,
                     "project": project.slug,
-                    "version": version.slug,
+                    "version": version.slug if version else None,
                     "api_endpoint": "/_/api/v3/search/",
                     # TODO: figure it out where this data comes from
                     "filters": [
@@ -129,14 +282,23 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                             "Search subprojects",
                             f"subprojects:{project.slug}/{version.slug}",
                         ],
-                    ],
-                    "default_filter": f"subprojects:{project.slug}/{version.slug}",
+                    ]
+                    if version
+                    else [],
+                    "default_filter": f"subprojects:{project.slug}/{version.slug}"
+                    if version
+                    else None,
                 },
             },
         }
 
         # Update this data with the one generated at build time by the doctool
-        if version.build_data:
+        if version and version.build_data:
             data.update(version.build_data)
 
-        return JsonResponse(data, json_dumps_params=dict(indent=4))
+        return data
+
+    def _v1(self, project, version, build, filename):
+        return {
+            "comment": "Undefined yet. Use v0 for now",
+        }

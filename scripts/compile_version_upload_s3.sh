@@ -19,6 +19,13 @@
 #
 #   inv docker.up
 #
+# You also need the "awscli" PyPi package in your local Python environment.
+#
+#   pip install awscli
+#
+# Note: The version that used is currently simply the latest. If there are issues in
+# the future, we can consider fetching the 'mc' client from MinIO instead.
+#
 #
 # PRODUCTION ENVIRONMENT
 #
@@ -52,7 +59,7 @@ set -e # Stop on errors
 set -x # Echo commands
 
 # Define variables
-SLEEP=350 # Container timeout
+SLEEP=900 # Container timeout
 OS="${OS:-ubuntu-22.04}" # Docker image name
 
 TOOL=$1
@@ -64,6 +71,8 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 # Spin up a container with the Ubuntu 20.04 LTS image
 CONTAINER_ID=$(docker run --user docs --rm --detach --volume ${SCRIPT_DIR}/python-build.diff:/tmp/python-build.diff readthedocs/build:$OS sleep $SLEEP)
 echo "Running all the commands in Docker container: $CONTAINER_ID"
+
+echo "asdf version: $(asdf version)"
 
 # Install the tool version requested
 if [[ $TOOL == "python" ]]
@@ -121,10 +130,10 @@ then
     # Upload the .tar.gz to S3 development environment
     echo "Uploading to dev environment"
 
-    AWS_ENDPOINT_URL="${AWS_ENDPOINT_URL:-http://localhost:9000}"
-    AWS_BUILD_TOOLS_BUCKET="${AWS_BUILD_TOOLS_BUCKET:-build-tools}"
-    AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-admin}"
-    AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}"
+    export AWS_ENDPOINT_URL="${AWS_ENDPOINT_URL:-http://localhost:9000}"
+    export AWS_BUILD_TOOLS_BUCKET="${AWS_BUILD_TOOLS_BUCKET:-build-tools}"
+    export AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID:-admin}"
+    export AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY:-password}"
 
     aws --endpoint-url $AWS_ENDPOINT_URL s3 cp $OS-$TOOL-$VERSION.tar.gz s3://$AWS_BUILD_TOOLS_BUCKET
 

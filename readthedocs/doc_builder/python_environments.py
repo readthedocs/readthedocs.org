@@ -171,7 +171,15 @@ class Virtualenv(PythonEnvironment):
             positive='pip<20.3',
             negative='pip',
         )
-        cmd = pip_install_cmd + [pip_version, 'setuptools<58.3.0']
+        # Installing a project with setup.py install is deprecated
+        # in new versions of setuptools, so we need to pin setuptools
+        # to a supported version if the project is using setup.py install.
+        setuptools_version = (
+            "setuptools<58.3.0"
+            if self.config.is_using_setup_py_install
+            else "setuptools"
+        )
+        cmd = pip_install_cmd + [pip_version, setuptools_version]
         self.build_env.run(
             *cmd,
             bin_path=self.venv_bin(),
@@ -201,12 +209,8 @@ class Virtualenv(PythonEnvironment):
                 self.project.get_feature_value(
                     Feature.DEFAULT_TO_MKDOCS_0_17_3,
                     positive='mkdocs==0.17.3',
-                    negative=self.project.get_feature_value(
-                        Feature.USE_MKDOCS_LATEST,
-                        positive='mkdocs<1.1',
-                        negative='mkdocs',
-                    ),
-                ),
+                    negative="mkdocs",
+                )
             )
         else:
             requirements.extend(
@@ -240,15 +244,13 @@ class Virtualenv(PythonEnvironment):
             # even if it is already installed system-wide (and
             # --system-site-packages is used)
             cmd.append('-I')
-            # If this flag is present,
-            # we need to cap setuptools again.
-            # See https://github.com/readthedocs/readthedocs.org/issues/8775
-            requirements.append('setuptools<58.3.0')
+            # The same version of setuptools used above needs to be used here.
+            requirements.append(setuptools_version)
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
             bin_path=self.venv_bin(),
-            cwd=self.checkout_path  # noqa - no comma here in py27 :/
+            cwd=self.checkout_path,
         )
 
     def install_requirements_file(self, install):
@@ -300,22 +302,6 @@ class Virtualenv(PythonEnvironment):
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
-
-    def list_packages_installed(self):
-        """List packages installed in pip."""
-        args = [
-            self.venv_bin(filename='python'),
-            '-m',
-            'pip',
-            'list',
-            # Include pre-release versions.
-            '--pre',
-        ]
-        self.build_env.run(
-            *args,
-            cwd=self.checkout_path,
-            bin_path=self.venv_bin(),
-        )
 
 
 class Conda(PythonEnvironment):
@@ -536,17 +522,3 @@ class Conda(PythonEnvironment):
         # as the conda environment was created by using the ``environment.yml``
         # defined by the user, there is nothing to update at this point
         pass
-
-    def list_packages_installed(self):
-        """List packages installed in conda."""
-        args = [
-            self.conda_bin_name(),
-            'list',
-            '--name',
-            self.version.slug,
-        ]
-        self.build_env.run(
-            *args,
-            cwd=self.checkout_path,
-            bin_path=self.venv_bin(),
-        )
