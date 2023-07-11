@@ -8,7 +8,7 @@ import structlog
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
-from oauthlib.oauth2.rfc6749.errors import InvalidGrantError
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
@@ -604,5 +604,7 @@ class GitLabService(Service):
             )
         except InvalidGrantError:
             log.info("Invalid GitLab grant for user.", exc_info=True)
+        except TokenExpiredError:
+            log.info("GitLab token expired for user.", exc_info=True)
 
         return False

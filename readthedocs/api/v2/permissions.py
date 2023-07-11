@@ -16,28 +16,12 @@ class IsOwner(permissions.BasePermission):
         return request.user in obj.users.all()
 
 
-class APIRestrictedPermission(permissions.BasePermission):
+class ReadOnlyPermission(permissions.BasePermission):
 
-    """
-    Allow admin write, authenticated and anonymous read only.
-
-    This differs from :py:class:`APIPermission` by not allowing for
-    authenticated POSTs. This permission is endpoints like ``/api/v2/build/``,
-    which are used by admin users to coordinate build instance creation, but
-    only should be readable by end users.
-    """
+    """Allow read-only access to authenticated and anonymous users."""
 
     def has_permission(self, request, view):
-        return (
-            request.method in permissions.SAFE_METHODS or
-            (request.user and request.user.is_staff)
-        )
-
-    def has_object_permission(self, request, view, obj):
-        return (
-            request.method in permissions.SAFE_METHODS or
-            (request.user and request.user.is_staff)
-        )
+        return request.method in permissions.SAFE_METHODS
 
 
 class IsAuthorizedToViewVersion(permissions.BasePermission):
@@ -85,19 +69,30 @@ class HasBuildAPIKey(BaseHasAPIKey):
     """
     Custom permission to inject the build API key into the request.
 
-    This avoids having to parse the key again on each view.
+    We completely override the ``has_permission`` method
+    to avoid having to parse and validate the key again on each view.
     The key is injected in the ``request.build_api_key`` attribute
     only if it's valid, otherwise it's set to ``None``.
+
+    This grants read and write access to the API.
     """
 
     model = BuildAPIKey
     key_parser = TokenKeyParser()
 
     def has_permission(self, request, view):
-        build_api_key = None
-        has_permission = super().has_permission(request, view)
-        if has_permission:
-            key = self.get_key(request)
+        request.build_api_key = None
+        key = self.get_key(request)
+        if not key:
+            return False
+
+        try:
             build_api_key = self.model.objects.get_from_key(key)
+        except self.model.DoesNotExist:
+            return False
+
+        if build_api_key.has_expired:
+            return False
+
         request.build_api_key = build_api_key
-        return has_permission
+        return True

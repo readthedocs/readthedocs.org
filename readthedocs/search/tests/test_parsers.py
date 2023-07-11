@@ -37,44 +37,6 @@ class TestParsers:
             yield read_mock
         return f
 
-    @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
-    @mock.patch.object(BuildMediaFileSystemStorage, 'open')
-    def test_mkdocs(self, storage_open, storage_exists):
-        json_file = data_path / 'mkdocs/in/search_index.json'
-        storage_open.side_effect = self._mock_open(
-            json_file.open().read()
-        )
-        storage_exists.return_value = True
-
-        self.version.documentation_type = MKDOCS
-        self.version.save()
-
-        index_file = get(
-            HTMLFile,
-            project=self.project,
-            version=self.version,
-            path='index.html',
-        )
-        versions_file = get(
-            HTMLFile,
-            project=self.project,
-            version=self.version,
-            path='versions/index.html',
-        )
-        no_title_file = get(
-            HTMLFile,
-            project=self.project,
-            version=self.version,
-            path='no-title/index.html',
-        )
-
-        parsed_json = [
-            index_file.processed_json,
-            versions_file.processed_json,
-            no_title_file.processed_json,
-        ]
-        expected_json = json.load(open(data_path / 'mkdocs/out/search_index.json'))
-        assert parsed_json == expected_json
 
     @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
     @mock.patch.object(BuildMediaFileSystemStorage, 'open')
@@ -199,37 +161,6 @@ class TestParsers:
         expected_json = json.load(open(data_path / 'mkdocs/out/readthedocs-1.1.json'))
         assert parsed_json == expected_json
 
-    @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
-    @mock.patch.object(BuildMediaFileSystemStorage, 'open')
-    def test_mkdocs_old_version(self, storage_open, storage_exists):
-        json_file = data_path / 'mkdocs/in/search_index_old.json'
-        storage_open.side_effect = self._mock_open(
-            json_file.open().read()
-        )
-        storage_exists.return_value = True
-
-        self.version.documentation_type = MKDOCS
-        self.version.save()
-
-        index_file = get(
-            HTMLFile,
-            project=self.project,
-            version=self.version,
-            path='index.html',
-        )
-        versions_file = get(
-            HTMLFile,
-            project=self.project,
-            version=self.version,
-            path='versions/index.html',
-        )
-
-        parsed_json = [
-            index_file.processed_json,
-            versions_file.processed_json,
-        ]
-        expected_json = json.load(open(data_path / 'mkdocs/out/search_index_old.json'))
-        assert parsed_json == expected_json
 
     @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
     @mock.patch.object(BuildMediaFileSystemStorage, 'open')

@@ -16,11 +16,3 @@ Available flags
 
 Makes Read the Docs to install all the requirements at once on ``conda create`` step.
 This helps users to pin dependencies on conda and to improve build time.
-
-``DONT_CREATE_INDEX``: Do not create index.md or README.rst if the project does not have one.
-
-When Read the Docs detects that your project doesn't have an ``index.md`` or ``README.rst``,
-it auto-generate one for you with instructions about how to proceed.
-
-In case you are using a static HTML page as index or an generated index from code,
-this behavior could be a problem. With this feature flag you can disable that.

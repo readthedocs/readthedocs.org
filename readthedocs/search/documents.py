@@ -22,8 +22,8 @@ class RTDDocTypeMixin:
         # Hack a fix to our broken connection pooling
         # This creates a new connection on every request,
         # but actually works :)
-        log.info('Hacking Elastic indexing to fix connection pooling')
-        self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL['default'])
+        log.debug("Hacking Elastic indexing to fix connection pooling")
+        self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL["default"])
         super().update(*args, **kwargs)
 
 
