@@ -89,8 +89,12 @@ class SphinxBuilderTest(TestCase):
     @patch('readthedocs.builds.models.Version.get_conf_py_path')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_project_without_conf_py(
-            self, checkout_path, get_conf_py_path, _,
-            get_config_params, docs_dir,
+        self,
+        checkout_path,
+        get_conf_py_path,
+        _,
+        get_config_params,
+        docs_dir,
     ):
         """
         Test for a project without ``conf.py`` file.
