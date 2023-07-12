@@ -39,7 +39,7 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
     API response consumed by our JavaScript client.
 
     The code for the JavaScript client lives at:
-      https://github.com/readthedocs/readthedocs-client/
+      https://github.com/readthedocs/addons/
 
     Attributes:
 
