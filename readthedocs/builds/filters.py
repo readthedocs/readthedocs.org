@@ -41,30 +41,61 @@ class BuildListFilter(FilterSet):
         label=_("State"),
         choices=STATE_CHOICES,
         empty_label=_("Any"),
+        field_name="state",
         method="get_state",
     )
     type = ChoiceFilter(
         label=_("Type"),
         choices=TYPE_CHOICES,
         empty_label=_("Any"),
+        field_name="version__type",
         method="get_type",
     )
 
     def get_state(self, queryset, _, value):
         if value == self.STATE_ACTIVE:
-            queryset = queryset.exclude(state__in=BUILD_FINAL_STATES)
+            queryset = queryset.exclude(
+                **{
+                    self.get_filter_name(
+                        self.filters["state"].field_name, "in"
+                    ): BUILD_FINAL_STATES
+                }
+            )
         elif value == self.STATE_SUCCESS:
-            queryset = queryset.filter(state=BUILD_STATE_FINISHED, success=True)
+            queryset = queryset.filter(
+                **{
+                    self.get_filter_name(
+                        self.filters["state"].field_name, "exact"
+                    ): BUILD_STATE_FINISHED,
+                    "success": True,
+                }
+            )
         elif value == self.STATE_FAILED:
             queryset = queryset.filter(
-                state__in=BUILD_FINAL_STATES,
-                success=False,
+                **{
+                    self.get_filter_name(
+                        self.filters["state"].field_name, "in"
+                    ): BUILD_FINAL_STATES,
+                    "success": False,
+                }
             )
         return queryset
 
     def get_type(self, queryset, _, value):
         if value == self.TYPE_NORMAL:
-            queryset = queryset.exclude(version__type=EXTERNAL)
+            queryset = queryset.exclude(
+                **{
+                    self.get_filter_name(
+                        self.filters["type"].field_name, "exact"
+                    ): EXTERNAL
+                }
+            )
         elif value == self.TYPE_EXTERNAL:
-            queryset = queryset.filter(version__type=EXTERNAL)
+            queryset = queryset.filter(
+                **{
+                    self.get_filter_name(
+                        self.filters["type"].field_name, "exact"
+                    ): EXTERNAL
+                }
+            )
         return queryset
