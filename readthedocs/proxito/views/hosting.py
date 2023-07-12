@@ -310,6 +310,7 @@ class AddonsResponse:
             data["addons"].update(
                 {
                     "ethicalads": {
+                        "enabled": True,
                         # NOTE: this endpoint is not authenticated, the user checks are done over an annonymous user for now
                         "ad_free": is_ad_free_user(AnonymousUser())
                         or is_ad_free_project(project),
