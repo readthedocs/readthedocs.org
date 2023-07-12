@@ -312,6 +312,8 @@ class AddonsResponse:
                     "ethicalads": {
                         "enabled": True,
                         # NOTE: this endpoint is not authenticated, the user checks are done over an annonymous user for now
+                        #
+                        # NOTE: it requires ``settings.USE_PROMOS=True`` to return ``ad_free=false`` here
                         "ad_free": is_ad_free_user(AnonymousUser())
                         or is_ad_free_project(project),
                         "campaign_types": get_campaign_types(AnonymousUser(), project),
