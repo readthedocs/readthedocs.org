@@ -273,7 +273,7 @@ class Version(TimeStampedModel):
         external_origin = external_version_name(self)
         abbrev = "".join(word[0].upper() for word in external_origin.split())
         return template.format(name=self.verbose_name, abbrev=abbrev)
-    
+
     @property
     def external_version_name(self):
         return external_version_name(self)
