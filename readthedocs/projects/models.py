@@ -1938,6 +1938,7 @@ class Feature(models.Model):
     USE_SPHINX_LATEST = 'use_sphinx_latest'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
+    INSTALL_LATEST_CORE_REQUIREMENTS = "install_latest_core_requirements"
 
     # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
@@ -2048,6 +2049,12 @@ class Feature(models.Model):
         (
             USE_SPHINX_RTD_EXT_LATEST,
             _("Sphinx: Use latest version of the Read the Docs Sphinx extension"),
+        ),
+        (
+            INSTALL_LATEST_CORE_REQUIREMENTS,
+            _(
+                "Build: Install all the latest versions of Read the Docs core requirements"
+            ),
         ),
 
         # Search related features.
