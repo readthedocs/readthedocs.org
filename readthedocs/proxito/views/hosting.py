@@ -299,7 +299,7 @@ class AddonsResponse:
 
         # Update this data with ethicalads
         if "readthedocsext.donate" in settings.INSTALLED_APPS:
-            from readthedocsext.donate.utils import (
+            from readthedocsext.donate.utils import (  # noqa
                 get_campaign_types,
                 get_project_keywords,
                 get_publisher,
