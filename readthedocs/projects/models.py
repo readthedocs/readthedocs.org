@@ -2086,7 +2086,7 @@ class Feature(models.Model):
         (
             HOSTING_INTEGRATIONS,
             _(
-                "Proxito: Inject 'readthedocs-client.js' as <script> HTML tag in responses."
+                "Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
             ),
         ),
         (
