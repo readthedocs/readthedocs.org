@@ -8,6 +8,8 @@ There are a few caveats to installation, which likely depend on your local
 environment. For ``systemd`` based OS, you do need to configure the Docker
 daemon to avoid systemd cgroups.
 
+.. TODO: add instructions to install gVisor on MacOS
+
 .. tabs::
 
     .. tab:: Arch
@@ -61,8 +63,8 @@ start guide:
 
 .. _gVisor Docker Quick Start: https://gvisor.dev/docs/user_guide/quick_start/docker/
 
+
 Testing gVisor
 --------------
 
-You can enable the gVisor feature flag on a project and you should see the
-container created with ``runtime=runsc`` now.
+When triggering a build for any project it should show container created with ``runtime=runsc`` in the logs.
