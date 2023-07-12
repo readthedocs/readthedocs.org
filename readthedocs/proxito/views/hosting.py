@@ -3,6 +3,7 @@
 import packaging
 import structlog
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.http import Http404, JsonResponse
 from django.views import View
 
@@ -295,6 +296,29 @@ class AddonsResponse:
         # Update this data with the one generated at build time by the doctool
         if version and version.build_data:
             data.update(version.build_data)
+
+        # Update this data with ethicalads
+        if "readthedocsext.donate" in settings.INSTALLED_APPS:
+            from readthedocsext.donate.utils import (
+                get_campaign_types,
+                get_project_keywords,
+                get_publisher,
+                is_ad_free_project,
+                is_ad_free_user,
+            )
+
+            data["addons"].update(
+                {
+                    "ethicalads": {
+                        # NOTE: this endpoint is not authenticated, the user checks are done over an annonymous user for now
+                        "ad_free": is_ad_free_user(AnonymousUser())
+                        or is_ad_free_project(project),
+                        "campaign_types": get_campaign_types(AnonymousUser(), project),
+                        "keywords": get_project_keywords(project),
+                        "publisher": get_publisher(project),
+                    },
+                }
+            )
 
         return data
 
