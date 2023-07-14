@@ -31,7 +31,7 @@ Below is an example YAML file which shows the most common configuration options:
 
 .. seealso::
 
-   :doc:`/guides/setup/configuration-file`
+   :doc:`/config-file/index`
       Practical steps to add a configuration file to your documentation project.
 
 
