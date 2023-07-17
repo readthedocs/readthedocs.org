@@ -4,9 +4,6 @@ Deep dive into Read the Docs
 In this section,
 we explain some of the more specific or advanced concepts of writing documentation on Read the Docs.
 
-⏩️ :doc:`/config-file/index`
-    An explanation of the value of having a versioned configuration file for your project.
-
 ⏩️ :doc:`/subprojects`
     *Subprojects* are a flexible for gathering multiple projects under the same domain.
 
@@ -19,12 +16,15 @@ we explain some of the more specific or advanced concepts of writing documentati
 ⏩️ :doc:`/environment-variables`
     Environment variables can be used to make your documentation builds flexible and easy to customize.
 
+⏩️ :doc:`/explanation/configuration-file`
+  Some background on our configuration file and versioning configuration files.
+
 .. toctree::
    :maxdepth: 2
    :hidden:
 
-   /config-file/index
    /subprojects
    /localization
    /downloadable-documentation
    /environment-variables
+   configuration-file

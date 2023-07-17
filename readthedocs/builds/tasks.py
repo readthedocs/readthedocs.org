@@ -7,6 +7,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 
 from readthedocs import __version__
 from readthedocs.api.v2.serializers import BuildCommandSerializer
@@ -265,6 +266,8 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
                     commit=last_build.commit,
                     status=status,
                 )
+        except (TokenExpiredError, InvalidGrantError):
+            log.info("Failed to send status due to expired/invalid token.")
         except Exception:
             log.exception(
                 "Failed to send status",
