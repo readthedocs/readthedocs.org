@@ -1,3 +1,22 @@
+Version 9.16.1
+--------------
+
+:Date: July 17, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10542 <https://github.com/readthedocs/readthedocs.org/pull/10542>`__)
+* `@humitos <https://github.com/humitos>`__: Development: update docs to pull required images only (`#10535 <https://github.com/readthedocs/readthedocs.org/pull/10535>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: return `ethicalads` data on `/_/addons/` endpoint (`#10534 <https://github.com/readthedocs/readthedocs.org/pull/10534>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: handle known exceptions on `delete_closed_external_versions` (`#10532 <https://github.com/readthedocs/readthedocs.org/pull/10532>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: rename library (`#10531 <https://github.com/readthedocs/readthedocs.org/pull/10531>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add conditional logic to replace project version list view (`#10530 <https://github.com/readthedocs/readthedocs.org/pull/10530>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: rename endpoint to make it nicer (`#10526 <https://github.com/readthedocs/readthedocs.org/pull/10526>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.16.0 (`#10524 <https://github.com/readthedocs/readthedocs.org/pull/10524>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove PyPy support (`#10523 <https://github.com/readthedocs/readthedocs.org/pull/10523>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Docs: swap around content for configuration files (`#10517 <https://github.com/readthedocs/readthedocs.org/pull/10517>`__)
+* `@humitos <https://github.com/humitos>`__: Build: install all the latest Python "core requirements" (`#10508 <https://github.com/readthedocs/readthedocs.org/pull/10508>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build API key: trim name to max allowed length (`#10487 <https://github.com/readthedocs/readthedocs.org/pull/10487>`__)
+* `@humitos <https://github.com/humitos>`__: Deprecation: show the project slug/link correctly on email (`#10432 <https://github.com/readthedocs/readthedocs.org/pull/10432>`__)
+
 Version 9.16.0
 --------------
 
