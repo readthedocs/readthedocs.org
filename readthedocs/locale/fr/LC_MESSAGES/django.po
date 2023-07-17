@@ -40,7 +40,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-11 08:54+0000\n"
+"POT-Creation-Date: 2023-07-17 15:44+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Jérémie Tarot <silopolis@gmail.com>, 2022-2023\n"
 "Language-Team: French (http://app.transifex.com/readthedocs/readthedocs/"
@@ -824,12 +824,12 @@ msgstr "Version supprimée"
 msgid "Matched rule"
 msgstr "Règle de correspondance"
 
-#: builds/tasks.py:588
+#: builds/tasks.py:591
 #, python-brace-format
 msgid "Failed: {project[name]} ({commit})"
 msgstr "Échec: {project[name]} ({commit})"
 
-#: builds/tasks.py:593
+#: builds/tasks.py:596
 #, python-brace-format
 msgid "Failed: {project[name]} ({version[verbose_name]})"
 msgstr "Échec: {project[name]} ({version[verbose_name]})"
@@ -2197,7 +2197,7 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:99 projects/models.py:2153
+#: projects/constants.py:99 projects/models.py:2160
 msgid "Public"
 msgstr "Public"
 
@@ -2933,169 +2933,174 @@ msgstr ""
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr "Si hsts_max_age > 0, configurer l'option preload avec l'en-tête HSTS"
 
-#: projects/models.py:1958
+#: projects/models.py:1959
 msgid "Sphinx: Do not define html_theme_path on Sphinx < 6.0"
 msgstr ""
 
-#: projects/models.py:1963
+#: projects/models.py:1964
 msgid "MkDocs: Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 
-#: projects/models.py:1967
+#: projects/models.py:1968
 msgid "Build: Do not shallow clone when cloning git repos"
 msgstr ""
 
-#: projects/models.py:1971
+#: projects/models.py:1972
 msgid "Build: Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1975
+#: projects/models.py:1976
 msgid "Conda: Upgrade conda before creating the environment"
 msgstr ""
 
-#: projects/models.py:1979
+#: projects/models.py:1980
 msgid "Conda: Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1984
+#: projects/models.py:1985
 msgid ""
 "Sphinx: Pass all versions (including private) into the html context when "
 "building with Sphinx"
 msgstr ""
 
-#: projects/models.py:1991
+#: projects/models.py:1992
 msgid ""
 "Proxito: CDN support for a project's public versions when privacy levels are "
 "enabled."
 msgstr ""
 
-#: projects/models.py:1997
+#: projects/models.py:1998
 msgid "Proxito: Record 404s page views."
 msgstr ""
 
-#: projects/models.py:2001
+#: projects/models.py:2002
 msgid "Proxito: Allow forced redirects."
 msgstr ""
 
-#: projects/models.py:2005
+#: projects/models.py:2006
 msgid "Proxito: Disable all page views"
 msgstr ""
 
-#: projects/models.py:2009
+#: projects/models.py:2010
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr ""
 
-#: projects/models.py:2014
+#: projects/models.py:2015
 msgid ""
 "Proxito: Use new unresolver implementation for serving documentation files."
 msgstr ""
 
-#: projects/models.py:2019
+#: projects/models.py:2020
 msgid "Dashboard: Allow project to use the version warning banner."
 msgstr ""
 
-#: projects/models.py:2025
+#: projects/models.py:2026
 msgid "Webhook: Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:2029
+#: projects/models.py:2030
 msgid "Webhook: Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:2033
+#: projects/models.py:2034
 msgid "Webhook: Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:2037
+#: projects/models.py:2038
 msgid "Build: Always run pip install --upgrade"
 msgstr ""
 
-#: projects/models.py:2038
+#: projects/models.py:2039
 msgid "Build: Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:2041
+#: projects/models.py:2042
 msgid "Build: Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:2043
+#: projects/models.py:2044
 msgid "Sphinx: Use latest version of Sphinx"
 msgstr ""
 
-#: projects/models.py:2046
+#: projects/models.py:2047
 msgid "MkDOcs: Install mkdocs 0.17.3 by default"
 msgstr ""
 
-#: projects/models.py:2050
+#: projects/models.py:2051
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
 #: projects/models.py:2056
+msgid ""
+"Build: Install all the latest versions of Read the Docs core requirements"
+msgstr ""
+
+#: projects/models.py:2063
 msgid "Search: Disable server side search"
 msgstr ""
 
-#: projects/models.py:2060
+#: projects/models.py:2067
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:2064
+#: projects/models.py:2071
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:2069
+#: projects/models.py:2076
 msgid ""
 "Search: Index content directly from html files instead or relying in other "
 "sources"
 msgstr ""
 
-#: projects/models.py:2076
+#: projects/models.py:2083
 msgid ""
 "Build: Use simplified and optimized git clone + git fetch + git checkout "
 "patterns"
 msgstr ""
 
-#: projects/models.py:2082
+#: projects/models.py:2089
 msgid ""
-"Proxito: Inject 'readthedocs-client.js' as <script> HTML tag in responses."
+"Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
 msgstr ""
 
-#: projects/models.py:2087
+#: projects/models.py:2094
 msgid "Build: Building without a configuration file is deprecated."
 msgstr ""
 
-#: projects/models.py:2091
+#: projects/models.py:2098
 msgid "Build: Set scale-in protection before/after building."
 msgstr ""
 
-#: projects/models.py:2104
+#: projects/models.py:2111
 msgid "Feature identifier"
 msgstr "Identifiant de la feature"
 
-#: projects/models.py:2109
+#: projects/models.py:2116
 msgid "Date feature was added"
 msgstr "Date d'ajout de la feature"
 
-#: projects/models.py:2115
+#: projects/models.py:2122
 msgid "Default all past projects to True"
 msgstr "Passer par défaut tous les anciens projets à Vrai"
 
-#: projects/models.py:2119
+#: projects/models.py:2126
 msgid "Default all future projects to True"
 msgstr "Passer par defaut tout les futurs projets à Vrai"
 
-#: projects/models.py:2141
+#: projects/models.py:2148
 msgid "Name of the environment variable"
 msgstr "Nom de la variable d'environnement"
 
-#: projects/models.py:2145
+#: projects/models.py:2152
 msgid "Value of the environment variable"
 msgstr "Valeur de la variable d'environnement."
 
-#: projects/models.py:2150
+#: projects/models.py:2157
 msgid "Project where this variable will be used"
 msgstr "Projet dans lequel cette variable sera utilisée"
 
-#: projects/models.py:2156
+#: projects/models.py:2163
 msgid "Expose this environment variable in PR builds?"
 msgstr "Montrer cette variable d'environnement dans les compilations de PR ?"
 
@@ -4737,10 +4742,8 @@ msgid "Set advertising preferences"
 msgstr "Changer les préférences en matière de publicité"
 
 #: templates/profiles/private/advertising_profile.html:15
-#, fuzzy
-#| msgid "Thanks for supporting Read the Docs! It really means a lot to us."
 msgid "Thank you for supporting Read the Docs!"
-msgstr "Merci de soutenir Read the Docs ! Cela nous fait chaud au cœur."
+msgstr ""
 
 #: templates/profiles/private/advertising_profile.html:22
 #: templates/projects/project_advertising.html:16
@@ -5116,19 +5119,11 @@ msgstr ""
 "adresses suivantes:"
 
 #: templates/projects/integration_webhook_detail.html:67
-#, fuzzy
-#| msgid ""
-#| "For more information on manually configuring a webhook, refer to <a "
-#| "href=\"https://docs.readthedocs.io/page/webhooks.html\"> our webhook "
-#| "documentation </a>"
 msgid ""
 "For more information on manually configuring a webhook, refer to <a "
 "href=\"https://docs.readthedocs.io/page/guides/setup/git-repo-automatic."
 "html\"> our webhook documentation </a>"
 msgstr ""
-"Pour plus d'information sur la configuration manuelle d'un webhook, se "
-"référer à <a href=\"https://docs.readthedocs.io/page/webhooks.html\">notre "
-"documentation de webhooks</a>."
 
 #: templates/projects/integration_webhook_detail.html:79
 msgid "Resync webhook"
@@ -6087,21 +6082,3 @@ msgstr ""
 "fournisseur Git afin de supprimer la connexion OAuth de Read the Docs. Sur "
 "GitHub, celle-ci se trouve dans <code>Paramètres > Applications > "
 "Applications OAuth Autorisées</code>."
-
-#~ msgid ""
-#~ "Becoming a Gold member makes Read the Docs ad-free when you are logged-"
-#~ "in. Gold members may also completely remove advertising for all visitors "
-#~ "to their projects."
-#~ msgstr ""
-#~ "Devenir un membre Gold rendra Read the Docs sans publicité lorsque vous "
-#~ "serez connecté. Les membres Gold peuvent aussi retirer la publicité pour "
-#~ "tous les visiteurs de leurs projets."
-
-#~ msgid ""
-#~ "Since you are a Gold member or Supporter, you are <strong>ad-free</"
-#~ "strong> for as long as you are logged-in. Thank you for supporting Read "
-#~ "the Docs."
-#~ msgstr ""
-#~ "Puisque vous êtes un membre Gold ou un soutien de Read the Docs, vous "
-#~ "êtes <strong>sans publicité</strong> tant que vous êtes connecté. Merci "
-#~ "de soutenir Read the Docs."
