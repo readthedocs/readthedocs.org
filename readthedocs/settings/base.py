@@ -585,7 +585,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:5.0': {
             'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7'],
                 'default_version': {
                     '2': '2.7',
                     '3': '3.7',
@@ -594,7 +594,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:6.0': {
             'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8'],
                 'default_version': {
                     '2': '2.7',
                     '3': '3.7',
@@ -603,7 +603,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:7.0': {
             'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10', 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10'],
                 'default_version': {
                     '2': '2.7',
                     '3': '3.7',
@@ -648,9 +648,6 @@ class CommunityBaseSettings(Settings):
                 '3.9': '3.9.17',
                 '3.10': '3.10.12',
                 '3.11': '3.11.4',
-                'pypy3.7': 'pypy3.7-7.3.9',
-                'pypy3.8': 'pypy3.8-7.3.11',
-                'pypy3.9': 'pypy3.9-7.3.12',
                 'miniconda3-4.7': 'miniconda3-4.7.12',
                 'mambaforge-4.10': 'mambaforge-4.10.3-10',
             },
