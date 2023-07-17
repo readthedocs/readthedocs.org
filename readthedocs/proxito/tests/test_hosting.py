@@ -79,7 +79,7 @@ class TestReadTheDocsConfigJson(TestCase):
 
     def test_get_config_v0(self):
         r = self.client.get(
-            reverse("proxito_readthedocs_config_json"),
+            reverse("proxito_readthedocs_docs_addons"),
             {"url": "https://project.dev.readthedocs.io/en/latest/"},
             secure=True,
             HTTP_HOST="project.dev.readthedocs.io",
@@ -92,7 +92,7 @@ class TestReadTheDocsConfigJson(TestCase):
 
     def test_get_config_v1(self):
         r = self.client.get(
-            reverse("proxito_readthedocs_config_json"),
+            reverse("proxito_readthedocs_docs_addons"),
             {"url": "https://project.dev.readthedocs.io/en/latest/"},
             secure=True,
             HTTP_HOST="project.dev.readthedocs.io",
@@ -103,7 +103,7 @@ class TestReadTheDocsConfigJson(TestCase):
 
     def test_get_config_unsupported_version(self):
         r = self.client.get(
-            reverse("proxito_readthedocs_config_json"),
+            reverse("proxito_readthedocs_docs_addons"),
             {"url": "https://project.dev.readthedocs.io/en/latest/"},
             secure=True,
             HTTP_HOST="project.dev.readthedocs.io",
