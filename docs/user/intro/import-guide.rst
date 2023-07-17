@@ -11,7 +11,7 @@ For private repositories, please use :doc:`Read the Docs for Business </commerci
 Automatically import your docs
 ------------------------------
 
-If you have :doc:`connected your Read the Docs account <../connected-accounts>` to GitHub, Bitbucket, or GitLab,
+If you have :doc:`connected your Read the Docs account </guides/connecting-git-account>` to GitHub, Bitbucket, or GitLab,
 you will see a list of your repositories that we are able to import.
 To import one of these projects, just click the import
 icon next to the repository you'd like to import. This will bring up a form that
@@ -55,7 +55,7 @@ configure a new webhook.
 
 .. seealso::
 
-   :doc:`/guides/git-integrations`
+   :doc:`/guides/setup/git-repo-manual`
       Once you have imported your git project, use this guide to manually set up basic and additional *webhook* integration.
 
 .. note::
@@ -75,10 +75,15 @@ and the documentation will be built.
 Check out our :doc:`/builds` page to learn more about how Read the Docs builds your docs,
 and to troubleshoot any issues that arise.
 
-Some documentation projects require additional configuration to build
-such as specifying a certain version of Python or installing additional dependencies.
+We require an additional configuration file to build your project.
+This allows you to specifying special requirements for your build,
+such as your version of Python or how you wish to install addition Python requirements.
 You can configure these settings in a ``.readthedocs.yaml`` file.
 See our :doc:`/config-file/index` docs for more details.
+
+.. note::
+
+   Using a configuration file :doc:`is required from September 2023 <rtd-blog:migrate-configuration-v2>`.
 
 It is also important to note that the default version of Sphinx is ``v1.8.5``.
 We recommend to set the version your project uses :doc:`explicitily with pinned dependencies </guides/reproducible-builds>`.

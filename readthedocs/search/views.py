@@ -136,8 +136,9 @@ class GlobalSearchView(TemplateView):
                 projects=projects,
                 use_advanced_query=True,
             )
-            total_count = results.hits.total["value"]
-            results = ProjectSearchSerializer(results, many=True).data
+            if results:
+                total_count = results.hits.total["value"]
+                results = ProjectSearchSerializer(results, many=True).data
         context = user_input._asdict()
         context.update(
             {

@@ -1,3 +1,12 @@
+"""
+The ``director`` module can be seen as the entrypoint of the build process.
+
+It "directs" all of the high-level build jobs:
+
+* checking out the repo
+* setting up the environment
+* fetching instructions etc.
+"""
 import os
 import tarfile
 
@@ -50,6 +59,9 @@ class BuildDirector:
         """
         self.data = data
 
+        # Reset `addons` field. It will be set to `True` only when it's built via `build.commands`
+        self.data.version.addons = False
+
     def setup_vcs(self):
         """
         Perform all VCS related steps.
@@ -82,6 +94,8 @@ class BuildDirector:
             environment=self.vcs_environment,
             verbose_name=self.data.version.verbose_name,
             version_type=self.data.version.type,
+            version_identifier=self.data.version.identifier,
+            version_machine=self.data.version.machine,
         )
 
         # We can't do too much on ``pre_checkout`` because we haven't
@@ -94,6 +108,21 @@ class BuildDirector:
         #
         # self.run_build_job("pre_checkout")
         self.checkout()
+
+        # Output the path for the config file used.
+        # This works as confirmation for us & the user about which file is used,
+        # as well as the fact that *any* config file is used.
+        if self.data.config.source_file:
+            cwd = self.data.project.checkout_path(self.data.version.slug)
+            command = self.vcs_environment.run(
+                "cat",
+                # Show user the relative path to the config file
+                # TODO: Have our standard path replacement code catch this.
+                # https://github.com/readthedocs/readthedocs.org/pull/10413#discussion_r1230765843
+                self.data.config.source_file.replace(cwd + "/", ""),
+                cwd=cwd,
+            )
+
         self.run_build_job("post_checkout")
 
         commit = self.data.build_commit or self.vcs_repository.commit
@@ -109,17 +138,17 @@ class BuildDirector:
             # Force the ``container_image`` to use one that has the latest
             # ca-certificate package which is compatible with Lets Encrypt
             container_image=settings.RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-20.04"],
+            api_client=self.data.api_client,
         )
 
     def create_build_environment(self):
-        use_gvisor = self.data.config.using_build_tools and self.data.config.build.jobs
         self.build_environment = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
             config=self.data.config,
             build=self.data.build,
             environment=self.get_build_env_vars(),
-            use_gvisor=use_gvisor,
+            api_client=self.data.api_client,
         )
 
     def setup_environment(self):
@@ -166,10 +195,6 @@ class BuildDirector:
         self.install()
         self.run_build_job("post_install")
 
-        # TODO: remove this and document how to do it on `build.jobs.post_install`
-        if self.data.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
-            self.language_environment.list_packages_installed()
-
     def build(self):
         """
         Build all the formats specified by the user.
@@ -197,17 +222,40 @@ class BuildDirector:
 
     # VCS checkout
     def checkout(self):
-        log.info(
-            "Clonning repository.",
-        )
+        """Checkout Git repo and load build config file."""
+
+        log.info("Cloning and fetching.")
         self.vcs_repository.update()
 
         identifier = self.data.build_commit or self.data.version.identifier
         log.info("Checking out.", identifier=identifier)
         self.vcs_repository.checkout(identifier)
 
-        self.data.config = load_yaml_config(version=self.data.version)
+        # The director is responsible for understanding which config file to use for a build.
+        # In order to reproduce a build 1:1, we may use readthedocs_yaml_path defined by the build
+        # instead of per-version or per-project.
+        # Use the below line to fetch the readthedocs_yaml_path defined per-build.
+        # custom_config_file = self.data.build.get("readthedocs_yaml_path", None)
+        custom_config_file = None
+
+        # This logic can be extended with version-specific config files
+        if not custom_config_file and self.data.version.project.readthedocs_yaml_path:
+            custom_config_file = self.data.version.project.readthedocs_yaml_path
+
+        if custom_config_file:
+            log.info("Using a custom .readthedocs.yaml file.", path=custom_config_file)
+        self.data.config = load_yaml_config(
+            version=self.data.version,
+            readthedocs_yaml_path=custom_config_file,
+        )
         self.data.build["config"] = self.data.config.as_dict()
+        self.data.build["readthedocs_yaml_path"] = custom_config_file
+
+        # Raise a build error if the project is not using a config file or using v1
+        if self.data.project.has_feature(
+            Feature.NO_CONFIG_FILE_DEPRECATED
+        ) and self.data.config.version not in ("2", 2):
+            raise BuildUserError(BuildUserError.NO_CONFIG_FILE_DEPRECATED)
 
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)
@@ -360,6 +408,7 @@ class BuildDirector:
             raise BuildUserError(BuildUserError.BUILD_OUTPUT_OLD_DIRECTORY_USED)
 
     def run_build_commands(self):
+        """Runs each build command in the build environment."""
         reshim_commands = (
             {"pip", "install"},
             {"conda", "create"},
@@ -395,6 +444,10 @@ class BuildDirector:
         # Update the `Version.documentation_type` to match the doctype defined
         # by the config file. When using `build.commands` it will be `GENERIC`
         self.data.version.documentation_type = self.data.config.doctype
+
+        # Mark this version to inject the new js client when serving it via El Proxito
+        self.data.version.addons = True
+
         self.store_readthedocs_build_yaml()
 
     def install_build_tools(self):
@@ -515,6 +568,14 @@ class BuildDirector:
                     self.data.config.python_interpreter not in ("conda", "mamba"),
                 ]
             ):
+                # We cap setuptools to avoid breakage of projects
+                # relying on setup.py invokations,
+                # see https://github.com/readthedocs/readthedocs.org/issues/8659
+                setuptools_version = (
+                    "setuptools<58.3.0"
+                    if self.data.config.is_using_setup_py_install
+                    else "setuptools"
+                )
                 # Install our own requirements if the version is compiled
                 cmd = [
                     "python",
@@ -522,10 +583,7 @@ class BuildDirector:
                     "install",
                     "-U",
                     "virtualenv",
-                    # We cap setuptools to avoid breakage of projects
-                    # relying on setup.py invokations,
-                    # see https://github.com/readthedocs/readthedocs.org/issues/8659
-                    "setuptools<58.3.0",
+                    setuptools_version,
                 ]
                 self.build_environment.run(
                     *cmd,

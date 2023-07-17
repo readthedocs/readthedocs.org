@@ -4,7 +4,7 @@ from urllib.parse import urlsplit
 
 from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 from django_dynamic_fixture import get, new
@@ -15,6 +15,7 @@ from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Feature, Project
+from readthedocs.subscriptions.constants import TYPE_SEARCH_ANALYTICS
 
 
 @mock.patch('readthedocs.projects.forms.trigger_build', mock.MagicMock())
@@ -267,8 +268,9 @@ class BuildViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn(external_version_build, response.context['build_qs'])
 
-    @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
-    def test_rebuild_specific_commit(self, mock):
+    @mock.patch("readthedocs.projects.tasks.builds.update_docs_task")
+    @mock.patch("readthedocs.core.utils.cancel_build")
+    def test_rebuild_specific_commit(self, mock_update_docs_task, mock_cancel_build):
         builds_count = Build.objects.count()
 
         version = self.pip.versions.first()
@@ -333,6 +335,11 @@ class BuildViewTests(TestCase):
         self.assertEqual(r.status_code, 302)
 
 
+@override_settings(
+    RTD_DEFAULT_FEATURES={
+        TYPE_SEARCH_ANALYTICS: 90,
+    }
+)
 class TestSearchAnalyticsView(TestCase):
 
     """Tests for search analytics page."""

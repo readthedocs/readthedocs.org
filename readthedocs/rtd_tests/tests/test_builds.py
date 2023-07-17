@@ -249,7 +249,7 @@ class BuildModelTests(TestCase):
         self.assertTrue(build_two.is_stale)
         self.assertFalse(build_three.is_stale)
 
-    def test_using_latest_config(self):
+    def test_deprecated_config_used(self):
         now = timezone.now()
 
         build = get(
@@ -260,12 +260,12 @@ class BuildModelTests(TestCase):
             state='finished',
         )
 
-        self.assertFalse(build.using_latest_config())
+        self.assertTrue(build.deprecated_config_used())
 
         build.config = {'version': 2}
         build.save()
 
-        self.assertTrue(build.using_latest_config())
+        self.assertFalse(build.deprecated_config_used())
 
     def test_build_is_external(self):
         # Turn the build version to EXTERNAL type.

@@ -86,8 +86,6 @@ class CommunityBaseSettings(Settings):
 
     # slumber settings
     SLUMBER_API_HOST = 'https://readthedocs.org'
-    SLUMBER_USERNAME = None
-    SLUMBER_PASSWORD = None
 
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
@@ -157,8 +155,27 @@ class CommunityBaseSettings(Settings):
     # Number of days an invitation is valid.
     RTD_INVITATIONS_EXPIRATION_DAYS = 15
 
+    @property
+    def RTD_DEFAULT_FEATURES(self):
+        # Features listed here will be available to users that don't have a
+        # subscription or if their subscription doesn't include the feature.
+        # Depending on the feature type, the numeric value represents a
+        # number of days or limit of the feature.
+        from readthedocs.subscriptions import constants
+        return {
+            constants.TYPE_CNAME: 1,
+            constants.TYPE_EMBED_API: 1,
+            # Retention days for search analytics.
+            constants.TYPE_SEARCH_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            # Retention days for page view analytics.
+            constants.TYPE_PAGEVIEW_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            # Retention days for audit logs.
+            constants.TYPE_AUDIT_LOGS: self.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS,
+            # Max number of concurrent builds.
+            constants.TYPE_CONCURRENT_BUILDS: self.RTD_MAX_CONCURRENT_BUILDS,
+        }
+
     # Database and API hitting settings
-    DONT_HIT_API = False
     DONT_HIT_DB = True
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
     DATABASE_ROUTERS = ['readthedocs.core.db.MapAppsRouter']
@@ -200,6 +217,7 @@ class CommunityBaseSettings(Settings):
             'django_gravatar',
             'rest_framework',
             'rest_framework.authtoken',
+            "rest_framework_api_key",
             'corsheaders',
             'annoying',
             'django_extensions',
@@ -492,9 +510,11 @@ class CommunityBaseSettings(Settings):
                 'delete': True,
             },
         },
-        'every-day-delete-inactive-external-versions': {
+        'every-three-hours-delete-inactive-external-versions': {
             'task': 'readthedocs.builds.tasks.delete_closed_external_versions',
-            'schedule': crontab(minute=0, hour=1),
+            # Increase the frequency because we have 255k closed versions and they keep growing.
+            # It's better to increase this frequency than the `limit=` of the task.
+            'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
         'every-day-resync-remote-repositories': {
@@ -512,9 +532,12 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
+        'weekly-config-file-notification': {
+            'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
+            'schedule': crontab(day_of_week='wednesday', hour=11, minute=15),
+            'options': {'queue': 'web'},
+        },
     }
-
-    MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
 
     # Sentry
     SENTRY_CELERY_IGNORE_EXPECTED = True
@@ -522,8 +545,6 @@ class CommunityBaseSettings(Settings):
     # Docker
     DOCKER_ENABLE = False
     DOCKER_SOCKET = 'unix:///var/run/docker.sock'
-    # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
-    DOCKER_BUILD_IMAGES = None
 
     # User used to create the container.
     # In production we use the same user than the one defined by the
@@ -622,32 +643,35 @@ class CommunityBaseSettings(Settings):
             'python': {
                 '2.7': '2.7.18',
                 '3.6': '3.6.15',
-                '3.7': '3.7.15',
-                '3.8': '3.8.15',
-                '3.9': '3.9.15',
-                '3.10': '3.10.8',
-                '3.11': '3.11.0',
+                '3.7': '3.7.17',
+                '3.8': '3.8.17',
+                '3.9': '3.9.17',
+                '3.10': '3.10.12',
+                '3.11': '3.11.4',
                 'pypy3.7': 'pypy3.7-7.3.9',
-                'pypy3.8': 'pypy3.8-7.3.9',
-                'pypy3.9': 'pypy3.9-7.3.9',
+                'pypy3.8': 'pypy3.8-7.3.11',
+                'pypy3.9': 'pypy3.9-7.3.12',
                 'miniconda3-4.7': 'miniconda3-4.7.12',
                 'mambaforge-4.10': 'mambaforge-4.10.3-10',
             },
             'nodejs': {
                 '14': '14.20.1',
-                '16': '16.18.0',
-                '18': '18.11.0',
-                '19': '19.0.0',
+                '16': '16.18.1',
+                '18': '18.16.1',  # LTS
+                '19': '19.0.1',
+                '20': '20.3.1',
             },
             'rust': {
                 '1.55': '1.55.0',
                 '1.61': '1.61.0',
                 '1.64': '1.64.0',
+                '1.70': '1.70.0',
             },
             'golang': {
                 '1.17': '1.17.13',
-                '1.18': '1.18.7',
-                '1.19': '1.19.2',
+                '1.18': '1.18.10',
+                '1.19': '1.19.10',
+                '1.20': '1.20.5',
             },
         },
     }
@@ -722,6 +746,7 @@ class CommunityBaseSettings(Settings):
 
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
+            "VERIFIED_EMAIL": True,
             'SCOPE': [
                 'user:email',
                 'read:org',
@@ -730,6 +755,7 @@ class CommunityBaseSettings(Settings):
             ],
         },
         'gitlab': {
+            "VERIFIED_EMAIL": True,
             'SCOPE': [
                 'api',
                 'read_user',
@@ -893,19 +919,6 @@ class CommunityBaseSettings(Settings):
     GRAVATAR_DEFAULT_IMAGE = 'https://assets.readthedocs.org/static/images/silhouette.png'  # NOQA
     OAUTH_AVATAR_USER_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     OAUTH_AVATAR_ORG_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
-    RESTRUCTUREDTEXT_FILTER_SETTINGS = {
-        'cloak_email_addresses': True,
-        'file_insertion_enabled': False,
-        'raw_enabled': False,
-        'strip_comments': True,
-        'doctitle_xform': True,
-        'sectsubtitle_xform': True,
-        'initial_header_level': 2,
-        'report_level': 5,
-        'syntax_highlight': 'none',
-        'math_output': 'latex',
-        'field_name_limit': 50,
-    }
     REST_FRAMEWORK = {
         'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA

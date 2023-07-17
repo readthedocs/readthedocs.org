@@ -22,6 +22,7 @@ extensions = [
     "multiproject",
     "myst_parser",
     "notfound.extension",
+    "sphinx_copybutton",
     "sphinx_design",
     "sphinx_search.extension",
     "sphinx_tabs.tabs",
@@ -41,12 +42,14 @@ multiproject_projects = {
         "use_config_file": False,
         "config": {
             "project": "Read the Docs user documentation",
+            "html_title": "Read the Docs user documentation",
         },
     },
     "dev": {
         "use_config_file": False,
         "config": {
             "project": "Read the Docs developer documentation",
+            "html_title": "Read the Docs developer documentation",
         },
     },
 }
@@ -65,9 +68,16 @@ ogp_description_length = 300
 
 templates_path = ["_templates"]
 
+# This may be elevated as a general issue for documentation and behavioral
+# change to the Sphinx build:
+# This will ensure that we use the correctly set environment for canonical URLs
+# Old Read the Docs injections makes it point only to the default version,
+# for instance /en/stable/
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
+
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "9.10.0"
+version = "9.16.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
@@ -95,6 +105,7 @@ intersphinx_mapping = {
     "rst-to-myst": ("https://rst-to-myst.readthedocs.io/en/stable/", None),
     "rtd": ("https://docs.readthedocs.io/en/stable/", None),
     "rtd-dev": ("https://dev.readthedocs.io/en/latest/", None),
+    "rtd-blog": ("https://blog.readthedocs.com/", None),
     "jupyter": ("https://docs.jupyter.org/en/latest/", None),
 }
 

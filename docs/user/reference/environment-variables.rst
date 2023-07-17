@@ -18,7 +18,11 @@ All :doc:`build processes </builds>` have the following environment variables au
     The locale name, or the identifier for the locale, for the project being built.
     This value comes from the project's configured language.
 
-    :Examples: ``en``, ``it``, ``de_AT``, ``es``, ``pt_BR``
+    :Example: ``en``
+    :Example: ``it``
+    :Example: ``de_AT``
+    :Example: ``es``
+    :Example: ``pt_BR``
 
 .. envvar:: READTHEDOCS_VERSION
 
@@ -35,7 +39,10 @@ All :doc:`build processes </builds>` have the following environment variables au
 
     The type of the version being built.
 
-    :Values: ``branch``, ``tag``, ``external`` (for :doc:`pull request builds </pull-requests>`), or ``unknown``
+    :Example: ``branch``
+    :Example: ``tag``
+    :Example: ``external`` (for :doc:`pull request builds </pull-requests>`)
+    :Example: ``unknown``
 
 .. envvar:: READTHEDOCS_VIRTUALENV_PATH
 
@@ -43,6 +50,23 @@ All :doc:`build processes </builds>` have the following environment variables au
     Only exists for builds using Virtualenv and not Conda.
 
     :Example: ``/home/docs/checkouts/readthedocs.org/user_builds/project/envs/version``
+
+.. envvar:: READTHEDOCS_OUTPUT
+
+    Base path for well-known output directories. Files in these directories will automatically be found, uploaded and published.
+
+    You need to concatenate an output format to this variable.
+    Currently valid formats are ``html``, ``pdf``, ``htmlzip`` and ``epub``.
+    (e.g. ``$READTHEDOCS_OUTPUT/html/`` or ``$READTHEDOCS_OUTPUT/pdf/``)
+    You also need to create the directory before moving outputs into the destination.
+    You can create it with the following command ``mkdir -p $READTHEDOCS_OUTPUT/html/``.
+    Note that only ``html`` supports multiple files,
+    the other formats should have one and only one file to be uploaded.
+
+    .. seealso::
+
+       :ref:`build-customization:where to put files`
+          Information about using custom commands to generate output that will automatically be published once your build succeeds.
 
 .. envvar:: READTHEDOCS_CANONICAL_URL
 

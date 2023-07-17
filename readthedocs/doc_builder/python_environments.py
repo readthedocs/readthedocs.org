@@ -163,6 +163,60 @@ class Virtualenv(PythonEnvironment):
             '--no-cache-dir',
         ]
 
+        if self.project.has_feature(Feature.INSTALL_LATEST_CORE_REQUIREMENTS):
+            self._install_latest_requirements(pip_install_cmd)
+        else:
+            self._install_old_requirements(pip_install_cmd)
+
+    def _install_latest_requirements(self, pip_install_cmd):
+        """
+        Install all the latest core requirements.
+
+        By enabling the feature flag ``INSTALL_LATEST_CORE_REQUIREMENTS``
+        projects will automatically get installed all the latest core
+        requirements: pip, setuptools, sphinx, readthedocs-sphinx-ext and mkdocs.
+
+        This is the new behavior and where we are moving towards.
+        """
+        # First, upgrade pip and setuptools to their latest versions
+        cmd = pip_install_cmd + ["pip", "setuptools"]
+        self.build_env.run(
+            *cmd,
+            bin_path=self.venv_bin(),
+            cwd=self.checkout_path,
+        )
+
+        # Second, install all the latest core requirements
+        requirements = []
+
+        if self.config.doctype == "mkdocs":
+            requirements.append("mkdocs")
+        else:
+            requirements.extend(
+                [
+                    "sphinx",
+                    "readthedocs-sphinx-ext",
+                ]
+            )
+
+        cmd = copy.copy(pip_install_cmd)
+        cmd.extend(requirements)
+        self.build_env.run(
+            *cmd,
+            bin_path=self.venv_bin(),
+            cwd=self.checkout_path,
+        )
+
+    def _install_old_requirements(self, pip_install_cmd):
+        """
+        Install old core requirements.
+
+        There are bunch of feature flags that will be taken in consideration to
+        decide whether or not upgrade some of the core dependencies to their
+        latest versions.
+
+        This is the old behavior and the one we want to get rid off.
+        """
         # Install latest pip and setuptools first,
         # so it is used when installing the other requirements.
         pip_version = self.project.get_feature_value(
@@ -171,7 +225,15 @@ class Virtualenv(PythonEnvironment):
             positive='pip<20.3',
             negative='pip',
         )
-        cmd = pip_install_cmd + [pip_version, 'setuptools<58.3.0']
+        # Installing a project with setup.py install is deprecated
+        # in new versions of setuptools, so we need to pin setuptools
+        # to a supported version if the project is using setup.py install.
+        setuptools_version = (
+            "setuptools<58.3.0"
+            if self.config.is_using_setup_py_install
+            else "setuptools"
+        )
+        cmd = pip_install_cmd + [pip_version, setuptools_version]
         self.build_env.run(
             *cmd,
             bin_path=self.venv_bin(),
@@ -201,12 +263,8 @@ class Virtualenv(PythonEnvironment):
                 self.project.get_feature_value(
                     Feature.DEFAULT_TO_MKDOCS_0_17_3,
                     positive='mkdocs==0.17.3',
-                    negative=self.project.get_feature_value(
-                        Feature.USE_MKDOCS_LATEST,
-                        positive='mkdocs<1.1',
-                        negative='mkdocs',
-                    ),
-                ),
+                    negative="mkdocs",
+                )
             )
         else:
             requirements.extend(
@@ -240,15 +298,13 @@ class Virtualenv(PythonEnvironment):
             # even if it is already installed system-wide (and
             # --system-site-packages is used)
             cmd.append('-I')
-            # If this flag is present,
-            # we need to cap setuptools again.
-            # See https://github.com/readthedocs/readthedocs.org/issues/8775
-            requirements.append('setuptools<58.3.0')
+            # The same version of setuptools used above needs to be used here.
+            requirements.append(setuptools_version)
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
             bin_path=self.venv_bin(),
-            cwd=self.checkout_path  # noqa - no comma here in py27 :/
+            cwd=self.checkout_path,
         )
 
     def install_requirements_file(self, install):
@@ -300,22 +356,6 @@ class Virtualenv(PythonEnvironment):
                 cwd=self.checkout_path,
                 bin_path=self.venv_bin(),
             )
-
-    def list_packages_installed(self):
-        """List packages installed in pip."""
-        args = [
-            self.venv_bin(filename='python'),
-            '-m',
-            'pip',
-            'list',
-            # Include pre-release versions.
-            '--pre',
-        ]
-        self.build_env.run(
-            *args,
-            cwd=self.checkout_path,
-            bin_path=self.venv_bin(),
-        )
 
 
 class Conda(PythonEnvironment):
@@ -430,7 +470,10 @@ class Conda(PythonEnvironment):
         else:
             # Append conda dependencies directly to ``dependencies`` and pip
             # dependencies to ``dependencies.pip``
-            pip_requirements, conda_requirements = self._get_core_requirements()
+            if self.project.has_feature(Feature.INSTALL_LATEST_CORE_REQUIREMENTS):
+                pip_requirements, conda_requirements = self._get_new_core_requirements()
+            else:
+                pip_requirements, conda_requirements = self._get_old_core_requirements()
             dependencies = environment.get('dependencies', [])
             pip_dependencies = {'pip': pip_requirements}
 
@@ -468,7 +511,22 @@ class Conda(PythonEnvironment):
                     'environment file.',
                 )
 
-    def _get_core_requirements(self):
+    def _get_new_core_requirements(self):
+        # Use conda for requirements it packages
+        conda_requirements = []
+
+        # Install pip-only things.
+        pip_requirements = []
+
+        if self.config.doctype == "mkdocs":
+            pip_requirements.append("mkdocs")
+        else:
+            pip_requirements.append("readthedocs-sphinx-ext")
+            conda_requirements.extend(["sphinx"])
+
+        return pip_requirements, conda_requirements
+
+    def _get_old_core_requirements(self):
         # Use conda for requirements it packages
         conda_requirements = [
             'mock',
@@ -497,7 +555,7 @@ class Conda(PythonEnvironment):
             # create`` step.
             return
 
-        pip_requirements, conda_requirements = self._get_core_requirements()
+        pip_requirements, conda_requirements = self._get_old_core_requirements()
         # Install requirements via ``conda install`` command if they were
         # not appended to the ``environment.yml`` file.
         cmd = [
@@ -536,17 +594,3 @@ class Conda(PythonEnvironment):
         # as the conda environment was created by using the ``environment.yml``
         # defined by the user, there is nothing to update at this point
         pass
-
-    def list_packages_installed(self):
-        """List packages installed in conda."""
-        args = [
-            self.conda_bin_name(),
-            'list',
-            '--name',
-            self.version.slug,
-        ]
-        self.build_env.run(
-            *args,
-            cwd=self.checkout_path,
-            bin_path=self.venv_bin(),
-        )

@@ -42,6 +42,15 @@ jobs:
       - checkout
       - run: git submodule sync
       - run: git submodule update --init
+      # Recipe: https://pre-commit.com/#managing-ci-caches
+      - run:
+          name: Combine pre-commit config and python versions for caching
+          command: |
+            cp common/pre-commit-config.yaml pre-commit-cache-key.txt
+            python --version --version >> pre-commit-cache-key.txt
+      - restore_cache:
+          keys:
+          - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
       - run: pip install --user 'tox<5'
       - run: tox -e pre-commit
       - run: tox -e migrations
@@ -49,6 +58,10 @@ jobs:
           node-version: '10.17.0'
       - run: npm ci
       - run: tox -e eslint
+      - save_cache:
+          key: pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
+          paths:
+          - ~/.cache/pre-commit
 
 workflows:
   version: 2

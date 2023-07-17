@@ -19,12 +19,13 @@ from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
-from readthedocs.core.resolver import resolve, resolver
-from readthedocs.core.utils.url import unsafe_join_url_path
+from readthedocs.core.resolver import resolve
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage, staticfiles_storage
+from readthedocs.subscriptions.constants import TYPE_AUDIT_PAGEVIEWS
+from readthedocs.subscriptions.models import PlanFeature
 
 log = structlog.get_logger(__name__)
 
@@ -213,7 +214,7 @@ class ServeDocsMixin:
         This feature is different from page views analytics,
         as it records every page view individually with more metadata like the user, IP, etc.
         """
-        return False
+        return PlanFeature.objects.has_feature(project, TYPE_AUDIT_PAGEVIEWS)
 
     def _serve_static_file(self, request, filename):
         return self._serve_file(
@@ -280,7 +281,7 @@ class ServeDocsMixin:
         log.debug('Unauthorized access to documentation.', project_slug=project.slug)
         return res
 
-    def allowed_user(self, *args, **kwargs):
+    def allowed_user(self, request, version):
         return True
 
     def get_version_from_host(self, request, version_slug):
@@ -336,77 +337,6 @@ class ServeRedirectMixin:
         resp["X-RTD-Redirect"] = RedirectType.system.name
         return resp
 
-    def canonical_redirect(
-        self,
-        request,
-        final_project,
-        redirect_type,
-        external_version_slug=None,
-    ):
-        """
-        Return a redirect to the canonical domain including scheme.
-
-        The following cases are covered:
-
-        - Redirect a custom domain from http to https (if supported)
-          http://project.rtd.io/ -> https://project.rtd.io/
-        - Redirect a domain to a canonical domain (http or https).
-          http://project.rtd.io/ -> https://docs.test.com/
-          http://project.rtd.io/foo/bar/ -> https://docs.test.com/foo/bar/
-        - Redirect from a subproject domain to the main domain
-          https://subproject.rtd.io/en/latest/foo -> https://main.rtd.io/projects/subproject/en/latest/foo  # noqa
-          https://subproject.rtd.io/en/latest/foo -> https://docs.test.com/projects/subproject/en/latest/foo  # noqa
-
-        :param request: Request object.
-        :param final_project: The current project being served.
-        :param redirect_type: The type of canonical redirect (https, canonical-cname, subproject-main-domain)
-        :param external_version_slug: The version slug if the request is from a pull request preview.
-        """
-        from_url = request.build_absolute_uri()
-        parsed_from = urlparse(from_url)
-
-        if redirect_type == RedirectType.http_to_https:
-            # We only need to change the protocol.
-            to = parsed_from._replace(scheme="https").geturl()
-        elif redirect_type == RedirectType.to_canonical_domain:
-            # We need to change the domain and protocol.
-            canonical_domain = final_project.get_canonical_custom_domain()
-            protocol = "https" if canonical_domain.https else "http"
-            to = parsed_from._replace(
-                scheme=protocol, netloc=canonical_domain.domain
-            ).geturl()
-        elif redirect_type == RedirectType.subproject_to_main_domain:
-            # We need to get the subproject root in the domain of the main
-            # project, and append the current path.
-            project_doc_prefix = resolver.get_url_prefix(
-                project=final_project,
-                external_version_slug=external_version_slug,
-            )
-            parsed_doc_prefix = urlparse(project_doc_prefix)
-            to = parsed_doc_prefix._replace(
-                path=unsafe_join_url_path(parsed_doc_prefix.path, parsed_from.path),
-                query=parsed_from.query,
-            ).geturl()
-        else:
-            raise NotImplementedError
-
-        if from_url == to:
-            # check that we do have a response and avoid infinite redirect
-            log.warning(
-                'Infinite Redirect: FROM URL is the same than TO URL.',
-                url=to,
-            )
-            raise InfiniteRedirectException()
-
-        log.info(
-            "Canonical Redirect.", host=request.get_host(), from_url=from_url, to_url=to
-        )
-        # All canonical redirects can be cached, since the final URL will check for authz.
-        self.cache_response = True
-        resp = HttpResponseRedirect(to)
-        resp["X-RTD-Redirect"] = redirect_type.name
-        return resp
-
     def get_redirect(
         self, project, lang_slug, version_slug, filename, full_path, forced_only=False
     ):
@@ -448,7 +378,7 @@ class ServeRedirectMixin:
         # Redirects shouldn't change the domain, version or language.
         # However, if the new_path is already an absolute URI, just use it
         new_path = request.build_absolute_uri(new_path)
-        log.info(
+        log.debug(
             'Redirecting...',
             from_url=request.build_absolute_uri(proxito_path),
             to_url=new_path,
@@ -464,7 +394,7 @@ class ServeRedirectMixin:
             and new_path_parsed.path == old_path_parsed.path
         ):
             # check that we do have a response and avoid infinite redirect
-            log.warning(
+            log.debug(
                 'Infinite Redirect: FROM URL is the same than TO URL.',
                 url=new_path,
             )
