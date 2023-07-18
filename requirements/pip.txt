@@ -16,9 +16,9 @@ babel==2.12.1
     # via sphinx
 billiard==3.6.4.0
     # via celery
-boto3==1.28.3
+boto3==1.28.4
     # via django-storages
-botocore==1.31.3
+botocore==1.31.4
     # via
     #   boto3
     #   s3transfer
@@ -154,7 +154,7 @@ gitdb==4.0.10
     # via gitpython
 gitpython==3.1.32
     # via -r requirements/pip.in
-gunicorn==20.1.0
+gunicorn==21.0.1
     # via -r requirements/pip.in
 idna==3.4
     # via requests
@@ -187,6 +187,7 @@ packaging==23.1
     #   -r requirements/pip.in
     #   docker
     #   dparse
+    #   gunicorn
     #   sphinx
 platformdirs==3.9.1
     # via virtualenv
@@ -215,7 +216,7 @@ pytz==2023.3
     #   celery
     #   django
     #   djangorestframework
-pyyaml==6.0
+pyyaml==6.0.1
     # via -r requirements/pip.in
 redis==4.6.0
     # via
@@ -241,7 +242,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.in
 s3transfer==0.6.1
     # via boto3
-selectolax==0.3.14
+selectolax==0.3.15
     # via -r requirements/pip.in
 six==1.16.0
     # via
@@ -316,4 +317,3 @@ websocket-client==1.6.1
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
-# setuptools
