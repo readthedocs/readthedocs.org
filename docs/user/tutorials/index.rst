@@ -42,3 +42,9 @@ Tutorials
    /intro/import-guide
    /config-file/index
    /examples
+
+
+Testing
+-------
+
+.. doclist:: intro/getting-started-with-sphinx

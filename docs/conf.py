@@ -35,6 +35,7 @@ extensions = [
     "sphinxcontrib.video",
     "sphinxemoji.sphinxemoji",
     "sphinxext.opengraph",
+    "doclist",
 ]
 
 multiproject_projects = {
