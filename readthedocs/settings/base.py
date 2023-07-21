@@ -674,6 +674,7 @@ class CommunityBaseSettings(Settings):
     }
     # Always point to the latest stable release.
     RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.11']
+    RTD_DOCKER_CLONE_IMAGE = RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-22.04"],
 
     def _get_docker_memory_limit(self):
         try:
