@@ -33,8 +33,7 @@ jsonfield
 requests
 requests-toolbelt
 slumber
-# awscli (requirements/docker.txt) isn't compatible with pyyaml >= 5.5.
-pyyaml==5.4.1
+pyyaml
 Pygments
 
 django-redis
