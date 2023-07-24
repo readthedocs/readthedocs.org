@@ -43,11 +43,11 @@ class BuildListFilter(FilterSet):
         empty_label=_("Any"),
         method="get_state",
     )
-    type = ChoiceFilter(
+    version__type = ChoiceFilter(
         label=_("Type"),
         choices=TYPE_CHOICES,
         empty_label=_("Any"),
-        method="get_type",
+        method="get_version_type",
     )
 
     def get_state(self, queryset, _, value):
@@ -62,7 +62,7 @@ class BuildListFilter(FilterSet):
             )
         return queryset
 
-    def get_type(self, queryset, _, value):
+    def get_version_type(self, queryset, _, value):
         if value == self.TYPE_NORMAL:
             queryset = queryset.exclude(version__type=EXTERNAL)
         elif value == self.TYPE_EXTERNAL:
