@@ -125,9 +125,9 @@ Certain Python versions require a certain build image,
 as defined here:
 
 * ``stable``:
-  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``pypy3.5``
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``
 * ``latest``:
-  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``, ``pypy3.5``
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``
 
 .. code-block:: yaml
 
@@ -149,7 +149,7 @@ python.version
 ``````````````
 
 * Default: ``3.7``
-* Options: ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``, ``pypy3.5``
+* Options: ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``
 
 This is the version of Python to use when building your documentation.
 If you specify only the major version of Python,

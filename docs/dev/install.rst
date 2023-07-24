@@ -76,7 +76,7 @@ Set up your environment
 
    .. prompt:: bash
 
-      inv docker.pull --only-required
+      inv docker.pull
 
 #. Start all the containers:
 

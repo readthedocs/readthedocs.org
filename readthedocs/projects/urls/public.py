@@ -1,5 +1,6 @@
 """Project URLS for public users."""
 
+from django.conf import settings
 from django.conf.urls import re_path
 from django.views.generic.base import RedirectView
 
@@ -8,6 +9,15 @@ from readthedocs.constants import pattern_opts
 from readthedocs.projects.views import public
 from readthedocs.projects.views.public import ProjectDetailView, ProjectTagIndex
 from readthedocs.search.views import ProjectSearchView
+
+# While we have two dashboards, this logic exists to unify two views that are
+# mostly identical. For some background on the future plans here, see:
+# https://github.com/readthedocs/ext-theme/issues/191
+project_versions_list = public.project_versions
+if settings.RTD_EXT_THEME_ENABLED:
+    # The ProjectDetailView already contains the logic for filtering and sorting
+    # that is missing from the function view `public.project_versions`.
+    project_versions_list = ProjectDetailView.as_view()
 
 urlpatterns = [
     re_path(
@@ -77,7 +87,7 @@ urlpatterns = [
     ),
     re_path(
         r'^(?P<project_slug>{project_slug})/versions/$'.format(**pattern_opts),
-        public.project_versions,
+        project_versions_list,
         name='project_version_list',
     ),
 ]

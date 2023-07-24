@@ -130,20 +130,20 @@ class VersionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Version
         fields = [
-            'id',
-            'project',
-            'slug',
-            'identifier',
-            'verbose_name',
-            'privacy_level',
-            'active',
-            'built',
-            'downloads',
-            'type',
-            'has_pdf',
-            'has_epub',
-            'has_htmlzip',
-            'documentation_type',
+            "id",
+            "project",
+            "slug",
+            "identifier",
+            "verbose_name",
+            "privacy_level",
+            "active",
+            "built",
+            "downloads",
+            "type",
+            "has_pdf",
+            "has_epub",
+            "has_htmlzip",
+            "documentation_type",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -192,6 +192,7 @@ class VersionAdminSerializer(VersionSerializer):
             "addons",
             "build_data",
             "canonical_url",
+            "machine",
         ]
 
 

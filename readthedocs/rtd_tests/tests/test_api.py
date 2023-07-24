@@ -608,6 +608,13 @@ class APIBuildTests(TestCase):
 class APITests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
+    def test_create_key_for_project_with_long_slug(self):
+        user = get(User)
+        project = get(Project, users=[user], slug="a" * 60)
+        build_api_key_obj, build_api_key = BuildAPIKey.objects.create_key(project)
+        self.assertTrue(BuildAPIKey.objects.is_valid(build_api_key))
+        self.assertEqual(build_api_key_obj.name, "a" * 50)
+
     def test_revoke_build_api_key(self):
         user = get(User)
         project = get(Project, users=[user])
@@ -3127,14 +3134,15 @@ class APIVersionTests(TestCase):
                 "users": [1],
                 "urlconf": None,
             },
-            'privacy_level': 'public',
-            'downloads': {},
-            'identifier': '2404a34eba4ee9c48cc8bc4055b99a48354f4950',
-            'slug': '0.8',
-            'has_epub': False,
-            'has_htmlzip': False,
-            'has_pdf': False,
-            'documentation_type': 'sphinx',
+            "privacy_level": "public",
+            "downloads": {},
+            "identifier": "2404a34eba4ee9c48cc8bc4055b99a48354f4950",
+            "slug": "0.8",
+            "has_epub": False,
+            "has_htmlzip": False,
+            "has_pdf": False,
+            "documentation_type": "sphinx",
+            "machine": False,
         }
 
         self.assertDictEqual(
