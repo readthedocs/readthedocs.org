@@ -23,6 +23,13 @@ A development setup can be hosted by your laptop, in a VM, on a separate server 
    We do not recommend to follow this guide to deploy an instance of Read the Docs for production.
 
 
+Install Docker and Docker Compose
+---------------------------------
+
+#. Install Docker by following `the official guide <https://docs.docker.com/get-docker/>`_
+#. Install Docker Compose with `the official instructions <https://docs.docker.com/compose/install/>`_
+
+
 Set up your environment
 -----------------------
 
