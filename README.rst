@@ -38,7 +38,7 @@ Contributing
 
 You can find information about contributing to Read the Docs at our `Contribution page <https://docs.readthedocs.io/en/latest/contribute.html>`_.
 
-Quickstart for GitHub-Hosted Projects
+Quickstart for GitHub hosted projects
 -------------------------------------
 
 By the end of this quickstart, you will have a new project automatically updated
