@@ -66,6 +66,16 @@ def make_test_git():
 
     # Checkout to master branch again
     check_output(['git', 'checkout', 'master'], env=env)
+
+    # Add something unique to the master branch (so we can verify it's correctly checked out)
+    open("only-on-default-branch", "w").write(
+        "This file only exists in the default branch"
+    )
+    check_output(["git", "add", "only-on-default-branch"], env=env)
+    check_output(
+        ["git", "commit", '-m"Add something unique to master branch"'], env=env
+    )
+
     return directory
 
 
@@ -164,6 +174,16 @@ def create_git_branch(directory, branch):
 
     command = ['git', 'branch', branch]
     check_output(command, env=env)
+
+
+@restoring_chdir
+def get_git_latest_commit_hash(directory, branch):
+    env = environ.copy()
+    env["GIT_DIR"] = pjoin(directory, ".git")
+    chdir(directory)
+
+    command = ["git", "rev-parse", branch]
+    return check_output(command, env=env).strip()
 
 
 @restoring_chdir

@@ -5,7 +5,6 @@
 Explanation
 ===========
 
-
 ⏩️ :doc:`/choosing-a-site`
   Users often ask what the differences are between Read the Docs Community and Read the Docs for Business: here's an overview.
 

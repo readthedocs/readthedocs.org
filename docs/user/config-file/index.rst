@@ -1,120 +1,183 @@
-Using a configuration file
-==========================
+Configuration file tutorial
+===========================
 
-Content and structure of documentation undergo big and small changes.
-And eventually, the configuration of a documentation project also changes.
-This means you need to be able to track these changes over time,
-and keep them up to date.
+As part of the initial set up for your Read the Docs site,
+you need to create a **configuration file** called ``.readthedocs.yaml``.
+The configuration file tells Read the Docs what specific settings to use for your project.
 
-In this article,
-we cover the major concepts of using a configuration file:
+This tutorial covers:
 
-Versioning the configuration
-  A documentation project and its configuration file live together in a Git repository
-  and are versioned together.
-
-Configuration as code
-  Configuration uses the same workflow as your source code,
-  including being reviewed and tested in a Pull Request.
-
-Options that are not found in the configuration file
-  Not everything is suitable for version-specific configuration,
-  like the Git repository where the configuration file is read after cloning.
+#. Where to put your configuration file.
+#. What to put in the configuration file.
+#. How to customize the configuration for your project.
 
 .. seealso::
 
-   :doc:`/guides/setup/configuration-file`
-      Practical steps to add a configuration file to your documentation project.
-
-   :doc:`/config-file/v2`
-      Reference for configuration file settings.
+   :doc:`/tutorial/index`.
+     Following the steps in our tutorial will help you setup your first documentation project.
 
 
-Why version your project's configuration?
------------------------------------------
+Where to put your configuration file
+------------------------------------
 
-Consider the following aspects of a documentation project:
+The ``.readthedocs.yaml`` file should be placed in the top-most directory of your project's repository.
+We will get to the contents of the file in the next steps.
 
-Build environments change 📦️
-  You may depend on a number of packages but your method for installing them changes.
-  What is installed, how it's installed and what installs can change,
-  especially across multiple versions.
+When you have changed the configuration file,
+you need to commit and push the changes to your Git repository.
+Read the Docs will then automatically find and use the configuration to build your project.
 
-  You might change between Pip and Poetry.
-  You might also jump between Python 2 and 3 or Python 3.8 and Python 3.10.
+.. note::
 
-Documentation tools change ⚙️
-  Using Sphinx? Using MkDocs? Or some other tool?
-  All these tools have their own configuration files and special ways to invoke them.
-  In order to switch between how you are invoking the tool and setting up its environment,
-  you will need external build configuration.
+    The Read the Docs configuration file is a `YAML`_ file.
+    YAML is a human-friendly data serialization language for all programming languages.
+    To learn more about the structure of these files, see the `YAML language overview`_.
 
-Comparing changes over time ⚖️
-  As your project changes, you will need to change your configuration.
-  You might wonder how something was done in the past,
-  and having it versioned means you can see each commit as it has changed.
+.. _YAML: https://yaml.org/
+.. _YAML language overview: https://yaml.org/spec/1.2.2/#chapter-1-introduction-to-yaml
 
-You can configure your Read the Docs project by adding a ``.readthedocs.yaml`` file [1]_ to your Git repository.
-The configuration will apply to the exact version that is being built.
-This allows you to store different configurations for different versions of your documentation.
+.. _howto_templates:
 
-The main advantages of using a configuration file over the web interface are:
+Getting started with a template
+-------------------------------
 
-- Settings are per version rather than per project.
-- Settings live in your Git repository.
-- They enable reproducible build environments over time.
-- Some settings are only available using a configuration file
+Here are some configuration file examples to help you get started.
+Pick an example based on the tool that your project is using,
+copy its contents to ``.readthedocs.yaml`` and add the file to your Git repository.
 
-.. [1] Other variants of the configuration file name like ``readthedocs.yaml``, ``.readthedocs.yml``, etc. are deprecated.
-       You may however, :doc:`configure a custom sub-folder </guides/setup/monorepo>`.
+.. tabs::
 
-Configuration as Code
----------------------
+    .. tab:: Sphinx
 
-"Configuration as Code" is a concept where the configuration or settings of software is maintained in a Git repository as *code*.
-Contrast this with the approach where configuration is managed inside the software's own UI,
-making it hard to track changes, and copy settings to other projects.
+        If your project uses Sphinx,
+        we offer a special builder optimized for Sphinx projects.
 
-Most users of Read the Docs will already be familiar with the concept since many popular tools already require you to store their configuration in your Git repository:
+        .. literalinclude:: /config-file/examples/sphinx/.readthedocs.yaml
+           :language: yaml
+           :linenos:
+           :caption: .readthedocs.yaml
 
-* Sphinx uses a ``conf.py`` file.
-* MkDocs uses a ``mkdocs.yaml`` file.
-* Python projects often have a ``requirements.txt`` or ``environment.yaml``.
 
-Because of its fragility and uniqueness,
-the alternative to "Configuration as Code" is also often referred to as snowflake ❄️ configuration.
-Such configurations are hard to copy between projects and also hard to introspect for people without authorization to access the configuration UI.
+    .. tab:: MkDocs
 
-*Configuration as code* is considered by many to be the easier option.
-It might seem harder to have to write the configuration code from scratch,
-but in order to use Read the Docs,
-you can usually start with a template and adapt it.
+        If your project uses MkDocs,
+        we offer a special builder optimized for MkDocs projects.
 
-Read the Docs has chosen to offer as much configuration as possible through the usage of ``.readthedocs.yaml``.
-Our experience is that projects benefit from such a setup,
-and even when the benefits aren't obvious in the beginning of a project's lifecycle,
-they will emerge over time.
+        .. literalinclude:: /config-file/examples/mkdocs/.readthedocs.yaml
+           :language: yaml
+           :linenos:
+           :caption: .readthedocs.yaml
 
-What's not covered by ``.readthedocs.yaml``?
---------------------------------------------
+Editing the template
+--------------------
 
-There are a number of things that aren't possible to cover in the configuration file,
-which still belong in your project's Dashboard.
+Now that you have a ``.readthedocs.yaml`` file added to your Git repository,
+you should see Read the Docs trying to build your project with the configuration file.
+The configuration file probably needs some adjustments to accommodate exactly your project setup.
 
-These configuration items are for instance:
+.. note::
 
-Git settings
-  Since the configuration file is stored in Git,
-  it doesn't make sense that it would configure the Git setup.
+   If you added the configuration file in a separate branch,
+   you may have to activate a :doc:`version </versions>` for that branch.
 
-Domain-level settings
-  Since many settings apply to the domain a project is hosted on,
-  they are configured for the project itself, and not a specific version.
+   If you have added the file in a pull request,
+   you should enable :doc:`pull request builds </guides/pull-requests>`.
 
-The goal over time is to have everything that can be managed in a version-specific YAML file configured that way.
+Skip: file header and comments
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+There are some parts of the templates that you can leave in place:
+
+Comments
+  We added comments that explain the configuration options and optional features.
+  These lines begin with a ``#``.
+
+Commented out features
+  We use the ``#`` in front of some popular configuration options.
+  They are there as examples,
+  which you can choose to enable, delete or save for later.
+
+``version`` key
+  The version key tells the system how to read the rest of the configuration file.
+  The current and only supported version is **version 2**.
+
+
+Adjust: ``build.os``
+~~~~~~~~~~~~~~~~~~~~
+
+In our examples,
+we are using Read the Docs' custom image based on the latest Ubuntu release.
+Package versions in these images will not change drastically,
+though will receive periodic security updates.
+
+You should pay attention to this field if your project needs to build on an older version of Ubuntu,
+or in the future when you need features from a newer Ubuntu.
 
 .. seealso::
 
-   :doc:`/guides/reproducible-builds`
-      In addition to storing your configuration in Git,
-      we also recommend special practices for making your builds resilient to changes in your software dependencies.
+   :ref:`config-file/v2:build.os`
+     Configuration file reference with all values possible for ``build.os``.
+
+
+Adjust: Python configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you are using Python in your builds,
+you should define the Python version in ``build.tools.python``.
+
+The ``python`` key contains a list of sub-keys,
+specifying the requirements to install.
+
+- Use ``python.install.package`` to install the project itself as a Python package using pip
+- Use ``python.install.requirements`` to install packages from a requirements file
+- Use ``build.jobs`` to install packages using Poetry or PDM
+
+.. seealso::
+
+   :ref:`config-file/v2:build.tools.python`
+     Configuration file reference with all Python versions available for ``build.tools.python``.
+
+   :ref:`config-file/v2:python`
+     Configuration file reference for configuring the Python environment activated by ``build.tools.python``.
+
+Adjust: Sphinx and MkDocs version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you are using either the ``sphinx`` or ``mkdocs`` builder,
+then Sphinx or MkDocs will be installed automatically in its latest version.
+
+But we recommend that you specify the version that your documentation project uses.
+The ``requirements`` key is a file path that points to a text (``.txt``) file
+that lists the Python packages you want Read the Docs to install.
+
+.. seealso::
+
+   :ref:`guides/reproducible-builds:Use a requirements file for Python dependencies`
+      This guide explains how to specify Python requirements,
+      such as the version of Sphinx or MkDocs.
+
+   :ref:`config-file/v2:sphinx`
+     Configuration file reference for configuring the Sphinx builder.
+
+   :ref:`config-file/v2:mkdocs`
+     Configuration file reference for configuring the MkDocs builder.
+
+Next steps
+----------
+
+There are more configuration options that the ones mentioned in this guide.
+
+After you add a configuration file your Git repository,
+and you can see that Read the Docs is building your documentation using the file,
+you should have a look at the complete configuration file reference for options that might apply to your project.
+
+.. seealso::
+
+   :doc:`/config-file/v2`.
+     The complete list of all possible ``.readthedocs.yaml`` settings,
+     including the optional settings not covered in on this page.
+
+   :doc:`/build-customization`
+     Are familiar with running a command line?
+     Perhaps there are special commands that you know you want Read the Docs to run.
+     Read this guide and learn more about how you add your own commands to ``.readthedocs.yaml``.

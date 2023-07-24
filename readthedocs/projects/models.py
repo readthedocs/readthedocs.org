@@ -995,7 +995,13 @@ class Project(models.Model):
         )
 
     def vcs_repo(
-        self, environment, version=LATEST, verbose_name=None, version_type=None
+        self,
+        environment,
+        version=LATEST,
+        verbose_name=None,
+        version_type=None,
+        version_identifier=None,
+        version_machine=None,
     ):
         """
         Return a Backend object for this project able to handle VCS commands.
@@ -1014,8 +1020,13 @@ class Project(models.Model):
             repo = None
         else:
             repo = backend(
-                self, version, environment=environment,
-                verbose_name=verbose_name, version_type=version_type
+                self,
+                version,
+                environment=environment,
+                verbose_name=verbose_name,
+                version_type=version_type,
+                version_identifier=version_identifier,
+                version_machine=version_machine,
             )
         return repo
 
@@ -1926,8 +1937,8 @@ class Feature(models.Model):
     DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
     USE_SPHINX_LATEST = 'use_sphinx_latest'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
-    USE_MKDOCS_LATEST = 'use_mkdocs_latest'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
+    INSTALL_LATEST_CORE_REQUIREMENTS = "install_latest_core_requirements"
 
     # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
@@ -1936,8 +1947,10 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
+    GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
     HOSTING_INTEGRATIONS = "hosting_integrations"
     NO_CONFIG_FILE_DEPRECATED = "no_config_file"
+    SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
         (
@@ -2033,10 +2046,15 @@ class Feature(models.Model):
             DEFAULT_TO_MKDOCS_0_17_3,
             _("MkDOcs: Install mkdocs 0.17.3 by default"),
         ),
-        (USE_MKDOCS_LATEST, _("MkDocs: Use latest version of MkDocs")),
         (
             USE_SPHINX_RTD_EXT_LATEST,
             _("Sphinx: Use latest version of the Read the Docs Sphinx extension"),
+        ),
+        (
+            INSTALL_LATEST_CORE_REQUIREMENTS,
+            _(
+                "Build: Install all the latest versions of Read the Docs core requirements"
+            ),
         ),
 
         # Search related features.
@@ -2060,14 +2078,24 @@ class Feature(models.Model):
             ),
         ),
         (
+            GIT_CLONE_FETCH_CHECKOUT_PATTERN,
+            _(
+                "Build: Use simplified and optimized git clone + git fetch + git checkout patterns"
+            ),
+        ),
+        (
             HOSTING_INTEGRATIONS,
             _(
-                "Proxito: Inject 'readthedocs-client.js' as <script> HTML tag in responses."
+                "Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
             ),
         ),
         (
             NO_CONFIG_FILE_DEPRECATED,
             _("Build: Building without a configuration file is deprecated."),
+        ),
+        (
+            SCALE_IN_PROTECTION,
+            _("Build: Set scale-in protection before/after building."),
         ),
     )
 

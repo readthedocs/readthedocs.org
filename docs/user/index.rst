@@ -10,6 +10,7 @@ Read the Docs: documentation simplified
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
    /intro/import-guide
+   /config-file/index
    /examples
 
 .. toctree::
