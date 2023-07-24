@@ -97,7 +97,7 @@ Check that everything works
 #. Go to the "Read the Docs" project, under section :guilabel:`Build a version`, click on the :guilabel:`Build version` button selecting "latest",
    and wait until it finishes (this can take several minutes).
 
-.. note::
+.. warning::
 
    Read the Docs will compile the Python/Node.js/Rust/Go version on-the-fly each time when building the documentation.
    To speed things up, you can pre-compile and cache all these versions by using ``inv docker.compilebuildtool`` command.
