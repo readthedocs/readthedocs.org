@@ -356,6 +356,7 @@ class Version(TimeStampedModel):
 
         # By now we must have handled all special versions.
         if self.slug in NON_REPOSITORY_VERSIONS:
+            # pylint: disable=broad-exception-raised
             raise Exception('All special versions must be handled by now.')
 
         if self.type in (BRANCH, TAG):
@@ -411,7 +412,7 @@ class Version(TimeStampedModel):
             external=external,
         )
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
         log.info('Removing files for version.', version_slug=self.slug)
         clean_project_resources(self.project, self)
@@ -703,7 +704,7 @@ class APIVersion(Version):
 
         super().__init__(*args, **valid_attributes)
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         return 0
 
 
@@ -1382,7 +1383,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         self.save()
         return True
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def delete(self, *args, **kwargs):
         """Override method to update the other priorities after delete."""
         current_priority = self.priority
         project = self.project
