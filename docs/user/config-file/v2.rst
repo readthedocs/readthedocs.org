@@ -130,7 +130,6 @@ Configuration of the Python environment to be used.
            - docs
        - method: pip
          path: another/package
-     system_packages: true
 
 python.version
 ``````````````
@@ -227,20 +226,6 @@ With the previous settings, Read the Docs will execute the next commands:
 .. prompt:: bash $
 
    pip install .[docs]
-
-python.system_packages
-``````````````````````
-
-Give the virtual environment access to the global site-packages directory.
-
-:Type: ``bool``
-:Default: ``false``
-
-.. warning::
-
-  If you are using a :ref:`Conda <config-file/v2:conda>` environment
-  to manage the build, this setting will not have any effect, since
-  the virtual environment creation is managed by Conda.
 
 conda
 ~~~~~
@@ -868,8 +853,6 @@ Changes
 - The settings ``python.setup_py_install`` and ``python.pip_install`` were replaced by ``python.install``.
   And now it accepts a path to the package.
   See :ref:`config-file/v2:Packages`.
-- The setting ``python.use_system_site_packages`` was renamed to ``python.system_packages``.
-  See :ref:`config-file/v2:python.system_packages`.
 - The build will fail if there are invalid keys (strict mode).
 
 .. warning::
