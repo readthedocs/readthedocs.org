@@ -32,11 +32,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.4
+boto3==1.28.9
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.4
+botocore==1.31.9
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -45,7 +45,7 @@ cachetools==5.3.1
     # via tox
 celery==5.2.7
     # via -r requirements/pip.txt
-certifi==2023.5.7
+certifi==2023.7.22
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -60,7 +60,7 @@ charset-normalizer==3.2.0
     # via
     #   -r requirements/pip.txt
     #   requests
-click==8.1.5
+click==8.1.6
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -220,7 +220,7 @@ gitdb==4.0.10
     #   gitpython
 gitpython==3.1.32
     # via -r requirements/pip.txt
-gunicorn==21.0.1
+gunicorn==21.2.0
     # via -r requirements/pip.txt
 idna==3.4
     # via
@@ -321,7 +321,7 @@ pygments==2.15.1
     #   pdbpp
     #   rich
     #   sphinx
-pyjwt[crypto]==2.7.0
+pyjwt[crypto]==2.8.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
@@ -483,7 +483,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.24.0
+virtualenv==20.24.1
     # via
     #   -r requirements/pip.txt
     #   tox
