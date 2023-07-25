@@ -12,7 +12,7 @@ from celery.schedules import crontab
 from readthedocs.core.logs import shared_processors
 from corsheaders.defaults import default_headers
 from readthedocs.core.settings import Settings
-from readthedocs.builds import _docker
+from readthedocs.builds import constants_docker
 
 try:
     import readthedocsext  # noqa
@@ -560,7 +560,7 @@ class CommunityBaseSettings(Settings):
 
     DOCKER_VERSION = 'auto'
     DOCKER_DEFAULT_VERSION = 'latest'
-    DOCKER_IMAGE = '{}:{}'.format(_docker.DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
+    DOCKER_IMAGE = '{}:{}'.format(constants_docker.DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
         # A large number of users still have this pinned in their config file.
         # We must have documented it at some point.
@@ -619,7 +619,7 @@ class CommunityBaseSettings(Settings):
     })
     # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
-    RTD_DOCKER_BUILD_SETTINGS = _docker.RTD_DOCKER_BUILD_SETTINGS
+    RTD_DOCKER_BUILD_SETTINGS = constants_docker.RTD_DOCKER_BUILD_SETTINGS
 
     def _get_docker_memory_limit(self):
         try:
