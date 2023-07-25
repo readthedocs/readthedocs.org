@@ -53,6 +53,7 @@ from readthedocs.doc_builder.exceptions import (
     ProjectBuildsSkippedError,
     YAMLParseError,
 )
+from readthedocs.projects.models import Feature
 from readthedocs.storage import build_media_storage
 from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
@@ -67,7 +68,12 @@ from ..models import APIProject, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import fileify
-from .utils import BuildRequest, clean_build, send_external_build_status
+from .utils import (
+    BuildRequest,
+    clean_build,
+    send_external_build_status,
+    set_builder_scale_in_protection,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -418,6 +424,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             version_slug=self.data.version.slug,
         )
 
+        # Enable scale-in protection on this instance
+        #
+        # TODO: move this to the beginning of this method
+        # once we don't need to rely on `self.data.project`.
+        if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
+            set_builder_scale_in_protection.delay(
+                instance=socket.gethostname(),
+                protected_from_scale_in=True,
+            )
+
         # Clean the build paths completely to avoid conflicts with previous run
         # (e.g. cleanup task failed for some reason)
         clean_build(self.data.version)
@@ -727,6 +743,13 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             self.data.api_client.revoke.post()
         except Exception:
             log.exception("Failed to revoke build api key.", exc_info=True)
+
+        # Disable scale-in protection on this instance
+        if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
+            set_builder_scale_in_protection.delay(
+                instance=socket.gethostname(),
+                protected_from_scale_in=False,
+            )
 
         log.info(
             'Build finished.',
