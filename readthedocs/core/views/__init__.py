@@ -45,8 +45,25 @@ class HomepageView(TemplateView):
     template_name = 'homepage.html'
 
     def get(self, request, *args, **kwargs):
+        # Redirect to login page for new dashboard
         if settings.RTD_EXT_THEME_ENABLED:
             return redirect(reverse("account_login"))
+
+        # Redirect to user dashboard for logged in users
+        if request.user.is_authenticated:
+            return redirect("projects_dashboard")
+
+        # Redirect to ``about.`` in production
+        if not settings.DEBUG:
+            query_string = "?ref=dotorg-homepage"
+            if request.META["QUERY_STRING"]:
+                # Small hack to not append `&` to URLs without a query_string
+                query_string += "&" + request.META["QUERY_STRING"]
+            return redirect(
+                f"https://about.readthedocs.com{query_string}", permanent=False
+            )
+
+        # Show the homepage for local dev
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
