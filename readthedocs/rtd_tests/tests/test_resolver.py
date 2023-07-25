@@ -912,9 +912,7 @@ class TestSubprojectsWithTranslations(TestCase):
         )
 
     @override_settings(
-        RTD_DEFAULT_FEATURES={
-            TYPE_CNAME: 1,
-        },
+        RTD_DEFAULT_FEATURES=dict([RTDProductFeature(TYPE_CNAME).to_item()]),
     )
     def test_subproject_with_translation_with_custom_domain(self):
         fixture.get(

@@ -12,12 +12,13 @@ from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
 from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @override_settings(
-    RTD_DEFAULT_FEATURES={
-        TYPE_CONCURRENT_BUILDS: 4,
-    }
+    RTD_DEFAULT_FEATURES=dict(
+        [RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=4).to_item()]
+    ),
 )
 class CoreUtilTests(TestCase):
 
