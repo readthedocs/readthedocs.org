@@ -10,6 +10,7 @@ from functools import lru_cache
 
 from django.conf import settings
 
+from readthedocs.builds import constants_docker
 from readthedocs.config.utils import list_to_dict, to_dict
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.projects.constants import GENERIC
@@ -353,7 +354,7 @@ class BuildConfigBase:
         """
         if build_image not in settings.DOCKER_IMAGE_SETTINGS:
             build_image = '{}:{}'.format(
-                settings.DOCKER_DEFAULT_IMAGE,
+                constants_docker.DOCKER_DEFAULT_IMAGE,
                 self.default_build_image,
             )
         return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
@@ -375,7 +376,7 @@ class BuildConfigBase:
         """
         if build_image not in settings.DOCKER_IMAGE_SETTINGS:
             build_image = '{}:{}'.format(
-                settings.DOCKER_DEFAULT_IMAGE,
+                constants_docker.DOCKER_DEFAULT_IMAGE,
                 self.default_build_image,
             )
         return (
@@ -488,7 +489,7 @@ class BuildConfigV1(BuildConfigBase):
             if ':' not in build['image']:
                 # Prepend proper image name to user's image name
                 build['image'] = '{}:{}'.format(
-                    settings.DOCKER_DEFAULT_IMAGE,
+                    constants_docker.DOCKER_DEFAULT_IMAGE,
                     build['image'],
                 )
         # Update docker default settings from image name
@@ -873,7 +874,7 @@ class BuildConfigV2(BuildConfigBase):
         with self.catch_validation_error('build.image'):
             image = self.pop_config('build.image', self.default_build_image)
             build['image'] = '{}:{}'.format(
-                settings.DOCKER_DEFAULT_IMAGE,
+                constants_docker.DOCKER_DEFAULT_IMAGE,
                 validate_choice(
                     image,
                     self.valid_build_images,

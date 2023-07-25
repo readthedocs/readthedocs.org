@@ -40,7 +40,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-17 15:44+0000\n"
+"POT-Creation-Date: 2023-07-25 09:50+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Jérémie Tarot <silopolis@gmail.com>, 2022-2023\n"
 "Language-Team: French (http://app.transifex.com/readthedocs/readthedocs/"
@@ -52,7 +52,7 @@ msgstr ""
 "Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : n != 0 && n % "
 "1000000 == 0 ? 1 : 2;\n"
 
-#: analytics/models.py:69 builds/models.py:718 projects/models.py:1486
+#: analytics/models.py:69 builds/models.py:723 projects/models.py:1486
 #: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:262
 msgid "Version"
 msgstr "Version"
@@ -230,7 +230,7 @@ msgstr "Identifiant de l'utilisateur"
 msgid "Username"
 msgstr "Nom d'utilisateur"
 
-#: audit/models.py:138 builds/models.py:110 builds/models.py:712
+#: audit/models.py:138 builds/models.py:110 builds/models.py:717
 #: projects/models.py:1480 redirects/models.py:57
 msgid "Project"
 msgstr "Projet"
@@ -255,7 +255,7 @@ msgstr "Identifiant de l'organisation"
 msgid "Organization slug"
 msgstr "Jeton de l'organisation"
 
-#: audit/models.py:180 builds/models.py:1240
+#: audit/models.py:180 builds/models.py:1245
 msgid "Action"
 msgstr "Action"
 
@@ -485,7 +485,7 @@ msgstr "Normal"
 msgid "Pull/merge request"
 msgstr "Requête de tirage/fusion"
 
-#: builds/filters.py:41 builds/models.py:155 builds/models.py:734
+#: builds/filters.py:41 builds/models.py:155 builds/models.py:739
 msgid "State"
 msgstr "État"
 
@@ -494,7 +494,7 @@ msgstr "État"
 msgid "Any"
 msgstr "Toutes"
 
-#: builds/filters.py:47 builds/models.py:115 builds/models.py:724
+#: builds/filters.py:47 builds/models.py:115 builds/models.py:729
 #: sphinx_domains/models.py:59 subscriptions/models.py:97
 msgid "Type"
 msgstr "Type"
@@ -614,165 +614,165 @@ msgstr ""
 msgid "Version {version} of {project} ({pk})"
 msgstr "Version {version} de {project} ({pk})"
 
-#: builds/models.py:746
+#: builds/models.py:751
 msgid "Status"
 msgstr "Statut"
 
-#: builds/models.py:753 integrations/models.py:147
+#: builds/models.py:758 integrations/models.py:147
 msgid "Date"
 msgstr "Date"
 
-#: builds/models.py:754
+#: builds/models.py:759
 msgid "Success"
 msgstr "Succès"
 
-#: builds/models.py:759
+#: builds/models.py:764
 msgid "Setup"
 msgstr "Configuration"
 
-#: builds/models.py:760
+#: builds/models.py:765
 msgid "Setup error"
 msgstr "Erreur de configuration"
 
-#: builds/models.py:761
+#: builds/models.py:766
 msgid "Output"
 msgstr "Sortie"
 
-#: builds/models.py:762 templates/builds/build_detail.html:227
+#: builds/models.py:767 templates/builds/build_detail.html:227
 msgid "Error"
 msgstr "Erreur"
 
-#: builds/models.py:763
+#: builds/models.py:768
 msgid "Exit code"
 msgstr "Code de retour"
 
-#: builds/models.py:768 projects/models.py:1497 sphinx_domains/models.py:43
+#: builds/models.py:773 projects/models.py:1497 sphinx_domains/models.py:43
 msgid "Commit"
 msgstr "Consigner"
 
-#: builds/models.py:774
+#: builds/models.py:779
 msgid "Version slug"
 msgstr "Jeton de la version"
 
-#: builds/models.py:780
+#: builds/models.py:785
 msgid "Version name"
 msgstr "Nom de la version"
 
-#: builds/models.py:786 builds/models.py:1253
+#: builds/models.py:791 builds/models.py:1258
 msgid "Version type"
 msgstr "Type de la version"
 
-#: builds/models.py:793
+#: builds/models.py:798
 msgid "Configuration used in the build"
 msgstr "Configuration utilisée dans la compilation"
 
-#: builds/models.py:798
+#: builds/models.py:803
 msgid "Custom build configuration file path used in this build"
 msgstr ""
 "Chemin du fichier de configuration de compilation personnalisé utilisé dans "
 "cette compilation"
 
-#: builds/models.py:806
+#: builds/models.py:811
 msgid "Build Length"
 msgstr "Durée de compilation"
 
-#: builds/models.py:809
+#: builds/models.py:814
 msgid "Builder"
 msgstr "Responsable de la compilation"
 
-#: builds/models.py:816
+#: builds/models.py:821
 msgid "Cold Storage"
 msgstr "Stockage longue durée"
 
-#: builds/models.py:822
+#: builds/models.py:827
 msgid "Celery task id"
 msgstr "Identifiant de la tache Celery"
 
-#: builds/models.py:933
+#: builds/models.py:938
 #, python-brace-format
 msgid "Build {project} for {usernames} ({pk})"
 msgstr "Compilation de {project} pour {usernames} ({pk})"
 
-#: builds/models.py:1151
+#: builds/models.py:1156
 msgid "Build"
 msgstr "Compiler"
 
-#: builds/models.py:1156
+#: builds/models.py:1161
 msgid "Command"
 msgstr "Commande"
 
-#: builds/models.py:1157 builds/models.py:1217 oauth/models.py:135
+#: builds/models.py:1162 builds/models.py:1222 oauth/models.py:135
 #: organizations/models.py:66 projects/models.py:150 subscriptions/models.py:28
 #: subscriptions/models.py:100 templates/core/project_details.html:78
 msgid "Description"
 msgstr "Description"
 
-#: builds/models.py:1158
+#: builds/models.py:1163
 msgid "Command output"
 msgstr "Résultat de la commande"
 
-#: builds/models.py:1159
+#: builds/models.py:1164
 msgid "Command exit code"
 msgstr "Code de sortie de la commande"
 
-#: builds/models.py:1161
+#: builds/models.py:1166
 msgid "Start time"
 msgstr "Heure de début"
 
-#: builds/models.py:1162
+#: builds/models.py:1167
 msgid "End time"
 msgstr "Heure de fin"
 
-#: builds/models.py:1172
+#: builds/models.py:1177
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
 msgstr "Exécution de la commande {pk} pour la compilation {build}"
 
-#: builds/models.py:1196
+#: builds/models.py:1201
 msgid "Activate version"
 msgstr "Activer la version"
 
-#: builds/models.py:1197
+#: builds/models.py:1202
 msgid "Hide version"
 msgstr "Cacher la version"
 
-#: builds/models.py:1198
+#: builds/models.py:1203
 msgid "Make version public"
 msgstr "Rendre cette version publique"
 
-#: builds/models.py:1199
+#: builds/models.py:1204
 msgid "Make version private"
 msgstr "Rendre cette version privée"
 
-#: builds/models.py:1200
+#: builds/models.py:1205
 msgid "Set version as default"
 msgstr "Mettre cette version par défaut"
 
-#: builds/models.py:1201
+#: builds/models.py:1206
 msgid "Delete version"
 msgstr "Supprimer la version"
 
-#: builds/models.py:1213
+#: builds/models.py:1218
 msgid "Rule priority"
 msgstr "Règle de priorité"
 
-#: builds/models.py:1214
+#: builds/models.py:1219
 msgid "A lower number (0) means a higher priority"
 msgstr "Un nombre inférieur (0) correspond à une priorité plus élevée"
 
-#: builds/models.py:1223
+#: builds/models.py:1228
 msgid "Match argument"
 msgstr "Arguments pour la correspondance"
 
-#: builds/models.py:1224
+#: builds/models.py:1229
 msgid "Value used for the rule to match the version"
 msgstr "Valeur utilisée pour la règle pour correspondre à la version"
 
-#: builds/models.py:1228
+#: builds/models.py:1233
 msgid "Predefined match argument"
 msgstr "Argument de correspondance prédéfini"
 
-#: builds/models.py:1230
+#: builds/models.py:1235
 msgid ""
 "Match argument defined by us, it is used if is not None, otherwise match_arg "
 "will be used."
@@ -780,47 +780,47 @@ msgstr ""
 "Argument de correspondance que nous avons défini, qui est utilisé s'il n'est "
 "pas sur Aucun, sinon l'argument match_arg sera utilisé."
 
-#: builds/models.py:1241
+#: builds/models.py:1246
 msgid "Action to apply to matching versions"
 msgstr "Actions à réaliser sur les versions correspondantes"
 
-#: builds/models.py:1246
+#: builds/models.py:1251
 msgid "Action argument"
 msgstr "Argument de l'action"
 
-#: builds/models.py:1247
+#: builds/models.py:1252
 msgid "Value used for the action to perfom an operation"
 msgstr "Valeur utilisée pour les actions qui réalisent une opération"
 
-#: builds/models.py:1254
+#: builds/models.py:1259
 msgid "Type of version the rule should be applied to"
 msgstr "Sur quel type de version cette règle devrait elle être appliquée"
 
-#: builds/models.py:1478
+#: builds/models.py:1483
 msgid "Version activated"
 msgstr "Version activée"
 
-#: builds/models.py:1479
+#: builds/models.py:1484
 msgid "Version hidden"
 msgstr "Version masquée"
 
-#: builds/models.py:1481
+#: builds/models.py:1486
 msgid "Version set to public privacy"
 msgstr "Confidentialité de la version définie comme publique"
 
-#: builds/models.py:1484
+#: builds/models.py:1489
 msgid "Version set to private privacy"
 msgstr "Confidentialité de la version définie comme privée"
 
-#: builds/models.py:1486
+#: builds/models.py:1491
 msgid "Version set as default"
 msgstr "Version définie comme par défaut"
 
-#: builds/models.py:1487
+#: builds/models.py:1492
 msgid "Version deleted"
 msgstr "Version supprimée"
 
-#: builds/models.py:1492
+#: builds/models.py:1497
 msgid "Matched rule"
 msgstr "Règle de correspondance"
 
