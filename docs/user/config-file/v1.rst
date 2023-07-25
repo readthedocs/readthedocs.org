@@ -8,8 +8,8 @@ Read the Docs has support for configuring builds with a YAML file.
 
 .. warning::
 
-   Version 1 is deprecated and shouldn't be used.
-   The version 2 of the configuration file is now available.
+   Version 1 is deprecated and :doc:`support will be removed in September 2023 <rtd-blog:migrate-configuration-v2>`.
+   You should use version 2 of the configuration file.
    See the :ref:`new features <config-file/v2:New settings>`
    and :ref:`how to migrate from v1 <config-file/v2:Migrating from v1>`.
 
@@ -125,9 +125,9 @@ Certain Python versions require a certain build image,
 as defined here:
 
 * ``stable``:
-  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``pypy3.5``
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``
 * ``latest``:
-  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``, ``pypy3.5``
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``
 
 .. code-block:: yaml
 
@@ -149,7 +149,7 @@ python.version
 ``````````````
 
 * Default: ``3.7``
-* Options: ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``, ``pypy3.5``
+* Options: ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``
 
 This is the version of Python to use when building your documentation.
 If you specify only the major version of Python,

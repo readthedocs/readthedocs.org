@@ -143,8 +143,8 @@ class ProjectBasicsForm(ProjectForm):
                 pk=remote_repo,
                 users=self.user,
             )
-        except RemoteRepository.DoesNotExist:
-            raise forms.ValidationError(_('Repository invalid'))
+        except RemoteRepository.DoesNotExist as exc:
+            raise forms.ValidationError(_("Repository invalid")) from exc
 
     def placehold_repo(self):
         return choice([
@@ -189,6 +189,16 @@ class ProjectExtraForm(ProjectForm):
                     ),
                 )
         return tags
+
+
+class ProjectConfigForm(forms.Form):
+
+    """Simple intermediate step to communicate about the .readthedocs.yaml file."""
+
+    def __init__(self, *args, **kwargs):
+        # Remove 'user' field since it's not expected by BaseForm.
+        kwargs.pop("user")
+        super().__init__(*args, **kwargs)
 
 
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
@@ -238,6 +248,14 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         )
 
         per_project_settings = list(self.Meta.per_project_settings)
+
+        # NOTE: we are deprecating this feature.
+        # However, we will keep it available for projects that already using it.
+        # Old projects not using it already or new projects won't be able to enable.
+        if not self.instance.has_feature(Feature.ALLOW_VERSION_WARNING_BANNER):
+            self.fields.pop("show_version_warning")
+            per_project_settings.remove("show_version_warning")
+
         if not settings.ALLOW_PRIVATE_REPOS:
             for field in ['privacy_level', 'external_builds_privacy_level']:
                 self.fields.pop(field)
@@ -585,8 +603,10 @@ class WebHookForm(forms.ModelForm):
         try:
             payload = json.loads(payload)
             payload = json.dumps(payload, indent=2)
-        except Exception:
-            raise forms.ValidationError(_('The payload must be a valid JSON object.'))
+        except Exception as exc:
+            raise forms.ValidationError(
+                _("The payload must be a valid JSON object.")
+            ) from exc
         return payload
 
 

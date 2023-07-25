@@ -67,6 +67,7 @@ class BuildEnvironmentBase:
         return update_docs_task.delay(
             self.version.pk,
             self.build.pk,
+            build_api_key="1234",
             build_commit=self.build.commit,
         )
 
@@ -197,7 +198,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 "-T",
                 "-E",
                 "-b",
-                "readthedocs",
+                "html",
                 "-d",
                 "_build/doctrees",
                 "-D",
@@ -299,6 +300,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[7]._request.method == "PATCH"
         assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[7].json() == {
+            "addons": False,
             "build_data": None,
             "built": True,
             "documentation_type": "mkdocs",
@@ -552,6 +554,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert self.requests_mock.request_history[7]._request.method == "PATCH"
         assert self.requests_mock.request_history[7].path == "/api/v2/version/1/"
         assert self.requests_mock.request_history[7].json() == {
+            "addons": False,
             "build_data": None,
             "built": True,
             "documentation_type": "sphinx",
@@ -576,9 +579,12 @@ class TestBuildTask(BuildEnvironmentBase):
             "error": "",
         }
 
+        assert self.requests_mock.request_history[10]._request.method == "POST"
+        assert self.requests_mock.request_history[10].path == "/api/v2/revoke/"
+
         assert BuildData.objects.all().exists()
 
-        self.mocker.mocks["build_media_storage"].sync_directory.assert_has_calls(
+        self.mocker.mocks["build_media_storage"].rclone_sync_directory.assert_has_calls(
             [
                 mock.call(mock.ANY, "html/project/latest"),
                 mock.call(mock.ANY, "json/project/latest"),
@@ -641,10 +647,10 @@ class TestBuildTask(BuildEnvironmentBase):
         assert not BuildData.objects.all().exists()
 
         # Test we are updating the DB by calling the API with the updated build object
-        api_request = self.requests_mock.request_history[
-            -1
-        ]  # the last one should be the PATCH for the build
+        # The second last one should be the PATCH for the build
+        api_request = self.requests_mock.request_history[-2]
         assert api_request._request.method == "PATCH"
+        assert api_request.path == "/api/v2/build/1/"
         assert api_request.json() == {
             "builder": mock.ANY,
             "commit": self.build.commit,
@@ -654,6 +660,11 @@ class TestBuildTask(BuildEnvironmentBase):
             "state": "finished",
             "success": False,
         }
+
+        # The last request is to revoke the API build key.
+        revoke_key_request = self.requests_mock.request_history[-1]
+        assert revoke_key_request._request.method == "POST"
+        assert revoke_key_request.path == "/api/v2/revoke/"
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_commands_executed(
@@ -693,6 +704,11 @@ class TestBuildTask(BuildEnvironmentBase):
 
         self.mocker.mocks["environment.run"].assert_has_calls(
             [
+                mock.call(
+                    "cat",
+                    "readthedocs.yaml",
+                    cwd="/tmp/readthedocs-tests/git-repository",
+                ),
                 mock.call(
                     "python3.7",
                     "-mvirtualenv",
@@ -747,7 +763,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-T",
                     "-E",
                     "-b",
-                    "readthedocs",
+                    "html",
                     "-d",
                     "_build/doctrees",
                     "-D",
@@ -1333,7 +1349,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-W",  # fail on warning flag
                     "--keep-going",  # fail on warning flag
                     "-b",
-                    "readthedocs",
+                    "html",
                     "-d",
                     "_build/doctrees",
                     "-D",
@@ -1493,7 +1509,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "--upgrade",
                     "--upgrade-strategy",
-                    "eager",
+                    "only-if-needed",
                     "--no-cache-dir",
                     ".",
                     cwd=mock.ANY,
@@ -1534,7 +1550,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "--upgrade",
                     "--upgrade-strategy",
-                    "eager",
+                    "only-if-needed",
                     "--no-cache-dir",
                     ".[docs]",
                     cwd=mock.ANY,
@@ -1578,7 +1594,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "--upgrade",
                     "--upgrade-strategy",
-                    "eager",
+                    "only-if-needed",
                     "--no-cache-dir",
                     ".[docs]",
                     cwd=mock.ANY,
@@ -1683,10 +1699,10 @@ class TestBuildTask(BuildEnvironmentBase):
     @pytest.mark.parametrize(
         "value,command",
         [
-            ("html", "readthedocs"),
-            ("htmldir", "readthedocsdirhtml"),
-            ("dirhtml", "readthedocsdirhtml"),
-            ("singlehtml", "readthedocssinglehtml"),
+            ("html", "html"),
+            ("htmldir", "dirhtml"),
+            ("dirhtml", "dirhtml"),
+            ("singlehtml", "singlehtml"),
         ],
     )
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
@@ -1737,9 +1753,10 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
         # This is a known exceptions. We hit the API saving the correct error
         # in the Build object. In this case, the "error message" coming from
         # the exception will be shown to the user
-        assert self.requests_mock.request_history[-1]._request.method == "PATCH"
-        assert self.requests_mock.request_history[-1].path == "/api/v2/build/1/"
-        assert self.requests_mock.request_history[-1].json() == {
+        api_request = self.requests_mock.request_history[-2]
+        assert api_request._request.method == "PATCH"
+        assert api_request.path == "/api/v2/build/1/"
+        assert api_request.json() == {
             "id": 1,
             "state": "finished",
             "commit": "a1b2c3",
@@ -1749,10 +1766,14 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
             "length": 0,
         }
 
+        revoke_key_request = self.requests_mock.request_history[-1]
+        assert revoke_key_request._request.method == "POST"
+        assert revoke_key_request.path == "/api/v2/revoke/"
+
 
 class TestSyncRepositoryTask(BuildEnvironmentBase):
     def _trigger_sync_repository_task(self):
-        sync_repository_task.delay(self.version.pk)
+        sync_repository_task.delay(self.version.pk, build_api_key="1234")
 
     @mock.patch('readthedocs.projects.tasks.builds.clean_build')
     def test_clean_build_after_sync_repository(self, clean_build):
@@ -1778,20 +1799,13 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
     def test_check_duplicate_reserved_version_latest(self, on_failure, verbose_name):
         # `repository.tags` and `repository.branch` both will return a tag/branch named `latest/stable`
         with mock.patch(
-                'readthedocs.vcs_support.backends.git.Backend.branches',
-                new_callable=mock.PropertyMock,
-                return_value=[
-                    mock.MagicMock(identifier='a1b2c3', verbose_name=verbose_name),
-                ],
+            "readthedocs.vcs_support.backends.git.Backend.lsremote",
+            return_value=[
+                [mock.MagicMock(identifier="branch/a1b2c3", verbose_name=verbose_name)],
+                [mock.MagicMock(identifier="tag/a1b2c3", verbose_name=verbose_name)],
+            ],
         ):
-            with mock.patch(
-                    'readthedocs.vcs_support.backends.git.Backend.tags',
-                    new_callable=mock.PropertyMock,
-                    return_value=[
-                        mock.MagicMock(identifier='a1b2c3', verbose_name=verbose_name),
-                    ],
-            ):
-                self._trigger_sync_repository_task()
+            self._trigger_sync_repository_task()
 
         on_failure.assert_called_once_with(
             # This argument is the exception we are intereste, but I don't know
@@ -1799,7 +1813,9 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
             mock.ANY,
             mock.ANY,
             [self.version.pk],
-            {},
+            {
+                "build_api_key": mock.ANY,
+            },
             mock.ANY,
         )
 

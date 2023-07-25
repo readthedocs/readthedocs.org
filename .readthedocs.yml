@@ -37,6 +37,14 @@ search:
     api/v1.html: -1
     config-file/v1.html: -5
 
+    # Surface the tutorial content first, this page covers the configuration
+    # file basics very well. The explanation page is more conceptual and about
+    # versioning. Bump up the v2 reference page a little too, but the tutorial
+    # should be the first page the user looks at still.
+    config-file/index.html: 5
+    config-file/v2.html: 2
+    explanation/configuration-file.html: -1
+
     # Useful content, but not something we want most users finding
     changelog.html: -6
   ignore:

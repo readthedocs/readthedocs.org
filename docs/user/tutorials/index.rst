@@ -9,7 +9,6 @@ Tutorials
 ⏩️ :doc:`/tutorial/index`
   This is where you should go if you are trying Read the Docs for the first time!
 
-
 ⏩️ :doc:`/intro/getting-started-with-sphinx`
   Sphinx is the most popular documentation tool on our platform.
   It supports both reStructuredText and Markdown formats, and can generate rich API documentation from your source code.
@@ -25,6 +24,9 @@ Tutorials
   this guide will help you get started at the most natural point:
   importing an existing documentation project.
 
+⏩️ :doc:`/config-file/index`
+  Practical steps to add a configuration file to your documentation project.
+
 ⏩️ :doc:`/examples`
   If you are bootstrapping a new documentation project,
   here is a list of example projects that you can derive your setup from.
@@ -38,4 +40,5 @@ Tutorials
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
    /intro/import-guide
+   /config-file/index
    /examples

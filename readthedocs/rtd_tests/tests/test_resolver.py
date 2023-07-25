@@ -45,6 +45,17 @@ class ResolverBase(TestCase):
         self.pip.add_subproject(self.subproject)
         self.pip.translations.add(self.translation)
 
+        self.subproject_translation = fixture.get(
+            Project,
+            slug="subproject-translation",
+            language="es",
+            users=[self.owner],
+        )
+        self.subproject_translation_version = (
+            self.subproject_translation.versions.first()
+        )
+        self.subproject.translations.add(self.subproject_translation)
+
 
 class SmartResolverPathTests(ResolverBase):
     def test_resolver_filename(self):
@@ -941,4 +952,240 @@ class TestSubprojectsWithTranslations(TestCase):
             ).format(
                 subproject=self.subproject_en,
             ),
+        )
+
+
+@override_settings(
+    USE_SUBDOMAIN=True,
+    PUBLIC_DOMAIN="readthedocs.io",
+    RTD_EXTERNAL_VERSION_DOMAIN="readthedocs.build",
+)
+class TestResolverWithCustomPrefixes(ResolverBase):
+    def test_custom_prefix_multi_version_project(self):
+        self.pip.custom_prefix = "/custom/prefix/"
+        self.pip.save()
+
+        url = resolve(self.pip)
+        self.assertEqual(url, "http://pip.readthedocs.io/custom/prefix/en/latest/")
+
+        url = resolve(self.pip, version_slug=self.version.slug)
+        self.assertEqual(url, "http://pip.readthedocs.io/custom/prefix/en/latest/")
+
+        url = resolve(self.pip, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/custom/prefix/en/stable/")
+
+        url = resolve(
+            self.pip, version_slug=self.version.slug, filename="/api/index.html"
+        )
+        self.assertEqual(
+            url, "http://pip.readthedocs.io/custom/prefix/en/latest/api/index.html"
+        )
+
+    def test_custom_prefix_multi_version_project_translation(self):
+        self.pip.custom_prefix = "/custom/prefix/"
+        self.pip.save()
+
+        url = resolve(self.translation)
+        self.assertEqual(url, "http://pip.readthedocs.io/custom/prefix/ja/latest/")
+
+        url = resolve(self.translation, version_slug=self.translation_version.slug)
+        self.assertEqual(url, "http://pip.readthedocs.io/custom/prefix/ja/latest/")
+
+        url = resolve(self.translation, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/custom/prefix/ja/stable/")
+
+        url = resolve(
+            self.translation,
+            version_slug=self.translation_version.slug,
+            filename="/api/index.html",
+        )
+        self.assertEqual(
+            url, "http://pip.readthedocs.io/custom/prefix/ja/latest/api/index.html"
+        )
+
+    def test_custom_prefix_single_version_project(self):
+        self.pip.single_version = True
+        self.pip.custom_prefix = "/custom-prefix/"
+        self.pip.save()
+
+        url = resolve(self.pip)
+        self.assertEqual(url, "http://pip.readthedocs.io/custom-prefix/")
+
+        url = resolve(self.pip, version_slug=self.version.slug)
+        self.assertEqual(url, "http://pip.readthedocs.io/custom-prefix/")
+
+        url = resolve(self.pip, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/custom-prefix/")
+
+        url = resolve(
+            self.pip, version_slug=self.version.slug, filename="/api/index.html"
+        )
+        self.assertEqual(url, "http://pip.readthedocs.io/custom-prefix/api/index.html")
+
+    def test_custom_subproject_prefix(self):
+        self.pip.custom_subproject_prefix = "/custom/"
+        self.pip.save()
+
+        url = resolve(self.subproject)
+        self.assertEqual(url, "http://pip.readthedocs.io/custom/sub/ja/latest/")
+
+        url = resolve(self.subproject, version_slug=self.subproject_version.slug)
+        self.assertEqual(url, "http://pip.readthedocs.io/custom/sub/ja/latest/")
+
+        url = resolve(self.subproject, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/custom/sub/ja/stable/")
+
+        url = resolve(
+            self.subproject,
+            version_slug=self.subproject_version.slug,
+            filename="/api/index.html",
+        )
+        self.assertEqual(
+            url, "http://pip.readthedocs.io/custom/sub/ja/latest/api/index.html"
+        )
+
+    def test_custom_subproject_prefix_empty(self):
+        self.pip.custom_subproject_prefix = "/"
+        self.pip.save()
+
+        url = resolve(self.subproject)
+        self.assertEqual(url, "http://pip.readthedocs.io/sub/ja/latest/")
+
+        url = resolve(self.subproject, version_slug=self.subproject_version.slug)
+        self.assertEqual(url, "http://pip.readthedocs.io/sub/ja/latest/")
+
+        url = resolve(self.subproject, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/sub/ja/stable/")
+
+        url = resolve(
+            self.subproject,
+            version_slug=self.subproject_version.slug,
+            filename="/api/index.html",
+        )
+        self.assertEqual(url, "http://pip.readthedocs.io/sub/ja/latest/api/index.html")
+
+    def test_custom_prefix_and_custom_subproject_prefix_in_superproject(self):
+        self.pip.custom_prefix = "/prefix/"
+        self.pip.custom_subproject_prefix = "/s/"
+        self.pip.save()
+
+        url = resolve(self.pip)
+        self.assertEqual(url, "http://pip.readthedocs.io/prefix/en/latest/")
+
+        url = resolve(self.pip, version_slug=self.version.slug)
+        self.assertEqual(url, "http://pip.readthedocs.io/prefix/en/latest/")
+
+        url = resolve(self.pip, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/prefix/en/stable/")
+
+        url = resolve(
+            self.pip, version_slug=self.version.slug, filename="/api/index.html"
+        )
+        self.assertEqual(
+            url, "http://pip.readthedocs.io/prefix/en/latest/api/index.html"
+        )
+
+        url = resolve(self.subproject)
+        self.assertEqual(url, "http://pip.readthedocs.io/s/sub/ja/latest/")
+
+        url = resolve(self.subproject, version_slug=self.subproject_version.slug)
+        self.assertEqual(url, "http://pip.readthedocs.io/s/sub/ja/latest/")
+
+        url = resolve(self.subproject, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/s/sub/ja/stable/")
+
+        url = resolve(
+            self.subproject,
+            version_slug=self.subproject_version.slug,
+            filename="/api/index.html",
+        )
+        self.assertEqual(
+            url, "http://pip.readthedocs.io/s/sub/ja/latest/api/index.html"
+        )
+
+    def test_custom_prefix_and_custom_subproject_prefix_with_translations(self):
+        self.pip.custom_prefix = "/prefix/"
+        self.pip.custom_subproject_prefix = "/s/"
+        self.pip.save()
+
+        url = resolve(self.translation)
+        self.assertEqual(url, "http://pip.readthedocs.io/prefix/ja/latest/")
+
+        url = resolve(self.translation, version_slug=self.translation_version.slug)
+        self.assertEqual(url, "http://pip.readthedocs.io/prefix/ja/latest/")
+
+        url = resolve(self.translation, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/prefix/ja/stable/")
+
+        url = resolve(
+            self.translation,
+            version_slug=self.translation_version.slug,
+            filename="/api/index.html",
+        )
+        self.assertEqual(
+            url, "http://pip.readthedocs.io/prefix/ja/latest/api/index.html"
+        )
+
+        url = resolve(self.subproject_translation)
+        self.assertEqual(url, "http://pip.readthedocs.io/s/sub/es/latest/")
+
+        url = resolve(
+            self.subproject_translation, version_slug=self.subproject_version.slug
+        )
+        self.assertEqual(url, "http://pip.readthedocs.io/s/sub/es/latest/")
+
+        url = resolve(self.subproject_translation, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/s/sub/es/stable/")
+
+        url = resolve(
+            self.subproject_translation,
+            version_slug=self.subproject_version.slug,
+            filename="/api/index.html",
+        )
+        self.assertEqual(
+            url, "http://pip.readthedocs.io/s/sub/es/latest/api/index.html"
+        )
+
+    def test_custom_prefix_in_subproject_and_custom_prefix_in_superproject(self):
+        self.subproject.custom_prefix = "/prefix/"
+        self.subproject.save()
+        self.pip.custom_subproject_prefix = "/s/"
+        self.pip.save()
+
+        url = resolve(self.subproject)
+        self.assertEqual(url, "http://pip.readthedocs.io/s/sub/prefix/ja/latest/")
+
+        url = resolve(self.subproject, version_slug=self.subproject_version.slug)
+        self.assertEqual(url, "http://pip.readthedocs.io/s/sub/prefix/ja/latest/")
+
+        url = resolve(self.subproject, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/s/sub/prefix/ja/stable/")
+
+        url = resolve(
+            self.subproject,
+            version_slug=self.subproject_version.slug,
+            filename="/api/index.html",
+        )
+        self.assertEqual(
+            url, "http://pip.readthedocs.io/s/sub/prefix/ja/latest/api/index.html"
+        )
+
+        url = resolve(self.subproject_translation)
+        self.assertEqual(url, "http://pip.readthedocs.io/s/sub/prefix/es/latest/")
+
+        url = resolve(
+            self.subproject_translation, version_slug=self.subproject_version.slug
+        )
+        self.assertEqual(url, "http://pip.readthedocs.io/s/sub/prefix/es/latest/")
+
+        url = resolve(self.subproject_translation, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/s/sub/prefix/es/stable/")
+
+        url = resolve(
+            self.subproject_translation,
+            version_slug=self.subproject_version.slug,
+            filename="/api/index.html",
+        )
+        self.assertEqual(
+            url, "http://pip.readthedocs.io/s/sub/prefix/es/latest/api/index.html"
         )

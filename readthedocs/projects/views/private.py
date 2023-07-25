@@ -53,6 +53,7 @@ from readthedocs.projects.forms import (
     ProjectAdvancedForm,
     ProjectAdvertisingForm,
     ProjectBasicsForm,
+    ProjectConfigForm,
     ProjectExtraForm,
     ProjectRelationshipForm,
     RedirectForm,
@@ -215,19 +216,7 @@ class ProjectVersionEditMixin(ProjectVersionMixin):
         return self.get_form_class()(data, files, **kwargs)
 
     def form_valid(self, form):
-        version = form.save()
-        if form.has_changed():
-            if 'active' in form.changed_data and version.active is False:
-                log.info(
-                    'Removing files for version.',
-                    version_slug=version.slug,
-                )
-                clean_project_resources(
-                    version.project,
-                    version,
-                )
-                version.built = False
-                version.save()
+        form.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -272,8 +261,9 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
     """
 
     form_list = [
-        ('basics', ProjectBasicsForm),
-        ('extra', ProjectExtraForm),
+        ("basics", ProjectBasicsForm),
+        ("config", ProjectConfigForm),
+        ("extra", ProjectExtraForm),
     ]
     condition_dict = {'extra': lambda self: self.is_advanced()}
 
@@ -327,9 +317,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         """
         form_data = self.get_all_cleaned_data()
         extra_fields = ProjectExtraForm.Meta.fields
-        # expect the first form; manually wrap in a list in case it's a
-        # View Object, as it is in Python 3.
-        basics_form = list(form_list)[0]
+        basics_form = form_list[0]
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()

@@ -69,8 +69,8 @@ class RTDFacetedSearch(FacetedSearch):
         # Hack a fix to our broken connection pooling
         # This creates a new connection on every request,
         # but actually works :)
-        log.info('Hacking Elastic to fix search connection pooling')
-        self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL['default'])
+        log.debug("Hacking Elastic to fix search connection pooling")
+        self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL["default"])
 
         filters = filters or {}
 
@@ -273,12 +273,8 @@ class PageSearch(RTDFacetedSearch):
     # to be re-boosted by the page rank.
     _outer_fields = ['title^1.5']
     _section_fields = ['sections.title^2', 'sections.content']
-    _domain_fields = [
-        'domains.name^1.5',
-        'domains.docstrings',
-    ]
     fields = _outer_fields
-    excludes = ['rank', 'sections', 'domains', 'commit', 'build']
+    excludes = ["rank", "sections", "commit", "build"]
 
     def _get_projects_query(self):
         """
@@ -322,14 +318,7 @@ class PageSearch(RTDFacetedSearch):
             path='sections',
             fields=self._section_fields,
         )
-
-        domains_nested_query = self._get_nested_query(
-            query=query,
-            path='domains',
-            fields=self._domain_fields,
-        )
-
-        queries.extend([sections_nested_query, domains_nested_query])
+        queries.append(sections_nested_query)
         bool_query = Bool(should=queries)
 
         projects_query = self._get_projects_query()

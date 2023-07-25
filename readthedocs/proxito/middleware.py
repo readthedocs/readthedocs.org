@@ -16,6 +16,7 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
+from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import (
     InvalidCustomDomainError,
     InvalidExternalDomainError,
@@ -25,7 +26,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Feature
 from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
 from readthedocs.proxito.redirects import redirect_to_https
 
@@ -48,7 +49,6 @@ class ProxitoMiddleware(MiddlewareMixin):
         'embed_api',
     )
 
-    # pylint: disable=no-self-use
     def add_proxito_headers(self, request, response):
         """Add debugging and cache headers to proxito responses."""
 
@@ -217,22 +217,22 @@ class ProxitoMiddleware(MiddlewareMixin):
             raise DomainDNSHttp404(
                 http_status=400,
                 domain=exc.domain,
-            )
+            ) from exc
         except (InvalidSubdomainError, InvalidExternalDomainError) as exc:
             log.debug("Invalid project set on the subdomain.")
             # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise ProjectHttp404(
                 domain=exc.domain,
-            )
+            ) from exc
         except InvalidCustomDomainError as exc:
             # Some person is CNAMEing to us without configuring a domain - 404.
             log.debug("CNAME 404.", domain=exc.domain)
             # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise DomainDNSHttp404(
                 domain=exc.domain,
-            )
-        except InvalidXRTDSlugHeaderError:
-            raise SuspiciousOperation("Invalid X-RTD-Slug header.")
+            ) from exc
+        except InvalidXRTDSlugHeaderError as exc:
+            raise SuspiciousOperation("Invalid X-RTD-Slug header.") from exc
 
         self._set_request_attributes(request, unresolved_domain)
 
@@ -269,8 +269,9 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         # This is hacky because Django wants a module for the URLConf,
         # instead of also accepting string
-        if project.urlconf:
-
+        if project.urlconf and not project.has_feature(
+            Feature.USE_UNRESOLVER_WITH_PROXITO
+        ):
             # Stop Django from caching URLs
             # https://github.com/django/django/blob/7cf7d74/django/urls/resolvers.py#L65-L69  # noqa
             project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S%f")
@@ -289,10 +290,17 @@ class ProxitoMiddleware(MiddlewareMixin):
         return None
 
     def add_hosting_integrations_headers(self, request, response):
+        addons = False
         project_slug = getattr(request, "path_project_slug", "")
-        if project_slug:
-            project = Project.objects.get(slug=project_slug)
-            if project.has_feature(Feature.HOSTING_INTEGRATIONS):
+        version_slug = getattr(request, "path_version_slug", "")
+
+        if project_slug and version_slug:
+            addons = Version.objects.filter(
+                project__slug=project_slug,
+                slug=version_slug,
+                addons=True,
+            ).exists()
+            if addons:
                 response["X-RTD-Hosting-Integrations"] = "true"
 
     def _get_https_redirect(self, request):

@@ -410,8 +410,8 @@ As a result, there are three modes of operation:
 
 These approaches are not mutually exclusive,
 nor you have to use a single format for all your notebooks.
-For the examples in this document, we have used the :ref:`MyST Markdown
-format <jupytext:formats.md#myst-markdown>`.
+For the examples in this document, we have used the :doc:`MyST Markdown
+format <jupytext:formats>`.
 
 If you are using alternative formats for Jupyter notebooks,
 you can include them in your Sphinx documentation

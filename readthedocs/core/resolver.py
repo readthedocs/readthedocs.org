@@ -55,65 +55,87 @@ class ResolverBase:
     """
 
     def base_resolve_path(
-            self,
-            project_slug,
-            filename,
-            version_slug=None,
-            language=None,
-            single_version=None,
-            subproject_slug=None,
-            subdomain=None,
-            cname=None,
-            urlconf=None,
+        self,
+        project_slug,
+        filename,
+        version_slug=None,
+        language=None,
+        single_version=None,
+        project_relationship=None,
+        subdomain=None,
+        cname=None,
+        urlconf=None,
+        custom_prefix=None,
     ):
-        """Resolve a with nothing smart, just filling in the blanks."""
+        """
+        Build a path using the given fields.
+
+        We first build a format string based on the given fields,
+        then we just call ``string.format()`` with the given values.
+
+        For example, if custom prefix is given, the path will be prefixed with it.
+        In case of a subproject (project_relationship is given),
+        the path will be prefixed with the subproject prefix
+        (defaults to ``/projects/<subproject-slug>/``).
+        """
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
-        if subdomain or cname or (self._use_subdomain()):
-            url = '/'
+        if subdomain or cname or self._use_subdomain():
+            path = "/"
         else:
-            url = '/docs/{project_slug}/'
+            path = "/docs/{project}/"
 
-        if subproject_slug:
-            url += 'projects/{subproject_slug}/'
+        if project_relationship:
+            path = unsafe_join_url_path(path, project_relationship.subproject_prefix)
+
+        # If the project has a custom prefix, we use it.
+        if custom_prefix:
+            path = unsafe_join_url_path(path, custom_prefix)
 
         if single_version:
-            url += '{filename}'
+            path = unsafe_join_url_path(path, "{filename}")
         else:
-            url += '{language}/{version_slug}/{filename}'
+            path = unsafe_join_url_path(path, "{language}/{version}/{filename}")
 
+        # TODO: remove this when all projects have migrated to path prefixes.
         # Allow users to override their own URLConf
-        # This logic could be cleaned up with a standard set of variable replacements
-        if urlconf:
-            url = urlconf
-            url = url.replace(
-                '$version',
-                '{version_slug}',
+        # If a custom prefix is given, we don't use the custom URLConf,
+        # since they are not compatible with each other.
+        # We also don't check if the project has the new proxito implementation
+        # enabled, this is so we can start generating links with the new
+        # custom prefixes without starting to serve docs with it (this helps to ease
+        # the migration from urlconf to custom prefixes).
+        if urlconf and not custom_prefix:
+            path = urlconf
+            path = path.replace(
+                "$version",
+                "{version}",
             )
-            url = url.replace(
+            path = path.replace(
                 '$language',
                 '{language}',
             )
-            url = url.replace(
+            path = path.replace(
                 '$filename',
                 '{filename}',
             )
-            url = url.replace(
-                '$subproject',
-                '{subproject_slug}',
+            path = path.replace(
+                "$subproject",
+                "{subproject}",
             )
-            if '$' in url:
+            if "$" in path:
                 log.warning(
-                    'Unconverted variable in a resolver URLConf.', url=url,
+                    "Unconverted variable in a resolver URLConf.",
+                    path=path,
                 )
 
-        return url.format(
-            project_slug=project_slug,
+        subproject_alias = project_relationship.alias if project_relationship else ""
+        return path.format(
+            project=project_slug,
             filename=filename,
-            version_slug=version_slug,
+            version=version_slug,
             language=language,
-            single_version=single_version,
-            subproject_slug=subproject_slug,
+            subproject=subproject_alias,
         )
 
     def resolve_path(
@@ -131,27 +153,36 @@ class ResolverBase:
         version_slug = version_slug or project.get_default_version()
         language = language or project.language
 
-        filename = self._fix_filename(project, filename)
+        filename = self._fix_filename(filename)
 
-        main_project, subproject_slug = self._get_canonical_project_data(project)
-        project_slug = main_project.slug
+        parent_project, project_relationship = self._get_canonical_project_data(project)
         cname = (
             cname
             or self._use_subdomain()
-            or main_project.get_canonical_custom_domain()
+            or parent_project.get_canonical_custom_domain()
         )
         single_version = bool(project.single_version or single_version)
 
+        # If the project is a subproject, we use the custom prefix
+        # of the child of the relationship, this is since the project
+        # could be a translation. For a project that isn't a subproject,
+        # we use the custom prefix of the parent project.
+        if project_relationship:
+            custom_prefix = project_relationship.child.custom_prefix
+        else:
+            custom_prefix = parent_project.custom_prefix
+
         return self.base_resolve_path(
-            project_slug=project_slug,
+            project_slug=parent_project.slug,
             filename=filename,
             version_slug=version_slug,
             language=language,
             single_version=single_version,
-            subproject_slug=subproject_slug,
+            project_relationship=project_relationship,
             cname=cname,
             subdomain=subdomain,
             urlconf=urlconf or project.urlconf,
+            custom_prefix=custom_prefix,
         )
 
     def resolve_domain(self, project, use_canonical_domain=True):
@@ -216,33 +247,15 @@ class ResolverBase:
         )
         return urlunparse((protocol, domain, path, '', query_params, ''))
 
-    def _get_path_prefix(self, project):
+    def get_subproject_url_prefix(self, project, external_version_slug=None):
         """
-        Returns the path prefix for a project.
-
-        If the project is a subproject, it will return ``/projects/<subproject-alias>/``.
-        If the project is a main project, it will return ``/``.
-        This will respect the custom urlconf of the project if it's defined.
-        """
-        custom_prefix = project.custom_path_prefix
-        parent_relationship = project.get_parent_relationship()
-        if parent_relationship:
-            prefix = custom_prefix or "projects"
-            return unsafe_join_url_path(prefix, parent_relationship.alias, "/")
-
-        prefix = custom_prefix or "/"
-        return unsafe_join_url_path(prefix, "/")
-
-    def get_url_prefix(self, project, external_version_slug=None):
-        """
-        Get the URL prefix from where the documentation of ``project`` is served from.
+        Get the URL prefix from where the documentation of a subproject is served from.
 
         This doesn't include the version or language. For example:
 
         - https://docs.example.com/projects/<project-slug>/
-        - https://docs.readthedocs.io/
 
-        This will respect the custom urlconf of the project if it's defined.
+        This will respect the custom subproject prefix if it's defined.
 
         :param project: Project object to get the root URL from
         :param external_version_slug: If given, resolve using the external version domain.
@@ -263,15 +276,14 @@ class ResolverBase:
             use_https = settings.PUBLIC_DOMAIN_USES_HTTPS
 
         protocol = "https" if use_https else "http"
-        path = self._get_path_prefix(project)
+        path = project.subproject_prefix
         return urlunparse((protocol, domain, path, "", "", ""))
 
     def _get_canonical_project_data(self, project):
         """
-        Returns a tuple with (project, subproject_slug) from the canonical project of `project`.
+        Get the parent project and subproject relationship from the canonical project of `project`.
 
-        We currently support more than 2 levels of nesting subprojects and translations,
-        but we only serve 2 levels to avoid sticking in the loop.
+        We don't support more than 2 levels of nesting subprojects and translations,
         This means, we can have the following cases:
 
         - The project isn't a translation or subproject
@@ -314,19 +326,17 @@ class ResolverBase:
         If the project is a translation,
         we need to check if the main translation is a subproject.
         """
-        main_project = project
-        subproject_slug = None
+        parent_project = project
 
-        main_language_project = main_project.main_language_project
+        main_language_project = parent_project.main_language_project
         if main_language_project:
-            main_project = main_language_project
+            parent_project = main_language_project
 
-        relation = main_project.get_parent_relationship()
-        if relation:
-            main_project = relation.parent
-            subproject_slug = relation.alias
+        relationship = parent_project.parent_relationship
+        if relationship:
+            parent_project = relationship.parent
 
-        return (main_project, subproject_slug)
+        return (parent_project, relationship)
 
     def _get_canonical_project(self, project, projects=None):
         """
@@ -351,7 +361,7 @@ class ResolverBase:
         if project.main_language_project:
             next_project = project.main_language_project
         else:
-            relation = project.get_parent_relationship()
+            relation = project.parent_relationship
             if relation:
                 next_project = relation.parent
 
@@ -380,7 +390,7 @@ class ResolverBase:
         )
         return type_ == EXTERNAL
 
-    def _fix_filename(self, project, filename):
+    def _fix_filename(self, filename):
         """
         Force filenames that might be HTML file paths into proper URL's.
 

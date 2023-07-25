@@ -68,7 +68,8 @@ def load_yaml_config(version, readthedocs_yaml_path=None):
         config = BuildConfigV1(
             env_config=env_config,
             raw_config={},
-            source_file=checkout_path,
+            base_path=checkout_path,
+            source_file=None,
         )
         config.validate()
     return config

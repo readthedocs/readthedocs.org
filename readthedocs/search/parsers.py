@@ -3,7 +3,6 @@
 import itertools
 import os
 import re
-from urllib.parse import urlparse
 
 import orjson as json
 import structlog
@@ -397,7 +396,6 @@ class GenericParser:
                     'content': 'Section content',
                 },
             ],
-            'domain_data': {},
         }
         """
         try:
@@ -410,7 +408,6 @@ class GenericParser:
             "path": page,
             "title": "",
             "sections": [],
-            "domain_data": {},
         }
 
     def _process_content(self, page, content):
@@ -432,7 +429,6 @@ class GenericParser:
             "path": page,
             "title": title,
             "sections": sections,
-            "domain_data": {},
         }
 
 
@@ -479,7 +475,6 @@ class SphinxParser(GenericParser):
             'path': page,
             'title': '',
             'sections': [],
-            'domain_data': {},
         }
 
     def _process_fjson(self, fjson_path):
@@ -520,7 +515,6 @@ class SphinxParser(GenericParser):
             "path": path,
             "title": title,
             "sections": sections,
-            "domain_data": {},  # deprecated
         }
 
     def _clean_body(self, body):
@@ -548,89 +542,3 @@ class SphinxParser(GenericParser):
             node.decompose()
 
         return body
-
-
-class MkDocsParser(GenericParser):
-
-    """
-    MkDocs parser.
-
-    Index using the json index file instead of the html content.
-    """
-
-    def parse(self, page):
-        storage_path = self.project.get_storage_path(
-            type_='html',
-            version_slug=self.version.slug,
-            include_file=False,
-        )
-        try:
-            file_path = self.storage.join(storage_path, 'search/search_index.json')
-            if self.storage.exists(file_path):
-                index_data = self._process_index_file(file_path, page=page)
-                if index_data:
-                    return index_data
-        except Exception:
-            log.warning(
-                'Unhandled exception during search processing file.',
-                page=page,
-            )
-        return {
-            'path': page,
-            'title': '',
-            'sections': [],
-            'domain_data': {},
-        }
-
-    def _process_index_file(self, json_path, page):
-        """Reads the json index file and parses it into a structured dict."""
-        try:
-            with self.storage.open(json_path, mode='r') as f:
-                file_contents = f.read()
-        except IOError:
-            log.info('Unable to read file.', path=json_path)
-            raise
-
-        data = json.loads(file_contents)
-        page_data = {}
-
-        for section in data.get('docs', []):
-            parsed_path = urlparse(section.get('location', ''))
-            fragment = parsed_path.fragment
-            path = parsed_path.path
-
-            # Some old versions of mkdocs
-            # index the pages as ``/page.html`` instead of ``page.html``.
-            path = path.lstrip('/')
-
-            if path == '' or path.endswith('/'):
-                path += 'index.html'
-
-            if page != path:
-                continue
-
-            title = self._parse_content(
-                HTMLParser(section.get('title')).text()
-            )
-            content = self._parse_content(
-                HTMLParser(section.get('text')).text()
-            )
-
-            # If it doesn't have a fragment,
-            # it means is the page itself.
-            if not fragment:
-                page_data.update({
-                    'path': path,
-                    'title': title,
-                    'domain_data': {},
-                })
-            # Content without a fragment need to be indexed as well,
-            # this happens when the page doesn't start with a header,
-            # or if it doesn't contain any headers at all.
-            page_data.setdefault('sections', []).append({
-                'id': fragment,
-                'title': title,
-                'content': content,
-            })
-
-        return page_data

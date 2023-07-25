@@ -19,6 +19,7 @@ from readthedocs.core.unresolver import (
     InvalidExternalVersionError,
     InvalidPathForVersionedProjectError,
     TranslationNotFoundError,
+    TranslationWithoutVersionError,
     VersionNotFoundError,
     unresolver,
 )
@@ -307,7 +308,6 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 .exists()
             )
             # For .com we need to check if the project supports custom domains.
-            # pylint: disable=protected-access
             if canonical_domain and resolver._use_cname(project):
                 log.debug(
                     "Proxito Public Domain -> Canonical Domain Redirect.",
@@ -357,6 +357,25 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             # TODO: find a better way to pass this to the middleware.
             request.path_project_slug = exc.project.slug
             raise Http404
+        except TranslationWithoutVersionError as exc:
+            project = exc.project
+            # TODO: find a better way to pass this to the middleware.
+            request.path_project_slug = project.slug
+
+            if unresolved_domain.is_from_external_domain:
+                version_slug = unresolved_domain.external_version_slug
+            else:
+                version_slug = None
+            # Redirect to the default version of the current translation.
+            # This is `/en -> /en/latest/` or
+            # `/projects/subproject/en/ -> /projects/subproject/en/latest/`.
+            return self.system_redirect(
+                request=request,
+                final_project=project,
+                version_slug=version_slug,
+                filename="",
+                is_external_version=unresolved_domain.is_from_external_domain,
+            )
         except InvalidPathForVersionedProjectError as exc:
             project = exc.project
             if unresolved_domain.is_from_external_domain:
@@ -368,7 +387,16 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
             request.path_project_slug = project.slug
             request.path_version_slug = version_slug
 
-            if exc.path == "/":
+            # Support redirecting to the default version from
+            # the root path and the custom path prefix.
+            root_paths = ["/"]
+            if project.custom_prefix:
+                # We need to check custom path prefixes with and without the trailing slash,
+                # e.g: /foo and /foo/.
+                root_paths.append(project.custom_prefix)
+                root_paths.append(project.custom_prefix.rstrip("/"))
+
+            if exc.path in root_paths:
                 # When the path is empty, the project didn't have an explicit version,
                 # so we need to redirect to the default version.
                 # This is `/ -> /en/latest/` or
@@ -377,7 +405,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                     request=request,
                     final_project=project,
                     version_slug=version_slug,
-                    filename=exc.path,
+                    filename="",
                     is_external_version=unresolved_domain.is_from_external_domain,
                 )
 
@@ -496,7 +524,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         with the default version and finally, if none of them are found, the Read
         the Docs default page (Maze Found) is rendered by Django and served.
         """
-        # pylint: disable=too-many-locals
         log.bind(proxito_path=proxito_path)
         log.debug('Executing 404 handler.')
 
@@ -662,7 +689,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                     storage_root_path, tryfile
                 )
                 if build_media_storage.exists(storage_filename_path):
-                    log.info(
+                    log.debug(
                         "Serving custom 404.html page.",
                         version_slug_404=version_404.slug,
                         storage_filename_path=storage_filename_path,
@@ -745,7 +772,9 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         project = None
         version = None
-        filename = None
+        # If we weren't able to resolve a filename,
+        # then the path is the filename.
+        filename = path
         lang_slug = None
         version_slug = None
         # Try to map the current path to a project/version/filename.
@@ -778,6 +807,10 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             version_slug = exc.version_slug
             filename = exc.filename
             contextualized_404_class = ProjectTranslationHttp404
+        except TranslationWithoutVersionError as exc:
+            project = exc.project
+            lang_slug = exc.language
+            # TODO: Use a contextualized 404
         except InvalidExternalVersionError as exc:
             project = exc.project
             # TODO: Use a contextualized 404
@@ -848,7 +881,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         if response:
             return response
 
-        # No custom 404 page, use our contextualized 404 response
+        # Don't use the custom 404 page, use our general contextualized 404 response
         # Several additional context variables can be added if the templates
         # or other error handling is developed (version, language, filename).
         raise contextualized_404_class(

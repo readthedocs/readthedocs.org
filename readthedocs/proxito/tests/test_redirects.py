@@ -2,6 +2,8 @@
 from django.test import override_settings
 from django_dynamic_fixture import get
 
+from readthedocs.builds.models import Version
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Feature
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.subscriptions.constants import TYPE_CNAME
@@ -12,6 +14,7 @@ from .base import BaseDocServing
 
 @override_settings(
     PUBLIC_DOMAIN='dev.readthedocs.io',
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
     PUBLIC_DOMAIN_USES_HTTPS=True,
     RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
 )
@@ -411,3 +414,49 @@ class ProxitoV2RedirectTests(RedirectTests):
             default_true=True,
             future_default_true=True,
         )
+
+    def test_redirect_from_root_language_to_default_version(self):
+        paths = [
+            "/en",
+            "/en/",
+        ]
+        for path in paths:
+            r = self.client.get(
+                path,
+                secure=True,
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(r.status_code, 302)
+            self.assertEqual(
+                r["Location"],
+                "https://project.dev.readthedocs.io/en/latest/",
+            )
+            self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+            self.assertEqual(r.headers["Cache-Tag"], "project")
+            self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
+
+    def test_redirect_from_root_language_to_default_external_version(self):
+        get(
+            Version,
+            slug="10",
+            project=self.project,
+            privacy_level=PUBLIC,
+        )
+        paths = [
+            "/en",
+            "/en/",
+        ]
+        for path in paths:
+            r = self.client.get(
+                path,
+                secure=True,
+                HTTP_HOST="project--10.dev.readthedocs.build",
+            )
+            self.assertEqual(r.status_code, 302)
+            self.assertEqual(
+                r["Location"],
+                "https://project--10.dev.readthedocs.build/en/10/",
+            )
+            self.assertEqual(r.headers["CDN-Cache-Control"], "public")
+            self.assertEqual(r.headers["Cache-Tag"], "project")
+            self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)

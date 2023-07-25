@@ -63,7 +63,7 @@ class TestBuildMediaStorage(TestCase):
             'test.html',
         ]
         with override_settings(DOCROOT=tmp_files_dir):
-            self.storage.sync_directory(tmp_files_dir, storage_dir)
+            self.storage.rclone_sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
         tree = [
@@ -73,18 +73,16 @@ class TestBuildMediaStorage(TestCase):
         ]
         os.remove(os.path.join(tmp_files_dir, 'api.fjson'))
         with override_settings(DOCROOT=tmp_files_dir):
-            self.storage.sync_directory(tmp_files_dir, storage_dir)
+            self.storage.rclone_sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
         tree = [
-            # Cloud storage generally doesn't consider empty directories to exist
-            ('api', []),
             'conf.py',
             'test.html',
         ]
         shutil.rmtree(os.path.join(tmp_files_dir, 'api'))
         with override_settings(DOCROOT=tmp_files_dir):
-            self.storage.sync_directory(tmp_files_dir, storage_dir)
+            self.storage.rclone_sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
     def test_sync_directory_source_symlink(self):
@@ -94,7 +92,7 @@ class TestBuildMediaStorage(TestCase):
 
         with override_settings(DOCROOT=tmp_dir):
             with pytest.raises(SuspiciousFileOperation, match="symbolic link"):
-                self.storage.sync_directory(tmp_symlink_dir, "files")
+                self.storage.rclone_sync_directory(tmp_symlink_dir, "files")
 
     def test_copy_directory_source_symlink(self):
         tmp_dir = Path(tempfile.mkdtemp())
@@ -112,7 +110,7 @@ class TestBuildMediaStorage(TestCase):
 
         with override_settings(DOCROOT=tmp_docroot):
             with pytest.raises(SuspiciousFileOperation, match="outside the docroot"):
-                self.storage.sync_directory(tmp_dir, "files")
+                self.storage.rclone_sync_directory(tmp_dir, "files")
 
     def test_copy_directory_source_outside_docroot(self):
         tmp_dir = Path(tempfile.mkdtemp())

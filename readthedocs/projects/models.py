@@ -25,12 +25,11 @@ from django_extensions.db.fields import CreationDateTimeField, ModificationDateT
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
-from readthedocs.api.v2.client import api
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
 from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
-from readthedocs.core.utils import slugify
+from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
 from readthedocs.projects import constants
@@ -45,12 +44,14 @@ from readthedocs.projects.querysets import (
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.validators import (
     validate_build_config_file,
+    validate_custom_prefix,
+    validate_custom_subproject_prefix,
     validate_domain_name,
     validate_no_ip,
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parsers import GenericParser, MkDocsParser, SphinxParser
+from readthedocs.search.parsers import GenericParser, SphinxParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
@@ -106,7 +107,7 @@ class ProjectRelationship(models.Model):
     def __str__(self):
         return '{} -> {}'.format(self.parent, self.child)
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         if not self.alias:
             self.alias = self.child.slug
         super().save(*args, **kwargs)
@@ -114,6 +115,18 @@ class ProjectRelationship(models.Model):
     # HACK
     def get_absolute_url(self):
         return resolve(self.child)
+
+    @cached_property
+    def subproject_prefix(self):
+        """
+        Returns the path prefix of the subproject.
+
+        This normally is ``/projects/<subproject-alias>/``,
+        but if the project has a custom subproject prefix,
+        that will be used.
+        """
+        prefix = self.parent.custom_subproject_prefix or "/projects/"
+        return unsafe_join_url_path(prefix, self.alias, "/")
 
 
 class Project(models.Model):
@@ -217,6 +230,7 @@ class Project(models.Model):
             'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
         ),
     )
+    # NOTE: This is deprecated, use the `custom_prefix*` attributes instead.
     urlconf = models.CharField(
         _('Documentation URL Configuration'),
         max_length=255,
@@ -226,6 +240,29 @@ class Project(models.Model):
         help_text=_(
             'Supports the following keys: $language, $version, $subproject, $filename. '
             'An example: `$language/$version/$filename`.'
+        ),
+    )
+
+    custom_prefix = models.CharField(
+        _("Custom path prefix"),
+        max_length=255,
+        default=None,
+        blank=True,
+        null=True,
+        help_text=_(
+            "A custom path prefix used when serving documentation from this project. "
+            "By default we serve documentation at the root (/) of a domain."
+        ),
+    )
+    custom_subproject_prefix = models.CharField(
+        _("Custom subproject path prefix"),
+        max_length=255,
+        default=None,
+        blank=True,
+        null=True,
+        help_text=_(
+            "A custom path prefix used when evaluating the root of a subproject. "
+            "By default we serve documentation from subprojects under the `/projects/` prefix."
         ),
     )
 
@@ -507,12 +544,14 @@ class Project(models.Model):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         if not self.slug:
             # Subdomains can't have underscores in them.
             self.slug = slugify(self.name)
             if not self.slug:
-                raise Exception(_('Model must have slug'))
+                raise Exception(  # pylint: disable=broad-exception-raised
+                    _("Model must have slug")
+                )
         super().save(*args, **kwargs)
 
         try:
@@ -530,13 +569,22 @@ class Project(models.Model):
         )
         self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
 
         # Remove extra resources
         clean_project_resources(self)
 
         super().delete(*args, **kwargs)
+
+    def clean(self):
+        if self.custom_prefix:
+            self.custom_prefix = validate_custom_prefix(self, self.custom_prefix)
+
+        if self.custom_subproject_prefix:
+            self.custom_subproject_prefix = validate_custom_subproject_prefix(
+                self, self.custom_subproject_prefix
+            )
 
     def get_absolute_url(self):
         return reverse('projects_detail', args=[self.slug])
@@ -561,23 +609,6 @@ class Project(models.Model):
                 'project_slug': self.slug,
             },
         )
-
-    def get_canonical_url(self):
-        if settings.DONT_HIT_DB:
-            return api.project(self.pk).canonical_url().get()['url']
-        return self.get_docs_url()
-
-    def get_subproject_urls(self):
-        """
-        List subproject URLs.
-
-        This is used in search result linking
-        """
-        if settings.DONT_HIT_DB:
-            return [(proj['slug'], proj['canonical_url']) for proj in
-                    (api.project(self.pk).subprojects().get()['subprojects'])]
-        return [(proj.child.slug, proj.child.get_docs_url())
-                for proj in self.subprojects.all()]
 
     def get_storage_paths(self):
         """
@@ -696,6 +727,22 @@ class Project(models.Model):
             return self.urlconf.split("$", 1)[0]
         return None
 
+    @cached_property
+    def subproject_prefix(self):
+        """
+        Returns the path prefix of a subproject.
+
+        This normally is ``/projects/<subproject-alias>/``,
+        but if the project has a custom subproject prefix,
+        that will be used.
+
+        Returns `None` if the project isn't a subproject.
+        """
+        parent_relationship = self.parent_relationship
+        if not parent_relationship:
+            return None
+        return parent_relationship.subproject_prefix
+
     @property
     def regex_urlconf(self):
         """
@@ -808,7 +855,7 @@ class Project(models.Model):
 
     @cached_property
     def superproject(self):
-        relationship = self.get_parent_relationship()
+        relationship = self.parent_relationship
         if relationship:
             return relationship.parent
         return None
@@ -947,11 +994,14 @@ class Project(models.Model):
             version_type=version_type
         )
 
-    # NOTE: if `environment=None` everything fails, because it cannot execute
-    # any command.
     def vcs_repo(
-            self, version=LATEST, environment=None,
-            verbose_name=None, version_type=None
+        self,
+        environment,
+        version=LATEST,
+        verbose_name=None,
+        version_type=None,
+        version_identifier=None,
+        version_machine=None,
     ):
         """
         Return a Backend object for this project able to handle VCS commands.
@@ -970,8 +1020,13 @@ class Project(models.Model):
             repo = None
         else:
             repo = backend(
-                self, version, environment=environment,
-                verbose_name=verbose_name, version_type=version_type
+                self,
+                version,
+                environment=environment,
+                verbose_name=verbose_name,
+                version_type=version_type,
+                version_identifier=version_identifier,
+                version_machine=version_machine,
             )
         return repo
 
@@ -1049,14 +1104,6 @@ class Project(models.Model):
         if finished:
             kwargs['state'] = 'finished'
         return self.builds(manager=INTERNAL).filter(**kwargs).first()
-
-    def api_versions(self):
-        from readthedocs.builds.models import APIVersion
-        ret = []
-        for version_data in api.project(self.pk).active_versions.get()['versions']:
-            version = APIVersion(**version_data)
-            ret.append(version)
-        return sort_version_aware(ret)
 
     def active_versions(self):
         from readthedocs.builds.models import Version
@@ -1228,7 +1275,8 @@ class Project(models.Model):
     def remove_subproject(self, child):
         ProjectRelationship.objects.filter(parent=self, child=child).delete()
 
-    def get_parent_relationship(self):
+    @cached_property
+    def parent_relationship(self):
         """
         Get parent project relationship.
 
@@ -1382,7 +1430,18 @@ class APIProject(Project):
                 del kwargs[key]
             except KeyError:
                 pass
-        super().__init__(*args, **kwargs)
+
+        valid_attributes, invalid_attributes = extract_valid_attributes_for_model(
+            model=Project,
+            attributes=kwargs,
+        )
+        if invalid_attributes:
+            log.warning(
+                "APIProject got unexpected attributes.",
+                invalid_attributes=invalid_attributes,
+            )
+
+        super().__init__(*args, **valid_attributes)
 
         # Overwrite the database property with the value from the API
         self.ad_free = ad_free
@@ -1479,13 +1538,12 @@ class HTMLFile(ImportedFile):
     def get_processed_json(self):
         if (
             self.version.documentation_type == constants.GENERIC
+            or self.version.is_mkdocs_type
             or self.project.has_feature(Feature.INDEX_FROM_HTML_FILES)
         ):
             parser_class = GenericParser
         elif self.version.is_sphinx_type:
             parser_class = SphinxParser
-        elif self.version.is_mkdocs_type:
-            parser_class = MkDocsParser
         else:
             log.warning(
                 "Invalid documentation type",
@@ -1701,7 +1759,7 @@ class Domain(TimeStampedModel):
     canonical = models.BooleanField(
         default=False,
         help_text=_(
-            "This domain is the primary one where the documentation is " "served from",
+            "This domain is the primary one where the documentation is served from",
         ),
     )
     https = models.BooleanField(
@@ -1784,7 +1842,7 @@ class Domain(TimeStampedModel):
             self.validation_process_start = timezone.now()
             self.save()
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         parsed = urlparse(self.domain)
         if parsed.scheme or parsed.netloc:
             self.domain = parsed.netloc
@@ -1853,27 +1911,20 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    ALLOW_DEPRECATED_WEBHOOKS = "allow_deprecated_webhooks"
-    DONT_OVERWRITE_SPHINX_CONTEXT = "dont_overwrite_sphinx_context"
     SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
     DONT_SHALLOW_CLONE = "dont_shallow_clone"
-    USE_TESTING_BUILD_IMAGE = "use_testing_build_image"
-    CLEAN_AFTER_BUILD = "clean_after_build"
     UPDATE_CONDA_STARTUP = "update_conda_startup"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
-    CACHED_ENVIRONMENT = "cached_environment"
-    LIMIT_CONCURRENT_BUILDS = "limit_concurrent_builds"
     CDN_ENABLED = "cdn_enabled"
-    DOCKER_GVISOR_RUNTIME = "gvisor_runtime"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
-    DISABLE_SPHINX_DOMAINS = "disable_sphinx_domains"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
+    ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
 
     # Versions sync related features
     SKIP_SYNC_TAGS = 'skip_sync_tags'
@@ -1886,8 +1937,8 @@ class Feature(models.Model):
     DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
     USE_SPHINX_LATEST = 'use_sphinx_latest'
     DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
-    USE_MKDOCS_LATEST = 'use_mkdocs_latest'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
+    INSTALL_LATEST_CORE_REQUIREMENTS = "install_latest_core_requirements"
 
     # Search related features
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
@@ -1896,23 +1947,12 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    LIST_PACKAGES_INSTALLED_ENV = "list_packages_installed_env"
-    VCS_REMOTE_LISTING = "vcs_remote_listing"
-    SPHINX_PARALLEL = "sphinx_parallel"
-    USE_SPHINX_BUILDERS = "use_sphinx_builders"
-    CANCEL_OLD_BUILDS = "cancel_old_builds"
-    DONT_CREATE_INDEX = "dont_create_index"
-    USE_RCLONE = "use_rclone"
+    GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
     HOSTING_INTEGRATIONS = "hosting_integrations"
+    NO_CONFIG_FILE_DEPRECATED = "no_config_file"
+    SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
-        (ALLOW_DEPRECATED_WEBHOOKS, _("Webhook: Allow deprecated webhook views")),
-        (
-            DONT_OVERWRITE_SPHINX_CONTEXT,
-            _(
-                "Sphinx: Do not overwrite context vars in conf.py with Read the Docs context",
-            ),
-        ),
         (
             SKIP_SPHINX_HTML_THEME_PATH,
             _(
@@ -1928,16 +1968,8 @@ class Feature(models.Model):
             _("Build: Do not shallow clone when cloning git repos"),
         ),
         (
-            USE_TESTING_BUILD_IMAGE,
-            _("Build: Use Docker image labelled as `testing` to build the docs"),
-        ),
-        (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
-        ),
-        (
-            CLEAN_AFTER_BUILD,
-            _("Build: Clean all files used in the build process"),
         ),
         (
             UPDATE_CONDA_STARTUP,
@@ -1955,25 +1987,11 @@ class Feature(models.Model):
             ),
         ),
         (
-            CACHED_ENVIRONMENT,
-            _(
-                "Build: Cache the environment (virtualenv, conda, pip cache, repository) in storage"
-            ),
-        ),
-        (
-            LIMIT_CONCURRENT_BUILDS,
-            _("Build: Limit the amount of concurrent builds"),
-        ),
-        (
             CDN_ENABLED,
             _(
                 "Proxito: CDN support for a project's public versions when privacy levels "
                 "are enabled."
             ),
-        ),
-        (
-            DOCKER_GVISOR_RUNTIME,
-            _("Build: Use Docker gVisor runtime to create build container."),
         ),
         (
             RECORD_404_PAGE_VIEWS,
@@ -1988,10 +2006,6 @@ class Feature(models.Model):
             _("Proxito: Disable all page views"),
         ),
         (
-            DISABLE_SPHINX_DOMAINS,
-            _("Sphinx: Disable indexing of sphinx domains"),
-        ),
-        (
             RESOLVE_PROJECT_FROM_HEADER,
             _("Proxito: Allow usage of the X-RTD-Slug header"),
         ),
@@ -2000,6 +2014,10 @@ class Feature(models.Model):
             _(
                 "Proxito: Use new unresolver implementation for serving documentation files."
             ),
+        ),
+        (
+            ALLOW_VERSION_WARNING_BANNER,
+            _("Dashboard: Allow project to use the version warning banner."),
         ),
 
         # Versions sync related features
@@ -2028,10 +2046,15 @@ class Feature(models.Model):
             DEFAULT_TO_MKDOCS_0_17_3,
             _("MkDOcs: Install mkdocs 0.17.3 by default"),
         ),
-        (USE_MKDOCS_LATEST, _("MkDocs: Use latest version of MkDocs")),
         (
             USE_SPHINX_RTD_EXT_LATEST,
             _("Sphinx: Use latest version of the Read the Docs Sphinx extension"),
+        ),
+        (
+            INSTALL_LATEST_CORE_REQUIREMENTS,
+            _(
+                "Build: Install all the latest versions of Read the Docs core requirements"
+            ),
         ),
 
         # Search related features.
@@ -2054,51 +2077,25 @@ class Feature(models.Model):
                 "sources"
             ),
         ),
-
         (
-            LIST_PACKAGES_INSTALLED_ENV,
+            GIT_CLONE_FETCH_CHECKOUT_PATTERN,
             _(
-                'Build: List packages installed in the environment ("pip list" or "conda list") '
-                'on build\'s output',
+                "Build: Use simplified and optimized git clone + git fetch + git checkout patterns"
             ),
-        ),
-        (
-            VCS_REMOTE_LISTING,
-            _(
-                "Build: Use remote listing in VCS (e.g. git ls-remote) if supported for sync "
-                "versions"
-            ),
-        ),
-        (
-            SPHINX_PARALLEL,
-            _('Sphinx: Use "-j auto" when calling sphinx-build'),
-        ),
-        (
-            USE_SPHINX_BUILDERS,
-            _("Sphinx: Use regular sphinx builders instead of custom RTD builders"),
-        ),
-        (
-            CANCEL_OLD_BUILDS,
-            _(
-                "Build: Cancel triggered/running builds when a new one with same project/version "
-                "arrives"
-            ),
-        ),
-        (
-            DONT_CREATE_INDEX,
-            _(
-                "Sphinx: Do not create index.md or README.rst if the project does not have one."
-            ),
-        ),
-        (
-            USE_RCLONE,
-            _("Build: Use rclone for syncing files to the media storage."),
         ),
         (
             HOSTING_INTEGRATIONS,
             _(
-                "Proxito: Inject 'readthedocs-client.js' as <script> HTML tag in responses."
+                "Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
             ),
+        ),
+        (
+            NO_CONFIG_FILE_DEPRECATED,
+            _("Build: Building without a configuration file is deprecated."),
+        ),
+        (
+            SCALE_IN_PROTECTION,
+            _("Build: Set scale-in protection before/after building."),
         ),
     )
 
@@ -2171,6 +2168,6 @@ class EnvironmentVariable(TimeStampedModel, models.Model):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         self.value = quote(self.value)
         return super().save(*args, **kwargs)
