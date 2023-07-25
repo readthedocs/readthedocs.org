@@ -23,6 +23,14 @@ A development setup can be hosted by your laptop, in a VM, on a separate server 
    We do not recommend to follow this guide to deploy an instance of Read the Docs for production.
 
 
+Install external dependencies (Docker, Docker Compose, gVisor)
+--------------------------------------------------------------
+
+#. Install Docker by following `the official guide <https://docs.docker.com/get-docker/>`_.
+#. Install Docker Compose with `the official instructions <https://docs.docker.com/compose/install/>`_.
+#. Install and set up gVisor following :doc:`rtd-dev:guides/gvisor`.
+
+
 Set up your environment
 -----------------------
 
@@ -59,7 +67,6 @@ Set up your environment
 
       pip install -r common/dockerfiles/requirements.txt
 
-#. Set up gVisor following :doc:`rtd-dev:guides/gvisor`.
 
 #. Build the Docker image for the servers:
 
