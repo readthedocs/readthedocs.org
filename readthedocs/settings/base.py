@@ -620,6 +620,9 @@ class CommunityBaseSettings(Settings):
     # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
     RTD_DOCKER_BUILD_SETTINGS = constants_docker.RTD_DOCKER_BUILD_SETTINGS
+    # This is used for the image used to clone the users repo,
+    # since we can't read their config file image choice before cloning
+    RTD_DOCKER_CLONE_IMAGE = RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-22.04"]
 
     def _get_docker_memory_limit(self):
         try:
