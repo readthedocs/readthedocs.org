@@ -275,7 +275,6 @@ class GenericParser:
             # This convention is popular in Sphinx.
             body.css(".linenos"),
             body.css(".lineno"),
-
             # Sphinx doesn't wrap the result from the `toctree` directive
             # in a nav tag. so we need to manually remove that content.
             body.css(".toctree-wrapper"),
