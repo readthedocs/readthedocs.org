@@ -447,12 +447,13 @@ class TestHomepageCache(TestCase):
     def tearDown(self):
         cache.clear()
 
+    # TODO: Delete this test once we fully remove the queries on the home page
     def test_homepage_queries(self):
         with self.assertNumQueries(1):
             r = self.client.get('/')
-            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r.status_code, 302)
 
         # Cache
         with self.assertNumQueries(0):
             r = self.client.get('/')
-            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r.status_code, 302)
