@@ -123,6 +123,7 @@ Special rules that are derived from specific documentation tools applied in the 
 
 - ``.linenos``, ``.lineno`` (line numbers in code-blocks, comes from both MkDocs and Sphinx)
 - ``.headerlink`` (added by Sphinx to links in headers)
+- ``.toctree-wrapper`` (added by Sphinx to the table of contents generated from the ``toctree`` directive)
 
 Example:
 
