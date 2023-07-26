@@ -3,7 +3,6 @@ from unittest import mock
 from urllib.parse import urlsplit
 
 from django.contrib.auth.models import User
-from django.core.cache import cache
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -437,23 +436,3 @@ class TestSearchAnalyticsView(TestCase):
             self.assertEqual(body[0][0], 'Created Date')
             self.assertEqual(body[1][1], 'advertising')
             self.assertEqual(body[-1][1], 'hello world')
-
-
-class TestHomepageCache(TestCase):
-
-    def setUp(self):
-        cache.clear()
-
-    def tearDown(self):
-        cache.clear()
-
-    # TODO: Delete this test once we fully remove the queries on the home page
-    def test_homepage_queries(self):
-        with self.assertNumQueries(1):
-            r = self.client.get('/')
-            self.assertEqual(r.status_code, 302)
-
-        # Cache
-        with self.assertNumQueries(0):
-            r = self.client.get('/')
-            self.assertEqual(r.status_code, 302)

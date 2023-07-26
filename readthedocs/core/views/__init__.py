@@ -13,7 +13,6 @@ from django.urls import reverse
 from django.views.generic import TemplateView, View
 
 from readthedocs.core.mixins import CDNCacheControlMixin, PrivateViewMixin
-from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
 
@@ -65,12 +64,6 @@ class HomepageView(TemplateView):
 
         # Show the homepage for local dev
         return super().get(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        """Add latest builds and featured projects."""
-        context = super().get_context_data(**kwargs)
-        context['featured_list'] = Project.objects.filter(featured=True)
-        return context
 
 
 class SupportView(PrivateViewMixin, TemplateView):
