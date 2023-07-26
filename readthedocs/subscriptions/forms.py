@@ -17,7 +17,7 @@ class PlanForm(forms.Form):
         super().__init__(*args, **kwargs)
         products_id = [product.stripe_id for product in get_listed_products()]
         stripe_prices = (
-            djstripe.Price.objects.filter(product__id__in=products_id)
+            djstripe.Price.objects.filter(product__id__in=products_id, active=True)
             .select_related("product")
             .order_by("unit_amount")
         )
