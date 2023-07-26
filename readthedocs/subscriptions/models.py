@@ -65,7 +65,6 @@ class Plan(models.Model):
     def __str__(self):
         return f"{self.name} ({self.stripe_id})"
 
-    # pylint: disable=signature-differs
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
@@ -198,7 +197,6 @@ class Subscription(models.Model):
                 self.organization.pub_date + timedelta(days=self.plan.trial)
             )
 
-    # pylint: disable=signature-differs
     def save(self, *args, **kwargs):
         if self.trial_end_date is None:
             self.trial_end_date = self.default_trial_end_date()

@@ -308,7 +308,6 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
         queryset = self._get_queryset()
         # Set filter on self, so we can use it in the context.
         # Without executing it twice.
-        # pylint: disable=attribute-defined-outside-init
         self.filter = OrganizationSecurityLogFilter(
             self.request.GET,
             queryset=queryset,

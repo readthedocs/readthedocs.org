@@ -97,7 +97,6 @@ class ProjectDashboard(PrivateViewMixin, ListView):
     model = Project
     template_name = 'projects/project_dashboard.html'
 
-    # pylint: disable=arguments-differ
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Set the default search to search files instead of projects
@@ -134,7 +133,7 @@ class ProjectDashboard(PrivateViewMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         self.validate_primary_email(request.user)
-        return super(ProjectDashboard, self).get(self, request, *args, **kwargs)
+        return super().get(self, request, *args, **kwargs)
 
 
 class ProjectMixin(PrivateViewMixin):
@@ -283,7 +282,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         else:
             self.initial_dict = self.storage.data.get(self.initial_dict_key, {})
 
-    def post(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def post(self, *args, **kwargs):
         self._set_initial_dict()
 
         log.bind(user_username=self.request.user.username)
@@ -928,7 +927,6 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
     """
 
     def post(self, request, *args, **kwargs):
-        # pylint: disable=unused-argument
         if 'integration_pk' in kwargs:
             integration = self.get_integration()
             update_webhook(self.get_project(), integration, request=request)
