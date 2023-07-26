@@ -40,6 +40,7 @@ RTD_DOCKER_BUILD_SETTINGS = {
             "3": "3.11.4",
             "miniconda3-4.7": "miniconda3-4.7.12",
             "mambaforge-4.10": "mambaforge-4.10.3-10",
+            "mambaforge-22.9": "mambaforge-22.9.0-3",
         },
         "nodejs": {
             "14": "14.20.1",
