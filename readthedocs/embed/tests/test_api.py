@@ -13,6 +13,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.projects.constants import MKDOCS, PUBLIC
 from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_EMBED_API
+from readthedocs.subscriptions.products import RTDProductFeature
 
 data_path = Path(__file__).parent.resolve() / 'data'
 
@@ -34,10 +35,10 @@ class BaseTestEmbedAPI:
         self.version.save()
 
         settings.USE_SUBDOMAIN = True
-        settings.PUBLIC_DOMAIN = 'readthedocs.io'
-        settings.RTD_DEFAULT_FEATURES = {
-            TYPE_EMBED_API: 1,
-        }
+        settings.PUBLIC_DOMAIN = "readthedocs.io"
+        settings.RTD_DEFAULT_FEATURES = dict(
+            [RTDProductFeature(TYPE_EMBED_API).to_item()]
+        )
 
     def get(self, client, *args, **kwargs):
         """Wrapper around ``client.get`` to be overridden in the proxied api tests."""
