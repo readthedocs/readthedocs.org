@@ -22,7 +22,14 @@ class RTDProductFeature:
     description: str = ""
 
     def get_description(self):
-        return self.description or dict(FEATURE_TYPES).get(self.type)
+        if self.description:
+            return self.description
+        default_description = dict(FEATURE_TYPES).get(self.type)
+        if self.unlimited:
+            return f"{default_description} (unlimited)"
+        if self.value:
+            return f"{default_description} ({self.value})"
+        return default_description
 
     def to_item(self):
         """

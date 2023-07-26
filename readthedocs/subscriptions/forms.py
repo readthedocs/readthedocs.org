@@ -11,7 +11,7 @@ class PlanForm(forms.Form):
 
     """Form to create a subscription after the previous one has ended."""
 
-    price = forms.ChoiceField()
+    plan = forms.ChoiceField()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -21,11 +21,11 @@ class PlanForm(forms.Form):
             .select_related("product")
             .order_by("unit_amount")
         )
-        self.fields["price"].choices = [
+        self.fields["plan"].choices = [
             (price.id, f"{price.product.name} ({price.human_readable_price})")
             for price in stripe_prices
         ]
-        self.fields["price"].help_text = _(
+        self.fields["plan"].help_text = _(
             'Check our <a href="https://about.readthedocs.com/pricing/">pricing page</a> '
             'for more information about each plan.'
         )

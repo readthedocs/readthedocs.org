@@ -65,7 +65,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
         ):
             raise Http404()
 
-        stripe_price = get_object_or_404(djstripe.Price, id=form.cleaned_data["price"])
+        stripe_price = get_object_or_404(djstripe.Price, id=form.cleaned_data["plan"])
 
         url = self.request.build_absolute_uri(self.get_success_url())
         organization = self.get_organization()
