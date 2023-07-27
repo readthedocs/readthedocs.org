@@ -337,9 +337,12 @@ class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
         if not build_api_key.project.builds.filter(pk=build_pk).exists():
             raise PermissionDenied()
 
-        if BuildCommandResult.objects.filter(**serializer.validated_data).exists():
+        if BuildCommandResult.objects.filter(
+            build=serializer.validated_data["build"],
+            command=serializer.validated_data["command"],
+        ).exists():
             log.warning("Build command is duplicated. Skipping...")
-            return Response(status=status.HTTP_204_NO_CONTENT)
+            return
 
         return super().perform_create(serializer)
 

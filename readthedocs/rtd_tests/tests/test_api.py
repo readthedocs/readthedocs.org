@@ -909,6 +909,48 @@ class APITests(TestCase):
             resp = client.patch(f"/api/v2/build/{build.pk}/")
             self.assertEqual(resp.status_code, 404)
 
+    def test_build_commands_duplicated_command(self):
+        """Sending the same request twice should only create one BuildCommandResult."""
+        project = get(
+            Project,
+            language="en",
+        )
+        version = project.versions.first()
+        build = Build.objects.create(project=project, version=version)
+
+        self.assertEqual(BuildCommandResult.objects.count(), 0)
+
+        client = APIClient()
+        _, build_api_key = BuildAPIKey.objects.create_key(project)
+        client.credentials(HTTP_AUTHORIZATION=f"Token {build_api_key}")
+
+        now = timezone.now()
+        start_time = now - datetime.timedelta(seconds=5)
+        end_time = now
+
+        data = {
+            "build": build.pk,
+            "command": "git status",
+            "description": "Git status",
+            "exit_code": 0,
+            "start_time": start_time,
+            "end_time": end_time,
+        }
+
+        response = client.post(
+            "/api/v2/command/",
+            data,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        response = client.post(
+            "/api/v2/command/",
+            data,
+            format="json",
+        )
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(BuildCommandResult.objects.count(), 1)
+
     def test_build_commands_read_only_endpoints_for_normal_user(self):
         user_normal = get(User, is_staff=False)
         user_admin = get(User, is_staff=True)
