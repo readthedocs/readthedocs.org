@@ -32,5 +32,5 @@ FEATURE_TYPES = (
     (TYPE_SSO, _("Single sign on (SSO) with Google")),
     (TYPE_CUSTOM_URL, _("Custom URLs")),
     (TYPE_AUDIT_LOGS, _("Audit logs")),
-    (TYPE_AUDIT_PAGEVIEWS, _("Record every page view")),
+    (TYPE_AUDIT_PAGEVIEWS, _("Audit logs for every page view")),
 )
