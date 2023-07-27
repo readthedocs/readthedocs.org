@@ -29,7 +29,7 @@ Limitations
 -----------
 
 - By default, redirects only apply on pages that don't exist.
-  **Forced redirects** allow you to apply redirects on existing pages, 
+  **Forced redirects** allow you to apply redirects on existing pages,
   but incur a small performance penalty, so aren't enabled by default.
   You can ask for them to be enabled via support.
 - Only :ref:`user-defined-redirects:page redirects` and :ref:`user-defined-redirects:exact redirects`
