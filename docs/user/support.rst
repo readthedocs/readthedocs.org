@@ -7,7 +7,7 @@ We're happy to assist with any questions or problems you have using either of ou
 .. note::
    Read the Docs does not offer support for questions or problems with documentation tools or content.
    If you have a question or problem using a particular documentation tool,
-   you can refer to `community provided resources <Community provided resources>`_ instead.
+   you should refer to `external resources <External resources>`_ for help instead.
 
 Some examples of requests that we support are:
 
@@ -33,8 +33,8 @@ These provide step-by-step solutions to common user requests.
         Please fill out the form at https://readthedocs.org/support/,
         and we will reply as soon as possible.
 
-Community provided resources
-----------------------------
+External resources
+------------------
 
 If you have questions about how to use a documentation tool or authoring content for your project,
 or have an issue that isn't related to a bug with Read the Docs,
