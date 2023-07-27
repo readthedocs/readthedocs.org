@@ -24,9 +24,8 @@ These provide step-by-step solutions to common user requests.
 
         Please fill out the form at https://readthedocs.com/support/.
 
-        Our team responds to support requests during our normal business hours,
-        Monday through Friday, 8:00am to 5:00pm Pacific time.
-        We will reply within 2 business days or earlier for most plans.
+        Our team responds to support requests within 2 business days or earlier for most plans.
+        Faster support response times and support SLAs are available with plan upgrades.
 
    .. tab:: |org_brand|
 
