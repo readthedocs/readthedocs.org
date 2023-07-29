@@ -43,12 +43,12 @@ Projects with multiple translations (Sphinx-only)
 By design each ReadTheDocs project can only be build in one language. In order to support
 multiple transaltion of the same doc you need to follow these 2 steps:
 - Create a project for each translation. For example, if you have a project called
-  ``myproject`` using ``English`` language, and you want to translate it to *Spanish*,
-  you need to create a new project called ``myproject-spanish`` and set the language
-  to ``Spanish``
+``myproject`` using ``English`` language, and you want to translate it to *Spanish*,
+you need to create a new project called ``myproject-spanish`` and set the language
+to ``Spanish``.
 - To connect all these projects together choose one of them as the parent project,
-  in our case ``myproject``. In the *admin* section go to *Translation* and select
-  the translated projects in the dropdown, in this case ``myproject-spannish``.
+in our case ``myproject``. In the *admin* section go to *Translation* and select
+the translated projects in the dropdown, in this case ``myproject-spannish``.
 
 As a consequence, the translated project will be served at
 ``https://myproject.readthedocs.io/es/latest/`` instead of
