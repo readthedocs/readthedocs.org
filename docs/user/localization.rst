@@ -37,28 +37,29 @@ Projects with multiple translations (Sphinx-only)
 .. seealso::
 
    :doc:`guides/manage-translations-sphinx`
-     Describes the whole process for a documentation with multiples languages in the same repository and how to keep the translations updated on time.
+     Describes the whole process for a documentation with multiples languages in
+     the same repository and how to keep the translations updated on time.
 
-This situation is a bit more complicated.
-To support this,
-you will have one parent project and a number of projects marked as translations of that parent.
-Let's use ``phpmyadmin`` as an example.
+By design each ReadTheDocs project can only be build in one language. In order to support
+multiple transaltion of the same doc you need to foolow these 2 steps:
+- Create a project for each translation. For example, if you have a project called
+  ``myproject`` using ``English`` language, and you want to translate it to *Spanish*,
+  you need to create a new project called ``myproject-spanish`` and set the language
+  to ``Spanish``
+- To connect all these projects together choose one of them as the parent project,
+  in our case ``myproject``. In the *admin* section go to *Translation* and select
+  the translated projects in the dropdown, in this case ``myproject-spannish``.
 
-The main ``phpmyadmin`` project is the parent for all translations.
-Then you must create a project for each translation,
-for example ``phpmyadmin-spanish``.
-You will set the *Language* for ``phpmyadmin-spanish`` to ``Spanish``.
-In the parent projects *Translations* page,
-you will say that ``phpmyadmin-spanish`` is a translation for your project.
-
-This has the results of serving:
-
-* ``phpmyadmin`` at ``http://phpmyadmin.readthedocs.io/en/latest/``
-* ``phpmyadmin-spanish`` at ``http://phpmyadmin.readthedocs.io/es/latest/``
-
-It also gets included in the Read the Docs :term:`flyout menu`:
+As a consequence, the translated project will be served at
+``https://myproject.readthedocs.io/es/latest/`` instead of
+``https:://myproject-spannish.readthedocs.io/es/latest/``. It will appear in the
+*Translation* section of the parent project and the *Translation* section of the ``myproject-spannish`` project will be disabled. Finally the tranlation will be
+included in the Read the Docs :term:`flyout menu`:
 
 .. image:: /img/translation_bar.png
+
+.. note::
+    You can add as many tranlation as you want to a parent project.
 
 .. note::
     The default language of a custom domain is determined by the language of the
