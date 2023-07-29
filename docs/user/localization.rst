@@ -41,7 +41,7 @@ Projects with multiple translations (Sphinx-only)
      the same repository and how to keep the translations updated on time.
 
 By design each ReadTheDocs project can only be build in one language. In order to support
-multiple transaltion of the same doc you need to foolow these 2 steps:
+multiple transaltion of the same doc you need to follow these 2 steps:
 - Create a project for each translation. For example, if you have a project called
   ``myproject`` using ``English`` language, and you want to translate it to *Spanish*,
   you need to create a new project called ``myproject-spanish`` and set the language
