@@ -547,37 +547,6 @@ and a new build will be triggered for it.
    You can read more about :ref:`hidden versions <versions:hidden>`
    in our documentation.
 
-Show a warning for old versions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-When your project matures, the number of versions might increase.
-Sometimes you will want to warn your readers
-when they are browsing an old or outdated version of your documentation.
-
-To showcase how to do that, let's create a ``2.0`` version of the code:
-navigate to your GitHub repository, click on the branch selector,
-type ``2.0.x``, and click on "Create branch: 2.0.x from 'main'".
-This will trigger two things:
-
-- Since ``2.0.x`` is your newest branch, ``stable`` will switch to tracking it.
-- A new ``2.0.x`` version will be created on your Read the Docs project.
-- Since you already have an active ``stable`` version, ``2.0.x`` will be activated.
-
-From this point, ``1.0.x`` version is no longer the most up to date one.
-To display a warning to your readers, go to the :guilabel:`⚙ Admin` menu of your project home,
-click on the :guilabel:`Advanced Settings` link on the left,
-enable the "Show version warning" checkbox, and click the :guilabel:`Save` button.
-
-If you now browse the ``1.0.x`` documentation, you will see a warning on top
-encouraging you to browse the latest version instead. Neat!
-
-.. figure:: /_static/images/tutorial/old-version-warning.png
-   :width: 80%
-   :align: center
-   :alt: Warning for old versions
-
-   Warning for old versions
-
 Getting insights from your projects
 -----------------------------------
 

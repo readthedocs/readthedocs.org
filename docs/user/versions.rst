@@ -146,35 +146,6 @@ Version Control Support Matrix
 | Default    |    master  |   default |            |    trunk  |
 +------------+------------+-----------+------------+-----------+
 
-Version warning
----------------
-
-This is a banner that appears on the top of every page of your docs that aren't stable or latest.
-This banner has a text with a link redirecting the users to the latest version of your docs.
-
-This feature is disabled by default on new projects,
-you can enable it in the admin section of your docs (:guilabel:`Admin` > :guilabel:`Advanced Settings`).
-
-.. note::
-
-   The banner will be injected in an HTML element with the ``main`` role or in the ``main`` tag.
-   For example:
-
-   .. code-block:: html
-
-      <div role="main">
-        <!-- The banner would be injected here -->
-        ...
-      </div>
-
-   .. code-block:: html
-
-      <main>
-        <!-- The banner would be injected here -->
-        ...
-      </main>
-
-
 Redirects on root URLs
 ----------------------
 
