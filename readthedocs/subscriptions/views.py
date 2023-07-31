@@ -114,10 +114,32 @@ class DetailSubscription(OrganizationMixin, DetailView):
         context = super().get_context_data(**kwargs)
         stripe_subscription = self.get_object()
         if stripe_subscription:
-            stripe_price = stripe_subscription.items.first().price
-            context["stripe_price"] = stripe_price
-            context["features"] = get_product(stripe_price.product.id).features.values()
+            main_product = None
+            extra_products = []
+            features = {}
+            for item in stripe_subscription.items.all().select_related(
+                "price__product"
+            ):
+                rtd_product = get_product(item.price.product.id)
+                product = {
+                    "stripe_price": item.price,
+                    "quantity": item.quantity,
+                }
 
+                if rtd_product.extra:
+                    extra_products.append(product)
+                else:
+                    main_product = product
+
+                for feature_type, feature in rtd_product.features.items():
+                    if feature_type not in features:
+                        features[feature_type] = feature
+                    else:
+                        features[feature_type] += feature * item.quantity
+
+            context["main_product"] = main_product
+            context["extra_products"] = extra_products
+            context["features"] = features.values()
             # When Stripe marks the subscription as ``past_due``,
             # it means the usage of RTD service for the current period/month was not paid at all.
             # Show the end date as the last period the customer paid.
