@@ -6,6 +6,7 @@
 # Anthony <aj@ohess.org>, 2022
 # BinotaLIU <binota@binota.org>, 2020
 # Game Arming <fleasw@yahoo.com.tw>, 2017
+# Haowei Hsu, 2023
 # Mingye Wang <arthur200126@gmail.com>, 2016
 # mozillazg <opensource.mozillazg@gmail.com>, 2014
 # rimy <Siramizu@gmail.com>, 2013
@@ -16,9 +17,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-11 08:54+0000\n"
+"POT-Creation-Date: 2023-07-25 09:50+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
-"Last-Translator: Anthony <aj@ohess.org>, 2022\n"
+"Last-Translator: Haowei Hsu, 2023\n"
 "Language-Team: Chinese (Taiwan) (http://app.transifex.com/readthedocs/"
 "readthedocs/language/zh_TW/)\n"
 "Language: zh_TW\n"
@@ -27,7 +28,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 
-#: analytics/models.py:69 builds/models.py:718 projects/models.py:1486
+#: analytics/models.py:69 builds/models.py:723 projects/models.py:1486
 #: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:262
 msgid "Version"
 msgstr "版本"
@@ -58,7 +59,7 @@ msgstr ""
 
 #: api/v2/templates/restapi/footer.html:18
 msgid "Languages"
-msgstr ""
+msgstr "語言"
 
 #: api/v2/templates/restapi/footer.html:42
 #: templates/core/project_bar_base.html:51
@@ -204,7 +205,7 @@ msgstr ""
 msgid "Username"
 msgstr "使用者名稱"
 
-#: audit/models.py:138 builds/models.py:110 builds/models.py:712
+#: audit/models.py:138 builds/models.py:110 builds/models.py:717
 #: projects/models.py:1480 redirects/models.py:57
 msgid "Project"
 msgstr "專案"
@@ -229,7 +230,7 @@ msgstr ""
 msgid "Organization slug"
 msgstr ""
 
-#: audit/models.py:180 builds/models.py:1240
+#: audit/models.py:180 builds/models.py:1245
 msgid "Action"
 msgstr ""
 
@@ -247,7 +248,7 @@ msgstr ""
 
 #: audit/models.py:205
 msgid "Resource"
-msgstr ""
+msgstr "資源"
 
 #: audit/models.py:214
 msgid ""
@@ -410,7 +411,7 @@ msgstr "分支"
 
 #: builds/constants.py:54
 msgid "Tag"
-msgstr "標籤"
+msgstr "標記"
 
 #: builds/constants.py:56 projects/constants.py:402
 msgid "Unknown"
@@ -457,7 +458,7 @@ msgstr ""
 msgid "Pull/merge request"
 msgstr ""
 
-#: builds/filters.py:41 builds/models.py:155 builds/models.py:734
+#: builds/filters.py:41 builds/models.py:155 builds/models.py:739
 msgid "State"
 msgstr "狀態"
 
@@ -466,7 +467,7 @@ msgstr "狀態"
 msgid "Any"
 msgstr "任何"
 
-#: builds/filters.py:47 builds/models.py:115 builds/models.py:724
+#: builds/filters.py:47 builds/models.py:115 builds/models.py:729
 #: sphinx_domains/models.py:59 subscriptions/models.py:97
 msgid "Type"
 msgstr "類型"
@@ -582,218 +583,218 @@ msgstr ""
 msgid "Version {version} of {project} ({pk})"
 msgstr "{project} 的版本 {version} ({pk})"
 
-#: builds/models.py:746
+#: builds/models.py:751
 msgid "Status"
 msgstr ""
 
-#: builds/models.py:753 integrations/models.py:147
+#: builds/models.py:758 integrations/models.py:147
 msgid "Date"
 msgstr "日期"
 
-#: builds/models.py:754
+#: builds/models.py:759
 msgid "Success"
 msgstr "成功"
 
-#: builds/models.py:759
+#: builds/models.py:764
 msgid "Setup"
 msgstr "安裝"
 
-#: builds/models.py:760
+#: builds/models.py:765
 msgid "Setup error"
 msgstr "安裝錯誤"
 
-#: builds/models.py:761
+#: builds/models.py:766
 msgid "Output"
 msgstr "輸出"
 
-#: builds/models.py:762 templates/builds/build_detail.html:227
+#: builds/models.py:767 templates/builds/build_detail.html:227
 msgid "Error"
 msgstr "錯誤"
 
-#: builds/models.py:763
+#: builds/models.py:768
 msgid "Exit code"
 msgstr "結束代碼"
 
-#: builds/models.py:768 projects/models.py:1497 sphinx_domains/models.py:43
+#: builds/models.py:773 projects/models.py:1497 sphinx_domains/models.py:43
 msgid "Commit"
 msgstr "認可 (Commit)"
 
-#: builds/models.py:774
+#: builds/models.py:779
 msgid "Version slug"
 msgstr ""
 
-#: builds/models.py:780
+#: builds/models.py:785
 msgid "Version name"
 msgstr ""
 
-#: builds/models.py:786 builds/models.py:1253
+#: builds/models.py:791 builds/models.py:1258
 msgid "Version type"
 msgstr ""
 
-#: builds/models.py:793
+#: builds/models.py:798
 msgid "Configuration used in the build"
 msgstr "該建置使用的組態設定"
 
-#: builds/models.py:798
+#: builds/models.py:803
 msgid "Custom build configuration file path used in this build"
 msgstr ""
 
-#: builds/models.py:806
+#: builds/models.py:811
 msgid "Build Length"
 msgstr "建置長度"
 
-#: builds/models.py:809
+#: builds/models.py:814
 msgid "Builder"
 msgstr "產生器"
 
-#: builds/models.py:816
+#: builds/models.py:821
 msgid "Cold Storage"
 msgstr "冷儲存"
 
-#: builds/models.py:822
+#: builds/models.py:827
 msgid "Celery task id"
 msgstr ""
 
-#: builds/models.py:933
+#: builds/models.py:938
 #, python-brace-format
 msgid "Build {project} for {usernames} ({pk})"
 msgstr "為 {usernames} 建置 {project} ({pk})"
 
-#: builds/models.py:1151
+#: builds/models.py:1156
 msgid "Build"
 msgstr "建置"
 
-#: builds/models.py:1156
+#: builds/models.py:1161
 msgid "Command"
 msgstr "指令"
 
-#: builds/models.py:1157 builds/models.py:1217 oauth/models.py:135
+#: builds/models.py:1162 builds/models.py:1222 oauth/models.py:135
 #: organizations/models.py:66 projects/models.py:150 subscriptions/models.py:28
 #: subscriptions/models.py:100 templates/core/project_details.html:78
 msgid "Description"
 msgstr "說明"
 
-#: builds/models.py:1158
+#: builds/models.py:1163
 msgid "Command output"
 msgstr "指令輸出"
 
-#: builds/models.py:1159
+#: builds/models.py:1164
 msgid "Command exit code"
 msgstr "指令結束代碼"
 
-#: builds/models.py:1161
+#: builds/models.py:1166
 msgid "Start time"
 msgstr "開始時間"
 
-#: builds/models.py:1162
+#: builds/models.py:1167
 msgid "End time"
 msgstr "結束時間"
 
-#: builds/models.py:1172
+#: builds/models.py:1177
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
 msgstr "從產生器 {build} 產生命令 {pk}"
 
-#: builds/models.py:1196
+#: builds/models.py:1201
 msgid "Activate version"
 msgstr ""
 
-#: builds/models.py:1197
+#: builds/models.py:1202
 msgid "Hide version"
-msgstr ""
+msgstr "隱藏版本"
 
-#: builds/models.py:1198
+#: builds/models.py:1203
 msgid "Make version public"
 msgstr ""
 
-#: builds/models.py:1199
+#: builds/models.py:1204
 msgid "Make version private"
 msgstr ""
 
-#: builds/models.py:1200
+#: builds/models.py:1205
 msgid "Set version as default"
 msgstr ""
 
-#: builds/models.py:1201
+#: builds/models.py:1206
 msgid "Delete version"
-msgstr ""
+msgstr "刪除版本"
 
-#: builds/models.py:1213
+#: builds/models.py:1218
 msgid "Rule priority"
 msgstr ""
 
-#: builds/models.py:1214
+#: builds/models.py:1219
 msgid "A lower number (0) means a higher priority"
 msgstr ""
 
-#: builds/models.py:1223
+#: builds/models.py:1228
 msgid "Match argument"
 msgstr ""
 
-#: builds/models.py:1224
+#: builds/models.py:1229
 msgid "Value used for the rule to match the version"
 msgstr ""
 
-#: builds/models.py:1228
+#: builds/models.py:1233
 msgid "Predefined match argument"
 msgstr ""
 
-#: builds/models.py:1230
+#: builds/models.py:1235
 msgid ""
 "Match argument defined by us, it is used if is not None, otherwise match_arg "
 "will be used."
 msgstr ""
 
-#: builds/models.py:1241
+#: builds/models.py:1246
 msgid "Action to apply to matching versions"
 msgstr ""
 
-#: builds/models.py:1246
+#: builds/models.py:1251
 msgid "Action argument"
 msgstr ""
 
-#: builds/models.py:1247
+#: builds/models.py:1252
 msgid "Value used for the action to perfom an operation"
 msgstr ""
 
-#: builds/models.py:1254
+#: builds/models.py:1259
 msgid "Type of version the rule should be applied to"
 msgstr ""
 
-#: builds/models.py:1478
+#: builds/models.py:1483
 msgid "Version activated"
 msgstr ""
 
-#: builds/models.py:1479
+#: builds/models.py:1484
 msgid "Version hidden"
 msgstr ""
 
-#: builds/models.py:1481
+#: builds/models.py:1486
 msgid "Version set to public privacy"
 msgstr ""
 
-#: builds/models.py:1484
+#: builds/models.py:1489
 msgid "Version set to private privacy"
 msgstr ""
 
-#: builds/models.py:1486
+#: builds/models.py:1491
 msgid "Version set as default"
 msgstr ""
 
-#: builds/models.py:1487
+#: builds/models.py:1492
 msgid "Version deleted"
 msgstr ""
 
-#: builds/models.py:1492
+#: builds/models.py:1497
 msgid "Matched rule"
 msgstr ""
 
-#: builds/tasks.py:588
+#: builds/tasks.py:591
 #, python-brace-format
 msgid "Failed: {project[name]} ({commit})"
 msgstr "失敗：{project[name]} ({commit})"
 
-#: builds/tasks.py:593
+#: builds/tasks.py:596
 #, python-brace-format
 msgid "Failed: {project[name]} ({version[verbose_name]})"
 msgstr "失敗：{project[name]} ({version[verbose_name]})"
@@ -824,7 +825,7 @@ msgstr "姓氏"
 
 #: core/forms.py:43
 msgid "User settings"
-msgstr ""
+msgstr "使用者設定"
 
 #: core/forms.py:47
 msgid "Email settings"
@@ -855,7 +856,7 @@ msgstr ""
 
 #: core/history.py:72
 msgid "username"
-msgstr ""
+msgstr "使用者名稱"
 
 #: core/models.py:26
 msgid "Homepage"
@@ -1615,7 +1616,7 @@ msgstr ""
 #: organizations/templates/organizations/admin/organization_delete.html:5
 #: organizations/templates/organizations/admin/organization_delete.html:11
 msgid "Delete Organization"
-msgstr ""
+msgstr "刪除組織"
 
 #: organizations/templates/organizations/admin/organization_delete.html:13
 msgid ""
@@ -1634,7 +1635,7 @@ msgstr "永久刪除"
 
 #: organizations/templates/organizations/admin/organization_edit.html:5
 msgid "Edit Organization"
-msgstr ""
+msgstr "編輯組織"
 
 #. Translators: The 'or' here is in between 'Save' and 'Delete organization'.
 #: organizations/templates/organizations/admin/organization_edit.html:17
@@ -1644,11 +1645,11 @@ msgstr "或"
 
 #: organizations/templates/organizations/admin/organization_edit.html:18
 msgid "Delete organization"
-msgstr ""
+msgstr "刪除組織"
 
 #: organizations/templates/organizations/admin/owners_edit.html:5
 msgid "Edit Organization Owners"
-msgstr ""
+msgstr "編輯組織擁有者"
 
 #: organizations/templates/organizations/admin/owners_edit.html:13
 msgid "Owners have full access to this Organization"
@@ -1658,23 +1659,23 @@ msgstr ""
 #: organizations/templates/organizations/admin/owners_edit.html:52
 #: organizations/templates/organizations/team_list.html:51
 msgid "Add Owner"
-msgstr ""
+msgstr "新增擁有者"
 
 #: organizations/templates/organizations/base.html:18
 #: organizations/templates/organizations/base_team.html:19
 msgid "Organizations"
-msgstr ""
+msgstr "組織"
 
 #: organizations/templates/organizations/base.html:32
 #: organizations/templates/organizations/team_list.html:7
 msgid "Teams"
-msgstr ""
+msgstr "團隊"
 
 #: organizations/templates/organizations/base.html:34
 #: organizations/templates/organizations/member_list.html:7
 #: organizations/templates/organizations/team_detail.html:40
 msgid "Members"
-msgstr ""
+msgstr "成員"
 
 #: organizations/templates/organizations/base.html:37
 #: templates/core/header.html:29 templates/projects/project_edit.html:13
@@ -1774,7 +1775,7 @@ msgstr ""
 
 #: organizations/templates/organizations/organization_create.html:23
 msgid "Get Started"
-msgstr ""
+msgstr "開始使用"
 
 #: organizations/templates/organizations/organization_create.html:33
 msgid ""
@@ -1848,13 +1849,13 @@ msgstr ""
 #: organizations/templates/organizations/team_create.html:18
 #: organizations/templates/organizations/team_list.html:45
 msgid "Add Team"
-msgstr ""
+msgstr "新增團隊"
 
 #: organizations/templates/organizations/team_delete.html:5
 #: organizations/templates/organizations/team_delete.html:11
 #: organizations/templates/organizations/team_edit.html:21
 msgid "Delete Team"
-msgstr ""
+msgstr "刪除團隊"
 
 #: organizations/templates/organizations/team_delete.html:13
 msgid ""
@@ -2034,7 +2035,7 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:99 projects/models.py:2153
+#: projects/constants.py:99 projects/models.py:2160
 msgid "Public"
 msgstr "公開"
 
@@ -2188,7 +2189,7 @@ msgstr "無效的儲存庫"
 
 #: projects/forms.py:188
 msgid "Length of each tag must be less than or equal to 100 characters."
-msgstr "各個標籤的長度必須小於或等於 100 字元。"
+msgstr "各個標記的長度必須小於或等於 100 字元。"
 
 #: projects/forms.py:266
 msgid "Global settings"
@@ -2712,169 +2713,174 @@ msgstr ""
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1958
+#: projects/models.py:1959
 msgid "Sphinx: Do not define html_theme_path on Sphinx < 6.0"
 msgstr ""
 
-#: projects/models.py:1963
+#: projects/models.py:1964
 msgid "MkDocs: Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 
-#: projects/models.py:1967
+#: projects/models.py:1968
 msgid "Build: Do not shallow clone when cloning git repos"
 msgstr ""
 
-#: projects/models.py:1971
+#: projects/models.py:1972
 msgid "Build: Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1975
+#: projects/models.py:1976
 msgid "Conda: Upgrade conda before creating the environment"
 msgstr ""
 
-#: projects/models.py:1979
+#: projects/models.py:1980
 msgid "Conda: Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1984
+#: projects/models.py:1985
 msgid ""
 "Sphinx: Pass all versions (including private) into the html context when "
 "building with Sphinx"
 msgstr ""
 
-#: projects/models.py:1991
+#: projects/models.py:1992
 msgid ""
 "Proxito: CDN support for a project's public versions when privacy levels are "
 "enabled."
 msgstr ""
 
-#: projects/models.py:1997
+#: projects/models.py:1998
 msgid "Proxito: Record 404s page views."
 msgstr ""
 
-#: projects/models.py:2001
+#: projects/models.py:2002
 msgid "Proxito: Allow forced redirects."
 msgstr ""
 
-#: projects/models.py:2005
+#: projects/models.py:2006
 msgid "Proxito: Disable all page views"
 msgstr ""
 
-#: projects/models.py:2009
+#: projects/models.py:2010
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr ""
 
-#: projects/models.py:2014
+#: projects/models.py:2015
 msgid ""
 "Proxito: Use new unresolver implementation for serving documentation files."
 msgstr ""
 
-#: projects/models.py:2019
+#: projects/models.py:2020
 msgid "Dashboard: Allow project to use the version warning banner."
 msgstr ""
 
-#: projects/models.py:2025
+#: projects/models.py:2026
 msgid "Webhook: Skip syncing branches"
-msgstr ""
+msgstr "Webhook：略過同步分支"
 
-#: projects/models.py:2029
+#: projects/models.py:2030
 msgid "Webhook: Skip syncing tags"
-msgstr ""
+msgstr "Webhook：略過同步標記"
 
-#: projects/models.py:2033
+#: projects/models.py:2034
 msgid "Webhook: Skip sync versions task"
-msgstr ""
+msgstr "Webhook：略過同步版本任務"
 
-#: projects/models.py:2037
+#: projects/models.py:2038
 msgid "Build: Always run pip install --upgrade"
 msgstr ""
 
-#: projects/models.py:2038
+#: projects/models.py:2039
 msgid "Build: Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:2041
+#: projects/models.py:2042
 msgid "Build: Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:2043
+#: projects/models.py:2044
 msgid "Sphinx: Use latest version of Sphinx"
 msgstr ""
 
-#: projects/models.py:2046
+#: projects/models.py:2047
 msgid "MkDOcs: Install mkdocs 0.17.3 by default"
 msgstr ""
 
-#: projects/models.py:2050
+#: projects/models.py:2051
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
 #: projects/models.py:2056
+msgid ""
+"Build: Install all the latest versions of Read the Docs core requirements"
+msgstr ""
+
+#: projects/models.py:2063
 msgid "Search: Disable server side search"
 msgstr ""
 
-#: projects/models.py:2060
+#: projects/models.py:2067
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:2064
+#: projects/models.py:2071
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:2069
+#: projects/models.py:2076
 msgid ""
 "Search: Index content directly from html files instead or relying in other "
 "sources"
 msgstr ""
 
-#: projects/models.py:2076
+#: projects/models.py:2083
 msgid ""
 "Build: Use simplified and optimized git clone + git fetch + git checkout "
 "patterns"
 msgstr ""
 
-#: projects/models.py:2082
+#: projects/models.py:2089
 msgid ""
-"Proxito: Inject 'readthedocs-client.js' as <script> HTML tag in responses."
+"Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
 msgstr ""
 
-#: projects/models.py:2087
+#: projects/models.py:2094
 msgid "Build: Building without a configuration file is deprecated."
 msgstr ""
 
-#: projects/models.py:2091
+#: projects/models.py:2098
 msgid "Build: Set scale-in protection before/after building."
 msgstr ""
 
-#: projects/models.py:2104
+#: projects/models.py:2111
 msgid "Feature identifier"
 msgstr "功能識別項"
 
-#: projects/models.py:2109
+#: projects/models.py:2116
 msgid "Date feature was added"
 msgstr "已新增日期功能"
 
-#: projects/models.py:2115
+#: projects/models.py:2122
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:2119
+#: projects/models.py:2126
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2141
+#: projects/models.py:2148
 msgid "Name of the environment variable"
 msgstr "環境變數名稱"
 
-#: projects/models.py:2145
+#: projects/models.py:2152
 msgid "Value of the environment variable"
 msgstr "環境變數值"
 
-#: projects/models.py:2150
+#: projects/models.py:2157
 msgid "Project where this variable will be used"
 msgstr "使用該變數的專案"
 
-#: projects/models.py:2156
+#: projects/models.py:2163
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
@@ -2979,7 +2985,7 @@ msgstr "專案已選擇退出廣告支援"
 #: proxito/exceptions.py:96
 msgctxt "Names an object not found in a 404 error"
 msgid "subproject"
-msgstr ""
+msgstr "子專案"
 
 #: proxito/exceptions.py:141
 msgctxt "Names an object not found in a 404 error"
@@ -3215,7 +3221,7 @@ msgstr ""
 
 #: subscriptions/constants.py:28
 msgid "Custom SSL configuration"
-msgstr ""
+msgstr "自訂 SSL 組態"
 
 #: subscriptions/constants.py:29
 msgid "Support SLA"
@@ -3359,7 +3365,7 @@ msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:84
 msgid "Manage Subscription"
-msgstr ""
+msgstr "管理訂閱"
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:88
 msgid ""
@@ -3509,7 +3515,7 @@ msgstr "或"
 #: templates/account/password_change.html:15
 #: templates/profiles/base_profile_edit.html:50
 msgid "Change Password"
-msgstr "修改密碼"
+msgstr "變更密碼"
 
 #. Translators: Note, the full sentence goes 'Sign up' 'or' 'Log in'. But unfortunately the three bits have to be separate.
 #: templates/account/signup.html:5 templates/core/home-header.html:17
@@ -3582,7 +3588,7 @@ msgstr ""
 
 #: templates/base.html:192
 msgid "Resources"
-msgstr ""
+msgstr "資源"
 
 #: templates/base.html:196
 msgid "Tutorial"
@@ -3626,7 +3632,7 @@ msgstr ""
 
 #: templates/base.html:237
 msgid "Terms of Service"
-msgstr ""
+msgstr "服務條款"
 
 #: templates/base.html:258
 msgid "Read the Docs, Inc & contributors"
@@ -3744,7 +3750,7 @@ msgstr "<a href=\"%(url)s\">在此回報任何建置問題</a>。"
 
 #: templates/builds/build_detail.html:260
 msgid "Command time:"
-msgstr "指令時間︰"
+msgstr "命令時間︰"
 
 #: templates/builds/build_detail.html:265
 msgid "Return"
@@ -3766,7 +3772,7 @@ msgstr ""
 #: templates/builds/tag_list.html:5 templates/projects/tag_list.html:4
 #: templates/projects/tag_list.html:7
 msgid "Popular tags"
-msgstr "熱門標籤"
+msgstr "熱門標記"
 
 #: templates/builds/versionautomationrule_list.html:6
 #: templates/builds/versionautomationrule_list.html:15
@@ -3783,17 +3789,17 @@ msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:32
 msgid "Add Rule"
-msgstr ""
+msgstr "新增規則"
 
 #: templates/builds/versionautomationrule_list.html:54
 #: templates/builds/versionautomationrule_list.html:55
 msgid "Move up"
-msgstr ""
+msgstr "上移"
 
 #: templates/builds/versionautomationrule_list.html:65
 #: templates/builds/versionautomationrule_list.html:66
 msgid "Move down"
-msgstr ""
+msgstr "下移"
 
 #: templates/builds/versionautomationrule_list.html:76
 msgid "No automation rules are currently configured."
@@ -3953,11 +3959,11 @@ msgstr "徽章"
 
 #: templates/core/project_detail_right.html:79
 msgid "Tags"
-msgstr "標籤"
+msgstr "標記"
 
 #: templates/core/project_detail_right.html:87
 msgid "Project has no tags."
-msgstr "專案無標籤。"
+msgstr "專案無標記。"
 
 #: templates/core/project_detail_right.html:90
 #, python-format
@@ -4063,7 +4069,7 @@ msgstr ""
 
 #: templates/errors/404/dns.html:23 templates/errors/404/include_tips.html:3
 msgid "Are you the project owner?"
-msgstr ""
+msgstr "您是專案擁有者嗎？"
 
 #: templates/errors/404/dns.html:25 templates/errors/404/include_tips.html:5
 msgid "Here are some tips to address 404 errors:"
@@ -4101,7 +4107,7 @@ msgstr ""
 
 #: templates/errors/404/include_tips.html:8
 msgid "Use your own custom 404 page:"
-msgstr ""
+msgstr "使用您自訂的 404 頁面："
 
 #: templates/errors/404/include_tips.html:8
 #: templates/errors/404/include_tips.html:9
@@ -4172,7 +4178,7 @@ msgstr ""
 
 #: templates/homepage.html:12
 msgid "Home"
-msgstr "首頁"
+msgstr "主頁"
 
 #: templates/homepage.html:46
 msgid "Technical documentation lives here"
@@ -4228,11 +4234,11 @@ msgid ""
 "branch or tag in your version control system."
 msgstr ""
 "我們會代管與建置多版本的文件，所以要同時擁有 1.0 版與 2.0 版的文件非常簡單，"
-"就如同在版本控制系統中有不同的分支或標籤一樣簡單。"
+"就如同在版本控制系統中有不同的分支或標記一樣簡單。"
 
 #: templates/homepage.html:109
 msgid "Read the Tutorial"
-msgstr ""
+msgstr "閱讀教學"
 
 #: templates/homepage.html:124
 msgid "Featured Projects"
@@ -4240,7 +4246,7 @@ msgstr "精選專案"
 
 #: templates/homepage.html:138
 msgid "About Read the Docs"
-msgstr ""
+msgstr "關於 Read the Docs"
 
 #: templates/homepage.html:141
 msgid ""
@@ -4310,7 +4316,7 @@ msgstr "指定送出新建的內容："
 
 #: templates/notifications/send_notification_form.html:41
 msgid "Send Messages"
-msgstr "送出訊息"
+msgstr "傳送訊息"
 
 #: templates/pagination/pagination.html:6
 #: templates/pagination/pagination.html:8
@@ -4357,13 +4363,13 @@ msgstr "個人資料"
 #: templates/socialaccount/connections.html:5
 #: templates/socialaccount/connections.html:12
 msgid "Connected Services"
-msgstr "已串聯的服務"
+msgstr "已連線的服務"
 
 #: templates/profiles/base_profile_edit.html:53
 #: templates/profiles/private/token_list.html:5
 #: templates/profiles/private/token_list.html:9
 msgid "API Tokens"
-msgstr ""
+msgstr "API 代符"
 
 #: templates/profiles/base_profile_edit.html:54
 #: templates/profiles/private/delete_account.html:5
@@ -4387,10 +4393,8 @@ msgid "Set advertising preferences"
 msgstr "設定廣告偏好"
 
 #: templates/profiles/private/advertising_profile.html:15
-#, fuzzy
-#| msgid "Thanks for supporting Read the Docs! It really means a lot to us."
 msgid "Thank you for supporting Read the Docs!"
-msgstr "感謝您支援 Read the Docs！這對我們意義非凡。"
+msgstr ""
 
 #: templates/profiles/private/advertising_profile.html:22
 #: templates/projects/project_advertising.html:16
@@ -4463,7 +4467,7 @@ msgstr ""
 
 #: templates/profiles/private/token_list.html:25
 msgid "Generate API Token"
-msgstr ""
+msgstr "產生 API 代符"
 
 #: templates/profiles/private/token_list.html:54
 msgid "No API Tokens currently configured."
@@ -4510,7 +4514,7 @@ msgstr ""
 
 #: templates/projects/domain_form.html:61
 msgid "Save Domain"
-msgstr ""
+msgstr "儲存網域"
 
 #: templates/projects/domain_form.html:63
 msgid "Saving the domain will revalidate the SSL certificate"
@@ -4604,7 +4608,7 @@ msgstr ""
 
 #: templates/projects/import_config.html:5
 msgid "Add a project configuration file"
-msgstr ""
+msgstr "新增專案組態檔"
 
 #: templates/projects/import_config.html:8
 msgid ""
@@ -4676,7 +4680,7 @@ msgstr "該整合需設定下列參數："
 
 #: templates/projects/integration_generic_webhook_detail.html:14
 msgid "Token"
-msgstr "權杖"
+msgstr "代符"
 
 #: templates/projects/integration_list.html:38
 msgid "No integrations are currently configured."
@@ -4756,16 +4760,16 @@ msgstr "斜體文字"
 
 #: templates/projects/legend.html:16
 msgid "Lists"
-msgstr "清單"
+msgstr "列表"
 
 #: templates/projects/legend.html:19 templates/projects/legend.html:20
 #: templates/projects/legend.html:23 templates/projects/legend.html:24
 msgid "Item"
-msgstr "清單項目"
+msgstr "項目"
 
 #: templates/projects/legend.html:28
 msgid "Source Code"
-msgstr "原始碼"
+msgstr "來源碼"
 
 #: templates/projects/legend.html:30
 msgid "e.g. Check out this code"
@@ -4781,7 +4785,7 @@ msgstr "reStructuredText Primer"
 
 #: templates/projects/onboard_detail.html:8
 msgid "Start building your documentation"
-msgstr "開始建置文件"
+msgstr "開始建置您的文件"
 
 #: templates/projects/onboard_detail.html:10
 msgid ""
@@ -4970,7 +4974,7 @@ msgstr ""
 
 #: templates/projects/project_advertising.html:122
 msgid "Update advertising preference"
-msgstr ""
+msgstr "更新廣告偏好設定"
 
 #: templates/projects/project_create.html:6
 msgid "Create a new project"
@@ -5074,11 +5078,11 @@ msgstr "或"
 
 #: templates/projects/project_edit.html:24
 msgid "Delete project"
-msgstr ""
+msgstr "刪除專案"
 
 #: templates/projects/project_edit_base.html:20
 msgid "Edit Versions"
-msgstr ""
+msgstr "編輯版本"
 
 #: templates/projects/project_edit_base.html:25
 #: templates/projects/projectrelationship_form.html:5
@@ -5117,7 +5121,7 @@ msgstr ""
 
 #: templates/projects/project_import.html:6
 msgid "Import a Remote Repository"
-msgstr "匯入遠端倉庫"
+msgstr "匯入遠端儲存庫"
 
 #: templates/projects/project_import.html:51
 msgid "There was an error with your request:"
@@ -5129,7 +5133,7 @@ msgstr "重新整理您的帳號"
 
 #: templates/projects/project_import.html:73
 msgid "Import a Repository"
-msgstr "匯入倉庫"
+msgstr "匯入儲存庫"
 
 #: templates/projects/project_import.html:79
 msgid ""
@@ -5161,7 +5165,7 @@ msgstr "鎖定"
 
 #: templates/projects/project_import.html:161
 msgid "This repository has already been imported"
-msgstr "這個倉庫已經匯入"
+msgstr "該儲存庫已經匯入"
 
 #: templates/projects/project_import.html:162
 msgctxt "verb, action to see in detail"
@@ -5180,13 +5184,13 @@ msgstr "手動匯入"
 
 #: templates/projects/project_import.html:228
 msgid "Filter repositories"
-msgstr ""
+msgstr "篩選儲存庫"
 
 #: templates/projects/project_list.html:7
 #: templates/projects/project_list.html:13
 #, python-format
 msgid "Projects tagged with %(tag)s"
-msgstr "標上 %(tag)s 標籤的專案"
+msgstr "帶有 %(tag)s 標記的專案"
 
 #: templates/projects/project_list.html:24
 msgid "Browse projects"
@@ -5232,7 +5236,7 @@ msgstr ""
 #: templates/projects/project_traffic_analytics.html:66
 #: templates/projects/projects_search_analytics.html:36
 msgid "No data available."
-msgstr ""
+msgstr "沒有可用的資料。"
 
 #: templates/projects/project_traffic_analytics.html:44
 msgid "Daily pageview totals"
@@ -5241,7 +5245,7 @@ msgstr ""
 #: templates/projects/project_traffic_analytics.html:48
 #: templates/projects/projects_search_analytics.html:52
 msgid "Download all data"
-msgstr ""
+msgstr "下載所有資料"
 
 #: templates/projects/project_traffic_analytics.html:52
 msgid "Not Found (404) pages"
@@ -5301,7 +5305,7 @@ msgstr ""
 
 #: templates/projects/project_users.html:49
 msgid "Add maintainer"
-msgstr ""
+msgstr "新增維護者"
 
 #: templates/projects/project_version_detail.html:16
 #, python-format
@@ -5362,16 +5366,16 @@ msgstr ""
 
 #: templates/projects/projectrelationship_form.html:28
 msgid "Update subproject"
-msgstr ""
+msgstr "更新子專案"
 
 #: templates/projects/projectrelationship_form.html:35
 msgid "Delete subproject"
-msgstr ""
+msgstr "刪除子專案"
 
 #: templates/projects/projectrelationship_form.html:44
 #: templates/projects/projectrelationship_list.html:41
 msgid "Add subproject"
-msgstr ""
+msgstr "新增子專案"
 
 #: templates/projects/projectrelationship_list.html:16
 msgid ""
@@ -5430,11 +5434,11 @@ msgstr ""
 
 #: templates/projects/webhook_list.html:18
 msgid "Add Webhook"
-msgstr ""
+msgstr "新增 Webhook"
 
 #: templates/projects/webhook_list.html:47
 msgid "No webhooks found."
-msgstr ""
+msgstr "找不到 webhook。"
 
 #: templates/search/elastic_search.html:6
 #, python-format
@@ -5446,15 +5450,15 @@ msgstr ""
 
 #: templates/search/elastic_search.html:30
 msgid "Object Type"
-msgstr ""
+msgstr "物件型別"
 
 #: templates/search/elastic_search.html:34
 msgid "Files"
-msgstr ""
+msgstr "檔案"
 
 #: templates/search/elastic_search.html:42
 msgid "Search all"
-msgstr ""
+msgstr "全部搜尋"
 
 #: templates/search/elastic_search.html:105
 #, python-format

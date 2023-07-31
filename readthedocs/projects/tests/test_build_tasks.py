@@ -294,6 +294,14 @@ class TestBuildTask(BuildEnvironmentBase):
                 )
             ).touch()
 
+        # Create an "index.html" at root to avoid failing the builds
+        pathlib.Path(
+            os.path.join(
+                self.project.artifact_path(version=self.version.slug, type_="html"),
+                "index.html",
+            )
+        ).touch()
+
         self._trigger_update_docs_task()
 
         # Update version state
@@ -437,6 +445,14 @@ class TestBuildTask(BuildEnvironmentBase):
                     f"{self.project.slug}.{f}",
                 )
             ).touch()
+
+        # Create an "index.html" at root to avoid failing the builds
+        pathlib.Path(
+            os.path.join(
+                self.project.artifact_path(version=self.version.slug, type_="html"),
+                "index.html",
+            )
+        ).touch()
 
         self._trigger_update_docs_task()
 
@@ -1509,7 +1525,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "--upgrade",
                     "--upgrade-strategy",
-                    "eager",
+                    "only-if-needed",
                     "--no-cache-dir",
                     ".",
                     cwd=mock.ANY,
@@ -1550,7 +1566,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "--upgrade",
                     "--upgrade-strategy",
-                    "eager",
+                    "only-if-needed",
                     "--no-cache-dir",
                     ".[docs]",
                     cwd=mock.ANY,
@@ -1594,7 +1610,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "--upgrade",
                     "--upgrade-strategy",
-                    "eager",
+                    "only-if-needed",
                     "--no-cache-dir",
                     ".[docs]",
                     cwd=mock.ANY,
