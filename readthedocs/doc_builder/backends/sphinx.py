@@ -12,7 +12,6 @@ from pathlib import Path
 import structlog
 from django.conf import settings
 from django.template import loader as template_loader
-from django.template.loader import render_to_string
 from django.urls import reverse
 from requests.exceptions import ConnectionError
 
@@ -24,7 +23,6 @@ from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
 from readthedocs.projects.models import Feature
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
-from readthedocs.projects.utils import safe_write
 
 from ..base import BaseBuilder
 from ..constants import PDF_RE
@@ -112,25 +110,6 @@ class BaseSphinx(BaseBuilder):
             # In case there is no config file, we should continue the build
             # because Read the Docs will automatically create one for it.
             pass
-
-    def _write_config(self, master_doc='index'):
-        """Create ``conf.py`` if it doesn't exist."""
-        log.info(
-            'Creating default Sphinx config file for project.',
-            project_slug=self.project.slug,
-            version_slug=self.version.slug,
-        )
-        docs_dir = self.docs_dir()
-        conf_template = render_to_string(
-            'sphinx/conf.py.conf',
-            {
-                'project': self.project,
-                'version': self.version,
-                'master_doc': master_doc,
-            },
-        )
-        conf_file = os.path.join(docs_dir, 'conf.py')
-        safe_write(conf_file, conf_template)
 
     def get_config_params(self):
         """Get configuration parameters to be rendered into the conf file."""
@@ -272,18 +251,10 @@ class BaseSphinx(BaseBuilder):
 
     def append_conf(self):
         """
-        Find or create a ``conf.py`` and appends default content.
+        Find a ``conf.py`` and appends default content.
 
         The default content is rendered from ``doc_builder/conf.py.tmpl``.
         """
-
-        # Generate a `conf.py` from a template
-        #
-        # TODO: we should remove this feature at some point to move forward
-        # with the idea of remove magic from the builders.
-        if not self.config_file:
-            self._write_config()
-
         try:
             self.config_file = (
                 self.config_file or self.project.conf_file(self.version.slug)
@@ -310,7 +281,7 @@ class BaseSphinx(BaseBuilder):
             outfile.write(rendered)
 
         # Print the contents of conf.py in order to make the rendered
-        # configfile visible in the build logs
+        # config file visible in the build logs
         self.run(
             'cat',
             os.path.relpath(
