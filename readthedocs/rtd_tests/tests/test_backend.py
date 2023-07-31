@@ -14,7 +14,7 @@ from readthedocs.builds.models import Version
 from readthedocs.config import ALL
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import (
     create_git_branch,
     create_git_tag,
@@ -146,64 +146,7 @@ class TestGitBackend(TestCase):
         )
 
     @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_git_branches(self, checkout_path):
-        repo_path = self.project.repo
-        default_branches = [
-            # comes from ``make_test_git`` function
-            'submodule',
-            'invalidsubmodule',
-        ]
-        branches = [
-            'develop',
-            'master',
-            '2.0.X',
-            'release/2.0.0',
-            'release/foo/bar',
-        ]
-        for branch in branches:
-            create_git_branch(repo_path, branch)
-
-        # Create dir where to clone the repo
-        local_repo = os.path.join(mkdtemp(), 'local')
-        os.mkdir(local_repo)
-        checkout_path.return_value = local_repo
-
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.clone()
-
-        self.assertEqual(
-            {branch: branch for branch in default_branches + branches},
-            {branch.verbose_name: branch.identifier for branch in repo.branches},
-        )
-
     @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_git_branches_unicode(self, checkout_path):
-        repo_path = self.project.repo
-        default_branches = [
-            # comes from ``make_test_git`` function
-            'submodule',
-            'invalidsubmodule',
-        ]
-        branches = [
-            'master',
-            'release-ünîø∂é',
-        ]
-        for branch in branches:
-            create_git_branch(repo_path, branch)
-
-        # Create dir where to clone the repo
-        local_repo = os.path.join(mkdtemp(), 'local')
-        os.mkdir(local_repo)
-        checkout_path.return_value = local_repo
-
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.clone()
-
-        self.assertEqual(
-            set(branches + default_branches),
-            {branch.verbose_name for branch in repo.branches},
-        )
-
     def test_git_update_and_checkout(self):
         repo = self.project.vcs_repo(environment=self.build_environment)
         code, _, _ = repo.update()
@@ -216,37 +159,6 @@ class TestGitBackend(TestCase):
         self.assertTrue(exists(repo.working_dir))
 
     @patch('readthedocs.vcs_support.backends.git.Backend.fetch')
-    def test_git_update_with_external_version(self, fetch):
-        version = fixture.get(
-            Version,
-            project=self.project,
-            type=EXTERNAL,
-            active=True
-        )
-        repo = self.project.vcs_repo(
-            verbose_name=version.verbose_name,
-            version_type=version.type,
-            environment=self.build_environment,
-        )
-        repo.update()
-        fetch.assert_called_once()
-
-    def test_git_fetch_with_external_version(self):
-        version = fixture.get(
-            Version,
-            project=self.project,
-            type=EXTERNAL,
-            active=True
-        )
-        repo = self.project.vcs_repo(
-            verbose_name=version.verbose_name,
-            version_type=version.type,
-            environment=self.build_environment,
-        )
-        repo.update()
-        code, _, _ = repo.fetch()
-        self.assertEqual(code, 0)
-
     def test_git_checkout_invalid_revision(self):
         repo = self.project.vcs_repo(environment=self.build_environment)
         repo.update()
@@ -272,73 +184,6 @@ class TestGitBackend(TestCase):
             {"v01": commit, "v02": commit, "release-ünîø∂é": commit},
             {tag.verbose_name: tag.identifier for tag in repo.tags},
         )
-
-    def test_check_for_submodules(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-
-        repo.update()
-        self.assertFalse(repo.are_submodules_available(self.dummy_conf))
-
-        # The submodule branch contains one submodule
-        repo.checkout('submodule')
-        self.assertTrue(repo.are_submodules_available(self.dummy_conf))
-
-    def test_skip_submodule_checkout(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.update()
-        repo.checkout('submodule')
-        self.assertTrue(repo.are_submodules_available(self.dummy_conf))
-
-    def test_use_shallow_clone(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.update()
-        repo.checkout('submodule')
-        self.assertTrue(repo.use_shallow_clone())
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.DONT_SHALLOW_CLONE,
-        )
-        self.assertTrue(self.project.has_feature(Feature.DONT_SHALLOW_CLONE))
-        self.assertFalse(repo.use_shallow_clone())
-
-    def test_check_submodule_urls(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.update()
-        repo.checkout('submodule')
-        valid, _ = repo.validate_submodules(self.dummy_conf)
-        self.assertTrue(valid)
-
-    def test_check_invalid_submodule_urls(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.update()
-        repo.checkout('invalidsubmodule')
-        with self.assertRaises(RepositoryError) as e:
-            repo.update_submodules(self.dummy_conf)
-        # `invalid` is created in `make_test_git`
-        # it's a url in ssh form.
-        self.assertEqual(
-            str(e.exception),
-            RepositoryError.INVALID_SUBMODULES.format(['invalid']),
-        )
-
-    def test_invalid_submodule_is_ignored(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.update()
-        repo.checkout('submodule')
-        gitmodules_path = os.path.join(repo.working_dir, '.gitmodules')
-
-        with open(gitmodules_path, 'a') as f:
-            content = textwrap.dedent("""
-                [submodule "not-valid-path"]
-                    path = not-valid-path
-                    url = https://github.com/readthedocs/readthedocs.org
-            """)
-            f.write(content)
-
-        valid, submodules = repo.validate_submodules(self.dummy_conf)
-        self.assertTrue(valid)
-        self.assertEqual(list(submodules), ['foobar'])
 
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_fetch_clean_tags_and_branches(self, checkout_path):
@@ -381,32 +226,6 @@ class TestGitBackend(TestCase):
                 'invalidsubmodule', 'master', 'submodule',
             },
             {vcs.verbose_name for vcs in repo.branches},
-        )
-
-
-@mock.patch("readthedocs.doc_builder.environments.BuildCommand.save", mock.MagicMock())
-class TestGitBackendNew(TestGitBackend):
-    """
-    Test the entire Git backend (with the GIT_CLONE_FETCH_CHECKOUT_PATTERN feature flag).
-
-    This test class is intended to maintain all backwards compatibility when introducing new
-    git clone+fetch commands, hence inheriting from the former test class.
-
-    Methods have been copied and adapted.
-    Once the feature ``GIT_CLONE_FETCH_CHECKOUT_PATTERN`` has become the default for all projects,
-    we can discard of TestGitBackend by moving the methods that aren't overwritten into this class
-    and renaming it.
-    """
-
-    def setUp(self):
-        super().setUp()
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN,
-        )
-        self.assertTrue(
-            self.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN)
         )
 
     def test_check_for_submodules(self):
@@ -456,7 +275,7 @@ class TestGitBackendNew(TestGitBackend):
         valid, _ = repo.validate_submodules(self.dummy_conf)
         self.assertTrue(valid)
 
-    @patch("readthedocs.vcs_support.backends.git.Backend.fetch_ng")
+    @patch("readthedocs.vcs_support.backends.git.Backend.fetch")
     def test_git_update_with_external_version(self, fetch):
         """Test that an external Version (PR) is correctly cloned and fetched."""
         version = fixture.get(
@@ -512,11 +331,6 @@ class TestGitBackendNew(TestGitBackend):
         repo.checkout("submodule")
         self.assertTrue(repo.are_submodules_available(self.dummy_conf))
 
-    def test_use_shallow_clone(self):
-        """A test that should be removed because shallow clones are the new default."""
-        # We should not be calling test_use_shallow_clone
-        return True
-
     def test_git_fetch_with_external_version(self):
         """Test that fetching an external build (PR branch) correctly executes."""
         version = fixture.get(Version, project=self.project, type=EXTERNAL, active=True)
@@ -526,7 +340,7 @@ class TestGitBackendNew(TestGitBackend):
             environment=self.build_environment,
         )
         repo.update()
-        code, _, _ = repo.fetch_ng()
+        code, _, _ = repo.fetch()
         self.assertEqual(code, 0)
 
     def test_git_branches(self):

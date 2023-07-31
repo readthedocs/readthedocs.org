@@ -1947,7 +1947,6 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
     HOSTING_INTEGRATIONS = "hosting_integrations"
     NO_CONFIG_FILE_DEPRECATED = "no_config_file"
     SCALE_IN_PROTECTION = "scale_in_prtection"
@@ -2075,12 +2074,6 @@ class Feature(models.Model):
             _(
                 "Search: Index content directly from html files instead or relying in other "
                 "sources"
-            ),
-        ),
-        (
-            GIT_CLONE_FETCH_CHECKOUT_PATTERN,
-            _(
-                "Build: Use simplified and optimized git clone + git fetch + git checkout patterns"
             ),
         ),
         (

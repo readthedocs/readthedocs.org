@@ -69,24 +69,11 @@ class Backend(BaseVCS):
     def update(self):
         """Clone and/or fetch remote repository."""
         super().update()
-        from readthedocs.projects.models import Feature
 
-        if self.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN):
-            # New behavior: Clone is responsible for calling .repo_exists() and
-            # .make_clean_working_dir()
-            self.clone_ng()
-
-            # TODO: We are still using return values in this function that are legacy.
-            # This should be either explained or removed.
-            return self.fetch_ng()
-
-        # Old behavior
-        self.make_clean_working_dir()
-        code, stdout, stderr = self.clone()
-        # A fetch is always required to get external versions properly
-        if self.version_type == EXTERNAL:
-            code, stdout, stderr = self.fetch()
-        return code, stdout, stderr
+        self.clone()
+        # TODO: We are still using return values in this function that are legacy.
+        # This should be either explained or removed.
+        return self.fetch()
 
     def get_remote_fetch_refspec(self):
         """
@@ -162,7 +149,7 @@ class Backend(BaseVCS):
                 project_slug=self.project.slug,
             )
 
-    def clone_ng(self):
+    def clone(self):
         """
         Performs the next-generation (ng) git clone operation.
 
@@ -197,7 +184,7 @@ class Backend(BaseVCS):
         except RepositoryError as exc:
             raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
 
-    def fetch_ng(self):
+    def fetch(self):
         """
         Performs the next-generation (ng) git fetch operation.
 
@@ -340,30 +327,6 @@ class Backend(BaseVCS):
         from readthedocs.projects.models import Feature
         return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
 
-    def fetch(self):
-        # --force lets us checkout branches that are not fast-forwarded
-        # https://github.com/readthedocs/readthedocs.org/issues/6097
-        cmd = ['git', 'fetch', 'origin',
-               '--force', '--tags', '--prune', '--prune-tags']
-
-        if self.use_shallow_clone():
-            cmd.extend(['--depth', str(self.repo_depth)])
-
-        if self.verbose_name and self.version_type == EXTERNAL:
-
-            if self.project.git_provider_name == GITHUB_BRAND:
-                cmd.append(
-                    GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name)
-                )
-
-            if self.project.git_provider_name == GITLAB_BRAND:
-                cmd.append(
-                    GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
-                )
-
-        code, stdout, stderr = self.run(*cmd)
-        return code, stdout, stderr
-
     def checkout_revision(self, revision):
         try:
             code, out, err = self.run('git', 'checkout', '--force', revision)
@@ -372,39 +335,6 @@ class Backend(BaseVCS):
             raise RepositoryError(
                 RepositoryError.FAILED_TO_CHECKOUT.format(revision),
             ) from exc
-
-    def clone(self):
-        """Clones the repository."""
-        cmd = ['git', 'clone', '--no-single-branch']
-
-        if self.use_shallow_clone():
-            cmd.extend(['--depth', str(self.repo_depth)])
-
-        cmd.extend([self.repo_url, '.'])
-
-        try:
-            code, stdout, stderr = self.run(*cmd)
-
-            # TODO: for those VCS providers that don't tell us the `default_branch`
-            # of the repository in the incoming webhook,
-            # we need to get it from the cloned repository itself.
-            #
-            # cmd = ['git', 'symbolic-ref', 'refs/remotes/origin/HEAD']
-            # _, default_branch, _ = self.run(*cmd)
-            # default_branch = default_branch.replace('refs/remotes/origin/', '')
-            #
-            # The idea is to hit the APIv2 here to update the `latest` version with
-            # the `default_branch` we just got from the repository itself,
-            # after clonning it.
-            # However, we don't know the PK for the version we want to update.
-            #
-            # api_v2.version(pk).patch(
-            #     {'default_branch': default_branch}
-            # )
-
-            return code, stdout, stderr
-        except RepositoryError as exc:
-            raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
 
     def lsremote(self, include_tags=True, include_branches=True):
         """
