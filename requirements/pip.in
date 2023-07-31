@@ -14,8 +14,9 @@ django-simple-history==3.0.0
 djangorestframework
 djangorestframework-api-key
 
-# For intersphinx during builds
-Sphinx
+# Embed v1 still uses docutils.
+# Remove this dependency once we deprecate this API.
+docutils
 
 # Filtering for the REST API
 django-filter
