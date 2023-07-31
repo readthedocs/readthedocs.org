@@ -14,9 +14,6 @@ django-simple-history==3.0.0
 djangorestframework
 djangorestframework-api-key
 
-# For intersphinx during builds
-Sphinx
-
 # Filtering for the REST API
 django-filter
 
