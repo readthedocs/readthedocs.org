@@ -136,7 +136,9 @@ class Organization(models.Model):
             # This only happens during development.
             log.warning("No default subscription created.")
             return None
+        return self.get_stripe_subscription()
 
+    def get_stripe_subscription(self):
         # Active subscriptions take precedence over non-active subscriptions,
         # otherwise we return the must recently created subscription.
         active_subscription = self.stripe_customer.subscriptions.filter(
@@ -144,7 +146,7 @@ class Organization(models.Model):
         ).first()
         if active_subscription:
             return active_subscription
-        return self.stripe_customer.subscriptions.latest()
+        return self.stripe_customer.subscriptions.order_by("created").last()
 
     def get_absolute_url(self):
         return reverse('organization_detail', args=(self.slug,))
