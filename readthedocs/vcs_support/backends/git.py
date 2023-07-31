@@ -81,15 +81,12 @@ class Backend(BaseVCS):
             return self.fetch_ng()
 
         # Old behavior
-        if self.repo_exists():
-            self.set_remote_url(self.repo_url)
-            return self.fetch()
         self.make_clean_working_dir()
+        code, stdout, stderr = self.clone()
         # A fetch is always required to get external versions properly
         if self.version_type == EXTERNAL:
-            self.clone()
-            return self.fetch()
-        return self.clone()
+            code, stdout, stderr = self.fetch()
+        return code, stdout, stderr
 
     def get_remote_fetch_refspec(self):
         """
@@ -517,10 +514,8 @@ class Backend(BaseVCS):
 
     @property
     def commit(self):
-        if self.repo_exists():
-            _, stdout, _ = self.run("git", "rev-parse", "HEAD", record=False)
-            return stdout.strip()
-        return None
+        _, stdout, _ = self.run("git", "rev-parse", "HEAD", record=False)
+        return stdout.strip()
 
     @property
     def submodules(self):

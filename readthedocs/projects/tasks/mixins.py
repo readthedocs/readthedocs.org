@@ -49,9 +49,9 @@ class SyncRepositoryMixin:
         # and the repo supports lsremote.
         # The new pattern does not fetch branch and tag data, so we always
         # have to do ls-remote.
-        use_lsremote = vcs_repository.supports_lsremote and (
-            self.data.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN)
-            or not vcs_repository.repo_exists()
+        use_lsremote = (
+            vcs_repository.supports_lsremote
+            and self.data.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN)
         )
         sync_tags = vcs_repository.supports_tags and not self.data.project.has_feature(
             Feature.SKIP_SYNC_TAGS
