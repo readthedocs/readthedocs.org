@@ -254,7 +254,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
-            'readthedocs.sphinx_domains',
             'readthedocs.search',
             'readthedocs.embed',
             'readthedocs.telemetry',

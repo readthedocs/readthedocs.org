@@ -126,7 +126,7 @@ with these contents:
    build:
      os: "ubuntu-20.04"
      tools:
-       python: "mambaforge-4.10"
+       python: "mambaforge-22.9"
 
    conda:
      environment: environment.yml
