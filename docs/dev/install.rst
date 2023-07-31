@@ -1,4 +1,4 @@
-Development Installation
+Development installation
 ========================
 
 .. meta::
@@ -23,6 +23,14 @@ A development setup can be hosted by your laptop, in a VM, on a separate server 
    We do not recommend to follow this guide to deploy an instance of Read the Docs for production.
 
 
+Install external dependencies (Docker, Docker Compose, gVisor)
+--------------------------------------------------------------
+
+#. Install Docker by following `the official guide <https://docs.docker.com/get-docker/>`_.
+#. Install Docker Compose with `the official instructions <https://docs.docker.com/compose/install/>`_.
+#. Install and set up gVisor following :doc:`rtd-dev:guides/gvisor`.
+
+
 Set up your environment
 -----------------------
 
@@ -32,11 +40,33 @@ Set up your environment
 
       git clone --recurse-submodules https://github.com/readthedocs/readthedocs.org/
 
+#. Install or clone additional repositories:
+
+   .. note::
+
+      This step is only required for Read the Docs core team members.
+
+   Core team should at very least have all required packages installed in their development image.
+   To install these packages you must define a GitHub token before building your image:
+
+   .. prompt:: bash
+
+      export GITHUB_TOKEN="..."
+      export GITHUB_USER="..."
+
+   In order to make development changes on any of our private repositories,
+   such as ``readthedocs-ext`` or ``ext-theme``, you will also need to check these repositories out:
+
+   .. prompt:: bash
+
+      git clone --recurse-submodules https://github.com/readthedocs/readthedocs-ext/
+
 #. Install the requirements from ``common`` submodule:
 
    .. prompt:: bash
 
       pip install -r common/dockerfiles/requirements.txt
+
 
 #. Build the Docker image for the servers:
 
@@ -48,16 +78,12 @@ Set up your environment
 
       inv docker.build
 
-   .. tip::
-
-      If you pass the ``GITHUB_TOKEN`` and ``GITHUB_USER`` environment variables to this command,
-      it will add support for readthedocs-ext.
 
 #. Pull down Docker images for the builders:
 
    .. prompt:: bash
 
-      inv docker.pull --only-required
+      inv docker.pull
 
 #. Start all the containers:
 
@@ -78,6 +104,12 @@ Check that everything works
 #. Go to the "Read the Docs" project, under section :guilabel:`Build a version`, click on the :guilabel:`Build version` button selecting "latest",
    and wait until it finishes (this can take several minutes).
 
+.. warning::
+
+   Read the Docs will compile the Python/Node.js/Rust/Go version on-the-fly each time when building the documentation.
+   To speed things up, you can pre-compile and cache all these versions by using ``inv docker.compilebuildtool`` command.
+   *We strongly recommend to pre-compile these versions if you want to build documentation on your development instance.*
+
 #. Click on the "View docs" button to browse the documentation, and verify that it shows the Read the Docs documentation page.
 
 
@@ -97,7 +129,12 @@ save some work while typing docker compose commands. This section explains these
     * ``--init`` is used the first time this command is ran to run initial migrations, create an admin user, etc
     * ``--no-reload`` makes all celery processes and django runserver
       to use no reload and do not watch for files changes
-    * ``--ngrok`` is useful when it's required to access the local instance from outside (e.g. GitHub webhook)
+    * ``--no-django-debug`` runs all containers with ``DEBUG=False``
+    * ``--http-domain`` configures an external domain for the environment (useful for Ngrok or other http proxy).
+      Note that https proxies aren't supported.
+      There will also be issues with "suspicious domain" failures on Proxito.
+    * ``--ext-theme`` to use the new dashboard templates
+    * ``--webpack`` to start the Webpack dev server for the new dashboard templates
 
 ``inv docker.shell``
     Opens a shell in a container (web by default).
@@ -145,6 +182,10 @@ save some work while typing docker compose commands. This section explains these
 
 ``inv docker.buildassets``
     Build all the assets and "deploy" them to the storage.
+
+``inv docker.compilebuildtool``
+    Pre-compile and cache tools that can be specified in ``build.tools`` to speed up builds.
+    It requires ``inv docker.up`` running in another terminal to be able to upload the pre-compiled version to the cache.
 
 Adding a new Python dependency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -195,8 +236,8 @@ debugging currently.
 Configuring connected accounts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-These are optional steps to setup the :doc:`connected accounts <rtd:connected-accounts>`
-(GitHub, GitLab, and BitBucket) in your development environment.
+These are optional steps to setup the :doc:`connected accounts <rtd:guides/connecting-git-account>`
+(|git_providers_and|) in your development environment.
 This will allow you to login to your local development instance
 using your GitHub, Bitbucket, or GitLab credentials
 and this makes the process of importing repositories easier.

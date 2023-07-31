@@ -277,6 +277,8 @@ Project details
                 "latest": "{VERSION}",
                 "19.0.2": "{VERSION}"
             },
+            "privacy_level": "public",
+            "external_builds_privacy_level": "public",
             "_links": {
                 "_self": "/api/v3/projects/pip/",
                 "versions": "/api/v3/projects/pip/versions/",
@@ -301,7 +303,6 @@ Project details
       :Query Parameters:
 
          * **expand** (*string*) -- with ``organization`` and ``teams``.
-
 
 Project create
 ++++++++++++++
@@ -350,6 +351,8 @@ Project create
             "homepage": "http://template.readthedocs.io/",
             "programming_language": "py",
             "language": "es",
+            "privacy_level": "public",
+            "external_builds_privacy_level": "public",
             "tags": [
                 "automation",
                 "sphinx"
@@ -371,6 +374,9 @@ Project create
          * **organization** (*string*) -- required organization's slug under the project will be imported.
          * **teams** (*string*) -- optional teams' slugs the project will belong to.
 
+      .. note::
+
+         Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
 
 Project update
 ++++++++++++++
@@ -429,13 +435,18 @@ Project update
             "analytics_disabled": false,
             "single_version": false,
             "external_builds_enabled": true,
-
+            "privacy_level": "public",
+            "external_builds_privacy_level": "public"
         }
 
     .. note::
 
         Adding ``tags`` will replace existing tags with the new list,
         and if omitted won't change the tags.
+
+    .. note::
+
+       Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
 
     :statuscode 204: Updated successfully
 
@@ -534,6 +545,7 @@ Version detail
             "hidden": false,
             "type": "tag",
             "last_build": "{BUILD}",
+            "privacy_level": "public",
             "downloads": {
                 "pdf": "https://pip.readthedocs.io/_/downloads/pdf/pip/stable/",
                 "htmlzip": "https://pip.readthedocs.io/_/downloads/htmlzip/pip/stable/",
@@ -561,13 +573,17 @@ Version detail
                           Allowed values are ``last_build`` and ``last_build.config``.
                           Multiple fields can be passed separated by commas.
 
-
 Version update
 ++++++++++++++
 
 .. http:patch:: /api/v3/projects/(string:project_slug)/versions/(string:version_slug)/
 
     Update a version.
+
+    When a version is deactivated, its documentation is removed,
+    and when it's activated, a new build is triggered.
+
+    Updates to a version also invalidates its CDN cache.
 
     **Example request**:
 
@@ -602,11 +618,15 @@ Version update
 
         {
             "active": true,
-            "hidden": false
+            "hidden": false,
+            "privacy_level": "public"
         }
 
     :statuscode 204: Updated successfully
 
+    .. note::
+
+       Privacy levels are only available in :doc:`Read the Docs for Business </commercial/index>`.
 
 Builds
 ~~~~~~
@@ -1291,17 +1311,17 @@ Redirect delete
     :statuscode 204: Redirect deleted successfully
 
 
-Environment Variables
+Environment variables
 ~~~~~~~~~~~~~~~~~~~~~
 
-Environment Variables are variables that you can define for your project.
+Environment variables are variables that you can define for your project.
 These variables are used in the build process when building your documentation.
 They are for example useful to define secrets in a safe way that can be used by your documentation to build properly.
 Environment variables can also be made public, allowing for them to be used in PR builds.
 See :doc:`/environment-variables`.
 
 
-Environment Variable details
+Environment variable details
 ++++++++++++++++++++++++++++
 
 .. http:get:: /api/v3/projects/(str:project_slug)/environmentvariables/(int:environmentvariable_id)/
@@ -1342,7 +1362,7 @@ Environment Variable details
        "name": "ENVVAR"
        }
 
-Environment Variables listing
+Environment variables listing
 +++++++++++++++++++++++++++++
 
 .. http:get:: /api/v3/projects/(str:project_slug)/environmentvariables/
@@ -1377,7 +1397,7 @@ Environment Variables listing
             "results": ["ENVIRONMENTVARIABLE"]
         }
 
-Environment Variable create
+Environment variable create
 +++++++++++++++++++++++++++
 
 .. http:post:: /api/v3/projects/(str:project_slug)/environmentvariables/
@@ -1427,7 +1447,7 @@ Environment Variable create
     :statuscode 201: Environment variable created successfully
 
 
-Environment Variable delete
+Environment variable delete
 +++++++++++++++++++++++++++
 
 .. http:delete:: /api/v3/projects/(str:project_slug)/environmentvariables/(int:environmentvariable_id)/
@@ -1650,14 +1670,14 @@ Organization projects list
        }
 
 
-Remote Organizations
+Remote organizations
 ~~~~~~~~~~~~~~~~~~~~
 
-Remote Organizations are the VCS organizations connected via
-``GitHub``, ``GitLab`` and ``BitBucket``.
+Remote organizations are the VCS organizations connected via
+``GitHub``, ``GitLab`` and ``Bitbucket``.
 
 
-Remote Organization listing
+Remote organization listing
 +++++++++++++++++++++++++++
 
 
@@ -1713,14 +1733,14 @@ Remote Organization listing
     :requestheader Authorization: token to authenticate.
 
 
-Remote Repositories
+Remote repositories
 ~~~~~~~~~~~~~~~~~~~
 
-Remote Repositories are the importable repositories connected via
-``GitHub``, ``GitLab`` and ``BitBucket``.
+Remote repositories are the importable repositories connected via
+``GitHub``, ``GitLab`` and ``Bitbucket``.
 
 
-Remote Repository listing
+Remote repository listing
 +++++++++++++++++++++++++
 
 
@@ -1832,6 +1852,7 @@ Remote Repository listing
     The ``results`` in response is an array of remote repositories data.
 
     :query string name: return remote repositories containing the name
+    :query string full_name: return remote repositories containing the full name (it inclues the username/organization the project belongs to)
     :query string vcs_provider: return remote repositories for specific vcs provider (``github``, ``gitlab`` or ``bitbucket``)
     :query string organization: return remote repositories for specific remote organization (using remote organization ``slug``)
     :query string expand: allows to add/expand some extra fields in the response.

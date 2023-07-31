@@ -40,6 +40,7 @@ from django.views import defaults
 from readthedocs.constants import pattern_opts
 from readthedocs.core.views import HealthCheckView
 from readthedocs.projects.views.public import ProjectDownloadMedia
+from readthedocs.proxito.views.hosting import ReadTheDocsConfigJson
 from readthedocs.proxito.views.serve import (
     ServeDocs,
     ServeError404,
@@ -113,6 +114,19 @@ proxied_urls = [
         f"{DOC_PATH_PREFIX}static/<path:filename>",
         ServeStaticFiles.as_view(),
         name="proxito_static_files",
+    ),
+    # readthedocs-docs-addons.js
+    path(
+        f"{DOC_PATH_PREFIX}addons/",
+        ReadTheDocsConfigJson.as_view(),
+        name="proxito_readthedocs_docs_addons",
+    ),
+    # TODO: remove `readthedocs-config/` endpoint once we have changed the URL
+    # in the js and we have deployed it.
+    path(
+        f"{DOC_PATH_PREFIX}readthedocs-config/",
+        ReadTheDocsConfigJson.as_view(),
+        name="proxito_readthedocs_config_json",
     ),
 ]
 

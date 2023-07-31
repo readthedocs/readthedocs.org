@@ -16,13 +16,14 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from requests.exceptions import ConnectionError
 
-from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
+from readthedocs.builds.models import APIVersion
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.exceptions import PDFNotFound
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
 from readthedocs.projects.models import Feature
+from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.utils import safe_write
 
 from ..base import BaseBuilder
@@ -42,16 +43,53 @@ class BaseSphinx(BaseBuilder):
     # an output file, the parsed source files are cached as "doctree pickles".
     sphinx_doctrees_dir = "_build/doctrees"
 
-    # Output directory relative to where the repository was cloned
-    # (e.g. "_readthedocs/<format>")
+    # Output directory relative to $READTHEDOCS_OUTPUT
+    # (e.g. "html", "htmlzip" or "pdf")
     relative_output_dir = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.config_file = self.config.sphinx.configuration
-        self.absolute_output_dir = os.path.abspath(
-            os.path.join(self.project_path, self.relative_output_dir)
+
+        # We cannot use `$READTHEDOCS_OUTPUT` environment variable for
+        # `absolute_host_output_dir` because it's not defined in the host. So,
+        # we have to re-calculate its value. We will remove this limitation
+        # when we execute the whole building from inside the Docker container
+        # (instead behing a hybrid as it is now)
+        #
+        # We need to have two different paths that point to the exact same
+        # directory. How is that? The directory is mounted into a different
+        # location inside the container:
+        #
+        #  1. path in the host:
+        #       /home/docs/checkouts/readthedocs.org/user_builds/<project>/
+        #  2. path in the container:
+        #       /usr/src/app/checkouts/readthedocs.org/user_builds/b9cbc24c8841/test-builds/
+        #
+        # Besides, the variable `$READTHEDOCS_OUTPUT` is not defined in the
+        # host, so we have to expand it using the full host's path. This
+        # variable cannot be used in cwd= due to a limitation of the Docker API
+        # (I guess) since I received an error when trying that. So, we have to
+        # fully expand it.
+        #
+        # That said, we need:
+        #
+        # * use the path in the host, for all the operations that are done via
+        # Python from the app (e.g. os.path.join, glob.glob, etc)
+        #
+        # * use the path in the container, for all the operations that are
+        # executed inside the container via Docker API using shell commands
+        self.absolute_host_output_dir = os.path.join(
+            os.path.join(
+                self.project.checkout_path(self.version.slug),
+                "_readthedocs/",
+            ),
+            self.relative_output_dir,
         )
+        self.absolute_container_output_dir = os.path.join(
+            "$READTHEDOCS_OUTPUT", self.relative_output_dir
+        )
+
         try:
             if not self.config_file:
                 self.config_file = self.project.conf_file(self.version.slug)
@@ -130,33 +168,28 @@ class BaseSphinx(BaseBuilder):
         versions = []
         downloads = []
         subproject_urls = []
-        # Avoid hitting database and API if using Docker build environment
-        if settings.DONT_HIT_API:
-            if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
-                versions = self.project.active_versions()
-            else:
-                versions = self.project.active_versions().filter(
-                    privacy_level=PUBLIC,
-                )
-            downloads = self.version.get_downloads(pretty=True)
-            subproject_urls = self.project.get_subproject_urls()
-        else:
-            try:
-                versions = self.project.api_versions()
-                if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
-                    versions = [
-                        v
-                        for v in versions
-                        if v.privacy_level == PUBLIC
-                    ]
-                downloads = api.version(self.version.pk).get()['downloads']
-                subproject_urls = self.project.get_subproject_urls()
-            except ConnectionError:
-                log.exception(
-                    'Timeout while fetching versions/downloads/subproject_urls for Sphinx context.',
-                    project_slug=self.project.slug,
-                    version_slug=self.version.slug,
-                )
+        try:
+            active_versions_data = self.api_client.project(
+                self.project.pk
+            ).active_versions.get()["versions"]
+            versions = sort_version_aware(
+                [APIVersion(**version_data) for version_data in active_versions_data]
+            )
+            if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+                versions = [v for v in versions if v.privacy_level == PUBLIC]
+            downloads = self.api_client.version(self.version.pk).get()["downloads"]
+            subproject_urls = [
+                (project["slug"], project["canonical_url"])
+                for project in self.api_client.project(self.project.pk)
+                .subprojects()
+                .get()["subprojects"]
+            ]
+        except ConnectionError:
+            log.exception(
+                "Timeout while fetching versions/downloads/subproject_urls for Sphinx context.",
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
+            )
 
         build_id = self.build_env.build.get('id')
         build_url = None
@@ -206,7 +239,7 @@ class BaseSphinx(BaseBuilder):
             'github_version_is_editable': github_version_is_editable,
             'display_github': display_github,
 
-            # BitBucket
+            # Bitbucket
             'bitbucket_user': bitbucket_user,
             'bitbucket_repo': bitbucket_repo,
             'bitbucket_version': remote_version,
@@ -221,10 +254,12 @@ class BaseSphinx(BaseBuilder):
             'display_gitlab': display_gitlab,
 
             # Features
-            'dont_overwrite_sphinx_context': self.project.has_feature(
-                Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
+            "docsearch_disabled": self.project.has_feature(
+                Feature.DISABLE_SERVER_SIDE_SEARCH
             ),
-            'docsearch_disabled': self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH),
+            "skip_html_theme_path": self.project.has_feature(
+                Feature.SKIP_SPHINX_HTML_THEME_PATH
+            ),
         }
 
         finalize_sphinx_context_data.send(
@@ -241,9 +276,13 @@ class BaseSphinx(BaseBuilder):
 
         The default content is rendered from ``doc_builder/conf.py.tmpl``.
         """
-        if self.config_file is None:
-            master_doc = self.create_index(extension='rst')
-            self._write_config(master_doc=master_doc)
+
+        # Generate a `conf.py` from a template
+        #
+        # TODO: we should remove this feature at some point to move forward
+        # with the idea of remove magic from the builders.
+        if not self.config_file:
+            self._write_config()
 
         try:
             self.config_file = (
@@ -257,8 +296,10 @@ class BaseSphinx(BaseBuilder):
                 raise UserFileNotFound(
                     UserFileNotFound.FILE_NOT_FOUND.format(self.config_file)
                 )
-        except IOError:
-            raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
+        except IOError as exc:
+            raise ProjectConfigurationError(
+                ProjectConfigurationError.NOT_FOUND
+            ) from exc
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
@@ -285,7 +326,6 @@ class BaseSphinx(BaseBuilder):
             *self.get_sphinx_cmd(),
             '-T',
             '-E',
-            *self.sphinx_parallel_arg(),
         ]
         if self.config.sphinx.fail_on_warning:
             build_command.extend(["-W", "--keep-going"])
@@ -304,9 +344,7 @@ class BaseSphinx(BaseBuilder):
                 # https://github.com/readthedocs/readthedocs.org/pull/9888#issuecomment-1384649346
                 ".",
                 # Sphinx's output build directory (OUTPUTDIR)
-                os.path.relpath(
-                    self.absolute_output_dir, os.path.dirname(self.config_file)
-                ),
+                self.absolute_container_output_dir,
             ]
         )
         cmd_ret = self.run(
@@ -326,86 +364,41 @@ class BaseSphinx(BaseBuilder):
             'sphinx',
         )
 
-    def sphinx_parallel_arg(self):
-        if self.project.has_feature(Feature.SPHINX_PARALLEL):
-            return ['-j', 'auto']
-        return []
-
-    def venv_sphinx_supports_latexmk(self):
-        """
-        Check if ``sphinx`` from the user's venv supports ``latexmk``.
-
-        If the version of ``sphinx`` is greater or equal to 1.6.1 it returns
-        ``True`` and ``False`` otherwise.
-
-        See: https://www.sphinx-doc.org/en/master/changes.html#release-1-6-1-released-may-16-2017
-        """
-
-        command = [
-            self.python_env.venv_bin(filename='python'),
-            '-c',
-            (
-                '"'
-                'import sys; '
-                'import sphinx; '
-                'sys.exit(0 if sphinx.version_info >= (1, 6, 1) else 1)'
-                '"'
-            ),
-        ]
-
-        cmd_ret = self.run(
-            *command,
-            bin_path=self.python_env.venv_bin(),
-            cwd=self.project_path,
-            escape_command=False,  # used on DockerBuildCommand
-            shell=True,  # used on BuildCommand
-            record=False,
-        )
-        return cmd_ret.exit_code == 0
-
 
 class HtmlBuilder(BaseSphinx):
-    relative_output_dir = "_readthedocs/html"
+    relative_output_dir = "html"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.sphinx_builder = 'readthedocs'
-        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
-            self.sphinx_builder = 'html'
+        self.sphinx_builder = "html"
 
 
 class HtmlDirBuilder(HtmlBuilder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.sphinx_builder = 'readthedocsdirhtml'
-        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
-            self.sphinx_builder = 'dirhtml'
+        self.sphinx_builder = "dirhtml"
 
 
 class SingleHtmlBuilder(HtmlBuilder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.sphinx_builder = 'readthedocssinglehtml'
-        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
-            self.sphinx_builder = 'singlehtml'
+        self.sphinx_builder = "singlehtml"
 
 
 class LocalMediaBuilder(BaseSphinx):
     sphinx_builder = 'readthedocssinglehtmllocalmedia'
-    relative_output_dir = "_readthedocs/htmlzip"
+    relative_output_dir = "htmlzip"
 
     def _post_build(self):
         """Internal post build to create the ZIP file from the HTML output."""
-        target_file = os.path.abspath(
-            os.path.join(
-                self.absolute_output_dir,
-                # TODO: shouldn't this name include the name of the version as well?
-                # It seems we were using the project's slug previously.
-                # So, keeping it like that for now until we decide make that adjustment.
-                f"{self.project.slug}.zip",
-            )
+        target_file = os.path.join(
+            self.absolute_container_output_dir,
+            # TODO: shouldn't this name include the name of the version as well?
+            # It seems we were using the project's slug previously.
+            # So, keeping it like that for now until we decide make that adjustment.
+            f"{self.project.slug}.zip",
         )
 
         # **SECURITY CRITICAL: Advisory GHSA-hqwg-gjqw-h5wg**
@@ -417,7 +410,7 @@ class LocalMediaBuilder(BaseSphinx):
         dirname = f"{self.project.slug}-{self.version.slug}"
         self.run(
             "mv",
-            self.relative_output_dir,
+            self.absolute_container_output_dir,
             str(tmp_dir / dirname),
             cwd=self.project_path,
             record=False,
@@ -425,7 +418,7 @@ class LocalMediaBuilder(BaseSphinx):
         self.run(
             "mkdir",
             "--parents",
-            self.relative_output_dir,
+            self.absolute_container_output_dir,
             cwd=self.project_path,
             record=False,
         )
@@ -443,17 +436,19 @@ class LocalMediaBuilder(BaseSphinx):
 class EpubBuilder(BaseSphinx):
 
     sphinx_builder = "epub"
-    relative_output_dir = "_readthedocs/epub"
+    relative_output_dir = "epub"
 
     def _post_build(self):
         """Internal post build to cleanup EPUB output directory and leave only one .epub file."""
         temp_epub_file = f"/tmp/{self.project.slug}-{self.version.slug}.epub"
         target_file = os.path.join(
-            self.absolute_output_dir,
+            self.absolute_container_output_dir,
             f"{self.project.slug}.epub",
         )
 
-        epub_sphinx_filepaths = glob(os.path.join(self.absolute_output_dir, "*.epub"))
+        epub_sphinx_filepaths = glob(
+            os.path.join(self.absolute_host_output_dir, "*.epub")
+        )
         if epub_sphinx_filepaths:
             # NOTE: we currently support only one .epub per version
             epub_filepath = epub_sphinx_filepaths[0]
@@ -464,14 +459,14 @@ class EpubBuilder(BaseSphinx):
             self.run(
                 "rm",
                 "--recursive",
-                self.relative_output_dir,
+                self.absolute_container_output_dir,
                 cwd=self.project_path,
                 record=False,
             )
             self.run(
                 "mkdir",
                 "--parents",
-                self.relative_output_dir,
+                self.absolute_container_output_dir,
                 cwd=self.project_path,
                 record=False,
             )
@@ -508,7 +503,7 @@ class PdfBuilder(BaseSphinx):
 
     """Builder to generate PDF documentation."""
 
-    relative_output_dir = "_readthedocs/pdf"
+    relative_output_dir = "pdf"
     sphinx_builder = "latex"
     pdf_file_name = None
 
@@ -517,7 +512,6 @@ class PdfBuilder(BaseSphinx):
             *self.get_sphinx_cmd(),
             "-T",
             "-E",
-            *self.sphinx_parallel_arg(),
             "-b",
             self.sphinx_builder,
             "-d",
@@ -531,24 +525,17 @@ class PdfBuilder(BaseSphinx):
             # https://github.com/readthedocs/readthedocs.org/pull/9888#issuecomment-1384649346
             ".",
             # Sphinx's output build directory (OUTPUTDIR)
-            os.path.relpath(
-                self.absolute_output_dir, os.path.dirname(self.config_file)
-            ),
+            self.absolute_container_output_dir,
             cwd=os.path.dirname(self.config_file),
             bin_path=self.python_env.venv_bin(),
         )
 
-        tex_files = glob(os.path.join(self.absolute_output_dir, "*.tex"))
+        tex_files = glob(os.path.join(self.absolute_host_output_dir, "*.tex"))
         if not tex_files:
             raise BuildUserError("No TeX files were found.")
 
         # Run LaTeX -> PDF conversions
-        # Build PDF with ``latexmk`` if Sphinx supports it, otherwise fallback
-        # to ``pdflatex`` to support old versions
-        if self.venv_sphinx_supports_latexmk():
-            success = self._build_latexmk(self.project_path)
-        else:
-            success = self._build_pdflatex(tex_files)
+        success = self._build_latexmk(self.project_path)
 
         self._post_build()
         return success
@@ -558,7 +545,7 @@ class PdfBuilder(BaseSphinx):
         # https://github.com/sphinx-doc/sphinx/blob/master/sphinx/texinputs/Makefile_t
         images = []
         for extension in ("png", "gif", "jpg", "jpeg"):
-            images.extend(Path(self.absolute_output_dir).glob(f"*.{extension}"))
+            images.extend(Path(self.absolute_host_output_dir).glob(f"*.{extension}"))
 
         # FIXME: instead of checking by language here, what we want to check if
         # ``latex_engine`` is ``platex``
@@ -568,13 +555,13 @@ class PdfBuilder(BaseSphinx):
             # step. I don't know exactly why but most of the documentation that
             # I read differentiate this language from the others. I suppose
             # it's because it mix kanji (Chinese) with its own symbols.
-            pdfs = Path(self.absolute_output_dir).glob("*.pdf")
+            pdfs = Path(self.absolute_host_output_dir).glob("*.pdf")
 
         for image in itertools.chain(images, pdfs):
             self.run(
                 'extractbb',
                 image.name,
-                cwd=self.absolute_output_dir,
+                cwd=self.absolute_host_output_dir,
                 record=False,
             )
 
@@ -585,7 +572,7 @@ class PdfBuilder(BaseSphinx):
         self.run(
             'cat',
             rcfile,
-            cwd=self.absolute_output_dir,
+            cwd=self.absolute_host_output_dir,
         )
 
         if self.build_env.command_class == DockerBuildCommand:
@@ -613,65 +600,12 @@ class PdfBuilder(BaseSphinx):
             cls=latex_class,
             cmd=cmd,
             warn_only=True,
-            cwd=self.absolute_output_dir,
+            cwd=self.absolute_host_output_dir,
         )
 
-        self.pdf_file_name = f'{self.project.slug}.pdf'
+        self.pdf_file_name = f"{self.project.slug}.pdf"
 
         return cmd_ret.successful
-
-    def _build_pdflatex(self, tex_files):
-        pdflatex_cmds = [
-            ['pdflatex', '-interaction=nonstopmode', tex_file]
-            for tex_file in tex_files
-        ]  # yapf: disable
-        makeindex_cmds = [
-            [
-                "makeindex",
-                "-s",
-                "python.ist",
-                "{}.idx".format(
-                    os.path.splitext(
-                        os.path.relpath(tex_file, self.absolute_output_dir)
-                    )[0],
-                ),
-            ]
-            for tex_file in tex_files
-        ]  # yapf: disable
-
-        if self.build_env.command_class == DockerBuildCommand:
-            latex_class = DockerLatexBuildCommand
-        else:
-            latex_class = LatexBuildCommand
-        pdf_commands = []
-        for cmd in pdflatex_cmds:
-            cmd_ret = self.build_env.run_command_class(
-                cls=latex_class,
-                cmd=cmd,
-                cwd=self.absolute_output_dir,
-                warn_only=True,
-            )
-            pdf_commands.append(cmd_ret)
-        for cmd in makeindex_cmds:
-            cmd_ret = self.build_env.run_command_class(
-                cls=latex_class,
-                cmd=cmd,
-                cwd=self.absolute_output_dir,
-                warn_only=True,
-            )
-            pdf_commands.append(cmd_ret)
-        for cmd in pdflatex_cmds:
-            cmd_ret = self.build_env.run_command_class(
-                cls=latex_class,
-                cmd=cmd,
-                cwd=self.absolute_output_dir,
-                warn_only=True,
-            )
-            pdf_match = PDF_RE.search(cmd_ret.output)
-            if pdf_match:
-                self.pdf_file_name = pdf_match.group(1).strip()
-            pdf_commands.append(cmd_ret)
-        return all(cmd.successful for cmd in pdf_commands)
 
     def _post_build(self):
         """Internal post build to cleanup PDF output directory and leave only one .pdf file."""
@@ -682,13 +616,19 @@ class PdfBuilder(BaseSphinx):
         # TODO: merge this with ePUB since it's pretty much the same
         temp_pdf_file = f"/tmp/{self.project.slug}-{self.version.slug}.pdf"
         target_file = os.path.join(
-            self.absolute_output_dir,
+            self.absolute_container_output_dir,
             self.pdf_file_name,
         )
 
         # NOTE: we currently support only one .pdf per version
-        pdf_sphinx_filepath = os.path.join(self.absolute_output_dir, self.pdf_file_name)
-        if os.path.exists(pdf_sphinx_filepath):
+        pdf_sphinx_filepath = os.path.join(
+            self.absolute_container_output_dir, self.pdf_file_name
+        )
+        pdf_sphinx_filepath_host = os.path.join(
+            self.absolute_host_output_dir,
+            self.pdf_file_name,
+        )
+        if os.path.exists(pdf_sphinx_filepath_host):
             self.run(
                 "mv",
                 pdf_sphinx_filepath,
@@ -699,14 +639,14 @@ class PdfBuilder(BaseSphinx):
             self.run(
                 "rm",
                 "-r",
-                self.relative_output_dir,
+                self.absolute_container_output_dir,
                 cwd=self.project_path,
                 record=False,
             )
             self.run(
                 "mkdir",
                 "-p",
-                self.relative_output_dir,
+                self.absolute_container_output_dir,
                 cwd=self.project_path,
                 record=False,
             )

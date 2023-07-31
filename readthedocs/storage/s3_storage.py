@@ -77,8 +77,8 @@ class S3BuildCommandsStorage(S3PrivateBucketMixin, S3Boto3Storage):
 
 class S3StaticStorageMixin:
 
-    bucket_name = getattr(settings, 'S3_STATIC_STORAGE_BUCKET', None)
-    override_hostname = getattr(settings, 'S3_STATIC_STORAGE_OVERRIDE_HOSTNAME', None)
+    bucket_name = getattr(settings, "S3_STATIC_STORAGE_BUCKET", None)
+    override_hostname = getattr(settings, "S3_STATIC_STORAGE_OVERRIDE_HOSTNAME", None)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -116,6 +116,10 @@ class NoManifestS3StaticStorage(
     This is the same as S3StaticStorage, but without inheriting from S3ManifestStaticStorage,
     this way we can get the URL of any file in that bucket, even hashed ones.
     """
+
+    # Root path of the nginx internal redirect
+    # that will serve files from this storage.
+    internal_redirect_root_path = "proxito-static"
 
 
 class S3BuildEnvironmentStorage(S3PrivateBucketMixin, S3BuildMediaStorageMixin):

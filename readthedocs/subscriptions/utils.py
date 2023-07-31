@@ -12,6 +12,7 @@ def create_stripe_customer(organization):
     """Create a stripe customer for organization."""
     stripe_data = stripe.Customer.create(
         email=organization.email,
+        name=organization.name,
         description=organization.name,
         metadata=organization.get_stripe_metadata(),
     )

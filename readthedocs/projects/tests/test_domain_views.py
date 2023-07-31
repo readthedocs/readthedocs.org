@@ -5,6 +5,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Domain, Project
+from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.models import Plan, PlanFeature, Subscription
 
 
@@ -114,5 +115,5 @@ class TestDomainViewsWithOrganizations(TestDomainViews):
         self.feature = get(
             PlanFeature,
             plan=self.plan,
-            feature_type=PlanFeature.TYPE_CNAME,
+            feature_type=TYPE_CNAME,
         )

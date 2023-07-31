@@ -1,4 +1,4 @@
-Server Side Search
+Server side search
 ==================
 
 Read the Docs uses Elasticsearch_ instead of the built in Sphinx search for providing better search

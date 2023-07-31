@@ -50,7 +50,21 @@ class BuildUserError(BuildBaseException):
     BUILD_OUTPUT_HAS_MULTIPLE_FILES = gettext_noop(
         'Build output directory for format "{artifact_type}" contains multiple files '
         "and it is not currently supported. "
-        'Please, remove all the files but the "{artifact_type}" your want to upload.'
+        'Please, remove all the files but the "{artifact_type}" you want to upload.'
+    )
+    BUILD_OUTPUT_HTML_NO_INDEX_FILE = gettext_noop(
+        "Your documentation did not generate an 'index.html' at its root directory. "
+        "This is required for documentation serving at the root URL for this version."
+    )
+    BUILD_OUTPUT_OLD_DIRECTORY_USED = gettext_noop(
+        "Some files were detected in an unsupported output path, '_build/html'. "
+        "Ensure your project is configured to use the output path "
+        "'$READTHEDOCS_OUTPUT/html' instead."
+    )
+    NO_CONFIG_FILE_DEPRECATED = gettext_noop(
+        "The configuration file required to build documentation is missing from your project. "
+        "Add a configuration file to your project to make it build successfully. "
+        "Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html"
     )
 
 

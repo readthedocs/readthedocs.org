@@ -1,4 +1,4 @@
-Importing Your Documentation
+Importing your documentation
 ============================
 
 .. meta::
@@ -11,7 +11,7 @@ For private repositories, please use :doc:`Read the Docs for Business </commerci
 Automatically import your docs
 ------------------------------
 
-If you have :doc:`connected your Read the Docs account <../connected-accounts>` to GitHub, Bitbucket, or GitLab,
+If you have :doc:`connected your Read the Docs account </guides/connecting-git-account>` to GitHub, Bitbucket, or GitLab,
 you will see a list of your repositories that we are able to import.
 To import one of these projects, just click the import
 icon next to the repository you'd like to import. This will bring up a form that
@@ -33,7 +33,8 @@ these properties, and then click **Next** to
 Manually import your docs
 -------------------------
 
-If you do not have a connected account, you will need to select **Import Manually**
+If you have not :doc:`connected a Git provider account </guides/connecting-git-account>`,
+you will need to select **Import Manually**
 and enter the information for your repository yourself. You will also need to
 manually configure the webhook for your repository as well. When importing your
 project, you will be asked for the repository URL, along with some other
@@ -50,8 +51,12 @@ Add an optional homepage URL and some tags, and then click **Next**.
 Once your project is created, you'll need to manually configure the repository
 webhook if you would like to have new changes trigger builds for your
 project on Read the Docs. Go to your project's :guilabel:`Admin` > :guilabel:`Integrations` page to
-configure a new webhook, or see :ref:`our steps for webhook creation <integrations:Integration Creation>`
-for more information on this process.
+configure a new webhook.
+
+.. seealso::
+
+   :doc:`/guides/setup/git-repo-manual`
+      Once you have imported your git project, use this guide to manually set up basic and additional *webhook* integration.
 
 .. note::
     The ``Admin`` page can be found at ``https://readthedocs.org/dashboard/<project-slug>/edit/``.
@@ -70,13 +75,18 @@ and the documentation will be built.
 Check out our :doc:`/builds` page to learn more about how Read the Docs builds your docs,
 and to troubleshoot any issues that arise.
 
-Some documentation projects require additional configuration to build
-such as specifying a certain version of Python or installing additional dependencies.
+We require an additional configuration file to build your project.
+This allows you to specifying special requirements for your build,
+such as your version of Python or how you wish to install addition Python requirements.
 You can configure these settings in a ``.readthedocs.yaml`` file.
 See our :doc:`/config-file/index` docs for more details.
 
+.. note::
+
+   Using a configuration file :doc:`is required from September 2023 <rtd-blog:migrate-configuration-v2>`.
+
 It is also important to note that the default version of Sphinx is ``v1.8.5``.
-We recommend to set the version your project uses :ref:`explicitily <guides/reproducible-builds:don't rely on implicit dependencies>`.
+We recommend to set the version your project uses :doc:`explicitily with pinned dependencies </guides/reproducible-builds>`.
 
 Read the Docs will host multiple versions of your code. You can read more about
 how to use this well on our :doc:`/versions` page.

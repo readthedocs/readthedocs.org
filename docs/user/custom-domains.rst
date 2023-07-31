@@ -1,126 +1,105 @@
-Custom Domains
+Custom domains
 ==============
 
-Custom domains allow you to serve your documentation from your own domain.
-This is great for maintaining a consistent brand for your documentation and application.
+You can serve your documentation project from your own domain,
+for instance ``docs.example.com``.
+This is great for maintaining a consistent brand for your product and its documentation.
 
-By default, your documentation is served from a Read the Docs :ref:`subdomain <hosting:subdomain support>` using the project's :term:`slug`:
+.. _default-subdomain:
+
+.. rubric:: Default subdomains
+
+*By default*, your documentation is served from a Read the Docs *subdomain* using the project's :term:`slug`:
 
 * ``<slug>.readthedocs.io`` for |org_brand|
 * ``<slug>.readthedocs-hosted.com`` for |com_brand|.
 
-For example if you import your project and it gets the :term:`slug` ``example-docs``, it will be served from ``https://example-docs.readthedocs.io``.
+.. seealso::
 
-.. contents:: Contents
-    :local:
+    :doc:`/guides/custom-domains`
+        Information on creating and managing custom domains,
+        and common configurations you might use to set up your domain
 
-Adding a custom domain
-----------------------
+How custom domains work
+-----------------------
 
-To setup your custom domain, follow these steps:
+To use a custom domain, two actions are needed from you:
 
-#. Go the :guilabel:`Admin` tab of your project.
-#. Click on :guilabel:`Domains`.
-#. Enter the domain where you want to serve the documentation from (e.g. ``docs.example.com``).
-#. Mark the :guilabel:`Canonical` option if you want use this domain
-   as your :doc:`canonical domain </canonical-urls>`.
-#. Click on :guilabel:`Add`.
-#. At the top of the next page you'll find the value of the DNS record that you need to point your domain to.
-   For |org_brand| this is ``readthedocs.io``, and for :doc:`/commercial/index`
-   the record is in the form of ``<hash>.domains.readthedocs.com``.
+#.  Enter the domain in your Read the Docs project's :guilabel:`Admin`
+#.  Update your DNS provider with a new DNS entry. The name and value of the DNS entry is found in Read the Docs' :guilabel:`Admin`.
 
-   .. note::
+Once the new DNS record has propagated,
+Read the Docs automatically issues an SSL certificate through Cloudflare and starts serving your documentation.
 
-      For a subdomain like ``docs.example.com`` add a CNAME record,
-      and for a root domain like ``example.com`` use an ANAME or ALIAS record.
+.. image:: img/mermaid-custom-domains.png
+   :alt: Diagram of the process of adding a custom domain on Read the Docs
 
-By default, we provide a validated SSL certificate for the domain,
-managed by `Cloudflare <https://www.cloudflare.com/>`_.
-The SSL certificate issuance should happen within a few minutes,
-but might take up to one hour.
-See `SSL certificate issue delays`_ for more troubleshooting options.
+..
+   We have generated an PNG version of the following diagram using mermaid.live
+   Firstly, we generate an SVG, then we render it in a browser, then we take a screenshot,
+   then we paste it into GIMP or similar and make the background transparent.
 
-As an example, our blog's DNS record looks like this:
+   If you wish to sketch diagrams locally, you can add sphinxcontrib-mermaid to
+   this project's extensions and keep using the below code.
 
-.. prompt:: bash $, auto
+   SVG does not work because it embeds fontawesome from CDN (which is blocked by CSP)
 
-   $ dig +short CNAME blog.readthedocs.com
-     readthedocs.io.
+   PLEASE KEEP THIS SOURCE CODE UPDATED
+   .. mermaid::
 
-.. warning::
+       graph TD
+           subgraph rtd [On Read the Docs]
+             A(fa:fa-pencil Add docs.example.com as Custom Domain)
+           end
+           subgraph dns [On your domain's DNS administration]
+             B(fa:fa-pencil Edit/add a DNS entry for docs.example.com<br>making it point to Read the Docs)
+           end
 
-   We don't support pointing subdomains or root domains to a project using A records.
-   DNS A records require a static IP address and our IPs may change without notice.
+           rtd & dns-->C(fa:fa-spinner Wait for DNS propagation.<br>Usually just a few minutes)
+
+           direction LR
+           subgraph automatic [fa:fa-paper-plane The rest is handled automatically]
+             direction TB
+             D(fa:fa-spinner The next time your project is built,<br>its Canonical URLs use docs.example.com)
+             D-->E(Visit https://docs.example.com)
+             E-->F(fa:fa-lock Correct SSL Certificate <br>automatically used)
+             F-->G(fa:fa-check Read the Docs knows<br> to serve your project <br>at docs.example.com)
+           end
+
+           C-->automatic
 
 
-Removing a custom domain
-------------------------
+Your documentation can have multiple secondary domains but only one **canonical** domain name.
+Additional domains or subdomains will redirect to the canonical domain.
 
-To remove a custom domain:
+To make this work, Read the Docs generates a special text that you are responsible for copy-pasting to your domain's DNS.
+In most cases, the ``CNAME`` record is used.
+This is all that's needed for a web browser to resolve your domain name to Read the Docs' servers and for our servers to match the right documentation project.
+You can find step-by-step instructions for this in :doc:`/guides/custom-domains`.
 
-#. Go the :guilabel:`Admin` tab of your project.
-#. Click on :guilabel:`Domains`.
-#. Click the :guilabel:`Remove` button next to the domain.
-#. Click :guilabel:`Confirm` on the confirmation page.
+Read the Docs uses a :doc:`/reference/cdn` to host and serve your documentation pages.
+This final step isn't changed by a custom domain
+and therefore the response times are unaffected as the delivery of resources happens through the same CDN setup.
 
-.. warning::
+Considerations for custom domain usage
+--------------------------------------
 
-    Once a domain is removed,
-    your previous documentation domain is no longer served by Read the Docs,
-    and any request for it will return a 404 Not Found!
+Some open source projects have seen their domains expire.
+Even prominent ones.
+**It's important that you give the responsibility for managing your domain to someone reliable in your organization.**
 
-Strict Transport Security (HSTS) and other custom headers
----------------------------------------------------------
+The **canonical domain** feature allows you to have several domains and the canonical domain will be indexed by search engines.
+The domain that you choose as your canonical domain is by far the most important one.
+If you lose the canonical domain,
+someone else can set up a website that search results will end up referring to.
 
-By default, we do not return a `Strict Transport Security header`_ (HSTS) for user custom domains.
-This is a conscious decision as it can be misconfigured in a not easily reversible way.
-For both |org_brand| and |com_brand|, HSTS and other custom headers can be set upon request.
+.. seealso::
 
-We always return the HSTS header with a max-age of at least one year
-for our own domains including ``*.readthedocs.io``, ``*.readthedocs-hosted.com``, ``readthedocs.org`` and ``readthedocs.com``.
+   In a URL, both the domain and the path (``https://<domain>/<path>``) are important.
+   In combination, they are referred to as the *canonical URL* of a resource.
 
-Please contact :doc:`support` if you want to add a custom header to your domain.
+   Most documentation projects are versioned.
+   Therefore, it's important to ensure that incoming links and search engine results point to the canonical URL of the resource
+   and not a specific version that becomes outdated.
 
-.. _Strict Transport Security header: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
-
-Multiple documentation sites as sub-folders of a domain
--------------------------------------------------------
-
-You may host multiple documentation repositories as **sub-folders of a single domain**.
-For example, ``docs.example.org/projects/repo1`` and ``docs.example.org/projects/repo2``.
-This is `a way to boost the SEO of your website <https://moz.com/blog/subdomains-vs-subfolders-rel-canonical-vs-301-how-to-structure-links-optimally-for-seo-whiteboard-friday>`_.
-
-See :doc:`subprojects` for more information.
-
-Troubleshooting
----------------
-
-SSL certificate issue delays
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The status of your domain validation and certificate can always be seen on the details page for your domain
-under :guilabel:`Admin` > :guilabel:`Domains` > :guilabel:`YOURDOMAIN.TLD (details)`.
-
-Domains are usually validated and a certificate issued within minutes.
-However, if you setup the domain in Read the Docs without provisioning the necessary DNS changes
-and then update DNS hours or days later,
-this can cause a delay in validating because there is an exponential back-off in validation.
-
-.. tip::
-
-    Loading the domain details in the Read the Docs dashboard and saving the domain again will force a revalidation.
-
-The validation process period has ended
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-After you add a new custom domain, you have 30 days to complete the configuration.
-Once that period has ended, we will stop trying to validate your domain.
-If you still want to complete the configuration,
-go to your domain and click on :guilabel:`Save` to restart the process.
-
-Migrating from GitBook
-~~~~~~~~~~~~~~~~~~~~~~
-
-If your custom domain was previously used in GitBook, contact GitBook support (via live chat in their website)
-to remove the domain name from their DNS Zone in order for your domain name to work with Read the Docs,
-else it will always redirect to GitBook.
+   To learn more about canonical URLs, see: :doc:`/canonical-urls`

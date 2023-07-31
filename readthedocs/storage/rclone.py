@@ -9,7 +9,8 @@ import subprocess
 
 import structlog
 from django.utils._os import safe_join as safe_join_fs
-from storages.utils import safe_join
+
+from readthedocs.storage.utils import safe_join
 
 log = structlog.get_logger(__name__)
 

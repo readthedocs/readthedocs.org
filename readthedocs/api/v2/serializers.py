@@ -1,11 +1,11 @@
 """Defines serializers for each of our models."""
 
-import re
 
 from allauth.socialaccount.models import SocialAccount
-from django.conf import settings
 from rest_framework import serializers
 
+from readthedocs.api.v2.utils import normalize_build_command
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, Project
@@ -55,10 +55,10 @@ class ProjectAdminSerializer(ProjectSerializer):
     def get_environment_variables(self, obj):
         """Get all environment variables, including public ones."""
         return {
-            variable.name: dict(
-                value=variable.value,
-                public=variable.public,
-            )
+            variable.name: {
+                "value": variable.value,
+                "public": variable.public,
+            }
             for variable in obj.environmentvariable_set.all()
         }
 
@@ -73,58 +73,127 @@ class ProjectAdminSerializer(ProjectSerializer):
 
     class Meta(ProjectSerializer.Meta):
         fields = ProjectSerializer.Meta.fields + (
-            'enable_epub_build',
-            'enable_pdf_build',
-            'conf_py_file',
-            'analytics_code',
-            'analytics_disabled',
-            'cdn_enabled',
-            'container_image',
-            'container_mem_limit',
-            'container_time_limit',
-            'install_project',
-            'use_system_packages',
-            'skip',
-            'requirements_file',
-            'python_interpreter',
-            'features',
-            'has_valid_clone',
-            'has_valid_webhook',
-            'show_advertising',
-            'environment_variables',
-            'max_concurrent_builds',
+            "enable_epub_build",
+            "enable_pdf_build",
+            "conf_py_file",
+            "analytics_code",
+            "analytics_disabled",
+            "cdn_enabled",
+            "container_image",
+            "container_mem_limit",
+            "container_time_limit",
+            "install_project",
+            "use_system_packages",
+            "skip",
+            "requirements_file",
+            "python_interpreter",
+            "features",
+            "has_valid_clone",
+            "has_valid_webhook",
+            "show_advertising",
+            "environment_variables",
+            "max_concurrent_builds",
+            "readthedocs_yaml_path",
         )
 
 
 class VersionSerializer(serializers.ModelSerializer):
-    project = ProjectSerializer()
+
+    """
+    Version serializer.
+
+    Instead of using directly a ProjectSerializer for the project,
+    we user a SerializerMethodField to have more control over the
+    serialization of the project, this allows us to optimize the
+    serialization of the same project for each version.
+
+    We usually filter all versions that belong to one project,
+    so instead of serializing the same project over and over again,
+    we cache the serialized project and reuse it for each version.
+
+    Why not just rely on select_related('project')?
+    Since the project is the same for all versions most of the time,
+    we would be serializing the same project over and over again,
+    and ProjectSerializer includes a call to get_docs_url,
+    ``users``, and ``features``, get_docs_url we can cached, ``users``
+    can be included in a ``prefetch_related`` call,
+    but ``features`` is a property with a custom queryset, so it can't be added.
+
+    See https://github.com/readthedocs/readthedocs.org/pull/10460#discussion_r1238928385.
+    """
+
+    project = serializers.SerializerMethodField()
+    project_serializer_class = ProjectSerializer
+
     downloads = serializers.DictField(source='get_downloads', read_only=True)
 
     class Meta:
         model = Version
-        fields = (
-            'id',
-            'project',
-            'slug',
-            'identifier',
-            'verbose_name',
-            'privacy_level',
-            'active',
-            'built',
-            'downloads',
-            'type',
-            'has_pdf',
-            'has_epub',
-            'has_htmlzip',
-            'documentation_type',
+        fields = [
+            "id",
+            "project",
+            "slug",
+            "identifier",
+            "verbose_name",
+            "privacy_level",
+            "active",
+            "built",
+            "downloads",
+            "type",
+            "has_pdf",
+            "has_epub",
+            "has_htmlzip",
+            "documentation_type",
+        ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._serialized_projects_cache = {}
+
+    def _get_project_serialized(self, obj):
+        """Get a serialized project from the cache or create a new one."""
+        project = obj.project
+        project_serialized = self._serialized_projects_cache.get(project.id)
+        if project_serialized:
+            return project_serialized
+
+        self._serialized_projects_cache[project.id] = self.project_serializer_class(
+            project
         )
+        return self._serialized_projects_cache[project.id]
+
+    def get_project(self, obj):
+        project_serialized = self._get_project_serialized(obj)
+        return project_serialized.data
 
 
 class VersionAdminSerializer(VersionSerializer):
 
     """Version serializer that returns admin project data."""
 
-    project = ProjectAdminSerializer()
+    project_serializer_class = ProjectAdminSerializer
+    canonical_url = serializers.SerializerMethodField()
+    build_data = serializers.JSONField(required=False, write_only=True, allow_null=True)
+    addons = serializers.BooleanField(required=False, write_only=True, allow_null=False)
+
+    def get_canonical_url(self, obj):
+        # Use the cached object, since it has some
+        # relationships already cached from calling
+        # get_docs_url early when serializing the project.
+        project = self._get_project_serialized(obj).instance
+        return project.get_docs_url(
+            lang_slug=project.language,
+            version_slug=obj.slug,
+            external=obj.type == EXTERNAL,
+        )
+
+    class Meta(VersionSerializer.Meta):
+        fields = VersionSerializer.Meta.fields + [
+            "addons",
+            "build_data",
+            "canonical_url",
+            "machine",
+        ]
 
 
 class BuildCommandSerializer(serializers.ModelSerializer):
@@ -157,22 +226,9 @@ class BuildCommandReadOnlySerializer(BuildCommandSerializer):
     command = serializers.SerializerMethodField()
 
     def get_command(self, obj):
-        project_slug = obj.build.version.project.slug
-        version_slug = obj.build.version.slug
-        docroot = settings.DOCROOT.rstrip("/")  # remove trailing '/'
-
-        # Remove Docker hash from DOCROOT when running it locally
-        # DOCROOT contains the Docker container hash (e.g. b7703d1b5854).
-        # We have to remove it from the DOCROOT it self since it changes each time
-        # we spin up a new Docker instance locally.
-        container_hash = "/"
-        if settings.RTD_DOCKER_COMPOSE:
-            docroot = re.sub("/[0-9a-z]+/?$", "", settings.DOCROOT, count=1)
-            container_hash = "/([0-9a-z]+/)?"
-
-        regex = f"{docroot}{container_hash}{project_slug}/envs/{version_slug}(/bin/)?"
-        command = re.sub(regex, "", obj.command, count=1)
-        return command
+        return normalize_build_command(
+            obj.command, obj.build.project.slug, obj.build.version.slug
+        )
 
 
 class BuildSerializer(serializers.ModelSerializer):

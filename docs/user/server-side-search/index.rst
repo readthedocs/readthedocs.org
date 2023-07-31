@@ -1,4 +1,4 @@
-Server Side Search
+Server side search
 ==================
 
 Read the Docs provides full-text search across all of the pages of all projects,
@@ -6,22 +6,17 @@ this is powered by Elasticsearch_.
 You can search all projects at https://readthedocs.org/search/,
 or search only on your project from the :guilabel:`Search` tab of your project.
 
-.. contents:: Table of contents
-   :local:
-   :backlinks: none
-   :depth: 3
+.. seealso::
 
-.. toctree::
-   :maxdepth: 2
-   :glob:
-   :hidden:
-
-   *
+   :doc:`/server-side-search/syntax`
+     Syntax options for searching Read the Docs projects
+   :doc:`/server-side-search/api`
+     Reference to the Server Side Search API
 
 Search features
 ---------------
 
-We offer a number of benefits compared to other documentation hosts:
+Read the Docs has the following search features:
 
 Search across :doc:`subprojects </subprojects>`
    Subprojects allow you to host multiple discrete projects on a single domain.
@@ -65,23 +60,19 @@ API
    Integrate our search as you like.
    See :doc:`/server-side-search/api`.
 
+Analytics
+   Know what your users are searching for.
+   See :doc:`/guides/search-analytics`
+
 .. _"full-text search": https://docs.readthedocs.io/en/latest/search.html?q=%22full-text+search%22
 .. _"project:docs project:dev search": https://docs.readthedocs.io/en/latest/search.html?q=project:docs+project:dev+search
-
-Search analytics
-----------------
-
-Know what your users are looking for in your docs.
-To see a list of the top queries and an overview from the last month,
-go to the :guilabel:`Admin` tab of your project,
-and then click on :guilabel:`Search Analytics`.
 
 .. figure:: /_static/images/search-analytics-demo.png
    :width: 50%
    :align: center
    :alt: Search analytics demo
 
-   Search analytics demo
+   Search analytics demo. Read more in :doc:`/guides/search-analytics`.
 
 .. _Elasticsearch: https://www.elastic.co/products/elasticsearch
 

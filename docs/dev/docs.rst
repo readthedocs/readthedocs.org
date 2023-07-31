@@ -1,4 +1,4 @@
-Building and Contributing to Documentation
+Building and contributing to documentation
 ==========================================
 
 As one might expect,

@@ -277,6 +277,7 @@ class VersionSerializer(FlexFieldsModelSerializer):
             'downloads',
             'urls',
             '_links',
+            "privacy_level",
         ]
 
         expandable_fields = {
@@ -306,7 +307,7 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
     """
     Used when modifying (update action) a ``Version``.
 
-    It only allows to make the Version active/non-active.
+    It allows to change the version states and privacy level only.
     """
 
     class Meta:
@@ -314,7 +315,16 @@ class VersionUpdateSerializer(serializers.ModelSerializer):
         fields = [
             'active',
             'hidden',
+            "privacy_level",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # If privacy levels are not allowed,
+        # everything is public, we don't allow changing it.
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("privacy_level")
 
 
 class LanguageSerializer(serializers.Serializer):
@@ -475,7 +485,17 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
             "repository",
             "homepage",
             "tags",
+            "privacy_level",
+            "external_builds_privacy_level",
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If privacy levels are not allowed,
+        # everything is public, we don't allow changing it.
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("privacy_level")
+            self.fields.pop("external_builds_privacy_level")
 
     def _validate_remote_repository(self, data):
         """
@@ -565,10 +585,20 @@ class ProjectUpdateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
             'show_version_warning',
             'single_version',
             'external_builds_enabled',
+            "privacy_level",
+            "external_builds_privacy_level",
 
             # NOTE: we do not allow to change any setting that can be set via
             # the YAML config file.
         )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # If privacy levels are not allowed,
+        # everything is public, we don't allow changing it.
+        if not settings.ALLOW_PRIVATE_REPOS:
+            self.fields.pop("privacy_level")
+            self.fields.pop("external_builds_privacy_level")
 
 
 class ProjectUpdateSerializer(SettingsOverrideObject):
@@ -622,6 +652,8 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             'translation_of',
             'urls',
             'tags',
+            "privacy_level",
+            "external_builds_privacy_level",
 
             # NOTE: ``expandable_fields`` must not be included here. Otherwise,
             # they will be tried to be rendered and fail

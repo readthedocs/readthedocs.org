@@ -8,21 +8,35 @@ import requests
 import structlog
 from django.conf import settings
 from django.core.cache import cache
-from django.shortcuts import get_object_or_404
 from rest_framework import status
-from rest_framework.permissions import AllowAny
 from rest_framework.renderers import BrowsableAPIRenderer, JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from selectolax.parser import HTMLParser
 
 from readthedocs.api.mixins import CDNCacheTagsMixin, EmbedAPIMixin
+from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
+from readthedocs.api.v3.permissions import HasEmbedAPIAccess
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.embed.utils import clean_references
-from readthedocs.projects.constants import PUBLIC
 from readthedocs.storage import build_media_storage
 
 log = structlog.get_logger(__name__)
+
+
+class IsAuthorizedToGetContenFromVersion(IsAuthorizedToViewVersion):
+
+    """
+    Checks if the user from the request has permissions to get content from the version.
+
+    If the URL is from an external site, we return ``True``,
+    since we don't have a project to check for.
+    """
+
+    def has_permission(self, request, view):
+        if view.external:
+            return True
+        return super().has_permission(request, view)
 
 
 class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
@@ -45,8 +59,11 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     """  # noqa
 
-    permission_classes = [AllowAny]
+    permission_classes = [HasEmbedAPIAccess, IsAuthorizedToGetContenFromVersion]
     renderer_classes = [JSONRenderer, BrowsableAPIRenderer]
+
+    # API V3 doesn't allow passing a version or project query parameters.
+    support_url_parameter_only = True
 
     @property
     def external(self):
@@ -77,14 +94,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             )
             return response.content
 
-    def _get_page_content_from_storage(self, project, version_slug, filename):
-        version = get_object_or_404(
-            project.versions,
-            slug=version_slug,
-            # Only allow PUBLIC versions when getting the content from our
-            # storage for privacy/security reasons
-            privacy_level=PUBLIC,
-        )
+    def _get_page_content_from_storage(self, project, version, filename):
         storage_path = project.get_storage_path(
             'html',
             version_slug=version.slug,
@@ -114,9 +124,11 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             page_content = self._download_page_content(url)
         else:
             project = self.unresolved_url.project
-            version_slug = self.unresolved_url.version.slug
+            version = self.unresolved_url.version
             filename = self.unresolved_url.filename
-            page_content = self._get_page_content_from_storage(project, version_slug, filename)
+            page_content = self._get_page_content_from_storage(
+                project, version, filename
+            )
 
         return self._parse_based_on_doctool(page_content, fragment, doctool, doctoolversion)
 
@@ -137,7 +149,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             return first_header.parent
 
     def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):
-        # pylint: disable=unused-argument
+        # pylint: disable=unused-argument disable=too-many-branches disable=too-many-nested-blocks
         if not page_content:
             return
 
@@ -214,8 +226,19 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                     # </dl>
 
                     parent_node = node.parent
-                    if 'glossary' in node.parent.attributes.get('class'):
-                        next_node = node.next
+                    if "glossary" in node.parent.attributes.get("class"):
+                        # iterate through child and next nodes
+                        traverse = node.traverse()
+                        iteration = 0
+                        while iteration < 5:
+                            next_node = next(traverse, None)
+                            # TODO: Do we need to support terms with missing descriptions?
+                            # This will not produce correct results in this case.
+
+                            # Stop at the next 'dd' node, which is the description
+                            if iteration >= 5 or (next_node and next_node.tag == "dd"):
+                                break
+                            iteration += 1
 
                     elif 'citation' in node.parent.attributes.get('class'):
                         next_node = node.next.next

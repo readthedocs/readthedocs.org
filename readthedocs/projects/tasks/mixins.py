@@ -2,24 +2,9 @@ from collections import Counter
 
 import structlog
 
-from readthedocs.api.v2.client import api as api_v2
 from readthedocs.builds import tasks as build_tasks
-from readthedocs.builds.constants import (
-    BUILD_STATE_BUILDING,
-    BUILD_STATE_CLONING,
-    BUILD_STATE_FINISHED,
-    BUILD_STATE_INSTALLING,
-    BUILD_STATUS_FAILURE,
-    BUILD_STATUS_SUCCESS,
-    EXTERNAL,
-    LATEST_VERBOSE_NAME,
-    STABLE_VERBOSE_NAME,
-)
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME
 from readthedocs.builds.models import APIVersion
-from readthedocs.doc_builder.environments import (
-    DockerBuildEnvironment,
-    LocalBuildEnvironment,
-)
 
 from ..exceptions import RepositoryError
 from ..models import Feature
@@ -31,8 +16,7 @@ class SyncRepositoryMixin:
 
     """Mixin that handles the VCS sync/update."""
 
-    @staticmethod
-    def get_version(version_pk):
+    def get_version(self, version_pk):
         """
         Retrieve version data from the API.
 
@@ -41,7 +25,7 @@ class SyncRepositoryMixin:
         :returns: a data-complete version object
         :rtype: builds.models.APIVersion
         """
-        version_data = api_v2.version(version_pk).get()
+        version_data = self.data.api_client.version(version_pk).get()
         return APIVersion(**version_data)
 
     def sync_versions(self, vcs_repository):
@@ -61,9 +45,13 @@ class SyncRepositoryMixin:
         # Do not use ``ls-remote`` if the VCS does not support it or if we
         # have already cloned the repository locally. The latter happens
         # when triggering a normal build.
-        use_lsremote = (
-            vcs_repository.supports_lsremote
-            and self.data.project.has_feature(Feature.VCS_REMOTE_LISTING)
+        # Always use lsremote when we have GIT_CLONE_FETCH_CHECKOUT_PATTERN on
+        # and the repo supports lsremote.
+        # The new pattern does not fetch branch and tag data, so we always
+        # have to do ls-remote.
+        use_lsremote = vcs_repository.supports_lsremote and (
+            self.data.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN)
+            or not vcs_repository.repo_exists()
         )
         sync_tags = vcs_repository.supports_tags and not self.data.project.has_feature(
             Feature.SKIP_SYNC_TAGS
@@ -79,6 +67,10 @@ class SyncRepositoryMixin:
                 include_tags=sync_tags,
                 include_branches=sync_branches,
             )
+
+        # GIT_CLONE_FETCH_CHECKOUT_PATTERN: When the feature flag becomes default, we
+        # can remove this segment since lsremote is always on.
+        # We can even factor out the dependency to gitpython.
         else:
             if sync_tags:
                 tags = vcs_repository.tags

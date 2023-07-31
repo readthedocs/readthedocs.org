@@ -1,8 +1,7 @@
 """Simple client to access our API with Slumber credentials."""
 
-import structlog
-
 import requests
+import structlog
 from django.conf import settings
 from rest_framework.renderers import JSONRenderer
 from slumber import API, serialize
@@ -24,7 +23,7 @@ class DrfJsonSerializer(serialize.JsonSerializer):
         return JSONRenderer().render(data)
 
 
-def setup_api():
+def setup_api(build_api_key):
     session = requests.Session()
     if settings.SLUMBER_API_HOST.startswith('https'):
         # Only use the HostHeaderSSLAdapter for HTTPS connections
@@ -49,7 +48,8 @@ def setup_api():
         settings.SLUMBER_API_HOST,
         adapter_class(max_retries=retry),
     )
-    session.headers.update({'Host': settings.PRODUCTION_DOMAIN})
+    session.headers.update({"Host": settings.PRODUCTION_DOMAIN})
+    session.headers["Authorization"] = f"Token {build_api_key}"
     api_config = {
         'base_url': '%s/api/v2/' % settings.SLUMBER_API_HOST,
         'serializer': serialize.Serializer(
@@ -61,16 +61,4 @@ def setup_api():
         ),
         'session': session,
     }
-    if settings.SLUMBER_USERNAME and settings.SLUMBER_PASSWORD:
-        log.debug(
-            'Using slumber v2.',
-            username=settings.SLUMBER_USERNAME,
-            api_host=settings.SLUMBER_API_HOST,
-        )
-        session.auth = (settings.SLUMBER_USERNAME, settings.SLUMBER_PASSWORD)
-    else:
-        log.warning('SLUMBER_USERNAME/PASSWORD settings are not set')
     return API(**api_config)
-
-
-api = setup_api()

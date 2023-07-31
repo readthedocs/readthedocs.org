@@ -1,6 +1,7 @@
 # pylint: disable=missing-docstring
 
 import os
+import re
 import subprocess
 import socket
 
@@ -9,8 +10,9 @@ import structlog
 from celery.schedules import crontab
 
 from readthedocs.core.logs import shared_processors
+from corsheaders.defaults import default_headers
 from readthedocs.core.settings import Settings
-
+from readthedocs.builds import constants_docker
 
 try:
     import readthedocsext  # noqa
@@ -84,8 +86,6 @@ class CommunityBaseSettings(Settings):
 
     # slumber settings
     SLUMBER_API_HOST = 'https://readthedocs.org'
-    SLUMBER_USERNAME = None
-    SLUMBER_PASSWORD = None
 
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
@@ -155,8 +155,27 @@ class CommunityBaseSettings(Settings):
     # Number of days an invitation is valid.
     RTD_INVITATIONS_EXPIRATION_DAYS = 15
 
+    @property
+    def RTD_DEFAULT_FEATURES(self):
+        # Features listed here will be available to users that don't have a
+        # subscription or if their subscription doesn't include the feature.
+        # Depending on the feature type, the numeric value represents a
+        # number of days or limit of the feature.
+        from readthedocs.subscriptions import constants
+        return {
+            constants.TYPE_CNAME: 1,
+            constants.TYPE_EMBED_API: 1,
+            # Retention days for search analytics.
+            constants.TYPE_SEARCH_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            # Retention days for page view analytics.
+            constants.TYPE_PAGEVIEW_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            # Retention days for audit logs.
+            constants.TYPE_AUDIT_LOGS: self.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS,
+            # Max number of concurrent builds.
+            constants.TYPE_CONCURRENT_BUILDS: self.RTD_MAX_CONCURRENT_BUILDS,
+        }
+
     # Database and API hitting settings
-    DONT_HIT_API = False
     DONT_HIT_DB = True
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = False
     DATABASE_ROUTERS = ['readthedocs.core.db.MapAppsRouter']
@@ -198,6 +217,7 @@ class CommunityBaseSettings(Settings):
             'django_gravatar',
             'rest_framework',
             'rest_framework.authtoken',
+            "rest_framework_api_key",
             'corsheaders',
             'annoying',
             'django_extensions',
@@ -228,7 +248,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
-            'readthedocs.sphinx_domains',
             'readthedocs.search',
             'readthedocs.embed',
             'readthedocs.telemetry',
@@ -243,6 +262,7 @@ class CommunityBaseSettings(Settings):
             'allauth.socialaccount.providers.gitlab',
             'allauth.socialaccount.providers.bitbucket',
             'allauth.socialaccount.providers.bitbucket_oauth2',
+            'cacheops',
         ]
         if ext:
             apps.append('readthedocsext.cdn')
@@ -277,6 +297,7 @@ class CommunityBaseSettings(Settings):
             'readthedocs.core.middleware.NullCharactersMiddleware',
             'readthedocs.core.middleware.ReadTheDocsSessionMiddleware',
             'django.middleware.locale.LocaleMiddleware',
+            'corsheaders.middleware.CorsMiddleware',
             'django.middleware.common.CommonMiddleware',
             'django.middleware.security.SecurityMiddleware',
             'django.middleware.csrf.CsrfViewMiddleware',
@@ -284,7 +305,6 @@ class CommunityBaseSettings(Settings):
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'django.contrib.messages.middleware.MessageMiddleware',
             'dj_pagination.middleware.PaginationMiddleware',
-            'corsheaders.middleware.CorsMiddleware',
             'csp.middleware.CSPMiddleware',
             'readthedocs.core.middleware.ReferrerPolicyMiddleware',
             'simple_history.middleware.HistoryRequestMiddleware',
@@ -361,7 +381,7 @@ class CommunityBaseSettings(Settings):
     RTD_BUILD_ENVIRONMENT_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_TOOLS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
     RTD_BUILD_COMMANDS_STORAGE = 'readthedocs.builds.storage.BuildMediaFileSystemStorage'
-    RTD_STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+    RTD_STATICFILES_STORAGE = 'readthedocs.builds.storage.StaticFilesStorage'
 
     @property
     def TEMPLATES(self):
@@ -489,9 +509,11 @@ class CommunityBaseSettings(Settings):
                 'delete': True,
             },
         },
-        'every-day-delete-inactive-external-versions': {
+        'every-three-hours-delete-inactive-external-versions': {
             'task': 'readthedocs.builds.tasks.delete_closed_external_versions',
-            'schedule': crontab(minute=0, hour=1),
+            # Increase the frequency because we have 255k closed versions and they keep growing.
+            # It's better to increase this frequency than the `limit=` of the task.
+            'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
         'every-day-resync-remote-repositories': {
@@ -503,10 +525,18 @@ class CommunityBaseSettings(Settings):
             'task': 'readthedocs.domains.tasks.email_pending_custom_domains',
             'schedule': crontab(minute=0, hour=3),
             'options': {'queue': 'web'},
-        }
+        },
+        'every-15m-delete-pidbox-objects': {
+            'task': 'readthedocs.core.tasks.cleanup_pidbox_keys',
+            'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
+        'weekly-config-file-notification': {
+            'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
+            'schedule': crontab(day_of_week='wednesday', hour=11, minute=15),
+            'options': {'queue': 'web'},
+        },
     }
-
-    MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
 
     # Sentry
     SENTRY_CELERY_IGNORE_EXPECTED = True
@@ -514,8 +544,6 @@ class CommunityBaseSettings(Settings):
     # Docker
     DOCKER_ENABLE = False
     DOCKER_SOCKET = 'unix:///var/run/docker.sock'
-    # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
-    DOCKER_BUILD_IMAGES = None
 
     # User used to create the container.
     # In production we use the same user than the one defined by the
@@ -529,10 +557,9 @@ class CommunityBaseSettings(Settings):
 
     RTD_DOCKER_COMPOSE = False
 
-    DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
     DOCKER_VERSION = 'auto'
     DOCKER_DEFAULT_VERSION = 'latest'
-    DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
+    DOCKER_IMAGE = '{}:{}'.format(constants_docker.DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
         # A large number of users still have this pinned in their config file.
         # We must have documented it at some point.
@@ -556,7 +583,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:5.0': {
             'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7'],
                 'default_version': {
                     '2': '2.7',
                     '3': '3.7',
@@ -565,7 +592,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:6.0': {
             'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8'],
                 'default_version': {
                     '2': '2.7',
                     '3': '3.7',
@@ -574,7 +601,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:7.0': {
             'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10', 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10'],
                 'default_version': {
                     '2': '2.7',
                     '3': '3.7',
@@ -591,60 +618,10 @@ class CommunityBaseSettings(Settings):
     })
     # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
-
-    # Adding a new tool/version to this setting requires:
-    #
-    # - a mapping between the expected version in the config file, to the full
-    # version installed via asdf (found via ``asdf list all <tool>``)
-    #
-    # - running the script ``./scripts/compile_version_upload.sh`` in
-    # development and production environments to compile and cache the new
-    # tool/version
-    #
-    # Note that when updating this options, you should also update the file:
-    # readthedocs/rtd_tests/fixtures/spec/v2/schema.json
-    RTD_DOCKER_BUILD_SETTINGS = {
-        # Mapping of build.os options to docker image.
-        'os': {
-            'ubuntu-20.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-20.04',
-            'ubuntu-22.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-22.04',
-        },
-        # Mapping of build.tools options to specific versions.
-        'tools': {
-            'python': {
-                '2.7': '2.7.18',
-                '3.6': '3.6.15',
-                '3.7': '3.7.15',
-                '3.8': '3.8.15',
-                '3.9': '3.9.15',
-                '3.10': '3.10.8',
-                '3.11': '3.11.0',
-                'pypy3.7': 'pypy3.7-7.3.9',
-                'pypy3.8': 'pypy3.8-7.3.9',
-                'pypy3.9': 'pypy3.9-7.3.9',
-                'miniconda3-4.7': 'miniconda3-4.7.12',
-                'mambaforge-4.10': 'mambaforge-4.10.3-10',
-            },
-            'nodejs': {
-                '14': '14.20.1',
-                '16': '16.18.0',
-                '18': '18.11.0',
-                '19': '19.0.0',
-            },
-            'rust': {
-                '1.55': '1.55.0',
-                '1.61': '1.61.0',
-                '1.64': '1.64.0',
-            },
-            'golang': {
-                '1.17': '1.17.13',
-                '1.18': '1.18.7',
-                '1.19': '1.19.2',
-            },
-        },
-    }
-    # Always point to the latest stable release.
-    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.11']
+    RTD_DOCKER_BUILD_SETTINGS = constants_docker.RTD_DOCKER_BUILD_SETTINGS
+    # This is used for the image used to clone the users repo,
+    # since we can't read their config file image choice before cloning
+    RTD_DOCKER_CLONE_IMAGE = RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-22.04"]
 
     def _get_docker_memory_limit(self):
         try:
@@ -702,13 +679,19 @@ class CommunityBaseSettings(Settings):
     # All auth
     ACCOUNT_ADAPTER = 'readthedocs.core.adapters.AccountAdapter'
     ACCOUNT_EMAIL_REQUIRED = True
+
+    # Make email verification mandatory.
+    # Users won't be able to login until they verify the email address.
     ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+
     ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
-    ACCOUNT_ACTIVATION_DAYS = 7
+    ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 7
     SOCIALACCOUNT_AUTO_SIGNUP = False
     SOCIALACCOUNT_STORE_TOKENS = True
+
     SOCIALACCOUNT_PROVIDERS = {
         'github': {
+            "VERIFIED_EMAIL": True,
             'SCOPE': [
                 'user:email',
                 'read:org',
@@ -717,6 +700,7 @@ class CommunityBaseSettings(Settings):
             ],
         },
         'gitlab': {
+            "VERIFIED_EMAIL": True,
             'SCOPE': [
                 'api',
                 'read_user',
@@ -734,21 +718,38 @@ class CommunityBaseSettings(Settings):
     # users to CSRF attacks. The sustainability API is the only view that requires
     # cookies to be send cross-site, we override that for that view only.
     CORS_ALLOW_CREDENTIALS = False
-    CORS_ALLOW_HEADERS = (
-        'x-requested-with',
-        'content-type',
-        'accept',
-        'origin',
-        'authorization',
+
+    # Allow cross-site requests from any origin,
+    # all information from our allowed endpoits is public.
+    #
+    # NOTE: We don't use `CORS_ALLOW_ALL_ORIGINS=True`,
+    # since that will set the `Access-Control-Allow-Origin` header to `*`,
+    # we won't be able to pass credentials fo the sustainability API with that value.
+    CORS_ALLOWED_ORIGIN_REGEXES = [re.compile(".+")]
+    CORS_ALLOW_HEADERS = list(default_headers) + [
         'x-hoverxref-version',
-        'x-csrftoken'
-    )
+    ]
     # Additional protection to allow only idempotent methods.
     CORS_ALLOW_METHODS = [
         'GET',
         'OPTIONS',
         'HEAD',
     ]
+
+    # URLs to allow CORS to read from unauthed.
+    CORS_URLS_REGEX = re.compile(
+        r"""
+        ^(
+            /api/v2/footer_html
+            |/api/v2/search
+            |/api/v2/docsearch
+            |/api/v2/embed
+            |/api/v3/embed
+            |/api/v2/sustainability
+        )
+        """,
+        re.VERBOSE,
+    )
 
     # RTD Settings
     ALLOW_PRIVATE_REPOS = False
@@ -863,19 +864,6 @@ class CommunityBaseSettings(Settings):
     GRAVATAR_DEFAULT_IMAGE = 'https://assets.readthedocs.org/static/images/silhouette.png'  # NOQA
     OAUTH_AVATAR_USER_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     OAUTH_AVATAR_ORG_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
-    RESTRUCTUREDTEXT_FILTER_SETTINGS = {
-        'cloak_email_addresses': True,
-        'file_insertion_enabled': False,
-        'raw_enabled': False,
-        'strip_comments': True,
-        'doctitle_xform': True,
-        'sectsubtitle_xform': True,
-        'initial_header_level': 2,
-        'report_level': 5,
-        'syntax_highlight': 'none',
-        'math_output': 'latex',
-        'field_name_limit': 50,
-    }
     REST_FRAMEWORK = {
         'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA
@@ -1000,3 +988,45 @@ class CommunityBaseSettings(Settings):
     RTD_SPAM_THRESHOLD_DONT_SERVE_DOCS = 500
     RTD_SPAM_THRESHOLD_DELETE_PROJECT = 1000
     RTD_SPAM_MAX_SCORE = 9999
+
+    CACHEOPS_ENABLED = False
+    CACHEOPS_TIMEOUT = 60 * 60  # seconds
+    CACHEOPS_OPS = {'get', 'fetch'}
+    CACHEOPS_DEGRADE_ON_FAILURE = True
+    CACHEOPS = {
+        # readthedocs.projects.*
+        'projects.project': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.feature': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.projectrelationship': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+        'projects.domain': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.builds.*
+        'builds.version': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.organizations.*
+        'organizations.organization': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+
+        # readthedocs.subscriptions.*
+        'subscriptions.planfeature': {
+            'ops': CACHEOPS_OPS,
+            'timeout': CACHEOPS_TIMEOUT,
+        },
+    }

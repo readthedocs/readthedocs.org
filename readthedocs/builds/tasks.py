@@ -7,6 +7,7 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 
 from readthedocs import __version__
 from readthedocs.api.v2.serializers import BuildCommandSerializer
@@ -200,7 +201,10 @@ def archive_builds_task(self, days=14, limit=200, delete=False):
         queryset = (
             Build.objects
             .exclude(cold_storage=True)
-            .filter(date__lt=max_date)
+            .filter(
+                date__lt=max_date,
+                date__gt=max_date - timezone.timedelta(days=90),
+            )
             .prefetch_related('commands')
             .only('date', 'cold_storage')
             [:limit]
@@ -261,8 +265,9 @@ def delete_closed_external_versions(limit=200, days=30 * 3):
                     build_pk=last_build.pk,
                     commit=last_build.commit,
                     status=status,
-                    link_to_build=True,
                 )
+        except (TokenExpiredError, InvalidGrantError):
+            log.info("Failed to send status due to expired/invalid token.")
         except Exception:
             log.exception(
                 "Failed to send status",
@@ -290,8 +295,16 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     Creates new Version objects for tags/branches that aren't tracked in the database,
     and deletes Version objects for tags/branches that don't exists in the repository.
 
-    :param tags_data: List of dictionaries with ``verbose_name`` and ``identifier``.
-    :param branches_data: Same as ``tags_data`` but for branches.
+    :param tags_data: List of dictionaries with ``verbose_name`` and ``identifier``
+                      Example: [
+                          {"verbose_name": "v1.0.0",
+                           "identifier": "67a9035990f44cb33091026d7453d51606350519"},
+                      ].
+    :param branches_data: Same as ``tags_data`` but for branches (branch name, branch identifier).
+                      Example: [
+                          {"verbose_name": "latest",
+                           "identifier": "main"},
+                      ].
     :returns: `True` or `False` if the task succeeded.
     """
     project = Project.objects.get(pk=project_pk)
@@ -377,7 +390,7 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
     default_retry_delay=60,
     queue='web'
 )
-def send_build_status(build_pk, commit, status, link_to_build=False):
+def send_build_status(build_pk, commit, status):
     """
     Send Build Status to Git Status API for project external versions.
 
@@ -390,7 +403,7 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
     :param commit: commit sha of the pull/merge request
     :param status: build status failed, pending, or success to be sent.
     """
-    # TODO: Send build status for BitBucket.
+    # TODO: Send build status for Bitbucket.
     build = Build.objects.filter(pk=build_pk).first()
     if not build:
         return
@@ -429,10 +442,9 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                 service = service_class(relation.user, relation.account)
                 # Send status report using the API.
                 success = service.send_build_status(
-                    build=build,
-                    commit=commit,
-                    state=status,
-                    link_to_build=link_to_build,
+                    build,
+                    commit,
+                    status,
                 )
 
                 if success:
@@ -449,7 +461,11 @@ def send_build_status(build_pk, commit, status, link_to_build=False):
                 # Try to loop through services for users all social accounts
                 # to send successful build status
                 for service in services:
-                    success = service.send_build_status(build, commit, status)
+                    success = service.send_build_status(
+                        build,
+                        commit,
+                        status,
+                    )
                     if success:
                         log.debug(
                             'Build status report sent correctly using an user account.',
@@ -558,6 +574,11 @@ class BuildNotificationSender:
                 protocol,
                 settings.PRODUCTION_DOMAIN,
                 self.build.get_absolute_url(),
+            ),
+            "build_raw": "{}://{}{}".format(
+                protocol,
+                settings.PRODUCTION_DOMAIN,
+                reverse("build-detail", args=[self.build.pk, "txt"]),
             ),
             'unsubscribe_url': '{}://{}{}'.format(
                 protocol,

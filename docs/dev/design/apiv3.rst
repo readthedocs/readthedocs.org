@@ -1,5 +1,5 @@
 ======================
-API v3 Design Document
+API v3 design document
 ======================
 
 This document describes the design,

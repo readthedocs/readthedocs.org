@@ -79,9 +79,9 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
 
    Read the Docs needs elevated permissions to perform certain operations
    that ensure that the workflow is as smooth as possible,
-   like installing webhooks.
+   like installing :term:`webhooks <webhook>`.
    If you want to learn more,
-   check out :ref:`connected-accounts:permissions for connected accounts`.
+   check out :ref:`guides/setup/git-repo-automatic:permissions for connected accounts`.
 
 After that, you will be redirected to Read the Docs,
 where you will need to confirm your e-mail and username.
@@ -284,8 +284,14 @@ you will access the build logs,
 otherwise it will take you directly to the documentation.
 When you are satisfied, you can merge the pull request!
 
-Customizing the build process
------------------------------
+Adding a configuration file
+---------------------------
+
+As of September 2023,
+:doc:`you will need to add a configuration file to build your documentation <rtd-blog:migrate-configuration-v2>`.
+Until then,
+this example project will build without the configuration file,
+but we **strongly recommend** completing this section in order to add a configuration file.
 
 The Settings page of the :term:`project home` allows you
 to change some *global* configuration values of your project.
@@ -297,9 +303,13 @@ This has several advantages:
 - It can be different for every version (more on versioning in the next section).
 - Some configurations are only available using the config file.
 
-Read the Docs works without this configuration
-by :ref:`making some decisions on your behalf <build-default-versions:Default versions of dependencies>`.
-For example, what Python version to use, how to install the requirements, and others.
+This configuration file should be part of your Git repository.
+It should be located in the base folder of the repository and be named ``.readthedocs.yaml``.
+
+.. TODO: We are adding a how-to that we need to include in this tutorial.
+.. Maybe by reference or maybe as full-featured content.
+
+In this section, we will show you some examples of what a configuration file should contain.
 
 .. tip::
 
@@ -580,7 +590,7 @@ how readers are using your documentation, addressing some common questions like:
 
 Read the Docs offers you some analytics tools to find out the answers.
 
-Browsing Traffic Analytics
+Browsing traffic analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The :doc:`/analytics` view shows the top viewed documentation pages of the past 30 days,
@@ -621,11 +631,11 @@ and click on the :guilabel:`Download all data` button.
 That will prompt you to download a :abbr:`CSV (Comma-Separated Values)` file
 that you can process any way you want.
 
-Browsing Search Analytics
+Browsing search analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Apart from traffic analytics, Read the Docs also offers the possibility
-to inspect :ref:`what search terms your readers use <server-side-search/index:Search Analytics>`
+to inspect :doc:`what search terms your readers use </guides/search-analytics>`
 on your documentation.
 This can inform decisions on what areas to reinforce,
 or what parts of your project are less understood or more difficult to find.
@@ -665,7 +675,7 @@ Here you have some resources to continue learning about documentation
 and Read the Docs:
 
 - You can learn more about the functionality of the platform
-  by going over our :doc:`/features` page.
+  by going over our :doc:`features </reference/features>` page.
 - To make the most of the documentation generators that are supported,
   you can read the :doc:`Sphinx tutorial <sphinx:tutorial/index>`
   or the `MkDocs User Guide <https://www.mkdocs.org/user-guide/>`_.
@@ -673,9 +683,6 @@ and Read the Docs:
 - Whether you are a documentation author, a project administrator, a developer, or a designer,
   you can follow our how-to guides that cover specific tasks,
   available under :doc:`/guides/index`.
-- You can check out some of the
-  :ref:`index:Advanced features of Read the Docs`,
-  like :doc:`/subprojects` or :doc:`/automation-rules`, to name a few.
 - For private project support and other enterprise features,
   you can use :doc:`our commercial service </commercial/index>`
   (and if in doubt, check out :doc:`/choosing-a-site`).

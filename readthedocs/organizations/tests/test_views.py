@@ -16,6 +16,7 @@ from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
+from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
@@ -147,7 +148,12 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
         self.assertNotIn(user_b, self.organization.owners.all())
 
 
-@override_settings(RTD_ALLOW_ORGANIZATIONS=True)
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    RTD_DEFAULT_FEATURES={
+        TYPE_AUDIT_LOGS: 90,
+    },
+)
 class OrganizationSecurityLogTests(TestCase):
 
     def setUp(self):
@@ -370,3 +376,100 @@ class OrganizationSignupTestCase(TestCase):
             resp,
             reverse('organization_detail', kwargs={'slug': org.slug}),
         )
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    RTD_DEFAULT_FEATURES={
+        TYPE_AUDIT_LOGS: 90,
+    },
+)
+class OrganizationUnspecifiedChooser(TestCase):
+    def setUp(self):
+        self.owner = get(User, username="owner")
+        self.member = get(User, username="member")
+        self.project = get(Project, slug="project")
+        self.organization = get(
+            Organization,
+            owners=[self.owner],
+            projects=[self.project],
+        )
+        self.team = get(
+            Team,
+            organization=self.organization,
+            members=[self.member],
+        )
+        self.another_organization = get(
+            Organization,
+            owners=[self.owner],
+            projects=[self.project],
+        )
+        self.client.force_login(self.owner)
+
+    def test_choose_organization_edit(self):
+        """
+        Verify that the choose page works.
+        """
+        self.assertEqual(Organization.objects.count(), 2)
+        resp = self.client.get(
+            reverse("organization_choose", kwargs={"next_name": "organization_edit"})
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(
+            resp, reverse("organization_edit", kwargs={"slug": self.organization.slug})
+        )
+        self.assertContains(
+            resp,
+            reverse(
+                "organization_edit", kwargs={"slug": self.another_organization.slug}
+            ),
+        )
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    RTD_DEFAULT_FEATURES={
+        TYPE_AUDIT_LOGS: 90,
+    },
+)
+class OrganizationUnspecifiedSingleOrganizationRedirect(TestCase):
+    def setUp(self):
+        self.owner = get(User, username="owner")
+        self.member = get(User, username="member")
+        self.project = get(Project, slug="project")
+        self.organization = get(
+            Organization,
+            owners=[self.owner],
+            projects=[self.project],
+        )
+        self.client.force_login(self.owner)
+
+    def test_unspecified_slug_redirects_to_organization_edit(self):
+        self.assertEqual(Organization.objects.count(), 1)
+        resp = self.client.get(
+            reverse("organization_choose", kwargs={"next_name": "organization_edit"})
+        )
+        self.assertRedirects(
+            resp, reverse("organization_edit", kwargs={"slug": self.organization.slug})
+        )
+
+
+@override_settings(
+    RTD_ALLOW_ORGANIZATIONS=True,
+    RTD_DEFAULT_FEATURES={
+        TYPE_AUDIT_LOGS: 90,
+    },
+)
+class OrganizationUnspecifiedNoOrganizationRedirect(TestCase):
+    def setUp(self):
+        self.owner = get(User, username="owner")
+        self.member = get(User, username="member")
+        self.project = get(Project, slug="project")
+        self.client.force_login(self.owner)
+
+    def test_choose_organization_edit(self):
+        self.assertEqual(Organization.objects.count(), 0)
+        resp = self.client.get(
+            reverse("organization_choose", kwargs={"next_name": "organization_edit"})
+        )
+        self.assertContains(resp, "You aren't currently a member of any organizations")

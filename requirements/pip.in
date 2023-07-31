@@ -12,11 +12,10 @@ django-autoslug
 django-simple-history==3.0.0
 
 djangorestframework
+djangorestframework-api-key
 
 # For intersphinx during builds
-# We need these pinned to build the docs properly
-Sphinx==4.5.0
-docutils==0.17.1
+Sphinx
 
 # Filtering for the REST API
 django-filter
@@ -34,15 +33,44 @@ jsonfield
 requests
 requests-toolbelt
 slumber
-# awscli (requirements/docker.txt) isn't compatible with pyyaml >= 5.5.
-pyyaml==5.4.1
+pyyaml
 Pygments
 
-# Downgrade redis to 3.5.3 (latest 3.x release) because pip raises this error:
-# django-redis-cache 2.1.3 depends on redis<4.0
-redis==3.5.3
+django-redis
 
-celery
+# NOTE: we have to pin to this version because Celery>=5.3.x detects our ``ConfigError`` exception is not picklable
+# and creates a ``UnpickleableExceptionWrapper`` which is not what our code expects.
+# This may be due to a Python bug which can't pickle/unpickle the exception properly.
+# We could consider either:
+#  - handle ``UnpickleableExceptionWrapper`` in our code and inspect what's the inner exception
+#  - find a way to disable pickling the exceptions
+#  - make our custom exception picklable
+#
+# References:
+#  - https://github.com/celery/celery/pull/8149
+#  - https://github.com/celery/celery/blob/2b4b500ca1212016824a5fa2996cfb752f0763a7/celery/utils/serialization.py#L154
+#  - https://github.com/python/cpython/issues/76877
+#
+# Reproducible example:
+# >>> import pickle
+# >>> class MyException(Exception):
+# ...   def __init__(self, a, b):
+# ...     self.a = a
+# ...     self.b = b
+# ...     super().__init__(a)
+# ...
+# >>> pickle.loads(pickle.dumps(MyException("a", "b")))
+# Traceback (most recent call last):
+#   File "<stdin>", line 1, in <module>
+# TypeError: MyException.__init__() missing 1 required positional argument: 'b'
+# >>>
+celery==5.2.7
+
+# Docker images need a dependency explicity marked for tzdata in order to have
+# necessary timezone data.
+# https://github.com/readthedocs/readthedocs.org/issues/10453
+# TODO: remove this dependency once we upgrade Celery. It should auto-install it.
+tzdata
 
 # 0.52.0 requires creating a new email template:
 #  templates/account/email/acccount_already_exists_message.html
@@ -70,7 +98,6 @@ orjson
 # Utils
 django-gravatar2
 pytz
-django-kombu
 
 # We cannot upgrade it until dj-stripe fixes this issue
 # https://github.com/dj-stripe/dj-stripe/issues/1842
@@ -95,9 +122,13 @@ git+https://github.com/mozilla/unicode-slugify@b696c37#egg=unicode-slugify==0.1.
 # "RecursionError: maximum recursion depth exceeded in comparison"
 django-formtools<2.4
 
-django-crispy-forms
+# We cannot upgrade to >=2 because it fails with
+# django.template.exceptions.TemplateDoesNotExist: bootstrap/field.html
+django-crispy-forms<2
 
-docker
+# Force to upgrade to a version with a fix for socket timeouts
+# https://docker-py.readthedocs.io/en/stable/change-log.html#bugfixes
+docker==6.1.2
 
 django-annoying
 django-messages-extends
@@ -108,9 +139,8 @@ dj-pagination
 # Version comparison stuff
 packaging
 
-# django-cors-middleware==1.5.0 fails with
-# AttributeError: 'dict' object has no attribute 'has_header'
-django-cors-middleware==1.4.0
+# Allow cross-site requests to some of our APIs.
+django-cors-headers
 
 # User agent parsing - used for analytics purposes
 user-agents
@@ -130,3 +160,7 @@ django-structlog==2.2.0
 
 structlog
 dparse
+
+gunicorn
+
+django-cacheops

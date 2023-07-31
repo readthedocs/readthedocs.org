@@ -8,6 +8,7 @@ import structlog
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
 from django.urls import reverse
+from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
@@ -518,17 +519,16 @@ class GitLabService(Service):
         integration.remove_secret()
         return (False, resp)
 
-    def send_build_status(self, build, commit, state, link_to_build=False):
+    def send_build_status(self, build, commit, status):
         """
         Create GitLab commit status for project.
 
         :param build: Build to set up commit status for
         :type build: Build
-        :param state: build state failure, pending, or success.
-        :type state: str
+        :param status: build status failure, pending, or success.
+        :type status: str
         :param commit: commit sha of the pull request
         :type commit: str
-        :param link_to_build: If true, link to the build page regardless the state.
         :returns: boolean based on commit status creation was successful or not.
         :rtype: Bool
         """
@@ -541,14 +541,16 @@ class GitLabService(Service):
         if repo_id is None:
             return (False, resp)
 
-        # select the correct state and description.
-        gitlab_build_state = SELECT_BUILD_STATUS[state]['gitlab']
-        description = SELECT_BUILD_STATUS[state]['description']
+        # select the correct status and description.
+        gitlab_build_state = SELECT_BUILD_STATUS[status]["gitlab"]
+        description = SELECT_BUILD_STATUS[status]["description"]
 
-        target_url = build.get_full_url()
-
-        if not link_to_build and state == BUILD_STATUS_SUCCESS:
+        if status == BUILD_STATUS_SUCCESS:
+            # Link to the documentation for this version
             target_url = build.version.get_absolute_url()
+        else:
+            # Link to the build detail's page
+            target_url = build.get_full_url()
 
         context = f'{settings.RTD_BUILD_STATUS_API_NAME}:{project.slug}'
 
@@ -600,4 +602,9 @@ class GitLabService(Service):
                 'GitLab commit status creation failed.',
                 debug_data=debug_data,
             )
-            return False
+        except InvalidGrantError:
+            log.info("Invalid GitLab grant for user.", exc_info=True)
+        except TokenExpiredError:
+            log.info("GitLab token expired for user.", exc_info=True)
+
+        return False

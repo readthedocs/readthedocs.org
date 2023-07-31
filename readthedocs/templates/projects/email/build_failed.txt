@@ -8,7 +8,10 @@ Error:
 You can find out more about this failure here:
 {{ build_url }}
 
-If you have questions, a good place to start is the FAQ:
-https://docs.readthedocs.io/page/faq.html
+A good place to start debugging this error is our build troubleshooting guide: https://docs.readthedocs.io/page/guides/build-troubleshooting.html
+
+We also suggest reading our build process overview to get a better sense for how the builds are executed: https://docs.readthedocs.io/page/builds.html
+
+You can unsubscribe from these emails in your notification settings: {{ unsubscribe_url }}.
 
 {% endblock %}

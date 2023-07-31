@@ -1,4 +1,4 @@
-Documentation Style Guide
+Documentation style guide
 =========================
 
 This document will serve as the canonical place to define how we write documentation at Read the Docs.
@@ -49,16 +49,30 @@ Content
   * ``:guilabel:`<your username>` dropdown``
 * Make sure that **all bullet list items end with a period**, and don't mix periods with no periods.
 
-Word List
+Word list
 ---------
 
 We have a specific way that we write common words:
 
+* ``build command`` is the name of each step in the file.
+  We try to avoid confusion with pipelines, jobs and steps from other CIs,
+  as we do not have a multi-dimentional build sequence.
+* ``build job`` is the name of the general and pre-defined steps that can be overridden.
+  They are similar to "steps" in pipelines,
+  but on Read the Docs they are pre-defined.
+  So it's important to have a unique name.
+* ``Git`` should be upper case. Except when referring to the :program:`git` command, then it should be written as `:program:\`git\``.
 * ``Git repository`` for the place that stores Git repos. We used to use ``VCS``, but this is deprecated.
 * ``Git provider`` for generic references to GitHub/Bitbucket/GitLab/Gitea etc.
   We avoid "host" and "platform" because they are slightly more ambiguous.
+* ``how to`` do the thing is explained in a ``how-to guide`` (notice hyphen and spaces).
+* ``lifecycle`` is spelled without hyphen nor space.
 * ``open source`` should be lower case, unless you are definitely referring to `OSI's Open Source Definition <https://opensource.org/osd>`.
-* ``Git`` should be upper case. Except when referring to the :program:`git` command, then it should be written as `:program:\`git\``.
+* ``.readthedocs.yaml`` is the general name of the build configuration file.
+  Even though we allow custom paths to the config file,
+  we only validate ``.readthedocs.yaml`` as the file name.
+  Older variations of the name are considered legacy.
+  We do not refer to it in general terms.
 
 Substitutions
 -------------
@@ -187,9 +201,11 @@ This means that *both content and navigation path* for all sections should fit a
 Explanation
 ~~~~~~~~~~~
 
-* Introduce the scope: **“This article introduces ...”**
-  (write this as the very first thing,
-  then consider rewriting it or turning it into an internal comment afterwards).
+* Title convention: Use words indicating explanation in the title.
+  Like **Understanding <subject>**, **Dive into <subject>**, **Introduction to <subject>** etc.
+* Introduce the scope in the first paragraph: **“This article introduces ...”**.
+  Write this as the very first thing,
+  then re-read it and potentially shorten it later in your writing process.
 * Cross-reference the related How-to Guide.
   Put a ``seealso::`` somewhere visible.
   It should likely be placed right after the introduction,
@@ -197,12 +213,20 @@ Explanation
 * Consider adding an Examples section.
 * Can you add screenshots or diagrams?
 
-How-to Guides
+How-to guides
 ~~~~~~~~~~~~~
 
-* Title should begin with **“How to ...”**,
-  but navigation titles should not contain the “How to” part.
+* Title should begin with **“How to ...”**.
+  If the how-to guide is specific for a tool, make sure to note it in the title.
+* Navigation titles should not contain the “How to” part.
+  Navigation title for "How to create a thing" is **Creating a thing**.
 * Introduce the scope: **“In this guide, we will…”**
+
+  * Introduction paragraph suggestions:
+
+    * "This guide shows <something>. <motivation>"
+    * "<motivation>. This guide shows you how."
+
 * Cross-reference related explanation.
   Put a ``seealso::`` somewhere visible,
   It should likely be placed right after the introduction
@@ -231,6 +255,7 @@ Tutorial
 
 .. note:: We don’t really have tutorials targeted in the systematic refactor, so this checklist isn’t very important right now.
 
+* "Getting started with <subject>" is likely a good start!
 * Cross-reference related explanation and how-to.
 * Try not to explain things too much, and instead link to the explanation content.
 * **Refactor other resources** so you can use references instead of disturbing the flow of the tutorial.

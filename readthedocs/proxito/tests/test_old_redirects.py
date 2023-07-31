@@ -14,8 +14,10 @@ import pytest
 from django.http import Http404
 from django.test.utils import override_settings
 from django.urls import Resolver404
+from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
+from readthedocs.projects.models import Feature
 from readthedocs.redirects.models import Redirect
 
 from .base import BaseDocServing
@@ -149,6 +151,18 @@ class InternalRedirectTests(BaseDocServing):
         self.assertEqual(
             r['Location'],
             'http://project.dev.readthedocs.io/en/latest/?foo=bar',
+        )
+
+
+class ProxitoV2InternalRedirectTests(InternalRedirectTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
         )
 
 
@@ -513,6 +527,11 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             from_url='/install.html',
             to_url='/tutorial/install.html',
         )
+        fixture.get(
+            Feature,
+            feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER,
+            projects=[self.project],
+        )
         r = self.client.get(
             '/install.html',
             HTTP_HOST='docs.project.io',
@@ -641,6 +660,55 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
                 '/en/latest/section/file-not-found',
                 HTTP_HOST='project.dev.readthedocs.io',
             )
+
+
+class ProxitoV2UserRedirectTests(UserRedirectTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
+
+    def test_redirect_using_projects_prefix(self):
+        """
+        Test that we can support redirects using the ``/projects/`` prefix.
+
+        https://github.com/readthedocs/readthedocs.org/issues/7552
+        """
+        redirect = fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="exact",
+            from_url="/projects/$rest",
+            to_url="https://example.com/projects/",
+        )
+        self.assertEqual(self.project.redirects.count(), 1)
+        r = self.client.get(
+            "/projects/deleted-subproject/en/latest/guides/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "https://example.com/projects/deleted-subproject/en/latest/guides/install.html",
+        )
+
+        redirect.from_url = "/projects/not-found/$rest"
+        redirect.to_url = "/projects/subproject/"
+        redirect.save()
+        r = self.client.get(
+            "/projects/not-found/en/latest/guides/install.html",
+            HTTP_HOST="project.dev.readthedocs.io",
+        )
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/projects/subproject/en/latest/guides/install.html",
+        )
 
 
 @override_settings(PUBLIC_DOMAIN="dev.readthedocs.io")
@@ -850,6 +918,11 @@ class UserForcedRedirectTests(BaseDocServing):
             to_url="/tutorial/install.html",
             force=True,
         )
+        fixture.get(
+            Feature,
+            feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER,
+            projects=[self.project],
+        )
         r = self.client.get(
             "/en/latest/install.html",
             HTTP_HOST="docs.project.io",
@@ -932,6 +1005,19 @@ class UserForcedRedirectTests(BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
         )
 
+
+class ProxitoV2UserForcedRedirectTests(UserForcedRedirectTests):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
+
+
 @override_settings(
     PYTHON_MEDIA=True,
     PUBLIC_DOMAIN="dev.readthedocs.io",
@@ -990,7 +1076,16 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             self.assertEqual(r.status_code, 302, url)
             self.assertEqual(r["Location"], expected_location, url)
 
-        # These aren't even handled by Django.
+    def test_redirect_prefix_crossdomain_with_newline_chars(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="prefix",
+            from_url="/",
+        )
+        # We make use of Django's URL resolve in the current implementation,
+        # which doesn't handle these chars and raises an exception
+        # instead of redirecting.
         urls = [
             # Trying to bypass the protocol check by including a `\n` char.
             "http://project.dev.readthedocs.io/http:/%0A/my.host/path.html",
@@ -1067,6 +1162,49 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             ),
         ]
 
+        for url, expected_location in urls:
+            r = self.client.get(
+                url,
+                HTTP_HOST="project.dev.readthedocs.io",
+            )
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)
+
+
+class ProxitoV2UserRedirectCrossdomainTest(UserRedirectCrossdomainTest):
+    # TODO: remove this class once the new implementation is the default.
+    def setUp(self):
+        super().setUp()
+        get(
+            Feature,
+            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
+            default_true=True,
+            future_default_true=True,
+        )
+
+    def test_redirect_prefix_crossdomain_with_newline_chars(self):
+        """
+        Overridden to make it compatible with the new implementation.
+
+        In the new implementation we will correctly redirect,
+        instead of raising an exception.
+        """
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type="prefix",
+            from_url="/",
+        )
+        urls = [
+            (
+                "http://project.dev.readthedocs.io/http:/%0A/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/http://my.host/path.html",
+            ),
+            (
+                "http://project.dev.readthedocs.io/%0A/my.host/path.html",
+                "http://project.dev.readthedocs.io/en/latest/my.host/path.html",
+            ),
+        ]
         for url, expected_location in urls:
             r = self.client.get(
                 url,

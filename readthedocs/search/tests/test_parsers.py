@@ -37,44 +37,6 @@ class TestParsers:
             yield read_mock
         return f
 
-    @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
-    @mock.patch.object(BuildMediaFileSystemStorage, 'open')
-    def test_mkdocs(self, storage_open, storage_exists):
-        json_file = data_path / 'mkdocs/in/search_index.json'
-        storage_open.side_effect = self._mock_open(
-            json_file.open().read()
-        )
-        storage_exists.return_value = True
-
-        self.version.documentation_type = MKDOCS
-        self.version.save()
-
-        index_file = get(
-            HTMLFile,
-            project=self.project,
-            version=self.version,
-            path='index.html',
-        )
-        versions_file = get(
-            HTMLFile,
-            project=self.project,
-            version=self.version,
-            path='versions/index.html',
-        )
-        no_title_file = get(
-            HTMLFile,
-            project=self.project,
-            version=self.version,
-            path='no-title/index.html',
-        )
-
-        parsed_json = [
-            index_file.processed_json,
-            versions_file.processed_json,
-            no_title_file.processed_json,
-        ]
-        expected_json = json.load(open(data_path / 'mkdocs/out/search_index.json'))
-        assert parsed_json == expected_json
 
     @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
     @mock.patch.object(BuildMediaFileSystemStorage, 'open')
@@ -199,37 +161,6 @@ class TestParsers:
         expected_json = json.load(open(data_path / 'mkdocs/out/readthedocs-1.1.json'))
         assert parsed_json == expected_json
 
-    @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
-    @mock.patch.object(BuildMediaFileSystemStorage, 'open')
-    def test_mkdocs_old_version(self, storage_open, storage_exists):
-        json_file = data_path / 'mkdocs/in/search_index_old.json'
-        storage_open.side_effect = self._mock_open(
-            json_file.open().read()
-        )
-        storage_exists.return_value = True
-
-        self.version.documentation_type = MKDOCS
-        self.version.save()
-
-        index_file = get(
-            HTMLFile,
-            project=self.project,
-            version=self.version,
-            path='index.html',
-        )
-        versions_file = get(
-            HTMLFile,
-            project=self.project,
-            version=self.version,
-            path='versions/index.html',
-        )
-
-        parsed_json = [
-            index_file.processed_json,
-            versions_file.processed_json,
-        ]
-        expected_json = json.load(open(data_path / 'mkdocs/out/search_index_old.json'))
-        assert parsed_json == expected_json
 
     @mock.patch.object(BuildMediaFileSystemStorage, 'exists')
     @mock.patch.object(BuildMediaFileSystemStorage, 'open')
@@ -283,6 +214,136 @@ class TestParsers:
 
         parsed_json = page_file.processed_json
         expected_json = json.load(open(data_path / 'sphinx/out/no-title.json'))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, "exists")
+    @mock.patch.object(BuildMediaFileSystemStorage, "open")
+    def test_sphinx_httpdomain(self, storage_open, storage_exists):
+        json_file = data_path / "sphinx/in/httpdomain.json"
+        html_content = data_path / "sphinx/in/httpdomain.html"
+
+        json_content = json.load(json_file.open())
+        json_content["body"] = html_content.open().read()
+        storage_open.side_effect = self._mock_open(json.dumps(json_content))
+        storage_exists.return_value = True
+
+        self.version.save()
+
+        page_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="httpdomain.html",
+        )
+
+        parsed_json = page_file.processed_json
+        expected_json = json.load(open(data_path / "sphinx/out/httpdomain.json"))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, "exists")
+    @mock.patch.object(BuildMediaFileSystemStorage, "open")
+    def test_sphinx_autodoc(self, storage_open, storage_exists):
+        # Source:
+        # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#directive-automodule
+        json_file = data_path / "sphinx/in/autodoc.json"
+        html_content = data_path / "sphinx/in/autodoc.html"
+
+        json_content = json.load(json_file.open())
+        json_content["body"] = html_content.open().read()
+        storage_open.side_effect = self._mock_open(json.dumps(json_content))
+        storage_exists.return_value = True
+
+        self.version.save()
+
+        page_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="autodoc.html",
+        )
+
+        parsed_json = page_file.processed_json
+        expected_json = json.load(open(data_path / "sphinx/out/autodoc.json"))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, "exists")
+    @mock.patch.object(BuildMediaFileSystemStorage, "open")
+    def test_sphinx_local_toc(self, storage_open, storage_exists):
+        """
+        Test that the local table of contents from the ``contents``
+        directive is not included in the indexed content.
+        """
+        # Source:
+        # https://docs.readthedocs.io/en/stable/security.html
+        html_content = data_path / "sphinx/in/local-toc.html"
+        storage_open.side_effect = self._mock_open(html_content.open().read())
+        storage_exists.return_value = True
+
+        self.project.feature_set.add(self.feature)
+        self.version.documentation_type = SPHINX
+        self.version.save()
+
+        page_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="local-toc.html",
+        )
+
+        parsed_json = page_file.processed_json
+        expected_json = json.load(open(data_path / "sphinx/out/local-toc.json"))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, "exists")
+    @mock.patch.object(BuildMediaFileSystemStorage, "open")
+    def test_sphinx_toctree(self, storage_open, storage_exists):
+        """
+        Test that the table of contents from the ``toctree``
+        directive is not included in the indexed content.
+        """
+        # Source:
+        # https://docs.readthedocs.io/en/stable/api/index.html
+        html_content = data_path / "sphinx/in/toctree.html"
+        json_content = {"body": html_content.open().read()}
+        storage_open.side_effect = self._mock_open(json.dumps(json_content))
+        storage_exists.return_value = True
+
+        self.version.documentation_type = SPHINX
+        self.version.save()
+
+        page_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="toctree.html",
+        )
+
+        parsed_json = page_file.processed_json
+        expected_json = json.load(open(data_path / "sphinx/out/toctree.json"))
+        assert parsed_json == expected_json
+
+    @mock.patch.object(BuildMediaFileSystemStorage, "exists")
+    @mock.patch.object(BuildMediaFileSystemStorage, "open")
+    def test_sphinx_requests(self, storage_open, storage_exists):
+        # Source:
+        # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#directive-automodule
+        html_content = data_path / "sphinx/in/requests.html"
+
+        json_content = {"body": html_content.open().read()}
+        storage_open.side_effect = self._mock_open(json.dumps(json_content))
+        storage_exists.return_value = True
+
+        self.version.save()
+
+        page_file = get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="requests.html",
+        )
+
+        parsed_json = page_file.processed_json
+        expected_json = json.load(open(data_path / "sphinx/out/requests.json"))
         assert parsed_json == expected_json
 
     @mock.patch.object(BuildMediaFileSystemStorage, "exists")

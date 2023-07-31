@@ -1,11 +1,11 @@
-Embedding Content From Your Documentation
-=========================================
+How to embed content from your documentation
+============================================
 
 Read the Docs allows you to embed content from any of the projects we host and specific allowed external domains
-(currently, :djangosetting:`RTD_EMBED_API_EXTERNAL_DOMAINS`)
+(currently, ``docs.python.org``, ``docs.scipy.org``, ``docs.sympy.org``, ``numpy.org``)
 This allows reuse of content across sites, making sure the content is always up to date.
 
-There are a number of uses cases for embedding content,
+There are a number of use cases for embedding content,
 so we've built our integration in a way that enables users to build on top of it.
 This guide will show you some of our favorite integrations:
 
