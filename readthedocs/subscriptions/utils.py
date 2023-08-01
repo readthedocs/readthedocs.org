@@ -48,7 +48,6 @@ def get_or_create_stripe_customer(organization):
             try:
                 # TODO: Don't fully trust on djstripe yet,
                 # the customer may not be in our DB yet.
-                # pylint: disable=protected-access
                 stripe_customer = djstripe.Customer._get_or_retrieve(
                     organization.stripe_id
                 )
