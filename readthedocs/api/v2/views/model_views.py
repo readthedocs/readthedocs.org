@@ -340,7 +340,6 @@ class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
         if BuildCommandResult.objects.filter(
             build=serializer.validated_data["build"],
             start_time=serializer.validated_data["start_time"],
-            command=serializer.validated_data["command"],
         ).exists():
             log.warning("Build command is duplicated. Skipping...")
             return
