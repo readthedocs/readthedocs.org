@@ -196,6 +196,7 @@ class TestStripeEventHandlers(TestCase):
             djstripe.SubscriptionItem,
             id="si_KOcEsHCktPUedU",
             price=price,
+            quantity=1,
             subscription=stripe_subscription,
         )
         event = get(
@@ -240,6 +241,7 @@ class TestStripeEventHandlers(TestCase):
             djstripe.SubscriptionItem,
             id="si_KOcEsHCktPUedU",
             price=price,
+            quantity=1,
             subscription=stripe_subscription,
         )
         event = get(
@@ -312,6 +314,7 @@ class TestStripeEventHandlers(TestCase):
             djstripe.SubscriptionItem,
             id="si_KOcEsHCktPUedU",
             price=price,
+            quantity=1,
             subscription=stripe_subscription,
         )
 

@@ -92,6 +92,7 @@ class SubscriptionViewTests(TestCase):
         get(
             djstripe.SubscriptionItem,
             price=self.stripe_price,
+            quantity=1,
             subscription=stripe_subscription,
         )
         return stripe_subscription
