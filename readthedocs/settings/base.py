@@ -12,7 +12,7 @@ from celery.schedules import crontab
 from readthedocs.core.logs import shared_processors
 from corsheaders.defaults import default_headers
 from readthedocs.core.settings import Settings
-
+from readthedocs.builds import constants_docker
 
 try:
     import readthedocsext  # noqa
@@ -557,10 +557,9 @@ class CommunityBaseSettings(Settings):
 
     RTD_DOCKER_COMPOSE = False
 
-    DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
     DOCKER_VERSION = 'auto'
     DOCKER_DEFAULT_VERSION = 'latest'
-    DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
+    DOCKER_IMAGE = '{}:{}'.format(constants_docker.DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
         # A large number of users still have this pinned in their config file.
         # We must have documented it at some point.
@@ -619,60 +618,10 @@ class CommunityBaseSettings(Settings):
     })
     # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
-
-    # Adding a new tool/version to this setting requires:
-    #
-    # - a mapping between the expected version in the config file, to the full
-    # version installed via asdf (found via ``asdf list all <tool>``)
-    #
-    # - running the script ``./scripts/compile_version_upload.sh`` in
-    # development and production environments to compile and cache the new
-    # tool/version
-    #
-    # Note that when updating this options, you should also update the file:
-    # readthedocs/rtd_tests/fixtures/spec/v2/schema.json
-    RTD_DOCKER_BUILD_SETTINGS = {
-        # Mapping of build.os options to docker image.
-        'os': {
-            'ubuntu-20.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-20.04',
-            'ubuntu-22.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-22.04',
-        },
-        # Mapping of build.tools options to specific versions.
-        'tools': {
-            'python': {
-                '2.7': '2.7.18',
-                '3.6': '3.6.15',
-                '3.7': '3.7.17',
-                '3.8': '3.8.17',
-                '3.9': '3.9.17',
-                '3.10': '3.10.12',
-                '3.11': '3.11.4',
-                'miniconda3-4.7': 'miniconda3-4.7.12',
-                'mambaforge-4.10': 'mambaforge-4.10.3-10',
-            },
-            'nodejs': {
-                '14': '14.20.1',
-                '16': '16.18.1',
-                '18': '18.16.1',  # LTS
-                '19': '19.0.1',
-                '20': '20.3.1',
-            },
-            'rust': {
-                '1.55': '1.55.0',
-                '1.61': '1.61.0',
-                '1.64': '1.64.0',
-                '1.70': '1.70.0',
-            },
-            'golang': {
-                '1.17': '1.17.13',
-                '1.18': '1.18.10',
-                '1.19': '1.19.10',
-                '1.20': '1.20.5',
-            },
-        },
-    }
-    # Always point to the latest stable release.
-    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.11']
+    RTD_DOCKER_BUILD_SETTINGS = constants_docker.RTD_DOCKER_BUILD_SETTINGS
+    # This is used for the image used to clone the users repo,
+    # since we can't read their config file image choice before cloning
+    RTD_DOCKER_CLONE_IMAGE = RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-22.04"]
 
     def _get_docker_memory_limit(self):
         try:

@@ -70,15 +70,15 @@ class PythonEnvironment:
                     ','.join(install.extra_requirements)
                 )
             self.build_env.run(
-                self.venv_bin(filename='python'),
-                '-m',
-                'pip',
-                'install',
-                '--upgrade',
-                '--upgrade-strategy',
-                'eager',
-                '--no-cache-dir',
-                '{path}{extra_requirements}'.format(
+                self.venv_bin(filename="python"),
+                "-m",
+                "pip",
+                "install",
+                "--upgrade",
+                "--upgrade-strategy",
+                "only-if-needed",
+                "--no-cache-dir",
+                "{path}{extra_requirements}".format(
                     path=local_path,
                     extra_requirements=extra_req_param,
                 ),

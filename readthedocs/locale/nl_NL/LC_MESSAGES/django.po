@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-17 15:44+0000\n"
+"POT-Creation-Date: 2023-08-01 14:35+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Valeria Doornkamp <doornkamp.v@proton.me>, 2023\n"
 "Language-Team: Dutch (Netherlands) (http://app.transifex.com/readthedocs/"
@@ -22,7 +22,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: analytics/models.py:69 builds/models.py:718 projects/models.py:1486
+#: analytics/models.py:69 builds/models.py:723 projects/models.py:1486
 #: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:262
 msgid "Version"
 msgstr "Versie"
@@ -199,7 +199,7 @@ msgstr "Gebruikers ID"
 msgid "Username"
 msgstr "Gebruikersnaam"
 
-#: audit/models.py:138 builds/models.py:110 builds/models.py:712
+#: audit/models.py:138 builds/models.py:110 builds/models.py:717
 #: projects/models.py:1480 redirects/models.py:57
 msgid "Project"
 msgstr "Project"
@@ -224,7 +224,7 @@ msgstr ""
 msgid "Organization slug"
 msgstr ""
 
-#: audit/models.py:180 builds/models.py:1240
+#: audit/models.py:180 builds/models.py:1245
 msgid "Action"
 msgstr "Actie"
 
@@ -452,7 +452,7 @@ msgstr ""
 msgid "Pull/merge request"
 msgstr ""
 
-#: builds/filters.py:41 builds/models.py:155 builds/models.py:734
+#: builds/filters.py:41 builds/models.py:155 builds/models.py:739
 msgid "State"
 msgstr "Staat"
 
@@ -461,7 +461,7 @@ msgstr "Staat"
 msgid "Any"
 msgstr ""
 
-#: builds/filters.py:47 builds/models.py:115 builds/models.py:724
+#: builds/filters.py:47 builds/models.py:115 builds/models.py:729
 #: sphinx_domains/models.py:59 subscriptions/models.py:97
 msgid "Type"
 msgstr "Type"
@@ -578,209 +578,209 @@ msgstr ""
 msgid "Version {version} of {project} ({pk})"
 msgstr "Version {version} van {project} ({pk})"
 
-#: builds/models.py:746
+#: builds/models.py:751
 msgid "Status"
 msgstr ""
 
-#: builds/models.py:753 integrations/models.py:147
+#: builds/models.py:758 integrations/models.py:147
 msgid "Date"
 msgstr "Datum"
 
-#: builds/models.py:754
+#: builds/models.py:759
 msgid "Success"
 msgstr "Succesvol"
 
-#: builds/models.py:759
+#: builds/models.py:764
 msgid "Setup"
 msgstr "Opbouw"
 
-#: builds/models.py:760
+#: builds/models.py:765
 msgid "Setup error"
 msgstr "Opbouwfout"
 
-#: builds/models.py:761
+#: builds/models.py:766
 msgid "Output"
 msgstr "Resultaat"
 
-#: builds/models.py:762 templates/builds/build_detail.html:227
+#: builds/models.py:767 templates/builds/build_detail.html:227
 msgid "Error"
 msgstr "Fout"
 
-#: builds/models.py:763
+#: builds/models.py:768
 msgid "Exit code"
 msgstr "Exit code"
 
-#: builds/models.py:768 projects/models.py:1497 sphinx_domains/models.py:43
+#: builds/models.py:773 projects/models.py:1497 sphinx_domains/models.py:43
 msgid "Commit"
 msgstr "Commit"
 
-#: builds/models.py:774
+#: builds/models.py:779
 msgid "Version slug"
 msgstr ""
 
-#: builds/models.py:780
+#: builds/models.py:785
 msgid "Version name"
 msgstr ""
 
-#: builds/models.py:786 builds/models.py:1253
+#: builds/models.py:791 builds/models.py:1258
 msgid "Version type"
 msgstr ""
 
-#: builds/models.py:793
+#: builds/models.py:798
 msgid "Configuration used in the build"
 msgstr "Gebruikte configuratie voor de bouw"
 
-#: builds/models.py:798
+#: builds/models.py:803
 msgid "Custom build configuration file path used in this build"
 msgstr ""
 
-#: builds/models.py:806
+#: builds/models.py:811
 msgid "Build Length"
 msgstr "Bouwlengte"
 
-#: builds/models.py:809
+#: builds/models.py:814
 msgid "Builder"
 msgstr "Bouwer"
 
-#: builds/models.py:816
+#: builds/models.py:821
 msgid "Cold Storage"
 msgstr "Koude opslag"
 
-#: builds/models.py:822
+#: builds/models.py:827
 msgid "Celery task id"
 msgstr ""
 
-#: builds/models.py:933
+#: builds/models.py:938
 #, python-brace-format
 msgid "Build {project} for {usernames} ({pk})"
 msgstr "Bouw {project} voor {usernames} ({pk})"
 
-#: builds/models.py:1151
+#: builds/models.py:1156
 msgid "Build"
 msgstr "Build"
 
-#: builds/models.py:1156
+#: builds/models.py:1161
 msgid "Command"
 msgstr "Commando"
 
-#: builds/models.py:1157 builds/models.py:1217 oauth/models.py:135
+#: builds/models.py:1162 builds/models.py:1222 oauth/models.py:135
 #: organizations/models.py:66 projects/models.py:150 subscriptions/models.py:28
 #: subscriptions/models.py:100 templates/core/project_details.html:78
 msgid "Description"
 msgstr "Beschrijving"
 
-#: builds/models.py:1158
+#: builds/models.py:1163
 msgid "Command output"
 msgstr "Resultaat van commando"
 
-#: builds/models.py:1159
+#: builds/models.py:1164
 msgid "Command exit code"
 msgstr "Exit code van commando"
 
-#: builds/models.py:1161
+#: builds/models.py:1166
 msgid "Start time"
 msgstr "Starttijd"
 
-#: builds/models.py:1162
+#: builds/models.py:1167
 msgid "End time"
 msgstr "Eindtijd"
 
-#: builds/models.py:1172
+#: builds/models.py:1177
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
 msgstr "Bouwcommando {pk} voor build {build}"
 
-#: builds/models.py:1196
+#: builds/models.py:1201
 msgid "Activate version"
 msgstr ""
 
-#: builds/models.py:1197
+#: builds/models.py:1202
 msgid "Hide version"
 msgstr ""
 
-#: builds/models.py:1198
+#: builds/models.py:1203
 msgid "Make version public"
 msgstr ""
 
-#: builds/models.py:1199
+#: builds/models.py:1204
 msgid "Make version private"
 msgstr ""
 
-#: builds/models.py:1200
+#: builds/models.py:1205
 msgid "Set version as default"
 msgstr ""
 
-#: builds/models.py:1201
+#: builds/models.py:1206
 msgid "Delete version"
 msgstr ""
 
-#: builds/models.py:1213
+#: builds/models.py:1218
 msgid "Rule priority"
 msgstr ""
 
-#: builds/models.py:1214
+#: builds/models.py:1219
 msgid "A lower number (0) means a higher priority"
 msgstr ""
 
-#: builds/models.py:1223
+#: builds/models.py:1228
 msgid "Match argument"
 msgstr ""
 
-#: builds/models.py:1224
+#: builds/models.py:1229
 msgid "Value used for the rule to match the version"
 msgstr ""
 
-#: builds/models.py:1228
+#: builds/models.py:1233
 msgid "Predefined match argument"
 msgstr ""
 
-#: builds/models.py:1230
+#: builds/models.py:1235
 msgid ""
 "Match argument defined by us, it is used if is not None, otherwise match_arg "
 "will be used."
 msgstr ""
 
-#: builds/models.py:1241
+#: builds/models.py:1246
 msgid "Action to apply to matching versions"
 msgstr ""
 
-#: builds/models.py:1246
+#: builds/models.py:1251
 msgid "Action argument"
 msgstr ""
 
-#: builds/models.py:1247
+#: builds/models.py:1252
 msgid "Value used for the action to perfom an operation"
 msgstr ""
 
-#: builds/models.py:1254
+#: builds/models.py:1259
 msgid "Type of version the rule should be applied to"
 msgstr ""
 
-#: builds/models.py:1478
+#: builds/models.py:1483
 msgid "Version activated"
 msgstr ""
 
-#: builds/models.py:1479
+#: builds/models.py:1484
 msgid "Version hidden"
 msgstr ""
 
-#: builds/models.py:1481
+#: builds/models.py:1486
 msgid "Version set to public privacy"
 msgstr ""
 
-#: builds/models.py:1484
+#: builds/models.py:1489
 msgid "Version set to private privacy"
 msgstr ""
 
-#: builds/models.py:1486
+#: builds/models.py:1491
 msgid "Version set as default"
 msgstr ""
 
-#: builds/models.py:1487
+#: builds/models.py:1492
 msgid "Version deleted"
 msgstr ""
 
-#: builds/models.py:1492
+#: builds/models.py:1497
 msgid "Matched rule"
 msgstr ""
 
@@ -3124,67 +3124,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:430
+#: settings/base.py:429
 msgid "Catalan"
 msgstr ""
 
-#: settings/base.py:431
+#: settings/base.py:430
 msgid "English"
 msgstr ""
 
-#: settings/base.py:432
+#: settings/base.py:431
 msgid "Spanish"
 msgstr ""
 
-#: settings/base.py:433
+#: settings/base.py:432
 msgid "Brazilian Portuguese"
 msgstr ""
 
-#: settings/base.py:434
+#: settings/base.py:433
 msgid "Norwegian Bokmål"
 msgstr ""
 
-#: settings/base.py:435
+#: settings/base.py:434
 msgid "French"
 msgstr ""
 
-#: settings/base.py:436
+#: settings/base.py:435
 msgid "Russian"
 msgstr ""
 
-#: settings/base.py:437
+#: settings/base.py:436
 msgid "German"
 msgstr ""
 
-#: settings/base.py:438
+#: settings/base.py:437
 msgid "Galician"
 msgstr ""
 
-#: settings/base.py:439
+#: settings/base.py:438
 msgid "Vietnamese"
 msgstr ""
 
-#: settings/base.py:440
+#: settings/base.py:439
 msgid "Simplified Chinese"
 msgstr ""
 
-#: settings/base.py:441
+#: settings/base.py:440
 msgid "Traditional Chinese"
 msgstr ""
 
-#: settings/base.py:442
+#: settings/base.py:441
 msgid "Japanese"
 msgstr ""
 
-#: settings/base.py:443
+#: settings/base.py:442
 msgid "Ukrainian"
 msgstr ""
 
-#: settings/base.py:444
+#: settings/base.py:443
 msgid "Italian"
 msgstr ""
 
-#: settings/base.py:445
+#: settings/base.py:444
 msgid "Korean"
 msgstr ""
 
