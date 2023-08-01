@@ -177,7 +177,8 @@
                     "3.10",
                     "3.11",
                     "miniconda3-4.7",
-                    "mambaforge-4.10"
+                    "mambaforge-4.10",
+                    "mambaforge-22.9"
                   ]
                 },
                 "nodejs": {

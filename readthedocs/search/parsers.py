@@ -269,12 +269,15 @@ class GenericParser:
             body.css('nav'),
             body.css('[role=navigation]'),
             body.css('[role=search]'),
-            # Permalinks
+            # Permalinks, this is a Sphinx convention.
             body.css('.headerlink'),
             # Line numbers from code blocks, they are very noisy in contents.
             # This convention is popular in Sphinx.
             body.css(".linenos"),
             body.css(".lineno"),
+            # Sphinx doesn't wrap the result from the `toctree` directive
+            # in a nav tag. so we need to manually remove that content.
+            body.css(".toctree-wrapper"),
         )
         for node in nodes_to_be_removed:
             node.decompose()
@@ -516,29 +519,3 @@ class SphinxParser(GenericParser):
             "title": title,
             "sections": sections,
         }
-
-    def _clean_body(self, body):
-        """
-        Removes nodes in Sphinx-generated HTML structures.
-
-        This method is overridden to remove contents that are likely
-        to be useless for search indexing.
-
-        Currently: TOC elements.
-        """
-        body = super()._clean_body(body)
-
-        # TODO: see if we really need to remove TOC elements like below?
-        # benjaoming: I didn't see this in sphinx-rtd-theme, however since it wraps the menu in
-        # a <nav>, it's already covered. I didn't see this match local table of contents, neither
-        # and they are also wrapped in a <nav> so covered by _clean_body as well.
-        nodes_to_be_removed = itertools.chain(
-            body.css(".toctree-wrapper"),
-            body.css(".contents.local.topic"),
-        )
-
-        # removing all nodes in list
-        for node in nodes_to_be_removed:
-            node.decompose()
-
-        return body
