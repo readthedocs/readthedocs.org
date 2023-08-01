@@ -255,6 +255,16 @@ class BuildDirector:
         ) and self.data.config.version not in ("2", 2):
             raise BuildUserError(BuildUserError.NO_CONFIG_FILE_DEPRECATED)
 
+        # Raise a build error if the project is using "build.image" on their config file
+        if self.data.project.has_feature(Feature.BUILD_IMAGE_CONFIG_KEY_DEPRECATED):
+            build_config_key = self.data.config.source_config.get("build", {})
+            if "image" in build_config_key:
+                raise BuildUserError(BuildUserError.BUILD_IMAGE_CONFIG_KEY_DEPRECATED)
+
+            # TODO: move this validation to the Config object once we are settled here
+            if "image" not in build_config_key and "os" not in build_config_key:
+                raise BuildUserError(BuildUserError.BUILD_OS_REQUIRED)
+
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)
 

@@ -51,6 +51,13 @@ class UserProfile(TimeStampedModel):
         default=False,
         null=True,
     )
+    # NOTE: this is a temporary field that we can remove after October 16, 2023
+    # See https://blog.readthedocs.com/build-image-config-deprecated/
+    optout_email_build_image_deprecation = models.BooleanField(
+        _("Opt-out from email about '\"build.image\" config key deprecation'"),
+        default=False,
+        null=True,
+    )
 
     # Model history
     history = ExtraHistoricalRecords()
