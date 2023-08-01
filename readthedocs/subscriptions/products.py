@@ -122,26 +122,26 @@ def get_feature(obj, feature_type) -> RTDProductFeature:
         else:
             raise TypeError
 
-        stripe_subscription = organization.get_or_create_stripe_subscription()
-
         # A subscription can have multiple products, but we only want
         # the products from the organization that has the feature we are looking for.
         available_stripe_products_id = [
             product.stripe_id for product in get_products_with_feature(feature_type)
         ]
-        subscription_items = stripe_subscription.items.filter(
-            price__product__id__in=available_stripe_products_id
-        ).select_related("price__product")
-        final_rtd_feature = None
-        for subscription_item in subscription_items:
-            rtd_feature = settings.RTD_PRODUCTS[
-                subscription_item.price.product.id
-            ].features[feature_type]
-            if final_rtd_feature is None:
-                final_rtd_feature = rtd_feature * subscription_item.quantity
-            else:
-                final_rtd_feature += rtd_feature * subscription_item.quantity
-        if final_rtd_feature:
-            return final_rtd_feature
+        stripe_subscription = organization.get_or_create_stripe_subscription()
+        if stripe_subscription:
+            subscription_items = stripe_subscription.items.filter(
+                price__product__id__in=available_stripe_products_id
+            ).select_related("price__product")
+            final_rtd_feature = None
+            for subscription_item in subscription_items:
+                rtd_feature = settings.RTD_PRODUCTS[
+                    subscription_item.price.product.id
+                ].features[feature_type]
+                if final_rtd_feature is None:
+                    final_rtd_feature = rtd_feature * subscription_item.quantity
+                else:
+                    final_rtd_feature += rtd_feature * subscription_item.quantity
+            if final_rtd_feature:
+                return final_rtd_feature
 
     return settings.RTD_DEFAULT_FEATURES.get(feature_type)
