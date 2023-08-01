@@ -536,6 +536,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(day_of_week='wednesday', hour=11, minute=15),
             'options': {'queue': 'web'},
         },
+        'weekly-build-image-notification': {
+            'task': 'readthedocs.projects.tasks.utils.deprecated_build_image_notification',
+            'schedule': crontab(day_of_week='wednesday', hour=9, minute=15),
+            'options': {'queue': 'web'},
+        },
     }
 
     # Sentry

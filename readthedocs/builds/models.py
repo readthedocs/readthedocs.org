@@ -1104,6 +1104,20 @@ class Build(models.Model):
 
         return int(self.config.get("version", "1")) != LATEST_CONFIGURATION_VERSION
 
+    def deprecated_build_image_used(self):
+        """
+        Check whether this particular build is using the deprecated "build.image" config.
+
+        Note we are using this to communicate deprecation of "build.image".
+        See https://github.com/readthedocs/meta/discussions/48
+        """
+        if not self.config:
+            # Don't notify users without a config file.
+            # We hope they will migrate to `build.os` in the process of adding a `.readthedocs.yaml`
+            return False
+
+        return "image" in self.config.get("build", {})
+
     def reset(self):
         """
         Reset the build so it can be re-used when re-trying.
