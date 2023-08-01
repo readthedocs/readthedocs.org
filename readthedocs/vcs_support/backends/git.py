@@ -330,27 +330,20 @@ class Backend(BaseVCS):
             return False, invalid_submodules
         return True, submodules.keys()
 
-    def use_shallow_clone(self):
-        """
-        Test whether shallow clone should be performed.
-
-        .. note::
-
-            Temporarily, we support skipping this option as builds that rely on
-            git history can fail if using shallow clones. This should
-            eventually be configurable via the web UI.
-        """
-        from readthedocs.projects.models import Feature
-        return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
-
     def fetch(self):
         # --force lets us checkout branches that are not fast-forwarded
         # https://github.com/readthedocs/readthedocs.org/issues/6097
-        cmd = ['git', 'fetch', 'origin',
-               '--force', '--tags', '--prune', '--prune-tags']
-
-        if self.use_shallow_clone():
-            cmd.extend(['--depth', str(self.repo_depth)])
+        cmd = [
+            "git",
+            "fetch",
+            "origin",
+            "--force",
+            "--tags",
+            "--prune",
+            "--prune-tags",
+            "--depth",
+            str(self.repo_depth),
+        ]
 
         if self.verbose_name and self.version_type == EXTERNAL:
 
@@ -378,10 +371,7 @@ class Backend(BaseVCS):
 
     def clone(self):
         """Clones the repository."""
-        cmd = ['git', 'clone', '--no-single-branch']
-
-        if self.use_shallow_clone():
-            cmd.extend(['--depth', str(self.repo_depth)])
+        cmd = ["git", "clone", "--no-single-branch", "--depth", str(self.repo_depth)]
 
         cmd.extend([self.repo_url, '.'])
 

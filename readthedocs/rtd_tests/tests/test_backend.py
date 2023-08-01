@@ -289,19 +289,6 @@ class TestGitBackend(TestCase):
         repo.checkout('submodule')
         self.assertTrue(repo.are_submodules_available(self.dummy_conf))
 
-    def test_use_shallow_clone(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.update()
-        repo.checkout('submodule')
-        self.assertTrue(repo.use_shallow_clone())
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.DONT_SHALLOW_CLONE,
-        )
-        self.assertTrue(self.project.has_feature(Feature.DONT_SHALLOW_CLONE))
-        self.assertFalse(repo.use_shallow_clone())
-
     def test_check_submodule_urls(self):
         repo = self.project.vcs_repo(environment=self.build_environment)
         repo.update()

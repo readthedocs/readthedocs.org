@@ -1914,7 +1914,6 @@ class Feature(models.Model):
     SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
-    DONT_SHALLOW_CLONE = "dont_shallow_clone"
     UPDATE_CONDA_STARTUP = "update_conda_startup"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
@@ -1962,10 +1961,6 @@ class Feature(models.Model):
         (
             MKDOCS_THEME_RTD,
             _("MkDocs: Use Read the Docs theme for MkDocs as default theme"),
-        ),
-        (
-            DONT_SHALLOW_CLONE,
-            _("Build: Do not shallow clone when cloning git repos"),
         ),
         (
             API_LARGE_DATA,
