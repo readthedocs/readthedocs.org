@@ -110,8 +110,8 @@ def get_feature(obj, feature_type) -> RTDProductFeature:
     :param obj: An organization or project instance.
     :param type: The type of the feature (readthedocs.subscriptions.constants.TYPE_*).
     """
-    # Hit the DB only if subscriptions are enabled.
-    if settings.RTD_PRODUCTS:
+    # Hit the DB only if subscriptions and organizations are enabled.
+    if settings.RTD_PRODUCTS and settings.RTD_ALLOW_ORGANIZATIONS:
         from readthedocs.organizations.models import Organization
         from readthedocs.projects.models import Project
 
