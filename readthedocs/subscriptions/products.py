@@ -122,6 +122,11 @@ def get_feature(obj, feature_type) -> RTDProductFeature:
         else:
             raise TypeError
 
+        # This happens when running tests on .com only.
+        # In production projects are always associated with an organization.
+        if not organization:
+            return settings.RTD_DEFAULT_FEATURES.get(feature_type)
+
         # A subscription can have multiple products, but we only want
         # the products from the organization that has the feature we are looking for.
         available_stripe_products_id = [
