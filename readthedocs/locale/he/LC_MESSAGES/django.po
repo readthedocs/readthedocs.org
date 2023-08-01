@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-25 09:50+0000\n"
+"POT-Creation-Date: 2023-08-01 14:35+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019,2022-2023\n"
 "Language-Team: Hebrew (http://app.transifex.com/readthedocs/readthedocs/"
@@ -3269,67 +3269,67 @@ msgstr "שאילתה"
 msgid "Total results"
 msgstr "סך כל התוצאות"
 
-#: settings/base.py:430
+#: settings/base.py:429
 msgid "Catalan"
 msgstr "קטלאנית"
 
-#: settings/base.py:431
+#: settings/base.py:430
 msgid "English"
 msgstr "אנגלי"
 
-#: settings/base.py:432
+#: settings/base.py:431
 msgid "Spanish"
 msgstr "ספרדית"
 
-#: settings/base.py:433
+#: settings/base.py:432
 msgid "Brazilian Portuguese"
 msgstr "פורטוגלית ברזילאית"
 
-#: settings/base.py:434
+#: settings/base.py:433
 msgid "Norwegian Bokmål"
 msgstr "נורווגית ספרותית"
 
-#: settings/base.py:435
+#: settings/base.py:434
 msgid "French"
 msgstr "צרפתית"
 
-#: settings/base.py:436
+#: settings/base.py:435
 msgid "Russian"
 msgstr "רוסית"
 
-#: settings/base.py:437
+#: settings/base.py:436
 msgid "German"
 msgstr "גרמנית"
 
-#: settings/base.py:438
+#: settings/base.py:437
 msgid "Galician"
 msgstr "גליסית"
 
-#: settings/base.py:439
+#: settings/base.py:438
 msgid "Vietnamese"
 msgstr "וייטנאמית"
 
-#: settings/base.py:440
+#: settings/base.py:439
 msgid "Simplified Chinese"
 msgstr "סינית מפושטת"
 
-#: settings/base.py:441
+#: settings/base.py:440
 msgid "Traditional Chinese"
 msgstr "סינית מסורתית"
 
-#: settings/base.py:442
+#: settings/base.py:441
 msgid "Japanese"
 msgstr "יפנית"
 
-#: settings/base.py:443
+#: settings/base.py:442
 msgid "Ukrainian"
 msgstr "אוקראינית"
 
-#: settings/base.py:444
+#: settings/base.py:443
 msgid "Italian"
 msgstr "איטלקית"
 
-#: settings/base.py:445
+#: settings/base.py:444
 msgid "Korean"
 msgstr "קוריאנית"
 
