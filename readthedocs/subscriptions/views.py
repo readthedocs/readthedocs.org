@@ -133,7 +133,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
 
                 for feature_type, feature in rtd_product.features.items():
                     if feature_type not in features:
-                        features[feature_type] = feature
+                        features[feature_type] = feature * item.quantity
                     else:
                         features[feature_type] += feature * item.quantity
 
