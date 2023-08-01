@@ -11,7 +11,10 @@ from djstripe import models as djstripe
 from djstripe.enums import SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
-from readthedocs.subscriptions.constants import TYPE_PRIVATE_DOCS
+from readthedocs.subscriptions.constants import (
+    TYPE_CONCURRENT_BUILDS,
+    TYPE_PRIVATE_DOCS,
+)
 from readthedocs.subscriptions.models import Plan, Subscription
 from readthedocs.subscriptions.products import RTDProduct, RTDProductFeature
 
@@ -19,19 +22,26 @@ from readthedocs.subscriptions.products import RTDProduct, RTDProductFeature
 @override_settings(
     RTD_ALLOW_ORGANIZATIONS=True,
     RTD_PRODUCTS=dict(
-        (
+        [
             RTDProduct(
                 stripe_id="prod_a1b2c3",
                 listed=True,
                 features=dict(
-                    (
+                    [
                         RTDProductFeature(
                             type=TYPE_PRIVATE_DOCS,
                         ).to_item(),
-                    )
+                    ]
                 ),
             ).to_item(),
-        )
+            RTDProduct(
+                stripe_id="prod_extra_builder",
+                extra=True,
+                features=dict(
+                    [RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=1).to_item()]
+                ),
+            ).to_item(),
+        ]
     ),
 )
 class SubscriptionViewTests(TestCase):
@@ -55,6 +65,16 @@ class SubscriptionViewTests(TestCase):
             id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE,
             unit_amount=50000,
             product=self.stripe_product,
+        )
+        self.extra_product = get(
+            djstripe.Product,
+            id="prod_extra_builder",
+        )
+        self.extra_price = get(
+            djstripe.Price,
+            id="price_extra_builder",
+            unit_amount=50000,
+            product=self.extra_product,
         )
         self.stripe_subscription = self._create_stripe_subscription(
             customer_id=self.organization.stripe_id,
@@ -102,6 +122,25 @@ class SubscriptionViewTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.context["stripe_subscription"], self.stripe_subscription)
         self.assertContains(resp, "active")
+        self.assertNotContains(resp, "Extra products:")
+        # The subscribe form isn't shown, but the manage susbcription button is.
+        self.assertContains(resp, "Manage Subscription")
+        self.assertNotContains(resp, "Create Subscription")
+
+    def test_active_subscription_with_extra_product(self):
+        get(
+            djstripe.SubscriptionItem,
+            price=self.extra_price,
+            quantity=2,
+            subscription=self.stripe_subscription,
+        )
+        resp = self.client.get(
+            reverse("subscription_detail", args=[self.organization.slug])
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.context["stripe_subscription"], self.stripe_subscription)
+        self.assertContains(resp, "active")
+        self.assertContains(resp, "Extra products:")
         # The subscribe form isn't shown, but the manage susbcription button is.
         self.assertContains(resp, 'Manage Subscription')
         self.assertNotContains(resp, 'Create Subscription')
