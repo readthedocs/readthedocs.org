@@ -132,10 +132,10 @@ class DetailSubscription(OrganizationMixin, DetailView):
                     main_product = product
 
                 for feature_type, feature in rtd_product.features.items():
-                    if feature_type not in features:
-                        features[feature_type] = feature * item.quantity
-                    else:
+                    if feature_type in features:
                         features[feature_type] += feature * item.quantity
+                    else:
+                        features[feature_type] = feature * item.quantity
 
             context["main_product"] = main_product
             context["extra_products"] = extra_products
