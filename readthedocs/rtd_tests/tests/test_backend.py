@@ -491,11 +491,11 @@ class TestGitBackendNew(TestGitBackend):
 
         with open(gitmodules_path, "a") as f:
             content = textwrap.dedent(
-            """
+                """
                 [submodule "not-valid-path"]
                     path = not-valid-path
                     url =
-            """
+                """
             )
             f.write(content)
 
