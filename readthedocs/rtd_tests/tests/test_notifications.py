@@ -74,6 +74,7 @@ class NotificationTests(TestCase):
                 'TEMPLATE_ROOT': mock.ANY,
                 'USE_PROMOS': mock.ANY,
                 'USE_SUBDOMAIN': mock.ANY,
+                'USE_ORGANIZATIONS': mock.ANY,
             },
         )
 
@@ -238,6 +239,7 @@ class SiteNotificationTests(TestCase):
             'TEMPLATE_ROOT': mock.ANY,
             'USE_PROMOS': mock.ANY,
             'USE_SUBDOMAIN': mock.ANY,
+            'USE_ORGANIZATIONS': mock.ANY,
         }
         self.assertEqual(self.n.get_context_data(), context)
 
