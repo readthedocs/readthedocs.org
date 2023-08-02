@@ -151,17 +151,13 @@ class DockerBaseSettings(CommunityBaseSettings):
     SESSION_COOKIE_DOMAIN = None
     CACHES = {
         'default': {
-            "BACKEND": "django_redis.cache.RedisCache",
-            'LOCATION': 'redis://cache:6379',
-            "OPTIONS": {
-                "CLIENT_CLASS": "django_redis.client.DefaultClient",
-                "PASSWORD": "redispassword",
-            },
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            'LOCATION': 'redis://:redispassword@cache:6379',
         },
     }
 
-    CACHEOPS_REDIS = f"redis://:{CACHES['default']['OPTIONS']['PASSWORD']}@cache:6379/1"
-    BROKER_URL = f"redis://:{CACHES['default']['OPTIONS']['PASSWORD']}@cache:6379/0"
+    CACHEOPS_REDIS = f"redis://:redispassword@cache:6379/1"
+    BROKER_URL = f"redis://:redispassword@cache:6379/0"
 
     CELERY_ALWAYS_EAGER = False
 
