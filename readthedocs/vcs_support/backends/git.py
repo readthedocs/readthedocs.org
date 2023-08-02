@@ -538,7 +538,7 @@ class Backend(BaseVCS):
 
     @property
     def submodules(self) -> Iterable[GitSubmodule]:
-        """
+        r"""
         Return a iterable of submodules in this repository.
 
         In order to get the submodules URLs and paths without initializing them,
@@ -563,7 +563,7 @@ class Backend(BaseVCS):
 
         .. note::
 
-           - In the example result is put in a new line for readability.
+           - In the example each result is put in a new line for readability.
            - Isn't guaranteed that the url and path keys will appear next to each other.
            - Isn't guaranteed that that all submodules will have a url and path.
 
@@ -612,8 +612,8 @@ class Backend(BaseVCS):
             if not url or not path:
                 continue
             yield GitSubmodule(
-                url=submodule["url"],
-                path=submodule["path"],
+                url=url,
+                path=path,
             )
 
     def checkout(self, identifier=None):
@@ -644,6 +644,8 @@ class Backend(BaseVCS):
 
     def checkout_submodules(self, submodules, config):
         """Checkout all repository submodules."""
+        # If the repository has no submodules, we don't need to do anything.
+        # Otherwise, all submodules will be updated.
         if not submodules:
             return
         self.run('git', 'submodule', 'sync')

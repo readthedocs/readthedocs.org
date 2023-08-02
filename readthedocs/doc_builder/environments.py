@@ -175,31 +175,29 @@ class BuildCommand(BuildCommandResultMixin):
         finally:
             self.end_time = datetime.utcnow()
 
-    def decode_output(self, output):
-        sanitized = ""
+    def decode_output(self, output: bytes) -> str:
+        """Decode bytes output to a UTF-8 string."""
+        decoded = ""
         try:
-            sanitized = output.decode("utf-8", "replace")
+            decoded = output.decode("utf-8", "replace")
         except (TypeError, AttributeError):
             pass
-        return sanitized
+        return decoded
 
-    def sanitize_output(self, output):
+    def sanitize_output(self, output: str) -> str:
         r"""
         Sanitize ``output`` to be saved into the DB.
 
-            1. Decodes to UTF-8
-
-            2. Replaces NULL (\x00) characters with ``''`` (empty string) to
+            1. Replaces NULL (\x00) characters with ``''`` (empty string) to
                avoid PostgreSQL db to fail:
                https://code.djangoproject.com/ticket/28201
 
-            3. Chunk at around ``DATA_UPLOAD_MAX_MEMORY_SIZE`` bytes to be sent
+            2. Chunk at around ``DATA_UPLOAD_MAX_MEMORY_SIZE`` bytes to be sent
                over the API call request
 
         :param output: stdout/stderr to be sanitized
-        :type output: bytes
 
-        :returns: sanitized output as string or ``None`` if it fails
+        :returns: sanitized output as string
         """
         sanitized = ""
         try:
@@ -210,6 +208,9 @@ class BuildCommand(BuildCommandResultMixin):
             pass
 
         # Chunk the output data to be less than ``DATA_UPLOAD_MAX_MEMORY_SIZE``
+        # The length is calculated in bytes, so we need to encode the string first.
+        # NOTE: we are calculating the length in bytes, but truncating the string
+        # in characters. We should use bytes or characters, but not both.
         output_length = len(sanitized.encode("utf-8"))
         # Left some extra space for the rest of the request data
         threshold = 512 * 1024  # 512Kb
