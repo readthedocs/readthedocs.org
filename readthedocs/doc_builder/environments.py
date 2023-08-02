@@ -166,14 +166,22 @@ class BuildCommand(BuildCommandResultMixin):
                 env=environment,
             )
             cmd_stdout, cmd_stderr = proc.communicate()
-            self.output = self.sanitize_output(cmd_stdout)
-            self.error = self.sanitize_output(cmd_stderr)
+            self.output = self.decode_output(cmd_stdout)
+            self.error = self.decode_output(cmd_stderr)
             self.exit_code = proc.returncode
         except OSError:
             log.exception("Operating system error.")
             self.exit_code = -1
         finally:
             self.end_time = datetime.utcnow()
+
+    def decode_output(self, output):
+        sanitized = ""
+        try:
+            sanitized = output.decode("utf-8", "replace")
+        except (TypeError, AttributeError):
+            pass
+        return sanitized
 
     def sanitize_output(self, output):
         r"""
@@ -193,16 +201,16 @@ class BuildCommand(BuildCommandResultMixin):
 
         :returns: sanitized output as string or ``None`` if it fails
         """
+        sanitized = ""
         try:
-            sanitized = output.decode('utf-8', 'replace')
             # Replace NULL (\x00) character to avoid PostgreSQL db to fail
             # https://code.djangoproject.com/ticket/28201
-            sanitized = sanitized.replace('\x00', '')
+            sanitized = output.replace("\x00", "")
         except (TypeError, AttributeError):
-            sanitized = ""
+            pass
 
         # Chunk the output data to be less than ``DATA_UPLOAD_MAX_MEMORY_SIZE``
-        output_length = len(output) if output else 0
+        output_length = len(sanitized.encode("utf-8"))
         # Left some extra space for the rest of the request data
         threshold = 512 * 1024  # 512Kb
         allowed_length = settings.DATA_UPLOAD_MAX_MEMORY_SIZE - threshold
@@ -236,12 +244,12 @@ class BuildCommand(BuildCommandResultMixin):
             self.exit_code = 0
 
         data = {
-            'build': self.build_env.build.get('id'),
-            'command': self.get_command(),
-            'output': self.output,
-            'exit_code': self.exit_code,
-            'start_time': self.start_time,
-            'end_time': self.end_time,
+            "build": self.build_env.build.get("id"),
+            "command": self.get_command(),
+            "output": self.sanitize_output(self.output),
+            "exit_code": self.exit_code,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
         }
 
         if self.build_env.project.has_feature(Feature.API_LARGE_DATA):
@@ -320,8 +328,8 @@ class DockerBuildCommand(BuildCommand):
                 cmd_stdout, cmd_stderr = out
             else:
                 cmd_stdout = out
-            self.output = self.sanitize_output(cmd_stdout)
-            self.error = self.sanitize_output(cmd_stderr)
+            self.output = self.decode_output(cmd_stdout)
+            self.error = self.decode_output(cmd_stderr)
             cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
             self.exit_code = cmd_ret['ExitCode']
 
