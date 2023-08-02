@@ -332,7 +332,7 @@ class TestGitBackend(TestCase):
             content = textwrap.dedent("""
                 [submodule "not-valid-path"]
                     path = not-valid-path
-                    url = https://github.com/readthedocs/readthedocs.org
+                    url =
             """)
             f.write(content)
 
@@ -492,7 +492,7 @@ class TestGitBackendNew(TestGitBackend):
                 """
                 [submodule "not-valid-path"]
                     path = not-valid-path
-                    url = https://github.com/readthedocs/readthedocs.org
+                    url =
             """
             )
             f.write(content)
