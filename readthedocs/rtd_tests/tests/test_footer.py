@@ -481,13 +481,13 @@ class TestFooterPerformance(TestCase):
 
     def test_version_queries(self):
         with self.assertNumQueries(self.EXPECTED_QUERIES):
-            response = self.client.get(self.url, HTTP_HOST=self.host)
+            response = self.client.get(self.url, headers={"host": self.host})
             self.assertContains(response, '0.8.1')
 
         # Second time we don't create a new page view,
         # this shouldn't impact the number of queries.
         with self.assertNumQueries(self.EXPECTED_QUERIES):
-            response = self.client.get(self.url, HTTP_HOST=self.host)
+            response = self.client.get(self.url, headers={"host": self.host})
             self.assertContains(response, '0.8.1')
 
         # The number of Versions shouldn't impact the number of queries
@@ -502,7 +502,7 @@ class TestFooterPerformance(TestCase):
             )
 
         with self.assertNumQueries(self.EXPECTED_QUERIES):
-            response = self.client.get(self.url, HTTP_HOST=self.host)
+            response = self.client.get(self.url, headers={"host": self.host})
             self.assertContains(response, '0.99.0')
 
     def test_domain_queries(self):
@@ -513,5 +513,5 @@ class TestFooterPerformance(TestCase):
         )
 
         with self.assertNumQueries(self.EXPECTED_QUERIES):
-            response = self.client.get(self.url, HTTP_HOST=domain)
+            response = self.client.get(self.url, headers={"host": domain})
             self.assertContains(response, domain)

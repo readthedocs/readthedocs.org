@@ -26,7 +26,7 @@ class TestHistoricalModels(TestCase):
                 'repo_type': self.project.repo_type,
                 'language': self.project.language,
             },
-            HTTP_USER_AGENT='Firefox',
+            headers={"user-agent": "Firefox"},
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(self.project.history.count(), 2)

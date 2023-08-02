@@ -3128,7 +3128,7 @@ class APIVersionTests(TestCase):
         resp = self.client.get(
             reverse("version-detail", kwargs=data),
             content_type="application/json",
-            HTTP_AUTHORIZATION=f"Token {build_api_key}",
+            headers={"authorization": f"Token {build_api_key}"},
         )
         self.assertEqual(resp.status_code, 200)
 
@@ -3239,7 +3239,7 @@ class APIVersionTests(TestCase):
             reverse("version-detail", kwargs=data),
             data=json.dumps({"built": False, "has_pdf": True}),
             content_type="application/json",
-            HTTP_AUTHORIZATION=f"Token {build_api_key}",
+            headers={"authorization": f"Token {build_api_key}"},
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['built'], False)

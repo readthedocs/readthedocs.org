@@ -125,11 +125,11 @@ class AnalyticsPageViewsTests(TestCase):
             + f"?project={self.project.slug}&version={self.version.slug}"
             f"&absolute_uri=https://docs.example.com"
         )
-        self.client.get(url, HTTP_HOST=self.host)
+        self.client.get(url, headers={"host": self.host})
         assert PageView.objects.all().count() == 0
 
     def test_cache_headers(self):
-        resp = self.client.get(self.url, HTTP_HOST=self.host)
+        resp = self.client.get(self.url, headers={"host": self.host})
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp["CDN-Cache-Control"], "private")
 
@@ -142,7 +142,7 @@ class AnalyticsPageViewsTests(TestCase):
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = self.yesterday
 
-            self.client.get(self.url, HTTP_HOST=self.host)
+            self.client.get(self.url, headers={"host": self.host})
 
             assert (
                 PageView.objects.all().count() == 1
@@ -151,7 +151,7 @@ class AnalyticsPageViewsTests(TestCase):
                 PageView.objects.all().first().view_count == 1
             ), '\'index\' has 1 view'
 
-            self.client.get(self.url, HTTP_HOST=self.host)
+            self.client.get(self.url, headers={"host": self.host})
 
             assert (
                 PageView.objects.all().count() == 1
@@ -165,7 +165,7 @@ class AnalyticsPageViewsTests(TestCase):
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = self.today
 
-            self.client.get(self.url, HTTP_HOST=self.host)
+            self.client.get(self.url, headers={"host": self.host})
 
             assert (
                 PageView.objects.all().count() == 2
@@ -179,7 +179,7 @@ class AnalyticsPageViewsTests(TestCase):
         with mock.patch('readthedocs.analytics.tasks.timezone.now') as mocked_timezone:
             mocked_timezone.return_value = self.tomorrow
 
-            self.client.get(self.url, HTTP_HOST=self.host)
+            self.client.get(self.url, headers={"host": self.host})
 
             assert (
                 PageView.objects.all().count() == 3
