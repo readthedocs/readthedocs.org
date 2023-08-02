@@ -328,12 +328,14 @@ class TestGitBackend(TestCase):
         repo.checkout('submodule')
         gitmodules_path = os.path.join(repo.working_dir, '.gitmodules')
 
-        with open(gitmodules_path, 'a') as f:
-            content = textwrap.dedent("""
+        with open(gitmodules_path, "a") as f:
+            content = textwrap.dedent(
+                """
                 [submodule "not-valid-path"]
                     path = not-valid-path
                     url =
-            """)
+            """
+            )
             f.write(content)
 
         valid, submodules = repo.validate_submodules(self.dummy_conf)
@@ -489,7 +491,7 @@ class TestGitBackendNew(TestGitBackend):
 
         with open(gitmodules_path, "a") as f:
             content = textwrap.dedent(
-                """
+            """
                 [submodule "not-valid-path"]
                     path = not-valid-path
                     url =
