@@ -405,7 +405,7 @@ class APIBuildTests(TestCase):
                 "command": "$READTHEDOCS_VIRTUALENV_PATH/bin/python -m sphinx",
                 "description": "Python and Sphinx command",
                 "exit_code": 0,
-                "start_time": start_time,
+                "start_time": start_time + datetime.timedelta(seconds=1),
                 "end_time": end_time,
             },
             format='json',

@@ -7,7 +7,6 @@ from django.test.utils import override_settings
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
@@ -37,23 +36,22 @@ class PrivacyTests(TestCase):
             project_privacy_level=privacy_level,
             version_privacy_level=version_privacy_level,
         )
-        # Create project via project form, simulate import wizard without magic
-        form = UpdateProjectForm(
-            data={
-                'repo_type': 'git',
-                'repo': 'https://github.com/ericholscher/django-kong',
-                'name': 'Django Kong',
-                'language': 'en',
-                'default_branch': '',
-                'project_url': 'http://django-kong.rtfd.org',
-                'default_version': LATEST,
-                'python_interpreter': 'python',
-                'description': 'OOHHH AH AH AH KONG SMASH',
-                'documentation_type': 'sphinx',
-            },
-            user=User.objects.get(username='eric'),
+
+        # Create project via Project fixture, simulate import wizard without magic
+        proj, _ = Project.objects.get_or_create(
+            name="Django Kong",
+            slug="django-kong",
+            repo_type="git",
+            repo="https://github.com/ericholscher/django-kong",
+            language="en",
+            default_branch="",
+            project_url="http://django-kong.rtfd.org",
+            default_version=LATEST,
+            python_interpreter="python",
+            description="OOHHH AH AH AH KONG SMASH",
+            documentation_type="sphinx",
         )
-        proj = form.save()
+
         # Update these directly, no form has all the fields we need
         proj.privacy_level = privacy_level
         proj.version_privacy_level = version_privacy_level
@@ -66,7 +64,7 @@ class PrivacyTests(TestCase):
         self.assertAlmostEqual(Project.objects.count(), 1)
         r = self.client.get('/projects/django-kong/')
         self.assertEqual(r.status_code, 200)
-        return Project.objects.get(slug='django-kong')
+        return proj
 
     def test_private_repo(self):
         """Check that private projects don't show up in: builds, downloads,

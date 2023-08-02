@@ -2,6 +2,7 @@ from unittest import mock
 
 import pytest
 from django.contrib.sessions.backends.base import SessionBase
+from django.http import HttpResponse
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
@@ -139,7 +140,7 @@ class BaseTestFooterHTML:
         self.assertNotIn('epub', response.data['html'])
 
     def test_no_session_logged_out(self):
-        mid = ReadTheDocsSessionMiddleware()
+        mid = ReadTheDocsSessionMiddleware(lambda request: HttpResponse())
 
         # Null session here
         request = self.factory.get('/api/v2/footer_html/')

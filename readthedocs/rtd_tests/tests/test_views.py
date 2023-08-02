@@ -12,7 +12,6 @@ from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.forms import UpdateProjectForm
 from readthedocs.projects.models import Feature, Project
 from readthedocs.subscriptions.constants import TYPE_SEARCH_ANALYTICS
 
@@ -33,23 +32,20 @@ class Testmaker(TestCase):
         self.assertEqual(r.status_code, 200)
         r = self.client.get('/dashboard/import/manual/', {})
         self.assertEqual(r.status_code, 200)
-        form = UpdateProjectForm(
-            data={
-                'name': 'Django Kong',
-                'repo': 'https://github.com/ericholscher/django-kong',
-                'repo_type': 'git',
-                'description': 'OOHHH AH AH AH KONG SMASH',
-                'language': 'en',
-                'default_branch': '',
-                'project_url': 'http://django-kong.rtfd.org',
-                'default_version': LATEST,
-                'privacy_level': 'public',
-                'version_privacy_level': 'public',
-                'python_interpreter': 'python',
-                'documentation_type': 'sphinx',
-                'csrfmiddlewaretoken': '34af7c8a5ba84b84564403a280d9a9be',
-            },
-            user=user,
+        _ = get(
+            Project,
+            name="Django Kong",
+            repo="https://github.com/ericholscher/django-kong",
+            repo_type="git",
+            description="OOHHH AH AH AH KONG SMASH",
+            language="en",
+            default_branch="",
+            project_url="http://django-kong.rtfd.org",
+            default_version=LATEST,
+            privacy_level="public",
+            version_privacy_level="public",
+            python_interpreter="python",
+            documentation_type="sphinx",
         )
         _ = form.save()
         _ = Project.objects.get(slug='django-kong')

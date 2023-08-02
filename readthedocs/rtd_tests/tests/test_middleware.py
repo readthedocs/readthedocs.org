@@ -248,7 +248,7 @@ class TestSessionMiddleware(TestCase):
 
     def setUp(self):
         self.factory = RequestFactory()
-        self.middleware = ReadTheDocsSessionMiddleware()
+        self.middleware = ReadTheDocsSessionMiddleware(lambda request: HttpResponse())
 
         self.user = create_user(username='owner', password='test')
 

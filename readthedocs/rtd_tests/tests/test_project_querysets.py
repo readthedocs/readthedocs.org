@@ -253,7 +253,7 @@ class FeatureQuerySetTests(TestCase):
         )
         self.assertQuerySetEqual(
             Feature.objects.for_project(project),
-            [repr(feature1), repr(feature3)],
+            [feature1, feature3],
             ordered=False,
         )
 
@@ -279,7 +279,7 @@ class FeatureQuerySetTests(TestCase):
         )
         self.assertQuerySetEqual(
             Feature.objects.for_project(project),
-            [repr(feature1), repr(feature3)],
+            [feature1, feature3],
             ordered=False,
         )
 
@@ -289,6 +289,6 @@ class FeatureQuerySetTests(TestCase):
         feature = fixture.get(Feature, projects=[project1, project2])
         self.assertQuerySetEqual(
             Feature.objects.for_project(project1),
-            [repr(feature)],
+            [feature],
             ordered=False,
         )
