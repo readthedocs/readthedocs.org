@@ -7,7 +7,7 @@ from django.test import TestCase, override_settings
 
 from readthedocs.core.utils.filesystem import safe_copytree, safe_open, safe_rmtree
 from readthedocs.doc_builder.exceptions import (
-    FileIsNotRegularFile,
+    FileTooLarge,
     SymlinkOutsideBasePath,
     UnsupportedSymlinkFileError,
 )
@@ -102,6 +102,26 @@ class TestFileSystemUtils(TestCase):
                 file_a, allow_symlinks=True, base_path=root_directory
             )
             self.assertIsNotNone(context_manager)
+
+    def test_open_large_file(self):
+        root_directory = Path(mkdtemp())
+        docroot_path = root_directory
+        file_a = root_directory / "test.txt"
+        file_a.write_bytes(b"0" * (1024 * 2))
+
+        with override_settings(DOCROOT=docroot_path):
+            with pytest.raises(FileTooLarge):
+                safe_open(file_a, max_size_bytes=1024)
+
+    def test_write_file(self):
+        root_directory = Path(mkdtemp())
+        docroot_path = root_directory
+        file_a = root_directory / "test.txt"
+
+        with override_settings(DOCROOT=docroot_path):
+            with safe_open(file_a, mode="w") as f:
+                f.write("Hello World")
+            self.assertEqual(file_a.read_text(), "Hello World")
 
     def test_open_outside_docroot(self):
         root_directory = Path(mkdtemp())
