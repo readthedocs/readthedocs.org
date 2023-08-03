@@ -44,10 +44,13 @@ from .base import BaseDocServing
 class TestFullDocServing(BaseDocServing):
     # Test the full range of possible doc URL's
 
+    using_new_implementation = False
+
     def test_health_check(self):
         url = reverse('health_check')
         host = 'project.dev.readthedocs.io'
-        resp = self.client.get(url, HTTP_HOST=host)
+        with self.assertNumQueries(0):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json(), {'status': 200})
 
@@ -62,7 +65,9 @@ class TestFullDocServing(BaseDocServing):
     def test_subproject_serving(self):
         url = '/projects/subproject/en/latest/awesome.html'
         host = 'project.dev.readthedocs.io'
-        resp = self.client.get(url, HTTP_HOST=host)
+        expected_query_count = 8 if self.using_new_implementation else 9
+        with self.assertNumQueries(expected_query_count):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/html/subproject/latest/awesome.html',
         )
@@ -72,7 +77,9 @@ class TestFullDocServing(BaseDocServing):
         self.subproject.save()
         url = '/projects/subproject/awesome.html'
         host = 'project.dev.readthedocs.io'
-        resp = self.client.get(url, HTTP_HOST=host)
+        expected_query_count = 8 if self.using_new_implementation else 9
+        with self.assertNumQueries(expected_query_count):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/html/subproject/latest/awesome.html',
         )
@@ -80,7 +87,9 @@ class TestFullDocServing(BaseDocServing):
     def test_subproject_translation_serving(self):
         url = '/projects/subproject/es/latest/awesome.html'
         host = 'project.dev.readthedocs.io'
-        resp = self.client.get(url, HTTP_HOST=host)
+        expected_query_count = 9 if self.using_new_implementation else 10
+        with self.assertNumQueries(expected_query_count):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/html/subproject-translation/latest/awesome.html',
         )
@@ -88,7 +97,9 @@ class TestFullDocServing(BaseDocServing):
     def test_subproject_alias_serving(self):
         url = '/projects/this-is-an-alias/en/latest/awesome.html'
         host = 'project.dev.readthedocs.io'
-        resp = self.client.get(url, HTTP_HOST=host)
+        expected_query_count = 8 if self.using_new_implementation else 9
+        with self.assertNumQueries(expected_query_count):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/html/subproject-alias/latest/awesome.html',
         )
@@ -96,7 +107,8 @@ class TestFullDocServing(BaseDocServing):
     def test_translation_serving(self):
         url = '/es/latest/awesome.html'
         host = 'project.dev.readthedocs.io'
-        resp = self.client.get(url, HTTP_HOST=host)
+        with self.assertNumQueries(8):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/html/translation/latest/awesome.html',
         )
@@ -104,7 +116,8 @@ class TestFullDocServing(BaseDocServing):
     def test_normal_serving(self):
         url = '/en/latest/awesome.html'
         host = 'project.dev.readthedocs.io'
-        resp = self.client.get(url, HTTP_HOST=host)
+        with self.assertNumQueries(7):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/html/project/latest/awesome.html',
         )
@@ -114,7 +127,8 @@ class TestFullDocServing(BaseDocServing):
         self.project.save()
         url = '/awesome.html'
         host = 'project.dev.readthedocs.io'
-        resp = self.client.get(url, HTTP_HOST=host)
+        with self.assertNumQueries(7):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/html/project/latest/awesome.html',
         )
@@ -124,7 +138,8 @@ class TestFullDocServing(BaseDocServing):
         self.project.save()
         url = '/en/stable/awesome.html'
         host = 'project.dev.readthedocs.io'
-        resp = self.client.get(url, HTTP_HOST=host)
+        with self.assertNumQueries(7):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/html/project/latest/en/stable/awesome.html',
         )
@@ -133,7 +148,8 @@ class TestFullDocServing(BaseDocServing):
         host = 'project.dev.readthedocs.io'
         urls = ('/en/latest/awesome/', '/en/latest/awesome/index.html')
         for url in urls:
-            resp = self.client.get(url, HTTP_HOST=host)
+            with self.assertNumQueries(7):
+                resp = self.client.get(url, HTTP_HOST=host)
             self.assertEqual(
                 resp['x-accel-redirect'], '/proxito/media/html/project/latest/awesome/index.html',
             )
@@ -151,7 +167,8 @@ class TestFullDocServing(BaseDocServing):
         )
         url = '/awesome.html'
         host = 'project--10.dev.readthedocs.build'
-        resp = self.client.get(url, HTTP_HOST=host)
+        with self.assertNumQueries(6):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/external/html/project/10/awesome.html',
         )
@@ -167,7 +184,8 @@ class TestFullDocServing(BaseDocServing):
         )
         url = "/en/10/awesome.html"
         host = "project--10.dev.readthedocs.build"
-        resp = self.client.get(url, HTTP_HOST=host)
+        with self.assertNumQueries(6):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/external/html/project/10/awesome.html',
         )
@@ -191,7 +209,8 @@ class TestFullDocServing(BaseDocServing):
         self.project.save()
 
         host = "test--project--10.dev.readthedocs.build"
-        resp = self.client.get("/en/10/awesome.html", HTTP_HOST=host)
+        with self.assertNumQueries(6):
+            resp = self.client.get("/en/10/awesome.html", HTTP_HOST=host)
         self.assertEqual(
             resp['x-accel-redirect'], '/proxito/media/external/html/test--project/10/awesome.html',
         )
@@ -364,6 +383,9 @@ class TestFullDocServing(BaseDocServing):
 
 class ProxitoV2TestFullDocServing(TestFullDocServing):
     # TODO: remove this class once the new implementation is the default.
+
+    using_new_implementation = True
+
     def setUp(self):
         super().setUp()
         get(
@@ -378,7 +400,8 @@ class ProxitoV2TestFullDocServing(TestFullDocServing):
         self.project.save()
         url = "/projects/awesome.html"
         host = "project.dev.readthedocs.io"
-        resp = self.client.get(url, HTTP_HOST=host)
+        with self.assertNumQueries(7):
+            resp = self.client.get(url, HTTP_HOST=host)
         self.assertEqual(
             resp["x-accel-redirect"],
             "/proxito/media/html/project/latest/projects/awesome.html",
