@@ -539,14 +539,14 @@ class Backend(BaseVCS):
     @property
     def submodules(self) -> Iterable[GitSubmodule]:
         r"""
-        Return a iterable of submodules in this repository.
+        Return an iterable of submodules in this repository.
 
         In order to get the submodules URLs and paths without initializing them,
         we parse the .gitmodules file. For this we make use of the
         ``git config --get-regexp`` command.
 
-        Keys and values from the config can contain spaces,
-        in order to parse the output unambiguously, we use the
+        Keys and values from the config can contain spaces.
+        In order to parse the output unambiguously, we use the
         ``--null`` option to separate each result with a null character,
         and each key and value with a newline character.
 
@@ -565,7 +565,7 @@ class Backend(BaseVCS):
 
            - In the example each result is put in a new line for readability.
            - Isn't guaranteed that the url and path keys will appear next to each other.
-           - Isn't guaranteed that that all submodules will have a url and path.
+           - Isn't guaranteed that all submodules will have a url and path.
 
         """
         exit_code, stdout, _ = self.run(
@@ -610,6 +610,7 @@ class Backend(BaseVCS):
             url = submodule.get("url")
             path = submodule.get("path")
             if not url or not path:
+                log.warning("Invalid submodule.", submoduel_url=url, submodule_path=path)
                 continue
             yield GitSubmodule(
                 url=url,

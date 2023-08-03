@@ -209,7 +209,7 @@ class BuildCommand(BuildCommandResultMixin):
 
         # Chunk the output data to be less than ``DATA_UPLOAD_MAX_MEMORY_SIZE``
         # The length is calculated in bytes, so we need to encode the string first.
-        # NOTE: we are calculating the length in bytes, but truncating the string
+        # TODO: we are calculating the length in bytes, but truncating the string
         # in characters. We should use bytes or characters, but not both.
         output_length = len(sanitized.encode("utf-8"))
         # Left some extra space for the rest of the request data

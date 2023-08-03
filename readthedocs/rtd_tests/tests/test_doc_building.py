@@ -56,7 +56,12 @@ class TestLocalBuildEnvironment(TestCase):
         )
 
         with build_env:
-            build_env.run('false', record_as_success=True)
+            build_env.run(
+                'false',
+                record_as_success=True,
+                # Use a directory that exists so the command doesn't fail.
+                cwd='/tmp',
+            )
         self.assertEqual(len(build_env.commands), 1)
 
         command = build_env.commands[0]
@@ -65,7 +70,7 @@ class TestLocalBuildEnvironment(TestCase):
             {
                 "build": mock.ANY,
                 "command": command.get_command(),
-                "output": "",
+                "output": command.output,
                 "exit_code": 0,
                 "start_time": command.start_time,
                 "end_time": command.end_time,
