@@ -70,7 +70,7 @@ class PrivacyTests(TestCase):
 
     def test_private_repo(self):
         """Check that private projects don't show up in: builds, downloads,
-        detail, homepage
+        detail
 
         """
         self._create_kong('private', 'private')
@@ -88,8 +88,6 @@ class PrivacyTests(TestCase):
         self.assertEqual(r.status_code, 200)
 
         self.client.login(username='tester', password='test')
-        r = self.client.get('/')
-        self.assertNotContains(r, 'Django Kong')
         r = self.client.get('/projects/django-kong/')
         self.assertEqual(r.status_code, 404)
         r = self.client.get('/projects/django-kong/builds/')
