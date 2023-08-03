@@ -305,13 +305,6 @@ def test_python_section_must_be_dict():
     assert excinfo.value.code == PYTHON_INVALID
 
 
-def test_use_system_site_packages_defaults_to_false():
-    build = get_build_config({'python': {}})
-    build.validate()
-    # Default is False.
-    assert not build.python.use_system_site_packages
-
-
 class TestValidatePythonExtraRequirements:
 
     def test_it_defaults_to_install_requirements_as_none(self):
@@ -344,32 +337,6 @@ class TestValidatePythonExtraRequirements:
         )
         build.validate()
         validate_string.assert_any_call('tests')
-
-
-class TestValidateUseSystemSitePackages:
-
-    def test_it_defaults_to_false(self):
-        build = get_build_config({'python': {}})
-        build.validate()
-        assert build.python.use_system_site_packages is False
-
-    def test_it_validates_value(self):
-        build = get_build_config(
-            {'python': {'use_system_site_packages': 'invalid'}},
-        )
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        excinfo.value.key = 'python.use_system_site_packages'
-        excinfo.value.code = INVALID_BOOL
-
-    @patch('readthedocs.config.config.validate_bool')
-    def test_it_uses_validate_bool(self, validate_bool):
-        validate_bool.return_value = True
-        build = get_build_config(
-            {'python': {'use_system_site_packages': 'to-validate'}},
-        )
-        build.validate()
-        validate_bool.assert_any_call('to-validate')
 
 
 class TestValidateSetupPyInstall:
@@ -785,7 +752,6 @@ def test_as_dict(tmpdir):
             'install': [{
                 'requirements': 'requirements.txt',
             }],
-            'use_system_site_packages': False,
         },
         'build': {
             'image': 'readthedocs/build:latest',
@@ -2388,7 +2354,6 @@ class TestBuildConfigV2:
                 'install': [{
                     'requirements': 'requirements.txt',
                 }],
-                'use_system_site_packages': False,
             },
             'build': {
                 'image': 'readthedocs/build:latest',
@@ -2448,7 +2413,6 @@ class TestBuildConfigV2:
                 'install': [{
                     'requirements': 'requirements.txt',
                 }],
-                'use_system_site_packages': False,
             },
             'build': {
                 'os': 'ubuntu-20.04',

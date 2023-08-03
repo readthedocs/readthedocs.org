@@ -516,7 +516,6 @@ class TestBuildTask(BuildEnvironmentBase):
                 "python": {
                     "version": "3",
                     "install": [],
-                    "use_system_site_packages": False,
                 },
                 "conda": None,
                 "build": {
