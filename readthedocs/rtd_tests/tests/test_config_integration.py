@@ -83,7 +83,6 @@ class LoadConfigTests(TestCase):
                     'epub',
                     'pdf'
                 ],
-                'use_system_packages': self.project.use_system_packages,
                 'requirements_file': self.project.requirements_file,
                 'python_version': '3',
                 'sphinx_configuration': mock.ANY,

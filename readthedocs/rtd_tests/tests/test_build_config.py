@@ -327,30 +327,6 @@ python:
     assertValidConfig(tmpdir, content.format(value=value))
 
 
-@pytest.mark.parametrize('value', ['true', 'false'])
-def test_python_system_packages(tmpdir, value):
-    content = '''
-version: "2"
-python:
-  system_packages: {value}
-    '''
-    assertValidConfig(tmpdir, content.format(value=value))
-
-
-@pytest.mark.parametrize('value', ['not true', "''", '[]'])
-def test_python_system_packages_invalid(tmpdir, value):
-    content = '''
-version: "2"
-python:
-  system_packages: {value}
-    '''
-    assertInvalidConfig(
-        tmpdir,
-        content.format(value=value),
-        ['is not a bool'],
-    )
-
-
 def test_sphinx(tmpdir):
     content = '''
 version: "2"

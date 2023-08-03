@@ -506,10 +506,8 @@ class BuildConfigV1(BuildConfigBase):
     def validate_python(self):
         """Validates the ``python`` key, set default values it's necessary."""
         install_project = self.defaults.get('install_project', False)
-        use_system_packages = self.defaults.get('use_system_packages', False)
         version = self.defaults.get('python_version', '2')
         python = {
-            'use_system_site_packages': use_system_packages,
             'install_with_pip': False,
             'extra_requirements': [],
             'install_with_setup': install_project,
@@ -524,13 +522,6 @@ class BuildConfigV1(BuildConfigBase):
                     self.PYTHON_INVALID_MESSAGE,
                     code=PYTHON_INVALID,
                 )
-
-            # Validate use_system_site_packages.
-            if 'use_system_site_packages' in raw_python:
-                with self.catch_validation_error('python.use_system_site_packages'):
-                    python['use_system_site_packages'] = validate_bool(
-                        raw_python['use_system_site_packages'],
-                    )
 
             # Validate pip_install.
             if 'pip_install' in raw_python:
@@ -662,7 +653,6 @@ class BuildConfigV1(BuildConfigBase):
         return Python(
             version=python['version'],
             install=python_install,
-            use_system_site_packages=python['use_system_site_packages'],
         )
 
     @property
@@ -966,7 +956,6 @@ class BuildConfigV2(BuildConfigBase):
         Fall back to the defaults of:
         - ``requirements``
         - ``install`` (only for setup.py method)
-        - ``system_packages``
 
         .. note::
            - ``version`` can be a string or number type.
@@ -1009,13 +998,6 @@ class BuildConfigV2(BuildConfigBase):
             self.validate_python_install(index)
             for index in range(len(raw_install))
         ]
-
-        with self.catch_validation_error('python.system_packages'):
-            system_packages = self.pop_config(
-                'python.system_packages',
-                False,
-            )
-            python['use_system_site_packages'] = validate_bool(system_packages)
 
         return python
 
@@ -1353,7 +1335,6 @@ class BuildConfigV2(BuildConfigBase):
         return Python(
             version=python.get('version'),
             install=python_install,
-            use_system_site_packages=python['use_system_site_packages'],
         )
 
     @property

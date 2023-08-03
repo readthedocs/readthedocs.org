@@ -3130,7 +3130,6 @@ class APIVersionTests(TestCase):
                 "show_advertising": True,
                 "skip": False,
                 "slug": "pip",
-                "use_system_packages": False,
                 "users": [1],
                 "urlconf": None,
             },

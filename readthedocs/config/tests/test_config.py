@@ -312,17 +312,6 @@ def test_use_system_site_packages_defaults_to_false():
     assert not build.python.use_system_site_packages
 
 
-@pytest.mark.parametrize('value', [True, False])
-def test_use_system_site_packages_repects_default_value(value):
-    defaults = {
-        'use_system_packages': value,
-    }
-    build = get_build_config({}, {'defaults': defaults})
-    build.validate()
-    assert build.python.use_system_site_packages is value
-
-
-
 class TestValidatePythonExtraRequirements:
 
     def test_it_defaults_to_install_requirements_as_none(self):
@@ -1800,53 +1789,6 @@ class TestBuildConfigV2:
         assert install[1].method == SETUPTOOLS
 
         assert install[2].requirements == 'three.txt'
-
-    @pytest.mark.parametrize('value', [True, False])
-    def test_python_system_packages_check_valid(self, value):
-        build = self.get_build_config({
-            'python': {
-                'system_packages': value,
-            },
-        })
-        build.validate()
-        assert build.python.use_system_site_packages is value
-
-    @pytest.mark.parametrize('value', [[], 'invalid', 5])
-    def test_python_system_packages_check_invalid(self, value):
-        build = self.get_build_config({
-            'python': {
-                'system_packages': value,
-            },
-        })
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == 'python.system_packages'
-
-    def test_python_system_packages_check_default(self):
-        build = self.get_build_config({})
-        build.validate()
-        assert build.python.use_system_site_packages is False
-
-    def test_python_system_packages_dont_respects_default(self):
-        build = self.get_build_config(
-            {},
-            {'defaults': {'use_system_packages': True}},
-        )
-        build.validate()
-        assert build.python.use_system_site_packages is False
-
-    def test_python_system_packages_priority_over_default(self):
-        build = self.get_build_config(
-            {'python': {'system_packages': False}},
-        )
-        build.validate()
-        assert build.python.use_system_site_packages is False
-
-        build = self.get_build_config(
-            {'python': {'system_packages': True}},
-        )
-        build.validate()
-        assert build.python.use_system_site_packages is True
 
     @pytest.mark.parametrize('value', [[], True, 0, 'invalid'])
     def test_sphinx_validate_type(self, value):

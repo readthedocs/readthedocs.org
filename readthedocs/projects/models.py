@@ -454,14 +454,6 @@ class Project(models.Model):
         ),
     )
 
-    use_system_packages = models.BooleanField(
-        _('Use system packages'),
-        help_text=_(
-            'Give the virtual environment access to the global '
-            'site-packages dir.',
-        ),
-        default=False,
-    )
     privacy_level = models.CharField(
         _('Privacy Level'),
         max_length=20,
