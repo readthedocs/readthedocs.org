@@ -1302,7 +1302,9 @@ class Project(models.Model):
 
     @cached_property
     def features(self):
-        return list(Feature.objects.for_project(self).values_list('feature_id', flat=True))
+        return list(
+            Feature.objects.for_project(self).values_list("feature_id", flat=True)
+        )
 
     def has_feature(self, feature_id):
         """
@@ -2015,9 +2017,7 @@ class Feature(models.Model):
         ),
         (
             USE_OLD_PROXITO_IMPLEMENTATION,
-            _(
-                "Proxito: Use old implementation for serving documentation files."
-            ),
+            _("Proxito: Use old implementation for serving documentation files."),
         ),
         (
             ALLOW_VERSION_WARNING_BANNER,
