@@ -16,6 +16,7 @@ from readthedocs.audit.models import AuditLog
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.invitations.models import Invitation
+from readthedocs.organizations.filters import OrganizationListFilterSet
 from readthedocs.organizations.forms import (
     OrganizationSignupForm,
     OrganizationTeamProjectForm,
@@ -69,6 +70,16 @@ class ListOrganization(PrivateViewMixin, OrganizationView, ListView):
 
     def get_queryset(self):
         return Organization.objects.for_user(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if settings.RTD_EXT_THEME_ENABLED:
+            filter = OrganizationListFilterSet(
+                self.request.GET, queryset=self.get_queryset()
+            )
+            context["filter"] = filter
+            context["organization_list"] = filter.qs
+        return context
 
 
 class ChooseOrganization(ListOrganization):
@@ -308,7 +319,6 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
         queryset = self._get_queryset()
         # Set filter on self, so we can use it in the context.
         # Without executing it twice.
-        # pylint: disable=attribute-defined-outside-init
         self.filter = OrganizationSecurityLogFilter(
             self.request.GET,
             queryset=queryset,
