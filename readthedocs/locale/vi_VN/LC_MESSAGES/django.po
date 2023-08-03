@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-25 09:50+0000\n"
+"POT-Creation-Date: 2023-08-01 14:35+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Xuân Sâm Đinh <xuansamdinh.n2i@gmail.com>, 2016\n"
 "Language-Team: Vietnamese (Viet Nam) (http://app.transifex.com/readthedocs/"
@@ -3092,67 +3092,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:430
+#: settings/base.py:429
 msgid "Catalan"
 msgstr ""
 
-#: settings/base.py:431
+#: settings/base.py:430
 msgid "English"
 msgstr "Tiếng Anh"
 
-#: settings/base.py:432
+#: settings/base.py:431
 msgid "Spanish"
 msgstr ""
 
-#: settings/base.py:433
+#: settings/base.py:432
 msgid "Brazilian Portuguese"
 msgstr ""
 
-#: settings/base.py:434
+#: settings/base.py:433
 msgid "Norwegian Bokmål"
 msgstr ""
 
-#: settings/base.py:435
+#: settings/base.py:434
 msgid "French"
 msgstr ""
 
-#: settings/base.py:436
+#: settings/base.py:435
 msgid "Russian"
 msgstr ""
 
-#: settings/base.py:437
+#: settings/base.py:436
 msgid "German"
 msgstr ""
 
-#: settings/base.py:438
+#: settings/base.py:437
 msgid "Galician"
 msgstr ""
 
-#: settings/base.py:439
+#: settings/base.py:438
 msgid "Vietnamese"
 msgstr "Tiếng Việt"
 
-#: settings/base.py:440
+#: settings/base.py:439
 msgid "Simplified Chinese"
 msgstr ""
 
-#: settings/base.py:441
+#: settings/base.py:440
 msgid "Traditional Chinese"
 msgstr ""
 
-#: settings/base.py:442
+#: settings/base.py:441
 msgid "Japanese"
 msgstr "Tiếng Nhật"
 
-#: settings/base.py:443
+#: settings/base.py:442
 msgid "Ukrainian"
 msgstr "Tiếng Ukcraina"
 
-#: settings/base.py:444
+#: settings/base.py:443
 msgid "Italian"
 msgstr ""
 
-#: settings/base.py:445
+#: settings/base.py:444
 msgid "Korean"
 msgstr ""
 
