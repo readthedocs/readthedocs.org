@@ -336,6 +336,14 @@ class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
         build_api_key = self.request.build_api_key
         if not build_api_key.project.builds.filter(pk=build_pk).exists():
             raise PermissionDenied()
+
+        if BuildCommandResult.objects.filter(
+            build=serializer.validated_data["build"],
+            start_time=serializer.validated_data["start_time"],
+        ).exists():
+            log.warning("Build command is duplicated. Skipping...")
+            return
+
         return super().perform_create(serializer)
 
     def get_queryset_for_api_key(self, api_key):
