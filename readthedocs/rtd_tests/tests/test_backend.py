@@ -145,8 +145,6 @@ class TestGitBackend(TestCase):
             {branch.verbose_name: branch.identifier for branch in repo_branches},
         )
 
-    @patch('readthedocs.projects.models.Project.checkout_path')
-    @patch('readthedocs.projects.models.Project.checkout_path')
     def test_git_update_and_checkout(self):
         repo = self.project.vcs_repo(environment=self.build_environment)
         code, _, _ = repo.update()
@@ -158,7 +156,6 @@ class TestGitBackend(TestCase):
 
         self.assertTrue(exists(repo.working_dir))
 
-    @patch('readthedocs.vcs_support.backends.git.Backend.fetch')
     def test_git_checkout_invalid_revision(self):
         repo = self.project.vcs_repo(environment=self.build_environment)
         repo.update()

@@ -14,7 +14,7 @@ class Backend(BaseVCS):
 
     def update(self):
         super().update()
-        self.clone()
+        return self.clone()
 
     def clone(self):
         self.make_clean_working_dir()
