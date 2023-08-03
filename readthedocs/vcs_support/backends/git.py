@@ -610,7 +610,9 @@ class Backend(BaseVCS):
             url = submodule.get("url")
             path = submodule.get("path")
             if not url or not path:
-                log.warning("Invalid submodule.", submoduel_url=url, submodule_path=path)
+                log.warning(
+                    "Invalid submodule.", submoduel_url=url, submodule_path=path
+                )
                 continue
             yield GitSubmodule(
                 url=url,

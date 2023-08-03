@@ -57,10 +57,10 @@ class TestLocalBuildEnvironment(TestCase):
 
         with build_env:
             build_env.run(
-                'false',
+                "false",
                 record_as_success=True,
                 # Use a directory that exists so the command doesn't fail.
-                cwd='/tmp',
+                cwd="/tmp",
             )
         self.assertEqual(len(build_env.commands), 1)
 
