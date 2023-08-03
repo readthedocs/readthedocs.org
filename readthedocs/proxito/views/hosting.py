@@ -3,6 +3,7 @@
 import packaging
 import structlog
 from django.conf import settings
+from django.contrib.auth.models import AnonymousUser
 from django.http import Http404, JsonResponse
 from django.views import View
 
@@ -39,7 +40,7 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
     API response consumed by our JavaScript client.
 
     The code for the JavaScript client lives at:
-      https://github.com/readthedocs/readthedocs-client/
+      https://github.com/readthedocs/addons/
 
     Attributes:
 
@@ -295,6 +296,32 @@ class AddonsResponse:
         # Update this data with the one generated at build time by the doctool
         if version and version.build_data:
             data.update(version.build_data)
+
+        # Update this data with ethicalads
+        if "readthedocsext.donate" in settings.INSTALLED_APPS:
+            from readthedocsext.donate.utils import (  # noqa
+                get_campaign_types,
+                get_project_keywords,
+                get_publisher,
+                is_ad_free_project,
+                is_ad_free_user,
+            )
+
+            data["addons"].update(
+                {
+                    "ethicalads": {
+                        "enabled": True,
+                        # NOTE: this endpoint is not authenticated, the user checks are done over an annonymous user for now
+                        #
+                        # NOTE: it requires ``settings.USE_PROMOS=True`` to return ``ad_free=false`` here
+                        "ad_free": is_ad_free_user(AnonymousUser())
+                        or is_ad_free_project(project),
+                        "campaign_types": get_campaign_types(AnonymousUser(), project),
+                        "keywords": get_project_keywords(project),
+                        "publisher": get_publisher(project),
+                    },
+                }
+            )
 
         return data
 

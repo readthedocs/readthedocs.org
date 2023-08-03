@@ -31,7 +31,7 @@ Below is an example YAML file which shows the most common configuration options:
 
 .. seealso::
 
-   :doc:`/guides/setup/configuration-file`
+   :doc:`/config-file/index`
       Practical steps to add a configuration file to your documentation project.
 
 
@@ -310,7 +310,7 @@ build.tools.python
 ``````````````````
 
 Python version to use.
-You can use several interpreters and versions, from CPython, PyPy, Miniconda, and Mamba.
+You can use several interpreters and versions, from CPython, Miniconda, and Mamba.
 
 .. note::
 
@@ -328,11 +328,9 @@ You can use several interpreters and versions, from CPython, PyPy, Miniconda, an
   - ``3.9``
   - ``3.10``
   - ``3.11``
-  - ``pypy3.7``
-  - ``pypy3.8``
-  - ``pypy3.9``
   - ``miniconda3-4.7``
   - ``mambaforge-4.10``
+  - ``mambaforge-22.9``
 
 build.tools.nodejs
 ``````````````````
@@ -827,9 +825,9 @@ Each image support different Python versions and has different packages installe
 as defined here:
 
 * `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_:
-  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``pypy3.5``
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``
 * `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_:
-  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``, ``pypy3.5``
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``
 
 python.version (legacy)
 ```````````````````````
