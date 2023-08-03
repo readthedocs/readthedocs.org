@@ -802,7 +802,7 @@ class TestBuildConfigV2:
             build.error(key='key', message='Message', code='code')
         # We don't have any extra information about
         # the source_file.
-        assert str(excinfo.value) == 'Invalid "key": Message'
+        assert str(excinfo.value) == 'Invalid configuration option "key": Message'
 
     def test_formats_check_valid(self):
         build = self.get_build_config({'formats': ['htmlzip', 'pdf', 'epub']})
@@ -1471,7 +1471,10 @@ class TestBuildConfigV2:
         with raises(InvalidConfig) as excinfo:
             build.validate()
 
-        assert str(excinfo.value) == 'Invalid "python.install[0].requirements": expected string'
+        assert (
+            str(excinfo.value)
+            == 'Invalid configuration option "python.install[0].requirements": expected string'
+        )
 
     def test_python_install_requirements_does_not_allow_empty_string(self, tmpdir):
         build = self.get_build_config(
