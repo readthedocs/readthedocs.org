@@ -454,6 +454,15 @@ class Project(models.Model):
         ),
     )
 
+    # TODO: remove `use_system_packages` after deploying.
+    # This field is not used anymore.
+    use_system_packages = models.BooleanField(
+        _("Use system packages"),
+        help_text=_(
+            "Give the virtual environment access to the global site-packages dir.",
+        ),
+        default=False,
+    )
     privacy_level = models.CharField(
         _('Privacy Level'),
         max_length=20,
