@@ -72,7 +72,9 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 CONTAINER_ID=$(docker run --user docs --rm --detach --volume ${SCRIPT_DIR}/python-build.diff:/tmp/python-build.diff readthedocs/build:$OS sleep $SLEEP)
 echo "Running all the commands in Docker container: $CONTAINER_ID"
 
-echo "asdf version: $(asdf version)"
+# Run "asdf version" from inside the container
+echo -n 'asdf version: '
+docker exec --user root $CONTAINER_ID asdf version
 
 # Install the tool version requested
 if [[ $TOOL == "python" ]]

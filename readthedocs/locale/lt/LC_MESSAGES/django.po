@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-07-17 15:44+0000\n"
+"POT-Creation-Date: 2023-08-01 14:35+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Tomas Straupis, 2021,2023\n"
 "Language-Team: Lithuanian (http://app.transifex.com/readthedocs/readthedocs/"
@@ -21,7 +21,7 @@ msgstr ""
 "11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? "
 "1 : n % 1 != 0 ? 2: 3);\n"
 
-#: analytics/models.py:69 builds/models.py:718 projects/models.py:1486
+#: analytics/models.py:69 builds/models.py:723 projects/models.py:1486
 #: search/models.py:28 sphinx_domains/models.py:33 templates/base.html:262
 msgid "Version"
 msgstr "Versija"
@@ -198,7 +198,7 @@ msgstr "Naudotojo ID"
 msgid "Username"
 msgstr "Naudotojo vardas"
 
-#: audit/models.py:138 builds/models.py:110 builds/models.py:712
+#: audit/models.py:138 builds/models.py:110 builds/models.py:717
 #: projects/models.py:1480 redirects/models.py:57
 msgid "Project"
 msgstr "Projektas"
@@ -223,7 +223,7 @@ msgstr "Organizacijos ID"
 msgid "Organization slug"
 msgstr "Organizacijos žetonas"
 
-#: audit/models.py:180 builds/models.py:1240
+#: audit/models.py:180 builds/models.py:1245
 msgid "Action"
 msgstr "Veiksmas"
 
@@ -453,7 +453,7 @@ msgstr "Normalus"
 msgid "Pull/merge request"
 msgstr "Paimti/sulieti užklausą"
 
-#: builds/filters.py:41 builds/models.py:155 builds/models.py:734
+#: builds/filters.py:41 builds/models.py:155 builds/models.py:739
 msgid "State"
 msgstr "Būsena"
 
@@ -462,7 +462,7 @@ msgstr "Būsena"
 msgid "Any"
 msgstr "Bet kas"
 
-#: builds/filters.py:47 builds/models.py:115 builds/models.py:724
+#: builds/filters.py:47 builds/models.py:115 builds/models.py:729
 #: sphinx_domains/models.py:59 subscriptions/models.py:97
 msgid "Type"
 msgstr "Tipas"
@@ -579,163 +579,163 @@ msgstr "Įterpti naują priedų js biblioteką šiai versijai"
 msgid "Version {version} of {project} ({pk})"
 msgstr "Projekto {project} versija {version} ({pk})"
 
-#: builds/models.py:746
+#: builds/models.py:751
 msgid "Status"
 msgstr "Būsena"
 
-#: builds/models.py:753 integrations/models.py:147
+#: builds/models.py:758 integrations/models.py:147
 msgid "Date"
 msgstr "Data"
 
-#: builds/models.py:754
+#: builds/models.py:759
 msgid "Success"
 msgstr "Sėkmė"
 
-#: builds/models.py:759
+#: builds/models.py:764
 msgid "Setup"
 msgstr "Nustatymai"
 
-#: builds/models.py:760
+#: builds/models.py:765
 msgid "Setup error"
 msgstr "Nustatymų klaida"
 
-#: builds/models.py:761
+#: builds/models.py:766
 msgid "Output"
 msgstr "Išvestis"
 
-#: builds/models.py:762 templates/builds/build_detail.html:227
+#: builds/models.py:767 templates/builds/build_detail.html:227
 msgid "Error"
 msgstr "Klaida"
 
-#: builds/models.py:763
+#: builds/models.py:768
 msgid "Exit code"
 msgstr "Baigimo kodas"
 
-#: builds/models.py:768 projects/models.py:1497 sphinx_domains/models.py:43
+#: builds/models.py:773 projects/models.py:1497 sphinx_domains/models.py:43
 msgid "Commit"
 msgstr "Patvirtinti"
 
-#: builds/models.py:774
+#: builds/models.py:779
 msgid "Version slug"
 msgstr "Versijos žetonas"
 
-#: builds/models.py:780
+#: builds/models.py:785
 msgid "Version name"
 msgstr "Versijos pavadinimas"
 
-#: builds/models.py:786 builds/models.py:1253
+#: builds/models.py:791 builds/models.py:1258
 msgid "Version type"
 msgstr "Versijos tipas"
 
-#: builds/models.py:793
+#: builds/models.py:798
 msgid "Configuration used in the build"
 msgstr "Kūrime naudojama konfigūracija"
 
-#: builds/models.py:798
+#: builds/models.py:803
 msgid "Custom build configuration file path used in this build"
 msgstr "Savas kūrimo konfigūracijos failas, naudotas šiam kūrimui"
 
-#: builds/models.py:806
+#: builds/models.py:811
 msgid "Build Length"
 msgstr "Kūrimo ilgis"
 
-#: builds/models.py:809
+#: builds/models.py:814
 msgid "Builder"
 msgstr "Kūrėjas"
 
-#: builds/models.py:816
+#: builds/models.py:821
 msgid "Cold Storage"
 msgstr "Šalta laikmena"
 
-#: builds/models.py:822
+#: builds/models.py:827
 msgid "Celery task id"
 msgstr "Užduoties id"
 
-#: builds/models.py:933
+#: builds/models.py:938
 #, python-brace-format
 msgid "Build {project} for {usernames} ({pk})"
 msgstr "Kurti {project} naudotojui {usernames} ({pk})"
 
-#: builds/models.py:1151
+#: builds/models.py:1156
 msgid "Build"
 msgstr "Kurti"
 
-#: builds/models.py:1156
+#: builds/models.py:1161
 msgid "Command"
 msgstr "Komanda"
 
-#: builds/models.py:1157 builds/models.py:1217 oauth/models.py:135
+#: builds/models.py:1162 builds/models.py:1222 oauth/models.py:135
 #: organizations/models.py:66 projects/models.py:150 subscriptions/models.py:28
 #: subscriptions/models.py:100 templates/core/project_details.html:78
 msgid "Description"
 msgstr "Aprašymas"
 
-#: builds/models.py:1158
+#: builds/models.py:1163
 msgid "Command output"
 msgstr "Komandos išvestis"
 
-#: builds/models.py:1159
+#: builds/models.py:1164
 msgid "Command exit code"
 msgstr "Komandos pabaigos kodas"
 
-#: builds/models.py:1161
+#: builds/models.py:1166
 msgid "Start time"
 msgstr "Pradžios laikas"
 
-#: builds/models.py:1162
+#: builds/models.py:1167
 msgid "End time"
 msgstr "Pabaigos laikas"
 
-#: builds/models.py:1172
+#: builds/models.py:1177
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
 msgstr "Kūrimo komanda {pk} kūrimui {build}"
 
-#: builds/models.py:1196
+#: builds/models.py:1201
 msgid "Activate version"
 msgstr "Aktyvuoti versiją"
 
-#: builds/models.py:1197
+#: builds/models.py:1202
 msgid "Hide version"
 msgstr "Slėpti versiją"
 
-#: builds/models.py:1198
+#: builds/models.py:1203
 msgid "Make version public"
 msgstr "Daryti versiją vieša"
 
-#: builds/models.py:1199
+#: builds/models.py:1204
 msgid "Make version private"
 msgstr "Daryti versiją privačia"
 
-#: builds/models.py:1200
+#: builds/models.py:1205
 msgid "Set version as default"
 msgstr "Nustatyti versiją kaip numatytąją"
 
-#: builds/models.py:1201
+#: builds/models.py:1206
 msgid "Delete version"
 msgstr "Trinti versiją"
 
-#: builds/models.py:1213
+#: builds/models.py:1218
 msgid "Rule priority"
 msgstr "Taisyklės prioritetas"
 
-#: builds/models.py:1214
+#: builds/models.py:1219
 msgid "A lower number (0) means a higher priority"
 msgstr "Mažesnis skaičius (0) reiškia aukštesnį prioritetą"
 
-#: builds/models.py:1223
+#: builds/models.py:1228
 msgid "Match argument"
 msgstr "Atitikmens argumentas"
 
-#: builds/models.py:1224
+#: builds/models.py:1229
 msgid "Value used for the rule to match the version"
 msgstr "Reikšmė naudojama versijos atitikimo taisyklei"
 
-#: builds/models.py:1228
+#: builds/models.py:1233
 msgid "Predefined match argument"
 msgstr "Pradinis atitikimo argumentas"
 
-#: builds/models.py:1230
+#: builds/models.py:1235
 msgid ""
 "Match argument defined by us, it is used if is not None, otherwise match_arg "
 "will be used."
@@ -743,47 +743,47 @@ msgstr ""
 "Mūsų apibrėžtas atitikimo argumentas. Jis naudojamas, jei ne Jokio. "
 "Priešingu atveju naudojamas match_arg."
 
-#: builds/models.py:1241
+#: builds/models.py:1246
 msgid "Action to apply to matching versions"
 msgstr "Veiksmas, taikomas atitinkančioms versijoms"
 
-#: builds/models.py:1246
+#: builds/models.py:1251
 msgid "Action argument"
 msgstr "Veiksmo argumentas"
 
-#: builds/models.py:1247
+#: builds/models.py:1252
 msgid "Value used for the action to perfom an operation"
 msgstr "Reikšmė, naudojama veiksmo atlikimui"
 
-#: builds/models.py:1254
+#: builds/models.py:1259
 msgid "Type of version the rule should be applied to"
 msgstr "Tipas versijos, kuriai turi būti taikoma taisyklė"
 
-#: builds/models.py:1478
+#: builds/models.py:1483
 msgid "Version activated"
 msgstr "Versija aktyvuota"
 
-#: builds/models.py:1479
+#: builds/models.py:1484
 msgid "Version hidden"
 msgstr "Versija paslėpta"
 
-#: builds/models.py:1481
+#: builds/models.py:1486
 msgid "Version set to public privacy"
 msgstr "Versijai nustatytas viešas privatumas"
 
-#: builds/models.py:1484
+#: builds/models.py:1489
 msgid "Version set to private privacy"
 msgstr "Versijai nustatytas privatus privatumas"
 
-#: builds/models.py:1486
+#: builds/models.py:1491
 msgid "Version set as default"
 msgstr "Versija nustatyta kaip numatytoji"
 
-#: builds/models.py:1487
+#: builds/models.py:1492
 msgid "Version deleted"
 msgstr "Versija ištrinta"
 
-#: builds/models.py:1492
+#: builds/models.py:1497
 msgid "Matched rule"
 msgstr "Atitinkanti taisyklė"
 
@@ -3220,67 +3220,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:430
+#: settings/base.py:429
 msgid "Catalan"
 msgstr "Katalonų"
 
-#: settings/base.py:431
+#: settings/base.py:430
 msgid "English"
 msgstr "Anglų"
 
-#: settings/base.py:432
+#: settings/base.py:431
 msgid "Spanish"
 msgstr "Ispanų"
 
-#: settings/base.py:433
+#: settings/base.py:432
 msgid "Brazilian Portuguese"
 msgstr "Brazilijos portugalų"
 
-#: settings/base.py:434
+#: settings/base.py:433
 msgid "Norwegian Bokmål"
 msgstr "Norvegijos Bakmål"
 
-#: settings/base.py:435
+#: settings/base.py:434
 msgid "French"
 msgstr "Prancūzų"
 
-#: settings/base.py:436
+#: settings/base.py:435
 msgid "Russian"
 msgstr "Rusų"
 
-#: settings/base.py:437
+#: settings/base.py:436
 msgid "German"
 msgstr "Vokiečių"
 
-#: settings/base.py:438
+#: settings/base.py:437
 msgid "Galician"
 msgstr "Galų"
 
-#: settings/base.py:439
+#: settings/base.py:438
 msgid "Vietnamese"
 msgstr "Vietnamiečių"
 
-#: settings/base.py:440
+#: settings/base.py:439
 msgid "Simplified Chinese"
 msgstr "Supaprastinta kinų"
 
-#: settings/base.py:441
+#: settings/base.py:440
 msgid "Traditional Chinese"
 msgstr "Tradicinė kinų"
 
-#: settings/base.py:442
+#: settings/base.py:441
 msgid "Japanese"
 msgstr "Japonų"
 
-#: settings/base.py:443
+#: settings/base.py:442
 msgid "Ukrainian"
 msgstr "Ukrainiečių"
 
-#: settings/base.py:444
+#: settings/base.py:443
 msgid "Italian"
 msgstr "Italų"
 
-#: settings/base.py:445
+#: settings/base.py:444
 msgid "Korean"
 msgstr "Korėjiečių"
 
