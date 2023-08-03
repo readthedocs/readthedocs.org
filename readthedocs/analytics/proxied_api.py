@@ -50,7 +50,6 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
         )
         return version
 
-    # pylint: disable=unused-argument
     def get(self, request, *args, **kwargs):
         project = self._get_project()
         version = self._get_version()
@@ -68,7 +67,6 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-    # pylint: disable=no-self-use
     def increase_page_view_count(self, project, version, absolute_uri):
         """Increase the page view count for the given project."""
         try:
