@@ -401,9 +401,7 @@ def deprecated_build_image_notification():
                 .order_by("-date")
                 .first()
             )
-            # TODO: uncomment this line before merging
-            # if build and build.deprecated_build_image_used():
-            if build and "image" in build.config.get("build", {}):
+            if build and build.deprecated_build_image_used():
                 projects.add(project.slug)
 
     # Store all the users we want to contact

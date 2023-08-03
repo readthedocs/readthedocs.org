@@ -1106,7 +1106,7 @@ class Build(models.Model):
 
     def deprecated_build_image_used(self):
         """
-        Check whether this particular build is using the deprecated "build" config.
+        Check whether this particular build is using the deprecated "build.image" config.
 
         Note we are using this to communicate deprecation of "build.image".
         See https://github.com/readthedocs/meta/discussions/48
@@ -1117,7 +1117,7 @@ class Build(models.Model):
             return False
 
         build_config_key = self.config.get("build", {})
-        return "image" in build_config_key or "os" not in build_config_key
+        return "image" in build_config_key
 
     def reset(self):
         """
