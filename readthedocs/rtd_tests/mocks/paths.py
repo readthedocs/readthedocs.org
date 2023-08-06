@@ -4,7 +4,7 @@ import re
 from unittest import mock
 
 
-def fake_paths(check):
+def fake_paths(check, target="exists"):
     """
     Usage:
 
@@ -23,7 +23,7 @@ def fake_paths(check):
             return original_exists(path)
         return result
 
-    return mock.patch.object(os.path, "lexists", patched_exists)
+    return mock.patch.object(os.path, target, patched_exists)
 
 
 def fake_paths_lookup(path_dict):
@@ -42,13 +42,13 @@ def fake_paths_lookup(path_dict):
     return fake_paths(check)
 
 
-def fake_paths_by_regex(pattern, exists=True):
+def fake_paths_by_regex(pattern, target="exists", exists=True):
     r"""
     Usage:
 
-    >>> with fake_paths_by_regex('\.pdf$'):
+    >>> with fake_paths_by_regex('\.pdf$', target="lexists"):
     ...     assert os.path.exists('my.pdf') == True
-    >>> with fake_paths_by_regex('\.pdf$', exists=False):
+    >>> with fake_paths_by_regex('\.pdf$', target="lexists", exists=False):
     ...     assert os.path.exists('my.pdf') == False
     """
     regex = re.compile(pattern)
@@ -58,4 +58,4 @@ def fake_paths_by_regex(pattern, exists=True):
             return exists
         return None
 
-    return fake_paths(check)
+    return fake_paths(check, target)
