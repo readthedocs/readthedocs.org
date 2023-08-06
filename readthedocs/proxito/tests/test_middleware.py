@@ -3,7 +3,7 @@ from unittest import mock
 
 import pytest
 from django.core.exceptions import SuspiciousOperation
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponse
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -30,7 +30,7 @@ from readthedocs.subscriptions.constants import TYPE_CNAME
 class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
     def setUp(self):
-        self.middleware = ProxitoMiddleware()
+        self.middleware = ProxitoMiddleware(lambda request: HttpResponse())
         self.url = '/'
         self.owner = create_user(username='owner', password='test')
         self.pip = get(
