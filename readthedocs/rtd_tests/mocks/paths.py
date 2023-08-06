@@ -23,7 +23,7 @@ def fake_paths(check):
             return original_exists(path)
         return result
 
-    return mock.patch.object(os.path, 'exists', patched_exists)
+    return mock.patch.object(os.path, "lexists", patched_exists)
 
 
 def fake_paths_lookup(path_dict):
@@ -35,8 +35,10 @@ def fake_paths_lookup(path_dict):
     ...     assert os.path.exists('my.txt') == True
     ...     assert os.path.exists('no.txt') == False
     """
+
     def check(path):
         return path_dict.get(path, None)
+
     return fake_paths(check)
 
 
