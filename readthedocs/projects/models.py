@@ -2017,7 +2017,9 @@ class Feature(models.Model):
         ),
         (
             USE_OLD_PROXITO_IMPLEMENTATION,
-            _("Proxito: Use old implementation for serving documentation files."),
+            _(
+                "Proxito: Use old Proxito implementation (no unresolver) for serving documentation files."
+            ),
         ),
         (
             ALLOW_VERSION_WARNING_BANNER,
