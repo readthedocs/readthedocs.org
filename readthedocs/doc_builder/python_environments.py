@@ -1,7 +1,6 @@
 """An abstraction over virtualenv and Conda environments."""
 
 import copy
-import itertools
 import os
 
 import structlog
@@ -12,7 +11,6 @@ from readthedocs.config import parse as parse_yaml
 from readthedocs.config.models import PythonInstall, PythonInstallRequirements
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.config import load_yaml_config
-from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Feature
 
@@ -265,27 +263,6 @@ class Virtualenv(PythonEnvironment):
         :type install: readthedocs.config.models.PythonInstallRequirements
         """
         requirements_file_path = install.requirements
-        if requirements_file_path is None:
-            # This only happens when the config file is from v1.
-            # We try to find a requirements file.
-            builder_class = get_builder_class(self.config.doctype)
-            docs_dir = (
-                builder_class(
-                    build_env=self.build_env,
-                    python_env=self,
-                ).docs_dir()
-            )
-            paths = [docs_dir, '']
-            req_files = ['pip_requirements.txt', 'requirements.txt']
-            for path, req_file in itertools.product(paths, req_files):
-                test_path = os.path.join(self.checkout_path, path, req_file)
-                if os.path.exists(test_path):
-                    requirements_file_path = os.path.relpath(
-                        test_path,
-                        self.checkout_path,
-                    )
-                    break
-
         if requirements_file_path:
             args = [
                 self.venv_bin(filename='python'),

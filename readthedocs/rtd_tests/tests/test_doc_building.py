@@ -21,7 +21,6 @@ from readthedocs.doc_builder.environments import (
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import Project
-from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 DUMMY_BUILD_ID = 123
@@ -488,90 +487,6 @@ class TestPythonEnvironment(TestCase):
         requirements = self.base_requirements + requirements_mkdocs
         args = self.pip_install_args + requirements
         self.assertArgsStartsWith(args, calls[1])
-
-    @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_install_user_requirements(self, checkout_path):
-        """
-        If a projects does not specify a requirements file,
-        RTD will choose one automatically.
-
-        First by searching under the docs/ directory and then under the root.
-        The files can be named as:
-
-        - ``pip_requirements.txt``
-        - ``requirements.txt``
-        """
-        tmpdir = tempfile.mkdtemp()
-        checkout_path.return_value = tmpdir
-        self.build_env_mock.project = self.project_sphinx
-        self.build_env_mock.version = self.version_sphinx
-        python_env = Virtualenv(
-            version=self.version_sphinx,
-            build_env=self.build_env_mock,
-        )
-
-        checkout_path = python_env.checkout_path
-        docs_requirements = os.path.join(
-            checkout_path, 'docs', 'requirements.txt',
-        )
-        root_requirements = os.path.join(
-            checkout_path, 'requirements.txt',
-        )
-        paths = {
-            os.path.join(checkout_path, 'docs'): True,
-        }
-        args = [
-            mock.ANY,  # python path
-            '-m',
-            'pip',
-            'install',
-            '--exists-action=w',
-            '--no-cache-dir',
-            '-r',
-            'requirements_file',
-        ]
-
-        # One requirements file on the docs/ dir
-        # should be installed
-        paths[docs_requirements] = True
-        paths[root_requirements] = False
-        with fake_paths_lookup(paths):
-            python_env.install_requirements()
-        args[-1] = 'docs/requirements.txt'
-        self.build_env_mock.run.assert_called_with(
-            *args, cwd=mock.ANY, bin_path=mock.ANY
-        )
-
-        # One requirements file on the root dir
-        # should be installed
-        paths[docs_requirements] = False
-        paths[root_requirements] = True
-        with fake_paths_lookup(paths):
-            python_env.install_requirements()
-        args[-1] = 'requirements.txt'
-        self.build_env_mock.run.assert_called_with(
-            *args, cwd=mock.ANY, bin_path=mock.ANY
-        )
-
-        # Two requirements files on the root and  docs/ dirs
-        # the one on docs/ should be installed
-        paths[docs_requirements] = True
-        paths[root_requirements] = True
-        with fake_paths_lookup(paths):
-            python_env.install_requirements()
-        args[-1] = 'docs/requirements.txt'
-        self.build_env_mock.run.assert_called_with(
-            *args, cwd=mock.ANY, bin_path=mock.ANY
-        )
-
-        # No requirements file
-        # no requirements should be installed
-        self.build_env_mock.run.reset_mock()
-        paths[docs_requirements] = False
-        paths[root_requirements] = False
-        with fake_paths_lookup(paths):
-            python_env.install_requirements()
-        self.build_env_mock.run.assert_not_called()
 
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_install_core_requirements_sphinx_conda(self, checkout_path):
