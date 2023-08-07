@@ -1280,15 +1280,14 @@ class BuildConfigV2(BuildConfigBase):
         This should be called after all the validations are done and all keys
         are popped from `self._raw_config`.
         """
-        msg = "Make sure the key name is correct."
         # The version key isn't popped, but it's
         # validated in `load`.
         self.pop_config('version', None)
         wrong_key = '.'.join(self._get_extra_key(self._raw_config))
         if wrong_key:
             self.error(
-                wrong_key,
-                msg,
+                key=wrong_key,
+                message="Make sure the key name is correct.",
                 code=INVALID_KEY,
             )
 
