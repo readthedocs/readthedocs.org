@@ -30,6 +30,7 @@ def pretty_json_field(field, description, include_styles=False):
     return inner
 
 
+@admin.register(HttpExchange)
 class HttpExchangeAdmin(admin.ModelAdmin):
 
     """
@@ -73,13 +74,16 @@ class HttpExchangeAdmin(admin.ModelAdmin):
         'Response body',
     )
 
+    @admin.display(
+        description="Passed",
+        boolean=True,
+    )
     def failed_icon(self, obj):
         return not obj.failed
 
-    failed_icon.boolean = True
-    failed_icon.short_description = 'Passed'
 
 
+@admin.register(Integration)
 class IntegrationAdmin(admin.ModelAdmin):
 
     """
@@ -94,6 +98,7 @@ class IntegrationAdmin(admin.ModelAdmin):
     readonly_fields = ['exchanges']
 
     # TODO: review this now that we are using official Django's JSONField
+    @admin.display(description="HTTP exchanges")
     def exchanges(self, obj):
         """
         Manually make an inline-ish block.
@@ -103,8 +108,8 @@ class IntegrationAdmin(admin.ModelAdmin):
         """
         url = urls.reverse(
             'admin:{}_{}_changelist'.format(
-                HttpExchange._meta.app_label,  # pylint: disable=protected-access
-                HttpExchange._meta.model_name,  # pylint: disable=protected-access
+                HttpExchange._meta.app_label,
+                HttpExchange._meta.model_name,
             ),
         )
         return mark_safe(
@@ -115,9 +120,3 @@ class IntegrationAdmin(admin.ModelAdmin):
                 obj.exchanges.count(),
             ),
         )
-
-    exchanges.short_description = 'HTTP exchanges'
-
-
-admin.site.register(HttpExchange, HttpExchangeAdmin)
-admin.site.register(Integration, IntegrationAdmin)

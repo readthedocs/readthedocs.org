@@ -11,5 +11,5 @@ class TestProxiedFooterHTML(BaseTestFooterHTML, TestCase):
         self.host = 'pip.readthedocs.io'
 
     def render(self):
-        r = self.client.get(self.url, HTTP_HOST=self.host)
+        r = self.client.get(self.url, headers={"host": self.host})
         return r

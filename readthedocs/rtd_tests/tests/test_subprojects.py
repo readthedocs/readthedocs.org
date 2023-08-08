@@ -51,7 +51,7 @@ class SubprojectFormTests(TestCase):
         project = fixture.get(Project, slug='mainproject')
         project.users.add(user)
         subproject = fixture.get(Project, slug='subproject')
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             Project.objects.for_admin_user(user),
             [project],
             transform=lambda n: n,
@@ -79,7 +79,7 @@ class SubprojectFormTests(TestCase):
         project.users.add(user)
         subproject = fixture.get(Project, slug='subproject')
         subproject.users.add(user)
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             Project.objects.for_admin_user(user),
             [project, subproject],
             transform=lambda n: n,
@@ -106,7 +106,7 @@ class SubprojectFormTests(TestCase):
         relation = fixture.get(
             ProjectRelationship, parent=project, child=subproject,
         )
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             Project.objects.for_admin_user(user),
             [project, subproject, subsubproject],
             transform=lambda n: n,
@@ -137,7 +137,7 @@ class SubprojectFormTests(TestCase):
         relation = fixture.get(
             ProjectRelationship, parent=project, child=subproject,
         )
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             Project.objects.for_admin_user(user),
             [project, subproject],
             transform=lambda n: n,

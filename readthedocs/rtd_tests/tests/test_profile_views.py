@@ -195,32 +195,32 @@ class ProfileViewsTest(TestCase):
         resp = self.client.get(reverse('profiles_security_log'))
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertQuerysetEqual(auditlogs, queryset)
+        self.assertQuerySetEqual(auditlogs, queryset)
 
         # Show logs filtered by project.
         resp = self.client.get(reverse('profiles_security_log') + '?project=project')
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data["object_list"]
-        self.assertQuerysetEqual(auditlogs, queryset.filter(log_project_slug="project"))
+        self.assertQuerySetEqual(auditlogs, queryset.filter(log_project_slug="project"))
 
         # Show logs filtered by IP.
         ip = "10.10.10.2"
         resp = self.client.get(reverse("profiles_security_log") + f"?ip={ip}")
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertQuerysetEqual(auditlogs, queryset.filter(ip=ip))
+        self.assertQuerySetEqual(auditlogs, queryset.filter(ip=ip))
 
         # Show logs filtered by action.
         resp = self.client.get(reverse('profiles_security_log') + '?action=authentication')
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertQuerysetEqual(auditlogs, queryset.filter(action=AuditLog.AUTHN))
+        self.assertQuerySetEqual(auditlogs, queryset.filter(action=AuditLog.AUTHN))
 
         # Show logs filtered by action.
         resp = self.client.get(reverse('profiles_security_log') + '?action=authentication-failure')
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data["object_list"]
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             auditlogs, queryset.filter(action=AuditLog.AUTHN_FAILURE)
         )
 
@@ -235,7 +235,7 @@ class ProfileViewsTest(TestCase):
         resp = self.client.get(reverse('profiles_security_log') + '?action=invalid')
         self.assertEqual(resp.status_code, 200)
         auditlogs = resp.context_data['object_list']
-        self.assertQuerysetEqual(auditlogs, queryset)
+        self.assertQuerySetEqual(auditlogs, queryset)
 
 
 @override_settings(

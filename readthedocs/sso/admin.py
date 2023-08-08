@@ -12,6 +12,7 @@ from .models import SSODomain, SSOIntegration
 log = structlog.get_logger(__name__)
 
 
+@admin.register(SSOIntegration)
 class SSOIntegrationAdmin(admin.ModelAdmin):
 
     """Admin configuration for SSOIntegration."""
@@ -24,7 +25,8 @@ class SSOIntegrationAdmin(admin.ModelAdmin):
         'resync_sso_user_accounts',
     ]
 
-    def resync_sso_user_accounts(self, request, queryset):  # pylint: disable=no-self-use
+    @admin.action(description="Re-sync all SSO user accounts")
+    def resync_sso_user_accounts(self, request, queryset):
         users_count = 0
         organizations_count = queryset.count()
 
@@ -45,8 +47,6 @@ class SSOIntegrationAdmin(admin.ModelAdmin):
             f'Triggered resync for {organizations_count} organizations and {users_count} users.'
         )
 
-    resync_sso_user_accounts.short_description = 'Re-sync all SSO user accounts'
 
 
-admin.site.register(SSOIntegration, SSOIntegrationAdmin)
 admin.site.register(SSODomain)
