@@ -262,7 +262,7 @@ class TestProjectDownloads(TestCase):
                     "project_download_media",
                     args=[self.project.slug, type_, self.version.slug],
                 ),
-                HTTP_HOST="project.dev.readthedocs.io",
+                headers={"host": "project.dev.readthedocs.io"},
             )
             self.assertEqual(resp.status_code, 200)
             extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_

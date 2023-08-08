@@ -21,7 +21,9 @@ from .base import BaseDocServing
 class RedirectTests(BaseDocServing):
 
     def test_root_url_no_slash(self):
-        r = self.client.get("", secure=True, HTTP_HOST="project.dev.readthedocs.io")
+        r = self.client.get(
+            "", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'https://project.dev.readthedocs.io/en/latest/',
@@ -31,7 +33,9 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
     def test_root_url(self):
-        r = self.client.get("/", secure=True, HTTP_HOST="project.dev.readthedocs.io")
+        r = self.client.get(
+            "/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'https://project.dev.readthedocs.io/en/latest/',
@@ -44,7 +48,7 @@ class RedirectTests(BaseDocServing):
         self.domain.canonical = True
         self.domain.save()
 
-        r = self.client.get('/', HTTP_HOST=self.domain.domain, secure=True)
+        r = self.client.get("/", headers={"host": self.domain.domain}, secure=True)
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], f'https://{self.domain.domain}/en/latest/',
@@ -57,7 +61,7 @@ class RedirectTests(BaseDocServing):
         self.domain.canonical = True
         self.domain.save()
 
-        r = self.client.get('', HTTP_HOST=self.domain.domain, secure=True)
+        r = self.client.get("", headers={"host": self.domain.domain}, secure=True)
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], f'https://{self.domain.domain}/en/latest/',
@@ -69,12 +73,16 @@ class RedirectTests(BaseDocServing):
     def test_single_version_root_url_doesnt_redirect(self):
         self.project.single_version = True
         self.project.save()
-        r = self.client.get("/", secure=True, HTTP_HOST="project.dev.readthedocs.io")
+        r = self.client.get(
+            "/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
         self.assertEqual(r.status_code, 200)
 
     def test_subproject_root_url(self):
         r = self.client.get(
-            "/projects/subproject/", secure=True, HTTP_HOST="project.dev.readthedocs.io"
+            "/projects/subproject/",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -86,7 +94,9 @@ class RedirectTests(BaseDocServing):
 
     def test_subproject_root_url_no_slash(self):
         r = self.client.get(
-            "/projects/subproject", secure=True, HTTP_HOST="project.dev.readthedocs.io"
+            "/projects/subproject",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -100,7 +110,9 @@ class RedirectTests(BaseDocServing):
         self.subproject.single_version = True
         self.subproject.save()
         r = self.client.get(
-            "/projects/subproject", secure=True, HTTP_HOST="project.dev.readthedocs.io"
+            "/projects/subproject",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -111,7 +123,9 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
     def test_subproject_redirect(self):
-        r = self.client.get("/", secure=True, HTTP_HOST="subproject.dev.readthedocs.io")
+        r = self.client.get(
+            "/", secure=True, headers={"host": "subproject.dev.readthedocs.io"}
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r["Location"],
@@ -119,7 +133,9 @@ class RedirectTests(BaseDocServing):
         )
 
         r = self.client.get(
-            "/projects/subproject/", secure=True, HTTP_HOST="project.dev.readthedocs.io"
+            "/projects/subproject/",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -131,7 +147,9 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
         r = self.client.get(
-            "/en/latest/", secure=True, HTTP_HOST="subproject.dev.readthedocs.io"
+            "/en/latest/",
+            secure=True,
+            headers={"host": "subproject.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -144,7 +162,9 @@ class RedirectTests(BaseDocServing):
         )
 
         r = self.client.get(
-            "/en/latest/foo/bar", secure=True, HTTP_HOST="subproject.dev.readthedocs.io"
+            "/en/latest/foo/bar",
+            secure=True,
+            headers={"host": "subproject.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -159,7 +179,9 @@ class RedirectTests(BaseDocServing):
         self.domain.canonical = True
         self.domain.save()
         r = self.client.get(
-            "/en/latest/foo/bar", secure=True, HTTP_HOST="subproject.dev.readthedocs.io"
+            "/en/latest/foo/bar",
+            secure=True,
+            headers={"host": "subproject.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -175,7 +197,9 @@ class RedirectTests(BaseDocServing):
         self.subproject.single_version = True
         self.subproject.save()
 
-        r = self.client.get("/", secure=True, HTTP_HOST="subproject.dev.readthedocs.io")
+        r = self.client.get(
+            "/", secure=True, headers={"host": "subproject.dev.readthedocs.io"}
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/',
@@ -187,7 +211,7 @@ class RedirectTests(BaseDocServing):
         )
 
         r = self.client.get(
-            "/foo/bar/", secure=True, HTTP_HOST="subproject.dev.readthedocs.io"
+            "/foo/bar/", secure=True, headers={"host": "subproject.dev.readthedocs.io"}
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -202,7 +226,7 @@ class RedirectTests(BaseDocServing):
         self.domain.canonical = True
         self.domain.save()
         r = self.client.get(
-            "/foo/bar", secure=True, HTTP_HOST="subproject.dev.readthedocs.io"
+            "/foo/bar", secure=True, headers={"host": "subproject.dev.readthedocs.io"}
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -216,7 +240,7 @@ class RedirectTests(BaseDocServing):
 
     def test_root_redirect_with_query_params(self):
         r = self.client.get(
-            "/?foo=bar", secure=True, HTTP_HOST="project.dev.readthedocs.io"
+            "/?foo=bar", secure=True, headers={"host": "project.dev.readthedocs.io"}
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -231,7 +255,7 @@ class RedirectTests(BaseDocServing):
         self.domain.canonical = True
         self.domain.save()
 
-        r = self.client.get('/', HTTP_HOST=self.domain.domain)
+        r = self.client.get("/", headers={"host": self.domain.domain})
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], f'https://{self.domain.domain}/',
@@ -241,7 +265,9 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(r["X-RTD-Redirect"], RedirectType.http_to_https.name)
 
         # We should redirect before 404ing
-        r = self.client.get('/en/latest/404after302', HTTP_HOST=self.domain.domain)
+        r = self.client.get(
+            "/en/latest/404after302", headers={"host": self.domain.domain}
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], f'https://{self.domain.domain}/en/latest/404after302',
@@ -255,7 +281,9 @@ class RedirectTests(BaseDocServing):
         self.domain.canonical = True
         self.domain.save()
 
-        r = self.client.get("/", secure=True, HTTP_HOST="project.dev.readthedocs.io")
+        r = self.client.get(
+            "/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], f'https://{self.domain.domain}/',
@@ -268,7 +296,7 @@ class RedirectTests(BaseDocServing):
         r = self.client.get(
             "/en/latest/404after302",
             secure=True,
-            HTTP_HOST="project.dev.readthedocs.io",
+            headers={"host": "project.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -280,7 +308,7 @@ class RedirectTests(BaseDocServing):
 
     def test_translation_redirect(self):
         r = self.client.get(
-            "/", secure=True, HTTP_HOST="translation.dev.readthedocs.io"
+            "/", secure=True, headers={"host": "translation.dev.readthedocs.io"}
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -291,7 +319,9 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(r["X-RTD-Redirect"], RedirectType.system.name)
 
     def test_translation_secure_redirect(self):
-        r = self.client.get('/', HTTP_HOST='translation.dev.readthedocs.io', secure=True)
+        r = self.client.get(
+            "/", headers={"host": "translation.dev.readthedocs.io"}, secure=True
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r['Location'], f'https://project.dev.readthedocs.io/es/latest/',
@@ -303,7 +333,9 @@ class RedirectTests(BaseDocServing):
     # Specific Page Redirects
     def test_proper_page_on_subdomain(self):
         r = self.client.get(
-            "/page/test.html", secure=True, HTTP_HOST="project.dev.readthedocs.io"
+            "/page/test.html",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
@@ -318,7 +350,7 @@ class RedirectTests(BaseDocServing):
         host = 'project.dev.readthedocs.io'
 
         url = '/en/latest////awesome.html'
-        resp = self.client.get(url, secure=True, HTTP_HOST=host)
+        resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome.html',
@@ -327,7 +359,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         url = '/en/latest////awesome.html'
-        resp = self.client.get(url, secure=True, HTTP_HOST=host)
+        resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome.html',
@@ -336,7 +368,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         url = '/en/latest////awesome///index.html'
-        resp = self.client.get(url, secure=True, HTTP_HOST=host)
+        resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome/index.html',
@@ -345,7 +377,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         url = '/en/latest////awesome///index.html?foo=bar'
-        resp = self.client.get(url, secure=True, HTTP_HOST=host)
+        resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome/index.html?foo=bar',
@@ -354,7 +386,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         url = '/en/latest////awesome///'
-        resp = self.client.get(url, secure=True, HTTP_HOST=host)
+        resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome/',
@@ -364,7 +396,7 @@ class RedirectTests(BaseDocServing):
 
         # Don't change the values of params
         url = '/en/latest////awesome///index.html?foo=bar//bas'
-        resp = self.client.get(url, secure=True, HTTP_HOST=host)
+        resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
             resp['Location'], '/en/latest/awesome/index.html?foo=bar//bas',
@@ -380,7 +412,7 @@ class RedirectTests(BaseDocServing):
         paths = ["/", "/en/latest/", "/not-found"]
         for path in paths:
             r = self.client.get(
-                path, secure=False, HTTP_HOST="project.dev.readthedocs.io"
+                path, secure=False, headers={"host": "project.dev.readthedocs.io"}
             )
             self.assertEqual(r.status_code, 302)
             self.assertEqual(
@@ -393,7 +425,9 @@ class RedirectTests(BaseDocServing):
 
     @override_settings(PUBLIC_DOMAIN_USES_HTTPS=False)
     def test_http_public_domain_https_redirect(self):
-        r = self.client.get("", secure=False, HTTP_HOST="project.dev.readthedocs.io")
+        r = self.client.get(
+            "", secure=False, headers={"host": "project.dev.readthedocs.io"}
+        )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
             r["Location"],
@@ -422,9 +456,7 @@ class ProxitoV2RedirectTests(RedirectTests):
         ]
         for path in paths:
             r = self.client.get(
-                path,
-                secure=True,
-                HTTP_HOST="project.dev.readthedocs.io",
+                path, secure=True, headers={"host": "project.dev.readthedocs.io"}
             )
             self.assertEqual(r.status_code, 302)
             self.assertEqual(
@@ -448,9 +480,7 @@ class ProxitoV2RedirectTests(RedirectTests):
         ]
         for path in paths:
             r = self.client.get(
-                path,
-                secure=True,
-                HTTP_HOST="project--10.dev.readthedocs.build",
+                path, secure=True, headers={"host": "project--10.dev.readthedocs.build"}
             )
             self.assertEqual(r.status_code, 302)
             self.assertEqual(

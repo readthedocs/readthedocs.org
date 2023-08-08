@@ -140,3 +140,10 @@ class FileIsNotRegularFile(UnsupportedSymlinkFileError):
 
 class SymlinkOutsideBasePath(UnsupportedSymlinkFileError):
     pass
+
+
+class FileTooLarge(BuildUserError):
+    message = gettext_noop(
+        "A file from your build process is too large to be processed by Read the Docs. "
+        "Please ensure no files generated are larger than 1GB."
+    )

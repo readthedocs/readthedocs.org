@@ -1,7 +1,7 @@
 """Project URLS for public users."""
 
 from django.conf import settings
-from django.conf.urls import re_path
+from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
 from readthedocs.builds import views as build_views
@@ -20,10 +20,10 @@ if settings.RTD_EXT_THEME_ENABLED:
     project_versions_list = ProjectDetailView.as_view()
 
 urlpatterns = [
-    re_path(
-        r'^$',
-        RedirectView.as_view(pattern_name='projects_dashboard', permanent=True),
-        name='projects_dashboard_redirect',
+    path(
+        "",
+        RedirectView.as_view(pattern_name="projects_dashboard", permanent=True),
+        name="projects_dashboard_redirect",
     ),
     re_path(
         r'^tags/(?P<tag>[-\w]+)/$',

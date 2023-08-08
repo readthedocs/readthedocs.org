@@ -60,7 +60,7 @@ class RedirectTests(TestCase):
 
     @override_settings(USE_SUBDOMAIN=True)
     def test_improper_subdomain_filename_only(self):
-        r = self.client.get('/test.html', HTTP_HOST='pip.readthedocs.org')
+        r = self.client.get("/test.html", headers={"host": "pip.readthedocs.org"})
         self.assertEqual(r.status_code, 404)
 
 
