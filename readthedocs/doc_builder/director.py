@@ -24,7 +24,6 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import Feature
 from readthedocs.projects.signals import after_build, before_build, before_vcs
 from readthedocs.storage import build_tools_storage
 
@@ -250,15 +249,23 @@ class BuildDirector:
         self.data.build["config"] = self.data.config.as_dict()
         self.data.build["readthedocs_yaml_path"] = custom_config_file
 
+        now = timezone.now()
+
+        # fmt: off
+        # These browndates matches https://blog.readthedocs.com/migrate-configuration-v2/
+        browndates = any([
+            timezone.datetime(2023, 7, 14, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 7, 14, 12, 0, 0, tzinfo=timezone.utc),  # First, 12hs
+            timezone.datetime(2023, 8, 14, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 8, 15, 0, 0, 0, tzinfo=timezone.utc),  # Second, 24hs
+            timezone.datetime(2023, 9, 4, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 9, 6, 0, 0, 0, tzinfo=timezone.utc),  # Third, 24hs
+            timezone.datetime(2023, 9, 25, 0, 0, 0, tzinfo=timezone.utc) < now,  # Fully removal
+        ])
+        # fmt: on
+
         # Raise a build error if the project is not using a config file or using v1
-        if self.data.project.has_feature(
-            Feature.NO_CONFIG_FILE_DEPRECATED
-        ) and self.data.config.version not in ("2", 2):
+        if browndates and self.data.config.version not in ("2", 2):
             raise BuildUserError(BuildUserError.NO_CONFIG_FILE_DEPRECATED)
 
         # Raise a build error if the project is using "build.image" on their config file
-
-        now = timezone.now()
 
         # fmt: off
         # These browndates matches https://blog.readthedocs.com/use-build-os-config/
