@@ -1,6 +1,6 @@
 {% extends "core/email/common.txt" %}
 {% block content %}
-The Read the Docs build system is deprecating "build.image" config key on ".readthedocs.yaml" starting on October 16, 2023.
+The "build.image" config key on ".readthedocs.yaml" has been deprecated, and will be removed on October 16, 2023.
 We are sending weekly notifications about this issue to all impacted users,
 as well as temporary build failures (brownouts) as the date approaches for those who haven't migrated their projects.
 
@@ -24,7 +24,7 @@ Please use "build.os" on your configuration file to ensure that they continue bu
 If you want to opt-out from these emails, you can edit your preferences in your account settings, at https://readthedocs.org/accounts/edit/.
 
 For more information on how to use "build.os",
-read our blog post at https://blog.readthedocs.com/build-image-config-deprecated/
+read our blog post at https://blog.readthedocs.com/use-build-os-config/
 
 Get in touch with us via our support ({{ production_uri }}{% url 'support' %})
 and let us know if you are unable to use a configuration file for any reason.

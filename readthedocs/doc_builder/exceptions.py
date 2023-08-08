@@ -68,12 +68,12 @@ class BuildUserError(BuildBaseException):
     )
     BUILD_IMAGE_CONFIG_KEY_DEPRECATED = gettext_noop(
         'The configuration key "build.image" is deprecated. '
-        'Please, use "build.os" instead to make it build successfully. '
-        "Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html"
+        'Use "build.os" instead to continue building your project. '
+        "Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os"
     )
     BUILD_OS_REQUIRED = gettext_noop(
         'The configuration key "build.os" is required to build your documentation. '
-        "Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html"
+        "Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os"
     )
 
 
