@@ -251,8 +251,13 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         DomainInline,
         VersionInline,
     ]
-    readonly_fields = ('pub_date', 'feature_flags', 'matching_spam_rules')
-    raw_id_fields = ('users', 'main_language_project', 'remote_repository')
+    readonly_fields = (
+        "pub_date",
+        "modified_date",
+        "feature_flags",
+        "matching_spam_rules",
+    )
+    raw_id_fields = ("users", "main_language_project", "remote_repository")
     actions = [
         'send_owner_email',
         'ban_owner',
