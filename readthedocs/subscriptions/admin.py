@@ -15,6 +15,7 @@ class PlanFeatureInline(admin.TabularInline):
     model = PlanFeature
 
 
+@admin.register(Plan)
 class PlanAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
     list_display = (
@@ -28,6 +29,7 @@ class PlanAdmin(admin.ModelAdmin):
     inlines = (PlanFeatureInline,)
 
 
+@admin.register(PlanFeature)
 class PlanFeatureAdmin(admin.ModelAdmin):
     list_display = ('get_feature_type_display', 'plan')
     list_select_related = ('plan',)
@@ -74,6 +76,7 @@ class SubscriptionDateFilter(admin.SimpleListFilter):
             return queryset.filter(end_date__lt=timezone.now())
 
 
+@admin.register(Subscription)
 class SubscriptionAdmin(ExtraSimpleHistoryAdmin):
     model = Subscription
     list_display = ('organization', 'plan', 'status', 'stripe_subscription', 'trial_end_date')
@@ -83,7 +86,6 @@ class SubscriptionAdmin(ExtraSimpleHistoryAdmin):
     readonly_fields = ('stripe_subscription',)
     search_fields = ('organization__name', 'stripe_id')
 
-    # pylint: disable=no-self-use
     def stripe_subscription(self, obj):
         if obj.stripe_id:
             return format_html(
@@ -92,8 +94,3 @@ class SubscriptionAdmin(ExtraSimpleHistoryAdmin):
                 obj.stripe_id,
             )
         return None
-
-
-admin.site.register(Subscription, SubscriptionAdmin)
-admin.site.register(Plan, PlanAdmin)
-admin.site.register(PlanFeature, PlanFeatureAdmin)
