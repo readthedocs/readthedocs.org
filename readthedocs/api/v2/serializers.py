@@ -43,12 +43,7 @@ class ProjectAdminSerializer(ProjectSerializer):
     general API, mostly for fields used in the build process
     """
 
-    features = serializers.SlugRelatedField(
-        many=True,
-        read_only=True,
-        slug_field='feature_id',
-    )
-
+    features = serializers.ReadOnlyField()
     environment_variables = serializers.SerializerMethodField()
     skip = serializers.SerializerMethodField()
 

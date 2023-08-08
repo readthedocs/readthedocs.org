@@ -269,8 +269,9 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         # This is hacky because Django wants a module for the URLConf,
         # instead of also accepting string
-        if project.urlconf and not project.has_feature(
-            Feature.USE_UNRESOLVER_WITH_PROXITO
+        if project.urlconf and (
+            project.has_feature(Feature.USE_OLD_PROXITO_IMPLEMENTATION)
+            or not project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO)
         ):
             # Stop Django from caching URLs
             # https://github.com/django/django/blob/7cf7d74/django/urls/resolvers.py#L65-L69  # noqa

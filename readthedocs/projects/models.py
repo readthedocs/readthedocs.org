@@ -1300,9 +1300,11 @@ class Project(models.Model):
 
         return self.domains.filter(canonical=True).first()
 
-    @property
+    @cached_property
     def features(self):
-        return Feature.objects.for_project(self)
+        return list(
+            Feature.objects.for_project(self).values_list("feature_id", flat=True)
+        )
 
     def has_feature(self, feature_id):
         """
@@ -1312,7 +1314,7 @@ class Project(models.Model):
         we consider the project to have the flag. This is used for deprecating a
         feature or changing behavior for new projects
         """
-        return self.features.filter(feature_id=feature_id).exists()
+        return feature_id in self.features
 
     def get_feature_value(self, feature, positive, negative):
         """
@@ -1449,9 +1451,6 @@ class APIProject(Project):
 
     def save(self, *args, **kwargs):
         return 0
-
-    def has_feature(self, feature_id):
-        return feature_id in self.features
 
     @property
     def show_advertising(self):
@@ -1924,6 +1923,7 @@ class Feature(models.Model):
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
+    USE_OLD_PROXITO_IMPLEMENTATION = "use_old_proxito_implementation"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
 
     # Versions sync related features
@@ -2013,6 +2013,12 @@ class Feature(models.Model):
             USE_UNRESOLVER_WITH_PROXITO,
             _(
                 "Proxito: Use new unresolver implementation for serving documentation files."
+            ),
+        ),
+        (
+            USE_OLD_PROXITO_IMPLEMENTATION,
+            _(
+                "Proxito: Use old Proxito implementation (no unresolver) for serving documentation files."
             ),
         ),
         (
