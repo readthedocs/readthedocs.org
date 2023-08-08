@@ -82,6 +82,8 @@ class VersionAdmin(admin.ModelAdmin):
         "built",
     )
     readonly_fields = (
+        "created",
+        "modified",
         "pretty_config",  # required to be read-only because it's a @property
     )
     list_filter = ("type", "privacy_level", "active", "built")
