@@ -59,7 +59,7 @@ class HomepageView(TemplateView):
                 # Small hack to not append `&` to URLs without a query_string
                 query_string += "&" + request.META["QUERY_STRING"]
             return redirect(
-                f"https://about.readthedocs.com{query_string}", permanent=False
+                f"https://about.readthedocs.com{query_string}", permanent=True
             )
 
         # Show the homepage for local dev
