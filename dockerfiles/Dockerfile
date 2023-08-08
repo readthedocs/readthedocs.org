@@ -22,10 +22,10 @@ RUN apt-get -y install \
         build-essential \
         python3-pip \
         python3-dev \
+        postgresql-client \
         libmysqlclient-dev \
         libfreetype6 \
         libjpeg-dev \
-        postgresql-client \
         sqlite \
         netcat \
         telnet \
@@ -63,8 +63,9 @@ RUN if [ -n "$GITHUB_TOKEN" ] ; \
         then \
         git clone --depth 1 https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \
         pip3 install --no-cache-dir -e readthedocs-ext ; \
-        git clone --depth 1 https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/readthedocs/ext-theme ; \
-        pip3 install --no-cache-dir -e ext-theme ; \
         fi
+
+RUN git clone --depth 1 https://github.com/readthedocs/ext-theme ; \
+    pip3 install --no-cache-dir -e ext-theme
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org

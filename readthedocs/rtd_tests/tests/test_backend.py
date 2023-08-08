@@ -294,6 +294,8 @@ class TestGitBackend(TestCase):
         repo.update()
         repo.checkout('submodule')
         self.assertTrue(repo.use_shallow_clone())
+        # Clear cache
+        del self.project.features
         fixture.get(
             Feature,
             projects=[self.project],

@@ -376,7 +376,7 @@ are by far the most widely used for historical reasons.
 
 However, to compensate some of the disadvantages of the ``.ipynb`` format
 (like cumbersome integration with version control systems),
-`jupytext`_ offers :doc:`other formats <jupytext:formats>`
+`jupytext`_ offers :doc:`other formats <jupytext:formats-markdown>`
 based on plain text rather than JSON.
 
 As a result, there are three modes of operation:
@@ -396,7 +396,7 @@ As a result, there are three modes of operation:
     to improve the review process.
   - Use a different collaboration workflow that doesn't involve notebooks.
 
-- Replace ``.ipynb`` notebooks with :doc:`a text-based format <jupytext:formats>`.
+- Replace ``.ipynb`` notebooks with :doc:`a text-based format <jupytext:formats-markdown>`.
   These formats behave better under version control
   and they can also be edited with normal text editors
   that do not support cell-based JSON notebooks.
@@ -411,7 +411,7 @@ As a result, there are three modes of operation:
 These approaches are not mutually exclusive,
 nor you have to use a single format for all your notebooks.
 For the examples in this document, we have used the :doc:`MyST Markdown
-format <jupytext:formats>`.
+format <jupytext:formats-markdown>`.
 
 If you are using alternative formats for Jupyter notebooks,
 you can include them in your Sphinx documentation
