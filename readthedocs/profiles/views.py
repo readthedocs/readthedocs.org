@@ -61,8 +61,7 @@ class ProfileEdit(PrivateViewMixin, UpdateView):
 
     def get_success_url(self):
         return reverse(
-            'profiles_profile_detail',
-            kwargs={'username': self.request.user.username},
+            "profiles_profile_edit",
         )
 
 

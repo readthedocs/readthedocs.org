@@ -36,6 +36,7 @@ class ProfileViewsTest(TestCase):
             },
         )
         self.assertTrue(resp.status_code, 200)
+        self.assertEqual(resp["Location"], "/accounts/edit/")
 
         self.user.refresh_from_db()
         self.user.profile.refresh_from_db()
