@@ -140,7 +140,10 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 # and we don't want to issue infinite redirects.
                 pass
 
-        if unresolved_domain.project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO):
+        use_new_implementation = not unresolved_domain.project.has_feature(
+            Feature.USE_OLD_PROXITO_IMPLEMENTATION
+        ) and unresolved_domain.project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO)
+        if use_new_implementation:
             return self.get_using_unresolver(request)
 
         original_version_slug = version_slug
@@ -528,7 +531,10 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         log.debug('Executing 404 handler.')
 
         unresolved_domain = request.unresolved_domain
-        if unresolved_domain.project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO):
+        use_new_implementation = not unresolved_domain.project.has_feature(
+            Feature.USE_OLD_PROXITO_IMPLEMENTATION
+        ) and unresolved_domain.project.has_feature(Feature.USE_UNRESOLVER_WITH_PROXITO)
+        if use_new_implementation:
             return self.get_using_unresolver(request, proxito_path)
 
         # Parse the URL using the normal urlconf, so we get proper subdomain/translation data
