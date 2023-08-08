@@ -263,10 +263,10 @@ class BuildDirector:
         # fmt: off
         # These browndates matches https://blog.readthedocs.com/use-build-os-config/
         browndates = any([
-            timezone.datetime(2023, 8, 28, 0, 0, 0) < now < timezone.datetime(2023, 8, 28, 12, 0, 0),  # First, 12hs
-            timezone.datetime(2023, 9, 18, 0, 0, 0) < now < timezone.datetime(2023, 9, 19, 0, 0, 0),  # Second, 24hs
-            timezone.datetime(2023, 10, 2, 0, 0, 0) < now < timezone.datetime(2023, 10, 4, 0, 0, 0),  # Third, 48hs
-            timezone.datetime(2023, 10, 16, 0, 0, 0) < now,  # Fully removal
+            timezone.datetime(2023, 8, 28, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 8, 28, 12, 0, 0, tzinfo=timezone.utc),  # First, 12hs
+            timezone.datetime(2023, 9, 18, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 9, 19, 0, 0, 0, tzinfo=timezone.utc),  # Second, 24hs
+            timezone.datetime(2023, 10, 2, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 10, 4, 0, 0, 0, tzinfo=timezone.utc),  # Third, 48hs
+            timezone.datetime(2023, 10, 16, 0, 0, 0, tzinfo=timezone.utc) < now,  # Fully removal
         ])
         # fmt: on
 
