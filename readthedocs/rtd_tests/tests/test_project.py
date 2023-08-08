@@ -65,32 +65,32 @@ class TestProject(ProjectMixin, TestCase):
 
     def test_has_pdf(self):
         # The project has a pdf if the PDF file exists on disk.
-        with fake_paths_by_regex(r'\.pdf$'):
+        with fake_paths_by_regex(r"\.pdf$", target="lexists"):
             self.assertTrue(self.pip.has_pdf(LATEST))
 
         # The project has no pdf if there is no file on disk.
-        with fake_paths_by_regex(r'\.pdf$', exists=False):
+        with fake_paths_by_regex(r"\.pdf$", target="lexists", exists=False):
             self.assertFalse(self.pip.has_pdf(LATEST))
 
     def test_has_pdf_with_pdf_build_disabled(self):
         # The project doesn't depend on `enable_pdf_build`
         self.pip.enable_pdf_build = False
-        with fake_paths_by_regex(r'\.pdf$'):
+        with fake_paths_by_regex(r"\.pdf$", target="lexists"):
             self.assertTrue(self.pip.has_pdf(LATEST))
 
     def test_has_epub(self):
         # The project has a epub if the PDF file exists on disk.
-        with fake_paths_by_regex(r'\.epub$'):
+        with fake_paths_by_regex(r"\.epub$", target="lexists"):
             self.assertTrue(self.pip.has_epub(LATEST))
 
         # The project has no epub if there is no file on disk.
-        with fake_paths_by_regex(r'\.epub$', exists=False):
+        with fake_paths_by_regex(r"\.epub$", target="lexists", exists=False):
             self.assertFalse(self.pip.has_epub(LATEST))
 
     def test_has_epub_with_epub_build_disabled(self):
         # The project doesn't depend on `enable_epub_build`
         self.pip.enable_epub_build = False
-        with fake_paths_by_regex(r'\.epub$'):
+        with fake_paths_by_regex(r"\.epub$", target="lexists"):
             self.assertTrue(self.pip.has_epub(LATEST))
 
     @patch('readthedocs.projects.models.Project.find')

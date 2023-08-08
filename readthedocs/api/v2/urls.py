@@ -42,7 +42,7 @@ router.register(
 )
 
 urlpatterns = [
-    re_path(r'^', include(router.urls)),
+    path("", include(router.urls)),
 ]
 
 urlpatterns += [
@@ -59,8 +59,8 @@ function_urls = [
 ]
 
 task_urls = [
-    re_path(
-        r"jobs/status/(?P<task_id>[^/]+)/$",
+    path(
+        "jobs/status/<str:task_id>/",
         task_views.job_status,
         name='api_job_status',
     ),
@@ -122,5 +122,5 @@ if 'readthedocsext.donate' in settings.INSTALLED_APPS:
     from readthedocsext.donate.restapi.urls import urlpatterns as sustainability_urls
 
     urlpatterns += [
-        re_path(r'^sustainability/', include(sustainability_urls)),
+        path("sustainability/", include(sustainability_urls)),
     ]

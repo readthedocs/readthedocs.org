@@ -12,9 +12,9 @@ async-timeout==4.0.2
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.28.15
+boto3==1.28.17
     # via django-storages
-botocore==1.31.15
+botocore==1.31.17
     # via
     #   boto3
     #   s3transfer
@@ -40,7 +40,7 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
-cryptography==41.0.2
+cryptography==41.0.3
     # via pyjwt
 cssselect==1.2.0
     # via pyquery
@@ -52,7 +52,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.6.3
     # via -r requirements/pip.in
-django==3.2.20
+django==4.2.4
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -66,7 +66,6 @@ django==3.2.20
     #   django-filter
     #   django-formtools
     #   django-polymorphic
-    #   django-redis
     #   django-storages
     #   django-structlog
     #   django-taggit
@@ -103,8 +102,6 @@ django-ipware==5.0.0
 django-messages-extends==0.6.3
     # via -r requirements/pip.in
 django-polymorphic==3.1.0
-    # via -r requirements/pip.in
-django-redis==5.3.0
     # via -r requirements/pip.in
 django-simple-history==3.0.0
     # via -r requirements/pip.in
@@ -201,14 +198,13 @@ pytz==2023.3
     # via
     #   -r requirements/pip.in
     #   celery
-    #   django
     #   djangorestframework
 pyyaml==6.0.1
     # via -r requirements/pip.in
 redis==4.6.0
     # via
+    #   -r requirements/pip.in
     #   django-cacheops
-    #   django-redis
 regex==2023.6.3
     # via -r requirements/pip.in
 requests==2.31.0
