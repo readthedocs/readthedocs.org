@@ -1,18 +1,15 @@
-from django.conf.urls import re_path
+from django.urls import path
 
-from readthedocs.subscriptions.views import (
-    DetailSubscription,
-    StripeCustomerPortal,
-)
+from readthedocs.subscriptions.views import DetailSubscription, StripeCustomerPortal
 
 urlpatterns = [
-    re_path(
-        r'^$',
+    path(
+        "",
         DetailSubscription.as_view(),
         name='subscription_detail',
     ),
-    re_path(
-        r'^portal$',
+    path(
+        "portal",
         StripeCustomerPortal.as_view(),
         name='stripe_customer_portal',
     ),

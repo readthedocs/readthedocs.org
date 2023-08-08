@@ -6,6 +6,7 @@ from unittest.mock import patch
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.messages.storage.fallback import FallbackStorage
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.http import HttpResponse
 from django.test import RequestFactory, TestCase
 
 log = structlog.get_logger(__name__)
@@ -45,7 +46,7 @@ class RequestFactoryTestMixin:
         request.user = kwargs.pop('user', AnonymousUser())
 
         session = kwargs.pop('session', {})
-        middleware = SessionMiddleware()
+        middleware = SessionMiddleware(lambda request: HttpResponse())
         middleware.process_request(request)
         request.session.update(session)
         request.session.save()

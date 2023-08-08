@@ -24,11 +24,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.15
+boto3==1.28.17
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.15
+botocore==1.31.17
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -69,7 +69,7 @@ click-repl==0.3.0
     #   celery
 coverage[toml]==7.2.7
     # via pytest-cov
-cryptography==41.0.2
+cryptography==41.0.3
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -89,7 +89,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==3.2.20
+django==4.2.4
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -103,7 +103,6 @@ django==3.2.20
     #   django-filter
     #   django-formtools
     #   django-polymorphic
-    #   django-redis
     #   django-storages
     #   django-structlog
     #   django-taggit
@@ -144,8 +143,6 @@ django-ipware==5.0.0
 django-messages-extends==0.6.3
     # via -r requirements/pip.txt
 django-polymorphic==3.1.0
-    # via -r requirements/pip.txt
-django-redis==5.3.0
     # via -r requirements/pip.txt
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
@@ -302,7 +299,6 @@ pytz==2023.3
     # via
     #   -r requirements/pip.txt
     #   celery
-    #   django
     #   djangorestframework
 pyyaml==6.0.1
     # via
@@ -312,7 +308,6 @@ redis==4.6.0
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
-    #   django-redis
 regex==2023.6.3
     # via -r requirements/pip.txt
 requests==2.31.0
@@ -358,7 +353,7 @@ smmap==5.0.0
     #   gitdb
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==7.1.1
+sphinx==7.1.2
     # via -r requirements/testing.in
 sphinxcontrib-applehelp==1.0.4
     # via sphinx
