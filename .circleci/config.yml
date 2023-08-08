@@ -15,6 +15,7 @@ jobs:
         environment:
           discovery.type: single-node
           ES_JAVA_OPTS: -Xms750m -Xmx750m
+          PYTEST_COVERAGE: --cov-report=xml --cov-config .coveragerc --cov=. --cov-append
     steps:
       - checkout
       - run: git submodule sync
