@@ -1950,7 +1950,6 @@ class Feature(models.Model):
     GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
     HOSTING_INTEGRATIONS = "hosting_integrations"
     NO_CONFIG_FILE_DEPRECATED = "no_config_file"
-    BUILD_IMAGE_CONFIG_KEY_DEPRECATED = "build_image_config_key_deprecated"
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
@@ -2093,12 +2092,6 @@ class Feature(models.Model):
         (
             NO_CONFIG_FILE_DEPRECATED,
             _("Build: Building without a configuration file is deprecated."),
-        ),
-        (
-            BUILD_IMAGE_CONFIG_KEY_DEPRECATED,
-            _(
-                'Build: Building using "build.image" in the configuration file is deprecated.'
-            ),
         ),
         (
             SCALE_IN_PROTECTION,

@@ -13,6 +13,7 @@ import tarfile
 import structlog
 import yaml
 from django.conf import settings
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import EXTERNAL
@@ -256,7 +257,20 @@ class BuildDirector:
             raise BuildUserError(BuildUserError.NO_CONFIG_FILE_DEPRECATED)
 
         # Raise a build error if the project is using "build.image" on their config file
-        if self.data.project.has_feature(Feature.BUILD_IMAGE_CONFIG_KEY_DEPRECATED):
+
+        now = timezone.now()
+
+        # fmt: off
+        # These browndates matches https://blog.readthedocs.com/use-build-os-config/
+        browndates = any([
+            timezone.datetime(2023, 8, 28, 0, 0, 0) < now < timezone.datetime(2023, 8, 28, 12, 0, 0),  # First, 12hs
+            timezone.datetime(2023, 9, 18, 0, 0, 0) < now < timezone.datetime(2023, 9, 19, 0, 0, 0),  # Second, 24hs
+            timezone.datetime(2023, 10, 2, 0, 0, 0) < now < timezone.datetime(2023, 10, 4, 0, 0, 0),  # Third, 48hs
+            timezone.datetime(2023, 10, 16, 0, 0, 0) < now,  # Fully removal
+        ])
+        # fmt: on
+
+        if browndates:
             build_config_key = self.data.config.source_config.get("build", {})
             if "image" in build_config_key:
                 raise BuildUserError(BuildUserError.BUILD_IMAGE_CONFIG_KEY_DEPRECATED)
