@@ -11,6 +11,7 @@ from .models import (
 )
 
 
+@admin.register(RemoteRepository)
 class RemoteRepositoryAdmin(admin.ModelAdmin):
 
     """Admin configuration for the RemoteRepository model."""
@@ -31,6 +32,7 @@ class RemoteRepositoryAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(RemoteOrganization)
 class RemoteOrganizationAdmin(admin.ModelAdmin):
 
     """Admin configuration for the RemoteOrganization model."""
@@ -47,6 +49,7 @@ class RemoteOrganizationAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(RemoteRepositoryRelation)
 class RemoteRepositoryRelationAdmin(admin.ModelAdmin):
 
     """Admin configuration for the RemoteRepositoryRelation model."""
@@ -55,15 +58,10 @@ class RemoteRepositoryRelationAdmin(admin.ModelAdmin):
     list_select_related = ('remote_repository', 'user',)
 
 
+@admin.register(RemoteOrganizationRelation)
 class RemoteOrganizationRelationAdmin(admin.ModelAdmin):
 
     """Admin configuration for the RemoteOrganizationRelation model."""
 
     raw_id_fields = ('account', 'remote_organization', 'user',)
     list_select_related = ('remote_organization', 'user',)
-
-
-admin.site.register(RemoteRepository, RemoteRepositoryAdmin)
-admin.site.register(RemoteRepositoryRelation, RemoteRepositoryRelationAdmin)
-admin.site.register(RemoteOrganization, RemoteOrganizationAdmin)
-admin.site.register(RemoteOrganizationRelation, RemoteOrganizationRelationAdmin)

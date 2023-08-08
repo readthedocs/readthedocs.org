@@ -82,12 +82,14 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
     actions = ["ban_user", "sync_remote_repositories_action"]
     inlines = [UserProjectInline]
 
+    @admin.display(
+        description="Banned",
+        boolean=True,
+    )
     def is_banned(self, obj):
         return hasattr(obj, 'profile') and obj.profile.banned
 
-    is_banned.short_description = 'Banned'
-    is_banned.boolean = True
-
+    @admin.action(description="Ban user")
     def ban_user(self, request, queryset):
         users = []
         for profile in UserProfile.objects.filter(user__in=queryset):
@@ -96,8 +98,7 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
             users.append(profile.user.username)
         self.message_user(request, 'Banned users: %s' % ', '.join(users))
 
-    ban_user.short_description = 'Ban user'
-
+    @admin.action(description="Sync remote repositories")
     def sync_remote_repositories_action(self, request, queryset):
         formatted_task_urls = []
 
@@ -118,9 +119,9 @@ class UserAdminExtra(ExtraSimpleHistoryAdmin, UserAdmin):
             ),
         )
 
-    sync_remote_repositories_action.short_description = "Sync remote repositories"
 
 
+@admin.register(UserProfile)
 class UserProfileAdmin(ExtraSimpleHistoryAdmin):
     list_display = ('user', 'homepage')
     search_fields = ('user__username', 'homepage')
@@ -153,6 +154,5 @@ class MessageAdminExtra(MessageAdmin):
 
 admin.site.unregister(User)
 admin.site.register(User, UserAdminExtra)
-admin.site.register(UserProfile, UserProfileAdmin)
 admin.site.unregister(Message)
 admin.site.register(Message, MessageAdminExtra)

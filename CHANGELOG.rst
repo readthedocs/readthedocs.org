@@ -1,3 +1,21 @@
+Version 9.16.4
+--------------
+
+:Date: August 08, 2023
+
+* `@humitos <https://github.com/humitos>`__: Development: minor updates to `Dockerfile` (`#10605 <https://github.com/readthedocs/readthedocs.org/pull/10605>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: test new implementation more broadly (`#10599 <https://github.com/readthedocs/readthedocs.org/pull/10599>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix test (`#10597 <https://github.com/readthedocs/readthedocs.org/pull/10597>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add organization listing filter (`#10593 <https://github.com/readthedocs/readthedocs.org/pull/10593>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add USE_ORGANIZATIONS context variablea (`#10592 <https://github.com/readthedocs/readthedocs.org/pull/10592>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix docs (`#10591 <https://github.com/readthedocs/readthedocs.org/pull/10591>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 9.16.3 (`#10590 <https://github.com/readthedocs/readthedocs.org/pull/10590>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update support page (`#10580 <https://github.com/readthedocs/readthedocs.org/pull/10580>`__)
+* `@humitos <https://github.com/humitos>`__: Search: delete `sphinx_domains` Django app completely (`#10574 <https://github.com/readthedocs/readthedocs.org/pull/10574>`__)
+* `@humitos <https://github.com/humitos>`__: Build: skip duplicated commands (`#10573 <https://github.com/readthedocs/readthedocs.org/pull/10573>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add redirect to ``about.readthedocs.com`` for logged out users (`#10570 <https://github.com/readthedocs/readthedocs.org/pull/10570>`__)
+* `@humitos <https://github.com/humitos>`__: API: analytics return 400 when there is an error (`#10240 <https://github.com/readthedocs/readthedocs.org/pull/10240>`__)
+
 Version 9.16.3
 --------------
 
