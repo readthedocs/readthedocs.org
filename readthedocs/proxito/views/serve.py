@@ -25,7 +25,7 @@ from readthedocs.core.unresolver import (
 )
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects import constants
-from readthedocs.projects.models import Domain, Feature
+from readthedocs.projects.models import Domain, Feature, HTMLFile
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.proxito.exceptions import (
@@ -673,32 +673,45 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             if default_version:
                 versions_404.append(default_version)
 
+        if not versions_404:
+            return None
+
+        tryfiles = ["404.html", "404/index.html"]
+        available_404_files = list(
+            HTMLFile.objects.filter(
+                version__in=versions_404, path__in=tryfiles
+            ).values_list("version__slug", "path")
+        )
+        if not available_404_files:
+            return None
+
         for version_404 in versions_404:
             if not self.allowed_user(request, version_404):
                 continue
 
-            storage_root_path = project.get_storage_path(
-                type_="html",
-                version_slug=version_404.slug,
-                include_file=False,
-                version_type=self.version_type,
-            )
-            tryfiles = ["404.html", "404/index.html"]
             for tryfile in tryfiles:
+                if (version_404.slug, tryfile) not in available_404_files:
+                    continue
+
+                storage_root_path = project.get_storage_path(
+                    type_="html",
+                    version_slug=version_404.slug,
+                    include_file=False,
+                    version_type=self.version_type,
+                )
                 storage_filename_path = build_media_storage.join(
                     storage_root_path, tryfile
                 )
-                if build_media_storage.exists(storage_filename_path):
-                    log.debug(
-                        "Serving custom 404.html page.",
-                        version_slug_404=version_404.slug,
-                        storage_filename_path=storage_filename_path,
-                    )
-                    resp = HttpResponse(
-                        build_media_storage.open(storage_filename_path).read()
-                    )
-                    resp.status_code = 404
-                    return resp
+                log.debug(
+                    "Serving custom 404.html page.",
+                    version_slug_404=version_404.slug,
+                    storage_filename_path=storage_filename_path,
+                )
+                resp = HttpResponse(
+                    build_media_storage.open(storage_filename_path).read()
+                )
+                resp.status_code = 404
+                return resp
         return None
 
     def _get_index_file_redirect(self, request, project, version, filename, full_path):
@@ -711,13 +724,6 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         - /en/latest/foo -> /en/latest/foo/README.html
         - /en/latest/foo/ -> /en/latest/foo/README.html
         """
-        storage_root_path = project.get_storage_path(
-            type_="html",
-            version_slug=version.slug,
-            include_file=False,
-            version_type=self.version_type,
-        )
-
         tryfiles = ["index.html", "README.html"]
         # If the path ends with `/`, we already tried to serve
         # the `/index.html` file, so we only need to test for
@@ -725,32 +731,35 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         if full_path.endswith("/"):
             tryfiles = ["README.html"]
 
-        # First, check for dirhtml with slash
-        for tryfile in tryfiles:
-            storage_filename_path = build_media_storage.join(
-                storage_root_path,
-                f"{filename}/{tryfile}".lstrip("/"),
+        tryfiles = [f"{filename}/{tryfile}".lstrip("/") for tryfile in tryfiles]
+        available_index_files = list(
+            HTMLFile.objects.filter(version=version, path__in=tryfiles).values_list(
+                "path", flat=True
             )
-            log.debug("Trying index filename.")
-            if build_media_storage.exists(storage_filename_path):
-                log.info("Redirecting to index file.", tryfile=tryfile)
-                # Use urlparse so that we maintain GET args in our redirect
-                parts = urlparse(full_path)
-                if tryfile == "README.html":
-                    new_path = parts.path.rstrip("/") + f"/{tryfile}"
-                else:
-                    new_path = parts.path.rstrip("/") + "/"
+        )
 
-                # `full_path` doesn't include query params.`
-                query = urlparse(request.get_full_path()).query
-                redirect_url = parts._replace(
-                    path=new_path,
-                    query=query,
-                ).geturl()
+        for tryfile in tryfiles:
+            if tryfile not in available_index_files:
+                continue
 
-                # TODO: decide if we need to check for infinite redirect here
-                # (from URL == to URL)
-                return HttpResponseRedirect(redirect_url)
+            log.info("Redirecting to index file.", tryfile=tryfile)
+            # Use urlparse so that we maintain GET args in our redirect
+            parts = urlparse(full_path)
+            if tryfile.endswith("README.html"):
+                new_path = tryfile
+            else:
+                new_path = parts.path.rstrip("/") + "/"
+
+            # `full_path` doesn't include query params.`
+            query = urlparse(request.get_full_path()).query
+            redirect_url = parts._replace(
+                path=new_path,
+                query=query,
+            ).geturl()
+
+            # TODO: decide if we need to check for infinite redirect here
+            # (from URL == to URL)
+            return HttpResponseRedirect(redirect_url)
 
         return None
 
