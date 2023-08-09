@@ -141,7 +141,7 @@ class InvalidConfig(ConfigError):
         {
             "python.system_packages": "{default_message}. "
             "This configuration key has been deprecated and removed. "
-            "Please, refer to https://blog.readthedocs.com/use-system-packages-deprecated/ to read more about it and how to upgrade your config file."  # noqa
+            "Refer to https://blog.readthedocs.com/use-system-packages-deprecated/ to read more about this change and how to upgrade your config file."  # noqa
         }
     )
     # Use same message for `python.use_system_site_packages`
