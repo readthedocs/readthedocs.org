@@ -1,7 +1,6 @@
 """Utilities related to reading and generating indexable search content."""
 
 import structlog
-
 from django.utils import timezone
 from django_elasticsearch_dsl.apps import DEDConfig
 from django_elasticsearch_dsl.registries import registry
@@ -104,10 +103,7 @@ def _indexing_helper(html_objs_qs, wipe=False):
     else, html_objs are indexed.
     """
     from readthedocs.search.documents import PageDocument
-    from readthedocs.search.tasks import (
-        delete_objects_in_es,
-        index_objects_to_es,
-    )
+    from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es
 
     if html_objs_qs:
         obj_ids = []
