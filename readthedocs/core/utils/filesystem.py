@@ -101,7 +101,7 @@ def safe_open(
     _assert_path_is_inside_docroot(resolved_path)
 
     # The encoding is valid only if the file opened is a text file,
-    # this functions is used to read both types of files (text and binary),
+    # this function is used to read both types of files (text and binary),
     # so we can't specify the encoding here.
     # pylint: disable=unspecified-encoding
     return resolved_path.open(*args, **kwargs)
