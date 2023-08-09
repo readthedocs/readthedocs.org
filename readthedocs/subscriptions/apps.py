@@ -7,8 +7,8 @@ class SubscriptionsConfig(AppConfig):
 
     """App configuration."""
 
-    name = 'readthedocs.subscriptions'
-    label = 'subscriptions'
+    name = "readthedocs.subscriptions"
+    label = "subscriptions"
 
     def ready(self):
         import readthedocs.subscriptions.event_handlers  # noqa

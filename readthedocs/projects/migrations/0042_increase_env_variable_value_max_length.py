@@ -3,15 +3,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0041_index-repo-field'),
+        ("projects", "0041_index-repo-field"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='environmentvariable',
-            name='value',
-            field=models.CharField(help_text='Value of the environment variable', max_length=2048),
+            model_name="environmentvariable",
+            name="value",
+            field=models.CharField(
+                help_text="Value of the environment variable", max_length=2048
+            ),
         ),
     ]

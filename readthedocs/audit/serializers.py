@@ -27,7 +27,6 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class TeamSerializer(serializers.ModelSerializer):
-
     organization = OrganizationSerializer()
 
     class Meta:
@@ -36,7 +35,6 @@ class TeamSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-
     organization = OrganizationSerializer()
 
     class Meta:

@@ -40,7 +40,6 @@ class IsAuthorizedToGetContenFromVersion(IsAuthorizedToViewVersion):
 
 
 class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
-
     # pylint: disable=line-too-long
     # pylint: disable=no-self-use
 
@@ -73,16 +72,18 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     def _download_page_content(self, url):
         # Sanitize the URL before requesting it
-        url = urlparse(url)._replace(fragment='', query='').geturl()
+        url = urlparse(url)._replace(fragment="", query="").geturl()
 
         # TODO: sanitize the cache key just in case, maybe by hashing it
-        cache_key = f'embed-api-{url}'
+        cache_key = f"embed-api-{url}"
         cached_response = cache.get(cache_key)
         if cached_response:
-            log.debug('Cached response.', url=url)
+            log.debug("Cached response.", url=url)
             return cached_response
 
-        response = requests.get(url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT)
+        response = requests.get(
+            url, timeout=settings.RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT
+        )
         if response.ok:
             # NOTE: we use ``response.content`` to get its binary
             # representation. Then ``selectolax`` is in charge to auto-detect
@@ -96,7 +97,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 
     def _get_page_content_from_storage(self, project, version, filename):
         storage_path = project.get_storage_path(
-            'html',
+            "html",
             version_slug=version.slug,
             include_file=False,
             version_type=version.type,
@@ -112,10 +113,12 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         )
 
         try:
-            with build_media_storage.open(file_path) as fd:  # pylint: disable=invalid-name
+            with build_media_storage.open(
+                file_path
+            ) as fd:  # pylint: disable=invalid-name
                 return fd.read()
         except Exception:  # noqa
-            log.warning('Unable to read file.', file_path=file_path)
+            log.warning("Unable to read file.", file_path=file_path)
 
         return None
 
@@ -130,22 +133,24 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                 project, version, filename
             )
 
-        return self._parse_based_on_doctool(page_content, fragment, doctool, doctoolversion)
+        return self._parse_based_on_doctool(
+            page_content, fragment, doctool, doctoolversion
+        )
 
     def _find_main_node(self, html):
-        main_node = html.css_first('[role=main]')
+        main_node = html.css_first("[role=main]")
         if main_node:
-            log.debug('Main node found. selector=[role=main]')
+            log.debug("Main node found. selector=[role=main]")
             return main_node
 
-        main_node = html.css_first('main')
+        main_node = html.css_first("main")
         if main_node:
-            log.debug('Main node found. selector=main')
+            log.debug("Main node found. selector=main")
             return main_node
 
-        first_header = html.body.css_first('h1')
+        first_header = html.body.css_first("h1")
         if first_header:
-            log.debug('Main node found. selector=h1')
+            log.debug("Main node found. selector=h1")
             return first_header.parent
 
     def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):
@@ -168,7 +173,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         if not node:
             return
 
-        if doctool == 'sphinx':
+        if doctool == "sphinx":
             # Handle manual reference special cases
             # See https://github.com/readthedocs/sphinx-hoverxref/issues/199
             if node.tag == "span" and not node.text():
@@ -208,11 +213,13 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                     node = node.parent
 
             # Handle ``dt`` special cases
-            if node.tag == 'dt':
-                if any([
-                        'glossary' in node.parent.attributes.get('class'),
-                        'citation' in node.parent.attributes.get('class'),
-                ]):
+            if node.tag == "dt":
+                if any(
+                    [
+                        "glossary" in node.parent.attributes.get("class"),
+                        "citation" in node.parent.attributes.get("class"),
+                    ]
+                ):
                     # Sphinx HTML structure for term glossary puts the ``id`` in the
                     # ``dt`` element with the title of the term. In this case, we
                     # return the parent node which contains the definition list
@@ -240,7 +247,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                                 break
                             iteration += 1
 
-                    elif 'citation' in node.parent.attributes.get('class'):
+                    elif "citation" in node.parent.attributes.get("class"):
                         next_node = node.next.next
 
                     # Iterate over all the siblings (``.iter()``) of the parent
@@ -275,31 +282,21 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
         return node.html
 
     def get(self, request):  # noqa
-        url = request.GET.get('url')
-        doctool = request.GET.get('doctool')
-        doctoolversion = request.GET.get('doctoolversion')
+        url = request.GET.get("url")
+        doctool = request.GET.get("doctool")
+        doctoolversion = request.GET.get("doctoolversion")
 
         if not url:
             return Response(
-                {
-                    'error': (
-                        'Invalid arguments. '
-                        'Please provide "url".'
-                    )
-                },
-                status=status.HTTP_400_BAD_REQUEST
+                {"error": ("Invalid arguments. " 'Please provide "url".')},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         parsed_url = urlparse(url)
         domain = parsed_url.netloc
         if not domain or not parsed_url.scheme:
             return Response(
-                {
-                    'error': (
-                        'The URL requested is malformed. '
-                        f'url={url}'
-                    )
-                },
+                {"error": ("The URL requested is malformed. " f"url={url}")},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -308,28 +305,24 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                 if re.match(allowed_domain, domain):
                     break
             else:
-                log.info('Domain not allowed.', domain=domain, url=url)
+                log.info("Domain not allowed.", domain=domain, url=url)
                 return Response(
-                    {
-                        'error': (
-                            'External domain not allowed. '
-                            f'domain={domain}'
-                        )
-                    },
+                    {"error": ("External domain not allowed. " f"domain={domain}")},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
             # Check rate-limit for this particular domain
-            cache_key = f'embed-api-{domain}'
-            cache.get_or_set(cache_key, 0, timeout=settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT_TIMEOUT)
+            cache_key = f"embed-api-{domain}"
+            cache.get_or_set(
+                cache_key, 0, timeout=settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT_TIMEOUT
+            )
             cache.incr(cache_key)
             if cache.get(cache_key) > settings.RTD_EMBED_API_DOMAIN_RATE_LIMIT:
-                log.warning('Too many requests for this domain.', domain=domain)
+                log.warning("Too many requests for this domain.", domain=domain)
                 return Response(
                     {
-                        'error': (
-                            'Too many requests for this domain. '
-                            f'domain={domain}'
+                        "error": (
+                            "Too many requests for this domain. " f"domain={domain}"
                         )
                     },
                     status=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -348,12 +341,11 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                 doctoolversion,
             )
         except requests.exceptions.TooManyRedirects:
-            log.exception('Too many redirects.', url=url)
+            log.exception("Too many redirects.", url=url)
             return Response(
                 {
-                    'error': (
-                        'The URL requested generates too many redirects. '
-                        f'url={url}'
+                    "error": (
+                        "The URL requested generates too many redirects. " f"url={url}"
                     )
                 },
                 # TODO: review these status codes to find out which on is better here
@@ -363,31 +355,30 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
         except Exception:  # noqa
-            log.exception('There was an error reading the URL requested.', url=url)
+            log.exception("There was an error reading the URL requested.", url=url)
             return Response(
                 {
-                    'error': (
-                        'There was an error reading the URL requested. '
-                        f'url={url}'
+                    "error": (
+                        "There was an error reading the URL requested. " f"url={url}"
                     )
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         if not content_requested:
-            log.warning('Identifier not found.', url=url, fragment=fragment)
+            log.warning("Identifier not found.", url=url, fragment=fragment)
             return Response(
                 {
-                    'error': (
+                    "error": (
                         "Can't find content for section: "
                         f"url={url} fragment={fragment}"
                     )
                 },
-                status=status.HTTP_404_NOT_FOUND
+                status=status.HTTP_404_NOT_FOUND,
             )
 
         # Sanitize the URL before requesting it
-        sanitized_url = urlparse(url)._replace(fragment='', query='').geturl()
+        sanitized_url = urlparse(url)._replace(fragment="", query="").geturl()
         # Make links from the content to be absolute
         content = clean_references(
             content_requested,

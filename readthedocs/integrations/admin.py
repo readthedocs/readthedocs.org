@@ -1,4 +1,3 @@
-
 """Integration admin models."""
 
 from django import urls
@@ -14,13 +13,13 @@ def pretty_json_field(field, description, include_styles=False):
     # admin is getting stylesheets. We only need minimal styles here, and there
     # isn't much user impact to these styles as well.
     def inner(_, obj):
-        styles = ''
+        styles = ""
         if include_styles:
-            formatter = HtmlFormatter(style='colorful')
-            styles = '<style>' + formatter.get_style_defs() + '</style>'
+            formatter = HtmlFormatter(style="colorful")
+            styles = "<style>" + formatter.get_style_defs() + "</style>"
         return mark_safe(
             '<div style="{}">{}</div>{}'.format(
-                'float: left;',
+                "float: left;",
                 obj.formatted_json(field),
                 styles,
             ),
@@ -40,38 +39,38 @@ class HttpExchangeAdmin(admin.ModelAdmin):
     """
 
     readonly_fields = [
-        'date',
-        'status_code',
-        'pretty_request_headers',
-        'pretty_request_body',
-        'pretty_response_headers',
-        'pretty_response_body',
+        "date",
+        "status_code",
+        "pretty_request_headers",
+        "pretty_request_body",
+        "pretty_response_headers",
+        "pretty_response_body",
     ]
     fields = readonly_fields
-    search_fields = ('integrations__project__slug', 'integrations__project__name')
+    search_fields = ("integrations__project__slug", "integrations__project__name")
     list_display = [
-        'related_object',
-        'date',
-        'status_code',
-        'failed_icon',
+        "related_object",
+        "date",
+        "status_code",
+        "failed_icon",
     ]
 
     pretty_request_headers = pretty_json_field(
-        'request_headers',
-        'Request headers',
+        "request_headers",
+        "Request headers",
         include_styles=True,
     )
     pretty_request_body = pretty_json_field(
-        'request_body',
-        'Request body',
+        "request_body",
+        "Request body",
     )
     pretty_response_headers = pretty_json_field(
-        'response_headers',
-        'Response headers',
+        "response_headers",
+        "Response headers",
     )
     pretty_response_body = pretty_json_field(
-        'response_body',
-        'Response body',
+        "response_body",
+        "Response body",
     )
 
     @admin.display(
@@ -80,7 +79,6 @@ class HttpExchangeAdmin(admin.ModelAdmin):
     )
     def failed_icon(self, obj):
         return not obj.failed
-
 
 
 @admin.register(Integration)
@@ -93,9 +91,9 @@ class IntegrationAdmin(admin.ModelAdmin):
     instead just links to the queryset.
     """
 
-    raw_id_fields = ('project',)
-    search_fields = ('project__slug', 'project__name')
-    readonly_fields = ['exchanges']
+    raw_id_fields = ("project",)
+    search_fields = ("project__slug", "project__name")
+    readonly_fields = ["exchanges"]
 
     # TODO: review this now that we are using official Django's JSONField
     @admin.display(description="HTTP exchanges")
@@ -107,7 +105,7 @@ class IntegrationAdmin(admin.ModelAdmin):
         just to link to the exchanges.
         """
         url = urls.reverse(
-            'admin:{}_{}_changelist'.format(
+            "admin:{}_{}_changelist".format(
                 HttpExchange._meta.app_label,
                 HttpExchange._meta.model_name,
             ),
@@ -115,7 +113,7 @@ class IntegrationAdmin(admin.ModelAdmin):
         return mark_safe(
             '<a href="{}?{}={}">{} HTTP transactions</a>'.format(
                 url,
-                'integrations__pk',
+                "integrations__pk",
                 obj.pk,
                 obj.exchanges.count(),
             ),

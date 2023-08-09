@@ -40,8 +40,8 @@ from ..constants import PRIVATE
 from .base import ProjectOnboardMixin, ProjectSpamMixin
 
 log = structlog.get_logger(__name__)
-search_log = structlog.get_logger(__name__ + '.search')
-mimetypes.add_type('application/epub+zip', '.epub')
+search_log = structlog.get_logger(__name__ + ".search")
+mimetypes.add_type("application/epub+zip", ".epub")
 
 
 class ProjectTagIndex(ListView):
@@ -58,14 +58,14 @@ class ProjectTagIndex(ListView):
         # https://github.com/readthedocs/readthedocs.org/pull/7671
         # queryset = queryset.exclude(users__profile__banned=True)
 
-        self.tag = get_object_or_404(Tag, slug=self.kwargs.get('tag'))
+        self.tag = get_object_or_404(Tag, slug=self.kwargs.get("tag"))
         queryset = queryset.filter(tags__slug__in=[self.tag.slug])
 
         return queryset
 
     def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
         context = super().get_context_data(**kwargs)
-        context['tag'] = self.tag
+        context["tag"] = self.tag
         return context
 
 
@@ -76,26 +76,28 @@ def project_redirect(request, invalid_project_slug):
     Slugs with underscores are no longer allowed.
     Underscores are replaced by ``-`` and then redirected to that URL.
     """
-    new_project_slug = invalid_project_slug.replace('_', '-')
+    new_project_slug = invalid_project_slug.replace("_", "-")
     new_path = request.path.replace(invalid_project_slug, new_project_slug)
-    return redirect('{}?{}'.format(
-        new_path,
-        request.GET.urlencode(),
-    ))
+    return redirect(
+        "{}?{}".format(
+            new_path,
+            request.GET.urlencode(),
+        )
+    )
 
 
 class ProjectDetailViewBase(
-        ProjectSpamMixin,
-        ProjectRelationListMixin,
-        BuildTriggerMixin,
-        ProjectOnboardMixin,
-        DetailView,
+    ProjectSpamMixin,
+    ProjectRelationListMixin,
+    BuildTriggerMixin,
+    ProjectOnboardMixin,
+    DetailView,
 ):
 
     """Display project onboard steps."""
 
     model = Project
-    slug_url_kwarg = 'project_slug'
+    slug_url_kwarg = "project_slug"
 
     def get_queryset(self):
         return Project.objects.public(self.request.user)
@@ -115,27 +117,27 @@ class ProjectDetailViewBase(
                 self.request.GET,
                 queryset=versions,
             )
-            context['filter'] = filter
+            context["filter"] = filter
             versions = filter.qs
-        context['versions'] = versions
+        context["versions"] = versions
 
-        protocol = 'http'
+        protocol = "http"
         if self.request.is_secure():
-            protocol = 'https'
+            protocol = "https"
 
         version_slug = project.get_default_version()
 
-        context['badge_url'] = ProjectBadgeView.get_badge_url(
+        context["badge_url"] = ProjectBadgeView.get_badge_url(
             project.slug,
             version_slug,
             protocol=protocol,
         )
-        context['site_url'] = '{url}?badge={version}'.format(
+        context["site_url"] = "{url}?badge={version}".format(
             url=project.get_docs_url(version_slug),
             version=version_slug,
         )
 
-        context['is_project_admin'] = AdminPermission.is_admin(
+        context["is_project_admin"] = AdminPermission.is_admin(
             self.request.user,
             project,
         )
@@ -144,7 +146,6 @@ class ProjectDetailViewBase(
 
 
 class ProjectDetailView(SettingsOverrideObject):
-
     _default_class = ProjectDetailViewBase
 
 
@@ -160,16 +161,16 @@ class ProjectBadgeView(View):
     * ``token`` a project-specific token needed to access private versions
     """
 
-    http_method_names = ['get', 'head', 'options']
-    STATUS_UNKNOWN = 'unknown'
-    STATUS_PASSING = 'passing'
-    STATUS_FAILING = 'failing'
+    http_method_names = ["get", "head", "options"]
+    STATUS_UNKNOWN = "unknown"
+    STATUS_PASSING = "passing"
+    STATUS_FAILING = "failing"
     STATUSES = (STATUS_FAILING, STATUS_PASSING, STATUS_UNKNOWN)
 
     def get(self, request, project_slug, *args, **kwargs):
         status = self.STATUS_UNKNOWN
-        token = request.GET.get('token')
-        version_slug = request.GET.get('version', LATEST)
+        token = request.GET.get("token")
+        version_slug = request.GET.get("version", LATEST)
         version = None
 
         if token:
@@ -180,10 +181,14 @@ class ProjectBadgeView(View):
             if version_to_check and self.verify_project_token(token, project_slug):
                 version = version_to_check
         else:
-            version = Version.objects.public(request.user).filter(
-                project__slug=project_slug,
-                slug=version_slug,
-            ).first()
+            version = (
+                Version.objects.public(request.user)
+                .filter(
+                    project__slug=project_slug,
+                    slug=version_slug,
+                )
+                .first()
+            )
 
         if version:
             last_build = (
@@ -200,15 +205,15 @@ class ProjectBadgeView(View):
         return self.serve_badge(request, status)
 
     def get_style(self, request):
-        style = request.GET.get('style', 'flat')
+        style = request.GET.get("style", "flat")
         if style not in (
-            'flat',
-            'plastic',
-            'flat-square',
-            'for-the-badge',
-            'social',
+            "flat",
+            "plastic",
+            "flat-square",
+            "for-the-badge",
+            "social",
         ):
-            style = 'flat'
+            style = "flat"
 
         return style
 
@@ -219,47 +224,46 @@ class ProjectBadgeView(View):
 
         badge_path = os.path.join(
             os.path.dirname(__file__),
-            '..',
-            'static',
-            'projects',
-            'badges',
-            f'{status}-{style}.svg',
+            "..",
+            "static",
+            "projects",
+            "badges",
+            f"{status}-{style}.svg",
         )
 
         try:
             with open(badge_path) as fd:
                 return HttpResponse(
                     fd.read(),
-                    content_type='image/svg+xml',
+                    content_type="image/svg+xml",
                 )
         except (IOError, OSError):
             log.exception(
-                'Failed to read local filesystem while serving a docs badge',
+                "Failed to read local filesystem while serving a docs badge",
             )
             return HttpResponse(status=503)
 
     @classmethod
-    def get_badge_url(cls, project_slug, version_slug, protocol='https'):
-        url = '{}://{}{}?version={}'.format(
+    def get_badge_url(cls, project_slug, version_slug, protocol="https"):
+        url = "{}://{}{}?version={}".format(
             protocol,
             settings.PRODUCTION_DOMAIN,
-            reverse('project_badge', args=[project_slug]),
+            reverse("project_badge", args=[project_slug]),
             version_slug,
         )
 
         # Append a token for private versions
         privacy_level = (
-            Version.objects
-            .filter(
+            Version.objects.filter(
                 project__slug=project_slug,
                 slug=version_slug,
             )
-            .values_list('privacy_level', flat=True)
+            .values_list("privacy_level", flat=True)
             .first()
         )
         if privacy_level == PRIVATE:
             token = cls.get_project_token(project_slug)
-            url += f'&token={token}'
+            url += f"&token={token}"
 
         return url
 
@@ -298,28 +302,27 @@ def project_downloads(request, project_slug):
 
     return render(
         request,
-        'projects/project_downloads.html',
+        "projects/project_downloads.html",
         {
-            'project': project,
-            'version_data': version_data,
-            'versions': versions,
+            "project": project,
+            "version_data": version_data,
+            "versions": versions,
         },
     )
 
 
 class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
-
     # Use new-style URLs (same domain as docs) or old-style URLs (dashboard URL)
     same_domain_url = False
 
     def get(
-            self,
-            request,
-            project_slug=None,
-            type_=None,
-            version_slug=None,
-            lang_slug=None,
-            subproject_slug=None,
+        self,
+        request,
+        project_slug=None,
+        type_=None,
+        version_slug=None,
+        lang_slug=None,
+        subproject_slug=None,
     ):
         """
         Download a specific piece of media.
@@ -417,32 +420,34 @@ def project_versions(request, project_slug):
     # Limit inactive versions in case a project has a large number of branches or tags
     # Filter inactive versions based on the query string
     inactive_versions = versions.filter(active=False)
-    version_filter = request.GET.get('version_filter', '')
+    version_filter = request.GET.get("version_filter", "")
     if version_filter:
-        inactive_versions = inactive_versions.filter(verbose_name__icontains=version_filter)
+        inactive_versions = inactive_versions.filter(
+            verbose_name__icontains=version_filter
+        )
     total_inactive_versions_count = inactive_versions.count()
     inactive_versions = inactive_versions[:max_inactive_versions]
 
     # If there's a wiped query string, check the string against the versions
     # list and display a success message. Deleting directories doesn't know how
     # to fail.  :)
-    wiped = request.GET.get('wipe', '')
+    wiped = request.GET.get("wipe", "")
     wiped_version = versions.filter(slug=wiped)
     if wiped and wiped_version.exists():
-        messages.success(request, 'Version wiped: ' + wiped)
+        messages.success(request, "Version wiped: " + wiped)
 
     # Optimize project permission checks
-    prefetch_related_objects([project], 'users')
+    prefetch_related_objects([project], "users")
 
     return render(
         request,
-        'projects/project_version_list.html',
+        "projects/project_version_list.html",
         {
-            'inactive_versions': inactive_versions,
-            'active_versions': active_versions,
-            'project': project,
-            'is_project_admin': AdminPermission.is_admin(request.user, project),
-            'max_inactive_versions': max_inactive_versions,
-            'total_inactive_versions_count': total_inactive_versions_count,
+            "inactive_versions": inactive_versions,
+            "active_versions": active_versions,
+            "project": project,
+            "is_project_admin": AdminPermission.is_admin(request.user, project),
+            "max_inactive_versions": max_inactive_versions,
+            "total_inactive_versions_count": total_inactive_versions_count,
         },
     )

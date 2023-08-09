@@ -16,7 +16,7 @@ log = structlog.get_logger(__name__)
 EMAIL_TIME_LIMIT = 30
 
 
-@app.task(queue='web', time_limit=EMAIL_TIME_LIMIT)
+@app.task(queue="web", time_limit=EMAIL_TIME_LIMIT)
 def send_email_task(
     recipient, subject, content, content_html=None, from_email=None, **kwargs
 ):
@@ -51,7 +51,7 @@ def send_email_task(
     msg.send()
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def clear_persistent_messages():
     # Delete all expired message_extend's messages
     log.info("Deleting all expired message_extend's messages")

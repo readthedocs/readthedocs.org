@@ -4,18 +4,21 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('organizations', '0001_squashed'),
+        ("organizations", "0001_squashed"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='organization',
-            options={'base_manager_name': 'objects', 'get_latest_by': ['-pub_date'], 'ordering': ['name']},
+            name="organization",
+            options={
+                "base_manager_name": "objects",
+                "get_latest_by": ["-pub_date"],
+                "ordering": ["name"],
+            },
         ),
         migrations.AlterModelOptions(
-            name='team',
-            options={'base_manager_name': 'objects'},
+            name="team",
+            options={"base_manager_name": "objects"},
         ),
     ]

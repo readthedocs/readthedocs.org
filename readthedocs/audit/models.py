@@ -42,10 +42,10 @@ class AuditLogManager(models.Manager):
             user = None
 
         if request:
-            kwargs['ip'] = get_client_ip(request)
-            kwargs['browser'] = request.headers.get('User-Agent')
-            kwargs.setdefault('resource', request.path_info)
-            kwargs.setdefault('auth_backend', get_auth_backend(request))
+            kwargs["ip"] = get_client_ip(request)
+            kwargs["browser"] = request.headers.get("User-Agent")
+            kwargs.setdefault("resource", request.path_info)
+            kwargs.setdefault("auth_backend", get_auth_backend(request))
 
             # Fill the project from the request if available.
             # This is frequently on actions generated from a subdomain.
@@ -113,20 +113,20 @@ class AuditLog(TimeStampedModel):
 
     user = models.ForeignKey(
         User,
-        verbose_name=_('User'),
+        verbose_name=_("User"),
         null=True,
         on_delete=models.SET_NULL,
         db_index=True,
     )
     # Extra information in case the user is deleted.
     log_user_id = models.IntegerField(
-        _('User ID'),
+        _("User ID"),
         blank=True,
         null=True,
         db_index=True,
     )
     log_user_username = models.CharField(
-        _('Username'),
+        _("Username"),
         max_length=150,
         blank=True,
         null=True,
@@ -134,21 +134,21 @@ class AuditLog(TimeStampedModel):
     )
 
     project = models.ForeignKey(
-        'projects.Project',
-        verbose_name=_('Project'),
+        "projects.Project",
+        verbose_name=_("Project"),
         null=True,
         db_index=True,
         on_delete=models.SET_NULL,
     )
     # Extra information in case the project is deleted.
     log_project_id = models.IntegerField(
-        _('Project ID'),
+        _("Project ID"),
         blank=True,
         null=True,
         db_index=True,
     )
     log_project_slug = models.CharField(
-        _('Project slug'),
+        _("Project slug"),
         max_length=63,
         blank=True,
         null=True,
@@ -156,20 +156,20 @@ class AuditLog(TimeStampedModel):
     )
 
     organization = models.ForeignKey(
-        'organizations.Organization',
-        verbose_name=_('Organization'),
+        "organizations.Organization",
+        verbose_name=_("Organization"),
         null=True,
         db_index=True,
         on_delete=models.SET_NULL,
     )
     log_organization_id = models.IntegerField(
-        _('Organization ID'),
+        _("Organization ID"),
         blank=True,
         null=True,
         db_index=True,
     )
     log_organization_slug = models.CharField(
-        _('Organization slug'),
+        _("Organization slug"),
         max_length=255,
         blank=True,
         null=True,
@@ -177,24 +177,24 @@ class AuditLog(TimeStampedModel):
     )
 
     action = models.CharField(
-        _('Action'),
+        _("Action"),
         max_length=150,
         choices=CHOICES,
     )
     auth_backend = models.CharField(
-        _('Auth backend'),
+        _("Auth backend"),
         max_length=250,
         blank=True,
         null=True,
     )
     ip = models.CharField(
-        _('IP address'),
+        _("IP address"),
         blank=True,
         null=True,
         max_length=250,
     )
     browser = models.CharField(
-        _('Browser user-agent'),
+        _("Browser user-agent"),
         max_length=250,
         blank=True,
         null=True,
@@ -202,7 +202,7 @@ class AuditLog(TimeStampedModel):
     # Resource can be a path,
     # set it slightly greater than ``HTMLFile.path``.
     resource = models.CharField(
-        _('Resource'),
+        _("Resource"),
         max_length=5500,
         blank=True,
         null=True,
@@ -218,8 +218,7 @@ class AuditLog(TimeStampedModel):
     objects = AuditLogManager()
 
     class Meta:
-
-        ordering = ['-created']
+        ordering = ["-created"]
 
     def save(self, **kwargs):
         if self.user:
@@ -254,15 +253,15 @@ class AuditLog(TimeStampedModel):
 
            The backends listed here are implemented on .com only.
         """
-        backend = self.auth_backend or ''
+        backend = self.auth_backend or ""
         backend_displays = {
-            'TemporaryAccessTokenBackend': _('shared link'),
-            'TemporaryAccessPasswordBackend': _('shared password'),
+            "TemporaryAccessTokenBackend": _("shared link"),
+            "TemporaryAccessPasswordBackend": _("shared password"),
         }
         for name, display in backend_displays.items():
             if name in backend:
                 return display
-        return ''
+        return ""
 
     def __str__(self):
         return self.action

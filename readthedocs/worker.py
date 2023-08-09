@@ -15,11 +15,11 @@ def create_application():
     )
 
     application = Celery(settings.CELERY_APP_NAME)
-    application.config_from_object('django.conf:settings')
+    application.config_from_object("django.conf:settings")
     application.autodiscover_tasks(None)
 
     # A step to initialize django-structlog
-    application.steps['worker'].add(DjangoStructLogInitStep)
+    application.steps["worker"].add(DjangoStructLogInitStep)
 
     return application
 

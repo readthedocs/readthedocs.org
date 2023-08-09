@@ -55,15 +55,13 @@ def map_project_slug(view_func):
     """
 
     @wraps(view_func)
-    def inner_view(  # noqa
-            request, project=None, project_slug=None, *args, **kwargs
-    ):
+    def inner_view(request, project=None, project_slug=None, *args, **kwargs):  # noqa
         if project is None:
             # Get the project from the request if it can't be found in the URL
             unresolved_domain = request.unresolved_domain
             if unresolved_domain and not project_slug:
                 log.debug(
-                    'Inserting project slug from request.',
+                    "Inserting project slug from request.",
                     project_slug=project_slug,
                 )
                 project = unresolved_domain.project

@@ -10,9 +10,9 @@ def recurse_while_none(element):
     if element.text is None and element.getchildren():
         return recurse_while_none(element.getchildren()[0])
 
-    href = element.attrib.get('href')
+    href = element.attrib.get("href")
     if not href:
-        href = element.attrib.get('id')
+        href = element.attrib.get("id")
     return {element.text: href}
 
 
@@ -38,7 +38,7 @@ def clean_references(obj, url, html_raw_response=False):
 
         # We need to make all internal links/images, to be absolute
         parsed_href = urlparse(value)
-        if parsed_href.scheme or parsed_href.path.startswith('/'):
+        if parsed_href.scheme or parsed_href.path.startswith("/"):
             # don't change external links/images
             continue
 
@@ -48,7 +48,7 @@ def clean_references(obj, url, html_raw_response=False):
             tag.attrib[attribute] = cleaned_value
             continue
 
-        if not base_url.path.endswith('/'):
+        if not base_url.path.endswith("/"):
             # internal relative link/image
             # href="../../another.html" and ``base_url`` is not HTMLDir
             # (e.g. /en/latest/deep/internal/section/page.html)
@@ -57,9 +57,9 @@ def clean_references(obj, url, html_raw_response=False):
             # https://slug.readthedocs.io/en/latest/deep/internal/section/../../another.html
 
             # remove the filename (page.html) from the original document URL (base_url) and,
-            path, _ = base_url.path.rsplit('/', 1)
+            path, _ = base_url.path.rsplit("/", 1)
             # append the value of href/src (../../another.html) to the base URL.
-            base_url = base_url._replace(path=path + '/')
+            base_url = base_url._replace(path=path + "/")
 
         cleaned_value = base_url.geturl() + value
         tag.attrib[attribute] = cleaned_value

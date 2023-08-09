@@ -6,11 +6,11 @@ urlpatterns = [
     path(
         "",
         DetailSubscription.as_view(),
-        name='subscription_detail',
+        name="subscription_detail",
     ),
     path(
         "portal",
         StripeCustomerPortal.as_view(),
-        name='stripe_customer_portal',
+        name="stripe_customer_portal",
     ),
 ]

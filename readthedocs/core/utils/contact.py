@@ -54,14 +54,13 @@ def contact_users(
     backend = SiteBackend(request=None)
 
     engine = Engine.get_default()
-    notification_template = engine.from_string(notification_content or '')
+    notification_template = engine.from_string(notification_content or "")
 
-    email_template = engine.from_string(email_content or '')
-    email_txt_template = engine.get_template('core/email/common.txt')
-    email_html_template = engine.get_template('core/email/common.html')
+    email_template = engine.from_string(email_content or "")
+    email_txt_template = engine.get_template("core/email/common.txt")
+    email_html_template = engine.get_template("core/email/common.html")
 
     class TempNotification(SiteNotification):
-
         if sticky_notification:
             success_level = message_constants.SUCCESS_PERSISTENT
 
@@ -96,7 +95,7 @@ def contact_users(
                         ),
                     )
             except Exception:
-                log.exception('Notification failed to send')
+                log.exception("Notification failed to send")
                 failed_notifications.add(user.username)
             else:
                 log.info(
@@ -109,25 +108,22 @@ def contact_users(
 
         if email_subject:
             emails = list(
-                user.emailaddress_set
-                .filter(verified=True)
+                user.emailaddress_set.filter(verified=True)
                 .exclude(email=user.email)
-                .values_list('email', flat=True)
+                .values_list("email", flat=True)
             )
             emails.append(user.email)
 
             # First render the markdown context.
-            email_txt_content = email_template.render(
-                Context(context)
-            )
+            email_txt_content = email_template.render(Context(context))
             email_html_content = markdown.markdown(email_txt_content)
 
             # Now render it using the base email templates.
             email_txt_rendered = email_txt_template.render(
-                Context({'content': email_txt_content})
+                Context({"content": email_txt_content})
             )
             email_html_rendered = email_html_template.render(
-                Context({'content': email_html_content})
+                Context({"content": email_html_content})
             )
 
             try:
@@ -141,19 +137,19 @@ def contact_users(
                 if not dryrun:
                     send_mail(**kwargs)
             except Exception:
-                log.exception('Email failed to send')
+                log.exception("Email failed to send")
                 failed_emails.update(emails)
             else:
-                log.info('Email sent.', emails=emails, count=count, total=total)
+                log.info("Email sent.", emails=emails, count=count, total=total)
                 sent_emails.update(emails)
 
     return {
-        'email': {
-            'sent': sent_emails,
-            'failed': failed_emails,
+        "email": {
+            "sent": sent_emails,
+            "failed": failed_emails,
         },
-        'notification': {
-            'sent': sent_notifications,
-            'failed': failed_emails,
+        "notification": {
+            "sent": sent_notifications,
+            "failed": failed_emails,
         },
     }

@@ -15,21 +15,21 @@ from .querysets import RedirectQuerySet
 log = structlog.get_logger(__name__)
 
 HTTP_STATUS_CHOICES = (
-    (301, _('301 - Permanent Redirect')),
-    (302, _('302 - Temporary Redirect')),
+    (301, _("301 - Permanent Redirect")),
+    (302, _("302 - Temporary Redirect")),
 )
 
 STATUS_CHOICES = (
-    (True, _('Active')),
-    (False, _('Inactive')),
+    (True, _("Active")),
+    (False, _("Inactive")),
 )
 
 TYPE_CHOICES = (
-    ('prefix', _('Prefix Redirect')),
-    ('page', _('Page Redirect')),
-    ('exact', _('Exact Redirect')),
-    ('sphinx_html', _('Sphinx HTMLDir -> HTML')),
-    ('sphinx_htmldir', _('Sphinx HTML -> HTMLDir')),
+    ("prefix", _("Prefix Redirect")),
+    ("page", _("Page Redirect")),
+    ("exact", _("Exact Redirect")),
+    ("sphinx_html", _("Sphinx HTMLDir -> HTML")),
+    ("sphinx_htmldir", _("Sphinx HTML -> HTMLDir")),
     # ('advanced', _('Advanced')),
 )
 
@@ -38,14 +38,13 @@ TYPE_CHOICES = (
 # ``/$lang/$version/`` part. Also, there is a feature for the "Exact
 # Redirects" that should be mentioned here: the usage of ``$rest``
 from_url_helptext = _(
-    'Absolute path, excluding the domain. '
-    'Example: <b>/docs/</b>  or <b>/install.html</b>',
+    "Absolute path, excluding the domain. "
+    "Example: <b>/docs/</b>  or <b>/install.html</b>",
 )
 to_url_helptext = _(
-    'Absolute or relative URL. Example: '
-    '<b>/tutorial/install.html</b>',
+    "Absolute or relative URL. Example: " "<b>/tutorial/install.html</b>",
 )
-redirect_type_helptext = _('The type of redirect you wish to use.')
+redirect_type_helptext = _("The type of redirect you wish to use.")
 
 
 class Redirect(models.Model):
@@ -54,20 +53,20 @@ class Redirect(models.Model):
 
     project = models.ForeignKey(
         Project,
-        verbose_name=_('Project'),
-        related_name='redirects',
+        verbose_name=_("Project"),
+        related_name="redirects",
         on_delete=models.CASCADE,
     )
 
     redirect_type = models.CharField(
-        _('Redirect Type'),
+        _("Redirect Type"),
         max_length=255,
         choices=TYPE_CHOICES,
         help_text=redirect_type_helptext,
     )
 
     from_url = models.CharField(
-        _('From URL'),
+        _("From URL"),
         max_length=255,
         db_index=True,
         help_text=from_url_helptext,
@@ -79,13 +78,13 @@ class Redirect(models.Model):
     from_url_without_rest = models.CharField(
         max_length=255,
         db_index=True,
-        help_text='Only for internal querying use',
+        help_text="Only for internal querying use",
         blank=True,
         null=True,
     )
 
     to_url = models.CharField(
-        _('To URL'),
+        _("To URL"),
         max_length=255,
         db_index=True,
         help_text=to_url_helptext,
@@ -99,7 +98,7 @@ class Redirect(models.Model):
     )
 
     http_status = models.SmallIntegerField(
-        _('HTTP Status'),
+        _("HTTP Status"),
         choices=HTTP_STATUS_CHOICES,
         default=302,
     )
@@ -111,44 +110,46 @@ class Redirect(models.Model):
     objects = RedirectQuerySet.as_manager()
 
     class Meta:
-        verbose_name = _('redirect')
-        verbose_name_plural = _('redirects')
-        ordering = ('-update_dt',)
+        verbose_name = _("redirect")
+        verbose_name_plural = _("redirects")
+        ordering = ("-update_dt",)
 
     def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
-        if self.redirect_type == 'exact' and '$rest' in self.from_url:
-            self.from_url_without_rest = self.from_url.replace('$rest', '')
+        if self.redirect_type == "exact" and "$rest" in self.from_url:
+            self.from_url_without_rest = self.from_url.replace("$rest", "")
         super().save(*args, **kwargs)
 
     def __str__(self):
-        redirect_text = '{type}: {from_to_url}'
-        if self.redirect_type in ['prefix', 'page', 'exact']:
+        redirect_text = "{type}: {from_to_url}"
+        if self.redirect_type in ["prefix", "page", "exact"]:
             return redirect_text.format(
                 type=self.get_redirect_type_display(),
                 from_to_url=self.get_from_to_url_display(),
             )
         return gettext(
-            'Redirect: {}'.format(
+            "Redirect: {}".format(
                 self.get_redirect_type_display(),
             ),
         )
 
     def get_from_to_url_display(self):
-        if self.redirect_type in ['prefix', 'page', 'exact']:
+        if self.redirect_type in ["prefix", "page", "exact"]:
             from_url = self.from_url
             to_url = self.to_url
-            if self.redirect_type == 'prefix':
-                to_url = '/{lang}/{version}/'.format(
+            if self.redirect_type == "prefix":
+                to_url = "/{lang}/{version}/".format(
                     lang=self.project.language,
                     version=self.project.default_version,
                 )
-            return '{from_url} -> {to_url}'.format(
+            return "{from_url} -> {to_url}".format(
                 from_url=from_url,
                 to_url=to_url,
             )
-        return ''
+        return ""
 
-    def get_full_path(self, filename, language=None, version_slug=None, allow_crossdomain=False):
+    def get_full_path(
+        self, filename, language=None, version_slug=None, allow_crossdomain=False
+    ):
         """
         Return a full path for a given filename.
 
@@ -156,7 +157,7 @@ class Redirect(models.Model):
         is returned.
         """
         # Handle explicit http redirects
-        if allow_crossdomain and re.match('^https?://', filename):
+        if allow_crossdomain and re.match("^https?://", filename):
             return filename
 
         return resolve_path(
@@ -169,7 +170,7 @@ class Redirect(models.Model):
     def get_redirect_path(self, path, full_path=None, language=None, version_slug=None):
         method = getattr(
             self,
-            'redirect_{type}'.format(
+            "redirect_{type}".format(
                 type=self.redirect_type,
             ),
         )
@@ -193,9 +194,9 @@ class Redirect(models.Model):
 
     def redirect_page(self, path, full_path, language=None, version_slug=None):
         if path == self.from_url:
-            log.debug('Redirecting...', redirect=self)
+            log.debug("Redirecting...", redirect=self)
             to = self.get_full_path(
-                filename=self.to_url.lstrip('/'),
+                filename=self.to_url.lstrip("/"),
                 language=language,
                 version_slug=version_slug,
                 allow_crossdomain=True,
@@ -204,21 +205,21 @@ class Redirect(models.Model):
 
     def redirect_exact(self, path, full_path, language=None, version_slug=None):
         if full_path == self.from_url:
-            log.debug('Redirecting...', redirect=self)
+            log.debug("Redirecting...", redirect=self)
             return self.to_url
         # Handle full sub-level redirects
-        if '$rest' in self.from_url:
-            match = self.from_url.split('$rest')[0]
+        if "$rest" in self.from_url:
+            match = self.from_url.split("$rest")[0]
             if full_path.startswith(match):
                 cut_path = full_path.replace(match, self.to_url, 1)
                 return cut_path
 
     def redirect_sphinx_html(self, path, full_path, language=None, version_slug=None):
-        for ending in ['/', '/index.html']:
+        for ending in ["/", "/index.html"]:
             if path.endswith(ending):
-                log.debug('Redirecting...', redirect=self)
+                log.debug("Redirecting...", redirect=self)
                 path = path[1:]  # Strip leading slash.
-                to = re.sub(ending + '$', '.html', path)
+                to = re.sub(ending + "$", ".html", path)
                 return self.get_full_path(
                     filename=to,
                     language=language,
@@ -232,7 +233,7 @@ class Redirect(models.Model):
         if path.endswith(".html"):
             log.debug("Redirecting...", redirect=self)
             path = path[1:]  # Strip leading slash.
-            to = re.sub('.html$', '/', path)
+            to = re.sub(".html$", "/", path)
             return self.get_full_path(
                 filename=to,
                 language=language,
