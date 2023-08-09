@@ -580,6 +580,7 @@ class Backend(BaseVCS):
             record=False,
         )
         if exit_code != 0:
+            # The command fails if the project doesn't have submodules (the .gitmodules file doesn't exist).
             return []
 
         # Group the URLs and paths by submodule name/key.
@@ -614,6 +615,7 @@ class Backend(BaseVCS):
                     "Invalid submodule.", submoduel_url=url, submodule_path=path
                 )
                 continue
+            # Return a generator to speed up when checking if the project has at least one submodule (e.g. ``any(self.submodules)``)
             yield GitSubmodule(
                 url=url,
                 path=path,
