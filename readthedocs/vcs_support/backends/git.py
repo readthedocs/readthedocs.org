@@ -1,11 +1,12 @@
 """Git-related utilities."""
 
 import re
+from dataclasses import dataclass
+from typing import Iterable
 
 import git
 import structlog
 from django.core.exceptions import ValidationError
-from git.exc import BadName, InvalidGitRepositoryError, NoSuchPathError
 from gitdb.util import hex_to_bin
 
 from readthedocs.builds.constants import BRANCH, EXTERNAL, TAG
@@ -21,6 +22,12 @@ from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 log = structlog.get_logger(__name__)
+
+
+@dataclass(slots=True)
+class GitSubmodule:
+    path: str
+    url: str
 
 
 class Backend(BaseVCS):
@@ -262,11 +269,13 @@ class Backend(BaseVCS):
         return code, stdout, stderr
 
     def repo_exists(self):
-        try:
-            self._repo
-        except (InvalidGitRepositoryError, NoSuchPathError):
-            return False
-        return True
+        """Test if the current working directory is a top-level git repository."""
+        # If we are at the top-level of a git repository,
+        # ``--show-prefix`` will return an empty string.
+        exit_code, stdout, _ = self.run(
+            "git", "rev-parse", "--show-prefix", record=False
+        )
+        return exit_code == 0 and stdout.strip() == ""
 
     @property
     def _repo(self):
@@ -282,7 +291,9 @@ class Backend(BaseVCS):
             return False
 
         # Keep compatibility with previous projects
-        return bool(self.submodules)
+        # TODO: remove when all projects are required
+        # to have a config file.
+        return any(self.submodules)
 
     def validate_submodules(self, config):
         """
@@ -309,6 +320,7 @@ class Backend(BaseVCS):
 
         for sub_path in config.submodules.exclude:
             path = sub_path.rstrip('/')
+            # TODO: Should we raise an error if the submodule is not found?
             if path in submodules:
                 del submodules[path]
 
@@ -316,7 +328,9 @@ class Backend(BaseVCS):
             submodules_include = {}
             for sub_path in config.submodules.include:
                 path = sub_path.rstrip('/')
-                submodules_include[path] = submodules[path]
+                # TODO: Should we raise an error if the submodule is not found?
+                if path in submodules:
+                    submodules_include[path] = submodules[path]
             submodules = submodules_include
 
         invalid_submodules = []
@@ -523,8 +537,89 @@ class Backend(BaseVCS):
         return None
 
     @property
-    def submodules(self):
-        return list(self._repo.submodules)
+    def submodules(self) -> Iterable[GitSubmodule]:
+        r"""
+        Return an iterable of submodules in this repository.
+
+        In order to get the submodules URLs and paths without initializing them,
+        we parse the .gitmodules file. For this we make use of the
+        ``git config --get-regexp`` command.
+
+        Keys and values from the config can contain spaces.
+        In order to parse the output unambiguously, we use the
+        ``--null`` option to separate each result with a null character,
+        and each key and value with a newline character.
+
+        The command will produce an output like this:
+
+        .. code-block:: text
+
+           submodule.submodule-1.url\nhttps://github.com/\0
+           submodule.submodule-1.path\nsubmodule-1\0
+           submodule.submodule-2.path\nsubmodule-2\0
+           submodule.submodule-2.url\nhttps://github.com/\0
+           submodule.submodule-3.url\nhttps://github.com/\0
+           submodule.submodule-4.path\n\0
+
+        .. note::
+
+           - In the example each result is put in a new line for readability.
+           - Isn't guaranteed that the url and path keys will appear next to each other.
+           - Isn't guaranteed that all submodules will have a url and path.
+
+        """
+        exit_code, stdout, _ = self.run(
+            "git",
+            "config",
+            "--null",
+            "--file",
+            ".gitmodules",
+            "--get-regexp",
+            # Get only the URL and path keys of each submodule.
+            r"^submodule\..*\.(url|path)$",
+            record=False,
+        )
+        if exit_code != 0:
+            # The command fails if the project doesn't have submodules (the .gitmodules file doesn't exist).
+            return []
+
+        # Group the URLs and paths by submodule name/key.
+        submodules = {}
+        keys_and_values = stdout.split("\0")
+        for key_and_value in keys_and_values:
+            try:
+                key, value = key_and_value.split("\n", maxsplit=1)
+            except ValueError:
+                # This should never happen, but we log a warning just in case
+                # Git doesn't return the expected format.
+                log.warning("Wrong key and value format.", key_and_value=key_and_value)
+                continue
+
+            if key.endswith(".url"):
+                key = key.removesuffix(".url")
+                submodules.setdefault(key, {})["url"] = value
+            elif key.endswith(".path"):
+                key = key.removesuffix(".path")
+                submodules.setdefault(key, {})["path"] = value
+            else:
+                # This should never happen, but we log a warning just in case the regex is wrong.
+                log.warning("Unexpected key extracted fom .gitmodules.", key=key)
+
+        for submodule in submodules.values():
+            # If the submodule doesn't have a URL or path, we skip it,
+            # since it's not a valid submodule.
+            url = submodule.get("url")
+            path = submodule.get("path")
+            if not url or not path:
+                log.warning(
+                    "Invalid submodule.", submoduel_url=url, submodule_path=path
+                )
+                continue
+            # Return a generator to speed up when checking if the project has at least one submodule (e.g. ``any(self.submodules)``)
+            yield GitSubmodule(
+                url=url,
+                path=path,
+            )
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
@@ -554,6 +649,10 @@ class Backend(BaseVCS):
 
     def checkout_submodules(self, submodules, config):
         """Checkout all repository submodules."""
+        # If the repository has no submodules, we don't need to do anything.
+        # Otherwise, all submodules will be updated.
+        if not submodules:
+            return
         self.run('git', 'submodule', 'sync')
         cmd = [
             'git',
@@ -563,25 +662,25 @@ class Backend(BaseVCS):
             '--force',
         ]
         if config.submodules.recursive:
-            cmd.append('--recursive')
+            cmd.append("--recursive")
+        cmd.append("--")
         cmd += submodules
         self.run(*cmd)
 
     def find_ref(self, ref):
-        # Check if ref starts with 'origin/'
+        # If the ref already starts with 'origin/',
+        # we don't need to do anything.
         if ref.startswith('origin/'):
             return ref
 
         # Check if ref is a branch of the origin remote
-        if self.ref_exists('remotes/origin/' + ref):
-            return 'origin/' + ref
+        if self.ref_exists("refs/remotes/origin/" + ref):
+            return "origin/" + ref
 
         return ref
 
     def ref_exists(self, ref):
-        try:
-            if self._repo.commit(ref):
-                return True
-        except (BadName, ValueError):
-            return False
-        return False
+        exit_code, _, _ = self.run(
+            "git", "show-ref", "--verify", "--quiet", "--", ref, record=False
+        )
+        return exit_code == 0

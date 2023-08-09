@@ -3,15 +3,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0012_add-predefined-match-arg-field'),
+        ("builds", "0012_add-predefined-match-arg-field"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='version',
-            name='documentation_type',
-            field=models.CharField(choices=[('sphinx', 'Sphinx Html'), ('mkdocs', 'Mkdocs (Markdown)'), ('sphinx_htmldir', 'Sphinx HtmlDir'), ('sphinx_singlehtml', 'Sphinx Single Page HTML')], default='sphinx', help_text='Type of documentation the version was built with.', max_length=20, verbose_name='Documentation type'),
+            model_name="version",
+            name="documentation_type",
+            field=models.CharField(
+                choices=[
+                    ("sphinx", "Sphinx Html"),
+                    ("mkdocs", "Mkdocs (Markdown)"),
+                    ("sphinx_htmldir", "Sphinx HtmlDir"),
+                    ("sphinx_singlehtml", "Sphinx Single Page HTML"),
+                ],
+                default="sphinx",
+                help_text="Type of documentation the version was built with.",
+                max_length=20,
+                verbose_name="Documentation type",
+            ),
         ),
     ]

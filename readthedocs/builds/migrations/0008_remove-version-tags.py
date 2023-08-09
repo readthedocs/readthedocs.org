@@ -3,14 +3,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0007_add-automation-rules'),
+        ("builds", "0007_add-automation-rules"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='version',
-            name='tags',
+            model_name="version",
+            name="tags",
         ),
     ]

@@ -51,6 +51,6 @@ class AlphabeticalSortedJSONRenderer(JSONRenderer):
             # that is a strict javascript subset. If bytes were returned
             # by json.dumps() then we don't have these characters in any case.
             # See: http://timelessrepo.com/json-isnt-a-javascript-subset
-            ret = ret.replace('\u2028', '\\u2028').replace('\u2029', '\\u2029')
-            return bytes(ret.encode('utf-8'))
+            ret = ret.replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
+            return bytes(ret.encode("utf-8"))
         return ret

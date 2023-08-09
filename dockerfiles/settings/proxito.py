@@ -16,7 +16,7 @@ class ProxitoDevSettings(CommunityProxitoSettingsMixin, DockerBaseSettings):
     @property
     def DEBUG_TOOLBAR_CONFIG(self):
         return {
-            'SHOW_TOOLBAR_CALLBACK': lambda request: False,
+            "SHOW_TOOLBAR_CALLBACK": lambda request: False,
         }
 
 

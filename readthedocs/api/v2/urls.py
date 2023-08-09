@@ -20,25 +20,25 @@ from .views.model_views import (
 )
 
 router = routers.DefaultRouter()
-router.register(r'build', BuildViewSet, basename='build')
-router.register(r'command', BuildCommandViewSet, basename='buildcommandresult')
-router.register(r'version', VersionViewSet, basename='version')
-router.register(r'project', ProjectViewSet, basename='project')
-router.register(r'domain', DomainViewSet, basename='domain')
+router.register(r"build", BuildViewSet, basename="build")
+router.register(r"command", BuildCommandViewSet, basename="buildcommandresult")
+router.register(r"version", VersionViewSet, basename="version")
+router.register(r"project", ProjectViewSet, basename="project")
+router.register(r"domain", DomainViewSet, basename="domain")
 router.register(
-    r'remote/org',
+    r"remote/org",
     RemoteOrganizationViewSet,
-    basename='remoteorganization',
+    basename="remoteorganization",
 )
 router.register(
-    r'remote/repo',
+    r"remote/repo",
     RemoteRepositoryViewSet,
-    basename='remoterepository',
+    basename="remoterepository",
 )
 router.register(
-    r'remote/account',
+    r"remote/account",
     SocialAccountViewSet,
-    basename='remoteaccount',
+    basename="remoteaccount",
 )
 
 urlpatterns = [
@@ -62,51 +62,43 @@ task_urls = [
     path(
         "jobs/status/<str:task_id>/",
         task_views.job_status,
-        name='api_job_status',
+        name="api_job_status",
     ),
     path(
         "jobs/sync-remote-repositories/",
         task_views.sync_remote_repositories,
-        name='api_sync_remote_repositories',
+        name="api_sync_remote_repositories",
     ),
 ]
 
 integration_urls = [
     re_path(
-        r'webhook/github/(?P<project_slug>{project_slug})/$'.format(
-            **pattern_opts
-        ),
+        r"webhook/github/(?P<project_slug>{project_slug})/$".format(**pattern_opts),
         integrations.GitHubWebhookView.as_view(),
-        name='api_webhook_github',
+        name="api_webhook_github",
     ),
     re_path(
-        r'webhook/gitlab/(?P<project_slug>{project_slug})/$'.format(
-            **pattern_opts
-        ),
+        r"webhook/gitlab/(?P<project_slug>{project_slug})/$".format(**pattern_opts),
         integrations.GitLabWebhookView.as_view(),
-        name='api_webhook_gitlab',
+        name="api_webhook_gitlab",
     ),
     re_path(
-        r'webhook/bitbucket/(?P<project_slug>{project_slug})/$'.format(
-            **pattern_opts
-        ),
+        r"webhook/bitbucket/(?P<project_slug>{project_slug})/$".format(**pattern_opts),
         integrations.BitbucketWebhookView.as_view(),
-        name='api_webhook_bitbucket',
+        name="api_webhook_bitbucket",
     ),
     re_path(
-        r'webhook/generic/(?P<project_slug>{project_slug})/$'.format(
-            **pattern_opts
-        ),
+        r"webhook/generic/(?P<project_slug>{project_slug})/$".format(**pattern_opts),
         integrations.APIWebhookView.as_view(),
-        name='api_webhook_generic',
+        name="api_webhook_generic",
     ),
     re_path(
         (
-            r'webhook/(?P<project_slug>{project_slug})/'
-            r'(?P<integration_pk>{integer_pk})/$'.format(**pattern_opts)
+            r"webhook/(?P<project_slug>{project_slug})/"
+            r"(?P<integration_pk>{integer_pk})/$".format(**pattern_opts)
         ),
         integrations.WebhookView.as_view(),
-        name='api_webhook',
+        name="api_webhook",
     ),
 ]
 
@@ -117,7 +109,7 @@ urlpatterns += [
     path("webhook/stripe/", StripeEventView.as_view(), name="api_webhook_stripe"),
 ]
 
-if 'readthedocsext.donate' in settings.INSTALLED_APPS:
+if "readthedocsext.donate" in settings.INSTALLED_APPS:
     # pylint: disable=import-error
     from readthedocsext.donate.restapi.urls import urlpatterns as sustainability_urls
 

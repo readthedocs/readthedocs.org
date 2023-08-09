@@ -3,15 +3,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0025_show-version-warning-existing-projects'),
+        ("projects", "0025_show-version-warning-existing-projects"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='project',
-            name='ad_free',
-            field=models.BooleanField(default=False, help_text='If checked, do not show advertising for this project', verbose_name='Ad-free'),
+            model_name="project",
+            name="ad_free",
+            field=models.BooleanField(
+                default=False,
+                help_text="If checked, do not show advertising for this project",
+                verbose_name="Ad-free",
+            ),
         ),
     ]

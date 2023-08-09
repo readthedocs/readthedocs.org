@@ -3,19 +3,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0003_add-cold-storage'),
+        ("builds", "0003_add-cold-storage"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='APIVersion',
-            fields=[
-            ],
+            name="APIVersion",
+            fields=[],
             options={
-                'proxy': True,
+                "proxy": True,
             },
-            bases=('builds.version',),
+            bases=("builds.version",),
         ),
     ]
