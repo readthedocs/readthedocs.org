@@ -151,20 +151,6 @@ class Backend(BaseVCS):
             )
 
     def clone(self):
-        # TODO: This seems to be legacy that can be removed.
-        #  If the repository is already cloned, we don't do anything.
-        #  It seems to originate from when a cloned repository was cached on disk,
-        #  and so we can call call .update() several times in the same build.
-        if self.repo_exists():
-            return
-
-        # TODO: This seems to be legacy that can be removed.
-        #  There shouldn't be cases where we are asked to
-        #  clone the repo in a non-clean working directory.
-        #  The prior call to repo_exists() will return if a repo already exist with
-        #  unclear guarantees about whether that even needs to be a fully consistent clone.
-        self.make_clean_working_dir()
-
         # TODO: We should add "--no-checkout" in all git clone operations, except:
         #  There exists a case of version_type=BRANCH without a branch name.
         #  This case is relevant for building projects for the first time without knowing the name
@@ -234,15 +220,6 @@ class Backend(BaseVCS):
         # TODO: Explain or remove the return value
         code, stdout, stderr = self.run(*cmd)
         return code, stdout, stderr
-
-    def repo_exists(self):
-        """Test if the current working directory is a top-level git repository."""
-        # If we are at the top-level of a git repository,
-        # ``--show-prefix`` will return an empty string.
-        exit_code, stdout, _ = self.run(
-            "git", "rev-parse", "--show-prefix", record=False
-        )
-        return exit_code == 0 and stdout.strip() == ""
 
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
@@ -354,7 +331,11 @@ class Backend(BaseVCS):
         all_tags = {}
         light_tags = {}
         for line in stdout.splitlines():
-            commit, ref = line.split(maxsplit=1)
+            try:
+                commit, ref = line.split(maxsplit=1)
+            except ValueError:
+                # Skip this line if we have a problem splitting the line
+                continue
             if ref.startswith("refs/heads/"):
                 branch = ref.replace("refs/heads/", "", 1)
                 branches.append(VCSVersion(self, branch, branch))
