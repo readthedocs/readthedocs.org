@@ -81,8 +81,6 @@ django-allauth==0.51.0
 
 requests-oauthlib
 
-GitPython
-
 # Search
 elasticsearch<8.0
 elasticsearch-dsl<8.0

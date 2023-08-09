@@ -4,10 +4,8 @@ import re
 from dataclasses import dataclass
 from typing import Iterable
 
-import git
 import structlog
 from django.core.exceptions import ValidationError
-from gitdb.util import hex_to_bin
 
 from readthedocs.builds.constants import BRANCH, EXTERNAL, TAG
 from readthedocs.config import ALL
@@ -153,11 +151,6 @@ class Backend(BaseVCS):
             )
 
     def clone(self):
-        """
-        Performs the next-generation (ng) git clone operation.
-
-        This method is used when GIT_CLONE_FETCH_CHECKOUT_PATTERN is on.
-        """
         # TODO: This seems to be legacy that can be removed.
         #  If the repository is already cloned, we don't do anything.
         #  It seems to originate from when a cloned repository was cached on disk,
@@ -188,12 +181,6 @@ class Backend(BaseVCS):
             raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
 
     def fetch(self):
-        """
-        Performs the next-generation (ng) git fetch operation.
-
-        This method is used when GIT_CLONE_FETCH_CHECKOUT_PATTERN is on.
-        """
-
         # When git clone does NOT add --no-checkout, it's because we are going
         # to use the remote HEAD, so we don't have to fetch nor check out.
         if self._skip_fetch:
@@ -256,11 +243,6 @@ class Backend(BaseVCS):
             "git", "rev-parse", "--show-prefix", record=False
         )
         return exit_code == 0 and stdout.strip() == ""
-
-    @property
-    def _repo(self):
-        """Get a `git.Repo` instance from the current `self.working_dir`."""
-        return git.Repo(self.working_dir, expand_vars=False)
 
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
@@ -392,65 +374,6 @@ class Backend(BaseVCS):
         tags = [VCSVersion(self, commit, tag) for tag, commit in all_tags.items()]
 
         return branches, tags
-
-    @property
-    def tags(self):
-        versions = []
-        repo = self._repo
-
-        # Build a cache of tag -> commit
-        # GitPython is not very optimized for reading large numbers of tags
-        ref_cache = {}  # 'ref/tags/<tag>' -> hexsha
-        # This code is the same that is executed for each tag in gitpython,
-        # we execute it only once for all tags.
-        for hexsha, ref in git.TagReference._iter_packed_refs(repo):
-            gitobject = git.Object.new_from_sha(repo, hex_to_bin(hexsha))
-            if gitobject.type == 'commit':
-                ref_cache[ref] = str(gitobject)
-            elif gitobject.type == 'tag' and gitobject.object.type == 'commit':
-                ref_cache[ref] = str(gitobject.object)
-
-        for tag in repo.tags:
-            if tag.path in ref_cache:
-                hexsha = ref_cache[tag.path]
-            else:
-                try:
-                    hexsha = str(tag.commit)
-                except ValueError:
-                    # ValueError: Cannot resolve commit as tag TAGNAME points to a
-                    # blob object - use the `.object` property instead to access it
-                    # This is not a real tag for us, so we skip it
-                    # https://github.com/rtfd/readthedocs.org/issues/4440
-                    log.warning('Git tag skipped.', tag=tag, exc_info=True)
-                    continue
-
-            versions.append(VCSVersion(self, hexsha, str(tag)))
-        return versions
-
-    @property
-    def branches(self):
-        repo = self._repo
-        versions = []
-        branches = []
-
-        # ``repo.remotes.origin.refs`` returns remote branches
-        if repo.remotes:
-            branches += repo.remotes.origin.refs
-
-        for branch in branches:
-            verbose_name = branch.name
-            if verbose_name.startswith("origin/"):
-                verbose_name = verbose_name.replace("origin/", "", 1)
-            if verbose_name == "HEAD":
-                continue
-            versions.append(
-                VCSVersion(
-                    repository=self,
-                    identifier=verbose_name,
-                    verbose_name=verbose_name,
-                )
-            )
-        return versions
 
     @property
     def commit(self):

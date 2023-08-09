@@ -1,7 +1,6 @@
 import os
 import textwrap
 from os.path import exists
-from tempfile import mkdtemp
 from unittest import mock
 from unittest.mock import Mock, patch
 
@@ -18,8 +17,6 @@ from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.utils import (
     create_git_branch,
     create_git_tag,
-    delete_git_branch,
-    delete_git_tag,
     get_current_commit,
     get_git_latest_commit_hash,
     make_test_git,
@@ -167,21 +164,6 @@ class TestGitBackend(TestCase):
             RepositoryError.FAILED_TO_CHECKOUT.format(version),
         )
 
-    def test_git_tags(self):
-        repo_path = self.project.repo
-        create_git_tag(repo_path, 'v01')
-        create_git_tag(repo_path, 'v02', annotated=True)
-        create_git_tag(repo_path, 'release-ünîø∂é')
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        # We aren't cloning the repo,
-        # so we need to hack the repo path
-        repo.working_dir = repo_path
-        commit = get_current_commit(repo_path)
-        self.assertEqual(
-            {"v01": commit, "v02": commit, "release-ünîø∂é": commit},
-            {tag.verbose_name: tag.identifier for tag in repo.tags},
-        )
-
     def test_check_for_submodules(self):
         repo = self.project.vcs_repo(environment=self.build_environment)
 
@@ -250,49 +232,6 @@ class TestGitBackend(TestCase):
         valid, submodules = repo.validate_submodules(self.dummy_conf)
         self.assertTrue(valid)
         self.assertEqual(list(submodules), ['foobar'])
-
-    @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_fetch_clean_tags_and_branches(self, checkout_path):
-        upstream_repo = self.project.repo
-        create_git_tag(upstream_repo, 'v01')
-        create_git_tag(upstream_repo, 'v02')
-        create_git_branch(upstream_repo, 'newbranch')
-
-        local_repo = os.path.join(mkdtemp(), 'local')
-        os.mkdir(local_repo)
-        checkout_path.return_value = local_repo
-
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.clone()
-
-        delete_git_tag(upstream_repo, 'v02')
-        delete_git_branch(upstream_repo, 'newbranch')
-
-        # We still have all branches and tags in the local repo
-        self.assertEqual(
-            {'v01', 'v02'},
-            {vcs.verbose_name for vcs in repo.tags},
-        )
-        self.assertEqual(
-            {
-                'invalidsubmodule', 'master', 'submodule', 'newbranch',
-            },
-            {vcs.verbose_name for vcs in repo.branches},
-        )
-
-        repo.update()
-
-        # We don't have the eliminated branches and tags in the local repo
-        self.assertEqual(
-            {'v01'},
-            {vcs.verbose_name for vcs in repo.tags},
-        )
-        self.assertEqual(
-            {
-                'invalidsubmodule', 'master', 'submodule',
-            },
-            {vcs.verbose_name for vcs in repo.branches},
-        )
 
     def test_check_for_submodules(self):
         """
@@ -454,61 +393,6 @@ class TestGitBackend(TestCase):
         repo.update()
         code, _, _ = repo.fetch()
         self.assertEqual(code, 0)
-
-    def test_git_branches(self):
-        """
-        Test a source repository with multiple branches, can be cloned and fetched.
-
-        For each branch, we clone and fetch and check that we get exactly what we expect.
-        """
-        repo_path = self.project.repo
-        branches = [
-            "develop",
-            "master",
-            "2.0.X",
-            "release/2.0.0",
-            "release/foo/bar",
-        ]
-        for branch in branches:
-            create_git_branch(repo_path, branch)
-
-        for branch in branches:
-            # Create a repo that we want to clone and fetch a specific branch for
-            repo = self.project.vcs_repo(
-                environment=self.build_environment,
-                version_identifier=branch,
-                version_type=BRANCH,
-            )
-            # Because current behavior is to reuse already cloned destinations, we should
-            # clear the working dir instead of reusing it.
-            repo.make_clean_working_dir()
-
-            repo.update()
-
-            self.assertEqual(
-                set([branch, "master"]),
-                {branch.verbose_name for branch in repo.branches},
-            )
-
-    def test_git_branches_unicode(self):
-        """Test to verify that we can clone+fetch a unicode branch name."""
-
-        # Add a branch to the repo.
-        # Note: It's assumed that the source repo is re-created in setUp()
-        create_git_branch(self.project.repo, "release-ünîø∂é")
-
-        repo = self.project.vcs_repo(
-            environment=self.build_environment,
-            version_identifier="release-ünîø∂é",
-            version_type=BRANCH,
-        )
-        repo.update()
-
-        # Note here that the original default branch 'master' got created during the clone
-        self.assertEqual(
-            set(["release-ünîø∂é", "master"]),
-            {branch.verbose_name for branch in repo.branches},
-        )
 
     def test_update_without_branch_name(self):
         """
