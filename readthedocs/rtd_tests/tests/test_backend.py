@@ -182,6 +182,75 @@ class TestGitBackend(TestCase):
             {tag.verbose_name: tag.identifier for tag in repo.tags},
         )
 
+    def test_check_for_submodules(self):
+        repo = self.project.vcs_repo(environment=self.build_environment)
+
+        repo.update()
+        self.assertFalse(repo.are_submodules_available(self.dummy_conf))
+
+        # The submodule branch contains one submodule
+        repo.checkout('submodule')
+        self.assertTrue(repo.are_submodules_available(self.dummy_conf))
+
+    def test_skip_submodule_checkout(self):
+        repo = self.project.vcs_repo(environment=self.build_environment)
+        repo.update()
+        repo.checkout('submodule')
+        self.assertTrue(repo.are_submodules_available(self.dummy_conf))
+
+    def test_use_shallow_clone(self):
+        repo = self.project.vcs_repo(environment=self.build_environment)
+        repo.update()
+        repo.checkout('submodule')
+        self.assertTrue(repo.use_shallow_clone())
+        fixture.get(
+            Feature,
+            projects=[self.project],
+            feature_id=Feature.DONT_SHALLOW_CLONE,
+        )
+        self.assertTrue(self.project.has_feature(Feature.DONT_SHALLOW_CLONE))
+        self.assertFalse(repo.use_shallow_clone())
+
+    def test_check_submodule_urls(self):
+        repo = self.project.vcs_repo(environment=self.build_environment)
+        repo.update()
+        repo.checkout('submodule')
+        valid, _ = repo.validate_submodules(self.dummy_conf)
+        self.assertTrue(valid)
+
+    def test_check_invalid_submodule_urls(self):
+        repo = self.project.vcs_repo(environment=self.build_environment)
+        repo.update()
+        repo.checkout('invalidsubmodule')
+        with self.assertRaises(RepositoryError) as e:
+            repo.update_submodules(self.dummy_conf)
+        # `invalid` is created in `make_test_git`
+        # it's a url in ssh form.
+        self.assertEqual(
+            str(e.exception),
+            RepositoryError.INVALID_SUBMODULES.format(['invalid']),
+        )
+
+    def test_invalid_submodule_is_ignored(self):
+        repo = self.project.vcs_repo(environment=self.build_environment)
+        repo.update()
+        repo.checkout('submodule')
+        gitmodules_path = os.path.join(repo.working_dir, '.gitmodules')
+
+        with open(gitmodules_path, "a") as f:
+            content = textwrap.dedent(
+                """
+                [submodule "not-valid-path"]
+                    path = not-valid-path
+                    url =
+                """
+            )
+            f.write(content)
+
+        valid, submodules = repo.validate_submodules(self.dummy_conf)
+        self.assertTrue(valid)
+        self.assertEqual(list(submodules), ['foobar'])
+
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_fetch_clean_tags_and_branches(self, checkout_path):
         upstream_repo = self.project.repo
@@ -308,14 +377,60 @@ class TestGitBackend(TestCase):
                 """
                 [submodule "not-valid-path"]
                     path = not-valid-path
-                    url = https://github.com/readthedocs/readthedocs.org
-            """
+                    url =
+                """
             )
             f.write(content)
 
         valid, submodules = repo.validate_submodules(self.dummy_conf)
         self.assertTrue(valid)
         self.assertEqual(list(submodules), ["foobar"])
+
+    def test_parse_submodules(self):
+        repo = self.project.vcs_repo(
+            environment=self.build_environment,
+            version_type=BRANCH,
+            version_identifier="submodule",
+        )
+        repo.update()
+        repo.checkout("submodule")
+        gitmodules_path = os.path.join(repo.working_dir, ".gitmodules")
+
+        with open(gitmodules_path, "a") as f:
+            content = textwrap.dedent(
+                """
+                [submodule "not-valid-path"]
+                    path = not-valid-path
+                    url =
+
+                [submodule "path with spaces"]
+                    path = path with spaces
+                    url = https://github.com
+
+                [submodule "another-submodule"]
+                    url = https://github.com
+                    path = another-submodule
+
+                [ssubmodule "invalid-submodule-key"]
+                    url = https://github.com
+                    path = invalid-submodule-key
+
+                [submodule "invalid-path-key"]
+                    url = https://github.com
+                    paths = invalid-submodule-key
+
+                [submodule "invalid-url-key"]
+                    uurl = https://github.com
+                    path = invalid-submodule-key
+                """
+            )
+            f.write(content)
+
+        valid, submodules = repo.validate_submodules(self.dummy_conf)
+        self.assertTrue(valid)
+        self.assertEqual(
+            list(submodules), ["foobar", "path with spaces", "another-submodule"]
+        )
 
     def test_skip_submodule_checkout(self):
         """Test that a submodule is listed as available."""
