@@ -165,62 +165,6 @@ class TestGitBackend(TestCase):
         )
 
     def test_check_for_submodules(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-
-        repo.update()
-        self.assertFalse(repo.are_submodules_available(self.dummy_conf))
-
-        # The submodule branch contains one submodule
-        repo.checkout('submodule')
-        self.assertTrue(repo.are_submodules_available(self.dummy_conf))
-
-    def test_skip_submodule_checkout(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.update()
-        repo.checkout('submodule')
-        self.assertTrue(repo.are_submodules_available(self.dummy_conf))
-
-    def test_check_submodule_urls(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.update()
-        repo.checkout('submodule')
-        valid, _ = repo.validate_submodules(self.dummy_conf)
-        self.assertTrue(valid)
-
-    def test_check_invalid_submodule_urls(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.update()
-        repo.checkout('invalidsubmodule')
-        with self.assertRaises(RepositoryError) as e:
-            repo.update_submodules(self.dummy_conf)
-        # `invalid` is created in `make_test_git`
-        # it's a url in ssh form.
-        self.assertEqual(
-            str(e.exception),
-            RepositoryError.INVALID_SUBMODULES.format(['invalid']),
-        )
-
-    def test_invalid_submodule_is_ignored(self):
-        repo = self.project.vcs_repo(environment=self.build_environment)
-        repo.update()
-        repo.checkout('submodule')
-        gitmodules_path = os.path.join(repo.working_dir, '.gitmodules')
-
-        with open(gitmodules_path, "a") as f:
-            content = textwrap.dedent(
-                """
-                [submodule "not-valid-path"]
-                    path = not-valid-path
-                    url =
-                """
-            )
-            f.write(content)
-
-        valid, submodules = repo.validate_submodules(self.dummy_conf)
-        self.assertTrue(valid)
-        self.assertEqual(list(submodules), ['foobar'])
-
-    def test_check_for_submodules(self):
         """
         Test that we can get a branch called 'submodule' containing a valid submodule.
         """
