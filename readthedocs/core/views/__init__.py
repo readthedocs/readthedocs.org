@@ -58,9 +58,12 @@ class HomepageView(TemplateView):
             if request.META["QUERY_STRING"]:
                 # Small hack to not append `&` to URLs without a query_string
                 query_string += "&" + request.META["QUERY_STRING"]
-            return redirect(
+            response = redirect(
                 f"https://about.readthedocs.com{query_string}", permanent=True
             )
+            # Cache the redirect for 1 hour
+            response["Cache-Control"] = "max-age=%s" % (60 * 60)
+            return response
 
         # Show the homepage for local dev
         return super().get(request, *args, **kwargs)
