@@ -23,7 +23,10 @@ class UserProfileForm(forms.ModelForm):
         model = UserProfile
         # Don't allow users edit someone else's user page
         profile_fields = ["first_name", "last_name", "homepage"]
-        optout_email_fields = ["optout_email_config_file_deprecation"]
+        optout_email_fields = [
+            "optout_email_config_file_deprecation",
+            "optout_email_build_image_deprecation",
+        ]
         fields = (
             *profile_fields,
             *optout_email_fields,
