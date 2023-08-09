@@ -53,6 +53,7 @@ class Command(BaseCommand):
                 "https://readthedocs.org/api/v2/project/",
                 params={"slug": slug},
                 auth=auth,
+                timeout=3,
             )
             resp.raise_for_status()  # This should only fail if RTD is having issues
             response_data = resp.json()

@@ -128,7 +128,7 @@ class BuildConfigSerializer(FlexFieldsSerializerMixin, serializers.Serializer):
        which may produce incompatible changes in the API.
     """
 
-    def to_representation(self, instance):  # pylint: disable=arguments-differ
+    def to_representation(self, instance):
         # For now, we want to return the ``config`` object as it is without
         # manipulating it.
         return instance
@@ -504,7 +504,7 @@ class ProjectCreateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
             )
         return value
 
-    def validate(self, data):  # pylint: disable=arguments-differ
+    def validate(self, data):  # pylint: disable=arguments-renamed
         repo = data.get("repo")
         try:
             # We are looking for an exact match of the repository URL entered
@@ -730,8 +730,7 @@ class SubprojectCreateSerializer(FlexFieldsModelSerializer):
             )
         return value
 
-    # pylint: disable=arguments-differ
-    def validate(self, data):
+    def validate(self, data):  # pylint: disable=arguments-renamed
         self.parent_project.is_valid_as_superproject(serializers.ValidationError)
         return data
 

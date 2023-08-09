@@ -41,7 +41,6 @@ class S3BuildMediaStorageMixin(BuildMediaStorageMixin, S3Boto3Storage):
         )
 
 
-# pylint: disable=too-many-ancestors
 class S3BuildMediaStorage(OverrideHostnameMixin, S3BuildMediaStorageMixin):
 
     """An AWS S3 Storage backend for build artifacts."""

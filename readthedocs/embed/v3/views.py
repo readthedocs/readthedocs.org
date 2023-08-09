@@ -41,7 +41,6 @@ class IsAuthorizedToGetContenFromVersion(IsAuthorizedToViewVersion):
 
 class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
     # pylint: disable=line-too-long
-    # pylint: disable=no-self-use
 
     """
     Embed a section of content from any Read the Docs page.
@@ -154,7 +153,7 @@ class EmbedAPIBase(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
             return first_header.parent
 
     def _parse_based_on_doctool(self, page_content, fragment, doctool, doctoolversion):
-        # pylint: disable=unused-argument disable=too-many-branches disable=too-many-nested-blocks
+        # pylint: disable=unused-argument disable=too-many-nested-blocks
         if not page_content:
             return
 

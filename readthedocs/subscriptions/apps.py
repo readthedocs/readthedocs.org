@@ -17,7 +17,6 @@ class SubscriptionsConfig(AppConfig):
 
         self._add_custom_manager()
 
-    # pylint: disable=no-self-use
     def _add_custom_manager(self):
         """
         Add a custom manager to the djstripe Subscription model.

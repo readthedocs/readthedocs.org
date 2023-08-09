@@ -99,6 +99,7 @@ class Command(BaseCommand):
         if skip_revoked_users:
             # `revoked-users.json` was created by a script pullig down data from Sentry
             # https://gist.github.com/humitos/aba1a004abeb3552fd8ef9a741f5dce1
+            # pylint: disable=consider-using-with disable=unspecified-encoding
             revoked_users = json.load(open("revoked-users.json", "r"))
             users = users.exclude(username__in=revoked_users)
             self.stdout.write(

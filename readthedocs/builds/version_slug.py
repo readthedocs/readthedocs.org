@@ -74,7 +74,6 @@ class VersionSlugField(models.CharField):
         super().__init__(*args, **kwargs)
 
     def get_queryset(self, model_cls, slug_field):
-        # pylint: disable=protected-access
         for field, model in get_fields_with_model(model_cls):
             if model and field == slug_field:
                 return model._default_manager.all()
@@ -154,7 +153,6 @@ class VersionSlugField(models.CharField):
 
     def create_slug(self, model_instance):
         """Generate a unique slug for a model instance."""
-        # pylint: disable=protected-access
 
         # get fields to populate from and slug field to set
         slug_field = model_instance._meta.get_field(self.attname)
@@ -197,6 +195,7 @@ class VersionSlugField(models.CharField):
 
         is_slug_valid = self.test_pattern.match(slug)
         if not is_slug_valid:
+            # pylint: disable=broad-exception-raised
             raise Exception("Invalid generated slug: {slug}".format(slug=slug))
         return slug
 

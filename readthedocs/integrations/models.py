@@ -125,8 +125,8 @@ class HttpExchangeManager(models.Manager):
 
         queryset = self.filter(
             content_type=ContentType.objects.get(
-                app_label=model._meta.app_label,  # pylint: disable=protected-access
-                model=model._meta.model_name,  # pylint: disable=protected-access
+                app_label=model._meta.app_label,
+                model=model._meta.model_name,
             ),
             object_id=related_object.pk,
         )
@@ -377,7 +377,7 @@ class GenericAPIWebhook(Integration):
     class Meta:
         proxy = True
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         """Ensure model has token data before saving."""
         try:
             token = self.provider_data.get("token")

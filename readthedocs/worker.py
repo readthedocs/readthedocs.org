@@ -71,4 +71,4 @@ def register_renamed_tasks(application, renamed_tasks):
     return application
 
 
-app = create_application()  # pylint: disable=invalid-name
+app = create_application()

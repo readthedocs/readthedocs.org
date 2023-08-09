@@ -55,6 +55,6 @@ class GoldUser(models.Model):
 
     @property
     def num_supported_projects(self):
-        dollars = int(self.level.split("-")[-1])
+        dollars = int(self.level.rsplit("-", maxsplit=1)[-1])
         num_projects = int(math.floor(dollars // DOLLARS_PER_PROJECT))
         return num_projects

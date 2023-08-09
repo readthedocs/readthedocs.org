@@ -107,7 +107,6 @@ class GoldProjectRemove(GoldProjectsMixin, GenericView):
     http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):
-        # pylint: disable=unused-argument
         gold_user = self.get_gold_user()
 
         project = get_object_or_404(

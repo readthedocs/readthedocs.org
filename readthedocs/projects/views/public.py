@@ -63,7 +63,7 @@ class ProjectTagIndex(ListView):
 
         return queryset
 
-    def get_context_data(self, **kwargs):  # pylint: disable=arguments-differ
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["tag"] = self.tag
         return context
@@ -232,6 +232,7 @@ class ProjectBadgeView(View):
         )
 
         try:
+            # pylint: disable=unspecified-encoding
             with open(badge_path) as fd:
                 return HttpResponse(
                     fd.read(),

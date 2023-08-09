@@ -42,7 +42,7 @@ from_url_helptext = _(
     "Example: <b>/docs/</b>  or <b>/install.html</b>",
 )
 to_url_helptext = _(
-    "Absolute or relative URL. Example: " "<b>/tutorial/install.html</b>",
+    "Absolute or relative URL. Example: <b>/tutorial/install.html</b>",
 )
 redirect_type_helptext = _("The type of redirect you wish to use.")
 
@@ -114,7 +114,7 @@ class Redirect(models.Model):
         verbose_name_plural = _("redirects")
         ordering = ("-update_dt",)
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         if self.redirect_type == "exact" and "$rest" in self.from_url:
             self.from_url_without_rest = self.from_url.replace("$rest", "")
         super().save(*args, **kwargs)
@@ -209,7 +209,7 @@ class Redirect(models.Model):
             return self.to_url
         # Handle full sub-level redirects
         if "$rest" in self.from_url:
-            match = self.from_url.split("$rest")[0]
+            match = self.from_url.split("$rest", maxsplit=1)[0]
             if full_path.startswith(match):
                 cut_path = full_path.replace(match, self.to_url, 1)
                 return cut_path

@@ -11,7 +11,6 @@ from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es
 log = structlog.get_logger(__name__)
 
 
-# pylint: disable=unused-argument
 @receiver(post_save, sender=Project)
 def index_project_save(instance, *args, **kwargs):
     """

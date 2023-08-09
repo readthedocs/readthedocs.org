@@ -64,7 +64,7 @@ class Notification:
     def get_template_names(self, backend_name, source_format=constants.HTML):
         names = []
         if self.object and isinstance(self.object, models.Model):
-            meta = self.object._meta  # pylint: disable=protected-access
+            meta = self.object._meta
             names.append(
                 "{app}/notifications/{name}_{backend}.{source_format}".format(
                     app=self.app_templates or meta.app_label,
@@ -160,7 +160,7 @@ class SiteNotification(Notification):
         msg = ""  # default message in case of error
         if isinstance(message, dict):
             if self.reason:
-                if self.reason in message:
+                if self.reason in message.keys():
                     msg = message.get(self.reason)
                 else:
                     # log the error but not crash
@@ -181,5 +181,5 @@ class SiteNotification(Notification):
 
         return Template(msg).render(context=Context(self.get_context_data()))
 
-    def render(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def render(self, *args, **kwargs):
         return self.get_message(self.success)

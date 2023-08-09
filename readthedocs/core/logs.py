@@ -23,7 +23,8 @@ class ReadTheDocsRequestMiddleware(RequestMiddleware):
 
     """
 
-    def format_request(self, request):
+    @staticmethod
+    def format_request(request):
         return request.build_absolute_uri()
 
 

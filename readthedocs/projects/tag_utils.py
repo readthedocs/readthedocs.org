@@ -78,7 +78,7 @@ def import_tags(project):
         "client_secret": provider.secret,
     }
 
-    resp = requests.get(url, headers=headers, params=params)
+    resp = requests.get(url, headers=headers, params=params, timeout=3)
     if resp.ok:
         tags = resp.json()["names"]
         if tags:
