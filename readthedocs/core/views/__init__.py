@@ -28,7 +28,7 @@ class HealthCheckView(CDNCacheControlMixin, View):
     cache_response = False
 
     def get(self, request, *_, **__):
-        return JsonResponse({'status': 200}, status=200)
+        return JsonResponse({"status": 200}, status=200)
 
 
 class HomepageView(TemplateView):
@@ -41,7 +41,7 @@ class HomepageView(TemplateView):
     our website. Instead, redirect to our login page on the new dashboard.
     """
 
-    template_name = 'homepage.html'
+    template_name = "homepage.html"
 
     def get(self, request, *args, **kwargs):
         # Redirect to login page for new dashboard
@@ -54,10 +54,12 @@ class HomepageView(TemplateView):
 
         # Redirect to ``about.`` in production
         if not settings.DEBUG:
-            query_string = "?ref=dotorg-homepage"
+            query_string = f"?ref={settings.PRODUCTION_DOMAIN}"
             if request.META["QUERY_STRING"]:
                 # Small hack to not append `&` to URLs without a query_string
                 query_string += "&" + request.META["QUERY_STRING"]
+
+            # Do a 302 here so that it varies on logged in status
             return redirect(
                 f"https://about.readthedocs.com{query_string}", permanent=False
             )
@@ -67,17 +69,16 @@ class HomepageView(TemplateView):
 
 
 class SupportView(PrivateViewMixin, TemplateView):
-
-    template_name = 'support/index.html'
+    template_name = "support/index.html"
 
     def get_context_data(self, **kwargs):
         """Pass along endpoint for support form."""
         context = super().get_context_data(**kwargs)
-        context['SUPPORT_FORM_ENDPOINT'] = settings.SUPPORT_FORM_ENDPOINT
+        context["SUPPORT_FORM_ENDPOINT"] = settings.SUPPORT_FORM_ENDPOINT
         return context
 
 
-def server_error_500(request, template_name='500.html'):
+def server_error_500(request, template_name="500.html"):
     """A simple 500 handler so we get media."""
     r = render(request, template_name)
     r.status_code = 500
@@ -90,13 +91,14 @@ def do_not_track(request):
     # https://w3c.github.io/dnt/drafts/tracking-dnt.html#status-representation
     return JsonResponse(  # pylint: disable=redundant-content-type-for-json-response
         {
-            'policy': 'https://docs.readthedocs.io/en/latest/privacy-policy.html',
-            'same-party': [
-                'readthedocs.org',
-                'readthedocs.com',
-                'readthedocs.io',           # .org Documentation Sites
-                'readthedocs-hosted.com',   # .com Documentation Sites
+            "policy": "https://docs.readthedocs.io/en/latest/privacy-policy.html",
+            "same-party": [
+                "readthedocs.org",
+                "readthedocs.com",
+                "readthedocs.io",  # .org Documentation Sites
+                "readthedocs-hosted.com",  # .com Documentation Sites
             ],
-            'tracking': 'N' if dnt_header == '1' else 'T',
-        }, content_type='application/tracking-status+json',
+            "tracking": "N" if dnt_header == "1" else "T",
+        },
+        content_type="application/tracking-status+json",
     )
