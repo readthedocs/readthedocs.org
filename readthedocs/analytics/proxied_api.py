@@ -2,7 +2,9 @@
 from functools import lru_cache
 from urllib.parse import urlparse
 
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
+from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -48,20 +50,23 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
         )
         return version
 
-    # pylint: disable=unused-argument
     def get(self, request, *args, **kwargs):
         project = self._get_project()
         version = self._get_version()
         absolute_uri = self.request.GET.get('absolute_uri')
-        if absolute_uri:
-            self.increase_page_view_count(
-                project=project,
-                version=version,
-                absolute_uri=absolute_uri,
+        if not absolute_uri:
+            return JsonResponse(
+                {"error": "'absolute_uri' GET attribute is required"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        return Response(status=200)
 
-    # pylint: disable=no-self-use
+        self.increase_page_view_count(
+            project=project,
+            version=version,
+            absolute_uri=absolute_uri,
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     def increase_page_view_count(self, project, version, absolute_uri):
         """Increase the page view count for the given project."""
         try:

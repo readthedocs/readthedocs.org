@@ -1948,7 +1948,6 @@ class Feature(models.Model):
 
     # Build related features
     HOSTING_INTEGRATIONS = "hosting_integrations"
-    NO_CONFIG_FILE_DEPRECATED = "no_config_file"
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
@@ -2081,10 +2080,6 @@ class Feature(models.Model):
             _(
                 "Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
             ),
-        ),
-        (
-            NO_CONFIG_FILE_DEPRECATED,
-            _("Build: Building without a configuration file is deprecated."),
         ),
         (
             SCALE_IN_PROTECTION,

@@ -1,3 +1,44 @@
+Version 9.16.4
+--------------
+
+:Date: August 08, 2023
+
+* `@humitos <https://github.com/humitos>`__: Development: minor updates to `Dockerfile` (`#10605 <https://github.com/readthedocs/readthedocs.org/pull/10605>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: test new implementation more broadly (`#10599 <https://github.com/readthedocs/readthedocs.org/pull/10599>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix test (`#10597 <https://github.com/readthedocs/readthedocs.org/pull/10597>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add organization listing filter (`#10593 <https://github.com/readthedocs/readthedocs.org/pull/10593>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add USE_ORGANIZATIONS context variablea (`#10592 <https://github.com/readthedocs/readthedocs.org/pull/10592>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix docs (`#10591 <https://github.com/readthedocs/readthedocs.org/pull/10591>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 9.16.3 (`#10590 <https://github.com/readthedocs/readthedocs.org/pull/10590>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Update support page (`#10580 <https://github.com/readthedocs/readthedocs.org/pull/10580>`__)
+* `@humitos <https://github.com/humitos>`__: Search: delete `sphinx_domains` Django app completely (`#10574 <https://github.com/readthedocs/readthedocs.org/pull/10574>`__)
+* `@humitos <https://github.com/humitos>`__: Build: skip duplicated commands (`#10573 <https://github.com/readthedocs/readthedocs.org/pull/10573>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add redirect to ``about.readthedocs.com`` for logged out users (`#10570 <https://github.com/readthedocs/readthedocs.org/pull/10570>`__)
+* `@humitos <https://github.com/humitos>`__: API: analytics return 400 when there is an error (`#10240 <https://github.com/readthedocs/readthedocs.org/pull/10240>`__)
+
+Version 9.16.3
+--------------
+
+:Date: August 01, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10582 <https://github.com/readthedocs/readthedocs.org/pull/10582>`__)
+* `@stsewd <https://github.com/stsewd>`__: Remove unused code (`#10579 <https://github.com/readthedocs/readthedocs.org/pull/10579>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Uninstall sphinx_domains app to it's models aren't registered (`#10578 <https://github.com/readthedocs/readthedocs.org/pull/10578>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Clarify forced redirects (`#10577 <https://github.com/readthedocs/readthedocs.org/pull/10577>`__)
+* `@humitos <https://github.com/humitos>`__: Build tools: run `asdf version` from inside the container (`#10575 <https://github.com/readthedocs/readthedocs.org/pull/10575>`__)
+* `@humitos <https://github.com/humitos>`__: Build: skip duplicated commands (`#10573 <https://github.com/readthedocs/readthedocs.org/pull/10573>`__)
+* `@humitos <https://github.com/humitos>`__: Build: add `mambaforge-22.09` as newer Python tool (`#10572 <https://github.com/readthedocs/readthedocs.org/pull/10572>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.16.2 (`#10566 <https://github.com/readthedocs/readthedocs.org/pull/10566>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix docker setting (`#10565 <https://github.com/readthedocs/readthedocs.org/pull/10565>`__)
+* `@humitos <https://github.com/humitos>`__: Development: install Docker and Docker Compose with official guides (`#10561 <https://github.com/readthedocs/readthedocs.org/pull/10561>`__)
+* `@humitos <https://github.com/humitos>`__: Build: use `only-if-needed` pip's strategy when installing package (`#10560 <https://github.com/readthedocs/readthedocs.org/pull/10560>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: mention how to use `inv docker.compilebuildtool` (`#10554 <https://github.com/readthedocs/readthedocs.org/pull/10554>`__)
+* `@humitos <https://github.com/humitos>`__: Build: fail builds if there is no `index.html` in the output dir (`#10550 <https://github.com/readthedocs/readthedocs.org/pull/10550>`__)
+* `@humitos <https://github.com/humitos>`__: Telemetry: check for Sphinx config before use it (`#10546 <https://github.com/readthedocs/readthedocs.org/pull/10546>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Fix bug with build filter (`#10528 <https://github.com/readthedocs/readthedocs.org/pull/10528>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: unify Sphinx and generic parser  (`#10520 <https://github.com/readthedocs/readthedocs.org/pull/10520>`__)
+* `@humitos <https://github.com/humitos>`__: Version warning banner: disable it for project not using it already (`#10483 <https://github.com/readthedocs/readthedocs.org/pull/10483>`__)
+
 Version 9.16.2
 --------------
 

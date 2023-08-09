@@ -21,6 +21,7 @@ class BuildCommandResultInline(admin.TabularInline):
     fields = ("command", "exit_code", "output")
 
 
+@admin.register(Build)
 class BuildAdmin(admin.ModelAdmin):
     fields = (
         "project",
@@ -65,12 +66,13 @@ class BuildAdmin(admin.ModelAdmin):
     def version_slug(self, obj):
         return obj.version.slug
 
+    @admin.display(description="Config File")
     def pretty_config(self, instance):
         return pretty_json_field(instance, "config")
 
-    pretty_config.short_description = "Config File"
 
 
+@admin.register(Version)
 class VersionAdmin(admin.ModelAdmin):
 
     list_display = (
@@ -82,6 +84,8 @@ class VersionAdmin(admin.ModelAdmin):
         "built",
     )
     readonly_fields = (
+        "created",
+        "modified",
         "pretty_config",  # required to be read-only because it's a @property
     )
     list_filter = ("type", "privacy_level", "active", "built")
@@ -92,11 +96,11 @@ class VersionAdmin(admin.ModelAdmin):
     def project_slug(self, obj):
         return obj.project.slug
 
+    @admin.display(description="Config File")
     def pretty_config(self, instance):
         return pretty_json_field(instance, "config")
 
-    pretty_config.short_description = "Config File"
-
+    @admin.action(description="Build version")
     def build_version(self, request, queryset):
         """Trigger a build for the project version."""
         total = 0
@@ -112,8 +116,7 @@ class VersionAdmin(admin.ModelAdmin):
             "Triggered builds for {} version(s).".format(total),
         )
 
-    build_version.short_description = "Build version"
-
+    @admin.action(description="Reindex version to ES")
     def reindex_version(self, request, queryset):
         """Reindexes all selected versions to ES."""
         html_objs_qs = []
@@ -130,8 +133,7 @@ class VersionAdmin(admin.ModelAdmin):
 
         self.message_user(request, "Task initiated successfully.", messages.SUCCESS)
 
-    reindex_version.short_description = "Reindex version to ES"
-
+    @admin.action(description="Wipe version from ES")
     def wipe_version_indexes(self, request, queryset):
         """Wipe selected versions from ES."""
         html_objs_qs = []
@@ -152,7 +154,6 @@ class VersionAdmin(admin.ModelAdmin):
             messages.SUCCESS,
         )
 
-    wipe_version_indexes.short_description = "Wipe version from ES"
 
 
 @admin.register(RegexAutomationRule)
@@ -176,7 +177,3 @@ class VersionAutomationRuleAdmin(PolymorphicParentModelAdmin, admin.ModelAdmin):
     child_models = (RegexAutomationRule,)
     search_fields = ("project__slug",)
     list_filter = ("action", "version_type")
-
-
-admin.site.register(Build, BuildAdmin)
-admin.site.register(Version, VersionAdmin)
