@@ -394,7 +394,7 @@ def deprecated_build_image_notification():
         )
         if version:
             # Use a fixed date here to avoid changing the date on each run
-            years_ago = timezone.datetime(2022, 8, 1)
+            years_ago = timezone.datetime(2020, 8, 1)
             build = (
                 version.builds.filter(success=True, date__gt=years_ago)
                 .only("_config")

@@ -252,7 +252,7 @@ class BuildDirector:
         now = timezone.now()
 
         # fmt: off
-        # These browndates matches https://blog.readthedocs.com/migrate-configuration-v2/
+        # These browndates matches https://blog.readthedocs.com/use-build-os-config/
         browndates = any([
             timezone.datetime(2023, 7, 14, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 7, 14, 12, 0, 0, tzinfo=timezone.utc),  # First, 12hs
             timezone.datetime(2023, 8, 14, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 8, 15, 0, 0, 0, tzinfo=timezone.utc),  # Second, 24hs

@@ -222,6 +222,7 @@ class ProjectSpamThreshold(admin.SimpleListFilter):
         return queryset
 
 
+@admin.register(Project)
 class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
     """Project model admin view."""
@@ -250,8 +251,13 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         DomainInline,
         VersionInline,
     ]
-    readonly_fields = ('pub_date', 'feature_flags', 'matching_spam_rules')
-    raw_id_fields = ('users', 'main_language_project', 'remote_repository')
+    readonly_fields = (
+        "pub_date",
+        "modified_date",
+        "feature_flags",
+        "matching_spam_rules",
+    )
+    raw_id_fields = ("users", "main_language_project", "remote_repository")
     actions = [
         'send_owner_email',
         'ban_owner',
@@ -271,13 +277,13 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
     def feature_flags(self, obj):
         return '\n'.join([str(f.get_feature_display()) for f in obj.features])
 
+    @admin.action(description="Notify project owners")
     def send_owner_email(self, request, queryset):
         view = ProjectSendNotificationView.as_view(
             action_name='send_owner_email',
         )
         return view(request, queryset=queryset)
 
-    send_owner_email.short_description = 'Notify project owners'
 
     def run_spam_rule_checks(self, request, queryset):
         """Run all the spam checks on this project."""
@@ -299,6 +305,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
             'Spam check task triggered for {} projects'.format(queryset.count()),
         )
 
+    @admin.action(description="Ban project owner")
     def ban_owner(self, request, queryset):
         """
         Ban project owner.
@@ -330,7 +337,6 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
                 'Banned {} user(s)'.format(total),
             )
 
-    ban_owner.short_description = 'Ban project owner'
 
     def delete_selected_and_artifacts(self, request, queryset):
         """Remove HTML/etc artifacts from storage."""
@@ -339,6 +345,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
                 clean_project_resources(project)
         return delete_selected(self, request, queryset)
 
+    @admin.action(description="Build default version")
     def build_default_version(self, request, queryset):
         """Trigger a build for the project version."""
         total = 0
@@ -351,8 +358,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
             'Triggered builds for {} project(s).'.format(total),
         )
 
-    build_default_version.short_description = 'Build default version'
-
+    @admin.action(description="Reindex active versions to ES")
     def reindex_active_versions(self, request, queryset):
         """Reindex all active versions of the selected projects to ES."""
         qs_iterator = queryset.iterator()
@@ -383,9 +389,9 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
                     messages.SUCCESS
                 )
 
-    reindex_active_versions.short_description = 'Reindex active versions to ES'
 
     # TODO: rename method to mention "indexes" on its name
+    @admin.action(description="Wipe all versions from ES")
     def wipe_all_versions(self, request, queryset):
         """Wipe indexes of all versions of selected projects."""
         qs_iterator = queryset.iterator()
@@ -414,8 +420,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
                     messages.SUCCESS
                 )
 
-    wipe_all_versions.short_description = 'Wipe all versions from ES'
-
+    @admin.action(description="Import tags from the version control API")
     def import_tags_from_vcs(self, request, queryset):
         for project in queryset.iterator():
             tags = import_tags(project)
@@ -432,7 +437,6 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
                     messages.WARNING
                 )
 
-    import_tags_from_vcs.short_description = 'Import tags from the version control API'
 
     def get_actions(self, request):
         actions = super().get_actions(request)
@@ -444,6 +448,7 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
         return actions
 
 
+@admin.register(HTMLFile, ImportedFile)
 class ImportedFileAdmin(admin.ModelAdmin):
 
     """Admin view for :py:class:`ImportedFile`."""
@@ -458,6 +463,7 @@ class HTTPHeaderInline(admin.TabularInline):
     model = HTTPHeader
 
 
+@admin.register(Domain)
 class DomainAdmin(admin.ModelAdmin):
     list_display = (
         'domain',
@@ -476,6 +482,7 @@ class DomainAdmin(admin.ModelAdmin):
     model = Domain
 
 
+@admin.register(HTTPHeader)
 class HTTPHeaderAdmin(admin.ModelAdmin):
     list_display = (
         'name',
@@ -494,6 +501,7 @@ class HTTPHeaderAdmin(admin.ModelAdmin):
         return http_header.domain.project.slug
 
 
+@admin.register(Feature)
 class FeatureAdmin(admin.ModelAdmin):
     model = Feature
     form = FeatureForm
@@ -507,19 +515,13 @@ class FeatureAdmin(admin.ModelAdmin):
         return feature.projects.count()
 
 
+@admin.register(EnvironmentVariable)
 class EnvironmentVariableAdmin(admin.ModelAdmin):
     model = EnvironmentVariable
     list_display = ('name', 'value', 'public', 'project', 'created')
     search_fields = ('name', 'project__slug')
 
 
-admin.site.register(Project, ProjectAdmin)
-admin.site.register(EnvironmentVariable, EnvironmentVariableAdmin)
-admin.site.register(ImportedFile, ImportedFileAdmin)
-admin.site.register(HTTPHeader, HTTPHeaderAdmin)
-admin.site.register(Domain, DomainAdmin)
-admin.site.register(Feature, FeatureAdmin)
 admin.site.register(EmailHook)
 admin.site.register(WebHook)
 admin.site.register(WebHookEvent)
-admin.site.register(HTMLFile, ImportedFileAdmin)

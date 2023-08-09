@@ -214,7 +214,7 @@ class BaseMkdocs(BaseBuilder):
             docs_dir=os.path.relpath(docs_path, self.project_path),
             mkdocs_config=user_config,
         )
-        with open(
+        with safe_open(
             os.path.join(docs_path, "readthedocs-data.js"), "w", encoding="utf-8"
         ) as f:
             f.write(rtd_data)
@@ -231,7 +231,7 @@ class BaseMkdocs(BaseBuilder):
                 user_config['theme'] = self.DEFAULT_THEME_NAME
 
         # Write the modified mkdocs configuration
-        with open(self.yaml_file, "w", encoding="utf-8") as f:
+        with safe_open(self.yaml_file, "w", encoding="utf-8") as f:
             yaml_dump_safely(
                 user_config,
                 f,

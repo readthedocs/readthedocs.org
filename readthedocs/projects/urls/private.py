@@ -1,8 +1,8 @@
 """Project URLs for authenticated users."""
 
 from django.conf import settings
-from django.conf.urls import re_path
 from django.contrib.auth.decorators import login_required
+from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
 from readthedocs.constants import pattern_opts
@@ -56,14 +56,17 @@ from readthedocs.projects.views.private import (
 )
 
 urlpatterns = [
-    re_path(r'^$', ProjectDashboard.as_view(), name='projects_dashboard'),
-    re_path(
-        r'^import/$', ImportView.as_view(wizard_class=ImportWizardView),
-        {'wizard': ImportWizardView}, name='projects_import',
+    path("", ProjectDashboard.as_view(), name="projects_dashboard"),
+    path(
+        "import/",
+        ImportView.as_view(wizard_class=ImportWizardView),
+        {"wizard": ImportWizardView},
+        name="projects_import",
     ),
-    re_path(
-        r'^import/manual/$', ImportWizardView.as_view(),
-        name='projects_import_manual',
+    path(
+        "import/manual/",
+        ImportWizardView.as_view(),
+        name="projects_import_manual",
     ),
     re_path(
         r'^(?P<project_slug>[-\w]+)/$',
