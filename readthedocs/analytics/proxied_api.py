@@ -31,18 +31,18 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
     # We always want to hit our analytics endpoint,
     # so we capture all views/interactions.
     cache_response = False
-    http_method_names = ['get']
+    http_method_names = ["get"]
     permission_classes = [IsAuthorizedToViewVersion]
 
     @lru_cache(maxsize=1)
     def _get_project(self):
-        project_slug = self.request.GET.get('project')
+        project_slug = self.request.GET.get("project")
         project = get_object_or_404(Project, slug=project_slug)
         return project
 
     @lru_cache(maxsize=1)
     def _get_version(self):
-        version_slug = self.request.GET.get('version')
+        version_slug = self.request.GET.get("version")
         project = self._get_project()
         version = get_object_or_404(
             project.versions.all(),
@@ -53,7 +53,7 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
     def get(self, request, *args, **kwargs):
         project = self._get_project()
         version = self._get_version()
-        absolute_uri = self.request.GET.get('absolute_uri')
+        absolute_uri = self.request.GET.get("absolute_uri")
         if not absolute_uri:
             return JsonResponse(
                 {"error": "'absolute_uri' GET attribute is required"},
@@ -92,5 +92,4 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
 
 
 class AnalyticsView(SettingsOverrideObject):
-
     _default_class = BaseAnalyticsView

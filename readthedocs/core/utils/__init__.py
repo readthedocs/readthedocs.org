@@ -24,10 +24,10 @@ log = structlog.get_logger(__name__)
 
 
 def prepare_build(
-        project,
-        version=None,
-        commit=None,
-        immutable=True,
+    project,
+    version=None,
+    commit=None,
+    immutable=True,
 ):
     """
     Prepare a build in a Celery task for project and version.
@@ -54,7 +54,7 @@ def prepare_build(
 
     if not Project.objects.is_active(project):
         log.warning(
-            'Build not triggered because project is not active.',
+            "Build not triggered because project is not active.",
         )
         return (None, None)
 
@@ -65,10 +65,10 @@ def prepare_build(
     build = Build.objects.create(
         project=project,
         version=version,
-        type='html',
+        type="html",
         state=BUILD_STATE_TRIGGERED,
         success=True,
-        commit=commit
+        commit=commit,
     )
 
     log.bind(
@@ -78,7 +78,7 @@ def prepare_build(
 
     options = {}
     if project.build_queue:
-        options['queue'] = project.build_queue
+        options["queue"] = project.build_queue
 
     # Set per-task time limit
     # TODO remove the use of Docker limits or replace the logic here. This
@@ -96,8 +96,8 @@ def prepare_build(
 
     # Add 20% overhead to task, to ensure the build can timeout and the task
     # will cleanly finish.
-    options['soft_time_limit'] = time_limit
-    options['time_limit'] = int(time_limit * 1.2)
+    options["soft_time_limit"] = time_limit
+    options["time_limit"] = int(time_limit * 1.2)
 
     if commit:
         log.bind(commit=commit)
@@ -264,8 +264,14 @@ def cancel_build(build):
 
 
 def send_email(
-        recipient, subject, template, template_html, context=None, request=None,
-        from_email=None, **kwargs
+    recipient,
+    subject,
+    template,
+    template_html,
+    context=None,
+    request=None,
+    from_email=None,
+    **kwargs
 ):
     """
     Alter context passed in and call email send task.
@@ -279,8 +285,8 @@ def send_email(
 
     if context is None:
         context = {}
-    context['uri'] = '{scheme}://{host}'.format(
-        scheme='https',
+    context["uri"] = "{scheme}://{host}".format(
+        scheme="https",
         host=settings.PRODUCTION_DOMAIN,
     )
     content = render_to_string(template, context)
@@ -305,12 +311,12 @@ def slugify(value, *args, **kwargs):
     :param bool dns_safe: Replace special chars like underscores with ``-``.
      And remove trailing ``-``.
     """
-    dns_safe = kwargs.pop('dns_safe', True)
+    dns_safe = kwargs.pop("dns_safe", True)
     value = slugify_base(value, *args, **kwargs)
     if dns_safe:
-        value = re.sub('[-_]+', '-', value)
+        value = re.sub("[-_]+", "-", value)
         # DNS doesn't allow - at the beginning or end of subdomains
-        value = mark_safe(value.strip('-'))
+        value = mark_safe(value.strip("-"))
     return value
 
 
@@ -324,7 +330,7 @@ def get_cache_tag(*args):
     All parts are separated using a character that isn't
     allowed in slugs to avoid collisions.
     """
-    return ':'.join(args)
+    return ":".join(args)
 
 
 def extract_valid_attributes_for_model(model, attributes):

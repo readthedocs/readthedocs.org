@@ -15,16 +15,16 @@ class SubscriptionNotificationMixin:
 
     """Force to read templates from the subscriptions app."""
 
-    app_templates = 'subscriptions'
+    app_templates = "subscriptions"
 
 
 class TrialEndingNotification(SubscriptionNotificationMixin, Notification):
 
     """Trial is ending, nudge user towards subscribing."""
 
-    name = 'trial_ending'
-    context_object_name = 'organization'
-    subject = 'Your trial is ending soon'
+    name = "trial_ending"
+    context_object_name = "organization"
+    subject = "Your trial is ending soon"
     level = REQUIREMENT
 
     @staticmethod
@@ -40,9 +40,9 @@ class SubscriptionRequiredNotification(SubscriptionNotificationMixin, Notificati
 
     """Trial has ended, push user into subscribing."""
 
-    name = 'subscription_required'
-    context_object_name = 'organization'
-    subject = 'We hope you enjoyed your trial of Read the Docs!'
+    name = "subscription_required"
+    context_object_name = "organization"
+    subject = "We hope you enjoyed your trial of Read the Docs!"
     level = REQUIREMENT
 
 
@@ -55,9 +55,9 @@ class SubscriptionEndedNotification(SubscriptionNotificationMixin, Notification)
     subscription is not renewed for the organization.
     """
 
-    name = 'subscription_ended'
-    context_object_name = 'organization'
-    subject = 'Your subscription to Read the Docs has ended'
+    name = "subscription_ended"
+    context_object_name = "organization"
+    subject = "Your subscription to Read the Docs has ended"
     level = REQUIREMENT
 
 
@@ -87,17 +87,20 @@ class OrganizationDisabledNotification(SubscriptionNotificationMixin, Notificati
         return organizations
 
 
-class OrganizationDisabledSiteNotification(SubscriptionNotificationMixin, SiteNotification):
-
+class OrganizationDisabledSiteNotification(
+    SubscriptionNotificationMixin, SiteNotification
+):
     success_message = 'The organization "{{ object.name }}" is currently disabled. You need to <a href="{{ url }}">renew your subscription</a> to keep using Read the Docs.'  # noqa
     success_level = WARNING_PERSISTENT
 
     def get_context_data(self):
         context = super().get_context_data()
-        context.update({
-            'url': reverse(
-                'subscription_detail',
-                args=[self.object.slug],
-            ),
-        })
+        context.update(
+            {
+                "url": reverse(
+                    "subscription_detail",
+                    args=[self.object.slug],
+                ),
+            }
+        )
         return context

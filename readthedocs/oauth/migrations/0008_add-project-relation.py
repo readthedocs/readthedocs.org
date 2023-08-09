@@ -4,15 +4,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('oauth', '0007_org_slug_nonunique'),
+        ("oauth", "0007_org_slug_nonunique"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='remoterepository',
-            name='project',
-            field=models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='remote_repository', to='projects.Project'),
+            model_name="remoterepository",
+            name="project",
+            field=models.OneToOneField(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="remote_repository",
+                to="projects.Project",
+            ),
         ),
     ]

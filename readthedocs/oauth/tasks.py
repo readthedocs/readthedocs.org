@@ -28,7 +28,7 @@ log = structlog.get_logger(__name__)
 
 @PublicTask.permission_check(user_id_matches_or_superuser)
 @app.task(
-    queue='web',
+    queue="web",
     base=PublicTask,
     # We have experienced timeout problems on users having a lot of
     # repositories to sync. This is usually due to users belonging to big
@@ -56,7 +56,7 @@ def sync_remote_repositories(user_id):
         )
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def sync_remote_repositories_organizations(organization_slugs=None):
     """
     Re-sync users member of organizations.
@@ -71,19 +71,17 @@ def sync_remote_repositories_organizations(organization_slugs=None):
     if organization_slugs:
         query = Organization.objects.filter(slug__in=organization_slugs)
         log.info(
-            'Triggering SSO re-sync for organizations.',
+            "Triggering SSO re-sync for organizations.",
             organization_slugs=organization_slugs,
             count=query.count(),
         )
     else:
-        organization_ids = (
-            SSOIntegration.objects
-            .filter(provider=SSOIntegration.PROVIDER_ALLAUTH)
-            .values_list('organization', flat=True)
-        )
+        organization_ids = SSOIntegration.objects.filter(
+            provider=SSOIntegration.PROVIDER_ALLAUTH
+        ).values_list("organization", flat=True)
         query = Organization.objects.filter(id__in=organization_ids)
         log.info(
-            'Triggering SSO re-sync for all organizations.',
+            "Triggering SSO re-sync for all organizations.",
             count=query.count(),
         )
 
@@ -91,7 +89,7 @@ def sync_remote_repositories_organizations(organization_slugs=None):
     for organization in query:
         members = AdminPermission.members(organization)
         log.info(
-            'Triggering SSO re-sync for organization.',
+            "Triggering SSO re-sync for organization.",
             organization_slug=organization.slug,
             count=members.count(),
         )
@@ -177,7 +175,7 @@ def attach_webhook(project_pk, user_pk, integration=None):
         service = SERVICE_MAP.get(integration.integration_type)
 
         if not service:
-            log.warning('There are no registered services in the application.')
+            log.warning("There are no registered services in the application.")
             project_notification.send()
             return None
     else:
@@ -186,14 +184,14 @@ def attach_webhook(project_pk, user_pk, integration=None):
                 service = service_cls
                 break
         else:
-            log.warning('There are no registered services in the application.')
+            log.warning("There are no registered services in the application.")
             project_notification.send()
             return None
 
     provider = allauth_registry.by_id(service.adapter.provider_id)
     notification = AttachWebhookNotification(
         context_object=provider,
-        extra_context={'project': project},
+        extra_context={"project": project},
         user=user,
         success=None,
     )

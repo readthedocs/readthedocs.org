@@ -4,14 +4,14 @@ from django.db import migrations
 
 
 def forwards_func(apps, schema_editor):
-    User = apps.get_model('auth', 'User')
+    User = apps.get_model("auth", "User")
 
     old_password_patterns = (
-        'sha1$',
+        "sha1$",
         # RTD's production database doesn't have any of these
         # but they are included for completeness
-        'md5$',
-        'crypt$',
+        "md5$",
+        "crypt$",
     )
     for pattern in old_password_patterns:
         users = User.objects.filter(password__startswith=pattern)
@@ -21,10 +21,9 @@ def forwards_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('core', '0004_ad-opt-out'),
-        ('auth', '0008_alter_user_username_max_length'),
+        ("core", "0004_ad-opt-out"),
+        ("auth", "0008_alter_user_username_max_length"),
     ]
 
     operations = [

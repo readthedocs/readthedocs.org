@@ -4,20 +4,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('oauth', '0014_remove_remoterepository_project'),
+        ("oauth", "0014_remove_remoterepository_project"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='remoteorganization',
-            name='avatar_url',
-            field=models.URLField(blank=True, max_length=255, null=True, verbose_name='Avatar image URL'),
+            model_name="remoteorganization",
+            name="avatar_url",
+            field=models.URLField(
+                blank=True, max_length=255, null=True, verbose_name="Avatar image URL"
+            ),
         ),
         migrations.AlterField(
-            model_name='remoterepository',
-            name='avatar_url',
-            field=models.URLField(blank=True, max_length=255, null=True, verbose_name='Owner avatar image URL'),
+            model_name="remoterepository",
+            name="avatar_url",
+            field=models.URLField(
+                blank=True,
+                max_length=255,
+                null=True,
+                verbose_name="Owner avatar image URL",
+            ),
         ),
     ]

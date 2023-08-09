@@ -208,10 +208,8 @@ class PageSearchAPIView(CDNCacheTagsMixin, GenericAPIView):
 
 
 class BaseProxiedPageSearchAPIView(PageSearchAPIView):
-
     pass
 
 
 class ProxiedPageSearchAPIView(SettingsOverrideObject):
-
     _default_class = BaseProxiedPageSearchAPIView

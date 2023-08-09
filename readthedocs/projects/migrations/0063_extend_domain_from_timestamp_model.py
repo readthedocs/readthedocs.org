@@ -5,20 +5,23 @@ import django_extensions.db.fields
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0062_add_ssl_status'),
+        ("projects", "0062_add_ssl_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='domain',
-            name='created',
-            field=django_extensions.db.fields.CreationDateTimeField(auto_now_add=True, null=True, verbose_name='created'),
+            model_name="domain",
+            name="created",
+            field=django_extensions.db.fields.CreationDateTimeField(
+                auto_now_add=True, null=True, verbose_name="created"
+            ),
         ),
         migrations.AddField(
-            model_name='domain',
-            name='modified',
-            field=django_extensions.db.fields.ModificationDateTimeField(auto_now=True, verbose_name='modified'),
+            model_name="domain",
+            name="modified",
+            field=django_extensions.db.fields.ModificationDateTimeField(
+                auto_now=True, verbose_name="modified"
+            ),
         ),
     ]

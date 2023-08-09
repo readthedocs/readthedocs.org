@@ -24,7 +24,6 @@ class InvalidSchemeError(UnresolverError):
 
 
 class InvalidXRTDSlugHeaderError(UnresolverError):
-
     pass
 
 

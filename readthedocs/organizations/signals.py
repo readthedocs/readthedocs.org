@@ -23,7 +23,7 @@ log = structlog.get_logger(__name__)
 @receiver(user_signed_up)
 def attach_org(sender, request, user, **kwargs):
     """Attach invited user to organization."""
-    team_slug = request.session.get('team')
+    team_slug = request.session.get("team")
     if team_slug:
         team = Team.objects.get(slug=team_slug)
         TeamMember.objects.create(team=team, member=user)
@@ -46,7 +46,7 @@ def remove_organization_completely(sender, instance, using, **kwargs):
     - Artifacts (HTML, PDF, etc)
     """
     organization = instance
-    log.info('Removing organization completely', organization_slug=organization.slug)
+    log.info("Removing organization completely", organization_slug=organization.slug)
 
     # ``Project`` has a ManyToMany relationship with ``Organization``. We need
     # to be sure that the projects we are deleting here belongs only to the

@@ -10,19 +10,19 @@ from .base import BaseDocServing
 
 
 @override_settings(
-    PUBLIC_DOMAIN='dev.readthedocs.io',
+    PUBLIC_DOMAIN="dev.readthedocs.io",
     PUBLIC_DOMAIN_USES_HTTPS=True,
 )
 class ProxitoHeaderTests(BaseDocServing):
-
     def test_redirect_headers(self):
         r = self.client.get(
             "", secure=True, headers={"host": "project.dev.readthedocs.io"}
         )
         self.assertEqual(r.status_code, 302)
-        self.assertEqual(r['X-RTD-Redirect'], 'system')
+        self.assertEqual(r["X-RTD-Redirect"], "system")
         self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/en/latest/',
+            r["Location"],
+            "https://project.dev.readthedocs.io/en/latest/",
         )
         self.assertEqual(r["Cache-Tag"], "project")
         self.assertEqual(r["X-RTD-Project"], "project")
@@ -53,18 +53,20 @@ class ProxitoHeaderTests(BaseDocServing):
             headers={"host": "project.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'subproject,subproject:latest')
-        self.assertEqual(r['X-RTD-Domain'], 'project.dev.readthedocs.io')
-        self.assertEqual(r['X-RTD-Project'], 'subproject')
+        self.assertEqual(r["Cache-Tag"], "subproject,subproject:latest")
+        self.assertEqual(r["X-RTD-Domain"], "project.dev.readthedocs.io")
+        self.assertEqual(r["X-RTD-Project"], "subproject")
 
         # I think it's not accurate saying that it's `subdomain` the method
         # that we use to get the project slug here, since it was in fact the
         # URL's path but we don't have that feature built
         self.assertEqual(r["X-RTD-Project-Method"], "public_domain")
 
-        self.assertEqual(r['X-RTD-Version'], 'latest')
-        self.assertEqual(r['X-RTD-version-Method'], 'path')
-        self.assertEqual(r['X-RTD-Path'], '/proxito/media/html/subproject/latest/index.html')
+        self.assertEqual(r["X-RTD-Version"], "latest")
+        self.assertEqual(r["X-RTD-version-Method"], "path")
+        self.assertEqual(
+            r["X-RTD-Path"], "/proxito/media/html/subproject/latest/index.html"
+        )
 
     def test_404_headers(self):
         r = self.client.get(
@@ -80,7 +82,7 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertIsNone(r.get("X-RTD-Path"))
 
     def test_custom_domain_headers(self):
-        hostname = 'docs.random.com'
+        hostname = "docs.random.com"
         self.domain = fixture.get(
             Domain,
             project=self.project,
@@ -102,24 +104,24 @@ class ProxitoHeaderTests(BaseDocServing):
     def test_footer_headers(self):
         version = self.project.versions.get(slug=LATEST)
         url = (
-            reverse('footer_html') +
-            f'?project={self.project.slug}&version={version.slug}'
+            reverse("footer_html")
+            + f"?project={self.project.slug}&version={version.slug}"
         )
         r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r['Cache-Tag'], 'project,project:latest,project:rtd-footer')
+        self.assertEqual(r["Cache-Tag"], "project,project:latest,project:rtd-footer")
 
     def test_user_domain_headers(self):
-        hostname = 'docs.domain.com'
+        hostname = "docs.domain.com"
         self.domain = fixture.get(
             Domain,
             project=self.project,
             domain=hostname,
             https=False,
         )
-        http_header = 'X-My-Header'
-        http_header_secure = 'X-My-Secure-Header'
-        http_header_value = 'Header Value; Another Value;'
+        http_header = "X-My-Header"
+        http_header_secure = "X-My-Secure-Header"
+        http_header_value = "Header Value; Another Value;"
         fixture.get(
             HTTPHeader,
             domain=self.domain,

@@ -93,16 +93,16 @@ def delete_projects_and_organizations(sender, instance, *args, **kwargs):
 
 @receiver(pre_create_historical_record)
 def add_extra_historical_fields(sender, **kwargs):
-    history_instance = kwargs['history_instance']
+    history_instance = kwargs["history_instance"]
     if not history_instance:
         return
 
-    history_user = kwargs['history_user']
+    history_user = kwargs["history_user"]
     if history_user:
         history_instance.extra_history_user_id = history_user.id
         history_instance.extra_history_user_username = history_user.username
 
-    request = getattr(HistoricalRecords.context, 'request', None)
+    request = getattr(HistoricalRecords.context, "request", None)
     if request:
         history_instance.extra_history_ip = get_client_ip(request)
-        history_instance.extra_history_browser = request.headers.get('User-Agent')
+        history_instance.extra_history_browser = request.headers.get("User-Agent")
