@@ -731,7 +731,9 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         if full_path.endswith("/"):
             tryfiles = ["README.html"]
 
-        tryfiles = [f"{filename}/{tryfile}".lstrip("/") for tryfile in tryfiles]
+        tryfiles = [
+            (filename.rstrip("/") + f"/{tryfile}").lstrip("/") for tryfile in tryfiles
+        ]
         available_index_files = list(
             HTMLFile.objects.filter(version=version, path__in=tryfiles).values_list(
                 "path", flat=True
@@ -746,7 +748,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             # Use urlparse so that we maintain GET args in our redirect
             parts = urlparse(full_path)
             if tryfile.endswith("README.html"):
-                new_path = tryfile
+                new_path = parts.path.rstrip("/") + "/README.html"
             else:
                 new_path = parts.path.rstrip("/") + "/"
 
@@ -963,6 +965,8 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
         )
 
         try:
+            # TODO: migrate this to also hit the DB
+            # instead of storage.
             response = self._serve_docs(
                 request=request,
                 project=project,
