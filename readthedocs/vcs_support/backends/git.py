@@ -51,9 +51,6 @@ class Backend(BaseVCS):
         self.token = kwargs.get('token')
         self.repo_url = self._get_clone_url()
 
-        # While cloning, we can decide that we are not going to fetch anything
-        self._skip_fetch = False
-
     def _get_clone_url(self):
         if '://' in self.repo_url:
             hacked_url = self.repo_url.split('://')[1]
@@ -167,18 +164,6 @@ class Backend(BaseVCS):
             raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
 
     def fetch(self):
-        # When git clone does NOT add --no-checkout, it's because we are going
-        # to use the remote HEAD, so we don't have to fetch nor check out.
-        if self._skip_fetch:
-            log.info(
-                "Skipping git fetch",
-                version_identifier=self.version_identifier,
-                version_machine=self.version_machine,
-                version_verbose_name=self.verbose_name,
-                version_type=self.version_type,
-            )
-            return
-
         # --force: Likely legacy, it seems to be irrelevant to this usage
         # --prune: Likely legacy, we don't expect a previous fetch command to have run
         # --prune-tags: Likely legacy, we don't expect a previous fetch command to have run
