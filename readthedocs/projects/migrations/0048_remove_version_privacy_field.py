@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0047_webhook_url_set_blank_default'),
+        ("projects", "0047_webhook_url_set_blank_default"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='project',
-            name='version_privacy_level',
+            model_name="project",
+            name="version_privacy_level",
         ),
     ]

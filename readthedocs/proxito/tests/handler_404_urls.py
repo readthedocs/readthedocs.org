@@ -19,13 +19,13 @@ from readthedocs.proxito.views.serve import ServeError404
 # Allow performing NGINX internal redirects at Django level.
 # This is useful for testing El Proxito ``@notfoundfallback``
 def map_proxito_path(view_func):
-
     @wraps(view_func)
     def inner_view(request, *args, **kwargs):
         return view_func(
             request,
             proxito_path=request.path,
         )
+
     return inner_view
 
 

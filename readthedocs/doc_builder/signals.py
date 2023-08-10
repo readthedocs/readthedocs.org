@@ -1,4 +1,3 @@
-
 """Signals for adding custom context data."""
 
 import django.dispatch

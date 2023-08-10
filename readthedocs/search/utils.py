@@ -1,7 +1,6 @@
 """Utilities related to reading and generating indexable search content."""
 
 import structlog
-
 from django.utils import timezone
 from django_elasticsearch_dsl.apps import DEDConfig
 from django_elasticsearch_dsl.registries import registry
@@ -20,20 +19,19 @@ def index_new_files(model, version, build):
     )
 
     if not DEDConfig.autosync_enabled():
-        log.info('Autosync disabled. Skipping indexing into the search index.')
+        log.info("Autosync disabled. Skipping indexing into the search index.")
         return
 
     try:
         document = list(registry.get_documents(models=[model]))[0]
         doc_obj = document()
-        queryset = (
-            doc_obj.get_queryset()
-            .filter(project=version.project, version=version, build=build)
+        queryset = doc_obj.get_queryset().filter(
+            project=version.project, version=version, build=build
         )
-        log.info('Indexing new objecst into search index.')
+        log.info("Indexing new objecst into search index.")
         doc_obj.update(queryset.iterator())
     except Exception:
-        log.exception('Unable to index a subset of files. Continuing.')
+        log.exception("Unable to index a subset of files. Continuing.")
 
 
 def remove_indexed_files(model, project_slug, version_slug=None, build_id=None):
@@ -53,23 +51,20 @@ def remove_indexed_files(model, project_slug, version_slug=None, build_id=None):
     )
 
     if not DEDConfig.autosync_enabled():
-        log.info('Autosync disabled, skipping removal from the search index.')
+        log.info("Autosync disabled, skipping removal from the search index.")
         return
 
     try:
         document = list(registry.get_documents(models=[model]))[0]
-        log.info('Deleting old files from search index.')
-        documents = (
-            document().search()
-            .filter('term', project=project_slug)
-        )
+        log.info("Deleting old files from search index.")
+        documents = document().search().filter("term", project=project_slug)
         if version_slug:
-            documents = documents.filter('term', version=version_slug)
+            documents = documents.filter("term", version=version_slug)
         if build_id:
-            documents = documents.exclude('term', build=build_id)
+            documents = documents.exclude("term", build=build_id)
         documents.delete()
     except Exception:
-        log.exception('Unable to delete a subset of files. Continuing.')
+        log.exception("Unable to delete a subset of files. Continuing.")
 
 
 def _get_index(indices, index_name):
@@ -108,10 +103,7 @@ def _indexing_helper(html_objs_qs, wipe=False):
     else, html_objs are indexed.
     """
     from readthedocs.search.documents import PageDocument
-    from readthedocs.search.tasks import (
-        delete_objects_in_es,
-        index_objects_to_es,
-    )
+    from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es
 
     if html_objs_qs:
         obj_ids = []
@@ -123,10 +115,10 @@ def _indexing_helper(html_objs_qs, wipe=False):
 
         if obj_ids:
             kwargs = {
-                'app_label': HTMLFile._meta.app_label,
-                'model_name': HTMLFile.__name__,
-                'document_class': str(PageDocument),
-                'objects_id': obj_ids,
+                "app_label": HTMLFile._meta.app_label,
+                "model_name": HTMLFile.__name__,
+                "document_class": str(PageDocument),
+                "objects_id": obj_ids,
             }
 
             if not wipe:
@@ -143,10 +135,9 @@ def _last_30_days_iter():
     return (thirty_days_ago + timezone.timedelta(days=n) for n in range(31))
 
 
-def _get_last_30_days_str(date_format='%Y-%m-%d'):
+def _get_last_30_days_str(date_format="%Y-%m-%d"):
     """Returns the list of dates in string format for previous 30 days (including today)."""
     last_30_days_str = [
-        timezone.datetime.strftime(date, date_format)
-        for date in _last_30_days_iter()
+        timezone.datetime.strftime(date, date_format) for date in _last_30_days_iter()
     ]
     return last_30_days_str

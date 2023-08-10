@@ -5,15 +5,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0059_migrate_null_rank'),
+        ("projects", "0059_migrate_null_rank"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='importedfile',
-            name='rank',
-            field=models.IntegerField(default=0, validators=[django.core.validators.MinValueValidator(-10), django.core.validators.MaxValueValidator(10)], verbose_name='Page search rank'),
+            model_name="importedfile",
+            name="rank",
+            field=models.IntegerField(
+                default=0,
+                validators=[
+                    django.core.validators.MinValueValidator(-10),
+                    django.core.validators.MaxValueValidator(10),
+                ],
+                verbose_name="Page search rank",
+            ),
         ),
     ]

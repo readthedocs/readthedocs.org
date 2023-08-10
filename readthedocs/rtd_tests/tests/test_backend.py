@@ -328,12 +328,14 @@ class TestGitBackend(TestCase):
         repo.checkout('submodule')
         gitmodules_path = os.path.join(repo.working_dir, '.gitmodules')
 
-        with open(gitmodules_path, 'a') as f:
-            content = textwrap.dedent("""
+        with open(gitmodules_path, "a") as f:
+            content = textwrap.dedent(
+                """
                 [submodule "not-valid-path"]
                     path = not-valid-path
-                    url = https://github.com/readthedocs/readthedocs.org
-            """)
+                    url =
+                """
+            )
             f.write(content)
 
         valid, submodules = repo.validate_submodules(self.dummy_conf)
@@ -492,14 +494,60 @@ class TestGitBackendNew(TestGitBackend):
                 """
                 [submodule "not-valid-path"]
                     path = not-valid-path
-                    url = https://github.com/readthedocs/readthedocs.org
-            """
+                    url =
+                """
             )
             f.write(content)
 
         valid, submodules = repo.validate_submodules(self.dummy_conf)
         self.assertTrue(valid)
         self.assertEqual(list(submodules), ["foobar"])
+
+    def test_parse_submodules(self):
+        repo = self.project.vcs_repo(
+            environment=self.build_environment,
+            version_type=BRANCH,
+            version_identifier="submodule",
+        )
+        repo.update()
+        repo.checkout("submodule")
+        gitmodules_path = os.path.join(repo.working_dir, ".gitmodules")
+
+        with open(gitmodules_path, "a") as f:
+            content = textwrap.dedent(
+                """
+                [submodule "not-valid-path"]
+                    path = not-valid-path
+                    url =
+
+                [submodule "path with spaces"]
+                    path = path with spaces
+                    url = https://github.com
+
+                [submodule "another-submodule"]
+                    url = https://github.com
+                    path = another-submodule
+
+                [ssubmodule "invalid-submodule-key"]
+                    url = https://github.com
+                    path = invalid-submodule-key
+
+                [submodule "invalid-path-key"]
+                    url = https://github.com
+                    paths = invalid-submodule-key
+
+                [submodule "invalid-url-key"]
+                    uurl = https://github.com
+                    path = invalid-submodule-key
+                """
+            )
+            f.write(content)
+
+        valid, submodules = repo.validate_submodules(self.dummy_conf)
+        self.assertTrue(valid)
+        self.assertEqual(
+            list(submodules), ["foobar", "path with spaces", "another-submodule"]
+        )
 
     def test_skip_submodule_checkout(self):
         """Test that a submodule is listed as available."""

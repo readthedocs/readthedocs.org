@@ -24,9 +24,8 @@ basic_urls = [
     path("", HomepageView.as_view(), name="homepage"),
     path("security/", TemplateView.as_view(template_name="security.html")),
     re_path(
-        r'^\.well-known/security.txt$',
-        TemplateView
-        .as_view(template_name='security.txt', content_type='text/plain'),
+        r"^\.well-known/security.txt$",
+        TemplateView.as_view(template_name="security.txt", content_type="text/plain"),
     ),
     path("support/", SupportView.as_view(), name="support"),
     # These are redirected to from the support form
@@ -74,8 +73,8 @@ organization_urls = [
         include("readthedocs.organizations.urls.public"),
     ),
     re_path(
-        r'^organizations/(?P<slug>[\w.-]+)/subscription/',
-        include('readthedocs.subscriptions.urls'),
+        r"^organizations/(?P<slug>[\w.-]+)/subscription/",
+        include("readthedocs.subscriptions.urls"),
     ),
     # NOTE: This is overridden in .com to serve a real pricing page.
     path(
@@ -104,22 +103,20 @@ i18n_urls = [
 ]
 
 admin_urls = [
-    re_path(r'^admin/', admin.site.urls),
+    re_path(r"^admin/", admin.site.urls),
 ]
 
 dnt_urls = [
-    re_path(r'^\.well-known/dnt/$', do_not_track),
-
+    re_path(r"^\.well-known/dnt/$", do_not_track),
     # https://github.com/EFForg/dnt-guide#12-how-to-assert-dnt-compliance
     re_path(
-        r'^\.well-known/dnt-policy.txt$',
-        TemplateView
-        .as_view(template_name='dnt-policy.txt', content_type='text/plain'),
+        r"^\.well-known/dnt-policy.txt$",
+        TemplateView.as_view(template_name="dnt-policy.txt", content_type="text/plain"),
     ),
 ]
 
 debug_urls = []
-for build_format in ('epub', 'htmlzip', 'json', 'pdf'):
+for build_format in ("epub", "htmlzip", "json", "pdf"):
     debug_urls += static(
         settings.MEDIA_URL + build_format,
         document_root=os.path.join(settings.MEDIA_ROOT, build_format),
@@ -129,7 +126,6 @@ debug_urls += [
         "style-catalog/",
         TemplateView.as_view(template_name="style_catalog.html"),
     ),
-
     # This must come last after the build output files
     path(
         "media/<path:remainder>",

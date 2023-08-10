@@ -166,8 +166,8 @@ class BuildCommand(BuildCommandResultMixin):
                 env=environment,
             )
             cmd_stdout, cmd_stderr = proc.communicate()
-            self.output = self.sanitize_output(cmd_stdout)
-            self.error = self.sanitize_output(cmd_stderr)
+            self.output = self.decode_output(cmd_stdout)
+            self.error = self.decode_output(cmd_stderr)
             self.exit_code = proc.returncode
         except OSError:
             log.exception("Operating system error.")
@@ -175,34 +175,43 @@ class BuildCommand(BuildCommandResultMixin):
         finally:
             self.end_time = datetime.utcnow()
 
-    def sanitize_output(self, output):
+    def decode_output(self, output: bytes) -> str:
+        """Decode bytes output to a UTF-8 string."""
+        decoded = ""
+        try:
+            decoded = output.decode("utf-8", "replace")
+        except (TypeError, AttributeError):
+            pass
+        return decoded
+
+    def sanitize_output(self, output: str) -> str:
         r"""
         Sanitize ``output`` to be saved into the DB.
 
-            1. Decodes to UTF-8
-
-            2. Replaces NULL (\x00) characters with ``''`` (empty string) to
+            1. Replaces NULL (\x00) characters with ``''`` (empty string) to
                avoid PostgreSQL db to fail:
                https://code.djangoproject.com/ticket/28201
 
-            3. Chunk at around ``DATA_UPLOAD_MAX_MEMORY_SIZE`` bytes to be sent
+            2. Chunk at around ``DATA_UPLOAD_MAX_MEMORY_SIZE`` bytes to be sent
                over the API call request
 
         :param output: stdout/stderr to be sanitized
-        :type output: bytes
 
-        :returns: sanitized output as string or ``None`` if it fails
+        :returns: sanitized output as string
         """
+        sanitized = ""
         try:
-            sanitized = output.decode('utf-8', 'replace')
             # Replace NULL (\x00) character to avoid PostgreSQL db to fail
             # https://code.djangoproject.com/ticket/28201
-            sanitized = sanitized.replace('\x00', '')
+            sanitized = output.replace("\x00", "")
         except (TypeError, AttributeError):
-            sanitized = ""
+            pass
 
         # Chunk the output data to be less than ``DATA_UPLOAD_MAX_MEMORY_SIZE``
-        output_length = len(output) if output else 0
+        # The length is calculated in bytes, so we need to encode the string first.
+        # TODO: we are calculating the length in bytes, but truncating the string
+        # in characters. We should use bytes or characters, but not both.
+        output_length = len(sanitized.encode("utf-8"))
         # Left some extra space for the rest of the request data
         threshold = 512 * 1024  # 512Kb
         allowed_length = settings.DATA_UPLOAD_MAX_MEMORY_SIZE - threshold
@@ -236,12 +245,12 @@ class BuildCommand(BuildCommandResultMixin):
             self.exit_code = 0
 
         data = {
-            'build': self.build_env.build.get('id'),
-            'command': self.get_command(),
-            'output': self.output,
-            'exit_code': self.exit_code,
-            'start_time': self.start_time,
-            'end_time': self.end_time,
+            "build": self.build_env.build.get("id"),
+            "command": self.get_command(),
+            "output": self.sanitize_output(self.output),
+            "exit_code": self.exit_code,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
         }
 
         if self.build_env.project.has_feature(Feature.API_LARGE_DATA):
@@ -320,8 +329,8 @@ class DockerBuildCommand(BuildCommand):
                 cmd_stdout, cmd_stderr = out
             else:
                 cmd_stdout = out
-            self.output = self.sanitize_output(cmd_stdout)
-            self.error = self.sanitize_output(cmd_stderr)
+            self.output = self.decode_output(cmd_stdout)
+            self.error = self.decode_output(cmd_stderr)
             cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
             self.exit_code = cmd_ret['ExitCode']
 

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("builds", "0050_build_readthedocs_yaml_path"),
     ]

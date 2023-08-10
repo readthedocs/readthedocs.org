@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0065_add_feature_future_default_true'),
+        ("projects", "0065_add_feature_future_default_true"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='importedfile',
-            name='slug',
-            field=models.SlugField(null=True, verbose_name='Slug'),
+            model_name="importedfile",
+            name="slug",
+            field=models.SlugField(null=True, verbose_name="Slug"),
         ),
     ]

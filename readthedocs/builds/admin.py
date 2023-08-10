@@ -71,10 +71,8 @@ class BuildAdmin(admin.ModelAdmin):
         return pretty_json_field(instance, "config")
 
 
-
 @admin.register(Version)
 class VersionAdmin(admin.ModelAdmin):
-
     list_display = (
         "slug",
         "project_slug",
@@ -153,7 +151,6 @@ class VersionAdmin(admin.ModelAdmin):
             "Task initiated successfully",
             messages.SUCCESS,
         )
-
 
 
 @admin.register(RegexAutomationRule)

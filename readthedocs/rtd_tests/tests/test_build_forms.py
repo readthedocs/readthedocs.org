@@ -12,7 +12,6 @@ from readthedocs.projects.models import Project
 
 
 class TestVersionForm(TestCase):
-
     def setUp(self):
         self.user = get(User)
         self.project = get(Project, users=(self.user,))
@@ -29,7 +28,7 @@ class TestVersionForm(TestCase):
 
         form = VersionForm(
             {
-                'active': True,
+                "active": True,
             },
             instance=version,
         )
@@ -46,12 +45,12 @@ class TestVersionForm(TestCase):
 
         form = VersionForm(
             {
-                'active': False,
+                "active": False,
             },
             instance=version,
         )
         self.assertFalse(form.is_valid())
-        self.assertIn('active', form.errors)
+        self.assertIn("active", form.errors)
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cant_update_privacy_level(self):
@@ -63,8 +62,8 @@ class TestVersionForm(TestCase):
         )
         form = VersionForm(
             {
-                'active': True,
-                'privacy_level': PRIVATE,
+                "active": True,
+                "privacy_level": PRIVATE,
             },
             instance=version,
         )
@@ -82,8 +81,8 @@ class TestVersionForm(TestCase):
         )
         form = VersionForm(
             {
-                'active': True,
-                'privacy_level': PRIVATE,
+                "active": True,
+                "privacy_level": PRIVATE,
             },
             instance=version,
         )
@@ -101,15 +100,17 @@ class TestVersionForm(TestCase):
             active=True,
         )
 
-        url = reverse('project_version_detail', args=(version.project.slug, version.slug))
+        url = reverse(
+            "project_version_detail", args=(version.project.slug, version.slug)
+        )
 
         self.client.force_login(self.user)
 
         r = self.client.post(
             url,
             data={
-                'active': True,
-                'privacy_level': PRIVATE,
+                "active": True,
+                "privacy_level": PRIVATE,
             },
         )
         self.assertEqual(r.status_code, 302)
@@ -118,8 +119,8 @@ class TestVersionForm(TestCase):
         r = self.client.post(
             url,
             data={
-                'active': False,
-                'privacy_level': PRIVATE,
+                "active": False,
+                "privacy_level": PRIVATE,
             },
         )
         self.assertEqual(r.status_code, 302)

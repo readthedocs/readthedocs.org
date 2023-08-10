@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0057_add_page_rank'),
+        ("projects", "0057_add_page_rank"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='environmentvariable',
-            options={'get_latest_by': 'modified'},
+            name="environmentvariable",
+            options={"get_latest_by": "modified"},
         ),
     ]

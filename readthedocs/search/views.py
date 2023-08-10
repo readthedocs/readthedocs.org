@@ -19,11 +19,11 @@ from readthedocs.search.faceted_search import ProjectSearch
 log = structlog.get_logger(__name__)
 
 UserInput = collections.namedtuple(
-    'UserInput',
+    "UserInput",
     (
-        'query',
-        'type',
-        'language',
+        "query",
+        "type",
+        "language",
     ),
 )
 
@@ -123,8 +123,7 @@ class GlobalSearchView(TemplateView):
         # we only search on projects the user belongs or have access to.
         if settings.ALLOW_PRIVATE_REPOS:
             projects = list(
-                Project.objects.for_user(request.user)
-                .values_list('slug', flat=True)
+                Project.objects.for_user(request.user).values_list("slug", flat=True)
             )
 
         # Make sure we always have projects to filter by if we allow private projects.

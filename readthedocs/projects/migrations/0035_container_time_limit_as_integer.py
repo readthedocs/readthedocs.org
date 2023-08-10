@@ -3,15 +3,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0034_remove_unused_project_model_fields'),
+        ("projects", "0034_remove_unused_project_model_fields"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='project',
-            name='container_time_limit',
-            field=models.IntegerField(blank=True, null=True, verbose_name='Container time limit in seconds'),
+            model_name="project",
+            name="container_time_limit",
+            field=models.IntegerField(
+                blank=True, null=True, verbose_name="Container time limit in seconds"
+            ),
         ),
     ]

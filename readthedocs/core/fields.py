@@ -1,4 +1,3 @@
-
 """Shared model fields and defaults."""
 
 import binascii

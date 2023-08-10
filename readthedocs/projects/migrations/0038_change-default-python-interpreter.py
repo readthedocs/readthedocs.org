@@ -3,15 +3,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0037_add_htmlfile'),
+        ("projects", "0037_add_htmlfile"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='project',
-            name='python_interpreter',
-            field=models.CharField(choices=[('python', 'CPython 2.x'), ('python3', 'CPython 3.x')], default='python3', help_text='The Python interpreter used to create the virtual environment.', max_length=20, verbose_name='Python Interpreter'),
+            model_name="project",
+            name="python_interpreter",
+            field=models.CharField(
+                choices=[("python", "CPython 2.x"), ("python3", "CPython 3.x")],
+                default="python3",
+                help_text="The Python interpreter used to create the virtual environment.",
+                max_length=20,
+                verbose_name="Python Interpreter",
+            ),
         ),
     ]
