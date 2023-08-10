@@ -1168,7 +1168,12 @@ class Project(models.Model):
         """
         Get the original version that stable points to.
 
-        Returns None if the current stable doesn't point to a valid version.
+        When stable is machine created, it's basically an alias
+        for the latest stable version (like 2.2),
+        that version is the "original" one.
+
+        Returns None if the current stable doesn't point to a valid version
+        or if isn't machine created.
         """
         current_stable = self.get_stable_version()
         if not current_stable or not current_stable.machine:
@@ -1199,18 +1204,19 @@ class Project(models.Model):
         new_stable = determine_stable_version(versions)
         if new_stable:
             if current_stable:
-                identifier_updated = (
+                version_updated = (
                     new_stable.identifier != current_stable.identifier
+                    or new_stable.type != current_stable.type
                 )
-                if identifier_updated:
+                if version_updated:
                     log.info(
-                        'Update stable version: %(project)s:%(version)s',
-                        {
-                            'project': self.slug,
-                            'version': new_stable.identifier,
-                        }
+                        "Stable version updated.",
+                        project_slug=self.slug,
+                        version_identifier=new_stable.identifier,
+                        version_type=new_stable.type,
                     )
                     current_stable.identifier = new_stable.identifier
+                    current_stable.type = new_stable.type
                     current_stable.save()
                     return new_stable
             else:
