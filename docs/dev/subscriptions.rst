@@ -36,7 +36,7 @@ Modeling
 --------
 
 Subscriptions are attached to an organization (customer),
-and can have multiple prices of products attached to it.
+and can have multiple products attached to it.
 A product can have multiple prices, usually monthly and yearly.
 
 When a user subscribes to a plan (product), they are subscribing to a price of a product,
