@@ -17,61 +17,64 @@ class PlanFeatureInline(admin.TabularInline):
 
 @admin.register(Plan)
 class PlanAdmin(admin.ModelAdmin):
-    prepopulated_fields = {'slug': ('name',)}
+    prepopulated_fields = {"slug": ("name",)}
     list_display = (
-        'name',
-        'slug',
-        'price',
-        'trial',
-        'published',
+        "name",
+        "slug",
+        "price",
+        "trial",
+        "published",
     )
-    filter_horizontal = ('for_organizations',)
+    filter_horizontal = ("for_organizations",)
     inlines = (PlanFeatureInline,)
 
 
 @admin.register(PlanFeature)
 class PlanFeatureAdmin(admin.ModelAdmin):
-    list_display = ('get_feature_type_display', 'plan')
-    list_select_related = ('plan',)
-    search_fields = ('plan__name', 'feature_type')
+    list_display = ("get_feature_type_display", "plan")
+    list_select_related = ("plan",)
+    search_fields = ("plan__name", "feature_type")
 
 
 class SubscriptionDateFilter(admin.SimpleListFilter):
 
     """Filter for the status of the subscriptions related to their date."""
 
-    title = 'subscription date'
-    parameter_name = 'subscription_date'
+    title = "subscription date"
+    parameter_name = "subscription_date"
 
-    TRIALING = 'trialing'
-    TRIAL_ENDING = 'trial_ending'
-    TRIAL_ENDED = 'trial_ended'
-    EXPIRED = 'expired'
+    TRIALING = "trialing"
+    TRIAL_ENDING = "trial_ending"
+    TRIAL_ENDED = "trial_ended"
+    EXPIRED = "expired"
 
     def lookups(self, request, model_admin):
         return (
-            (self.TRIALING, 'trial active'),
-            (self.TRIAL_ENDING, 'trial ending'),
-            (self.TRIAL_ENDED, 'trial ended'),
-            (self.EXPIRED, 'subscription expired'),
+            (self.TRIALING, "trial active"),
+            (self.TRIAL_ENDING, "trial ending"),
+            (self.TRIAL_ENDED, "trial ended"),
+            (self.EXPIRED, "subscription expired"),
         )
 
     def queryset(self, request, queryset):
         trial_queryset = (
             queryset.filter(
-                Q(status='trialing') |
-                Q(status__isnull=True),
+                Q(status="trialing") | Q(status__isnull=True),
             ),
         )  # yapf: disabled
         if self.value() == self.TRIALING:
-            return trial_queryset.filter(trial_end_date__gt=timezone.now(),)
+            return trial_queryset.filter(
+                trial_end_date__gt=timezone.now(),
+            )
         if self.value() == self.TRIAL_ENDING:
             return trial_queryset.filter(
                 trial_end_date__lt=timezone.now() + timedelta(days=7),
                 trial_end_date__gt=timezone.now(),
             )
         if self.value() == self.TRIAL_ENDED:
-            return trial_queryset.filter(trial_end_date__lt=timezone.now(),)
+            return trial_queryset.filter(
+                trial_end_date__lt=timezone.now(),
+            )
         if self.value() == self.EXPIRED:
             return queryset.filter(end_date__lt=timezone.now())
 
@@ -79,12 +82,18 @@ class SubscriptionDateFilter(admin.SimpleListFilter):
 @admin.register(Subscription)
 class SubscriptionAdmin(ExtraSimpleHistoryAdmin):
     model = Subscription
-    list_display = ('organization', 'plan', 'status', 'stripe_subscription', 'trial_end_date')
-    list_filter = ('status', SubscriptionDateFilter, 'plan')
-    list_select_related = ('organization', 'plan')
-    raw_id_fields = ('organization',)
-    readonly_fields = ('stripe_subscription',)
-    search_fields = ('organization__name', 'stripe_id')
+    list_display = (
+        "organization",
+        "plan",
+        "status",
+        "stripe_subscription",
+        "trial_end_date",
+    )
+    list_filter = ("status", SubscriptionDateFilter, "plan")
+    list_select_related = ("organization", "plan")
+    raw_id_fields = ("organization",)
+    readonly_fields = ("stripe_subscription",)
+    search_fields = ("organization__name", "stripe_id")
 
     def stripe_subscription(self, obj):
         if obj.stripe_id:

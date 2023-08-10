@@ -35,6 +35,6 @@ class S3PrivateBucketMixin:
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.bucket_acl = 'private'
-        self.default_acl = 'private'
+        self.bucket_acl = "private"
+        self.default_acl = "private"
         self.querystring_auth = True

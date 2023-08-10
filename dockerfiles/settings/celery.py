@@ -13,7 +13,7 @@ class CeleryDevSettings(DockerBaseSettings):
     # http://storage:9000/... This setting fixes that.
     # Once we can use CORS, we should define this setting in the
     # ``docker_compose.py`` file instead.
-    S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = 'storage:9000'
+    S3_MEDIA_STORAGE_OVERRIDE_HOSTNAME = "storage:9000"
 
 
 CeleryDevSettings.load_settings(__name__)

@@ -1301,11 +1301,9 @@ class Project(models.Model):
 
         return self.domains.filter(canonical=True).first()
 
-    @cached_property
+    @property
     def features(self):
-        return list(
-            Feature.objects.for_project(self).values_list("feature_id", flat=True)
-        )
+        return Feature.objects.for_project(self)
 
     def has_feature(self, feature_id):
         """
@@ -1315,7 +1313,7 @@ class Project(models.Model):
         we consider the project to have the flag. This is used for deprecating a
         feature or changing behavior for new projects
         """
-        return feature_id in self.features
+        return self.features.filter(feature_id=feature_id).exists()
 
     def get_feature_value(self, feature, positive, negative):
         """
@@ -1452,6 +1450,9 @@ class APIProject(Project):
 
     def save(self, *args, **kwargs):
         return 0
+
+    def has_feature(self, feature_id):
+        return feature_id in self.features
 
     @property
     def show_advertising(self):
@@ -1924,7 +1925,6 @@ class Feature(models.Model):
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
-    USE_OLD_PROXITO_IMPLEMENTATION = "use_old_proxito_implementation"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
 
     # Versions sync related features
@@ -1950,7 +1950,6 @@ class Feature(models.Model):
     # Build related features
     GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
     HOSTING_INTEGRATIONS = "hosting_integrations"
-    NO_CONFIG_FILE_DEPRECATED = "no_config_file"
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
@@ -2014,12 +2013,6 @@ class Feature(models.Model):
             USE_UNRESOLVER_WITH_PROXITO,
             _(
                 "Proxito: Use new unresolver implementation for serving documentation files."
-            ),
-        ),
-        (
-            USE_OLD_PROXITO_IMPLEMENTATION,
-            _(
-                "Proxito: Use old Proxito implementation (no unresolver) for serving documentation files."
             ),
         ),
         (
@@ -2095,10 +2088,6 @@ class Feature(models.Model):
             _(
                 "Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
             ),
-        ),
-        (
-            NO_CONFIG_FILE_DEPRECATED,
-            _("Build: Building without a configuration file is deprecated."),
         ),
         (
             SCALE_IN_PROTECTION,

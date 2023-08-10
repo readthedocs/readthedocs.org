@@ -7,11 +7,11 @@ urlpatterns = [
     path(
         "dismiss/<int:message_id>/",
         message_mark_read,
-        name='message_mark_read',
+        name="message_mark_read",
     ),
     path(
         "dismiss/all/",
         message_mark_all_read,
-        name='message_mark_all_read',
+        name="message_mark_all_read",
     ),
 ]

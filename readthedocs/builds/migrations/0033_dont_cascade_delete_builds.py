@@ -5,15 +5,20 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0032_migrate_version_data_to_build'),
+        ("builds", "0032_migrate_version_data_to_build"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='build',
-            name='version',
-            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='builds', to='builds.Version', verbose_name='Version'),
+            model_name="build",
+            name="version",
+            field=models.ForeignKey(
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                related_name="builds",
+                to="builds.Version",
+                verbose_name="Version",
+            ),
         ),
     ]

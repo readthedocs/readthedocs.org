@@ -20,31 +20,31 @@ class SearchQuery(TimeStampedModel):
 
     project = models.ForeignKey(
         Project,
-        related_name='search_queries',
+        related_name="search_queries",
         on_delete=models.CASCADE,
     )
     version = models.ForeignKey(
         Version,
-        verbose_name=_('Version'),
-        related_name='search_queries',
+        verbose_name=_("Version"),
+        related_name="search_queries",
         on_delete=models.CASCADE,
     )
     query = models.CharField(
-        _('Query'),
+        _("Query"),
         max_length=4092,
     )
     total_results = models.IntegerField(
-        _('Total results'),
+        _("Total results"),
         default=0,
     )
     objects = RelatedProjectQuerySet.as_manager()
 
     class Meta:
-        verbose_name = 'Search query'
-        verbose_name_plural = 'Search queries'
+        verbose_name = "Search query"
+        verbose_name_plural = "Search queries"
 
     def __str__(self):
-        return f'[{self.project.slug}:{self.version.slug}]: {self.query}'
+        return f"[{self.project.slug}:{self.version.slug}]: {self.query}"
 
     @classmethod
     def generate_queries_count_of_one_month(cls, project_slug):
@@ -67,16 +67,16 @@ class SearchQuery(TimeStampedModel):
             project__slug=project_slug,
             created__date__lte=today,
             created__date__gte=last_30th_day,
-        ).order_by('-created')
+        ).order_by("-created")
 
         # dict containing the total number of queries
         # of each day for the past 30 days (if present in database).
         count_dict = dict(
-            qs.annotate(created_date=TruncDate('created'))
-            .values('created_date')
-            .order_by('created_date')
-            .annotate(count=Count('id'))
-            .values_list('created_date', 'count')
+            qs.annotate(created_date=TruncDate("created"))
+            .values("created_date")
+            .order_by("created_date")
+            .annotate(count=Count("id"))
+            .values_list("created_date", "count")
         )
 
         count_data = [count_dict.get(date) or 0 for date in _last_30_days_iter()]
@@ -84,13 +84,12 @@ class SearchQuery(TimeStampedModel):
         # format the date value to a more readable form
         # Eg. `16 Jul`
         last_30_days_str = [
-            timezone.datetime.strftime(date, '%d %b')
-            for date in _last_30_days_iter()
+            timezone.datetime.strftime(date, "%d %b") for date in _last_30_days_iter()
         ]
 
         final_data = {
-            'labels': last_30_days_str,
-            'int_data': count_data,
+            "labels": last_30_days_str,
+            "int_data": count_data,
         }
 
         return final_data
