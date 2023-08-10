@@ -17,6 +17,7 @@ from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
 from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
@@ -150,9 +151,9 @@ class OrganizationViewTests(RequestFactoryTestMixin, TestCase):
 
 @override_settings(
     RTD_ALLOW_ORGANIZATIONS=True,
-    RTD_DEFAULT_FEATURES={
-        TYPE_AUDIT_LOGS: 90,
-    },
+    RTD_DEFAULT_FEATURES=dict(
+        [RTDProductFeature(type=TYPE_AUDIT_LOGS, value=90).to_item()]
+    ),
 )
 class OrganizationSecurityLogTests(TestCase):
 
@@ -380,9 +381,7 @@ class OrganizationSignupTestCase(TestCase):
 
 @override_settings(
     RTD_ALLOW_ORGANIZATIONS=True,
-    RTD_DEFAULT_FEATURES={
-        TYPE_AUDIT_LOGS: 90,
-    },
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(TYPE_AUDIT_LOGS, value=90).to_item()]),
 )
 class OrganizationUnspecifiedChooser(TestCase):
     def setUp(self):
@@ -428,9 +427,7 @@ class OrganizationUnspecifiedChooser(TestCase):
 
 @override_settings(
     RTD_ALLOW_ORGANIZATIONS=True,
-    RTD_DEFAULT_FEATURES={
-        TYPE_AUDIT_LOGS: 90,
-    },
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(TYPE_AUDIT_LOGS, value=90).to_item()]),
 )
 class OrganizationUnspecifiedSingleOrganizationRedirect(TestCase):
     def setUp(self):
@@ -456,9 +453,7 @@ class OrganizationUnspecifiedSingleOrganizationRedirect(TestCase):
 
 @override_settings(
     RTD_ALLOW_ORGANIZATIONS=True,
-    RTD_DEFAULT_FEATURES={
-        TYPE_AUDIT_LOGS: 90,
-    },
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(TYPE_AUDIT_LOGS, value=90).to_item()]),
 )
 class OrganizationUnspecifiedNoOrganizationRedirect(TestCase):
     def setUp(self):
