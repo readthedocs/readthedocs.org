@@ -1168,7 +1168,12 @@ class Project(models.Model):
         """
         Get the original version that stable points to.
 
-        Returns None if the current stable doesn't point to a valid version.
+        When stable is machine created, it's basically an alias
+        for the latest stable version (like 2.2),
+        that version is the "original" one.
+
+        Returns None if the current stable doesn't point to a valid version
+        or if isn't machine created.
         """
         current_stable = self.get_stable_version()
         if not current_stable or not current_stable.machine:
