@@ -14,7 +14,6 @@ log = structlog.get_logger(__name__)
 
 
 class GenericParser:
-
     # Limit that matches the ``index.mapping.nested_objects.limit`` ES setting.
     max_inner_documents = 10000
 
@@ -28,16 +27,16 @@ class GenericParser:
         content = None
         try:
             storage_path = self.project.get_storage_path(
-                type_='html',
+                type_="html",
                 version_slug=self.version.slug,
                 include_file=False,
             )
             file_path = self.storage.join(storage_path, page)
-            with self.storage.open(file_path, mode='r') as f:
+            with self.storage.open(file_path, mode="r") as f:
                 content = f.read()
         except Exception:
             log.warning(
-                'Unhandled exception during search processing file.',
+                "Unhandled exception during search processing file.",
                 page=page,
             )
         return content
@@ -49,12 +48,12 @@ class GenericParser:
         The title is the first section in the document,
         falling back to the ``title`` tag.
         """
-        first_header = body.css_first('h1')
+        first_header = body.css_first("h1")
         if first_header:
             title, _ = self._parse_section_title(first_header)
             return title
 
-        title = html.css_first('title')
+        title = html.css_first("title")
         if title:
             return self._parse_content(title.text())
 
@@ -75,11 +74,11 @@ class GenericParser:
         - Return the body element itself if all checks above fail.
         """
         body = html.body
-        main_node = body.css_first('[role=main]')
+        main_node = body.css_first("[role=main]")
         if main_node:
             return main_node
 
-        main_node = body.css_first('main')
+        main_node = body.css_first("main")
         if main_node:
             return main_node
 
@@ -108,7 +107,7 @@ class GenericParser:
         """Converts all new line characters and multiple spaces to a single space."""
         content = content.strip().split()
         content = (text.strip() for text in content)
-        content = ' '.join(text for text in content if text)
+        content = " ".join(text for text in content if text)
         return content
 
     def _parse_sections(self, title, body):
@@ -170,14 +169,12 @@ class GenericParser:
                     log.info("Unable to index section.", exc_info=True)
 
     def _parse_dls(self, body):
-
         # All terms in <dl>s are treated as sections.
         # We traverse by <dl> - traversing by <dt> has shown in experiments to render a
         # different traversal order, which could make the tests more unstable.
         dls = body.css("dl")
 
         for dl in dls:
-
             # Hack: Since we cannot use '> dt' nor ':host' in selectolax/Modest,
             # we use an iterator to select immediate descendants.
             dts = (node for node in dl.iter() if node.tag == "dt" and node.id)
@@ -246,7 +243,7 @@ class GenericParser:
             pass
         else:
             log.warning(
-                'Limit of inner sections exceeded.',
+                "Limit of inner sections exceeded.",
                 project_slug=self.project.slug,
                 version_slug=self.version.slug,
                 limit=self.max_inner_documents,
@@ -266,11 +263,11 @@ class GenericParser:
         """
         nodes_to_be_removed = itertools.chain(
             # Navigation nodes
-            body.css('nav'),
-            body.css('[role=navigation]'),
-            body.css('[role=search]'),
+            body.css("nav"),
+            body.css("[role=navigation]"),
+            body.css("[role=search]"),
             # Permalinks, this is a Sphinx convention.
-            body.css('.headerlink'),
+            body.css(".headerlink"),
             # Line numbers from code blocks, they are very noisy in contents.
             # This convention is popular in Sphinx.
             body.css(".linenos"),
@@ -302,10 +299,10 @@ class GenericParser:
         - Get the id from the node itself.
         - Get the id from the parent node.
         """
-        section_id = tag.attributes.get('id', '')
+        section_id = tag.attributes.get("id", "")
         if not section_id:
             parent = tag.parent
-            section_id = parent.attributes.get('id', '')
+            section_id = parent.attributes.get("id", "")
 
         return self._parse_content(tag.text()), section_id
 
@@ -331,12 +328,11 @@ class GenericParser:
                 content = self._parse_code_section(next_tag)
             elif depth <= 0 or not next_tag.child:
                 # Calling .text() with deep `True` over a text node will return empty.
-                deep = next_tag.tag != '-text'
+                deep = next_tag.tag != "-text"
                 content = next_tag.text(deep=deep)
             else:
                 content, section_found = self._parse_section_content(
-                    tag=next_tag.child,
-                    depth=depth - 1
+                    tag=next_tag.child, depth=depth - 1
                 )
 
             if content:
@@ -352,11 +348,11 @@ class GenericParser:
         Sphinx and Mkdocs codeblocks usually have a class named
         ``highlight`` or ``highlight-{language}``.
         """
-        if not tag.css_first('pre'):
+        if not tag.css_first("pre"):
             return False
 
-        for c in tag.attributes.get('class', '').split():
-            if c.startswith('highlight'):
+        for c in tag.attributes.get("class", "").split():
+            if c.startswith("highlight"):
                 return True
         return False
 
@@ -371,18 +367,18 @@ class GenericParser:
         Other implementations put the line number within the code,
         inside span tags with the ``lineno`` class.
         """
-        nodes_to_be_removed = itertools.chain(tag.css('.linenos'), tag.css('.lineno'))
+        nodes_to_be_removed = itertools.chain(tag.css(".linenos"), tag.css(".lineno"))
         for node in nodes_to_be_removed:
             node.decompose()
 
         contents = []
-        for node in tag.css('pre'):
+        for node in tag.css("pre"):
             # XXX: Don't call to `_parse_content`
             # if we decide to show code results more nicely,
             # so the indentation isn't lost.
-            content = node.text().strip('\n')
+            content = node.text().strip("\n")
             contents.append(self._parse_content(content))
-        return ' '.join(contents)
+        return " ".join(contents)
 
     def parse(self, page):
         """
@@ -452,13 +448,13 @@ class SphinxParser(GenericParser):
 
     def parse(self, page):
         basename = os.path.splitext(page)[0]
-        fjson_paths = [f'{basename}.fjson']
-        if basename.endswith('/index'):
-            new_basename = re.sub(r'\/index$', '', basename)
-            fjson_paths.append(f'{new_basename}.fjson')
+        fjson_paths = [f"{basename}.fjson"]
+        if basename.endswith("/index"):
+            new_basename = re.sub(r"\/index$", "", basename)
+            fjson_paths.append(f"{new_basename}.fjson")
 
         storage_path = self.project.get_storage_path(
-            type_='json',
+            type_="json",
             version_slug=self.version.slug,
             include_file=False,
         )
@@ -470,49 +466,49 @@ class SphinxParser(GenericParser):
                     return self._process_fjson(fjson_path)
             except Exception:
                 log.warning(
-                    'Unhandled exception during search processing file.',
+                    "Unhandled exception during search processing file.",
                     path=fjson_path,
                 )
 
         return {
-            'path': page,
-            'title': '',
-            'sections': [],
+            "path": page,
+            "title": "",
+            "sections": [],
         }
 
     def _process_fjson(self, fjson_path):
         """Reads the fjson file from storage and parses it into a structured dict."""
         try:
-            with self.storage.open(fjson_path, mode='r') as f:
+            with self.storage.open(fjson_path, mode="r") as f:
                 file_contents = f.read()
         except IOError:
-            log.info('Unable to read file.', path=fjson_path)
+            log.info("Unable to read file.", path=fjson_path)
             raise
 
         data = json.loads(file_contents)
         sections = []
-        path = ''
-        title = ''
+        path = ""
+        title = ""
 
-        if 'current_page_name' in data:
-            path = data['current_page_name']
+        if "current_page_name" in data:
+            path = data["current_page_name"]
         else:
-            log.info('Unable to index file due to no name.', path=fjson_path)
+            log.info("Unable to index file due to no name.", path=fjson_path)
 
-        if 'title' in data:
-            title = data['title']
+        if "title" in data:
+            title = data["title"]
             title = HTMLParser(title).text().strip()
         else:
-            log.info('Unable to index title.', path=fjson_path)
+            log.info("Unable to index title.", path=fjson_path)
 
-        if 'body' in data:
+        if "body" in data:
             try:
                 body = self._clean_body(HTMLParser(data["body"]))
                 sections = self._get_sections(title=title, body=body.body)
             except Exception as e:
                 log.info("Unable to index sections.", path=fjson_path, exception=e)
         else:
-            log.info('Unable to index content.', path=fjson_path)
+            log.info("Unable to index content.", path=fjson_path)
 
         return {
             "path": path,

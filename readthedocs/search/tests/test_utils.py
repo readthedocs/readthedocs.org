@@ -13,27 +13,22 @@ from readthedocs.search.tests.utils import get_search_query_from_project_file
 @pytest.mark.search
 @pytest.mark.proxito
 class TestSearchUtils:
-
     def setup_method(self):
-        self.url = reverse('search_api')
+        self.url = reverse("search_api")
 
     def has_results(self, api_client, project_slug, version_slug):
         query = get_search_query_from_project_file(
             project_slug=project_slug,
         )
-        search_params = {
-            'project': project_slug,
-            'version': version_slug,
-            'q': query
-        }
+        search_params = {"project": project_slug, "version": version_slug, "q": query}
         resp = api_client.get(self.url, search_params)
         assert resp.status_code == 200
 
-        data = resp.data['results']
+        data = resp.data["results"]
         return len(data) > 0
 
     def test_remove_only_one_project_index(self, api_client, all_projects):
-        project = 'kuma'
+        project = "kuma"
 
         assert self.has_results(api_client, project, LATEST)
         assert self.has_results(api_client, project, STABLE)
@@ -49,12 +44,12 @@ class TestSearchUtils:
         assert self.has_results(api_client, project, LATEST) is False
         assert self.has_results(api_client, project, STABLE) is False
         # Check that other projects weren't deleted
-        for project in ['pipeline', 'docs']:
+        for project in ["pipeline", "docs"]:
             for version in [LATEST, STABLE]:
                 assert self.has_results(api_client, project, version) is True
 
     def test_remove_only_one_version_index(self, api_client, all_projects):
-        project = 'kuma'
+        project = "kuma"
 
         assert self.has_results(api_client, project, LATEST)
         assert self.has_results(api_client, project, STABLE)
@@ -73,6 +68,6 @@ class TestSearchUtils:
         # Only latest was deleted.
         assert self.has_results(api_client, project, STABLE) is True
 
-        for project in ['pipeline', 'docs']:
+        for project in ["pipeline", "docs"]:
             for version in [LATEST, STABLE]:
                 assert self.has_results(api_client, project, version)

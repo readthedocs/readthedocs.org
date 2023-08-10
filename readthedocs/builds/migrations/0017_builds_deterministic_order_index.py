@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0016_add_mkdocs_html_doctype'),
+        ("builds", "0016_add_mkdocs_html_doctype"),
     ]
 
     operations = [
         migrations.AlterIndexTogether(
-            name='build',
-            index_together={('date', 'id'), ('version', 'state', 'type')},
+            name="build",
+            index_together={("date", "id"), ("version", "state", "type")},
         ),
     ]

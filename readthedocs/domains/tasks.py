@@ -21,7 +21,7 @@ def email_pending_custom_domains(number_of_emails=3):
     now = timezone.now().date()
     validation_period = settings.RTD_CUSTOM_DOMAINS_VALIDATION_PERIOD
     dates = [
-        now - timezone.timedelta(days=validation_period // (2 ** n))
+        now - timezone.timedelta(days=validation_period // (2**n))
         for n in range(number_of_emails)
     ]
     queryset = Domain.objects.pending(include_recently_expired=True).filter(

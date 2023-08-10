@@ -8,8 +8,8 @@ log = structlog.get_logger(__name__)
 
 
 class Config(AppConfig):
-    name = 'readthedocs.builds'
-    label = 'builds'
+    name = "readthedocs.builds"
+    label = "builds"
     verbose_name = _("Builds")
 
     def ready(self):

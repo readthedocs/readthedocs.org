@@ -7,8 +7,8 @@ class SubscriptionsConfig(AppConfig):
 
     """App configuration."""
 
-    name = 'readthedocs.subscriptions'
-    label = 'subscriptions'
+    name = "readthedocs.subscriptions"
+    label = "subscriptions"
 
     def ready(self):
         import readthedocs.subscriptions.event_handlers  # noqa
@@ -17,7 +17,6 @@ class SubscriptionsConfig(AppConfig):
 
         self._add_custom_manager()
 
-    # pylint: disable=no-self-use
     def _add_custom_manager(self):
         """
         Add a custom manager to the djstripe Subscription model.

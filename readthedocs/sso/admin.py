@@ -17,12 +17,12 @@ class SSOIntegrationAdmin(admin.ModelAdmin):
 
     """Admin configuration for SSOIntegration."""
 
-    list_display = ('organization', 'provider')
-    search_fields = ('organization__slug', 'organization__name', 'domains__domain')
-    list_filter = ('provider',)
+    list_display = ("organization", "provider")
+    search_fields = ("organization__slug", "organization__name", "domains__domain")
+    list_filter = ("provider",)
 
     actions = [
-        'resync_sso_user_accounts',
+        "resync_sso_user_accounts",
     ]
 
     @admin.action(description="Re-sync all SSO user accounts")
@@ -30,10 +30,10 @@ class SSOIntegrationAdmin(admin.ModelAdmin):
         users_count = 0
         organizations_count = queryset.count()
 
-        for ssointegration in queryset.select_related('organization'):
+        for ssointegration in queryset.select_related("organization"):
             members = AdminPermission.members(ssointegration.organization)
             log.info(
-                'Triggering SSO re-sync for organization.',
+                "Triggering SSO re-sync for organization.",
                 organization_slug=ssointegration.organization.slug,
                 count=members.count(),
             )
@@ -44,9 +44,8 @@ class SSOIntegrationAdmin(admin.ModelAdmin):
         messages.add_message(
             request,
             messages.INFO,
-            f'Triggered resync for {organizations_count} organizations and {users_count} users.'
+            f"Triggered resync for {organizations_count} organizations and {users_count} users.",
         )
-
 
 
 admin.site.register(SSODomain)
