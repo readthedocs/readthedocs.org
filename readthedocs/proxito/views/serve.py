@@ -965,8 +965,6 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
         )
 
         try:
-            # TODO: migrate this to also hit the DB
-            # instead of storage.
             response = self._serve_docs(
                 request=request,
                 project=project,
