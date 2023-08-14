@@ -18,5 +18,5 @@ class SelectiveFileSystemFinder(FileSystemFinder):
     """
 
     def list(self, ignore_patterns):
-        ignore_patterns.extend(['epub', 'pdf', 'htmlzip', 'json', 'man'])
+        ignore_patterns.extend(["epub", "pdf", "htmlzip", "json", "man"])
         return super().list(ignore_patterns)

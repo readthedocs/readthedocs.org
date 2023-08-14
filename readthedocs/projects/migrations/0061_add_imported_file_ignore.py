@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0060_make_rank_not_null'),
+        ("projects", "0060_make_rank_not_null"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='importedfile',
-            name='ignore',
-            field=models.BooleanField(null=True, verbose_name='Ignore this file from operations like indexing'),
+            model_name="importedfile",
+            name="ignore",
+            field=models.BooleanField(
+                null=True, verbose_name="Ignore this file from operations like indexing"
+            ),
         ),
     ]

@@ -7,7 +7,6 @@ from readthedocs.invitations.models import Invitation
 
 @admin.register(Invitation)
 class InvitationAdmin(admin.ModelAdmin):
-
     search_fields = (
         "from_user__username",
         "to_user__username",

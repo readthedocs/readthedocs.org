@@ -8,7 +8,6 @@ from readthedocs.organizations.constants import ADMIN_ACCESS, READ_ONLY_ACCESS
 
 
 class AdminPermissionBase:
-
     @classmethod
     def projects(cls, user, admin=False, member=False):
         """
@@ -48,7 +47,9 @@ class AdminPermissionBase:
             # Project Team Admin
             admin_teams = user.teams.filter(access=ADMIN_ACCESS)
             for team in admin_teams:
-                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
+                if not cls.has_sso_enabled(
+                    team.organization, SSOIntegration.PROVIDER_ALLAUTH
+                ):
                     projects |= team.projects.all()
 
             # Org Admin
@@ -64,7 +65,9 @@ class AdminPermissionBase:
             # Project Team Member
             member_teams = user.teams.filter(access=READ_ONLY_ACCESS)
             for team in member_teams:
-                if not cls.has_sso_enabled(team.organization, SSOIntegration.PROVIDER_ALLAUTH):
+                if not cls.has_sso_enabled(
+                    team.organization, SSOIntegration.PROVIDER_ALLAUTH
+                ):
                     projects |= team.projects.all()
 
             projects |= cls._get_projects_for_sso_user(user, admin=False)
@@ -78,6 +81,7 @@ class AdminPermissionBase:
     @classmethod
     def _get_projects_for_sso_user(cls, user, admin=False):
         from readthedocs.projects.models import Project
+
         return Project.objects.none()
 
     @classmethod

@@ -2,6 +2,7 @@ from unittest import mock
 
 import pytest
 from django.contrib.sessions.backends.base import SessionBase
+from django.http import HttpResponse
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django_dynamic_fixture import get
@@ -14,6 +15,7 @@ from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND, PUBLIC
 from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_CNAME
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 class BaseTestFooterHTML:
@@ -139,7 +141,7 @@ class BaseTestFooterHTML:
         self.assertNotIn('epub', response.data['html'])
 
     def test_no_session_logged_out(self):
-        mid = ReadTheDocsSessionMiddleware()
+        mid = ReadTheDocsSessionMiddleware(lambda request: HttpResponse())
 
         # Null session here
         request = self.factory.get('/api/v2/footer_html/')
@@ -447,9 +449,7 @@ class TestVersionCompareFooter(TestCase):
 @pytest.mark.proxito
 @override_settings(
     PUBLIC_DOMAIN="readthedocs.io",
-    RTD_DEFAULT_FEATURES={
-        TYPE_CNAME: 1,
-    },
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
 )
 class TestFooterPerformance(TestCase):
     # The expected number of queries for generating the footer
@@ -481,13 +481,13 @@ class TestFooterPerformance(TestCase):
 
     def test_version_queries(self):
         with self.assertNumQueries(self.EXPECTED_QUERIES):
-            response = self.client.get(self.url, HTTP_HOST=self.host)
+            response = self.client.get(self.url, headers={"host": self.host})
             self.assertContains(response, '0.8.1')
 
         # Second time we don't create a new page view,
         # this shouldn't impact the number of queries.
         with self.assertNumQueries(self.EXPECTED_QUERIES):
-            response = self.client.get(self.url, HTTP_HOST=self.host)
+            response = self.client.get(self.url, headers={"host": self.host})
             self.assertContains(response, '0.8.1')
 
         # The number of Versions shouldn't impact the number of queries
@@ -502,7 +502,7 @@ class TestFooterPerformance(TestCase):
             )
 
         with self.assertNumQueries(self.EXPECTED_QUERIES):
-            response = self.client.get(self.url, HTTP_HOST=self.host)
+            response = self.client.get(self.url, headers={"host": self.host})
             self.assertContains(response, '0.99.0')
 
     def test_domain_queries(self):
@@ -513,5 +513,5 @@ class TestFooterPerformance(TestCase):
         )
 
         with self.assertNumQueries(self.EXPECTED_QUERIES):
-            response = self.client.get(self.url, HTTP_HOST=domain)
+            response = self.client.get(self.url, headers={"host": domain})
             self.assertContains(response, domain)

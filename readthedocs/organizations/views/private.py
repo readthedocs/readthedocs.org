@@ -31,7 +31,7 @@ from readthedocs.organizations.views.base import (
 )
 from readthedocs.projects.utils import get_csv_file
 from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
-from readthedocs.subscriptions.models import PlanFeature
+from readthedocs.subscriptions.products import get_feature
 
 
 # Organization views
@@ -276,8 +276,9 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
     def get_context_data(self, **kwargs):
         organization = self.get_organization()
         context = super().get_context_data(**kwargs)
-        context["enabled"] = self._is_feature_enabled(organization)
-        context["days_limit"] = self._get_retention_days_limit(organization)
+        feature = self._get_feature(organization)
+        context["enabled"] = bool(feature)
+        context["days_limit"] = feature.value if feature else 0
         context["filter"] = self.filter
         context["AuditLog"] = AuditLog
         return context
@@ -286,18 +287,17 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
         """Get the date to show logs from."""
         organization = self.get_organization()
         creation_date = organization.pub_date.date()
-        retention_limit = self._get_retention_days_limit(organization)
-        if retention_limit in [None, -1]:
-            # Unlimited.
+        feature = self._get_feature(organization)
+        if feature.unlimited:
             return creation_date
-        start_date = timezone.now().date() - timezone.timedelta(days=retention_limit)
+        start_date = timezone.now().date() - timezone.timedelta(days=feature.value)
         # The max we can go back is to the creation of the organization.
         return max(start_date, creation_date)
 
     def _get_queryset(self):
         """Return the queryset without filters."""
         organization = self.get_organization()
-        if not self._is_feature_enabled(organization):
+        if not self._get_feature(organization):
             return AuditLog.objects.none()
         start_date = self._get_start_date()
         queryset = AuditLog.objects.filter(
@@ -325,15 +325,5 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
         )
         return self.filter.qs
 
-    def _get_retention_days_limit(self, organization):
-        """From how many days we need to show data for this organization?"""
-        return PlanFeature.objects.get_feature_value(
-            organization,
-            type=self.feature_type,
-        )
-
-    def _is_feature_enabled(self, organization):
-        return PlanFeature.objects.has_feature(
-            organization,
-            type=self.feature_type,
-        )
+    def _get_feature(self, organization):
+        return get_feature(organization, self.feature_type)

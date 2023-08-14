@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0036_change_mkdocs_name'),
+        ("builds", "0036_change_mkdocs_name"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='build',
-            name='cold_storage',
-            field=models.BooleanField(help_text='Build steps stored outside the database.', null=True, verbose_name='Cold Storage'),
+            model_name="build",
+            name="cold_storage",
+            field=models.BooleanField(
+                help_text="Build steps stored outside the database.",
+                null=True,
+                verbose_name="Cold Storage",
+            ),
         ),
     ]

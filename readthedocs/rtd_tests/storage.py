@@ -2,7 +2,6 @@ from readthedocs.builds.storage import BuildMediaFileSystemStorage
 
 
 class BuildMediaFileSystemStorageTest(BuildMediaFileSystemStorage):
-
     internal_redirect_root_path = "proxito"
 
     def exists(self, *args, **kargs):
@@ -10,5 +9,4 @@ class BuildMediaFileSystemStorageTest(BuildMediaFileSystemStorage):
 
 
 class StaticFileSystemStorageTest(BuildMediaFileSystemStorageTest):
-
     internal_redirect_root_path = "proxito-static"

@@ -17,7 +17,6 @@ def migrate_null_values(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("core", "0011_alter_historicaluser_first_name"),
     ]

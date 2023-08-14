@@ -1168,7 +1168,12 @@ class Project(models.Model):
         """
         Get the original version that stable points to.
 
-        Returns None if the current stable doesn't point to a valid version.
+        When stable is machine created, it's basically an alias
+        for the latest stable version (like 2.2),
+        that version is the "original" one.
+
+        Returns None if the current stable doesn't point to a valid version
+        or if isn't machine created.
         """
         current_stable = self.get_stable_version()
         if not current_stable or not current_stable.machine:
@@ -1199,18 +1204,19 @@ class Project(models.Model):
         new_stable = determine_stable_version(versions)
         if new_stable:
             if current_stable:
-                identifier_updated = (
+                version_updated = (
                     new_stable.identifier != current_stable.identifier
+                    or new_stable.type != current_stable.type
                 )
-                if identifier_updated:
+                if version_updated:
                     log.info(
-                        'Update stable version: %(project)s:%(version)s',
-                        {
-                            'project': self.slug,
-                            'version': new_stable.identifier,
-                        }
+                        "Stable version updated.",
+                        project_slug=self.slug,
+                        version_identifier=new_stable.identifier,
+                        version_type=new_stable.type,
                     )
                     current_stable.identifier = new_stable.identifier
+                    current_stable.type = new_stable.type
                     current_stable.save()
                     return new_stable
             else:
@@ -1884,7 +1890,7 @@ class HTTPHeader(TimeStampedModel, models.Model):
         max_length=128,
         choices=HEADERS_CHOICES,
     )
-    value = models.CharField(max_length=256)
+    value = models.CharField(max_length=4096)
     only_if_secure_request = models.BooleanField(
         help_text='Only set this header if the request is secure (HTTPS)',
     )
@@ -1949,7 +1955,6 @@ class Feature(models.Model):
     # Build related features
     GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
     HOSTING_INTEGRATIONS = "hosting_integrations"
-    NO_CONFIG_FILE_DEPRECATED = "no_config_file"
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
@@ -2088,10 +2093,6 @@ class Feature(models.Model):
             _(
                 "Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
             ),
-        ),
-        (
-            NO_CONFIG_FILE_DEPRECATED,
-            _("Build: Building without a configuration file is deprecated."),
         ),
         (
             SCALE_IN_PROTECTION,

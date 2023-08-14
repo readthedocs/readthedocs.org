@@ -33,7 +33,10 @@ def proxito_404_page_handler(
 
     # 404 exceptions that don't originate from our proxito 404 handler should have a fast response
     # with no HTML rendered, since they will be forwarded to our 404 handler again.
-    if request.resolver_match and request.resolver_match.url_name != 'proxito_404_handler':
+    if (
+        request.resolver_match
+        and request.resolver_match.url_name != "proxito_404_handler"
+    ):
         return fast_404(request, exception, template_name)
 
     context = {}
@@ -97,14 +100,16 @@ def _get_project_data_from_request(
 
     # Handle single version by grabbing the default version
     # We might have version_slug when we're serving a PR
-    if any([
-        not version_slug and final_project.single_version,
-        not version_slug and project.urlconf and '$version' not in project.urlconf
-    ]):
+    if any(
+        [
+            not version_slug and final_project.single_version,
+            not version_slug and project.urlconf and "$version" not in project.urlconf,
+        ]
+    ):
         version_slug = final_project.get_default_version()
 
     # Automatically add the default language if it isn't defined in urlconf
-    if not lang_slug and project.urlconf and '$language' not in project.urlconf:
+    if not lang_slug and project.urlconf and "$language" not in project.urlconf:
         lang_slug = final_project.language
 
     # ``final_project`` is now the actual project we want to serve docs on,
