@@ -725,7 +725,9 @@ class Project(models.Model):
         # paths as is, this is, without the suffix, while those projects
         # migrate to the new implementation, we will prefix special paths,
         # they are manually un-prefixed in nginx.
-        if self.custom_prefix and self.has_feature(Feature.USE_PROXIED_APIS_WITH_PREFIX):
+        if self.custom_prefix and self.has_feature(
+            Feature.USE_PROXIED_APIS_WITH_PREFIX
+        ):
             return self.custom_prefix
         if self.urlconf:
             # Return the value before the first defined variable,

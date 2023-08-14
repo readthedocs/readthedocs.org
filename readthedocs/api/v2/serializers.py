@@ -17,21 +17,21 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = (
-            'id',
-            'name',
-            'slug',
-            'description',
-            'language',
-            'programming_language',
-            'repo',
-            'repo_type',
-            'default_version',
-            'default_branch',
-            'documentation_type',
-            'users',
-            'canonical_url',
-            'urlconf',
-            'custom_prefix',
+            "id",
+            "name",
+            "slug",
+            "description",
+            "language",
+            "programming_language",
+            "repo",
+            "repo_type",
+            "default_version",
+            "default_branch",
+            "documentation_type",
+            "users",
+            "canonical_url",
+            "urlconf",
+            "custom_prefix",
         )
 
 
