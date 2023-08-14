@@ -81,7 +81,6 @@ class Backend:
 
 
 class ProjectBackend(Backend):
-
     klass = Project
 
     def get_origin_url(self):
@@ -96,7 +95,6 @@ class ProjectBackend(Backend):
 
 
 class OrganizationBackend(Backend):
-
     klass = Organization
 
     def get_origin_url(self):

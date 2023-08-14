@@ -11,7 +11,6 @@ from readthedocs.search.tasks import delete_objects_in_es, index_objects_to_es
 log = structlog.get_logger(__name__)
 
 
-# pylint: disable=unused-argument
 @receiver(post_save, sender=Project)
 def index_project_save(instance, *args, **kwargs):
     """
@@ -21,32 +20,34 @@ def index_project_save(instance, *args, **kwargs):
     it.
     """
     from readthedocs.search.documents import ProjectDocument
+
     kwargs = {
-        'app_label': Project._meta.app_label,
-        'model_name': Project.__name__,
-        'document_class': str(ProjectDocument),
-        'objects_id': [instance.id],
+        "app_label": Project._meta.app_label,
+        "model_name": Project.__name__,
+        "document_class": str(ProjectDocument),
+        "objects_id": [instance.id],
     }
 
     # Do not index if autosync is disabled globally
     if DEDConfig.autosync_enabled():
         index_objects_to_es.delay(**kwargs)
     else:
-        log.info('Skipping indexing')
+        log.info("Skipping indexing")
 
 
 @receiver(pre_delete, sender=Project)
 def remove_project_delete(instance, *args, **kwargs):
     from readthedocs.search.documents import ProjectDocument
+
     kwargs = {
-        'app_label': Project._meta.app_label,
-        'model_name': Project.__name__,
-        'document_class': str(ProjectDocument),
-        'objects_id': [instance.id],
+        "app_label": Project._meta.app_label,
+        "model_name": Project.__name__,
+        "document_class": str(ProjectDocument),
+        "objects_id": [instance.id],
     }
 
     # Don't `delay` this because the objects will be deleted already
     if DEDConfig.autosync_enabled():
         delete_objects_in_es(**kwargs)
     else:
-        log.info('Skipping indexing')
+        log.info("Skipping indexing")

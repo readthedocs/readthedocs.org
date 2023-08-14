@@ -4,20 +4,29 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0086_is_spam'),
+        ("projects", "0086_is_spam"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='historicalproject',
-            name='is_spam',
-            field=models.BooleanField(default=None, help_text='Manually marked as (not) spam', null=True, verbose_name='Is spam?'),
+            model_name="historicalproject",
+            name="is_spam",
+            field=models.BooleanField(
+                default=None,
+                help_text="Manually marked as (not) spam",
+                null=True,
+                verbose_name="Is spam?",
+            ),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='is_spam',
-            field=models.BooleanField(default=None, help_text='Manually marked as (not) spam', null=True, verbose_name='Is spam?'),
+            model_name="project",
+            name="is_spam",
+            field=models.BooleanField(
+                default=None,
+                help_text="Manually marked as (not) spam",
+                null=True,
+                verbose_name="Is spam?",
+            ),
         ),
     ]

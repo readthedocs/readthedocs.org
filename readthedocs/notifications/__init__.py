@@ -16,7 +16,7 @@ from .notification import Notification, SiteNotification
 from .backends import send_notification
 
 __all__ = (
-    'Notification',
-    'SiteNotification',
-    'send_notification',
+    "Notification",
+    "SiteNotification",
+    "send_notification",
 )

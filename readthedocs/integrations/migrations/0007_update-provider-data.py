@@ -4,19 +4,18 @@ from django.db import migrations
 
 def forwards_func(apps, schema_editor):
     """Old models with provider_data='' are being fetched as str instead of json."""
-    Integration = apps.get_model('integrations', 'Integration')
+    Integration = apps.get_model("integrations", "Integration")
 
     Integration.objects.filter(
-        provider_data='',
+        provider_data="",
     ).update(
         provider_data={},
     )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('integrations', '0006_set-default-value-provider-data'),
+        ("integrations", "0006_set-default-value-provider-data"),
     ]
 
     operations = [

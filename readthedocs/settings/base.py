@@ -113,9 +113,12 @@ class CommunityBaseSettings(Settings):
     CSRF_COOKIE_HTTPONLY = True
     CSRF_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
 
+    # Remove after deploying
+    # https://docs.djangoproject.com/en/4.2/releases/4.1/#csrf-cookie-masked-setting
+    CSRF_COOKIE_MASKED = True
+
     # Security & X-Frame-Options Middleware
     # https://docs.djangoproject.com/en/1.11/ref/middleware/#django.middleware.security.SecurityMiddleware
-    SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
     X_FRAME_OPTIONS = 'DENY'
@@ -162,18 +165,24 @@ class CommunityBaseSettings(Settings):
         # Depending on the feature type, the numeric value represents a
         # number of days or limit of the feature.
         from readthedocs.subscriptions import constants
-        return {
-            constants.TYPE_CNAME: 1,
-            constants.TYPE_EMBED_API: 1,
+        from readthedocs.subscriptions.products import RTDProductFeature
+        return dict((
+            RTDProductFeature(type=constants.TYPE_CNAME).to_item(),
+            RTDProductFeature(type=constants.TYPE_EMBED_API).to_item(),
             # Retention days for search analytics.
-            constants.TYPE_SEARCH_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            RTDProductFeature(type=constants.TYPE_SEARCH_ANALYTICS, value=self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS).to_item(),
             # Retention days for page view analytics.
-            constants.TYPE_PAGEVIEW_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            RTDProductFeature(type=constants.TYPE_PAGEVIEW_ANALYTICS, value=self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS).to_item(),
             # Retention days for audit logs.
-            constants.TYPE_AUDIT_LOGS: self.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS,
+            RTDProductFeature(type=constants.TYPE_AUDIT_LOGS, value=self.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS).to_item(),
             # Max number of concurrent builds.
-            constants.TYPE_CONCURRENT_BUILDS: self.RTD_MAX_CONCURRENT_BUILDS,
-        }
+            RTDProductFeature(type=constants.TYPE_CONCURRENT_BUILDS, value=self.RTD_MAX_CONCURRENT_BUILDS).to_item(),
+        ))
+
+    # A dictionary of Stripe products mapped to a RTDProduct object.
+    # In .org we don't have subscriptions/products, default features are
+    # defined in RTD_DEFAULT_FEATURES.
+    RTD_PRODUCTS = {}
 
     # Database and API hitting settings
     DONT_HIT_DB = True
@@ -534,6 +543,11 @@ class CommunityBaseSettings(Settings):
         'weekly-config-file-notification': {
             'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
             'schedule': crontab(day_of_week='wednesday', hour=11, minute=15),
+            'options': {'queue': 'web'},
+        },
+        'weekly-build-image-notification': {
+            'task': 'readthedocs.projects.tasks.utils.deprecated_build_image_notification',
+            'schedule': crontab(day_of_week='wednesday', hour=9, minute=15),
             'options': {'queue': 'web'},
         },
     }

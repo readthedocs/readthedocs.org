@@ -85,7 +85,7 @@ from readthedocs.subscriptions.constants import (
     TYPE_PAGEVIEW_ANALYTICS,
     TYPE_SEARCH_ANALYTICS,
 )
-from readthedocs.subscriptions.models import PlanFeature
+from readthedocs.subscriptions.products import get_feature
 
 log = structlog.get_logger(__name__)
 
@@ -97,7 +97,6 @@ class ProjectDashboard(PrivateViewMixin, ListView):
     model = Project
     template_name = 'projects/project_dashboard.html'
 
-    # pylint: disable=arguments-differ
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Set the default search to search files instead of projects
@@ -134,7 +133,7 @@ class ProjectDashboard(PrivateViewMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         self.validate_primary_email(request.user)
-        return super(ProjectDashboard, self).get(self, request, *args, **kwargs)
+        return super().get(self, request, *args, **kwargs)
 
 
 class ProjectMixin(PrivateViewMixin):
@@ -283,7 +282,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         else:
             self.initial_dict = self.storage.data.get(self.initial_dict_key, {})
 
-    def post(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def post(self, *args, **kwargs):
         self._set_initial_dict()
 
         log.bind(user_username=self.request.user.username)
@@ -757,10 +756,7 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
         return context
 
     def _is_enabled(self, project):
-        return PlanFeature.objects.has_feature(
-            project,
-            type=self.feature_type,
-        )
+        return bool(get_feature(project, feature_type=self.feature_type))
 
 
 class DomainList(DomainMixin, ListViewWithForm):
@@ -931,7 +927,6 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
     """
 
     def post(self, request, *args, **kwargs):
-        # pylint: disable=unused-argument
         if 'integration_pk' in kwargs:
             integration = self.get_integration()
             update_webhook(self.get_project(), integration, request=request)
@@ -1068,7 +1063,7 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
-        enabled = self._is_enabled(project)
+        enabled = bool(self._get_feature(project))
         context.update({'enabled': enabled})
         if not enabled:
             return context
@@ -1103,28 +1098,27 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         """Generate raw csv data of search queries."""
         project = self.get_project()
         now = timezone.now().date()
-        retention_limit = self._get_retention_days_limit(project)
-        if retention_limit in [None, -1]:
-            # Unlimited.
+        feature = self._get_feature(project)
+        if not feature:
+            raise Http404
+        if feature.unlimited:
             days_ago = project.pub_date.date()
         else:
-            days_ago = now - timezone.timedelta(days=retention_limit)
+            days_ago = now - timezone.timedelta(days=feature.value)
 
         values = [
             ('Created Date', 'created'),
             ('Query', 'query'),
             ('Total Results', 'total_results'),
         ]
-        data = []
-        if self._is_enabled(project):
-            data = (
-                SearchQuery.objects.filter(
-                    project=project,
-                    created__date__gte=days_ago,
-                )
-                .order_by('-created')
-                .values_list(*[value for _, value in values])
+        data = (
+            SearchQuery.objects.filter(
+                project=project,
+                created__date__gte=days_ago,
             )
+            .order_by("-created")
+            .values_list(*[value for _, value in values])
+        )
 
         filename = 'readthedocs_search_analytics_{project_slug}_{start}_{end}.csv'.format(
             project_slug=project.slug,
@@ -1139,19 +1133,8 @@ class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 
-    def _get_retention_days_limit(self, project):
-        """From how many days we need to show data for this project?"""
-        return PlanFeature.objects.get_feature_value(
-            project,
-            type=self.feature_type,
-        )
-
-    def _is_enabled(self, project):
-        """Should we show search analytics for this project?"""
-        return PlanFeature.objects.has_feature(
-            project,
-            type=self.feature_type,
-        )
+    def _get_feature(self, project):
+        return get_feature(project, feature_type=self.feature_type)
 
 
 class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
@@ -1169,7 +1152,7 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
-        enabled = self._is_enabled(project)
+        enabled = bool(self._get_feature(project))
         context.update({'enabled': enabled})
         if not enabled:
             return context
@@ -1205,12 +1188,13 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def _get_csv_data(self):
         project = self.get_project()
         now = timezone.now().date()
-        retention_limit = self._get_retention_days_limit(project)
-        if retention_limit in [None, -1]:
-            # Unlimited.
+        feature = self._get_feature(project)
+        if not feature:
+            raise Http404
+        if feature.unlimited:
             days_ago = project.pub_date.date()
         else:
-            days_ago = now - timezone.timedelta(days=retention_limit)
+            days_ago = now - timezone.timedelta(days=feature.value)
 
         values = [
             ('Date', 'date'),
@@ -1218,17 +1202,15 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
             ('Path', 'path'),
             ('Views', 'view_count'),
         ]
-        data = []
-        if self._is_enabled(project):
-            data = (
-                PageView.objects.filter(
-                    project=project,
-                    date__gte=days_ago,
-                    status=200,
-                )
-                .order_by('-date')
-                .values_list(*[value for _, value in values])
+        data = (
+            PageView.objects.filter(
+                project=project,
+                date__gte=days_ago,
+                status=200,
             )
+            .order_by("-date")
+            .values_list(*[value for _, value in values])
+        )
 
         filename = 'readthedocs_traffic_analytics_{project_slug}_{start}_{end}.csv'.format(
             project_slug=project.slug,
@@ -1242,16 +1224,5 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 
-    def _get_retention_days_limit(self, project):
-        """From how many days we need to show data for this project?"""
-        return PlanFeature.objects.get_feature_value(
-            project,
-            type=self.feature_type,
-        )
-
-    def _is_enabled(self, project):
-        """Should we show traffic analytics for this project?"""
-        return PlanFeature.objects.has_feature(
-            project,
-            type=self.feature_type,
-        )
+    def _get_feature(self, project):
+        return get_feature(project, feature_type=self.feature_type)

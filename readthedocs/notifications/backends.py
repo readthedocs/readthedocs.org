@@ -30,7 +30,6 @@ def send_notification(request, notification):
 
 
 class Backend:
-
     def __init__(self, request):
         self.request = request
 
@@ -50,7 +49,7 @@ class EmailBackend(Backend):
     early from :py:meth:`send`.
     """
 
-    name = 'email'
+    name = "email"
 
     def send(self, notification):
         if not notification.send_email:
@@ -83,7 +82,7 @@ class SiteBackend(Backend):
     and stores persistent messages in the database.
     """
 
-    name = 'site'
+    name = "site"
 
     def send(self, notification):
         # Instead of calling the standard messages.add method, this instead
@@ -93,12 +92,12 @@ class SiteBackend(Backend):
         cls_name = settings.MESSAGE_STORAGE
         cls = import_string(cls_name)
         req = HttpRequest()
-        setattr(req, 'session', '')
+        setattr(req, "session", "")
         storage = cls(req)
 
         # Use the method defined by the notification or map a simple level to a
         # persistent one otherwise
-        if hasattr(notification, 'get_message_level'):
+        if hasattr(notification, "get_message_level"):
             level = notification.get_message_level()
         else:
             level = LEVEL_MAPPING.get(notification.level, INFO_PERSISTENT)

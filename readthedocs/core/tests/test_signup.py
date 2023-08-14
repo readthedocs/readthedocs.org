@@ -30,7 +30,9 @@ class TestNewsletterSignup(TestCase):
 
     @patch("readthedocs.core.signals.requests.post")
     def test_signup_calls_subscribe_api(self, mock_requests_post):
-        response = self.client.post("/accounts/signup/", data=self.form_data_plus_checkbox)
+        response = self.client.post(
+            "/accounts/signup/", data=self.form_data_plus_checkbox
+        )
         email_confirmed.send(
             sender=None,
             request=None,
