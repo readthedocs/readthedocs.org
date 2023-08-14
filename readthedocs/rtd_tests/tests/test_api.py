@@ -3176,6 +3176,7 @@ class APIVersionTests(TestCase):
                 "use_system_packages": False,
                 "users": [1],
                 "urlconf": None,
+                "custom_prefix": None,
             },
             "privacy_level": "public",
             "downloads": {},
