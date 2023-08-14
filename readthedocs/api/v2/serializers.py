@@ -31,6 +31,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             'users',
             'canonical_url',
             'urlconf',
+            'custom_prefix',
         )
 
 
