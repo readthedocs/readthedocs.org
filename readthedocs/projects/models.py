@@ -723,8 +723,8 @@ class Project(models.Model):
         # docs pages under the prefix, not special paths like `/_/`.
         # Projects using the old implementation, need to proxy `/_/`
         # paths as is, this is, without the prefix, while those projects
-        # migrate to the new implementation, we will prefix special paths,
-        # they are manually un-prefixed in nginx.
+        # migrate to the new implementation, we will prefix special paths
+        # when generating links, these paths will be manually un-prefixed in nginx.
         if self.custom_prefix and self.has_feature(
             Feature.USE_PROXIED_APIS_WITH_PREFIX
         ):
