@@ -1,25 +1,31 @@
 {% extends "core/email/common.txt" %}
 {% block content %}
 The Read the Docs build system will start requiring a configuration file v2 (.readthedocs.yaml) starting on September 25, 2023.
-We are scheduling brownout days to provide extra reminders by failing build without a configuration file v2 during some hours before the final day.
-Keep these dates in mind to avoid unexpected behaviours:
+We are sending weekly notifications about this issue to all impacted users,
+as well as temporary build failures (brownouts) as the date approaches for those who haven't migrated their projects.
+
+The timeline for this deprecation is as follows:
 
 * Monday, July 24, 2023: Do the first brownout (temporarily enforce this deprecation) for 12 hours: 00:01 PST to 11:59 PST (noon)
 * Monday, August 14, 2023: Do a second brownout (temporarily enforce this deprecation) for 24 hours: 00:01 PST to 23:59 PST (midnight)
-* Monday, September 4, 2023: Do a third and final brownout (temporarily enforce this deprecation) for 48 hours: 00:01 PST to 23:59 PST (midnight)
+* Monday, September 4, 2023: Do a third and final brownout (temporarily enforce this deprecation) for 48 hours: 00:01 PST to September 5, 2023 23:59 PST (midnight)
 * Monday, September 25, 2023: Fully remove support for building documentation without configuration file v2.
 
-We have identified the following projects where you are admin are impacted by this deprecation:
+We have identified that the following projects which you maintain, and were built in the last year, are impacted by this deprecation:
 
-{% for project in object %}
-* {{ project.slug }}
+{% for project in projects|slice:":15" %}
+* {{ project.slug }} ({{ production_uri }}{{ project.get_absolute_url }})
 {% endfor %}
+{% if projects.count > 15 %}
+* ... and {{ projects.count|add:"-15" }} more projects.
+{% endif %}
 
-You require to add a configuration file to your projects to ensure they continues building successfully and stop receiving these notifications.
+Please add a configuration file to your projects to ensure that they continue building successfully and to stop receiving these notifications.
+If you want to opt-out from these emails, you can edit your preferences in your account settings, at https://readthedocs.org/accounts/edit/.
 
-For more information on how to create a required configuration file, see:
-https://blog.readthedocs.com/migrate-configuration-v2/
+For more information on how to create a required configuration file,
+read our blog post at https://blog.readthedocs.com/migrate-configuration-v2/
 
-Get in touch with us at {{ production_uri }}{% url 'support' %}
+Get in touch with us via our support ({{ production_uri }}{% url 'support' %})
 and let us know if you are unable to use a configuration file for any reason.
 {% endblock %}

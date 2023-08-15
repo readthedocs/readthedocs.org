@@ -52,10 +52,28 @@ class BuildUserError(BuildBaseException):
         "and it is not currently supported. "
         'Please, remove all the files but the "{artifact_type}" you want to upload.'
     )
+    BUILD_OUTPUT_HTML_NO_INDEX_FILE = gettext_noop(
+        "Your documentation did not generate an 'index.html' at its root directory. "
+        "This is required for documentation serving at the root URL for this version."
+    )
     BUILD_OUTPUT_OLD_DIRECTORY_USED = gettext_noop(
         "Some files were detected in an unsupported output path, '_build/html'. "
         "Ensure your project is configured to use the output path "
         "'$READTHEDOCS_OUTPUT/html' instead."
+    )
+    NO_CONFIG_FILE_DEPRECATED = gettext_noop(
+        "The configuration file required to build documentation is missing from your project. "
+        "Add a configuration file to your project to make it build successfully. "
+        "Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html"
+    )
+    BUILD_IMAGE_CONFIG_KEY_DEPRECATED = gettext_noop(
+        'The configuration key "build.image" is deprecated. '
+        'Use "build.os" instead to continue building your project. '
+        "Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os"
+    )
+    BUILD_OS_REQUIRED = gettext_noop(
+        'The configuration key "build.os" is required to build your documentation. '
+        "Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os"
     )
 
 
@@ -131,3 +149,10 @@ class FileIsNotRegularFile(UnsupportedSymlinkFileError):
 
 class SymlinkOutsideBasePath(UnsupportedSymlinkFileError):
     pass
+
+
+class FileTooLarge(BuildUserError):
+    message = gettext_noop(
+        "A file from your build process is too large to be processed by Read the Docs. "
+        "Please ensure no files generated are larger than 1GB."
+    )

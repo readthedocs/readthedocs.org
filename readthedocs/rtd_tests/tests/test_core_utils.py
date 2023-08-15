@@ -3,16 +3,23 @@
 from unittest import mock
 
 import pytest
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import BUILD_STATE_BUILDING, LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.doc_builder.exceptions import BuildMaxConcurrencyError
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Project
+from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
+@override_settings(
+    RTD_DEFAULT_FEATURES=dict(
+        [RTDProductFeature(TYPE_CONCURRENT_BUILDS, value=4).to_item()]
+    ),
+)
 class CoreUtilTests(TestCase):
 
     def setUp(self):
@@ -53,6 +60,7 @@ class CoreUtilTests(TestCase):
             ),
             kwargs={
                 'build_commit': None,
+                "build_api_key": mock.ANY,
             },
             options=mock.ANY,
             immutable=True,
@@ -74,6 +82,7 @@ class CoreUtilTests(TestCase):
             ),
             kwargs={
                 'build_commit': None,
+                "build_api_key": mock.ANY,
             },
             options=mock.ANY,
             immutable=True,
@@ -160,6 +169,7 @@ class CoreUtilTests(TestCase):
             ),
             kwargs={
                 'build_commit': None,
+                "build_api_key": mock.ANY,
             },
             options=options,
             immutable=True,
@@ -168,11 +178,6 @@ class CoreUtilTests(TestCase):
     @pytest.mark.xfail(reason='Fails while we work out Docker time limits', strict=True)
     @mock.patch('readthedocs.projects.tasks.builds.update_docs_task')
     def test_trigger_max_concurrency_reached(self, update_docs):
-        get(
-            Feature,
-            feature_id=Feature.LIMIT_CONCURRENT_BUILDS,
-            projects=[self.project],
-        )
         max_concurrent_builds = 2
         for _ in range(max_concurrent_builds):
             get(

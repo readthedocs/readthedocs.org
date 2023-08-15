@@ -18,8 +18,12 @@ class UnresolverError(Exception):
     pass
 
 
-class InvalidXRTDSlugHeaderError(UnresolverError):
+class InvalidSchemeError(UnresolverError):
+    def __init__(self, scheme):
+        self.scheme = scheme
 
+
+class InvalidXRTDSlugHeaderError(UnresolverError):
     pass
 
 
@@ -187,6 +191,8 @@ class Unresolver:
          to end with ``/index.html``.
         """
         parsed_url = urlparse(url)
+        if parsed_url.scheme not in ["http", "https"]:
+            raise InvalidSchemeError(parsed_url.scheme)
         domain = self.get_domain_from_host(parsed_url.netloc)
         unresolved_domain = self.unresolve_domain(domain)
         return self._unresolve(
@@ -512,9 +518,9 @@ class Unresolver:
                     project=self._resolve_project_slug(project_slug, domain),
                     external_version_slug=version_slug,
                 )
-            except ValueError:
+            except ValueError as exc:
                 log.info("Invalid format of external versions domain.", domain=domain)
-                raise InvalidExternalDomainError(domain=domain)
+                raise InvalidExternalDomainError(domain=domain) from exc
 
         if public_domain in domain or external_domain in domain:
             # NOTE: This can catch some possibly valid domains (docs.readthedocs.io.com)
@@ -542,8 +548,8 @@ class Unresolver:
         """Get the project from the slug or raise an exception if not found."""
         try:
             return Project.objects.get(slug=slug)
-        except Project.DoesNotExist:
-            raise InvalidSubdomainError(domain=domain)
+        except Project.DoesNotExist as exc:
+            raise InvalidSubdomainError(domain=domain) from exc
 
     def unresolve_domain_from_request(self, request):
         """

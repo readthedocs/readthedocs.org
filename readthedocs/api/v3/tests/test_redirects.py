@@ -5,25 +5,24 @@ from readthedocs.redirects.models import Redirect
 
 
 class RedirectsEndpointTests(APIEndpointMixin):
-
     def test_unauthed_projects_redirects_list(self):
         response = self.client.get(
             reverse(
-                'projects-redirects-list',
+                "projects-redirects-list",
                 kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
+                    "parent_lookup_project__slug": self.project.slug,
                 },
             ),
         )
         self.assertEqual(response.status_code, 401)
 
     def test_projects_redirects_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(
             reverse(
-                'projects-redirects-list',
+                "projects-redirects-list",
                 kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
+                    "parent_lookup_project__slug": self.project.slug,
                 },
             ),
         )
@@ -32,29 +31,29 @@ class RedirectsEndpointTests(APIEndpointMixin):
         response_json = response.json()
         self.assertDictEqual(
             response_json,
-            self._get_response_dict('projects-redirects-list'),
+            self._get_response_dict("projects-redirects-list"),
         )
 
     def test_unauthed_projects_redirects_detail(self):
         response = self.client.get(
             reverse(
-                'projects-redirects-detail',
+                "projects-redirects-detail",
                 kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
-                    'redirect_pk': self.redirect.pk,
+                    "parent_lookup_project__slug": self.project.slug,
+                    "redirect_pk": self.redirect.pk,
                 },
             ),
         )
         self.assertEqual(response.status_code, 401)
 
     def test_projects_redirects_detail(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(
             reverse(
-                'projects-redirects-detail',
+                "projects-redirects-detail",
                 kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
-                    'redirect_pk': self.redirect.pk,
+                    "parent_lookup_project__slug": self.project.slug,
+                    "redirect_pk": self.redirect.pk,
                 },
             ),
         )
@@ -63,7 +62,7 @@ class RedirectsEndpointTests(APIEndpointMixin):
         response_json = response.json()
         self.assertDictEqual(
             response_json,
-            self._get_response_dict('projects-redirects-detail'),
+            self._get_response_dict("projects-redirects-detail"),
         )
 
     def test_unauthed_projects_redirects_list_post(self):
@@ -71,21 +70,21 @@ class RedirectsEndpointTests(APIEndpointMixin):
 
         response = self.client.post(
             reverse(
-                'projects-redirects-list',
+                "projects-redirects-list",
                 kwargs={
-                    'parent_lookup_project__slug': self.others_project.slug,
+                    "parent_lookup_project__slug": self.others_project.slug,
                 },
             ),
             data,
         )
         self.assertEqual(response.status_code, 401)
 
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.post(
             reverse(
-                'projects-redirects-list',
+                "projects-redirects-list",
                 kwargs={
-                    'parent_lookup_project__slug': self.others_project.slug,
+                    "parent_lookup_project__slug": self.others_project.slug,
                 },
             ),
             data,
@@ -94,17 +93,17 @@ class RedirectsEndpointTests(APIEndpointMixin):
 
     def test_projects_redirects_list_post(self):
         data = {
-            'from_url': '/page/',
-            'to_url': '/another/',
-            'type': 'page',
+            "from_url": "/page/",
+            "to_url": "/another/",
+            "type": "page",
         }
 
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.post(
             reverse(
-                'projects-redirects-list',
+                "projects-redirects-list",
                 kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
+                    "parent_lookup_project__slug": self.project.slug,
                 },
             ),
             data,
@@ -112,26 +111,26 @@ class RedirectsEndpointTests(APIEndpointMixin):
         self.assertEqual(response.status_code, 201)
 
         response_json = response.json()
-        response_json['created'] = '2019-04-29T10:00:00Z'
-        response_json['modified'] = '2019-04-29T12:00:00Z'
+        response_json["created"] = "2019-04-29T10:00:00Z"
+        response_json["modified"] = "2019-04-29T12:00:00Z"
         self.assertDictEqual(
             response_json,
-            self._get_response_dict('projects-redirects-list_POST'),
+            self._get_response_dict("projects-redirects-list_POST"),
         )
 
     def test_projects_redirects_type_prefix_list_post(self):
         self.assertEqual(Redirect.objects.count(), 1)
         data = {
-            'from_url': '/redirect-this/',
-            'type': 'prefix',
+            "from_url": "/redirect-this/",
+            "type": "prefix",
         }
 
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.post(
             reverse(
-                'projects-redirects-list',
+                "projects-redirects-list",
                 kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
+                    "parent_lookup_project__slug": self.project.slug,
                 },
             ),
             data,
@@ -140,22 +139,22 @@ class RedirectsEndpointTests(APIEndpointMixin):
         self.assertEqual(Redirect.objects.all().count(), 2)
 
         redirect = Redirect.objects.first()
-        self.assertEqual(redirect.redirect_type, 'prefix')
-        self.assertEqual(redirect.from_url, '/redirect-this/')
-        self.assertEqual(redirect.to_url, '')
+        self.assertEqual(redirect.redirect_type, "prefix")
+        self.assertEqual(redirect.from_url, "/redirect-this/")
+        self.assertEqual(redirect.to_url, "")
 
     def test_projects_redirects_type_sphinx_html_list_post(self):
         self.assertEqual(Redirect.objects.count(), 1)
         data = {
-            'type': 'sphinx_html',
+            "type": "sphinx_html",
         }
 
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.post(
             reverse(
-                'projects-redirects-list',
+                "projects-redirects-list",
                 kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
+                    "parent_lookup_project__slug": self.project.slug,
                 },
             ),
             data,
@@ -164,49 +163,54 @@ class RedirectsEndpointTests(APIEndpointMixin):
         self.assertEqual(Redirect.objects.all().count(), 2)
 
         redirect = Redirect.objects.first()
-        self.assertEqual(redirect.redirect_type, 'sphinx_html')
-        self.assertEqual(redirect.from_url, '')
-        self.assertEqual(redirect.to_url, '')
-
+        self.assertEqual(redirect.redirect_type, "sphinx_html")
+        self.assertEqual(redirect.from_url, "")
+        self.assertEqual(redirect.to_url, "")
 
     def test_projects_redirects_detail_put(self):
+        url = reverse(
+            "projects-redirects-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "redirect_pk": self.redirect.pk,
+            },
+        )
         data = {
-            'from_url': '/changed/',
-            'to_url': '/toanother/',
-            'type': 'page',
+            "from_url": "/changed/",
+            "to_url": "/toanother/",
+            "type": "page",
         }
 
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.put(
-            reverse(
-                'projects-redirects-detail',
-                kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
-                    'redirect_pk': self.redirect.pk,
-                },
-            ),
-            data,
-        )
+        self.client.logout()
+        response = self.client.put(url, data)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.put(url, data)
         self.assertEqual(response.status_code, 200)
 
         response_json = response.json()
-        response_json['modified'] = '2019-04-29T12:00:00Z'
+        response_json["modified"] = "2019-04-29T12:00:00Z"
         self.assertDictEqual(
             response_json,
-            self._get_response_dict('projects-redirects-detail_PUT'),
+            self._get_response_dict("projects-redirects-detail_PUT"),
         )
 
     def test_projects_redirects_detail_delete(self):
-        self.assertEqual(self.project.redirects.count(), 1)
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.delete(
-            reverse(
-                'projects-redirects-detail',
-                kwargs={
-                    'parent_lookup_project__slug': self.project.slug,
-                    'redirect_pk': self.redirect.pk,
-                },
-            ),
+        url = reverse(
+            "projects-redirects-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "redirect_pk": self.redirect.pk,
+            },
         )
+
+        self.client.logout()
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.assertEqual(self.project.redirects.count(), 1)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.delete(url)
         self.assertEqual(response.status_code, 204)
         self.assertEqual(self.project.redirects.count(), 0)

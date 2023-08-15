@@ -27,14 +27,14 @@ class RevokeInvitation(PrivateViewMixin, UserPassesTestMixin, DeleteView):
     pk_url_kwarg = "invitation_pk"
     http_method_names = ["post"]
 
-    def delete(self, request, *args, **kwargs):
+    def form_valid(self, form):
         invitation = self.get_object()
         invitation.create_audit_log(
             action=AuditLog.INVITATION_REVOKED,
-            request=request,
-            user=request.user,
+            request=self.request,
+            user=self.request.user,
         )
-        return super().delete(request, *args, **kwargs)
+        return super().form_valid(form)
 
     def test_func(self):
         invitation = self.get_object()
@@ -70,7 +70,6 @@ class RedeemInvitation(DetailView):
         context["target_type"] = invitation.object._meta.verbose_name
         return context
 
-    # pylint: disable=unused-argument
     def post(self, request, *args, **kwargs):
         """
         Accept or decline an invitation.

@@ -166,14 +166,17 @@ class SphinxBuilderTest(TestCase):
         self.assertEqual(versions, {'v1', 'v2'})
 
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
-    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.create_index')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
     @patch('readthedocs.builds.models.Version.get_conf_py_path')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_create_conf_py(
-            self, checkout_path, get_conf_py_path, _,
-            get_config_params, create_index, docs_dir,
+        self,
+        checkout_path,
+        get_conf_py_path,
+        _,
+        get_config_params,
+        docs_dir,
     ):
         """
         Test for a project without ``conf.py`` file.
@@ -189,7 +192,6 @@ class SphinxBuilderTest(TestCase):
         tmp_dir = tempfile.mkdtemp()
         checkout_path.return_value = tmp_dir
         docs_dir.return_value = tmp_dir
-        create_index.return_value = 'README.rst'
         get_config_params.return_value = {}
         get_conf_py_path.side_effect = ProjectConfigurationError
         python_env = Virtualenv(
@@ -224,14 +226,17 @@ class SphinxBuilderTest(TestCase):
             )
 
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
-    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.create_index')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
     @patch('readthedocs.builds.models.Version.get_conf_py_path')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_multiple_conf_py(
-            self, checkout_path, get_conf_py_path, _, get_config_params,
-            create_index, docs_dir,
+        self,
+        checkout_path,
+        get_conf_py_path,
+        _,
+        get_config_params,
+        docs_dir,
     ):
         """
         Test for a project with multiple ``conf.py`` files.
@@ -245,7 +250,6 @@ class SphinxBuilderTest(TestCase):
         tmp_docs_dir.join('test').mkdir().join('conf.py').write('')
         docs_dir.return_value = str(tmp_docs_dir)
         checkout_path.return_value = str(tmp_docs_dir)
-        create_index.return_value = 'README.rst'
         get_config_params.return_value = {}
         get_conf_py_path.side_effect = ProjectConfigurationError
         python_env = Virtualenv(
@@ -263,11 +267,6 @@ class SphinxBuilderTest(TestCase):
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
     def test_use_sphinx_builders(self, load_config):
-        feature = get(
-            Feature,
-            feature_id=Feature.USE_SPHINX_BUILDERS,
-        )
-
         config_data = {'version': 2, 'sphinx': {'configuration': 'docs/conf.py'}}
         load_config.side_effect = create_load(config_data)
         config = load_yaml_config(self.version)
@@ -277,27 +276,6 @@ class SphinxBuilderTest(TestCase):
             build_env=self.build_env,
             config=config,
         )
-        builder = HtmlBuilder(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-        self.assertEqual(builder.sphinx_builder, 'readthedocs')
-
-        builder = HtmlDirBuilder(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-        self.assertEqual(builder.sphinx_builder, 'readthedocsdirhtml')
-
-        builder = SingleHtmlBuilder(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-        self.assertEqual(builder.sphinx_builder, 'readthedocssinglehtml')
-
-        # Add the feature to use the regular builders
-        feature.projects.add(self.project)
-
         builder = HtmlBuilder(
             build_env=self.build_env,
             python_env=python_env,

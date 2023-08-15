@@ -6,7 +6,6 @@ import readthedocs.projects.validators
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("builds", "0049_automation_rule_copy"),
     ]

@@ -10,6 +10,7 @@ Read the Docs: documentation simplified
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
    /intro/import-guide
+   /config-file/index
    /examples
 
 .. toctree::
@@ -23,6 +24,7 @@ Read the Docs: documentation simplified
    /environment-variables
    /subprojects
    /localization
+   /explanation/advanced
    /explanation/methodology
 
 .. toctree::
@@ -45,7 +47,7 @@ Read the Docs: documentation simplified
    :caption: 📚 Reference
 
    /reference/features
-   /config-file/index
+   /config-file/v2
    /builds
    /build-customization
    /server-side-search/syntax
@@ -130,13 +132,11 @@ Get a high-level overview of our platform:
 💡 :doc:`/choosing-a-site`
   Learn about the differences between |org_brand| and |com_brand|.
 
+💡 :doc:`/explanation/advanced`
+  Get familiar with some of the more advanced topics of building and deploying documentation with Read the Docs.
+
 💡 :doc:`All explanation articles </explanation/index>`
   Browser all our explanation articles.
-
-.. TODO: This next item needs its article to be finished in a separate PR
-.. https://github.com/readthedocs/readthedocs.org/pull/10071
-.. TODO: 💡 Advanced topics: Deep-dive into Read the Docs
-..  Get familiar with some of the more advanced topics of building and deploying documentation with Read the Docs.
 
 
 How-to guides
@@ -172,7 +172,7 @@ Here are a few of the most important reference docs:
 📚 :doc:`/reference/features`
   Overview of all the main features of Read the Docs.
 
-📚 :doc:`/config-file/index`
+📚 :doc:`/config-file/v2`
   Information for our configuration file: ``.readthedocs.yaml``.
 
 📚 :doc:`/builds`

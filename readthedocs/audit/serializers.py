@@ -27,7 +27,6 @@ class OrganizationSerializer(serializers.ModelSerializer):
 
 
 class TeamSerializer(serializers.ModelSerializer):
-
     organization = OrganizationSerializer()
 
     class Meta:
@@ -36,7 +35,6 @@ class TeamSerializer(serializers.ModelSerializer):
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-
     organization = OrganizationSerializer()
 
     class Meta:
@@ -64,7 +62,6 @@ class InvitationSerializer(serializers.ModelSerializer):
             "from_user",
         ]
 
-    # pylint: disable=no-self-use
     def get_object(self, obj):
         # The type of obj depends on the invitation,
         # a different serializer is used for each type.

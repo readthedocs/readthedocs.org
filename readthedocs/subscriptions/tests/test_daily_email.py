@@ -14,10 +14,9 @@ from readthedocs.subscriptions.models import Subscription
 from readthedocs.subscriptions.tasks import daily_email
 
 
-@mock.patch('readthedocs.notifications.backends.send_email')
-@mock.patch('readthedocs.notifications.storages.FallbackUniqueStorage')
+@mock.patch("readthedocs.notifications.backends.send_email")
+@mock.patch("readthedocs.notifications.storages.FallbackUniqueStorage")
 class DailyEmailTests(TestCase):
-
     def test_trial_ending(self, mock_storage_class, mock_send_email):
         """Trial ending daily email."""
         now = timezone.now()
@@ -82,7 +81,7 @@ class DailyEmailTests(TestCase):
         """Subscription ended ``DISABLE_AFTER_DAYS`` days ago daily email."""
         sub1 = fixture.get(
             Subscription,
-            status='past_due',
+            status="past_due",
             end_date=timezone.now() - timedelta(days=30),
         )
         owner1 = fixture.get(
@@ -92,7 +91,7 @@ class DailyEmailTests(TestCase):
 
         sub2 = fixture.get(
             Subscription,
-            status='past_due',
+            status="past_due",
             end_date=timezone.now() - timedelta(days=35),
         )
         owner2 = fixture.get(
@@ -106,21 +105,25 @@ class DailyEmailTests(TestCase):
         daily_email()
 
         self.assertEqual(mock_storage.add.call_count, 1)
-        mock_storage.add.assert_has_calls([
-            mock.call(
-                message=mock.ANY,
-                extra_tags='',
-                level=31,
-                user=owner1.owner,
-            ),
-        ])
+        mock_storage.add.assert_has_calls(
+            [
+                mock.call(
+                    message=mock.ANY,
+                    extra_tags="",
+                    level=31,
+                    user=owner1.owner,
+                ),
+            ]
+        )
         self.assertEqual(mock_send_email.call_count, 1)
-        mock_send_email.assert_has_calls([
-            mock.call(
-                subject='Your Read the Docs organization will be disabled soon',
-                recipient=owner1.owner.email,
-                template=mock.ANY,
-                template_html=mock.ANY,
-                context=mock.ANY,
-            ),
-        ])
+        mock_send_email.assert_has_calls(
+            [
+                mock.call(
+                    subject="Your Read the Docs organization will be disabled soon",
+                    recipient=owner1.owner.email,
+                    template=mock.ANY,
+                    template_html=mock.ANY,
+                    context=mock.ANY,
+                ),
+            ]
+        )

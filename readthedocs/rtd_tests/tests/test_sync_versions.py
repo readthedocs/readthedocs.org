@@ -219,6 +219,94 @@ class TestSyncVersions(TestCase):
             Version.objects.filter(slug='external').exists(),
         )
 
+    def test_update_stable_version_type(self):
+        self.pip.update_stable_version()
+        stable_version = self.pip.get_stable_version()
+        self.assertEqual(stable_version.type, TAG)
+
+        branches_data = [
+            {
+                "identifier": "master",
+                "verbose_name": "master",
+            },
+            {
+                "identifier": "1.0",
+                "verbose_name": "1.0",
+            },
+            {
+                "identifier": "1.1",
+                "verbose_name": "1.1",
+            },
+            {
+                "identifier": "2.0",
+                "verbose_name": "2.0",
+            },
+        ]
+
+        # Deactivate all other versions, so we only have branches for consideration
+        # for the new stable version.
+        self.pip.versions.exclude(slug__in=[LATEST, STABLE]).update(active=False)
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=branches_data,
+            tags_data=[],
+        )
+
+        self.pip.update_stable_version()
+        stable_version = self.pip.get_stable_version()
+        self.assertEqual(stable_version.type, BRANCH)
+        self.assertEqual(stable_version.identifier, "2.0")
+        self.assertEqual(stable_version.verbose_name, "stable")
+
+        original_stable = self.pip.get_original_stable_version()
+        self.assertEqual(original_stable.type, BRANCH)
+        self.assertEqual(original_stable.slug, "2.0")
+        self.assertEqual(original_stable.identifier, "2.0")
+        self.assertEqual(original_stable.verbose_name, "2.0")
+
+    def test_update_latest_version_type(self):
+        latest_version = self.pip.versions.get(slug=LATEST)
+        self.assertEqual(latest_version.type, BRANCH)
+
+        branches_data = [
+            {
+                "identifier": "master",
+                "verbose_name": "master",
+            },
+        ]
+        tags_data = [
+            {
+                "identifier": "abc123",
+                "verbose_name": "latest",
+            }
+        ]
+
+        # Latest is created as machine=False, and as a tag.
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=branches_data,
+            tags_data=tags_data,
+        )
+
+        latest_version = self.pip.versions.get(slug=LATEST)
+        self.assertEqual(latest_version.type, TAG)
+        self.assertEqual(latest_version.identifier, "abc123")
+        self.assertEqual(latest_version.verbose_name, "latest")
+        self.assertEqual(latest_version.machine, False)
+
+        # Latest is back as machine created, and as a branch.
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=branches_data,
+            tags_data=[],
+        )
+
+        latest_version = self.pip.versions.get(slug=LATEST)
+        self.assertEqual(latest_version.type, BRANCH)
+        self.assertEqual(latest_version.identifier, "master")
+        self.assertEqual(latest_version.verbose_name, "latest")
+        self.assertEqual(latest_version.machine, True)
+
     def test_machine_attr_when_user_define_stable_tag_and_delete_it(self):
         """
         The user creates a tag named ``stable`` on an existing repo,

@@ -23,6 +23,14 @@ A development setup can be hosted by your laptop, in a VM, on a separate server 
    We do not recommend to follow this guide to deploy an instance of Read the Docs for production.
 
 
+Install external dependencies (Docker, Docker Compose, gVisor)
+--------------------------------------------------------------
+
+#. Install Docker by following `the official guide <https://docs.docker.com/get-docker/>`_.
+#. Install Docker Compose with `the official instructions <https://docs.docker.com/compose/install/>`_.
+#. Install and set up gVisor following :doc:`rtd-dev:guides/gvisor`.
+
+
 Set up your environment
 -----------------------
 
@@ -47,17 +55,18 @@ Set up your environment
       export GITHUB_USER="..."
 
    In order to make development changes on any of our private repositories,
-   such as ``ext`` or ``ext-theme``, you will also need to check these repositories out:
+   such as ``readthedocs-ext`` or ``ext-theme``, you will also need to check these repositories out:
 
    .. prompt:: bash
 
-      git clone --recurse-submodules https://github.com/readthedocs/ext/
+      git clone --recurse-submodules https://github.com/readthedocs/readthedocs-ext/
 
 #. Install the requirements from ``common`` submodule:
 
    .. prompt:: bash
 
       pip install -r common/dockerfiles/requirements.txt
+
 
 #. Build the Docker image for the servers:
 
@@ -74,7 +83,7 @@ Set up your environment
 
    .. prompt:: bash
 
-      inv docker.pull --only-required
+      inv docker.pull
 
 #. Start all the containers:
 
@@ -94,6 +103,12 @@ Check that everything works
 
 #. Go to the "Read the Docs" project, under section :guilabel:`Build a version`, click on the :guilabel:`Build version` button selecting "latest",
    and wait until it finishes (this can take several minutes).
+
+.. warning::
+
+   Read the Docs will compile the Python/Node.js/Rust/Go version on-the-fly each time when building the documentation.
+   To speed things up, you can pre-compile and cache all these versions by using ``inv docker.compilebuildtool`` command.
+   *We strongly recommend to pre-compile these versions if you want to build documentation on your development instance.*
 
 #. Click on the "View docs" button to browse the documentation, and verify that it shows the Read the Docs documentation page.
 
@@ -167,6 +182,10 @@ save some work while typing docker compose commands. This section explains these
 
 ``inv docker.buildassets``
     Build all the assets and "deploy" them to the storage.
+
+``inv docker.compilebuildtool``
+    Pre-compile and cache tools that can be specified in ``build.tools`` to speed up builds.
+    It requires ``inv docker.up`` running in another terminal to be able to upload the pre-compiled version to the cache.
 
 Adding a new Python dependency
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -53,6 +53,7 @@ from readthedocs.doc_builder.exceptions import (
     ProjectBuildsSkippedError,
     YAMLParseError,
 )
+from readthedocs.projects.models import Feature
 from readthedocs.storage import build_media_storage
 from readthedocs.telemetry.collectors import BuildDataCollector
 from readthedocs.telemetry.tasks import save_build_data
@@ -63,11 +64,16 @@ from ..exceptions import (
     RepositoryError,
     SyncRepositoryLocked,
 )
-from ..models import APIProject, Feature, WebHookEvent
+from ..models import APIProject, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
 from .search import fileify
-from .utils import BuildRequest, clean_build, send_external_build_status
+from .utils import (
+    BuildRequest,
+    clean_build,
+    send_external_build_status,
+    set_builder_scale_in_protection,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -107,7 +113,6 @@ class TaskData:
     api_client: API = None
 
     start_time: timezone.datetime = None
-    # pylint: disable=unsubscriptable-object
     environment_class: type[DockerBuildEnvironment] | type[LocalBuildEnvironment] = None
     build_director: BuildDirector = None
     config: BuildConfigV1 | BuildConfigV2 = None
@@ -157,7 +162,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
         # argument
         self.data.version_pk = args[0]
 
-        self.data.api_client = setup_api()
+        self.data.api_client = setup_api(kwargs["build_api_key"])
 
         # load all data from the API required for the build
         self.data.version = self.get_version(self.data.version_pk)
@@ -209,6 +214,9 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
             environment={
                 "GIT_TERMINAL_PROMPT": "0",
             },
+            # Pass the api_client so that all environments have it.
+            # This is needed for ``readthedocs-corporate``.
+            api_client=self.data.api_client,
             # Do not try to save commands on the db because they are just for
             # sync repository
             record=False,
@@ -226,12 +234,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
                 verbose_name=self.data.version.verbose_name,
                 version_type=self.data.version.type,
             )
-            if any(
-                [
-                    not vcs_repository.supports_lsremote,
-                    not self.data.project.has_feature(Feature.VCS_REMOTE_LISTING),
-                ]
-            ):
+            if not vcs_repository.supports_lsremote:
                 log.info("Syncing repository via full clone.")
                 vcs_repository.update()
             else:
@@ -244,7 +247,7 @@ class SyncRepositoryTask(SyncRepositoryMixin, Task):
     base=SyncRepositoryTask,
     bind=True,
 )
-def sync_repository_task(self, version_id, **kwargs):
+def sync_repository_task(self, version_id, *, build_api_key, **kwargs):
     # In case we pass more arguments than expected, log them and ignore them,
     # so we don't break builds while we deploy a change that requires an extra argument.
     if kwargs:
@@ -398,7 +401,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # anymore and we are not using it
             self.data.environment_class = LocalBuildEnvironment
 
-        self.data.api_client = setup_api()
+        self.data.api_client = setup_api(kwargs["build_api_key"])
 
         self.data.build = self.get_build(self.data.build_pk)
         self.data.version = self.get_version(self.data.version_pk)
@@ -420,6 +423,16 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             project_slug=self.data.project.slug,
             version_slug=self.data.version.slug,
         )
+
+        # Enable scale-in protection on this instance
+        #
+        # TODO: move this to the beginning of this method
+        # once we don't need to rely on `self.data.project`.
+        if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
+            set_builder_scale_in_protection.delay(
+                instance=socket.gethostname(),
+                protected_from_scale_in=True,
+            )
 
         # Clean the build paths completely to avoid conflicts with previous run
         # (e.g. cleanup task failed for some reason)
@@ -546,6 +559,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
          - it exists
          - it is a directory
          - does not contains more than 1 files (only PDF, HTMLZip, ePUB)
+         - it contains an "index.html" file at its root directory (only HTML)
 
         TODO: remove the limitation of only 1 file.
         Add support for multiple PDF files in the output directory and
@@ -557,6 +571,17 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version=self.data.version.slug,
                 type_=artifact_type,
             )
+
+            if artifact_type == "html":
+                index_html_filepath = os.path.join(artifact_directory, "index.html")
+                if not os.path.exists(index_html_filepath):
+                    log.info(
+                        "Failing the build. "
+                        "HTML output does not contain an 'index.html' at its root directory.",
+                        index_html=index_html_filepath,
+                    )
+                    raise BuildUserError(BuildUserError.BUILD_OUTPUT_HTML_NO_INDEX_FILE)
+
             if not os.path.exists(artifact_directory):
                 # There is no output directory.
                 # Skip this format.
@@ -702,6 +727,18 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
         if self.data.version:
             clean_build(self.data.version)
+
+        try:
+            self.data.api_client.revoke.post()
+        except Exception:
+            log.exception("Failed to revoke build api key.", exc_info=True)
+
+        # Disable scale-in protection on this instance
+        if self.data.project.has_feature(Feature.SCALE_IN_PROTECTION):
+            set_builder_scale_in_protection.delay(
+                instance=socket.gethostname(),
+                protected_from_scale_in=False,
+            )
 
         log.info(
             'Build finished.',
@@ -882,11 +919,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version_type=self.data.version.type,
             )
             try:
-                if self.data.project.has_feature(Feature.USE_RCLONE):
-                    build_media_storage.rclone_sync_directory(from_path, to_path)
-                else:
-                    build_media_storage.sync_directory(from_path, to_path)
-            except Exception:
+                build_media_storage.rclone_sync_directory(from_path, to_path)
+            except Exception as exc:
                 # NOTE: the exceptions reported so far are:
                 #  - botocore.exceptions:HTTPClientError
                 #  - botocore.exceptions:ClientError
@@ -900,7 +934,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # Re-raise the exception to fail the build and handle it
                 # automatically at `on_failure`.
                 # It will clearly communicate the error to the user.
-                raise BuildAppError("Error uploading files to the storage.")
+                raise BuildAppError("Error uploading files to the storage.") from exc
 
         # Delete formats
         for media_type in types_to_delete:
@@ -912,7 +946,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             )
             try:
                 build_media_storage.delete_directory(media_path)
-            except Exception:
+            except Exception as exc:
                 # NOTE: I didn't find any log line for this case yet
                 log.exception(
                     "Error deleting files from storage",
@@ -922,7 +956,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 # Re-raise the exception to fail the build and handle it
                 # automatically at `on_failure`.
                 # It will clearly communicate the error to the user.
-                raise BuildAppError("Error deleting files from storage.")
+                raise BuildAppError("Error deleting files from storage.") from exc
 
         log.info(
             "Store build artifacts finished.",
@@ -946,7 +980,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     bind=True,
     ignore_result=True,
 )
-def update_docs_task(self, version_id, build_id, build_commit=None, **kwargs):
+def update_docs_task(
+    self, version_id, build_id, *, build_api_key, build_commit=None, **kwargs
+):
     # In case we pass more arguments than expected, log them and ignore them,
     # so we don't break builds while we deploy a change that requires an extra argument.
     if kwargs:

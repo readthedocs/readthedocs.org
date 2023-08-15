@@ -11,9 +11,7 @@ from readthedocs.oauth.models import (
 from .mixins import APIEndpointMixin
 
 
-
 class RemoteOrganizationEndpointTests(APIEndpointMixin):
-
     def setUp(self):
         super().setUp()
 
@@ -32,35 +30,36 @@ class RemoteOrganizationEndpointTests(APIEndpointMixin):
             RemoteOrganizationRelation,
             remote_organization=self.remote_organization,
             user=self.me,
-            account=social_account
+            account=social_account,
         )
 
     def test_remote_organization_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse('remoteorganizations-list')
-        )
+        url = reverse("remoteorganizations-list")
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
         self.assertDictEqual(
             response.json(),
-            self._get_response_dict('remoteorganizations-list'),
+            self._get_response_dict("remoteorganizations-list"),
         )
 
     def test_remote_organization_list_name_filter(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(
-            reverse('remoteorganizations-list'),
-            {
-                'name': 'Read'
-            }
+            reverse("remoteorganizations-list"), {"name": "Read"}
         )
         self.assertEqual(response.status_code, 200)
 
         response_data = response.json()
 
-        self.assertEqual(len(response_data['results']), 1)
+        self.assertEqual(len(response_data["results"]), 1)
         self.assertDictEqual(
             response_data,
-            self._get_response_dict('remoteorganizations-list'),
+            self._get_response_dict("remoteorganizations-list"),
         )

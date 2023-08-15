@@ -56,7 +56,12 @@ class TestLocalBuildEnvironment(TestCase):
         )
 
         with build_env:
-            build_env.run('false', record_as_success=True)
+            build_env.run(
+                "false",
+                record_as_success=True,
+                # Use a directory that exists so the command doesn't fail.
+                cwd="/tmp",
+            )
         self.assertEqual(len(build_env.commands), 1)
 
         command = build_env.commands[0]
@@ -239,7 +244,16 @@ class TestBuildCommand(TestCase):
 
     def test_output(self):
         """Test output command."""
-        cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR'])
+        project = get(Project)
+        api_client = mock.MagicMock()
+        build_env = LocalBuildEnvironment(
+            project=project,
+            build={
+                "id": 1,
+            },
+            api_client=api_client,
+        )
+        cmd = BuildCommand(["/bin/bash", "-c", "echo -n FOOBAR"], build_env=build_env)
 
         # Mock BuildCommand.sanitized_output just to count the amount of calls,
         # but use the original method to behaves as real
@@ -247,10 +261,21 @@ class TestBuildCommand(TestCase):
         with patch('readthedocs.doc_builder.environments.BuildCommand.sanitize_output') as sanitize_output:  # noqa
             sanitize_output.side_effect = original_sanitized_output
             cmd.run()
-            self.assertEqual(cmd.output, 'FOOBAR')
+            cmd.save(api_client=api_client)
+            self.assertEqual(cmd.output, "FOOBAR")
+            api_client.command.post.assert_called_once_with(
+                {
+                    "build": mock.ANY,
+                    "command": "/bin/bash -c echo -n FOOBAR",
+                    "output": "FOOBAR",
+                    "exit_code": 0,
+                    "start_time": mock.ANY,
+                    "end_time": mock.ANY,
+                }
+            )
 
             # Check that we sanitize the output
-            self.assertEqual(sanitize_output.call_count, 2)
+            self.assertEqual(sanitize_output.call_count, 1)
 
     def test_error_output(self):
         """Test error output from command."""
@@ -262,9 +287,9 @@ class TestBuildCommand(TestCase):
     def test_sanitize_output(self):
         cmd = BuildCommand(['/bin/bash', '-c', 'echo'])
         checks = (
-            (b'Hola', 'Hola'),
-            (b'H\x00i', 'Hi'),
-            (b'H\x00i \x00\x00\x00You!\x00', 'Hi You!'),
+            ("Hola", "Hola"),
+            ("H\x00i", "Hi"),
+            ("H\x00i \x00\x00\x00You!\x00", "Hi You!"),
         )
         for output, sanitized in checks:
             self.assertEqual(cmd.sanitize_output(output), sanitized)

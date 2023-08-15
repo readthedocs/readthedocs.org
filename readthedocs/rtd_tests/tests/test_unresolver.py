@@ -10,6 +10,7 @@ from readthedocs.core.unresolver import (
     InvalidExternalDomainError,
     InvalidExternalVersionError,
     InvalidPathForVersionedProjectError,
+    InvalidSchemeError,
     SuspiciousHostnameError,
     TranslationNotFoundError,
     TranslationWithoutVersionError,
@@ -21,12 +22,11 @@ from readthedocs.rtd_tests.tests.test_resolver import ResolverBase
 
 
 @override_settings(
-    PUBLIC_DOMAIN='readthedocs.io',
-    RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
+    PUBLIC_DOMAIN="readthedocs.io",
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
 )
 @pytest.mark.proxito
 class UnResolverTests(ResolverBase):
-
     def test_unresolver(self):
         parts = unresolve(
             "https://pip.readthedocs.io/en/latest/foo.html?search=api#fragment"
@@ -200,7 +200,7 @@ class UnResolverTests(ResolverBase):
     def test_unresolver_custom_domain(self):
         self.domain = fixture.get(
             Domain,
-            domain='docs.foobar.com',
+            domain="docs.foobar.com",
             project=self.pip,
             canonical=True,
         )
@@ -365,3 +365,14 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, external_version)
         self.assertEqual(parts.filename, "/index.html")
+
+    def test_unresolve_invalid_scheme(self):
+        invalid_urls = [
+            "fttp://pip.readthedocs.io/en/latest/",
+            "fttps://pip.readthedocs.io/en/latest/",
+            "ssh://pip.readthedocs.io/en/latest/",
+            "://pip.readthedocs.io/en/latest/",
+        ]
+        for url in invalid_urls:
+            with pytest.raises(InvalidSchemeError):
+                unresolve(url)

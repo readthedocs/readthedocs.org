@@ -27,5 +27,6 @@ or taking the open source Read the Docs codebase for your own custom installatio
    i18n
    server-side-search
    search-integration
+   subscriptions
    settings
    tests

@@ -12,7 +12,6 @@ from readthedocs.projects.models import Project
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class OrganizationTestCase(TestCase):
-
     def setUp(self):
         self.owner = fixture.get(User)
         self.user = fixture.get(User)
@@ -20,24 +19,23 @@ class OrganizationTestCase(TestCase):
 
         self.organization = fixture.get(
             Organization,
-            name='Mozilla',
-            slug='mozilla',
+            name="Mozilla",
+            slug="mozilla",
             owners=[self.owner],
             projects=[self.project],
-            stripe_id='1234',
+            stripe_id="1234",
         )
         self.team = fixture.get(
             Team,
-            name='foobar',
-            slug='foobar',
-            access='admin',
+            name="foobar",
+            slug="foobar",
+            access="admin",
             organization=self.organization,
         )
         self.client.force_login(self.owner)
 
 
 class OrganizationTeamMemberFormTests(OrganizationTestCase):
-
     def test_add_team_member_by_name(self):
         url = reverse(
             "organization_team_member_add",
@@ -145,29 +143,30 @@ class OrganizationTeamMemberFormTests(OrganizationTestCase):
 
 
 class OrganizationSignupTest(OrganizationTestCase):
-
     def test_create_organization_with_empy_slug(self):
         data = {
-            'name': '往事',
-            'email': 'test@example.org',
+            "name": "往事",
+            "email": "test@example.org",
         }
         form = forms.OrganizationSignupForm(data, user=self.user)
         self.assertFalse(form.is_valid())
-        self.assertEqual('Invalid organization name: no slug generated', form.errors['name'][0])
+        self.assertEqual(
+            "Invalid organization name: no slug generated", form.errors["name"][0]
+        )
 
     def test_create_organization_with_big_name(self):
         data = {
-            'name': 'a' * 33,
-            'email': 'test@example.org',
+            "name": "a" * 33,
+            "email": "test@example.org",
         }
         form = forms.OrganizationSignupForm(data, user=self.user)
         self.assertFalse(form.is_valid())
-        self.assertIn('at most 32 characters', form.errors['name'][0])
+        self.assertIn("at most 32 characters", form.errors["name"][0])
 
     def test_create_organization_with_existent_slug(self):
         data = {
-            'name': 'mozilla',
-            'email': 'test@example.org',
+            "name": "mozilla",
+            "email": "test@example.org",
         }
         form = forms.OrganizationSignupForm(data, user=self.user)
         # there is already an organization with the slug ``mozilla`` (lowercase)
@@ -175,8 +174,8 @@ class OrganizationSignupTest(OrganizationTestCase):
 
     def test_create_organization_with_nonexistent_slug(self):
         data = {
-            'name': 'My New Organization',
-            'email': 'test@example.org',
+            "name": "My New Organization",
+            "email": "test@example.org",
         }
         form = forms.OrganizationSignupForm(data, user=self.user)
         self.assertTrue(form.is_valid())

@@ -12,7 +12,7 @@ from celery.schedules import crontab
 from readthedocs.core.logs import shared_processors
 from corsheaders.defaults import default_headers
 from readthedocs.core.settings import Settings
-
+from readthedocs.builds import constants_docker
 
 try:
     import readthedocsext  # noqa
@@ -86,8 +86,6 @@ class CommunityBaseSettings(Settings):
 
     # slumber settings
     SLUMBER_API_HOST = 'https://readthedocs.org'
-    SLUMBER_USERNAME = None
-    SLUMBER_PASSWORD = None
 
     # Email
     DEFAULT_FROM_EMAIL = 'no-reply@readthedocs.org'
@@ -117,7 +115,6 @@ class CommunityBaseSettings(Settings):
 
     # Security & X-Frame-Options Middleware
     # https://docs.djangoproject.com/en/1.11/ref/middleware/#django.middleware.security.SecurityMiddleware
-    SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
     X_FRAME_OPTIONS = 'DENY'
@@ -164,18 +161,24 @@ class CommunityBaseSettings(Settings):
         # Depending on the feature type, the numeric value represents a
         # number of days or limit of the feature.
         from readthedocs.subscriptions import constants
-        return {
-            constants.TYPE_CNAME: 1,
-            constants.TYPE_EMBED_API: 1,
+        from readthedocs.subscriptions.products import RTDProductFeature
+        return dict((
+            RTDProductFeature(type=constants.TYPE_CNAME).to_item(),
+            RTDProductFeature(type=constants.TYPE_EMBED_API).to_item(),
             # Retention days for search analytics.
-            constants.TYPE_SEARCH_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            RTDProductFeature(type=constants.TYPE_SEARCH_ANALYTICS, value=self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS).to_item(),
             # Retention days for page view analytics.
-            constants.TYPE_PAGEVIEW_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            RTDProductFeature(type=constants.TYPE_PAGEVIEW_ANALYTICS, value=self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS).to_item(),
             # Retention days for audit logs.
-            constants.TYPE_AUDIT_LOGS: self.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS,
+            RTDProductFeature(type=constants.TYPE_AUDIT_LOGS, value=self.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS).to_item(),
             # Max number of concurrent builds.
-            constants.TYPE_CONCURRENT_BUILDS: self.RTD_MAX_CONCURRENT_BUILDS,
-        }
+            RTDProductFeature(type=constants.TYPE_CONCURRENT_BUILDS, value=self.RTD_MAX_CONCURRENT_BUILDS).to_item(),
+        ))
+
+    # A dictionary of Stripe products mapped to a RTDProduct object.
+    # In .org we don't have subscriptions/products, default features are
+    # defined in RTD_DEFAULT_FEATURES.
+    RTD_PRODUCTS = {}
 
     # Database and API hitting settings
     DONT_HIT_DB = True
@@ -219,6 +222,7 @@ class CommunityBaseSettings(Settings):
             'django_gravatar',
             'rest_framework',
             'rest_framework.authtoken',
+            "rest_framework_api_key",
             'corsheaders',
             'annoying',
             'django_extensions',
@@ -249,7 +253,6 @@ class CommunityBaseSettings(Settings):
             'readthedocs.notifications',
             'readthedocs.integrations',
             'readthedocs.analytics',
-            'readthedocs.sphinx_domains',
             'readthedocs.search',
             'readthedocs.embed',
             'readthedocs.telemetry',
@@ -511,9 +514,11 @@ class CommunityBaseSettings(Settings):
                 'delete': True,
             },
         },
-        'every-day-delete-inactive-external-versions': {
+        'every-three-hours-delete-inactive-external-versions': {
             'task': 'readthedocs.builds.tasks.delete_closed_external_versions',
-            'schedule': crontab(minute=0, hour=1),
+            # Increase the frequency because we have 255k closed versions and they keep growing.
+            # It's better to increase this frequency than the `limit=` of the task.
+            'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
         'every-day-resync-remote-repositories': {
@@ -536,9 +541,12 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(day_of_week='wednesday', hour=11, minute=15),
             'options': {'queue': 'web'},
         },
+        'weekly-build-image-notification': {
+            'task': 'readthedocs.projects.tasks.utils.deprecated_build_image_notification',
+            'schedule': crontab(day_of_week='wednesday', hour=9, minute=15),
+            'options': {'queue': 'web'},
+        },
     }
-
-    MULTIPLE_BUILD_SERVERS = [CELERY_DEFAULT_QUEUE]
 
     # Sentry
     SENTRY_CELERY_IGNORE_EXPECTED = True
@@ -546,8 +554,6 @@ class CommunityBaseSettings(Settings):
     # Docker
     DOCKER_ENABLE = False
     DOCKER_SOCKET = 'unix:///var/run/docker.sock'
-    # This settings has been deprecated in favor of DOCKER_IMAGE_SETTINGS
-    DOCKER_BUILD_IMAGES = None
 
     # User used to create the container.
     # In production we use the same user than the one defined by the
@@ -561,10 +567,9 @@ class CommunityBaseSettings(Settings):
 
     RTD_DOCKER_COMPOSE = False
 
-    DOCKER_DEFAULT_IMAGE = 'readthedocs/build'
     DOCKER_VERSION = 'auto'
     DOCKER_DEFAULT_VERSION = 'latest'
-    DOCKER_IMAGE = '{}:{}'.format(DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
+    DOCKER_IMAGE = '{}:{}'.format(constants_docker.DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
     DOCKER_IMAGE_SETTINGS = {
         # A large number of users still have this pinned in their config file.
         # We must have documented it at some point.
@@ -588,7 +593,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:5.0': {
             'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7'],
                 'default_version': {
                     '2': '2.7',
                     '3': '3.7',
@@ -597,7 +602,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:6.0': {
             'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8'],
                 'default_version': {
                     '2': '2.7',
                     '3': '3.7',
@@ -606,7 +611,7 @@ class CommunityBaseSettings(Settings):
         },
         'readthedocs/build:7.0': {
             'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10', 'pypy3.5'],
+                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10'],
                 'default_version': {
                     '2': '2.7',
                     '3': '3.7',
@@ -623,60 +628,10 @@ class CommunityBaseSettings(Settings):
     })
     # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
-
-    # Adding a new tool/version to this setting requires:
-    #
-    # - a mapping between the expected version in the config file, to the full
-    # version installed via asdf (found via ``asdf list all <tool>``)
-    #
-    # - running the script ``./scripts/compile_version_upload.sh`` in
-    # development and production environments to compile and cache the new
-    # tool/version
-    #
-    # Note that when updating this options, you should also update the file:
-    # readthedocs/rtd_tests/fixtures/spec/v2/schema.json
-    RTD_DOCKER_BUILD_SETTINGS = {
-        # Mapping of build.os options to docker image.
-        'os': {
-            'ubuntu-20.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-20.04',
-            'ubuntu-22.04': f'{DOCKER_DEFAULT_IMAGE}:ubuntu-22.04',
-        },
-        # Mapping of build.tools options to specific versions.
-        'tools': {
-            'python': {
-                '2.7': '2.7.18',
-                '3.6': '3.6.15',
-                '3.7': '3.7.15',
-                '3.8': '3.8.15',
-                '3.9': '3.9.15',
-                '3.10': '3.10.8',
-                '3.11': '3.11.0',
-                'pypy3.7': 'pypy3.7-7.3.9',
-                'pypy3.8': 'pypy3.8-7.3.9',
-                'pypy3.9': 'pypy3.9-7.3.9',
-                'miniconda3-4.7': 'miniconda3-4.7.12',
-                'mambaforge-4.10': 'mambaforge-4.10.3-10',
-            },
-            'nodejs': {
-                '14': '14.20.1',
-                '16': '16.18.0',
-                '18': '18.11.0',
-                '19': '19.0.0',
-            },
-            'rust': {
-                '1.55': '1.55.0',
-                '1.61': '1.61.0',
-                '1.64': '1.64.0',
-            },
-            'golang': {
-                '1.17': '1.17.13',
-                '1.18': '1.18.7',
-                '1.19': '1.19.2',
-            },
-        },
-    }
-    # Always point to the latest stable release.
-    RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3'] = RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.11']
+    RTD_DOCKER_BUILD_SETTINGS = constants_docker.RTD_DOCKER_BUILD_SETTINGS
+    # This is used for the image used to clone the users repo,
+    # since we can't read their config file image choice before cloning
+    RTD_DOCKER_CLONE_IMAGE = RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-22.04"]
 
     def _get_docker_memory_limit(self):
         try:
@@ -919,19 +874,6 @@ class CommunityBaseSettings(Settings):
     GRAVATAR_DEFAULT_IMAGE = 'https://assets.readthedocs.org/static/images/silhouette.png'  # NOQA
     OAUTH_AVATAR_USER_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
     OAUTH_AVATAR_ORG_DEFAULT_URL = GRAVATAR_DEFAULT_IMAGE
-    RESTRUCTUREDTEXT_FILTER_SETTINGS = {
-        'cloak_email_addresses': True,
-        'file_insertion_enabled': False,
-        'raw_enabled': False,
-        'strip_comments': True,
-        'doctitle_xform': True,
-        'sectsubtitle_xform': True,
-        'initial_header_level': 2,
-        'report_level': 5,
-        'syntax_highlight': 'none',
-        'math_output': 'latex',
-        'field_name_limit': 50,
-    }
     REST_FRAMEWORK = {
         'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
         'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',  # NOQA

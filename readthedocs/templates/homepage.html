@@ -116,24 +116,6 @@
     {% include "core/widesearchbar.html" with form_action=search_form_action %}
   </section>
 
-  {% get_current_language as language %}
-  {% cache 600 homepage_featured_list language %}
-  {% if featured_list %}
-    <!-- BEGIN projects list -->
-    <section>
-      <h3>{% trans "Featured Projects" %}</h3>
-      <div class="module-list">
-        <div class="module-list-wrapper">
-          <ul style="margin-bottom: 0">
-            {% include "core/project_list_featured.html" %}
-          </ul>
-        </div>
-      </div>
-    </section>
-    <!-- END projects list -->
-  {% endif %}
-  {% endcache %}
-
   <section>
     <h2>{% trans 'About Read the Docs' %}</h2>
 

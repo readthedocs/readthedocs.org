@@ -8,7 +8,7 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.subscriptions.constants import TYPE_CNAME
-from readthedocs.subscriptions.models import PlanFeature
+from readthedocs.subscriptions.products import get_feature
 
 log = structlog.get_logger(__name__)
 
@@ -99,8 +99,13 @@ class ResolverBase:
 
         # TODO: remove this when all projects have migrated to path prefixes.
         # Allow users to override their own URLConf
-        # This logic could be cleaned up with a standard set of variable replacements
-        if urlconf:
+        # If a custom prefix is given, we don't use the custom URLConf,
+        # since they are not compatible with each other.
+        # We also don't check if the project has the new proxito implementation
+        # enabled, this is so we can start generating links with the new
+        # custom prefixes without starting to serve docs with it (this helps to ease
+        # the migration from urlconf to custom prefixes).
+        if urlconf and not custom_prefix:
             path = urlconf
             path = path.replace(
                 "$version",
@@ -411,7 +416,7 @@ class ResolverBase:
 
     def _use_cname(self, project):
         """Test if to allow direct serving for project on CNAME."""
-        return PlanFeature.objects.has_feature(project, type=TYPE_CNAME)
+        return bool(get_feature(project, feature_type=TYPE_CNAME))
 
 
 class Resolver(SettingsOverrideObject):

@@ -10,9 +10,11 @@ It "directs" all of the high-level build jobs:
 import os
 import tarfile
 
+import pytz
 import structlog
 import yaml
 from django.conf import settings
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import EXTERNAL
@@ -23,7 +25,6 @@ from readthedocs.doc_builder.loader import get_builder_class
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.models import Feature
 from readthedocs.projects.signals import after_build, before_build, before_vcs
 from readthedocs.storage import build_tools_storage
 
@@ -94,6 +95,8 @@ class BuildDirector:
             environment=self.vcs_environment,
             verbose_name=self.data.version.verbose_name,
             version_type=self.data.version.type,
+            version_identifier=self.data.version.identifier,
+            version_machine=self.data.version.machine,
         )
 
         # We can't do too much on ``pre_checkout`` because we haven't
@@ -106,6 +109,21 @@ class BuildDirector:
         #
         # self.run_build_job("pre_checkout")
         self.checkout()
+
+        # Output the path for the config file used.
+        # This works as confirmation for us & the user about which file is used,
+        # as well as the fact that *any* config file is used.
+        if self.data.config.source_file:
+            cwd = self.data.project.checkout_path(self.data.version.slug)
+            command = self.vcs_environment.run(
+                "cat",
+                # Show user the relative path to the config file
+                # TODO: Have our standard path replacement code catch this.
+                # https://github.com/readthedocs/readthedocs.org/pull/10413#discussion_r1230765843
+                self.data.config.source_file.replace(cwd + "/", ""),
+                cwd=cwd,
+            )
+
         self.run_build_job("post_checkout")
 
         commit = self.data.build_commit or self.vcs_repository.commit
@@ -118,21 +136,17 @@ class BuildDirector:
             version=self.data.version,
             build=self.data.build,
             environment=self.get_vcs_env_vars(),
-            # Force the ``container_image`` to use one that has the latest
-            # ca-certificate package which is compatible with Lets Encrypt
-            container_image=settings.RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-20.04"],
+            container_image=settings.RTD_DOCKER_CLONE_IMAGE,
             api_client=self.data.api_client,
         )
 
     def create_build_environment(self):
-        use_gvisor = self.data.config.using_build_tools and self.data.config.build.jobs
         self.build_environment = self.data.environment_class(
             project=self.data.project,
             version=self.data.version,
             config=self.data.config,
             build=self.data.build,
             environment=self.get_build_env_vars(),
-            use_gvisor=use_gvisor,
             api_client=self.data.api_client,
         )
 
@@ -180,10 +194,6 @@ class BuildDirector:
         self.install()
         self.run_build_job("post_install")
 
-        # TODO: remove this and document how to do it on `build.jobs.post_install`
-        if self.data.project.has_feature(Feature.LIST_PACKAGES_INSTALLED_ENV):
-            self.language_environment.list_packages_installed()
-
     def build(self):
         """
         Build all the formats specified by the user.
@@ -213,7 +223,7 @@ class BuildDirector:
     def checkout(self):
         """Checkout Git repo and load build config file."""
 
-        log.info("Cloning repository.")
+        log.info("Cloning and fetching.")
         self.vcs_repository.update()
 
         identifier = self.data.build_commit or self.data.version.identifier
@@ -239,6 +249,44 @@ class BuildDirector:
         )
         self.data.build["config"] = self.data.config.as_dict()
         self.data.build["readthedocs_yaml_path"] = custom_config_file
+
+        now = timezone.now()
+        pdt = pytz.timezone("America/Los_Angeles")
+
+        # fmt: off
+        # These browndates matches https://blog.readthedocs.com/use-build-os-config/
+        browndates = any([
+            timezone.datetime(2023, 7, 14, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 7, 14, 12, 0, 0, tzinfo=pdt),  # First, 12hs
+            timezone.datetime(2023, 8, 14, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 8, 15, 0, 0, 0, tzinfo=pdt),  # Second, 24hs
+            timezone.datetime(2023, 9, 4, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 9, 6, 0, 0, 0, tzinfo=pdt),  # Third, 24hs
+            timezone.datetime(2023, 9, 25, 0, 0, 0, tzinfo=pdt) < now,  # Fully removal
+        ])
+        # fmt: on
+
+        # Raise a build error if the project is not using a config file or using v1
+        if browndates and self.data.config.version not in ("2", 2):
+            raise BuildUserError(BuildUserError.NO_CONFIG_FILE_DEPRECATED)
+
+        # Raise a build error if the project is using "build.image" on their config file
+
+        # fmt: off
+        # These browndates matches https://blog.readthedocs.com/use-build-os-config/
+        browndates = any([
+            timezone.datetime(2023, 8, 28, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 8, 28, 12, 0, 0, tzinfo=pdt),  # First, 12hs
+            timezone.datetime(2023, 9, 18, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 9, 19, 0, 0, 0, tzinfo=pdt),  # Second, 24hs
+            timezone.datetime(2023, 10, 2, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 10, 4, 0, 0, 0, tzinfo=pdt),  # Third, 48hs
+            timezone.datetime(2023, 10, 16, 0, 0, 0, tzinfo=pdt) < now,  # Fully removal
+        ])
+        # fmt: on
+
+        if browndates:
+            build_config_key = self.data.config.source_config.get("build", {})
+            if "image" in build_config_key:
+                raise BuildUserError(BuildUserError.BUILD_IMAGE_CONFIG_KEY_DEPRECATED)
+
+            # TODO: move this validation to the Config object once we are settled here
+            if "image" not in build_config_key and "os" not in build_config_key:
+                raise BuildUserError(BuildUserError.BUILD_OS_REQUIRED)
 
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)

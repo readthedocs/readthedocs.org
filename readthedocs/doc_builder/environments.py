@@ -156,7 +156,7 @@ class BuildCommand(BuildCommandResultMixin):
                 command = self.get_command()
 
             stderr = subprocess.PIPE if self.demux else subprocess.STDOUT
-            proc = subprocess.Popen(
+            proc = subprocess.Popen(  # pylint: disable=consider-using-with
                 command,
                 shell=self.shell,
                 cwd=self.cwd,
@@ -166,8 +166,8 @@ class BuildCommand(BuildCommandResultMixin):
                 env=environment,
             )
             cmd_stdout, cmd_stderr = proc.communicate()
-            self.output = self.sanitize_output(cmd_stdout)
-            self.error = self.sanitize_output(cmd_stderr)
+            self.output = self.decode_output(cmd_stdout)
+            self.error = self.decode_output(cmd_stderr)
             self.exit_code = proc.returncode
         except OSError:
             log.exception("Operating system error.")
@@ -175,34 +175,43 @@ class BuildCommand(BuildCommandResultMixin):
         finally:
             self.end_time = datetime.utcnow()
 
-    def sanitize_output(self, output):
+    def decode_output(self, output: bytes) -> str:
+        """Decode bytes output to a UTF-8 string."""
+        decoded = ""
+        try:
+            decoded = output.decode("utf-8", "replace")
+        except (TypeError, AttributeError):
+            pass
+        return decoded
+
+    def sanitize_output(self, output: str) -> str:
         r"""
         Sanitize ``output`` to be saved into the DB.
 
-            1. Decodes to UTF-8
-
-            2. Replaces NULL (\x00) characters with ``''`` (empty string) to
+            1. Replaces NULL (\x00) characters with ``''`` (empty string) to
                avoid PostgreSQL db to fail:
                https://code.djangoproject.com/ticket/28201
 
-            3. Chunk at around ``DATA_UPLOAD_MAX_MEMORY_SIZE`` bytes to be sent
+            2. Chunk at around ``DATA_UPLOAD_MAX_MEMORY_SIZE`` bytes to be sent
                over the API call request
 
         :param output: stdout/stderr to be sanitized
-        :type output: bytes
 
-        :returns: sanitized output as string or ``None`` if it fails
+        :returns: sanitized output as string
         """
+        sanitized = ""
         try:
-            sanitized = output.decode('utf-8', 'replace')
             # Replace NULL (\x00) character to avoid PostgreSQL db to fail
             # https://code.djangoproject.com/ticket/28201
-            sanitized = sanitized.replace('\x00', '')
+            sanitized = output.replace("\x00", "")
         except (TypeError, AttributeError):
-            sanitized = ""
+            pass
 
         # Chunk the output data to be less than ``DATA_UPLOAD_MAX_MEMORY_SIZE``
-        output_length = len(output) if output else 0
+        # The length is calculated in bytes, so we need to encode the string first.
+        # TODO: we are calculating the length in bytes, but truncating the string
+        # in characters. We should use bytes or characters, but not both.
+        output_length = len(sanitized.encode("utf-8"))
         # Left some extra space for the rest of the request data
         threshold = 512 * 1024  # 512Kb
         allowed_length = settings.DATA_UPLOAD_MAX_MEMORY_SIZE - threshold
@@ -236,12 +245,12 @@ class BuildCommand(BuildCommandResultMixin):
             self.exit_code = 0
 
         data = {
-            'build': self.build_env.build.get('id'),
-            'command': self.get_command(),
-            'output': self.output,
-            'exit_code': self.exit_code,
-            'start_time': self.start_time,
-            'end_time': self.end_time,
+            "build": self.build_env.build.get("id"),
+            "command": self.get_command(),
+            "output": self.sanitize_output(self.output),
+            "exit_code": self.exit_code,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
         }
 
         if self.build_env.project.has_feature(Feature.API_LARGE_DATA):
@@ -320,8 +329,8 @@ class DockerBuildCommand(BuildCommand):
                 cmd_stdout, cmd_stderr = out
             else:
                 cmd_stdout = out
-            self.output = self.sanitize_output(cmd_stdout)
-            self.error = self.sanitize_output(cmd_stderr)
+            self.output = self.decode_output(cmd_stdout)
+            self.error = self.decode_output(cmd_stderr)
             cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
             self.exit_code = cmd_ret['ExitCode']
 
@@ -564,20 +573,13 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
 
     def __init__(self, *args, **kwargs):
         container_image = kwargs.pop("container_image", None)
-        self.use_gvisor = kwargs.pop("use_gvisor", False)
         super().__init__(*args, **kwargs)
         self.client = None
         self.container = None
         self.container_name = self.get_container_name()
 
-        if self.project.has_feature(Feature.DOCKER_GVISOR_RUNTIME):
-            self.use_gvisor = True
-
         # Decide what Docker image to use, based on priorities:
-        # Use the Docker image set by our feature flag: ``testing`` or,
-        if self.project.has_feature(Feature.USE_TESTING_BUILD_IMAGE):
-            self.container_image = 'readthedocs/build:testing'
-        # the image set by user or,
+        # The image set by user or,
         if self.config and self.config.docker_image:
             self.container_image = self.config.docker_image
         # the image overridden by the project (manually set by an admin).
@@ -633,8 +635,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 )
                 client = self.get_client()
                 client.remove_container(self.container_id)
-        except (DockerAPIError, ConnectionError) as e:
-            raise BuildAppError(e.explanation)
+        except (DockerAPIError, ConnectionError) as exc:
+            raise BuildAppError(exc.explanation) from exc
 
         # Create the checkout path if it doesn't exist to avoid Docker creation
         if not os.path.exists(self.project.doc_path):
@@ -707,8 +709,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                     version=DOCKER_VERSION,
                 )
             return self.client
-        except DockerException as e:
-            raise BuildAppError(e.explanation)
+        except DockerException as exc:
+            raise BuildAppError(exc.explanation) from exc
 
     def _get_binds(self):
         """
@@ -802,12 +804,10 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         """Create docker container."""
         client = self.get_client()
         try:
-            docker_runtime = "runsc" if self.use_gvisor else None
             log.info(
                 'Creating Docker container.',
                 container_image=self.container_image,
                 container_id=self.container_id,
-                docker_runtime=docker_runtime,
             )
             self.container = client.create_container(
                 image=self.container_image,
@@ -822,8 +822,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
                 host_config=self.get_container_host_config(),
                 detach=True,
                 user=settings.RTD_DOCKER_USER,
-                runtime=docker_runtime,
+                runtime="runsc",  # gVisor runtime
             )
             client.start(container=self.container_id)
-        except (DockerAPIError, ConnectionError) as e:
-            raise BuildAppError(e.explanation)
+        except (DockerAPIError, ConnectionError) as exc:
+            raise BuildAppError(exc.explanation) from exc
