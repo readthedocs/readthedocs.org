@@ -3,7 +3,7 @@ How to manually configure a Git repository integration
 
 In this guide,
 you will find the steps to manually integrate your Read the Docs project with any Git provider,
-including|git_providers_and|.
+including |git_providers_and|.
 
 .. seealso::
 
@@ -32,7 +32,7 @@ Manual integration setup
 ------------------------
 
 You need to configure your Git provider integration to call a webhook that alerts Read the Docs of changes.
-Read the Docs will sync versions, build your documentation, and other action when your Git repository is updated.
+Read the Docs will sync versions and build your documentation when your Git repository is updated.
 
 .. tabs::
 
