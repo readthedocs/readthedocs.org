@@ -113,10 +113,6 @@ class CommunityBaseSettings(Settings):
     CSRF_COOKIE_HTTPONLY = True
     CSRF_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
 
-    # Remove after deploying
-    # https://docs.djangoproject.com/en/4.2/releases/4.1/#csrf-cookie-masked-setting
-    CSRF_COOKIE_MASKED = True
-
     # Security & X-Frame-Options Middleware
     # https://docs.djangoproject.com/en/1.11/ref/middleware/#django.middleware.security.SecurityMiddleware
     SECURE_CONTENT_TYPE_NOSNIFF = True
