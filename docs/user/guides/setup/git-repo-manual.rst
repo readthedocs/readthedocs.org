@@ -1,9 +1,9 @@
-How to manually configure a Git repository
-==========================================
+How to manually configure a Git repository integration
+======================================================
 
 In this guide,
-you will find the simple steps to manually integrating your Read the Docs project with all Git providers that support our generic API.
-This includes most Git providers, for example |git_providers_and|.
+you will find the steps to manually integrate your Read the Docs project with any Git provider,
+including |git_providers_and|.
 
 .. seealso::
 
@@ -11,7 +11,6 @@ This includes most Git providers, for example |git_providers_and|.
      You are now reading the guide to configuring a Git repository manually.
      If your Read the Docs account is :doc:`connected to the Git provider </guides/connecting-git-account>`,
      we can setup the integration automatically.
-
 
 ..
   The following references were supposed to go inside tabs, which is
@@ -29,11 +28,11 @@ This includes most Git providers, for example |git_providers_and|.
 .. _webhook-integration-bitbucket:
 .. _webhook-integration-gitlab:
 
-Provider-specific instructions
-------------------------------
+Manual integration setup
+------------------------
 
-You need to configure your Git provider to call a webhook on Read the Docs.
-This will make Read the Docs build your documentation when a new commit, branch or tag is pushed to your repository.
+You need to configure your Git provider integration to call a webhook that alerts Read the Docs of changes.
+Read the Docs will sync versions and build your documentation when your Git repository is updated.
 
 .. tabs::
 
@@ -128,8 +127,7 @@ After you have added the integration, you'll see a link to information about the
 
 As an example, the URL pattern looks like this: ``https://readthedocs.org/api/v2/webhook/<project-name>/<id>/*``.
 
-Use this URL when setting up a new integration with your provider ^^ these steps vary depending on the provider.
-
+Use this URL when setting up a new integration with your provider, as explained above.
 
 .. warning::
 
