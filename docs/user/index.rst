@@ -20,7 +20,12 @@ Read the Docs: documentation simplified
 
    /choosing-a-site
    /integrations
+   /downloadable-documentation
+   /environment-variables
+   /subprojects
+   /localization
    /explanation/advanced
+   /explanation/methodology
 
 .. toctree::
    :maxdepth: 2
