@@ -1,12 +1,10 @@
 """Git-related utilities."""
 
 import re
-from dataclasses import dataclass
 from typing import Iterable
 
 import git
 import structlog
-from django.core.exceptions import ValidationError
 from gitdb.util import hex_to_bin
 
 from readthedocs.builds.constants import BRANCH, EXTERNAL, TAG
@@ -18,16 +16,9 @@ from readthedocs.projects.constants import (
     GITLAB_MR_PULL_PATTERN,
 )
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 log = structlog.get_logger(__name__)
-
-
-@dataclass(slots=True)
-class GitSubmodule:
-    path: str
-    url: str
 
 
 class Backend(BaseVCS):
@@ -295,54 +286,53 @@ class Backend(BaseVCS):
         # to have a config file.
         return any(self.submodules)
 
-    def validate_submodules(self, config):
+    def get_available_submodules(self, config) -> tuple[bool, list]:
         """
-        Returns the submodules and check that its URLs are valid.
+        Returns the submodules available to use.
 
         .. note::
 
            Always call after `self.are_submodules_available`.
 
-        :returns: tuple(bool, list)
+        Returns a tuple, the first element is a boolean indicating whether
+        the submodules are available to use, the second element is a list
+        of submodules paths, if the list is empty, it means that all
+        submodules are available.
 
-        Returns `True` if all required submodules URLs are valid.
-        Returns a list of all required submodules:
-        - Include is `ALL`, returns all submodules available.
-        - Include is a list, returns just those.
-        - Exclude is `ALL` - this should never happen.
-        - Exclude is a list, returns all available submodules
-          but those from the list.
+        The following cases are possible:
 
-        Returns `False` if at least one submodule is invalid.
-        Returns the list of invalid submodules.
+        - Include is `ALL`, returns `True` and `[]`.
+        - Include is a list, returns `True` and the list of submodules.
+        - Exclude is `ALL`, returns `False` and `[]`.
+        - Exclude is a list, returns `True` and all available submodules
+          but those from the list. If at the end there are no submodules
+          left, returns `False` and the empty list.
         """
-        submodules = {sub.path: sub for sub in self.submodules}
+        if config.submodules.exclude == ALL:
+            return False, []
 
-        for sub_path in config.submodules.exclude:
-            path = sub_path.rstrip('/')
-            # TODO: Should we raise an error if the submodule is not found?
-            if path in submodules:
-                del submodules[path]
+        if config.submodules.exclude:
+            submodules = list(self.submodules)
+            for sub_path in config.submodules.exclude:
+                path = sub_path.rstrip("/")
+                try:
+                    submodules.remove(path)
+                except ValueError:
+                    # TODO: Should we raise an error if the submodule is not found?
+                    pass
 
-        if config.submodules.include != ALL and config.submodules.include:
-            submodules_include = {}
-            for sub_path in config.submodules.include:
-                path = sub_path.rstrip('/')
-                # TODO: Should we raise an error if the submodule is not found?
-                if path in submodules:
-                    submodules_include[path] = submodules[path]
-            submodules = submodules_include
+            # If all submodules were excluded, we don't need to do anything.
+            if not submodules:
+                return False, []
+            return True, submodules
 
-        invalid_submodules = []
-        for path, submodule in submodules.items():
-            try:
-                validate_submodule_url(submodule.url)
-            except ValidationError:
-                invalid_submodules.append(path)
+        if config.submodules.include == ALL:
+            return True, []
 
-        if invalid_submodules:
-            return False, invalid_submodules
-        return True, submodules.keys()
+        if config.submodules.include:
+            return True, config.submodules.include
+
+        return False, []
 
     def use_shallow_clone(self):
         """
@@ -537,11 +527,11 @@ class Backend(BaseVCS):
         return None
 
     @property
-    def submodules(self) -> Iterable[GitSubmodule]:
+    def submodules(self) -> Iterable[str]:
         r"""
-        Return an iterable of submodules in this repository.
+        Return an iterable of submodule paths in this repository.
 
-        In order to get the submodules URLs and paths without initializing them,
+        In order to get the submodules paths without initializing them,
         we parse the .gitmodules file. For this we make use of the
         ``git config --get-regexp`` command.
 
@@ -554,18 +544,16 @@ class Backend(BaseVCS):
 
         .. code-block:: text
 
-           submodule.submodule-1.url\nhttps://github.com/\0
            submodule.submodule-1.path\nsubmodule-1\0
            submodule.submodule-2.path\nsubmodule-2\0
-           submodule.submodule-2.url\nhttps://github.com/\0
-           submodule.submodule-3.url\nhttps://github.com/\0
            submodule.submodule-4.path\n\0
 
         .. note::
 
            - In the example each result is put in a new line for readability.
-           - Isn't guaranteed that the url and path keys will appear next to each other.
-           - Isn't guaranteed that all submodules will have a url and path.
+           - Isn't guaranteed that sub-keys will appear next to each other.
+           - Isn't guaranteed that all submodules will have a path
+             (they are probably invalid submodules).
 
         """
         exit_code, stdout, _ = self.run(
@@ -575,16 +563,14 @@ class Backend(BaseVCS):
             "--file",
             ".gitmodules",
             "--get-regexp",
-            # Get only the URL and path keys of each submodule.
-            r"^submodule\..*\.(url|path)$",
+            # Get only the path key of each submodule.
+            r"^submodule\..*\.path$",
             record=False,
         )
         if exit_code != 0:
             # The command fails if the project doesn't have submodules (the .gitmodules file doesn't exist).
             return []
 
-        # Group the URLs and paths by submodule name/key.
-        submodules = {}
         keys_and_values = stdout.split("\0")
         for key_and_value in keys_and_values:
             try:
@@ -595,31 +581,11 @@ class Backend(BaseVCS):
                 log.warning("Wrong key and value format.", key_and_value=key_and_value)
                 continue
 
-            if key.endswith(".url"):
-                key = key.removesuffix(".url")
-                submodules.setdefault(key, {})["url"] = value
-            elif key.endswith(".path"):
-                key = key.removesuffix(".path")
-                submodules.setdefault(key, {})["path"] = value
+            if key.endswith(".path"):
+                yield value
             else:
                 # This should never happen, but we log a warning just in case the regex is wrong.
                 log.warning("Unexpected key extracted fom .gitmodules.", key=key)
-
-        for submodule in submodules.values():
-            # If the submodule doesn't have a URL or path, we skip it,
-            # since it's not a valid submodule.
-            url = submodule.get("url")
-            path = submodule.get("path")
-            if not url or not path:
-                log.warning(
-                    "Invalid submodule.", submoduel_url=url, submodule_path=path
-                )
-                continue
-            # Return a generator to speed up when checking if the project has at least one submodule (e.g. ``any(self.submodules)``)
-            yield GitSubmodule(
-                url=url,
-                path=path,
-            )
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
@@ -638,21 +604,19 @@ class Backend(BaseVCS):
         return code, out, err
 
     def update_submodules(self, config):
+        # TODO: just rely on get_available_submodules when
+        # not using a config file is fully deprecated.
         if self.are_submodules_available(config):
-            valid, submodules = self.validate_submodules(config)
+            valid, submodules = self.get_available_submodules(config)
             if valid:
-                self.checkout_submodules(submodules, config)
-            else:
-                raise RepositoryError(
-                    RepositoryError.INVALID_SUBMODULES.format(submodules),
-                )
+                self.checkout_submodules(submodules, config.submodules.recursive)
 
-    def checkout_submodules(self, submodules, config):
-        """Checkout all repository submodules."""
-        # If the repository has no submodules, we don't need to do anything.
-        # Otherwise, all submodules will be updated.
-        if not submodules:
-            return
+    def checkout_submodules(self, submodules: list[str], recursive: bool):
+        """
+        Checkout all repository submodules.
+
+        If submodules is empty, all submodules will be updated.
+        """
         self.run('git', 'submodule', 'sync')
         cmd = [
             'git',
@@ -661,7 +625,7 @@ class Backend(BaseVCS):
             '--init',
             '--force',
         ]
-        if config.submodules.recursive:
+        if recursive:
             cmd.append("--recursive")
         cmd.append("--")
         cmd += submodules
