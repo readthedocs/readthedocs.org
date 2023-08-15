@@ -732,7 +732,7 @@ class TestAdditionalDocViews(BaseDocServing):
 
             Disallow: # Allow everything
 
-            Sitemap: https://project.readthedocs.io/sitemap.xml
+            Sitemap: https://project.readthedocs.io/sitemap_index.xml
             """
         ).lstrip()
         self.assertEqual(response.content.decode(), expected)
@@ -786,7 +786,7 @@ class TestAdditionalDocViews(BaseDocServing):
 
             Disallow: /en/hidden/ # Hidden version
 
-            Sitemap: https://project.readthedocs.io/sitemap.xml
+            Sitemap: https://project.readthedocs.io/sitemap_index.xml
             """
         ).lstrip()
         self.assertEqual(response.content.decode(), expected)

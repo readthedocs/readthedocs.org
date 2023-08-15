@@ -967,7 +967,7 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
             pass
 
         # Serve default robots.txt
-        sitemap_url = '{scheme}://{domain}/sitemap.xml'.format(
+        sitemap_url = '{scheme}://{domain}/sitemap_index.xml'.format(
             scheme='https',
             domain=project.subdomain(),
         )
