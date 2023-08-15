@@ -3,16 +3,8 @@ How to structure your documentation
 
 A documentation project's ultimate goal is to be read and understood by a reader.
 Readers need to be able to :term:`discover <discoverability>` the information that they need.
-Without an intuitive structure,
+Without an defined structure,
 readers either won't find information that they need or get frustrated on the way.
-Having a structure in mind can happen from the very beginning of a documentation project.
-Changing and adapting your structure is often also necessary.
-
-.. tip::
-   Even if your documentation already has a structure,
-   we invite you to keep reading.
-   Changing a documentation structure is hard work,
-   but the rewards are big.
 
 One of the largest benefits of a good structure is that it removes questions that keep authors from writing documentation.
 Starting with a blank page is often the hardest part of documentation,
@@ -45,7 +37,7 @@ It has four major parts as summarized by this image:
 
 .. image:: https://diataxis.fr/_images/diataxis.png
 
-We recommend that you read more about Diátaxis in the `documentation <https://diataxis.fr/>`_ for it.
+We recommend that you read more about it in the `official Diátaxis documentation <https://diataxis.fr/>`_.
 
 Explaining the structure to your users
 --------------------------------------

@@ -6,21 +6,16 @@ we are covering important methods and best practices that will make your documen
 
 .. seealso::
 
-    `Write the Docs: Content Archive <https://www.writethedocs.org/topics/>`__
-        Did you know that Read the Docs is related to `Write the Docs <https://www.writethedocs.org/>`__?
-        Write the Docs is a conference, a community and a documentation project that's full of methods, tips and
-        articles about writing documentation.
+    `Write the Docs: Topic Archive <https://www.writethedocs.org/topics/>`__
+        A collection of conference talks and articles,
+        indexed by topic (eg. ``Metrics and analytics`` or ``Information architecture``)
 
 You can familiarize yourself with these topics before or after writing documentation.
 We encourage that you read this at any time,
-as each section gives approaches
-regardless of whether you need to create new content or restructure larger documentation sets.
+as this content is applicable to many stages of the documentation process.
 
 ⏩️ :doc:`The Diátaxis Methodology <documentation-structure>`
-    In order to understand documentation in the most general and fundamental sense,
-    we introduce the Diátaxis methodology which is also used for the documentation you are now reading.
-
-.. TODO: The below content is from how-to guides, we need to figure out the duplication of text here.
+    We introduce the Diátaxis methodology which is also used for the documentation you are now reading.
 
 ⏩️ :doc:`Creating reproducible builds </guides/reproducible-builds>`
     Every documentation project has dependencies that are required to build it.
