@@ -328,7 +328,7 @@ class DeprecatedBuildImageSiteNotification(SiteNotification):
         'Your project(s) "{{ project_slugs }}" are using the deprecated "build.image" '
         'config on their ".readthedocs.yaml" file. '
         'This config is deprecated in favor of "build.os" and <strong>will be removed on October 16, 2023</strong>. '  # noqa
-        '<a href="https://blog.readthedocs.com/build-image-config-deprecated/">Read our blog post to migrate to "build.os"</a> '  # noqa
+        '<a href="https://blog.readthedocs.com/use-build-os-config/">Read our blog post to migrate to "build.os"</a> '  # noqa
         "and ensure your project continues building successfully."
     )
     failure_level = WARNING_PERSISTENT
