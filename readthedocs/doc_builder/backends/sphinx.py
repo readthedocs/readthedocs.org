@@ -256,22 +256,22 @@ class BaseSphinx(BaseBuilder):
         if self.config_file is None:
             raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
 
+        self.config_file = self.config_file or self.project.conf_file(self.version.slug)
+
         try:
-            self.config_file = (
-                self.config_file or self.project.conf_file(self.version.slug)
-            )
+            if not os.path.exists(self.config_file):
+                raise UserFileNotFound
+
             # Allow symlinks, but only the ones that resolve inside the base directory.
             outfile = safe_open(
                 self.config_file, "a", allow_symlinks=True, base_path=self.project_path
             )
             if not outfile:
-                raise UserFileNotFound(
-                    UserFileNotFound.FILE_NOT_FOUND.format(self.config_file)
-                )
-        except IOError as exc:
-            raise ProjectConfigurationError(
-                ProjectConfigurationError.NOT_FOUND
-            ) from exc
+                raise UserFileNotFound
+        except UserFileNotFound:
+            raise UserFileNotFound(
+                UserFileNotFound.FILE_NOT_FOUND.format(self.config_file)
+            )
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
