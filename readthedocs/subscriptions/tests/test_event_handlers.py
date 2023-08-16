@@ -10,7 +10,6 @@ from djstripe.enums import SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions import event_handlers
-from readthedocs.subscriptions.models import Plan, Subscription
 
 
 @override_settings(
@@ -26,9 +25,9 @@ class TestStripeEventHandlers(TestCase):
         self.organization = get(
             Organization, slug="org", email="test@example.com", owners=[self.user]
         )
-        get(Plan, stripe_id="trialing", slug="trialing")
 
-    def test_subscription_updated_event(self):
+    @mock.patch("readthedocs.subscriptions.event_handlers.cancel_stripe_subscription")
+    def test_subscription_updated_event(self, cancel_subscription_mock):
         """Test handled event."""
         start_date = timezone.now()
         end_date = timezone.now() + timezone.timedelta(days=30)
@@ -49,25 +48,22 @@ class TestStripeEventHandlers(TestCase):
                 }
             },
         )
-        subscription = get(
-            Subscription,
-            stripe_id=stripe_subscription.id,
-            status=SubscriptionStatus.trialing,
-        )
         event_handlers.update_subscription(event=event)
-
-        subscription.refresh_from_db()
-        self.assertEqual(subscription.status, SubscriptionStatus.active)
-        self.assertEqual(subscription.trial_end_date, end_date)
-        self.assertEqual(subscription.end_date, end_date)
+        cancel_subscription_mock.assert_not_called()
 
     def test_reenabled_organization_on_subscription_updated_event(self):
         """Organization is re-enabled when subscription is active."""
+        customer = get(djstripe.Customer, id="cus_KMiHJXFHpLkcRP")
+        self.organization.stripe_customer = customer
+        self.organization.disabled = True
+        self.organization.save()
+
         start_date = timezone.now()
         end_date = timezone.now() + timezone.timedelta(days=30)
         stripe_subscription = get(
             djstripe.Subscription,
             id="sub_9LtsU02uvjO6Ed",
+            customer=customer,
             status=SubscriptionStatus.active,
             current_period_start=start_date,
             current_period_end=end_date,
@@ -83,56 +79,10 @@ class TestStripeEventHandlers(TestCase):
             },
         )
 
-        organization = get(Organization, disabled=True)
-        subscription = get(
-            Subscription,
-            organization=organization,
-            stripe_id=stripe_subscription.id,
-            status=SubscriptionStatus.canceled,
-        )
-        self.assertTrue(organization.disabled)
-
+        self.assertTrue(self.organization.disabled)
         event_handlers.update_subscription(event=event)
-
-        subscription.refresh_from_db()
-        organization.refresh_from_db()
-        self.assertEqual(subscription.status, SubscriptionStatus.active)
-        self.assertEqual(subscription.trial_end_date, end_date)
-        self.assertEqual(subscription.end_date, end_date)
-        self.assertFalse(organization.disabled)
-
-    def test_subscription_deleted_event(self):
-        start_date = timezone.now()
-        end_date = timezone.now() + timezone.timedelta(days=30)
-        stripe_subscription = get(
-            djstripe.Subscription,
-            id="sub_9LtsU02uvjO6Ed",
-            status=SubscriptionStatus.canceled,
-            current_period_start=start_date,
-            current_period_end=end_date,
-            trial_end=end_date,
-        )
-        event = get(
-            djstripe.Event,
-            data={
-                "object": {
-                    "id": "sub_9LtsU02uvjO6Ed",
-                    "object": "subscription",
-                }
-            },
-        )
-        subscription = get(
-            Subscription,
-            organization=self.organization,
-            stripe_id=stripe_subscription.id,
-            status=SubscriptionStatus.active,
-        )
-
-        event_handlers.update_subscription(event=event)
-
-        subscription.refresh_from_db()
-        self.assertEqual(subscription.stripe_id, stripe_subscription.id)
-        self.assertEqual(subscription.status, SubscriptionStatus.canceled)
+        self.organization.refresh_from_db()
+        self.assertFalse(self.organization.disabled)
 
     def test_subscription_checkout_completed_event(self):
         customer = get(djstripe.Customer, id="cus_KMiHJXFHpLkcRP")
@@ -161,21 +111,46 @@ class TestStripeEventHandlers(TestCase):
             },
         )
 
-        subscription = get(
-            Subscription,
-            organization=self.organization,
-            stripe_id=None,
-            status=SubscriptionStatus.canceled,
+        self.assertIsNone(self.organization.stripe_subscription)
+        event_handlers.checkout_completed(event=event)
+
+        self.organization.refresh_from_db()
+        self.assertEqual(self.organization.stripe_subscription, stripe_subscription)
+
+    def test_reenable_organization_on_subscription_checkout_completed_event(self):
+        customer = get(djstripe.Customer, id="cus_KMiHJXFHpLkcRP")
+        self.organization.stripe_customer = customer
+        self.organization.disabled = True
+        self.organization.save()
+
+        start_date = timezone.now()
+        end_date = timezone.now() + timezone.timedelta(days=30)
+        stripe_subscription = get(
+            djstripe.Subscription,
+            id="sub_9LtsU02uvjO6Ed",
+            status=SubscriptionStatus.active,
+            current_period_start=start_date,
+            current_period_end=end_date,
+            trial_end=end_date,
+        )
+        event = get(
+            djstripe.Event,
+            data={
+                "object": {
+                    "id": "cs_test_a1UpM7pDdpXqqgZC6lQDC2HRMo5d1wW9fNX0ZiBCm6vRqTgZJZx6brwNan",
+                    "object": "checkout.session",
+                    "customer": customer.id,
+                    "subscription": stripe_subscription.id,
+                }
+            },
         )
 
         self.assertIsNone(self.organization.stripe_subscription)
         event_handlers.checkout_completed(event=event)
 
-        subscription.refresh_from_db()
         self.organization.refresh_from_db()
-        self.assertEqual(subscription.stripe_id, stripe_subscription.id)
-        self.assertEqual(subscription.status, SubscriptionStatus.active)
         self.assertEqual(self.organization.stripe_subscription, stripe_subscription)
+        self.assertFalse(self.organization.disabled)
 
     @mock.patch("readthedocs.subscriptions.event_handlers.cancel_stripe_subscription")
     def test_cancel_trial_subscription_after_trial_has_ended(
@@ -208,18 +183,8 @@ class TestStripeEventHandlers(TestCase):
                 }
             },
         )
-        subscription = get(
-            Subscription,
-            organization=self.organization,
-            stripe_id=stripe_subscription.id,
-            status=SubscriptionStatus.active,
-        )
 
         event_handlers.update_subscription(event=event)
-
-        subscription.refresh_from_db()
-        self.assertEqual(subscription.status, SubscriptionStatus.active)
-        self.assertTrue(subscription.is_trial_ended)
         cancel_subscription_mock.assert_called_once_with(stripe_subscription.id)
 
     @mock.patch("readthedocs.subscriptions.event_handlers.cancel_stripe_subscription")
@@ -253,18 +218,8 @@ class TestStripeEventHandlers(TestCase):
                 }
             },
         )
-        subscription = get(
-            Subscription,
-            organization=self.organization,
-            stripe_id=stripe_subscription.id,
-            status=SubscriptionStatus.active,
-        )
 
         event_handlers.update_subscription(event=event)
-
-        subscription.refresh_from_db()
-        self.assertEqual(subscription.status, SubscriptionStatus.active)
-        self.assertTrue(subscription.is_trial_ended)
         cancel_subscription_mock.assert_not_called()
 
     def test_customer_updated_event(self):

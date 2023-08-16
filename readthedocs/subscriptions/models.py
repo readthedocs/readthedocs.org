@@ -11,7 +11,6 @@ from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.utils import slugify
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.constants import FEATURE_TYPES
-from readthedocs.subscriptions.managers import SubscriptionManager
 
 
 class Plan(models.Model):
@@ -165,7 +164,6 @@ class Subscription(models.Model):
         null=True,
     )
 
-    objects = SubscriptionManager()
     history = ExtraHistoricalRecords()
 
     class Meta:

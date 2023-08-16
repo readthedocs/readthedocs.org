@@ -5,12 +5,12 @@ import structlog
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.utils import timezone
+from djstripe import models as djstripe
 
 from readthedocs.builds.models import Build
 from readthedocs.core.utils import send_email
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Domain, Project
-from readthedocs.subscriptions.models import Subscription
 from readthedocs.subscriptions.notifications import (
     OrganizationDisabledNotification,
     TrialEndingNotification,
@@ -94,11 +94,11 @@ def weekly_subscription_stats_email(recipients=None):
     organizations_to_disable = Organization.objects.disable_soon(days=30).count()
     users = User.objects.filter(date_joined__gte=last_week).count()
     subscriptions = (
-        Subscription.objects.filter(
-            trial_end_date__gte=last_week,
-            trial_end_date__lte=yesterday,
+        djstripe.Subscription.objects.filter(
+            created__gte=last_week,
+            created__lte=yesterday,
         )
-        .values("status", "plan__name")
+        .values("status", "items__price__product__name")
         .annotate(total_status=Count("status"))
         .order_by("status")
     )
