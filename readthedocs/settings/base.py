@@ -396,13 +396,22 @@ class CommunityBaseSettings(Settings):
                 os.path.dirname(readthedocsext.theme.__file__),
                 'templates',
             ))
+
+        # Disable ``cached.Loader`` on development
+        # https://docs.djangoproject.com/en/4.2/ref/templates/api/#django.template.loaders.cached.Loader
+        default_loaders = [
+            "django.template.loaders.filesystem.Loader",
+            "django.template.loaders.app_directories.Loader",
+        ]
+        cached_loaders = [("django.template.loaders.cached.Loader", default_loaders)]
+
         return [
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'DIRS': dirs,
-                'APP_DIRS': True,
                 'OPTIONS': {
                     'debug': self.DEBUG,
+                    'loaders': default_loaders if self.DEBUG else cached_loaders,
                     'context_processors': [
                         'django.contrib.auth.context_processors.auth',
                         'django.contrib.messages.context_processors.messages',
