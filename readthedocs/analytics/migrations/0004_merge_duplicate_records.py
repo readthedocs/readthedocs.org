@@ -29,7 +29,6 @@ def forwards_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("analytics", "0003_remove_index"),
     ]

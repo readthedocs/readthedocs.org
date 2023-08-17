@@ -43,27 +43,27 @@ class ProxitoMiddleware(MiddlewareMixin):
     # The analytics API isn't listed because it depends on the unresolver,
     # which depends on the proxito middleware.
     skip_views = (
-        'health_check',
-        'footer_html',
-        'search_api',
-        'embed_api',
+        "health_check",
+        "footer_html",
+        "search_api",
+        "embed_api",
     )
 
     def add_proxito_headers(self, request, response):
         """Add debugging and cache headers to proxito responses."""
 
-        project_slug = getattr(request, 'path_project_slug', '')
-        version_slug = getattr(request, 'path_version_slug', '')
-        path = getattr(response, 'proxito_path', '')
+        project_slug = getattr(request, "path_project_slug", "")
+        version_slug = getattr(request, "path_version_slug", "")
+        path = getattr(response, "proxito_path", "")
 
-        response['X-RTD-Domain'] = request.get_host()
-        response['X-RTD-Project'] = project_slug
+        response["X-RTD-Domain"] = request.get_host()
+        response["X-RTD-Project"] = project_slug
 
         if version_slug:
-            response['X-RTD-Version'] = version_slug
+            response["X-RTD-Version"] = version_slug
 
         if path:
-            response['X-RTD-Path'] = path
+            response["X-RTD-Path"] = path
 
         # Include the project & project-version so we can do larger purges if needed
         cache_tags = []
@@ -97,12 +97,12 @@ class ProxitoMiddleware(MiddlewareMixin):
             for http_header in domain.http_headers.all():
                 if http_header.name.lower() in response_headers:
                     log.error(
-                        'Overriding an existing response HTTP header.',
+                        "Overriding an existing response HTTP header.",
                         http_header=http_header.name,
                         domain=domain.domain,
                     )
                 log.info(
-                    'Adding custom response HTTP header.',
+                    "Adding custom response HTTP header.",
                     http_header=http_header.name,
                     domain=domain.domain,
                 )
@@ -135,25 +135,25 @@ class ProxitoMiddleware(MiddlewareMixin):
             and unresolved_domain.is_from_public_domain
         ):
             hsts_header_values = [
-                'max-age=31536000',
-                'includeSubDomains',
-                'preload',
+                "max-age=31536000",
+                "includeSubDomains",
+                "preload",
             ]
         elif unresolved_domain and unresolved_domain.is_from_custom_domain:
             domain = unresolved_domain.domain
             # TODO: migrate Domains with HSTS set using these fields to
             # ``HTTPHeader`` and remove this chunk of code from here.
             if domain.hsts_max_age:
-                hsts_header_values.append(f'max-age={domain.hsts_max_age}')
+                hsts_header_values.append(f"max-age={domain.hsts_max_age}")
                 # These other options don't make sense without max_age > 0
                 if domain.hsts_include_subdomains:
-                    hsts_header_values.append('includeSubDomains')
+                    hsts_header_values.append("includeSubDomains")
                 if domain.hsts_preload:
-                    hsts_header_values.append('preload')
+                    hsts_header_values.append("preload")
 
         if hsts_header_values:
             # See https://tools.ietf.org/html/rfc6797
-            response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
+            response["Strict-Transport-Security"] = "; ".join(hsts_header_values)
 
     def add_cache_headers(self, request, response):
         """
@@ -196,17 +196,14 @@ class ProxitoMiddleware(MiddlewareMixin):
         # Initialize our custom request attributes.
         request.unresolved_domain = None
 
-        skip = any(
-            request.path.startswith(reverse(view))
-            for view in self.skip_views
-        )
+        skip = any(request.path.startswith(reverse(view)) for view in self.skip_views)
         if (
             skip
             or not settings.USE_SUBDOMAIN
-            or 'localhost' in request.get_host()
-            or 'testserver' in request.get_host()
+            or "localhost" in request.get_host()
+            or "testserver" in request.get_host()
         ):
-            log.debug('Not processing Proxito middleware')
+            log.debug("Not processing Proxito middleware")
             return None
 
         try:
@@ -241,9 +238,9 @@ class ProxitoMiddleware(MiddlewareMixin):
             return response
 
         # Remove multiple slashes from URL's
-        if '//' in request.path:
+        if "//" in request.path:
             url_parsed = urlparse(request.get_full_path())
-            clean_path = re.sub('//+', '/', url_parsed.path)
+            clean_path = re.sub("//+", "/", url_parsed.path)
             new_parsed = url_parsed._replace(path=clean_path)
             final_url = new_parsed.geturl()
             # This protects against a couple issues:
@@ -251,9 +248,9 @@ class ProxitoMiddleware(MiddlewareMixin):
             # * Second is URLs like `//google.com` which urlparse will return as `//google.com`
             #   We make sure there is _always_ a single slash in front to ensure relative redirects,
             #   instead of `//` redirects which are actually alternative domains.
-            final_url = '/' + final_url.lstrip('/')
+            final_url = "/" + final_url.lstrip("/")
             log.debug(
-                'Proxito Slash Redirect.',
+                "Proxito Slash Redirect.",
                 from_url=request.get_full_path(),
                 to_url=final_url,
             )
@@ -263,7 +260,7 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         project = unresolved_domain.project
         log.debug(
-            'Proxito Project.',
+            "Proxito Project.",
             project_slug=project.slug,
         )
 
@@ -275,10 +272,10 @@ class ProxitoMiddleware(MiddlewareMixin):
             # Stop Django from caching URLs
             # https://github.com/django/django/blob/7cf7d74/django/urls/resolvers.py#L65-L69  # noqa
             project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S%f")
-            url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
+            url_key = f"readthedocs.urls.fake.{project.slug}.{project_timestamp}"
 
             log.info(
-                'Setting URLConf',
+                "Setting URLConf",
                 project_slug=project.slug,
                 url_key=url_key,
                 urlconf=project.urlconf,

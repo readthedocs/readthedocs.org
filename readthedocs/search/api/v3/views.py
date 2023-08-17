@@ -178,5 +178,4 @@ class BaseProxiedSearchAPI(SearchAPI):
 
 
 class ProxiedSearchAPI(SettingsOverrideObject):
-
     _default_class = BaseProxiedSearchAPI

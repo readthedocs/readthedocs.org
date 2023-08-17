@@ -4,8 +4,8 @@ from celery import Task, states
 from django.conf import settings
 
 __all__ = (
-    'PublicTask',
-    'TaskNoPermission',
+    "PublicTask",
+    "TaskNoPermission",
 )
 
 STATUS_UPDATES_ENABLED = not settings.CELERY_ALWAYS_EAGER
@@ -32,9 +32,9 @@ class PublicTask(Task):
         """Return tuple with state to be set next and results task."""
         state = states.STARTED
         info = {
-            'task_name': self.name,
-            'context': self.request.get('permission_context', {}),
-            'public_data': self.request.get('public_data', {}),
+            "task_name": self.name,
+            "context": self.request.get("permission_context", {}),
+            "public_data": self.request.get("public_data", {}),
         }
         return state, info
 
@@ -81,7 +81,7 @@ class PublicTask(Task):
 
         _, info = self.get_task_data()
         if error and exception_raised:
-            info['error'] = str(exception_raised)
+            info["error"] = str(exception_raised)
         elif result is not None:
             self.set_public_data(result)
 
@@ -112,9 +112,8 @@ class PublicTask(Task):
 
 
 class TaskNoPermission(Exception):
-
     def __init__(self, task_id, *args, **kwargs):
-        message = 'No permission to access task with id {id}'.format(
+        message = "No permission to access task with id {id}".format(
             id=task_id,
         )
         super().__init__(message, *args, **kwargs)

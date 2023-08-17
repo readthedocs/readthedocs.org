@@ -11,7 +11,7 @@ from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.utils import slugify
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.constants import FEATURE_TYPES
-from readthedocs.subscriptions.managers import PlanFeatureManager, SubscriptionManager
+from readthedocs.subscriptions.managers import SubscriptionManager
 
 
 class Plan(models.Model):
@@ -65,7 +65,6 @@ class Plan(models.Model):
     def __str__(self):
         return f"{self.name} ({self.stripe_id})"
 
-    # pylint: disable=signature-differs
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
@@ -102,7 +101,6 @@ class PlanFeature(models.Model):
         null=True,
         blank=True,
     )
-    objects = PlanFeatureManager()
 
     def __str__(self):
         return '{plan} feature: {feature}'.format(
@@ -199,7 +197,6 @@ class Subscription(models.Model):
                 self.organization.pub_date + timedelta(days=self.plan.trial)
             )
 
-    # pylint: disable=signature-differs
     def save(self, *args, **kwargs):
         if self.trial_end_date is None:
             self.trial_end_date = self.default_trial_end_date()

@@ -17,13 +17,12 @@ from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
 from readthedocs.subscriptions.constants import TYPE_EMBED_API
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @override_settings(
     PUBLIC_DOMAIN='readthedocs.io',
-    RTD_DEFAULT_FEATURES={
-        TYPE_EMBED_API: 1,
-    },
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_EMBED_API).to_item()]),
 )
 class TestCORSMiddleware(TestCase):
 

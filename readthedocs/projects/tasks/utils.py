@@ -328,7 +328,7 @@ class DeprecatedBuildImageSiteNotification(SiteNotification):
         'Your project(s) "{{ project_slugs }}" are using the deprecated "build.image" '
         'config on their ".readthedocs.yaml" file. '
         'This config is deprecated in favor of "build.os" and <strong>will be removed on October 16, 2023</strong>. '  # noqa
-        '<a href="https://blog.readthedocs.com/build-image-config-deprecated/">Read our blog post to migrate to "build.os"</a> '  # noqa
+        '<a href="https://blog.readthedocs.com/use-build-os-config/">Read our blog post to migrate to "build.os"</a> '  # noqa
         "and ensure your project continues building successfully."
     )
     failure_level = WARNING_PERSISTENT
@@ -394,7 +394,7 @@ def deprecated_build_image_notification():
         )
         if version:
             # Use a fixed date here to avoid changing the date on each run
-            years_ago = timezone.datetime(2020, 8, 1)
+            years_ago = timezone.datetime(2022, 8, 1)
             build = (
                 version.builds.filter(success=True, date__gt=years_ago)
                 .only("_config")

@@ -48,7 +48,6 @@ def get_or_create_stripe_customer(organization):
             try:
                 # TODO: Don't fully trust on djstripe yet,
                 # the customer may not be in our DB yet.
-                # pylint: disable=protected-access
                 stripe_customer = djstripe.Customer._get_or_retrieve(
                     organization.stripe_id
                 )
@@ -78,7 +77,7 @@ def get_or_create_stripe_subscription(organization):
     The subscription will be created with the default price and a trial period.
     """
     stripe_customer = get_or_create_stripe_customer(organization)
-    stripe_subscription = stripe_customer.subscriptions.order_by("created").last()
+    stripe_subscription = organization.get_stripe_subscription()
     if not stripe_subscription:
         # TODO: djstripe 2.6.x doesn't return the subscription object
         # on subscribe(), but 2.7.x (unreleased) does!

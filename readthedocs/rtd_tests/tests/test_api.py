@@ -62,6 +62,7 @@ from readthedocs.projects.models import (
     Project,
 )
 from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 class APIBuildTests(TestCase):
@@ -1513,9 +1514,9 @@ class APITests(TestCase):
         self.assertFalse(hasattr(api_version, invalid_attribute))
 
     @override_settings(
-        RTD_DEFAULT_FEATURES={
-            TYPE_CONCURRENT_BUILDS: 4,
-        }
+        RTD_DEFAULT_FEATURES=dict(
+            [RTDProductFeature(type=TYPE_CONCURRENT_BUILDS, value=4).to_item()]
+        ),
     )
     def test_concurrent_builds(self):
         expected = {
@@ -3175,6 +3176,7 @@ class APIVersionTests(TestCase):
                 "use_system_packages": False,
                 "users": [1],
                 "urlconf": None,
+                "custom_prefix": None,
             },
             "privacy_level": "public",
             "downloads": {},

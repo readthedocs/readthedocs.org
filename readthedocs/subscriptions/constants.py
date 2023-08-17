@@ -4,9 +4,6 @@ from django.utils.translation import gettext_lazy as _
 # Days after the subscription has ended to disable the organization
 DISABLE_AFTER_DAYS = 30
 
-# Values from `value` that represent an unlimited value.
-UNLIMITED_VALUES = [None, -1]
-
 TYPE_CNAME = "cname"
 TYPE_CDN = "cdn"
 TYPE_SSL = "ssl"
@@ -35,5 +32,5 @@ FEATURE_TYPES = (
     (TYPE_SSO, _("Single sign on (SSO) with Google")),
     (TYPE_CUSTOM_URL, _("Custom URLs")),
     (TYPE_AUDIT_LOGS, _("Audit logs")),
-    (TYPE_AUDIT_PAGEVIEWS, _("Record every page view")),
+    (TYPE_AUDIT_PAGEVIEWS, _("Audit logs for every page view")),
 )

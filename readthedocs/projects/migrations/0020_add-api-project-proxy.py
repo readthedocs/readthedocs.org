@@ -3,19 +3,17 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0019_add-features'),
+        ("projects", "0019_add-features"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='APIProject',
-            fields=[
-            ],
+            name="APIProject",
+            fields=[],
             options={
-                'proxy': True,
+                "proxy": True,
             },
-            bases=('projects.project',),
+            bases=("projects.project",),
         ),
     ]

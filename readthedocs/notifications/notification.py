@@ -1,4 +1,3 @@
-
 """Support for templating of notifications."""
 
 import structlog
@@ -29,13 +28,13 @@ class Notification:
     """
 
     name = None
-    context_object_name = 'object'
+    context_object_name = "object"
     app_templates = None
     level = constants.INFO
     subject = None
     user = None
     send_email = True
-    extra_tags = ''
+    extra_tags = ""
 
     def __init__(self, context_object, request=None, user=None, extra_context=None):
         self.object = context_object
@@ -52,9 +51,9 @@ class Notification:
     def get_context_data(self):
         context = {
             self.context_object_name: self.object,
-            'request': self.request,
-            'production_uri': '{scheme}://{host}'.format(
-                scheme='https',
+            "request": self.request,
+            "production_uri": "{scheme}://{host}".format(
+                scheme="https",
                 host=settings.PRODUCTION_DOMAIN,
             ),
         }
@@ -65,9 +64,9 @@ class Notification:
     def get_template_names(self, backend_name, source_format=constants.HTML):
         names = []
         if self.object and isinstance(self.object, models.Model):
-            meta = self.object._meta  # pylint: disable=protected-access
+            meta = self.object._meta
             names.append(
-                '{app}/notifications/{name}_{backend}.{source_format}'.format(
+                "{app}/notifications/{name}_{backend}.{source_format}".format(
                     app=self.app_templates or meta.app_label,
                     name=self.name or meta.model_name,
                     backend=backend_name,
@@ -158,10 +157,10 @@ class SiteNotification(Notification):
         else:
             message = self.failure_message
 
-        msg = ''  # default message in case of error
+        msg = ""  # default message in case of error
         if isinstance(message, dict):
             if self.reason:
-                if self.reason in message:
+                if self.reason in message.keys():
                     msg = message.get(self.reason)
                 else:
                     # log the error but not crash
@@ -169,18 +168,18 @@ class SiteNotification(Notification):
                         "Notification has no key for messages",
                         notification=self.__class__.__name__,
                         key=self.reason,
-                        message='success' if self.success else 'failure',
+                        message="success" if self.success else "failure",
                     )
             else:
                 log.error(
-                    '{message} is a dictionary but no reason was provided',
+                    "{message} is a dictionary but no reason was provided",
                     notification=self.__class__.__name__,
-                    message='success' if self.success else 'failure',
+                    message="success" if self.success else "failure",
                 )
         else:
             msg = message
 
         return Template(msg).render(context=Context(self.get_context_data()))
 
-    def render(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def render(self, *args, **kwargs):
         return self.get_message(self.success)
