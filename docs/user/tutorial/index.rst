@@ -291,7 +291,7 @@ Until then,
 this example project will build without the configuration file,
 but we **strongly recommend** completing this section in order to add a configuration file.
 
-The Settings page of the :term:`project home` allows you
+The Admin tab of the :term:`project home` allows you
 to change some *global* configuration values of your project.
 In addition, you can further customize the building process
 using the ``.readthedocs.yaml`` :doc:`configuration file </config-file/v2>`.
