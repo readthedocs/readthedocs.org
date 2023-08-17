@@ -233,6 +233,7 @@ class CommunityBaseSettings(Settings):
             'polymorphic',
             'simple_history',
             'djstripe',
+            'django_celery_beat',
 
             # our apps
             'readthedocs.projects',
@@ -477,6 +478,7 @@ class CommunityBaseSettings(Settings):
     CELERY_CREATE_MISSING_QUEUES = True
 
     CELERY_DEFAULT_QUEUE = 'celery'
+    CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
     CELERYBEAT_SCHEDULE = {
         'quarter-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.utils.finish_inactive_builds',
