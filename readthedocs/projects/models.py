@@ -1925,7 +1925,6 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
     DONT_SHALLOW_CLONE = "dont_shallow_clone"
@@ -1967,12 +1966,6 @@ class Feature(models.Model):
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
-        (
-            SKIP_SPHINX_HTML_THEME_PATH,
-            _(
-                "Sphinx: Do not define html_theme_path on Sphinx < 6.0",
-            ),
-        ),
         (
             MKDOCS_THEME_RTD,
             _("MkDocs: Use Read the Docs theme for MkDocs as default theme"),
