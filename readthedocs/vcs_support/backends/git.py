@@ -357,6 +357,28 @@ class Backend(BaseVCS):
         from readthedocs.projects.models import Feature
         return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
 
+    @staticmethod
+    def _is_trigger_integration_gitlab(project):
+        # If there is only one integration associated with the project, we
+        # can unambiguously conclude that the external build was triggered by
+        # a merge request.
+        #
+        # https://github.com/readthedocs/readthedocs.org/issues/9464
+
+        # To avoid error like the following, the value corresponding to
+        # Integration.GITLAB_WEBHOOK is hardcoded.
+        #
+        #   ImportError: cannot import name 'Project' from partially initialized module
+        #   'readthedocs.projects.models' (most likely due to a circular import)
+        _gitlab_webhook = "gitlab_webhook"  # Integration.GITLAB_WEBHOOK
+
+        if (
+            project.integrations.count() == 1
+            and project.integrations.first().integration_type == _gitlab_webhook
+        ):
+            return True
+        return False
+
     def fetch(self):
         # --force lets us checkout branches that are not fast-forwarded
         # https://github.com/readthedocs/readthedocs.org/issues/6097
@@ -373,10 +395,11 @@ class Backend(BaseVCS):
                     GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name)
                 )
 
-            if self.project.git_provider_name == GITLAB_BRAND:
-                cmd.append(
-                    GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
-                )
+            if (
+                self.project.git_provider_name == GITLAB_BRAND
+                or self._is_trigger_integration_gitlab(self.project)
+            ):
+                cmd.append(GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name))
 
         code, stdout, stderr = self.run(*cmd)
         return code, stdout, stderr
