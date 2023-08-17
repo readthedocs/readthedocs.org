@@ -57,7 +57,6 @@ and it contains the following files:
   including the Sphinx configuration ``docs/source/conf.py``
   and the root document ``docs/source/index.rst`` written in reStructuredText.
 
-.. TODO: update this image once we have pushed the ``readthedocs.yaml`` to the repository
 .. figure:: /_static/images/tutorial/github-template.png
    :width: 80%
    :align: center
