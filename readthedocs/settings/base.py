@@ -507,7 +507,7 @@ class CommunityBaseSettings(Settings):
         },
         'weekly-delete-old-personal-audit-logs': {
             'task': 'readthedocs.audit.tasks.delete_old_personal_audit_logs',
-            'schedule': crontab(day_of_week='wednesday', minute=0, hour=7),
+            'schedule': crontab(day_of_week="wed", minute=0, hour=7),
             'options': {'queue': 'web'},
         },
         'every-day-resync-sso-organization-users': {
@@ -549,12 +549,12 @@ class CommunityBaseSettings(Settings):
         },
         'weekly-config-file-notification': {
             'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
-            'schedule': crontab(day_of_week='wednesday', hour=11, minute=15),
+            'schedule': crontab(day_of_week="wed", hour=11, minute=15),
             'options': {'queue': 'web'},
         },
         'weekly-build-image-notification': {
             'task': 'readthedocs.projects.tasks.utils.deprecated_build_image_notification',
-            'schedule': crontab(day_of_week='wednesday', hour=9, minute=15),
+            'schedule': crontab(day_of_week="wed", hour=9, minute=15),
             'options': {'queue': 'web'},
         },
     }
