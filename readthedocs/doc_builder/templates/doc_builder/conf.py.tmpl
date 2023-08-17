@@ -48,12 +48,6 @@ if not 'html_static_path' in globals():
 if os.path.exists('_static'):
     html_static_path.append('_static')
 
-# Define websupport2_base_url and websupport2_static_url
-if globals().get('websupport2_base_url', False):
-    websupport2_base_url = '{{ api_host }}/websupport'
-    websupport2_static_url = '{{ settings.STATIC_URL }}'
-
-
 #Add project information to the template context.
 context = {
     'using_theme': using_rtd_theme,
