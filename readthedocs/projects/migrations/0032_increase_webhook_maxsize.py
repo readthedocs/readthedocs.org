@@ -3,15 +3,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0031_add_modified_date_importedfile'),
+        ("projects", "0031_add_modified_date_importedfile"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='webhook',
-            name='url',
-            field=models.URLField(blank=True, help_text='URL to send the webhook to', max_length=600),
+            model_name="webhook",
+            name="url",
+            field=models.URLField(
+                blank=True, help_text="URL to send the webhook to", max_length=600
+            ),
         ),
     ]

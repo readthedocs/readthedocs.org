@@ -5,15 +5,20 @@ import readthedocs.integrations.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('integrations', '0004_add_integration_secret'),
+        ("integrations", "0004_add_integration_secret"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='integration',
-            name='secret',
-            field=models.CharField(blank=True, default=readthedocs.integrations.utils.get_secret, help_text='Secret used to validate the payload of the webhook', max_length=255, null=True),
+            model_name="integration",
+            name="secret",
+            field=models.CharField(
+                blank=True,
+                default=readthedocs.integrations.utils.get_secret,
+                help_text="Secret used to validate the payload of the webhook",
+                max_length=255,
+                null=True,
+            ),
         ),
     ]

@@ -15,18 +15,17 @@ def forwards_func(apps, schema_editor):
     if settings.ALLOW_PRIVATE_REPOS:
         return
 
-    Version = apps.get_model('builds', 'Version')
+    Version = apps.get_model("builds", "Version")
     (
-        Version.objects
-        .filter(privacy_level='private')
-        .update(privacy_level='public', hidden=True)
+        Version.objects.filter(privacy_level="private").update(
+            privacy_level="public", hidden=True
+        )
     )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0024_status_code_choices'),
+        ("builds", "0024_status_code_choices"),
     ]
 
     operations = [

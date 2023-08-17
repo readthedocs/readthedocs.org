@@ -19,8 +19,8 @@ class Settings:
         """
         self = cls()
         module = sys.modules[module_name]
-        for (member, value) in inspect.getmembers(self):
-            if member.isupper() and not member.startswith('_'):
+        for member, value in inspect.getmembers(self):
+            if member.isupper() and not member.startswith("_"):
                 if isinstance(value, property):
                     value = value.fget(self)
                 setattr(module, member, value)

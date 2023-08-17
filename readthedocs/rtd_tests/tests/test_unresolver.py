@@ -22,12 +22,11 @@ from readthedocs.rtd_tests.tests.test_resolver import ResolverBase
 
 
 @override_settings(
-    PUBLIC_DOMAIN='readthedocs.io',
-    RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
+    PUBLIC_DOMAIN="readthedocs.io",
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
 )
 @pytest.mark.proxito
 class UnResolverTests(ResolverBase):
-
     def test_unresolver(self):
         parts = unresolve(
             "https://pip.readthedocs.io/en/latest/foo.html?search=api#fragment"
@@ -201,7 +200,7 @@ class UnResolverTests(ResolverBase):
     def test_unresolver_custom_domain(self):
         self.domain = fixture.get(
             Domain,
-            domain='docs.foobar.com',
+            domain="docs.foobar.com",
             project=self.pip,
             canonical=True,
         )

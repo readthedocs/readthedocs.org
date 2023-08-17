@@ -54,17 +54,17 @@ class PlainTextBuildRenderer(BaseRenderer):
     charset is 'utf-8' by default.
     """
 
-    media_type = 'text/plain'
-    format = 'txt'
+    media_type = "text/plain"
+    format = "txt"
 
     def render(self, data, accepted_media_type=None, renderer_context=None):
         renderer_context = renderer_context or {}
-        response = renderer_context.get('response')
+        response = renderer_context.get("response")
         if not response or response.exception:
-            return data.get('detail', '').encode(self.charset)
+            return data.get("detail", "").encode(self.charset)
         data = render_to_string(
-            'restapi/log.txt',
-            {'build': data},
+            "restapi/log.txt",
+            {"build": data},
         )
         return data.encode(self.charset)
 
@@ -94,12 +94,16 @@ class DisableListEndpoint:
         disabled = True
 
         # NOTE: keep list endpoint that specifies a resource
-        if any([
-                self.basename == 'version' and 'project__slug' in self.request.GET,
-                self.basename == 'build'
-                and ('commit' in self.request.GET or 'project__slug' in self.request.GET),
-                self.basename == 'project' and 'slug' in self.request.GET,
-        ]):
+        if any(
+            [
+                self.basename == "version" and "project__slug" in self.request.GET,
+                self.basename == "build"
+                and (
+                    "commit" in self.request.GET or "project__slug" in self.request.GET
+                ),
+                self.basename == "project" and "slug" in self.request.GET,
+            ]
+        ):
             disabled = False
 
         if not disabled:
@@ -107,12 +111,12 @@ class DisableListEndpoint:
 
         return Response(
             {
-                'error': 'disabled',
-                'msg': (
-                    'List endpoint have been disabled due to heavy resource usage. '
-                    'Take into account than APIv2 is planned to be deprecated soon. '
-                    'Please use APIv3: https://docs.readthedocs.io/page/api/v3.html'
-                )
+                "error": "disabled",
+                "msg": (
+                    "List endpoint have been disabled due to heavy resource usage. "
+                    "Take into account than APIv2 is planned to be deprecated soon. "
+                    "Please use APIv3: https://docs.readthedocs.io/page/api/v3.html"
+                ),
             },
             status=status.HTTP_410_GONE,
         )
@@ -168,53 +172,60 @@ class ProjectViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     admin_serializer_class = ProjectAdminSerializer
     model = Project
     pagination_class = ProjectPagination
-    filterset_fields = ('slug',)
+    filterset_fields = ("slug",)
 
     @decorators.action(detail=True)
     def translations(self, *_, **__):
         translations = self.get_object().translations.all()
-        return Response({
-            'translations': ProjectSerializer(translations, many=True).data,
-        })
+        return Response(
+            {
+                "translations": ProjectSerializer(translations, many=True).data,
+            }
+        )
 
     @decorators.action(detail=True)
     def subprojects(self, request, **kwargs):
         project = self.get_object()
         rels = project.subprojects.all()
         children = [rel.child for rel in rels]
-        return Response({
-            'subprojects': ProjectSerializer(children, many=True).data,
-        })
+        return Response(
+            {
+                "subprojects": ProjectSerializer(children, many=True).data,
+            }
+        )
 
     @decorators.action(detail=True)
     def active_versions(self, request, **kwargs):
         project = self.get_object()
         versions = project.versions(manager=INTERNAL).filter(active=True)
-        return Response({
-            'versions': VersionSerializer(versions, many=True).data,
-        })
+        return Response(
+            {
+                "versions": VersionSerializer(versions, many=True).data,
+            }
+        )
 
     @decorators.action(detail=True)
     def canonical_url(self, request, **kwargs):
         project = self.get_object()
-        return Response({
-            'url': project.get_docs_url(),
-        })
+        return Response(
+            {
+                "url": project.get_docs_url(),
+            }
+        )
 
     def get_queryset_for_api_key(self, api_key):
         return self.model.objects.filter(pk=api_key.project.pk)
 
 
 class VersionViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
-
     permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
     renderer_classes = (JSONRenderer,)
     serializer_class = VersionSerializer
     admin_serializer_class = VersionAdminSerializer
     model = Version
     filterset_fields = (
-        'active',
-        'project__slug',
+        "active",
+        "project__slug",
     )
 
     def get_queryset_for_api_key(self, api_key):
@@ -228,7 +239,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
     renderer_classes = (JSONRenderer, PlainTextBuildRenderer)
     model = Build
-    filterset_fields = ('project__slug', 'commit')
+    filterset_fields = ("project__slug", "commit")
 
     def get_serializer_class(self):
         """
@@ -249,10 +260,10 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     @decorators.action(
         detail=False,
         permission_classes=[HasBuildAPIKey],
-        methods=['get'],
+        methods=["get"],
     )
     def concurrent(self, request, **kwargs):
-        project_slug = request.GET.get('project__slug')
+        project_slug = request.GET.get("project__slug")
         build_api_key = request.build_api_key
         if project_slug != build_api_key.project.slug:
             log.warning(
@@ -264,9 +275,9 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         project = build_api_key.project
         limit_reached, concurrent, max_concurrent = Build.objects.concurrent(project)
         data = {
-            'limit_reached': limit_reached,
-            'concurrent': concurrent,
-            'max_concurrent': max_concurrent,
+            "limit_reached": limit_reached,
+            "concurrent": concurrent,
+            "max_concurrent": max_concurrent,
         }
         return Response(data)
 
@@ -284,14 +295,14 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
         serializer = self.get_serializer(instance)
         data = serializer.data
         if instance.cold_storage:
-            storage_path = '{date}/{id}.json'.format(
+            storage_path = "{date}/{id}.json".format(
                 date=str(instance.date.date()),
                 id=instance.id,
             )
             if build_commands_storage.exists(storage_path):
                 try:
                     json_resp = build_commands_storage.open(storage_path).read()
-                    data['commands'] = json.loads(json_resp)
+                    data["commands"] = json.loads(json_resp)
 
                     # Normalize commands in the same way than when returning
                     # them using the serializer
@@ -303,7 +314,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
                         )
                 except Exception:
                     log.exception(
-                        'Failed to read build data from storage.',
+                        "Failed to read build data from storage.",
                         path=storage_path,
                     )
         return Response(data)
@@ -311,7 +322,7 @@ class BuildViewSet(DisableListEndpoint, UpdateModelMixin, UserSelectViewSet):
     @decorators.action(
         detail=True,
         permission_classes=[HasBuildAPIKey],
-        methods=['post'],
+        methods=["post"],
     )
     def reset(self, request, **kwargs):
         """Reset the build so it can be re-used when re-trying."""
@@ -336,6 +347,14 @@ class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
         build_api_key = self.request.build_api_key
         if not build_api_key.project.builds.filter(pk=build_pk).exists():
             raise PermissionDenied()
+
+        if BuildCommandResult.objects.filter(
+            build=serializer.validated_data["build"],
+            start_time=serializer.validated_data["start_time"],
+        ).exists():
+            log.warning("Build command is duplicated. Skipping...")
+            return
+
         return super().perform_create(serializer)
 
     def get_queryset_for_api_key(self, api_key):
@@ -358,11 +377,13 @@ class RemoteOrganizationViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return (
-            self.model.objects.api(self.request.user).filter(
+            self.model.objects.api(self.request.user)
+            .filter(
                 remote_organization_relations__account__provider__in=[
                     service.adapter.provider_id for service in registry
                 ]
-            ).distinct()
+            )
+            .distinct()
         )
 
 
@@ -383,20 +404,20 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
                 When(
                     remote_repository_relations__user=self.request.user,
                     remote_repository_relations__admin=True,
-                    then=Value(True)
+                    then=Value(True),
                 ),
                 default=Value(False),
-                output_field=BooleanField()
+                output_field=BooleanField(),
             )
         )
-        full_name = self.request.query_params.get('full_name')
+        full_name = self.request.query_params.get("full_name")
         if full_name is not None:
             query = query.filter(full_name__icontains=full_name)
-        org = self.request.query_params.get('org', None)
+        org = self.request.query_params.get("org", None)
         if org is not None:
             query = query.filter(organization__pk=org)
 
-        own = self.request.query_params.get('own', None)
+        own = self.request.query_params.get("own", None)
         if own is not None:
             query = query.filter(
                 remote_repository_relations__account__provider=own,
@@ -410,8 +431,8 @@ class RemoteRepositoryViewSet(viewsets.ReadOnlyModelViewSet):
         ).distinct()
 
         # optimizes for the RemoteOrganizationSerializer
-        query = query.select_related('organization').order_by(
-            'organization__name', 'full_name'
+        query = query.select_related("organization").order_by(
+            "organization__name", "full_name"
         )
 
         return query

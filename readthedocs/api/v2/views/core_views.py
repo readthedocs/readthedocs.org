@@ -32,7 +32,7 @@ class RevokeBuildAPIKeyView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-@decorators.api_view(['GET'])
+@decorators.api_view(["GET"])
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer,))
 def docurl(request):
@@ -47,27 +47,28 @@ def docurl(request):
           doc=index&
           path=index.html
     """
-    project = request.GET.get('project')
-    version = request.GET.get('version', LATEST)
-    doc = request.GET.get('doc', 'index')
-    path = request.GET.get('path', '')
+    project = request.GET.get("project")
+    version = request.GET.get("version", LATEST)
+    doc = request.GET.get("doc", "index")
+    path = request.GET.get("path", "")
     if project is None:
         return Response(
-            {'error': 'Need project and doc'},
+            {"error": "Need project and doc"},
             status=status.HTTP_400_BAD_REQUEST,
         )
 
     project = get_object_or_404(Project, slug=project)
     version = get_object_or_404(
-        Version.objects
-        .public(request.user, project=project, only_active=False),
+        Version.objects.public(request.user, project=project, only_active=False),
         slug=version,
     )
-    return Response({
-        'url': make_document_url(
-            project=project,
-            version=version.slug,
-            page=doc,
-            path=path,
-        ),
-    })
+    return Response(
+        {
+            "url": make_document_url(
+                project=project,
+                version=version.slug,
+                page=doc,
+                path=path,
+            ),
+        }
+    )

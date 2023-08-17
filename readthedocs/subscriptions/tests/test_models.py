@@ -65,6 +65,7 @@ class SubscriptionTests(TestCase):
             djstripe.SubscriptionItem,
             id="si_KOcEsHCktPUedU",
             price=price,
+            quantity=1,
             subscription=stripe_subscription,
         )
 
@@ -119,6 +120,7 @@ class SubscriptionTests(TestCase):
             djstripe.SubscriptionItem,
             id="si_KOcEsHCktPUedU",
             price=price,
+            quantity=1,
             subscription=stripe_subscription,
         )
 

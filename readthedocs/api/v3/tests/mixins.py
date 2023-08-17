@@ -19,14 +19,13 @@ from readthedocs.redirects.models import Redirect
 
 
 @override_settings(
-    PUBLIC_DOMAIN='readthedocs.io',
-    PRODUCTION_DOMAIN='readthedocs.org',
+    PUBLIC_DOMAIN="readthedocs.io",
+    PRODUCTION_DOMAIN="readthedocs.org",
     USE_SUBDOMAIN=True,
-    RTD_BUILD_MEDIA_STORAGE='readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest',
+    RTD_BUILD_MEDIA_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest",
     RTD_ALLOW_ORGANIZATIONS=False,
 )
 class APIEndpointMixin(TestCase):
-
     fixtures = []
 
     def setUp(self):
@@ -36,10 +35,10 @@ class APIEndpointMixin(TestCase):
         self.me = fixture.get(
             User,
             date_joined=self.created,
-            username='testuser',
+            username="testuser",
             projects=[],
         )
-        self.token = fixture.get(Token, key='me', user=self.me)
+        self.token = fixture.get(Token, key="me", user=self.me)
         # Defining all the defaults helps to avoid creating ghost / unwanted
         # objects (like a Project for translations/subprojects)
         self.project = fixture.get(
@@ -47,11 +46,11 @@ class APIEndpointMixin(TestCase):
             id=1,
             pub_date=self.created,
             modified_date=self.modified,
-            description='Project description',
-            repo='https://github.com/rtfd/project',
-            project_url='http://project.com',
-            name='project',
-            slug='project',
+            description="Project description",
+            repo="https://github.com/rtfd/project",
+            project_url="http://project.com",
+            name="project",
+            slug="project",
             related_projects=[],
             main_language_project=None,
             users=[self.me],
@@ -60,24 +59,24 @@ class APIEndpointMixin(TestCase):
             external_builds_privacy_level=PUBLIC,
             privacy_level=PUBLIC,
         )
-        for tag in ('tag', 'project', 'test'):
+        for tag in ("tag", "project", "test"):
             self.project.tags.add(tag)
 
         self.redirect = fixture.get(
             Redirect,
             create_dt=self.created,
             update_dt=self.modified,
-            from_url='/docs/',
-            to_url='/documentation/',
-            redirect_type='page',
+            from_url="/docs/",
+            to_url="/documentation/",
+            redirect_type="page",
             project=self.project,
         )
 
         self.version = fixture.get(
             Version,
-            slug='v1.0',
-            verbose_name='v1.0',
-            identifier='a1b2c3',
+            slug="v1.0",
+            verbose_name="v1.0",
+            identifier="a1b2c3",
             project=self.project,
             hidden=False,
             active=True,
@@ -92,24 +91,24 @@ class APIEndpointMixin(TestCase):
         self.build = fixture.get(
             Build,
             date=self.created,
-            type='html',
-            state='finished',
-            error='',
+            type="html",
+            state="finished",
+            error="",
             success=True,
-            _config = {'property': 'test value'},
+            _config={"property": "test value"},
             version=self.version,
             project=self.project,
-            builder='builder01',
-            commit='a1b2c3',
+            builder="builder01",
+            commit="a1b2c3",
             length=60,
         )
 
         self.other = fixture.get(User, projects=[])
-        self.others_token = fixture.get(Token, key='other', user=self.other)
+        self.others_token = fixture.get(Token, key="other", user=self.other)
         self.others_project = fixture.get(
             Project,
             id=2,
-            slug='others-project',
+            slug="others-project",
             related_projects=[],
             main_language_project=None,
             users=[self.other],
@@ -137,11 +136,11 @@ class APIEndpointMixin(TestCase):
             Project,
             pub_date=self.created,
             modified_date=self.modified,
-            description='Project description',
-            repo='https://github.com/rtfd/project',
-            project_url='http://project.com',
-            name='new-project',
-            slug='new-project',
+            description="Project description",
+            repo="https://github.com/rtfd/project",
+            project_url="http://project.com",
+            name="new-project",
+            slug="new-project",
             related_projects=[],
             main_language_project=None,
             users=[self.me],
@@ -156,11 +155,11 @@ class APIEndpointMixin(TestCase):
             Project,
             pub_date=self.created,
             modified_date=self.modified,
-            description='SubProject description',
-            repo='https://github.com/rtfd/subproject',
-            project_url='http://subproject.com',
-            name='subproject',
-            slug='subproject',
+            description="SubProject description",
+            repo="https://github.com/rtfd/subproject",
+            project_url="http://subproject.com",
+            name="subproject",
+            slug="subproject",
             related_projects=[],
             main_language_project=None,
             users=[self.me],
@@ -172,7 +171,7 @@ class APIEndpointMixin(TestCase):
 
     def _get_response_dict(self, view_name, filepath=None):
         filepath = filepath or __file__
-        filename = Path(filepath).absolute().parent / 'responses' / f'{view_name}.json'
+        filename = Path(filepath).absolute().parent / "responses" / f"{view_name}.json"
         return json.load(open(filename))
 
     def assertDictEqual(self, d1, d2):
@@ -181,9 +180,10 @@ class APIEndpointMixin(TestCase):
 
         It's just a helper for debugging API responses.
         """
-        message = ''
+        message = ""
         try:
             import datadiff
+
             message = datadiff.diff(d1, d2)
         except ImportError:
             pass

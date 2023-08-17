@@ -26,26 +26,26 @@ class RTDFacetedSearch(FacetedSearch):
 
     # Search for both 'and' and 'or' operators.
     # The score of and should be higher as it satisfies both or and and.
-    operators = ['and', 'or']
+    operators = ["and", "or"]
 
     # Sources to be excluded from results.
     excludes = []
 
     _highlight_options = {
-        'encoder': 'html',
-        'number_of_fragments': 1,
-        'pre_tags': ['<span>'],
-        'post_tags': ['</span>'],
+        "encoder": "html",
+        "number_of_fragments": 1,
+        "pre_tags": ["<span>"],
+        "post_tags": ["</span>"],
     }
 
     def __init__(
-            self,
-            query=None,
-            filters=None,
-            projects=None,
-            aggregate_results=True,
-            use_advanced_query=True,
-            **kwargs,
+        self,
+        query=None,
+        filters=None,
+        projects=None,
+        aggregate_results=True,
+        use_advanced_query=True,
+        **kwargs,
     ):
         """
         Custom wrapper around FacetedSearch.
@@ -75,11 +75,7 @@ class RTDFacetedSearch(FacetedSearch):
         filters = filters or {}
 
         # We may receive invalid filters
-        valid_filters = {
-            k: v
-            for k, v in filters.items()
-            if k in self.facets
-        }
+        valid_filters = {k: v for k, v in filters.items() if k in self.facets}
         super().__init__(query=query, filters=valid_filters, **kwargs)
 
     def _get_queries(self, *, query, fields):
@@ -157,14 +153,14 @@ class RTDFacetedSearch(FacetedSearch):
         queries = [query_string]
         for field in fields:
             # Remove boosting from the field,
-            field = re.sub(r'\^.*$', '', field)
+            field = re.sub(r"\^.*$", "", field)
             kwargs = {
-                field: {'value': f'{query}*'},
+                field: {"value": f"{query}*"},
             }
             queries.append(Wildcard(**kwargs))
         return queries
 
-    def _get_fuzzy_query(self, *, query, fields, operator='or'):
+    def _get_fuzzy_query(self, *, query, fields, operator="or"):
         """
         Returns a query object used for fuzzy results.
 
@@ -189,9 +185,10 @@ class RTDFacetedSearch(FacetedSearch):
         and if `self.use_advanced_query` is False.
         """
         is_single_term = (
-            not self.use_advanced_query and
-            query and len(query.split()) <= 1 and
-            not self._is_advanced_query(query)
+            not self.use_advanced_query
+            and query
+            and len(query.split()) <= 1
+            and not self._is_advanced_query(query)
         )
         return is_single_term
 
@@ -210,7 +207,7 @@ class RTDFacetedSearch(FacetedSearch):
 
         https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-simple-query-string-query.html#simple-query-string-syntax
         """
-        tokens = {'+', '|', '-', '"', '*', '(', ')', '~'}
+        tokens = {"+", "|", "-", '"', "*", "(", ")", "~"}
         query_tokens = set(query)
         return not tokens.isdisjoint(query_tokens)
 
@@ -221,11 +218,11 @@ class RTDFacetedSearch(FacetedSearch):
 
 
 class ProjectSearch(RTDFacetedSearch):
-    facets = {'language': TermsFacet(field='language')}
+    facets = {"language": TermsFacet(field="language")}
     doc_types = [ProjectDocument]
     index = ProjectDocument._index._name
-    fields = ('name^10', 'slug^5', 'description')
-    excludes = ['users', 'language']
+    fields = ("name^10", "slug^5", "description")
+    excludes = ["users", "language"]
 
     def query(self, search, query):
         """
@@ -256,7 +253,7 @@ class ProjectSearch(RTDFacetedSearch):
                 projects_query = Bool(filter=Terms(slug=self.projects))
                 bool_query = Bool(must=[bool_query, projects_query])
             else:
-                raise ValueError('projects must be a list!')
+                raise ValueError("projects must be a list!")
 
         search = search.query(bool_query)
         return search
@@ -264,15 +261,15 @@ class ProjectSearch(RTDFacetedSearch):
 
 class PageSearch(RTDFacetedSearch):
     facets = {
-        'project': TermsFacet(field='project'),
+        "project": TermsFacet(field="project"),
     }
     doc_types = [PageDocument]
     index = PageDocument._index._name
 
     # boosting for these fields need to be close enough
     # to be re-boosted by the page rank.
-    _outer_fields = ['title^1.5']
-    _section_fields = ['sections.title^2', 'sections.content']
+    _outer_fields = ["title^1.5"]
+    _section_fields = ["sections.title^2", "sections.content"]
     fields = _outer_fields
     excludes = ["rank", "sections", "commit", "build"]
 
@@ -296,7 +293,7 @@ class PageSearch(RTDFacetedSearch):
         if isinstance(self.projects, list):
             return Bool(filter=Terms(project=self.projects))
 
-        raise ValueError('projects must be a list or a dict!')
+        raise ValueError("projects must be a list or a dict!")
 
     def query(self, search, query):
         """
@@ -315,7 +312,7 @@ class PageSearch(RTDFacetedSearch):
 
         sections_nested_query = self._get_nested_query(
             query=query,
-            path='sections',
+            path="sections",
             fields=self._section_fields,
         )
         queries.append(sections_nested_query)
@@ -342,21 +339,18 @@ class PageSearch(RTDFacetedSearch):
 
         raw_fields = [
             # Remove boosting from the field
-            re.sub(r'\^.*$', '', field)
+            re.sub(r"\^.*$", "", field)
             for field in fields
         ]
 
         highlight = dict(
             self._highlight_options,
-            fields={
-                field: {}
-                for field in raw_fields
-            },
+            fields={field: {} for field in raw_fields},
         )
 
         return Nested(
             path=path,
-            inner_hits={'highlight': highlight},
+            inner_hits={"highlight": highlight},
             query=bool_query,
         )
 

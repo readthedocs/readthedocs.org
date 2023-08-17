@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0020_migrate_null_hidden_field'),
+        ("builds", "0020_migrate_null_hidden_field"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='version',
-            name='hidden',
-            field=models.BooleanField(default=False, help_text='Hide this version from the version (flyout) menu and search results?', verbose_name='Hidden'),
+            model_name="version",
+            name="hidden",
+            field=models.BooleanField(
+                default=False,
+                help_text="Hide this version from the version (flyout) menu and search results?",
+                verbose_name="Hidden",
+            ),
         ),
     ]

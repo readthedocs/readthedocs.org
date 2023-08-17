@@ -16,7 +16,9 @@ def sort_version_aware(versions):
         repo_type = versions[0].project.repo_type
     return sorted(
         versions,
-        key=lambda version: comparable_version(version.verbose_name, repo_type=repo_type),
+        key=lambda version: comparable_version(
+            version.verbose_name, repo_type=repo_type
+        ),
         reverse=True,
     )
 

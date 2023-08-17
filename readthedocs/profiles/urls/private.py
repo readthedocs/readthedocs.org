@@ -13,32 +13,32 @@ account_urls = [
     path(
         "login/",
         views.LoginView.as_view(),
-        name='account_login',
+        name="account_login",
     ),
     path(
         "logout/",
         views.LogoutView.as_view(),
-        name='account_logout',
+        name="account_logout",
     ),
     path(
         "edit/",
         views.ProfileEdit.as_view(),
-        name='profiles_profile_edit',
+        name="profiles_profile_edit",
     ),
     path(
         "delete/",
         views.AccountDelete.as_view(),
-        name='delete_account',
+        name="delete_account",
     ),
     path(
         "security-log/",
         views.UserSecurityLogView.as_view(),
-        name='profiles_security_log',
+        name="profiles_security_log",
     ),
     path(
         "advertising/",
         views.AccountAdvertisingEdit.as_view(),
-        name='account_advertising',
+        name="account_advertising",
     ),
 ]
 
@@ -48,17 +48,17 @@ tokens_urls = [
     path(
         "tokens/",
         views.TokenListView.as_view(),
-        name='profiles_tokens',
+        name="profiles_tokens",
     ),
     path(
         "tokens/create/",
         views.TokenCreateView.as_view(),
-        name='profiles_tokens_create',
+        name="profiles_tokens_create",
     ),
     path(
         "tokens/delete/",
         views.TokenDeleteView.as_view(),
-        name='profiles_tokens_delete',
+        name="profiles_tokens_delete",
     ),
 ]
 
