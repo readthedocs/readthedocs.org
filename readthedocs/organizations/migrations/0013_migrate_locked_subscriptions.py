@@ -17,6 +17,7 @@ def forwards_func(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ("organizations", "0012_add_organization_never_disable"),
+        ("subscriptions", "0002_alter_planfeature_feature_type"),
     ]
 
     operations = [
