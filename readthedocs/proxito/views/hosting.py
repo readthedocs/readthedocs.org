@@ -178,6 +178,9 @@ class AddonsResponse:
             .only("slug")
             .order_by("slug")
         )
+        project_translations = (
+            project.translations.all().only("language").order_by("language")
+        )
 
         data = {
             "comment": (
@@ -250,23 +253,47 @@ class AddonsResponse:
                     "base_page": "",
                 },
                 "flyout": {
-                    "translations": [],
+                    "enabled": True,
+                    "translations": [
+                        {
+                            # TODO: name this field "display_name"
+                            "slug": translation.language,
+                            "url": f"/{translation.language}/",
+                        }
+                        for translation in project_translations
+                    ],
                     "versions": [
                         {
+                            # TODO: name this field "display_name"
                             "slug": version.slug,
                             "url": f"/{project.language}/{version.slug}/",
                         }
                         for version in versions_active_built
                     ],
-                    "downloads": [],
-                    # TODO: get this values properly
-                    "vcs": {
-                        "url": "https://github.com",
-                        "username": "readthedocs",
-                        "repository": "test-builds",
-                        "branch": version.identifier if version else None,
-                        "filepath": "/docs/index.rst",
-                    },
+                    "downloads": [
+                        {
+                            # TODO: name this field "display_name"
+                            "name": name,
+                            "url": url,
+                        }
+                        for name, url in version.get_downloads(pretty=True).items()
+                    ],
+                    # TODO: find a way to get this data in a reliably way.
+                    # We don't have a simple way to map a URL to a file in the repository.
+                    # This feature may be deprecated/removed in this implementation since it relies
+                    # on data injected at build time and sent as `docroot=`, `source_suffix=` and `page=`.
+                    # Example URL:
+                    #   /_/api/v2/footer_html/?project=weblate&version=latest&page=index&theme=furo&docroot=/docs/&source_suffix=.rst
+                    # Data injected at:
+                    #  https://github.com/rtfd/readthedocs-sphinx-ext/blob/7c60d1646c12ac0b83d61abfbdd5bcd77d324124/readthedocs_ext/_templates/readthedocs-insert.html.tmpl#L23
+                    #
+                    # "vcs": {
+                    #     "url": "https://github.com",
+                    #     "username": "readthedocs",
+                    #     "repository": "test-builds",
+                    #     "branch": version.identifier if version else None,
+                    #     "filepath": "/docs/index.rst",
+                    # },
                 },
                 "search": {
                     "enabled": True,
