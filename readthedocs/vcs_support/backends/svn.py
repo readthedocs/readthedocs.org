@@ -1,4 +1,3 @@
-
 """Subversion-related utilities."""
 
 import csv
@@ -28,31 +27,7 @@ class Backend(BaseVCS):
 
     def update(self):
         super().update()
-        if self.repo_exists():
-            return self.up()
         return self.co()
-
-    def repo_exists(self):
-        # For some reason `svn status` gives me retcode 0 in non-svn
-        # directories that's why I use `svn info` here.
-        retcode, *_ = self.run('svn', 'info', record=False)
-        return retcode == 0
-
-    def up(self):
-        retcode = self.run('svn', 'revert', '--recursive', '.')[0]
-        if retcode != 0:
-            raise RepositoryError
-        retcode, out, err = self.run(
-            'svn',
-            'up',
-            '--accept',
-            'theirs-full',
-            '--trust-server-cert',
-            '--non-interactive',
-        )
-        if retcode != 0:
-            raise RepositoryError
-        return retcode, out, err
 
     def co(self, identifier=None):
         self.make_clean_working_dir()

@@ -710,8 +710,16 @@ class TestBuildTask(BuildEnvironmentBase):
 
         self.mocker.mocks["git.Backend.run"].assert_has_calls(
             [
+                mock.call("git", "clone", "--depth", "1", mock.ANY, "."),
                 mock.call(
-                    "git", "clone", "--no-single-branch", "--depth", "50", mock.ANY, "."
+                    "git",
+                    "fetch",
+                    "origin",
+                    "--force",
+                    "--prune",
+                    "--prune-tags",
+                    "--depth",
+                    "50",
                 ),
                 mock.call(
                     "git",
@@ -724,6 +732,15 @@ class TestBuildTask(BuildEnvironmentBase):
                 ),
                 mock.call("git", "checkout", "--force", "origin/a1b2c3"),
                 mock.call("git", "clean", "-d", "-f", "-f"),
+                mock.call(
+                    "git",
+                    "ls-remote",
+                    "--tags",
+                    "--heads",
+                    mock.ANY,
+                    demux=True,
+                    record=False,
+                ),
             ]
         )
 

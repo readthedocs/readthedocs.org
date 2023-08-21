@@ -233,6 +233,7 @@ class CommunityBaseSettings(Settings):
             'polymorphic',
             'simple_history',
             'djstripe',
+            'django_celery_beat',
 
             # our apps
             'readthedocs.projects',
@@ -396,13 +397,22 @@ class CommunityBaseSettings(Settings):
                 os.path.dirname(readthedocsext.theme.__file__),
                 'templates',
             ))
+
+        # Disable ``cached.Loader`` on development
+        # https://docs.djangoproject.com/en/4.2/ref/templates/api/#django.template.loaders.cached.Loader
+        default_loaders = [
+            "django.template.loaders.filesystem.Loader",
+            "django.template.loaders.app_directories.Loader",
+        ]
+        cached_loaders = [("django.template.loaders.cached.Loader", default_loaders)]
+
         return [
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'DIRS': dirs,
-                'APP_DIRS': True,
                 'OPTIONS': {
                     'debug': self.DEBUG,
+                    'loaders': default_loaders if self.DEBUG else cached_loaders,
                     'context_processors': [
                         'django.contrib.auth.context_processors.auth',
                         'django.contrib.messages.context_processors.messages',
@@ -468,6 +478,7 @@ class CommunityBaseSettings(Settings):
     CELERY_CREATE_MISSING_QUEUES = True
 
     CELERY_DEFAULT_QUEUE = 'celery'
+    CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
     CELERYBEAT_SCHEDULE = {
         'quarter-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.utils.finish_inactive_builds',
@@ -496,7 +507,7 @@ class CommunityBaseSettings(Settings):
         },
         'weekly-delete-old-personal-audit-logs': {
             'task': 'readthedocs.audit.tasks.delete_old_personal_audit_logs',
-            'schedule': crontab(day_of_week='wednesday', minute=0, hour=7),
+            'schedule': crontab(day_of_week="wed", minute=0, hour=7),
             'options': {'queue': 'web'},
         },
         'every-day-resync-sso-organization-users': {
@@ -542,12 +553,12 @@ class CommunityBaseSettings(Settings):
 
         # 'weekly-config-file-notification': {
         #     'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
-        #     'schedule': crontab(day_of_week='wednesday', hour=11, minute=15),
+        #     'schedule': crontab(day_of_week='wed', hour=11, minute=15),
         #     'options': {'queue': 'web'},
         # },
         # 'weekly-build-image-notification': {
         #     'task': 'readthedocs.projects.tasks.utils.deprecated_build_image_notification',
-        #     'schedule': crontab(day_of_week='wednesday', hour=9, minute=15),
+        #     'schedule': crontab(day_of_week='wed', hour=9, minute=15),
         #     'options': {'queue': 'web'},
         # },
     }

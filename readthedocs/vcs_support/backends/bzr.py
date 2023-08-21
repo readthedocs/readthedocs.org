@@ -1,4 +1,3 @@
-
 """Bazaar-related utilities."""
 
 import csv
@@ -15,23 +14,6 @@ class Backend(BaseVCS):
 
     supports_tags = True
     fallback_branch = ''
-
-    def update(self):
-        super().update()
-        if self.repo_exists():
-            return self.up()
-        return self.clone()
-
-    def repo_exists(self):
-        try:
-            code, _, _ = self.run('bzr', 'status', record=False)
-            return code == 0
-        except RepositoryError:
-            return False
-
-    def up(self):
-        self.run('bzr', 'revert')
-        return self.run('bzr', 'up')
 
     def clone(self):
         self.make_clean_working_dir()
