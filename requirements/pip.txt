@@ -143,10 +143,6 @@ filelock==3.12.2
     # via virtualenv
 funcy==1.18
     # via django-cacheops
-gitdb==4.0.10
-    # via gitpython
-gitpython==3.1.32
-    # via -r requirements/pip.in
 gunicorn==21.2.0
     # via -r requirements/pip.in
 idna==3.4
@@ -235,8 +231,6 @@ six==1.16.0
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.in
-smmap==5.0.0
-    # via gitdb
 sqlparse==0.4.4
     # via
     #   django

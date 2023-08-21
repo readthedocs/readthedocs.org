@@ -189,12 +189,6 @@ funcy==1.18
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
-gitdb==4.0.10
-    # via
-    #   -r requirements/pip.txt
-    #   gitpython
-gitpython==3.1.32
-    # via -r requirements/pip.txt
 gunicorn==21.2.0
     # via -r requirements/pip.txt
 idna==3.4
@@ -331,10 +325,6 @@ six==1.16.0
     #   unicode-slugify
 slumber==0.7.1
     # via -r requirements/pip.txt
-smmap==5.0.0
-    # via
-    #   -r requirements/pip.txt
-    #   gitdb
 sqlparse==0.4.4
     # via
     #   -r requirements/pip.txt
