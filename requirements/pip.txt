@@ -19,7 +19,9 @@ botocore==1.31.17
     #   boto3
     #   s3transfer
 celery==5.2.7
-    # via -r requirements/pip.in
+    # via
+    #   -r requirements/pip.in
+    #   django-celery-beat
 certifi==2023.7.22
     # via
     #   elasticsearch
@@ -40,6 +42,8 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.3.0
     # via celery
+cron-descriptor==1.4.0
+    # via django-celery-beat
 cryptography==41.0.3
     # via pyjwt
 cssselect==1.2.0
@@ -59,6 +63,7 @@ django==4.2.4
     #   django-allauth
     #   django-annoying
     #   django-cacheops
+    #   django-celery-beat
     #   django-cors-headers
     #   django-csp
     #   django-debug-toolbar
@@ -69,6 +74,7 @@ django==4.2.4
     #   django-storages
     #   django-structlog
     #   django-taggit
+    #   django-timezone-field
     #   djangorestframework
     #   jsonfield
 django-allauth==0.51.0
@@ -78,6 +84,8 @@ django-annoying==0.10.6
 django-autoslug==1.9.9
     # via -r requirements/pip.in
 django-cacheops==7.0.1
+    # via -r requirements/pip.in
+django-celery-beat==2.5.0
     # via -r requirements/pip.in
 django-cors-headers==4.2.0
     # via -r requirements/pip.in
@@ -111,6 +119,8 @@ django-structlog==2.2.0
     # via -r requirements/pip.in
 django-taggit==4.0.0
     # via -r requirements/pip.in
+django-timezone-field==5.1
+    # via django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.in
 djangorestframework==3.14.0
@@ -183,17 +193,21 @@ pyjwt[crypto]==2.8.0
     # via django-allauth
 pyquery==2.0.0
     # via -r requirements/pip.in
+python-crontab==3.0.0
+    # via django-celery-beat
 python-dateutil==2.8.2
     # via
     #   -r requirements/pip.in
     #   botocore
     #   elasticsearch-dsl
+    #   python-crontab
 python3-openid==3.2.0
     # via django-allauth
 pytz==2023.3
     # via
     #   -r requirements/pip.in
     #   celery
+    #   django-timezone-field
     #   djangorestframework
 pyyaml==6.0.1
     # via -r requirements/pip.in
@@ -248,7 +262,9 @@ tomli==2.0.1
 typing-extensions==4.7.1
     # via asgiref
 tzdata==2023.3
-    # via -r requirements/pip.in
+    # via
+    #   -r requirements/pip.in
+    #   django-celery-beat
 ua-parser==0.18.0
     # via user-agents
 unicode-slugify @ git+https://github.com/mozilla/unicode-slugify@b696c37

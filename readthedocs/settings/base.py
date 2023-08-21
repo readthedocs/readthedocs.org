@@ -233,6 +233,7 @@ class CommunityBaseSettings(Settings):
             'polymorphic',
             'simple_history',
             'djstripe',
+            'django_celery_beat',
 
             # our apps
             'readthedocs.projects',
@@ -477,6 +478,7 @@ class CommunityBaseSettings(Settings):
     CELERY_CREATE_MISSING_QUEUES = True
 
     CELERY_DEFAULT_QUEUE = 'celery'
+    CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
     CELERYBEAT_SCHEDULE = {
         'quarter-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.utils.finish_inactive_builds',
@@ -505,7 +507,7 @@ class CommunityBaseSettings(Settings):
         },
         'weekly-delete-old-personal-audit-logs': {
             'task': 'readthedocs.audit.tasks.delete_old_personal_audit_logs',
-            'schedule': crontab(day_of_week='wednesday', minute=0, hour=7),
+            'schedule': crontab(day_of_week="wed", minute=0, hour=7),
             'options': {'queue': 'web'},
         },
         'every-day-resync-sso-organization-users': {
@@ -547,12 +549,12 @@ class CommunityBaseSettings(Settings):
         },
         'weekly-config-file-notification': {
             'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
-            'schedule': crontab(day_of_week='wednesday', hour=11, minute=15),
+            'schedule': crontab(day_of_week="wed", hour=11, minute=15),
             'options': {'queue': 'web'},
         },
         'weekly-build-image-notification': {
             'task': 'readthedocs.projects.tasks.utils.deprecated_build_image_notification',
-            'schedule': crontab(day_of_week='wednesday', hour=9, minute=15),
+            'schedule': crontab(day_of_week="wed", hour=9, minute=15),
             'options': {'queue': 'web'},
         },
     }

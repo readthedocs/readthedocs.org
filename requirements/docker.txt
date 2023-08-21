@@ -36,7 +36,9 @@ botocore==1.31.17
 cachetools==5.3.1
     # via tox
 celery==5.2.7
-    # via -r requirements/pip.txt
+    # via
+    #   -r requirements/pip.txt
+    #   django-celery-beat
 certifi==2023.7.22
     # via
     #   -r requirements/pip.txt
@@ -73,6 +75,10 @@ click-repl==0.3.0
     #   celery
 colorama==0.4.6
     # via tox
+cron-descriptor==1.4.0
+    # via
+    #   -r requirements/pip.txt
+    #   django-celery-beat
 cryptography==41.0.3
     # via
     #   -r requirements/pip.txt
@@ -106,6 +112,7 @@ django==4.2.4
     #   django-allauth
     #   django-annoying
     #   django-cacheops
+    #   django-celery-beat
     #   django-cors-headers
     #   django-csp
     #   django-debug-toolbar
@@ -116,6 +123,7 @@ django==4.2.4
     #   django-storages
     #   django-structlog
     #   django-taggit
+    #   django-timezone-field
     #   djangorestframework
     #   jsonfield
 django-allauth==0.51.0
@@ -125,6 +133,8 @@ django-annoying==0.10.6
 django-autoslug==1.9.9
     # via -r requirements/pip.txt
 django-cacheops==7.0.1
+    # via -r requirements/pip.txt
+django-celery-beat==2.5.0
     # via -r requirements/pip.txt
 django-cors-headers==4.2.0
     # via -r requirements/pip.txt
@@ -160,6 +170,10 @@ django-structlog==2.2.0
     # via -r requirements/pip.txt
 django-taggit==4.0.0
     # via -r requirements/pip.txt
+django-timezone-field==5.1
+    # via
+    #   -r requirements/pip.txt
+    #   django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.txt
 djangorestframework==3.14.0
@@ -298,11 +312,16 @@ pyquery==2.0.0
     # via -r requirements/pip.txt
 pyrepl==0.9.0
     # via fancycompleter
+python-crontab==3.0.0
+    # via
+    #   -r requirements/pip.txt
+    #   django-celery-beat
 python-dateutil==2.8.2
     # via
     #   -r requirements/pip.txt
     #   botocore
     #   elasticsearch-dsl
+    #   python-crontab
 python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
@@ -311,6 +330,7 @@ pytz==2023.3
     # via
     #   -r requirements/pip.txt
     #   celery
+    #   django-timezone-field
     #   djangorestframework
 pyyaml==6.0.1
     # via -r requirements/pip.txt
@@ -387,7 +407,9 @@ typing-extensions==4.7.1
     #   -r requirements/pip.txt
     #   asgiref
 tzdata==2023.3
-    # via -r requirements/pip.txt
+    # via
+    #   -r requirements/pip.txt
+    #   django-celery-beat
 ua-parser==0.18.0
     # via
     #   -r requirements/pip.txt
