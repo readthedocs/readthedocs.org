@@ -73,6 +73,13 @@ class Organization(models.Model):
         blank=True,
         null=True,
     )
+    never_disable = models.BooleanField(
+        _("Never disable"),
+        help_text="Never disable this organization, even if its subscription ends",
+        # TODO: remove after migration
+        null=True,
+        default=False,
+    )
     disabled = models.BooleanField(
         _('Disabled'),
         help_text='Docs and builds are disabled for this organization',
@@ -89,6 +96,7 @@ class Organization(models.Model):
         blank=True,
     )
 
+    # TODO: This field can be removed, we are now using stripe_customer instead.
     stripe_id = models.CharField(
         _('Stripe customer ID'),
         max_length=100,

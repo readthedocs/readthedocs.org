@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import Count, Q
 from django.utils import timezone
+from djstripe.enums import InvoiceStatus, SubscriptionStatus
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.subscriptions.constants import DISABLE_AFTER_DAYS
@@ -38,62 +39,16 @@ class BaseOrganizationQuerySet(models.QuerySet):
         query_filter[field + '__day'] = when.day
         return self.filter(**query_filter)
 
-    # TODO: once we are settled into the Trial Plan, merge this method with the
-    # following one (``subscription_trial_ended``).
     def subscription_trial_plan_ended(self):
         """
         Organizations with subscriptions to Trial Plan ended.
 
         Trial Plan in Stripe has a 30-day trial set up. After that period ends,
-        the subscription goes to ``active`` and we know that the trial ended.
-
-        It also checks that ``end_date`` or ``trial_end_date`` are in the past.
-        """
-        date_now = timezone.now()
-        return self.filter(
-            ~Q(subscription__status="trialing"),
-            Q(
-                subscription__plan__stripe_id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE
-            ),
-            Q(subscription__end_date__lt=date_now)
-            | Q(subscription__trial_end_date__lt=date_now),
-        )
-
-    def subscription_trial_ended(self):
-        """
-        Organizations with subscriptions in trial ended state.
-
-        Filter for organization subscription past the trial date, or
-        organizations older than 30 days old
-        """
-        date_now = timezone.now()
-        return self.filter(
-            Q(
-                (
-                    Q(
-                        subscription__status='trialing',
-                    ) | Q(
-                        subscription__status__exact='',
-                    )
-                ),
-                subscription__trial_end_date__lt=date_now,
-            ) | Q(
-                subscription__isnull=True,
-                pub_date__lt=date_now - timedelta(days=30),
-            ),
-        )
-
-    def subscription_ended(self):
-        """
-        Organization with paid subscriptions ended.
-
-        Filter for organization with paid subscriptions that have
-        ended (canceled, past_due or unpaid) and they didn't renew them yet.
-
-        https://stripe.com/docs/api#subscription_object-status
+        the subscription is canceled.
         """
         return self.filter(
-            subscription__status__in=['canceled', 'past_due', 'unpaid'],
+            stripe_subscription__status=SubscriptionStatus.canceled,
+            stripe_subscription__items__price__id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE,
         )
 
     def disable_soon(self, days, exact=False):
@@ -102,6 +57,9 @@ class BaseOrganizationQuerySet(models.QuerySet):
 
         This will return organizations that the paid/trial subscription has
         ended ``days`` ago.
+
+        Organizations to be disabled are which their subscription has been canceled,
+        or hasn't been paid for ``days``.
 
         :param days: Days after the subscription has ended
         :param exact: Make the ``days`` date to match exactly that day after the
@@ -112,20 +70,45 @@ class BaseOrganizationQuerySet(models.QuerySet):
 
         if exact:
             # We use ``__date`` here since the field is a DateTimeField
-            trial_filter = {'subscription__trial_end_date__date': end_date}
-            paid_filter = {'subscription__end_date__date': end_date}
+            subscription_ended = self.filter(
+                Q(
+                    stripe_subscription__status=SubscriptionStatus.canceled,
+                    stripe_subscription__ended_at__date=end_date,
+                )
+                | Q(
+                    stripe_subscription__status__in=[
+                        SubscriptionStatus.past_due,
+                        SubscriptionStatus.incomplete,
+                        SubscriptionStatus.unpaid,
+                    ],
+                    stripe_subscription__latest_invoice__due_date__date=end_date,
+                    stripe_subscription__latest_invoice__status=InvoiceStatus.open,
+                )
+            )
         else:
-            trial_filter = {'subscription__trial_end_date__lt': end_date}
-            paid_filter = {'subscription__end_date__lt': end_date}
+            subscription_ended = self.filter(
+                Q(
+                    stripe_subscription__status=SubscriptionStatus.canceled,
+                    stripe_subscription__ended_at__lt=end_date,
+                )
+                | Q(
+                    stripe_subscription__status__in=[
+                        SubscriptionStatus.past_due,
+                        SubscriptionStatus.incomplete,
+                        SubscriptionStatus.unpaid,
+                    ],
+                    stripe_subscription__latest_invoice__due_date__date__lt=end_date,
+                    stripe_subscription__latest_invoice__status=InvoiceStatus.open,
+                )
+            )
 
-        trial_ended = self.subscription_trial_ended().filter(**trial_filter)
-        paid_ended = self.subscription_ended().filter(**paid_filter)
-
-        # Exclude organizations with custom plans (locked=True)
-        orgs = (trial_ended | paid_ended).exclude(subscription__locked=True)
-
-        # Exclude organizations that are already disabled
-        orgs = orgs.exclude(disabled=True)
+        orgs = (
+            subscription_ended
+            # Exclude organizations that can't be disabled.
+            .exclude(never_disable=True)
+            # Exclude organizations that are already disabled
+            .exclude(disabled=True)
+        )
 
         return orgs.distinct()
 

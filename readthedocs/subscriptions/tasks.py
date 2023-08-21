@@ -62,7 +62,9 @@ def daily_email():
 @app.task(queue="web")
 def disable_organization_expired_trials():
     """Daily task to disable organization with expired Trial Plans."""
-    queryset = Organization.objects.subscription_trial_plan_ended()
+    queryset = Organization.objects.disable_soon(
+        days=30, exact=True
+    ).subscription_trial_plan_ended()
 
     for organization in queryset:
         log.info(
