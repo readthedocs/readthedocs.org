@@ -51,14 +51,11 @@ class BaseOrganizationQuerySet(models.QuerySet):
             stripe_subscription__items__price__id=settings.RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE,
         )
 
-    def disable_soon(self, days, exact=False):
+    def subscription_ended(self, days, exact=False):
         """
-        Filter organizations that will eventually be marked as disabled.
+        Filter organizations which their subscription has ended.
 
-        This will return organizations that the paid/trial subscription has
-        ended ``days`` ago.
-
-        Organizations to be disabled are which their subscription has been canceled,
+        This will return organizations which their subscription has been canceled,
         or hasn't been paid for ``days``.
 
         :param days: Days after the subscription has ended
@@ -102,15 +99,26 @@ class BaseOrganizationQuerySet(models.QuerySet):
                 )
             )
 
-        orgs = (
-            subscription_ended
+        return subscription_ended.distinct()
+
+    def disable_soon(self, days, exact=False):
+        """
+        Filter organizations that will eventually be marked as disabled.
+
+        These are organizations which their subscription has ended,
+        excluding organizations that can't be disabled, or are already disabled.
+
+        :param days: Days after the subscription has ended
+        :param exact: Make the ``days`` date to match exactly that day after the
+            subscription has ended (useful to send emails only once)
+        """
+        return (
+            self.subscription_ended(days=days, exact=exact)
             # Exclude organizations that can't be disabled.
             .exclude(never_disable=True)
             # Exclude organizations that are already disabled
             .exclude(disabled=True)
         )
-
-        return orgs.distinct()
 
     def clean_artifacts(self):
         """
@@ -120,13 +128,11 @@ class BaseOrganizationQuerySet(models.QuerySet):
         are disabled and their artifacts weren't cleaned already. We should be
         safe to cleanup all their artifacts at this point.
         """
-        end_date = timezone.now().date() - timedelta(days=3 * DISABLE_AFTER_DAYS)
-        orgs = self.filter(
+        return self.subscription_ended(days=3 * DISABLE_AFTER_DAYS, exact=True).filter(
             disabled=True,
-            subscription__end_date__lt=end_date,
             artifacts_cleaned=False,
         )
-        return orgs.distinct()
+
 
     def single_owner(self, user):
         """Returns organizations where `user` is the only owner."""

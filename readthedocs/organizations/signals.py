@@ -1,5 +1,6 @@
 """Organization signals."""
 
+from djstripe.enums import SubscriptionStatus
 import structlog
 from allauth.account.signals import user_signed_up
 from django.db.models import Count
@@ -10,7 +11,7 @@ from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
 from readthedocs.organizations.models import Organization, Team, TeamMember
-from readthedocs.payments.utils import delete_customer
+from readthedocs.payments.utils import cancel_subscription
 from readthedocs.projects.models import Project
 
 from .tasks import (
@@ -52,11 +53,12 @@ def remove_organization_completely(sender, instance, using, **kwargs):
     stripe_customer = organization.stripe_customer
     if stripe_customer:
         log.info(
-            "Removing Stripe customer",
+            "Canceling subscriptions",
             organization_slug=organization.slug,
             stripe_customer_id=stripe_customer.id,
         )
-        delete_customer(stripe_customer.id)
+        for subscription in stripe_customer.subscriptions.exclude(status=SubscriptionStatus.canceled):
+            cancel_subscription(subscription.id)
 
     log.info("Removing organization completely", organization_slug=organization.slug)
 
