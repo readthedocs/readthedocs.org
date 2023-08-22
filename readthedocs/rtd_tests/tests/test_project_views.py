@@ -69,10 +69,11 @@ class TestBasicsForm(WizardTestCase):
 
     def setUp(self):
         self.user = get(User)
-        self.step_data['basics'] = {
-            'name': 'foobar',
-            'repo': 'http://example.com/foobar',
-            'repo_type': 'git',
+        self.step_data["basics"] = {
+            "name": "foobar",
+            "repo": "http://example.com/foobar",
+            "repo_type": "git",
+            "language": "en",
         }
         self.step_data["config"] = {
             "confirm": True,
@@ -199,10 +200,6 @@ class TestAdvancedForm(TestBasicsForm):
         }
 
     def test_initial_params(self):
-        extra_initial = {
-            'description': 'An amazing project',
-            'project_url': "https://foo.bar",
-        }
         config_initial = {
             "confirm": True,
         }
@@ -213,7 +210,7 @@ class TestAdvancedForm(TestBasicsForm):
             'default_branch': 'main',
             'remote_repository': '',
         }
-        initial = dict(**extra_initial, **config_initial, **basic_initial)
+        initial = dict(**config_initial, **basic_initial)
         self.client.force_login(self.user)
 
         # User selects a remote repo to import.
@@ -223,61 +220,17 @@ class TestAdvancedForm(TestBasicsForm):
         form = resp.context_data['form']
         self.assertEqual(form.initial, basic_initial)
 
-        # User selects advanced.
-        basic_initial['advanced'] = True
-        step_data = {
-            f'basics-{k}': v
-            for k, v in basic_initial.items()
-        }
-        step_data[f'{self.wizard_class_slug}-current_step'] = 'basics'
-        resp = self.client.post(self.url, step_data)
-
-        step_data = {f"config-{k}": v for k, v in config_initial.items()}
-        step_data[f"{self.wizard_class_slug}-current_step"] = "config"
-        resp = self.client.post(self.url, step_data)
-
-        # The correct initial data for the advanced form is set.
-        form = resp.context_data['form']
-        self.assertEqual(form.initial, extra_initial)
-
     def test_form_pass(self):
         """Test all forms pass validation."""
         resp = self.post_step("basics")
         self.assertWizardResponse(resp, "config")
         resp = self.post_step("config", session=list(resp._request.session.items()))
-        self.assertWizardResponse(resp, "extra")
-        self.assertEqual(resp.status_code, 200)
-        resp = self.post_step('extra', session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')
 
         proj = Project.objects.get(name='foobar')
         self.assertIsNotNone(proj)
-        data = self.step_data['basics']
-        del data['advanced']
-        del self.step_data['extra']['tags']
-        self.assertCountEqual(
-            [tag.name for tag in proj.tags.all()],
-            ['bar', 'baz', 'foo'],
-        )
-        data.update(self.step_data['extra'])
-        for (key, val) in list(data.items()):
-            self.assertEqual(getattr(proj, key), val)
-
-    def test_form_missing_extra(self):
-        """Submit extra form with missing data, expect to get failures."""
-        # Remove extra data to trigger validation errors
-        self.step_data['extra'] = {}
-
-        resp = self.post_step("basics")
-        self.assertWizardResponse(resp, "config")
-        resp = self.post_step("config", session=list(resp._request.session.items()))
-        self.assertWizardResponse(resp, "extra")
-        resp = self.post_step("extra", session=list(resp._request.session.items()))
-
-        self.assertWizardFailure(resp, 'language')
-        self.assertWizardFailure(resp, 'documentation_type')
 
     def test_remote_repository_is_added(self):
         remote_repo = get(RemoteRepository, default_branch="default-branch")
@@ -292,8 +245,6 @@ class TestAdvancedForm(TestBasicsForm):
         resp = self.post_step("basics")
         self.assertWizardResponse(resp, "config")
         resp = self.post_step("config", session=list(resp._request.session.items()))
-        self.assertWizardResponse(resp, "extra")
-        resp = self.post_step("extra", session=list(resp._request.session.items()))
         self.assertIsInstance(resp, HttpResponseRedirect)
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(resp['location'], '/projects/foobar/')

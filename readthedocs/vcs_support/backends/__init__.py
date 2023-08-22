@@ -1,6 +1,5 @@
 """Listing of all the VCS backends."""
-from __future__ import absolute_import
-from . import bzr, hg, git, svn
+from . import bzr, git, hg, svn
 
 backend_cls = {
     'bzr': bzr.Backend,

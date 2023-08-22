@@ -54,7 +54,6 @@ from readthedocs.projects.forms import (
     ProjectAdvertisingForm,
     ProjectBasicsForm,
     ProjectConfigForm,
-    ProjectExtraForm,
     ProjectRelationshipForm,
     RedirectForm,
     TranslationForm,
@@ -262,9 +261,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
     form_list = [
         ("basics", ProjectBasicsForm),
         ("config", ProjectConfigForm),
-        ("extra", ProjectExtraForm),
     ]
-    condition_dict = {'extra': lambda self: self.is_advanced()}
 
     initial_dict_key = 'initial-data'
 
@@ -298,8 +295,6 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         """Get args to pass into form instantiation."""
         kwargs = {}
         kwargs['user'] = self.request.user
-        if step == 'basics':
-            kwargs['show_advanced'] = True
         return kwargs
 
     def get_template_names(self):
@@ -314,31 +309,16 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         other side effects for now, by signalling a save without commit. Then,
         finish by added the members to the project and saving.
         """
-        form_data = self.get_all_cleaned_data()
-        extra_fields = ProjectExtraForm.Meta.fields
         basics_form = form_list[0]
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
 
-        # Remove tags to avoid setting them in raw instead of using ``.add``
-        tags = form_data.pop('tags', [])
-
-        for field, value in list(form_data.items()):
-            if field in extra_fields:
-                setattr(project, field, value)
-        project.save()
-
-        self.finish_import_project(self.request, project, tags)
+        self.finish_import_project(self.request, project)
 
         return HttpResponseRedirect(
             reverse('projects_detail', args=[project.slug]),
         )
-
-    def is_advanced(self):
-        """Determine if the user selected the `show advanced` field."""
-        data = self.get_cleaned_data_for_step('basics') or {}
-        return data.get('advanced', True)
 
 
 class ImportView(PrivateViewMixin, TemplateView):
