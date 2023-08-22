@@ -219,7 +219,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'requirements_file',
             'python_interpreter',
             'install_project',
-            'use_system_packages',
             'conf_py_file',
             'enable_pdf_build',
             'enable_epub_build',

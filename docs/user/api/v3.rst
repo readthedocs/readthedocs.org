@@ -697,7 +697,6 @@ Build details
                             "requirements": ".../stable/tools/docs-requirements.txt"
                         }
                     ],
-                    "use_system_site_packages": false
                 },
                 "conda": null,
                 "build": {
