@@ -12,15 +12,14 @@ from readthedocs.embed.v3.views import EmbedAPIBase
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_EMBED_API
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @override_settings(
     USE_SUBDOMAIN=True,
     PUBLIC_DOMAIN="readthedocs.io",
     RTD_ALLOW_ORGAZATIONS=False,
-    RTD_DEFAULT_FEATURES={
-        TYPE_EMBED_API: 1,
-    },
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(TYPE_EMBED_API).to_item()]),
 )
 @mock.patch("readthedocs.embed.v3.views.build_media_storage")
 class TestEmbedAPIV3Access(TestCase):

@@ -1,7 +1,7 @@
 """Project URLS for public users."""
 
 from django.conf import settings
-from django.conf.urls import re_path
+from django.urls import path, re_path
 from django.views.generic.base import RedirectView
 
 from readthedocs.builds import views as build_views
@@ -20,15 +20,15 @@ if settings.RTD_EXT_THEME_ENABLED:
     project_versions_list = ProjectDetailView.as_view()
 
 urlpatterns = [
-    re_path(
-        r'^$',
-        RedirectView.as_view(pattern_name='projects_dashboard', permanent=True),
-        name='projects_dashboard_redirect',
+    path(
+        "",
+        RedirectView.as_view(pattern_name="projects_dashboard", permanent=True),
+        name="projects_dashboard_redirect",
     ),
     re_path(
-        r'^tags/(?P<tag>[-\w]+)/$',
+        r"^tags/(?P<tag>[-\w]+)/$",
         ProjectTagIndex.as_view(),
-        name='projects_tag_detail',
+        name="projects_tag_detail",
     ),
     # Match all URLs from projects that have an underscore in the slug,
     # and redirect them replacing the underscore with a dash (`-`).
@@ -37,15 +37,15 @@ urlpatterns = [
             **pattern_opts
         ),
         public.project_redirect,
-        name='project_redirect',
+        name="project_redirect",
     ),
     re_path(
-        r'^(?P<project_slug>{project_slug})/$'.format(**pattern_opts),
+        r"^(?P<project_slug>{project_slug})/$".format(**pattern_opts),
         ProjectDetailView.as_view(),
-        name='projects_detail',
+        name="projects_detail",
     ),
     re_path(
-        r'^(?P<project_slug>{project_slug})/downloads/$'.format(**pattern_opts),
+        r"^(?P<project_slug>{project_slug})/downloads/$".format(**pattern_opts),
         public.project_downloads,
         name="project_downloads",
     ),
@@ -69,25 +69,25 @@ urlpatterns = [
     re_path(
         r"^(?P<project_slug>{project_slug})/search/$".format(**pattern_opts),
         ProjectSearchView.as_view(),
-        name='elastic_project_search',
+        name="elastic_project_search",
     ),
     re_path(
         (
-            r'^(?P<project_slug>{project_slug})/builds/(?P<build_pk>\d+)/$'.format(
+            r"^(?P<project_slug>{project_slug})/builds/(?P<build_pk>\d+)/$".format(
                 **pattern_opts
             )
         ),
         build_views.BuildDetail.as_view(),
-        name='builds_detail',
+        name="builds_detail",
     ),
     re_path(
-        (r'^(?P<project_slug>{project_slug})/builds/$'.format(**pattern_opts)),
+        (r"^(?P<project_slug>{project_slug})/builds/$".format(**pattern_opts)),
         build_views.BuildList.as_view(),
-        name='builds_project_list',
+        name="builds_project_list",
     ),
     re_path(
-        r'^(?P<project_slug>{project_slug})/versions/$'.format(**pattern_opts),
+        r"^(?P<project_slug>{project_slug})/versions/$".format(**pattern_opts),
         project_versions_list,
-        name='project_version_list',
+        name="project_version_list",
     ),
 ]

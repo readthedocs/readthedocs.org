@@ -19,16 +19,16 @@ class UserSecurityLogFilter(FilterSet):
         (AuditLog.INVITATION_DECLINED, AuditLog.INVITATION_DECLINED_TEXT),
     ]
 
-    ip = CharFilter(field_name='ip', lookup_expr='exact')
-    project = CharFilter(field_name='log_project_slug', lookup_expr='exact')
+    ip = CharFilter(field_name="ip", lookup_expr="exact")
+    project = CharFilter(field_name="log_project_slug", lookup_expr="exact")
     action = ChoiceFilter(
-        field_name='action',
-        lookup_expr='exact',
+        field_name="action",
+        lookup_expr="exact",
         # Choices are filled at runtime,
         # using the list from `allowed_actions`.
         choices=[],
     )
-    date = DateFromToRangeFilter(field_name='created')
+    date = DateFromToRangeFilter(field_name="created")
 
     class Meta:
         model = AuditLog
@@ -56,4 +56,4 @@ class OrganizationSecurityLogFilter(UserSecurityLogFilter):
         (AuditLog.PAGEVIEW, AuditLog.PAGEVIEW_TEXT),
         (AuditLog.DOWNLOAD, AuditLog.DOWNLOAD_TEXT),
     ]
-    user = CharFilter(field_name='log_user_username', lookup_expr='exact')
+    user = CharFilter(field_name="log_user_username", lookup_expr="exact")

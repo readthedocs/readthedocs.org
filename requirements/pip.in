@@ -2,7 +2,7 @@
 pip
 virtualenv
 
-django~=3.2.0
+django~=4.2.0
 django-extensions
 django-polymorphic
 django-autoslug
@@ -37,7 +37,8 @@ slumber
 pyyaml
 Pygments
 
-django-redis
+# Used for Redis cache Django backend (`django.core.cache.backends.redis.RedisCache`)
+redis
 
 # NOTE: we have to pin to this version because Celery>=5.3.x detects our ``ConfigError`` exception is not picklable
 # and creates a ``UnpickleableExceptionWrapper`` which is not what our code expects.
@@ -66,6 +67,7 @@ django-redis
 # TypeError: MyException.__init__() missing 1 required positional argument: 'b'
 # >>>
 celery==5.2.7
+django-celery-beat
 
 # Docker images need a dependency explicity marked for tzdata in order to have
 # necessary timezone data.
@@ -79,8 +81,6 @@ tzdata
 django-allauth==0.51.0
 
 requests-oauthlib
-
-GitPython
 
 # Search
 elasticsearch<8.0

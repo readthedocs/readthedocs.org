@@ -5,18 +5,17 @@ from django.db import migrations
 
 def forwards_func(apps, schema_editor):
     """Make all external_builds_enabled fields not none."""
-    Project = apps.get_model('projects', 'Project')
+    Project = apps.get_model("projects", "Project")
     (
-        Project.objects
-        .filter(external_builds_enabled=None)
-        .update(external_builds_enabled=False)
+        Project.objects.filter(external_builds_enabled=None).update(
+            external_builds_enabled=False
+        )
     )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0051_project_urlconf_feature'),
+        ("projects", "0051_project_urlconf_feature"),
     ]
 
     operations = [

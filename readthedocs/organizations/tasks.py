@@ -9,7 +9,7 @@ from readthedocs.worker import app
 log = structlog.get_logger(__name__)
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def mark_organization_assets_not_cleaned(build_pk):
     """Mark an organization as `artifacts_cleaned=False`."""
     try:
@@ -20,6 +20,8 @@ def mark_organization_assets_not_cleaned(build_pk):
 
     organization = build.project.organizations.first()
     if organization and organization.artifacts_cleaned:
-        log.info("Marking organization as not cleaned.", origanization_slug=organization.slug)
+        log.info(
+            "Marking organization as not cleaned.", origanization_slug=organization.slug
+        )
         organization.artifacts_cleaned = False
         organization.save()

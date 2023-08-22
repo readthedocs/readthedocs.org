@@ -82,8 +82,10 @@ class TestReadTheDocsConfigJson(TestCase):
             reverse("proxito_readthedocs_docs_addons"),
             {"url": "https://project.dev.readthedocs.io/en/latest/"},
             secure=True,
-            HTTP_HOST="project.dev.readthedocs.io",
-            HTTP_X_RTD_HOSTING_INTEGRATIONS_VERSION="0.1.0",
+            headers={
+                "host": "project.dev.readthedocs.io",
+                "x-rtd-hosting-integrations-version": "0.1.0",
+            },
         )
         assert r.status_code == 200
         assert self._normalize_datetime_fields(r.json()) == self._get_response_dict(
@@ -95,8 +97,10 @@ class TestReadTheDocsConfigJson(TestCase):
             reverse("proxito_readthedocs_docs_addons"),
             {"url": "https://project.dev.readthedocs.io/en/latest/"},
             secure=True,
-            HTTP_HOST="project.dev.readthedocs.io",
-            HTTP_X_RTD_HOSTING_INTEGRATIONS_VERSION="1.0.0",
+            headers={
+                "host": "project.dev.readthedocs.io",
+                "x-rtd-hosting-integrations-version": "1.0.0",
+            },
         )
         assert r.status_code == 200
         assert r.json() == self._get_response_dict("v1")
@@ -106,8 +110,10 @@ class TestReadTheDocsConfigJson(TestCase):
             reverse("proxito_readthedocs_docs_addons"),
             {"url": "https://project.dev.readthedocs.io/en/latest/"},
             secure=True,
-            HTTP_HOST="project.dev.readthedocs.io",
-            HTTP_X_RTD_HOSTING_INTEGRATIONS_VERSION="2.0.0",
+            headers={
+                "host": "project.dev.readthedocs.io",
+                "x-rtd-hosting-integrations-version": "2.0.0",
+            },
         )
         assert r.status_code == 400
         assert r.json() == self._get_response_dict("v2")

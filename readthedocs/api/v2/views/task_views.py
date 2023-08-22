@@ -12,7 +12,7 @@ from readthedocs.oauth import tasks
 log = structlog.get_logger(__name__)
 
 
-@decorators.api_view(['GET'])
+@decorators.api_view(["GET"])
 @decorators.permission_classes((permissions.AllowAny,))
 @decorators.renderer_classes((JSONRenderer,))
 def job_status(request, task_id):
@@ -35,14 +35,18 @@ def job_status(request, task_id):
     return Response(data)
 
 
-@decorators.api_view(['POST'])
+@decorators.api_view(["POST"])
 @decorators.permission_classes((permissions.IsAuthenticated,))
 @decorators.renderer_classes((JSONRenderer,))
 def sync_remote_repositories(request):
     """Trigger a re-sync of remote repositories for the user."""
-    result = tasks.sync_remote_repositories.delay(user_id=request.user.id,)
+    result = tasks.sync_remote_repositories.delay(
+        user_id=request.user.id,
+    )
     task_id = result.task_id
-    return Response({
-        'task_id': task_id,
-        'url': reverse('api_job_status', kwargs={'task_id': task_id}),
-    })
+    return Response(
+        {
+            "task_id": task_id,
+            "url": reverse("api_job_status", kwargs={"task_id": task_id}),
+        }
+    )

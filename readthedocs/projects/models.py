@@ -454,11 +454,12 @@ class Project(models.Model):
         ),
     )
 
+    # TODO: remove `use_system_packages` after deploying.
+    # This field is not used anymore.
     use_system_packages = models.BooleanField(
-        _('Use system packages'),
+        _("Use system packages"),
         help_text=_(
-            'Give the virtual environment access to the global '
-            'site-packages dir.',
+            "Give the virtual environment access to the global site-packages dir.",
         ),
         default=False,
     )
@@ -693,11 +694,9 @@ class Project(models.Model):
         This needs to start with a slash at the root of the domain,
         and end without a slash
         """
-        if self.urlconf:
-            # Add our proxied api host at the first place we have a $variable
-            # This supports both subpaths & normal root hosting
-            path_prefix = self.custom_path_prefix
-            return unsafe_join_url_path(path_prefix, "/_")
+        custom_prefix = self.proxied_api_prefix
+        if custom_prefix:
+            return unsafe_join_url_path(custom_prefix, "/_")
         return '/_'
 
     @property
@@ -715,12 +714,22 @@ class Project(models.Model):
         return f"{self.proxied_api_host}/static/"
 
     @property
-    def custom_path_prefix(self):
+    def proxied_api_prefix(self):
         """
-        Get the path prefix from the custom urlconf.
+        Get the path prefix for proxied API paths (``/_/``).
 
         Returns `None` if the project doesn't have a custom urlconf.
         """
+        # When using a custom prefix, we can only handle serving
+        # docs pages under the prefix, not special paths like `/_/`.
+        # Projects using the old implementation, need to proxy `/_/`
+        # paths as is, this is, without the prefix, while those projects
+        # migrate to the new implementation, we will prefix special paths
+        # when generating links, these paths will be manually un-prefixed in nginx.
+        if self.custom_prefix and self.has_feature(
+            Feature.USE_PROXIED_APIS_WITH_PREFIX
+        ):
+            return self.custom_prefix
         if self.urlconf:
             # Return the value before the first defined variable,
             # as that is a prefix and not part of our normal doc patterns.
@@ -1168,7 +1177,12 @@ class Project(models.Model):
         """
         Get the original version that stable points to.
 
-        Returns None if the current stable doesn't point to a valid version.
+        When stable is machine created, it's basically an alias
+        for the latest stable version (like 2.2),
+        that version is the "original" one.
+
+        Returns None if the current stable doesn't point to a valid version
+        or if isn't machine created.
         """
         current_stable = self.get_stable_version()
         if not current_stable or not current_stable.machine:
@@ -1199,18 +1213,19 @@ class Project(models.Model):
         new_stable = determine_stable_version(versions)
         if new_stable:
             if current_stable:
-                identifier_updated = (
+                version_updated = (
                     new_stable.identifier != current_stable.identifier
+                    or new_stable.type != current_stable.type
                 )
-                if identifier_updated:
+                if version_updated:
                     log.info(
-                        'Update stable version: %(project)s:%(version)s',
-                        {
-                            'project': self.slug,
-                            'version': new_stable.identifier,
-                        }
+                        "Stable version updated.",
+                        project_slug=self.slug,
+                        version_identifier=new_stable.identifier,
+                        version_type=new_stable.type,
                     )
                     current_stable.identifier = new_stable.identifier
+                    current_stable.type = new_stable.type
                     current_stable.save()
                     return new_stable
             else:
@@ -1884,7 +1899,7 @@ class HTTPHeader(TimeStampedModel, models.Model):
         max_length=128,
         choices=HEADERS_CHOICES,
     )
-    value = models.CharField(max_length=256)
+    value = models.CharField(max_length=4096)
     only_if_secure_request = models.BooleanField(
         help_text='Only set this header if the request is secure (HTTPS)',
     )
@@ -1911,10 +1926,8 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
-    UPDATE_CONDA_STARTUP = "update_conda_startup"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     CDN_ENABLED = "cdn_enabled"
@@ -1923,6 +1936,7 @@ class Feature(models.Model):
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
+    USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
 
     # Versions sync related features
@@ -1946,18 +1960,10 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
     HOSTING_INTEGRATIONS = "hosting_integrations"
-    NO_CONFIG_FILE_DEPRECATED = "no_config_file"
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
-        (
-            SKIP_SPHINX_HTML_THEME_PATH,
-            _(
-                "Sphinx: Do not define html_theme_path on Sphinx < 6.0",
-            ),
-        ),
         (
             MKDOCS_THEME_RTD,
             _("MkDocs: Use Read the Docs theme for MkDocs as default theme"),
@@ -1965,10 +1971,6 @@ class Feature(models.Model):
         (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
-        ),
-        (
-            UPDATE_CONDA_STARTUP,
-            _("Conda: Upgrade conda before creating the environment"),
         ),
         (
             CONDA_APPEND_CORE_REQUIREMENTS,
@@ -2008,6 +2010,12 @@ class Feature(models.Model):
             USE_UNRESOLVER_WITH_PROXITO,
             _(
                 "Proxito: Use new unresolver implementation for serving documentation files."
+            ),
+        ),
+        (
+            USE_PROXIED_APIS_WITH_PREFIX,
+            _(
+                "Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has one (Project.custom_prefix)."
             ),
         ),
         (
@@ -2073,20 +2081,10 @@ class Feature(models.Model):
             ),
         ),
         (
-            GIT_CLONE_FETCH_CHECKOUT_PATTERN,
-            _(
-                "Build: Use simplified and optimized git clone + git fetch + git checkout patterns"
-            ),
-        ),
-        (
             HOSTING_INTEGRATIONS,
             _(
                 "Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
             ),
-        ),
-        (
-            NO_CONFIG_FILE_DEPRECATED,
-            _("Build: Building without a configuration file is deprecated."),
         ),
         (
             SCALE_IN_PROTECTION,

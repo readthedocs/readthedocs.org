@@ -27,14 +27,14 @@ class ProjectOnboardMixin:
 
         # Show for the first few builds, return last build state
         if project.builds.count() <= 5:
-            onboard['build'] = project.get_latest_build(finished=False)
-            if 'github' in project.repo:
-                onboard['provider'] = 'github'
-            elif 'bitbucket' in project.repo:
-                onboard['provider'] = 'bitbucket'
-            elif 'gitlab' in project.repo:
-                onboard['provider'] = 'gitlab'
-            context['onboard'] = onboard
+            onboard["build"] = project.get_latest_build(finished=False)
+            if "github" in project.repo:
+                onboard["provider"] = "github"
+            elif "bitbucket" in project.repo:
+                onboard["provider"] = "bitbucket"
+            elif "gitlab" in project.repo:
+                onboard["provider"] = "gitlab"
+            context["onboard"] = onboard
 
         return context
 
@@ -51,7 +51,7 @@ class ProjectAdminMixin:
         The URL kwarg name for the project slug
     """
 
-    project_url_field = 'project_slug'
+    project_url_field = "project_slug"
 
     def get_queryset(self):
         self.project = self.get_project()
@@ -97,11 +97,12 @@ class ProjectSpamMixin:
     """
 
     def get(self, request, *args, **kwargs):
-        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import (  # noqa
                 is_show_dashboard_denied,
             )
+
             if is_show_dashboard_denied(self.get_project()):
-                return render(request, template_name='spam.html', status=410)
+                return render(request, template_name="spam.html", status=410)
 
         return super().get(request, *args, **kwargs)

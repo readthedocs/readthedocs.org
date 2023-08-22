@@ -74,9 +74,10 @@ class TestProjectForms(TestCase):
         with override_settings(ALLOW_PRIVATE_REPOS=False):
             for url, valid in public_urls:
                 initial = {
-                    'name': 'foo',
-                    'repo_type': 'git',
-                    'repo': url,
+                    "name": "foo",
+                    "repo_type": "git",
+                    "repo": url,
+                    "language": "en",
                 }
                 form = ProjectBasicsForm(initial)
                 self.assertEqual(form.is_valid(), valid, msg=url)
@@ -84,18 +85,20 @@ class TestProjectForms(TestCase):
         with override_settings(ALLOW_PRIVATE_REPOS=True):
             for url, valid in private_urls:
                 initial = {
-                    'name': 'foo',
-                    'repo_type': 'git',
-                    'repo': url,
+                    "name": "foo",
+                    "repo_type": "git",
+                    "repo": url,
+                    "language": "en",
                 }
                 form = ProjectBasicsForm(initial)
                 self.assertEqual(form.is_valid(), valid, msg=url)
 
     def test_empty_slug(self):
         initial = {
-            'name': "''",
-            'repo_type': 'git',
-            'repo': 'https://github.com/user/repository',
+            "name": "''",
+            "repo_type": "git",
+            "repo": "https://github.com/user/repository",
+            "language": "en",
         }
         form = ProjectBasicsForm(initial)
         self.assertFalse(form.is_valid())
@@ -112,9 +115,10 @@ class TestProjectForms(TestCase):
 
         form = ProjectBasicsForm(
             {
-                'repo': 'http://github.com/test/test',
-                'name': 'name',
-                'repo_type': REPO_TYPE_GIT,
+                "repo": "http://github.com/test/test",
+                "name": "name",
+                "repo_type": REPO_TYPE_GIT,
+                "language": "en",
             },
             instance=project,
         )
@@ -144,11 +148,14 @@ class TestProjectForms(TestCase):
         self.assertDictEqual(form.errors, {'tags': [error_msg]})
 
     def test_strip_repo_url(self):
-        form = ProjectBasicsForm({
-            'name': 'foo',
-            'repo_type': 'git',
-            'repo': 'https://github.com/rtfd/readthedocs.org/'
-        })
+        form = ProjectBasicsForm(
+            {
+                "name": "foo",
+                "repo_type": "git",
+                "repo": "https://github.com/rtfd/readthedocs.org/",
+                "language": "en",
+            }
+        )
         self.assertTrue(form.is_valid())
         self.assertEqual(
             form.cleaned_data['repo'],

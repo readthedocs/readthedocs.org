@@ -46,7 +46,7 @@ def safe_update_change_reason(instance, reason):
         update_change_reason(instance=instance, reason=reason)
     except Exception:
         log.exception(
-            'An error occurred while updating the change reason of the instance.',
+            "An error occurred while updating the change reason of the instance.",
             instance=instance,
         )
 
@@ -63,25 +63,25 @@ class ExtraFieldsHistoricalModel(models.Model):
     """
 
     extra_history_user_id = models.IntegerField(
-        _('ID'),
+        _("ID"),
         blank=True,
         null=True,
         db_index=True,
     )
     extra_history_user_username = models.CharField(
-        _('username'),
+        _("username"),
         max_length=150,
         null=True,
         db_index=True,
     )
     extra_history_ip = models.CharField(
-        _('IP address'),
+        _("IP address"),
         blank=True,
         null=True,
         max_length=250,
     )
     extra_history_browser = models.CharField(
-        _('Browser user-agent'),
+        _("Browser user-agent"),
         max_length=250,
         blank=True,
         null=True,
@@ -105,7 +105,7 @@ class ExtraSimpleHistoryAdmin(SimpleHistoryAdmin):
         if self.change_reason:
             return self.change_reason
         klass = self.__class__.__name__
-        return f'origin=admin class={klass}'
+        return f"origin=admin class={klass}"
 
     def save_model(self, request, obj, form, change):
         if obj:
@@ -128,7 +128,7 @@ class SimpleHistoryModelForm(forms.ModelForm):
         if self.change_reason:
             return self.change_reason
         klass = self.__class__.__name__
-        return f'origin=form class={klass}'
+        return f"origin=form class={klass}"
 
     def save(self, commit=True):
         if self.instance:
@@ -150,7 +150,7 @@ class UpdateChangeReasonPostView:
         if self.change_reason:
             return self.change_reason
         klass = self.__class__.__name__
-        return f'origin=form class={klass}'
+        return f"origin=form class={klass}"
 
     def get_object(self):
         obj = super().get_object()

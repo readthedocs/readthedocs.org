@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0017_builds_deterministic_order_index'),
+        ("builds", "0017_builds_deterministic_order_index"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='version',
-            name='hidden',
-            field=models.BooleanField(null=True, default=False, help_text='Hide this version from the version (flyout) menu and search results?', verbose_name='Hidden'),
+            model_name="version",
+            name="hidden",
+            field=models.BooleanField(
+                null=True,
+                default=False,
+                help_text="Hide this version from the version (flyout) menu and search results?",
+                verbose_name="Hidden",
+            ),
         ),
     ]

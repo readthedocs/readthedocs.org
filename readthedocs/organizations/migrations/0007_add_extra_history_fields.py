@@ -4,30 +4,37 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('organizations', '0006_add_assets_cleaned'),
+        ("organizations", "0006_add_assets_cleaned"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalorganization',
-            name='extra_history_browser',
-            field=models.CharField(blank=True, max_length=250, null=True, verbose_name='Browser user-agent'),
+            model_name="historicalorganization",
+            name="extra_history_browser",
+            field=models.CharField(
+                blank=True, max_length=250, null=True, verbose_name="Browser user-agent"
+            ),
         ),
         migrations.AddField(
-            model_name='historicalorganization',
-            name='extra_history_ip',
-            field=models.CharField(blank=True, max_length=250, null=True, verbose_name='IP address'),
+            model_name="historicalorganization",
+            name="extra_history_ip",
+            field=models.CharField(
+                blank=True, max_length=250, null=True, verbose_name="IP address"
+            ),
         ),
         migrations.AddField(
-            model_name='historicalteam',
-            name='extra_history_browser',
-            field=models.CharField(blank=True, max_length=250, null=True, verbose_name='Browser user-agent'),
+            model_name="historicalteam",
+            name="extra_history_browser",
+            field=models.CharField(
+                blank=True, max_length=250, null=True, verbose_name="Browser user-agent"
+            ),
         ),
         migrations.AddField(
-            model_name='historicalteam',
-            name='extra_history_ip',
-            field=models.CharField(blank=True, max_length=250, null=True, verbose_name='IP address'),
+            model_name="historicalteam",
+            name="extra_history_ip",
+            field=models.CharField(
+                blank=True, max_length=250, null=True, verbose_name="IP address"
+            ),
         ),
     ]

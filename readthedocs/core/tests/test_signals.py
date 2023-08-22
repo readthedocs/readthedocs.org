@@ -9,7 +9,6 @@ from readthedocs.projects.models import Project
 
 @pytest.mark.django_db
 class TestProjectOrganizationSignal:
-
     def test_delete_user_deletes_projects(self):
         """When deleting a user, delete projects where it's the only owner."""
         user = get(User)

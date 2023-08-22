@@ -17,20 +17,21 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = (
-            'id',
-            'name',
-            'slug',
-            'description',
-            'language',
-            'programming_language',
-            'repo',
-            'repo_type',
-            'default_version',
-            'default_branch',
-            'documentation_type',
-            'users',
-            'canonical_url',
-            'urlconf',
+            "id",
+            "name",
+            "slug",
+            "description",
+            "language",
+            "programming_language",
+            "repo",
+            "repo_type",
+            "default_version",
+            "default_branch",
+            "documentation_type",
+            "users",
+            "canonical_url",
+            "urlconf",
+            "custom_prefix",
         )
 
 
@@ -83,7 +84,6 @@ class ProjectAdminSerializer(ProjectSerializer):
             "container_mem_limit",
             "container_time_limit",
             "install_project",
-            "use_system_packages",
             "skip",
             "requirements_file",
             "python_interpreter",

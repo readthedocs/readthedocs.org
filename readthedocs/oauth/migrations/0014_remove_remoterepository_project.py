@@ -4,15 +4,14 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('oauth', '0013_create_new_table_for_remote_repository_normalization'),
-        ('projects', '0077_remote_repository_data_migration'),
+        ("oauth", "0013_create_new_table_for_remote_repository_normalization"),
+        ("projects", "0077_remote_repository_data_migration"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='remoterepository',
-            name='project',
+            model_name="remoterepository",
+            name="project",
         ),
     ]
