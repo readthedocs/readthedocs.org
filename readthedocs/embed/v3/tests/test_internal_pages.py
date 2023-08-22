@@ -12,7 +12,7 @@ from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_EMBED_API
 from readthedocs.subscriptions.products import RTDProductFeature
 
-from .utils import srcdir, get_anchor_link_title
+from .utils import get_anchor_link_title, srcdir
 
 
 @pytest.mark.django_db

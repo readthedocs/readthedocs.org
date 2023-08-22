@@ -5,7 +5,7 @@ from django.core.cache import cache
 from django.urls import reverse
 from packaging.version import Version
 
-from .utils import srcdir, get_anchor_link_title
+from .utils import get_anchor_link_title, srcdir
 
 
 @pytest.mark.django_db
