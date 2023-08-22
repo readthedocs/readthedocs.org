@@ -24,10 +24,10 @@ class BuildBaseException(Exception):
 
 class BuildAppError(BuildBaseException):
     GENERIC_WITH_BUILD_ID = gettext_noop(
-        'There was a problem with Read the Docs while building your documentation. '
-        'Please try again later. '
-        'If this problem persists, '
-        'report this error to us with your build id ({build_id}).',
+        "There was a problem with Read the Docs while building your documentation. "
+        "Please try again later. "
+        "If this problem persists, "
+        "report this error to us with your build id ({build_id}).",
     )
 
 
@@ -83,7 +83,7 @@ class BuildUserSkip(BuildUserError):
 
 
 class ProjectBuildsSkippedError(BuildUserError):
-    message = gettext_noop('Builds for this project are temporarily disabled')
+    message = gettext_noop("Builds for this project are temporarily disabled")
 
 
 class YAMLParseError(BuildUserError):
@@ -93,11 +93,13 @@ class YAMLParseError(BuildUserError):
 
 
 class BuildMaxConcurrencyError(BuildUserError):
-    message = gettext_noop('Concurrency limit reached ({limit}), retrying in 5 minutes.')
+    message = gettext_noop(
+        "Concurrency limit reached ({limit}), retrying in 5 minutes."
+    )
 
 
 class BuildCancelled(BuildUserError):
-    message = gettext_noop('Build cancelled by user.')
+    message = gettext_noop("Build cancelled by user.")
     state = BUILD_STATE_CANCELLED
 
 
@@ -124,17 +126,21 @@ class MkDocsYAMLParseError(BuildUserError):
 
     INVALID_EXTRA_CONFIG = gettext_noop(
         'The "{config}" config from your MkDocs YAML config file has to be a '
-        'list of relative paths.',
+        "list of relative paths.",
     )
 
     EMPTY_CONFIG = gettext_noop(
-        'Please make sure the MkDocs YAML configuration file is not empty.',
+        "Please make sure the MkDocs YAML configuration file is not empty.",
+    )
+    NOT_FOUND = gettext_noop(
+        "A configuration file was not found. "
+        'Make sure you have a "mkdocs.yml" file in your repository.',
     )
 
     CONFIG_NOT_DICT = gettext_noop(
-        'Your MkDocs YAML config file is incorrect. '
-        'Please follow the user guide https://www.mkdocs.org/user-guide/configuration/ '
-        'to configure the file properly.',
+        "Your MkDocs YAML config file is incorrect. "
+        "Please follow the user guide https://www.mkdocs.org/user-guide/configuration/ "
+        "to configure the file properly.",
     )
 
 

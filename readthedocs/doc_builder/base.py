@@ -5,7 +5,6 @@ from functools import wraps
 
 import structlog
 
-
 log = structlog.get_logger(__name__)
 
 
@@ -53,7 +52,7 @@ class BaseBuilder:
 
     def docs_dir(self):
         """Handle creating a custom docs_dir if it doesn't exist."""
-        for doc_dir_name in ['docs', 'doc', 'Doc', 'book']:
+        for doc_dir_name in ["docs", "doc", "Doc", "book"]:
             possible_path = os.path.join(self.project_path, doc_dir_name)
             if os.path.exists(possible_path):
                 return possible_path

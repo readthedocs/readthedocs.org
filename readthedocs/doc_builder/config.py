@@ -44,7 +44,6 @@ def load_yaml_config(version, readthedocs_yaml_path=None):
         'defaults': {
             'install_project': project.install_project,
             'formats': get_default_formats(project),
-            'use_system_packages': project.use_system_packages,
             'requirements_file': project.requirements_file,
             'python_version': python_version,
             'sphinx_configuration': sphinx_configuration,

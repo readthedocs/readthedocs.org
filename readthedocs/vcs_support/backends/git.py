@@ -3,9 +3,7 @@
 import re
 from typing import Iterable
 
-import git
 import structlog
-from gitdb.util import hex_to_bin
 
 from readthedocs.builds.constants import BRANCH, EXTERNAL, TAG
 from readthedocs.config import ALL
@@ -44,9 +42,6 @@ class Backend(BaseVCS):
         self.token = kwargs.get('token')
         self.repo_url = self._get_clone_url()
 
-        # While cloning, we can decide that we are not going to fetch anything
-        self._skip_fetch = False
-
     def _get_clone_url(self):
         if '://' in self.repo_url:
             hacked_url = self.repo_url.split('://')[1]
@@ -60,34 +55,14 @@ class Backend(BaseVCS):
             #     clone_url = 'git://%s' % (hacked_url)
         return self.repo_url
 
-    # TODO: Remove when removing GIT_CLONE_FETCH_CHECKOUT_PATTERN
-    def set_remote_url(self, url):
-        return self.run('git', 'remote', 'set-url', 'origin', url)
-
     def update(self):
         """Clone and/or fetch remote repository."""
         super().update()
-        from readthedocs.projects.models import Feature
 
-        if self.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN):
-            # New behavior: Clone is responsible for calling .repo_exists() and
-            # .make_clean_working_dir()
-            self.clone_ng()
-
-            # TODO: We are still using return values in this function that are legacy.
-            # This should be either explained or removed.
-            return self.fetch_ng()
-
-        # Old behavior
-        if self.repo_exists():
-            self.set_remote_url(self.repo_url)
-            return self.fetch()
-        self.make_clean_working_dir()
-        # A fetch is always required to get external versions properly
-        if self.version_type == EXTERNAL:
-            self.clone()
-            return self.fetch()
-        return self.clone()
+        self.clone()
+        # TODO: We are still using return values in this function that are legacy.
+        # This should be either explained or removed.
+        return self.fetch()
 
     def get_remote_fetch_refspec(self):
         """
@@ -163,26 +138,8 @@ class Backend(BaseVCS):
                 project_slug=self.project.slug,
             )
 
-    def clone_ng(self):
-        """
-        Performs the next-generation (ng) git clone operation.
-
-        This method is used when GIT_CLONE_FETCH_CHECKOUT_PATTERN is on.
-        """
-        # TODO: This seems to be legacy that can be removed.
-        #  If the repository is already cloned, we don't do anything.
-        #  It seems to originate from when a cloned repository was cached on disk,
-        #  and so we can call call .update() several times in the same build.
-        if self.repo_exists():
-            return
-
-        # TODO: This seems to be legacy that can be removed.
-        #  There shouldn't be cases where we are asked to
-        #  clone the repo in a non-clean working directory.
-        #  The prior call to repo_exists() will return if a repo already exist with
-        #  unclear guarantees about whether that even needs to be a fully consistent clone.
-        self.make_clean_working_dir()
-
+    def clone(self):
+        """Clones the repository."""
         # TODO: We should add "--no-checkout" in all git clone operations, except:
         #  There exists a case of version_type=BRANCH without a branch name.
         #  This case is relevant for building projects for the first time without knowing the name
@@ -198,25 +155,7 @@ class Backend(BaseVCS):
         except RepositoryError as exc:
             raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
 
-    def fetch_ng(self):
-        """
-        Performs the next-generation (ng) git fetch operation.
-
-        This method is used when GIT_CLONE_FETCH_CHECKOUT_PATTERN is on.
-        """
-
-        # When git clone does NOT add --no-checkout, it's because we are going
-        # to use the remote HEAD, so we don't have to fetch nor check out.
-        if self._skip_fetch:
-            log.info(
-                "Skipping git fetch",
-                version_identifier=self.version_identifier,
-                version_machine=self.version_machine,
-                version_verbose_name=self.verbose_name,
-                version_type=self.version_type,
-            )
-            return
-
+    def fetch(self):
         # --force: Likely legacy, it seems to be irrelevant to this usage
         # --prune: Likely legacy, we don't expect a previous fetch command to have run
         # --prune-tags: Likely legacy, we don't expect a previous fetch command to have run
@@ -258,20 +197,6 @@ class Backend(BaseVCS):
         # TODO: Explain or remove the return value
         code, stdout, stderr = self.run(*cmd)
         return code, stdout, stderr
-
-    def repo_exists(self):
-        """Test if the current working directory is a top-level git repository."""
-        # If we are at the top-level of a git repository,
-        # ``--show-prefix`` will return an empty string.
-        exit_code, stdout, _ = self.run(
-            "git", "rev-parse", "--show-prefix", record=False
-        )
-        return exit_code == 0 and stdout.strip() == ""
-
-    @property
-    def _repo(self):
-        """Get a `git.Repo` instance from the current `self.working_dir`."""
-        return git.Repo(self.working_dir, expand_vars=False)
 
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
@@ -334,43 +259,6 @@ class Backend(BaseVCS):
 
         return False, []
 
-    def use_shallow_clone(self):
-        """
-        Test whether shallow clone should be performed.
-
-        .. note::
-
-            Temporarily, we support skipping this option as builds that rely on
-            git history can fail if using shallow clones. This should
-            eventually be configurable via the web UI.
-        """
-        from readthedocs.projects.models import Feature
-        return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
-
-    def fetch(self):
-        # --force lets us checkout branches that are not fast-forwarded
-        # https://github.com/readthedocs/readthedocs.org/issues/6097
-        cmd = ['git', 'fetch', 'origin',
-               '--force', '--tags', '--prune', '--prune-tags']
-
-        if self.use_shallow_clone():
-            cmd.extend(['--depth', str(self.repo_depth)])
-
-        if self.verbose_name and self.version_type == EXTERNAL:
-
-            if self.project.git_provider_name == GITHUB_BRAND:
-                cmd.append(
-                    GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name)
-                )
-
-            if self.project.git_provider_name == GITLAB_BRAND:
-                cmd.append(
-                    GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
-                )
-
-        code, stdout, stderr = self.run(*cmd)
-        return code, stdout, stderr
-
     def checkout_revision(self, revision):
         try:
             code, out, err = self.run('git', 'checkout', '--force', revision)
@@ -379,39 +267,6 @@ class Backend(BaseVCS):
             raise RepositoryError(
                 RepositoryError.FAILED_TO_CHECKOUT.format(revision),
             ) from exc
-
-    def clone(self):
-        """Clones the repository."""
-        cmd = ['git', 'clone', '--no-single-branch']
-
-        if self.use_shallow_clone():
-            cmd.extend(['--depth', str(self.repo_depth)])
-
-        cmd.extend([self.repo_url, '.'])
-
-        try:
-            code, stdout, stderr = self.run(*cmd)
-
-            # TODO: for those VCS providers that don't tell us the `default_branch`
-            # of the repository in the incoming webhook,
-            # we need to get it from the cloned repository itself.
-            #
-            # cmd = ['git', 'symbolic-ref', 'refs/remotes/origin/HEAD']
-            # _, default_branch, _ = self.run(*cmd)
-            # default_branch = default_branch.replace('refs/remotes/origin/', '')
-            #
-            # The idea is to hit the APIv2 here to update the `latest` version with
-            # the `default_branch` we just got from the repository itself,
-            # after clonning it.
-            # However, we don't know the PK for the version we want to update.
-            #
-            # api_v2.version(pk).patch(
-            #     {'default_branch': default_branch}
-            # )
-
-            return code, stdout, stderr
-        except RepositoryError as exc:
-            raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
 
     def lsremote(self, include_tags=True, include_branches=True):
         """
@@ -439,7 +294,11 @@ class Backend(BaseVCS):
         all_tags = {}
         light_tags = {}
         for line in stdout.splitlines():
-            commit, ref = line.split(maxsplit=1)
+            try:
+                commit, ref = line.split(maxsplit=1)
+            except ValueError:
+                # Skip this line if we have a problem splitting the line
+                continue
             if ref.startswith("refs/heads/"):
                 branch = ref.replace("refs/heads/", "", 1)
                 branches.append(VCSVersion(self, branch, branch))
@@ -461,70 +320,9 @@ class Backend(BaseVCS):
         return branches, tags
 
     @property
-    def tags(self):
-        versions = []
-        repo = self._repo
-
-        # Build a cache of tag -> commit
-        # GitPython is not very optimized for reading large numbers of tags
-        ref_cache = {}  # 'ref/tags/<tag>' -> hexsha
-        # This code is the same that is executed for each tag in gitpython,
-        # we execute it only once for all tags.
-        for hexsha, ref in git.TagReference._iter_packed_refs(repo):
-            gitobject = git.Object.new_from_sha(repo, hex_to_bin(hexsha))
-            if gitobject.type == 'commit':
-                ref_cache[ref] = str(gitobject)
-            elif gitobject.type == 'tag' and gitobject.object.type == 'commit':
-                ref_cache[ref] = str(gitobject.object)
-
-        for tag in repo.tags:
-            if tag.path in ref_cache:
-                hexsha = ref_cache[tag.path]
-            else:
-                try:
-                    hexsha = str(tag.commit)
-                except ValueError:
-                    # ValueError: Cannot resolve commit as tag TAGNAME points to a
-                    # blob object - use the `.object` property instead to access it
-                    # This is not a real tag for us, so we skip it
-                    # https://github.com/rtfd/readthedocs.org/issues/4440
-                    log.warning('Git tag skipped.', tag=tag, exc_info=True)
-                    continue
-
-            versions.append(VCSVersion(self, hexsha, str(tag)))
-        return versions
-
-    @property
-    def branches(self):
-        repo = self._repo
-        versions = []
-        branches = []
-
-        # ``repo.remotes.origin.refs`` returns remote branches
-        if repo.remotes:
-            branches += repo.remotes.origin.refs
-
-        for branch in branches:
-            verbose_name = branch.name
-            if verbose_name.startswith("origin/"):
-                verbose_name = verbose_name.replace("origin/", "", 1)
-            if verbose_name == "HEAD":
-                continue
-            versions.append(
-                VCSVersion(
-                    repository=self,
-                    identifier=verbose_name,
-                    verbose_name=verbose_name,
-                )
-            )
-        return versions
-
-    @property
     def commit(self):
-        if self.repo_exists():
-            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD', record=False)
-            return stdout.strip()
-        return None
+        _, stdout, _ = self.run("git", "rev-parse", "HEAD", record=False)
+        return stdout.strip()
 
     @property
     def submodules(self) -> Iterable[str]:

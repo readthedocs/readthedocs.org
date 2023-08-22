@@ -86,7 +86,7 @@ class ProjectBasicsForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ("name", "repo", "default_branch")
+        fields = ("name", "repo", "default_branch", "language")
 
     remote_repository = forms.IntegerField(
         widget=forms.HiddenInput(),
@@ -94,13 +94,7 @@ class ProjectBasicsForm(ProjectForm):
     )
 
     def __init__(self, *args, **kwargs):
-        show_advanced = kwargs.pop('show_advanced', False)
         super().__init__(*args, **kwargs)
-        if show_advanced:
-            self.fields['advanced'] = forms.BooleanField(
-                required=False,
-                label=_('Edit advanced project options'),
-            )
         self.fields['repo'].widget.attrs['placeholder'] = self.placehold_repo()
         self.fields['repo'].widget.attrs['required'] = True
 
@@ -225,7 +219,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'requirements_file',
             'python_interpreter',
             'install_project',
-            'use_system_packages',
             'conf_py_file',
             'enable_pdf_build',
             'enable_epub_build',
