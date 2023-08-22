@@ -54,6 +54,7 @@ from readthedocs.projects.forms import (
     ProjectAdvertisingForm,
     ProjectBasicsForm,
     ProjectConfigForm,
+    ProjectPullRequestForm,
     ProjectRelationshipForm,
     RedirectForm,
     TranslationForm,
@@ -1206,3 +1207,18 @@ class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     def _get_feature(self, project):
         return get_feature(project, feature_type=self.feature_type)
+
+
+class ProjectPullRequestsUpdate(PrivateViewMixin, UpdateView):
+    model = Project
+    form_class = ProjectPullRequestForm
+    success_message = _("Pull request settings have been updated")
+    template_name = "projects/project_pull_requests.html"
+    lookup_url_kwarg = "project_slug"
+    lookup_field = "slug"
+
+    def get_queryset(self):
+        return self.model.objects.for_admin_user(self.request.user)
+
+    def get_success_url(self):
+        return reverse("projects_pull_requests", args=[self.object.slug])

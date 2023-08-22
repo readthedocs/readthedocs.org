@@ -838,6 +838,19 @@ class ProjectAdvertisingForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
 
 
+class ProjectPullRequestForm(forms.ModelForm):
+
+    """Project pull requests configuration form."""
+
+    class Meta:
+        model = Project
+        fields = ["external_builds_enabled"]
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        super().__init__(*args, **kwargs)
+
+
 class FeatureForm(forms.ModelForm):
 
     """
