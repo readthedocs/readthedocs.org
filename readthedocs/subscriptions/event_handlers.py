@@ -36,16 +36,63 @@ def handler(*args, **kwargs):
     return decorator
 
 
-@handler("customer.subscription.updated", "customer.subscription.deleted")
-def update_subscription(event):
+@handler("customer.subscription.created")
+def subscription_created_event(event):
     """
-    Cancel trial subscriptions if their trial has ended.
+    Handle the creation of a new subscription.
 
-    We need to cancel these subscriptions manually,
+    When a new subscription is created, the latest subscription
+    of the organization is updated to point to this new subscription.
+
+    If the organization attached to the customer is disabled,
+    we re-enable it, since the user just subscribed to a plan.
+    """
+    stripe_subscription_id = event.data["object"]["id"]
+    log.bind(stripe_subscription_id=stripe_subscription_id)
+
+    stripe_subscription = djstripe.Subscription.objects.filter(
+        id=stripe_subscription_id
+    ).first()
+    if not stripe_subscription:
+        log.info("Stripe subscription not found.")
+        return
+
+    organization = getattr(stripe_subscription.customer, "rtd_organization", None)
+    if not organization:
+        log.error("Subscription isn't attached to an organization")
+        return
+
+    if organization.disabled:
+        log.info("Re-enabling organization.", organization_slug=organization.slug)
+        organization.disabled = False
+
+    old_subscription_id = (
+        organization.stripe_subscription.id
+        if organization.stripe_subscription
+        else None
+    )
+    log.info(
+        "Attaching new subscription to organization.",
+        organization_slug=organization.slug,
+        old_stripe_subscription_id=old_subscription_id,
+    )
+    organization.stripe_subscription = stripe_subscription
+    organization.save()
+
+
+@handler("customer.subscription.updated", "customer.subscription.deleted")
+def subscription_updated_event(event):
+    """
+    Handle subscription updates.
+
+    We need to cancel trial subscriptions manually when their trial period ends,
     otherwise Stripe will keep them active.
 
     If the organization attached to the subscription is disabled,
-    and the subscription is active, we re-enable the organization.
+    and the subscription is now active, we re-enable the organization.
+
+    We also re-evaluate the latest subscription attached to the organization,
+    it case it changed.
     """
     stripe_subscription_id = event.data["object"]["id"]
     log.bind(stripe_subscription_id=stripe_subscription_id)
@@ -71,19 +118,40 @@ def update_subscription(event):
             "Trial ended, canceling subscription.",
         )
         cancel_stripe_subscription(stripe_subscription.id)
+        return
 
     organization = getattr(stripe_subscription.customer, "rtd_organization", None)
     if not organization:
         log.error("Subscription isn't attached to an organization")
         return
 
+    save_org = False
     if (
         stripe_subscription.status == SubscriptionStatus.active
         and organization.disabled
     ):
         log.info("Re-enabling organization.", organization_slug=organization.slug)
         organization.disabled = False
+        save_org = True
+
+    new_stripe_subscription = organization.get_stripe_subscription()
+    if organization.stripe_subscription != new_stripe_subscription:
+        old_subscription_id = (
+            organization.stripe_subscription.id
+            if organization.stripe_subscription
+            else None
+        )
+        log.info(
+            "Attaching new subscription to organization.",
+            organization_slug=organization.slug,
+            old_stripe_subscription_id=old_subscription_id,
+        )
+        organization.stripe_subscription = stripe_subscription
+        save_org = True
+
+    if save_org:
         organization.save()
+
 
 @handler("customer.subscription.deleted")
 def subscription_canceled(event):

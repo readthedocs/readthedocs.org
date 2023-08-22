@@ -26,6 +26,39 @@ class TestStripeEventHandlers(TestCase):
             Organization, slug="org", email="test@example.com", owners=[self.user]
         )
 
+    def test_subscription_created_event(self):
+        customer = get(djstripe.Customer, id="cus_KMiHJXFHpLkcRP")
+        self.organization.stripe_customer = customer
+        self.organization.save()
+
+        start_date = timezone.now()
+        end_date = timezone.now() + timezone.timedelta(days=30)
+        stripe_subscription = get(
+            djstripe.Subscription,
+            id="sub_9LtsU02uvjO6Ed",
+            status=SubscriptionStatus.active,
+            current_period_start=start_date,
+            current_period_end=end_date,
+            trial_end=end_date,
+            customer=customer,
+        )
+        event = get(
+            djstripe.Event,
+            data={
+                "object": {
+                    "id": stripe_subscription.id,
+                    "object": "subscription",
+                    "customer": customer.id,
+                }
+            },
+        )
+
+        self.assertIsNone(self.organization.stripe_subscription)
+        event_handlers.subscription_created_event(event=event)
+
+        self.organization.refresh_from_db()
+        self.assertEqual(self.organization.stripe_subscription, stripe_subscription)
+
     @mock.patch("readthedocs.subscriptions.event_handlers.cancel_stripe_subscription")
     def test_subscription_updated_event(self, cancel_subscription_mock):
         """Test handled event."""
@@ -48,10 +81,10 @@ class TestStripeEventHandlers(TestCase):
                 }
             },
         )
-        event_handlers.update_subscription(event=event)
+        event_handlers.subscription_updated_event(event=event)
         cancel_subscription_mock.assert_not_called()
 
-    def test_reenabled_organization_on_subscription_updated_event(self):
+    def test_reenable_organization_on_subscription_updated_event(self):
         """Organization is re-enabled when subscription is active."""
         customer = get(djstripe.Customer, id="cus_KMiHJXFHpLkcRP")
         self.organization.stripe_customer = customer
@@ -80,7 +113,7 @@ class TestStripeEventHandlers(TestCase):
         )
 
         self.assertTrue(self.organization.disabled)
-        event_handlers.update_subscription(event=event)
+        event_handlers.subscription_updated_event(event=event)
         self.organization.refresh_from_db()
         self.assertFalse(self.organization.disabled)
 
@@ -184,7 +217,7 @@ class TestStripeEventHandlers(TestCase):
             },
         )
 
-        event_handlers.update_subscription(event=event)
+        event_handlers.subscription_updated_event(event=event)
         cancel_subscription_mock.assert_called_once_with(stripe_subscription.id)
 
     @mock.patch("readthedocs.subscriptions.event_handlers.cancel_stripe_subscription")
@@ -219,7 +252,7 @@ class TestStripeEventHandlers(TestCase):
             },
         )
 
-        event_handlers.update_subscription(event=event)
+        event_handlers.subscription_updated_event(event=event)
         cancel_subscription_mock.assert_not_called()
 
     def test_customer_updated_event(self):
