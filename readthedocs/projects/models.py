@@ -693,11 +693,9 @@ class Project(models.Model):
         This needs to start with a slash at the root of the domain,
         and end without a slash
         """
-        if self.urlconf:
-            # Add our proxied api host at the first place we have a $variable
-            # This supports both subpaths & normal root hosting
-            path_prefix = self.custom_path_prefix
-            return unsafe_join_url_path(path_prefix, "/_")
+        custom_prefix = self.proxied_api_prefix
+        if custom_prefix:
+            return unsafe_join_url_path(custom_prefix, "/_")
         return '/_'
 
     @property
@@ -715,12 +713,22 @@ class Project(models.Model):
         return f"{self.proxied_api_host}/static/"
 
     @property
-    def custom_path_prefix(self):
+    def proxied_api_prefix(self):
         """
-        Get the path prefix from the custom urlconf.
+        Get the path prefix for proxied API paths (``/_/``).
 
         Returns `None` if the project doesn't have a custom urlconf.
         """
+        # When using a custom prefix, we can only handle serving
+        # docs pages under the prefix, not special paths like `/_/`.
+        # Projects using the old implementation, need to proxy `/_/`
+        # paths as is, this is, without the prefix, while those projects
+        # migrate to the new implementation, we will prefix special paths
+        # when generating links, these paths will be manually un-prefixed in nginx.
+        if self.custom_prefix and self.has_feature(
+            Feature.USE_PROXIED_APIS_WITH_PREFIX
+        ):
+            return self.custom_prefix
         if self.urlconf:
             # Return the value before the first defined variable,
             # as that is a prefix and not part of our normal doc patterns.
@@ -1917,7 +1925,6 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
     DONT_SHALLOW_CLONE = "dont_shallow_clone"
@@ -1930,6 +1937,7 @@ class Feature(models.Model):
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
+    USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
 
     # Versions sync related features
@@ -1953,17 +1961,10 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
     HOSTING_INTEGRATIONS = "hosting_integrations"
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
     FEATURES = (
-        (
-            SKIP_SPHINX_HTML_THEME_PATH,
-            _(
-                "Sphinx: Do not define html_theme_path on Sphinx < 6.0",
-            ),
-        ),
         (
             MKDOCS_THEME_RTD,
             _("MkDocs: Use Read the Docs theme for MkDocs as default theme"),
@@ -2018,6 +2019,12 @@ class Feature(models.Model):
             USE_UNRESOLVER_WITH_PROXITO,
             _(
                 "Proxito: Use new unresolver implementation for serving documentation files."
+            ),
+        ),
+        (
+            USE_PROXIED_APIS_WITH_PREFIX,
+            _(
+                "Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has one (Project.custom_prefix)."
             ),
         ),
         (
@@ -2080,12 +2087,6 @@ class Feature(models.Model):
             _(
                 "Search: Index content directly from html files instead or relying in other "
                 "sources"
-            ),
-        ),
-        (
-            GIT_CLONE_FETCH_CHECKOUT_PATTERN,
-            _(
-                "Build: Use simplified and optimized git clone + git fetch + git checkout patterns"
             ),
         ),
         (

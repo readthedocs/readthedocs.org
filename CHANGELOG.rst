@@ -1,3 +1,27 @@
+Version 10.1.0
+--------------
+
+:Date: August 22, 2023
+
+* `@ecormany <https://github.com/ecormany>`__: docs: typo fix on "Custom and built-in redirects" page (`#10651 <https://github.com/readthedocs/readthedocs.org/pull/10651>`__)
+* `@humitos <https://github.com/humitos>`__: Celery: use django-celery-beat scheduler (`#10647 <https://github.com/readthedocs/readthedocs.org/pull/10647>`__)
+* `@humitos <https://github.com/humitos>`__: Build: drop websupport2 support from conf.py template (`#10646 <https://github.com/readthedocs/readthedocs.org/pull/10646>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Remove the celery email tasks until we can debug them. (`#10641 <https://github.com/readthedocs/readthedocs.org/pull/10641>`__)
+* `@humitos <https://github.com/humitos>`__: Development: disable cached Loader on `DEBUG=True` (`#10640 <https://github.com/readthedocs/readthedocs.org/pull/10640>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: update tutorial with the latest required changes (`#10639 <https://github.com/readthedocs/readthedocs.org/pull/10639>`__)
+* `@humitos <https://github.com/humitos>`__: Build: do not set `sphinx_rtd_theme` theme automatically (`#10638 <https://github.com/readthedocs/readthedocs.org/pull/10638>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update links to blog post (`#10636 <https://github.com/readthedocs/readthedocs.org/pull/10636>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: allow to generate proxied API URLs with a prefix (`#10634 <https://github.com/readthedocs/readthedocs.org/pull/10634>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Small wording cleanup on Integration howto (`#10632 <https://github.com/readthedocs/readthedocs.org/pull/10632>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10628 <https://github.com/readthedocs/readthedocs.org/pull/10628>`__)
+* `@humitos <https://github.com/humitos>`__: Black: run black over all the code base (`#10619 <https://github.com/readthedocs/readthedocs.org/pull/10619>`__)
+* `@humitos <https://github.com/humitos>`__: Revert "Contact projects with a build in the last 3 years" (`#10618 <https://github.com/readthedocs/readthedocs.org/pull/10618>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: remove CSRF_COOKIE_MASKED (`#10608 <https://github.com/readthedocs/readthedocs.org/pull/10608>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: keep type of version in sync with the project (`#10606 <https://github.com/readthedocs/readthedocs.org/pull/10606>`__)
+* `@humitos <https://github.com/humitos>`__: Import: remove extra/advanced step from project import wizard (`#10603 <https://github.com/readthedocs/readthedocs.org/pull/10603>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Methodology section (`#10417 <https://github.com/readthedocs/readthedocs.org/pull/10417>`__)
+* `@humitos <https://github.com/humitos>`__: VCS: remove unused methods and make new Git pattern the default (`#8968 <https://github.com/readthedocs/readthedocs.org/pull/8968>`__)
+
 Version 10.0.0
 --------------
 

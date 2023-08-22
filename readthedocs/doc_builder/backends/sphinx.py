@@ -217,8 +217,6 @@ class BaseSphinx(BaseBuilder):
         )
 
         data = {
-            "html_theme": "sphinx_rtd_theme",
-            "html_theme_import": "sphinx_rtd_theme",
             "current_version": self.version.verbose_name,
             "project": self.project,
             "version": self.version,
@@ -256,9 +254,6 @@ class BaseSphinx(BaseBuilder):
             # Features
             "docsearch_disabled": self.project.has_feature(
                 Feature.DISABLE_SERVER_SIDE_SEARCH
-            ),
-            "skip_html_theme_path": self.project.has_feature(
-                Feature.SKIP_SPHINX_HTML_THEME_PATH
             ),
         }
 
