@@ -148,6 +148,23 @@ class Backend(BaseVCS):
             )
 
 
+    def clone(self):
+        """Clones the repository."""
+        # TODO: We should add "--no-checkout" in all git clone operations, except:
+        #  There exists a case of version_type=BRANCH without a branch name.
+        #  This case is relevant for building projects for the first time without knowing the name
+        #  of the default branch. Once this case has been made redundant, we can have
+        #  --no-checkout for all clones.
+        # --depth 1: Shallow clone, fetch as little data as possible.
+        cmd = ["git", "clone", "--depth", "1", self.repo_url, "."]
+
+        try:
+            # TODO: Explain or remove the return value
+            code, stdout, stderr = self.run(*cmd)
+            return code, stdout, stderr
+        except RepositoryError as exc:
+            raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
+
     def fetch(self):
         # --force: Likely legacy, it seems to be irrelevant to this usage
         # --prune: Likely legacy, we don't expect a previous fetch command to have run
@@ -261,23 +278,6 @@ class Backend(BaseVCS):
             raise RepositoryError(
                 RepositoryError.FAILED_TO_CHECKOUT.format(revision),
             ) from exc
-
-    def clone(self):
-        """Clones the repository."""
-        # TODO: We should add "--no-checkout" in all git clone operations, except:
-        #  There exists a case of version_type=BRANCH without a branch name.
-        #  This case is relevant for building projects for the first time without knowing the name
-        #  of the default branch. Once this case has been made redundant, we can have
-        #  --no-checkout for all clones.
-        # --depth 1: Shallow clone, fetch as little data as possible.
-        cmd = ["git", "clone", "--depth", "1", self.repo_url, "."]
-
-        try:
-            # TODO: Explain or remove the return value
-            code, stdout, stderr = self.run(*cmd)
-            return code, stdout, stderr
-        except RepositoryError as exc:
-            raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
 
     def lsremote(self, include_tags=True, include_branches=True):
         """
