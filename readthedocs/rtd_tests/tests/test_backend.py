@@ -306,7 +306,6 @@ class TestGitBackend(TestCase):
         """Test that a submodule is listed as available."""
         repo = self.project.vcs_repo(
             environment=self.build_environment,
-            version_identifier="release-ünîø∂é",
             version_type=BRANCH,
             version_identifier="submodule",
         )
