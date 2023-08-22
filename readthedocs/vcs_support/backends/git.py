@@ -264,30 +264,17 @@ class Backend(BaseVCS):
 
     def clone(self):
         """Clones the repository."""
-        cmd = ["git", "clone", "--no-single-branch", "--depth", str(self.repo_depth)]
-
-        cmd.extend([self.repo_url, '.'])
+        # TODO: We should add "--no-checkout" in all git clone operations, except:
+        #  There exists a case of version_type=BRANCH without a branch name.
+        #  This case is relevant for building projects for the first time without knowing the name
+        #  of the default branch. Once this case has been made redundant, we can have
+        #  --no-checkout for all clones.
+        # --depth 1: Shallow clone, fetch as little data as possible.
+        cmd = ["git", "clone", "--depth", "1", self.repo_url, "."]
 
         try:
+            # TODO: Explain or remove the return value
             code, stdout, stderr = self.run(*cmd)
-
-            # TODO: for those VCS providers that don't tell us the `default_branch`
-            # of the repository in the incoming webhook,
-            # we need to get it from the cloned repository itself.
-            #
-            # cmd = ['git', 'symbolic-ref', 'refs/remotes/origin/HEAD']
-            # _, default_branch, _ = self.run(*cmd)
-            # default_branch = default_branch.replace('refs/remotes/origin/', '')
-            #
-            # The idea is to hit the APIv2 here to update the `latest` version with
-            # the `default_branch` we just got from the repository itself,
-            # after clonning it.
-            # However, we don't know the PK for the version we want to update.
-            #
-            # api_v2.version(pk).patch(
-            #     {'default_branch': default_branch}
-            # )
-
             return code, stdout, stderr
         except RepositoryError as exc:
             raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
