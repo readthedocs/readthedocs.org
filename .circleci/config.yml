@@ -46,10 +46,11 @@ jobs:
       - run: git submodule update --init
       # Recipe: https://pre-commit.com/#managing-ci-caches
       - run:
-          name: Combine pre-commit config and python versions for caching
+          name: Combine pre-commit config, python version and testing requirements for caching
           command: |
             cp common/pre-commit-config.yaml pre-commit-cache-key.txt
             python --version --version >> pre-commit-cache-key.txt
+            cat requirements/testing.txt >> pre-commit-cache-key.txt
       - restore_cache:
           keys:
           - pre-commit-cache-{{ checksum "pre-commit-cache-key.txt" }}
