@@ -454,11 +454,12 @@ class Project(models.Model):
         ),
     )
 
+    # TODO: remove `use_system_packages` after deploying.
+    # This field is not used anymore.
     use_system_packages = models.BooleanField(
-        _('Use system packages'),
+        _("Use system packages"),
         help_text=_(
-            'Give the virtual environment access to the global '
-            'site-packages dir.',
+            "Give the virtual environment access to the global site-packages dir.",
         ),
         default=False,
     )
@@ -1927,8 +1928,6 @@ class Feature(models.Model):
     # may be added by other packages
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
-    DONT_SHALLOW_CLONE = "dont_shallow_clone"
-    UPDATE_CONDA_STARTUP = "update_conda_startup"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     CDN_ENABLED = "cdn_enabled"
@@ -1961,7 +1960,6 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
     HOSTING_INTEGRATIONS = "hosting_integrations"
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
@@ -1971,16 +1969,8 @@ class Feature(models.Model):
             _("MkDocs: Use Read the Docs theme for MkDocs as default theme"),
         ),
         (
-            DONT_SHALLOW_CLONE,
-            _("Build: Do not shallow clone when cloning git repos"),
-        ),
-        (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
-        ),
-        (
-            UPDATE_CONDA_STARTUP,
-            _("Conda: Upgrade conda before creating the environment"),
         ),
         (
             CONDA_APPEND_CORE_REQUIREMENTS,
@@ -2088,12 +2078,6 @@ class Feature(models.Model):
             _(
                 "Search: Index content directly from html files instead or relying in other "
                 "sources"
-            ),
-        ),
-        (
-            GIT_CLONE_FETCH_CHECKOUT_PATTERN,
-            _(
-                "Build: Use simplified and optimized git clone + git fetch + git checkout patterns"
             ),
         ),
         (
