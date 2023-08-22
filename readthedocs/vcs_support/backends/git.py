@@ -147,7 +147,6 @@ class Backend(BaseVCS):
                 project_slug=self.project.slug,
             )
 
-
     def clone(self):
         """Clones the repository."""
         # TODO: We should add "--no-checkout" in all git clone operations, except:
