@@ -1,3 +1,30 @@
+Version 10.0.0
+--------------
+
+This release is a Django 4.2 upgrade, so it has a major version bump, 10.0!
+
+:Date: August 14, 2023
+
+* `@ericholscher <https://github.com/ericholscher>`__: Update deprecation timezone to use PDT (`#10631 <https://github.com/readthedocs/readthedocs.org/pull/10631>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom domain: increase header value length (`#10625 <https://github.com/readthedocs/readthedocs.org/pull/10625>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Use same HomepageView for Community & Business (`#10621 <https://github.com/readthedocs/readthedocs.org/pull/10621>`__)
+* `@humitos <https://github.com/humitos>`__: Black: run black over all the code base (`#10619 <https://github.com/readthedocs/readthedocs.org/pull/10619>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: Fix exceptions (`#10616 <https://github.com/readthedocs/readthedocs.org/pull/10616>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Proxito: test new implementation more broadly (#10599)" (`#10614 <https://github.com/readthedocs/readthedocs.org/pull/10614>`__)
+* `@humitos <https://github.com/humitos>`__: Translations: update them all (`#10613 <https://github.com/readthedocs/readthedocs.org/pull/10613>`__)
+* `@humitos <https://github.com/humitos>`__:  Deprecation: codify browndates for "no config file deprecation"  (`#10612 <https://github.com/readthedocs/readthedocs.org/pull/10612>`__)
+* `@humitos <https://github.com/humitos>`__: Testing: run Coverage report only on CircleCI (`#10611 <https://github.com/readthedocs/readthedocs.org/pull/10611>`__)
+* `@humitos <https://github.com/humitos>`__: Profile: redirect to `/accounts/edit/` view on successful edit (`#10610 <https://github.com/readthedocs/readthedocs.org/pull/10610>`__)
+* `@humitos <https://github.com/humitos>`__: Release 9.16.4 (`#10609 <https://github.com/readthedocs/readthedocs.org/pull/10609>`__)
+* `@stsewd <https://github.com/stsewd>`__: Admin: show creation/modification dates on the admin page (`#10607 <https://github.com/readthedocs/readthedocs.org/pull/10607>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: keep type of version in sync with the project (`#10606 <https://github.com/readthedocs/readthedocs.org/pull/10606>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: test new implementation more broadly (`#10599 <https://github.com/readthedocs/readthedocs.org/pull/10599>`__)
+* `@humitos <https://github.com/humitos>`__: Django: upgrade to 4.2 (`#10595 <https://github.com/readthedocs/readthedocs.org/pull/10595>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: replace GitPython with git commands (`#10594 <https://github.com/readthedocs/readthedocs.org/pull/10594>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add organization listing filter (`#10593 <https://github.com/readthedocs/readthedocs.org/pull/10593>`__)
+* `@humitos <https://github.com/humitos>`__: Deprecation: notification and feature flag for `build.image` config (`#10589 <https://github.com/readthedocs/readthedocs.org/pull/10589>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: use djstripe for products/features (`#10238 <https://github.com/readthedocs/readthedocs.org/pull/10238>`__)
+
 Version 9.16.4
 --------------
 

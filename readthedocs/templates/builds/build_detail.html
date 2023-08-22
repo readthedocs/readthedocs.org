@@ -166,7 +166,7 @@ $(document).ready(function () {
       {% if build.finished and build.deprecated_build_image_used %}
       <div class="build-ideas">
           <p>
-              {% blocktrans trimmed with config_file_link="https://blog.readthedocs.com/build-image-config-deprecated/" %}
+              {% blocktrans trimmed with config_file_link="https://blog.readthedocs.com/use-build-os-config/" %}
               <strong>Your builds will stop working soon!</strong><br/>
               "build.image" config key is deprecated and it will be removed soon.
               <a href="{{ config_file_link }}">Read our blog post to know how to migrate to new key "build.os"</a>
