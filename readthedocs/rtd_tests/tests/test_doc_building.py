@@ -11,7 +11,6 @@ from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import (
     BuildCommand,
     DockerBuildCommand,
@@ -22,7 +21,6 @@ from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
-from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 DUMMY_BUILD_ID = 123
 SAMPLE_UNICODE = 'HérÉ îß sömê ünïçó∂é'
@@ -450,45 +448,6 @@ class TestPythonEnvironment(TestCase):
 
         requirements = self.base_requirements + requirements_sphinx
         args = self.pip_install_args + requirements
-        self.assertArgsStartsWith(args, calls[1])
-
-    @mock.patch('readthedocs.doc_builder.config.load_config')
-    @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_install_core_requirements_sphinx_system_packages_caps_setuptools(self, checkout_path, load_config):
-        config_data = {
-            'python': {
-                'use_system_site_packages': True,
-            },
-        }
-        load_config.side_effect = create_load(config_data)
-        config = load_yaml_config(self.version_sphinx)
-
-        tmpdir = tempfile.mkdtemp()
-        checkout_path.return_value = tmpdir
-        python_env = Virtualenv(
-            version=self.version_sphinx,
-            build_env=self.build_env_mock,
-            config=config,
-        )
-        python_env.install_core_requirements()
-        requirements_sphinx = [
-            "commonmark",
-            "recommonmark",
-            "sphinx",
-            "sphinx-rtd-theme",
-            "readthedocs-sphinx-ext",
-            "jinja2<3.1.0",
-            "setuptools",
-        ]
-
-        self.assertEqual(self.build_env_mock.run.call_count, 2)
-        calls = self.build_env_mock.run.call_args_list
-
-        core_args = self.pip_install_args + ["pip", "setuptools"]
-        self.assertArgsStartsWith(core_args, calls[0])
-
-        requirements = self.base_requirements + requirements_sphinx
-        args = self.pip_install_args + ['-I'] + requirements
         self.assertArgsStartsWith(args, calls[1])
 
     @patch('readthedocs.projects.models.Project.checkout_path')
