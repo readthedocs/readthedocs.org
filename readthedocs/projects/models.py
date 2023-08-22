@@ -1928,7 +1928,6 @@ class Feature(models.Model):
     # may be added by other packages
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
-    DONT_SHALLOW_CLONE = "dont_shallow_clone"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     CDN_ENABLED = "cdn_enabled"
@@ -1968,10 +1967,6 @@ class Feature(models.Model):
         (
             MKDOCS_THEME_RTD,
             _("MkDocs: Use Read the Docs theme for MkDocs as default theme"),
-        ),
-        (
-            DONT_SHALLOW_CLONE,
-            _("Build: Do not shallow clone when cloning git repos"),
         ),
         (
             API_LARGE_DATA,

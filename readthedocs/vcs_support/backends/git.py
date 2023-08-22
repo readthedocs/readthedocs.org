@@ -148,6 +148,7 @@ class Backend(BaseVCS):
             )
 
     def clone(self):
+        """Clones the repository."""
         # TODO: We should add "--no-checkout" in all git clone operations, except:
         #  There exists a case of version_type=BRANCH without a branch name.
         #  This case is relevant for building projects for the first time without knowing the name
@@ -267,19 +268,6 @@ class Backend(BaseVCS):
         if invalid_submodules:
             return False, invalid_submodules
         return True, submodules.keys()
-
-    def use_shallow_clone(self):
-        """
-        Test whether shallow clone should be performed.
-
-        .. note::
-
-            Temporarily, we support skipping this option as builds that rely on
-            git history can fail if using shallow clones. This should
-            eventually be configurable via the web UI.
-        """
-        from readthedocs.projects.models import Feature
-        return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
 
     def checkout_revision(self, revision):
         try:
