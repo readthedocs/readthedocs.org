@@ -113,10 +113,6 @@ class CommunityBaseSettings(Settings):
     CSRF_COOKIE_HTTPONLY = True
     CSRF_COOKIE_AGE = 30 * 24 * 60 * 60  # 30 days
 
-    # Remove after deploying
-    # https://docs.djangoproject.com/en/4.2/releases/4.1/#csrf-cookie-masked-setting
-    CSRF_COOKIE_MASKED = True
-
     # Security & X-Frame-Options Middleware
     # https://docs.djangoproject.com/en/1.11/ref/middleware/#django.middleware.security.SecurityMiddleware
     SECURE_CONTENT_TYPE_NOSNIFF = True
@@ -165,18 +161,24 @@ class CommunityBaseSettings(Settings):
         # Depending on the feature type, the numeric value represents a
         # number of days or limit of the feature.
         from readthedocs.subscriptions import constants
-        return {
-            constants.TYPE_CNAME: 1,
-            constants.TYPE_EMBED_API: 1,
+        from readthedocs.subscriptions.products import RTDProductFeature
+        return dict((
+            RTDProductFeature(type=constants.TYPE_CNAME).to_item(),
+            RTDProductFeature(type=constants.TYPE_EMBED_API).to_item(),
             # Retention days for search analytics.
-            constants.TYPE_SEARCH_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            RTDProductFeature(type=constants.TYPE_SEARCH_ANALYTICS, value=self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS).to_item(),
             # Retention days for page view analytics.
-            constants.TYPE_PAGEVIEW_ANALYTICS: self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS,
+            RTDProductFeature(type=constants.TYPE_PAGEVIEW_ANALYTICS, value=self.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS).to_item(),
             # Retention days for audit logs.
-            constants.TYPE_AUDIT_LOGS: self.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS,
+            RTDProductFeature(type=constants.TYPE_AUDIT_LOGS, value=self.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS).to_item(),
             # Max number of concurrent builds.
-            constants.TYPE_CONCURRENT_BUILDS: self.RTD_MAX_CONCURRENT_BUILDS,
-        }
+            RTDProductFeature(type=constants.TYPE_CONCURRENT_BUILDS, value=self.RTD_MAX_CONCURRENT_BUILDS).to_item(),
+        ))
+
+    # A dictionary of Stripe products mapped to a RTDProduct object.
+    # In .org we don't have subscriptions/products, default features are
+    # defined in RTD_DEFAULT_FEATURES.
+    RTD_PRODUCTS = {}
 
     # Database and API hitting settings
     DONT_HIT_DB = True
@@ -231,6 +233,7 @@ class CommunityBaseSettings(Settings):
             'polymorphic',
             'simple_history',
             'djstripe',
+            'django_celery_beat',
 
             # our apps
             'readthedocs.projects',
@@ -394,13 +397,22 @@ class CommunityBaseSettings(Settings):
                 os.path.dirname(readthedocsext.theme.__file__),
                 'templates',
             ))
+
+        # Disable ``cached.Loader`` on development
+        # https://docs.djangoproject.com/en/4.2/ref/templates/api/#django.template.loaders.cached.Loader
+        default_loaders = [
+            "django.template.loaders.filesystem.Loader",
+            "django.template.loaders.app_directories.Loader",
+        ]
+        cached_loaders = [("django.template.loaders.cached.Loader", default_loaders)]
+
         return [
             {
                 'BACKEND': 'django.template.backends.django.DjangoTemplates',
                 'DIRS': dirs,
-                'APP_DIRS': True,
                 'OPTIONS': {
                     'debug': self.DEBUG,
+                    'loaders': default_loaders if self.DEBUG else cached_loaders,
                     'context_processors': [
                         'django.contrib.auth.context_processors.auth',
                         'django.contrib.messages.context_processors.messages',
@@ -466,6 +478,7 @@ class CommunityBaseSettings(Settings):
     CELERY_CREATE_MISSING_QUEUES = True
 
     CELERY_DEFAULT_QUEUE = 'celery'
+    CELERYBEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
     CELERYBEAT_SCHEDULE = {
         'quarter-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.utils.finish_inactive_builds',
@@ -494,7 +507,7 @@ class CommunityBaseSettings(Settings):
         },
         'weekly-delete-old-personal-audit-logs': {
             'task': 'readthedocs.audit.tasks.delete_old_personal_audit_logs',
-            'schedule': crontab(day_of_week='wednesday', minute=0, hour=7),
+            'schedule': crontab(day_of_week="wed", minute=0, hour=7),
             'options': {'queue': 'web'},
         },
         'every-day-resync-sso-organization-users': {
@@ -534,16 +547,20 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
-        'weekly-config-file-notification': {
-            'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
-            'schedule': crontab(day_of_week='wednesday', hour=11, minute=15),
-            'options': {'queue': 'web'},
-        },
-        'weekly-build-image-notification': {
-            'task': 'readthedocs.projects.tasks.utils.deprecated_build_image_notification',
-            'schedule': crontab(day_of_week='wednesday', hour=9, minute=15),
-            'options': {'queue': 'web'},
-        },
+        # We keep having celery send multiple emails,
+        # which is a terrible UX,
+        # so let's remove them for now.
+
+        # 'weekly-config-file-notification': {
+        #     'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
+        #     'schedule': crontab(day_of_week='wed', hour=11, minute=15),
+        #     'options': {'queue': 'web'},
+        # },
+        # 'weekly-build-image-notification': {
+        #     'task': 'readthedocs.projects.tasks.utils.deprecated_build_image_notification',
+        #     'schedule': crontab(day_of_week='wed', hour=9, minute=15),
+        #     'options': {'queue': 'web'},
+        # },
     }
 
     # Sentry

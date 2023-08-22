@@ -76,11 +76,11 @@ def safe_open(
     )
 
     if path.exists() and not path.is_file():
-        raise FileIsNotRegularFile(path)
+        raise FileIsNotRegularFile()
 
     if not allow_symlinks and path.is_symlink():
         log.info("Skipping file becuase it's a symlink.")
-        raise UnsupportedSymlinkFileError(path)
+        raise UnsupportedSymlinkFileError()
 
     # Expand symlinks.
     resolved_path = path.resolve()
@@ -89,17 +89,21 @@ def safe_open(
         file_size = resolved_path.stat().st_size
         if file_size > max_size_bytes:
             log.info("File is too large.", size_bytes=file_size)
-            raise FileTooLarge(path)
+            raise FileTooLarge()
 
     if allow_symlinks and base_path:
         base_path = Path(base_path).absolute()
         if not resolved_path.is_relative_to(base_path):
             # Trying to path traversal via a symlink, sneaky!
             log.info("Path traversal via symlink.")
-            raise SymlinkOutsideBasePath(path)
+            raise SymlinkOutsideBasePath()
 
     _assert_path_is_inside_docroot(resolved_path)
 
+    # The encoding is valid only if the file opened is a text file,
+    # this function is used to read both types of files (text and binary),
+    # so we can't specify the encoding here.
+    # pylint: disable=unspecified-encoding
     return resolved_path.open(*args, **kwargs)
 
 

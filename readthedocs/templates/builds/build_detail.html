@@ -166,7 +166,7 @@ $(document).ready(function () {
       {% if build.finished and build.deprecated_build_image_used %}
       <div class="build-ideas">
           <p>
-              {% blocktrans trimmed with config_file_link="https://blog.readthedocs.com/build-image-config-deprecated/" %}
+              {% blocktrans trimmed with config_file_link="https://blog.readthedocs.com/use-build-os-config/" %}
               <strong>Your builds will stop working soon!</strong><br/>
               "build.image" config key is deprecated and it will be removed soon.
               <a href="{{ config_file_link }}">Read our blog post to know how to migrate to new key "build.os"</a>
@@ -239,7 +239,13 @@ $(document).ready(function () {
         <h3>{% trans "Error" %}</h3>
         <p class="build-error"
            data-bind="text: error">
-          {{ build.error }}
+            {#
+              I'd like to use ``build.error|urlize`` here, so we can have nice links.
+              However, this is not possible because we are using `data-bind="text: error"`
+              which means that Knockout.js will use the `.error` attribute to fill
+              the content of this tag dynamically.
+            #}
+            {{ build.error|urlize }}
         </p>
         <p>
           {% block github_issue_link %}

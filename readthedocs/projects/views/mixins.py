@@ -100,12 +100,11 @@ class ProjectImportMixin:
 
     """Helpers to import a Project."""
 
-    def finish_import_project(self, request, project, tags=None):
+    def finish_import_project(self, request, project):
         """
         Perform last steps to import a project into Read the Docs.
 
         - Add the user from request as maintainer
-        - Set all the tags to the project
         - Send Django Signal
         - Trigger initial build
 
@@ -115,18 +114,11 @@ class ProjectImportMixin:
         :param project: Project instance just imported (already saved)
         :param tags: tags to add to the project
         """
-        if not tags:
-            tags = []
-
         project.users.add(request.user)
-        for tag in tags:
-            project.tags.add(tag)
-
         log.info(
             'Project imported.',
             project_slug=project.slug,
             user_username=request.user.username,
-            tags=tags,
         )
 
         # TODO: this signal could be removed, or used for sync task

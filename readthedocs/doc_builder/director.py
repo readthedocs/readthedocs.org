@@ -10,6 +10,7 @@ It "directs" all of the high-level build jobs:
 import os
 import tarfile
 
+import pytz
 import structlog
 import yaml
 from django.conf import settings
@@ -250,14 +251,15 @@ class BuildDirector:
         self.data.build["readthedocs_yaml_path"] = custom_config_file
 
         now = timezone.now()
+        pdt = pytz.timezone("America/Los_Angeles")
 
         # fmt: off
         # These browndates matches https://blog.readthedocs.com/use-build-os-config/
         browndates = any([
-            timezone.datetime(2023, 7, 14, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 7, 14, 12, 0, 0, tzinfo=timezone.utc),  # First, 12hs
-            timezone.datetime(2023, 8, 14, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 8, 15, 0, 0, 0, tzinfo=timezone.utc),  # Second, 24hs
-            timezone.datetime(2023, 9, 4, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 9, 6, 0, 0, 0, tzinfo=timezone.utc),  # Third, 24hs
-            timezone.datetime(2023, 9, 25, 0, 0, 0, tzinfo=timezone.utc) < now,  # Fully removal
+            timezone.datetime(2023, 7, 14, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 7, 14, 12, 0, 0, tzinfo=pdt),  # First, 12hs
+            timezone.datetime(2023, 8, 14, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 8, 15, 0, 0, 0, tzinfo=pdt),  # Second, 24hs
+            timezone.datetime(2023, 9, 4, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 9, 6, 0, 0, 0, tzinfo=pdt),  # Third, 24hs
+            timezone.datetime(2023, 9, 25, 0, 0, 0, tzinfo=pdt) < now,  # Fully removal
         ])
         # fmt: on
 
@@ -270,10 +272,10 @@ class BuildDirector:
         # fmt: off
         # These browndates matches https://blog.readthedocs.com/use-build-os-config/
         browndates = any([
-            timezone.datetime(2023, 8, 28, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 8, 28, 12, 0, 0, tzinfo=timezone.utc),  # First, 12hs
-            timezone.datetime(2023, 9, 18, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 9, 19, 0, 0, 0, tzinfo=timezone.utc),  # Second, 24hs
-            timezone.datetime(2023, 10, 2, 0, 0, 0, tzinfo=timezone.utc) < now < timezone.datetime(2023, 10, 4, 0, 0, 0, tzinfo=timezone.utc),  # Third, 48hs
-            timezone.datetime(2023, 10, 16, 0, 0, 0, tzinfo=timezone.utc) < now,  # Fully removal
+            timezone.datetime(2023, 8, 28, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 8, 28, 12, 0, 0, tzinfo=pdt),  # First, 12hs
+            timezone.datetime(2023, 9, 18, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 9, 19, 0, 0, 0, tzinfo=pdt),  # Second, 24hs
+            timezone.datetime(2023, 10, 2, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 10, 4, 0, 0, 0, tzinfo=pdt),  # Third, 48hs
+            timezone.datetime(2023, 10, 16, 0, 0, 0, tzinfo=pdt) < now,  # Fully removal
         ])
         # fmt: on
 

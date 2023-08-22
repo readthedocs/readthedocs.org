@@ -32,6 +32,7 @@ from readthedocs.rtd_tests.storage import (
     StaticFileSystemStorageTest,
 )
 from readthedocs.subscriptions.constants import TYPE_AUDIT_PAGEVIEWS, TYPE_CNAME
+from readthedocs.subscriptions.products import RTDProductFeature
 
 from .base import BaseDocServing
 
@@ -622,9 +623,13 @@ class TestDocServingBackends(BaseDocServing):
         self.assertIn('x-accel-redirect', resp)
         self.assertEqual(AuditLog.objects.all().count(), 0)
 
-        url = '/en/latest/awesome.html'
-        host = 'project.dev.readthedocs.io'
-        with override_settings(RTD_DEFAULT_FEATURES={TYPE_AUDIT_PAGEVIEWS: 1}):
+        url = "/en/latest/awesome.html"
+        host = "project.dev.readthedocs.io"
+        with override_settings(
+            RTD_DEFAULT_FEATURES=dict(
+                [RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()]
+            )
+        ):
             resp = self.client.get(url, headers={"host": host})
         self.assertIn('x-accel-redirect', resp)
         self.assertEqual(AuditLog.objects.all().count(), 1)
@@ -635,11 +640,19 @@ class TestDocServingBackends(BaseDocServing):
         self.assertEqual(log.resource, url)
         self.assertEqual(log.action, AuditLog.PAGEVIEW)
 
-        with override_settings(RTD_DEFAULT_FEATURES={TYPE_AUDIT_PAGEVIEWS: 1}):
+        with override_settings(
+            RTD_DEFAULT_FEATURES=dict(
+                [RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()]
+            )
+        ):
             resp = self.client.get("/en/latest/awesome.js", headers={"host": host})
         self.assertIn("x-accel-redirect", resp)
 
-        with override_settings(RTD_DEFAULT_FEATURES={TYPE_AUDIT_PAGEVIEWS: 1}):
+        with override_settings(
+            RTD_DEFAULT_FEATURES=dict(
+                [RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()]
+            )
+        ):
             resp = self.client.get("/en/latest/awesome.css", headers={"host": host})
         self.assertIn("x-accel-redirect", resp)
         self.assertEqual(AuditLog.objects.all().count(), 1)
@@ -652,9 +665,13 @@ class TestDocServingBackends(BaseDocServing):
         )
 
         self.assertEqual(AuditLog.objects.all().count(), 0)
-        url = '/_/downloads/en/latest/pdf/'
-        host = 'project.dev.readthedocs.io'
-        with override_settings(RTD_DEFAULT_FEATURES={TYPE_AUDIT_PAGEVIEWS: 1}):
+        url = "/_/downloads/en/latest/pdf/"
+        host = "project.dev.readthedocs.io"
+        with override_settings(
+            RTD_DEFAULT_FEATURES=dict(
+                [RTDProductFeature(type=TYPE_AUDIT_PAGEVIEWS).to_item()]
+            )
+        ):
             resp = self.client.get(url, headers={"host": host})
         self.assertIn('x-accel-redirect', resp)
         self.assertEqual(AuditLog.objects.all().count(), 1)
@@ -1542,9 +1559,7 @@ class ProxitoV2TestAdditionalDocViews(TestAdditionalDocViews):
     ALLOW_PRIVATE_REPOS=True,
     PUBLIC_DOMAIN='dev.readthedocs.io',
     PUBLIC_DOMAIN_USES_HTTPS=True,
-    RTD_DEFAULT_FEATURES={
-        TYPE_CNAME: 1,
-    },
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
 )
 # We are overriding the storage class instead of using RTD_BUILD_MEDIA_STORAGE,
 # since the setting is evaluated just once (first test to use the storage
