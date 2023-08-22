@@ -25,6 +25,8 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     RTD_EXTERNAL_VERSION_DOMAIN = "build.devthedocs.org"
 
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
     STATIC_URL = "/static/"
 
     # In the local docker environment, nginx should be trusted to set the host correctly
