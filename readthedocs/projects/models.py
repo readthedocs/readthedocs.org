@@ -227,18 +227,6 @@ class Project(models.Model):
             'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
         ),
     )
-    # NOTE: This is deprecated, use the `custom_prefix*` attributes instead.
-    urlconf = models.CharField(
-        _('Documentation URL Configuration'),
-        max_length=255,
-        default=None,
-        blank=True,
-        null=True,
-        help_text=_(
-            'Supports the following keys: $language, $version, $subproject, $filename. '
-            'An example: `$language/$version/$filename`.'
-        ),
-    )
 
     custom_prefix = models.CharField(
         _("Custom path prefix"),
