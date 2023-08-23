@@ -100,10 +100,24 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
 
     def get(self, request, path):
         """
-        Take the incoming parsed URL's and figure out what file to serve.
+        Serve a file from the resolved project and version from the path.
 
-        ``subproject_slash`` is used to determine if the subproject URL has a slash,
-        so that we can decide if we need to serve docs or add a /.
+        Before trying to serve the file, we check for canonical redirects.
+
+        If the path isn't valid for the current project, or if the version/translation
+        doesn't exist, we raise a 404. This will be handled by the ``ServeError404``
+        view.
+
+        This view handles the following redirects:
+            
+        - Redirect to the default version of the project
+          from the root path or translation
+          (/ -> /en/latest/, /en/ -> /en/latest/).
+        - Trailing slash redirect (/en/latest -> /en/latest/).
+        - Forced redirects (apply a user defined redirect even if the path exists).
+
+        This view checks if the user is allowed to access the current version,
+        and if the project is marked as spam.
         """
         unresolved_domain = request.unresolved_domain
         # Handle requests that need canonicalizing first,
@@ -129,7 +143,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
 
         # Django doesn't include the leading slash in the path, so we normalize it here.
         path = "/" + path
-        return self.get_using_unresolver(request, path)
+        return self.serve_path(request, path)
 
     def _get_canonical_redirect_type(self, request):
         """If the current request needs a redirect, return the type of redirect to perform."""
@@ -161,13 +175,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
 
         return None
 
-    def get_using_unresolver(self, request, path):
-        """
-        Resolve the current request using the new proxito implementation.
-
-        This is basically a copy of the get() method,
-        but adapted to make use of the unresolved to extract the current project, version, and file.
-        """
+    def serve_path(self, request, path):
         unresolved_domain = request.unresolved_domain
 
         # We force all storage calls to use the external versions storage,
