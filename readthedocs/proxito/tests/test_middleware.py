@@ -1,5 +1,4 @@
 # Copied from test_middleware.py
-from unittest import mock
 
 import pytest
 from django.core.exceptions import SuspiciousOperation
@@ -8,14 +7,12 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
-from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Domain, Feature, Project, ProjectRelationship
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.proxito.exceptions import DomainDNSHttp404
 from readthedocs.proxito.middleware import ProxitoMiddleware
 from readthedocs.rtd_tests.base import RequestFactoryTestMixin
-from readthedocs.rtd_tests.storage import BuildMediaFileSystemStorageTest
 from readthedocs.rtd_tests.utils import create_user
 from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.products import RTDProductFeature

@@ -378,7 +378,7 @@ class TestFullDocServing(BaseDocServing):
         self.project.save()
         url = "/en/api/awesome.html"
         host = "project.dev.readthedocs.io"
-        resp = self.client.get(url, HTTP_HOST=host)
+        resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
             resp["x-accel-redirect"],
             "/proxito/media/html/project/latest/en/api/awesome.html",
@@ -389,10 +389,10 @@ class TestFullDocServing(BaseDocServing):
         self.project.save()
         url = "/en/awesome.html"
         host = "project.dev.readthedocs.io"
-        resp = self.client.get(url, HTTP_HOST=host)
+        resp = self.client.get(url, headers={"host": host})
         self.assertEqual(
             resp["x-accel-redirect"],
-            "/proxito/media/html/project/latest/en/api/awesome.html",
+            "/proxito/media/html/project/latest/en/awesome.html",
         )
 
 

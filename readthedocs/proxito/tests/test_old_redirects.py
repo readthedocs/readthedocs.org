@@ -13,8 +13,6 @@ import django_dynamic_fixture as fixture
 import pytest
 from django.http import Http404
 from django.test.utils import override_settings
-from django.urls import Resolver404
-from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Feature

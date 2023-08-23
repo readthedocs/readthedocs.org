@@ -109,7 +109,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         view.
 
         This view handles the following redirects:
-            
+
         - Redirect to the default version of the project
           from the root path or translation
           (/ -> /en/latest/, /en/ -> /en/latest/).
