@@ -4,7 +4,6 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import Feature
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.products import RTDProductFeature

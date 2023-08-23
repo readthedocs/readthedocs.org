@@ -127,6 +127,8 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
                 # and we don't want to issue infinite redirects.
                 pass
 
+        # Django doesn't include the leading slash in the path, so we normalize it here.
+        path = "/" + path
         return self.get_using_unresolver(request, path)
 
     def _get_canonical_redirect_type(self, request):
