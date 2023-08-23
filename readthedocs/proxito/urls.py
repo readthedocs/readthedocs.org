@@ -49,7 +49,7 @@ from readthedocs.proxito.views.serve import (
     ServeSitemapXML,
     ServeStaticFiles,
 )
-from readthedocs.proxito.views.utils import fast_404, proxito_404_page_handler
+from readthedocs.proxito.views.utils import proxito_404_page_handler
 
 DOC_PATH_PREFIX = getattr(settings, "DOC_PATH_PREFIX", "")
 

@@ -43,8 +43,6 @@ from readthedocs.proxito.views.mixins import (
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage
 
-from .utils import _get_project_data_from_request
-
 log = structlog.get_logger(__name__)  # noqa
 
 

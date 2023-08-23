@@ -6,7 +6,6 @@ This is used to take the request and map the host to the proper project slug.
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
 import re
-import sys
 from urllib.parse import urlparse
 
 import structlog
@@ -26,7 +25,6 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.models import Feature
 from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
 from readthedocs.proxito.redirects import redirect_to_https
 
@@ -263,26 +261,6 @@ class ProxitoMiddleware(MiddlewareMixin):
             "Proxito Project.",
             project_slug=project.slug,
         )
-
-        # This is hacky because Django wants a module for the URLConf,
-        # instead of also accepting string
-        if project.urlconf and not project.has_feature(
-            Feature.USE_UNRESOLVER_WITH_PROXITO
-        ):
-            # Stop Django from caching URLs
-            # https://github.com/django/django/blob/7cf7d74/django/urls/resolvers.py#L65-L69  # noqa
-            project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S%f")
-            url_key = f"readthedocs.urls.fake.{project.slug}.{project_timestamp}"
-
-            log.info(
-                "Setting URLConf",
-                project_slug=project.slug,
-                url_key=url_key,
-                urlconf=project.urlconf,
-            )
-            if url_key not in sys.modules:
-                sys.modules[url_key] = project.proxito_urlconf
-            request.urlconf = url_key
 
         return None
 
