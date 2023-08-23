@@ -148,51 +148,7 @@ docs_urls = [
         ServePageRedirect.as_view(),
         name="redirect_page_with_filename",
     ),
-    # (Sub)project w/ translation and versions
-    re_path(
-        (
-            r"^(?:projects/(?P<subproject_slug>{project_slug})/)?"
-            r"(?P<lang_slug>{lang_slug})/"
-            r"(?P<version_slug>{version_slug})/"
-            r"(?P<filename>{filename_slug})$".format(**pattern_opts)
-        ),
-        ServeDocs.as_view(),
-        name="docs_detail",
-    ),
-    # Hack /en/latest so it redirects properly
-    # We don't want to serve the docs here,
-    # because it's at a different level of serving so relative links break.
-    re_path(
-        (
-            r"^(?:projects/(?P<subproject_slug>{project_slug})/)?"
-            r"(?P<lang_slug>{lang_slug})/"
-            r"(?P<version_slug>{version_slug})$".format(**pattern_opts)
-        ),
-        fast_404,
-        name="docs_detail_directory_indexing",
-    ),
-    # # TODO: Support this?
-    # # (Sub)project translation and single version
-    # re_path(
-    #     (
-    #         r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
-    #         r'(?P<lang_slug>{lang_slug})/'
-    #         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
-    #     ),
-    #     serve_docs,
-    #     name='docs_detail',
-    # ),
-    # (Sub)project single version
-    re_path(
-        (
-            # subproject_slash variable at the end of this regex is for ``/projects/subproject``
-            # so that it will get captured here and redirect properly.
-            r"^(?:projects/(?P<subproject_slug>{project_slug})(?P<subproject_slash>/?))?"
-            r"(?P<filename>{filename_slug})$".format(**pattern_opts)
-        ),
-        ServeDocs.as_view(),
-        name="docs_detail_singleversion_subproject",
-    ),
+    re_path(r"^(?P<path>.*)$", ServeDocs.as_view(), name="docs_detail"),
 ]
 
 urlpatterns = health_check_urls + proxied_urls + core_urls + docs_urls
