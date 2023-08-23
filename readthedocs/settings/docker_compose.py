@@ -25,6 +25,14 @@ class DockerBaseSettings(CommunityBaseSettings):
 
     RTD_EXTERNAL_VERSION_DOMAIN = "build.devthedocs.org"
 
+    # When using ngrok + HTTPS, forms are blocked because the schema from the final URL
+    # doesn't match the one from the origin header.
+    # Previously only the host was checked, this was changed in 4.0:
+    # https://docs.djangoproject.com/en/4.2/releases/4.0/#csrf
+    #
+    # Reference: https://docs.djangoproject.com/en/4.2/ref/settings/#secure-proxy-ssl-header
+    SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
     STATIC_URL = "/static/"
 
     # In the local docker environment, nginx should be trusted to set the host correctly
