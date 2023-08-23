@@ -526,13 +526,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         return None
 
-    def get_using_unresolver(self, request, path):
-        """
-        404 handler using the new proxito implementation.
-
-        This is basically a copy of the get() method, but adapted to make use
-        of the unresolver to extract the current project, version, and file.
-        """
+    def get_using_unresolver(self, request, proxito_path):
         unresolved_domain = request.unresolved_domain
         # We force all storage calls to use the external versions storage,
         # since we are serving an external version.
@@ -546,7 +540,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         version = None
         # If we weren't able to resolve a filename,
         # then the path is the filename.
-        filename = path
+        filename = proxito_path
         lang_slug = None
         version_slug = None
         # Try to map the current path to a project/version/filename.
@@ -558,7 +552,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         try:
             unresolved = unresolver.unresolve_path(
                 unresolved_domain=unresolved_domain,
-                path=path,
+                path=proxito_path,
                 append_indexhtml=False,
             )
             project = unresolved.project
@@ -610,7 +604,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                 project=project,
                 version=version,
                 filename=filename,
-                full_path=path,
+                full_path=proxito_path,
             )
             if response:
                 return response
@@ -624,12 +618,12 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             lang_slug=lang_slug,
             version_slug=version_slug,
             filename=filename,
-            full_path=path,
+            full_path=proxito_path,
         )
         if redirect_path and http_status:
             try:
                 return self.get_redirect_response(
-                    request, redirect_path, path, http_status
+                    request, redirect_path, proxito_path, http_status
                 )
             except InfiniteRedirectException:
                 # ``get_redirect_response`` raises this when it's redirecting back to itself.
@@ -642,7 +636,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             project=project,
             version=version,
             path=filename,
-            full_path=path,
+            full_path=proxito_path,
         )
 
         response = self._get_custom_404_page(
@@ -658,7 +652,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         # or other error handling is developed (version, language, filename).
         raise contextualized_404_class(
             project=project,
-            path_not_found=path,
+            path_not_found=proxito_path,
         )
 
 
