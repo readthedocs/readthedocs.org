@@ -113,15 +113,3 @@ class TestSingleVersionURLs(TestCase):
                 "filename": "some/path/index.html",
             },
         )
-
-
-class ProxitoV2TestSingleVersionURLs(TestSingleVersionURLs):
-    # TODO: remove this class once the new implementation is the default.
-    def setUp(self):
-        super().setUp()
-        get(
-            Feature,
-            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
-            default_true=True,
-            future_default_true=True,
-        )

@@ -362,18 +362,6 @@ class TestFullDocServing(BaseDocServing):
             response['strict-transport-security'], 'max-age=3600; includeSubDomains; preload',
         )
 
-
-class ProxitoV2TestFullDocServing(TestFullDocServing):
-    # TODO: remove this class once the new implementation is the default.
-    def setUp(self):
-        super().setUp()
-        get(
-            Feature,
-            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
-            default_true=True,
-            future_default_true=True,
-        )
-
     def test_single_version_serving_projects_dir(self):
         self.project.single_version = True
         self.project.save()
@@ -681,18 +669,6 @@ class TestDocServingBackends(BaseDocServing):
         self.assertEqual(log.project, self.project)
         self.assertEqual(log.resource, url)
         self.assertEqual(log.action, AuditLog.DOWNLOAD)
-
-
-class ProxitoV2TestDocServingBackends(TestDocServingBackends):
-    # TODO: remove this class once the new implementation is the default.
-    def setUp(self):
-        super().setUp()
-        get(
-            Feature,
-            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
-            default_true=True,
-            future_default_true=True,
-        )
 
 
 @override_settings(
@@ -1532,18 +1508,6 @@ class TestAdditionalDocViews(BaseDocServing):
             )
             self.assertEqual(resp.status_code, 404)
 
-
-class ProxitoV2TestAdditionalDocViews(TestAdditionalDocViews):
-    # TODO: remove this class once the new implementation is the default.
-    def setUp(self):
-        super().setUp()
-        get(
-            Feature,
-            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
-            default_true=True,
-            future_default_true=True,
-        )
-
     def test_404_download(self):
         response = self.client.get(
             reverse(
@@ -1783,15 +1747,3 @@ class TestCDNCache(BaseDocServing):
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "private")
         self.assertEqual(resp.headers["Cache-Tag"], "project,project:latest")
-
-
-class ProxitoV2TestCDNCache(TestCDNCache):
-    # TODO: remove this class once the new implementation is the default.
-    def setUp(self):
-        super().setUp()
-        get(
-            Feature,
-            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
-            default_true=True,
-            future_default_true=True,
-        )

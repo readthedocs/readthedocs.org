@@ -258,18 +258,6 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         )
 
 
-class ProxitoV2MiddlewareTests(MiddlewareTests):
-    # TODO: remove this class once the new implementation is the default.
-    def setUp(self):
-        super().setUp()
-        get(
-            Feature,
-            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
-            default_true=True,
-            future_default_true=True,
-        )
-
-
 @pytest.mark.proxito
 @override_settings(PUBLIC_DOMAIN='dev.readthedocs.io')
 class MiddlewareURLConfTests(TestCase):

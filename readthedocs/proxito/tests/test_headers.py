@@ -210,15 +210,3 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r["CDN-Cache-Control"], "public")
         self.assertEqual(r["Cache-Tag"], "project,project:sitemap.xml")
-
-
-class ProxitoV2HeaderTests(ProxitoHeaderTests):
-    # TODO: remove this class once the new implementation is the default.
-    def setUp(self):
-        super().setUp()
-        get(
-            Feature,
-            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
-            default_true=True,
-            future_default_true=True,
-        )
