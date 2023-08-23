@@ -1823,7 +1823,6 @@ class Feature(models.Model):
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
-    USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
 
@@ -1893,12 +1892,6 @@ class Feature(models.Model):
         (
             RESOLVE_PROJECT_FROM_HEADER,
             _("Proxito: Allow usage of the X-RTD-Slug header"),
-        ),
-        (
-            USE_UNRESOLVER_WITH_PROXITO,
-            _(
-                "Proxito: Use new unresolver implementation for serving documentation files."
-            ),
         ),
         (
             USE_PROXIED_APIS_WITH_PREFIX,
