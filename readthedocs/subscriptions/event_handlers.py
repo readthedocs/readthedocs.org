@@ -192,42 +192,6 @@ def subscription_canceled(event):
         log.info("Notification sent.", recipient=owner)
 
 
-@handler("checkout.session.completed")
-def checkout_completed(event):
-    """
-    Handle the creation of a new subscription via Stripe Checkout.
-
-    Stripe checkout will create a new subscription,
-    so we need to replace the older one with the new one.
-
-    If the organization attached to the customer is disabled,
-    we re-enable it, since the user just subscribed to a plan.
-    """
-    customer_id = event.data["object"]["customer"]
-    log.bind(stripe_customer_id=customer_id)
-    organization = Organization.objects.filter(stripe_customer__id=customer_id).first()
-    if not organization:
-        log.error(
-            "Customer isn't attached to an organization.",
-        )
-        return
-
-    stripe_subscription_id = event.data["object"]["subscription"]
-    log.bind(stripe_subscription_id=stripe_subscription_id)
-    stripe_subscription = djstripe.Subscription.objects.filter(
-        id=stripe_subscription_id
-    ).first()
-    if not stripe_subscription:
-        log.info("Stripe subscription not found.")
-        return
-
-    if organization.disabled:
-        log.info("Re-enabling organization.", organization_slug=organization.slug)
-        organization.disabled = False
-
-    organization.stripe_subscription = stripe_subscription
-    organization.save()
-
 @handler("customer.updated")
 def customer_updated_event(event):
     """Update the organization with the new information from the stripe customer."""

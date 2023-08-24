@@ -117,40 +117,7 @@ class TestStripeEventHandlers(TestCase):
         self.organization.refresh_from_db()
         self.assertFalse(self.organization.disabled)
 
-    def test_subscription_checkout_completed_event(self):
-        customer = get(djstripe.Customer, id="cus_KMiHJXFHpLkcRP")
-        self.organization.stripe_customer = customer
-        self.organization.save()
-
-        start_date = timezone.now()
-        end_date = timezone.now() + timezone.timedelta(days=30)
-        stripe_subscription = get(
-            djstripe.Subscription,
-            id="sub_9LtsU02uvjO6Ed",
-            status=SubscriptionStatus.active,
-            current_period_start=start_date,
-            current_period_end=end_date,
-            trial_end=end_date,
-        )
-        event = get(
-            djstripe.Event,
-            data={
-                "object": {
-                    "id": "cs_test_a1UpM7pDdpXqqgZC6lQDC2HRMo5d1wW9fNX0ZiBCm6vRqTgZJZx6brwNan",
-                    "object": "checkout.session",
-                    "customer": customer.id,
-                    "subscription": stripe_subscription.id,
-                }
-            },
-        )
-
-        self.assertIsNone(self.organization.stripe_subscription)
-        event_handlers.checkout_completed(event=event)
-
-        self.organization.refresh_from_db()
-        self.assertEqual(self.organization.stripe_subscription, stripe_subscription)
-
-    def test_reenable_organization_on_subscription_checkout_completed_event(self):
+    def test_reenable_organization_on_subscription_created_event(self):
         customer = get(djstripe.Customer, id="cus_KMiHJXFHpLkcRP")
         self.organization.stripe_customer = customer
         self.organization.disabled = True
@@ -170,16 +137,15 @@ class TestStripeEventHandlers(TestCase):
             djstripe.Event,
             data={
                 "object": {
-                    "id": "cs_test_a1UpM7pDdpXqqgZC6lQDC2HRMo5d1wW9fNX0ZiBCm6vRqTgZJZx6brwNan",
-                    "object": "checkout.session",
+                    "id": stripe_subscription.id,
+                    "object": "subscription",
                     "customer": customer.id,
-                    "subscription": stripe_subscription.id,
                 }
             },
         )
 
         self.assertIsNone(self.organization.stripe_subscription)
-        event_handlers.checkout_completed(event=event)
+        event_handlers.subscription_created_event(event=event)
 
         self.organization.refresh_from_db()
         self.assertEqual(self.organization.stripe_subscription, stripe_subscription)
