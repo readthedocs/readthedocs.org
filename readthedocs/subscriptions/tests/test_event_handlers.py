@@ -128,6 +128,7 @@ class TestStripeEventHandlers(TestCase):
         stripe_subscription = get(
             djstripe.Subscription,
             id="sub_9LtsU02uvjO6Ed",
+            customer=customer,
             status=SubscriptionStatus.active,
             current_period_start=start_date,
             current_period_end=end_date,
