@@ -34,6 +34,7 @@ jobs:
       - run: git submodule sync
       - run: git submodule update --init
       - run: pip install --user 'tox<4'
+      - run: tox --version
       - run: tox -c tox.embedapi.ini
 
   checks:

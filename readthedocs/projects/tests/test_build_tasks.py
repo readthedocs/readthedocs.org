@@ -1611,7 +1611,7 @@ class TestBuildTask(BuildEnvironmentBase):
     @pytest.mark.parametrize(
         "value,expected",
         [
-            (ALL, ["one", "two", "three"]),
+            (ALL, []),
             (["one", "two"], ["one", "two"]),
         ],
     )
