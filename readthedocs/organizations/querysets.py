@@ -128,7 +128,7 @@ class BaseOrganizationQuerySet(models.QuerySet):
         are disabled and their artifacts weren't cleaned already. We should be
         safe to cleanup all their artifacts at this point.
         """
-        return self.subscription_ended(days=3 * DISABLE_AFTER_DAYS, exact=True).filter(
+        return self.subscription_ended(days=3 * DISABLE_AFTER_DAYS, exact=False).filter(
             disabled=True,
             artifacts_cleaned=False,
         )

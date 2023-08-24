@@ -16,7 +16,10 @@ from vanilla import DetailView, GenericView
 from readthedocs.organizations.views.base import OrganizationMixin
 from readthedocs.subscriptions.forms import PlanForm
 from readthedocs.subscriptions.products import get_product
-from readthedocs.subscriptions.utils import get_or_create_stripe_customer
+from readthedocs.subscriptions.utils import (
+    get_or_create_stripe_customer,
+    get_or_create_stripe_subscription,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -108,7 +111,7 @@ class DetailSubscription(OrganizationMixin, DetailView):
         We retry the operation when the user visits the subscription page.
         """
         org = self.get_organization()
-        return org.get_or_create_stripe_subscription()
+        return get_or_create_stripe_subscription(org)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

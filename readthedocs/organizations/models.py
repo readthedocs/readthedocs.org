@@ -13,8 +13,6 @@ from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
 
-from readthedocs.subscriptions.utils import get_or_create_stripe_subscription
-
 from . import constants
 from .managers import TeamManager, TeamMemberManager
 from .querysets import OrganizationQuerySet
@@ -132,9 +130,6 @@ class Organization(models.Model):
 
     def __str__(self):
         return self.name
-
-    def get_or_create_stripe_subscription(self):
-        return get_or_create_stripe_subscription(self)
 
     def get_stripe_subscription(self):
         # Active subscriptions take precedence over non-active subscriptions,

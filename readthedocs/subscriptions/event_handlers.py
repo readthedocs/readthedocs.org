@@ -92,7 +92,7 @@ def subscription_updated_event(event):
     and the subscription is now active, we re-enable the organization.
 
     We also re-evaluate the latest subscription attached to the organization,
-    it case it changed.
+    in case it changed.
     """
     stripe_subscription_id = event.data["object"]["id"]
     log.bind(stripe_subscription_id=stripe_subscription_id)
@@ -125,14 +125,12 @@ def subscription_updated_event(event):
         log.error("Subscription isn't attached to an organization")
         return
 
-    save_org = False
     if (
         stripe_subscription.status == SubscriptionStatus.active
         and organization.disabled
     ):
         log.info("Re-enabling organization.", organization_slug=organization.slug)
         organization.disabled = False
-        save_org = True
 
     new_stripe_subscription = organization.get_stripe_subscription()
     if organization.stripe_subscription != new_stripe_subscription:
@@ -147,10 +145,8 @@ def subscription_updated_event(event):
             old_stripe_subscription_id=old_subscription_id,
         )
         organization.stripe_subscription = stripe_subscription
-        save_org = True
 
-    if save_org:
-        organization.save()
+    organization.save()
 
 
 @handler("customer.subscription.deleted")
