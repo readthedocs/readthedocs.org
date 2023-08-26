@@ -263,8 +263,16 @@ prompt-toolkit==3.0.39
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg2==2.9.7
-    # via -r requirements/deploy.in
+psycopg[binary,pool]==3.1.10
+    # via -r requirements/pip.txt
+psycopg-binary==3.1.10
+    # via
+    #   -r requirements/pip.txt
+    #   psycopg
+psycopg-pool==3.1.7
+    # via
+    #   -r requirements/pip.txt
+    #   psycopg
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
@@ -374,6 +382,8 @@ typing-extensions==4.7.1
     # via
     #   -r requirements/pip.txt
     #   asgiref
+    #   psycopg
+    #   psycopg-pool
 tzdata==2023.3
     # via
     #   -r requirements/pip.txt
