@@ -3174,7 +3174,6 @@ class APIVersionTests(TestCase):
                 "skip": False,
                 "slug": "pip",
                 "users": [1],
-                "urlconf": None,
                 "custom_prefix": None,
             },
             "privacy_level": "public",

@@ -154,6 +154,8 @@ class CommunityBaseSettings(Settings):
     # Number of days an invitation is valid.
     RTD_INVITATIONS_EXPIRATION_DAYS = 15
 
+    RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS = False
+
     @property
     def RTD_DEFAULT_FEATURES(self):
         # Features listed here will be available to users that don't have a

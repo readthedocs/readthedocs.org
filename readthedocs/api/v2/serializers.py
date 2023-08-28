@@ -30,7 +30,6 @@ class ProjectSerializer(serializers.ModelSerializer):
             "documentation_type",
             "users",
             "canonical_url",
-            "urlconf",
             "custom_prefix",
         )
 
