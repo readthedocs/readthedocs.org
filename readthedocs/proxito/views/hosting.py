@@ -16,6 +16,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
+from readthedocs.projects.models import Feature
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -181,6 +182,8 @@ class AddonsResponse:
         project_translations = (
             project.translations.all().only("language").order_by("language")
         )
+        # Make one DB query here and then check on Python code
+        project_features = project.features.all().values_list("feature_id", flat=True)
 
         data = {
             "comment": (
@@ -211,7 +214,8 @@ class AddonsResponse:
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
                 "analytics": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_ANALYTICS_DISABLED
+                    not in project_features,
                     # TODO: consider adding this field into the ProjectSerializer itself.
                     # NOTE: it seems we are removing this feature,
                     # so we may not need the ``code`` attribute here
@@ -219,13 +223,15 @@ class AddonsResponse:
                     "code": project.analytics_code,
                 },
                 "external_version_warning": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_EXTERNAL_VERSION_WARNING_DISABLED
+                    not in project_features,
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
                 },
                 "non_latest_version_warning": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_NON_LATEST_VERSION_WARNING_DISABLED
+                    not in project_features,
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
@@ -234,7 +240,7 @@ class AddonsResponse:
                     ),
                 },
                 "doc_diff": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_DOC_DIFF in project_features,
                     # "http://test-builds-local.devthedocs.org/en/latest/index.html"
                     "base_url": resolver.resolve(
                         project=project,
@@ -253,7 +259,7 @@ class AddonsResponse:
                     "base_page": "",
                 },
                 "flyout": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_FLYOUT_DISABLED not in project_features,
                     "translations": [
                         {
                             # TODO: name this field "display_name"
@@ -296,7 +302,7 @@ class AddonsResponse:
                     # },
                 },
                 "search": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_SEARCH_DISABLED not in project_features,
                     "project": project.slug,
                     "version": version.slug if version else None,
                     "api_endpoint": "/_/api/v3/search/",
@@ -337,7 +343,8 @@ class AddonsResponse:
             data["addons"].update(
                 {
                     "ethicalads": {
-                        "enabled": True,
+                        "enabled": Feature.ADDONS_ETHICALADS_DISABLED
+                        not in project_features,
                         # NOTE: this endpoint is not authenticated, the user checks are done over an annonymous user for now
                         #
                         # NOTE: it requires ``settings.USE_PROMOS=True`` to return ``ad_free=false`` here
