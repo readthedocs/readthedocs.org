@@ -8,7 +8,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.storage import BuildMediaFileSystemStorage
 from readthedocs.projects.constants import GENERIC, MKDOCS, SPHINX
-from readthedocs.projects.models import Feature, HTMLFile, Project
+from readthedocs.projects.models import HTMLFile, Project
 
 data_path = Path(__file__).parent.resolve() / "data"
 
@@ -17,10 +17,6 @@ data_path = Path(__file__).parent.resolve() / "data"
 @pytest.mark.search
 class TestParsers:
     def setup_method(self):
-        self.feature = get(
-            Feature,
-            feature_id=Feature.INDEX_FROM_HTML_FILES,
-        )
         self.project = get(
             Project,
             slug="test",
@@ -43,7 +39,6 @@ class TestParsers:
         local_path = data_path / "mkdocs/in/mkdocs-1.1/"
         storage_exists.return_value = True
 
-        self.project.feature_set.add(self.feature)
         self.version.documentation_type = MKDOCS
         self.version.save()
 
@@ -76,8 +71,6 @@ class TestParsers:
     def test_mkdocs_gitbook_theme(self, storage_open, storage_exists):
         file = data_path / "mkdocs/in/gitbook/index.html"
         storage_exists.return_value = True
-
-        self.project.feature_set.add(self.feature)
         self.version.documentation_type = MKDOCS
         self.version.save()
 
@@ -97,8 +90,6 @@ class TestParsers:
     def test_mkdocs_material_theme(self, storage_open, storage_exists):
         file = data_path / "mkdocs/in/material/index.html"
         storage_exists.return_value = True
-
-        self.project.feature_set.add(self.feature)
         self.version.documentation_type = MKDOCS
         self.version.save()
 
@@ -118,8 +109,6 @@ class TestParsers:
     def test_mkdocs_windmill_theme(self, storage_open, storage_exists):
         file = data_path / "mkdocs/in/windmill/index.html"
         storage_exists.return_value = True
-
-        self.project.feature_set.add(self.feature)
         self.version.documentation_type = MKDOCS
         self.version.save()
 
@@ -137,7 +126,6 @@ class TestParsers:
     @mock.patch.object(BuildMediaFileSystemStorage, "exists")
     @mock.patch.object(BuildMediaFileSystemStorage, "open")
     def test_mkdocs_readthedocs_theme(self, storage_open, storage_exists):
-        self.project.feature_set.add(self.feature)
         storage_exists.return_value = True
         self.version.documentation_type = MKDOCS
         self.version.save()
@@ -163,12 +151,8 @@ class TestParsers:
     @mock.patch.object(BuildMediaFileSystemStorage, "exists")
     @mock.patch.object(BuildMediaFileSystemStorage, "open")
     def test_sphinx(self, storage_open, storage_exists):
-        json_file = data_path / "sphinx/in/page.json"
         html_content = data_path / "sphinx/in/page.html"
-
-        json_content = json.load(json_file.open())
-        json_content["body"] = html_content.open().read()
-        storage_open.side_effect = self._mock_open(json.dumps(json_content))
+        storage_open.side_effect = self._mock_open(html_content.open().read())
         storage_exists.return_value = True
 
         self.version.documentation_type = SPHINX
@@ -188,12 +172,8 @@ class TestParsers:
     @mock.patch.object(BuildMediaFileSystemStorage, "exists")
     @mock.patch.object(BuildMediaFileSystemStorage, "open")
     def test_sphinx_page_without_title(self, storage_open, storage_exists):
-        json_file = data_path / "sphinx/in/no-title.json"
         html_content = data_path / "sphinx/in/no-title.html"
-
-        json_content = json.load(json_file.open())
-        json_content["body"] = html_content.open().read()
-        storage_open.side_effect = self._mock_open(json.dumps(json_content))
+        storage_open.side_effect = self._mock_open(html_content.open().read())
         storage_exists.return_value = True
 
         self.version.documentation_type = SPHINX
@@ -213,12 +193,8 @@ class TestParsers:
     @mock.patch.object(BuildMediaFileSystemStorage, "exists")
     @mock.patch.object(BuildMediaFileSystemStorage, "open")
     def test_sphinx_httpdomain(self, storage_open, storage_exists):
-        json_file = data_path / "sphinx/in/httpdomain.json"
         html_content = data_path / "sphinx/in/httpdomain.html"
-
-        json_content = json.load(json_file.open())
-        json_content["body"] = html_content.open().read()
-        storage_open.side_effect = self._mock_open(json.dumps(json_content))
+        storage_open.side_effect = self._mock_open(html_content.open().read())
         storage_exists.return_value = True
 
         self.version.save()
@@ -239,12 +215,8 @@ class TestParsers:
     def test_sphinx_autodoc(self, storage_open, storage_exists):
         # Source:
         # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#directive-automodule
-        json_file = data_path / "sphinx/in/autodoc.json"
         html_content = data_path / "sphinx/in/autodoc.html"
-
-        json_content = json.load(json_file.open())
-        json_content["body"] = html_content.open().read()
-        storage_open.side_effect = self._mock_open(json.dumps(json_content))
+        storage_open.side_effect = self._mock_open(html_content.open().read())
         storage_exists.return_value = True
 
         self.version.save()
@@ -272,8 +244,6 @@ class TestParsers:
         html_content = data_path / "sphinx/in/local-toc.html"
         storage_open.side_effect = self._mock_open(html_content.open().read())
         storage_exists.return_value = True
-
-        self.project.feature_set.add(self.feature)
         self.version.documentation_type = SPHINX
         self.version.save()
 
@@ -322,9 +292,7 @@ class TestParsers:
         # Source:
         # https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#directive-automodule
         html_content = data_path / "sphinx/in/requests.html"
-
-        json_content = {"body": html_content.open().read()}
-        storage_open.side_effect = self._mock_open(json.dumps(json_content))
+        storage_open.side_effect = self._mock_open(html_content.open().read())
         storage_exists.return_value = True
 
         self.version.save()
