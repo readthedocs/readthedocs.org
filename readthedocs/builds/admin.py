@@ -156,6 +156,10 @@ class VersionAdmin(admin.ModelAdmin):
 @admin.register(RegexAutomationRule)
 class RegexAutomationRuleAdmin(PolymorphicChildModelAdmin, admin.ModelAdmin):
     raw_id_fields = ("project",)
+    readonly_fields = (
+        "created",
+        "modified",
+    )
     base_model = RegexAutomationRule
 
 
