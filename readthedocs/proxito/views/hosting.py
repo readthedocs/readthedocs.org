@@ -174,8 +174,9 @@ class AddonsResponse:
         It tries to follow some similarity with the APIv3 for already-known resources
         (Project, Version, Build, etc).
         """
-        versions_active_built = (
+        versions_active_built_not_hidden = (
             Version.internal.public(project=project, only_active=True, only_built=True)
+            .exclude(hidden=True)
             .only("slug")
             .order_by("slug")
         )
@@ -236,7 +237,7 @@ class AddonsResponse:
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
                     "versions": list(
-                        versions_active_built.values_list("slug", flat=True)
+                        versions_active_built_not_hidden.values_list("slug", flat=True)
                     ),
                 },
                 "doc_diff": {
@@ -274,7 +275,7 @@ class AddonsResponse:
                             "slug": version.slug,
                             "url": f"/{project.language}/{version.slug}/",
                         }
-                        for version in versions_active_built
+                        for version in versions_active_built_not_hidden
                     ],
                     "downloads": [
                         {
