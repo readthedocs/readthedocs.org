@@ -240,7 +240,7 @@ class AddonsResponse:
                     ),
                 },
                 "doc_diff": {
-                    "enabled": Feature.ADDONS_DOC_DIFF in project_features,
+                    "enabled": Feature.ADDONS_DOC_DIFF_DISABLED not in project_features,
                     # "http://test-builds-local.devthedocs.org/en/latest/index.html"
                     "base_url": resolver.resolve(
                         project=project,
