@@ -268,8 +268,7 @@ class TestParsers:
         # Source:
         # https://docs.readthedocs.io/en/stable/api/index.html
         html_content = data_path / "sphinx/in/toctree.html"
-        json_content = {"body": html_content.open().read()}
-        storage_open.side_effect = self._mock_open(json.dumps(json_content))
+        storage_open.side_effect = self._mock_open(html_content.open().read())
         storage_exists.return_value = True
 
         self.version.documentation_type = SPHINX
