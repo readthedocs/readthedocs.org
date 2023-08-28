@@ -236,6 +236,11 @@ Configuration for Conda support.
 
    version: 2
 
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "mambaforge-22.9"
+
    conda:
      environment: environment.yml
 
@@ -246,6 +251,10 @@ The path to the Conda `environment file <https://conda.io/projects/conda/en/late
 
 :Type: ``path``
 :Required: ``false``
+
+.. note::
+
+   When using Conda, it's required to specify ``build.tools.python`` to tell Read the Docs to use whether Conda or Mamba to create the environment.
 
 build
 ~~~~~
