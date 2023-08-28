@@ -159,7 +159,7 @@ You would set the following configuration::
     From URL: /example.html
     To URL: /examples/intro.html
 
-**Page Redirects apply to all versions of you documentation.**
+**Page Redirects apply to all versions of your documentation.**
 Because of this,
 the ``/`` at the start of the ``From URL`` doesn't include the ``/$lang/$version`` prefix (e.g.
 ``/en/latest``), but just the version-specific part of the URL.
