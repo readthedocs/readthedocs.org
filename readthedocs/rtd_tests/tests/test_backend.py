@@ -181,24 +181,6 @@ class TestGitBackend(TestCase):
         repo.checkout("submodule")
         self.assertTrue(repo.are_submodules_available(self.dummy_conf))
 
-    def test_check_invalid_submodule_urls(self):
-        """Test that a branch with an invalid submodule fails correctly."""
-        repo = self.project.vcs_repo(
-            environment=self.build_environment,
-            version_type=BRANCH,
-            version_identifier="invalidsubmodule",
-        )
-        repo.update()
-        repo.checkout("invalidsubmodule")
-        with self.assertRaises(RepositoryError) as e:
-            repo.update_submodules(self.dummy_conf)
-        # `invalid` is created in `make_test_git`
-        # it's a url in ssh form.
-        self.assertEqual(
-            str(e.exception),
-            RepositoryError.INVALID_SUBMODULES.format(["invalid"]),
-        )
-
     def test_check_submodule_urls(self):
         """Test that a valid submodule is found in the 'submodule' branch."""
         repo = self.project.vcs_repo(
@@ -208,7 +190,7 @@ class TestGitBackend(TestCase):
         )
         repo.update()
         repo.checkout("submodule")
-        valid, _ = repo.validate_submodules(self.dummy_conf)
+        valid, _ = repo.get_available_submodules(self.dummy_conf)
         self.assertTrue(valid)
 
     @patch("readthedocs.vcs_support.backends.git.Backend.fetch")
@@ -231,7 +213,7 @@ class TestGitBackend(TestCase):
         repo.update()
         fetch.assert_called_once()
 
-    def test_invalid_submodule_is_ignored(self):
+    def test_submodule_without_url_is_included(self):
         """Test that an invalid submodule isn't listed."""
         repo = self.project.vcs_repo(
             environment=self.build_environment,
@@ -252,9 +234,8 @@ class TestGitBackend(TestCase):
             )
             f.write(content)
 
-        valid, submodules = repo.validate_submodules(self.dummy_conf)
-        self.assertTrue(valid)
-        self.assertEqual(list(submodules), ["foobar"])
+        submodules = list(repo.submodules)
+        self.assertEqual(submodules, ["foobar", "not-valid-path"])
 
     def test_parse_submodules(self):
         repo = self.project.vcs_repo(
@@ -296,10 +277,16 @@ class TestGitBackend(TestCase):
             )
             f.write(content)
 
-        valid, submodules = repo.validate_submodules(self.dummy_conf)
-        self.assertTrue(valid)
+        submodules = list(repo.submodules)
         self.assertEqual(
-            list(submodules), ["foobar", "path with spaces", "another-submodule"]
+            submodules,
+            [
+                "foobar",
+                "not-valid-path",
+                "path with spaces",
+                "another-submodule",
+                "invalid-submodule-key",
+            ],
         )
 
     def test_skip_submodule_checkout(self):

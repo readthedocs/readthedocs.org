@@ -48,9 +48,13 @@ if not 'html_static_path' in globals():
 if os.path.exists('_static'):
     html_static_path.append('_static')
 
+# Define this variable in case it's not defined by the user.
+# It defaults to `alabaster` which is the default from Sphinx.
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_theme
+html_theme = globals().get('html_theme', 'alabaster')
+
 #Add project information to the template context.
 context = {
-    'using_theme': using_rtd_theme,
     'html_theme': html_theme,
     'current_version': "{{ version.verbose_name }}",
     'version_slug': "{{ version.slug }}",

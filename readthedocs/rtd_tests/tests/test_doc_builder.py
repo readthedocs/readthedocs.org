@@ -10,7 +10,6 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.doc_builder.backends.mkdocs import (
     MkdocsHTML,
@@ -27,16 +26,14 @@ from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
-from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature, Project
 from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 
-@override_settings(PRODUCTION_DOMAIN='readthedocs.org')
+@override_settings(PRODUCTION_DOMAIN="readthedocs.org")
 class SphinxBuilderTest(TestCase):
-
-    fixtures = ['test_data', 'eric']
+    fixtures = ["test_data", "eric"]
 
     def setUp(self):
         self.project = Project.objects.get(slug='pip')
@@ -46,7 +43,7 @@ class SphinxBuilderTest(TestCase):
         self.build_env.project = self.project
         self.build_env.version = self.version
         self.build_env.build = {
-            'id': 123,
+            "id": 123,
         }
         self.build_env.api_client = mock.MagicMock()
 
@@ -87,90 +84,11 @@ class SphinxBuilderTest(TestCase):
             )
 
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
-    @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_conf_py_external_version(self, checkout_path, docs_dir):
-        self.version.type = EXTERNAL
-        self.version.verbose_name = '123'
-        self.version.save()
-
-        tmp_dir = tempfile.mkdtemp()
-        checkout_path.return_value = tmp_dir
-        docs_dir.return_value = tmp_dir
-        python_env = Virtualenv(
-            version=self.version,
-            build_env=self.build_env,
-            config=None,
-        )
-        base_sphinx = BaseSphinx(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-
-        base_sphinx.config_file = os.path.join(tmp_dir, 'config.py')
-        params = base_sphinx.get_config_params()
-        self.assertEqual(params['current_version'], '123')
-        self.assertEqual(params['version'], self.version)
-        self.assertEqual(params['build_url'], 'https://readthedocs.org/projects/pip/builds/123/')
-
-    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
-    @patch('readthedocs.builds.models.Version.get_conf_py_path')
-    @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_html_context_only_has_public_versions(
-        self,
-        checkout_path,
-        get_conf_py_path,
-        docs_dir,
-    ):
-        tmp_dir = tempfile.mkdtemp()
-        checkout_path.return_value = tmp_dir
-        docs_dir.return_value = tmp_dir
-        get_conf_py_path.side_effect = ProjectConfigurationError
-
-        self.build_env.api_client.version().get.return_value = {"downloads": []}
-        self.build_env.api_client.project().active_versions.get.return_value = {
-            'versions': [
-                {
-                    'slug': 'v1',
-                    'privacy_level': PUBLIC,
-                },
-                {
-                    'slug': 'v2',
-                    'privacy_level': PUBLIC,
-                },
-                {
-                    'slug': 'v3',
-                    'privacy_level': PRIVATE,
-                },
-                {
-                    'slug': 'latest',
-                    'privacy_level': PRIVATE,
-                },
-            ],
-        }
-
-        python_env = Virtualenv(
-            version=self.version,
-            build_env=self.build_env,
-            config=None,
-        )
-        base_sphinx = BaseSphinx(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-        base_sphinx.config_file = tempfile.mktemp()
-        context = base_sphinx.get_config_params()
-        versions = {
-            v.slug
-            for v in context['versions']
-        }
-        self.assertEqual(versions, {'v1', 'v2'})
-
-    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
     @patch('readthedocs.builds.models.Version.get_conf_py_path')
     @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_create_conf_py(
+    def test_project_without_conf_py(
         self,
         checkout_path,
         get_conf_py_path,
@@ -182,12 +100,7 @@ class SphinxBuilderTest(TestCase):
         Test for a project without ``conf.py`` file.
 
         When this happen, the ``get_conf_py_path`` raises a
-        ``ProjectConfigurationError`` which is captured by our own code and
-        generates a conf.py file based using our own template.
-
-        This template should be properly rendered in Python2 and Python3 without
-        any kind of exception raised by ``append_conf`` (we were originally
-        having a ``TypeError`` because of an encoding problem in Python3)
+        ``ProjectConfigurationError`` which is captured by our own code.
         """
         tmp_dir = tempfile.mkdtemp()
         checkout_path.return_value = tmp_dir
@@ -203,27 +116,10 @@ class SphinxBuilderTest(TestCase):
             build_env=self.build_env,
             python_env=python_env,
         )
-        try:
-            with override_settings(DOCROOT=tmp_dir):
-                base_sphinx.append_conf()
-        except Exception:
-            pytest.fail('Exception was generated when append_conf called.')
-
-        # Check the content generated by our method is the same than what we
-        # expects from a pre-generated file
-        generated_conf_py = os.path.join(base_sphinx.docs_dir(), 'conf.py')
-        expected_conf_py = os.path.join(
-            os.path.dirname(__file__),
-            '..',
-            'files',
-            'conf.py',
-        )
-        with open(generated_conf_py) as gf, open(expected_conf_py) as ef:
-            autogenerated_confpy_lines = 28
-            self.assertEqual(
-                gf.readlines()[:autogenerated_confpy_lines],
-                ef.readlines()[:autogenerated_confpy_lines],
-            )
+        with pytest.raises(
+            ProjectConfigurationError, match=ProjectConfigurationError.NOT_FOUND
+        ):
+            base_sphinx.append_conf()
 
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
     @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params')
@@ -231,12 +127,7 @@ class SphinxBuilderTest(TestCase):
     @patch('readthedocs.builds.models.Version.get_conf_py_path')
     @patch('readthedocs.projects.models.Project.checkout_path')
     def test_multiple_conf_py(
-        self,
-        checkout_path,
-        get_conf_py_path,
-        _,
-        get_config_params,
-        docs_dir,
+        self, checkout_path, get_conf_py_path, _, get_config_params, docs_dir
     ):
         """
         Test for a project with multiple ``conf.py`` files.
@@ -265,9 +156,9 @@ class SphinxBuilderTest(TestCase):
             with override_settings(DOCROOT=tmp_docs_dir):
                 base_sphinx.append_conf()
 
-    @mock.patch('readthedocs.doc_builder.config.load_config')
+    @mock.patch("readthedocs.doc_builder.config.load_config")
     def test_use_sphinx_builders(self, load_config):
-        config_data = {'version': 2, 'sphinx': {'configuration': 'docs/conf.py'}}
+        config_data = {"version": 2, "sphinx": {"configuration": "docs/conf.py"}}
         load_config.side_effect = create_load(config_data)
         config = load_yaml_config(self.version)
 
@@ -280,19 +171,19 @@ class SphinxBuilderTest(TestCase):
             build_env=self.build_env,
             python_env=python_env,
         )
-        self.assertEqual(builder.sphinx_builder, 'html')
+        self.assertEqual(builder.sphinx_builder, "html")
 
         builder = HtmlDirBuilder(
             build_env=self.build_env,
             python_env=python_env,
         )
-        self.assertEqual(builder.sphinx_builder, 'dirhtml')
+        self.assertEqual(builder.sphinx_builder, "dirhtml")
 
         builder = SingleHtmlBuilder(
             build_env=self.build_env,
             python_env=python_env,
         )
-        self.assertEqual(builder.sphinx_builder, 'singlehtml')
+        self.assertEqual(builder.sphinx_builder, "singlehtml")
 
 
 @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
@@ -372,8 +263,8 @@ class MkdocsBuilderTest(TestCase):
         with patch('readthedocs.doc_builder.backends.mkdocs.yaml') as mock_yaml:
             with patch('readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.load_yaml_config') as mock_load_yaml_config:
                 mock_load_yaml_config.return_value = {
-                    'site_name': self.project.name,
-                    'docs_dir': tmpdir,
+                    "site_name": self.project.name,
+                    "docs_dir": tmpdir,
                 }
                 with override_settings(DOCROOT=tmpdir):
                     builder.append_conf()
@@ -398,9 +289,9 @@ class MkdocsBuilderTest(TestCase):
             self.assertEqual(builder.get_theme_name(config), 'customtheme')
             with patch('readthedocs.doc_builder.backends.mkdocs.MkdocsHTML.load_yaml_config') as mock_load_yaml_config:
                 mock_load_yaml_config.return_value = {
-                    'site_name': self.project.name,
-                    'theme': 'customtheme',
-                    'docs_dir': tmpdir,
+                    "site_name": self.project.name,
+                    "theme": "customtheme",
+                    "docs_dir": tmpdir,
                 }
                 with override_settings(DOCROOT=tmpdir):
                     builder.append_conf()
@@ -417,58 +308,6 @@ class MkdocsBuilderTest(TestCase):
                 stream=mock.ANY,
                 Dumper=SafeDumper,
             )
-
-    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
-    @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_append_conf_create_yaml(self, checkout_path, run):
-        tmpdir = tempfile.mkdtemp()
-        os.mkdir(os.path.join(tmpdir, 'docs'))
-        checkout_path.return_value = tmpdir
-
-        python_env = Virtualenv(
-            version=self.version,
-            build_env=self.build_env,
-            config=None,
-        )
-        self.searchbuilder = MkdocsHTML(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-        with override_settings(DOCROOT=tmpdir):
-            self.searchbuilder.append_conf()
-
-        run.assert_called_with('cat', 'mkdocs.yml', cwd=mock.ANY)
-
-        # There is a mkdocs.yml file created
-        generated_yaml = os.path.join(tmpdir, 'mkdocs.yml')
-        self.assertTrue(os.path.exists(generated_yaml))
-        config = yaml_load_safely(open(generated_yaml))
-        self.assertEqual(
-            config['docs_dir'],
-            os.path.join(tmpdir, 'docs'),
-        )
-        self.assertEqual(
-            config['extra_css'],
-            [
-                "/_/static/css/badge_only.css",
-                "/_/static/css/readthedocs-doc-embed.css",
-            ],
-        )
-        self.assertEqual(
-            config['extra_javascript'],
-            [
-                "readthedocs-data.js",
-                "/_/static/core/js/readthedocs-doc-embed.js",
-                "/_/static/javascript/readthedocs-analytics.js",
-            ],
-        )
-        self.assertIsNone(
-            config['google_analytics'],
-        )
-        self.assertEqual(
-            config['site_name'],
-            'mkdocs',
-        )
 
     @patch('readthedocs.doc_builder.base.BaseBuilder.run')
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -611,9 +450,9 @@ class MkdocsBuilderTest(TestCase):
 
         # We can't use ``@pytest.mark.parametrize`` on a Django test case
         yaml_contents = [
-            {'docs_dir': ['docs']},
-            {'extra_css': 'a string here'},
-            {'extra_javascript': ''},
+            {"docs_dir": ["docs"]},
+            {"extra_css": "a string here"},
+            {"extra_javascript": ""},
         ]
         for content in yaml_contents:
             yaml.safe_dump(
@@ -624,12 +463,12 @@ class MkdocsBuilderTest(TestCase):
                 with override_settings(DOCROOT=tmpdir):
                     self.searchbuilder.append_conf()
 
-    @patch('readthedocs.doc_builder.base.BaseBuilder.run')
-    @patch('readthedocs.projects.models.Project.checkout_path')
+    @patch("readthedocs.doc_builder.base.BaseBuilder.run")
+    @patch("readthedocs.projects.models.Project.checkout_path")
     def test_append_conf_and_none_values(self, checkout_path, run):
         tmpdir = tempfile.mkdtemp()
-        os.mkdir(os.path.join(tmpdir, 'docs'))
-        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        os.mkdir(os.path.join(tmpdir, "docs"))
+        yaml_file = os.path.join(tmpdir, "mkdocs.yml")
         checkout_path.return_value = tmpdir
 
         python_env = Virtualenv(
@@ -644,24 +483,24 @@ class MkdocsBuilderTest(TestCase):
 
         yaml.safe_dump(
             {
-                'extra_css': None,
-                'extra_javascript': None,
+                "extra_css": None,
+                "extra_javascript": None,
             },
-            open(yaml_file, 'w'),
+            open(yaml_file, "w"),
         )
         with override_settings(DOCROOT=tmpdir):
             builder.append_conf()
         config = yaml_load_safely(open(yaml_file))
 
         self.assertEqual(
-            config['extra_css'],
+            config["extra_css"],
             [
                 "/_/static/css/badge_only.css",
                 "/_/static/css/readthedocs-doc-embed.css",
             ],
         )
         self.assertEqual(
-            config['extra_javascript'],
+            config["extra_javascript"],
             [
                 "readthedocs-data.js",
                 "/_/static/core/js/readthedocs-doc-embed.js",
@@ -823,14 +662,14 @@ class MkdocsBuilderTest(TestCase):
             ],
         )
 
-    @patch('readthedocs.projects.models.Project.checkout_path')
+    @patch("readthedocs.projects.models.Project.checkout_path")
     def test_empty_yaml_config(self, checkout_path):
         tmpdir = tempfile.mkdtemp()
-        os.mkdir(os.path.join(tmpdir, 'docs'))
-        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        os.mkdir(os.path.join(tmpdir, "docs"))
+        yaml_file = os.path.join(tmpdir, "mkdocs.yml")
         yaml.safe_dump(
-            '',
-            open(yaml_file, 'w'),
+            "",
+            open(yaml_file, "w"),
         )
         checkout_path.return_value = tmpdir
 
@@ -845,19 +684,19 @@ class MkdocsBuilderTest(TestCase):
         )
 
         with self.assertRaisesMessage(
-                MkDocsYAMLParseError, MkDocsYAMLParseError.EMPTY_CONFIG
+            MkDocsYAMLParseError, MkDocsYAMLParseError.EMPTY_CONFIG
         ):
             with override_settings(DOCROOT=tmpdir):
                 self.searchbuilder.append_conf()
 
-    @patch('readthedocs.projects.models.Project.checkout_path')
+    @patch("readthedocs.projects.models.Project.checkout_path")
     def test_yaml_config_not_returns_dict(self, checkout_path):
         tmpdir = tempfile.mkdtemp()
-        os.mkdir(os.path.join(tmpdir, 'docs'))
-        yaml_file = os.path.join(tmpdir, 'mkdocs.yml')
+        os.mkdir(os.path.join(tmpdir, "docs"))
+        yaml_file = os.path.join(tmpdir, "mkdocs.yml")
         yaml.safe_dump(
-            'test_string',
-            open(yaml_file, 'w'),
+            "test_string",
+            open(yaml_file, "w"),
         )
         checkout_path.return_value = tmpdir
 
@@ -872,7 +711,7 @@ class MkdocsBuilderTest(TestCase):
         )
 
         with self.assertRaisesMessage(
-                MkDocsYAMLParseError, MkDocsYAMLParseError.CONFIG_NOT_DICT
+            MkDocsYAMLParseError, MkDocsYAMLParseError.CONFIG_NOT_DICT
         ):
             with override_settings(DOCROOT=tmpdir):
                 self.searchbuilder.append_conf()

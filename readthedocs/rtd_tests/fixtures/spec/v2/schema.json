@@ -261,12 +261,6 @@
           "default": "3",
           "deprecated": true
         },
-        "system_packages": {
-          "title": "System Packages",
-          "description": "Give the virtual environment access to the global site-packages directory.",
-          "type": "boolean",
-          "default": false
-        },
         "install": {
           "title": "Install",
           "description": "Installation of packages and requiremens.",

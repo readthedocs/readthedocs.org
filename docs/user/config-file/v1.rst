@@ -167,23 +167,6 @@ the highest supported minor version will be selected.
     python:
        version: 3.5
 
-python.use_system_site_packages
-```````````````````````````````
-
-* Default: ``false``
-* Type: Boolean
-
-When true, it gives the virtual environment access to the global site-packages directory.
-Depending on the :ref:`config-file/v1:build.image`,
-Read the Docs includes some libraries like scipy, numpy, etc.
-See :doc:`/builds` for more details.
-
-.. code-block:: yaml
-
-    python:
-       use_system_site_packages: true
-
-
 python.setup_py_install
 ```````````````````````
 
