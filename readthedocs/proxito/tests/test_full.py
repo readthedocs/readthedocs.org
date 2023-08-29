@@ -1007,6 +1007,68 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(response['location'], '/en/fancy-version/not-found/README.html')
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, 'open')
+    def test_404_index_redirect_skips_not_built_versions(self, storage_open):
+        self.version.built = False
+        self.version.save()
+        get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="foo/index.html",
+            name="index.html",
+        )
+
+        response = self.client.get(
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/en/latest/foo"},
+            ),
+            headers={"host": "project.readthedocs.io"},
+        )
+        self.assertEqual(response.status_code, 404)
+        storage_open.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
+    def test_custom_404_skips_not_built_versions(self, storage_open):
+        self.version.built = False
+        self.version.save()
+
+        fancy_version = fixture.get(
+            Version,
+            slug="fancy-version",
+            privacy_level=constants.PUBLIC,
+            active=True,
+            built=False,
+            project=self.project,
+        )
+
+        get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            path="404.html",
+            name="404.html",
+        )
+
+        get(
+            HTMLFile,
+            project=self.project,
+            version=fancy_version,
+            path="404.html",
+            name="404.html",
+        )
+
+        response = self.client.get(
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/en/fancy-version/not-found"},
+            ),
+            headers={"host": "project.readthedocs.io"},
+        )
+        self.assertEqual(response.status_code, 404)
+        storage_open.assert_not_called()
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_404_storage_serves_custom_404_sphinx_single_html(self, storage_open):
         self.project.versions.update(active=True, built=True)
         fancy_version = fixture.get(
