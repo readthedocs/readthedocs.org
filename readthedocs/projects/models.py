@@ -3,7 +3,6 @@ import fnmatch
 import hashlib
 import hmac
 import os
-import re
 from shlex import quote
 from urllib.parse import urlparse
 
@@ -15,18 +14,16 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
-from django.urls import include, re_path, reverse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django.views import defaults
 from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
 from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
-from readthedocs.constants import pattern_opts
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
@@ -228,18 +225,6 @@ class Project(models.Model):
             'Type of documentation you are building. <a href="'
             'http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html.'
             'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
-        ),
-    )
-    # NOTE: This is deprecated, use the `custom_prefix*` attributes instead.
-    urlconf = models.CharField(
-        _('Documentation URL Configuration'),
-        max_length=255,
-        default=None,
-        blank=True,
-        null=True,
-        help_text=_(
-            'Supports the following keys: $language, $version, $subproject, $filename. '
-            'An example: `$language/$version/$filename`.'
         ),
     )
 
@@ -454,11 +439,12 @@ class Project(models.Model):
         ),
     )
 
+    # TODO: remove `use_system_packages` after deploying.
+    # This field is not used anymore.
     use_system_packages = models.BooleanField(
-        _('Use system packages'),
+        _("Use system packages"),
         help_text=_(
-            'Give the virtual environment access to the global '
-            'site-packages dir.',
+            "Give the virtual environment access to the global site-packages dir.",
         ),
         default=False,
     )
@@ -717,7 +703,7 @@ class Project(models.Model):
         """
         Get the path prefix for proxied API paths (``/_/``).
 
-        Returns `None` if the project doesn't have a custom urlconf.
+        Returns `None` if the project doesn't have a custom prefix.
         """
         # When using a custom prefix, we can only handle serving
         # docs pages under the prefix, not special paths like `/_/`.
@@ -729,10 +715,6 @@ class Project(models.Model):
             Feature.USE_PROXIED_APIS_WITH_PREFIX
         ):
             return self.custom_prefix
-        if self.urlconf:
-            # Return the value before the first defined variable,
-            # as that is a prefix and not part of our normal doc patterns.
-            return self.urlconf.split("$", 1)[0]
         return None
 
     @cached_property
@@ -750,111 +732,6 @@ class Project(models.Model):
         if not parent_relationship:
             return None
         return parent_relationship.subproject_prefix
-
-    @property
-    def regex_urlconf(self):
-        """
-        Convert User's URLConf into a proper django URLConf.
-
-        This replaces the user-facing syntax with the regex syntax.
-        """
-        to_convert = re.escape(self.urlconf)
-
-        # We should standardize these names so we can loop over them easier
-        to_convert = to_convert.replace(
-            '\\$version',
-            '(?P<version_slug>{regex})'.format(regex=pattern_opts['version_slug'])
-        )
-        to_convert = to_convert.replace(
-            '\\$language',
-            '(?P<lang_slug>{regex})'.format(regex=pattern_opts['lang_slug'])
-        )
-        to_convert = to_convert.replace(
-            '\\$filename',
-            '(?P<filename>{regex})'.format(regex=pattern_opts['filename_slug'])
-        )
-        to_convert = to_convert.replace(
-            '\\$subproject',
-            '(?P<subproject_slug>{regex})'.format(regex=pattern_opts['project_slug'])
-        )
-
-        if '\\$' in to_convert:
-            log.warning(
-                'Unconverted variable in a project URLConf.',
-                project_slug=self.slug,
-                to_convert=to_convert,
-            )
-        return to_convert
-
-    @property
-    def proxito_urlconf(self):
-        """
-        Returns a URLConf class that is dynamically inserted via proxito.
-
-        It is used for doc serving on projects that have their own ``urlconf``.
-        """
-        from readthedocs.projects.views.public import ProjectDownloadMedia
-        from readthedocs.proxito.urls import core_urls
-        from readthedocs.proxito.views.serve import ServeDocs, ServeStaticFiles
-        from readthedocs.proxito.views.utils import proxito_404_page_handler
-
-        class ProxitoURLConf:
-
-            """A URLConf dynamically inserted by Proxito."""
-
-            proxied_urls = [
-                re_path(
-                    r'{proxied_api_url}api/v2/'.format(
-                        proxied_api_url=re.escape(self.proxied_api_url),
-                    ),
-                    include('readthedocs.api.v2.proxied_urls'),
-                    name='user_proxied_api'
-                ),
-                re_path(
-                    r'{proxied_api_url}downloads/'
-                    r'(?P<lang_slug>{lang_slug})/'
-                    r'(?P<version_slug>{version_slug})/'
-                    r'(?P<type_>[-\w]+)/$'.format(
-                        proxied_api_url=re.escape(self.proxied_api_url),
-                        **pattern_opts),
-                    ProjectDownloadMedia.as_view(same_domain_url=True),
-                    name='user_proxied_downloads'
-                ),
-                re_path(
-                    r"{proxied_api_url}static/"
-                    r"(?P<filename>{filename_slug})$".format(
-                        proxied_api_url=re.escape(self.proxied_api_url),
-                        **pattern_opts,
-                    ),
-                    ServeStaticFiles.as_view(),
-                    name="proxito_static_files",
-                ),
-            ]
-            docs_urls = [
-                re_path(
-                    '^{regex_urlconf}$'.format(regex_urlconf=self.regex_urlconf),
-                    ServeDocs.as_view(),
-                    name='user_proxied_serve_docs'
-                ),
-                # paths for redirects at the root
-                re_path(
-                    '^{proxied_api_url}$'.format(
-                        proxied_api_url=re.escape(self.urlconf.split('$', 1)[0]),
-                    ),
-                    ServeDocs.as_view(),
-                    name='user_proxied_serve_docs_subpath_redirect'
-                ),
-                re_path(
-                    '^(?P<filename>{regex})$'.format(regex=pattern_opts['filename_slug']),
-                    ServeDocs.as_view(),
-                    name='user_proxied_serve_docs_root_redirect'
-                ),
-            ]
-            urlpatterns = proxied_urls + core_urls + docs_urls
-            handler404 = proxito_404_page_handler
-            handler500 = defaults.server_error
-
-        return ProxitoURLConf
 
     @cached_property
     def is_subproject(self):
@@ -1927,8 +1804,6 @@ class Feature(models.Model):
     # may be added by other packages
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
-    DONT_SHALLOW_CLONE = "dont_shallow_clone"
-    UPDATE_CONDA_STARTUP = "update_conda_startup"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     CDN_ENABLED = "cdn_enabled"
@@ -1936,7 +1811,6 @@ class Feature(models.Model):
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
-    USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
 
@@ -1961,8 +1835,25 @@ class Feature(models.Model):
     INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    HOSTING_INTEGRATIONS = "hosting_integrations"
     SCALE_IN_PROTECTION = "scale_in_prtection"
+
+    # Addons related features
+    HOSTING_INTEGRATIONS = "hosting_integrations"
+    # NOTE: this is mainly temporal while we are rolling these features out.
+    # The idea here is to have more control over particular projects and do some testing.
+    # All these features will be enabled by default to all projects,
+    # and we can disable them if we want to
+    ADDONS_ANALYTICS_DISABLED = "addons_analytics_disabled"
+    ADDONS_DOC_DIFF_DISABLED = "addons_doc_diff_disabled"
+    ADDONS_ETHICALADS_DISABLED = "addons_ethicalads_disabled"
+    ADDONS_EXTERNAL_VERSION_WARNING_DISABLED = (
+        "addons_external_version_warning_disabled"
+    )
+    ADDONS_FLYOUT_DISABLED = "addons_flyout_disabled"
+    ADDONS_NON_LATEST_VERSION_WARNING_DISABLED = (
+        "addons_non_latest_version_warning_disabled"
+    )
+    ADDONS_SEARCH_DISABLED = "addons_search_disabled"
 
     FEATURES = (
         (
@@ -1970,16 +1861,8 @@ class Feature(models.Model):
             _("MkDocs: Use Read the Docs theme for MkDocs as default theme"),
         ),
         (
-            DONT_SHALLOW_CLONE,
-            _("Build: Do not shallow clone when cloning git repos"),
-        ),
-        (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
-        ),
-        (
-            UPDATE_CONDA_STARTUP,
-            _("Conda: Upgrade conda before creating the environment"),
         ),
         (
             CONDA_APPEND_CORE_REQUIREMENTS,
@@ -2014,12 +1897,6 @@ class Feature(models.Model):
         (
             RESOLVE_PROJECT_FROM_HEADER,
             _("Proxito: Allow usage of the X-RTD-Slug header"),
-        ),
-        (
-            USE_UNRESOLVER_WITH_PROXITO,
-            _(
-                "Proxito: Use new unresolver implementation for serving documentation files."
-            ),
         ),
         (
             USE_PROXIED_APIS_WITH_PREFIX,
@@ -2089,6 +1966,12 @@ class Feature(models.Model):
                 "sources"
             ),
         ),
+        # Build related features.
+        (
+            SCALE_IN_PROTECTION,
+            _("Build: Set scale-in protection before/after building."),
+        ),
+        # Addons related features.
         (
             HOSTING_INTEGRATIONS,
             _(
@@ -2096,8 +1979,32 @@ class Feature(models.Model):
             ),
         ),
         (
-            SCALE_IN_PROTECTION,
-            _("Build: Set scale-in protection before/after building."),
+            ADDONS_ANALYTICS_DISABLED,
+            _("Addons: Disable Analytics."),
+        ),
+        (
+            ADDONS_DOC_DIFF_DISABLED,
+            _("Addons: Disable Doc Diff."),
+        ),
+        (
+            ADDONS_ETHICALADS_DISABLED,
+            _("Addons: Disable EthicalAds."),
+        ),
+        (
+            ADDONS_EXTERNAL_VERSION_WARNING_DISABLED,
+            _("Addons: Disable External version warning."),
+        ),
+        (
+            ADDONS_FLYOUT_DISABLED,
+            _("Addons: Disable Flyout."),
+        ),
+        (
+            ADDONS_NON_LATEST_VERSION_WARNING_DISABLED,
+            _("Addons: Disable Non latest version warning."),
+        ),
+        (
+            ADDONS_SEARCH_DISABLED,
+            _("Addons: Disable Search."),
         ),
     )
 

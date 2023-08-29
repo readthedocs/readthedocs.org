@@ -16,6 +16,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
+from readthedocs.projects.models import Feature
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -173,11 +174,17 @@ class AddonsResponse:
         It tries to follow some similarity with the APIv3 for already-known resources
         (Project, Version, Build, etc).
         """
-        versions_active_built = (
+        versions_active_built_not_hidden = (
             Version.internal.public(project=project, only_active=True, only_built=True)
+            .exclude(hidden=True)
             .only("slug")
             .order_by("slug")
         )
+        project_translations = (
+            project.translations.all().only("language").order_by("language")
+        )
+        # Make one DB query here and then check on Python code
+        project_features = project.features.all().values_list("feature_id", flat=True)
 
         data = {
             "comment": (
@@ -208,7 +215,8 @@ class AddonsResponse:
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
                 "analytics": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_ANALYTICS_DISABLED
+                    not in project_features,
                     # TODO: consider adding this field into the ProjectSerializer itself.
                     # NOTE: it seems we are removing this feature,
                     # so we may not need the ``code`` attribute here
@@ -216,22 +224,24 @@ class AddonsResponse:
                     "code": project.analytics_code,
                 },
                 "external_version_warning": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_EXTERNAL_VERSION_WARNING_DISABLED
+                    not in project_features,
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
                 },
                 "non_latest_version_warning": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_NON_LATEST_VERSION_WARNING_DISABLED
+                    not in project_features,
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
                     "versions": list(
-                        versions_active_built.values_list("slug", flat=True)
+                        versions_active_built_not_hidden.values_list("slug", flat=True)
                     ),
                 },
                 "doc_diff": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_DOC_DIFF_DISABLED not in project_features,
                     # "http://test-builds-local.devthedocs.org/en/latest/index.html"
                     "base_url": resolver.resolve(
                         project=project,
@@ -250,26 +260,50 @@ class AddonsResponse:
                     "base_page": "",
                 },
                 "flyout": {
-                    "translations": [],
+                    "enabled": Feature.ADDONS_FLYOUT_DISABLED not in project_features,
+                    "translations": [
+                        {
+                            # TODO: name this field "display_name"
+                            "slug": translation.language,
+                            "url": f"/{translation.language}/",
+                        }
+                        for translation in project_translations
+                    ],
                     "versions": [
                         {
+                            # TODO: name this field "display_name"
                             "slug": version.slug,
                             "url": f"/{project.language}/{version.slug}/",
                         }
-                        for version in versions_active_built
+                        for version in versions_active_built_not_hidden
                     ],
-                    "downloads": [],
-                    # TODO: get this values properly
-                    "vcs": {
-                        "url": "https://github.com",
-                        "username": "readthedocs",
-                        "repository": "test-builds",
-                        "branch": version.identifier if version else None,
-                        "filepath": "/docs/index.rst",
-                    },
+                    "downloads": [
+                        {
+                            # TODO: name this field "display_name"
+                            "name": name,
+                            "url": url,
+                        }
+                        for name, url in version.get_downloads(pretty=True).items()
+                    ],
+                    # TODO: find a way to get this data in a reliably way.
+                    # We don't have a simple way to map a URL to a file in the repository.
+                    # This feature may be deprecated/removed in this implementation since it relies
+                    # on data injected at build time and sent as `docroot=`, `source_suffix=` and `page=`.
+                    # Example URL:
+                    #   /_/api/v2/footer_html/?project=weblate&version=latest&page=index&theme=furo&docroot=/docs/&source_suffix=.rst
+                    # Data injected at:
+                    #  https://github.com/rtfd/readthedocs-sphinx-ext/blob/7c60d1646c12ac0b83d61abfbdd5bcd77d324124/readthedocs_ext/_templates/readthedocs-insert.html.tmpl#L23
+                    #
+                    # "vcs": {
+                    #     "url": "https://github.com",
+                    #     "username": "readthedocs",
+                    #     "repository": "test-builds",
+                    #     "branch": version.identifier if version else None,
+                    #     "filepath": "/docs/index.rst",
+                    # },
                 },
                 "search": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_SEARCH_DISABLED not in project_features,
                     "project": project.slug,
                     "version": version.slug if version else None,
                     "api_endpoint": "/_/api/v3/search/",
@@ -310,7 +344,8 @@ class AddonsResponse:
             data["addons"].update(
                 {
                     "ethicalads": {
-                        "enabled": True,
+                        "enabled": Feature.ADDONS_ETHICALADS_DISABLED
+                        not in project_features,
                         # NOTE: this endpoint is not authenticated, the user checks are done over an annonymous user for now
                         #
                         # NOTE: it requires ``settings.USE_PROMOS=True`` to return ``ad_free=false`` here

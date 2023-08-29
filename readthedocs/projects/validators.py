@@ -79,27 +79,7 @@ class RepositoryURLValidator:
         raise ValidationError(_("Invalid scheme for URL"))
 
 
-class SubmoduleURLValidator(RepositoryURLValidator):
-
-    """
-    A URL validator for repository submodules.
-
-    If a repository has a relative submodule, the URL path is effectively the
-    supermodule's remote ``origin`` URL with the relative path applied.
-
-    From the git docs::
-
-        ``<repository>`` is the URL of the new submodule's origin repository.
-        This may be either an absolute URL, or (if it begins with ``./`` or
-        ``../``), the location relative to the superproject's default remote
-        repository
-    """
-
-    disallow_relative_url = False
-
-
 validate_repository_url = RepositoryURLValidator()
-validate_submodule_url = SubmoduleURLValidator()
 
 
 def validate_build_config_file(path):

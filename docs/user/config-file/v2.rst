@@ -130,7 +130,6 @@ Configuration of the Python environment to be used.
            - docs
        - method: pip
          path: another/package
-     system_packages: true
 
 python.version
 ``````````````
@@ -228,20 +227,6 @@ With the previous settings, Read the Docs will execute the next commands:
 
    pip install .[docs]
 
-python.system_packages
-``````````````````````
-
-Give the virtual environment access to the global site-packages directory.
-
-:Type: ``bool``
-:Default: ``false``
-
-.. warning::
-
-  If you are using a :ref:`Conda <config-file/v2:conda>` environment
-  to manage the build, this setting will not have any effect, since
-  the virtual environment creation is managed by Conda.
-
 conda
 ~~~~~
 
@@ -250,6 +235,11 @@ Configuration for Conda support.
 .. code-block:: yaml
 
    version: 2
+
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "mambaforge-22.9"
 
    conda:
      environment: environment.yml
@@ -261,6 +251,10 @@ The path to the Conda `environment file <https://conda.io/projects/conda/en/late
 
 :Type: ``path``
 :Required: ``false``
+
+.. note::
+
+   When using Conda, it's required to specify ``build.tools.python`` to tell Read the Docs to use whether Conda or Mamba to create the environment.
 
 build
 ~~~~~
@@ -869,8 +863,6 @@ Changes
 - The settings ``python.setup_py_install`` and ``python.pip_install`` were replaced by ``python.install``.
   And now it accepts a path to the package.
   See :ref:`config-file/v2:Packages`.
-- The setting ``python.use_system_site_packages`` was renamed to ``python.system_packages``.
-  See :ref:`config-file/v2:python.system_packages`.
 - The build will fail if there are invalid keys (strict mode).
 
 .. warning::
