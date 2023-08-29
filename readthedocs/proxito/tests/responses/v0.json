@@ -95,16 +95,10 @@
       "base_page": ""
     },
     "flyout": {
+      "enabled": true,
       "translations": [],
       "versions": [{ "slug": "latest", "url": "/en/latest/" }],
-      "downloads": [],
-      "vcs": {
-        "url": "https://github.com",
-        "username": "readthedocs",
-        "repository": "test-builds",
-        "branch": "a1b2c3",
-        "filepath": "/docs/index.rst"
-      }
+      "downloads": []
     },
     "search": {
       "enabled": true,

@@ -64,7 +64,6 @@ class ResolverBase:
         project_relationship=None,
         subdomain=None,
         cname=None,
-        urlconf=None,
         custom_prefix=None,
     ):
         """
@@ -97,38 +96,6 @@ class ResolverBase:
         else:
             path = unsafe_join_url_path(path, "{language}/{version}/{filename}")
 
-        # TODO: remove this when all projects have migrated to path prefixes.
-        # Allow users to override their own URLConf
-        # If a custom prefix is given, we don't use the custom URLConf,
-        # since they are not compatible with each other.
-        # We also don't check if the project has the new proxito implementation
-        # enabled, this is so we can start generating links with the new
-        # custom prefixes without starting to serve docs with it (this helps to ease
-        # the migration from urlconf to custom prefixes).
-        if urlconf and not custom_prefix:
-            path = urlconf
-            path = path.replace(
-                "$version",
-                "{version}",
-            )
-            path = path.replace(
-                '$language',
-                '{language}',
-            )
-            path = path.replace(
-                '$filename',
-                '{filename}',
-            )
-            path = path.replace(
-                "$subproject",
-                "{subproject}",
-            )
-            if "$" in path:
-                log.warning(
-                    "Unconverted variable in a resolver URLConf.",
-                    path=path,
-                )
-
         subproject_alias = project_relationship.alias if project_relationship else ""
         return path.format(
             project=project_slug,
@@ -147,7 +114,6 @@ class ResolverBase:
             single_version=None,
             subdomain=None,
             cname=None,
-            urlconf=None,
     ):
         """Resolve a URL with a subset of fields defined."""
         version_slug = version_slug or project.get_default_version()
@@ -181,7 +147,6 @@ class ResolverBase:
             project_relationship=project_relationship,
             cname=cname,
             subdomain=subdomain,
-            urlconf=urlconf or project.urlconf,
             custom_prefix=custom_prefix,
         )
 

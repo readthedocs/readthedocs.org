@@ -18,7 +18,7 @@ from slugify import slugify as unicode_slugify
 from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
 from readthedocs.audit.models import AuditLog
-from readthedocs.builds.constants import EXTERNAL, INTERNAL
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.resolver import resolve
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
@@ -283,20 +283,6 @@ class ServeDocsMixin:
 
     def allowed_user(self, request, version):
         return True
-
-    def get_version_from_host(self, request, version_slug):
-        # Handle external domain
-        unresolved_domain = request.unresolved_domain
-        if unresolved_domain and unresolved_domain.is_from_external_domain:
-            external_version_slug = unresolved_domain.external_version_slug
-            self.version_type = EXTERNAL
-            log.warning(
-                'Using version slug from host.',
-                version_slug=version_slug,
-                host_version=external_version_slug,
-            )
-            return external_version_slug
-        return version_slug
 
     def _spam_response(self, request, project):
         if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:

@@ -1,3 +1,32 @@
+Version 10.2.0
+--------------
+
+:Date: August 29, 2023
+
+* `@stsewd <https://github.com/stsewd>`__: Automation rules: show dates in admin (`#10675 <https://github.com/readthedocs/readthedocs.org/pull/10675>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: don't enforce hardcoded brownouts (`#10673 <https://github.com/readthedocs/readthedocs.org/pull/10673>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: update `conda` config key to mention `build.tools.python` (`#10672 <https://github.com/readthedocs/readthedocs.org/pull/10672>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10669 <https://github.com/readthedocs/readthedocs.org/pull/10669>`__)
+* `@humitos <https://github.com/humitos>`__: Django 3.x upgrade (`#10668 <https://github.com/readthedocs/readthedocs.org/pull/10668>`__)
+* `@humitos <https://github.com/humitos>`__: Build: define `html_theme` variable (`#10663 <https://github.com/readthedocs/readthedocs.org/pull/10663>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: remove old implementation (`#10660 <https://github.com/readthedocs/readthedocs.org/pull/10660>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: Add requirements/testing.txt to pre-commit cache key (`#10658 <https://github.com/readthedocs/readthedocs.org/pull/10658>`__)
+* `@stsewd <https://github.com/stsewd>`__: Set `SECURE_PROXY_SSL_HEADER` when using docker compose (`#10657 <https://github.com/readthedocs/readthedocs.org/pull/10657>`__)
+* `@humitos <https://github.com/humitos>`__: Tests: Update Sphinx test matrix for EmbedAPI (`#10655 <https://github.com/readthedocs/readthedocs.org/pull/10655>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove `using_rtd_theme` variable (`#10653 <https://github.com/readthedocs/readthedocs.org/pull/10653>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.1.0 (`#10652 <https://github.com/readthedocs/readthedocs.org/pull/10652>`__)
+* `@ecormany <https://github.com/ecormany>`__: docs: typo fix on "Custom and built-in redirects" page (`#10651 <https://github.com/readthedocs/readthedocs.org/pull/10651>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: prepare the backend for the new flyout (`#10650 <https://github.com/readthedocs/readthedocs.org/pull/10650>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10649 <https://github.com/readthedocs/readthedocs.org/pull/10649>`__)
+* `@humitos <https://github.com/humitos>`__: Build: do not set `sphinx_rtd_theme` theme automatically (`#10638 <https://github.com/readthedocs/readthedocs.org/pull/10638>`__)
+* `@stsewd <https://github.com/stsewd>`__: Git: simplify submodule checks (`#10635 <https://github.com/readthedocs/readthedocs.org/pull/10635>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10628 <https://github.com/readthedocs/readthedocs.org/pull/10628>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: Don't hit storage for 404s (`#10617 <https://github.com/readthedocs/readthedocs.org/pull/10617>`__)
+* `@humitos <https://github.com/humitos>`__: Feature flag: remove `DONT_SHALLOW_CLONE` (`#10588 <https://github.com/readthedocs/readthedocs.org/pull/10588>`__)
+* `@humitos <https://github.com/humitos>`__: Deprecation: remove "use system packages" (`python.system_packages` config key and UI checkbox) (`#10562 <https://github.com/readthedocs/readthedocs.org/pull/10562>`__)
+* `@humitos <https://github.com/humitos>`__: Feature flag: remove UPDATE_CONDA_STARTUP (`#10494 <https://github.com/readthedocs/readthedocs.org/pull/10494>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: Stop creating a conf.py automatically and doing magic around README handling (`#5609 <https://github.com/readthedocs/readthedocs.org/pull/5609>`__)
+
 Version 10.1.0
 --------------
 

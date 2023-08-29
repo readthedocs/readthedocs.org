@@ -24,11 +24,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.25
+boto3==1.28.35
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.25
+botocore==1.31.35
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -54,7 +54,7 @@ charset-normalizer==3.2.0
     # via
     #   -r requirements/pip.txt
     #   requests
-click==8.1.6
+click==8.1.7
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -170,7 +170,7 @@ django-structlog==2.2.0
     # via -r requirements/pip.txt
 django-taggit==4.0.0
     # via -r requirements/pip.txt
-django-timezone-field==5.1
+django-timezone-field==6.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -256,7 +256,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.9.4
+orjson==3.9.5
     # via -r requirements/pip.txt
 packaging==23.1
     # via
@@ -279,7 +279,7 @@ platformdirs==3.10.0
     #   -r requirements/pip.txt
     #   tox
     #   virtualenv
-pluggy==1.2.0
+pluggy==1.3.0
     # via tox
 prompt-toolkit==3.0.39
     # via
@@ -306,7 +306,7 @@ pyjwt[crypto]==2.8.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pyproject-api==1.5.3
+pyproject-api==1.5.4
     # via tox
 pyquery==2.0.0
     # via -r requirements/pip.txt
@@ -330,11 +330,10 @@ pytz==2023.3
     # via
     #   -r requirements/pip.txt
     #   celery
-    #   django-timezone-field
     #   djangorestframework
 pyyaml==6.0.1
     # via -r requirements/pip.txt
-redis==4.6.0
+redis==5.0.0
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -357,7 +356,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rich==13.5.2
     # via -r requirements/docker.in
-s3transfer==0.6.1
+s3transfer==0.6.2
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -396,7 +395,7 @@ tomli==2.0.1
     #   ipdb
     #   pyproject-api
     #   tox
-tox==4.8.0
+tox==4.10.0
     # via -r requirements/docker.in
 traitlets==5.9.0
     # via
@@ -443,7 +442,7 @@ wcwidth==0.2.6
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.6.1
+websocket-client==1.6.2
     # via
     #   -r requirements/pip.txt
     #   docker

@@ -1,7 +1,5 @@
 from django.test.utils import override_settings
-from django_dynamic_fixture import get
 
-from readthedocs.projects.models import Feature
 from readthedocs.proxito.tests.base import BaseDocServing
 
 
@@ -11,14 +9,6 @@ from readthedocs.proxito.tests.base import BaseDocServing
     RTD_EXTERNAL_VERSION_DOMAIN="readthedocs.build",
 )
 class TestCustomPathPrefixes(BaseDocServing):
-    def setUp(self):
-        super().setUp()
-        get(
-            Feature,
-            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
-            default_true=True,
-            future_default_true=True,
-        )
 
     def test_custom_prefix_multi_version_project(self):
         self.project.custom_prefix = "/custom/prefix/"
