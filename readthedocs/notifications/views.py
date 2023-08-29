@@ -1,5 +1,5 @@
 """Django views for the notifications app."""
-from django.contrib import admin, messages
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.views.generic import FormView
 
@@ -42,9 +42,7 @@ class SendNotificationView(FormView):
     def get_initial(self):
         """Add selected ids to initial form data."""
         initial = super().get_initial()
-        initial["_selected_action"] = self.request.POST.getlist(
-            admin.ACTION_CHECKBOX_NAME,
-        )
+        initial["_selected_action"] = self.request.POST.getlist("_selected_action")
         return initial
 
     def form_valid(self, form):

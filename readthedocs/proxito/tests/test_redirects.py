@@ -4,7 +4,6 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PUBLIC
-from readthedocs.projects.models import Feature
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.products import RTDProductFeature
@@ -436,18 +435,6 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r["X-RTD-Redirect"], RedirectType.system.name)
-
-
-class ProxitoV2RedirectTests(RedirectTests):
-    # TODO: remove this class once the new implementation is the default.
-    def setUp(self):
-        super().setUp()
-        get(
-            Feature,
-            feature_id=Feature.USE_UNRESOLVER_WITH_PROXITO,
-            default_true=True,
-            future_default_true=True,
-        )
 
     def test_redirect_from_root_language_to_default_version(self):
         paths = [

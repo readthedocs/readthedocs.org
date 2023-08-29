@@ -264,7 +264,11 @@ class BuildDirector:
         # fmt: on
 
         # Raise a build error if the project is not using a config file or using v1
-        if browndates and self.data.config.version not in ("2", 2):
+        if (
+            settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS
+            and browndates
+            and self.data.config.version not in ("2", 2)
+        ):
             raise BuildUserError(BuildUserError.NO_CONFIG_FILE_DEPRECATED)
 
         # Raise a build error if the project is using "build.image" on their config file
@@ -279,7 +283,7 @@ class BuildDirector:
         ])
         # fmt: on
 
-        if browndates:
+        if settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS and browndates:
             build_config_key = self.data.config.source_config.get("build", {})
             if "image" in build_config_key:
                 raise BuildUserError(BuildUserError.BUILD_IMAGE_CONFIG_KEY_DEPRECATED)
