@@ -8,7 +8,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.forms import VersionForm
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import HTMLFile, Project
 
 
 class TestVersionForm(TestCase):
@@ -99,6 +99,21 @@ class TestVersionForm(TestCase):
             project=self.project,
             active=True,
         )
+        another_version = get(Version, project=self.project, active=True)
+        get(
+            HTMLFile,
+            project=self.project,
+            version=version,
+            name="index.html",
+            path="index.html",
+        )
+        get(
+            HTMLFile,
+            project=self.project,
+            version=another_version,
+            name="index.html",
+            path="index.html",
+        )
 
         url = reverse(
             "project_version_detail", args=(version.project.slug, version.slug)
@@ -115,6 +130,8 @@ class TestVersionForm(TestCase):
         )
         self.assertEqual(r.status_code, 302)
         clean_project_resources.assert_not_called()
+        self.assertTrue(version.imported_files.exists())
+        self.assertTrue(another_version.imported_files.exists())
 
         r = self.client.post(
             url,
@@ -125,3 +142,5 @@ class TestVersionForm(TestCase):
         )
         self.assertEqual(r.status_code, 302)
         clean_project_resources.assert_called_once()
+        self.assertFalse(version.imported_files.exists())
+        self.assertTrue(another_version.imported_files.exists())
