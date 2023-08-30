@@ -121,7 +121,7 @@ class TestBasicsForm(WizardTestCase):
 
         proj = Project.objects.get(name="foobar")
         self.assertIsNotNone(proj)
-        for (key, val) in list(self.step_data["basics"].items()):
+        for key, val in list(self.step_data["basics"].items()):
             self.assertEqual(getattr(proj, key), val)
         self.assertEqual(proj.documentation_type, "sphinx")
 
