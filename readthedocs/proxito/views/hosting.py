@@ -174,12 +174,21 @@ class AddonsResponse:
         It tries to follow some similarity with the APIv3 for already-known resources
         (Project, Version, Build, etc).
         """
-        versions_active_built_not_hidden = (
-            Version.internal.public(project=project, only_active=True, only_built=True)
-            .exclude(hidden=True)
-            .only("slug")
-            .order_by("slug")
-        )
+        version_downloads = []
+        versions_active_built_not_hidden = Version.objects.none()
+
+        if not project.single_version:
+            versions_active_built_not_hidden = (
+                Version.internal.public(
+                    project=project, only_active=True, only_built=True
+                )
+                .exclude(hidden=True)
+                .only("slug")
+                .order_by("slug")
+            )
+            if version:
+                version_downloads = version.get_downloads(pretty=True).items()
+
         project_translations = (
             project.translations.all().only("language").order_by("language")
         )
@@ -283,7 +292,7 @@ class AddonsResponse:
                             "name": name,
                             "url": url,
                         }
-                        for name, url in version.get_downloads(pretty=True).items()
+                        for name, url in version_downloads
                     ],
                     # TODO: find a way to get this data in a reliably way.
                     # We don't have a simple way to map a URL to a file in the repository.
