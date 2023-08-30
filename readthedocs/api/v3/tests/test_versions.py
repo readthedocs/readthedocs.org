@@ -267,8 +267,11 @@ class VersionsEndpointTests(APIEndpointMixin):
         trigger_build.assert_called_once()
 
     @mock.patch("readthedocs.builds.models.trigger_build")
-    @mock.patch("readthedocs.projects.tasks.utils.clean_project_resources")
-    def test_deactivate_version(self, clean_project_resources, trigger_build):
+    @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
+    @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
+    def test_deactivate_version(
+        self, remove_build_storage_paths, remove_search_indexes, trigger_build
+    ):
         another_version = get(Version, project=self.project, active=True)
         get(
             HTMLFile,
@@ -307,7 +310,8 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.assertFalse(self.version.built)
         self.assertFalse(self.version.imported_files.exists())
         self.assertTrue(another_version.imported_files.exists())
-        clean_project_resources.assert_called_once()
+        remove_build_storage_paths.delay.assert_called_once()
+        remove_search_indexes.delay.assert_called_once()
         trigger_build.assert_not_called()
 
     def test_projects_version_external(self):

@@ -90,9 +90,10 @@ class TestVersionForm(TestCase):
         self.assertEqual(version.privacy_level, PRIVATE)
 
     @mock.patch("readthedocs.builds.models.trigger_build", mock.MagicMock())
-    @mock.patch("readthedocs.projects.tasks.utils.clean_project_resources")
+    @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
+    @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
     def test_resources_are_deleted_when_version_is_inactive(
-        self, clean_project_resources
+        self, remove_build_storage_paths, remove_search_indexes
     ):
         version = get(
             Version,
@@ -129,7 +130,8 @@ class TestVersionForm(TestCase):
             },
         )
         self.assertEqual(r.status_code, 302)
-        clean_project_resources.assert_not_called()
+        remove_build_storage_paths.delay.assert_not_called()
+        remove_search_indexes.delay.assert_not_called()
         self.assertTrue(version.imported_files.exists())
         self.assertTrue(another_version.imported_files.exists())
 
@@ -141,6 +143,7 @@ class TestVersionForm(TestCase):
             },
         )
         self.assertEqual(r.status_code, 302)
-        clean_project_resources.assert_called_once()
+        remove_build_storage_paths.delay.assert_called_once()
+        remove_search_indexes.delay.assert_called_once()
         self.assertFalse(version.imported_files.exists())
         self.assertTrue(another_version.imported_files.exists())
