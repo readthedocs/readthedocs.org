@@ -6,9 +6,7 @@ def forwards_func(apps, schema_editor):
     """Old models with provider_data='' are being fetched as str instead of json."""
     Integration = apps.get_model("integrations", "Integration")
 
-    Integration.objects.filter(
-        provider_data="",
-    ).update(
+    Integration.objects.filter(provider_data="",).update(
         provider_data={},
     )
 

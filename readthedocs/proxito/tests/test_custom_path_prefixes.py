@@ -9,7 +9,6 @@ from readthedocs.proxito.tests.base import BaseDocServing
     RTD_EXTERNAL_VERSION_DOMAIN="readthedocs.build",
 )
 class TestCustomPathPrefixes(BaseDocServing):
-
     def test_custom_prefix_multi_version_project(self):
         self.project.custom_prefix = "/custom/prefix/"
         self.project.save()

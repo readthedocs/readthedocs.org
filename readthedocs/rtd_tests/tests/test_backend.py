@@ -25,18 +25,18 @@ from readthedocs.rtd_tests.utils import (
 
 
 # Avoid trying to save the commands via the API
-@mock.patch('readthedocs.doc_builder.environments.BuildCommand.save', mock.MagicMock())
+@mock.patch("readthedocs.doc_builder.environments.BuildCommand.save", mock.MagicMock())
 class TestGitBackend(TestCase):
     def setUp(self):
         git_repo = make_test_git()
         super().setUp()
-        self.eric = User(username='eric')
-        self.eric.set_password('test')
+        self.eric = User(username="eric")
+        self.eric.set_password("test")
         self.eric.save()
         self.project = Project.objects.create(
-            name='Test Project',
-            repo_type='git',
-            #Our top-level checkout
+            name="Test Project",
+            repo_type="git",
+            # Our top-level checkout
             repo=git_repo,
         )
         self.project.users.add(self.eric)
@@ -55,23 +55,23 @@ class TestGitBackend(TestCase):
         repo_path = self.project.repo
         default_branches = [
             # comes from ``make_test_git`` function
-            'submodule',
-            'invalidsubmodule',
+            "submodule",
+            "invalidsubmodule",
         ]
         branches = [
-            'develop',
-            'master',
-            '2.0.X',
-            'release/2.0.0',
-            'release/foo/bar',
+            "develop",
+            "master",
+            "2.0.X",
+            "release/2.0.0",
+            "release/foo/bar",
             "with\xa0space",
         ]
         for branch in branches:
             create_git_branch(repo_path, branch)
 
-        create_git_tag(repo_path, 'v01')
-        create_git_tag(repo_path, 'v02', annotated=True)
-        create_git_tag(repo_path, 'release-ünîø∂é')
+        create_git_tag(repo_path, "v01")
+        create_git_tag(repo_path, "v02", annotated=True)
+        create_git_tag(repo_path, "release-ünîø∂é")
 
         repo = self.project.vcs_repo(environment=self.build_environment)
         # create the working dir if it not exists. It's required to ``cwd`` to
@@ -156,7 +156,7 @@ class TestGitBackend(TestCase):
     def test_git_checkout_invalid_revision(self):
         repo = self.project.vcs_repo(environment=self.build_environment)
         repo.update()
-        version = 'invalid-revision'
+        version = "invalid-revision"
         with self.assertRaises(RepositoryError) as e:
             repo.checkout(version)
         self.assertEqual(
@@ -360,18 +360,17 @@ class TestGitBackend(TestCase):
 
 
 # Avoid trying to save the commands via the API
-@mock.patch('readthedocs.doc_builder.environments.BuildCommand.save', mock.MagicMock())
+@mock.patch("readthedocs.doc_builder.environments.BuildCommand.save", mock.MagicMock())
 class TestHgBackend(TestCase):
-
     def setUp(self):
         hg_repo = make_test_hg()
         super().setUp()
-        self.eric = User(username='eric')
-        self.eric.set_password('test')
+        self.eric = User(username="eric")
+        self.eric.set_password("test")
         self.eric.save()
         self.project = Project.objects.create(
-            name='Test Project',
-            repo_type='hg',
+            name="Test Project",
+            repo_type="hg",
             # Our top-level checkout
             repo=hg_repo,
         )
@@ -405,7 +404,7 @@ class TestHgBackend(TestCase):
     def test_checkout_invalid_revision(self):
         repo = self.project.vcs_repo(environment=self.build_environment)
         repo.update()
-        version = 'invalid-revision'
+        version = "invalid-revision"
         with self.assertRaises(RepositoryError) as e:
             repo.checkout(version)
         self.assertEqual(
@@ -421,9 +420,9 @@ class TestHgBackend(TestCase):
         1.7.5                          13334:2b2155623ee2
          """
         expected_tags = [
-            ('aa1f3be38ab1', '1.8.1'),
-            ('2616325766e3', '1.8'),
-            ('2b2155623ee2', '1.7.5'),
+            ("aa1f3be38ab1", "1.8.1"),
+            ("2616325766e3", "1.8"),
+            ("2b2155623ee2", "1.7.5"),
         ]
 
         given_ids = [

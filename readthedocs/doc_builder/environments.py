@@ -79,8 +79,8 @@ class BuildCommand(BuildCommandResultMixin):
         self.cwd = cwd or settings.RTD_DOCKER_WORKDIR
         self.user = user or settings.RTD_DOCKER_USER
         self._environment = environment.copy() if environment else {}
-        if 'PATH' in self._environment:
-            raise BuildAppError('\'PATH\' can\'t be set. Use bin_path')
+        if "PATH" in self._environment:
+            raise BuildAppError("'PATH' can't be set. Use bin_path")
 
         self.build_env = build_env
         self.output = None
@@ -114,15 +114,15 @@ class BuildCommand(BuildCommandResultMixin):
             # from `sync_repository_task` since it's not associated to any build
             if self.build_env.build:
                 log.bind(
-                    build_id=self.build_env.build.get('id'),
+                    build_id=self.build_env.build.get("id"),
                 )
 
     def __str__(self):
         # TODO do we want to expose the full command here?
-        output = ''
+        output = ""
         if self.output is not None:
-            output = self.output.encode('utf-8')
-        return '\n'.join([self.get_command(), output])
+            output = self.output.encode("utf-8")
+        return "\n".join([self.get_command(), output])
 
     # TODO: remove this `run` method. We are using it on tests, so we need to
     # find a way to change this. NOTE: it uses `subprocess.Popen` to run
@@ -131,16 +131,16 @@ class BuildCommand(BuildCommandResultMixin):
         """Set up subprocess and execute command."""
         self.start_time = datetime.utcnow()
         environment = self._environment.copy()
-        if 'DJANGO_SETTINGS_MODULE' in environment:
-            del environment['DJANGO_SETTINGS_MODULE']
-        if 'PYTHONPATH' in environment:
-            del environment['PYTHONPATH']
+        if "DJANGO_SETTINGS_MODULE" in environment:
+            del environment["DJANGO_SETTINGS_MODULE"]
+        if "PYTHONPATH" in environment:
+            del environment["PYTHONPATH"]
 
         # Always copy the PATH from the host into the environment
-        env_paths = os.environ.get('PATH', '').split(':')
+        env_paths = os.environ.get("PATH", "").split(":")
         if self.bin_path is not None:
             env_paths.insert(0, self.bin_path)
-        environment['PATH'] = ':'.join(env_paths)
+        environment["PATH"] = ":".join(env_paths)
 
         log.info(
             "Running build command.",
@@ -217,22 +217,22 @@ class BuildCommand(BuildCommandResultMixin):
         allowed_length = settings.DATA_UPLOAD_MAX_MEMORY_SIZE - threshold
         if output_length > allowed_length:
             log.info(
-                'Command output is too big.',
+                "Command output is too big.",
                 command=self.get_command(),
             )
             truncated_output = sanitized[-allowed_length:]
             sanitized = (
-                '.. (truncated) ...\n'
-                f'Output is too big. Truncated at {allowed_length} bytes.\n\n\n'
-                f'{truncated_output}'
+                ".. (truncated) ...\n"
+                f"Output is too big. Truncated at {allowed_length} bytes.\n\n\n"
+                f"{truncated_output}"
             )
 
         return sanitized
 
     def get_command(self):
         """Flatten command."""
-        if hasattr(self.command, '__iter__') and not isinstance(self.command, str):
-            return ' '.join(self.command)
+        if hasattr(self.command, "__iter__") and not isinstance(self.command, str):
+            return " ".join(self.command)
         return self.command
 
     def save(self, api_client):
@@ -241,7 +241,7 @@ class BuildCommand(BuildCommandResultMixin):
         # on commands that are just for checking purposes and do not interferes
         # in the Build
         if self.record_as_success:
-            log.warning('Recording command exit_code as success')
+            log.warning("Recording command exit_code as success")
             self.exit_code = 0
 
         data = {
@@ -256,21 +256,19 @@ class BuildCommand(BuildCommandResultMixin):
         if self.build_env.project.has_feature(Feature.API_LARGE_DATA):
             # Don't use slumber directly here. Slumber tries to enforce a string,
             # which will break our multipart encoding here.
-            encoder = MultipartEncoder(
-                {key: str(value) for key, value in data.items()}
-            )
+            encoder = MultipartEncoder({key: str(value) for key, value in data.items()})
             resource = api_client.command
             resp = resource._store["session"].post(
                 resource._store["base_url"] + "/",
                 data=encoder,
                 headers={
-                    'Content-Type': encoder.content_type,
-                }
+                    "Content-Type": encoder.content_type,
+                },
             )
-            log.debug('Post response via multipart form.', response=resp)
+            log.debug("Post response via multipart form.", response=resp)
         else:
             resp = api_client.command.post(data)
-            log.debug('Post response via JSON encoded data.', response=resp)
+            log.debug("Post response via JSON encoded data.", response=resp)
 
 
 class DockerBuildCommand(BuildCommand):
@@ -282,8 +280,7 @@ class DockerBuildCommand(BuildCommand):
     """
 
     bash_escape_re = re.compile(
-        r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@"
-        r'\[\\\]\^\`\{\|\}\~])'
+        r"([\t\ \!\"\#\$\&\'\(\)\*\:\;\<\>\?\@" r"\[\\\]\^\`\{\|\}\~])"
     )
 
     def __init__(self, *args, escape_command=True, **kwargs):
@@ -331,8 +328,8 @@ class DockerBuildCommand(BuildCommand):
                 cmd_stdout = out
             self.output = self.decode_output(cmd_stdout)
             self.error = self.decode_output(cmd_stderr)
-            cmd_ret = client.exec_inspect(exec_id=exec_cmd['Id'])
-            self.exit_code = cmd_ret['ExitCode']
+            cmd_ret = client.exec_inspect(exec_id=exec_cmd["Id"])
+            self.exit_code = cmd_ret["ExitCode"]
 
             # Docker will exit with a special exit code to signify the command
             # was killed due to memory usage. We try to make the error code
@@ -342,22 +339,21 @@ class DockerBuildCommand(BuildCommand):
             #
             # NOTE: the work `Killed` could appear in the output because the
             # command was killed by OOM or timeout so we put a generic message here.
-            killed_in_output = 'Killed' in '\n'.join(
+            killed_in_output = "Killed" in "\n".join(
                 self.output.splitlines()[-15:],
             )
             if self.exit_code == DOCKER_OOM_EXIT_CODE or (
-                self.exit_code == 1 and
-                killed_in_output
+                self.exit_code == 1 and killed_in_output
             ):
                 self.output += str(
                     _(
-                        '\n\nCommand killed due to timeout or excessive memory consumption\n',
+                        "\n\nCommand killed due to timeout or excessive memory consumption\n",
                     ),
                 )
         except DockerAPIError:
             self.exit_code = -1
             if self.output is None or not self.output:
-                self.output = _('Command exited abnormally')
+                self.output = _("Command exited abnormally")
         finally:
             self.end_time = datetime.utcnow()
 
@@ -378,11 +374,9 @@ class DockerBuildCommand(BuildCommand):
             bin_path = self._escape_command(self.bin_path)
             prefix += f"PATH={bin_path}:$PATH "
 
-        command = (
-            ' '.join(
-                self._escape_command(part) if self.escape_command else part
-                for part in self.command
-            )
+        command = " ".join(
+            self._escape_command(part) if self.escape_command else part
+            for part in self.command
         )
         if prefix:
             # Using `;` or `\n` to separate the `prefix` where we define the
@@ -472,8 +466,7 @@ class BaseBuildEnvironment:
         return self.run_command_class(cls=self.command_class, cmd=cmd, **kwargs)
 
     def run_command_class(
-            self, cls, cmd, warn_only=False,
-            record=True, record_as_success=False, **kwargs
+        self, cls, cmd, warn_only=False, record=True, record_as_success=False, **kwargs
     ):
         """
         Run command from this environment.
@@ -493,7 +486,7 @@ class BaseBuildEnvironment:
             record = True
             warn_only = True
             # ``record_as_success`` is needed to instantiate the BuildCommand
-            kwargs.update({'record_as_success': record_as_success})
+            kwargs.update({"record_as_success": record_as_success})
 
         # Remove PATH from env, and set it to bin_path if it isn't passed in
         environment = self._environment.copy()
@@ -531,8 +524,8 @@ class BaseBuildEnvironment:
                     msg,
                     command=build_cmd.get_command(),
                     output=build_output,
-                    project_slug=self.project.slug if self.project else '',
-                    version_slug=self.version.slug if self.version else '',
+                    project_slug=self.project.slug if self.project else "",
+                    version_slug=self.version.slug if self.version else "",
                 )
             elif build_cmd.exit_code == RTD_SKIP_BUILD_EXIT_CODE:
                 raise BuildUserSkip()
@@ -568,8 +561,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
 
     command_class = DockerBuildCommand
     container_image = DOCKER_IMAGE
-    container_mem_limit = DOCKER_LIMITS.get('memory')
-    container_time_limit = DOCKER_LIMITS.get('time')
+    container_mem_limit = DOCKER_LIMITS.get("memory")
+    container_time_limit = DOCKER_LIMITS.get("time")
 
     def __init__(self, *args, **kwargs):
         container_image = kwargs.pop("container_image", None)
@@ -610,7 +603,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         # not have a build associated
         if self.build:
             log.bind(
-                build_id=self.build.get('id'),
+                build_id=self.build.get("id"),
             )
 
     def __enter__(self):
@@ -621,16 +614,16 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             # exception
             state = self.container_state()
             if state is not None:
-                if state.get('Running') is True:
+                if state.get("Running") is True:
                     raise BuildAppError(
                         _(
-                            'A build environment is currently '
-                            'running for this version',
+                            "A build environment is currently "
+                            "running for this version",
                         ),
                     )
 
                 log.warning(
-                    'Removing stale container.',
+                    "Removing stale container.",
                     container_id=self.container_id,
                 )
                 client = self.get_client()
@@ -656,7 +649,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             client.kill(self.container_id)
         except DockerNotFoundError:
             log.info(
-                'Container does not exists, nothing to kill.',
+                "Container does not exists, nothing to kill.",
                 container_id=self.container_id,
             )
         except DockerAPIError:
@@ -664,7 +657,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             # limit or build timeout. In those cases, the container is not
             # running and can't be killed
             log.warning(
-                'Unable to kill container.',
+                "Unable to kill container.",
                 container_id=self.container_id,
             )
 
@@ -673,11 +666,11 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         state = self.container_state()
 
         try:
-            log.info('Removing container.', container_id=self.container_id)
+            log.info("Removing container.", container_id=self.container_id)
             client.remove_container(self.container_id)
         except DockerNotFoundError:
             log.info(
-                'Container does not exists, nothing to remove.',
+                "Container does not exists, nothing to remove.",
                 container_id=self.container_id,
             )
         # Catch direct failures from Docker API or with an HTTP request.
@@ -689,15 +682,15 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
 
     def get_container_name(self):
         if self.build:
-            name = 'build-{build}-project-{project_id}-{project_name}'.format(
-                build=self.build.get('id'),
+            name = "build-{build}-project-{project_id}-{project_name}".format(
+                build=self.build.get("id"),
                 project_id=self.project.pk,
                 project_name=self.project.slug,
             )
         else:
             # An uuid is added, so the container name is unique per sync.
             uuid_ = uuid.uuid4().hex[:8]
-            name = f'sync-{uuid_}-project-{self.project.pk}-{self.project.slug}'
+            name = f"sync-{uuid_}-project-{self.project.pk}-{self.project.slug}"
         return slugify(name[:DOCKER_HOSTNAME_MAX_LEN])
 
     def get_client(self):
@@ -719,8 +712,9 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         It uses Docker Volume if running on a docker-compose. Otherwise, it
         returns just a regular mountpoint path.
         """
-        if getattr(settings, 'RTD_DOCKER_COMPOSE', False):
+        if getattr(settings, "RTD_DOCKER_COMPOSE", False):
             from pathlib import Path
+
             binds = {
                 settings.RTD_DOCKER_COMPOSE_VOLUME: {
                     "bind": str(Path(settings.DOCROOT).parent),
@@ -730,8 +724,8 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         else:
             binds = {
                 self.project.doc_path: {
-                    'bind': self.project.doc_path,
-                    'mode': 'rw',
+                    "bind": self.project.doc_path,
+                    "mode": "rw",
                 },
             }
 
@@ -761,14 +755,14 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
             return self.container_name
 
         if self.container:
-            return self.container.get('Id')
+            return self.container.get("Id")
 
     def container_state(self):
         """Get container state."""
         client = self.get_client()
         try:
             info = client.inspect_container(self.container_id)
-            return info.get('State', {})
+            return info.get("State", {})
         except DockerAPIError:
             return None
 
@@ -781,22 +775,23 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         `BuildUserError` with an error message explaining the failure.
         Otherwise, raise a `BuildAppError`.
         """
-        if state is not None and state.get('Running') is False:
-            if state.get('ExitCode') == DOCKER_TIMEOUT_EXIT_CODE:
+        if state is not None and state.get("Running") is False:
+            if state.get("ExitCode") == DOCKER_TIMEOUT_EXIT_CODE:
                 raise BuildUserError(
-                    _('Build exited due to time out'),
+                    _("Build exited due to time out"),
                 )
 
-            if state.get('OOMKilled', False):
+            if state.get("OOMKilled", False):
                 raise BuildUserError(
-                    _('Build exited due to excessive memory consumption'),
+                    _("Build exited due to excessive memory consumption"),
                 )
 
-            if state.get('Error'):
+            if state.get("Error"):
                 raise BuildAppError(
                     (
-                        _('Build exited due to unknown error: {0}')
-                        .format(state.get('Error')),
+                        _("Build exited due to unknown error: {0}").format(
+                            state.get("Error")
+                        ),
                     )
                 )
 
@@ -805,7 +800,7 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         client = self.get_client()
         try:
             log.info(
-                'Creating Docker container.',
+                "Creating Docker container.",
                 container_image=self.container_image,
                 container_id=self.container_id,
             )

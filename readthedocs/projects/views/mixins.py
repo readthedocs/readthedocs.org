@@ -28,9 +28,9 @@ class ProjectRelationMixin:
     :cvar project_context_object_name: Context object name for project
     """
 
-    project_lookup_url_kwarg = 'project_slug'
-    project_lookup_field = 'project'
-    project_context_object_name = 'project'
+    project_lookup_url_kwarg = "project_slug"
+    project_lookup_field = "project"
+    project_context_object_name = "project"
 
     def get_project_queryset(self):
         return Project.objects.for_admin_user(user=self.request.user)
@@ -60,7 +60,7 @@ class ProjectRelationListMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['subprojects_and_urls'] = self._get_subprojects_and_urls()
+        context["subprojects_and_urls"] = self._get_subprojects_and_urls()
         return context
 
     def _get_subprojects_and_urls(self):
@@ -74,7 +74,7 @@ class ProjectRelationListMixin:
         subprojects_and_urls = []
 
         project = self.get_project()
-        subprojects = project.subprojects.select_related('child')
+        subprojects = project.subprojects.select_related("child")
 
         if not subprojects.exists():
             return subprojects_and_urls
@@ -116,7 +116,7 @@ class ProjectImportMixin:
         """
         project.users.add(request.user)
         log.info(
-            'Project imported.',
+            "Project imported.",
             project_slug=project.slug,
             user_username=request.user.username,
         )
@@ -139,6 +139,7 @@ class ProjectImportMixin:
             return None
 
         from readthedocs.oauth.tasks import attach_webhook
+
         task_promise = chain(
             attach_webhook.si(project.pk, user.pk),
             update_docs,

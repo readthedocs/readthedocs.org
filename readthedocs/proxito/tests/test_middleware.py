@@ -24,14 +24,13 @@ from readthedocs.subscriptions.products import RTDProductFeature
     RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
 )
 class MiddlewareTests(RequestFactoryTestMixin, TestCase):
-
     def setUp(self):
         self.middleware = ProxitoMiddleware(lambda request: HttpResponse())
-        self.url = '/'
-        self.owner = create_user(username='owner', password='test')
+        self.url = "/"
+        self.owner = create_user(username="owner", password="test")
         self.pip = get(
             Project,
-            slug='pip',
+            slug="pip",
             users=[self.owner],
             privacy_level=PUBLIC,
         )
@@ -41,7 +40,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         return self.middleware.process_request(request)
 
     def test_proper_cname(self):
-        domain = 'docs.random.com'
+        domain = "docs.random.com"
         get(Domain, project=self.pip, domain=domain)
         request = self.request(
             method="get", secure=True, path=self.url, HTTP_HOST=domain
@@ -52,10 +51,10 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         self.assertEqual(request.unresolved_domain.project, self.pip)
 
     def test_proper_cname_https_upgrade(self):
-        cname = 'docs.random.com'
+        cname = "docs.random.com"
         get(Domain, project=self.pip, domain=cname, canonical=True, https=True)
 
-        for url in (self.url, '/subdir/'):
+        for url in (self.url, "/subdir/"):
             resp = self.client.get(path=url, secure=False, headers={"host": cname})
             self.assertEqual(resp.status_code, 302)
             self.assertEqual(resp["location"], f"https://{cname}{url}")
@@ -63,8 +62,10 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
 
     def test_canonical_cname_redirect(self):
         """Requests to the public domain URL should redirect to the custom domain if the domain is canonical/https."""
-        cname = 'docs.random.com'
-        domain = get(Domain, project=self.pip, domain=cname, canonical=False, https=False)
+        cname = "docs.random.com"
+        domain = get(
+            Domain, project=self.pip, domain=cname, canonical=False, https=False
+        )
 
         resp = self.client.get(self.url, headers={"host": "pip.dev.readthedocs.io"})
         # This is the / -> /en/latest/ redirect.
@@ -87,8 +88,8 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         """Requests to a subproject should redirect to the domain of the main project."""
         subproject = get(
             Project,
-            name='subproject',
-            slug='subproject',
+            name="subproject",
+            slug="subproject",
             users=[self.owner],
             privacy_level=PUBLIC,
         )
@@ -114,7 +115,7 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             )
 
         # Using a custom domain in a subproject isn't supported (or shouldn't be!).
-        cname = 'docs.random.com'
+        cname = "docs.random.com"
         get(
             Domain,
             project=subproject,
@@ -134,15 +135,15 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         )
 
     def test_proper_cname_uppercase(self):
-        get(Domain, project=self.pip, domain='docs.random.com')
-        request = self.request(method='get', path=self.url, HTTP_HOST='docs.RANDOM.COM')
+        get(Domain, project=self.pip, domain="docs.random.com")
+        request = self.request(method="get", path=self.url, HTTP_HOST="docs.RANDOM.COM")
         self.run_middleware(request)
         self.assertTrue(request.unresolved_domain.is_from_custom_domain)
         self.assertEqual(request.unresolved_domain.project, self.pip)
 
     def test_invalid_cname(self):
-        self.assertFalse(Domain.objects.filter(domain='my.host.com').exists())
-        request = self.request(method='get', path=self.url, HTTP_HOST='my.host.com')
+        self.assertFalse(Domain.objects.filter(domain="my.host.com").exists())
+        request = self.request(method="get", path=self.url, HTTP_HOST="my.host.com")
 
         with self.assertRaises(DomainDNSHttp404) as cm:
             self.run_middleware(request)
@@ -150,15 +151,17 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
         assert cm.exception.http_status == 404
 
     def test_proper_subdomain(self):
-        request = self.request(method='get', path=self.url, HTTP_HOST='pip.dev.readthedocs.io')
+        request = self.request(
+            method="get", path=self.url, HTTP_HOST="pip.dev.readthedocs.io"
+        )
         self.run_middleware(request)
         self.assertTrue(request.unresolved_domain.is_from_public_domain)
         self.assertEqual(request.unresolved_domain.project, self.pip)
 
-    @override_settings(PUBLIC_DOMAIN='foo.bar.readthedocs.io')
+    @override_settings(PUBLIC_DOMAIN="foo.bar.readthedocs.io")
     def test_subdomain_different_length(self):
         request = self.request(
-            method='get', path=self.url, HTTP_HOST='pip.foo.bar.readthedocs.io'
+            method="get", path=self.url, HTTP_HOST="pip.foo.bar.readthedocs.io"
         )
         self.run_middleware(request)
         self.assertTrue(request.unresolved_domain.is_from_public_domain)
@@ -169,7 +172,10 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             Feature, feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER, projects=[self.pip]
         )
         request = self.request(
-            method='get', path=self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='pip'
+            method="get",
+            path=self.url,
+            HTTP_HOST="some.random.com",
+            HTTP_X_RTD_SLUG="pip",
         )
         self.run_middleware(request)
         self.assertTrue(request.unresolved_domain.is_from_http_header)
@@ -180,7 +186,10 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             Feature, feature_id=Feature.RESOLVE_PROJECT_FROM_HEADER, projects=[self.pip]
         )
         request = self.request(
-            method='get', path=self.url, HTTP_HOST='some.random.com', HTTP_X_RTD_SLUG='PIP'
+            method="get",
+            path=self.url,
+            HTTP_HOST="some.random.com",
+            HTTP_X_RTD_SLUG="PIP",
         )
         self.run_middleware(request)
 
@@ -198,58 +207,63 @@ class MiddlewareTests(RequestFactoryTestMixin, TestCase):
             self.run_middleware(request)
 
     def test_long_bad_subdomain(self):
-        domain = 'www.pip.dev.readthedocs.io'
-        request = self.request(method='get', path=self.url, HTTP_HOST=domain)
+        domain = "www.pip.dev.readthedocs.io"
+        request = self.request(method="get", path=self.url, HTTP_HOST=domain)
         with self.assertRaises(DomainDNSHttp404) as cm:
             self.run_middleware(request)
 
         assert cm.exception.http_status == 400
 
     def test_front_slash(self):
-        domain = 'pip.dev.readthedocs.io'
+        domain = "pip.dev.readthedocs.io"
 
         # The HttpRequest needs to be created manually,
         # because the RequestFactory strips leading /'s
         request = HttpRequest()
-        request.path = '//'
-        request.META = {'HTTP_HOST': domain}
+        request.path = "//"
+        request.META = {"HTTP_HOST": domain}
         res = self.run_middleware(request)
         self.assertEqual(res.status_code, 302)
         self.assertEqual(
-            res['Location'], '/',
+            res["Location"],
+            "/",
         )
 
-        request.path = '///'
+        request.path = "///"
         res = self.run_middleware(request)
         self.assertEqual(res.status_code, 302)
         self.assertEqual(
-            res['Location'], '/',
+            res["Location"],
+            "/",
         )
 
-        request.path = '////'
+        request.path = "////"
         res = self.run_middleware(request)
         self.assertEqual(res.status_code, 302)
         self.assertEqual(
-            res['Location'], '/',
+            res["Location"],
+            "/",
         )
 
-        request.path = '////?foo'
+        request.path = "////?foo"
         res = self.run_middleware(request)
         self.assertEqual(res.status_code, 302)
         self.assertEqual(
-            res['Location'], '/%3Ffoo',  # Encoded because it's in the middleware
+            res["Location"],
+            "/%3Ffoo",  # Encoded because it's in the middleware
         )
 
     def test_front_slash_url(self):
-        domain = 'pip.dev.readthedocs.io'
+        domain = "pip.dev.readthedocs.io"
 
         # The HttpRequest needs to be created manually,
         # because the RequestFactory strips leading /'s
         request = HttpRequest()
-        request.path = '//google.com'
-        request.META = {'HTTP_HOST': domain}
+        request.path = "//google.com"
+        request.META = {"HTTP_HOST": domain}
         res = self.run_middleware(request)
         self.assertEqual(res.status_code, 302)
         self.assertEqual(
-            res['Location'], '/google.com',
+            res["Location"],
+            "/google.com",
         )
