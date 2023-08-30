@@ -174,15 +174,21 @@ class AddonsResponse:
         It tries to follow some similarity with the APIv3 for already-known resources
         (Project, Version, Build, etc).
         """
-        versions_active_built_not_hidden = (
-            Version.internal.public(project=project, only_active=True, only_built=True)
-            .exclude(hidden=True)
-            .only("slug")
-            .order_by("slug")
-        )
-        version_downloads = (
-            version.get_downloads(pretty=True).items() if version else []
-        )
+        version_downloads = []
+        versions_active_built_not_hidden = Version.objects.none()
+
+        if not project.single_version:
+            versions_active_built_not_hidden = (
+                Version.internal.public(
+                    project=project, only_active=True, only_built=True
+                )
+                .exclude(hidden=True)
+                .only("slug")
+                .order_by("slug")
+            )
+            if version:
+                version_downloads = version.get_downloads(pretty=True).items()
+
         project_translations = (
             project.translations.all().only("language").order_by("language")
         )
