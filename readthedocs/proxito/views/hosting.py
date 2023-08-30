@@ -180,6 +180,9 @@ class AddonsResponse:
             .only("slug")
             .order_by("slug")
         )
+        version_downloads = (
+            version.get_downloads(pretty=True).items() if version else []
+        )
         project_translations = (
             project.translations.all().only("language").order_by("language")
         )
@@ -283,7 +286,7 @@ class AddonsResponse:
                             "name": name,
                             "url": url,
                         }
-                        for name, url in version.get_downloads(pretty=True).items()
+                        for name, url in version_downloads
                     ],
                     # TODO: find a way to get this data in a reliably way.
                     # We don't have a simple way to map a URL to a file in the repository.
