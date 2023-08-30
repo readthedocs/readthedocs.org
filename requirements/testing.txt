@@ -362,7 +362,7 @@ slumber==0.7.1
     # via -r requirements/pip.txt
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==7.2.3
+sphinx==7.2.4
     # via
     #   -r requirements/testing.in
     #   sphinxcontrib-applehelp
