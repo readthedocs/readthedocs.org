@@ -48,7 +48,7 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parsers import GenericParser, SphinxParser
+from readthedocs.search.parsers import GenericParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
@@ -1427,23 +1427,7 @@ class HTMLFile(ImportedFile):
     objects = HTMLFileManager()
 
     def get_processed_json(self):
-        if (
-            self.version.documentation_type == constants.GENERIC
-            or self.version.is_mkdocs_type
-            or self.project.has_feature(Feature.INDEX_FROM_HTML_FILES)
-        ):
-            parser_class = GenericParser
-        elif self.version.is_sphinx_type:
-            parser_class = SphinxParser
-        else:
-            log.warning(
-                "Invalid documentation type",
-                documentation_type=self.version.documentation_type,
-                version_slug=self.version.slug,
-                project_slug=self.project.slug,
-            )
-            return {}
-        parser = parser_class(self.version)
+        parser = GenericParser(self.version)
         return parser.parse(self.path)
 
     @cached_property
@@ -1832,7 +1816,6 @@ class Feature(models.Model):
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
-    INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
@@ -1958,13 +1941,6 @@ class Feature(models.Model):
         (
             DEFAULT_TO_FUZZY_SEARCH,
             _("Search: Default to fuzzy search for simple search queries"),
-        ),
-        (
-            INDEX_FROM_HTML_FILES,
-            _(
-                "Search: Index content directly from html files instead or relying in other "
-                "sources"
-            ),
         ),
         # Build related features.
         (

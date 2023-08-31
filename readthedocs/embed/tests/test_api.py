@@ -281,14 +281,8 @@ class BaseTestEmbedAPI:
         assert response.data == expected
         assert response['Cache-tag'] == 'project,project:latest'
 
-    @mock.patch('readthedocs.embed.views.build_media_storage')
-    def test_embed_mkdocs(self, storage_mock, client):
-        json_file = data_path / 'mkdocs/latest/index.json'
-        storage_mock.exists.return_value = True
-        storage_mock.open.side_effect = self._mock_open(
-            json_file.open().read()
-        )
-
+    def test_embed_mkdocs(self, client):
+        """API v2 doesn't support mkdocs."""
         self.version.documentation_type = MKDOCS
         self.version.save()
 
@@ -303,31 +297,7 @@ class BaseTestEmbedAPI:
             }
         )
 
-        expected = {
-            'content': mock.ANY,  # too long to compare here
-            'headers': [
-                {'Overview': 'overview'},
-                {'Installation': 'installation'},
-                {'Getting Started': 'getting-started'},
-                {'Adding pages': 'adding-pages'},
-                {'Theming our documentation': 'theming-our-documentation'},
-                {'Changing the Favicon Icon': 'changing-the-favicon-icon'},
-                {'Building the site': 'building-the-site'},
-                {'Other Commands and Options': 'other-commands-and-options'},
-                {'Deploying': 'deploying'},
-                {'Getting help': 'getting-help'},
-            ],
-            'url': 'http://project.readthedocs.io/en/latest/index.html',
-            'meta': {
-                'project': 'project',
-                'version': 'latest',
-                'doc': 'index',
-                'section': 'Installation',
-            },
-        }
-
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data == expected
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_no_access(self, client, settings):
         settings.RTD_DEFAULT_FEATURES = {}
