@@ -12,20 +12,20 @@ from .base import BaseDocServing
 
 
 @override_settings(
-    PUBLIC_DOMAIN='dev.readthedocs.io',
+    PUBLIC_DOMAIN="dev.readthedocs.io",
     RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
     PUBLIC_DOMAIN_USES_HTTPS=True,
     RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
 )
 class RedirectTests(BaseDocServing):
-
     def test_root_url_no_slash(self):
         r = self.client.get(
             "", secure=True, headers={"host": "project.dev.readthedocs.io"}
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/en/latest/',
+            r["Location"],
+            "https://project.dev.readthedocs.io/en/latest/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "project")
@@ -37,7 +37,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/en/latest/',
+            r["Location"],
+            "https://project.dev.readthedocs.io/en/latest/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "project")
@@ -50,7 +51,8 @@ class RedirectTests(BaseDocServing):
         r = self.client.get("/", headers={"host": self.domain.domain}, secure=True)
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], f'https://{self.domain.domain}/en/latest/',
+            r["Location"],
+            f"https://{self.domain.domain}/en/latest/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "project")
@@ -63,7 +65,8 @@ class RedirectTests(BaseDocServing):
         r = self.client.get("", headers={"host": self.domain.domain}, secure=True)
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], f'https://{self.domain.domain}/en/latest/',
+            r["Location"],
+            f"https://{self.domain.domain}/en/latest/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "project")
@@ -85,7 +88,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/en/latest/',
+            r["Location"],
+            "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
@@ -99,7 +103,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/en/latest/',
+            r["Location"],
+            "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
@@ -115,7 +120,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/',
+            r["Location"],
+            "https://project.dev.readthedocs.io/projects/subproject/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "subproject,subproject:latest")
@@ -152,7 +158,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/en/latest/',
+            r["Location"],
+            "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
@@ -167,7 +174,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/en/latest/foo/bar',
+            r["Location"],
+            "https://project.dev.readthedocs.io/projects/subproject/en/latest/foo/bar",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
@@ -184,7 +192,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'https://docs1.example.com/projects/subproject/en/latest/foo/bar',
+            r["Location"],
+            "https://docs1.example.com/projects/subproject/en/latest/foo/bar",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
@@ -201,7 +210,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/',
+            r["Location"],
+            "https://project.dev.readthedocs.io/projects/subproject/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
@@ -214,7 +224,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'https://project.dev.readthedocs.io/projects/subproject/foo/bar/',
+            r["Location"],
+            "https://project.dev.readthedocs.io/projects/subproject/foo/bar/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
@@ -229,7 +240,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], 'https://docs1.example.com/projects/subproject/foo/bar',
+            r["Location"],
+            "https://docs1.example.com/projects/subproject/foo/bar",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "subproject")
@@ -243,8 +255,7 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'],
-            'https://project.dev.readthedocs.io/en/latest/?foo=bar'
+            r["Location"], "https://project.dev.readthedocs.io/en/latest/?foo=bar"
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "project")
@@ -257,7 +268,8 @@ class RedirectTests(BaseDocServing):
         r = self.client.get("/", headers={"host": self.domain.domain})
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], f'https://{self.domain.domain}/',
+            r["Location"],
+            f"https://{self.domain.domain}/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "project")
@@ -269,7 +281,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], f'https://{self.domain.domain}/en/latest/404after302',
+            r["Location"],
+            f"https://{self.domain.domain}/en/latest/404after302",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "project")
@@ -285,7 +298,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], f'https://{self.domain.domain}/',
+            r["Location"],
+            f"https://{self.domain.domain}/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "project")
@@ -299,7 +313,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], f'https://{self.domain.domain}/en/latest/404after302',
+            r["Location"],
+            f"https://{self.domain.domain}/en/latest/404after302",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "project")
@@ -311,7 +326,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], f'https://project.dev.readthedocs.io/es/latest/',
+            r["Location"],
+            f"https://project.dev.readthedocs.io/es/latest/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "translation")
@@ -323,7 +339,8 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'], f'https://project.dev.readthedocs.io/es/latest/',
+            r["Location"],
+            f"https://project.dev.readthedocs.io/es/latest/",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "translation")
@@ -338,67 +355,73 @@ class RedirectTests(BaseDocServing):
         )
         self.assertEqual(r.status_code, 302)
         self.assertEqual(
-            r['Location'],
-            'https://project.dev.readthedocs.io/en/latest/test.html',
+            r["Location"],
+            "https://project.dev.readthedocs.io/en/latest/test.html",
         )
         self.assertEqual(r.headers["CDN-Cache-Control"], "public")
         self.assertEqual(r.headers["Cache-Tag"], "project")
         self.assertEqual(r["X-RTD-Redirect"], RedirectType.system.name)
 
     def test_slash_redirect(self):
-        host = 'project.dev.readthedocs.io'
+        host = "project.dev.readthedocs.io"
 
-        url = '/en/latest////awesome.html'
+        url = "/en/latest////awesome.html"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
-            resp['Location'], '/en/latest/awesome.html',
+            resp["Location"],
+            "/en/latest/awesome.html",
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
-        url = '/en/latest////awesome.html'
+        url = "/en/latest////awesome.html"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
-            resp['Location'], '/en/latest/awesome.html',
+            resp["Location"],
+            "/en/latest/awesome.html",
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
-        url = '/en/latest////awesome///index.html'
+        url = "/en/latest////awesome///index.html"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
-            resp['Location'], '/en/latest/awesome/index.html',
+            resp["Location"],
+            "/en/latest/awesome/index.html",
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
-        url = '/en/latest////awesome///index.html?foo=bar'
+        url = "/en/latest////awesome///index.html?foo=bar"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
-            resp['Location'], '/en/latest/awesome/index.html?foo=bar',
+            resp["Location"],
+            "/en/latest/awesome/index.html?foo=bar",
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
-        url = '/en/latest////awesome///'
+        url = "/en/latest////awesome///"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
-            resp['Location'], '/en/latest/awesome/',
+            resp["Location"],
+            "/en/latest/awesome/",
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
 
         # Don't change the values of params
-        url = '/en/latest////awesome///index.html?foo=bar//bas'
+        url = "/en/latest////awesome///index.html?foo=bar//bas"
         resp = self.client.get(url, secure=True, headers={"host": host})
         self.assertEqual(resp.status_code, 302)
         self.assertEqual(
-            resp['Location'], '/en/latest/awesome/index.html?foo=bar//bas',
+            resp["Location"],
+            "/en/latest/awesome/index.html?foo=bar//bas",
         )
         self.assertEqual(resp.headers["CDN-Cache-Control"], "public")
         self.assertEqual(resp.headers["Cache-Tag"], "project")
