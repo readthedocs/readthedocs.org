@@ -27,7 +27,7 @@ from readthedocs.projects.version_handling import (
 log = structlog.get_logger(__name__)
 
 
-def get_version_compare_data(project, base_version=None):
+def get_version_compare_data(project, user=None, base_version=None):
     """
     Retrieve metadata about the highest version available for this project.
 
@@ -40,9 +40,8 @@ def get_version_compare_data(project, base_version=None):
     ):
         return {'is_highest': False}
 
-    versions_qs = (
-        Version.internal.public(project=project)
-        .filter(built=True, active=True)
+    versions_qs = Version.internal.public(project=project, user=user).filter(
+        built=True, active=True
     )
 
     # Take preferences over tags only if the project has at least one tag
@@ -211,6 +210,7 @@ class BaseFooterHTML(CDNCacheTagsMixin, APIView):
         version_compare_data = get_version_compare_data(
             project,
             version,
+            user=request.user,
         )
 
         context = self._get_context()
