@@ -54,9 +54,6 @@ from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
     DOWNLOADABLE_MEDIA_TYPES,
-    MEDIA_TYPE_EPUB,
-    MEDIA_TYPE_HTMLZIP,
-    MEDIA_TYPE_PDF,
     MEDIA_TYPES,
 )
 
@@ -850,34 +847,6 @@ class Project(models.Model):
         if hasattr(self, '_good_build'):
             return self._good_build
         return self.builds(manager=INTERNAL).filter(success=True).exists()
-
-    def has_media(self, type_, version_slug=LATEST, version_type=None):
-        storage_path = self.get_storage_path(
-            type_=type_, version_slug=version_slug,
-            version_type=version_type
-        )
-        return build_media_storage.exists(storage_path)
-
-    def has_pdf(self, version_slug=LATEST, version_type=None):
-        return self.has_media(
-            MEDIA_TYPE_PDF,
-            version_slug=version_slug,
-            version_type=version_type
-        )
-
-    def has_epub(self, version_slug=LATEST, version_type=None):
-        return self.has_media(
-            MEDIA_TYPE_EPUB,
-            version_slug=version_slug,
-            version_type=version_type
-        )
-
-    def has_htmlzip(self, version_slug=LATEST, version_type=None):
-        return self.has_media(
-            MEDIA_TYPE_HTMLZIP,
-            version_slug=version_slug,
-            version_type=version_type
-        )
 
     def vcs_repo(
         self,

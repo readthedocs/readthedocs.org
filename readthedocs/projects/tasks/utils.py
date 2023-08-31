@@ -67,6 +67,7 @@ def clean_project_resources(project, version=None):
 
     - Artifacts from storage.
     - Search indexes from ES.
+    - Imported files.
 
     :param version: Version instance. If isn't given,
                     all resources of `project` will be deleted.
@@ -89,6 +90,12 @@ def clean_project_resources(project, version=None):
         project_slug=project.slug,
         version_slug=version.slug if version else None,
     )
+
+    # Remove imported files
+    if version:
+        version.imported_files.all().delete()
+    else:
+        project.imported_files.all().delete()
 
 
 @app.task()
