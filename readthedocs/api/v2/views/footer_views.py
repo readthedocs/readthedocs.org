@@ -27,7 +27,7 @@ from readthedocs.projects.version_handling import (
 log = structlog.get_logger(__name__)
 
 
-def get_version_compare_data(project, user=None, base_version=None):
+def get_version_compare_data(project, base_version=None, user=None):
     """
     Retrieve metadata about the highest version available for this project.
 
@@ -209,7 +209,7 @@ class BaseFooterHTML(CDNCacheTagsMixin, APIView):
         version = self._get_version()
         version_compare_data = get_version_compare_data(
             project,
-            version,
+            base_version=version,
             user=request.user,
         )
 
