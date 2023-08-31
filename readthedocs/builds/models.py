@@ -319,7 +319,7 @@ class Version(TimeStampedModel):
         :rtype: dict
         """
         last_build = (
-            self.builds(manager=INTERNAL).filter(
+            self.builds.filter(
                 state=BUILD_STATE_FINISHED,
                 success=True,
             ).order_by('-date')

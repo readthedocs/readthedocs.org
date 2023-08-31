@@ -2,11 +2,12 @@ from fnmatch import fnmatch
 
 import structlog
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
 from readthedocs.projects.signals import files_changed
-from readthedocs.search.utils import index_new_files, remove_indexed_files
+from readthedocs.search.utils import remove_indexed_files
+from django_elasticsearch_dsl.registries import registry
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -43,7 +44,7 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
         _create_imported_files(
             version=version,
             commit=commit,
-            build=build,
+            build_id=build,
             search_ranking=search_ranking,
             search_ignore=search_ignore,
         )
@@ -64,9 +65,6 @@ def _sync_imported_files(version, build):
     :param build: Build id
     """
     project = version.project
-
-    # Index new HTMLFiles to ElasticSearch
-    index_new_files(model=HTMLFile, version=version, build=build)
 
     # Remove old HTMLFiles from ElasticSearch
     remove_indexed_files(
@@ -95,7 +93,35 @@ def remove_search_indexes(project_slug, version_slug=None):
     )
 
 
-def _create_imported_files(*, version, commit, build, search_ranking, search_ignore):
+def reindex_version(version):
+    """
+    Reindex all files of this version.
+    """
+    latest_successful_build = version.builds.filter(
+        state=BUILD_STATE_FINISHED, success=True
+    ).order_by("-date").first()
+    # If the version doesn't have a successful
+    # build, we don't have files to index.
+    if not latest_successful_build:
+        return
+
+    search_ranking = []
+    search_ignore = []
+    build_config = latest_successful_build.config
+    if build_config:
+        search_ranking = build_config.search.ranking
+        search_ignore = build_config.search.ignore
+
+    _create_imported_files(
+        version=version,
+        commit=latest_successful_build.commit,
+        build_id=latest_successful_build.id,
+        search_ranking=search_ranking,
+        search_ignore=search_ignore,
+    )
+
+
+def _create_imported_files(*, version, commit, build_id, search_ranking, search_ignore):
     """
     Create imported files for version.
 
@@ -107,6 +133,9 @@ def _create_imported_files(*, version, commit, build, search_ranking, search_ign
     storage_path = version.project.get_storage_path(
         type_='html', version_slug=version.slug, include_file=False
     )
+    html_files_to_index = []
+    html_files_to_save = []
+    reverse_rankings = reversed(list(search_ranking.items()))
     for root, __, filenames in build_media_storage.walk(storage_path):
         for filename in filenames:
             # We don't care about non-HTML files
@@ -118,33 +147,59 @@ def _create_imported_files(*, version, commit, build, search_ranking, search_ign
             # Generate a relative path for storage similar to os.path.relpath
             relpath = full_path.replace(storage_path, '', 1).lstrip('/')
 
-            page_rank = 0
-            # Last pattern to match takes precedence
-            # XXX: see if we can implement another type of precedence,
-            # like the longest pattern.
-            reverse_rankings = reversed(list(search_ranking.items()))
-            for pattern, rank in reverse_rankings:
-                if fnmatch(relpath, pattern):
-                    page_rank = rank
-                    break
-
             ignore = False
-            for pattern in search_ignore:
-                if fnmatch(relpath, pattern):
-                    ignore = True
-                    break
+            if version.is_external:
+                # Never index files from external versions.
+                ignore = True
+            else:
+                for pattern in search_ignore:
+                    if fnmatch(relpath, pattern):
+                        ignore = True
+                        break
 
-            # Create imported files from new build
-            HTMLFile.objects.create(
+            page_rank = 0
+            # If the file is ignored, we don't need to check for its ranking.
+            if not ignore:
+                # Last pattern to match takes precedence
+                # XXX: see if we can implement another type of precedence,
+                # like the longest pattern.
+                for pattern, rank in reverse_rankings:
+                    if fnmatch(relpath, pattern):
+                        page_rank = rank
+                        break
+
+            html_file = HTMLFile(
                 project=version.project,
                 version=version,
                 path=relpath,
                 name=filename,
                 rank=page_rank,
                 commit=commit,
-                build=build,
+                build=build_id,
                 ignore=ignore,
             )
+
+            # Don't index files that are ignored.
+            if not ignore:
+                html_files_to_index.append(html_file)
+
+            # Create the imported file only if it's a top-level 404 file,
+            # or if it's an index file. We don't need to keep track of all files.
+            is_top_level_404_file = filename == "404.html" and root == storage_path
+            is_index_file = filename in ["index.html", "README.html"]
+            if is_top_level_404_file or is_index_file:
+                html_files_to_save.append(html_file)
+
+        # We first index the files in ES, and then save the objects in the DB.
+        # This is because saving the objects in the DB will give them an id,
+        # and we neeed this id to be `None` when indexing the objects in ES.
+        # ES will generate a unique id for each document.
+        if html_files_to_index:
+            document = list(registry.get_documents(models=[HTMLFile]))[0]
+            document().update(html_files_to_index)
+
+        if html_files_to_save:
+            HTMLFile.objects.bulk_create(html_files_to_save)
 
     # This signal is used for purging the CDN.
     files_changed.send(

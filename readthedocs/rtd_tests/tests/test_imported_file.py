@@ -36,7 +36,7 @@ class ImportedFileTests(TestCase):
         _create_imported_files(
             version=version,
             commit=commit,
-            build=build,
+            build_id=build,
             search_ranking=search_ranking,
             search_ignore=search_ignore,
         )

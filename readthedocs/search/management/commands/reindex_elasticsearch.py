@@ -8,6 +8,8 @@ from django.apps import apps
 from django.conf import settings
 from django.core.management import BaseCommand
 from django_elasticsearch_dsl.registries import registry
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
+from projects.tasks.search import reindex_version
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile, Project
@@ -49,6 +51,17 @@ class Command(BaseCommand):
         log.info("Adding indexing tasks to queue.", queue=queue)
 
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+
+        # TODO: move this to where it makes sense :D
+        qs = (
+            Version.objects
+            .filter(built=True, builds__state=BUILD_STATE_FINISHED, builds_success=True)
+            .exclude(project__delisted=True)
+            .exclude(project__is_spam=True)
+            .select_related("project")
+        )
+        for version in qs.iterator():
+            reindex_version(version)
 
         for doc in registry.get_documents(models):
             queryset = doc().get_queryset()
