@@ -161,6 +161,7 @@ def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
             url=url,
         )
     else:
+        log.info("Using EmbedAPIv2 for a non Sphinx project.")
         return None
 
     if content is None:
