@@ -106,14 +106,14 @@ class ResolverBase:
         )
 
     def resolve_path(
-            self,
-            project,
-            filename='',
-            version_slug=None,
-            language=None,
-            single_version=None,
-            subdomain=None,
-            cname=None,
+        self,
+        project,
+        filename="",
+        version_slug=None,
+        language=None,
+        single_version=None,
+        subdomain=None,
+        cname=None,
     ):
         """Resolve a URL with a subset of fields defined."""
         version_slug = version_slug or project.get_default_version()
@@ -169,10 +169,15 @@ class ResolverBase:
         return settings.PRODUCTION_DOMAIN
 
     def resolve(
-            self, project, require_https=False, filename='', query_params='',
-            external=None, **kwargs
+        self,
+        project,
+        require_https=False,
+        filename="",
+        query_params="",
+        external=None,
+        **kwargs,
     ):
-        version_slug = kwargs.get('version_slug')
+        version_slug = kwargs.get("version_slug")
 
         if version_slug is None:
             version_slug = project.get_default_version()
@@ -192,25 +197,27 @@ class ResolverBase:
         else:
             domain = settings.PRODUCTION_DOMAIN
 
-        use_https_protocol = any([
-            # Rely on the ``Domain.https`` field
-            use_custom_domain and custom_domain.https,
-            # or force it if specified
-            require_https,
-            # or fallback to settings
-            settings.PUBLIC_DOMAIN_USES_HTTPS and
-            settings.PUBLIC_DOMAIN and
-            any([
-                settings.PUBLIC_DOMAIN in domain,
-                settings.RTD_EXTERNAL_VERSION_DOMAIN in domain,
-            ]),
-        ])
-        protocol = 'https' if use_https_protocol else 'http'
-
-        path = self.resolve_path(
-            project, filename=filename, **kwargs
+        use_https_protocol = any(
+            [
+                # Rely on the ``Domain.https`` field
+                use_custom_domain and custom_domain.https,
+                # or force it if specified
+                require_https,
+                # or fallback to settings
+                settings.PUBLIC_DOMAIN_USES_HTTPS
+                and settings.PUBLIC_DOMAIN
+                and any(
+                    [
+                        settings.PUBLIC_DOMAIN in domain,
+                        settings.RTD_EXTERNAL_VERSION_DOMAIN in domain,
+                    ]
+                ),
+            ]
         )
-        return urlunparse((protocol, domain, path, '', query_params, ''))
+        protocol = "https" if use_https_protocol else "http"
+
+        path = self.resolve_path(project, filename=filename, **kwargs)
+        return urlunparse((protocol, domain, path, "", query_params, ""))
 
     def get_subproject_url_prefix(self, project, external_version_slug=None):
         """
@@ -336,20 +343,21 @@ class ResolverBase:
 
     def _get_external_subdomain(self, project, version_slug):
         """Determine domain for an external version."""
-        subdomain_slug = project.slug.replace('_', '-')
+        subdomain_slug = project.slug.replace("_", "-")
         # Version slug is in the domain so we can properly serve single-version projects
         # and have them resolve the proper version from the PR.
-        return f'{subdomain_slug}--{version_slug}.{settings.RTD_EXTERNAL_VERSION_DOMAIN}'
+        return (
+            f"{subdomain_slug}--{version_slug}.{settings.RTD_EXTERNAL_VERSION_DOMAIN}"
+        )
 
     def _get_project_subdomain(self, project):
         """Determine canonical project domain as subdomain."""
-        subdomain_slug = project.slug.replace('_', '-')
-        return '{}.{}'.format(subdomain_slug, settings.PUBLIC_DOMAIN)
+        subdomain_slug = project.slug.replace("_", "-")
+        return "{}.{}".format(subdomain_slug, settings.PUBLIC_DOMAIN)
 
     def _is_external(self, project, version_slug):
         type_ = (
-            project.versions
-            .values_list('type', flat=True)
+            project.versions.values_list("type", flat=True)
             .filter(slug=version_slug)
             .first()
         )
@@ -361,7 +369,7 @@ class ResolverBase:
 
         This basically means stripping /.
         """
-        filename = filename.lstrip('/')
+        filename = filename.lstrip("/")
         return filename
 
     def _use_custom_domain(self, custom_domain):
@@ -387,7 +395,7 @@ class ResolverBase:
 class Resolver(SettingsOverrideObject):
 
     _default_class = ResolverBase
-    _override_setting = 'RESOLVER_CLASS'
+    _override_setting = "RESOLVER_CLASS"
 
 
 resolver = Resolver()

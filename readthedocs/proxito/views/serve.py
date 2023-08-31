@@ -444,8 +444,10 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         # If we were able to resolve to a valid version, it means that the
         # current file doesn't exist. So we check if we can redirect to its
         # index file if it exists before doing anything else.
+        # If the version isn't marked as built, we don't check for index files,
+        # since the version doesn't have any files.
         # This is /en/latest/foo -> /en/latest/foo/index.html.
-        if version:
+        if version and version.built:
             response = self._get_index_file_redirect(
                 request=request,
                 project=project,
@@ -549,15 +551,18 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
 
         We check for a 404.html or 404/index.html file.
 
+        We don't check for a custom 404 page in versions that aren't marked as built,
+        since they don't have any files.
+
         If a 404 page is found, we return a response with the content of that file,
         `None` otherwise.
         """
-        versions_404 = [version] if version else []
+        versions_404 = [version] if version and version.built else []
         if not version or version.slug != project.default_version:
             default_version = project.versions.filter(
                 slug=project.default_version
             ).first()
-            if default_version:
+            if default_version and default_version.built:
                 versions_404.append(default_version)
 
         if not versions_404:
@@ -594,11 +599,15 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                     version_slug_404=version_404.slug,
                     storage_filename_path=storage_filename_path,
                 )
-                resp = HttpResponse(
-                    build_media_storage.open(storage_filename_path).read()
-                )
-                resp.status_code = 404
-                return resp
+                try:
+                    content = build_media_storage.open(storage_filename_path).read()
+                    return HttpResponse(content, status=404)
+                except FileNotFoundError:
+                    log.warning(
+                        "File not found in storage. File out of sync with DB.",
+                        file=storage_filename_path,
+                    )
+                    return None
         return None
 
     def _get_index_file_redirect(self, request, project, version, filename, full_path):

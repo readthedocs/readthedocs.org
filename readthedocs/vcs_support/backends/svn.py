@@ -12,14 +12,14 @@ class Backend(BaseVCS):
     """Subversion VCS backend."""
 
     supports_tags = False
-    fallback_branch = '/trunk/'
+    fallback_branch = "/trunk/"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.repo_url[-1] != '/':
+        if self.repo_url[-1] != "/":
             self.base_url = self.repo_url
-            self.repo_url += '/'
-        elif self.repo_url.endswith('/trunk/'):
+            self.repo_url += "/"
+        elif self.repo_url.endswith("/trunk/"):
             self.supports_tags = True
             self.base_url = self.repo_url[:-7]
         else:
@@ -35,7 +35,7 @@ class Backend(BaseVCS):
             url = self.get_url(self.base_url, identifier)
         else:
             url = self.repo_url
-        retcode, out, err = self.run('svn', 'checkout', url, '.')
+        retcode, out, err = self.run("svn", "checkout", url, ".")
         if retcode != 0:
             raise RepositoryError(RepositoryError.CLONE_ERROR())
         return retcode, out, err
@@ -43,9 +43,9 @@ class Backend(BaseVCS):
     @property
     def tags(self):
         retcode, stdout = self.run(
-            'svn',
-            'list',
-            '%s/tags/' % self.base_url,
+            "svn",
+            "list",
+            "%s/tags/" % self.base_url,
             record_as_success=True,
         )[:2]
         # error (or no tags found)
@@ -70,15 +70,15 @@ class Backend(BaseVCS):
         # StringIO below is expecting Unicode data, so ensure that it gets it.
         if not isinstance(data, str):
             data = str(data)
-        raw_tags = csv.reader(StringIO(data), delimiter='/')
+        raw_tags = csv.reader(StringIO(data), delimiter="/")
         vcs_tags = []
         for name, _ in raw_tags:
-            vcs_tags.append(VCSVersion(self, '/tags/%s/' % name, name))
+            vcs_tags.append(VCSVersion(self, "/tags/%s/" % name, name))
         return vcs_tags
 
     @property
     def commit(self):
-        _, stdout = self.run('svnversion')[:2]
+        _, stdout = self.run("svnversion")[:2]
         return stdout.strip()
 
     def checkout(self, identifier=None):
@@ -86,7 +86,7 @@ class Backend(BaseVCS):
         return self.co(identifier)
 
     def get_url(self, base_url, identifier):
-        base = base_url.rstrip('/')
-        tag = identifier.lstrip('/')
-        url = '{}/{}'.format(base, tag)
+        base = base_url.rstrip("/")
+        tag = identifier.lstrip("/")
+        url = "{}/{}".format(base, tag)
         return url

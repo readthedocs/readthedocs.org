@@ -197,7 +197,7 @@ class ServeDocsMixin:
         """Create an audit log of the page view if audit is enabled."""
         # Remove any query args (like the token access from AWS).
         path_only = urlparse(path).path
-        track_file = path_only.endswith(('.html', '.pdf', '.epub', '.zip'))
+        track_file = path_only.endswith((".html", ".pdf", ".epub", ".zip"))
         if track_file and self._is_audit_enabled(project):
             action = AuditLog.DOWNLOAD if download else AuditLog.PAGEVIEW
             AuditLog.objects.new(
@@ -235,23 +235,23 @@ class ServeDocsMixin:
         """
         original_path = copy.copy(path)
         if not path.startswith(f"/{root_path}/"):
-            if path[0] == '/':
+            if path[0] == "/":
                 path = path[1:]
             path = f"/{root_path}/{path}"
 
         log.debug(
-            'Nginx serve.',
+            "Nginx serve.",
             original_path=original_path,
             path=path,
         )
 
         content_type, encoding = mimetypes.guess_type(path)
-        content_type = content_type or 'application/octet-stream'
+        content_type = content_type or "application/octet-stream"
         response = HttpResponse(
-            f'Serving internal path: {path}', content_type=content_type
+            f"Serving internal path: {path}", content_type=content_type
         )
         if encoding:
-            response['Content-Encoding'] = encoding
+            response["Content-Encoding"] = encoding
 
         # NGINX does not support non-ASCII characters in the header, so we
         # convert the IRI path to URI so it's compatible with what NGINX expects
@@ -259,7 +259,7 @@ class ServeDocsMixin:
         # https://github.com/benoitc/gunicorn/issues/1448
         # https://docs.djangoproject.com/en/1.11/ref/unicode/#uri-and-iri-handling
         x_accel_redirect = iri_to_uri(path)
-        response['X-Accel-Redirect'] = x_accel_redirect
+        response["X-Accel-Redirect"] = x_accel_redirect
 
         # Needed to strip any GET args, etc.
         response.proxito_path = urlparse(path).path
@@ -276,19 +276,20 @@ class ServeDocsMixin:
         return serve(request, path, root_path)
 
     def _serve_401(self, request, project):
-        res = render(request, '401.html')
+        res = render(request, "401.html")
         res.status_code = 401
-        log.debug('Unauthorized access to documentation.', project_slug=project.slug)
+        log.debug("Unauthorized access to documentation.", project_slug=project.slug)
         return res
 
     def allowed_user(self, request, version):
         return True
 
     def _spam_response(self, request, project):
-        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import is_serve_docs_denied  # noqa
+
             if is_serve_docs_denied(project):
-                return render(request, template_name='spam.html', status=410)
+                return render(request, template_name="spam.html", status=410)
 
 
 class ServeRedirectMixin:
@@ -365,7 +366,7 @@ class ServeRedirectMixin:
         # However, if the new_path is already an absolute URI, just use it
         new_path = request.build_absolute_uri(new_path)
         log.debug(
-            'Redirecting...',
+            "Redirecting...",
             from_url=request.build_absolute_uri(proxito_path),
             to_url=new_path,
             http_status_code=http_status,
@@ -381,7 +382,7 @@ class ServeRedirectMixin:
         ):
             # check that we do have a response and avoid infinite redirect
             log.debug(
-                'Infinite Redirect: FROM URL is the same than TO URL.',
+                "Infinite Redirect: FROM URL is the same than TO URL.",
                 url=new_path,
             )
             raise InfiniteRedirectException()
