@@ -199,6 +199,7 @@ class Version(TimeStampedModel):
         _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
         default=None,
         null=True,
+        blank=True,
     )
 
     addons = models.BooleanField(
