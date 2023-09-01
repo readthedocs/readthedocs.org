@@ -1213,7 +1213,7 @@ class ProjectPullRequestsUpdate(PrivateViewMixin, UpdateView):
     model = Project
     form_class = ProjectPullRequestForm
     success_message = _("Pull request settings have been updated")
-    template_name = "projects/project_pull_requests.html"
+    template_name = "projects/pull_requests_form.html"
     lookup_url_kwarg = "project_slug"
     lookup_field = "slug"
 
