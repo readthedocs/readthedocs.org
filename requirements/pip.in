@@ -7,6 +7,9 @@ django-extensions
 django-polymorphic
 django-autoslug
 
+# https://www.psycopg.org/psycopg3/docs/basic/install.html
+psycopg[binary,pool]
+
 # 3.1.0 includes changes that require running `makemigrations`
 # https://django-simple-history.readthedocs.io/en/latest/#changes
 django-simple-history==3.0.0

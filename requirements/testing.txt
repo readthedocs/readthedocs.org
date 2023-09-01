@@ -265,6 +265,16 @@ prompt-toolkit==3.0.39
     # via
     #   -r requirements/pip.txt
     #   click-repl
+psycopg[binary,pool]==3.1.10
+    # via -r requirements/pip.txt
+psycopg-binary==3.1.10
+    # via
+    #   -r requirements/pip.txt
+    #   psycopg
+psycopg-pool==3.1.7
+    # via
+    #   -r requirements/pip.txt
+    #   psycopg
 pycparser==2.21
     # via
     #   -r requirements/pip.txt
@@ -405,6 +415,8 @@ typing-extensions==4.7.1
     # via
     #   -r requirements/pip.txt
     #   asgiref
+    #   psycopg
+    #   psycopg-pool
 tzdata==2023.3
     # via
     #   -r requirements/pip.txt
