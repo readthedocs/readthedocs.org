@@ -12,9 +12,9 @@ async-timeout==4.0.3
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.28.35
+boto3==1.28.40
     # via django-storages
-botocore==1.31.35
+botocore==1.31.40
     # via
     #   boto3
     #   s3transfer
@@ -149,7 +149,7 @@ elasticsearch-dsl==7.4.1
     # via
     #   -r requirements/pip.in
     #   django-elasticsearch-dsl
-filelock==3.12.2
+filelock==3.12.3
     # via virtualenv
 funcy==1.18
     # via django-cacheops
@@ -165,7 +165,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.in
     #   dj-stripe
-kombu==5.3.1
+kombu==5.3.2
     # via celery
 lxml==4.9.3
     # via pyquery
@@ -267,6 +267,7 @@ tomli==2.0.1
 typing-extensions==4.7.1
     # via
     #   asgiref
+    #   filelock
     #   psycopg
     #   psycopg-pool
 tzdata==2023.3
@@ -292,7 +293,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.24.3
+virtualenv==20.24.4
     # via -r requirements/pip.in
 wcwidth==0.2.6
     # via prompt-toolkit
