@@ -7,13 +7,13 @@ from django.contrib.auth.models import AnonymousUser
 from django.http import Http404, JsonResponse
 from django.views import View
 
+from readthedocs.api.mixins import CDNCacheTagsMixin
 from readthedocs.api.v3.serializers import (
     BuildSerializer,
     ProjectSerializer,
     VersionSerializer,
 )
 from readthedocs.builds.models import Version
-from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.projects.models import Feature
@@ -35,7 +35,7 @@ class ClientError(Exception):
     )
 
 
-class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
+class ReadTheDocsConfigJson(CDNCacheTagsMixin, View):
 
     """
     API response consumed by our JavaScript client.
@@ -48,6 +48,8 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
       url (required): absolute URL from where the request is performed
         (e.g. ``window.location.href``)
     """
+
+    project_cache_tag = "rtd-addons"
 
     def get(self, request):
 
@@ -105,6 +107,12 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
             version = None
             filename = None
             build = None
+
+        # We need to defined these methods because of ``CDNCacheTagsMixin``,
+        # but we don't have a simple/easy way to split these methods, so we use lambda here
+        # after calculating them via the unresolver.
+        self._get_project = lambda: project
+        self._get_version = lambda: version
 
         data = AddonsResponse().get(addons_version, project, version, build, filename)
         return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
