@@ -4,19 +4,18 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0039_migrate_config_data'),
+        ("builds", "0039_migrate_config_data"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='build',
-            name='_config',
+            model_name="build",
+            name="_config",
         ),
         migrations.RenameField(
-            model_name='build',
-            old_name='_config_json',
-            new_name='_config',
+            model_name="build",
+            old_name="_config_json",
+            new_name="_config",
         ),
     ]

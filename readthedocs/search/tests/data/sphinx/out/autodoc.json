@@ -1,6 +1,6 @@
 {
-  "path": "",
-  "title": "",
+  "path": "autodoc.html",
+  "title": "sphinx.ext.autodoc – Include documentation from docstrings",
   "sections": [
     {
       "id": "directive-automodule",
@@ -197,6 +197,5 @@
       "title": "Skipping members",
       "content": "autodoc allows the user to define a custom method for determining whether a member should be included in the documentation by using the following event:"
     }
-  ],
-  "domain_data": {}
+  ]
 }

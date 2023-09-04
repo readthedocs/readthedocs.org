@@ -25,18 +25,16 @@ the bad user experience of a 404 page is usually best to avoid.
      A guide to deprecating features and other topics in a documentation.
 
 
-Special features
-----------------
+Limitations
+-----------
 
-- By default, redirects are followed only if the requested page doesn't exist
-  (*404 File Not Found* error).
-  If you need to apply a redirect for files that exist,
-  **This option is only available on some plan levels**.
-  Please ask support if you need it for some reason.
-- :ref:`user-defined-redirects:page redirects` and :ref:`user-defined-redirects:exact redirects`
+- By default, redirects only apply on pages that don't exist.
+  **Forced redirects** allow you to apply redirects on existing pages,
+  but incur a small performance penalty, so aren't enabled by default.
+  You can ask for them to be enabled via support.
+- Only :ref:`user-defined-redirects:page redirects` and :ref:`user-defined-redirects:exact redirects`
   can redirect to URLs outside Read the Docs,
   just include the protocol in ``To URL``, e.g ``https://example.com``.
-
 
 Built-in redirects
 ------------------
@@ -161,7 +159,7 @@ You would set the following configuration::
     From URL: /example.html
     To URL: /examples/intro.html
 
-**Page Redirects apply to all versions of you documentation.**
+**Page Redirects apply to all versions of your documentation.**
 Because of this,
 the ``/`` at the start of the ``From URL`` doesn't include the ``/$lang/$version`` prefix (e.g.
 ``/en/latest``), but just the version-specific part of the URL.

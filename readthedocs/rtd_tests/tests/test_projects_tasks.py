@@ -10,15 +10,18 @@ from readthedocs.projects.tasks.utils import send_external_build_status
 
 
 class SendBuildStatusTests(TestCase):
-
     def setUp(self):
         self.project = get(Project)
         self.internal_version = get(Version, project=self.project)
         self.external_version = get(Version, project=self.project, type=EXTERNAL)
-        self.external_build = get(Build, project=self.project, version=self.external_version)
-        self.internal_build = get(Build, project=self.project, version=self.internal_version)
+        self.external_build = get(
+            Build, project=self.project, version=self.external_version
+        )
+        self.internal_build = get(
+            Build, project=self.project, version=self.internal_version
+        )
 
-    @patch('readthedocs.projects.tasks.utils.send_build_status')
+    @patch("readthedocs.projects.tasks.utils.send_build_status")
     def test_send_external_build_status_with_external_version(self, send_build_status):
         send_external_build_status(
             self.external_version.type,
@@ -33,7 +36,7 @@ class SendBuildStatusTests(TestCase):
             BUILD_STATUS_SUCCESS,
         )
 
-    @patch('readthedocs.projects.tasks.utils.send_build_status')
+    @patch("readthedocs.projects.tasks.utils.send_build_status")
     def test_send_external_build_status_with_internal_version(self, send_build_status):
         send_external_build_status(
             self.internal_version.type,

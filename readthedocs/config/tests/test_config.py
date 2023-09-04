@@ -84,6 +84,31 @@ def test_load_empty_config_file(tmpdir):
             load(base, {})
 
 
+def test_minimal_config(tmpdir):
+    apply_fs(tmpdir, yaml_config_dir)
+    base = str(tmpdir)
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {})
+    assert isinstance(build, BuildConfigV1)
+
+
+def test_load_version1(tmpdir):
+    apply_fs(
+        tmpdir,
+        {
+            "readthedocs.yml": textwrap.dedent(
+                """
+            version: 1
+        """
+            ),
+        },
+    )
+    base = str(tmpdir)
+    with override_settings(DOCROOT=tmpdir):
+        build = load(base, {})
+    assert isinstance(build, BuildConfigV1)
+
+
 def test_load_version2(tmpdir):
     apply_fs(
         tmpdir, {
@@ -233,7 +258,7 @@ class TestBuildConfigV2:
             build.error(key='key', message='Message', code='code')
         # We don't have any extra information about
         # the source_file.
-        assert str(excinfo.value) == 'Invalid "key": Message'
+        assert str(excinfo.value) == 'Invalid configuration option "key": Message'
 
     def test_formats_check_valid(self):
         build = self.get_build_config({'formats': ['htmlzip', 'pdf', 'epub']})
@@ -330,6 +355,13 @@ class TestBuildConfigV2:
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == 'build'
+
+    @pytest.mark.parametrize("value", [3, [], {}])
+    def test_build_image_check_invalid_type(self, value):
+        build = self.get_build_config({"build": {"image": value}})
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.image"
 
     @pytest.mark.parametrize('value', ['', None, 'latest'])
     def test_new_build_config_invalid_os(self, value):
@@ -760,7 +792,10 @@ class TestBuildConfigV2:
         with raises(InvalidConfig) as excinfo:
             build.validate()
 
-        assert str(excinfo.value) == 'Invalid "python.install[0].requirements": expected string'
+        assert (
+            str(excinfo.value)
+            == 'Invalid configuration option "python.install[0].requirements": expected string'
+        )
 
     def test_python_install_requirements_does_not_allow_empty_string(self, tmpdir):
         build = self.get_build_config(
@@ -1044,53 +1079,6 @@ class TestBuildConfigV2:
         assert install[1].method == SETUPTOOLS
 
         assert install[2].requirements == 'three.txt'
-
-    @pytest.mark.parametrize('value', [True, False])
-    def test_python_system_packages_check_valid(self, value):
-        build = self.get_build_config({
-            'python': {
-                'system_packages': value,
-            },
-        })
-        build.validate()
-        assert build.python.use_system_site_packages is value
-
-    @pytest.mark.parametrize('value', [[], 'invalid', 5])
-    def test_python_system_packages_check_invalid(self, value):
-        build = self.get_build_config({
-            'python': {
-                'system_packages': value,
-            },
-        })
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == 'python.system_packages'
-
-    def test_python_system_packages_check_default(self):
-        build = self.get_build_config({})
-        build.validate()
-        assert build.python.use_system_site_packages is False
-
-    def test_python_system_packages_dont_respects_default(self):
-        build = self.get_build_config(
-            {},
-            {'defaults': {'use_system_packages': True}},
-        )
-        build.validate()
-        assert build.python.use_system_site_packages is False
-
-    def test_python_system_packages_priority_over_default(self):
-        build = self.get_build_config(
-            {'python': {'system_packages': False}},
-        )
-        build.validate()
-        assert build.python.use_system_site_packages is False
-
-        build = self.get_build_config(
-            {'python': {'system_packages': True}},
-        )
-        build.validate()
-        assert build.python.use_system_site_packages is True
 
     @pytest.mark.parametrize('value', [[], True, 0, 'invalid'])
     def test_sphinx_validate_type(self, value):
@@ -1695,7 +1683,6 @@ class TestBuildConfigV2:
                 'install': [{
                     'requirements': 'requirements.txt',
                 }],
-                'use_system_site_packages': False,
             },
             'build': {
                 'os': 'ubuntu-20.04',

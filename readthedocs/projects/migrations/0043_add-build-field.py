@@ -3,15 +3,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0042_increase_env_variable_value_max_length'),
+        ("projects", "0042_increase_env_variable_value_max_length"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='importedfile',
-            name='build',
-            field=models.IntegerField(null=True, verbose_name='Build id'),
+            model_name="importedfile",
+            name="build",
+            field=models.IntegerField(null=True, verbose_name="Build id"),
         ),
     ]

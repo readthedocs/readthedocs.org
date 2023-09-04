@@ -136,7 +136,9 @@ class Organization(models.Model):
             # This only happens during development.
             log.warning("No default subscription created.")
             return None
+        return self.get_stripe_subscription()
 
+    def get_stripe_subscription(self):
         # Active subscriptions take precedence over non-active subscriptions,
         # otherwise we return the must recently created subscription.
         active_subscription = self.stripe_customer.subscriptions.filter(
@@ -144,7 +146,7 @@ class Organization(models.Model):
         ).first()
         if active_subscription:
             return active_subscription
-        return self.stripe_customer.subscriptions.latest()
+        return self.stripe_customer.subscriptions.order_by("created").last()
 
     def get_absolute_url(self):
         return reverse('organization_detail', args=(self.slug,))
@@ -157,7 +159,7 @@ class Organization(models.Model):
     def members(self):
         return AdminPermission.members(self)
 
-    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
+    def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
 
@@ -173,7 +175,6 @@ class Organization(models.Model):
             "org:slug": self.slug,
         }
 
-    # pylint: disable=no-self-use
     def add_member(self, user, team):
         """
         Add member to organization team.
@@ -278,7 +279,7 @@ class Team(models.Model):
     def __str__(self):
         return self.name
 
-    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
+    def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
@@ -319,7 +320,7 @@ class TeamInvite(models.Model):
             team=self.team,
         )
 
-    def save(self, *args, **kwargs):  # pylint: disable=signature-differs
+    def save(self, *args, **kwargs):
         hash_ = salted_hmac(
             # HMAC key per applications
             '.'.join([self.__module__, self.__class__.__name__]),
@@ -345,12 +346,12 @@ class TeamInvite(models.Model):
         content_type = ContentType.objects.get_for_model(self.team)
         invitation, created = Invitation.objects.get_or_create(
             token=self.hash,
-            defaults=dict(
-                from_user=owner,
-                to_email=self.email,
-                content_type=content_type,
-                object_id=self.team.pk,
-            ),
+            defaults={
+                "from_user": owner,
+                "to_email": self.email,
+                "content_type": content_type,
+                "object_id": self.team.pk,
+            },
         )
         self.teammember_set.all().delete()
         return invitation, created

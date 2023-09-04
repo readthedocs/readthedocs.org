@@ -1,34 +1,11 @@
 """Utility functions used by projects."""
 
 import csv
-import os
 
 import structlog
 from django.http import StreamingHttpResponse
 
-from readthedocs.core.utils.filesystem import safe_open
-
 log = structlog.get_logger(__name__)
-
-
-def safe_write(filename, contents):
-    """
-    Normalize and write to filename.
-
-    Write ``contents`` to the given ``filename``. If the filename's
-    directory does not exist, it is created. Contents are written as UTF-8,
-    ignoring any characters that cannot be encoded as UTF-8.
-
-    :param filename: Filename to write to
-    :param contents: File contents to write to file
-    """
-    dirname = os.path.dirname(filename)
-    if not os.path.exists(dirname):
-        os.makedirs(dirname)
-
-    with safe_open(filename, "w", encoding="utf-8", errors="ignore") as fh:
-        fh.write(contents)
-        fh.close()
 
 
 class Echo:
@@ -53,5 +30,5 @@ def get_csv_file(filename, csv_data):
         (writer.writerow(row) for row in csv_data),
         content_type="text/csv",
     )
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
     return response

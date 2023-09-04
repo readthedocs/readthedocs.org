@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0037_alter_build_cold_storage'),
+        ("builds", "0037_alter_build_cold_storage"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='build',
-            name='_config_json',
-            field=models.JSONField(null=True, blank=True, verbose_name='Configuration used in the build'),
+            model_name="build",
+            name="_config_json",
+            field=models.JSONField(
+                null=True, blank=True, verbose_name="Configuration used in the build"
+            ),
         ),
     ]

@@ -4,15 +4,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0053_make_external_builds_field_not_null'),
+        ("projects", "0053_make_external_builds_field_not_null"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='project',
-            name='urlconf',
-            field=models.CharField(blank=True, default=None, help_text='Supports the following keys: $language, $version, $subproject, $filename. An example: `$language/$version/$filename`.', max_length=255, null=True, verbose_name='Documentation URL Configuration'),
+            model_name="project",
+            name="urlconf",
+            field=models.CharField(
+                blank=True,
+                default=None,
+                help_text="Supports the following keys: $language, $version, $subproject, $filename. An example: `$language/$version/$filename`.",
+                max_length=255,
+                null=True,
+                verbose_name="Documentation URL Configuration",
+            ),
         ),
     ]

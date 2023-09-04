@@ -30,11 +30,9 @@ Enabling SSO
 By default, users that sign up with a Google account do not have any permissions over any project.
 However, you can define which teams users matching your company's domain email address will auto-join when they sign up.
 
-You can enable this feature in your organization:
-
-* Navigate to :menuselection:`<Username dropdown> > Organizations --> <Organization Name> --> Settings --> Authorization`
-* Select **Google** in the :guilabel:`Provider` drop-down.
-* Specify your Google Workspace domain in the :guilabel:`Domain` input field and press :guilabel:`Save`.
+1. Navigate to the `authorization setting page <https://readthedocs.com/organizations/choose/organization_sso/>`__.
+2. Select **Google** in the :guilabel:`Provider` drop-down.
+3. Specify your Google Workspace domain in the :guilabel:`Domain` input field and press :guilabel:`Save`.
 
 Configure team for all users to join
 ------------------------------------
@@ -42,10 +40,11 @@ Configure team for all users to join
 You can mark one or many teams that users are automatically joined when they sign up with a matching email address.
 Configure this option by:
 
-* Navigating to :guilabel:`<Username dropdown>` > :guilabel:`Organizations` > :guilabel:`<Organization name>` > :guilabel:`Teams` > :guilabel:`<Team name>`
-* Click :guilabel:`Edit team`
-* Enable *Auto join users with an organization's email address to this team*.
-* Click :guilabel:`Save`
+1. Navigate to the `teams management page <https://readthedocs.com/organizations/choose/organization_team_list/>`__.
+2. Click the :guilabel:`<team name>`.
+3. Click :guilabel:`Edit team`
+4. Enable *Auto join users with an organization's email address to this team*.
+5. Click :guilabel:`Save`
 
 With this enabled,
 all users that sign up with their ``employee@company.com`` email will automatically join this team.

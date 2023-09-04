@@ -3,25 +3,24 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0010_add-description-field-to-automation-rule'),
+        ("builds", "0010_add-description-field-to-automation-rule"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='version',
-            name='has_epub',
-            field=models.BooleanField(default=False, verbose_name='Has ePub'),
+            model_name="version",
+            name="has_epub",
+            field=models.BooleanField(default=False, verbose_name="Has ePub"),
         ),
         migrations.AddField(
-            model_name='version',
-            name='has_htmlzip',
-            field=models.BooleanField(default=False, verbose_name='Has HTML Zip'),
+            model_name="version",
+            name="has_htmlzip",
+            field=models.BooleanField(default=False, verbose_name="Has HTML Zip"),
         ),
         migrations.AddField(
-            model_name='version',
-            name='has_pdf',
-            field=models.BooleanField(default=False, verbose_name='Has PDF'),
+            model_name="version",
+            name="has_pdf",
+            field=models.BooleanField(default=False, verbose_name="Has PDF"),
         ),
     ]

@@ -13,6 +13,7 @@ from readthedocs.builds.constants import LATEST
 from readthedocs.projects.constants import MKDOCS, PUBLIC
 from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_EMBED_API
+from readthedocs.subscriptions.products import RTDProductFeature
 
 data_path = Path(__file__).parent.resolve() / 'data'
 
@@ -34,10 +35,10 @@ class BaseTestEmbedAPI:
         self.version.save()
 
         settings.USE_SUBDOMAIN = True
-        settings.PUBLIC_DOMAIN = 'readthedocs.io'
-        settings.RTD_DEFAULT_FEATURES = {
-            TYPE_EMBED_API: 1,
-        }
+        settings.PUBLIC_DOMAIN = "readthedocs.io"
+        settings.RTD_DEFAULT_FEATURES = dict(
+            [RTDProductFeature(TYPE_EMBED_API).to_item()]
+        )
 
     def get(self, client, *args, **kwargs):
         """Wrapper around ``client.get`` to be overridden in the proxied api tests."""
@@ -280,14 +281,8 @@ class BaseTestEmbedAPI:
         assert response.data == expected
         assert response['Cache-tag'] == 'project,project:latest'
 
-    @mock.patch('readthedocs.embed.views.build_media_storage')
-    def test_embed_mkdocs(self, storage_mock, client):
-        json_file = data_path / 'mkdocs/latest/index.json'
-        storage_mock.exists.return_value = True
-        storage_mock.open.side_effect = self._mock_open(
-            json_file.open().read()
-        )
-
+    def test_embed_mkdocs(self, client):
+        """API v2 doesn't support mkdocs."""
         self.version.documentation_type = MKDOCS
         self.version.save()
 
@@ -302,31 +297,7 @@ class BaseTestEmbedAPI:
             }
         )
 
-        expected = {
-            'content': mock.ANY,  # too long to compare here
-            'headers': [
-                {'Overview': 'overview'},
-                {'Installation': 'installation'},
-                {'Getting Started': 'getting-started'},
-                {'Adding pages': 'adding-pages'},
-                {'Theming our documentation': 'theming-our-documentation'},
-                {'Changing the Favicon Icon': 'changing-the-favicon-icon'},
-                {'Building the site': 'building-the-site'},
-                {'Other Commands and Options': 'other-commands-and-options'},
-                {'Deploying': 'deploying'},
-                {'Getting help': 'getting-help'},
-            ],
-            'url': 'http://project.readthedocs.io/en/latest/index.html',
-            'meta': {
-                'project': 'project',
-                'version': 'latest',
-                'doc': 'index',
-                'section': 'Installation',
-            },
-        }
-
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data == expected
+        assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_no_access(self, client, settings):
         settings.RTD_DEFAULT_FEATURES = {}

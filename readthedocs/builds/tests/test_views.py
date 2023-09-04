@@ -104,5 +104,4 @@ class CancelBuildViewTests(TestCase):
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class CancelBuildViewWithOrganizationsTests(CancelBuildViewTests):
-
     pass

@@ -19,7 +19,7 @@ we have become familiar with a number of methods that work well and which we con
     learn how to protect your project against breaking randomly.
     **This is one of our most popular guides!**
 
-⏩️ :doc:`Search Engine Optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>`
+⏩️ :doc:`Search engine optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>`
     This article explains how documentation can be optimized to appear in search results,
     increasing traffic to your docs.
 
@@ -33,5 +33,5 @@ we have become familiar with a number of methods that work well and which we con
    Deprecating content </guides/deprecating-content>
    Best practices for linking to your documentation </guides/best-practice/links>
    Creating reproducible builds </guides/reproducible-builds>
-   Search Engine Optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>
+   Search engine optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>
    Hiding a version </guides/hiding-a-version>

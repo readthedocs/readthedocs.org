@@ -2,12 +2,6 @@
 
 -r pip.txt
 
-# https://www.psycopg.org/docs/install.html#psycopg-vs-psycopg-binary
-psycopg2-binary
-
-# For resizing images
-pillow
-
 # run tests
 tox
 

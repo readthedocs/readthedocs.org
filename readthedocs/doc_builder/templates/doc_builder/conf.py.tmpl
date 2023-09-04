@@ -48,57 +48,13 @@ if not 'html_static_path' in globals():
 if os.path.exists('_static'):
     html_static_path.append('_static')
 
-# Add RTD Theme only if they aren't overriding it already
-using_rtd_theme = (
-    (
-        'html_theme' in globals() and
-        html_theme in ['default'] and
-        # Allow people to bail with a hack of having an html_style
-        'html_style' not in globals()
-    ) or 'html_theme' not in globals()
-)
-if using_rtd_theme:
-    html_theme = '{{ html_theme }}'
-    html_style = None
-    html_theme_options = {}
-
-{% comment %}
-# Legacy behavior for html_theme_path:
-# It is suspected that old builds with sphinx_rtd_theme required an extra
-# definition of html_theme_path in order to work.
-# This behavior is seen documented for old releases of sphinx_rtd_theme.
-# An example of old instructions:
-# https://github.com/readthedocs/sphinx_rtd_theme/blob/abd951a9cd98851269b8b5f5e59b1b4d29b1416c/README.rst
-# Discussion of issue:
-# https://github.com/readthedocs/readthedocs.org/pull/9654
-#
-# We need to isolate the old legacy behavior because it causes Sphinx
-# to skip calling the theme's setup(app) so its initialization never happens.
-{% endcomment %}
-# This following legacy behavior will gradually be sliced out until its deprecated and removed.
-# Skipped for Sphinx 6+
-# Skipped by internal Feature flag SKIP_SPHINX_HTML_THEME_PATH
-# Skipped by all new projects since SKIP_SPHINX_HTML_THEME_PATH's introduction (jan 2023)
-if (
-        using_rtd_theme
-        and version_info < (6,0)
-        and not {{ skip_html_theme_path|yesno:"True,False" }}
-    ):
-    theme = importlib.import_module('{{ html_theme_import }}')
-    if 'html_theme_path' in globals():
-        html_theme_path.append(theme.get_html_theme_path())
-    else:
-        html_theme_path = [theme.get_html_theme_path()]
-
-# Define websupport2_base_url and websupport2_static_url
-if globals().get('websupport2_base_url', False):
-    websupport2_base_url = '{{ api_host }}/websupport'
-    websupport2_static_url = '{{ settings.STATIC_URL }}'
-
+# Define this variable in case it's not defined by the user.
+# It defaults to `alabaster` which is the default from Sphinx.
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#confval-html_theme
+html_theme = globals().get('html_theme', 'alabaster')
 
 #Add project information to the template context.
 context = {
-    'using_theme': using_rtd_theme,
     'html_theme': html_theme,
     'current_version': "{{ version.verbose_name }}",
     'version_slug': "{{ version.slug }}",
@@ -160,13 +116,9 @@ if version_info >= (1, 8):
 {% block extra_context %}{% endblock %}
 
 if 'html_context' in globals():
-    {% if dont_overwrite_sphinx_context %}
     for key in context:
         if key not in html_context:
             html_context[key] = context[key]
-    {% else %}
-    html_context.update(context)
-    {% endif %}
 else:
     html_context = context
 

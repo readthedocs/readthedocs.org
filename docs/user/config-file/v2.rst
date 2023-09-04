@@ -1,73 +1,39 @@
-Configuration file v2
-=====================
+Configuration file v2 (.readthedocs.yaml)
+=========================================
 
-Read the Docs supports configuring your documentation builds with a YAML file.
-The :doc:`configuration file <index>` must be in the root directory of your project
-and be named ``.readthedocs.yaml``.
+Read the Docs supports configuring your documentation builds with a configuration file.
+This file is named ``.readthedocs.yaml`` and should be placed in the top level of your Git repository.
 
-All options are applied to the version containing this file.
+The ``.readthedocs.yaml``  file can contain a number of settings that are not accessible through the Read the Docs website.
+
+Because the file is stored in Git,
+the configuration will apply to the exact version that is being built.
+**This allows you to store different configurations for different versions of your documentation.**
+
 Below is an example YAML file which shows the most common configuration options:
 
 .. tabs::
 
    .. tab:: Sphinx
 
-      .. code:: yaml
-
-         # .readthedocs.yaml
-         # Read the Docs configuration file
-         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-         # Required
-         version: 2
-
-         # Set the version of Python and other tools you might need
-         build:
-           os: ubuntu-22.04
-           tools:
-             python: "3.11"
-             # You can also specify other tool versions:
-             # nodejs: "19"
-             # rust: "1.64"
-             # golang: "1.19"
-
-         # Build documentation in the docs/ directory with Sphinx
-         sphinx:
-            configuration: docs/conf.py
-
-         # If using Sphinx, optionally build your docs in additional formats such as PDF
-         # formats:
-         #    - pdf
-
-         # Optionally declare the Python requirements required to build your docs
-         python:
-            install:
-            - requirements: docs/requirements.txt
+        .. literalinclude:: /config-file/examples/sphinx/.readthedocs.yaml
+              :language: yaml
+              :linenos:
+              :caption: .readthedocs.yaml
 
    .. tab:: MkDocs
 
-      .. code:: yaml
+        .. literalinclude:: /config-file/examples/mkdocs/.readthedocs.yaml
+           :language: yaml
+           :linenos:
+           :caption: .readthedocs.yaml
 
-         # .readthedocs.yaml
-         # Read the Docs configuration file
-         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
-         # Required
-         version: 2
+.. seealso::
 
-         # Set the version of Python and other tools you might need
-         build:
-           os: ubuntu-22.04
-           tools:
-             python: "3.11"
+   :doc:`/config-file/index`
+      Practical steps to add a configuration file to your documentation project.
 
-         mkdocs:
-           configuration: mkdocs.yml
-
-         # Optionally declare the Python requirements required to build your docs
-         python:
-            install:
-            - requirements: docs/requirements.txt
 
 Supported settings
 ------------------
@@ -164,7 +130,6 @@ Configuration of the Python environment to be used.
            - docs
        - method: pip
          path: another/package
-     system_packages: true
 
 python.install
 ``````````````
@@ -245,34 +210,12 @@ Example:
          path: .
          extra_requirements:
            - docs
-       - method: pip
-         path: package
 
 With the previous settings, Read the Docs will execute the next commands:
 
 .. prompt:: bash $
 
    pip install .[docs]
-   python package/setup.py install
-
-python.system_packages
-``````````````````````
-
-Give the virtual environment access to the global site-packages directory.
-
-:Type: ``bool``
-:Default: ``false``
-
-.. warning::
-
-  If you are using a :ref:`Conda <config-file/v2:conda>` environment
-  to manage the build, this setting will not have any effect, since
-  the virtual environment creation is managed by Conda.
-
-.. warning::
-
-   This option is now deprecated.
-   Use :ref:`config-file/v2:requirements-file` to specify your dependencies.
 
 conda
 ~~~~~
@@ -282,6 +225,11 @@ Configuration for Conda support.
 .. code-block:: yaml
 
    version: 2
+
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "mambaforge-22.9"
 
    conda:
      environment: environment.yml
@@ -293,6 +241,10 @@ The path to the Conda `environment file <https://conda.io/projects/conda/en/late
 
 :Type: ``path``
 :Required: ``false``
+
+.. note::
+
+   When using Conda, it's required to specify ``build.tools.python`` to tell Read the Docs to use whether Conda or Mamba to create the environment.
 
 build
 ~~~~~
@@ -342,7 +294,7 @@ build.tools.python
 ``````````````````
 
 Python version to use.
-You can use several interpreters and versions, from CPython, PyPy, Miniconda, and Mamba.
+You can use several interpreters and versions, from CPython, Miniconda, and Mamba.
 
 .. note::
 
@@ -360,11 +312,9 @@ You can use several interpreters and versions, from CPython, PyPy, Miniconda, an
   - ``3.9``
   - ``3.10``
   - ``3.11``
-  - ``pypy3.7``
-  - ``pypy3.8``
-  - ``pypy3.9``
   - ``miniconda3-4.7``
   - ``mambaforge-4.10``
+  - ``mambaforge-22.9``
 
 build.tools.nodejs
 ``````````````````
@@ -377,6 +327,7 @@ Node.js version to use.
    - ``16``
    - ``18``
    - ``19``
+   - ``20``
 
 build.tools.rust
 ````````````````
@@ -388,6 +339,7 @@ Rust version to use.
    - ``1.55``
    - ``1.61``
    - ``1.64``
+   - ``1.70``
 
 build.tools.golang
 ``````````````````
@@ -399,6 +351,7 @@ Go version to use.
    - ``1.17``
    - ``1.18``
    - ``1.19``
+   - ``1.20``
 
 build.apt_packages
 ``````````````````

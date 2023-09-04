@@ -67,6 +67,7 @@ class BuildEnvironmentBase:
         return update_docs_task.delay(
             self.version.pk,
             self.build.pk,
+            build_api_key="1234",
             build_commit=self.build.commit,
         )
 
@@ -197,7 +198,7 @@ class TestBuildTask(BuildEnvironmentBase):
                 "-T",
                 "-E",
                 "-b",
-                "readthedocs",
+                "html",
                 "-d",
                 "_build/doctrees",
                 "-D",
@@ -292,6 +293,14 @@ class TestBuildTask(BuildEnvironmentBase):
                     f"{self.project.slug}.{f}",
                 )
             ).touch()
+
+        # Create an "index.html" at root to avoid failing the builds
+        pathlib.Path(
+            os.path.join(
+                self.project.artifact_path(version=self.version.slug, type_="html"),
+                "index.html",
+            )
+        ).touch()
 
         self._trigger_update_docs_task()
 
@@ -437,6 +446,14 @@ class TestBuildTask(BuildEnvironmentBase):
                 )
             ).touch()
 
+        # Create an "index.html" at root to avoid failing the builds
+        pathlib.Path(
+            os.path.join(
+                self.project.artifact_path(version=self.version.slug, type_="html"),
+                "index.html",
+            )
+        ).touch()
+
         self._trigger_update_docs_task()
 
         # It has to be called twice, ``before_start`` and ``after_return``
@@ -499,7 +516,6 @@ class TestBuildTask(BuildEnvironmentBase):
                 "python": {
                     "version": "3",
                     "install": [],
-                    "use_system_site_packages": False,
                 },
                 "conda": None,
                 "build": {
@@ -578,9 +594,12 @@ class TestBuildTask(BuildEnvironmentBase):
             "error": "",
         }
 
+        assert self.requests_mock.request_history[10]._request.method == "POST"
+        assert self.requests_mock.request_history[10].path == "/api/v2/revoke/"
+
         assert BuildData.objects.all().exists()
 
-        self.mocker.mocks["build_media_storage"].sync_directory.assert_has_calls(
+        self.mocker.mocks["build_media_storage"].rclone_sync_directory.assert_has_calls(
             [
                 mock.call(mock.ANY, "html/project/latest"),
                 mock.call(mock.ANY, "json/project/latest"),
@@ -643,10 +662,10 @@ class TestBuildTask(BuildEnvironmentBase):
         assert not BuildData.objects.all().exists()
 
         # Test we are updating the DB by calling the API with the updated build object
-        api_request = self.requests_mock.request_history[
-            -1
-        ]  # the last one should be the PATCH for the build
+        # The second last one should be the PATCH for the build
+        api_request = self.requests_mock.request_history[-2]
         assert api_request._request.method == "PATCH"
+        assert api_request.path == "/api/v2/build/1/"
         assert api_request.json() == {
             "builder": mock.ANY,
             "commit": self.build.commit,
@@ -656,6 +675,11 @@ class TestBuildTask(BuildEnvironmentBase):
             "state": "finished",
             "success": False,
         }
+
+        # The last request is to revoke the API build key.
+        revoke_key_request = self.requests_mock.request_history[-1]
+        assert revoke_key_request._request.method == "POST"
+        assert revoke_key_request.path == "/api/v2/revoke/"
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_commands_executed(
@@ -685,16 +709,47 @@ class TestBuildTask(BuildEnvironmentBase):
 
         self.mocker.mocks["git.Backend.run"].assert_has_calls(
             [
+                mock.call("git", "clone", "--depth", "1", mock.ANY, "."),
                 mock.call(
-                    "git", "clone", "--no-single-branch", "--depth", "50", mock.ANY, "."
+                    "git",
+                    "fetch",
+                    "origin",
+                    "--force",
+                    "--prune",
+                    "--prune-tags",
+                    "--depth",
+                    "50",
                 ),
-                mock.call("git", "checkout", "--force", "a1b2c3"),
+                mock.call(
+                    "git",
+                    "show-ref",
+                    "--verify",
+                    "--quiet",
+                    "--",
+                    "refs/remotes/origin/a1b2c3",
+                    record=False,
+                ),
+                mock.call("git", "checkout", "--force", "origin/a1b2c3"),
                 mock.call("git", "clean", "-d", "-f", "-f"),
+                mock.call(
+                    "git",
+                    "ls-remote",
+                    "--tags",
+                    "--heads",
+                    mock.ANY,
+                    demux=True,
+                    record=False,
+                ),
             ]
         )
 
         self.mocker.mocks["environment.run"].assert_has_calls(
             [
+                mock.call(
+                    "cat",
+                    "readthedocs.yaml",
+                    cwd="/tmp/readthedocs-tests/git-repository",
+                ),
                 mock.call(
                     "python3.7",
                     "-mvirtualenv",
@@ -749,7 +804,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-T",
                     "-E",
                     "-b",
-                    "readthedocs",
+                    "html",
                     "-d",
                     "_build/doctrees",
                     "-D",
@@ -1335,7 +1390,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "-W",  # fail on warning flag
                     "--keep-going",  # fail on warning flag
                     "-b",
-                    "readthedocs",
+                    "html",
                     "-d",
                     "_build/doctrees",
                     "-D",
@@ -1378,62 +1433,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
                 )
-            ]
-        )
-
-    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_system_site_packages(self, load_yaml_config):
-        load_yaml_config.return_value = self._config_file(
-            {
-                "version": 2,
-                "python": {
-                    "system_packages": True,
-                },
-            },
-        )
-
-        self._trigger_update_docs_task()
-
-        self.mocker.mocks["environment.run"].assert_has_calls(
-            [
-                mock.call(
-                    "python3.7",
-                    "-mvirtualenv",
-                    "--system-site-packages",  # expected flag
-                    mock.ANY,
-                    bin_path=None,
-                    cwd=None,
-                ),
-            ]
-        )
-
-    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_system_site_packages_project_overrides(self, load_yaml_config):
-        load_yaml_config.return_value = self._config_file(
-            {
-                "version": 2,
-                # Do not define `system_packages: True` in the config file.
-                "python": {},
-            },
-        )
-
-        # Override the setting in the Project object
-        self.project.use_system_packages = True
-        self.project.save()
-
-        self._trigger_update_docs_task()
-
-        self.mocker.mocks["environment.run"].assert_has_calls(
-            [
-                mock.call(
-                    "python3.7",
-                    "-mvirtualenv",
-                    # we don't expect this flag to be here
-                    # '--system-site-packages'
-                    mock.ANY,
-                    bin_path=None,
-                    cwd=None,
-                ),
             ]
         )
 
@@ -1495,7 +1494,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "--upgrade",
                     "--upgrade-strategy",
-                    "eager",
+                    "only-if-needed",
                     "--no-cache-dir",
                     ".",
                     cwd=mock.ANY,
@@ -1536,7 +1535,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "--upgrade",
                     "--upgrade-strategy",
-                    "eager",
+                    "only-if-needed",
                     "--no-cache-dir",
                     ".[docs]",
                     cwd=mock.ANY,
@@ -1580,7 +1579,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "--upgrade",
                     "--upgrade-strategy",
-                    "eager",
+                    "only-if-needed",
                     "--no-cache-dir",
                     ".[docs]",
                     cwd=mock.ANY,
@@ -1612,7 +1611,7 @@ class TestBuildTask(BuildEnvironmentBase):
     @pytest.mark.parametrize(
         "value,expected",
         [
-            (ALL, ["one", "two", "three"]),
+            (ALL, []),
             (["one", "two"], ["one", "two"]),
         ],
     )
@@ -1632,7 +1631,9 @@ class TestBuildTask(BuildEnvironmentBase):
         self.mocker.mocks["git.Backend.run"].assert_has_calls(
             [
                 mock.call("git", "submodule", "sync"),
-                mock.call("git", "submodule", "update", "--init", "--force", *expected),
+                mock.call(
+                    "git", "submodule", "update", "--init", "--force", "--", *expected
+                ),
             ]
         )
 
@@ -1657,6 +1658,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--init",
                     "--force",
                     "--recursive",
+                    "--",
                     "two",
                     "three",
                 ),
@@ -1685,10 +1687,10 @@ class TestBuildTask(BuildEnvironmentBase):
     @pytest.mark.parametrize(
         "value,command",
         [
-            ("html", "readthedocs"),
-            ("htmldir", "readthedocsdirhtml"),
-            ("dirhtml", "readthedocsdirhtml"),
-            ("singlehtml", "readthedocssinglehtml"),
+            ("html", "html"),
+            ("htmldir", "dirhtml"),
+            ("dirhtml", "dirhtml"),
+            ("singlehtml", "singlehtml"),
         ],
     )
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
@@ -1739,9 +1741,10 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
         # This is a known exceptions. We hit the API saving the correct error
         # in the Build object. In this case, the "error message" coming from
         # the exception will be shown to the user
-        assert self.requests_mock.request_history[-1]._request.method == "PATCH"
-        assert self.requests_mock.request_history[-1].path == "/api/v2/build/1/"
-        assert self.requests_mock.request_history[-1].json() == {
+        api_request = self.requests_mock.request_history[-2]
+        assert api_request._request.method == "PATCH"
+        assert api_request.path == "/api/v2/build/1/"
+        assert api_request.json() == {
             "id": 1,
             "state": "finished",
             "commit": "a1b2c3",
@@ -1751,10 +1754,14 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
             "length": 0,
         }
 
+        revoke_key_request = self.requests_mock.request_history[-1]
+        assert revoke_key_request._request.method == "POST"
+        assert revoke_key_request.path == "/api/v2/revoke/"
+
 
 class TestSyncRepositoryTask(BuildEnvironmentBase):
     def _trigger_sync_repository_task(self):
-        sync_repository_task.delay(self.version.pk)
+        sync_repository_task.delay(self.version.pk, build_api_key="1234")
 
     @mock.patch('readthedocs.projects.tasks.builds.clean_build')
     def test_clean_build_after_sync_repository(self, clean_build):
@@ -1780,20 +1787,13 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
     def test_check_duplicate_reserved_version_latest(self, on_failure, verbose_name):
         # `repository.tags` and `repository.branch` both will return a tag/branch named `latest/stable`
         with mock.patch(
-                'readthedocs.vcs_support.backends.git.Backend.branches',
-                new_callable=mock.PropertyMock,
-                return_value=[
-                    mock.MagicMock(identifier='a1b2c3', verbose_name=verbose_name),
-                ],
+            "readthedocs.vcs_support.backends.git.Backend.lsremote",
+            return_value=[
+                [mock.MagicMock(identifier="branch/a1b2c3", verbose_name=verbose_name)],
+                [mock.MagicMock(identifier="tag/a1b2c3", verbose_name=verbose_name)],
+            ],
         ):
-            with mock.patch(
-                    'readthedocs.vcs_support.backends.git.Backend.tags',
-                    new_callable=mock.PropertyMock,
-                    return_value=[
-                        mock.MagicMock(identifier='a1b2c3', verbose_name=verbose_name),
-                    ],
-            ):
-                self._trigger_sync_repository_task()
+            self._trigger_sync_repository_task()
 
         on_failure.assert_called_once_with(
             # This argument is the exception we are intereste, but I don't know
@@ -1801,7 +1801,9 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
             mock.ANY,
             mock.ANY,
             [self.version.pk],
-            {},
+            {
+                "build_api_key": mock.ANY,
+            },
             mock.ANY,
         )
 

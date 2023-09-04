@@ -1,12 +1,11 @@
 {
   "title": "<no title>",
-  "path": "guides/environment-variables",
+  "path": "no-title.html",
   "sections": [
     {
       "id": "",
       "title": "<no title>",
       "content": "A page without a title. Only content. One Two Three"
     }
-  ],
-  "domain_data": {}
+  ]
 }

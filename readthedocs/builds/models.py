@@ -199,6 +199,7 @@ class Version(TimeStampedModel):
         _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
         default=None,
         null=True,
+        blank=True,
     )
 
     addons = models.BooleanField(
@@ -273,6 +274,10 @@ class Version(TimeStampedModel):
         external_origin = external_version_name(self)
         abbrev = "".join(word[0].upper() for word in external_origin.split())
         return template.format(name=self.verbose_name, abbrev=abbrev)
+
+    @property
+    def external_version_name(self):
+        return external_version_name(self)
 
     @property
     def ref(self):
@@ -352,6 +357,7 @@ class Version(TimeStampedModel):
 
         # By now we must have handled all special versions.
         if self.slug in NON_REPOSITORY_VERSIONS:
+            # pylint: disable=broad-exception-raised
             raise Exception('All special versions must be handled by now.')
 
         if self.type in (BRANCH, TAG):
@@ -377,14 +383,29 @@ class Version(TimeStampedModel):
         return self.identifier
 
     def get_absolute_url(self):
-        """Get absolute url to the docs of the version."""
+        """
+        Get the absolute URL to the docs of the version.
+
+        If the version doesn't have a successfully uploaded build, then we return the project's
+        dashboard page.
+
+        Because documentation projects can be hosted on separate domains, this function ALWAYS
+        returns with a full "http(s)://<domain>/" prefix.
+        """
         if not self.built and not self.uploaded:
-            return reverse(
-                'project_version_detail',
-                kwargs={
-                    'project_slug': self.project.slug,
-                    'version_slug': self.slug,
-                },
+            # TODO: Stop assuming protocol based on settings.DEBUG
+            # (this pattern is also used in builds.tasks for sending emails)
+            protocol = "http" if settings.DEBUG else "https"
+            return "{}://{}{}".format(
+                protocol,
+                settings.PRODUCTION_DOMAIN,
+                reverse(
+                    "project_version_detail",
+                    kwargs={
+                        "project_slug": self.project.slug,
+                        "version_slug": self.slug,
+                    },
+                ),
             )
         external = self.type == EXTERNAL
         return self.project.get_docs_url(
@@ -392,7 +413,7 @@ class Version(TimeStampedModel):
             external=external,
         )
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
         log.info('Removing files for version.', version_slug=self.slug)
         clean_project_resources(self.project, self)
@@ -402,8 +423,11 @@ class Version(TimeStampedModel):
         """
         Remove all resources from this version.
 
-        This includes removing files from storage,
-        and removing its search index.
+        This includes:
+
+        - Files from storage
+        - Search index
+        - Imported files
         """
         from readthedocs.projects.tasks.utils import clean_project_resources
 
@@ -684,7 +708,7 @@ class APIVersion(Version):
 
         super().__init__(*args, **valid_attributes)
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def save(self, *args, **kwargs):
         return 0
 
 
@@ -1069,10 +1093,35 @@ class Build(models.Model):
     def external_version_name(self):
         return external_version_name(self)
 
-    def using_latest_config(self):
-        if self.config:
-            return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
-        return False
+    def deprecated_config_used(self):
+        """
+        Check whether this particular build is using a deprecated config file.
+
+        When using v1 or not having a config file at all, it returns ``True``.
+        Returns ``False`` only when it has a config file and it is using v2.
+
+        Note we are using this to communicate deprecation of v1 file and not using a config file.
+        See https://github.com/readthedocs/readthedocs.org/issues/10342
+        """
+        if not self.config:
+            return True
+
+        return int(self.config.get("version", "1")) != LATEST_CONFIGURATION_VERSION
+
+    def deprecated_build_image_used(self):
+        """
+        Check whether this particular build is using the deprecated "build.image" config.
+
+        Note we are using this to communicate deprecation of "build.image".
+        See https://github.com/readthedocs/meta/discussions/48
+        """
+        if not self.config:
+            # Don't notify users without a config file.
+            # We hope they will migrate to `build.os` in the process of adding a `.readthedocs.yaml`
+            return False
+
+        build_config_key = self.config.get("build", {})
+        return "image" in build_config_key
 
     def reset(self):
         """
@@ -1353,7 +1402,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         self.save()
         return True
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def delete(self, *args, **kwargs):
         """Override method to update the other priorities after delete."""
         current_priority = self.priority
         project = self.project

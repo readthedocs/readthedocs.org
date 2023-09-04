@@ -123,6 +123,7 @@ Special rules that are derived from specific documentation tools applied in the 
 
 - ``.linenos``, ``.lineno`` (line numbers in code-blocks, comes from both MkDocs and Sphinx)
 - ``.headerlink`` (added by Sphinx to links in headers)
+- ``.toctree-wrapper`` (added by Sphinx to the table of contents generated from the ``toctree`` directive)
 
 Example:
 
@@ -272,14 +273,9 @@ Other special nodes
 Overriding the default search
 -----------------------------
 
-Static sites usually have their own static index,
-and search results are retrieved via JavaScript.
-In order for Read the Docs to override the default search as expected,
-themes from the supported generators must follow these conventions.
-
-.. note::
-
-   Read the Docs will fallback to the original search in case of an error or no results.
+Static sites usually have their own static search index, and search results are retrieved via JavaScript.
+Read the Docs overrides the default search for Sphinx projects only,
+and provides a fallback to the original search in case of an error or no results.
 
 Sphinx
 ~~~~~~
@@ -317,70 +313,15 @@ If your theme works with the search from the basic theme, it will work with Read
 
 .. _`static/searchtools.js`: https://github.com/sphinx-doc/sphinx/blob/275d9/sphinx/themes/basic/static/searchtools.js
 
-MkDocs
-~~~~~~
+Other static site generators
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Search on MkDocs is provided by the `search plugin`_, which is included (and activated) by default in MkDocs.
-The js part of this plugin is included in the `templates/search/main.js`_ file,
-which subscribes to the ``keyup`` event of the ``#mkdocs-search-query`` element
-to call the ``doSearch`` function (available on MkDocs >= 1.x) on every key press.
-
-Read the Docs overrides the ``initSearch`` and ``doSearch`` functions
-to subscribe to the ``keyup`` event of the ``#mkdocs-search-query`` element,
-and puts the results into the ``#mkdocs-search-results`` element.
-A simplified example looks like this:
-
-.. code-block:: js
-
-   var original_search = doSearch;
-
-   function search_override() {
-      var query = document.getElementById('mkdocs-search-query').value;
-      var search_results = document.getElementById('mkdocs-search-results');
-
-      var results = fetch_resuls(query);
-      if (results) {
-         empty_results(search_results)
-         for (var i = 0; i < results.length; i += 1) {
-            var result = process_result(results[i]);
-            append_result(result, search_results);
-         }
-      } else {
-         original_search();
-      }
-   }
-
-   var init_override = function () {
-      var search_input = document.getElementById('mkdocs-search-query');
-      search_input.addEventListener('keyup', doSearch);
-   };
-
-   window.doSearch = search_override;
-   window.initSearch = init_override;
-
-   initSearch();
-
-Highlights from results will be in a ``mark`` tag (``This is a <mark>result</mark>``).
-If your theme works with the search plugin of MkDocs,
-and defines the ``#mkdocs-search-query`` and ``#mkdocs-search-results`` elements,
-it will work with Read the Docs' SSS.
-
-.. note::
-
-   Since the ``templates/search/main.js`` file is included after our custom search,
-   it will subscribe to the ``keyup`` event too, triggering both functions when a key is pressed
-   (but ours should have more precedence).
-   This can be fixed by not including the ``search`` plugin (you won't be able to fallback to the original search),
-   or by creating a custom plugin to include our search at the end (this should be done by Read the Docs).
-
-.. _`search plugin`: https://www.mkdocs.org/user-guide/configuration/#search
-.. _`templates/search/main.js`: https://github.com/mkdocs/mkdocs/blob/ff0b72/mkdocs/contrib/search/templates/search/main.js
+All projects that have HTML pages that follow the conventions described in this document
+can make use of the server side search from the dashboard or by calling the API.
 
 Supporting more themes and static site generators
 -------------------------------------------------
 
-Currently, Read the Docs supports building documentation from
-:doc:`Sphinx <rtd:intro/getting-started-with-sphinx>` and :doc:`MkDocs <rtd:intro/getting-started-with-mkdocs>`.
 All themes that follow these conventions should work as expected.
 If you think other generators or other conventions should be supported,
 or content that should be ignored or have an especial treatment,

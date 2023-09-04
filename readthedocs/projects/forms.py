@@ -5,7 +5,7 @@ from re import fullmatch
 from urllib.parse import urlparse
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Layout, Submit
+from crispy_forms.layout import HTML, Fieldset, Layout, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -86,7 +86,7 @@ class ProjectBasicsForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ("name", "repo", "default_branch")
+        fields = ("name", "repo", "default_branch", "language")
 
     remote_repository = forms.IntegerField(
         widget=forms.HiddenInput(),
@@ -94,13 +94,7 @@ class ProjectBasicsForm(ProjectForm):
     )
 
     def __init__(self, *args, **kwargs):
-        show_advanced = kwargs.pop('show_advanced', False)
         super().__init__(*args, **kwargs)
-        if show_advanced:
-            self.fields['advanced'] = forms.BooleanField(
-                required=False,
-                label=_('Edit advanced project options'),
-            )
         self.fields['repo'].widget.attrs['placeholder'] = self.placehold_repo()
         self.fields['repo'].widget.attrs['required'] = True
 
@@ -143,8 +137,8 @@ class ProjectBasicsForm(ProjectForm):
                 pk=remote_repo,
                 users=self.user,
             )
-        except RemoteRepository.DoesNotExist:
-            raise forms.ValidationError(_('Repository invalid'))
+        except RemoteRepository.DoesNotExist as exc:
+            raise forms.ValidationError(_("Repository invalid")) from exc
 
     def placehold_repo(self):
         return choice([
@@ -191,6 +185,16 @@ class ProjectExtraForm(ProjectForm):
         return tags
 
 
+class ProjectConfigForm(forms.Form):
+
+    """Simple intermediate step to communicate about the .readthedocs.yaml file."""
+
+    def __init__(self, *args, **kwargs):
+        # Remove 'user' field since it's not expected by BaseForm.
+        kwargs.pop("user")
+        super().__init__(*args, **kwargs)
+
+
 class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     """Advanced project option form."""
@@ -209,8 +213,19 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             "external_builds_privacy_level",
             "readthedocs_yaml_path",
         )
+        # These that can be set per-version using a config file.
+        per_version_settings = (
+            "documentation_type",
+            "requirements_file",
+            "python_interpreter",
+            "install_project",
+            "conf_py_file",
+            "enable_pdf_build",
+            "enable_epub_build",
+        )
         fields = (
             *per_project_settings,
+            *per_version_settings,
         )
 
     def __init__(self, *args, **kwargs):
@@ -226,6 +241,14 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         )
 
         per_project_settings = list(self.Meta.per_project_settings)
+
+        # NOTE: we are deprecating this feature.
+        # However, we will keep it available for projects that already using it.
+        # Old projects not using it already or new projects won't be able to enable.
+        if not self.instance.has_feature(Feature.ALLOW_VERSION_WARNING_BANNER):
+            self.fields.pop("show_version_warning")
+            per_project_settings.remove("show_version_warning")
+
         if not settings.ALLOW_PRIVATE_REPOS:
             for field in ['privacy_level', 'external_builds_privacy_level']:
                 self.fields.pop(field)
@@ -240,6 +263,11 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             Fieldset(
                 _("Global settings"),
                 *per_project_settings,
+            ),
+            Fieldset(
+                _("Default settings"),
+                HTML(help_text),
+                *self.Meta.per_version_settings,
             ),
         ]
         self.helper.layout = Layout(*field_sets)
@@ -573,8 +601,10 @@ class WebHookForm(forms.ModelForm):
         try:
             payload = json.loads(payload)
             payload = json.dumps(payload, indent=2)
-        except Exception:
-            raise forms.ValidationError(_('The payload must be a valid JSON object.'))
+        except Exception as exc:
+            raise forms.ValidationError(
+                _("The payload must be a valid JSON object.")
+            ) from exc
         return payload
 
 

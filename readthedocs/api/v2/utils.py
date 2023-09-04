@@ -22,7 +22,7 @@ from readthedocs.builds.models import RegexAutomationRule, Version
 log = structlog.get_logger(__name__)
 
 
-def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-builtin
+def sync_versions_to_db(project, versions, type):
     """
     Update the database with the current versions from the repository.
 
@@ -117,6 +117,8 @@ def sync_versions_to_db(project, versions, type):  # pylint: disable=redefined-b
             latest_version.machine = True
             latest_version.identifier = project.get_default_branch()
             latest_version.verbose_name = LATEST_VERBOSE_NAME
+            # The machine created latest version always points to a branch.
+            latest_version.type = BRANCH
             latest_version.save()
     if added:
         log.info(
@@ -156,7 +158,7 @@ def _create_versions(project, type, versions):
 
 def _set_or_create_version(project, slug, version_id, verbose_name, type_):
     """Search or create a version and set its machine attribute to false."""
-    version = (project.versions.filter(slug=slug).first())
+    version = project.versions.filter(slug=slug).first()
     if version:
         version.identifier = version_id
         version.machine = False

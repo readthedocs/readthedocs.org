@@ -9,7 +9,6 @@ from readthedocs.core.signals import pre_collectstatic, post_collectstatic
 
 
 class Command(collectstatic.Command):
-
     def handle(self, **options):
         pre_collectstatic.send(sender=self.__class__)
         response = super().handle(**options)

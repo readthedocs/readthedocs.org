@@ -102,7 +102,7 @@ To avoid this, it's possible to unshallow the :program:`git clone`:
        python: "3.10"
      jobs:
        post_checkout:
-         - git fetch --unshallow
+         - git fetch --unshallow || true
 
 
 Cancel build based on a condition
@@ -205,7 +205,7 @@ For example, `pydoc-markdown <http://niklasrosenstein.github.io/pydoc-markdown/>
        python: "3.10"
      jobs:
        pre_build:
-         - pydoc-markdown --build --site-dir "$PWD/_build/html"
+         - pydoc-markdown --build --site-dir "$READTHEDOCS_OUTPUT/html"
 
 
 Avoid having a dirty Git index
@@ -247,7 +247,7 @@ This helps ensure that all external links are still valid and readers aren't lin
        python: "3.10"
      jobs:
        pre_build:
-         - python -m sphinx -b linkcheck -D linkcheck_timeout=1 docs/ _build/linkcheck
+         - python -m sphinx -b linkcheck -D linkcheck_timeout=1 docs/ $READTHEDOCS_OUTPUT/linkcheck
 
 
 Support Git LFS (Large File Storage)
@@ -339,6 +339,34 @@ Take a look at the following example:
      configuration: docs/conf.py
 
 
+Update Conda version
+^^^^^^^^^^^^^^^^^^^^
+
+Projects using Conda may need to install the latest available version of Conda.
+This can be done by using the ``pre_create_environment`` user-defined job to update Conda
+before creating the environment.
+Take a look at the following example:
+
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+    version: 2
+
+    build:
+      os: "ubuntu-22.04"
+      tools:
+        python: "miniconda3-4.7"
+      jobs:
+        pre_create_environment:
+          - conda update --yes --quiet --name=base --channel=defaults conda
+
+    conda:
+      environment: environment.yml
+
+
+.. _build_commands_introduction:
+
 Override the build process
 --------------------------
 
@@ -416,7 +444,7 @@ If you are building your project with Pelican you could use a configuration file
        python: "3.10"
      commands:
        - pip install pelican[markdown]
-       - pelican --settings docs/pelicanconf.py --output _readthedocs/html/ docs/
+       - pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/
 
 
 Docsify
@@ -434,5 +462,5 @@ These projects can be built using a configuration file like this:
      tools:
        nodejs: "16"
      commands:
-       - mkdir --parents _readthedocs/html/
-       - cp --recursive docs/* _readthedocs/html/
+       - mkdir --parents $READTHEDOCS_OUTPUT/html/
+       - cp --recursive docs/* $READTHEDOCS_OUTPUT/html/
