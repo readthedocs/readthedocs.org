@@ -21,16 +21,16 @@ from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @override_settings(
-    PUBLIC_DOMAIN='readthedocs.io',
+    PUBLIC_DOMAIN="readthedocs.io",
     RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_EMBED_API).to_item()]),
 )
 class TestCORSMiddleware(TestCase):
-
     def setUp(self):
-        self.url = '/api/v2/search'
-        self.owner = create_user(username='owner', password='test')
+        self.url = "/api/v2/search"
+        self.owner = create_user(username="owner", password="test")
         self.project = get(
-            Project, slug='pip',
+            Project,
+            slug="pip",
             users=[self.owner],
             privacy_level=PUBLIC,
             main_language_project=None,
@@ -52,19 +52,19 @@ class TestCORSMiddleware(TestCase):
         )
         self.domain = get(
             Domain,
-            domain='my.valid.domain',
+            domain="my.valid.domain",
             project=self.project,
         )
         self.another_project = get(
             Project,
             privacy_level=PUBLIC,
-            slug='another',
+            slug="another",
         )
         self.another_project.versions.update(privacy_level=PUBLIC)
         self.another_version = self.another_project.versions.get(slug=LATEST)
         self.another_domain = get(
             Domain,
-            domain='another.valid.domain',
+            domain="another.valid.domain",
             project=self.another_project,
         )
 
@@ -244,19 +244,18 @@ class TestCORSMiddleware(TestCase):
 
 
 class TestSessionMiddleware(TestCase):
-
     def setUp(self):
         self.factory = RequestFactory()
         self.middleware = ReadTheDocsSessionMiddleware(lambda request: HttpResponse())
 
-        self.user = create_user(username='owner', password='test')
+        self.user = create_user(username="owner", password="test")
 
     @override_settings(SESSION_COOKIE_SAMESITE=None)
     def test_fallback_cookie(self):
-        request = self.factory.get('/')
+        request = self.factory.get("/")
         response = HttpResponse()
         self.middleware.process_request(request)
-        request.session['test'] = 'value'
+        request.session["test"] = "value"
         response = self.middleware.process_response(request, response)
 
         self.assertTrue(settings.SESSION_COOKIE_NAME in response.cookies)
@@ -264,23 +263,29 @@ class TestSessionMiddleware(TestCase):
 
     @override_settings(SESSION_COOKIE_SAMESITE=None)
     def test_main_cookie_samesite_none(self):
-        request = self.factory.get('/')
+        request = self.factory.get("/")
         response = HttpResponse()
         self.middleware.process_request(request)
-        request.session['test'] = 'value'
+        request.session["test"] = "value"
         response = self.middleware.process_response(request, response)
 
-        self.assertEqual(response.cookies[settings.SESSION_COOKIE_NAME]['samesite'], 'None')
-        self.assertEqual(response.cookies[self.middleware.cookie_name_fallback]['samesite'], '')
+        self.assertEqual(
+            response.cookies[settings.SESSION_COOKIE_NAME]["samesite"], "None"
+        )
+        self.assertEqual(
+            response.cookies[self.middleware.cookie_name_fallback]["samesite"], ""
+        )
 
     def test_main_cookie_samesite_lax(self):
-        request = self.factory.get('/')
+        request = self.factory.get("/")
         response = HttpResponse()
         self.middleware.process_request(request)
-        request.session['test'] = 'value'
+        request.session["test"] = "value"
         response = self.middleware.process_response(request, response)
 
-        self.assertEqual(response.cookies[settings.SESSION_COOKIE_NAME]['samesite'], 'Lax')
+        self.assertEqual(
+            response.cookies[settings.SESSION_COOKIE_NAME]["samesite"], "Lax"
+        )
         self.assertTrue(self.test_main_cookie_samesite_none not in response.cookies)
 
 

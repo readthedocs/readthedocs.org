@@ -3,10 +3,11 @@ from unittest import mock
 import django_dynamic_fixture as fixture
 from django.test import override_settings
 from django.urls import reverse
+from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL, TAG
 from readthedocs.builds.models import Version
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import HTMLFile, Project
 
 from .mixins import APIEndpointMixin
 
@@ -266,12 +267,33 @@ class VersionsEndpointTests(APIEndpointMixin):
         trigger_build.assert_called_once()
 
     @mock.patch("readthedocs.builds.models.trigger_build")
-    @mock.patch("readthedocs.projects.tasks.utils.clean_project_resources")
-    def test_deactivate_version(self, clean_project_resources, trigger_build):
+    @mock.patch("readthedocs.projects.tasks.search.remove_search_indexes")
+    @mock.patch("readthedocs.projects.tasks.utils.remove_build_storage_paths")
+    def test_deactivate_version(
+        self, remove_build_storage_paths, remove_search_indexes, trigger_build
+    ):
+        another_version = get(Version, project=self.project, active=True)
+        get(
+            HTMLFile,
+            project=self.project,
+            version=another_version,
+            name="index.html",
+            path="index.html",
+        )
+        get(
+            HTMLFile,
+            project=self.project,
+            version=self.version,
+            name="index.html",
+            path="index.html",
+        )
+
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         data = {"active": False}
         self.assertTrue(self.version.active)
         self.assertTrue(self.version.built)
+        self.assertTrue(another_version.imported_files.exists())
+        self.assertTrue(self.version.imported_files.exists())
         response = self.client.patch(
             reverse(
                 "projects-versions-detail",
@@ -286,7 +308,10 @@ class VersionsEndpointTests(APIEndpointMixin):
         self.version.refresh_from_db()
         self.assertFalse(self.version.active)
         self.assertFalse(self.version.built)
-        clean_project_resources.assert_called_once()
+        self.assertFalse(self.version.imported_files.exists())
+        self.assertTrue(another_version.imported_files.exists())
+        remove_build_storage_paths.delay.assert_called_once()
+        remove_search_indexes.delay.assert_called_once()
         trigger_build.assert_not_called()
 
     def test_projects_version_external(self):

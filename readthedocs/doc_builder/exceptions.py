@@ -11,10 +11,14 @@ class BuildBaseException(Exception):
     status_code = None
 
     def __init__(self, message=None, **kwargs):
-        self.status_code = kwargs.pop(
-            'status_code',
-            None,
-        ) or self.status_code or 1
+        self.status_code = (
+            kwargs.pop(
+                "status_code",
+                None,
+            )
+            or self.status_code
+            or 1
+        )
         self.message = message or self.message or self.get_default_message()
         super().__init__(message, **kwargs)
 
@@ -88,7 +92,7 @@ class ProjectBuildsSkippedError(BuildUserError):
 
 class YAMLParseError(BuildUserError):
     GENERIC_WITH_PARSE_EXCEPTION = gettext_noop(
-        'Problem in your project\'s configuration. {exception}',
+        "Problem in your project's configuration. {exception}",
     )
 
 
@@ -111,17 +115,17 @@ class PDFNotFound(BuildUserError):
 
 class MkDocsYAMLParseError(BuildUserError):
     GENERIC_WITH_PARSE_EXCEPTION = gettext_noop(
-        'Problem parsing MkDocs YAML configuration. {exception}',
+        "Problem parsing MkDocs YAML configuration. {exception}",
     )
 
     INVALID_DOCS_DIR_CONFIG = gettext_noop(
         'The "docs_dir" config from your MkDocs YAML config file has to be a '
-        'string with relative or absolute path.',
+        "string with relative or absolute path.",
     )
 
     INVALID_DOCS_DIR_PATH = gettext_noop(
         'The "docs_dir" config from your MkDocs YAML config file does not '
-        'contain a valid path.',
+        "contain a valid path.",
     )
 
     INVALID_EXTRA_CONFIG = gettext_noop(

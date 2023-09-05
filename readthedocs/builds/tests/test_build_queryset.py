@@ -29,7 +29,7 @@ class TestBuildQuerySet:
                 state=state,
             )
         assert (False, 2, 4) == Build.objects.concurrent(project)
-        for state in ('building', 'cloning'):
+        for state in ("building", "cloning"):
             fixture.get(
                 Build,
                 project=project,
@@ -70,7 +70,7 @@ class TestBuildQuerySet:
             )
         assert (False, 2, 4) == Build.objects.concurrent(translation)
 
-        for state in ('building', 'cloning'):
+        for state in ("building", "cloning"):
             fixture.get(
                 Build,
                 project=translation,
@@ -103,7 +103,7 @@ class TestBuildQuerySet:
 
         project = organization.projects.first()
         assert (True, 4, 4) == Build.objects.concurrent(project)
-        for state in ('building', 'cloning'):
+        for state in ("building", "cloning"):
             fixture.get(
                 Build,
                 project=project,

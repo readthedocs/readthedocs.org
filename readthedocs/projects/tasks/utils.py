@@ -36,25 +36,23 @@ def clean_build(version):
     """Clean the files used in the build of the given version."""
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ('checkouts', 'envs', 'conda', 'artifacts')
+        for dir_ in ("checkouts", "envs", "conda", "artifacts")
     ]
-    del_dirs.append(
-        os.path.join(version.project.doc_path, '.cache')
-    )
+    del_dirs.append(os.path.join(version.project.doc_path, ".cache"))
 
-    log.info('Removing directories.', directories=del_dirs)
+    log.info("Removing directories.", directories=del_dirs)
     for path in del_dirs:
         safe_rmtree(path, ignore_errors=True)
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def remove_build_storage_paths(paths):
     """
     Remove artifacts from build media storage (cloud or local storage).
 
     :param paths: list of paths in build media storage to delete
     """
-    log.info('Removing path from media storage.', paths=paths)
+    log.info("Removing path from media storage.", paths=paths)
     for storage_path in paths:
         build_media_storage.delete_directory(storage_path)
 
@@ -67,6 +65,7 @@ def clean_project_resources(project, version=None):
 
     - Artifacts from storage.
     - Search indexes from ES.
+    - Imported files.
 
     :param version: Version instance. If isn't given,
                     all resources of `project` will be deleted.
@@ -85,10 +84,17 @@ def clean_project_resources(project, version=None):
 
     # Remove indexes
     from .search import remove_search_indexes  # noqa
+
     remove_search_indexes.delay(
         project_slug=project.slug,
         version_slug=version.slug if version else None,
     )
+
+    # Remove imported files
+    if version:
+        version.imported_files.all().delete()
+    else:
+        project.imported_files.all().delete()
 
 
 @app.task()
@@ -120,7 +126,6 @@ def finish_inactive_builds():
     builds_finished = []
     builds = Build.objects.filter(query)[:50]
     for build in builds:
-
         if build.project.container_time_limit:
             custom_delta = datetime.timedelta(
                 seconds=int(build.project.container_time_limit),
@@ -133,9 +138,9 @@ def finish_inactive_builds():
         build.success = False
         build.state = BUILD_STATE_CANCELLED
         build.error = _(
-            'This build was terminated due to inactivity. If you '
-            'continue to encounter this error, file a support '
-            'request with and reference this build id ({}).'.format(build.pk),
+            "This build was terminated due to inactivity. If you "
+            "continue to encounter this error, file a support "
+            "request with and reference this build id ({}).".format(build.pk),
         )
         build.save()
         builds_finished.append(build.pk)
@@ -166,7 +171,6 @@ def send_external_build_status(version_type, build_pk, commit, status):
 
 
 class DeprecatedConfigFileSiteNotification(SiteNotification):
-
     # TODO: mention all the project slugs here
     # Maybe trim them to up to 5 projects to avoid sending a huge blob of text
     failure_message = _(
@@ -180,7 +184,6 @@ class DeprecatedConfigFileSiteNotification(SiteNotification):
 
 
 class DeprecatedConfigFileEmailNotification(Notification):
-
     app_templates = "projects"
     name = "deprecated_config_file_used"
     subject = "[Action required] Add a configuration file to your project to prevent build failures"
@@ -521,18 +524,17 @@ def set_builder_scale_in_protection(instance, protected_from_scale_in):
 
 
 class BuildRequest(Request):
-
     def on_timeout(self, soft, timeout):
         super().on_timeout(soft, timeout)
 
         log.bind(
             task_name=self.task.name,
             project_slug=self.task.data.project.slug,
-            build_id=self.task.data.build['id'],
+            build_id=self.task.data.build["id"],
             timeout=timeout,
             soft=soft,
         )
         if soft:
-            log.warning('Build is taking too much time. Risk to be killed soon.')
+            log.warning("Build is taking too much time. Risk to be killed soon.")
         else:
-            log.warning('A timeout was enforced for task.')
+            log.warning("A timeout was enforced for task.")

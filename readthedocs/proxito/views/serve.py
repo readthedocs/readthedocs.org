@@ -601,13 +601,13 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                 )
                 try:
                     content = build_media_storage.open(storage_filename_path).read()
+                    return HttpResponse(content, status=404)
                 except FileNotFoundError:
                     log.warning(
                         "File not found in storage. File out of sync with DB.",
                         file=storage_filename_path,
                     )
                     return None
-                return HttpResponse(content, status=404)
         return None
 
     def _get_index_file_redirect(self, request, project, version, filename, full_path):

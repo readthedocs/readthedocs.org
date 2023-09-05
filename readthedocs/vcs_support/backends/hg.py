@@ -1,4 +1,3 @@
-
 """Mercurial-related utilities."""
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
@@ -10,7 +9,7 @@ class Backend(BaseVCS):
 
     supports_tags = True
     supports_branches = True
-    fallback_branch = 'default'
+    fallback_branch = "default"
 
     def update(self):
         super().update()
@@ -35,9 +34,9 @@ class Backend(BaseVCS):
     def branches(self):
         try:
             _, stdout, _ = self.run(
-                'hg',
-                'branches',
-                '--quiet',
+                "hg",
+                "branches",
+                "--quiet",
                 record_as_success=True,
             )
             return self.parse_branches(stdout)
@@ -64,7 +63,7 @@ class Backend(BaseVCS):
     @property
     def tags(self):
         try:
-            _, stdout, _ = self.run('hg', 'tags', record_as_success=True)
+            _, stdout, _ = self.run("hg", "tags", record_as_success=True)
             return self.parse_tags(stdout)
         except RepositoryError:
             # error (or no tags found)
@@ -94,27 +93,27 @@ class Backend(BaseVCS):
             if len(row) != 2:
                 continue
             name, commit = row
-            if name == 'tip':
+            if name == "tip":
                 continue
-            _, commit_hash = commit.split(':')
+            _, commit_hash = commit.split(":")
             vcs_tags.append(VCSVersion(self, commit_hash, name))
         return vcs_tags
 
     @property
     def commit(self):
-        _, stdout = self.run('hg', 'identify', '--id')[:2]
+        _, stdout = self.run("hg", "identify", "--id")[:2]
         return stdout.strip()
 
     def checkout(self, identifier=None):
         super().checkout()
         if not identifier:
-            identifier = 'tip'
+            identifier = "tip"
 
         try:
             code, stdout, stderr = self.run(
-                'hg',
-                'update',
-                '--clean',
+                "hg",
+                "update",
+                "--clean",
                 identifier,
             )
             return code, stdout, stderr

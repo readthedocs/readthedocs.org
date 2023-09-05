@@ -875,20 +875,20 @@ class TestSubprojectsWithTranslations(TestCase):
         self.assertEqual(
             url,
             (
-                'http://{project.slug}.readthedocs.io/projects/'
-                '{subproject.slug}/en/latest/'
+                "http://{project.slug}.readthedocs.io/projects/"
+                "{subproject.slug}/en/latest/"
             ).format(
                 project=self.superproject_en,
                 subproject=self.subproject_en,
             ),
         )
 
-        url = resolve(self.subproject_es, filename='')
+        url = resolve(self.subproject_es, filename="")
         self.assertEqual(
             url,
             (
-                'http://{project.slug}.readthedocs.io/projects/'
-                '{subproject.slug}/es/latest/'
+                "http://{project.slug}.readthedocs.io/projects/"
+                "{subproject.slug}/es/latest/"
             ).format(
                 project=self.superproject_en,
                 subproject=self.subproject_en,
@@ -914,24 +914,18 @@ class TestSubprojectsWithTranslations(TestCase):
         url = resolve(self.superproject_es, filename="")
         self.assertEqual(url, "http://docs.example.com/es/latest/")
 
-        url = resolve(self.subproject_en, filename='')
+        url = resolve(self.subproject_en, filename="")
         self.assertEqual(
             url,
-            (
-                'http://docs.example.com/projects/'
-                '{subproject.slug}/en/latest/'
-            ).format(
+            ("http://docs.example.com/projects/" "{subproject.slug}/en/latest/").format(
                 subproject=self.subproject_en,
             ),
         )
 
-        url = resolve(self.subproject_es, filename='')
+        url = resolve(self.subproject_es, filename="")
         self.assertEqual(
             url,
-            (
-                'http://docs.example.com/projects/'
-                '{subproject.slug}/es/latest/'
-            ).format(
+            ("http://docs.example.com/projects/" "{subproject.slug}/es/latest/").format(
                 subproject=self.subproject_en,
             ),
         )

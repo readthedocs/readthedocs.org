@@ -24,11 +24,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.35
+boto3==1.28.40
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.35
+botocore==1.31.40
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -134,7 +134,7 @@ django-csp==3.7
     # via -r requirements/pip.txt
 django-debug-toolbar==4.2.0
     # via -r requirements/pip.txt
-django-dynamic-fixture==3.1.3
+django-dynamic-fixture==4.0.0
     # via -r requirements/testing.in
 django-elasticsearch-dsl==7.3
     # via -r requirements/pip.txt
@@ -198,7 +198,7 @@ elasticsearch-dsl==7.4.1
     #   django-elasticsearch-dsl
 exceptiongroup==1.1.3
     # via pytest
-filelock==3.12.2
+filelock==3.12.3
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -227,7 +227,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.3.1
+kombu==5.3.2
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -265,6 +265,16 @@ prompt-toolkit==3.0.39
     # via
     #   -r requirements/pip.txt
     #   click-repl
+psycopg[binary,pool]==3.1.10
+    # via -r requirements/pip.txt
+psycopg-binary==3.1.10
+    # via
+    #   -r requirements/pip.txt
+    #   psycopg
+psycopg-pool==3.1.7
+    # via
+    #   -r requirements/pip.txt
+    #   psycopg
 pycparser==2.21
     # via
     #   -r requirements/pip.txt
@@ -279,7 +289,7 @@ pyjwt[crypto]==2.8.0
     #   django-allauth
 pyquery==2.0.0
     # via -r requirements/pip.txt
-pytest==7.4.0
+pytest==7.4.1
     # via
     #   -r requirements/testing.in
     #   pytest-cov
@@ -352,7 +362,6 @@ six==1.16.0
     # via
     #   -r requirements/pip.txt
     #   django-annoying
-    #   django-dynamic-fixture
     #   django-elasticsearch-dsl
     #   elasticsearch-dsl
     #   python-dateutil
@@ -362,7 +371,7 @@ slumber==0.7.1
     # via -r requirements/pip.txt
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==7.2.3
+sphinx==7.2.5
     # via
     #   -r requirements/testing.in
     #   sphinxcontrib-applehelp
@@ -405,6 +414,9 @@ typing-extensions==4.7.1
     # via
     #   -r requirements/pip.txt
     #   asgiref
+    #   filelock
+    #   psycopg
+    #   psycopg-pool
 tzdata==2023.3
     # via
     #   -r requirements/pip.txt
@@ -434,7 +446,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.24.3
+virtualenv==20.24.4
     # via -r requirements/pip.txt
 wcwidth==0.2.6
     # via
