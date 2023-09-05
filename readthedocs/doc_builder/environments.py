@@ -101,7 +101,6 @@ class BuildCommand(BuildCommandResultMixin):
         # Maybe this ``BuildCommand`` should not accept `build_env=None` since
         # it doesn't make sense.
         if self.build_env:
-
             # When using `project.vcs_repo` on tests we are passing `environment=False`.
             # See https://github.com/readthedocs/readthedocs.org/pull/6482#discussion_r367694530
             if self.build_env.project and self.build_env.version:

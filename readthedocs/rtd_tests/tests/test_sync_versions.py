@@ -684,7 +684,8 @@ class TestSyncVersions(TestCase):
         syncing the versions, the RTD's ``latest`` is lost (set to
                                                             machine=False) and doesn't update automatically anymore, when the branch
         is deleted on the user repository, the RTD's ``latest`` is back (set to
-                                                                         machine=True)."""
+                                                                         machine=True).
+        """
         branches_data = [
             {
                 "identifier": "origin/master",
