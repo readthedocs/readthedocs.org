@@ -12,6 +12,7 @@ from readthedocs.api.v2.views.footer_views import get_version_compare_data
 from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND, PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_CNAME
@@ -448,7 +449,7 @@ class TestVersionCompareFooter(TestCase):
 
     def test_private_highest_version(self):
         self.pip.versions.update(privacy_level=PRIVATE)
-        owner = self.pip.users.first()
+        owner = AdminPermission.members(self.pip).first()
         base_version = self.pip.versions.get(slug="0.8")
         returned_data = get_version_compare_data(self.pip, base_version)
         self.assertTrue(returned_data["is_highest"])
