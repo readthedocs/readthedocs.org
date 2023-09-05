@@ -23,76 +23,80 @@ log = structlog.get_logger(__name__)
 
 class Organization(models.Model):
 
-    """
-    Organization model.
-
-    stripe_id: Customer id from Stripe API
-    """
+    """Organization model."""
 
     # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+    pub_date = models.DateTimeField(_("Publication date"), auto_now_add=True)
+    modified_date = models.DateTimeField(_("Modified date"), auto_now=True)
 
     # Foreign
     projects = models.ManyToManyField(
-        'projects.Project',
-        verbose_name=_('Projects'),
-        related_name='organizations',
+        "projects.Project",
+        verbose_name=_("Projects"),
+        related_name="organizations",
     )
     owners = models.ManyToManyField(
         User,
-        verbose_name=_('Owners'),
-        related_name='owner_organizations',
-        through='OrganizationOwner',
+        verbose_name=_("Owners"),
+        related_name="owner_organizations",
+        through="OrganizationOwner",
     )
 
     # Local
-    name = models.CharField(_('Name'), max_length=100)
+    name = models.CharField(_("Name"), max_length=100)
     slug = models.SlugField(
-        _('Slug'),
+        _("Slug"),
         max_length=255,
         unique=True,
         null=False,
         blank=False,
     )
     email = models.EmailField(
-        _('E-mail'),
-        help_text='How can we get in touch with you?',
+        _("E-mail"),
+        help_text="How can we get in touch with you?",
         max_length=255,
         blank=True,
         null=True,
     )
     description = models.TextField(
-        _('Description'),
-        help_text='Tell us a little about yourself.',
+        _("Description"),
+        help_text="Tell us a little about yourself.",
         blank=True,
         null=True,
     )
     url = models.URLField(
-        _('Home Page'),
-        help_text='The main website for your Organization',
+        _("Home Page"),
+        help_text="The main website for your Organization",
         max_length=255,
         blank=True,
         null=True,
     )
+    never_disable = models.BooleanField(
+        _("Never disable"),
+        help_text="Never disable this organization, even if its subscription ends",
+        # TODO: remove after migration
+        null=True,
+        default=False,
+    )
     disabled = models.BooleanField(
-        _('Disabled'),
-        help_text='Docs and builds are disabled for this organization',
+        _("Disabled"),
+        help_text="Docs and builds are disabled for this organization",
         default=False,
     )
     artifacts_cleaned = models.BooleanField(
-        _('Artifacts Cleaned'),
-        help_text='Artifacts are cleaned out from storage',
+        _("Artifacts Cleaned"),
+        help_text="Artifacts are cleaned out from storage",
         default=False,
     )
     max_concurrent_builds = models.IntegerField(
-        _('Maximum concurrent builds allowed for this organization'),
+        _("Maximum concurrent builds allowed for this organization"),
         null=True,
         blank=True,
     )
 
+    # TODO: This field can be removed, we are now using stripe_customer instead.
     stripe_id = models.CharField(
-        _('Stripe customer ID'),
+        _("Stripe customer ID"),
         max_length=100,
         blank=True,
         null=True,
@@ -119,37 +123,34 @@ class Organization(models.Model):
     history = ExtraHistoricalRecords()
 
     class Meta:
-        base_manager_name = 'objects'
+        base_manager_name = "objects"
         verbose_name = _("organization")
-        ordering = ['name']
-        get_latest_by = ['-pub_date']
+        ordering = ["name"]
+        get_latest_by = ["-pub_date"]
 
     def __str__(self):
         return self.name
 
-    def get_or_create_stripe_subscription(self):
-        # TODO: remove this once we don't depend on our Subscription models.
-        from readthedocs.subscriptions.models import Subscription
-
-        subscription = Subscription.objects.get_or_create_default_subscription(self)
-        if not subscription:
-            # This only happens during development.
-            log.warning("No default subscription created.")
-            return None
-        return self.get_stripe_subscription()
-
     def get_stripe_subscription(self):
         # Active subscriptions take precedence over non-active subscriptions,
-        # otherwise we return the must recently created subscription.
-        active_subscription = self.stripe_customer.subscriptions.filter(
+        # otherwise we return the most recently created subscription.
+        active_subscriptions = self.stripe_customer.subscriptions.filter(
             status=SubscriptionStatus.active
-        ).first()
-        if active_subscription:
-            return active_subscription
+        )
+        if active_subscriptions:
+            if active_subscriptions.count() > 1:
+                # NOTE: this should never happen, unless we manually
+                # created another subscription for the user or if there
+                # is a bug in our code.
+                log.exception(
+                    "Organization has more than one active subscription",
+                    organization_slug=self.slug,
+                )
+            return active_subscriptions.order_by("created").last()
         return self.stripe_customer.subscriptions.order_by("created").last()
 
     def get_absolute_url(self):
-        return reverse('organization_detail', args=(self.slug,))
+        return reverse("organization_detail", args=(self.slug,))
 
     @property
     def users(self):
@@ -205,7 +206,7 @@ class OrganizationOwner(models.Model):
     )
 
     def __str__(self):
-        return _('{org} owner {owner}').format(
+        return _("{org} owner {owner}").format(
             org=self.organization.name,
             owner=self.owner.username,
         )
@@ -216,41 +217,41 @@ class Team(models.Model):
     """Team model."""
 
     # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+    pub_date = models.DateTimeField(_("Publication date"), auto_now_add=True)
+    modified_date = models.DateTimeField(_("Modified date"), auto_now=True)
 
     # Foreign
     organization = models.ForeignKey(
         Organization,
-        related_name='teams',
+        related_name="teams",
         on_delete=models.CASCADE,
     )
     projects = models.ManyToManyField(
-        'projects.Project',
-        verbose_name=_('Projects'),
-        related_name='teams',
+        "projects.Project",
+        verbose_name=_("Projects"),
+        related_name="teams",
         blank=True,
     )
     members = models.ManyToManyField(
         User,
-        verbose_name=_('Users'),
-        related_name='teams',
+        verbose_name=_("Users"),
+        related_name="teams",
         blank=True,
-        through='TeamMember',
+        through="TeamMember",
     )
 
     # Local
-    name = models.CharField(_('Name'), max_length=100)
+    name = models.CharField(_("Name"), max_length=100)
     slug = AutoSlugField(
-        populate_from='name',
+        populate_from="name",
         always_update=True,
-        unique_with=['organization'],
+        unique_with=["organization"],
     )
     access = models.CharField(
-        _('Access'),
+        _("Access"),
         max_length=100,
         choices=constants.ACCESS_LEVELS,
-        default='readonly',
+        default="readonly",
     )
 
     auto_join_email_users = models.BooleanField(
@@ -263,16 +264,16 @@ class Team(models.Model):
     history = ExtraHistoricalRecords()
 
     class Meta:
-        base_manager_name = 'objects'
+        base_manager_name = "objects"
         verbose_name = _("team")
         unique_together = (
-            ('slug', 'organization'),
-            ('name', 'organization'),
+            ("slug", "organization"),
+            ("name", "organization"),
         )
 
     def get_absolute_url(self):
         return reverse(
-            'organization_team_detail',
+            "organization_team_detail",
             args=(self.organization.slug, self.slug),
         )
 
@@ -290,32 +291,32 @@ class TeamInvite(models.Model):
     """Model to keep track of invitations to an organization."""
 
     # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+    pub_date = models.DateTimeField(_("Publication date"), auto_now_add=True)
+    modified_date = models.DateTimeField(_("Modified date"), auto_now=True)
 
     # Foreign
     organization = models.ForeignKey(
         Organization,
-        related_name='invites',
+        related_name="invites",
         on_delete=models.CASCADE,
     )
     team = models.ForeignKey(
         Team,
-        verbose_name=_('Team'),
-        related_name='invites',
+        verbose_name=_("Team"),
+        related_name="invites",
         on_delete=models.CASCADE,
     )
 
-    email = models.EmailField(_('E-mail'))
-    hash = models.CharField(_('Hash'), max_length=250)
-    count = models.IntegerField(_('Count'), default=0)
-    total = models.IntegerField(_('Total'), default=10)
+    email = models.EmailField(_("E-mail"))
+    hash = models.CharField(_("Hash"), max_length=250)
+    count = models.IntegerField(_("Count"), default=0)
+    total = models.IntegerField(_("Total"), default=10)
 
     class Meta:
-        unique_together = ('team', 'email')
+        unique_together = ("team", "email")
 
     def __str__(self):
-        return '{email} to {team}'.format(
+        return "{email} to {team}".format(
             email=self.email,
             team=self.team,
         )
@@ -323,9 +324,9 @@ class TeamInvite(models.Model):
     def save(self, *args, **kwargs):
         hash_ = salted_hmac(
             # HMAC key per applications
-            '.'.join([self.__module__, self.__class__.__name__]),
+            ".".join([self.__module__, self.__class__.__name__]),
             # HMAC message
-            ''.join([str(self.team), str(self.email)]),
+            "".join([str(self.team), str(self.email)]),
         )
         self.hash = hash_.hexdigest()[::2]
         super().save(*args, **kwargs)
@@ -363,9 +364,9 @@ class TeamMember(models.Model):
 
     class Meta:
         unique_together = (
-            ('team', 'member', 'invite'),
-            ('team', 'member'),
-            ('team', 'invite'),
+            ("team", "member", "invite"),
+            ("team", "member"),
+            ("team", "invite"),
         )
 
     team = models.ForeignKey(
@@ -390,10 +391,10 @@ class TeamMember(models.Model):
     objects = TeamMemberManager()
 
     def __str__(self):
-        state = ''
+        state = ""
         if self.is_invite:
-            state = ' (pending)'
-        return '{username} to {team}{state}'.format(
+            state = " (pending)"
+        return "{username} to {team}{state}".format(
             username=self.username,
             team=self.team,
             state=state,
@@ -408,14 +409,14 @@ class TeamMember(models.Model):
         if self.invite is not None:
             return self.invite.email
 
-        return 'Unknown'
+        return "Unknown"
 
     @property
     def full_name(self):
         """Return member or invite full name."""
         if self.is_member:
             return self.member.get_full_name()
-        return ''
+        return ""
 
     @property
     def email(self):

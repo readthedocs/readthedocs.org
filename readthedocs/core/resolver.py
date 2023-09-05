@@ -393,7 +393,6 @@ class ResolverBase:
 
 
 class Resolver(SettingsOverrideObject):
-
     _default_class = ResolverBase
     _override_setting = "RESOLVER_CLASS"
 

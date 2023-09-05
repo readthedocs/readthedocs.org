@@ -199,6 +199,7 @@ class Version(TimeStampedModel):
         _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
         default=None,
         null=True,
+        blank=True,
     )
 
     addons = models.BooleanField(
@@ -422,8 +423,11 @@ class Version(TimeStampedModel):
         """
         Remove all resources from this version.
 
-        This includes removing files from storage,
-        and removing its search index.
+        This includes:
+
+        - Files from storage
+        - Search index
+        - Imported files
         """
         from readthedocs.projects.tasks.utils import clean_project_resources
 

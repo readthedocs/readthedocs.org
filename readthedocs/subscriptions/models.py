@@ -11,7 +11,6 @@ from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.utils import slugify
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.constants import FEATURE_TYPES
-from readthedocs.subscriptions.managers import SubscriptionManager
 
 
 class Plan(models.Model):
@@ -19,46 +18,46 @@ class Plan(models.Model):
     """Organization subscription plans."""
 
     # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+    pub_date = models.DateTimeField(_("Publication date"), auto_now_add=True)
+    modified_date = models.DateTimeField(_("Modified date"), auto_now=True)
 
     # Local
-    name = models.CharField(_('Name'), max_length=100)
+    name = models.CharField(_("Name"), max_length=100)
     description = models.CharField(
-        _('Description'),
+        _("Description"),
         max_length=255,
         null=True,
         blank=True,
     )
-    slug = models.SlugField(_('Slug'), max_length=255, unique=True)
-    stripe_id = models.CharField(_('Stripe ID'), max_length=100)
-    price = models.IntegerField(_('Price'))
-    trial = models.IntegerField(_('Trial'))
+    slug = models.SlugField(_("Slug"), max_length=255, unique=True)
+    stripe_id = models.CharField(_("Stripe ID"), max_length=100)
+    price = models.IntegerField(_("Price"))
+    trial = models.IntegerField(_("Trial"))
 
     # Foreign
     for_organizations = models.ManyToManyField(
         Organization,
-        verbose_name=_('For organizations'),
-        related_name='available_plans',
+        verbose_name=_("For organizations"),
+        related_name="available_plans",
         blank=True,
         # Custom table is used, because these models were moved from an existing app.
-        db_table='organizations_plan_for_organizations',
+        db_table="organizations_plan_for_organizations",
     )
 
     published = models.BooleanField(
-        _('Published'),
+        _("Published"),
         default=False,
-        help_text="<b>Warning</b>: This will make this subscription available for users to buy. Don't add unless you're sure."  # noqa
+        help_text="<b>Warning</b>: This will make this subscription available for users to buy. Don't add unless you're sure.",  # noqa
     )
 
     class Meta:
         # Custom table is used, because these models were moved from an existing app.
-        db_table = 'organizations_plan'
-        ordering = ('price',)
+        db_table = "organizations_plan"
+        ordering = ("price",)
 
     def get_absolute_url(self):
         return reverse(
-            'organization_plan_detail',
+            "organization_plan_detail",
             args=(self.organizations.all()[0].slug, self.slug),
         )
 
@@ -81,29 +80,29 @@ class PlanFeature(models.Model):
 
     class Meta:
         # Custom table is used, because these models were moved from an existing app.
-        db_table = 'organizations_planfeature'
-        unique_together = (('plan', 'feature_type'),)
+        db_table = "organizations_planfeature"
+        unique_together = (("plan", "feature_type"),)
 
     # Auto fields
-    pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True)
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+    pub_date = models.DateTimeField(_("Publication date"), auto_now_add=True)
+    modified_date = models.DateTimeField(_("Modified date"), auto_now=True)
 
     plan = models.ForeignKey(
         Plan,
-        related_name='features',
+        related_name="features",
         on_delete=models.CASCADE,
     )
     feature_type = models.CharField(_("Type"), max_length=32, choices=FEATURE_TYPES)
     value = models.IntegerField(_("Numeric value"), null=True, blank=True)
     description = models.CharField(
-        _('Description'),
+        _("Description"),
         max_length=255,
         null=True,
         blank=True,
     )
 
     def __str__(self):
-        return '{plan} feature: {feature}'.format(
+        return "{plan} feature: {feature}".format(
             plan=self.plan,
             feature=self.get_feature_type_display(),
         )
@@ -127,53 +126,52 @@ class Subscription(models.Model):
 
     plan = models.ForeignKey(
         Plan,
-        verbose_name=_('Plan'),
-        related_name='subscriptions',
+        verbose_name=_("Plan"),
+        related_name="subscriptions",
         on_delete=models.CASCADE,
     )
     organization = models.OneToOneField(
         Organization,
-        verbose_name=_('Organization'),
+        verbose_name=_("Organization"),
         on_delete=models.CASCADE,
     )
     locked = models.BooleanField(
-        _('Locked plan'),
+        _("Locked plan"),
         default=False,
-        help_text=_('Locked plan for custom contracts'),
+        help_text=_("Locked plan for custom contracts"),
     )
-    modified_date = models.DateTimeField(_('Modified date'), auto_now=True)
+    modified_date = models.DateTimeField(_("Modified date"), auto_now=True)
 
     # These fields (stripe_id, status, start_date and end_date) are filled with
     # the data retrieved from Stripe after the creation of the model instance.
     stripe_id = models.CharField(
-        _('Stripe subscription ID'),
+        _("Stripe subscription ID"),
         max_length=100,
         blank=True,
         null=True,
     )
-    status = models.CharField(_('Subscription status'), max_length=16)
-    start_date = models.DateTimeField(_('Start date'), blank=True, null=True)
+    status = models.CharField(_("Subscription status"), max_length=16)
+    start_date = models.DateTimeField(_("Start date"), blank=True, null=True)
     end_date = models.DateTimeField(
-        _('End date'),
+        _("End date"),
         blank=True,
         null=True,
     )
 
     trial_end_date = models.DateTimeField(
-        _('Trial end date'),
+        _("Trial end date"),
         blank=True,
         null=True,
     )
 
-    objects = SubscriptionManager()
     history = ExtraHistoricalRecords()
 
     class Meta:
         # Custom table is used, because these models were moved from an existing app.
-        db_table = 'organizations_subscription'
+        db_table = "organizations_subscription"
 
     def __str__(self):
-        return '{org} subscription'.format(org=self.organization.name)
+        return "{org} subscription".format(org=self.organization.name)
 
     @property
     def is_trial_ended(self):
@@ -188,14 +186,12 @@ class Subscription(models.Model):
         Possible values:
         https://stripe.com/docs/api/python#subscription_object-status
         """
-        return self.status.replace('_', ' ').title()
+        return self.status.replace("_", " ").title()
 
     def default_trial_end_date(self):
         """Date of trial period end."""
         if self.plan is not None:
-            return (
-                self.organization.pub_date + timedelta(days=self.plan.trial)
-            )
+            return self.organization.pub_date + timedelta(days=self.plan.trial)
 
     def save(self, *args, **kwargs):
         if self.trial_end_date is None:

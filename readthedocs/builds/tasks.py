@@ -499,7 +499,6 @@ def send_build_notifications(version_pk, build_pk, event):
 
 
 class BuildNotificationSender:
-
     webhook_timeout = 2
 
     def __init__(self, version, build, event):

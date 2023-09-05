@@ -5,11 +5,13 @@ from allauth.account.signals import user_signed_up
 from django.db.models import Count
 from django.db.models.signals import pre_delete
 from django.dispatch import receiver
+from djstripe.enums import SubscriptionStatus
 
 from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.models import Build
 from readthedocs.builds.signals import build_complete
 from readthedocs.organizations.models import Organization, Team, TeamMember
+from readthedocs.payments.utils import cancel_subscription
 from readthedocs.projects.models import Project
 
 from .tasks import (
@@ -37,6 +39,7 @@ def remove_organization_completely(sender, instance, using, **kwargs):
 
     This includes:
 
+    - Stripe customer
     - Projects
     - Versions
     - Builds (deleted on cascade)
@@ -46,6 +49,19 @@ def remove_organization_completely(sender, instance, using, **kwargs):
     - Artifacts (HTML, PDF, etc)
     """
     organization = instance
+
+    stripe_customer = organization.stripe_customer
+    if stripe_customer:
+        log.info(
+            "Canceling subscriptions",
+            organization_slug=organization.slug,
+            stripe_customer_id=stripe_customer.id,
+        )
+        for subscription in stripe_customer.subscriptions.exclude(
+            status=SubscriptionStatus.canceled
+        ):
+            cancel_subscription(subscription.id)
+
     log.info("Removing organization completely", organization_slug=organization.slug)
 
     # ``Project`` has a ManyToMany relationship with ``Organization``. We need
