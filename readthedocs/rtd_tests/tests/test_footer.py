@@ -12,7 +12,7 @@ from readthedocs.api.v2.views.footer_views import get_version_compare_data
 from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
-from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND, PUBLIC
+from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND, PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.products import RTDProductFeature
@@ -446,6 +446,22 @@ class TestVersionCompareFooter(TestCase):
         returned_data = get_version_compare_data(self.pip, base_version)
         self.assertDictEqual(valid_data, returned_data)
 
+    def test_private_highest_version(self):
+        self.pip.versions.update(privacy_level=PRIVATE)
+        owner = self.pip.users.first()
+        base_version = self.pip.versions.get(slug="0.8")
+        returned_data = get_version_compare_data(self.pip, base_version)
+        self.assertTrue(returned_data["is_highest"])
+
+        returned_data = get_version_compare_data(self.pip, base_version, user=owner)
+        valid_data = {
+            "project": "Version 0.8.1 of Pip (19)",
+            "url": "https://pip.readthedocs.io/en/0.8.1/",
+            "slug": "0.8.1",
+            "version": "0.8.1",
+            "is_highest": False,
+        }
+        self.assertDictEqual(valid_data, returned_data)
 
 @pytest.mark.proxito
 @override_settings(
