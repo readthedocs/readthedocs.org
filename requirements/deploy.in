@@ -2,8 +2,6 @@
 
 -r pip.txt
 
-psycopg2
-
 structlog-sentry
 
 newrelic

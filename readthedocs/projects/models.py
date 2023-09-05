@@ -48,15 +48,12 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parsers import GenericParser, SphinxParser
+from readthedocs.search.parsers import GenericParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
     DOWNLOADABLE_MEDIA_TYPES,
-    MEDIA_TYPE_EPUB,
-    MEDIA_TYPE_HTMLZIP,
-    MEDIA_TYPE_PDF,
     MEDIA_TYPES,
 )
 
@@ -851,34 +848,6 @@ class Project(models.Model):
             return self._good_build
         return self.builds(manager=INTERNAL).filter(success=True).exists()
 
-    def has_media(self, type_, version_slug=LATEST, version_type=None):
-        storage_path = self.get_storage_path(
-            type_=type_, version_slug=version_slug,
-            version_type=version_type
-        )
-        return build_media_storage.exists(storage_path)
-
-    def has_pdf(self, version_slug=LATEST, version_type=None):
-        return self.has_media(
-            MEDIA_TYPE_PDF,
-            version_slug=version_slug,
-            version_type=version_type
-        )
-
-    def has_epub(self, version_slug=LATEST, version_type=None):
-        return self.has_media(
-            MEDIA_TYPE_EPUB,
-            version_slug=version_slug,
-            version_type=version_type
-        )
-
-    def has_htmlzip(self, version_slug=LATEST, version_type=None):
-        return self.has_media(
-            MEDIA_TYPE_HTMLZIP,
-            version_slug=version_slug,
-            version_type=version_type
-        )
-
     def vcs_repo(
         self,
         environment,
@@ -1427,23 +1396,7 @@ class HTMLFile(ImportedFile):
     objects = HTMLFileManager()
 
     def get_processed_json(self):
-        if (
-            self.version.documentation_type == constants.GENERIC
-            or self.version.is_mkdocs_type
-            or self.project.has_feature(Feature.INDEX_FROM_HTML_FILES)
-        ):
-            parser_class = GenericParser
-        elif self.version.is_sphinx_type:
-            parser_class = SphinxParser
-        else:
-            log.warning(
-                "Invalid documentation type",
-                documentation_type=self.version.documentation_type,
-                version_slug=self.version.slug,
-                project_slug=self.project.slug,
-            )
-            return {}
-        parser = parser_class(self.version)
+        parser = GenericParser(self.version)
         return parser.parse(self.path)
 
     @cached_property
@@ -1832,7 +1785,6 @@ class Feature(models.Model):
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
-    INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
@@ -1958,13 +1910,6 @@ class Feature(models.Model):
         (
             DEFAULT_TO_FUZZY_SEARCH,
             _("Search: Default to fuzzy search for simple search queries"),
-        ),
-        (
-            INDEX_FROM_HTML_FILES,
-            _(
-                "Search: Index content directly from html files instead or relying in other "
-                "sources"
-            ),
         ),
         # Build related features.
         (

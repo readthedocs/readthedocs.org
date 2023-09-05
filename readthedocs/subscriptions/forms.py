@@ -27,5 +27,5 @@ class PlanForm(forms.Form):
         ]
         self.fields["plan"].help_text = _(
             'Check our <a href="https://about.readthedocs.com/pricing/">pricing page</a> '
-            'for more information about each plan.'
+            "for more information about each plan."
         )

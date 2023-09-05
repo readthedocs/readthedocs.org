@@ -13,7 +13,7 @@ class Backend(BaseVCS):
     """Bazaar VCS backend."""
 
     supports_tags = True
-    fallback_branch = ''
+    fallback_branch = ""
 
     def clone(self):
         self.make_clean_working_dir()
@@ -25,7 +25,7 @@ class Backend(BaseVCS):
     @property
     def tags(self):
         try:
-            code, stdout, stderr = self.run('bzr', 'tags', record_as_success=True)
+            code, stdout, stderr = self.run("bzr", "tags", record_as_success=True)
             return self.parse_tags(stdout)
         except RepositoryError:
             # error (or no tags found)
@@ -52,19 +52,19 @@ class Backend(BaseVCS):
         # StringIO below is expecting Unicode data, so ensure that it gets it.
         if not isinstance(data, str):
             data = str(data)
-        squashed_data = re.sub(r' +', ' ', data)
-        raw_tags = csv.reader(StringIO(squashed_data), delimiter=' ')
+        squashed_data = re.sub(r" +", " ", data)
+        raw_tags = csv.reader(StringIO(squashed_data), delimiter=" ")
         vcs_tags = []
         for row in raw_tags:
-            name = ' '.join(row[:-1])
+            name = " ".join(row[:-1])
             commit = row[-1]
-            if commit != '?':
+            if commit != "?":
                 vcs_tags.append(VCSVersion(self, commit, name))
         return vcs_tags
 
     @property
     def commit(self):
-        _, stdout, _ = self.run('bzr', 'revno')
+        _, stdout, _ = self.run("bzr", "revno")
         return stdout.strip()
 
     def checkout(self, identifier=None):
@@ -74,7 +74,7 @@ class Backend(BaseVCS):
             return self.up()
 
         try:
-            code, stdout, stderr = self.run('bzr', 'switch', identifier)
+            code, stdout, stderr = self.run("bzr", "switch", identifier)
             return code, stdout, stderr
         except RepositoryError:
             raise RepositoryError(

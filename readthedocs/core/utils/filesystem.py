@@ -23,6 +23,7 @@ log = structlog.get_logger(__name__)
 
 MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024 * 1  # 1 GB
 
+
 def _assert_path_is_inside_docroot(path):
     resolved_path = path.absolute().resolve()
     docroot = Path(settings.DOCROOT).absolute()

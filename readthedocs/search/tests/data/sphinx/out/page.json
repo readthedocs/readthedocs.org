@@ -1,5 +1,5 @@
 {
-  "path": "guides/environment-variables",
+  "path": "page.html",
   "title": "I Need Secrets (or Environment Variables) in my Build",
   "sections": [
     {

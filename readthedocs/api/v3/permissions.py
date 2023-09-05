@@ -34,10 +34,10 @@ class UserProjectsListing(BasePermission):
     """Allow access to ``/projects`` (user's projects listing)."""
 
     def has_permission(self, request, view):
-        if view.basename == 'projects' and view.action in (
-                'list',
-                'create',  # used to create Form in BrowsableAPIRenderer
-                None,  # needed for BrowsableAPIRenderer
+        if view.basename == "projects" and view.action in (
+            "list",
+            "create",  # used to create Form in BrowsableAPIRenderer
+            None,  # needed for BrowsableAPIRenderer
         ):
             # hitting ``/projects/``, allowing
             return True
@@ -58,7 +58,7 @@ class PublicDetailPrivateListing(BasePermission):
         # permissions restrictions than for a detail action (since it only
         # returns one superproject if exists). ``list`` and ``retrieve`` are
         # DRF standard action names (same as ``update`` or ``partial_update``).
-        if view.detail and view.action in ('list', 'retrieve', 'superproject'):
+        if view.detail and view.action in ("list", "retrieve", "superproject"):
             # detail view is only allowed on list/retrieve actions (not
             # ``update`` or ``partial_update``).
             return True
@@ -81,7 +81,6 @@ class IsProjectAdmin(BasePermission):
 
 
 class IsOrganizationAdmin(BasePermission):
-
     def has_permission(self, request, view):
         organization = view._get_parent_organization()
         if view.has_admin_permission(request.user, organization):
@@ -96,11 +95,10 @@ class IsOrganizationAdminMember(BasePermission):
 
 
 class UserOrganizationsListing(BasePermission):
-
     def has_permission(self, request, view):
-        if view.basename == 'organizations' and view.action in (
-                'list',
-                None,  # needed for BrowsableAPIRenderer
+        if view.basename == "organizations" and view.action in (
+            "list",
+            None,  # needed for BrowsableAPIRenderer
         ):
             # hitting ``/organizations/``, allowing
             return True
@@ -120,10 +118,9 @@ class CommonPermissionsBase(BasePermission):
         if not IsAuthenticated().has_permission(request, view):
             return False
 
-        return (
-            UserProjectsListing().has_permission(request, view) or
-            PublicDetailPrivateListing().has_permission(request, view)
-        )
+        return UserProjectsListing().has_permission(
+            request, view
+        ) or PublicDetailPrivateListing().has_permission(request, view)
 
 
 class CommonPermissions(SettingsOverrideObject):

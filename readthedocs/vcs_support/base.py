@@ -27,7 +27,7 @@ class VCSVersion:
         self.verbose_name = verbose_name
 
     def __repr__(self):
-        return '<VCSVersion: {}:{}'.format(
+        return "<VCSVersion: {}:{}".format(
             self.repository.repo_url,
             self.verbose_name,
         )
@@ -93,10 +93,12 @@ class BaseVCS:
         self.check_working_dir()
 
     def run(self, *cmd, **kwargs):
-        kwargs.update({
-            'cwd': self.working_dir,
-            'shell': False,
-        })
+        kwargs.update(
+            {
+                "cwd": self.working_dir,
+                "shell": False,
+            }
+        )
 
         try:
             build_cmd = self.environment.run(*cmd, **kwargs)
