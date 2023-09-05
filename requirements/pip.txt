@@ -56,7 +56,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.6.3
     # via -r requirements/pip.in
-django==4.2.4
+django==4.2.5
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -185,12 +185,8 @@ platformdirs==3.10.0
     # via virtualenv
 prompt-toolkit==3.0.39
     # via click-repl
-psycopg[binary,pool]==3.1.10
+psycopg2==2.9.7
     # via -r requirements/pip.in
-psycopg-binary==3.1.10
-    # via psycopg
-psycopg-pool==3.1.7
-    # via psycopg
 pycparser==2.21
     # via cffi
 pygments==2.16.1
@@ -268,8 +264,6 @@ typing-extensions==4.7.1
     # via
     #   asgiref
     #   filelock
-    #   psycopg
-    #   psycopg-pool
 tzdata==2023.3
     # via
     #   -r requirements/pip.in
