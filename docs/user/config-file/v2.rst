@@ -438,13 +438,13 @@ Specify a list of commands that Read the Docs will run on the build process.
 When ``build.commands`` is used, none of the :term:`pre-defined build jobs` will be executed.
 (see :doc:`/build-customization` for more details).
 This allows you to run custom commands and control the build process completely.
-The ``_readthedocs/html`` directory (relative to the checkout's path) will be uploaded and hosted by Read the Docs.
+The ``$READTHEDOCS_OUTPUT/html`` directory will be uploaded and hosted by Read the Docs.
 
 .. warning::
 
    This feature is in a *beta phase* and could suffer incompatible changes or even removed completely in the near feature.
-   It does not yet support some of the Read the Docs' integrations like the :term:`flyout menu`, search and ads.
-   However, integrating all of them is part of the plan.
+   We are currently testing `the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`_
+   on projects using ``build.commands`` configuration key.
    Use it under your own responsibility.
 
 .. code-block:: yaml
@@ -457,7 +457,7 @@ The ``_readthedocs/html`` directory (relative to the checkout's path) will be up
        python: "3.11"
      commands:
        - pip install pelican
-       - pelican --settings docs/pelicanconf.py --output _readthedocs/html/ docs/
+       - pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/
 
 .. note::
 
