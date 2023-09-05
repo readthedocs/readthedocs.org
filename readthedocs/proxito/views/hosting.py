@@ -1,21 +1,26 @@
 """Views for hosting features."""
 
+from functools import lru_cache
+
 import packaging
 import structlog
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404, JsonResponse
-from django.views import View
+from rest_framework.renderers import JSONRenderer
+from rest_framework.views import APIView
 
+from readthedocs.api.mixins import CDNCacheTagsMixin
+from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v3.serializers import (
     BuildSerializer,
     ProjectSerializer,
     VersionSerializer,
 )
 from readthedocs.builds.models import Version
-from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
+from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Feature
 
 log = structlog.get_logger(__name__)  # noqa
@@ -35,7 +40,7 @@ class ClientError(Exception):
     )
 
 
-class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
+class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
 
     """
     API response consumed by our JavaScript client.
@@ -49,8 +54,52 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
         (e.g. ``window.location.href``)
     """
 
-    def get(self, request):
+    http_method_names = ["get"]
+    permission_classes = [IsAuthorizedToViewVersion]
+    renderer_classes = [JSONRenderer]
+    project_cache_tag = "rtd-addons"
 
+    @lru_cache(maxsize=1)
+    def _resolve_resources(self):
+        url = self.request.GET.get("url")
+        if not url:
+            # TODO: not sure what to return here when it fails on the `has_permission`
+            return None, None, None, None
+
+        unresolved_domain = self.request.unresolved_domain
+        project = unresolved_domain.project
+
+        try:
+            unresolved_url = unresolver.unresolve_url(url)
+            version = unresolved_url.version
+            filename = unresolved_url.filename
+            build = version.builds.last()
+
+        except UnresolverError as exc:
+            # If an exception is raised and there is a ``project`` in the
+            # exception, it's a partial match. This could be because of an
+            # invalid URL path, but on a valid project domain. In this case, we
+            # continue with the ``project``, but without a ``version``.
+            # Otherwise, we return 404 NOT FOUND.
+            project = getattr(exc, "project", None)
+            if not project:
+                raise Http404() from exc
+
+            version = None
+            filename = None
+            build = None
+
+        return project, version, build, filename
+
+    def _get_project(self):
+        project, version, build, filename = self._resolve_resources()
+        return project
+
+    def _get_version(self):
+        project, version, build, filename = self._resolve_resources()
+        return version
+
+    def get(self, request, format=None):
         url = request.GET.get("url")
         if not url:
             return JsonResponse(
@@ -83,30 +132,16 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                 status=400,
             )
 
-        unresolved_domain = request.unresolved_domain
-        project = unresolved_domain.project
+        project, version, build, filename = self._resolve_resources()
 
-        try:
-            unresolved_url = unresolver.unresolve_url(url)
-            version = unresolved_url.version
-            filename = unresolved_url.filename
-            build = version.builds.last()
-
-        except UnresolverError as exc:
-            # If an exception is raised and there is a ``project`` in the
-            # exception, it's a partial match. This could be because of an
-            # invalid URL path, but on a valid project domain. In this case, we
-            # continue with the ``project``, but without a ``version``.
-            # Otherwise, we return 404 NOT FOUND.
-            project = getattr(exc, "project", None)
-            if not project:
-                raise Http404() from exc
-
-            version = None
-            filename = None
-            build = None
-
-        data = AddonsResponse().get(addons_version, project, version, build, filename)
+        data = AddonsResponse().get(
+            addons_version,
+            project,
+            version,
+            build,
+            filename,
+            user=request.user,
+        )
         return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
 
 
@@ -149,7 +184,15 @@ class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
 
 
 class AddonsResponse:
-    def get(self, addons_version, project, version=None, build=None, filename=None):
+    def get(
+        self,
+        addons_version,
+        project,
+        version=None,
+        build=None,
+        filename=None,
+        user=None,
+    ):
         """
         Unique entry point to get the proper API response.
 
@@ -157,12 +200,12 @@ class AddonsResponse:
         best JSON structure for that particular version.
         """
         if addons_version.major == 0:
-            return self._v0(project, version, build, filename)
+            return self._v0(project, version, build, filename, user)
 
         if addons_version.major == 1:
-            return self._v1(project, version, build, filename)
+            return self._v1(project, version, build, filename, user)
 
-    def _v0(self, project, version, build, filename):
+    def _v0(self, project, version, build, filename, user):
         """
         Initial JSON data structure consumed by the JavaScript client.
 
@@ -180,7 +223,10 @@ class AddonsResponse:
         if not project.single_version:
             versions_active_built_not_hidden = (
                 Version.internal.public(
-                    project=project, only_active=True, only_built=True
+                    project=project,
+                    only_active=True,
+                    only_built=True,
+                    user=user,
                 )
                 .exclude(hidden=True)
                 .only("slug")
@@ -369,7 +415,11 @@ class AddonsResponse:
 
         return data
 
-    def _v1(self, project, version, build, filename):
+    def _v1(self, project, version, build, filename, user):
         return {
             "comment": "Undefined yet. Use v0 for now",
         }
+
+
+class ReadTheDocsConfigJson(SettingsOverrideObject):
+    _default_class = BaseReadTheDocsConfigJson
