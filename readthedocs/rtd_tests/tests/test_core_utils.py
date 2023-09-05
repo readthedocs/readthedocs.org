@@ -75,7 +75,6 @@ class CoreUtilTests(TestCase):
     def test_trigger_build_when_version_not_provided_default_version_doesnt_exist(
         self, update_docs_task
     ):
-
         trigger_build(project=self.project)
         default_version = self.project.get_default_version()
         version = self.project.versions.get(slug=default_version)
