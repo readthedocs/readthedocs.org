@@ -96,7 +96,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.4
+django==4.2.5
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -265,16 +265,8 @@ prompt-toolkit==3.0.39
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg[binary,pool]==3.1.10
+psycopg2==2.9.7
     # via -r requirements/pip.txt
-psycopg-binary==3.1.10
-    # via
-    #   -r requirements/pip.txt
-    #   psycopg
-psycopg-pool==3.1.7
-    # via
-    #   -r requirements/pip.txt
-    #   psycopg
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
@@ -385,8 +377,6 @@ typing-extensions==4.7.1
     #   -r requirements/pip.txt
     #   asgiref
     #   filelock
-    #   psycopg
-    #   psycopg-pool
 tzdata==2023.3
     # via
     #   -r requirements/pip.txt
