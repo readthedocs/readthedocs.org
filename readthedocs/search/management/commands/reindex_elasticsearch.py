@@ -1,18 +1,19 @@
 import itertools
-import structlog
 import sys
 import textwrap
 from datetime import datetime, timedelta
 
+import structlog
 from django.apps import apps
 from django.conf import settings
 from django.core.management import BaseCommand
 from django_elasticsearch_dsl.registries import registry
-from readthedocs.builds.constants import BUILD_STATE_FINISHED
-from projects.tasks.search import reindex_version
 
+from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile, Project
+from readthedocs.projects.tasks.search import reindex_version
+from readthedocs.search.documents import PageDocument, ProjectDocument
 from readthedocs.search.tasks import (
     create_new_es_index,
     index_objects_to_es,
@@ -47,57 +48,20 @@ class Command(BaseCommand):
             yield index_objects_to_es.si(**data)
 
     def _run_reindex_tasks(self, models, queue):
-        apply_async_kwargs = {"queue": queue}
         log.info("Adding indexing tasks to queue.", queue=queue)
-
         timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
 
-        # TODO: move this to where it makes sense :D
-        qs = (
-            Version.objects
-            .filter(built=True, builds__state=BUILD_STATE_FINISHED, builds_success=True)
-            .exclude(project__delisted=True)
-            .exclude(project__is_spam=True)
-            .select_related("project")
-        )
-        for version in qs.iterator():
-            reindex_version(version)
+        for model in models:
+            if model == HTMLFile:
+                self._reindex_files(queue=queue, timestamp=timestamp)
+            elif model == Project:
+                self._reindex_projects(queue=queue, timestamp=timestamp)
+            else:
+                log.warning(
+                    "Re-index not available for model.", model_name=model.__name__
+                )
+                continue
 
-        for doc in registry.get_documents(models):
-            queryset = doc().get_queryset()
-
-            app_label = queryset.model._meta.app_label
-            model_name = queryset.model.__name__
-
-            index_name = doc._index._name
-            new_index_name = "{}_{}".format(index_name, timestamp)
-
-            # Set and create a temporal index for indexing.
-            create_new_es_index(
-                app_label=app_label,
-                model_name=model_name,
-                index_name=index_name,
-                new_index_name=new_index_name,
-            )
-            doc._index._name = new_index_name
-            log.info("Temporal index created.", index_name=new_index_name)
-
-            indexing_tasks = self._get_indexing_tasks(
-                app_label=app_label,
-                model_name=model_name,
-                queryset=queryset,
-                index_name=new_index_name,
-                document_class=str(doc),
-            )
-            for task in indexing_tasks:
-                task.apply_async(**apply_async_kwargs)
-
-            log.info(
-                "Tasks issued successfully.",
-                model_name=model_name,
-                app_label=app_label,
-                items=queryset.count(),
-            )
         return timestamp
 
     def _change_index(self, models, timestamp):
@@ -135,6 +99,44 @@ class Command(BaseCommand):
                 continue
             functions[model](days_ago=days_ago, queue=queue)
 
+    def _reindex_projects(self, queue, timestamp):
+        # TODO: can we just improt the project document?
+        # document = list(registry.get_documents(models=[Project]))[0]
+        document = ProjectDocument
+        app_label = Project._meta.app_label
+        model_name = Project.__name__
+        index_name = document._index._name
+        new_index_name = "{}_{}".format(index_name, timestamp)
+
+        create_new_es_index(
+            app_label=app_label,
+            model_name=model_name,
+            index_name=index_name,
+            new_index_name=new_index_name,
+        )
+        log.info("Temporal index created.", index_name=new_index_name)
+
+        queryset = document().get_queryset()
+        indexing_tasks = self._get_indexing_tasks(
+            app_label=app_label,
+            model_name=model_name,
+            queryset=queryset,
+            index_name=new_index_name,
+            document_class=str(document),
+        )
+        number_of_tasks = 0
+        for task in indexing_tasks:
+            task.apply_async(queue=queue)
+            number_of_tasks += 1
+
+        log.info(
+            "Tasks issued successfully.",
+            model_name=model_name,
+            app_label=app_label,
+            items=queryset.count(),
+            number_of_tasks=number_of_tasks,
+        )
+
     def _reindex_projects_from(self, days_ago, queue):
         """Reindex projects with recent changes."""
         since = datetime.now() - timedelta(days=days_ago)
@@ -160,51 +162,65 @@ class Command(BaseCommand):
                 items=queryset.count(),
             )
 
-    def _reindex_files_from(self, days_ago, queue):
-        """Reindex HTML files from versions with recent builds."""
-        chunk_size = settings.ES_TASK_CHUNK_SIZE
-        since = datetime.now() - timedelta(days=days_ago)
-        queryset = Version.objects.filter(builds__date__gte=since).distinct()
+    def _get_versions_to_reindex_queryset(self):
+        return (
+            Version.objects.filter(
+                built=True,
+                builds__state=BUILD_STATE_FINISHED,
+                builds__success=True,
+            )
+            .exclude(project__delisted=True)
+            .exclude(project__is_spam=True)
+            .distinct()
+        )
+
+    def _reindex_files(self, queue, timestamp):
+        document = PageDocument
         app_label = HTMLFile._meta.app_label
         model_name = HTMLFile.__name__
-        apply_async_kwargs = {
-            "queue": queue,
-            "kwargs": {
-                "app_label": app_label,
-                "model_name": model_name,
-            },
-        }
+        index_name = document._index._name
+        new_index_name = "{}_{}".format(index_name, timestamp)
+        create_new_es_index(
+            app_label=app_label,
+            model_name=model_name,
+            index_name=index_name,
+            new_index_name=new_index_name,
+        )
+        log.info("Temporal index created.", index_name=new_index_name)
 
-        for doc in registry.get_documents(models=[HTMLFile]):
-            apply_async_kwargs["kwargs"]["document_class"] = str(doc)
-            for version in queryset.iterator():
-                project = version.project
-                files_qs = (
-                    HTMLFile.objects.filter(version=version)
-                    .values_list("pk", flat=True)
-                    .iterator()
-                )
-                current = 0
-                while True:
-                    objects_id = list(itertools.islice(files_qs, chunk_size))
-                    if not objects_id:
-                        break
-                    current += len(objects_id)
-                    log.info(
-                        "Re-indexing files.",
-                        version_slug=version.slug,
-                        project_slug=project.slug,
-                        items=current,
-                    )
-                    apply_async_kwargs["kwargs"]["objects_id"] = objects_id
-                    index_objects_to_es.apply_async(**apply_async_kwargs)
+        queryset = self._get_versions_to_reindex_queryset().values_list("pk", flat=True)
+        for version_id in queryset.iterator():
+            reindex_version.apply_async(
+                kwargs={
+                    "version_id": version_id,
+                    "search_index_name": new_index_name,
+                },
+                queue=queue,
+            )
 
-                log.info(
-                    "Tasks issued successfully.",
-                    project_slug=project.slug,
-                    version_slug=version.slug,
-                    items=current,
-                )
+        log.info(
+            "Tasks issued successfully for re-indexing of versions.",
+            number_of_tasks=queryset.count(),
+        )
+
+    def _reindex_files_from(self, days_ago, queue):
+        """Reindex HTML files from versions with recent builds."""
+        since = datetime.now() - timedelta(days=days_ago)
+        queryset = (
+            self._get_versions_to_reindex_queryset()
+            .filter(builds__date__gte=since)
+            .values_list("pk", flat=True)
+        )
+        for version_id in queryset.iterator():
+            reindex_version.apply_async(
+                kwargs={"version_id": version_id},
+                queue=queue,
+            )
+
+        log.info(
+            "Tasks issued successfully for re-indexing of versions.",
+            number_of_tasks=queryset.count(),
+        )
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -252,9 +268,10 @@ class Command(BaseCommand):
         `--model <app_label>.<model_name>` parameter.
         Otherwise, it will re-index all the models
         """
-        models = None
         if options["models"]:
             models = [apps.get_model(model_name) for model_name in options["models"]]
+        else:
+            models = [Project, HTMLFile]
 
         queue = options["queue"]
         change_index = options["change_index"]

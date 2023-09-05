@@ -10,30 +10,6 @@ from readthedocs.projects.models import HTMLFile
 log = structlog.get_logger(__name__)
 
 
-def index_new_files(model, version, build):
-    """Index new files from the version into the search index."""
-
-    log.bind(
-        project_slug=version.project.slug,
-        version_slug=version.slug,
-    )
-
-    if not DEDConfig.autosync_enabled():
-        log.info("Autosync disabled. Skipping indexing into the search index.")
-        return
-
-    try:
-        document = list(registry.get_documents(models=[model]))[0]
-        doc_obj = document()
-        queryset = doc_obj.get_queryset().filter(
-            project=version.project, version=version, build=build
-        )
-        log.info("Indexing new objecst into search index.")
-        doc_obj.update(queryset.iterator())
-    except Exception:
-        log.exception("Unable to index a subset of files. Continuing.")
-
-
 def remove_indexed_files(model, project_slug, version_slug=None, build_id=None):
     """
     Remove files from `version_slug` of `project_slug` from the search index.
