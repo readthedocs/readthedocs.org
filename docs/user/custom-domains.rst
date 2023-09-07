@@ -37,7 +37,7 @@ CDN caching
 
 Multiple domains
    Projects can be configured to be served from multiple domains,
-   which always includes the :ref:`default-subdomain <project's default subdomain>`.
+   which always includes the :ref:`project's default subdomain <default-subdomain>`.
    Only one domain can be configured as the canonical domain however,
    and any requests to non-canonical domains and subdomains will redirect to the canonical domain.
 
@@ -45,7 +45,7 @@ Canonical domains
    The canonical domain configures the primary domain the documentation will serve from,
    and also sets the domain search engines use for search results when hosting from multiple domains.
    Projects can only have one canonical domain,
-   which is the :ref:`default-subdomain <project's default subdomain>` if no other canonical domain is defined.
+   which is the :ref:`project's default subdomain <default-subdomain>` if no other canonical domain is defined.
 
 .. seealso::
 
