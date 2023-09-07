@@ -9,10 +9,12 @@ This is great for maintaining a consistent brand for your product and its docume
 
 .. rubric:: Default subdomains
 
-*By default*, your documentation is served from a Read the Docs *subdomain* using the project's :term:`slug`:
+*Without a custom domain configured*,
+your project's documentation is served from a Read the Docs domain using a unique subdomain for your project:
 
-* ``<slug>.readthedocs.io`` for |org_brand|
-* ``<slug>.readthedocs-hosted.com`` for |com_brand|.
+* ``{project name}.readthedocs.io`` for |org_brand|.
+* ``{organization name}-{project name}.readthedocs-hosted.com`` for |com_brand|.
+  The addition of the organization name allows multiple organizations to have projects with the same name.
 
 .. seealso::
 
