@@ -1,7 +1,8 @@
 Custom domains
 ==============
 
-You can serve your documentation project from your own domain,
+By configuring a *custom domain* for your project,
+your project can serve documentation from your a domain you control,
 for instance ``docs.example.com``.
 This is great for maintaining a consistent brand for your product and its documentation.
 
@@ -18,39 +19,39 @@ your project's documentation is served from a Read the Docs domain using a uniqu
 
 .. seealso::
 
-    :doc:`/guides/custom-domains`
-        Information on creating and managing custom domains,
-        and common configurations you might use to set up your domain
-
-How custom domains work
------------------------
-
-To use a custom domain, two actions are needed from you:
-
-#.  Enter the domain in your Read the Docs project's :guilabel:`Admin`
-#.  Update your DNS provider with a new DNS entry. The name and value of the DNS entry is found in Read the Docs' :guilabel:`Admin`.
-
-Once the new DNS record has propagated,
-Read the Docs automatically issues an SSL certificate through Cloudflare and starts serving your documentation.
-
-Your documentation can have multiple secondary domains but only one **canonical** domain name.
-Additional domains or subdomains will redirect to the canonical domain.
-
-To make this work, Read the Docs generates a special text that you are responsible for copy-pasting to your domain's DNS.
-In most cases, the ``CNAME`` record is used.
-This is all that's needed for a web browser to resolve your domain name to Read the Docs' servers and for our servers to match the right documentation project.
-You can find step-by-step instructions for this in :doc:`/guides/custom-domains`.
-
-Read the Docs uses a :doc:`/reference/cdn` to host and serve your documentation pages.
-This final step isn't changed by a custom domain
-and therefore the response times are unaffected as the delivery of resources happens through the same CDN setup.
+   :doc:`/guides/custom-domains`
+      How to create and manage custom domains for your project.
 
 Features
 --------
 
-Canonical domains
-    The **canonical domain** feature allows you to have several domains and the canonical domain will be indexed by search engines.
-    The domain that you choose as your canonical domain is by far the most important one.
+Automatic SSL
+   SSL certificates are automatically issued through Cloudflare for every custom domain.
+   No extra set up is required beyond configuring your project's custom domain.
 
-    .. seealso::
-       To learn more about canonical URLs, see: :doc:`/canonical-urls`
+CDN caching
+   Response caching is provided through a :doc:`/reference/cdn` for all documentation projects,
+   including projects using a custom domain.
+   CDN caching improves page response time for your documentation's users,
+   and the CDN edge network provides low latency response times regardless of location.
+
+Multiple domains
+   Projects can be configured to be served from multiple domains,
+   which always includes the :ref:`default-subdomain <project's default subdomain>`.
+   Only one domain can be configured as the canonical domain however,
+   and any requests to non-canonical domains and subdomains will redirect to the canonical domain.
+
+Canonical domains
+   The canonical domain configures the primary domain the documentation will serve from,
+   and also sets the domain search engines use for search results when hosting from multiple domains.
+   Projects can only have one canonical domain,
+   which is the :ref:`default-subdomain <project's default subdomain>` if no other canonical domain is defined.
+
+.. seealso::
+
+   :doc:`/canonical-urls`
+      How canonical domains affect your project's canonical URL,
+      and why canonical URLs are important.
+
+   :doc:`/subprojects`
+      How to share a custom domain between multiple projects.
