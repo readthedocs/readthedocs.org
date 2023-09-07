@@ -45,25 +45,12 @@ Read the Docs uses a :doc:`/reference/cdn` to host and serve your documentation 
 This final step isn't changed by a custom domain
 and therefore the response times are unaffected as the delivery of resources happens through the same CDN setup.
 
-Considerations for custom domain usage
---------------------------------------
+Features
+--------
 
-Some open source projects have seen their domains expire.
-Even prominent ones.
-**It's important that you give the responsibility for managing your domain to someone reliable in your organization.**
+Canonical domains
+    The **canonical domain** feature allows you to have several domains and the canonical domain will be indexed by search engines.
+    The domain that you choose as your canonical domain is by far the most important one.
 
-The **canonical domain** feature allows you to have several domains and the canonical domain will be indexed by search engines.
-The domain that you choose as your canonical domain is by far the most important one.
-If you lose the canonical domain,
-someone else can set up a website that search results will end up referring to.
-
-.. seealso::
-
-   In a URL, both the domain and the path (``https://<domain>/<path>``) are important.
-   In combination, they are referred to as the *canonical URL* of a resource.
-
-   Most documentation projects are versioned.
-   Therefore, it's important to ensure that incoming links and search engine results point to the canonical URL of the resource
-   and not a specific version that becomes outdated.
-
-   To learn more about canonical URLs, see: :doc:`/canonical-urls`
+    .. seealso::
+       To learn more about canonical URLs, see: :doc:`/canonical-urls`
