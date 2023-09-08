@@ -30,7 +30,7 @@ Automatic SSL
    No extra set up is required beyond configuring your project's custom domain.
 
 CDN caching
-   Response caching is provided through a :doc:`/reference/cdn` for all documentation projects,
+   Response caching is provided through a :doc:`CDN </reference/cdn>` for all documentation projects,
    including projects using a custom domain.
    CDN caching improves page response time for your documentation's users,
    and the CDN edge network provides low latency response times regardless of location.
