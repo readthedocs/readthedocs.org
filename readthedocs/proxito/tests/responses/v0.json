@@ -82,6 +82,17 @@
     "external_version_warning": {
       "enabled": true
     },
+    "hotkeys": {
+      "enabled": true,
+      "doc_diff": {
+        "enabled": true,
+        "trigger": "KeyD"
+      },
+      "search": {
+        "enabled": true,
+        "trigger": "Slash"
+      }
+    },
     "non_latest_version_warning": {
       "enabled": true,
       "versions": ["latest"]
