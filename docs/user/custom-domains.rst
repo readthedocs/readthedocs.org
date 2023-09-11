@@ -2,7 +2,7 @@ Custom domains
 ==============
 
 By configuring a *custom domain* for your project,
-your project can serve documentation from your a domain you control,
+your project can serve documentation from a domain you control,
 for instance ``docs.example.com``.
 This is great for maintaining a consistent brand for your product and its documentation.
 
