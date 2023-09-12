@@ -1,7 +1,7 @@
 from unittest import mock
-from django.contrib.auth.models import User
 
 import pytest
+from django.contrib.auth.models import User
 from django.contrib.sessions.backends.base import SessionBase
 from django.http import HttpResponse
 from django.test import TestCase, override_settings
@@ -341,7 +341,7 @@ class TestVersionCompareFooter(TestCase):
         self.pip.save()
         self.pip.versions.update(privacy_level=PUBLIC)
 
-        self.user = User.objects.get(username='eric')
+        self.user = User.objects.get(username="eric")
 
     def test_highest_version_from_stable(self):
         base_version = self.pip.get_stable_version()
