@@ -1,6 +1,7 @@
 from unittest import mock
 
 import pytest
+from django.contrib.auth.models import User
 from django.contrib.sessions.backends.base import SessionBase
 from django.http import HttpResponse
 from django.test import TestCase, override_settings
@@ -12,6 +13,7 @@ from readthedocs.api.v2.views.footer_views import get_version_compare_data
 from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND, PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_CNAME
@@ -335,7 +337,11 @@ class TestVersionCompareFooter(TestCase):
         self.pip = Project.objects.get(slug="pip")
         self.pip.versions.update(built=True)
         self.pip.show_version_warning = True
+        self.pip.privacy_level = PUBLIC
         self.pip.save()
+        self.pip.versions.update(privacy_level=PUBLIC)
+
+        self.user = User.objects.get(username="eric")
 
     def test_highest_version_from_stable(self):
         base_version = self.pip.get_stable_version()
@@ -446,14 +452,17 @@ class TestVersionCompareFooter(TestCase):
         returned_data = get_version_compare_data(self.pip, base_version)
         self.assertDictEqual(valid_data, returned_data)
 
+    @override_settings(
+        RTD_ALLOW_ORGANIZATIONS=True,
+    )
     def test_private_highest_version(self):
+        get(Organization, projects=[self.pip], owners=[self.user])
         self.pip.versions.update(privacy_level=PRIVATE)
-        owner = self.pip.users.first()
         base_version = self.pip.versions.get(slug="0.8")
         returned_data = get_version_compare_data(self.pip, base_version)
         self.assertTrue(returned_data["is_highest"])
 
-        returned_data = get_version_compare_data(self.pip, base_version, user=owner)
+        returned_data = get_version_compare_data(self.pip, base_version, user=self.user)
         valid_data = {
             "project": "Version 0.8.1 of Pip (19)",
             "url": "https://pip.readthedocs.io/en/0.8.1/",
