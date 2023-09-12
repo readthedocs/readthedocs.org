@@ -24,11 +24,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.44
+boto3==1.28.45
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.44
+botocore==1.31.45
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -265,16 +265,8 @@ prompt-toolkit==3.0.39
     # via
     #   -r requirements/pip.txt
     #   click-repl
-psycopg[binary,pool]==3.1.10
+psycopg2==2.9.7
     # via -r requirements/pip.txt
-psycopg-binary==3.1.10
-    # via
-    #   -r requirements/pip.txt
-    #   psycopg
-psycopg-pool==3.1.7
-    # via
-    #   -r requirements/pip.txt
-    #   psycopg
 pycparser==2.21
     # via
     #   -r requirements/pip.txt
@@ -415,8 +407,6 @@ typing-extensions==4.7.1
     #   -r requirements/pip.txt
     #   asgiref
     #   filelock
-    #   psycopg
-    #   psycopg-pool
 tzdata==2023.3
     # via
     #   -r requirements/pip.txt
@@ -452,7 +442,7 @@ wcwidth==0.2.6
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.6.2
+websocket-client==1.6.3
     # via
     #   -r requirements/pip.txt
     #   docker
