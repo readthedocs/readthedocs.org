@@ -159,7 +159,7 @@ def _create_imported_files_and_search_index(
     *, version, build_id, search_ranking, search_ignore, search_index_name=None
 ):
     """
-    Create imported files and search index for version.
+    Create imported files and search index for the build of the version.
 
     If the version is external, we don't create a search index for it, only imported files.
     After the process is completed, we delete the files and search index that
@@ -173,7 +173,7 @@ def _create_imported_files_and_search_index(
     )
     html_files_to_index = []
     html_files_to_save = []
-    reverse_rankings = reversed(list(search_ranking.items()))
+    reverse_rankings = list(reversed(search_ranking.items()))
     for root, __, filenames in build_media_storage.walk(storage_path):
         for filename in filenames:
             # We don't care about non-HTML files
@@ -234,7 +234,6 @@ def _create_imported_files_and_search_index(
     # and we neeed this id to be `None` when indexing the objects in ES.
     # ES will generate a unique id for each document.
     if html_files_to_index:
-        # document = list(registry.get_documents(models=[HTMLFile]))[0]
         document = PageDocument
 
         # If a search index name is provided, we need to temporarily change
