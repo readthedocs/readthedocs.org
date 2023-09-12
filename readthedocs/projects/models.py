@@ -1806,6 +1806,7 @@ class Feature(models.Model):
         "addons_non_latest_version_warning_disabled"
     )
     ADDONS_SEARCH_DISABLED = "addons_search_disabled"
+    ADDONS_HOTKEYS_DISABLED = "addons_hotkeys_disabled"
 
     FEATURES = (
         (
@@ -1950,6 +1951,10 @@ class Feature(models.Model):
         (
             ADDONS_SEARCH_DISABLED,
             _("Addons: Disable Search."),
+        ),
+        (
+            ADDONS_HOTKEYS_DISABLED,
+            _("Addons: Disable Hotkeys."),
         ),
     )
 

@@ -373,9 +373,8 @@ Override the build process
 .. warning::
 
    This feature is in *beta* and could change without warning.
-   It does not yet support some of the Read the Docs' features like the :term:`flyout menu`.
-   We do our best to not break existing configurations,
-   but use this feature at your own risk.
+   We are currently testing `the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`_
+   on projects using ``build.commands`` configuration key.
 
 If your project requires full control of the build process,
 and :ref:`extending the build process <build-customization:extend the build process>` is not enough,
