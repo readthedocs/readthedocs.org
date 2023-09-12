@@ -379,6 +379,17 @@ class AddonsResponse:
                     if version
                     else None,
                 },
+                "hotkeys": {
+                    "enabled": Feature.ADDONS_HOTKEYS_DISABLED not in project_features,
+                    "doc_diff": {
+                        "enabled": True,
+                        "trigger": "KeyD",  # Could be something like "Ctrl + D"
+                    },
+                    "search": {
+                        "enabled": True,
+                        "trigger": "Slash",  # Could be something like "Ctrl + D"
+                    },
+                },
             },
         }
 
