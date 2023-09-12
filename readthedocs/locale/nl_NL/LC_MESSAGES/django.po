@@ -11,7 +11,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-09-05 09:52+0000\n"
+"POT-Creation-Date: 2023-09-12 11:19+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Valeria Doornkamp <doornkamp.v@proton.me>, 2023\n"
 "Language-Team: Dutch (Netherlands) (http://app.transifex.com/readthedocs/"
@@ -2088,7 +2088,7 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:99 projects/models.py:2014
+#: projects/constants.py:99 projects/models.py:2019
 msgid "Public"
 msgstr "Publiekelijk"
 
@@ -2738,175 +2738,179 @@ msgstr ""
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1813
+#: projects/models.py:1814
 msgid "MkDocs: Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 
-#: projects/models.py:1817
+#: projects/models.py:1818
 msgid "Build: Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1821
+#: projects/models.py:1822
 msgid "Conda: Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1826
+#: projects/models.py:1827
 msgid ""
 "Sphinx: Pass all versions (including private) into the html context when "
 "building with Sphinx"
 msgstr ""
 
-#: projects/models.py:1833
+#: projects/models.py:1834
 msgid ""
 "Proxito: CDN support for a project's public versions when privacy levels are "
 "enabled."
 msgstr ""
 
-#: projects/models.py:1839
+#: projects/models.py:1840
 msgid "Proxito: Record 404s page views."
 msgstr ""
 
-#: projects/models.py:1843
+#: projects/models.py:1844
 msgid "Proxito: Allow forced redirects."
 msgstr ""
 
-#: projects/models.py:1847
+#: projects/models.py:1848
 msgid "Proxito: Disable all page views"
 msgstr ""
 
-#: projects/models.py:1851
+#: projects/models.py:1852
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr ""
 
-#: projects/models.py:1856
+#: projects/models.py:1857
 msgid ""
 "Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has "
 "one (Project.custom_prefix)."
 msgstr ""
 
-#: projects/models.py:1861
+#: projects/models.py:1862
 msgid "Dashboard: Allow project to use the version warning banner."
 msgstr ""
 
-#: projects/models.py:1867
+#: projects/models.py:1868
 msgid "Webhook: Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:1871
+#: projects/models.py:1872
 msgid "Webhook: Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:1875
+#: projects/models.py:1876
 msgid "Webhook: Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:1879
+#: projects/models.py:1880
 msgid "Build: Always run pip install --upgrade"
 msgstr ""
 
-#: projects/models.py:1880
+#: projects/models.py:1881
 msgid "Build: Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:1883
+#: projects/models.py:1884
 msgid "Build: Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:1885
+#: projects/models.py:1886
 msgid "Sphinx: Use latest version of Sphinx"
 msgstr ""
 
-#: projects/models.py:1888
+#: projects/models.py:1889
 msgid "MkDOcs: Install mkdocs 0.17.3 by default"
 msgstr ""
 
-#: projects/models.py:1892
+#: projects/models.py:1893
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
-#: projects/models.py:1897
+#: projects/models.py:1898
 msgid ""
 "Build: Install all the latest versions of Read the Docs core requirements"
 msgstr ""
 
-#: projects/models.py:1904
+#: projects/models.py:1905
 msgid "Search: Disable server side search"
 msgstr ""
 
-#: projects/models.py:1908
+#: projects/models.py:1909
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:1912
+#: projects/models.py:1913
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:1917
+#: projects/models.py:1918
 msgid "Build: Set scale-in protection before/after building."
 msgstr ""
 
-#: projects/models.py:1923
+#: projects/models.py:1924
 msgid ""
 "Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
 msgstr ""
 
-#: projects/models.py:1928
+#: projects/models.py:1929
 msgid "Addons: Disable Analytics."
 msgstr ""
 
-#: projects/models.py:1932
+#: projects/models.py:1933
 msgid "Addons: Disable Doc Diff."
 msgstr ""
 
-#: projects/models.py:1936
+#: projects/models.py:1937
 msgid "Addons: Disable EthicalAds."
 msgstr ""
 
-#: projects/models.py:1940
+#: projects/models.py:1941
 msgid "Addons: Disable External version warning."
 msgstr ""
 
-#: projects/models.py:1944
+#: projects/models.py:1945
 msgid "Addons: Disable Flyout."
 msgstr ""
 
-#: projects/models.py:1948
+#: projects/models.py:1949
 msgid "Addons: Disable Non latest version warning."
 msgstr ""
 
-#: projects/models.py:1952
+#: projects/models.py:1953
 msgid "Addons: Disable Search."
 msgstr ""
 
-#: projects/models.py:1965
-msgid "Feature identifier"
+#: projects/models.py:1957
+msgid "Addons: Disable Hotkeys."
 msgstr ""
 
 #: projects/models.py:1970
+msgid "Feature identifier"
+msgstr ""
+
+#: projects/models.py:1975
 msgid "Date feature was added"
 msgstr ""
 
-#: projects/models.py:1976
+#: projects/models.py:1981
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:1980
+#: projects/models.py:1985
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2002
+#: projects/models.py:2007
 msgid "Name of the environment variable"
 msgstr ""
 
-#: projects/models.py:2006
+#: projects/models.py:2011
 msgid "Value of the environment variable"
 msgstr ""
 
-#: projects/models.py:2011
+#: projects/models.py:2016
 msgid "Project where this variable will be used"
 msgstr ""
 
-#: projects/models.py:2017
+#: projects/models.py:2022
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
