@@ -12,7 +12,7 @@ asgiref==3.7.2
     # via
     #   -r requirements/pip.txt
     #   django
-asttokens==2.3.0
+asttokens==2.4.0
     # via stack-data
 async-timeout==4.0.3
     # via
@@ -24,11 +24,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.40
+boto3==1.28.45
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.40
+botocore==1.31.45
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -96,7 +96,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.4
+django==4.2.5
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -155,13 +155,13 @@ django-polymorphic==3.1.0
     # via -r requirements/pip.txt
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
-django-storages[boto3]==1.13.2
+django-storages[boto3]==1.14
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
 django-taggit==4.0.0
     # via -r requirements/pip.txt
-django-timezone-field==6.0
+django-timezone-field==6.0.1
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -242,7 +242,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.9.5
+orjson==3.9.7
     # via -r requirements/pip.txt
 packaging==23.1
     # via
@@ -265,16 +265,8 @@ prompt-toolkit==3.0.39
     #   -r requirements/pip.txt
     #   click-repl
     #   ipython
-psycopg[binary,pool]==3.1.10
+psycopg2==2.9.7
     # via -r requirements/pip.txt
-psycopg-binary==3.1.10
-    # via
-    #   -r requirements/pip.txt
-    #   psycopg
-psycopg-pool==3.1.7
-    # via
-    #   -r requirements/pip.txt
-    #   psycopg
 ptyprocess==0.7.0
     # via pexpect
 pure-eval==0.2.2
@@ -307,7 +299,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2023.3
+pytz==2023.3.post1
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -385,8 +377,6 @@ typing-extensions==4.7.1
     #   -r requirements/pip.txt
     #   asgiref
     #   filelock
-    #   psycopg
-    #   psycopg-pool
 tzdata==2023.3
     # via
     #   -r requirements/pip.txt
@@ -417,13 +407,13 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.24.4
+virtualenv==20.24.5
     # via -r requirements/pip.txt
 wcwidth==0.2.6
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.6.2
+websocket-client==1.6.3
     # via
     #   -r requirements/pip.txt
     #   docker
