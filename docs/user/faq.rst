@@ -42,25 +42,6 @@ you can use an important word or message from the error to search for a solution
       * :ref:`faq:why do i get import errors from libraries depending on c modules?`
 
 
-.. Old reference
-.. _Help, my build passed but my documentation page is 404 Not Found!:
-
-Why does my project have status "passed" but I get a 404 page?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This often happens because you don't have an `index.html` file being generated.
-
-Make sure you have one of the following files at the top level of your documentation source:
-
-    * `index.rst` (Sphinx)
-    * `index.md` (MkDocs or Sphinx with MyST)
-
-.. tip::
-
-   To test if your docs actually built correctly,
-   you can navigate to a specific page that you know is part of the documentation build,
-   for example `/en/latest/README.html`.
-
 Why do I get import errors from libraries depending on C modules?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
