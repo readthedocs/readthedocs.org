@@ -92,7 +92,8 @@ class ImportedFileTests(TestCase):
 
         results = PageDocument().search().filter("term", build=2).execute()
         self.assertEqual(
-            {result.path for result in results}, {"index.html", "404.html", "test.html"}
+            {result.path for result in results},
+            {"index.html", "404.html", "test.html", "api/index.html"},
         )
 
     def test_update_build(self):
