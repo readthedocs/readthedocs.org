@@ -33,15 +33,12 @@ class ImportedFileTests(TestCase):
             # If there are no documents, the query fails.
             pass
 
-    def _manage_imported_files(
-        self, version, build_id, search_ranking=None, search_ignore=None
-    ):
+    def _manage_imported_files(self, version, search_ranking=None, search_ignore=None):
         """Helper function for the tests to create and sync ImportedFiles."""
         search_ranking = search_ranking or {}
         search_ignore = search_ignore or []
-        _create_imported_files_and_search_index(
+        return _create_imported_files_and_search_index(
             version=version,
-            build_id=build_id,
             search_ranking=search_ranking,
             search_ignore=search_ignore,
         )
@@ -70,27 +67,27 @@ class ImportedFileTests(TestCase):
         """
         self.assertEqual(ImportedFile.objects.count(), 0)
 
-        self._manage_imported_files(version=self.version, build_id=1)
+        sync_id = self._manage_imported_files(version=self.version)
         self.assertEqual(ImportedFile.objects.count(), 3)
         self.assertEqual(
             set(HTMLFile.objects.all().values_list("path", flat=True)),
             {"index.html", "api/index.html", "404.html"},
         )
 
-        results = PageDocument().search().filter("term", build=1).execute()
+        results = PageDocument().search().filter("term", build=sync_id).execute()
         self.assertEqual(
             {result.path for result in results},
             {"index.html", "404.html", "test.html", "api/index.html"},
         )
 
-        self._manage_imported_files(version=self.version, build_id=2)
+        sync_id = self._manage_imported_files(version=self.version)
         self.assertEqual(ImportedFile.objects.count(), 3)
         self.assertEqual(
             set(HTMLFile.objects.all().values_list("path", flat=True)),
             {"index.html", "api/index.html", "404.html"},
         )
 
-        results = PageDocument().search().filter("term", build=2).execute()
+        results = PageDocument().search().filter("term", build=sync_id).execute()
         self.assertEqual(
             {result.path for result in results},
             {"index.html", "404.html", "test.html", "api/index.html"},
@@ -98,29 +95,29 @@ class ImportedFileTests(TestCase):
 
     def test_update_build(self):
         self.assertEqual(ImportedFile.objects.count(), 0)
-        self._manage_imported_files(self.version, build_id=1)
+        sync_id = self._manage_imported_files(self.version)
         for obj in ImportedFile.objects.all():
-            self.assertEqual(obj.build, 1)
+            self.assertEqual(obj.build, sync_id)
 
         results = PageDocument().search().filter().execute()
         self.assertEqual(len(results), 4)
         for result in results:
-            self.assertEqual(result.build, 1)
+            self.assertEqual(result.build, sync_id)
 
-        self._manage_imported_files(self.version, build_id=2)
+        sync_id = self._manage_imported_files(self.version)
         for obj in ImportedFile.objects.all():
-            self.assertEqual(obj.build, 2)
+            self.assertEqual(obj.build, sync_id)
 
         # NOTE: we can't test that the files from the previous build
         # were deleted, since deletion happens asynchronously.
-        results = PageDocument().search().filter("term", build=2).execute()
+        results = PageDocument().search().filter("term", build=sync_id).execute()
         self.assertEqual(len(results), 4)
 
     def test_page_default_rank(self):
         search_ranking = {}
         self.assertEqual(HTMLFile.objects.count(), 0)
-        self._manage_imported_files(
-            self.version, build_id=1, search_ranking=search_ranking
+        sync_id = self._manage_imported_files(
+            self.version, search_ranking=search_ranking
         )
 
         results = (
@@ -134,15 +131,15 @@ class ImportedFileTests(TestCase):
         for result in results:
             self.assertEqual(result.project, self.project.slug)
             self.assertEqual(result.version, self.version.slug)
-            self.assertEqual(result.build, 1)
+            self.assertEqual(result.build, sync_id)
             self.assertEqual(result.rank, 0)
 
     def test_page_custom_rank_glob(self):
         search_ranking = {
             "*index.html": 5,
         }
-        self._manage_imported_files(
-            self.version, build_id=1, search_ranking=search_ranking
+        sync_id = self._manage_imported_files(
+            self.version, search_ranking=search_ranking
         )
 
         results = (
@@ -156,7 +153,7 @@ class ImportedFileTests(TestCase):
         for result in results:
             self.assertEqual(result.project, self.project.slug)
             self.assertEqual(result.version, self.version.slug)
-            self.assertEqual(result.build, 1)
+            self.assertEqual(result.build, sync_id)
             if result.path.endswith("index.html"):
                 self.assertEqual(result.rank, 5, result.path)
             else:
@@ -167,8 +164,8 @@ class ImportedFileTests(TestCase):
             "test.html": 5,
             "api/index.html": 2,
         }
-        self._manage_imported_files(
-            self.version, build_id=1, search_ranking=search_ranking
+        sync_id = self._manage_imported_files(
+            self.version, search_ranking=search_ranking
         )
 
         results = (
@@ -182,7 +179,7 @@ class ImportedFileTests(TestCase):
         for result in results:
             self.assertEqual(result.project, self.project.slug)
             self.assertEqual(result.version, self.version.slug)
-            self.assertEqual(result.build, 1)
+            self.assertEqual(result.build, sync_id)
             if result.path == "test.html":
                 self.assertEqual(result.rank, 5)
             elif result.path == "api/index.html":
@@ -195,8 +192,8 @@ class ImportedFileTests(TestCase):
             "*.html": 5,
             "api/index.html": 2,
         }
-        self._manage_imported_files(
-            self.version, build_id=1, search_ranking=search_ranking
+        sync_id = self._manage_imported_files(
+            self.version, search_ranking=search_ranking
         )
 
         results = (
@@ -210,7 +207,7 @@ class ImportedFileTests(TestCase):
         for result in results:
             self.assertEqual(result.project, self.project.slug)
             self.assertEqual(result.version, self.version.slug)
-            self.assertEqual(result.build, 1)
+            self.assertEqual(result.build, sync_id)
             if result.path == "api/index.html":
                 self.assertEqual(result.rank, 2, result.path)
             else:
@@ -221,8 +218,8 @@ class ImportedFileTests(TestCase):
             "api/index.html": 2,
             "*.html": 5,
         }
-        self._manage_imported_files(
-            self.version, build_id=1, search_ranking=search_ranking
+        sync_id = self._manage_imported_files(
+            self.version, search_ranking=search_ranking
         )
 
         results = (
@@ -236,14 +233,13 @@ class ImportedFileTests(TestCase):
         for result in results:
             self.assertEqual(result.project, self.project.slug)
             self.assertEqual(result.version, self.version.slug)
-            self.assertEqual(result.build, 1)
+            self.assertEqual(result.build, sync_id)
             self.assertEqual(result.rank, 5)
 
     def test_search_page_ignore(self):
         search_ignore = ["api/index.html"]
         self._manage_imported_files(
             self.version,
-            build_id=1,
             search_ignore=search_ignore,
         )
 
@@ -273,7 +269,7 @@ class ImportedFileTests(TestCase):
         with override_settings(DOCROOT=self.test_dir):
             self._copy_storage_dir()
 
-        self._manage_imported_files(self.version, build_id=1)
+        sync_id = self._manage_imported_files(self.version)
         self.assertEqual(ImportedFile.objects.count(), 3)
         document = (
             PageDocument()
@@ -281,7 +277,7 @@ class ImportedFileTests(TestCase):
             .filter("term", project=self.project.slug)
             .filter("term", version=self.version.slug)
             .filter("term", path="test.html")
-            .filter("term", build=1)
+            .filter("term", build=sync_id)
             .execute()[0]
         )
         self.assertEqual(document.sections[0].content, "Woo")
@@ -292,7 +288,7 @@ class ImportedFileTests(TestCase):
         with override_settings(DOCROOT=self.test_dir):
             self._copy_storage_dir()
 
-        self._manage_imported_files(self.version, build_id=2)
+        sync_id = self._manage_imported_files(self.version)
         self.assertEqual(ImportedFile.objects.count(), 3)
         document = (
             PageDocument()
@@ -300,7 +296,7 @@ class ImportedFileTests(TestCase):
             .filter("term", project=self.project.slug)
             .filter("term", version=self.version.slug)
             .filter("term", path="test.html")
-            .filter("term", build=2)
+            .filter("term", build=sync_id)
             .execute()[0]
         )
         self.assertEqual(document.sections[0].content, "Something Else")

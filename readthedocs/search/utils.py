@@ -29,7 +29,7 @@ def index_objects(document, objects, index_name=None):
 
 
 def remove_indexed_files(
-    project_slug, version_slug=None, build_id=None, index_name=None
+    project_slug, version_slug=None, sync_id=None, index_name=None
 ):
     """
     Remove files from `version_slug` of `project_slug` from the search index.
@@ -62,8 +62,8 @@ def remove_indexed_files(
         documents = document().search().filter("term", project=project_slug)
         if version_slug:
             documents = documents.filter("term", version=version_slug)
-        if build_id:
-            documents = documents.exclude("term", build=build_id)
+        if sync_id:
+            documents = documents.exclude("term", build=sync_id)
         documents.delete()
     except Exception:
         log.exception("Unable to delete a subset of files. Continuing.")

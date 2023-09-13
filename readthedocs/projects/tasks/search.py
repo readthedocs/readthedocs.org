@@ -44,7 +44,6 @@ def fileify(version_pk, commit, build, search_ranking, search_ignore):
     try:
         _create_imported_files_and_search_index(
             version=version,
-            build_id=build,
             search_ranking=search_ranking,
             search_ignore=search_ignore,
         )
@@ -89,7 +88,6 @@ def index_build(build_id):
     try:
         _create_imported_files_and_search_index(
             version=version,
-            build_id=build.id,
             search_ranking=search_ranking,
             search_ignore=search_ignore,
         )
@@ -137,16 +135,9 @@ def reindex_version(version_id, search_index_name=None):
     search_ranking = search_config.get("ranking", [])
     search_ignore = search_config.get("ignore", [])
 
-    # We need to use a build ID that is different from the current one,
-    # this ID is to differentiate the new files being indexed from the
-    # current ones, so we can delete the old ones easily.
-    # If we re-use the same build ID, we will end up with duplicated files.
-    # The build id isn't used for anything else.
-    build_id = latest_successful_build.id + 1
     try:
         _create_imported_files_and_search_index(
             version=version,
-            build_id=build_id,
             search_ranking=search_ranking,
             search_ignore=search_ignore,
             search_index_name=search_index_name,
@@ -165,7 +156,7 @@ def remove_search_indexes(project_slug, version_slug=None):
 
 
 def _create_imported_files_and_search_index(
-    *, version, build_id, search_ranking, search_ignore, search_index_name=None
+    *, version, search_ranking, search_ignore, search_index_name=None
 ):
     """
     Create imported files and search index for the build of the version.
@@ -180,6 +171,17 @@ def _create_imported_files_and_search_index(
     storage_path = version.project.get_storage_path(
         type_="html", version_slug=version.slug, include_file=False
     )
+    # A sync ID is a number different than the current `build` attribute (pending rename),
+    # it's used to differentiate the files from the current sync from the previous one.
+    # This is useful to easily delete the previous files from the DB and ES.
+    imported_file = version.imported_files.first()
+    sync_id = imported_file.build + 1 if imported_file else 1
+
+    log.debug(
+        "Using sync ID for search indexing",
+        sync_id=sync_id,
+    )
+
     html_files_to_index = []
     html_files_to_save = []
     reverse_rankings = list(reversed(search_ranking.items()))
@@ -225,7 +227,7 @@ def _create_imported_files_and_search_index(
                 # but it isn't used, and will be removed in the future
                 # together with other fields.
                 commit="unknown",
-                build=build_id,
+                build=sync_id,
                 ignore=skip_search_index,
             )
 
@@ -252,7 +254,7 @@ def _create_imported_files_and_search_index(
     remove_indexed_files(
         project_slug=version.project.slug,
         version_slug=version.slug,
-        build_id=build_id,
+        sync_id=sync_id,
         index_name=search_index_name,
     )
 
@@ -260,7 +262,7 @@ def _create_imported_files_and_search_index(
         HTMLFile.objects.bulk_create(html_files_to_save)
 
     # Delete imported files from the previous build of the version.
-    version.imported_files.exclude(build=build_id).delete()
+    version.imported_files.exclude(build=sync_id).delete()
 
     # This signal is used for purging the CDN.
     files_changed.send(
@@ -268,3 +270,4 @@ def _create_imported_files_and_search_index(
         project=version.project,
         version=version,
     )
+    return sync_id
