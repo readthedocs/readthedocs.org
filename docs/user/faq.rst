@@ -230,29 +230,19 @@ See the section on :doc:`localization`.
 Sphinx
 ------
 
-I want to use the Blue/Default Sphinx theme
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We think that our theme is badass,
-and better than the default for many reasons.
-Some people don't like change though |:smile:|,
-so there is a hack that will let you keep using the default theme.
-If you set the ``html_style`` variable in your ``conf.py``,
-it should default to using the default theme.
-The value of this doesn't matter, and can be set to ``/default.css`` for default behavior.
+.. Old references
+.. _I want to use the Blue/Default Sphinx theme:
+.. _I want to use the Read the Docs theme locally:
 
+I want to use the Read the Docs theme
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-I want to use the Read the Docs theme locally
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To use the Read the Docs theme,
+you have to specify that in your Sphinx's ``conf.py`` file.
 
-Read the Docs automatically applies the sphinx-rtd-theme to projects that do not have a defined theme.
-If you build a Sphinx project locally,
-you should specify that you are using sphinx-rtd-theme.
-
-.. seealso::
-
-   `sphinx-rtd-theme documentation <https://sphinx-rtd-theme.readthedocs.io/en/stable/installing.html>`_
-     See the official documentation for instructions to enable it in your Sphinx theme.
+Read the `sphinx-rtd-theme documentation <https://sphinx-rtd-theme.readthedocs.io/en/stable/installing.html>`_
+for instructions to enable it in your Sphinx project.
 
 
 Image scaling doesn't work in my documentation
