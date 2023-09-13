@@ -86,10 +86,9 @@ class Command(BaseCommand):
 
     def _reindex_from(self, days_ago, models, queue):
         functions = {
-            apps.get_model("projects.HTMLFile"): self._reindex_files_from,
-            apps.get_model("projects.Project"): self._reindex_projects_from,
+            HTMLFile: self._reindex_files_from,
+            Project: self._reindex_projects_from,
         }
-        models = models or functions.keys()
         for model in models:
             if model not in functions:
                 log.warning(

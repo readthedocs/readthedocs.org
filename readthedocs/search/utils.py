@@ -11,6 +11,10 @@ log = structlog.get_logger(__name__)
 
 
 def index_objects(document, objects, index_name=None):
+    if not DEDConfig.autosync_enabled():
+        log.info("Autosync disabled, skipping searh indexing.")
+        return
+
     # If a search index name is provided, we need to temporarily change
     # the index name of the document.
     old_index_name = document._index._name
@@ -24,7 +28,7 @@ def index_objects(document, objects, index_name=None):
         document._index._name = old_index_name
 
 
-def remove_indexed_files(project_slug, version_slug=None, build_id=None):
+def remove_indexed_files(project_slug, version_slug=None, build_id=None, index_name=None):
     """
     Remove files from `version_slug` of `project_slug` from the search index.
 
@@ -44,8 +48,14 @@ def remove_indexed_files(project_slug, version_slug=None, build_id=None):
         log.info("Autosync disabled, skipping removal from the search index.")
         return
 
+    # If a search index name is provided, we need to temporarily change
+    # the index name of the document.
+    document = PageDocument
+    old_index_name = document._index._name
+    if index_name:
+        document._index._name = index_name
+
     try:
-        document = PageDocument
         log.info("Deleting old files from search index.")
         documents = document().search().filter("term", project=project_slug)
         if version_slug:
@@ -55,6 +65,10 @@ def remove_indexed_files(project_slug, version_slug=None, build_id=None):
         documents.delete()
     except Exception:
         log.exception("Unable to delete a subset of files. Continuing.")
+
+    # Restore the old index name.
+    if index_name:
+        document._index._name = old_index_name
 
 
 def _get_index(indices, index_name):

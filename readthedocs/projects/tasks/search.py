@@ -14,8 +14,8 @@ from readthedocs.worker import app
 log = structlog.get_logger(__name__)
 
 
-# TODO: remove after deploy. This is kept, so builds keep
-# working while we deploy the task below.
+# TODO: remove `fileify` task after deploy. We keep it for now
+# so builds keep working while we deploy the `index_build` task.
 @app.task(queue="reindex")
 def fileify(version_pk, commit, build, search_ranking, search_ignore):
     """
@@ -61,11 +61,13 @@ def index_build(build_id):
         .first()
     )
     if not build:
+        log.debug("Skipping search indexing. Build object doesn't exists.", build_id=build_id)
         return
 
     # The version may have been deleted.
     version = build.version
     if not version:
+        log.debug("Skipping search indexing. Build doesn't have a version attach it to it.", build_id=build_id)
         return
 
     log.bind(
@@ -74,13 +76,10 @@ def index_build(build_id):
         build_id=build.id,
     )
 
-    search_ranking = []
-    search_ignore = []
-    build_config = build.config
-    if build_config:
-        search_config = build_config.get("search", {})
-        search_ranking = search_config.get("ranking", [])
-        search_ignore = search_config.get("ignore", [])
+    build_config = build.config or {}
+    search_config = build_config.get("search", {})
+    search_ranking = search_config.get("ranking", [])
+    search_ignore = search_config.get("ignore", [])
 
     try:
         _create_imported_files_and_search_index(
@@ -102,6 +101,7 @@ def reindex_version(version_id, search_index_name=None):
     """
     version = Version.objects.filter(pk=version_id).select_related("project").first()
     if not version or not version.built:
+        log.debug("Skipping search indexing. Version doesn't exist or is not built.", version_id=version_id)
         return
 
     latest_successful_build = (
@@ -112,6 +112,7 @@ def reindex_version(version_id, search_index_name=None):
     # If the version doesn't have a successful
     # build, we don't have files to index.
     if not latest_successful_build:
+        log.debug("Skipping search indexing. Version doesn't have a successful build.", version_id=version_id)
         return
 
     log.bind(
@@ -120,18 +121,16 @@ def reindex_version(version_id, search_index_name=None):
         build_id=latest_successful_build.id,
     )
 
-    search_ranking = []
-    search_ignore = []
-    build_config = latest_successful_build.config
-    if build_config:
-        search_config = build_config.get("search", {})
-        search_ranking = search_config.get("ranking", [])
-        search_ignore = search_config.get("ignore", [])
+    build_config = latest_successful_build.config or {}
+    search_config = build_config.get("search", {})
+    search_ranking = search_config.get("ranking", [])
+    search_ignore = search_config.get("ignore", [])
 
-    # We need to use a build id that is different from the current one,
-    # otherwise we will end up with duplicated files. After the process
-    # is complete, we delete the files and search index that don't belong
-    # to the current build id. The build id isn't used for anything else.
+    # We need to use a build ID that is different from the current one,
+    # this ID is to differentiate the new files being indexed from the
+    # current ones, so we can delete the old ones easily.
+    # If we re-use the same build ID, we will end up with duplicated files.
+    # The build id isn't used for anything else.
     build_id = latest_successful_build.id + 1
     try:
         _create_imported_files_and_search_index(
@@ -211,7 +210,7 @@ def _create_imported_files_and_search_index(
                 path=relpath,
                 name=filename,
                 rank=page_rank,
-                # TODO: We are setting this field since it's required,
+                # TODO: We are setting the commit field since it's required,
                 # but it isn't used, and will be removed in the future
                 # together with other fields.
                 commit="unknown",
@@ -243,6 +242,7 @@ def _create_imported_files_and_search_index(
         project_slug=version.project.slug,
         version_slug=version.slug,
         build_id=build_id,
+        index_name=search_index_name,
     )
 
     if html_files_to_save:
