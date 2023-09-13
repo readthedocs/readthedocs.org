@@ -261,7 +261,7 @@ Can I document a Python package that is not at the root of my repository?
 
 Yes. The most convenient way to access a Python package for example via
 `Sphinx's autoapi`_ in your documentation is to use the
-``python.install.method: pip`` (:doc:`config-file/v2`) configuration key.
+``python.install.method: pip`` (:doc:`config-file/v2:python.install`) configuration key.
 
 This configuration will tell Read the Docs to install your package in
 the virtual environment used to build your documentation so your documentation tool can access to it.
