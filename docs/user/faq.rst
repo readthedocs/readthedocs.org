@@ -25,7 +25,7 @@ This can be because the project is not correctly configured,
 because the contents of the Git repository cannot be built,
 or in the most rare cases because a system that Read the Docs connects to is not working.
 
-First, you should check out the Builds tab of your project.
+First, you should check out the :guilabel:`Builds` tab of your project.
 By clicking on the failing step,
 you will be able to see details that can lead to resolutions to your build error.
 
