@@ -27,6 +27,7 @@ from readthedocs.projects.models import (
     EnvironmentVariable,
     Feature,
     Project,
+    ProjectAddonsConfig,
     ProjectRelationship,
     WebHook,
 )
@@ -491,6 +492,35 @@ class ProjectRelationshipForm(forms.ModelForm):
                 _('A subproject with this alias already exists'),
             )
         return alias
+
+
+class ProjectAddonsForm(forms.ModelForm):
+
+    """Form to opt-in into new beta addons."""
+
+    enabled = forms.BooleanField(
+        label="Enable Read the Docs beta addons",
+        help_text="Opt-in into new beta addons",
+        required=False,
+    )
+
+    class Meta:
+        model = Project
+        fields = ()
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        enabled = bool(self.instance.addons)
+        self.fields["enabled"].initial = enabled
+
+    def save(self, commit=True):
+        instance = super().save(commit)
+        if self.cleaned_data.get("enabled", False):
+            self.instance.addons = ProjectAddonsConfig.objects.create()
+            self.instance.save()
+        elif self.instance.addons:
+            self.instance.addons.delete()
+        return instance
 
 
 class UserForm(forms.Form):

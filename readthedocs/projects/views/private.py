@@ -50,6 +50,7 @@ from readthedocs.projects.forms import (
     EmailHookForm,
     EnvironmentVariableForm,
     IntegrationForm,
+    ProjectAddonsForm,
     ProjectAdvancedForm,
     ProjectAdvertisingForm,
     ProjectBasicsForm,
@@ -166,6 +167,15 @@ class ProjectAdvancedUpdate(ProjectMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('projects_detail', args=[self.object.slug])
+
+
+class ProjectAddonsUpdate(ProjectMixin, UpdateView):
+    form_class = ProjectAddonsForm
+    success_message = _("Project addons updated")
+    template_name = "projects/addons_form.html"
+
+    def get_success_url(self):
+        return reverse("projects_addons", args=[self.object.slug])
 
 
 class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteView):

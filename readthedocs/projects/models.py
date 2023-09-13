@@ -123,6 +123,60 @@ class ProjectRelationship(models.Model):
         return unsafe_join_url_path(prefix, self.alias, "/")
 
 
+class ProjectAddonsConfig(TimeStampedModel):
+
+    """
+    Addons project configuration.
+
+    Store all the configuration for each of the addons.
+    Everything is enabled by default.
+    """
+
+    DOC_DIFF_DEFAULT_ROOT_SELECTOR = "[role=main]"
+
+    # Analytics
+    analytics_enabled = models.BooleanField(default=True)
+
+    # Docdiff
+    doc_diff_enabled = models.BooleanField(default=True)
+    doc_diff_root_selector = models.CharField(null=True, blank=True)
+    doc_diff_show_additions = models.BooleanField(default=True)
+    doc_diff_show_deletions = models.BooleanField(default=True)
+    doc_diff_root_selector = models.CharField(null=True, blank=True)
+
+    # External version warning
+    external_version_warning = models.BooleanField(default=True)
+
+    # EthicalAds
+    ethicalads_enabled = models.BooleanField(default=True)
+
+    # Flyout
+    flyout_enabled = models.BooleanField(default=True)
+
+    # Hotkeys
+    hotkeys_enabled = models.BooleanField(default=True)
+
+    # Search
+    search_enabled = models.BooleanField(default=True)
+    search_default_filter = models.CharField(null=True, blank=True)
+
+    # Stable/Latest version warning
+    stable_latest_version_warning = models.BooleanField(default=True)
+
+
+class AddonSearchFilter(TimeStampedModel):
+
+    """
+    Addon search user defined filter.
+
+    Specific filter defined by the user to show on the search modal.
+    """
+
+    addons = models.ForeignKey("ProjectAddonsConfig", on_delete=models.CASCADE)
+    name = models.CharField(max_length=128)
+    syntaxt = models.CharField(max_length=128)
+
+
 class Project(models.Model):
 
     """Project model."""
@@ -130,6 +184,18 @@ class Project(models.Model):
     # Auto fields
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True, db_index=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True, db_index=True)
+
+    # NOTE: we are defaulting this field to ``NULL``, meaning the "new beta addons" are disabled.
+    # When the user enables the beta addons, we create a ``AddonsProjectConfig`` and attach it
+    # to this ``Project`` to override the "old integration" at serve time.
+    addons = models.ForeignKey(
+        "ProjectAddonsConfig",
+        verbose_name=_("Addons project configuration"),
+        related_name="project",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
 
     # Generally from conf.py
     users = models.ManyToManyField(

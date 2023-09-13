@@ -25,6 +25,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
+from readthedocs.projects.models import Project
 from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
 from readthedocs.proxito.redirects import redirect_to_https
 
@@ -269,12 +270,22 @@ class ProxitoMiddleware(MiddlewareMixin):
         project_slug = getattr(request, "path_project_slug", "")
         version_slug = getattr(request, "path_version_slug", "")
 
-        if project_slug and version_slug:
-            addons = Version.objects.filter(
+        if project_slug:
+            force_addons = Project.objects.filter(
                 project__slug=project_slug,
-                slug=version_slug,
-                addons=True,
+                addons__isnull=False,
             ).exists()
+            if force_addons:
+                response["X-RTD-Force-Addons"] = "true"
+                return
+
+            if version_slug:
+                addons = Version.objects.filter(
+                    project__slug=project_slug,
+                    slug=version_slug,
+                    addons=True,
+                ).exists()
+
             if addons:
                 response["X-RTD-Hosting-Integrations"] = "true"
 

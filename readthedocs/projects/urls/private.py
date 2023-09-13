@@ -26,6 +26,7 @@ from readthedocs.projects.views.private import (
     IntegrationExchangeDetail,
     IntegrationList,
     IntegrationWebhookSync,
+    ProjectAddonsUpdate,
     ProjectAdvancedUpdate,
     ProjectAdvertisingUpdate,
     ProjectDashboard,
@@ -203,6 +204,16 @@ domain_urls = [
 ]
 
 urlpatterns += domain_urls
+
+addons_urls = [
+    re_path(
+        r"^(?P<project_slug>[-\w]+)/addons/edit/$$",
+        ProjectAddonsUpdate.as_view(),
+        name="projects_addons",
+    ),
+]
+
+urlpatterns += addons_urls
 
 integration_urls = [
     re_path(
