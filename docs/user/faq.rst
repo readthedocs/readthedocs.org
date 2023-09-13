@@ -137,22 +137,6 @@ You can also set your project documentation to install your Python project itsel
       * :ref:`faq:Why do I get import errors from libraries depending on C modules?`
 
 
-Can I have access to additional features or settings?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If this is just a dependency issue,
-see :ref:`faq:How do I add additional software dependencies for my documentation?`.
-
-Read the Docs offers some settings (feature flags) which can be used for a variety of purposes.
-To enable these settings,
-please send an email to support@readthedocs.org and we will change the settings for the project.
-
-.. seealso::
-
-   :doc:`/feature-flags`
-     Reference of all Feature Flags that can be requested.
-
-
 How do I change behavior when building with Read the Docs?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
