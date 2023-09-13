@@ -101,7 +101,7 @@ def reindex_version(version_id, search_index_name=None):
     The latest successful build is used for the re-creation.
     """
     version = Version.objects.filter(pk=version_id).select_related("project").first()
-    if not version:
+    if not version or not version.built:
         return
 
     latest_successful_build = (
@@ -129,9 +129,9 @@ def reindex_version(version_id, search_index_name=None):
         search_ignore = search_config.get("ignore", [])
 
     # We need to use a build id that is different from the current one,
-    # since, otherwise we will end up with duplicated files.
-    # After the process is complete, we delete the files and search index
-    # that don't belong to the current build id.
+    # otherwise we will end up with duplicated files. After the process
+    # is complete, we delete the files and search index that don't belong
+    # to the current build id. The build id isn't used for anything else.
     build_id = latest_successful_build.id + 1
     try:
         _create_imported_files_and_search_index(
@@ -213,7 +213,8 @@ def _create_imported_files_and_search_index(
                 name=filename,
                 rank=page_rank,
                 # TODO: We are setting this field since it's required,
-                # but it will be removed in the future together with other fields.
+                # but it isn't used, and will be removed in the future
+                # together with other fields.
                 commit="unknown",
                 build=build_id,
                 ignore=skip_search_index,

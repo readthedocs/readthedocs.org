@@ -9,7 +9,6 @@ from django.conf import settings
 from django.core.management import BaseCommand
 from django_elasticsearch_dsl.registries import registry
 
-from readthedocs.builds.constants import BUILD_STATE_FINISHED
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.projects.tasks.search import reindex_version
@@ -162,18 +161,6 @@ class Command(BaseCommand):
                 items=queryset.count(),
             )
 
-    def _get_versions_to_reindex_queryset(self):
-        return (
-            Version.objects.filter(
-                built=True,
-                builds__state=BUILD_STATE_FINISHED,
-                builds__success=True,
-            )
-            .exclude(project__delisted=True)
-            .exclude(project__is_spam=True)
-            .distinct()
-        )
-
     def _reindex_files(self, queue, timestamp):
         document = PageDocument
         app_label = HTMLFile._meta.app_label
@@ -188,7 +175,7 @@ class Command(BaseCommand):
         )
         log.info("Temporal index created.", index_name=new_index_name)
 
-        queryset = self._get_versions_to_reindex_queryset().values_list("pk", flat=True)
+        queryset = Version.objects.for_reindex().values_list("pk", flat=True)
         for version_id in queryset.iterator():
             reindex_version.apply_async(
                 kwargs={
@@ -207,7 +194,7 @@ class Command(BaseCommand):
         """Reindex HTML files from versions with recent builds."""
         since = datetime.now() - timedelta(days=days_ago)
         queryset = (
-            self._get_versions_to_reindex_queryset()
+            Version.objects.for_reindex()
             .filter(builds__date__gte=since)
             .values_list("pk", flat=True)
         )

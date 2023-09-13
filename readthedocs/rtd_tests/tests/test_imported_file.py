@@ -66,7 +66,7 @@ class ImportedFileTests(TestCase):
         - api/index.html
         - 404.html
 
-        But we create imported files for index.html and 404.html pages only.
+        But we create imported files for index.html and 404.html files only.
         """
         self.assertEqual(ImportedFile.objects.count(), 0)
 
@@ -79,7 +79,8 @@ class ImportedFileTests(TestCase):
 
         results = PageDocument().search().filter("term", build=1).execute()
         self.assertEqual(
-            {result.path for result in results}, {"index.html", "404.html", "test.html"}
+            {result.path for result in results},
+            {"index.html", "404.html", "test.html", "api/index.html"},
         )
 
         self._manage_imported_files(version=self.version, build_id=2)
