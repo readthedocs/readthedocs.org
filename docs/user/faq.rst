@@ -57,12 +57,12 @@ successfully build the documentation despite missing dependencies.
 
 With Sphinx you can use the built-in `autodoc_mock_imports`_ for mocking. If
 such libraries are installed via ``setup.py``, you also will need to remove all
-the C-dependent libraries from your ``install_requires`` in the RTD environment.
+the C-dependent libraries from your ``install_requires`` in the Read the Docs environment.
 
 .. _autodoc_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
 
 
-Where do I need to put my docs for RTD to find it?
+Where do I need to put my docs for Read the Docs to find it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can put your docs wherever your want on your repository.
@@ -140,7 +140,7 @@ You can also set your project documentation to install your Python project itsel
 How do I change behavior when building with Read the Docs?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When RTD builds your project, it sets the :envvar:`READTHEDOCS` environment
+When Read the Docs builds your project, it sets the :envvar:`READTHEDOCS` environment
 variable to the string ``'True'``. So within your Sphinx :file:`conf.py` file, you
 can vary the behavior based on this. For example:
 
@@ -155,7 +155,7 @@ can vary the behavior based on this. For example:
         html_theme = "nature"
 
 The :envvar:`READTHEDOCS` variable is also available in the Sphinx build
-environment, and will be set to ``True`` when building on RTD:
+environment, and will be set to ``True`` when building on Read the Docs:
 
 
 .. code-block:: jinja
@@ -168,8 +168,8 @@ environment, and will be set to ``True`` when building on RTD:
 I want comments in my docs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-RTD doesn't have explicit support for this.
-That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on RTD.
+Read the Docs doesn't have explicit support for this.
+That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on Read the Docs.
 
 .. _Disqus: https://disqus.com/
 .. _sphinxcontrib-disqus: https://pypi.python.org/pypi/sphinxcontrib-disqus
@@ -258,7 +258,7 @@ you should specify that you are using sphinx-rtd-theme.
 Image scaling doesn't work in my documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Image scaling in docutils depends on PIL. PIL is installed in the system that RTD runs on. However, if you are using the virtualenv building option, you will likely need to include PIL in your requirements for your project.
+Image scaling in docutils depends on PIL. PIL is installed in the system that Read the Docs runs on. However, if you are using the virtualenv building option, you will likely need to include PIL in your requirements for your project.
 
 
 Python
