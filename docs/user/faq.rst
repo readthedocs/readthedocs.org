@@ -248,8 +248,10 @@ for instructions to enable it in your Sphinx project.
 Image scaling doesn't work in my documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Image scaling in docutils depends on PIL. PIL is installed in the system that Read the Docs runs on. However, if you are using the virtualenv building option, you will likely need to include PIL in your requirements for your project.
-
+Image scaling in ``docutils`` depends on ``Pillow``.
+If you notice that image scaling is not working properly on your Sphinx project,
+you may need to add ``Pillow`` to your requirements to fix this issue.
+Read more about :doc:`guides/reproducible-builds` to define your dependencies in a ``requirements.txt`` file.
 
 Python
 ------
