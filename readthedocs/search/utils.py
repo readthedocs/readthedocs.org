@@ -28,7 +28,9 @@ def index_objects(document, objects, index_name=None):
         document._index._name = old_index_name
 
 
-def remove_indexed_files(project_slug, version_slug=None, build_id=None, index_name=None):
+def remove_indexed_files(
+    project_slug, version_slug=None, build_id=None, index_name=None
+):
     """
     Remove files from `version_slug` of `project_slug` from the search index.
 

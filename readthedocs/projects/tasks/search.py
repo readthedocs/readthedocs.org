@@ -61,13 +61,18 @@ def index_build(build_id):
         .first()
     )
     if not build:
-        log.debug("Skipping search indexing. Build object doesn't exists.", build_id=build_id)
+        log.debug(
+            "Skipping search indexing. Build object doesn't exists.", build_id=build_id
+        )
         return
 
     # The version may have been deleted.
     version = build.version
     if not version:
-        log.debug("Skipping search indexing. Build doesn't have a version attach it to it.", build_id=build_id)
+        log.debug(
+            "Skipping search indexing. Build doesn't have a version attach it to it.",
+            build_id=build_id,
+        )
         return
 
     log.bind(
@@ -101,7 +106,10 @@ def reindex_version(version_id, search_index_name=None):
     """
     version = Version.objects.filter(pk=version_id).select_related("project").first()
     if not version or not version.built:
-        log.debug("Skipping search indexing. Version doesn't exist or is not built.", version_id=version_id)
+        log.debug(
+            "Skipping search indexing. Version doesn't exist or is not built.",
+            version_id=version_id,
+        )
         return
 
     latest_successful_build = (
@@ -112,7 +120,10 @@ def reindex_version(version_id, search_index_name=None):
     # If the version doesn't have a successful
     # build, we don't have files to index.
     if not latest_successful_build:
-        log.debug("Skipping search indexing. Version doesn't have a successful build.", version_id=version_id)
+        log.debug(
+            "Skipping search indexing. Version doesn't have a successful build.",
+            version_id=version_id,
+        )
         return
 
     log.bind(
