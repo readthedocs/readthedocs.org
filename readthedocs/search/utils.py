@@ -5,10 +5,26 @@ from django.utils import timezone
 from django_elasticsearch_dsl.apps import DEDConfig
 from django_elasticsearch_dsl.registries import registry
 
+from readthedocs.search.documents import PageDocument
+
 log = structlog.get_logger(__name__)
 
 
-def remove_indexed_files(model, project_slug, version_slug=None, build_id=None):
+def index_objects(document, objects, index_name=None):
+    # If a search index name is provided, we need to temporarily change
+    # the index name of the document.
+    old_index_name = document._index._name
+    if index_name:
+        document._index._name = index_name
+
+    document().update(objects)
+
+    # Restore the old index name.
+    if index_name:
+        document._index._name = old_index_name
+
+
+def remove_indexed_files(project_slug, version_slug=None, build_id=None):
     """
     Remove files from `version_slug` of `project_slug` from the search index.
 
@@ -29,7 +45,7 @@ def remove_indexed_files(model, project_slug, version_slug=None, build_id=None):
         return
 
     try:
-        document = list(registry.get_documents(models=[model]))[0]
+        document = PageDocument
         log.info("Deleting old files from search index.")
         documents = document().search().filter("term", project=project_slug)
         if version_slug:

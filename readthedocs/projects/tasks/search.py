@@ -7,7 +7,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.projects.models import HTMLFile, Project
 from readthedocs.projects.signals import files_changed
 from readthedocs.search.documents import PageDocument
-from readthedocs.search.utils import remove_indexed_files
+from readthedocs.search.utils import index_objects, remove_indexed_files
 from readthedocs.storage import build_media_storage
 from readthedocs.worker import app
 
@@ -149,7 +149,6 @@ def reindex_version(version_id, search_index_name=None):
 def remove_search_indexes(project_slug, version_slug=None):
     """Wrapper around ``remove_indexed_files`` to make it a task."""
     remove_indexed_files(
-        model=HTMLFile,
         project_slug=project_slug,
         version_slug=version_slug,
     )
@@ -235,23 +234,14 @@ def _create_imported_files_and_search_index(
     # and we neeed this id to be `None` when indexing the objects in ES.
     # ES will generate a unique id for each document.
     if html_files_to_index:
-        document = PageDocument
-
-        # If a search index name is provided, we need to temporarily change
-        # the index name of the document.
-        old_index_name = document._index._name
-        if search_index_name:
-            document._index._name = search_index_name
-
-        document().update(html_files_to_index)
-
-        # Restore the old index name.
-        if search_index_name:
-            document._index._name = old_index_name
+        index_objects(
+            document=PageDocument,
+            objects=html_files_to_index,
+            index_name=search_index_name,
+        )
 
     # Remove old HTMLFiles from ElasticSearch
     remove_indexed_files(
-        model=HTMLFile,
         project_slug=version.project.slug,
         version_slug=version.slug,
         build_id=build_id,
