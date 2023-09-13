@@ -61,14 +61,17 @@ the C-dependent libraries from your ``install_requires`` in the RTD environment.
 
 .. _autodoc_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
 
+
 Where do I need to put my docs for RTD to find it?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Read the Docs will crawl your project looking for a ``conf.py``. Where it finds the ``conf.py``,
-it will run ``sphinx-build`` in that directory.
-So as long as you only have one set of sphinx documentation in your project, it should Just Work.
+You can put your docs wherever your want on your repository.
+However, you will need to tell Read the Docs where your Sphinx's (i.e. ``conf.py``)
+or MkDocs' (i.e. ``mkdocs.yml``) configuration file lives in order to build your documentation.
 
-You can specify an exact path to your documentation using a Read the Docs :doc:`config-file/index`.
+This is done by using ``sphinx.configuration`` or ``mkdocs.configuration`` config key in your Read the Docs configuration file.
+Read :doc:`config-file/index` to know more about this.
+
 
 How can I avoid search results having a deprecated version of my docs?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
