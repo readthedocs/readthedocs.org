@@ -15,8 +15,8 @@ log = structlog.get_logger(__name__)
 
 
 # TODO: remove after deploy. This is kept, so builds keep
-# working while the deploy the new task below.
-@app.task(queue='reindex')
+# working while we deploy the task below.
+@app.task(queue="reindex")
 def fileify(version_pk, commit, build, search_ranking, search_ignore):
     """
     Create ImportedFile objects for all of a version's files.
@@ -224,9 +224,7 @@ def _create_imported_files_and_search_index(
 
             # Create the imported file only if it's a top-level 404 file,
             # or if it's an index file. We don't need to keep track of all files.
-            is_top_level_404_file = filename == "404.html" and root == storage_path
-            is_index_file = filename in ["index.html", "README.html"]
-            if is_top_level_404_file or is_index_file:
+            if relpath == "404.html" or filename in ["index.html", "README.html"]:
                 html_files_to_save.append(html_file)
 
     # We first index the files in ES, and then save the objects in the DB.

@@ -99,8 +99,6 @@ class Command(BaseCommand):
             functions[model](days_ago=days_ago, queue=queue)
 
     def _reindex_projects(self, queue, timestamp):
-        # TODO: can we just improt the project document?
-        # document = list(registry.get_documents(models=[Project]))[0]
         document = ProjectDocument
         app_label = Project._meta.app_label
         model_name = Project.__name__
