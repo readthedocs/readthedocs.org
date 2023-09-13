@@ -260,30 +260,12 @@ Can I document a Python package that is not at the root of my repository?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Yes. The most convenient way to access a Python package for example via
-`Sphinx's autoapi`_ in your documentation is to use the *Install your project
-inside a virtualenv using setup.py install* option in the admin panel of
-your project. However this assumes that your ``setup.py`` is in the root of
-your repository.
+`Sphinx's autoapi`_ in your documentation is to use the
+``python.install.method: pip`` (:doc:`config-file/v2`) configuration key.
 
-If you want to place your package in a different directory or have multiple
-Python packages in the same project, then create a pip requirements file. You
-can specify the relative path to your package inside the file.
-For example you want to keep your Python package in the ``src/python``
-directory, then create a ``requirements.txt`` file with the
-following contents::
+This configuration will tell Read the Docs to install your package in
+the virtual environment used to build your documentation so your documentation tool can access to it.
 
-    src/python/
-
-Please note that the path must be relative to the working directory where ``pip`` is launched,
-rather than the directory where the requirements file is located.
-Therefore, even if you want to move the requirements file to a ``requirements/`` directory,
-the example path above would work.
-
-You can customize the path to your requirements file and any other installed dependency
-using a Read the Docs :doc:`config-file/index`.
-
-.. _Sphinx's autoapi: http://sphinx-doc.org/ext/autodoc.html
-.. _pip requirements file: https://pip.pypa.io/en/stable/user_guide.html#requirements-files
 
 Does Read the Docs work well with "legible" docstrings?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
