@@ -103,6 +103,7 @@ class ImportedFileTests(TestCase):
             self.assertEqual(obj.build, 1)
 
         results = PageDocument().search().filter().execute()
+        self.assertEqual(len(results), 4)
         for result in results:
             self.assertEqual(result.build, 1)
 
@@ -110,11 +111,10 @@ class ImportedFileTests(TestCase):
         for obj in ImportedFile.objects.all():
             self.assertEqual(obj.build, 2)
 
-        # NOTE: we can't test the ES index here because the index is updated asynchronously,
-        # so we will get results for both builds.
-        # results = PageDocument().search().filter().execute()
-        # for result in results:
-        #     self.assertEqual(result.build, 2)
+        # NOTE: we can't test that the files from the previous build
+        # were deleted, since deletion happens asynchronously.
+        results = PageDocument().search().filter("term", build=2).execute()
+        self.assertEqual(len(results), 4)
 
     def test_page_default_rank(self):
         search_ranking = {}
