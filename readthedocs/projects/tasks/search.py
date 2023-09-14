@@ -174,6 +174,7 @@ def _create_imported_files_and_search_index(
     # A sync ID is a number different than the current `build` attribute (pending rename),
     # it's used to differentiate the files from the current sync from the previous one.
     # This is useful to easily delete the previous files from the DB and ES.
+    # See https://github.com/readthedocs/readthedocs.org/issues/10734.
     imported_file = version.imported_files.first()
     sync_id = imported_file.build + 1 if imported_file else 1
 
@@ -210,8 +211,6 @@ def _create_imported_files_and_search_index(
             # If the file is ignored, we don't need to check for its ranking.
             if not skip_search_index:
                 # Last pattern to match takes precedence
-                # XXX: see if we can implement another type of precedence,
-                # like the longest pattern.
                 for pattern, rank in reverse_rankings:
                     if fnmatch(relpath, pattern):
                         page_rank = rank
