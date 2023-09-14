@@ -163,10 +163,6 @@ Read the Docs offers some settings (feature flags) which can be used for a varie
 To enable these settings,
 please send an email to support@readthedocs.org and we will change the settings for the project.
 
-.. seealso::
-
-   :doc:`/feature-flags`
-     Reference of all Feature Flags that can be requested.
 
 
 How do I change behavior when building with Read the Docs?
