@@ -123,7 +123,7 @@ class ProjectRelationship(models.Model):
         return unsafe_join_url_path(prefix, self.alias, "/")
 
 
-class ProjectAddonsConfig(TimeStampedModel):
+class AddonsConfig(TimeStampedModel):
 
     """
     Addons project configuration.
@@ -134,18 +134,30 @@ class ProjectAddonsConfig(TimeStampedModel):
 
     DOC_DIFF_DEFAULT_ROOT_SELECTOR = "[role=main]"
 
+    project = models.OneToOneField(
+        "Project",
+        related_name="addons",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+
+    enabled = models.BooleanField(
+        default=True,
+        help_text="Enable/Disable all the addons on this project",
+    )
+
     # Analytics
     analytics_enabled = models.BooleanField(default=True)
 
     # Docdiff
     doc_diff_enabled = models.BooleanField(default=True)
-    doc_diff_root_selector = models.CharField(null=True, blank=True)
     doc_diff_show_additions = models.BooleanField(default=True)
     doc_diff_show_deletions = models.BooleanField(default=True)
     doc_diff_root_selector = models.CharField(null=True, blank=True)
 
     # External version warning
-    external_version_warning = models.BooleanField(default=True)
+    external_version_warning_enabled = models.BooleanField(default=True)
 
     # EthicalAds
     ethicalads_enabled = models.BooleanField(default=True)
@@ -161,7 +173,7 @@ class ProjectAddonsConfig(TimeStampedModel):
     search_default_filter = models.CharField(null=True, blank=True)
 
     # Stable/Latest version warning
-    stable_latest_version_warning = models.BooleanField(default=True)
+    stable_latest_version_warning_enabled = models.BooleanField(default=True)
 
 
 class AddonSearchFilter(TimeStampedModel):
@@ -172,7 +184,7 @@ class AddonSearchFilter(TimeStampedModel):
     Specific filter defined by the user to show on the search modal.
     """
 
-    addons = models.ForeignKey("ProjectAddonsConfig", on_delete=models.CASCADE)
+    addons = models.ForeignKey("AddonsConfig", on_delete=models.CASCADE)
     name = models.CharField(max_length=128)
     syntaxt = models.CharField(max_length=128)
 
@@ -184,18 +196,6 @@ class Project(models.Model):
     # Auto fields
     pub_date = models.DateTimeField(_('Publication date'), auto_now_add=True, db_index=True)
     modified_date = models.DateTimeField(_('Modified date'), auto_now=True, db_index=True)
-
-    # NOTE: we are defaulting this field to ``NULL``, meaning the "new beta addons" are disabled.
-    # When the user enables the beta addons, we create a ``AddonsProjectConfig`` and attach it
-    # to this ``Project`` to override the "old integration" at serve time.
-    addons = models.ForeignKey(
-        "ProjectAddonsConfig",
-        verbose_name=_("Addons project configuration"),
-        related_name="project",
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-    )
 
     # Generally from conf.py
     users = models.ManyToManyField(

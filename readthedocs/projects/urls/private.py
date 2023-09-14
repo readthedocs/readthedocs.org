@@ -9,6 +9,7 @@ from readthedocs.constants import pattern_opts
 from readthedocs.projects.backends.views import ImportWizardView
 from readthedocs.projects.views import private
 from readthedocs.projects.views.private import (
+    AddonsConfigUpdate,
     AutomationRuleDelete,
     AutomationRuleList,
     AutomationRuleMove,
@@ -26,7 +27,6 @@ from readthedocs.projects.views.private import (
     IntegrationExchangeDetail,
     IntegrationList,
     IntegrationWebhookSync,
-    ProjectAddonsUpdate,
     ProjectAdvancedUpdate,
     ProjectAdvertisingUpdate,
     ProjectDashboard,
@@ -208,7 +208,7 @@ urlpatterns += domain_urls
 addons_urls = [
     re_path(
         r"^(?P<project_slug>[-\w]+)/addons/edit/$$",
-        ProjectAddonsUpdate.as_view(),
+        AddonsConfigUpdate.as_view(),
         name="projects_addons",
     ),
 ]

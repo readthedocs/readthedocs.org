@@ -22,12 +22,12 @@ from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import (
+    AddonsConfig,
     Domain,
     EmailHook,
     EnvironmentVariable,
     Feature,
     Project,
-    ProjectAddonsConfig,
     ProjectRelationship,
     WebHook,
 )
@@ -494,33 +494,28 @@ class ProjectRelationshipForm(forms.ModelForm):
         return alias
 
 
-class ProjectAddonsForm(forms.ModelForm):
+class AddonsConfigForm(forms.ModelForm):
 
     """Form to opt-in into new beta addons."""
 
-    enabled = forms.BooleanField(
-        label="Enable Read the Docs beta addons",
-        help_text="Opt-in into new beta addons",
-        required=False,
-    )
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     class Meta:
-        model = Project
-        fields = ()
+        model = AddonsConfig
+        fields = ("enabled", "project")
 
     def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        kwargs["instance"] = getattr(self.project, "addons", None)
         super().__init__(*args, **kwargs)
-        enabled = bool(self.instance.addons)
-        self.fields["enabled"].initial = enabled
 
-    def save(self, commit=True):
-        instance = super().save(commit)
-        if self.cleaned_data.get("enabled", False):
-            self.instance.addons = ProjectAddonsConfig.objects.create()
-            self.instance.save()
-        elif self.instance.addons:
-            self.instance.addons.delete()
-        return instance
+        try:
+            self.fields["enabled"].initial = self.project.addons.enabled
+        except AddonsConfig.DoesNotExist:
+            self.fields["enabled"].initial = False
+
+    def clean_project(self):
+        return self.project
 
 
 class UserForm(forms.Form):
