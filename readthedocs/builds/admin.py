@@ -12,8 +12,7 @@ from readthedocs.builds.models import (
 )
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.admin import pretty_json_field
-from readthedocs.projects.models import HTMLFile
-from readthedocs.search.utils import _indexing_helper
+from readthedocs.projects.tasks.search import reindex_version
 
 
 class BuildCommandResultInline(admin.TabularInline):
@@ -89,7 +88,7 @@ class VersionAdmin(admin.ModelAdmin):
     list_filter = ("type", "privacy_level", "active", "built")
     search_fields = ("slug", "project__slug")
     raw_id_fields = ("project",)
-    actions = ["build_version", "reindex_version", "wipe_version_indexes"]
+    actions = ["build_version", "reindex_version"]
 
     def project_slug(self, obj):
         return obj.project.slug
@@ -117,40 +116,10 @@ class VersionAdmin(admin.ModelAdmin):
     @admin.action(description="Reindex version to ES")
     def reindex_version(self, request, queryset):
         """Reindexes all selected versions to ES."""
-        html_objs_qs = []
-        for version in queryset.iterator():
-            html_objs = HTMLFile.objects.filter(
-                project=version.project, version=version
-            )
-
-            if html_objs.exists():
-                html_objs_qs.append(html_objs)
-
-        if html_objs_qs:
-            _indexing_helper(html_objs_qs, wipe=False)
+        for version_id in queryset.values_list("id", flat=True).iterator():
+            reindex_version.delay(version_id)
 
         self.message_user(request, "Task initiated successfully.", messages.SUCCESS)
-
-    @admin.action(description="Wipe version from ES")
-    def wipe_version_indexes(self, request, queryset):
-        """Wipe selected versions from ES."""
-        html_objs_qs = []
-        for version in queryset.iterator():
-            html_objs = HTMLFile.objects.filter(
-                project=version.project, version=version
-            )
-
-            if html_objs.exists():
-                html_objs_qs.append(html_objs)
-
-        if html_objs_qs:
-            _indexing_helper(html_objs_qs, wipe=True)
-
-        self.message_user(
-            request,
-            "Task initiated successfully",
-            messages.SUCCESS,
-        )
 
 
 @admin.register(RegexAutomationRule)
