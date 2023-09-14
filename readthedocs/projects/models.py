@@ -23,7 +23,14 @@ from django_extensions.db.fields import CreationDateTimeField, ModificationDateT
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
-from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
+from readthedocs.builds.constants import (
+    BRANCH,
+    EXTERNAL,
+    INTERNAL,
+    LATEST,
+    LATEST_VERBOSE_NAME,
+    STABLE,
+)
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
@@ -52,10 +59,7 @@ from readthedocs.search.parsers import GenericParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
-from .constants import (
-    DOWNLOADABLE_MEDIA_TYPES,
-    MEDIA_TYPES,
-)
+from .constants import DOWNLOADABLE_MEDIA_TYPES, MEDIA_TYPES
 
 log = structlog.get_logger(__name__)
 
@@ -1039,6 +1043,37 @@ class Project(models.Model):
             .filter(identifier=current_stable.identifier)
         )
         return original_stable
+
+    def update_latest_version(self):
+        """
+        If the current latest version is machine created, update it.
+
+        A machine created LATEST version is an alias for the default branch/tag,
+        so we need to update it to match the type and identifier of the default branch/tag.
+        """
+        latest = self.versions.filter(slug=LATEST).first()
+        if not latest:
+            latest = self.versions.create_latest()
+        if not latest.machine:
+            return
+
+        # default_branch can be a tag or a branch name!
+        default_version_name = self.get_default_branch()
+        original_latest_type = (
+            self.versions(manager=INTERNAL)
+            .exclude(slug=LATEST)
+            .filter(
+                verbose_name=default_version_name,
+            )
+            .values_list("type", flat=True)
+            .first()
+        )
+        latest.verbose_name = LATEST_VERBOSE_NAME
+        latest.type = original_latest_type or BRANCH
+        # For latest, the identifier is the name of the branch/tag.
+        latest.identifier = default_version_name
+        latest.save()
+        return latest
 
     def update_stable_version(self):
         """

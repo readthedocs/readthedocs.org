@@ -5,7 +5,13 @@ from typing import Iterable
 
 import structlog
 
-from readthedocs.builds.constants import BRANCH, EXTERNAL, TAG
+from readthedocs.builds.constants import (
+    BRANCH,
+    EXTERNAL,
+    LATEST_VERBOSE_NAME,
+    STABLE_VERBOSE_NAME,
+    TAG,
+)
 from readthedocs.config import ALL
 from readthedocs.projects.constants import (
     GITHUB_BRAND,
@@ -115,12 +121,19 @@ class Backend(BaseVCS):
             # denoting that it's not a branch/tag that really exists.
             # Because we don't know if it originates from the default branch or some
             # other tagged release, we will fetch the exact commit it points to.
-            if self.version_machine and self.verbose_name == "stable":
+            if self.version_machine and self.verbose_name == STABLE_VERBOSE_NAME:
                 if self.version_identifier:
                     return f"{self.version_identifier}"
                 log.error("'stable' version without a commit hash.")
                 return None
-            return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
+
+            tag_name = self.verbose_name
+            # For a machine created "latest" tag, the name of the tag is set
+            # in the `Version.identifier` field, note that it isn't a commit
+            # hash, but the name of the tag.
+            if self.version_machine and self.verbose_name == LATEST_VERBOSE_NAME:
+                tag_name = self.version_identifier
+            return f"refs/tags/{tag_name}:refs/tags/{tag_name}"
 
         if self.version_type == EXTERNAL:
             # TODO: We should be able to resolve this without looking up in oauth registry
