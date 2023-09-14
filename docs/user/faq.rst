@@ -63,7 +63,7 @@ the C-dependent libraries from your ``install_requires`` in the Read the Docs en
 
 
 Where do I need to put my docs for Read the Docs to find it?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 You can put your docs wherever your want on your repository.
 However, you will need to tell Read the Docs where your Sphinx's (i.e. ``conf.py``)
@@ -261,7 +261,7 @@ Can I document a Python package that is not at the root of my repository?
 
 Yes. The most convenient way to access a Python package for example via
 `Sphinx's autoapi`_ in your documentation is to use the
-``python.install.method: pip`` (:doc:`config-file/v2:python.install`) configuration key.
+``python.install.method: pip`` (:ref:`config-file/v2:python.install`) configuration key.
 
 This configuration will tell Read the Docs to install your package in
 the virtual environment used to build your documentation so your documentation tool can access to it.
