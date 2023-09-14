@@ -25,6 +25,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
+from readthedocs.projects.constants import PUBLIC
 from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
 from readthedocs.proxito.redirects import redirect_to_https
 
@@ -278,6 +279,32 @@ class ProxitoMiddleware(MiddlewareMixin):
             if addons:
                 response["X-RTD-Hosting-Integrations"] = "true"
 
+    def add_cors_headers(self, request, response):
+        """
+        Add CORS headers only on PUBLIC versions.
+
+        DocDiff addons requires making a request from
+        ``RTD_EXTERNAL_VERSION_DOMAIN`` to ``PUBLIC_DOMAIN`` to be able to
+        compare both DOMs and show the visual differences.
+
+        This request needs ``Access-Control-Allow-Origin`` HTTP headers to be
+        accepted by browsers. However, we cannot expose these headers for
+        documentation that's not PUBLIC.
+        """
+        project_slug = getattr(request, "path_project_slug", "")
+        version_slug = getattr(request, "path_version_slug", "")
+
+        if project_slug and version_slug:
+            allow_cors = Version.objects.filter(
+                project__slug=project_slug,
+                slug=version_slug,
+                privacy_level=PUBLIC,
+            ).exists()
+            if allow_cors:
+                response.headers["Access-Control-Allow-Origin"] = "*"
+                response.headers["Access-Control-Allow-Methods"] = "OPTIONS, GET"
+        return response
+
     def _get_https_redirect(self, request):
         """
         Get a redirect response if the request should be redirected to HTTPS.
@@ -315,4 +342,5 @@ class ProxitoMiddleware(MiddlewareMixin):
         self.add_hsts_headers(request, response)
         self.add_user_headers(request, response)
         self.add_hosting_integrations_headers(request, response)
+        self.add_cors_headers(request, response)
         return response

@@ -3,6 +3,7 @@ from django.test import override_settings
 from django.urls import reverse
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Domain, HTTPHeader
 
 from .base import BaseDocServing
@@ -157,6 +158,30 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r.status_code, 200)
         self.assertIsNotNone(r.get("X-RTD-Hosting-Integrations"))
         self.assertEqual(r["X-RTD-Hosting-Integrations"], "true")
+
+    def test_cors_headers_private_version(self):
+        version = self.project.versions.get(slug=LATEST)
+        version.privacy_level = PRIVATE
+        version.save()
+
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertIsNone(r.get("Access-Control-Allow-Origin"))
+        self.assertIsNone(r.get("Access-Control-Allow-Methods"))
+
+    def test_cors_headers_public_version(self):
+        version = self.project.versions.get(slug=LATEST)
+        version.privacy_level = PUBLIC
+        version.save()
+
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Access-Control-Allow-Origin"], "*")
+        self.assertEqual(r["Access-Control-Allow-Methods"], "OPTIONS, GET")
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cache_headers_public_version_with_private_projects_not_allowed(self):
