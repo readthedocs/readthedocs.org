@@ -499,7 +499,7 @@ class CommunityBaseSettings(Settings):
         },
         'every-day-delete-old-page-views': {
             'task': 'readthedocs.analytics.tasks.delete_old_page_counts',
-            'schedule': crontab(minute=0, hour=1),
+            'schedule': crontab(minute=27, hour='*/6'),
             'options': {'queue': 'web'},
         },
         'every-day-delete-old-buildata-models': {
