@@ -1110,6 +1110,28 @@ class Project(models.Model):
         )
         return original_stable
 
+    def get_latest_version(self):
+        return self.versions.filter(slug=LATEST).first()
+
+    def get_original_latest_version(self):
+        """
+        Get the original version that latest points to.
+
+        When latest is machine created, it's basically an alias
+        for the default branch/tag (like main/master),
+
+        Returns None if the current default version doesn't point to a valid version.
+        """
+        default_version_name = self.get_default_branch()
+        return (
+            self.versions(manager=INTERNAL)
+            .exclude(slug=LATEST)
+            .filter(
+                verbose_name=default_version_name,
+            )
+            .first()
+        )
+
     def update_latest_version(self):
         """
         If the current latest version is machine created, update it.
@@ -1117,7 +1139,7 @@ class Project(models.Model):
         A machine created LATEST version is an alias for the default branch/tag,
         so we need to update it to match the type and identifier of the default branch/tag.
         """
-        latest = self.versions.filter(slug=LATEST).first()
+        latest = self.get_latest_version()
         if not latest:
             latest = self.versions.create_latest()
         if not latest.machine:
@@ -1125,17 +1147,9 @@ class Project(models.Model):
 
         # default_branch can be a tag or a branch name!
         default_version_name = self.get_default_branch()
-        original_latest_type = (
-            self.versions(manager=INTERNAL)
-            .exclude(slug=LATEST)
-            .filter(
-                verbose_name=default_version_name,
-            )
-            .values_list("type", flat=True)
-            .first()
-        )
+        original_latest = self.get_original_latest_version()
         latest.verbose_name = LATEST_VERBOSE_NAME
-        latest.type = original_latest_type or BRANCH
+        latest.type = original_latest.type if original_latest else BRANCH
         # For latest, the identifier is the name of the branch/tag.
         latest.identifier = default_version_name
         latest.save()
