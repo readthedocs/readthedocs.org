@@ -46,6 +46,7 @@ from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.forms import (
+    AddonsConfigForm,
     DomainForm,
     EmailHookForm,
     EnvironmentVariableForm,
@@ -166,6 +167,15 @@ class ProjectAdvancedUpdate(ProjectMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('projects_detail', args=[self.object.slug])
+
+
+class AddonsConfigUpdate(ProjectAdminMixin, PrivateViewMixin, CreateView, UpdateView):
+    form_class = AddonsConfigForm
+    success_message = _("Project addons updated")
+    template_name = "projects/addons_form.html"
+
+    def get_success_url(self):
+        return reverse("projects_addons", args=[self.object.project.slug])
 
 
 class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteView):

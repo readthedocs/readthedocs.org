@@ -18,17 +18,19 @@ async-timeout==4.0.3
     # via
     #   -r requirements/pip.txt
     #   redis
+attrs==23.1.0
+    # via wmctrl
 backcall==0.2.0
     # via ipython
 billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.45
+boto3==1.28.49
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.45
+botocore==1.31.49
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -208,7 +210,7 @@ executing==1.2.0
     # via stack-data
 fancycompleter==0.9.1
     # via pdbpp
-filelock==3.12.3
+filelock==3.12.4
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -401,7 +403,7 @@ tomli==2.0.1
     #   tox
 tox==4.11.3
     # via -r requirements/docker.in
-traitlets==5.9.0
+traitlets==5.10.0
     # via
     #   ipython
     #   matplotlib-inline
@@ -409,7 +411,6 @@ typing-extensions==4.7.1
     # via
     #   -r requirements/pip.txt
     #   asgiref
-    #   filelock
 tzdata==2023.3
     # via
     #   -r requirements/pip.txt
@@ -451,5 +452,5 @@ websocket-client==1.6.3
     # via
     #   -r requirements/pip.txt
     #   docker
-wmctrl==0.4
+wmctrl==0.5
     # via pdbpp
