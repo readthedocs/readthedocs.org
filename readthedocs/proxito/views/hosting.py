@@ -67,10 +67,15 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             return None, None, None, None
 
         unresolved_domain = self.request.unresolved_domain
+
+        # Main project from the domain.
         project = unresolved_domain.project
 
         try:
             unresolved_url = unresolver.unresolve_url(url)
+            # Project from the URL: if it's a subproject it will differ from
+            # the main project got from the domain.
+            project = unresolved_url.project
             version = unresolved_url.version
             filename = unresolved_url.filename
             build = version.builds.last()
@@ -247,6 +252,8 @@ class AddonsResponse:
                 " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
             ),
             "projects": {
+                # TODO: return the "parent" project here when the "current"
+                # project is a subproject/translation.
                 "current": ProjectSerializerNoLinks(project).data,
             },
             "versions": {
