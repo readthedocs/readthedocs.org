@@ -40,6 +40,13 @@ class IsAuthorizedToViewVersion(permissions.BasePermission):
     def has_permission(self, request, view):
         project = view._get_project()
         version = view._get_version()
+
+        if not project or not version:
+            # Allow the request if there is no project/version.
+            # It will hit the real view and it will be handled properly:
+            # return 404 or just an empty project/version field.
+            return True
+
         has_access = (
             Version.objects.public(
                 user=request.user,
