@@ -407,7 +407,7 @@ class TestBuildTask(BuildEnvironmentBase):
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
         assert build_env_vars == expected_build_env_vars
 
-    @mock.patch("readthedocs.projects.tasks.builds.fileify")
+    @mock.patch("readthedocs.projects.tasks.builds.index_build")
     @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
@@ -420,7 +420,7 @@ class TestBuildTask(BuildEnvironmentBase):
         send_notifications,
         send_external_build_status,
         build_complete,
-        fileify,
+        index_build,
     ):
         load_yaml_config.return_value = self._config_file(
             {
@@ -481,13 +481,7 @@ class TestBuildTask(BuildEnvironmentBase):
             build=mock.ANY,
         )
 
-        fileify.delay.assert_called_once_with(
-            version_pk=self.version.pk,
-            commit=self.build.commit,
-            build=self.build.pk,
-            search_ranking=mock.ANY,
-            search_ignore=mock.ANY,
-        )
+        index_build.delay.assert_called_once_with(build_id=self.build.pk)
 
         # TODO: assert the verb and the path for each API call as well
 

@@ -24,11 +24,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.45
+boto3==1.28.49
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.45
+botocore==1.31.49
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -134,7 +134,7 @@ django-csp==3.7
     # via -r requirements/pip.txt
 django-debug-toolbar==4.2.0
     # via -r requirements/pip.txt
-django-dynamic-fixture==4.0.0
+django-dynamic-fixture==4.0.1
     # via -r requirements/testing.in
 django-elasticsearch-dsl==7.3
     # via -r requirements/pip.txt
@@ -198,7 +198,7 @@ elasticsearch-dsl==7.4.1
     #   django-elasticsearch-dsl
 exceptiongroup==1.1.3
     # via pytest
-filelock==3.12.3
+filelock==3.12.4
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -363,7 +363,7 @@ slumber==0.7.1
     # via -r requirements/pip.txt
 snowballstemmer==2.2.0
     # via sphinx
-sphinx==7.2.5
+sphinx==7.2.6
     # via
     #   -r requirements/testing.in
     #   sphinxcontrib-applehelp
@@ -406,7 +406,6 @@ typing-extensions==4.7.1
     # via
     #   -r requirements/pip.txt
     #   asgiref
-    #   filelock
 tzdata==2023.3
     # via
     #   -r requirements/pip.txt

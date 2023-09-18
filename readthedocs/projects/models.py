@@ -123,6 +123,72 @@ class ProjectRelationship(models.Model):
         return unsafe_join_url_path(prefix, self.alias, "/")
 
 
+class AddonsConfig(TimeStampedModel):
+
+    """
+    Addons project configuration.
+
+    Store all the configuration for each of the addons.
+    Everything is enabled by default.
+    """
+
+    DOC_DIFF_DEFAULT_ROOT_SELECTOR = "[role=main]"
+
+    project = models.OneToOneField(
+        "Project",
+        related_name="addons",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+
+    enabled = models.BooleanField(
+        default=True,
+        help_text="Enable/Disable all the addons on this project",
+    )
+
+    # Analytics
+    analytics_enabled = models.BooleanField(default=True)
+
+    # Docdiff
+    doc_diff_enabled = models.BooleanField(default=True)
+    doc_diff_show_additions = models.BooleanField(default=True)
+    doc_diff_show_deletions = models.BooleanField(default=True)
+    doc_diff_root_selector = models.CharField(null=True, blank=True, max_length=128)
+
+    # External version warning
+    external_version_warning_enabled = models.BooleanField(default=True)
+
+    # EthicalAds
+    ethicalads_enabled = models.BooleanField(default=True)
+
+    # Flyout
+    flyout_enabled = models.BooleanField(default=True)
+
+    # Hotkeys
+    hotkeys_enabled = models.BooleanField(default=True)
+
+    # Search
+    search_enabled = models.BooleanField(default=True)
+    search_default_filter = models.CharField(null=True, blank=True, max_length=128)
+
+    # Stable/Latest version warning
+    stable_latest_version_warning_enabled = models.BooleanField(default=True)
+
+
+class AddonSearchFilter(TimeStampedModel):
+
+    """
+    Addon search user defined filter.
+
+    Specific filter defined by the user to show on the search modal.
+    """
+
+    addons = models.ForeignKey("AddonsConfig", on_delete=models.CASCADE)
+    name = models.CharField(max_length=128)
+    syntaxt = models.CharField(max_length=128)
+
+
 class Project(models.Model):
 
     """Project model."""
