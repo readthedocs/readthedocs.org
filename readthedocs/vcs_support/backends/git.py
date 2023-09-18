@@ -93,7 +93,7 @@ class Backend(BaseVCS):
         - Version.identifier is the commit hash,
           except for latest, where this is the tag name.
         - Version.verbose_name is the tag name,
-          except for latest (machine created),
+          except for latest and stable (machine created),
           where this is the alias name.
 
         For external versions:
