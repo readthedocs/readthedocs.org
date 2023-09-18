@@ -180,7 +180,7 @@ class ProxitoHeaderTests(BaseDocServing):
             "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
         )
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r["Access-Control-Allow-Origin"], "*")
+        self.assertEqual(r["Access-Control-Allow-Origin"], "*.readthedocs.build")
         self.assertEqual(r["Access-Control-Allow-Methods"], "OPTIONS, GET")
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
