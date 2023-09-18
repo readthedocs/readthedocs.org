@@ -25,7 +25,8 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.constants import PUBLIC, Project
+from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.models import Project
 from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
 from readthedocs.proxito.redirects import redirect_to_https
 
