@@ -79,13 +79,27 @@ class Backend(BaseVCS):
         This method sits on top of a lot of legacy design.
         It decides how to treat the incoming ``Version.identifier`` from
         knowledge of how the caller (the build process) uses build data.
+        Thi is:
 
-        Version.identifier = a branch name (branches)
-        Version.identifier = commit (tags)
-        Version.identifier = commit (external versions)
-        Version.verbose_name = branch alias, e.g. latest (branches)
-        Version.verbose_name = tag name (tags)
-        Version.verbose_name = PR number (external versions)
+        For branches:
+
+        - Version.identifier is the branch name.
+        - Version.verbose_name is also the branch name,
+          except for latest and stable (machine created),
+          where this is the alias name.
+
+        For tags:
+
+        - Version.identifier is the commit hash,
+          except for latest, where this is the tag name.
+        - Version.verbose_name is the tag name,
+          except for latest (machine created),
+          where this is the alias name.
+
+        For external versions:
+
+        - Version.identifier is the commit hash.
+        - Version.verbose_name is the PR number.
 
         :return: A refspec valid for fetch operation
         """
