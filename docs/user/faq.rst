@@ -25,7 +25,7 @@ This can be because the project is not correctly configured,
 because the contents of the Git repository cannot be built,
 or in the most rare cases because a system that Read the Docs connects to is not working.
 
-First, you should check out the Builds tab of your project.
+First, you should check out the :guilabel:`Builds` tab of your project.
 By clicking on the failing step,
 you will be able to see details that can lead to resolutions to your build error.
 
@@ -42,25 +42,6 @@ you can use an important word or message from the error to search for a solution
       * :ref:`faq:why do i get import errors from libraries depending on c modules?`
 
 
-.. Old reference
-.. _Help, my build passed but my documentation page is 404 Not Found!:
-
-Why does my project have status "passed" but I get a 404 page?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This often happens because you don't have an `index.html` file being generated.
-
-Make sure you have one of the following files at the top level of your documentation source:
-
-    * `index.rst` (Sphinx)
-    * `index.md` (MkDocs or Sphinx with MyST)
-
-.. tip::
-
-   To test if your docs actually built correctly,
-   you can navigate to a specific page that you know is part of the documentation build,
-   for example `/en/latest/README.html`.
-
 Why do I get import errors from libraries depending on C modules?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -76,18 +57,21 @@ successfully build the documentation despite missing dependencies.
 
 With Sphinx you can use the built-in `autodoc_mock_imports`_ for mocking. If
 such libraries are installed via ``setup.py``, you also will need to remove all
-the C-dependent libraries from your ``install_requires`` in the RTD environment.
+the C-dependent libraries from your ``install_requires`` in the Read the Docs environment.
 
 .. _autodoc_mock_imports: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
 
-Where do I need to put my docs for RTD to find it?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Read the Docs will crawl your project looking for a ``conf.py``. Where it finds the ``conf.py``,
-it will run ``sphinx-build`` in that directory.
-So as long as you only have one set of sphinx documentation in your project, it should Just Work.
+Where do I need to put my docs for Read the Docs to find it?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-You can specify an exact path to your documentation using a Read the Docs :doc:`config-file/index`.
+You can put your docs wherever your want on your repository.
+However, you will need to tell Read the Docs where your Sphinx's (i.e. ``conf.py``)
+or MkDocs' (i.e. ``mkdocs.yml``) configuration file lives in order to build your documentation.
+
+This is done by using ``sphinx.configuration`` or ``mkdocs.configuration`` config key in your Read the Docs configuration file.
+Read :doc:`config-file/index` to know more about this.
+
 
 How can I avoid search results having a deprecated version of my docs?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -153,26 +137,10 @@ You can also set your project documentation to install your Python project itsel
       * :ref:`faq:Why do I get import errors from libraries depending on C modules?`
 
 
-Can I have access to additional features or settings?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If this is just a dependency issue,
-see :ref:`faq:How do I add additional software dependencies for my documentation?`.
-
-Read the Docs offers some settings (feature flags) which can be used for a variety of purposes.
-To enable these settings,
-please send an email to support@readthedocs.org and we will change the settings for the project.
-
-.. seealso::
-
-   :doc:`/feature-flags`
-     Reference of all Feature Flags that can be requested.
-
-
 How do I change behavior when building with Read the Docs?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When RTD builds your project, it sets the :envvar:`READTHEDOCS` environment
+When Read the Docs builds your project, it sets the :envvar:`READTHEDOCS` environment
 variable to the string ``'True'``. So within your Sphinx :file:`conf.py` file, you
 can vary the behavior based on this. For example:
 
@@ -187,7 +155,7 @@ can vary the behavior based on this. For example:
         html_theme = "nature"
 
 The :envvar:`READTHEDOCS` variable is also available in the Sphinx build
-environment, and will be set to ``True`` when building on RTD:
+environment, and will be set to ``True`` when building on Read the Docs:
 
 
 .. code-block:: jinja
@@ -200,8 +168,8 @@ environment, and will be set to ``True`` when building on RTD:
 I want comments in my docs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-RTD doesn't have explicit support for this.
-That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on RTD.
+Read the Docs doesn't have explicit support for this.
+That said, a tool like `Disqus`_ (and the `sphinxcontrib-disqus`_ plugin) can be used for this purpose on Read the Docs.
 
 .. _Disqus: https://disqus.com/
 .. _sphinxcontrib-disqus: https://pypi.python.org/pypi/sphinxcontrib-disqus
@@ -245,7 +213,7 @@ https://celery.readthedocs.io/projects/kombu/en/latest/
 
 This also works the same for custom domains:
 
-http://docs..org/projects/kombu/en/latest/
+http://docs.celeryq.dev/projects/kombu/en/latest/
 
 You can add subprojects in the project admin dashboard.
 
@@ -262,36 +230,28 @@ See the section on :doc:`localization`.
 Sphinx
 ------
 
-I want to use the Blue/Default Sphinx theme
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-We think that our theme is badass,
-and better than the default for many reasons.
-Some people don't like change though |:smile:|,
-so there is a hack that will let you keep using the default theme.
-If you set the ``html_style`` variable in your ``conf.py``,
-it should default to using the default theme.
-The value of this doesn't matter, and can be set to ``/default.css`` for default behavior.
+.. Old references
+.. _I want to use the Blue/Default Sphinx theme:
+.. _I want to use the Read the Docs theme locally:
 
+I want to use the Read the Docs theme
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-I want to use the Read the Docs theme locally
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+To use the Read the Docs theme,
+you have to specify that in your Sphinx's ``conf.py`` file.
 
-Read the Docs automatically applies the sphinx-rtd-theme to projects that do not have a defined theme.
-If you build a Sphinx project locally,
-you should specify that you are using sphinx-rtd-theme.
-
-.. seealso::
-
-   `sphinx-rtd-theme documentation <https://sphinx-rtd-theme.readthedocs.io/en/stable/installing.html>`_
-     See the official documentation for instructions to enable it in your Sphinx theme.
+Read the `sphinx-rtd-theme documentation <https://sphinx-rtd-theme.readthedocs.io/en/stable/installing.html>`_
+for instructions to enable it in your Sphinx project.
 
 
 Image scaling doesn't work in my documentation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Image scaling in docutils depends on PIL. PIL is installed in the system that RTD runs on. However, if you are using the virtualenv building option, you will likely need to include PIL in your requirements for your project.
-
+Image scaling in ``docutils`` depends on ``Pillow``.
+If you notice that image scaling is not working properly on your Sphinx project,
+you may need to add ``Pillow`` to your requirements to fix this issue.
+Read more about :doc:`guides/reproducible-builds` to define your dependencies in a ``requirements.txt`` file.
 
 Python
 ------
@@ -300,30 +260,12 @@ Can I document a Python package that is not at the root of my repository?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Yes. The most convenient way to access a Python package for example via
-`Sphinx's autoapi`_ in your documentation is to use the *Install your project
-inside a virtualenv using setup.py install* option in the admin panel of
-your project. However this assumes that your ``setup.py`` is in the root of
-your repository.
+`Sphinx's autoapi`_ in your documentation is to use the
+``python.install.method: pip`` (:ref:`config-file/v2:python.install`) configuration key.
 
-If you want to place your package in a different directory or have multiple
-Python packages in the same project, then create a pip requirements file. You
-can specify the relative path to your package inside the file.
-For example you want to keep your Python package in the ``src/python``
-directory, then create a ``requirements.txt`` file with the
-following contents::
+This configuration will tell Read the Docs to install your package in
+the virtual environment used to build your documentation so your documentation tool can access to it.
 
-    src/python/
-
-Please note that the path must be relative to the working directory where ``pip`` is launched,
-rather than the directory where the requirements file is located.
-Therefore, even if you want to move the requirements file to a ``requirements/`` directory,
-the example path above would work.
-
-You can customize the path to your requirements file and any other installed dependency
-using a Read the Docs :doc:`config-file/index`.
-
-.. _Sphinx's autoapi: http://sphinx-doc.org/ext/autodoc.html
-.. _pip requirements file: https://pip.pypa.io/en/stable/user_guide.html#requirements-files
 
 Does Read the Docs work well with "legible" docstrings?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -354,8 +296,8 @@ and as a result, it tends to look a bit better with the default theme.
 I need to install a package in a environment with pinned versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-To ensure proper installation of a Python package, the ``pip`` :ref:`install method <config-file/v2:python.install>` will automatically upgrade every dependency to its most recent version in case they aren't:term:`pinned <pinning>` by the package definition.
-If instead you'd like to pin your dependencies outside the package, you can add this line to your requirements or environment file (if you are using Conda).
+If you'd like to pin your dependencies outside the package,
+you can add this line to your requirements or environment file (if you are using Conda).
 
 In your ``requirements.txt`` file::
 
@@ -366,26 +308,6 @@ In your Conda environment file (``environment.yml``)::
 
     # path to the directory containing setup.py relative to the environment file
     -e ..
-
-
-Can I use Anaconda Project and ``anaconda-project.yml``?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Yes. With ``anaconda-project>=0.8.4`` you can use the `Anaconda Project`_ configuration
-file ``anaconda-project.yaml`` (or ``anaconda-project.yml``) directly in place of a
-Conda environment file by using ``dependencies:`` as an alias for ``packages:``.
-
-I.e., your ``anaconda-project.yaml`` file can be used as a ``conda.environment`` config
-in the ``.readthedocs.yaml`` config file if it contains::
-
-    dependencies:
-      - python=3.9
-      - scipy
-      ...
-
-.. _Anaconda Project: https://anaconda-project.readthedocs.io/en/latest/
-
-
 
 
 Other documentation frameworks

@@ -67,7 +67,7 @@ from ..exceptions import (
 from ..models import APIProject, WebHookEvent
 from ..signals import before_vcs
 from .mixins import SyncRepositoryMixin
-from .search import fileify
+from .search import index_build
 from .utils import (
     BuildRequest,
     clean_build,
@@ -653,13 +653,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 )
 
         # Index search data
-        fileify.delay(
-            version_pk=self.data.version.pk,
-            commit=self.data.build['commit'],
-            build=self.data.build['id'],
-            search_ranking=self.data.config.search.ranking,
-            search_ignore=self.data.config.search.ignore,
-        )
+        index_build.delay(build_id=self.data.build["id"])
 
         if not self.data.project.has_valid_clone:
             self.set_valid_clone()
