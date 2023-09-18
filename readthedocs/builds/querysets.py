@@ -118,6 +118,28 @@ class VersionQuerySetBase(models.QuerySet):
     def api(self, user=None):
         return self.public(user, only_active=False)
 
+    def for_reindex(self):
+        """
+        Get all versions that can be reindexed.
+
+        A version can be reindexed if:
+
+        - It's active and has been built at least once successfully.
+          Since that means that it has files to be indexed.
+        - Its project is not delisted or marked as spam.
+        """
+        return (
+            self.filter(
+                active=True,
+                built=True,
+                builds__state=BUILD_STATE_FINISHED,
+                builds__success=True,
+            )
+            .exclude(project__delisted=True)
+            .exclude(project__is_spam=True)
+            .distinct()
+        )
+
 
 class VersionQuerySet(SettingsOverrideObject):
     _default_class = VersionQuerySetBase
