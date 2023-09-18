@@ -205,15 +205,17 @@ domain_urls = [
 
 urlpatterns += domain_urls
 
-addons_urls = [
-    re_path(
-        r"^(?P<project_slug>[-\w]+)/addons/edit/$$",
-        AddonsConfigUpdate.as_view(),
-        name="projects_addons",
-    ),
-]
+# We are allowing users to enable the new beta addons only from the new dashboard
+if settings.RTD_EXT_THEME_ENABLED:
+    addons_urls = [
+        re_path(
+            r"^(?P<project_slug>[-\w]+)/addons/edit/$$",
+            AddonsConfigUpdate.as_view(),
+            name="projects_addons",
+        ),
+    ]
 
-urlpatterns += addons_urls
+    urlpatterns += addons_urls
 
 integration_urls = [
     re_path(
