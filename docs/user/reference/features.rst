@@ -101,7 +101,6 @@ Feature reference
    /automation-rules
    /badges
    /canonical-urls
-   /feature-flags
    /flyout-menu
    /reference/environment-variables
    /security-log

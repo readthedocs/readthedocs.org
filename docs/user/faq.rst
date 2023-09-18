@@ -266,6 +266,8 @@ Yes. The most convenient way to access a Python package for example via
 This configuration will tell Read the Docs to install your package in
 the virtual environment used to build your documentation so your documentation tool can access to it.
 
+.. _Sphinx's autoapi: https://sphinx-autoapi.readthedocs.io/en/latest/
+
 
 Does Read the Docs work well with "legible" docstrings?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

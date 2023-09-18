@@ -239,6 +239,7 @@ class AddonsResponse:
             project.translations.all().only("language").order_by("language")
         )
         # Make one DB query here and then check on Python code
+        # TODO: make usage of ``Project.addons.<name>_enabled`` to decide if enabled
         project_features = project.features.all().values_list("feature_id", flat=True)
 
         data = {
