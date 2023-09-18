@@ -266,6 +266,22 @@ class ProxitoMiddleware(MiddlewareMixin):
         return None
 
     def add_hosting_integrations_headers(self, request, response):
+        """
+        Add HTTP headers to communicate to Cloudflare Workers.
+
+        We have configured Cloudflare Workers to inject the addons and remove
+        the old flyout integration based on HTTP headers.
+        This method uses two different headers for these purposes:
+
+        - ``X-RTD-Hosting-Integrations``: inject ``readthedocs-addons.js`` to enable addons.
+          Enabled by default on projects using ``build.commands``.
+        - ``X-RTD-Force-Addons``: inject ``readthedocs-addons.js``
+          and remove old flyout integration (via ``readthedocs-doc-embed.js``).
+          Enabled only on projects that opted-in via the admin settings.
+
+        Note these headers will not be required anymore eventually
+        since all the project will be using the new addons once we fully roll them out.
+        """
         addons = False
         project_slug = getattr(request, "path_project_slug", "")
         version_slug = getattr(request, "path_version_slug", "")
