@@ -288,8 +288,8 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         if project_slug:
             force_addons = Project.objects.filter(
-                project__slug=project_slug,
-                addons__isnull=False,
+                slug=project_slug,
+                addons__enabled=True,
             ).exists()
             if force_addons:
                 response["X-RTD-Force-Addons"] = "true"

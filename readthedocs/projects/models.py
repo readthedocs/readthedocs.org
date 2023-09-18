@@ -154,7 +154,7 @@ class AddonsConfig(TimeStampedModel):
     doc_diff_enabled = models.BooleanField(default=True)
     doc_diff_show_additions = models.BooleanField(default=True)
     doc_diff_show_deletions = models.BooleanField(default=True)
-    doc_diff_root_selector = models.CharField(null=True, blank=True)
+    doc_diff_root_selector = models.CharField(null=True, blank=True, max_length=128)
 
     # External version warning
     external_version_warning_enabled = models.BooleanField(default=True)
@@ -170,7 +170,7 @@ class AddonsConfig(TimeStampedModel):
 
     # Search
     search_enabled = models.BooleanField(default=True)
-    search_default_filter = models.CharField(null=True, blank=True)
+    search_default_filter = models.CharField(null=True, blank=True, max_length=128)
 
     # Stable/Latest version warning
     stable_latest_version_warning_enabled = models.BooleanField(default=True)
