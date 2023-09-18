@@ -328,7 +328,7 @@ class ProxitoMiddleware(MiddlewareMixin):
                 privacy_level=PUBLIC,
             ).exists()
             if allow_cors:
-                response.headers["Access-Control-Allow-Origin"] = "*"
+                response.headers["Access-Control-Allow-Origin"] = "*.readthedocs.build"
                 response.headers["Access-Control-Allow-Methods"] = "OPTIONS, GET"
         return response
 
