@@ -1,3 +1,22 @@
+Version 10.5.0
+--------------
+
+:Date: September 18, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10744 <https://github.com/readthedocs/readthedocs.org/pull/10744>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: remove old models (`#10740 <https://github.com/readthedocs/readthedocs.org/pull/10740>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Change frequency of pageview delete code (`#10739 <https://github.com/readthedocs/readthedocs.org/pull/10739>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: add CORS headers only on public versions (`#10737 <https://github.com/readthedocs/readthedocs.org/pull/10737>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove feature flags page (`#10736 <https://github.com/readthedocs/readthedocs.org/pull/10736>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow users to opt-in into the beta addons (`#10733 <https://github.com/readthedocs/readthedocs.org/pull/10733>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: review and update the whole FAQ page. (`#10732 <https://github.com/readthedocs/readthedocs.org/pull/10732>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.4.0 (`#10727 <https://github.com/readthedocs/readthedocs.org/pull/10727>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: include `hotkeys` in API response (`#10722 <https://github.com/readthedocs/readthedocs.org/pull/10722>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: make `sphinx.configuration` in the tutorial (`#10718 <https://github.com/readthedocs/readthedocs.org/pull/10718>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: revert upgrade to `psycopg==3.x` (`#10713 <https://github.com/readthedocs/readthedocs.org/pull/10713>`__)
+* `@humitos <https://github.com/humitos>`__: FooterAPI: use `AdminPermission` when working with object users (`#10709 <https://github.com/readthedocs/readthedocs.org/pull/10709>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: stop relying on the DB when indexing (`#10696 <https://github.com/readthedocs/readthedocs.org/pull/10696>`__)
+
 Version 10.4.0
 --------------
 
