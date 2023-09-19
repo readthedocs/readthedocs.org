@@ -341,6 +341,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             if allow_cors:
                 response.headers["Access-Control-Allow-Origin"] = host
                 response.headers["Access-Control-Allow-Methods"] = "OPTIONS, GET"
+                response.headers["Vary"] = "Origin"
 
         return response
 

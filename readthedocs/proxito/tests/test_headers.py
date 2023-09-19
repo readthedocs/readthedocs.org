@@ -196,6 +196,7 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r.status_code, 200)
         self.assertIsNone(r.get("Access-Control-Allow-Origin"))
         self.assertIsNone(r.get("Access-Control-Allow-Methods"))
+        self.assertIsNone(r.get("Vary"))
 
     def test_cors_headers_public_version(self):
         fixture.get(
@@ -217,6 +218,7 @@ class ProxitoHeaderTests(BaseDocServing):
             r["Access-Control-Allow-Origin"], "project--111.dev.readthedocs.build"
         )
         self.assertEqual(r["Access-Control-Allow-Methods"], "OPTIONS, GET")
+        self.assertEqual(r["Vary"], "Origin")
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_cors_headers_public_version_allow_private_repositories(self):
