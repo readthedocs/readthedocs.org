@@ -4,7 +4,7 @@ from django.urls import reverse
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import Domain, HTTPHeader
+from readthedocs.projects.models import AddonsConfig, Domain, HTTPHeader
 
 from .base import BaseDocServing
 
@@ -158,6 +158,16 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r.status_code, 200)
         self.assertIsNotNone(r.get("X-RTD-Hosting-Integrations"))
         self.assertEqual(r["X-RTD-Hosting-Integrations"], "true")
+
+    def test_force_addons_header(self):
+        fixture.get(AddonsConfig, project=self.project, enabled=True)
+
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertIsNotNone(r.get("X-RTD-Force-Addons"))
+        self.assertEqual(r["X-RTD-Force-Addons"], "true")
 
     def test_cors_headers_private_version(self):
         version = self.project.versions.get(slug=LATEST)
