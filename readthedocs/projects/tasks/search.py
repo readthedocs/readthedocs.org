@@ -14,43 +14,6 @@ from readthedocs.worker import app
 log = structlog.get_logger(__name__)
 
 
-# TODO: remove `fileify` task after deploy. We keep it for now
-# so builds keep working while we deploy the `index_build` task.
-@app.task(queue="reindex")
-def fileify(version_pk, commit, build, search_ranking, search_ignore):
-    """
-    Create ImportedFile objects for all of a version's files.
-
-    This is so we have an idea of what files we have in the database.
-    """
-    version = Version.objects.get_object_or_log(pk=version_pk)
-    if not version:
-        return
-    project = version.project
-
-    if not commit:
-        log.warning(
-            'Search index not being built because no commit information',
-            project_slug=project.slug,
-            version_slug=version.slug,
-        )
-        return
-
-    log.info(
-        'Creating ImportedFiles',
-        project_slug=version.project.slug,
-        version_slug=version.slug,
-    )
-    try:
-        _create_imported_files_and_search_index(
-            version=version,
-            search_ranking=search_ranking,
-            search_ignore=search_ignore,
-        )
-    except Exception:
-        log.exception('Failed during ImportedFile creation')
-
-
 @app.task(queue="reindex")
 def index_build(build_id):
     """Create imported files and search index for the build."""
