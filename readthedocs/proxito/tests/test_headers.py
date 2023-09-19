@@ -1,9 +1,16 @@
 import django_dynamic_fixture as fixture
+from corsheaders.middleware import (
+    ACCESS_CONTROL_ALLOW_CREDENTIALS,
+    ACCESS_CONTROL_ALLOW_METHODS,
+    ACCESS_CONTROL_ALLOW_ORIGIN,
+)
 from django.test import override_settings
 from django.urls import reverse
+from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Version
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Domain, HTTPHeader
 
@@ -161,8 +168,9 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertIsNotNone(r.get("X-RTD-Hosting-Integrations"))
         self.assertEqual(r["X-RTD-Hosting-Integrations"], "true")
 
-    def test_cors_headers_non_external_domain(self):
-        fixture.get(
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
+    def test_cors_headers_external_version(self):
+        get(
             Version,
             project=self.project,
             slug="111",
@@ -171,74 +179,86 @@ class ProxitoHeaderTests(BaseDocServing):
             type=EXTERNAL,
         )
 
+        # Normal request
         r = self.client.get(
-            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+            "/en/111/",
+            secure=True,
+            headers={"host": "project--111.dev.readthedocs.build"},
         )
         self.assertEqual(r.status_code, 200)
-        self.assertIsNone(r.get("Access-Control-Allow-Origin"))
-        self.assertIsNone(r.get("Access-Control-Allow-Methods"))
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
 
+        # Cross-origin request
+        r = self.client.get(
+            "/en/111/",
+            secure=True,
+            headers={
+                "host": "project--111.dev.readthedocs.build",
+                "origin": "https://example.com",
+            },
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True, RTD_ALLOW_ORGANIZATIONS=True)
     def test_cors_headers_private_version(self):
-        fixture.get(
-            Version,
-            project=self.project,
-            slug="111",
-            active=True,
-            privacy_level=PRIVATE,
-            type=EXTERNAL,
-        )
+        get(Organization, owners=[self.eric], projects=[self.project])
+        self.version.privacy_level = PRIVATE
+        self.version.save()
 
+        self.client.force_login(self.eric)
+
+        # Normal request
         r = self.client.get(
-            "/en/111/",
+            "/en/latest/",
             secure=True,
-            headers={"origin": "project--111.dev.readthedocs.build"},
+            headers={"host": "project.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 200)
-        self.assertIsNone(r.get("Access-Control-Allow-Origin"))
-        self.assertIsNone(r.get("Access-Control-Allow-Methods"))
-        self.assertIsNone(r.get("Vary"))
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, r.headers)
 
+        # Cross-origin request
+        r = self.client.get(
+            "/en/latest/",
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+                "origin": "https://example.com",
+            },
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, r.headers)
+
+    @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cors_headers_public_version(self):
-        fixture.get(
-            Version,
-            project=self.project,
-            slug="111",
-            active=True,
-            privacy_level=PUBLIC,
-            type=EXTERNAL,
-        )
-
+        # Normal request
         r = self.client.get(
-            "/en/111/",
+            "/en/latest/",
             secure=True,
-            headers={"origin": "project--111.dev.readthedocs.build"},
+            headers={"host": "project.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(
-            r["Access-Control-Allow-Origin"], "project--111.dev.readthedocs.build"
-        )
-        self.assertEqual(r["Access-Control-Allow-Methods"], "OPTIONS, GET")
-        self.assertEqual(r["Vary"], "Origin")
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
 
-    @override_settings(ALLOW_PRIVATE_REPOS=True)
-    def test_cors_headers_public_version_allow_private_repositories(self):
-        fixture.get(
-            Version,
-            project=self.project,
-            slug="111",
-            active=True,
-            privacy_level=PUBLIC,
-            type=EXTERNAL,
-        )
-
+        # Cross-origin request
         r = self.client.get(
-            "/en/111/",
+            "/en/latest/",
             secure=True,
-            headers={"origin": "project--111.dev.readthedocs.build"},
+            headers={
+                "host": "project.dev.readthedocs.io",
+                "origin": "https://example.com",
+            },
         )
         self.assertEqual(r.status_code, 200)
-        self.assertIsNone(r.get("Access-Control-Allow-Origin"))
-        self.assertIsNone(r.get("Access-Control-Allow-Methods"))
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cache_headers_public_version_with_private_projects_not_allowed(self):
