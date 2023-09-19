@@ -2,7 +2,8 @@ import django_dynamic_fixture as fixture
 from django.test import override_settings
 from django.urls import reverse
 
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import EXTERNAL, LATEST
+from readthedocs.builds.models import Version
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Domain, HTTPHeader
 
@@ -12,6 +13,7 @@ from .base import BaseDocServing
 @override_settings(
     PUBLIC_DOMAIN="dev.readthedocs.io",
     PUBLIC_DOMAIN_USES_HTTPS=True,
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
 )
 class ProxitoHeaderTests(BaseDocServing):
     def test_redirect_headers(self):
@@ -159,10 +161,15 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertIsNotNone(r.get("X-RTD-Hosting-Integrations"))
         self.assertEqual(r["X-RTD-Hosting-Integrations"], "true")
 
-    def test_cors_headers_private_version(self):
-        version = self.project.versions.get(slug=LATEST)
-        version.privacy_level = PRIVATE
-        version.save()
+    def test_cors_headers_non_external_domain(self):
+        fixture.get(
+            Version,
+            project=self.project,
+            slug="111",
+            active=True,
+            privacy_level=PUBLIC,
+            type=EXTERNAL,
+        )
 
         r = self.client.get(
             "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
@@ -171,17 +178,65 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertIsNone(r.get("Access-Control-Allow-Origin"))
         self.assertIsNone(r.get("Access-Control-Allow-Methods"))
 
-    def test_cors_headers_public_version(self):
-        version = self.project.versions.get(slug=LATEST)
-        version.privacy_level = PUBLIC
-        version.save()
+    def test_cors_headers_private_version(self):
+        fixture.get(
+            Version,
+            project=self.project,
+            slug="111",
+            active=True,
+            privacy_level=PRIVATE,
+            type=EXTERNAL,
+        )
 
         r = self.client.get(
-            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+            "/en/111/",
+            secure=True,
+            headers={"host": "project--111.dev.readthedocs.build"},
         )
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r["Access-Control-Allow-Origin"], "*.readthedocs.build")
+        self.assertIsNone(r.get("Access-Control-Allow-Origin"))
+        self.assertIsNone(r.get("Access-Control-Allow-Methods"))
+
+    def test_cors_headers_public_version(self):
+        fixture.get(
+            Version,
+            project=self.project,
+            slug="111",
+            active=True,
+            privacy_level=PUBLIC,
+            type=EXTERNAL,
+        )
+
+        r = self.client.get(
+            "/en/111/",
+            secure=True,
+            headers={"host": "project--111.dev.readthedocs.build"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(
+            r["Access-Control-Allow-Origin"], "project--111.dev.readthedocs.build"
+        )
         self.assertEqual(r["Access-Control-Allow-Methods"], "OPTIONS, GET")
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_cors_headers_public_version_allow_private_repositories(self):
+        fixture.get(
+            Version,
+            project=self.project,
+            slug="111",
+            active=True,
+            privacy_level=PUBLIC,
+            type=EXTERNAL,
+        )
+
+        r = self.client.get(
+            "/en/111/",
+            secure=True,
+            headers={"host": "project--111.dev.readthedocs.build"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertIsNone(r.get("Access-Control-Allow-Origin"))
+        self.assertIsNone(r.get("Access-Control-Allow-Methods"))
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cache_headers_public_version_with_private_projects_not_allowed(self):

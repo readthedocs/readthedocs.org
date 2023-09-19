@@ -318,18 +318,30 @@ class ProxitoMiddleware(MiddlewareMixin):
         accepted by browsers. However, we cannot expose these headers for
         documentation that's not PUBLIC.
         """
+
+        # Disable CORS on "Read the Docs for Business" for now.
+        # We want to be pretty sure this logic is OK before enabling it there.
+        if settings.ALLOW_PRIVATE_REPOS:
+            return
+
         project_slug = getattr(request, "path_project_slug", "")
         version_slug = getattr(request, "path_version_slug", "")
+        host = request.get_host()
 
-        if project_slug and version_slug:
+        if (
+            project_slug
+            and version_slug
+            and host.endswith(settings.RTD_EXTERNAL_VERSION_DOMAIN)
+        ):
             allow_cors = Version.objects.filter(
                 project__slug=project_slug,
                 slug=version_slug,
                 privacy_level=PUBLIC,
             ).exists()
             if allow_cors:
-                response.headers["Access-Control-Allow-Origin"] = "*.readthedocs.build"
+                response.headers["Access-Control-Allow-Origin"] = host
                 response.headers["Access-Control-Allow-Methods"] = "OPTIONS, GET"
+
         return response
 
     def _get_https_redirect(self, request):
