@@ -30,7 +30,7 @@ class UpdateChangeReasonMixin:
         if self.change_reason:
             return self.change_reason
         klass = self.__class__.__name__
-        return f'origin=api-v3 class={klass}'
+        return f"origin=api-v3 class={klass}"
 
     def perform_create(self, serializer):
         obj = serializer.save()
@@ -48,24 +48,23 @@ class UpdateChangeReasonMixin:
 
 
 class NestedParentObjectMixin:
-
     # Lookup names defined on ``readthedocs/api/v3/urls.py`` when defining the
     # mapping between URLs and views through the router.
     PROJECT_LOOKUP_NAMES = [
-        'project__slug',
-        'projects__slug',
-        'parent__slug',
-        'superprojects__parent__slug',
-        'main_language_project__slug',
+        "project__slug",
+        "projects__slug",
+        "parent__slug",
+        "superprojects__parent__slug",
+        "main_language_project__slug",
     ]
 
     VERSION_LOOKUP_NAMES = [
-        'version__slug',
+        "version__slug",
     ]
 
     ORGANIZATION_LOOKUP_NAMES = [
-        'organization__slug',
-        'organizations__slug',
+        "organization__slug",
+        "organizations__slug",
     ]
 
     def _get_parent_object_lookup(self, lookup_names):
@@ -81,7 +80,7 @@ class NestedParentObjectMixin:
         # when hitting ``/projects/<slug>/`` we don't have a "parent" project
         # because this endpoint is the base one, so we just get the project from
         # ``project_slug`` kwargs
-        slug = slug or self.kwargs.get('project_slug')
+        slug = slug or self.kwargs.get("project_slug")
 
         return get_object_or_404(Project, slug=slug)
 
@@ -100,7 +99,7 @@ class NestedParentObjectMixin:
         # when hitting ``/organizations/<slug>/`` we don't have a "parent" organization
         # because this endpoint is the base one, so we just get the organization from
         # ``organization_slug`` kwargs
-        slug = slug or self.kwargs.get('organization_slug')
+        slug = slug or self.kwargs.get("organization_slug")
 
         return get_object_or_404(
             Organization,
@@ -130,7 +129,7 @@ class ProjectQuerySetMixin(NestedParentObjectMixin):
 
     def has_admin_permission(self, user, project):
         # Use .only for small optimization
-        admin_projects = self.admin_projects(user).only('id')
+        admin_projects = self.admin_projects(user).only("id")
 
         if project in admin_projects:
             return True
@@ -234,6 +233,5 @@ class UpdateMixin:
 
 
 class RemoteQuerySetMixin:
-
     def get_queryset(self):
         return super().get_queryset().api(self.request.user)

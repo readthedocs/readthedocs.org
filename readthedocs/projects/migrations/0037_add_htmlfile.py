@@ -3,20 +3,18 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0036_remove-auto-doctype'),
+        ("projects", "0036_remove-auto-doctype"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='HTMLFile',
-            fields=[
-            ],
+            name="HTMLFile",
+            fields=[],
             options={
-                'proxy': True,
-                'indexes': [],
+                "proxy": True,
+                "indexes": [],
             },
-            bases=('projects.importedfile',),
+            bases=("projects.importedfile",),
         ),
     ]

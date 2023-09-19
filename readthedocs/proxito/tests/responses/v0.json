@@ -81,12 +81,21 @@
       "code": null
     },
     "external_version_warning": {
+      "enabled": true
+    },
+    "hotkeys": {
       "enabled": true,
-      "query_selector": "[role=main]"
+      "doc_diff": {
+        "enabled": true,
+        "trigger": "KeyD"
+      },
+      "search": {
+        "enabled": true,
+        "trigger": "Slash"
+      }
     },
     "non_latest_version_warning": {
       "enabled": true,
-      "query_selector": "[role=main]",
       "versions": ["latest"]
     },
     "doc_diff": {
@@ -98,16 +107,10 @@
       "base_page": ""
     },
     "flyout": {
+      "enabled": true,
       "translations": [],
       "versions": [{ "slug": "latest", "url": "/en/latest/" }],
-      "downloads": [],
-      "vcs": {
-        "url": "https://github.com",
-        "username": "readthedocs",
-        "repository": "test-builds",
-        "branch": "a1b2c3",
-        "filepath": "/docs/index.rst"
-      }
+      "downloads": []
     },
     "search": {
       "enabled": true,

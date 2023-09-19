@@ -12,7 +12,6 @@ from djstripe.enums import SubscriptionStatus
 
 from readthedocs.organizations.models import Organization
 from readthedocs.payments.utils import cancel_subscription as cancel_stripe_subscription
-from readthedocs.subscriptions.models import Subscription
 from readthedocs.subscriptions.notifications import (
     SubscriptionEndedNotification,
     SubscriptionRequiredNotification,
@@ -37,8 +36,65 @@ def handler(*args, **kwargs):
     return decorator
 
 
-def _update_subscription_from_stripe(rtd_subscription, stripe_subscription_id):
-    """Update the RTD subscription object given the new stripe subscription object."""
+@handler("customer.subscription.created")
+def subscription_created_event(event):
+    """
+    Handle the creation of a new subscription.
+
+    When a new subscription is created, the latest subscription
+    of the organization is updated to point to this new subscription.
+
+    If the organization attached to the customer is disabled,
+    we re-enable it, since the user just subscribed to a plan.
+    """
+    stripe_subscription_id = event.data["object"]["id"]
+    log.bind(stripe_subscription_id=stripe_subscription_id)
+
+    stripe_subscription = djstripe.Subscription.objects.filter(
+        id=stripe_subscription_id
+    ).first()
+    if not stripe_subscription:
+        log.info("Stripe subscription not found.")
+        return
+
+    organization = getattr(stripe_subscription.customer, "rtd_organization", None)
+    if not organization:
+        log.error("Subscription isn't attached to an organization")
+        return
+
+    if organization.disabled:
+        log.info("Re-enabling organization.", organization_slug=organization.slug)
+        organization.disabled = False
+
+    old_subscription_id = (
+        organization.stripe_subscription.id
+        if organization.stripe_subscription
+        else None
+    )
+    log.info(
+        "Attaching new subscription to organization.",
+        organization_slug=organization.slug,
+        old_stripe_subscription_id=old_subscription_id,
+    )
+    organization.stripe_subscription = stripe_subscription
+    organization.save()
+
+
+@handler("customer.subscription.updated", "customer.subscription.deleted")
+def subscription_updated_event(event):
+    """
+    Handle subscription updates.
+
+    We need to cancel trial subscriptions manually when their trial period ends,
+    otherwise Stripe will keep them active.
+
+    If the organization attached to the subscription is disabled,
+    and the subscription is now active, we re-enable the organization.
+
+    We also re-evaluate the latest subscription attached to the organization,
+    in case it changed.
+    """
+    stripe_subscription_id = event.data["object"]["id"]
     log.bind(stripe_subscription_id=stripe_subscription_id)
     stripe_subscription = djstripe.Subscription.objects.filter(
         id=stripe_subscription_id
@@ -47,18 +103,6 @@ def _update_subscription_from_stripe(rtd_subscription, stripe_subscription_id):
         log.info("Stripe subscription not found.")
         return
 
-    previous_subscription_id = rtd_subscription.stripe_id
-    Subscription.objects.update_from_stripe(
-        rtd_subscription=rtd_subscription,
-        stripe_subscription=stripe_subscription,
-    )
-    log.info(
-        "Subscription updated.",
-        previous_stripe_subscription_id=previous_subscription_id,
-        stripe_subscription_status=stripe_subscription.status,
-    )
-
-    # Cancel the trial subscription if its trial has ended.
     trial_ended = (
         stripe_subscription.trial_end and stripe_subscription.trial_end < timezone.now()
     )
@@ -74,26 +118,35 @@ def _update_subscription_from_stripe(rtd_subscription, stripe_subscription_id):
             "Trial ended, canceling subscription.",
         )
         cancel_stripe_subscription(stripe_subscription.id)
-
-
-@handler("customer.subscription.updated", "customer.subscription.deleted")
-def update_subscription(event):
-    """Update the RTD subscription object with the updates from the Stripe subscription."""
-    stripe_subscription_id = event.data["object"]["id"]
-    rtd_subscription = Subscription.objects.filter(
-        stripe_id=stripe_subscription_id
-    ).first()
-    if not rtd_subscription:
-        log.info(
-            "Stripe subscription isn't attached to a RTD object.",
-            stripe_subscription_id=stripe_subscription_id,
-        )
         return
 
-    _update_subscription_from_stripe(
-        rtd_subscription=rtd_subscription,
-        stripe_subscription_id=stripe_subscription_id,
-    )
+    organization = getattr(stripe_subscription.customer, "rtd_organization", None)
+    if not organization:
+        log.error("Subscription isn't attached to an organization")
+        return
+
+    if (
+        stripe_subscription.status == SubscriptionStatus.active
+        and organization.disabled
+    ):
+        log.info("Re-enabling organization.", organization_slug=organization.slug)
+        organization.disabled = False
+
+    new_stripe_subscription = organization.get_stripe_subscription()
+    if organization.stripe_subscription != new_stripe_subscription:
+        old_subscription_id = (
+            organization.stripe_subscription.id
+            if organization.stripe_subscription
+            else None
+        )
+        log.info(
+            "Attaching new subscription to organization.",
+            organization_slug=organization.slug,
+            old_stripe_subscription_id=old_subscription_id,
+        )
+        organization.stripe_subscription = stripe_subscription
+
+    organization.save()
 
 
 @handler("customer.subscription.deleted")
@@ -137,39 +190,6 @@ def subscription_canceled(event):
         )
         notification.send()
         log.info("Notification sent.", recipient=owner)
-
-
-@handler("checkout.session.completed")
-def checkout_completed(event):
-    """
-    Handle the creation of a new subscription via Stripe Checkout.
-
-    Stripe checkout will create a new subscription,
-    so we need to replace the older one with the new one.
-    """
-    customer_id = event.data["object"]["customer"]
-    organization = Organization.objects.filter(stripe_customer__id=customer_id).first()
-    if not organization:
-        log.error(
-            "Customer isn't attached to an organization.",
-            stripe_customer_id=customer_id,
-        )
-        return
-
-    stripe_subscription_id = event.data["object"]["subscription"]
-    stripe_subscription = djstripe.Subscription.objects.filter(
-        id=stripe_subscription_id
-    ).first()
-    if not stripe_subscription:
-        log.info("Stripe subscription not found.")
-        return
-    organization.stripe_subscription = stripe_subscription
-    organization.save()
-
-    _update_subscription_from_stripe(
-        rtd_subscription=organization.subscription,
-        stripe_subscription_id=stripe_subscription_id,
-    )
 
 
 @handler("customer.updated")

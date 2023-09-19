@@ -58,33 +58,37 @@ class TestBuildMediaStorage(TestCase):
 
         tree = [
             ('api', ['index.html']),
-            'api.fjson',
-            'conf.py',
-            'test.html',
+            "404.html",
+            "api.fjson",
+            "conf.py",
+            "index.html",
+            "test.html",
         ]
         with override_settings(DOCROOT=tmp_files_dir):
-            self.storage.sync_directory(tmp_files_dir, storage_dir)
+            self.storage.rclone_sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
         tree = [
             ('api', ['index.html']),
+            "404.html",
             'conf.py',
+            "index.html",
             'test.html',
         ]
         os.remove(os.path.join(tmp_files_dir, 'api.fjson'))
         with override_settings(DOCROOT=tmp_files_dir):
-            self.storage.sync_directory(tmp_files_dir, storage_dir)
+            self.storage.rclone_sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
         tree = [
-            # Cloud storage generally doesn't consider empty directories to exist
-            ('api', []),
+            "404.html",
             'conf.py',
+            "index.html",
             'test.html',
         ]
         shutil.rmtree(os.path.join(tmp_files_dir, 'api'))
         with override_settings(DOCROOT=tmp_files_dir):
-            self.storage.sync_directory(tmp_files_dir, storage_dir)
+            self.storage.rclone_sync_directory(tmp_files_dir, storage_dir)
         self.assertFileTree(storage_dir, tree)
 
     def test_sync_directory_source_symlink(self):
@@ -94,7 +98,7 @@ class TestBuildMediaStorage(TestCase):
 
         with override_settings(DOCROOT=tmp_dir):
             with pytest.raises(SuspiciousFileOperation, match="symbolic link"):
-                self.storage.sync_directory(tmp_symlink_dir, "files")
+                self.storage.rclone_sync_directory(tmp_symlink_dir, "files")
 
     def test_copy_directory_source_symlink(self):
         tmp_dir = Path(tempfile.mkdtemp())
@@ -112,7 +116,7 @@ class TestBuildMediaStorage(TestCase):
 
         with override_settings(DOCROOT=tmp_docroot):
             with pytest.raises(SuspiciousFileOperation, match="outside the docroot"):
-                self.storage.sync_directory(tmp_dir, "files")
+                self.storage.rclone_sync_directory(tmp_dir, "files")
 
     def test_copy_directory_source_outside_docroot(self):
         tmp_dir = Path(tempfile.mkdtemp())
@@ -128,7 +132,9 @@ class TestBuildMediaStorage(TestCase):
             self.storage.copy_directory(files_dir, "files")
         dirs, files = self.storage.listdir("files")
         self.assertEqual(dirs, ["api"])
-        self.assertCountEqual(files, ["api.fjson", "conf.py", "test.html"])
+        self.assertCountEqual(
+            files, ["404.html", "api.fjson", "conf.py", "index.html", "test.html"]
+        )
 
         self.storage.delete_directory('files/')
         _, files = self.storage.listdir('files')
@@ -149,9 +155,11 @@ class TestBuildMediaStorage(TestCase):
         self.assertEqual(len(output), 2)
 
         top, dirs, files = output[0]
-        self.assertEqual(top, 'files')
-        self.assertCountEqual(dirs, ['api'])
-        self.assertCountEqual(files, ['api.fjson', 'conf.py', 'test.html'])
+        self.assertEqual(top, "files")
+        self.assertCountEqual(dirs, ["api"])
+        self.assertCountEqual(
+            files, ["404.html", "api.fjson", "conf.py", "index.html", "test.html"]
+        )
 
         top, dirs, files = output[1]
         self.assertEqual(top, 'files/api')
@@ -165,8 +173,10 @@ class TestBuildMediaStorage(TestCase):
 
         tree = [
             ("api", ["index.html"]),
+            "404.html",
             "api.fjson",
             "conf.py",
+            "index.html",
             "test.html",
         ]
         with override_settings(DOCROOT=tmp_files_dir):
@@ -175,7 +185,9 @@ class TestBuildMediaStorage(TestCase):
 
         tree = [
             ("api", ["index.html"]),
+            "404.html",
             "conf.py",
+            "index.html",
             "test.html",
         ]
         (tmp_files_dir / "api.fjson").unlink()
@@ -184,7 +196,9 @@ class TestBuildMediaStorage(TestCase):
         self.assertFileTree(storage_dir, tree)
 
         tree = [
+            "404.html",
             "conf.py",
+            "index.html",
             "test.html",
         ]
         shutil.rmtree(tmp_files_dir / "api")

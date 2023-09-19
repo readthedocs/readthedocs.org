@@ -18,14 +18,14 @@ from slugify import slugify as unicode_slugify
 from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
 from readthedocs.audit.models import AuditLog
-from readthedocs.builds.constants import EXTERNAL, INTERNAL
+from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.resolver import resolve
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
 from readthedocs.storage import build_media_storage, staticfiles_storage
 from readthedocs.subscriptions.constants import TYPE_AUDIT_PAGEVIEWS
-from readthedocs.subscriptions.models import PlanFeature
+from readthedocs.subscriptions.products import get_feature
 
 log = structlog.get_logger(__name__)
 
@@ -197,7 +197,7 @@ class ServeDocsMixin:
         """Create an audit log of the page view if audit is enabled."""
         # Remove any query args (like the token access from AWS).
         path_only = urlparse(path).path
-        track_file = path_only.endswith(('.html', '.pdf', '.epub', '.zip'))
+        track_file = path_only.endswith((".html", ".pdf", ".epub", ".zip"))
         if track_file and self._is_audit_enabled(project):
             action = AuditLog.DOWNLOAD if download else AuditLog.PAGEVIEW
             AuditLog.objects.new(
@@ -214,7 +214,7 @@ class ServeDocsMixin:
         This feature is different from page views analytics,
         as it records every page view individually with more metadata like the user, IP, etc.
         """
-        return PlanFeature.objects.has_feature(project, TYPE_AUDIT_PAGEVIEWS)
+        return bool(get_feature(project, feature_type=TYPE_AUDIT_PAGEVIEWS))
 
     def _serve_static_file(self, request, filename):
         return self._serve_file(
@@ -235,23 +235,23 @@ class ServeDocsMixin:
         """
         original_path = copy.copy(path)
         if not path.startswith(f"/{root_path}/"):
-            if path[0] == '/':
+            if path[0] == "/":
                 path = path[1:]
             path = f"/{root_path}/{path}"
 
         log.debug(
-            'Nginx serve.',
+            "Nginx serve.",
             original_path=original_path,
             path=path,
         )
 
         content_type, encoding = mimetypes.guess_type(path)
-        content_type = content_type or 'application/octet-stream'
+        content_type = content_type or "application/octet-stream"
         response = HttpResponse(
-            f'Serving internal path: {path}', content_type=content_type
+            f"Serving internal path: {path}", content_type=content_type
         )
         if encoding:
-            response['Content-Encoding'] = encoding
+            response["Content-Encoding"] = encoding
 
         # NGINX does not support non-ASCII characters in the header, so we
         # convert the IRI path to URI so it's compatible with what NGINX expects
@@ -259,7 +259,7 @@ class ServeDocsMixin:
         # https://github.com/benoitc/gunicorn/issues/1448
         # https://docs.djangoproject.com/en/1.11/ref/unicode/#uri-and-iri-handling
         x_accel_redirect = iri_to_uri(path)
-        response['X-Accel-Redirect'] = x_accel_redirect
+        response["X-Accel-Redirect"] = x_accel_redirect
 
         # Needed to strip any GET args, etc.
         response.proxito_path = urlparse(path).path
@@ -276,33 +276,20 @@ class ServeDocsMixin:
         return serve(request, path, root_path)
 
     def _serve_401(self, request, project):
-        res = render(request, '401.html')
+        res = render(request, "401.html")
         res.status_code = 401
-        log.debug('Unauthorized access to documentation.', project_slug=project.slug)
+        log.debug("Unauthorized access to documentation.", project_slug=project.slug)
         return res
 
     def allowed_user(self, request, version):
         return True
 
-    def get_version_from_host(self, request, version_slug):
-        # Handle external domain
-        unresolved_domain = request.unresolved_domain
-        if unresolved_domain and unresolved_domain.is_from_external_domain:
-            external_version_slug = unresolved_domain.external_version_slug
-            self.version_type = EXTERNAL
-            log.warning(
-                'Using version slug from host.',
-                version_slug=version_slug,
-                host_version=external_version_slug,
-            )
-            return external_version_slug
-        return version_slug
-
     def _spam_response(self, request, project):
-        if 'readthedocsext.spamfighting' in settings.INSTALLED_APPS:
+        if "readthedocsext.spamfighting" in settings.INSTALLED_APPS:
             from readthedocsext.spamfighting.utils import is_serve_docs_denied  # noqa
+
             if is_serve_docs_denied(project):
-                return render(request, template_name='spam.html', status=410)
+                return render(request, template_name="spam.html", status=410)
 
 
 class ServeRedirectMixin:
@@ -378,8 +365,8 @@ class ServeRedirectMixin:
         # Redirects shouldn't change the domain, version or language.
         # However, if the new_path is already an absolute URI, just use it
         new_path = request.build_absolute_uri(new_path)
-        log.info(
-            'Redirecting...',
+        log.debug(
+            "Redirecting...",
             from_url=request.build_absolute_uri(proxito_path),
             to_url=new_path,
             http_status_code=http_status,
@@ -394,8 +381,8 @@ class ServeRedirectMixin:
             and new_path_parsed.path == old_path_parsed.path
         ):
             # check that we do have a response and avoid infinite redirect
-            log.warning(
-                'Infinite Redirect: FROM URL is the same than TO URL.',
+            log.debug(
+                "Infinite Redirect: FROM URL is the same than TO URL.",
                 url=new_path,
             )
             raise InfiniteRedirectException()

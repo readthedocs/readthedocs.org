@@ -4,8 +4,10 @@
 from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponseBadRequest
-from django.urls import reverse_lazy
+from django.shortcuts import redirect
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
+from django.utils.http import urlencode
 from django.utils.translation import gettext_lazy as _
 from vanilla import CreateView, DeleteView, FormView, ListView, UpdateView
 
@@ -14,6 +16,7 @@ from readthedocs.audit.models import AuditLog
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.invitations.models import Invitation
+from readthedocs.organizations.filters import OrganizationListFilterSet
 from readthedocs.organizations.forms import (
     OrganizationSignupForm,
     OrganizationTeamProjectForm,
@@ -28,7 +31,7 @@ from readthedocs.organizations.views.base import (
 )
 from readthedocs.projects.utils import get_csv_file
 from readthedocs.subscriptions.constants import TYPE_AUDIT_LOGS
-from readthedocs.subscriptions.models import PlanFeature
+from readthedocs.subscriptions.products import get_feature
 
 
 # Organization views
@@ -67,6 +70,43 @@ class ListOrganization(PrivateViewMixin, OrganizationView, ListView):
 
     def get_queryset(self):
         return Organization.objects.for_user(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if settings.RTD_EXT_THEME_ENABLED:
+            filter = OrganizationListFilterSet(
+                self.request.GET, queryset=self.get_queryset()
+            )
+            context["filter"] = filter
+            context["organization_list"] = filter.qs
+        return context
+
+
+class ChooseOrganization(ListOrganization):
+    template_name = "organizations/organization_choose.html"
+
+    def get(self, request, *args, **kwargs):
+
+        self.next_name = self.kwargs["next_name"]
+        self.next_querystring = self.request.GET.get("next_querystring")
+
+        # Check if user has exactly 1 organization and automatically redirect in this case
+        organizations = self.get_queryset()
+        if organizations.count() == 1:
+            redirect_url = reverse(
+                self.next_name, kwargs={"slug": organizations[0].slug}
+            )
+            if self.next_querystring:
+                redirect_url += "?" + urlencode(self.next_querystring)
+            return redirect(redirect_url)
+
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        c = super().get_context_data(**kwargs)
+        c["next_name"] = self.next_name
+        c["next_querystring"] = self.next_querystring
+        return c
 
 
 class EditOrganization(
@@ -236,8 +276,9 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
     def get_context_data(self, **kwargs):
         organization = self.get_organization()
         context = super().get_context_data(**kwargs)
-        context["enabled"] = self._is_feature_enabled(organization)
-        context["days_limit"] = self._get_retention_days_limit(organization)
+        feature = self._get_feature(organization)
+        context["enabled"] = bool(feature)
+        context["days_limit"] = feature.value if feature else 0
         context["filter"] = self.filter
         context["AuditLog"] = AuditLog
         return context
@@ -246,18 +287,17 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
         """Get the date to show logs from."""
         organization = self.get_organization()
         creation_date = organization.pub_date.date()
-        retention_limit = self._get_retention_days_limit(organization)
-        if retention_limit in [None, -1]:
-            # Unlimited.
+        feature = self._get_feature(organization)
+        if feature.unlimited:
             return creation_date
-        start_date = timezone.now().date() - timezone.timedelta(days=retention_limit)
+        start_date = timezone.now().date() - timezone.timedelta(days=feature.value)
         # The max we can go back is to the creation of the organization.
         return max(start_date, creation_date)
 
     def _get_queryset(self):
         """Return the queryset without filters."""
         organization = self.get_organization()
-        if not self._is_feature_enabled(organization):
+        if not self._get_feature(organization):
             return AuditLog.objects.none()
         start_date = self._get_start_date()
         queryset = AuditLog.objects.filter(
@@ -279,22 +319,11 @@ class OrganizationSecurityLog(PrivateViewMixin, OrganizationMixin, ListView):
         queryset = self._get_queryset()
         # Set filter on self, so we can use it in the context.
         # Without executing it twice.
-        # pylint: disable=attribute-defined-outside-init
         self.filter = OrganizationSecurityLogFilter(
             self.request.GET,
             queryset=queryset,
         )
         return self.filter.qs
 
-    def _get_retention_days_limit(self, organization):
-        """From how many days we need to show data for this organization?"""
-        return PlanFeature.objects.get_feature_value(
-            organization,
-            type=self.feature_type,
-        )
-
-    def _is_feature_enabled(self, organization):
-        return PlanFeature.objects.has_feature(
-            organization,
-            type=self.feature_type,
-        )
+    def _get_feature(self, organization):
+        return get_feature(organization, self.feature_type)

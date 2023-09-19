@@ -18,8 +18,12 @@ class UnresolverError(Exception):
     pass
 
 
-class InvalidXRTDSlugHeaderError(UnresolverError):
+class InvalidSchemeError(UnresolverError):
+    def __init__(self, scheme):
+        self.scheme = scheme
 
+
+class InvalidXRTDSlugHeaderError(UnresolverError):
     pass
 
 
@@ -58,6 +62,12 @@ class TranslationNotFoundError(UnresolverError):
         self.filename = filename
         # The version doesn't exist, so we just have the slug.
         self.version_slug = version_slug
+
+
+class TranslationWithoutVersionError(UnresolverError):
+    def __init__(self, project, language):
+        self.project = project
+        self.language = language
 
 
 class InvalidPathForVersionedProjectError(UnresolverError):
@@ -130,6 +140,22 @@ class UnresolvedDomain:
         return self.source == DomainSourceType.external_domain
 
 
+def _expand_regex(pattern):
+    """
+    Expand a pattern with the patterns from pattern_opts.
+
+    This is used to avoid having a long regex.
+    """
+    return re.compile(
+        pattern.format(
+            language=f"(?P<language>{pattern_opts['lang_slug']})",
+            version=f"(?P<version>{pattern_opts['version_slug']})",
+            filename=f"(?P<filename>{pattern_opts['filename_slug']})",
+            subproject=f"(?P<subproject>{pattern_opts['project_slug']})",
+        )
+    )
+
+
 class Unresolver:
     # This pattern matches:
     # - /en
@@ -137,29 +163,20 @@ class Unresolver:
     # - /en/latest
     # - /en/latest/
     # - /en/latest/file/name/
-    multiversion_pattern = re.compile(
-        r"""
-        ^/(?P<language>{lang_slug})  # Must have the language slug.
-        (/((?P<version>{version_slug})(/(?P<file>{filename_slug}))?)?)?$  # Optionally a version followed by a file.  # noqa
-        """.format(
-            **pattern_opts
-        ),
-        re.VERBOSE,
+    multiversion_pattern = _expand_regex(
+        # The path must have a language slug,
+        # optionally a version slug followed by a filename.
+        "^/{language}(/({version}(/{filename})?)?)?$"
     )
 
     # This pattern matches:
     # - /projects/subproject
     # - /projects/subproject/
     # - /projects/subproject/file/name/
-    subproject_pattern = re.compile(
-        r"""
-        ^/projects/  # Must have the `projects` prefix.
-        (?P<project>{project_slug}+)  # Followed by the subproject alias.
-        (/(?P<file>{filename_slug}))?$  # Optionally a filename, which will be recursively resolved.
-        """.format(
-            **pattern_opts
-        ),
-        re.VERBOSE,
+    subproject_pattern = _expand_regex(
+        # The path must have the `project` alias,
+        # optionally a filename, which will be recursively resolved.
+        "^/{subproject}(/{filename})?$"
     )
 
     def unresolve_url(self, url, append_indexhtml=True):
@@ -174,6 +191,8 @@ class Unresolver:
          to end with ``/index.html``.
         """
         parsed_url = urlparse(url)
+        if parsed_url.scheme not in ["http", "https"]:
+            raise InvalidSchemeError(parsed_url.scheme)
         domain = self.get_domain_from_host(parsed_url.netloc)
         unresolved_domain = self.unresolve_domain(domain)
         return self._unresolve(
@@ -195,6 +214,8 @@ class Unresolver:
         :param append_indexhtml: If `True` directories will be normalized
          to end with ``/index.html``.
         """
+        # Make sure we always have a leading slash.
+        path = self._normalize_filename(path)
         # We don't call unparse() on the path,
         # since it could be parsed as a full URL if it starts with a protocol.
         parsed_url = ParseResult(
@@ -249,16 +270,24 @@ class Unresolver:
         An exception is raised if we weren't able to find a matching version or language,
         this exception has the current project (useful for 404 pages).
 
-        :returns: A tuple with the current project, version and file.
+        :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
+        custom_prefix = parent_project.custom_prefix
+        if custom_prefix:
+            if not path.startswith(custom_prefix):
+                return None
+            # pep8 and black don't agree on having a space before :,
+            # so syntax is black with noqa for pep8.
+            path = self._normalize_filename(path[len(custom_prefix) :])  # noqa
+
         match = self.multiversion_pattern.match(path)
         if not match:
             return None
 
         language = match.group("language")
         version_slug = match.group("version")
-        file = self._normalize_filename(match.group("file"))
+        filename = self._normalize_filename(match.group("filename"))
 
         if parent_project.language == language:
             project = parent_project
@@ -269,8 +298,16 @@ class Unresolver:
                     project=parent_project,
                     language=language,
                     version_slug=version_slug,
-                    filename=file,
+                    filename=filename,
                 )
+
+        # If only the language part was given,
+        # we can't resolve the version.
+        if version_slug is None:
+            raise TranslationWithoutVersionError(
+                project=project,
+                language=language,
+            )
 
         if external_version_slug and external_version_slug != version_slug:
             raise InvalidExternalVersionError(
@@ -283,10 +320,10 @@ class Unresolver:
         version = project.versions(manager=manager).filter(slug=version_slug).first()
         if not version:
             raise VersionNotFoundError(
-                project=project, version_slug=version_slug, filename=file
+                project=project, version_slug=version_slug, filename=filename
             )
 
-        return project, version, file
+        return project, version, filename
 
     def _match_subproject(self, parent_project, path, external_version_slug=None):
         """
@@ -295,15 +332,22 @@ class Unresolver:
         If the subproject exists, we try to resolve the rest of the path
         with the subproject as the canonical project.
 
-        :returns: A tuple with the current project, version and file.
+        :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
+        custom_prefix = parent_project.custom_subproject_prefix or "/projects/"
+        if not path.startswith(custom_prefix):
+            return None
+        # pep8 and black don't agree on having a space before :,
+        # so syntax is black with noqa for pep8.
+        path = self._normalize_filename(path[len(custom_prefix) :])  # noqa
+
         match = self.subproject_pattern.match(path)
         if not match:
             return None
 
-        subproject_alias = match.group("project")
-        file = self._normalize_filename(match.group("file"))
+        subproject_alias = match.group("subproject")
+        filename = self._normalize_filename(match.group("filename"))
         project_relationship = (
             parent_project.subprojects.filter(alias=subproject_alias)
             .select_related("child")
@@ -315,7 +359,7 @@ class Unresolver:
             subproject = project_relationship.child
             response = self._unresolve_path_with_parent_project(
                 parent_project=subproject,
-                path=file,
+                path=filename,
                 check_subprojects=False,
                 external_version_slug=external_version_slug,
             )
@@ -334,10 +378,21 @@ class Unresolver:
         An exception is raised if we weren't able to find a matching version,
         this exception has the current project (useful for 404 pages).
 
-        :returns: A tuple with the current project, version and file.
+        :returns: A tuple with the current project, version and filename.
          Returns `None` if there isn't a total or partial match.
         """
-        file = self._normalize_filename(path)
+        custom_prefix = parent_project.custom_prefix
+        if custom_prefix:
+            if not path.startswith(custom_prefix):
+                return None
+            # pep8 and black don't agree on having a space before :,
+            # so syntax is black with noqa for pep8.
+            path = path[len(custom_prefix) :]  # noqa
+
+        # In single version projects, any path is allowed,
+        # so we don't need a regex for that.
+        filename = self._normalize_filename(path)
+
         if external_version_slug:
             version_slug = external_version_slug
             manager = EXTERNAL
@@ -350,10 +405,10 @@ class Unresolver:
         )
         if not version:
             raise VersionNotFoundError(
-                project=parent_project, version_slug=version_slug, filename=file
+                project=parent_project, version_slug=version_slug, filename=filename
             )
 
-        return parent_project, version, file
+        return parent_project, version, filename
 
     def _unresolve_path_with_parent_project(
         self, parent_project, path, check_subprojects=True, external_version_slug=None
@@ -361,18 +416,16 @@ class Unresolver:
         """
         Unresolve `path` with `parent_project` as base.
 
-        If the returned project is `None`, then we weren't able to
-        unresolve the path into a project.
-
-        If the returned version is `None`, then we weren't able to
-        unresolve the path into a valid version of the project.
+        The returned project, version, and filename are guaranteed to not be
+        `None`. An exception is raised if we weren't able to resolve the
+        project, version or path/filename.
 
         The checks are done in the following order:
 
         - Check for multiple versions if the parent project
           isn't a single version project.
         - Check for subprojects.
-        - Check for single versions if the parent project isn’t
+        - Check for single versions if the parent project isn't
           a multi version project.
 
         :param parent_project: The project that owns the path.
@@ -384,7 +437,7 @@ class Unresolver:
          Used instead of the default version for single version projects
          being served under an external domain.
 
-        :returns: A tuple with: project, version, and file name.
+        :returns: A tuple with: project, version, and filename.
         """
         # Multiversion project.
         if not parent_project.single_version:
@@ -467,9 +520,9 @@ class Unresolver:
                     project=self._resolve_project_slug(project_slug, domain),
                     external_version_slug=version_slug,
                 )
-            except ValueError:
+            except ValueError as exc:
                 log.info("Invalid format of external versions domain.", domain=domain)
-                raise InvalidExternalDomainError(domain=domain)
+                raise InvalidExternalDomainError(domain=domain) from exc
 
         if public_domain in domain or external_domain in domain:
             # NOTE: This can catch some possibly valid domains (docs.readthedocs.io.com)
@@ -497,8 +550,8 @@ class Unresolver:
         """Get the project from the slug or raise an exception if not found."""
         try:
             return Project.objects.get(slug=slug)
-        except Project.DoesNotExist:
-            raise InvalidSubdomainError(domain=domain)
+        except Project.DoesNotExist as exc:
+            raise InvalidSubdomainError(domain=domain) from exc
 
     def unresolve_domain_from_request(self, request):
         """

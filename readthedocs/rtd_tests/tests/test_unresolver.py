@@ -10,22 +10,23 @@ from readthedocs.core.unresolver import (
     InvalidExternalDomainError,
     InvalidExternalVersionError,
     InvalidPathForVersionedProjectError,
+    InvalidSchemeError,
     SuspiciousHostnameError,
     TranslationNotFoundError,
+    TranslationWithoutVersionError,
     VersionNotFoundError,
     unresolve,
 )
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import Domain
 from readthedocs.rtd_tests.tests.test_resolver import ResolverBase
 
 
 @override_settings(
-    PUBLIC_DOMAIN='readthedocs.io',
-    RTD_EXTERNAL_VERSION_DOMAIN='dev.readthedocs.build',
+    PUBLIC_DOMAIN="readthedocs.io",
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
 )
 @pytest.mark.proxito
 class UnResolverTests(ResolverBase):
-
     def test_unresolver(self):
         parts = unresolve(
             "https://pip.readthedocs.io/en/latest/foo.html?search=api#fragment"
@@ -99,10 +100,34 @@ class UnResolverTests(ResolverBase):
             "https://pip.readthedocs.io/en/",
         ]
         for url in urls:
-            with pytest.raises(VersionNotFoundError) as excinfo:
+            with pytest.raises(TranslationWithoutVersionError) as excinfo:
                 unresolve(url)
             exc = excinfo.value
             self.assertEqual(exc.project, self.pip)
+            self.assertEqual(exc.language, "en")
+
+        urls = [
+            "https://pip.readthedocs.io/ja",
+            "https://pip.readthedocs.io/ja/",
+        ]
+        for url in urls:
+            with pytest.raises(TranslationWithoutVersionError) as excinfo:
+                unresolve(url)
+            exc = excinfo.value
+            self.assertEqual(exc.project, self.translation)
+            self.assertEqual(exc.language, "ja")
+
+    def test_invalid_language_no_version(self):
+        urls = [
+            "https://pip.readthedocs.io/es",
+            "https://pip.readthedocs.io/es/",
+        ]
+        for url in urls:
+            with pytest.raises(TranslationNotFoundError) as excinfo:
+                unresolve(url)
+            exc = excinfo.value
+            self.assertEqual(exc.project, self.pip)
+            self.assertEqual(exc.language, "es")
             self.assertEqual(exc.version_slug, None)
             self.assertEqual(exc.filename, "/")
 
@@ -114,17 +139,10 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.filename, "/foo.html")
 
     def test_unresolve_subproject_with_translation(self):
-        subproject_translation = get(
-            Project,
-            main_language_project=self.subproject,
-            language="en",
-            slug="subproject-translation",
-        )
-        version = subproject_translation.versions.first()
-        parts = unresolve("https://pip.readthedocs.io/projects/sub/en/latest/foo.html")
+        parts = unresolve("https://pip.readthedocs.io/projects/sub/es/latest/foo.html")
         self.assertEqual(parts.parent_project, self.pip)
-        self.assertEqual(parts.project, subproject_translation)
-        self.assertEqual(parts.version, version)
+        self.assertEqual(parts.project, self.subproject_translation)
+        self.assertEqual(parts.version, self.subproject_translation_version)
         self.assertEqual(parts.filename, "/foo.html")
 
     def test_unresolve_subproject_single_version(self):
@@ -157,11 +175,11 @@ class UnResolverTests(ResolverBase):
 
     def test_unresolve_subproject_invalid_translation(self):
         with pytest.raises(TranslationNotFoundError) as excinfo:
-            unresolve("https://pip.readthedocs.io/projects/sub/es/latest/foo.html")
+            unresolve("https://pip.readthedocs.io/projects/sub/fr/latest/foo.html")
 
         exc = excinfo.value
         self.assertEqual(exc.project, self.subproject)
-        self.assertEqual(exc.language, "es")
+        self.assertEqual(exc.language, "fr")
         self.assertEqual(exc.filename, "/foo.html")
 
     def test_unresolver_translation(self):
@@ -182,7 +200,7 @@ class UnResolverTests(ResolverBase):
     def test_unresolver_custom_domain(self):
         self.domain = fixture.get(
             Domain,
-            domain='docs.foobar.com',
+            domain="docs.foobar.com",
             project=self.pip,
             canonical=True,
         )
@@ -347,3 +365,14 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.project, self.pip)
         self.assertEqual(parts.version, external_version)
         self.assertEqual(parts.filename, "/index.html")
+
+    def test_unresolve_invalid_scheme(self):
+        invalid_urls = [
+            "fttp://pip.readthedocs.io/en/latest/",
+            "fttps://pip.readthedocs.io/en/latest/",
+            "ssh://pip.readthedocs.io/en/latest/",
+            "://pip.readthedocs.io/en/latest/",
+        ]
+        for url in invalid_urls:
+            with pytest.raises(InvalidSchemeError):
+                unresolve(url)

@@ -14,8 +14,8 @@ def normalize_request_payload(request):
     :returns: The request body as a string
     :rtype: str
     """
-    request_payload = getattr(request, 'data', {})
-    if request.content_type != 'application/json':
+    request_payload = getattr(request, "data", {})
+    if request.content_type != "application/json":
         # Here, request_body can be a dict or a MergeDict. Probably best to
         # normalize everything first
         try:

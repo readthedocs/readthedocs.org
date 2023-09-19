@@ -28,9 +28,9 @@ class ProjectRelationMixin:
     :cvar project_context_object_name: Context object name for project
     """
 
-    project_lookup_url_kwarg = 'project_slug'
-    project_lookup_field = 'project'
-    project_context_object_name = 'project'
+    project_lookup_url_kwarg = "project_slug"
+    project_lookup_field = "project"
+    project_context_object_name = "project"
 
     def get_project_queryset(self):
         return Project.objects.for_admin_user(user=self.request.user)
@@ -60,7 +60,7 @@ class ProjectRelationListMixin:
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['subprojects_and_urls'] = self._get_subprojects_and_urls()
+        context["subprojects_and_urls"] = self._get_subprojects_and_urls()
         return context
 
     def _get_subprojects_and_urls(self):
@@ -74,7 +74,7 @@ class ProjectRelationListMixin:
         subprojects_and_urls = []
 
         project = self.get_project()
-        subprojects = project.subprojects.select_related('child')
+        subprojects = project.subprojects.select_related("child")
 
         if not subprojects.exists():
             return subprojects_and_urls
@@ -100,12 +100,11 @@ class ProjectImportMixin:
 
     """Helpers to import a Project."""
 
-    def finish_import_project(self, request, project, tags=None):
+    def finish_import_project(self, request, project):
         """
         Perform last steps to import a project into Read the Docs.
 
         - Add the user from request as maintainer
-        - Set all the tags to the project
         - Send Django Signal
         - Trigger initial build
 
@@ -115,18 +114,11 @@ class ProjectImportMixin:
         :param project: Project instance just imported (already saved)
         :param tags: tags to add to the project
         """
-        if not tags:
-            tags = []
-
         project.users.add(request.user)
-        for tag in tags:
-            project.tags.add(tag)
-
         log.info(
-            'Project imported.',
+            "Project imported.",
             project_slug=project.slug,
             user_username=request.user.username,
-            tags=tags,
         )
 
         # TODO: this signal could be removed, or used for sync task
@@ -147,6 +139,7 @@ class ProjectImportMixin:
             return None
 
         from readthedocs.oauth.tasks import attach_webhook
+
         task_promise = chain(
             attach_webhook.si(project.pk, user.pk),
             update_docs,

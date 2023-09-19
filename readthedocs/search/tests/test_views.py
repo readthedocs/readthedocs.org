@@ -18,17 +18,16 @@ from readthedocs.search.tests.utils import (
 @pytest.mark.django_db
 @pytest.mark.search
 class TestProjectSearch:
-
     @pytest.fixture(autouse=True)
     def setup(self):
-        self.url =  reverse('search')
+        self.url = reverse("search")
 
     def _get_search_result(self, url, client, search_params):
         resp = client.get(url, search_params)
         assert resp.status_code == 200
 
-        results = resp.context['results']
-        facets = resp.context['facets']
+        results = resp.context["results"]
+        facets = resp.context["facets"]
 
         return results, facets
 
@@ -40,14 +39,14 @@ class TestProjectSearch:
         )
 
         assert len(results) == 1
-        assert project.name == results[0]['name']
+        assert project.name == results[0]["name"]
         for proj in all_projects[1:]:
-            assert proj.name != results[0]['name']
+            assert proj.name != results[0]["name"]
 
     def test_search_project_have_correct_language_facets(self, client, project):
         """Test that searching project should have correct language facets in the results"""
         # Create a project in bn and add it as a translation
-        get(Project, language='bn', name=project.name)
+        get(Project, language="bn", name=project.name)
 
         results, facets = self._get_search_result(
             url=self.url,
@@ -55,11 +54,11 @@ class TestProjectSearch:
             search_params={"q": project.name, "type": "project"},
         )
 
-        lang_facets = facets['language']
+        lang_facets = facets["language"]
         lang_facets_str = [facet[0] for facet in lang_facets]
         # There should be 2 languages
         assert len(lang_facets) == 2
-        assert sorted(lang_facets_str) == sorted(['en', 'bn'])
+        assert sorted(lang_facets_str) == sorted(["en", "bn"])
         for facet in lang_facets:
             assert facet[2] == False  # because none of the facets are applied
 
@@ -78,16 +77,16 @@ class TestProjectSearch:
         # There should be only 1 result
         assert len(results) == 1
 
-        lang_facets = facets['language']
+        lang_facets = facets["language"]
         lang_facets_str = [facet[0] for facet in lang_facets]
 
         # There should be 2 languages because both `en` and `bn` should show there
         assert len(lang_facets) == 2
-        assert sorted(lang_facets_str) == sorted(['en', 'bn'])
+        assert sorted(lang_facets_str) == sorted(["en", "bn"])
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_search_only_projects_owned_by_the_user(self, client, all_projects):
-        project = Project.objects.get(slug='docs')
+        project = Project.objects.get(slug="docs")
         user = get(User)
         user.projects.add(project)
         client.force_login(user)
@@ -96,21 +95,19 @@ class TestProjectSearch:
             client=client,
             search_params={
                 # Search for all projects.
-                'q': ' '.join(project.slug for project in all_projects),
-                'type': 'project',
+                "q": " ".join(project.slug for project in all_projects),
+                "type": "project",
             },
         )
         assert len(results) > 0
 
         other_projects = [
-            project.slug
-            for project in all_projects
-            if project.slug != 'docs'
+            project.slug for project in all_projects if project.slug != "docs"
         ]
 
         for result in results:
-            assert result['name'] == 'docs'
-            assert result['name'] not in other_projects
+            assert result["name"] == "docs"
+            assert result["name"] not in other_projects
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_search_no_owned_projects(self, client, all_projects):
@@ -122,61 +119,66 @@ class TestProjectSearch:
             client=client,
             search_params={
                 # Search for all projects.
-                'q': ' '.join(project.slug for project in all_projects),
-                'type': 'project',
+                "q": " ".join(project.slug for project in all_projects),
+                "type": "project",
             },
         )
         assert len(results) == 0
+
+    def test_search_empty_query(self, client):
+        results, facets = self._get_search_result(
+            url=self.url,
+            client=client,
+            search_params={"q": "", "type": "project"},
+        )
+        assert results == []
+        assert facets == {}
 
 
 @pytest.mark.django_db
 @pytest.mark.search
 @pytest.mark.usefixtures("all_projects")
 class TestPageSearch:
-
     @pytest.fixture(autouse=True)
     def setup(self):
-        self.url =  reverse('search')
+        self.url = reverse("search")
 
     def _get_search_result(self, url, client, search_params):
         resp = client.get(url, search_params)
         assert resp.status_code == 200
 
-        results = resp.context['results']
-        facets = resp.context['facets']
+        results = resp.context["results"]
+        facets = resp.context["facets"]
 
         return results, facets
 
     def _get_highlight(self, result, field, type=None):
         # if query is from page title,
         # highlighted title is present in 'result.meta.highlight.title'
-        if not type and field == 'title':
-            highlight = result['highlights']['title']
+        if not type and field == "title":
+            highlight = result["highlights"]["title"]
 
         # if result is not from page title,
         # then results and highlighted results are present inside 'blocks'
         else:
-            blocks = result['blocks']
+            blocks = result["blocks"]
             assert len(blocks) >= 1
 
             # checking first inner_hit
             inner_hit_0 = blocks[0]
-            assert inner_hit_0['type'] == type
-            highlight = inner_hit_0['highlights'][field]
+            assert inner_hit_0["type"] == type
+            highlight = inner_hit_0["highlights"][field]
 
         return highlight
 
     def _get_highlighted_words(self, string):
-        highlighted_words = re.findall(
-            '<span>(.*?)</span>',
-            string
-        )
+        highlighted_words = re.findall("<span>(.*?)</span>", string)
         return highlighted_words
 
-    @pytest.mark.parametrize('data_type', DATA_TYPES_VALUES)
-    @pytest.mark.parametrize('page_num', [0, 1])
+    @pytest.mark.parametrize("data_type", DATA_TYPES_VALUES)
+    @pytest.mark.parametrize("page_num", [0, 1])
     def test_file_search(self, client, project, data_type, page_num):
-        data_type = data_type.split('.')
+        data_type = data_type.split(".")
         type, field = None, None
         if len(data_type) < 2:
             field = data_type[0]
@@ -189,9 +191,7 @@ class TestPageSearch:
             field=field,
         )
         results, _ = self._get_search_result(
-            url=self.url,
-            client=client,
-            search_params={ 'q': query, 'type': 'file' }
+            url=self.url, client=client, search_params={"q": query, "type": "file"}
         )
         assert len(results) >= 1
 
@@ -206,8 +206,8 @@ class TestPageSearch:
             # Make it lower because our search is case insensitive
             assert word.lower() in query.lower()
 
-    @pytest.mark.parametrize('data_type', DATA_TYPES_VALUES)
-    @pytest.mark.parametrize('case', ['upper', 'lower', 'title'])
+    @pytest.mark.parametrize("data_type", DATA_TYPES_VALUES)
+    @pytest.mark.parametrize("case", ["upper", "lower", "title"])
     def test_file_search_case_insensitive(self, client, project, case, data_type):
         """
         Check File search is case insensitive.
@@ -215,7 +215,7 @@ class TestPageSearch:
         It tests with uppercase, lowercase and camelcase.
         """
         type, field = None, None
-        data_type = data_type.split('.')
+        data_type = data_type.split(".")
         if len(data_type) < 2:
             field = data_type[0]
         else:
@@ -229,9 +229,7 @@ class TestPageSearch:
         query = cased_query()
 
         results, _ = self._get_search_result(
-            url=self.url,
-            client=client,
-            search_params={ 'q': query, 'type': 'file' }
+            url=self.url, client=client, search_params={"q": query, "type": "file"}
         )
         assert len(results) >= 1
 
@@ -256,9 +254,8 @@ class TestPageSearch:
         # So search with this phrase to check
         query = r'"Sphinx uses"'
         results, _ = self._get_search_result(
-            url=self.url,
-            client=client,
-            search_params={ 'q': query, 'type': 'file' })
+            url=self.url, client=client, search_params={"q": query, "type": "file"}
+        )
 
         # There are two results,
         # one from each version of the "kuma" project.
@@ -270,10 +267,10 @@ class TestPageSearch:
             assert result["domain"] == "http://readthedocs.org"
             assert result["path"].endswith("/documentation.html")
 
-        blocks = results[0]['blocks']
+        blocks = results[0]["blocks"]
         assert len(blocks) == 1
-        assert blocks[0]['type'] == 'section'
-        highlight = self._get_highlight(results[0], 'content', 'section')
+        assert blocks[0]["type"] == "section"
+        highlight = self._get_highlight(results[0], "content", "section")
         assert len(highlight) == 1
         highlighted_words = self._get_highlighted_words(highlight[0])
         assert len(highlighted_words) >= 1
@@ -294,7 +291,7 @@ class TestPageSearch:
             client=client,
             search_params=search_params,
         )
-        project_facets = facets['project']
+        project_facets = facets["project"]
         resulted_project_facets = [facet[0] for facet in project_facets]
 
         # There should be 1 search result as we have filtered
@@ -305,7 +302,9 @@ class TestPageSearch:
         # The projects we search is the only one included in the final results.
         assert resulted_project_facets == ["kuma"]
 
-    @pytest.mark.xfail(reason='Versions are not showing correctly! Fixme while rewrite!')
+    @pytest.mark.xfail(
+        reason="Versions are not showing correctly! Fixme while rewrite!"
+    )
     def test_file_search_show_versions(self, client, all_projects, es_index, settings):
         # override the settings to index all versions
         settings.INDEX_ONLY_LATEST = False
@@ -317,13 +316,13 @@ class TestPageSearch:
         results, facets = self._get_search_result(
             url=self.url,
             client=client,
-            search_params={ 'q': query, 'type': 'file' },
+            search_params={"q": query, "type": "file"},
         )
 
         # Results can be from other projects also
         assert len(results) >= 1
 
-        version_facets = facets['version']
+        version_facets = facets["version"]
         version_facets_str = [facet[0] for facet in version_facets]
         # There should be total 4 versions
         # one is latest, and other 3 that we created above
@@ -354,7 +353,7 @@ class TestPageSearch:
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
     def test_search_only_projects_owned_by_the_user(self, client, all_projects):
-        project = Project.objects.get(slug='docs')
+        project = Project.objects.get(slug="docs")
         user = get(User)
         user.projects.add(project)
         client.force_login(user)
@@ -362,7 +361,7 @@ class TestPageSearch:
             url=self.url,
             client=client,
             # Search for the most common english word.
-            search_params={'q': 'the', 'type': 'file'},
+            search_params={"q": "the", "type": "file"},
         )
         assert len(results) > 0
 
@@ -378,6 +377,6 @@ class TestPageSearch:
             url=self.url,
             client=client,
             # Search for the most common english word.
-            search_params={'q': 'the', 'type': 'file'},
+            search_params={"q": "the", "type": "file"},
         )
         assert len(results) == 0

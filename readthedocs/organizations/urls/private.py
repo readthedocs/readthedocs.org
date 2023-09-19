@@ -1,16 +1,21 @@
 """URLs that require login."""
-from django.conf.urls import re_path
+from django.urls import path, re_path
 
 from readthedocs.organizations.views import private as views
 
 urlpatterns = [
-    re_path(
-        r'^$',
+    path(
+        "",
         views.ListOrganization.as_view(),
         name='organization_list',
     ),
     re_path(
-        r'^create/$',
+        r"^choose/(?P<next_name>[\w.-]+)/$",
+        views.ChooseOrganization.as_view(),
+        name="organization_choose",
+    ),
+    path(
+        "create/",
         views.CreateOrganizationSignup.as_view(),
         name='organization_create',
     ),

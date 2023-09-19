@@ -35,7 +35,7 @@ from readthedocs.config.config import (
 from readthedocs.config.models import (
     Build,
     BuildJobs,
-    BuildWithTools,
+    BuildWithOs,
     Conda,
     PythonInstall,
     PythonInstallRequirements,
@@ -305,24 +305,6 @@ def test_python_section_must_be_dict():
     assert excinfo.value.code == PYTHON_INVALID
 
 
-def test_use_system_site_packages_defaults_to_false():
-    build = get_build_config({'python': {}})
-    build.validate()
-    # Default is False.
-    assert not build.python.use_system_site_packages
-
-
-@pytest.mark.parametrize('value', [True, False])
-def test_use_system_site_packages_repects_default_value(value):
-    defaults = {
-        'use_system_packages': value,
-    }
-    build = get_build_config({}, {'defaults': defaults})
-    build.validate()
-    assert build.python.use_system_site_packages is value
-
-
-
 class TestValidatePythonExtraRequirements:
 
     def test_it_defaults_to_install_requirements_as_none(self):
@@ -355,32 +337,6 @@ class TestValidatePythonExtraRequirements:
         )
         build.validate()
         validate_string.assert_any_call('tests')
-
-
-class TestValidateUseSystemSitePackages:
-
-    def test_it_defaults_to_false(self):
-        build = get_build_config({'python': {}})
-        build.validate()
-        assert build.python.use_system_site_packages is False
-
-    def test_it_validates_value(self):
-        build = get_build_config(
-            {'python': {'use_system_site_packages': 'invalid'}},
-        )
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        excinfo.value.key = 'python.use_system_site_packages'
-        excinfo.value.code = INVALID_BOOL
-
-    @patch('readthedocs.config.config.validate_bool')
-    def test_it_uses_validate_bool(self, validate_bool):
-        validate_bool.return_value = True
-        build = get_build_config(
-            {'python': {'use_system_site_packages': 'to-validate'}},
-        )
-        build.validate()
-        validate_bool.assert_any_call('to-validate')
 
 
 class TestValidateSetupPyInstall:
@@ -429,15 +385,6 @@ class TestValidatePythonVersion:
         assert build.python.version == '3.7'
         assert build.python_interpreter == 'python3.7'
         assert build.python_full_version == '3.7'
-
-    def test_it_supports_string_versions(self):
-        build = get_build_config(
-            {'python': {'version': 'pypy3.5'}},
-        )
-        build.validate()
-        assert build.python.version == 'pypy3.5'
-        assert build.python_interpreter == 'pypy3.5'
-        assert build.python_full_version == 'pypy3.5'
 
     def test_it_validates_versions_out_of_range(self):
         build = get_build_config(
@@ -805,7 +752,6 @@ def test_as_dict(tmpdir):
             'install': [{
                 'requirements': 'requirements.txt',
             }],
-            'use_system_site_packages': False,
         },
         'build': {
             'image': 'readthedocs/build:latest',
@@ -856,7 +802,7 @@ class TestBuildConfigV2:
             build.error(key='key', message='Message', code='code')
         # We don't have any extra information about
         # the source_file.
-        assert str(excinfo.value) == 'Invalid "key": Message'
+        assert str(excinfo.value) == 'Invalid configuration option "key": Message'
 
     def test_formats_check_valid(self):
         build = self.get_build_config({'formats': ['htmlzip', 'pdf', 'epub']})
@@ -1051,7 +997,7 @@ class TestBuildConfigV2:
         )
         build.validate()
         assert build.using_build_tools
-        assert isinstance(build.build, BuildWithTools)
+        assert isinstance(build.build, BuildWithOs)
         assert build.build.os == 'ubuntu-20.04'
         assert build.build.tools['python'].version == '3.9'
         full_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9']
@@ -1086,7 +1032,10 @@ class TestBuildConfigV2:
             build.validate()
         assert excinfo.value.key == 'python.version'
 
-    def test_commands_build_config(self):
+    def test_commands_build_config_tools_and_commands_valid(self):
+        """
+        Test that build.tools and build.commands are valid together.
+        """
         build = self.get_build_config(
             {
                 "build": {
@@ -1097,8 +1046,26 @@ class TestBuildConfigV2:
             },
         )
         build.validate()
-        assert isinstance(build.build, BuildWithTools)
+        assert isinstance(build.build, BuildWithOs)
         assert build.build.commands == ["pip install pelican", "pelican content"]
+
+    def test_build_jobs_without_build_os_is_invalid(self):
+        """
+        build.jobs can't be used without build.os
+        """
+        build = self.get_build_config(
+            {
+                "build": {
+                    "tools": {"python": "3.8"},
+                    "jobs": {
+                        "pre_checkout": ["echo pre_checkout"],
+                    },
+                },
+            },
+        )
+        with raises(InvalidConfig) as excinfo:
+            build.validate()
+        assert excinfo.value.key == "build.os"
 
     def test_commands_build_config_invalid_command(self):
         build = self.get_build_config(
@@ -1124,20 +1091,23 @@ class TestBuildConfigV2:
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.commands"
+        assert excinfo.value.key == "build.os"
 
-    def test_commands_build_config_invalid_no_tools(self):
+    def test_commands_build_config_valid(self):
+        """It's valid to build with just build.os and build.commands."""
         build = self.get_build_config(
             {
                 "build": {
                     "os": "ubuntu-22.04",
-                    "commands": ["pip install pelican", "pelican content"],
+                    "commands": ["echo 'hello world' > _readthedocs/html/index.html"],
                 },
             },
         )
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == "build.tools"
+        build.validate()
+        assert isinstance(build.build, BuildWithOs)
+        assert build.build.commands == [
+            "echo 'hello world' > _readthedocs/html/index.html"
+        ]
 
     @pytest.mark.parametrize("value", ["", None, "pre_invalid"])
     def test_jobs_build_config_invalid_jobs(self, value):
@@ -1196,7 +1166,7 @@ class TestBuildConfigV2:
             },
         )
         build.validate()
-        assert isinstance(build.build, BuildWithTools)
+        assert isinstance(build.build, BuildWithOs)
         assert isinstance(build.build.jobs, BuildJobs)
         assert build.build.jobs.pre_checkout == ["echo pre_checkout"]
         assert build.build.jobs.post_checkout == ["echo post_checkout"]
@@ -1286,8 +1256,8 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize(
         'image,versions',
         [
-            ('latest', ['2', '2.7', '3', '3.5', '3.6', '3.7', 'pypy3.5']),
-            ('stable', ['2', '2.7', '3', '3.5', '3.6', '3.7']),
+            ("latest", ["2", "2.7", "3", "3.5", "3.6", "3.7"]),
+            ("stable", ["2", "2.7", "3", "3.5", "3.6", "3.7"]),
         ],
     )
     def test_python_version(self, image, versions):
@@ -1501,7 +1471,10 @@ class TestBuildConfigV2:
         with raises(InvalidConfig) as excinfo:
             build.validate()
 
-        assert str(excinfo.value) == 'Invalid "python.install[0].requirements": expected string'
+        assert (
+            str(excinfo.value)
+            == 'Invalid configuration option "python.install[0].requirements": expected string'
+        )
 
     def test_python_install_requirements_does_not_allow_empty_string(self, tmpdir):
         build = self.get_build_config(
@@ -1785,53 +1758,6 @@ class TestBuildConfigV2:
         assert install[1].method == SETUPTOOLS
 
         assert install[2].requirements == 'three.txt'
-
-    @pytest.mark.parametrize('value', [True, False])
-    def test_python_system_packages_check_valid(self, value):
-        build = self.get_build_config({
-            'python': {
-                'system_packages': value,
-            },
-        })
-        build.validate()
-        assert build.python.use_system_site_packages is value
-
-    @pytest.mark.parametrize('value', [[], 'invalid', 5])
-    def test_python_system_packages_check_invalid(self, value):
-        build = self.get_build_config({
-            'python': {
-                'system_packages': value,
-            },
-        })
-        with raises(InvalidConfig) as excinfo:
-            build.validate()
-        assert excinfo.value.key == 'python.system_packages'
-
-    def test_python_system_packages_check_default(self):
-        build = self.get_build_config({})
-        build.validate()
-        assert build.python.use_system_site_packages is False
-
-    def test_python_system_packages_dont_respects_default(self):
-        build = self.get_build_config(
-            {},
-            {'defaults': {'use_system_packages': True}},
-        )
-        build.validate()
-        assert build.python.use_system_site_packages is False
-
-    def test_python_system_packages_priority_over_default(self):
-        build = self.get_build_config(
-            {'python': {'system_packages': False}},
-        )
-        build.validate()
-        assert build.python.use_system_site_packages is False
-
-        build = self.get_build_config(
-            {'python': {'system_packages': True}},
-        )
-        build.validate()
-        assert build.python.use_system_site_packages is True
 
     @pytest.mark.parametrize('value', [[], True, 0, 'invalid'])
     def test_sphinx_validate_type(self, value):
@@ -2431,7 +2357,6 @@ class TestBuildConfigV2:
                 'install': [{
                     'requirements': 'requirements.txt',
                 }],
-                'use_system_site_packages': False,
             },
             'build': {
                 'image': 'readthedocs/build:latest',
@@ -2491,7 +2416,6 @@ class TestBuildConfigV2:
                 'install': [{
                     'requirements': 'requirements.txt',
                 }],
-                'use_system_site_packages': False,
             },
             'build': {
                 'os': 'ubuntu-20.04',

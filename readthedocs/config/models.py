@@ -35,7 +35,7 @@ class Build(Base):
         super().__init__(**kwargs)
 
 
-class BuildWithTools(Base):
+class BuildWithOs(Base):
 
     __slots__ = ("os", "tools", "jobs", "apt_packages", "commands")
 
@@ -80,8 +80,7 @@ class BuildJobs(Base):
 
 
 class Python(Base):
-
-    __slots__ = ('version', 'install', 'use_system_site_packages')
+    __slots__ = ("version", "install")
 
 
 class PythonInstallRequirements(Base):

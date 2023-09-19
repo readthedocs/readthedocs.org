@@ -4,37 +4,36 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('integrations', '0009_migrate_headers_data'),
+        ("integrations", "0009_migrate_headers_data"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='httpexchange',
-            name='request_headers',
+            model_name="httpexchange",
+            name="request_headers",
         ),
         migrations.RemoveField(
-            model_name='httpexchange',
-            name='response_headers',
+            model_name="httpexchange",
+            name="response_headers",
         ),
         migrations.RemoveField(
-            model_name='integration',
-            name='provider_data',
+            model_name="integration",
+            name="provider_data",
         ),
         migrations.RenameField(
-            model_name='httpexchange',
-            old_name='request_headers_json',
-            new_name='request_headers',
+            model_name="httpexchange",
+            old_name="request_headers_json",
+            new_name="request_headers",
         ),
         migrations.RenameField(
-            model_name='httpexchange',
-            old_name='response_headers_json',
-            new_name='response_headers',
+            model_name="httpexchange",
+            old_name="response_headers_json",
+            new_name="response_headers",
         ),
         migrations.RenameField(
-            model_name='integration',
-            old_name='provider_data_json',
-            new_name='provider_data',
+            model_name="integration",
+            old_name="provider_data_json",
+            new_name="provider_data",
         ),
     ]

@@ -11,7 +11,6 @@ User = get_user_model()
 
 
 class TestBuildManagerBase(TestCase):
-
     def setUp(self):
         self.user = get(User)
         self.another_user = get(User)
@@ -29,7 +28,7 @@ class TestBuildManagerBase(TestCase):
             privacy_level=PUBLIC,
             project=self.project,
             active=True,
-            slug='version_public'
+            slug="version_public",
         )
         self.build_public = get(
             Build,
@@ -42,7 +41,7 @@ class TestBuildManagerBase(TestCase):
             project=self.project,
             active=True,
             type=EXTERNAL,
-            slug='version_public_external'
+            slug="version_public_external",
         )
         self.build_public_external = get(
             Build,
@@ -54,7 +53,7 @@ class TestBuildManagerBase(TestCase):
             privacy_level=PRIVATE,
             project=self.project,
             active=True,
-            slug='version_private'
+            slug="version_private",
         )
         self.build_private = get(
             Build,
@@ -67,7 +66,7 @@ class TestBuildManagerBase(TestCase):
             project=self.project,
             active=True,
             type=EXTERNAL,
-            slug='version_private_external'
+            slug="version_private_external",
         )
         self.build_private_external = get(
             Build,
@@ -88,7 +87,7 @@ class TestBuildManagerBase(TestCase):
             privacy_level=PUBLIC,
             project=self.another_project,
             active=True,
-            slug='another_version_public'
+            slug="another_version_public",
         )
         self.another_build_public = get(
             Build,
@@ -101,7 +100,7 @@ class TestBuildManagerBase(TestCase):
             project=self.another_project,
             active=True,
             type=EXTERNAL,
-            slug='another_version_public_external'
+            slug="another_version_public_external",
         )
         self.another_build_public_external = get(
             Build,
@@ -113,7 +112,7 @@ class TestBuildManagerBase(TestCase):
             privacy_level=PRIVATE,
             project=self.another_project,
             active=True,
-            slug='another_version_private'
+            slug="another_version_private",
         )
         self.another_build_private = get(
             Build,
@@ -126,7 +125,7 @@ class TestBuildManagerBase(TestCase):
             project=self.another_project,
             active=True,
             type=EXTERNAL,
-            slug='another_version_private_external'
+            slug="another_version_private_external",
         )
         self.another_build_private_external = get(
             Build,
@@ -147,7 +146,7 @@ class TestBuildManagerBase(TestCase):
             privacy_level=PUBLIC,
             project=self.shared_project,
             active=True,
-            slug='shared_version_public'
+            slug="shared_version_public",
         )
         self.shared_build_public = get(
             Build,
@@ -160,7 +159,7 @@ class TestBuildManagerBase(TestCase):
             project=self.shared_project,
             active=True,
             type=EXTERNAL,
-            slug='shared_version_public_external'
+            slug="shared_version_public_external",
         )
         self.shared_build_public_external = get(
             Build,
@@ -172,7 +171,7 @@ class TestBuildManagerBase(TestCase):
             privacy_level=PRIVATE,
             project=self.shared_project,
             active=True,
-            slug='shared_version_private'
+            slug="shared_version_private",
         )
         self.shared_build_private = get(
             Build,
@@ -185,7 +184,7 @@ class TestBuildManagerBase(TestCase):
             project=self.shared_project,
             active=True,
             type=EXTERNAL,
-            slug='shared_version_private_external'
+            slug="shared_version_private_external",
         )
         self.shared_build_private_external = get(
             Build,

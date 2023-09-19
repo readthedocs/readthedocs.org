@@ -18,14 +18,11 @@ class RedirectQuerySet(models.QuerySet):
 
     def _add_from_user_projects(self, queryset, user):
         if user.is_authenticated:
-            projects_pk = (
-                AdminPermission.projects(
-                    user=user,
-                    admin=True,
-                    member=True,
-                )
-                .values_list('pk', flat=True)
-            )
+            projects_pk = AdminPermission.projects(
+                user=user,
+                admin=True,
+                member=True,
+            ).values_list("pk", flat=True)
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset.distinct()
@@ -66,35 +63,31 @@ class RedirectQuerySet(models.QuerySet):
             ),
         )
         prefix = Q(
-            redirect_type='prefix',
-            path__startswith=F('from_url'),
+            redirect_type="prefix",
+            path__startswith=F("from_url"),
         )
         page = Q(
-            redirect_type='page',
-            path__exact=F('from_url'),
+            redirect_type="page",
+            path__exact=F("from_url"),
         )
-        exact = (
-            Q(
-                redirect_type='exact',
-                from_url__endswith='$rest',
-                full_path__startswith=F('from_url_without_rest'),
-            ) | Q(
-                redirect_type='exact',
-                full_path__exact=F('from_url'),
-            )
+        exact = Q(
+            redirect_type="exact",
+            from_url__endswith="$rest",
+            full_path__startswith=F("from_url_without_rest"),
+        ) | Q(
+            redirect_type="exact",
+            full_path__exact=F("from_url"),
         )
-        sphinx_html = (
-            Q(
-                redirect_type='sphinx_html',
-                path__endswith='/',
-            ) | Q(
-                redirect_type='sphinx_html',
-                path__endswith='/index.html',
-            )
+        sphinx_html = Q(
+            redirect_type="sphinx_html",
+            path__endswith="/",
+        ) | Q(
+            redirect_type="sphinx_html",
+            path__endswith="/index.html",
         )
         sphinx_htmldir = Q(
-            redirect_type='sphinx_htmldir',
-            path__endswith='.html',
+            redirect_type="sphinx_htmldir",
+            path__endswith=".html",
         )
 
         queryset = queryset.filter(prefix | page | exact | sphinx_html | sphinx_htmldir)
@@ -104,7 +97,7 @@ class RedirectQuerySet(models.QuerySet):
         # There should be one and only one redirect returned by this query. I
         # can't think in a case where there can be more at this point. I'm
         # leaving the loop just in case for now
-        for redirect in queryset.select_related('project'):
+        for redirect in queryset.select_related("project"):
             new_path = redirect.get_redirect_path(
                 path=normalized_path,
                 full_path=normalized_full_path,

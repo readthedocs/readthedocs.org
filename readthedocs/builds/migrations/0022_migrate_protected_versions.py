@@ -11,17 +11,16 @@ def forwards_func(apps, schema_editor):
     For .org, we mark them as public,
     and for .com we mark them as private.
     """
-    Version = apps.get_model('builds', 'Version')
-    target_privacy_level = 'private' if settings.ALLOW_PRIVATE_REPOS else 'public'
-    Version.objects.filter(privacy_level='protected').update(
+    Version = apps.get_model("builds", "Version")
+    target_privacy_level = "private" if settings.ALLOW_PRIVATE_REPOS else "public"
+    Version.objects.filter(privacy_level="protected").update(
         privacy_level=target_privacy_level,
     )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0021_make_hidden_field_not_null'),
+        ("builds", "0021_make_hidden_field_not_null"),
     ]
 
     operations = [

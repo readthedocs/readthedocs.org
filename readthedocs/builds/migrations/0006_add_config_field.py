@@ -4,15 +4,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0005_remove-version-alias'),
+        ("builds", "0005_remove-version-alias"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='build',
-            name='_config',
-            field=jsonfield.fields.JSONField(default=dict, verbose_name='Configuration used in the build'),
+            model_name="build",
+            name="_config",
+            field=jsonfield.fields.JSONField(
+                default=dict, verbose_name="Configuration used in the build"
+            ),
         ),
     ]

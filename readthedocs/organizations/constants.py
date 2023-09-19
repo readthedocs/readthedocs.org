@@ -2,10 +2,10 @@
 
 from django.utils.translation import gettext_lazy as _
 
-READ_ONLY_ACCESS = 'readonly'
-ADMIN_ACCESS = 'admin'
+READ_ONLY_ACCESS = "readonly"
+ADMIN_ACCESS = "admin"
 
 ACCESS_LEVELS = (
-    (READ_ONLY_ACCESS, _('Read-only')),
-    (ADMIN_ACCESS, _('Admin')),
+    (READ_ONLY_ACCESS, _("Read-only")),
+    (ADMIN_ACCESS, _("Admin")),
 )

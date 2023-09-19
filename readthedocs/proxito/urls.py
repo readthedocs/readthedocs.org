@@ -49,15 +49,15 @@ from readthedocs.proxito.views.serve import (
     ServeSitemapXML,
     ServeStaticFiles,
 )
-from readthedocs.proxito.views.utils import fast_404, proxito_404_page_handler
+from readthedocs.proxito.views.utils import proxito_404_page_handler
 
-DOC_PATH_PREFIX = getattr(settings, 'DOC_PATH_PREFIX', '')
+DOC_PATH_PREFIX = getattr(settings, "DOC_PATH_PREFIX", "")
 
 health_check_urls = [
     re_path(
-        '^{DOC_PATH_PREFIX}health_check/$'.format(DOC_PATH_PREFIX=DOC_PATH_PREFIX),
+        "^{DOC_PATH_PREFIX}health_check/$".format(DOC_PATH_PREFIX=DOC_PATH_PREFIX),
         HealthCheckView.as_view(),
-        name='health_check',
+        name="health_check",
     ),
 ]
 
@@ -74,7 +74,7 @@ proxied_urls = [
             )
         ),
         ProjectDownloadMedia.as_view(same_domain_url=True),
-        name='project_download_media',
+        name="project_download_media",
     ),
     # Serve subproject downloads
     # /_/downloads/<alias>/<lang>/<ver>/<type>/
@@ -89,24 +89,22 @@ proxied_urls = [
             )
         ),
         ProjectDownloadMedia.as_view(same_domain_url=True),
-        name='project_download_media',
+        name="project_download_media",
     ),
-
     # Serve proxied API
     # /_/api/v2/
     re_path(
-        r'^{DOC_PATH_PREFIX}api/v2/'.format(
+        r"^{DOC_PATH_PREFIX}api/v2/".format(
             DOC_PATH_PREFIX=DOC_PATH_PREFIX,
         ),
-        include('readthedocs.api.v2.proxied_urls'),
+        include("readthedocs.api.v2.proxied_urls"),
     ),
-
     # /_/api/v3/
     re_path(
-        r'^{DOC_PATH_PREFIX}api/v3/'.format(
+        r"^{DOC_PATH_PREFIX}api/v3/".format(
             DOC_PATH_PREFIX=DOC_PATH_PREFIX,
         ),
-        include('readthedocs.api.v3.proxied_urls'),
+        include("readthedocs.api.v3.proxied_urls"),
     ),
     # Serve static files
     # /_/static/file.js
@@ -115,7 +113,14 @@ proxied_urls = [
         ServeStaticFiles.as_view(),
         name="proxito_static_files",
     ),
-    # readthedocs-config.js
+    # readthedocs-docs-addons.js
+    path(
+        f"{DOC_PATH_PREFIX}addons/",
+        ReadTheDocsConfigJson.as_view(),
+        name="proxito_readthedocs_docs_addons",
+    ),
+    # TODO: remove `readthedocs-config/` endpoint once we have changed the URL
+    # in the js and we have deployed it.
     path(
         f"{DOC_PATH_PREFIX}readthedocs-config/",
         ReadTheDocsConfigJson.as_view(),
@@ -126,73 +131,24 @@ proxied_urls = [
 core_urls = [
     # Serve custom 404 pages
     re_path(
-        r'^_proxito_404_(?P<proxito_path>.*)$',
+        r"^_proxito_404_(?P<proxito_path>.*)$",
         ServeError404.as_view(),
-        name='proxito_404_handler',
+        name="proxito_404_handler",
     ),
-    re_path(r'robots\.txt$', ServeRobotsTXT.as_view(), name='robots_txt'),
-    re_path(r'sitemap\.xml$', ServeSitemapXML.as_view(), name='sitemap_xml'),
+    re_path(r"robots\.txt$", ServeRobotsTXT.as_view(), name="robots_txt"),
+    re_path(r"sitemap\.xml$", ServeSitemapXML.as_view(), name="sitemap_xml"),
 ]
 
 docs_urls = [
-
     # # TODO: Support this?
     # (Sub)project `page` redirect
     re_path(
-        r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
-        r'page/(?P<filename>.*)$'.format(**pattern_opts),
+        r"^(?:projects/(?P<subproject_slug>{project_slug})/)?"
+        r"page/(?P<filename>.*)$".format(**pattern_opts),
         ServePageRedirect.as_view(),
-        name='redirect_page_with_filename',
+        name="redirect_page_with_filename",
     ),
-
-    # (Sub)project w/ translation and versions
-    re_path(
-        (
-            r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
-            r'(?P<lang_slug>{lang_slug})/'
-            r'(?P<version_slug>{version_slug})/'
-            r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
-        ),
-        ServeDocs.as_view(),
-        name='docs_detail',
-    ),
-
-    # Hack /en/latest so it redirects properly
-    # We don't want to serve the docs here,
-    # because it's at a different level of serving so relative links break.
-    re_path(
-        (
-            r'^(?:projects/(?P<subproject_slug>{project_slug})/)?'
-            r'(?P<lang_slug>{lang_slug})/'
-            r'(?P<version_slug>{version_slug})$'.format(**pattern_opts)
-        ),
-        fast_404,
-        name='docs_detail_directory_indexing',
-    ),
-
-    # # TODO: Support this?
-    # # (Sub)project translation and single version
-    # re_path(
-    #     (
-    #         r'^(?:|projects/(?P<subproject_slug>{project_slug})/)'
-    #         r'(?P<lang_slug>{lang_slug})/'
-    #         r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
-    #     ),
-    #     serve_docs,
-    #     name='docs_detail',
-    # ),
-
-    # (Sub)project single version
-    re_path(
-        (
-            # subproject_slash variable at the end of this regex is for ``/projects/subproject``
-            # so that it will get captured here and redirect properly.
-            r'^(?:projects/(?P<subproject_slug>{project_slug})(?P<subproject_slash>/?))?'
-            r'(?P<filename>{filename_slug})$'.format(**pattern_opts)
-        ),
-        ServeDocs.as_view(),
-        name='docs_detail_singleversion_subproject',
-    ),
+    re_path(r"^(?P<path>.*)$", ServeDocs.as_view(), name="docs_detail"),
 ]
 
 urlpatterns = health_check_urls + proxied_urls + core_urls + docs_urls

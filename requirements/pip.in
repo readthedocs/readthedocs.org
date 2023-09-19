@@ -2,21 +2,25 @@
 pip
 virtualenv
 
-django~=3.2.0
+django~=4.2.0
 django-extensions
 django-polymorphic
 django-autoslug
+
+# NOTE: we cannot use ``psycopg`` (3.x), even if it's supported by Django 4.2
+# because New Relic agent is not sending the data of the database to their servers.
+psycopg2
 
 # 3.1.0 includes changes that require running `makemigrations`
 # https://django-simple-history.readthedocs.io/en/latest/#changes
 django-simple-history==3.0.0
 
 djangorestframework
+djangorestframework-api-key
 
-# For intersphinx during builds
-# We need these pinned to build the docs properly
-Sphinx==4.5.0
-docutils==0.17.1
+# Embed v1 still uses docutils.
+# Remove this dependency once we deprecate this API.
+docutils
 
 # Filtering for the REST API
 django-filter
@@ -34,12 +38,46 @@ jsonfield
 requests
 requests-toolbelt
 slumber
-# awscli (requirements/docker.txt) isn't compatible with pyyaml >= 5.5.
-pyyaml==5.4.1
+pyyaml
 Pygments
 
-django-redis
-celery
+# Used for Redis cache Django backend (`django.core.cache.backends.redis.RedisCache`)
+redis
+
+# NOTE: we have to pin to this version because Celery>=5.3.x detects our ``ConfigError`` exception is not picklable
+# and creates a ``UnpickleableExceptionWrapper`` which is not what our code expects.
+# This may be due to a Python bug which can't pickle/unpickle the exception properly.
+# We could consider either:
+#  - handle ``UnpickleableExceptionWrapper`` in our code and inspect what's the inner exception
+#  - find a way to disable pickling the exceptions
+#  - make our custom exception picklable
+#
+# References:
+#  - https://github.com/celery/celery/pull/8149
+#  - https://github.com/celery/celery/blob/2b4b500ca1212016824a5fa2996cfb752f0763a7/celery/utils/serialization.py#L154
+#  - https://github.com/python/cpython/issues/76877
+#
+# Reproducible example:
+# >>> import pickle
+# >>> class MyException(Exception):
+# ...   def __init__(self, a, b):
+# ...     self.a = a
+# ...     self.b = b
+# ...     super().__init__(a)
+# ...
+# >>> pickle.loads(pickle.dumps(MyException("a", "b")))
+# Traceback (most recent call last):
+#   File "<stdin>", line 1, in <module>
+# TypeError: MyException.__init__() missing 1 required positional argument: 'b'
+# >>>
+celery==5.2.7
+django-celery-beat
+
+# Docker images need a dependency explicity marked for tzdata in order to have
+# necessary timezone data.
+# https://github.com/readthedocs/readthedocs.org/issues/10453
+# TODO: remove this dependency once we upgrade Celery. It should auto-install it.
+tzdata
 
 # 0.52.0 requires creating a new email template:
 #  templates/account/email/acccount_already_exists_message.html
@@ -47,8 +85,6 @@ celery
 django-allauth==0.51.0
 
 requests-oauthlib
-
-GitPython
 
 # Search
 elasticsearch<8.0
@@ -95,7 +131,9 @@ django-formtools<2.4
 # django.template.exceptions.TemplateDoesNotExist: bootstrap/field.html
 django-crispy-forms<2
 
-docker
+# Force to upgrade to a version with a fix for socket timeouts
+# https://docker-py.readthedocs.io/en/stable/change-log.html#bugfixes
+docker==6.1.2
 
 django-annoying
 django-messages-extends

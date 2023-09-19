@@ -59,11 +59,6 @@ so they can have any value, or not be present at all.
    whereas ``python=3.8`` (single ``=``) will fetch the latest ``3.8.*`` version,
    which is ``3.8.8`` at the time of writing.
 
-.. warning:: Pinning Sphinx and other Read the Docs core dependencies
-   is not yet supported by default when using conda (see `this GitHub issue for discussion`_).
-   If your project needs it, request that we enable the ``CONDA_APPEND_CORE_REQUIREMENTS``
-   :ref:`feature flag <feature-flags:Feature Flags>`.
-
 .. _this GitHub issue for discussion: https://github.com/readthedocs/readthedocs.org/issues/3829
 .. _exporting a conda environment: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html#sharing-an-environment
 
@@ -126,7 +121,7 @@ with these contents:
    build:
      os: "ubuntu-20.04"
      tools:
-       python: "mambaforge-4.10"
+       python: "mambaforge-22.9"
 
    conda:
      environment: environment.yml

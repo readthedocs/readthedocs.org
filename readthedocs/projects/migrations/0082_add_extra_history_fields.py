@@ -4,20 +4,23 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0081_add_another_header'),
+        ("projects", "0081_add_another_header"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalproject',
-            name='extra_history_browser',
-            field=models.CharField(blank=True, max_length=250, null=True, verbose_name='Browser user-agent'),
+            model_name="historicalproject",
+            name="extra_history_browser",
+            field=models.CharField(
+                blank=True, max_length=250, null=True, verbose_name="Browser user-agent"
+            ),
         ),
         migrations.AddField(
-            model_name='historicalproject',
-            name='extra_history_ip',
-            field=models.CharField(blank=True, max_length=250, null=True, verbose_name='IP address'),
+            model_name="historicalproject",
+            name="extra_history_ip",
+            field=models.CharField(
+                blank=True, max_length=250, null=True, verbose_name="IP address"
+            ),
         ),
     ]
