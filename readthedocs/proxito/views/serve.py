@@ -23,7 +23,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects import constants
+from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING, PRIVATE
 from readthedocs.projects.models import Domain, Feature, HTMLFile
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
@@ -263,6 +263,16 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         project = unresolved.project
         version = unresolved.version
         filename = unresolved.filename
+
+        # Check if the old language code format was used, and redirect to the new one.
+        if unresolved.language and unresolved.language in OLD_LANGUAGES_CODE_MAPPING:
+            return self.system_redirect(
+                request=request,
+                final_project=project,
+                version_slug=version.slug,
+                filename=filename,
+                is_external_version=unresolved_domain.is_from_external_domain,
+            )
 
         log.bind(
             project_slug=project.slug,
@@ -709,7 +719,7 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
 
         no_serve_robots_txt = any([
             # If the default version is private or,
-            version.privacy_level == constants.PRIVATE,
+            version.privacy_level == PRIVATE,
             # default version is not active or,
             not version.active,
             # default version is not built

@@ -96,6 +96,11 @@ class ResolverBase:
         else:
             path = unsafe_join_url_path(path, "{language}/{version}/{filename}")
 
+        # Normalize the language code to lowercase with dashes (pt_BR -> pt-br).
+        # We still support the old format when serving docs, but all new links
+        # should use the new format.
+        language = (language or "").lower().replace("_", "-")
+
         subproject_alias = project_relationship.alias if project_relationship else ""
         return path.format(
             project=project_slug,

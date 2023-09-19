@@ -286,8 +286,26 @@ LANGUAGES = (
     ('zh_CN', 'Simplified Chinese'),
     ('zh_TW', 'Traditional Chinese'),
 )
+LANGUAGE_CODES = [code for code, *_ in LANGUAGES]
 
-LANGUAGES_REGEX = '|'.join([re.escape(code[0]) for code in LANGUAGES])
+# Normalize the language codes to lowercase with dashes,
+# we use them to match the language codes in the URL.
+# The old language codes were uppercase with underscores
+# are deprecated, but we still need to support them.
+old_language_codes = [
+    'nb_NO',
+    'pt_BR',
+    'es_MX',
+    'uk_UA',
+    'zh_CN',
+    'zh_TW',
+]
+OLD_LANGUAGES_CODE_MAPPING = {
+    code: code.lower().replace('_', '-')
+    for code in old_language_codes
+}
+
+LANGUAGES_REGEX = '|'.join([re.escape(code) for code in LANGUAGE_CODES + OLD_LANGUAGES_CODE_MAPPING.values()])
 
 PROGRAMMING_LANGUAGES = (
     ('words', 'Only Words'),
