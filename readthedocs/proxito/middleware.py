@@ -327,12 +327,12 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         project_slug = getattr(request, "path_project_slug", "")
         version_slug = getattr(request, "path_version_slug", "")
-        host = request.get_host()
+        origin = request.headers.get("origin")
 
         if (
             project_slug
             and version_slug
-            and host.endswith(settings.RTD_EXTERNAL_VERSION_DOMAIN)
+            and origin.endswith(settings.RTD_EXTERNAL_VERSION_DOMAIN)
         ):
             allow_cors = Version.objects.filter(
                 project__slug=project_slug,
@@ -340,7 +340,7 @@ class ProxitoMiddleware(MiddlewareMixin):
                 privacy_level=PUBLIC,
             ).exists()
             if allow_cors:
-                response.headers["Access-Control-Allow-Origin"] = host
+                response.headers["Access-Control-Allow-Origin"] = origin
                 response.headers["Access-Control-Allow-Methods"] = "OPTIONS, GET"
                 patch_vary_headers(response, ("origin",))
 
