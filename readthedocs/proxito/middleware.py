@@ -13,6 +13,7 @@ from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.utils.cache import patch_vary_headers
 from django.utils.deprecation import MiddlewareMixin
 
 from readthedocs.builds.models import Version
@@ -341,7 +342,7 @@ class ProxitoMiddleware(MiddlewareMixin):
             if allow_cors:
                 response.headers["Access-Control-Allow-Origin"] = host
                 response.headers["Access-Control-Allow-Methods"] = "OPTIONS, GET"
-                response.headers["Vary"] = "Origin"
+                patch_vary_headers(response, ("origin",))
 
         return response
 
