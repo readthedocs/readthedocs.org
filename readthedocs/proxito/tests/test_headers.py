@@ -191,7 +191,7 @@ class ProxitoHeaderTests(BaseDocServing):
         r = self.client.get(
             "/en/111/",
             secure=True,
-            headers={"host": "project--111.dev.readthedocs.build"},
+            headers={"origin": "project--111.dev.readthedocs.build"},
         )
         self.assertEqual(r.status_code, 200)
         self.assertIsNone(r.get("Access-Control-Allow-Origin"))
@@ -211,7 +211,7 @@ class ProxitoHeaderTests(BaseDocServing):
         r = self.client.get(
             "/en/111/",
             secure=True,
-            headers={"host": "project--111.dev.readthedocs.build"},
+            headers={"origin": "project--111.dev.readthedocs.build"},
         )
         self.assertEqual(r.status_code, 200)
         self.assertEqual(
@@ -234,7 +234,7 @@ class ProxitoHeaderTests(BaseDocServing):
         r = self.client.get(
             "/en/111/",
             secure=True,
-            headers={"host": "project--111.dev.readthedocs.build"},
+            headers={"origin": "project--111.dev.readthedocs.build"},
         )
         self.assertEqual(r.status_code, 200)
         self.assertIsNone(r.get("Access-Control-Allow-Origin"))
