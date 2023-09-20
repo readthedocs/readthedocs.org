@@ -463,3 +463,23 @@ These projects can be built using a configuration file like this:
      commands:
        - mkdir --parents $READTHEDOCS_OUTPUT/html/
        - cp --recursive docs/* $READTHEDOCS_OUTPUT/html/
+
+Asciidoc
+^^^^^^^^
+
+`Asciidoctor <https://asciidoctor.org/>`__ is a fast processor for converting and generating documentation from AsciiDoc source.
+The Asciidoctor toolchain includes `Asciidoctor.js <https://docs.asciidoctor.org/asciidoctor.js/latest/>`__ which you can use with custom build commands.
+Here is an example configuration file:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       nodejs: "20"
+     commands:
+       - npm i -g asciidoctor
+       - asciidoctor index.asciidoc
+       - mkdir -pv $READTHEDOCS_OUTPUT/html/ && mv index.html $READTHEDOCS_OUTPUT/html/
