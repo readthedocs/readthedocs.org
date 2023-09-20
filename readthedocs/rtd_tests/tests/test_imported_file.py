@@ -27,12 +27,18 @@ class ImportedFileTests(TestCase):
         with override_settings(DOCROOT=self.test_dir):
             self._copy_storage_dir()
 
-    def tearDown(self):
+        self._create_index()
+
+    def _create_index(self):
         try:
-            PageDocument().search().filter().delete()
+            PageDocument.init()
         except Exception:
-            # If there are no documents, the query fails.
+            # If the index already exists, the init fails.
             pass
+
+    def tearDown(self):
+        # Delete index
+        PageDocument._index.delete(ignore=404)
 
     def _manage_imported_files(self, version, search_ranking=None, search_ignore=None):
         """Helper function for the tests to create and sync ImportedFiles."""
