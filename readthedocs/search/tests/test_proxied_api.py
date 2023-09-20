@@ -1,4 +1,5 @@
 import pytest
+from corsheaders.middleware import ACCESS_CONTROL_ALLOW_ORIGIN
 
 from readthedocs.search.tests.test_api import BaseTestDocumentSearch
 
@@ -25,3 +26,4 @@ class TestProxiedSearchAPI(BaseTestDocumentSearch):
             f"{project.slug},{project.slug}:{version.slug},{project.slug}:rtd-search"
         )
         assert resp["Cache-Tag"] == cache_tags
+        assert ACCESS_CONTROL_ALLOW_ORIGIN not in resp.headers
