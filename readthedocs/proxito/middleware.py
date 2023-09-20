@@ -9,6 +9,10 @@ import re
 from urllib.parse import urlparse
 
 import structlog
+from corsheaders.middleware import (
+    ACCESS_CONTROL_ALLOW_METHODS,
+    ACCESS_CONTROL_ALLOW_ORIGIN,
+)
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
@@ -308,7 +312,7 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     def add_cors_headers(self, request, response):
         """
-        Add CORS headers only on PUBLIC versions.
+        Add CORS headers only to files from PUBLIC versions.
 
         DocDiff addons requires making a request from
         ``RTD_EXTERNAL_VERSION_DOMAIN`` to ``PUBLIC_DOMAIN`` to be able to
@@ -317,7 +321,23 @@ class ProxitoMiddleware(MiddlewareMixin):
         This request needs ``Access-Control-Allow-Origin`` HTTP headers to be
         accepted by browsers. However, we cannot expose these headers for
         documentation that's not PUBLIC.
+
+        We set this header to `*`, since the allowed versions are public only,
+        we don't care about the origin of the request. And we don't have the
+        need nor want to allow passing credentials from cross-origin requests.
+
+        See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin.
         """
+
+        # Disable CORS on "Read the Docs for Business" for now.
+        # We want to be pretty sure this logic is OK before enabling it there.
+        if settings.ALLOW_PRIVATE_REPOS:
+            return
+
+        # TODO: se should add these headers to files from docs only,
+        # proxied APIs and other endpoints should not have CORS headers.
+        # These attributes aren't currently set for proxied APIs, but we shuold
+        # find a better way to do this.
         project_slug = getattr(request, "path_project_slug", "")
         version_slug = getattr(request, "path_version_slug", "")
 
@@ -328,8 +348,9 @@ class ProxitoMiddleware(MiddlewareMixin):
                 privacy_level=PUBLIC,
             ).exists()
             if allow_cors:
-                response.headers["Access-Control-Allow-Origin"] = "*.readthedocs.build"
-                response.headers["Access-Control-Allow-Methods"] = "OPTIONS, GET"
+                response.headers[ACCESS_CONTROL_ALLOW_ORIGIN] = "*"
+                response.headers[ACCESS_CONTROL_ALLOW_METHODS] = "HEAD, OPTIONS, GET"
+
         return response
 
     def _get_https_redirect(self, request):
