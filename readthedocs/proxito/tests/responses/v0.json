@@ -23,6 +23,7 @@
         "type": "git",
         "url": "https://github.com/readthedocs/project"
       },
+      "single_version": false,
       "slug": "project",
       "subproject_of": null,
       "tags": ["project", "tag", "test"],
