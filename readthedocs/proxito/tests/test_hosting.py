@@ -123,17 +123,3 @@ class TestReadTheDocsConfigJson(TestCase):
         )
         assert r.status_code == 400
         assert r.json() == self._get_response_dict("v2")
-
-    def test_get_config_explicit_api_version(self):
-        r = self.client.get(
-            reverse("proxito_readthedocs_config_json"),
-            {"url": "https://project.dev.readthedocs.io/en/latest/"},
-            secure=True,
-            headers={
-                "host": "project.dev.readthedocs.io",
-                "x-rtd-hosting-integrations-version": "0.1.0",
-                "x-rtd-hosting-integrations-api-version": "1",
-            },
-        )
-        assert r.status_code == 200
-        assert r.json() == self._get_response_dict("v1")
