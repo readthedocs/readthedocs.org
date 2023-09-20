@@ -132,7 +132,10 @@ def _create_imported_files_and_search_index(
      otherwise the default one will be used.
     """
     storage_path = version.project.get_storage_path(
-        type_="html", version_slug=version.slug, include_file=False
+        type_="html",
+        version_slug=version.slug,
+        include_file=False,
+        version_type=version.type,
     )
     # A sync ID is a number different than the current `build` attribute (pending rename),
     # it's used to differentiate the files from the current sync from the previous one.
