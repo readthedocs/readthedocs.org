@@ -80,11 +80,13 @@ class TestReadTheDocsConfigJson(TestCase):
     def test_get_config_v0(self):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
-            {"url": "https://project.dev.readthedocs.io/en/latest/"},
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "api-version": "0.1.0",
+            },
             secure=True,
             headers={
                 "host": "project.dev.readthedocs.io",
-                "x-rtd-hosting-integrations-version": "0.1.0",
             },
         )
         assert r.status_code == 200
@@ -95,11 +97,13 @@ class TestReadTheDocsConfigJson(TestCase):
     def test_get_config_v1(self):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
-            {"url": "https://project.dev.readthedocs.io/en/latest/"},
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "api-version": "1.0.0",
+            },
             secure=True,
             headers={
                 "host": "project.dev.readthedocs.io",
-                "x-rtd-hosting-integrations-version": "1.0.0",
             },
         )
         assert r.status_code == 200
@@ -108,11 +112,13 @@ class TestReadTheDocsConfigJson(TestCase):
     def test_get_config_unsupported_version(self):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
-            {"url": "https://project.dev.readthedocs.io/en/latest/"},
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "api-version": "2.0.0",
+            },
             secure=True,
             headers={
                 "host": "project.dev.readthedocs.io",
-                "x-rtd-hosting-integrations-version": "2.0.0",
             },
         )
         assert r.status_code == 400

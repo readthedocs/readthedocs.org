@@ -31,17 +31,9 @@ ADDONS_VERSIONS_SUPPORTED = (0, 1)
 
 class ClientError(Exception):
     VERSION_NOT_CURRENTLY_SUPPORTED = (
-        "The version specified in 'X-RTD-Hosting-Integrations-Version' "
-        "or 'X-RTD-Hosting-Integrations-API-Version' "
-        "is currently not supported"
+        "The version specified in 'api-version' is currently not supported"
     )
-    VERSION_INVALID = (
-        "'X-RTD-Hosting-Integrations-Version' or 'X-RTD-Hosting-Integrations-API-Version' "
-        "header version is invalid"
-    )
-    VERSION_HEADER_MISSING = (
-        "'X-RTD-Hosting-Integrations-Version' header attribute is required"
-    )
+    VERSION_INVALID = "The version specifified in 'api-version' is invalid"
 
 
 class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
@@ -57,15 +49,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
       url (required): absolute URL from where the request is performed
         (e.g. ``window.location.href``)
 
-    Headers:
-
-      X-RTD-Hosting-Integrations-Version (required): javascript client version.
-        It's used by the endpoint to decide what's the JSON structure compatible with the client
-        (e.g. ``1.0.2``)
-
-      X-RTD-Hosting-Integrations-API-Version (optional): force the endpoint to return a specific
-        JSON structure in particular. Used by theme authors to keep compatibility with
-        their integration (e.g. ``1``)
+      api-version (required): API JSON structure version (e.g. ``0``, ``1``, ``2``).
     """
 
     http_method_names = ["get"]
@@ -126,30 +110,16 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 status=400,
             )
 
-        addons_version = request.headers.get("X-RTD-Hosting-Integrations-Version")
+        addons_version = request.GET.get("api-version")
         if not addons_version:
             return JsonResponse(
-                {
-                    "error": ClientError.VERSION_HEADER_MISSING,
-                },
+                {"error": "'api-version' GET attribute is required"},
                 status=400,
             )
-
-        addons_version_explicit = request.headers.get(
-            "X-RTD-Hosting-Integrations-API-Version"
-        )
         try:
             addons_version = packaging.version.parse(addons_version)
             if addons_version.major not in ADDONS_VERSIONS_SUPPORTED:
                 raise ClientError
-
-            if addons_version_explicit:
-                addons_version_explicit = packaging.version.parse(
-                    addons_version_explicit
-                )
-                if addons_version_explicit.major not in ADDONS_VERSIONS_SUPPORTED:
-                    raise ClientError
-
         except packaging.version.InvalidVersion:
             return JsonResponse(
                 {
@@ -166,7 +136,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         project, version, build, filename = self._resolve_resources()
 
         data = AddonsResponse().get(
-            addons_version_explicit or addons_version,
+            addons_version,
             project,
             version,
             build,
