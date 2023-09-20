@@ -49,8 +49,7 @@
         },
         "users": [{ "username": "testuser" }],
         "privacy_level": "public",
-        "external_builds_privacy_level": "public",
-        "single_version": false
+        "external_builds_privacy_level": "public"
       }],
       "remote_organization": {
           "avatar_url": "https://avatars.githubusercontent.com/u/366329?v=4",
