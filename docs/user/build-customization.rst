@@ -480,6 +480,5 @@ Here is an example configuration file:
      tools:
        nodejs: "20"
      commands:
-       - npm i -g asciidoctor
-       - asciidoctor index.asciidoc
-       - mkdir -pv $READTHEDOCS_OUTPUT/html/ && mv index.html $READTHEDOCS_OUTPUT/html/
+       - npm install -g asciidoctor
+       - asciidoctor -D $READTHEDOCS_OUTPUT/html index.asciidoc
