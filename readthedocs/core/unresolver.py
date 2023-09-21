@@ -335,7 +335,9 @@ class Unresolver:
 
         return project, version, filename
 
-    def _match_single_language_project(self, parent_project, path, external_version_slug=None):
+    def _match_single_language_project(
+        self, parent_project, path, external_version_slug=None
+    ):
         custom_prefix = parent_project.custom_prefix
         if custom_prefix:
             if not path.startswith(custom_prefix):

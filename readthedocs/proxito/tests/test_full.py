@@ -401,7 +401,9 @@ class TestFullDocServing(BaseDocServing):
         url = "/latest/awesome.html"
         host = "project.dev.readthedocs.io"
         resp = self.client.get(url, headers={"host": host})
-        self.assertEqual(resp["x-accel-redirect"], "/proxito/media/html/project/latest/awesome.html")
+        self.assertEqual(
+            resp["x-accel-redirect"], "/proxito/media/html/project/latest/awesome.html"
+        )
 
     def test_single_language_serving_language_like_subdir(self):
         self.project.single_language = True

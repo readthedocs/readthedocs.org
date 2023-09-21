@@ -4,30 +4,47 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0106_add_addons_config'),
+        ("projects", "0106_add_addons_config"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalproject',
-            name='single_language',
-            field=models.BooleanField(default=False, help_text='A single language project has no translations, the language will be omitted from the URL. Use this with caution, only turn it on if you will <b>never</b> have multiple translations of your docs.', null=True, verbose_name='Single language'),
+            model_name="historicalproject",
+            name="single_language",
+            field=models.BooleanField(
+                default=False,
+                help_text="A single language project has no translations, the language will be omitted from the URL. Use this with caution, only turn it on if you will <b>never</b> have multiple translations of your docs.",
+                null=True,
+                verbose_name="Single language",
+            ),
         ),
         migrations.AddField(
-            model_name='project',
-            name='single_language',
-            field=models.BooleanField(default=False, help_text='A single language project has no translations, the language will be omitted from the URL. Use this with caution, only turn it on if you will <b>never</b> have multiple translations of your docs.', null=True, verbose_name='Single language'),
+            model_name="project",
+            name="single_language",
+            field=models.BooleanField(
+                default=False,
+                help_text="A single language project has no translations, the language will be omitted from the URL. Use this with caution, only turn it on if you will <b>never</b> have multiple translations of your docs.",
+                null=True,
+                verbose_name="Single language",
+            ),
         ),
         migrations.AlterField(
-            model_name='historicalproject',
-            name='single_version',
-            field=models.BooleanField(default=False, help_text='A single version project has no translations and only your "latest" version, served at the root of the domain. Use this with caution, only turn it on if you will <b>never</b> have multiple versions or translations of your docs.', verbose_name='Single version'),
+            model_name="historicalproject",
+            name="single_version",
+            field=models.BooleanField(
+                default=False,
+                help_text='A single version project has no translations and only your "latest" version, served at the root of the domain. Use this with caution, only turn it on if you will <b>never</b> have multiple versions or translations of your docs.',
+                verbose_name="Single version",
+            ),
         ),
         migrations.AlterField(
-            model_name='project',
-            name='single_version',
-            field=models.BooleanField(default=False, help_text='A single version project has no translations and only your "latest" version, served at the root of the domain. Use this with caution, only turn it on if you will <b>never</b> have multiple versions or translations of your docs.', verbose_name='Single version'),
+            model_name="project",
+            name="single_version",
+            field=models.BooleanField(
+                default=False,
+                help_text='A single version project has no translations and only your "latest" version, served at the root of the domain. Use this with caution, only turn it on if you will <b>never</b> have multiple versions or translations of your docs.',
+                verbose_name="Single version",
+            ),
         ),
     ]
