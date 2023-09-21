@@ -244,6 +244,7 @@ class AddonsResponse:
         project_features = project.features.all().values_list("feature_id", flat=True)
 
         data = {
+            "api_version": "0",
             "comment": (
                 "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY"
                 " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
@@ -432,6 +433,7 @@ class AddonsResponse:
 
     def _v1(self, project, version, build, filename, user):
         return {
+            "api_version": "1",
             "comment": "Undefined yet. Use v0 for now",
         }
 
