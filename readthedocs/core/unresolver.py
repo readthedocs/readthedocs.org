@@ -170,6 +170,16 @@ class Unresolver:
     )
 
     # This pattern matches:
+    # - /latest
+    # - /latest/
+    # - /latest/file/name/
+    single_language_pattern = _expand_regex(
+        # The path must have a version slug,
+        # optionally followed by a filename.
+        "^/{version}(/{filename})?$"
+    )
+
+    # This pattern matches:
     # - /projects/subproject
     # - /projects/subproject/
     # - /projects/subproject/file/name/
@@ -325,6 +335,39 @@ class Unresolver:
 
         return project, version, filename
 
+    def _match_single_language_project(self, parent_project, path, external_version_slug=None):
+        custom_prefix = parent_project.custom_prefix
+        if custom_prefix:
+            if not path.startswith(custom_prefix):
+                return None
+            # pep8 and black don't agree on having a space before :,
+            # so syntax is black with noqa for pep8.
+            path = self._normalize_filename(path[len(custom_prefix) :])  # noqa
+
+        match = self.single_language_pattern.match(path)
+        if not match:
+            return None
+
+        version_slug = match.group("version")
+        filename = self._normalize_filename(match.group("filename"))
+        project = parent_project
+
+        if external_version_slug and external_version_slug != version_slug:
+            raise InvalidExternalVersionError(
+                project=project,
+                version_slug=version_slug,
+                external_version_slug=external_version_slug,
+            )
+
+        manager = EXTERNAL if external_version_slug else INTERNAL
+        version = project.versions(manager=manager).filter(slug=version_slug).first()
+        if not version:
+            raise VersionNotFoundError(
+                project=project, version_slug=version_slug, filename=filename
+            )
+
+        return project, version, filename
+
     def _match_subproject(self, parent_project, path, external_version_slug=None):
         """
         Try to match a subproject.
@@ -440,7 +483,7 @@ class Unresolver:
         :returns: A tuple with: project, version, and filename.
         """
         # Multiversion project.
-        if not parent_project.single_version:
+        if not parent_project.single_version and not parent_project.single_language:
             response = self._match_multiversion_project(
                 parent_project=parent_project,
                 path=path,
@@ -462,6 +505,16 @@ class Unresolver:
         # Single version project.
         if parent_project.single_version:
             response = self._match_single_version_project(
+                parent_project=parent_project,
+                path=path,
+                external_version_slug=external_version_slug,
+            )
+            if response:
+                return response
+
+        # Single language project.
+        if parent_project.single_language:
+            response = self._match_single_language_project(
                 parent_project=parent_project,
                 path=path,
                 external_version_slug=external_version_slug,

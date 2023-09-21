@@ -241,14 +241,28 @@ class Project(models.Model):
         blank=True,
         help_text=_('URL that documentation is expected to serve from'),
     )
+    # NOTE: single_version and single_language are mutually exclusive.
+    # single_version will have precedence over single_language.
+    # Maybe we should remove both, and have a new option field (versioning_type?).
     single_version = models.BooleanField(
         _('Single version'),
         default=False,
         help_text=_(
-            'A single version site has no translations and only your '
+            'A single version project has no translations and only your '
             '"latest" version, served at the root of the domain. Use '
             'this with caution, only turn it on if you will <b>never</b> '
-            'have multiple versions of your docs.',
+            'have multiple versions or translations of your docs.',
+        ),
+    )
+    single_language = models.BooleanField(
+        _('Single language'),
+        default=False,
+        # TODO: remove after migration.
+        null=True,
+        help_text=_(
+            'A single language project has no translations, the language will '
+            'be omitted from the URL. Use this with caution, only turn it on '
+            'if you will <b>never</b> have multiple translations of your docs.',
         ),
     )
     default_version = models.CharField(

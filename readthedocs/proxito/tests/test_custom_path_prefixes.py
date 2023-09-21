@@ -111,6 +111,42 @@ class TestCustomPathPrefixes(BaseDocServing):
             "/proxito/media/html/project/latest/api/index.html",
         )
 
+    def test_custom_prefix_single_language_project(self):
+        self.project.single_language = True
+        self.project.custom_prefix = "/custom-prefix/"
+        self.project.save()
+        host = "project.readthedocs.io"
+
+        # Root redirect.
+        resp = self.client.get("/", headers={"host": host})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["Location"], "http://project.readthedocs.io/custom-prefix/latest/"
+        )
+
+        # Trailing slash redirect
+        resp = self.client.get("/custom-prefix/latest", headers={"host": host})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["Location"], "http://project.readthedocs.io/custom-prefix/latest/"
+        )
+
+        resp = self.client.get("/custom-prefix/latest/", headers={"host": host})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/index.html",
+        )
+
+        resp = self.client.get(
+            "/custom-prefix/latest/api/index.html", headers={"host": host}
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/api/index.html",
+        )
+
     def test_custom_subproject_prefix(self):
         self.project.custom_subproject_prefix = "/custom/"
         self.project.save()

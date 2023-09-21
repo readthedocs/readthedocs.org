@@ -768,6 +768,48 @@ class ResolverTests(ResolverBase):
             url = resolve(project=self.pip)
             self.assertEqual(url, "http://pip.readthedocs.io/en/latest/")
 
+    @override_settings(
+        PUBLIC_DOMAIN="readthedocs.io",
+        USE_SUBDOMAIN=True,
+    )
+    def test_resolver_single_language(self):
+        self.pip.single_language = True
+        self.pip.save()
+
+        url = resolve(project=self.pip)
+        self.assertEqual(url, "http://pip.readthedocs.io/latest/")
+
+        url = resolve(project=self.pip, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/stable/")
+
+    @override_settings(
+        PUBLIC_DOMAIN="readthedocs.io",
+        USE_SUBDOMAIN=True,
+    )
+    def test_resolver_single_language_with_subproject(self):
+        self.pip.single_language = True
+        self.pip.save()
+
+        url = resolve(project=self.subproject)
+        self.assertEqual(url, "http://pip.readthedocs.io/projects/sub/ja/latest/")
+
+        url = resolve(project=self.subproject, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/projects/sub/ja/stable/")
+
+    @override_settings(
+        PUBLIC_DOMAIN="readthedocs.io",
+        USE_SUBDOMAIN=True,
+    )
+    def test_resolver_subproject_with_single_language(self):
+        self.subproject.single_language = True
+        self.pip.save()
+
+        url = resolve(project=self.subproject)
+        self.assertEqual(url, "http://pip.readthedocs.io/projects/sub/latest/")
+
+        url = resolve(project=self.subproject, version_slug="stable")
+        self.assertEqual(url, "http://pip.readthedocs.io/projects/sub/stable/")
+
 
 class ResolverAltSetUp:
     def setUp(self):

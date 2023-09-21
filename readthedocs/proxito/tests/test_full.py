@@ -395,6 +395,46 @@ class TestFullDocServing(BaseDocServing):
             "/proxito/media/html/project/latest/en/awesome.html",
         )
 
+    def test_single_language_serving(self):
+        self.project.single_language = True
+        self.project.save()
+        url = "/latest/awesome.html"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp["x-accel-redirect"], "/proxito/media/html/project/latest/awesome.html")
+
+    def test_single_language_serving_language_like_subdir(self):
+        self.project.single_language = True
+        self.project.save()
+        url = "/en/api/awesome.html"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 404)
+
+        self.version.slug = "en"
+        self.version.save()
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/en/api/awesome.html",
+        )
+
+    def test_single_language_serving_subprojects_like_subdir(self):
+        self.project.single_language = True
+        self.project.save()
+        url = "/projects/api/awesome.html"
+        host = "project.dev.readthedocs.io"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 404)
+
+        self.version.slug = "projects"
+        self.version.save()
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/projects/api/awesome.html",
+        )
+
 
 @override_settings(
     PUBLIC_DOMAIN="dev.readthedocs.io",

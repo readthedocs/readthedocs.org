@@ -61,6 +61,7 @@ class ResolverBase:
         version_slug=None,
         language=None,
         single_version=None,
+        single_language=None,
         project_relationship=None,
         subdomain=None,
         cname=None,
@@ -93,6 +94,8 @@ class ResolverBase:
 
         if single_version:
             path = unsafe_join_url_path(path, "{filename}")
+        elif single_language:
+            path = unsafe_join_url_path(path, "{version}/{filename}")
         else:
             path = unsafe_join_url_path(path, "{language}/{version}/{filename}")
 
@@ -112,6 +115,7 @@ class ResolverBase:
         version_slug=None,
         language=None,
         single_version=None,
+        single_language=None,
         subdomain=None,
         cname=None,
     ):
@@ -128,6 +132,7 @@ class ResolverBase:
             or parent_project.get_canonical_custom_domain()
         )
         single_version = bool(project.single_version or single_version)
+        single_language = bool(project.single_language or single_language)
 
         # If the project is a subproject, we use the custom prefix
         # of the child of the relationship, this is since the project
@@ -144,6 +149,7 @@ class ResolverBase:
             version_slug=version_slug,
             language=language,
             single_version=single_version,
+            single_language=single_language,
             project_relationship=project_relationship,
             cname=cname,
             subdomain=subdomain,
