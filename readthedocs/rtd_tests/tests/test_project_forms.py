@@ -663,6 +663,21 @@ class TestTranslationForms(TestCase):
         )
         self.assertTrue(form.is_valid())
 
+    def test_cant_add_translations_to_single_language_project(self):
+        self.project_a_es.single_language = True
+        self.project_a_es.save()
+
+        form = TranslationForm(
+            {"project": self.project_b_en.slug},
+            parent=self.project_a_es,
+            user=self.user_a,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            'This project is configured as "single language", and can\'t have translations.',
+            "".join(form.errors["__all__"]),
+        )
+
 
 class TestWebhookForm(TestCase):
     def setUp(self):
