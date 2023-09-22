@@ -23,7 +23,6 @@ from readthedocs.rtd_tests.base import RequestFactoryTestMixin, WizardTestCase
 
 @mock.patch("readthedocs.projects.tasks.builds.update_docs_task", mock.MagicMock())
 class TestImportProjectBannedUser(RequestFactoryTestMixin, TestCase):
-
     wizard_class_slug = "import_wizard_view"
     url = "/dashboard/import/manual/"
 
@@ -62,7 +61,6 @@ class TestImportProjectBannedUser(RequestFactoryTestMixin, TestCase):
 
 @mock.patch("readthedocs.projects.tasks.builds.update_docs_task", mock.MagicMock())
 class TestBasicsForm(WizardTestCase):
-
     wizard_class_slug = "import_wizard_view"
     wizard_class = ImportWizardView
     url = "/dashboard/import/manual/"

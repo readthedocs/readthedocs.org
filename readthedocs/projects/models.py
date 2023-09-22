@@ -23,7 +23,14 @@ from django_extensions.db.fields import CreationDateTimeField, ModificationDateT
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
-from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
+from readthedocs.builds.constants import (
+    BRANCH,
+    EXTERNAL,
+    INTERNAL,
+    LATEST,
+    LATEST_VERBOSE_NAME,
+    STABLE,
+)
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
@@ -118,6 +125,72 @@ class ProjectRelationship(models.Model):
         """
         prefix = self.parent.custom_subproject_prefix or "/projects/"
         return unsafe_join_url_path(prefix, self.alias, "/")
+
+
+class AddonsConfig(TimeStampedModel):
+
+    """
+    Addons project configuration.
+
+    Store all the configuration for each of the addons.
+    Everything is enabled by default.
+    """
+
+    DOC_DIFF_DEFAULT_ROOT_SELECTOR = "[role=main]"
+
+    project = models.OneToOneField(
+        "Project",
+        related_name="addons",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+
+    enabled = models.BooleanField(
+        default=True,
+        help_text="Enable/Disable all the addons on this project",
+    )
+
+    # Analytics
+    analytics_enabled = models.BooleanField(default=True)
+
+    # Docdiff
+    doc_diff_enabled = models.BooleanField(default=True)
+    doc_diff_show_additions = models.BooleanField(default=True)
+    doc_diff_show_deletions = models.BooleanField(default=True)
+    doc_diff_root_selector = models.CharField(null=True, blank=True, max_length=128)
+
+    # External version warning
+    external_version_warning_enabled = models.BooleanField(default=True)
+
+    # EthicalAds
+    ethicalads_enabled = models.BooleanField(default=True)
+
+    # Flyout
+    flyout_enabled = models.BooleanField(default=True)
+
+    # Hotkeys
+    hotkeys_enabled = models.BooleanField(default=True)
+
+    # Search
+    search_enabled = models.BooleanField(default=True)
+    search_default_filter = models.CharField(null=True, blank=True, max_length=128)
+
+    # Stable/Latest version warning
+    stable_latest_version_warning_enabled = models.BooleanField(default=True)
+
+
+class AddonSearchFilter(TimeStampedModel):
+
+    """
+    Addon search user defined filter.
+
+    Specific filter defined by the user to show on the search modal.
+    """
+
+    addons = models.ForeignKey("AddonsConfig", on_delete=models.CASCADE)
+    name = models.CharField(max_length=128)
+    syntaxt = models.CharField(max_length=128)
 
 
 class Project(models.Model):
@@ -1062,6 +1135,51 @@ class Project(models.Model):
         )
         return original_stable
 
+    def get_latest_version(self):
+        return self.versions.filter(slug=LATEST).first()
+
+    def get_original_latest_version(self):
+        """
+        Get the original version that latest points to.
+
+        When latest is machine created, it's basically an alias
+        for the default branch/tag (like main/master),
+
+        Returns None if the current default version doesn't point to a valid version.
+        """
+        default_version_name = self.get_default_branch()
+        return (
+            self.versions(manager=INTERNAL)
+            .exclude(slug=LATEST)
+            .filter(
+                verbose_name=default_version_name,
+            )
+            .first()
+        )
+
+    def update_latest_version(self):
+        """
+        If the current latest version is machine created, update it.
+
+        A machine created LATEST version is an alias for the default branch/tag,
+        so we need to update it to match the type and identifier of the default branch/tag.
+        """
+        latest = self.get_latest_version()
+        if not latest:
+            latest = self.versions.create_latest()
+        if not latest.machine:
+            return
+
+        # default_branch can be a tag or a branch name!
+        default_version_name = self.get_default_branch()
+        original_latest = self.get_original_latest_version()
+        latest.verbose_name = LATEST_VERBOSE_NAME
+        latest.type = original_latest.type if original_latest else BRANCH
+        # For latest, the identifier is the name of the branch/tag.
+        latest.identifier = default_version_name
+        latest.save()
+        return latest
+
     def update_stable_version(self):
         """
         Returns the version that was promoted to be the new stable version.
@@ -1828,6 +1946,7 @@ class Feature(models.Model):
         "addons_non_latest_version_warning_disabled"
     )
     ADDONS_SEARCH_DISABLED = "addons_search_disabled"
+    ADDONS_HOTKEYS_DISABLED = "addons_hotkeys_disabled"
 
     FEATURES = (
         (
@@ -1972,6 +2091,10 @@ class Feature(models.Model):
         (
             ADDONS_SEARCH_DISABLED,
             _("Addons: Disable Search."),
+        ),
+        (
+            ADDONS_HOTKEYS_DISABLED,
+            _("Addons: Disable Hotkeys."),
         ),
     )
 

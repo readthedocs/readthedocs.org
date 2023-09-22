@@ -22,6 +22,7 @@ from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import (
+    AddonsConfig,
     Domain,
     EmailHook,
     EnvironmentVariable,
@@ -496,6 +497,30 @@ class ProjectRelationshipForm(forms.ModelForm):
                 _('A subproject with this alias already exists'),
             )
         return alias
+
+
+class AddonsConfigForm(forms.ModelForm):
+
+    """Form to opt-in into new beta addons."""
+
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = AddonsConfig
+        fields = ("enabled", "project")
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        kwargs["instance"] = getattr(self.project, "addons", None)
+        super().__init__(*args, **kwargs)
+
+        try:
+            self.fields["enabled"].initial = self.project.addons.enabled
+        except AddonsConfig.DoesNotExist:
+            self.fields["enabled"].initial = False
+
+    def clean_project(self):
+        return self.project
 
 
 class UserForm(forms.Form):

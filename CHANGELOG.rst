@@ -1,3 +1,66 @@
+Version 10.5.0
+--------------
+
+:Date: September 18, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10744 <https://github.com/readthedocs/readthedocs.org/pull/10744>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: remove old models (`#10740 <https://github.com/readthedocs/readthedocs.org/pull/10740>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Change frequency of pageview delete code (`#10739 <https://github.com/readthedocs/readthedocs.org/pull/10739>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: add CORS headers only on public versions (`#10737 <https://github.com/readthedocs/readthedocs.org/pull/10737>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove feature flags page (`#10736 <https://github.com/readthedocs/readthedocs.org/pull/10736>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow users to opt-in into the beta addons (`#10733 <https://github.com/readthedocs/readthedocs.org/pull/10733>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: review and update the whole FAQ page. (`#10732 <https://github.com/readthedocs/readthedocs.org/pull/10732>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.4.0 (`#10727 <https://github.com/readthedocs/readthedocs.org/pull/10727>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: include `hotkeys` in API response (`#10722 <https://github.com/readthedocs/readthedocs.org/pull/10722>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: make `sphinx.configuration` in the tutorial (`#10718 <https://github.com/readthedocs/readthedocs.org/pull/10718>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: revert upgrade to `psycopg==3.x` (`#10713 <https://github.com/readthedocs/readthedocs.org/pull/10713>`__)
+* `@humitos <https://github.com/humitos>`__: FooterAPI: use `AdminPermission` when working with object users (`#10709 <https://github.com/readthedocs/readthedocs.org/pull/10709>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: stop relying on the DB when indexing (`#10696 <https://github.com/readthedocs/readthedocs.org/pull/10696>`__)
+
+Version 10.4.0
+--------------
+
+:Date: September 12, 2023
+
+* `@dependabot[bot] <https://github.com/dependabot[bot]>`__: Bump actions/checkout from 3 to 4 (`#10724 <https://github.com/readthedocs/readthedocs.org/pull/10724>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10723 <https://github.com/readthedocs/readthedocs.org/pull/10723>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: include `hotkeys` in API response (`#10722 <https://github.com/readthedocs/readthedocs.org/pull/10722>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: revert upgrade to `psycopg==3.x` (`#10713 <https://github.com/readthedocs/readthedocs.org/pull/10713>`__)
+* `@atugushev <https://github.com/atugushev>`__: Fix blog post URL (`#10712 <https://github.com/readthedocs/readthedocs.org/pull/10712>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.3.0 (`#10711 <https://github.com/readthedocs/readthedocs.org/pull/10711>`__)
+* `@humitos <https://github.com/humitos>`__: Develop: another round of `black` (`#10710 <https://github.com/readthedocs/readthedocs.org/pull/10710>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: update `build.commands` note (`#10708 <https://github.com/readthedocs/readthedocs.org/pull/10708>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow to be extended by corporate (`#10705 <https://github.com/readthedocs/readthedocs.org/pull/10705>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: add `CDN-Tags` to endpoint and auto-purge cache (`#10704 <https://github.com/readthedocs/readthedocs.org/pull/10704>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer API: include current user in queryset (`#10695 <https://github.com/readthedocs/readthedocs.org/pull/10695>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Black pass number 2 (`#10693 <https://github.com/readthedocs/readthedocs.org/pull/10693>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: remove old code (`#10642 <https://github.com/readthedocs/readthedocs.org/pull/10642>`__)
+
+Version 10.3.0
+--------------
+
+:Date: September 05, 2023
+
+* `@humitos <https://github.com/humitos>`__: Develop: another round of `black` (`#10710 <https://github.com/readthedocs/readthedocs.org/pull/10710>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow to be extended by corporate (`#10705 <https://github.com/readthedocs/readthedocs.org/pull/10705>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: add `CDN-Tags` to endpoint and auto-purge cache (`#10704 <https://github.com/readthedocs/readthedocs.org/pull/10704>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10700 <https://github.com/readthedocs/readthedocs.org/pull/10700>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: set build_data as blank=True (`#10697 <https://github.com/readthedocs/readthedocs.org/pull/10697>`__)
+* `@stsewd <https://github.com/stsewd>`__: Footer API: include current user in queryset (`#10695 <https://github.com/readthedocs/readthedocs.org/pull/10695>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Black pass number 2 (`#10693 <https://github.com/readthedocs/readthedocs.org/pull/10693>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: update docs dependencies (`#10687 <https://github.com/readthedocs/readthedocs.org/pull/10687>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: manage single version projects (`#10686 <https://github.com/readthedocs/readthedocs.org/pull/10686>`__)
+* `@stsewd <https://github.com/stsewd>`__: Delete imported files when deactivating version (`#10684 <https://github.com/readthedocs/readthedocs.org/pull/10684>`__)
+* `@stsewd <https://github.com/stsewd>`__: 404: skip not built versions (`#10681 <https://github.com/readthedocs/readthedocs.org/pull/10681>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.2.0 (`#10679 <https://github.com/readthedocs/readthedocs.org/pull/10679>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: remove non-generic parser code (`#10676 <https://github.com/readthedocs/readthedocs.org/pull/10676>`__)
+* `@stsewd <https://github.com/stsewd>`__: Automation rules: show dates in admin (`#10675 <https://github.com/readthedocs/readthedocs.org/pull/10675>`__)
+* `@humitos <https://github.com/humitos>`__: Requirements: use `psycopg3` (`#10667 <https://github.com/readthedocs/readthedocs.org/pull/10667>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: prepare the backend for the new flyout (`#10650 <https://github.com/readthedocs/readthedocs.org/pull/10650>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: remove old code (`#10642 <https://github.com/readthedocs/readthedocs.org/pull/10642>`__)
+* `@humitos <https://github.com/humitos>`__: Deprecation: remove "use system packages" (`python.system_packages` config key and UI checkbox) (`#10562 <https://github.com/readthedocs/readthedocs.org/pull/10562>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add beta version of doc diff library for testing (`#9546 <https://github.com/readthedocs/readthedocs.org/pull/9546>`__)
+
 Version 10.2.0
 --------------
 

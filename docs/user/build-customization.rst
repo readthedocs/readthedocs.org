@@ -373,9 +373,8 @@ Override the build process
 .. warning::
 
    This feature is in *beta* and could change without warning.
-   It does not yet support some of the Read the Docs' features like the :term:`flyout menu`.
-   We do our best to not break existing configurations,
-   but use this feature at your own risk.
+   We are currently testing `the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`_
+   on projects using ``build.commands`` configuration key.
 
 If your project requires full control of the build process,
 and :ref:`extending the build process <build-customization:extend the build process>` is not enough,
@@ -464,3 +463,22 @@ These projects can be built using a configuration file like this:
      commands:
        - mkdir --parents $READTHEDOCS_OUTPUT/html/
        - cp --recursive docs/* $READTHEDOCS_OUTPUT/html/
+
+Asciidoc
+^^^^^^^^
+
+`Asciidoctor <https://asciidoctor.org/>`__ is a fast processor for converting and generating documentation from AsciiDoc source.
+The Asciidoctor toolchain includes `Asciidoctor.js <https://docs.asciidoctor.org/asciidoctor.js/latest/>`__ which you can use with custom build commands.
+Here is an example configuration file:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       nodejs: "20"
+     commands:
+       - npm install -g asciidoctor
+       - asciidoctor -D $READTHEDOCS_OUTPUT/html index.asciidoc

@@ -196,7 +196,6 @@ class VersionAdminSerializer(VersionSerializer):
 
 
 class BuildCommandSerializer(serializers.ModelSerializer):
-
     run_time = serializers.ReadOnlyField()
 
     class Meta:
@@ -361,13 +360,11 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
 
 
 class ProviderSerializer(serializers.Serializer):
-
     id = serializers.CharField(max_length=20)
     name = serializers.CharField(max_length=20)
 
 
 class SocialAccountSerializer(serializers.ModelSerializer):
-
     username = serializers.SerializerMethodField()
     avatar_url = serializers.URLField(source="get_avatar_url")
     provider = ProviderSerializer(source="get_provider")

@@ -307,6 +307,53 @@ class TestSyncVersions(TestCase):
         self.assertEqual(latest_version.verbose_name, "latest")
         self.assertEqual(latest_version.machine, True)
 
+        # Latest points to the default branch/tag.
+        self.pip.default_branch = "2.6"
+        self.pip.save()
+
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=[
+                {
+                    "identifier": "master",
+                    "verbose_name": "master",
+                },
+                {
+                    "identifier": "2.6",
+                    "verbose_name": "2.6",
+                },
+            ],
+            tags_data=[],
+        )
+
+        latest_version = self.pip.versions.get(slug=LATEST)
+        self.assertEqual(latest_version.type, BRANCH)
+        self.assertEqual(latest_version.identifier, "2.6")
+        self.assertEqual(latest_version.verbose_name, "latest")
+        self.assertEqual(latest_version.machine, True)
+
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=[
+                {
+                    "identifier": "master",
+                    "verbose_name": "master",
+                },
+            ],
+            tags_data=[
+                {
+                    "identifier": "abc123",
+                    "verbose_name": "2.6",
+                }
+            ],
+        )
+
+        latest_version = self.pip.versions.get(slug=LATEST)
+        self.assertEqual(latest_version.type, TAG)
+        self.assertEqual(latest_version.identifier, "2.6")
+        self.assertEqual(latest_version.verbose_name, "latest")
+        self.assertEqual(latest_version.machine, True)
+
     def test_machine_attr_when_user_define_stable_tag_and_delete_it(self):
         """
         The user creates a tag named ``stable`` on an existing repo,
@@ -684,7 +731,8 @@ class TestSyncVersions(TestCase):
         syncing the versions, the RTD's ``latest`` is lost (set to
                                                             machine=False) and doesn't update automatically anymore, when the branch
         is deleted on the user repository, the RTD's ``latest`` is back (set to
-                                                                         machine=True)."""
+                                                                         machine=True).
+        """
         branches_data = [
             {
                 "identifier": "origin/master",
