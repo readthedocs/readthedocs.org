@@ -293,6 +293,11 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         else:
             self.fields['default_version'].widget.attrs['readonly'] = True
 
+        # Disable "per_version_settings" because they are deprecated.
+        # This fieldset will be removed in the next few weeks, after giving users some time to perform the migration.
+        for field in self.Meta.per_version_settings:
+            self.fields[field].disabled = True
+
         self.setup_external_builds_option()
 
     def setup_external_builds_option(self):
