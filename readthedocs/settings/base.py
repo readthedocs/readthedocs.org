@@ -549,20 +549,6 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
-        # We keep having celery send multiple emails,
-        # which is a terrible UX,
-        # so let's remove them for now.
-
-        # 'weekly-config-file-notification': {
-        #     'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
-        #     'schedule': crontab(day_of_week='wed', hour=11, minute=15),
-        #     'options': {'queue': 'web'},
-        # },
-        # 'weekly-build-image-notification': {
-        #     'task': 'readthedocs.projects.tasks.utils.deprecated_build_image_notification',
-        #     'schedule': crontab(day_of_week='wed', hour=9, minute=15),
-        #     'options': {'queue': 'web'},
-        # },
     }
 
     # Sentry
