@@ -24,11 +24,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.49
+boto3==1.28.53
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.49
+botocore==1.31.53
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -75,7 +75,7 @@ cron-descriptor==1.4.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==41.0.3
+cryptography==41.0.4
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -140,7 +140,7 @@ django-elasticsearch-dsl==7.3
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
-django-filter==23.2
+django-filter==23.3
     # via -r requirements/pip.txt
 django-formtools==2.3
     # via -r requirements/pip.txt
@@ -402,7 +402,7 @@ tomli==2.0.1
     #   coverage
     #   dparse
     #   pytest
-typing-extensions==4.7.1
+typing-extensions==4.8.0
     # via
     #   -r requirements/pip.txt
     #   asgiref
