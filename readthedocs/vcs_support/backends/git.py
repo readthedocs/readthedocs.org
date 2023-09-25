@@ -1,14 +1,17 @@
 """Git-related utilities."""
 
 import re
+from typing import Iterable
 
-import git
 import structlog
-from django.core.exceptions import ValidationError
-from git.exc import BadName, InvalidGitRepositoryError, NoSuchPathError
-from gitdb.util import hex_to_bin
 
-from readthedocs.builds.constants import BRANCH, EXTERNAL, TAG
+from readthedocs.builds.constants import (
+    BRANCH,
+    EXTERNAL,
+    LATEST_VERBOSE_NAME,
+    STABLE_VERBOSE_NAME,
+    TAG,
+)
 from readthedocs.config import ALL
 from readthedocs.projects.constants import (
     GITHUB_BRAND,
@@ -17,7 +20,6 @@ from readthedocs.projects.constants import (
     GITLAB_MR_PULL_PATTERN,
 )
 from readthedocs.projects.exceptions import RepositoryError
-from readthedocs.projects.validators import validate_submodule_url
 from readthedocs.vcs_support.base import BaseVCS, VCSVersion
 
 log = structlog.get_logger(__name__)
@@ -46,9 +48,6 @@ class Backend(BaseVCS):
         self.token = kwargs.get('token')
         self.repo_url = self._get_clone_url()
 
-        # While cloning, we can decide that we are not going to fetch anything
-        self._skip_fetch = False
-
     def _get_clone_url(self):
         if '://' in self.repo_url:
             hacked_url = self.repo_url.split('://')[1]
@@ -62,34 +61,14 @@ class Backend(BaseVCS):
             #     clone_url = 'git://%s' % (hacked_url)
         return self.repo_url
 
-    # TODO: Remove when removing GIT_CLONE_FETCH_CHECKOUT_PATTERN
-    def set_remote_url(self, url):
-        return self.run('git', 'remote', 'set-url', 'origin', url)
-
     def update(self):
         """Clone and/or fetch remote repository."""
         super().update()
-        from readthedocs.projects.models import Feature
 
-        if self.project.has_feature(Feature.GIT_CLONE_FETCH_CHECKOUT_PATTERN):
-            # New behavior: Clone is responsible for calling .repo_exists() and
-            # .make_clean_working_dir()
-            self.clone_ng()
-
-            # TODO: We are still using return values in this function that are legacy.
-            # This should be either explained or removed.
-            return self.fetch_ng()
-
-        # Old behavior
-        if self.repo_exists():
-            self.set_remote_url(self.repo_url)
-            return self.fetch()
-        self.make_clean_working_dir()
-        # A fetch is always required to get external versions properly
-        if self.version_type == EXTERNAL:
-            self.clone()
-            return self.fetch()
-        return self.clone()
+        self.clone()
+        # TODO: We are still using return values in this function that are legacy.
+        # This should be either explained or removed.
+        return self.fetch()
 
     def get_remote_fetch_refspec(self):
         """
@@ -100,13 +79,27 @@ class Backend(BaseVCS):
         This method sits on top of a lot of legacy design.
         It decides how to treat the incoming ``Version.identifier`` from
         knowledge of how the caller (the build process) uses build data.
+        Thi is:
 
-        Version.identifier = a branch name (branches)
-        Version.identifier = commit (tags)
-        Version.identifier = commit (external versions)
-        Version.verbose_name = branch alias, e.g. latest (branches)
-        Version.verbose_name = tag name (tags)
-        Version.verbose_name = PR number (external versions)
+        For branches:
+
+        - Version.identifier is the branch name.
+        - Version.verbose_name is also the branch name,
+          except for latest and stable (machine created),
+          where this is the alias name.
+
+        For tags:
+
+        - Version.identifier is the commit hash,
+          except for latest, where this is the tag name.
+        - Version.verbose_name is the tag name,
+          except for latest and stable (machine created),
+          where this is the alias name.
+
+        For external versions:
+
+        - Version.identifier is the commit hash.
+        - Version.verbose_name is the PR number.
 
         :return: A refspec valid for fetch operation
         """
@@ -142,12 +135,19 @@ class Backend(BaseVCS):
             # denoting that it's not a branch/tag that really exists.
             # Because we don't know if it originates from the default branch or some
             # other tagged release, we will fetch the exact commit it points to.
-            if self.version_machine and self.verbose_name == "stable":
+            if self.version_machine and self.verbose_name == STABLE_VERBOSE_NAME:
                 if self.version_identifier:
                     return f"{self.version_identifier}"
                 log.error("'stable' version without a commit hash.")
                 return None
-            return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
+
+            tag_name = self.verbose_name
+            # For a machine created "latest" tag, the name of the tag is set
+            # in the `Version.identifier` field, note that it isn't a commit
+            # hash, but the name of the tag.
+            if self.version_machine and self.verbose_name == LATEST_VERBOSE_NAME:
+                tag_name = self.version_identifier
+            return f"refs/tags/{tag_name}:refs/tags/{tag_name}"
 
         if self.version_type == EXTERNAL:
             # TODO: We should be able to resolve this without looking up in oauth registry
@@ -165,26 +165,8 @@ class Backend(BaseVCS):
                 project_slug=self.project.slug,
             )
 
-    def clone_ng(self):
-        """
-        Performs the next-generation (ng) git clone operation.
-
-        This method is used when GIT_CLONE_FETCH_CHECKOUT_PATTERN is on.
-        """
-        # TODO: This seems to be legacy that can be removed.
-        #  If the repository is already cloned, we don't do anything.
-        #  It seems to originate from when a cloned repository was cached on disk,
-        #  and so we can call call .update() several times in the same build.
-        if self.repo_exists():
-            return
-
-        # TODO: This seems to be legacy that can be removed.
-        #  There shouldn't be cases where we are asked to
-        #  clone the repo in a non-clean working directory.
-        #  The prior call to repo_exists() will return if a repo already exist with
-        #  unclear guarantees about whether that even needs to be a fully consistent clone.
-        self.make_clean_working_dir()
-
+    def clone(self):
+        """Clones the repository."""
         # TODO: We should add "--no-checkout" in all git clone operations, except:
         #  There exists a case of version_type=BRANCH without a branch name.
         #  This case is relevant for building projects for the first time without knowing the name
@@ -200,25 +182,7 @@ class Backend(BaseVCS):
         except RepositoryError as exc:
             raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
 
-    def fetch_ng(self):
-        """
-        Performs the next-generation (ng) git fetch operation.
-
-        This method is used when GIT_CLONE_FETCH_CHECKOUT_PATTERN is on.
-        """
-
-        # When git clone does NOT add --no-checkout, it's because we are going
-        # to use the remote HEAD, so we don't have to fetch nor check out.
-        if self._skip_fetch:
-            log.info(
-                "Skipping git fetch",
-                version_identifier=self.version_identifier,
-                version_machine=self.version_machine,
-                version_verbose_name=self.verbose_name,
-                version_type=self.version_type,
-            )
-            return
-
+    def fetch(self):
         # --force: Likely legacy, it seems to be irrelevant to this usage
         # --prune: Likely legacy, we don't expect a previous fetch command to have run
         # --prune-tags: Likely legacy, we don't expect a previous fetch command to have run
@@ -261,18 +225,6 @@ class Backend(BaseVCS):
         code, stdout, stderr = self.run(*cmd)
         return code, stdout, stderr
 
-    def repo_exists(self):
-        try:
-            self._repo
-        except (InvalidGitRepositoryError, NoSuchPathError):
-            return False
-        return True
-
-    @property
-    def _repo(self):
-        """Get a `git.Repo` instance from the current `self.working_dir`."""
-        return git.Repo(self.working_dir, expand_vars=False)
-
     def are_submodules_available(self, config):
         """Test whether git submodule checkout step should be performed."""
         submodules_in_config = (
@@ -282,90 +234,57 @@ class Backend(BaseVCS):
             return False
 
         # Keep compatibility with previous projects
-        return bool(self.submodules)
+        # TODO: remove when all projects are required
+        # to have a config file.
+        return any(self.submodules)
 
-    def validate_submodules(self, config):
+    def get_available_submodules(self, config) -> tuple[bool, list]:
         """
-        Returns the submodules and check that its URLs are valid.
+        Returns the submodules available to use.
 
         .. note::
 
            Always call after `self.are_submodules_available`.
 
-        :returns: tuple(bool, list)
+        Returns a tuple, the first element is a boolean indicating whether
+        the submodules are available to use, the second element is a list
+        of submodules paths, if the list is empty, it means that all
+        submodules are available.
 
-        Returns `True` if all required submodules URLs are valid.
-        Returns a list of all required submodules:
-        - Include is `ALL`, returns all submodules available.
-        - Include is a list, returns just those.
-        - Exclude is `ALL` - this should never happen.
-        - Exclude is a list, returns all available submodules
-          but those from the list.
+        The following cases are possible:
 
-        Returns `False` if at least one submodule is invalid.
-        Returns the list of invalid submodules.
+        - Include is `ALL`, returns `True` and `[]`.
+        - Include is a list, returns `True` and the list of submodules.
+        - Exclude is `ALL`, returns `False` and `[]`.
+        - Exclude is a list, returns `True` and all available submodules
+          but those from the list. If at the end there are no submodules
+          left, returns `False` and the empty list.
         """
-        submodules = {sub.path: sub for sub in self.submodules}
+        if config.submodules.exclude == ALL:
+            return False, []
 
-        for sub_path in config.submodules.exclude:
-            path = sub_path.rstrip('/')
-            if path in submodules:
-                del submodules[path]
+        if config.submodules.exclude:
+            submodules = list(self.submodules)
+            for sub_path in config.submodules.exclude:
+                path = sub_path.rstrip("/")
+                try:
+                    submodules.remove(path)
+                except ValueError:
+                    # TODO: Should we raise an error if the submodule is not found?
+                    pass
 
-        if config.submodules.include != ALL and config.submodules.include:
-            submodules_include = {}
-            for sub_path in config.submodules.include:
-                path = sub_path.rstrip('/')
-                submodules_include[path] = submodules[path]
-            submodules = submodules_include
+            # If all submodules were excluded, we don't need to do anything.
+            if not submodules:
+                return False, []
+            return True, submodules
 
-        invalid_submodules = []
-        for path, submodule in submodules.items():
-            try:
-                validate_submodule_url(submodule.url)
-            except ValidationError:
-                invalid_submodules.append(path)
+        if config.submodules.include == ALL:
+            return True, []
 
-        if invalid_submodules:
-            return False, invalid_submodules
-        return True, submodules.keys()
+        if config.submodules.include:
+            return True, config.submodules.include
 
-    def use_shallow_clone(self):
-        """
-        Test whether shallow clone should be performed.
-
-        .. note::
-
-            Temporarily, we support skipping this option as builds that rely on
-            git history can fail if using shallow clones. This should
-            eventually be configurable via the web UI.
-        """
-        from readthedocs.projects.models import Feature
-        return not self.project.has_feature(Feature.DONT_SHALLOW_CLONE)
-
-    def fetch(self):
-        # --force lets us checkout branches that are not fast-forwarded
-        # https://github.com/readthedocs/readthedocs.org/issues/6097
-        cmd = ['git', 'fetch', 'origin',
-               '--force', '--tags', '--prune', '--prune-tags']
-
-        if self.use_shallow_clone():
-            cmd.extend(['--depth', str(self.repo_depth)])
-
-        if self.verbose_name and self.version_type == EXTERNAL:
-
-            if self.project.git_provider_name == GITHUB_BRAND:
-                cmd.append(
-                    GITHUB_PR_PULL_PATTERN.format(id=self.verbose_name)
-                )
-
-            if self.project.git_provider_name == GITLAB_BRAND:
-                cmd.append(
-                    GITLAB_MR_PULL_PATTERN.format(id=self.verbose_name)
-                )
-
-        code, stdout, stderr = self.run(*cmd)
-        return code, stdout, stderr
+        return False, []
 
     def checkout_revision(self, revision):
         try:
@@ -375,39 +294,6 @@ class Backend(BaseVCS):
             raise RepositoryError(
                 RepositoryError.FAILED_TO_CHECKOUT.format(revision),
             ) from exc
-
-    def clone(self):
-        """Clones the repository."""
-        cmd = ['git', 'clone', '--no-single-branch']
-
-        if self.use_shallow_clone():
-            cmd.extend(['--depth', str(self.repo_depth)])
-
-        cmd.extend([self.repo_url, '.'])
-
-        try:
-            code, stdout, stderr = self.run(*cmd)
-
-            # TODO: for those VCS providers that don't tell us the `default_branch`
-            # of the repository in the incoming webhook,
-            # we need to get it from the cloned repository itself.
-            #
-            # cmd = ['git', 'symbolic-ref', 'refs/remotes/origin/HEAD']
-            # _, default_branch, _ = self.run(*cmd)
-            # default_branch = default_branch.replace('refs/remotes/origin/', '')
-            #
-            # The idea is to hit the APIv2 here to update the `latest` version with
-            # the `default_branch` we just got from the repository itself,
-            # after clonning it.
-            # However, we don't know the PK for the version we want to update.
-            #
-            # api_v2.version(pk).patch(
-            #     {'default_branch': default_branch}
-            # )
-
-            return code, stdout, stderr
-        except RepositoryError as exc:
-            raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
 
     def lsremote(self, include_tags=True, include_branches=True):
         """
@@ -435,7 +321,11 @@ class Backend(BaseVCS):
         all_tags = {}
         light_tags = {}
         for line in stdout.splitlines():
-            commit, ref = line.split(maxsplit=1)
+            try:
+                commit, ref = line.split(maxsplit=1)
+            except ValueError:
+                # Skip this line if we have a problem splitting the line
+                continue
             if ref.startswith("refs/heads/"):
                 branch = ref.replace("refs/heads/", "", 1)
                 branches.append(VCSVersion(self, branch, branch))
@@ -457,74 +347,70 @@ class Backend(BaseVCS):
         return branches, tags
 
     @property
-    def tags(self):
-        versions = []
-        repo = self._repo
-
-        # Build a cache of tag -> commit
-        # GitPython is not very optimized for reading large numbers of tags
-        ref_cache = {}  # 'ref/tags/<tag>' -> hexsha
-        # This code is the same that is executed for each tag in gitpython,
-        # we execute it only once for all tags.
-        for hexsha, ref in git.TagReference._iter_packed_refs(repo):
-            gitobject = git.Object.new_from_sha(repo, hex_to_bin(hexsha))
-            if gitobject.type == 'commit':
-                ref_cache[ref] = str(gitobject)
-            elif gitobject.type == 'tag' and gitobject.object.type == 'commit':
-                ref_cache[ref] = str(gitobject.object)
-
-        for tag in repo.tags:
-            if tag.path in ref_cache:
-                hexsha = ref_cache[tag.path]
-            else:
-                try:
-                    hexsha = str(tag.commit)
-                except ValueError:
-                    # ValueError: Cannot resolve commit as tag TAGNAME points to a
-                    # blob object - use the `.object` property instead to access it
-                    # This is not a real tag for us, so we skip it
-                    # https://github.com/rtfd/readthedocs.org/issues/4440
-                    log.warning('Git tag skipped.', tag=tag, exc_info=True)
-                    continue
-
-            versions.append(VCSVersion(self, hexsha, str(tag)))
-        return versions
-
-    @property
-    def branches(self):
-        repo = self._repo
-        versions = []
-        branches = []
-
-        # ``repo.remotes.origin.refs`` returns remote branches
-        if repo.remotes:
-            branches += repo.remotes.origin.refs
-
-        for branch in branches:
-            verbose_name = branch.name
-            if verbose_name.startswith("origin/"):
-                verbose_name = verbose_name.replace("origin/", "", 1)
-            if verbose_name == "HEAD":
-                continue
-            versions.append(
-                VCSVersion(
-                    repository=self,
-                    identifier=verbose_name,
-                    verbose_name=verbose_name,
-                )
-            )
-        return versions
-
-    @property
     def commit(self):
-        if self.repo_exists():
-            _, stdout, _ = self.run('git', 'rev-parse', 'HEAD', record=False)
-            return stdout.strip()
-        return None
+        _, stdout, _ = self.run("git", "rev-parse", "HEAD", record=False)
+        return stdout.strip()
 
     @property
-    def submodules(self):
-        return list(self._repo.submodules)
+    def submodules(self) -> Iterable[str]:
+        r"""
+        Return an iterable of submodule paths in this repository.
+
+        In order to get the submodules paths without initializing them,
+        we parse the .gitmodules file. For this we make use of the
+        ``git config --get-regexp`` command.
+
+        Keys and values from the config can contain spaces.
+        In order to parse the output unambiguously, we use the
+        ``--null`` option to separate each result with a null character,
+        and each key and value with a newline character.
+
+        The command will produce an output like this:
+
+        .. code-block:: text
+
+           submodule.submodule-1.path\nsubmodule-1\0
+           submodule.submodule-2.path\nsubmodule-2\0
+           submodule.submodule-4.path\n\0
+
+        .. note::
+
+           - In the example each result is put in a new line for readability.
+           - Isn't guaranteed that sub-keys will appear next to each other.
+           - Isn't guaranteed that all submodules will have a path
+             (they are probably invalid submodules).
+
+        """
+        exit_code, stdout, _ = self.run(
+            "git",
+            "config",
+            "--null",
+            "--file",
+            ".gitmodules",
+            "--get-regexp",
+            # Get only the path key of each submodule.
+            r"^submodule\..*\.path$",
+            record=False,
+        )
+        if exit_code != 0:
+            # The command fails if the project doesn't have submodules (the .gitmodules file doesn't exist).
+            return []
+
+        keys_and_values = stdout.split("\0")
+        for key_and_value in keys_and_values:
+            try:
+                key, value = key_and_value.split("\n", maxsplit=1)
+            except ValueError:
+                # This should never happen, but we log a warning just in case
+                # Git doesn't return the expected format.
+                log.warning("Wrong key and value format.", key_and_value=key_and_value)
+                continue
+
+            if key.endswith(".path"):
+                yield value
+            else:
+                # This should never happen, but we log a warning just in case the regex is wrong.
+                log.warning("Unexpected key extracted fom .gitmodules.", key=key)
 
     def checkout(self, identifier=None):
         """Checkout to identifier or latest."""
@@ -543,17 +429,19 @@ class Backend(BaseVCS):
         return code, out, err
 
     def update_submodules(self, config):
+        # TODO: just rely on get_available_submodules when
+        # not using a config file is fully deprecated.
         if self.are_submodules_available(config):
-            valid, submodules = self.validate_submodules(config)
+            valid, submodules = self.get_available_submodules(config)
             if valid:
-                self.checkout_submodules(submodules, config)
-            else:
-                raise RepositoryError(
-                    RepositoryError.INVALID_SUBMODULES.format(submodules),
-                )
+                self.checkout_submodules(submodules, config.submodules.recursive)
 
-    def checkout_submodules(self, submodules, config):
-        """Checkout all repository submodules."""
+    def checkout_submodules(self, submodules: list[str], recursive: bool):
+        """
+        Checkout all repository submodules.
+
+        If submodules is empty, all submodules will be updated.
+        """
         self.run('git', 'submodule', 'sync')
         cmd = [
             'git',
@@ -562,26 +450,26 @@ class Backend(BaseVCS):
             '--init',
             '--force',
         ]
-        if config.submodules.recursive:
-            cmd.append('--recursive')
+        if recursive:
+            cmd.append("--recursive")
+        cmd.append("--")
         cmd += submodules
         self.run(*cmd)
 
     def find_ref(self, ref):
-        # Check if ref starts with 'origin/'
+        # If the ref already starts with 'origin/',
+        # we don't need to do anything.
         if ref.startswith('origin/'):
             return ref
 
         # Check if ref is a branch of the origin remote
-        if self.ref_exists('remotes/origin/' + ref):
-            return 'origin/' + ref
+        if self.ref_exists("refs/remotes/origin/" + ref):
+            return "origin/" + ref
 
         return ref
 
     def ref_exists(self, ref):
-        try:
-            if self._repo.commit(ref):
-                return True
-        except (BadName, ValueError):
-            return False
-        return False
+        exit_code, _, _ = self.run(
+            "git", "show-ref", "--verify", "--quiet", "--", ref, record=False
+        )
+        return exit_code == 0

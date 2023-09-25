@@ -407,7 +407,7 @@ class TestBuildTask(BuildEnvironmentBase):
             expected_build_env_vars["PRIVATE_TOKEN"] = "a1b2c3"
         assert build_env_vars == expected_build_env_vars
 
-    @mock.patch("readthedocs.projects.tasks.builds.fileify")
+    @mock.patch("readthedocs.projects.tasks.builds.index_build")
     @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
@@ -420,7 +420,7 @@ class TestBuildTask(BuildEnvironmentBase):
         send_notifications,
         send_external_build_status,
         build_complete,
-        fileify,
+        index_build,
     ):
         load_yaml_config.return_value = self._config_file(
             {
@@ -481,13 +481,7 @@ class TestBuildTask(BuildEnvironmentBase):
             build=mock.ANY,
         )
 
-        fileify.delay.assert_called_once_with(
-            version_pk=self.version.pk,
-            commit=self.build.commit,
-            build=self.build.pk,
-            search_ranking=mock.ANY,
-            search_ignore=mock.ANY,
-        )
+        index_build.delay.assert_called_once_with(build_id=self.build.pk)
 
         # TODO: assert the verb and the path for each API call as well
 
@@ -516,7 +510,6 @@ class TestBuildTask(BuildEnvironmentBase):
                 "python": {
                     "version": "3",
                     "install": [],
-                    "use_system_site_packages": False,
                 },
                 "conda": None,
                 "build": {
@@ -710,11 +703,37 @@ class TestBuildTask(BuildEnvironmentBase):
 
         self.mocker.mocks["git.Backend.run"].assert_has_calls(
             [
+                mock.call("git", "clone", "--depth", "1", mock.ANY, "."),
                 mock.call(
-                    "git", "clone", "--no-single-branch", "--depth", "50", mock.ANY, "."
+                    "git",
+                    "fetch",
+                    "origin",
+                    "--force",
+                    "--prune",
+                    "--prune-tags",
+                    "--depth",
+                    "50",
                 ),
-                mock.call("git", "checkout", "--force", "a1b2c3"),
+                mock.call(
+                    "git",
+                    "show-ref",
+                    "--verify",
+                    "--quiet",
+                    "--",
+                    "refs/remotes/origin/a1b2c3",
+                    record=False,
+                ),
+                mock.call("git", "checkout", "--force", "origin/a1b2c3"),
                 mock.call("git", "clean", "-d", "-f", "-f"),
+                mock.call(
+                    "git",
+                    "ls-remote",
+                    "--tags",
+                    "--heads",
+                    mock.ANY,
+                    demux=True,
+                    record=False,
+                ),
             ]
         )
 
@@ -1412,62 +1431,6 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_system_site_packages(self, load_yaml_config):
-        load_yaml_config.return_value = self._config_file(
-            {
-                "version": 2,
-                "python": {
-                    "system_packages": True,
-                },
-            },
-        )
-
-        self._trigger_update_docs_task()
-
-        self.mocker.mocks["environment.run"].assert_has_calls(
-            [
-                mock.call(
-                    "python3.7",
-                    "-mvirtualenv",
-                    "--system-site-packages",  # expected flag
-                    mock.ANY,
-                    bin_path=None,
-                    cwd=None,
-                ),
-            ]
-        )
-
-    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
-    def test_system_site_packages_project_overrides(self, load_yaml_config):
-        load_yaml_config.return_value = self._config_file(
-            {
-                "version": 2,
-                # Do not define `system_packages: True` in the config file.
-                "python": {},
-            },
-        )
-
-        # Override the setting in the Project object
-        self.project.use_system_packages = True
-        self.project.save()
-
-        self._trigger_update_docs_task()
-
-        self.mocker.mocks["environment.run"].assert_has_calls(
-            [
-                mock.call(
-                    "python3.7",
-                    "-mvirtualenv",
-                    # we don't expect this flag to be here
-                    # '--system-site-packages'
-                    mock.ANY,
-                    bin_path=None,
-                    cwd=None,
-                ),
-            ]
-        )
-
-    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_python_install_setuptools(self, load_yaml_config):
         load_yaml_config.return_value = self._config_file(
             {
@@ -1642,7 +1605,7 @@ class TestBuildTask(BuildEnvironmentBase):
     @pytest.mark.parametrize(
         "value,expected",
         [
-            (ALL, ["one", "two", "three"]),
+            (ALL, []),
             (["one", "two"], ["one", "two"]),
         ],
     )
@@ -1662,7 +1625,9 @@ class TestBuildTask(BuildEnvironmentBase):
         self.mocker.mocks["git.Backend.run"].assert_has_calls(
             [
                 mock.call("git", "submodule", "sync"),
-                mock.call("git", "submodule", "update", "--init", "--force", *expected),
+                mock.call(
+                    "git", "submodule", "update", "--init", "--force", "--", *expected
+                ),
             ]
         )
 
@@ -1687,6 +1652,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--init",
                     "--force",
                     "--recursive",
+                    "--",
                     "two",
                     "three",
                 ),

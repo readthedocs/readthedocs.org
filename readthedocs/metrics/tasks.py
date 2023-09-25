@@ -18,23 +18,21 @@ from readthedocsext.monitoring.metrics.tasks import Metrics1mTaskBase, Metrics5m
 
 
 class CommunityMetrics1mTask(Metrics1mTaskBase):
-
     metrics = Metrics1mTaskBase.metrics + [
-        RedislenMetric(queue_name='build-large'),
-        RunningBuildsMetric(builder='large'),
-        ConcurrencyLimitedBuildsMetric(builder='large'),
+        RedislenMetric(queue_name="build-large"),
+        RunningBuildsMetric(builder="large"),
+        ConcurrencyLimitedBuildsMetric(builder="large"),
     ]
 
 
 class CommunityMetrics5mTask(Metrics5mTaskBase):
-
     metrics = Metrics5mTaskBase.metrics + [
         AvgBuildTimeMetric(
-            builder='large',
+            builder="large",
             minutes=Metrics5mTaskBase.interval,
         ),
         AvgBuildTriggeredAndFirstCommandTimeMetric(
-            builder='large',
+            builder="large",
             minutes=Metrics5mTaskBase.interval,
         ),
         BuildLatencyMetric(

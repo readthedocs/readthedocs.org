@@ -3,7 +3,6 @@ import fnmatch
 import hashlib
 import hmac
 import os
-import re
 from shlex import quote
 from urllib.parse import urlparse
 
@@ -15,18 +14,23 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Prefetch
-from django.urls import include, re_path, reverse
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
-from django.views import defaults
 from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
-from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
-from readthedocs.constants import pattern_opts
+from readthedocs.builds.constants import (
+    BRANCH,
+    EXTERNAL,
+    INTERNAL,
+    LATEST,
+    LATEST_VERBOSE_NAME,
+    STABLE,
+)
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
@@ -51,17 +55,11 @@ from readthedocs.projects.validators import (
     validate_repository_url,
 )
 from readthedocs.projects.version_handling import determine_stable_version
-from readthedocs.search.parsers import GenericParser, SphinxParser
+from readthedocs.search.parsers import GenericParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
-from .constants import (
-    DOWNLOADABLE_MEDIA_TYPES,
-    MEDIA_TYPE_EPUB,
-    MEDIA_TYPE_HTMLZIP,
-    MEDIA_TYPE_PDF,
-    MEDIA_TYPES,
-)
+from .constants import DOWNLOADABLE_MEDIA_TYPES, MEDIA_TYPES
 
 log = structlog.get_logger(__name__)
 
@@ -127,6 +125,72 @@ class ProjectRelationship(models.Model):
         """
         prefix = self.parent.custom_subproject_prefix or "/projects/"
         return unsafe_join_url_path(prefix, self.alias, "/")
+
+
+class AddonsConfig(TimeStampedModel):
+
+    """
+    Addons project configuration.
+
+    Store all the configuration for each of the addons.
+    Everything is enabled by default.
+    """
+
+    DOC_DIFF_DEFAULT_ROOT_SELECTOR = "[role=main]"
+
+    project = models.OneToOneField(
+        "Project",
+        related_name="addons",
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+    )
+
+    enabled = models.BooleanField(
+        default=True,
+        help_text="Enable/Disable all the addons on this project",
+    )
+
+    # Analytics
+    analytics_enabled = models.BooleanField(default=True)
+
+    # Docdiff
+    doc_diff_enabled = models.BooleanField(default=True)
+    doc_diff_show_additions = models.BooleanField(default=True)
+    doc_diff_show_deletions = models.BooleanField(default=True)
+    doc_diff_root_selector = models.CharField(null=True, blank=True, max_length=128)
+
+    # External version warning
+    external_version_warning_enabled = models.BooleanField(default=True)
+
+    # EthicalAds
+    ethicalads_enabled = models.BooleanField(default=True)
+
+    # Flyout
+    flyout_enabled = models.BooleanField(default=True)
+
+    # Hotkeys
+    hotkeys_enabled = models.BooleanField(default=True)
+
+    # Search
+    search_enabled = models.BooleanField(default=True)
+    search_default_filter = models.CharField(null=True, blank=True, max_length=128)
+
+    # Stable/Latest version warning
+    stable_latest_version_warning_enabled = models.BooleanField(default=True)
+
+
+class AddonSearchFilter(TimeStampedModel):
+
+    """
+    Addon search user defined filter.
+
+    Specific filter defined by the user to show on the search modal.
+    """
+
+    addons = models.ForeignKey("AddonsConfig", on_delete=models.CASCADE)
+    name = models.CharField(max_length=128)
+    syntaxt = models.CharField(max_length=128)
 
 
 class Project(models.Model):
@@ -228,18 +292,6 @@ class Project(models.Model):
             'Type of documentation you are building. <a href="'
             'http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html.'
             'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
-        ),
-    )
-    # NOTE: This is deprecated, use the `custom_prefix*` attributes instead.
-    urlconf = models.CharField(
-        _('Documentation URL Configuration'),
-        max_length=255,
-        default=None,
-        blank=True,
-        null=True,
-        help_text=_(
-            'Supports the following keys: $language, $version, $subproject, $filename. '
-            'An example: `$language/$version/$filename`.'
         ),
     )
 
@@ -454,11 +506,12 @@ class Project(models.Model):
         ),
     )
 
+    # TODO: remove `use_system_packages` after deploying.
+    # This field is not used anymore.
     use_system_packages = models.BooleanField(
-        _('Use system packages'),
+        _("Use system packages"),
         help_text=_(
-            'Give the virtual environment access to the global '
-            'site-packages dir.',
+            "Give the virtual environment access to the global site-packages dir.",
         ),
         default=False,
     )
@@ -693,11 +746,9 @@ class Project(models.Model):
         This needs to start with a slash at the root of the domain,
         and end without a slash
         """
-        if self.urlconf:
-            # Add our proxied api host at the first place we have a $variable
-            # This supports both subpaths & normal root hosting
-            path_prefix = self.custom_path_prefix
-            return unsafe_join_url_path(path_prefix, "/_")
+        custom_prefix = self.proxied_api_prefix
+        if custom_prefix:
+            return unsafe_join_url_path(custom_prefix, "/_")
         return '/_'
 
     @property
@@ -715,16 +766,22 @@ class Project(models.Model):
         return f"{self.proxied_api_host}/static/"
 
     @property
-    def custom_path_prefix(self):
+    def proxied_api_prefix(self):
         """
-        Get the path prefix from the custom urlconf.
+        Get the path prefix for proxied API paths (``/_/``).
 
-        Returns `None` if the project doesn't have a custom urlconf.
+        Returns `None` if the project doesn't have a custom prefix.
         """
-        if self.urlconf:
-            # Return the value before the first defined variable,
-            # as that is a prefix and not part of our normal doc patterns.
-            return self.urlconf.split("$", 1)[0]
+        # When using a custom prefix, we can only handle serving
+        # docs pages under the prefix, not special paths like `/_/`.
+        # Projects using the old implementation, need to proxy `/_/`
+        # paths as is, this is, without the prefix, while those projects
+        # migrate to the new implementation, we will prefix special paths
+        # when generating links, these paths will be manually un-prefixed in nginx.
+        if self.custom_prefix and self.has_feature(
+            Feature.USE_PROXIED_APIS_WITH_PREFIX
+        ):
+            return self.custom_prefix
         return None
 
     @cached_property
@@ -742,111 +799,6 @@ class Project(models.Model):
         if not parent_relationship:
             return None
         return parent_relationship.subproject_prefix
-
-    @property
-    def regex_urlconf(self):
-        """
-        Convert User's URLConf into a proper django URLConf.
-
-        This replaces the user-facing syntax with the regex syntax.
-        """
-        to_convert = re.escape(self.urlconf)
-
-        # We should standardize these names so we can loop over them easier
-        to_convert = to_convert.replace(
-            '\\$version',
-            '(?P<version_slug>{regex})'.format(regex=pattern_opts['version_slug'])
-        )
-        to_convert = to_convert.replace(
-            '\\$language',
-            '(?P<lang_slug>{regex})'.format(regex=pattern_opts['lang_slug'])
-        )
-        to_convert = to_convert.replace(
-            '\\$filename',
-            '(?P<filename>{regex})'.format(regex=pattern_opts['filename_slug'])
-        )
-        to_convert = to_convert.replace(
-            '\\$subproject',
-            '(?P<subproject_slug>{regex})'.format(regex=pattern_opts['project_slug'])
-        )
-
-        if '\\$' in to_convert:
-            log.warning(
-                'Unconverted variable in a project URLConf.',
-                project_slug=self.slug,
-                to_convert=to_convert,
-            )
-        return to_convert
-
-    @property
-    def proxito_urlconf(self):
-        """
-        Returns a URLConf class that is dynamically inserted via proxito.
-
-        It is used for doc serving on projects that have their own ``urlconf``.
-        """
-        from readthedocs.projects.views.public import ProjectDownloadMedia
-        from readthedocs.proxito.urls import core_urls
-        from readthedocs.proxito.views.serve import ServeDocs, ServeStaticFiles
-        from readthedocs.proxito.views.utils import proxito_404_page_handler
-
-        class ProxitoURLConf:
-
-            """A URLConf dynamically inserted by Proxito."""
-
-            proxied_urls = [
-                re_path(
-                    r'{proxied_api_url}api/v2/'.format(
-                        proxied_api_url=re.escape(self.proxied_api_url),
-                    ),
-                    include('readthedocs.api.v2.proxied_urls'),
-                    name='user_proxied_api'
-                ),
-                re_path(
-                    r'{proxied_api_url}downloads/'
-                    r'(?P<lang_slug>{lang_slug})/'
-                    r'(?P<version_slug>{version_slug})/'
-                    r'(?P<type_>[-\w]+)/$'.format(
-                        proxied_api_url=re.escape(self.proxied_api_url),
-                        **pattern_opts),
-                    ProjectDownloadMedia.as_view(same_domain_url=True),
-                    name='user_proxied_downloads'
-                ),
-                re_path(
-                    r"{proxied_api_url}static/"
-                    r"(?P<filename>{filename_slug})$".format(
-                        proxied_api_url=re.escape(self.proxied_api_url),
-                        **pattern_opts,
-                    ),
-                    ServeStaticFiles.as_view(),
-                    name="proxito_static_files",
-                ),
-            ]
-            docs_urls = [
-                re_path(
-                    '^{regex_urlconf}$'.format(regex_urlconf=self.regex_urlconf),
-                    ServeDocs.as_view(),
-                    name='user_proxied_serve_docs'
-                ),
-                # paths for redirects at the root
-                re_path(
-                    '^{proxied_api_url}$'.format(
-                        proxied_api_url=re.escape(self.urlconf.split('$', 1)[0]),
-                    ),
-                    ServeDocs.as_view(),
-                    name='user_proxied_serve_docs_subpath_redirect'
-                ),
-                re_path(
-                    '^(?P<filename>{regex})$'.format(regex=pattern_opts['filename_slug']),
-                    ServeDocs.as_view(),
-                    name='user_proxied_serve_docs_root_redirect'
-                ),
-            ]
-            urlpatterns = proxied_urls + core_urls + docs_urls
-            handler404 = proxito_404_page_handler
-            handler500 = defaults.server_error
-
-        return ProxitoURLConf
 
     @cached_property
     def is_subproject(self):
@@ -965,34 +917,6 @@ class Project(models.Model):
         if hasattr(self, '_good_build'):
             return self._good_build
         return self.builds(manager=INTERNAL).filter(success=True).exists()
-
-    def has_media(self, type_, version_slug=LATEST, version_type=None):
-        storage_path = self.get_storage_path(
-            type_=type_, version_slug=version_slug,
-            version_type=version_type
-        )
-        return build_media_storage.exists(storage_path)
-
-    def has_pdf(self, version_slug=LATEST, version_type=None):
-        return self.has_media(
-            MEDIA_TYPE_PDF,
-            version_slug=version_slug,
-            version_type=version_type
-        )
-
-    def has_epub(self, version_slug=LATEST, version_type=None):
-        return self.has_media(
-            MEDIA_TYPE_EPUB,
-            version_slug=version_slug,
-            version_type=version_type
-        )
-
-    def has_htmlzip(self, version_slug=LATEST, version_type=None):
-        return self.has_media(
-            MEDIA_TYPE_HTMLZIP,
-            version_slug=version_slug,
-            version_type=version_type
-        )
 
     def vcs_repo(
         self,
@@ -1168,7 +1092,12 @@ class Project(models.Model):
         """
         Get the original version that stable points to.
 
-        Returns None if the current stable doesn't point to a valid version.
+        When stable is machine created, it's basically an alias
+        for the latest stable version (like 2.2),
+        that version is the "original" one.
+
+        Returns None if the current stable doesn't point to a valid version
+        or if isn't machine created.
         """
         current_stable = self.get_stable_version()
         if not current_stable or not current_stable.machine:
@@ -1180,6 +1109,51 @@ class Project(models.Model):
             .filter(identifier=current_stable.identifier)
         )
         return original_stable
+
+    def get_latest_version(self):
+        return self.versions.filter(slug=LATEST).first()
+
+    def get_original_latest_version(self):
+        """
+        Get the original version that latest points to.
+
+        When latest is machine created, it's basically an alias
+        for the default branch/tag (like main/master),
+
+        Returns None if the current default version doesn't point to a valid version.
+        """
+        default_version_name = self.get_default_branch()
+        return (
+            self.versions(manager=INTERNAL)
+            .exclude(slug=LATEST)
+            .filter(
+                verbose_name=default_version_name,
+            )
+            .first()
+        )
+
+    def update_latest_version(self):
+        """
+        If the current latest version is machine created, update it.
+
+        A machine created LATEST version is an alias for the default branch/tag,
+        so we need to update it to match the type and identifier of the default branch/tag.
+        """
+        latest = self.get_latest_version()
+        if not latest:
+            latest = self.versions.create_latest()
+        if not latest.machine:
+            return
+
+        # default_branch can be a tag or a branch name!
+        default_version_name = self.get_default_branch()
+        original_latest = self.get_original_latest_version()
+        latest.verbose_name = LATEST_VERBOSE_NAME
+        latest.type = original_latest.type if original_latest else BRANCH
+        # For latest, the identifier is the name of the branch/tag.
+        latest.identifier = default_version_name
+        latest.save()
+        return latest
 
     def update_stable_version(self):
         """
@@ -1199,18 +1173,19 @@ class Project(models.Model):
         new_stable = determine_stable_version(versions)
         if new_stable:
             if current_stable:
-                identifier_updated = (
+                version_updated = (
                     new_stable.identifier != current_stable.identifier
+                    or new_stable.type != current_stable.type
                 )
-                if identifier_updated:
+                if version_updated:
                     log.info(
-                        'Update stable version: %(project)s:%(version)s',
-                        {
-                            'project': self.slug,
-                            'version': new_stable.identifier,
-                        }
+                        "Stable version updated.",
+                        project_slug=self.slug,
+                        version_identifier=new_stable.identifier,
+                        version_type=new_stable.type,
                     )
                     current_stable.identifier = new_stable.identifier
+                    current_stable.type = new_stable.type
                     current_stable.save()
                     return new_stable
             else:
@@ -1536,23 +1511,7 @@ class HTMLFile(ImportedFile):
     objects = HTMLFileManager()
 
     def get_processed_json(self):
-        if (
-            self.version.documentation_type == constants.GENERIC
-            or self.version.is_mkdocs_type
-            or self.project.has_feature(Feature.INDEX_FROM_HTML_FILES)
-        ):
-            parser_class = GenericParser
-        elif self.version.is_sphinx_type:
-            parser_class = SphinxParser
-        else:
-            log.warning(
-                "Invalid documentation type",
-                documentation_type=self.version.documentation_type,
-                version_slug=self.version.slug,
-                project_slug=self.project.slug,
-            )
-            return {}
-        parser = parser_class(self.version)
+        parser = GenericParser(self.version)
         return parser.parse(self.path)
 
     @cached_property
@@ -1884,7 +1843,7 @@ class HTTPHeader(TimeStampedModel, models.Model):
         max_length=128,
         choices=HEADERS_CHOICES,
     )
-    value = models.CharField(max_length=256)
+    value = models.CharField(max_length=4096)
     only_if_secure_request = models.BooleanField(
         help_text='Only set this header if the request is secure (HTTPS)',
     )
@@ -1911,11 +1870,8 @@ class Feature(models.Model):
 
     # Feature constants - this is not a exhaustive list of features, features
     # may be added by other packages
-    SKIP_SPHINX_HTML_THEME_PATH = "skip_sphinx_html_theme_path"
     MKDOCS_THEME_RTD = "mkdocs_theme_rtd"
     API_LARGE_DATA = "api_large_data"
-    DONT_SHALLOW_CLONE = "dont_shallow_clone"
-    UPDATE_CONDA_STARTUP = "update_conda_startup"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     CDN_ENABLED = "cdn_enabled"
@@ -1923,7 +1879,7 @@ class Feature(models.Model):
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
-    USE_UNRESOLVER_WITH_PROXITO = "use_unresolver_with_proxito"
+    USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
     ALLOW_VERSION_WARNING_BANNER = "allow_version_warning_banner"
 
     # Versions sync related features
@@ -1943,36 +1899,37 @@ class Feature(models.Model):
     DISABLE_SERVER_SIDE_SEARCH = 'disable_server_side_search'
     ENABLE_MKDOCS_SERVER_SIDE_SEARCH = 'enable_mkdocs_server_side_search'
     DEFAULT_TO_FUZZY_SEARCH = 'default_to_fuzzy_search'
-    INDEX_FROM_HTML_FILES = 'index_from_html_files'
 
     # Build related features
-    GIT_CLONE_FETCH_CHECKOUT_PATTERN = "git_clone_fetch_checkout_pattern"
-    HOSTING_INTEGRATIONS = "hosting_integrations"
-    NO_CONFIG_FILE_DEPRECATED = "no_config_file"
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
+    # Addons related features
+    HOSTING_INTEGRATIONS = "hosting_integrations"
+    # NOTE: this is mainly temporal while we are rolling these features out.
+    # The idea here is to have more control over particular projects and do some testing.
+    # All these features will be enabled by default to all projects,
+    # and we can disable them if we want to
+    ADDONS_ANALYTICS_DISABLED = "addons_analytics_disabled"
+    ADDONS_DOC_DIFF_DISABLED = "addons_doc_diff_disabled"
+    ADDONS_ETHICALADS_DISABLED = "addons_ethicalads_disabled"
+    ADDONS_EXTERNAL_VERSION_WARNING_DISABLED = (
+        "addons_external_version_warning_disabled"
+    )
+    ADDONS_FLYOUT_DISABLED = "addons_flyout_disabled"
+    ADDONS_NON_LATEST_VERSION_WARNING_DISABLED = (
+        "addons_non_latest_version_warning_disabled"
+    )
+    ADDONS_SEARCH_DISABLED = "addons_search_disabled"
+    ADDONS_HOTKEYS_DISABLED = "addons_hotkeys_disabled"
+
     FEATURES = (
-        (
-            SKIP_SPHINX_HTML_THEME_PATH,
-            _(
-                "Sphinx: Do not define html_theme_path on Sphinx < 6.0",
-            ),
-        ),
         (
             MKDOCS_THEME_RTD,
             _("MkDocs: Use Read the Docs theme for MkDocs as default theme"),
         ),
         (
-            DONT_SHALLOW_CLONE,
-            _("Build: Do not shallow clone when cloning git repos"),
-        ),
-        (
             API_LARGE_DATA,
             _("Build: Try alternative method of posting large data"),
-        ),
-        (
-            UPDATE_CONDA_STARTUP,
-            _("Conda: Upgrade conda before creating the environment"),
         ),
         (
             CONDA_APPEND_CORE_REQUIREMENTS,
@@ -2009,9 +1966,9 @@ class Feature(models.Model):
             _("Proxito: Allow usage of the X-RTD-Slug header"),
         ),
         (
-            USE_UNRESOLVER_WITH_PROXITO,
+            USE_PROXIED_APIS_WITH_PREFIX,
             _(
-                "Proxito: Use new unresolver implementation for serving documentation files."
+                "Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has one (Project.custom_prefix)."
             ),
         ),
         (
@@ -2065,19 +2022,12 @@ class Feature(models.Model):
             DEFAULT_TO_FUZZY_SEARCH,
             _("Search: Default to fuzzy search for simple search queries"),
         ),
+        # Build related features.
         (
-            INDEX_FROM_HTML_FILES,
-            _(
-                "Search: Index content directly from html files instead or relying in other "
-                "sources"
-            ),
+            SCALE_IN_PROTECTION,
+            _("Build: Set scale-in protection before/after building."),
         ),
-        (
-            GIT_CLONE_FETCH_CHECKOUT_PATTERN,
-            _(
-                "Build: Use simplified and optimized git clone + git fetch + git checkout patterns"
-            ),
-        ),
+        # Addons related features.
         (
             HOSTING_INTEGRATIONS,
             _(
@@ -2085,12 +2035,36 @@ class Feature(models.Model):
             ),
         ),
         (
-            NO_CONFIG_FILE_DEPRECATED,
-            _("Build: Building without a configuration file is deprecated."),
+            ADDONS_ANALYTICS_DISABLED,
+            _("Addons: Disable Analytics."),
         ),
         (
-            SCALE_IN_PROTECTION,
-            _("Build: Set scale-in protection before/after building."),
+            ADDONS_DOC_DIFF_DISABLED,
+            _("Addons: Disable Doc Diff."),
+        ),
+        (
+            ADDONS_ETHICALADS_DISABLED,
+            _("Addons: Disable EthicalAds."),
+        ),
+        (
+            ADDONS_EXTERNAL_VERSION_WARNING_DISABLED,
+            _("Addons: Disable External version warning."),
+        ),
+        (
+            ADDONS_FLYOUT_DISABLED,
+            _("Addons: Disable Flyout."),
+        ),
+        (
+            ADDONS_NON_LATEST_VERSION_WARNING_DISABLED,
+            _("Addons: Disable Non latest version warning."),
+        ),
+        (
+            ADDONS_SEARCH_DISABLED,
+            _("Addons: Disable Search."),
+        ),
+        (
+            ADDONS_HOTKEYS_DISABLED,
+            _("Addons: Disable Hotkeys."),
         ),
     )
 

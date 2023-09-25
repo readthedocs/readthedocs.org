@@ -12,25 +12,25 @@ from readthedocs.projects.models import Domain, Project
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    canonical_url = serializers.ReadOnlyField(source='get_docs_url')
+    canonical_url = serializers.ReadOnlyField(source="get_docs_url")
 
     class Meta:
         model = Project
         fields = (
-            'id',
-            'name',
-            'slug',
-            'description',
-            'language',
-            'programming_language',
-            'repo',
-            'repo_type',
-            'default_version',
-            'default_branch',
-            'documentation_type',
-            'users',
-            'canonical_url',
-            'urlconf',
+            "id",
+            "name",
+            "slug",
+            "description",
+            "language",
+            "programming_language",
+            "repo",
+            "repo_type",
+            "default_version",
+            "default_branch",
+            "documentation_type",
+            "users",
+            "canonical_url",
+            "custom_prefix",
         )
 
 
@@ -46,7 +46,7 @@ class ProjectAdminSerializer(ProjectSerializer):
     features = serializers.SlugRelatedField(
         many=True,
         read_only=True,
-        slug_field='feature_id',
+        slug_field="feature_id",
     )
 
     environment_variables = serializers.SerializerMethodField()
@@ -83,7 +83,6 @@ class ProjectAdminSerializer(ProjectSerializer):
             "container_mem_limit",
             "container_time_limit",
             "install_project",
-            "use_system_packages",
             "skip",
             "requirements_file",
             "python_interpreter",
@@ -125,7 +124,7 @@ class VersionSerializer(serializers.ModelSerializer):
     project = serializers.SerializerMethodField()
     project_serializer_class = ProjectSerializer
 
-    downloads = serializers.DictField(source='get_downloads', read_only=True)
+    downloads = serializers.DictField(source="get_downloads", read_only=True)
 
     class Meta:
         model = Version
@@ -197,7 +196,6 @@ class VersionAdminSerializer(VersionSerializer):
 
 
 class BuildCommandSerializer(serializers.ModelSerializer):
-
     run_time = serializers.ReadOnlyField()
 
     class Meta:
@@ -249,11 +247,11 @@ class BuildSerializer(serializers.ModelSerializer):
     """
 
     commands = BuildCommandReadOnlySerializer(many=True, read_only=True)
-    project_slug = serializers.ReadOnlyField(source='project.slug')
-    version_slug = serializers.ReadOnlyField(source='get_version_slug')
+    project_slug = serializers.ReadOnlyField(source="project.slug")
+    version_slug = serializers.ReadOnlyField(source="get_version_slug")
     docs_url = serializers.SerializerMethodField()
-    state_display = serializers.ReadOnlyField(source='get_state_display')
-    commit_url = serializers.ReadOnlyField(source='get_commit_url')
+    state_display = serializers.ReadOnlyField(source="get_state_display")
+    commit_url = serializers.ReadOnlyField(source="get_commit_url")
     # Jsonfield needs an explicit serializer
     # https://github.com/dmkoch/django-jsonfield/issues/188#issuecomment-300439829
     config = serializers.JSONField(required=False, allow_null=True)
@@ -261,7 +259,7 @@ class BuildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Build
         # `_config` should be excluded to avoid conflicts with `config`
-        exclude = ('builder', '_config')
+        exclude = ("builder", "_config")
 
     def get_docs_url(self, obj):
         if obj.version:
@@ -282,7 +280,7 @@ class BuildAdminSerializer(BuildSerializer):
 
     class Meta(BuildSerializer.Meta):
         # `_config` should be excluded to avoid conflicts with `config`
-        exclude = ('_config',)
+        exclude = ("_config",)
 
 
 class BuildAdminReadOnlySerializer(BuildAdminSerializer):
@@ -310,20 +308,22 @@ class DomainSerializer(serializers.ModelSerializer):
     class Meta:
         model = Domain
         fields = (
-            'id',
-            'project',
-            'domain',
-            'canonical',
-            'machine',
-            'cname',
+            "id",
+            "project",
+            "domain",
+            "canonical",
+            "machine",
+            "cname",
         )
 
 
 class RemoteOrganizationSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = RemoteOrganization
-        exclude = ('email', 'users',)
+        exclude = (
+            "email",
+            "users",
+        )
 
 
 class RemoteRepositorySerializer(serializers.ModelSerializer):
@@ -334,22 +334,22 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
 
     # This field does create an additional query per object returned
     matches = serializers.SerializerMethodField()
-    admin = serializers.SerializerMethodField('is_admin')
+    admin = serializers.SerializerMethodField("is_admin")
 
     class Meta:
         model = RemoteRepository
-        exclude = ('users',)
+        exclude = ("users",)
 
     def get_matches(self, obj):
-        request = self.context['request']
+        request = self.context["request"]
         if request.user is not None and request.user.is_authenticated:
             return obj.matches(request.user)
 
     def is_admin(self, obj):
-        request = self.context['request']
+        request = self.context["request"]
 
         # Use annotated value from RemoteRepositoryViewSet queryset
-        if hasattr(obj, 'admin'):
+        if hasattr(obj, "admin"):
             return obj.admin
 
         if request.user and request.user.is_authenticated:
@@ -360,23 +360,22 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
 
 
 class ProviderSerializer(serializers.Serializer):
-
     id = serializers.CharField(max_length=20)
     name = serializers.CharField(max_length=20)
 
 
 class SocialAccountSerializer(serializers.ModelSerializer):
-
     username = serializers.SerializerMethodField()
-    avatar_url = serializers.URLField(source='get_avatar_url')
-    provider = ProviderSerializer(source='get_provider')
+    avatar_url = serializers.URLField(source="get_avatar_url")
+    provider = ProviderSerializer(source="get_provider")
 
     class Meta:
         model = SocialAccount
-        exclude = ('extra_data',)
+        exclude = ("extra_data",)
 
     def get_username(self, obj):
         return (
-            obj.extra_data.get('username') or obj.extra_data.get('login')
+            obj.extra_data.get("username")
+            or obj.extra_data.get("login")
             # FIXME: which one is GitLab?
         )

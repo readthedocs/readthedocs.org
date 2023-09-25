@@ -8,13 +8,12 @@ from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
 from readthedocs.subscriptions.constants import TYPE_CNAME
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @override_settings(
     PUBLIC_DOMAIN="readthedocs.org",
-    RTD_DEFAULT_FEATURES={
-        TYPE_CNAME: 1,
-    },
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
 )
 class ResolverBase(TestCase):
     def setUp(self):
@@ -190,22 +189,6 @@ class SmartResolverPathTests(ResolverBase):
         with override_settings(USE_SUBDOMAIN=True):
             url = resolve_path(project=self.translation, filename="index.html")
             self.assertEqual(url, "/ja/latest/index.html")
-
-    def test_resolver_urlconf(self):
-        url = resolve_path(
-            project=self.translation,
-            filename="index.html",
-            urlconf="$version/$filename",
-        )
-        self.assertEqual(url, "latest/index.html")
-
-    def test_resolver_urlconf_extra(self):
-        url = resolve_path(
-            project=self.translation,
-            filename="index.html",
-            urlconf="foo/bar/$version/$filename",
-        )
-        self.assertEqual(url, "foo/bar/latest/index.html")
 
 
 class ResolverPathOverrideTests(ResolverBase):
@@ -892,20 +875,20 @@ class TestSubprojectsWithTranslations(TestCase):
         self.assertEqual(
             url,
             (
-                'http://{project.slug}.readthedocs.io/projects/'
-                '{subproject.slug}/en/latest/'
+                "http://{project.slug}.readthedocs.io/projects/"
+                "{subproject.slug}/en/latest/"
             ).format(
                 project=self.superproject_en,
                 subproject=self.subproject_en,
             ),
         )
 
-        url = resolve(self.subproject_es, filename='')
+        url = resolve(self.subproject_es, filename="")
         self.assertEqual(
             url,
             (
-                'http://{project.slug}.readthedocs.io/projects/'
-                '{subproject.slug}/es/latest/'
+                "http://{project.slug}.readthedocs.io/projects/"
+                "{subproject.slug}/es/latest/"
             ).format(
                 project=self.superproject_en,
                 subproject=self.subproject_en,
@@ -913,9 +896,7 @@ class TestSubprojectsWithTranslations(TestCase):
         )
 
     @override_settings(
-        RTD_DEFAULT_FEATURES={
-            TYPE_CNAME: 1,
-        },
+        RTD_DEFAULT_FEATURES=dict([RTDProductFeature(TYPE_CNAME).to_item()]),
     )
     def test_subproject_with_translation_with_custom_domain(self):
         fixture.get(
@@ -933,24 +914,18 @@ class TestSubprojectsWithTranslations(TestCase):
         url = resolve(self.superproject_es, filename="")
         self.assertEqual(url, "http://docs.example.com/es/latest/")
 
-        url = resolve(self.subproject_en, filename='')
+        url = resolve(self.subproject_en, filename="")
         self.assertEqual(
             url,
-            (
-                'http://docs.example.com/projects/'
-                '{subproject.slug}/en/latest/'
-            ).format(
+            ("http://docs.example.com/projects/" "{subproject.slug}/en/latest/").format(
                 subproject=self.subproject_en,
             ),
         )
 
-        url = resolve(self.subproject_es, filename='')
+        url = resolve(self.subproject_es, filename="")
         self.assertEqual(
             url,
-            (
-                'http://docs.example.com/projects/'
-                '{subproject.slug}/es/latest/'
-            ).format(
+            ("http://docs.example.com/projects/" "{subproject.slug}/es/latest/").format(
                 subproject=self.subproject_en,
             ),
         )

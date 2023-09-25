@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_dynamic_fixture import get
 
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import Feature, Project
 
 
 class TestURLPatternsUtils(TestCase):
@@ -115,3 +115,25 @@ class TestURLPatternsUtils(TestCase):
         with pytest.raises(ValidationError) as excinfo:
             self.project.clean()
         self.assertEqual(excinfo.value.code, "ambiguous_path")
+
+    def test_proxied_api_prefix(self):
+        self.assertEqual(self.project.custom_prefix, None)
+        self.assertEqual(self.project.proxied_api_url, "_/")
+        self.assertEqual(self.project.proxied_api_host, "/_")
+        self.assertEqual(self.project.proxied_api_prefix, None)
+
+        self.project.custom_prefix = "/prefix/"
+        self.project.save()
+
+        self.assertEqual(self.project.proxied_api_url, "_/")
+        self.assertEqual(self.project.proxied_api_host, "/_")
+        self.assertEqual(self.project.proxied_api_prefix, None)
+
+        get(
+            Feature,
+            projects=[self.project],
+            feature_id=Feature.USE_PROXIED_APIS_WITH_PREFIX,
+        )
+        self.assertEqual(self.project.proxied_api_url, "prefix/_/")
+        self.assertEqual(self.project.proxied_api_host, "/prefix/_")
+        self.assertEqual(self.project.proxied_api_prefix, "/prefix/")

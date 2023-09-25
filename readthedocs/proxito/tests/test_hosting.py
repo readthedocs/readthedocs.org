@@ -80,10 +80,14 @@ class TestReadTheDocsConfigJson(TestCase):
     def test_get_config_v0(self):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
-            {"url": "https://project.dev.readthedocs.io/en/latest/"},
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "api-version": "0.1.0",
+            },
             secure=True,
-            HTTP_HOST="project.dev.readthedocs.io",
-            HTTP_X_RTD_HOSTING_INTEGRATIONS_VERSION="0.1.0",
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
         )
         assert r.status_code == 200
         assert self._normalize_datetime_fields(r.json()) == self._get_response_dict(
@@ -93,10 +97,14 @@ class TestReadTheDocsConfigJson(TestCase):
     def test_get_config_v1(self):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
-            {"url": "https://project.dev.readthedocs.io/en/latest/"},
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "api-version": "1.0.0",
+            },
             secure=True,
-            HTTP_HOST="project.dev.readthedocs.io",
-            HTTP_X_RTD_HOSTING_INTEGRATIONS_VERSION="1.0.0",
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
         )
         assert r.status_code == 200
         assert r.json() == self._get_response_dict("v1")
@@ -104,10 +112,14 @@ class TestReadTheDocsConfigJson(TestCase):
     def test_get_config_unsupported_version(self):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
-            {"url": "https://project.dev.readthedocs.io/en/latest/"},
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "api-version": "2.0.0",
+            },
             secure=True,
-            HTTP_HOST="project.dev.readthedocs.io",
-            HTTP_X_RTD_HOSTING_INTEGRATIONS_VERSION="2.0.0",
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
         )
         assert r.status_code == 400
         assert r.json() == self._get_response_dict("v2")

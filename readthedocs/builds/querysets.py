@@ -20,7 +20,7 @@ from readthedocs.projects.models import Project
 log = structlog.get_logger(__name__)
 
 
-__all__ = ['VersionQuerySet', 'BuildQuerySet', 'RelatedBuildQuerySet']
+__all__ = ["VersionQuerySet", "BuildQuerySet", "RelatedBuildQuerySet"]
 
 
 class VersionQuerySetBase(models.QuerySet):
@@ -51,14 +51,11 @@ class VersionQuerySetBase(models.QuerySet):
     def _add_from_user_projects(self, queryset, user, admin=False, member=False):
         """Add related objects from projects where `user` is an `admin` or a `member`."""
         if user and user.is_authenticated:
-            projects_pk = (
-                AdminPermission.projects(
-                    user=user,
-                    admin=admin,
-                    member=member,
-                )
-                .values_list('pk', flat=True)
-            )
+            projects_pk = AdminPermission.projects(
+                user=user,
+                admin=admin,
+                member=member,
+            ).values_list("pk", flat=True)
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset
@@ -75,7 +72,9 @@ class VersionQuerySetBase(models.QuerySet):
                 project__external_builds_privacy_level=constants.PUBLIC,
             )
         else:
-            queryset = self.filter(privacy_level=constants.PUBLIC).exclude(type=EXTERNAL)
+            queryset = self.filter(privacy_level=constants.PUBLIC).exclude(
+                type=EXTERNAL
+            )
             queryset |= self.filter(
                 type=EXTERNAL,
                 project__external_builds_privacy_level=constants.PUBLIC,
@@ -119,6 +118,28 @@ class VersionQuerySetBase(models.QuerySet):
     def api(self, user=None):
         return self.public(user, only_active=False)
 
+    def for_reindex(self):
+        """
+        Get all versions that can be reindexed.
+
+        A version can be reindexed if:
+
+        - It's active and has been built at least once successfully.
+          Since that means that it has files to be indexed.
+        - Its project is not delisted or marked as spam.
+        """
+        return (
+            self.filter(
+                active=True,
+                built=True,
+                builds__state=BUILD_STATE_FINISHED,
+                builds__success=True,
+            )
+            .exclude(project__delisted=True)
+            .exclude(project__is_spam=True)
+            .distinct()
+        )
+
 
 class VersionQuerySet(SettingsOverrideObject):
     _default_class = VersionQuerySetBase
@@ -137,14 +158,11 @@ class BuildQuerySet(models.QuerySet):
     def _add_from_user_projects(self, queryset, user, admin=False, member=False):
         """Add related objects from projects where `user` is an `admin` or a `member`."""
         if user and user.is_authenticated:
-            projects_pk = (
-                AdminPermission.projects(
-                    user=user,
-                    admin=admin,
-                    member=member,
-                )
-                .values_list('pk', flat=True)
-            )
+            projects_pk = AdminPermission.projects(
+                user=user,
+                admin=admin,
+                member=member,
+            ).values_list("pk", flat=True)
             user_queryset = self.filter(project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset
@@ -160,13 +178,10 @@ class BuildQuerySet(models.QuerySet):
            External versions use the `Project.external_builds_privacy_level`
            field instead of its `privacy_level` field.
         """
-        queryset = (
-            self.filter(
-                version__privacy_level=constants.PUBLIC,
-                version__project__privacy_level=constants.PUBLIC,
-            )
-            .exclude(version__type=EXTERNAL)
-        )
+        queryset = self.filter(
+            version__privacy_level=constants.PUBLIC,
+            version__project__privacy_level=constants.PUBLIC,
+        ).exclude(version__type=EXTERNAL)
         queryset |= self.filter(
             version__type=EXTERNAL,
             project__external_builds_privacy_level=constants.PUBLIC,
@@ -244,7 +259,7 @@ class BuildQuerySet(models.QuerySet):
 
         max_concurrent = Project.objects.max_concurrent_builds(project)
         log.info(
-            'Concurrent builds.',
+            "Concurrent builds.",
             project_slug=project.slug,
             concurrent=concurrent,
             max_concurrent=max_concurrent,
@@ -269,14 +284,11 @@ class RelatedBuildQuerySet(models.QuerySet):
 
     def _add_from_user_projects(self, queryset, user):
         if user and user.is_authenticated:
-            projects_pk = (
-                AdminPermission.projects(
-                    user=user,
-                    admin=True,
-                    member=True,
-                )
-                .values_list('pk', flat=True)
-            )
+            projects_pk = AdminPermission.projects(
+                user=user,
+                admin=True,
+                member=True,
+            ).values_list("pk", flat=True)
             user_queryset = self.filter(build__project__in=projects_pk)
             queryset = user_queryset | queryset
         return queryset

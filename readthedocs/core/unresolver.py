@@ -24,7 +24,6 @@ class InvalidSchemeError(UnresolverError):
 
 
 class InvalidXRTDSlugHeaderError(UnresolverError):
-
     pass
 
 
@@ -215,6 +214,8 @@ class Unresolver:
         :param append_indexhtml: If `True` directories will be normalized
          to end with ``/index.html``.
         """
+        # Make sure we always have a leading slash.
+        path = self._normalize_filename(path)
         # We don't call unparse() on the path,
         # since it could be parsed as a full URL if it starts with a protocol.
         parsed_url = ParseResult(

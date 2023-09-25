@@ -27,7 +27,7 @@ class VCSVersion:
         self.verbose_name = verbose_name
 
     def __repr__(self):
-        return '<VCSVersion: {}:{}'.format(
+        return "<VCSVersion: {}:{}".format(
             self.repository.repo_url,
             self.verbose_name,
         )
@@ -43,7 +43,7 @@ class BaseVCS:
 
     supports_tags = False  # Whether this VCS supports tags or not.
     supports_branches = False  # Whether this VCS supports branches or not.
-    supports_submodules = False
+    supports_submodules = False  # Whether this VCS supports submodules or not.
 
     # Whether this VCS supports listing remotes (branches, tags) without cloning
     supports_lsremote = False
@@ -93,10 +93,12 @@ class BaseVCS:
         self.check_working_dir()
 
     def run(self, *cmd, **kwargs):
-        kwargs.update({
-            'cwd': self.working_dir,
-            'shell': False,
-        })
+        kwargs.update(
+            {
+                "cwd": self.working_dir,
+                "shell": False,
+            }
+        )
 
         try:
             build_cmd = self.environment.run(*cmd, **kwargs)
@@ -160,7 +162,4 @@ class BaseVCS:
 
         :type config: readthedocs.config.BuildConfigBase
         """
-        raise NotImplementedError
-
-    def repo_exists(self):
         raise NotImplementedError

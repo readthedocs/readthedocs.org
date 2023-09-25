@@ -22,6 +22,7 @@ from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.models import RemoteRepository
 from readthedocs.projects.models import (
+    AddonsConfig,
     Domain,
     EmailHook,
     EnvironmentVariable,
@@ -86,7 +87,7 @@ class ProjectBasicsForm(ProjectForm):
 
     class Meta:
         model = Project
-        fields = ("name", "repo", "default_branch")
+        fields = ("name", "repo", "default_branch", "language")
 
     remote_repository = forms.IntegerField(
         widget=forms.HiddenInput(),
@@ -94,13 +95,7 @@ class ProjectBasicsForm(ProjectForm):
     )
 
     def __init__(self, *args, **kwargs):
-        show_advanced = kwargs.pop('show_advanced', False)
         super().__init__(*args, **kwargs)
-        if show_advanced:
-            self.fields['advanced'] = forms.BooleanField(
-                required=False,
-                label=_('Edit advanced project options'),
-            )
         self.fields['repo'].widget.attrs['placeholder'] = self.placehold_repo()
         self.fields['repo'].widget.attrs['required'] = True
 
@@ -225,7 +220,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             'requirements_file',
             'python_interpreter',
             'install_project',
-            'use_system_packages',
             'conf_py_file',
             'enable_pdf_build',
             'enable_epub_build',
@@ -498,6 +492,30 @@ class ProjectRelationshipForm(forms.ModelForm):
                 _('A subproject with this alias already exists'),
             )
         return alias
+
+
+class AddonsConfigForm(forms.ModelForm):
+
+    """Form to opt-in into new beta addons."""
+
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    class Meta:
+        model = AddonsConfig
+        fields = ("enabled", "project")
+
+    def __init__(self, *args, **kwargs):
+        self.project = kwargs.pop("project", None)
+        kwargs["instance"] = getattr(self.project, "addons", None)
+        super().__init__(*args, **kwargs)
+
+        try:
+            self.fields["enabled"].initial = self.project.addons.enabled
+        except AddonsConfig.DoesNotExist:
+            self.fields["enabled"].initial = False
+
+    def clean_project(self):
+        return self.project
 
 
 class UserForm(forms.Form):

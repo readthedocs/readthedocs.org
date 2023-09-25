@@ -1,21 +1,27 @@
 """Views for hosting features."""
 
+from functools import lru_cache
+
 import packaging
 import structlog
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404, JsonResponse
-from django.views import View
+from rest_framework.renderers import JSONRenderer
+from rest_framework.views import APIView
 
+from readthedocs.api.mixins import CDNCacheTagsMixin
+from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v3.serializers import (
     BuildSerializer,
     ProjectSerializer,
     VersionSerializer,
 )
 from readthedocs.builds.models import Version
-from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
+from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.projects.models import Feature
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -25,16 +31,12 @@ ADDONS_VERSIONS_SUPPORTED = (0, 1)
 
 class ClientError(Exception):
     VERSION_NOT_CURRENTLY_SUPPORTED = (
-        "The version specified in 'X-RTD-Hosting-Integrations-Version'"
-        " is currently not supported"
+        "The version specified in 'api-version' is currently not supported"
     )
-    VERSION_INVALID = "'X-RTD-Hosting-Integrations-Version' header version is invalid"
-    VERSION_HEADER_MISSING = (
-        "'X-RTD-Hosting-Integrations-Version' header attribute is required"
-    )
+    VERSION_INVALID = "The version specifified in 'api-version' is invalid"
 
 
-class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
+class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
 
     """
     API response consumed by our JavaScript client.
@@ -46,10 +48,61 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
 
       url (required): absolute URL from where the request is performed
         (e.g. ``window.location.href``)
+
+      api-version (required): API JSON structure version (e.g. ``0``, ``1``, ``2``).
     """
 
-    def get(self, request):
+    http_method_names = ["get"]
+    permission_classes = [IsAuthorizedToViewVersion]
+    renderer_classes = [JSONRenderer]
+    project_cache_tag = "rtd-addons"
 
+    @lru_cache(maxsize=1)
+    def _resolve_resources(self):
+        url = self.request.GET.get("url")
+        if not url:
+            # TODO: not sure what to return here when it fails on the `has_permission`
+            return None, None, None, None
+
+        unresolved_domain = self.request.unresolved_domain
+
+        # Main project from the domain.
+        project = unresolved_domain.project
+
+        try:
+            unresolved_url = unresolver.unresolve_url(url)
+            # Project from the URL: if it's a subproject it will differ from
+            # the main project got from the domain.
+            project = unresolved_url.project
+            version = unresolved_url.version
+            filename = unresolved_url.filename
+            build = version.builds.last()
+
+        except UnresolverError as exc:
+            # If an exception is raised and there is a ``project`` in the
+            # exception, it's a partial match. This could be because of an
+            # invalid URL path, but on a valid project domain. In this case, we
+            # continue with the ``project``, but without a ``version``.
+            # Otherwise, we return 404 NOT FOUND.
+            project = getattr(exc, "project", None)
+            if not project:
+                raise Http404() from exc
+
+            version = None
+            filename = None
+            build = None
+
+        return project, version, build, filename
+
+    def _get_project(self):
+        project, version, build, filename = self._resolve_resources()
+        return project
+
+    def _get_version(self):
+        project, version, build, filename = self._resolve_resources()
+        return version
+
+    def get(self, request, format=None):
         url = request.GET.get("url")
         if not url:
             return JsonResponse(
@@ -57,12 +110,10 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                 status=400,
             )
 
-        addons_version = request.headers.get("X-RTD-Hosting-Integrations-Version")
+        addons_version = request.GET.get("api-version")
         if not addons_version:
             return JsonResponse(
-                {
-                    "error": ClientError.VERSION_HEADER_MISSING,
-                },
+                {"error": "'api-version' GET attribute is required"},
                 status=400,
             )
         try:
@@ -82,30 +133,16 @@ class ReadTheDocsConfigJson(CDNCacheControlMixin, View):
                 status=400,
             )
 
-        unresolved_domain = request.unresolved_domain
-        project = unresolved_domain.project
+        project, version, build, filename = self._resolve_resources()
 
-        try:
-            unresolved_url = unresolver.unresolve_url(url)
-            version = unresolved_url.version
-            filename = unresolved_url.filename
-            build = version.builds.last()
-
-        except UnresolverError as exc:
-            # If an exception is raised and there is a ``project`` in the
-            # exception, it's a partial match. This could be because of an
-            # invalid URL path, but on a valid project domain. In this case, we
-            # continue with the ``project``, but without a ``version``.
-            # Otherwise, we return 404 NOT FOUND.
-            project = getattr(exc, "project", None)
-            if not project:
-                raise Http404() from exc
-
-            version = None
-            filename = None
-            build = None
-
-        data = AddonsResponse().get(addons_version, project, version, build, filename)
+        data = AddonsResponse().get(
+            addons_version,
+            project,
+            version,
+            build,
+            filename,
+            user=request.user,
+        )
         return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
 
 
@@ -148,7 +185,15 @@ class BuildSerializerNoLinks(NoLinksMixin, BuildSerializer):
 
 
 class AddonsResponse:
-    def get(self, addons_version, project, version=None, build=None, filename=None):
+    def get(
+        self,
+        addons_version,
+        project,
+        version=None,
+        build=None,
+        filename=None,
+        user=None,
+    ):
         """
         Unique entry point to get the proper API response.
 
@@ -156,12 +201,12 @@ class AddonsResponse:
         best JSON structure for that particular version.
         """
         if addons_version.major == 0:
-            return self._v0(project, version, build, filename)
+            return self._v0(project, version, build, filename, user)
 
         if addons_version.major == 1:
-            return self._v1(project, version, build, filename)
+            return self._v1(project, version, build, filename, user)
 
-    def _v0(self, project, version, build, filename):
+    def _v0(self, project, version, build, filename, user):
         """
         Initial JSON data structure consumed by the JavaScript client.
 
@@ -173,18 +218,40 @@ class AddonsResponse:
         It tries to follow some similarity with the APIv3 for already-known resources
         (Project, Version, Build, etc).
         """
-        versions_active_built = (
-            Version.internal.public(project=project, only_active=True, only_built=True)
-            .only("slug")
-            .order_by("slug")
+        version_downloads = []
+        versions_active_built_not_hidden = Version.objects.none()
+
+        if not project.single_version:
+            versions_active_built_not_hidden = (
+                Version.internal.public(
+                    project=project,
+                    only_active=True,
+                    only_built=True,
+                    user=user,
+                )
+                .exclude(hidden=True)
+                .only("slug")
+                .order_by("slug")
+            )
+            if version:
+                version_downloads = version.get_downloads(pretty=True).items()
+
+        project_translations = (
+            project.translations.all().only("language").order_by("language")
         )
+        # Make one DB query here and then check on Python code
+        # TODO: make usage of ``Project.addons.<name>_enabled`` to decide if enabled
+        project_features = project.features.all().values_list("feature_id", flat=True)
 
         data = {
+            "api_version": "0",
             "comment": (
                 "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY"
                 " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
             ),
             "projects": {
+                # TODO: return the "parent" project here when the "current"
+                # project is a subproject/translation.
                 "current": ProjectSerializerNoLinks(project).data,
             },
             "versions": {
@@ -208,7 +275,8 @@ class AddonsResponse:
             # serializer than the keys ``project``, ``version`` and ``build`` from the top level.
             "addons": {
                 "analytics": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_ANALYTICS_DISABLED
+                    not in project_features,
                     # TODO: consider adding this field into the ProjectSerializer itself.
                     # NOTE: it seems we are removing this feature,
                     # so we may not need the ``code`` attribute here
@@ -216,22 +284,24 @@ class AddonsResponse:
                     "code": project.analytics_code,
                 },
                 "external_version_warning": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_EXTERNAL_VERSION_WARNING_DISABLED
+                    not in project_features,
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
                 },
                 "non_latest_version_warning": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_NON_LATEST_VERSION_WARNING_DISABLED
+                    not in project_features,
                     # NOTE: I think we are moving away from these selectors
                     # since we are doing floating noticications now.
                     # "query_selector": "[role=main]",
                     "versions": list(
-                        versions_active_built.values_list("slug", flat=True)
+                        versions_active_built_not_hidden.values_list("slug", flat=True)
                     ),
                 },
                 "doc_diff": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_DOC_DIFF_DISABLED not in project_features,
                     # "http://test-builds-local.devthedocs.org/en/latest/index.html"
                     "base_url": resolver.resolve(
                         project=project,
@@ -250,26 +320,50 @@ class AddonsResponse:
                     "base_page": "",
                 },
                 "flyout": {
-                    "translations": [],
+                    "enabled": Feature.ADDONS_FLYOUT_DISABLED not in project_features,
+                    "translations": [
+                        {
+                            # TODO: name this field "display_name"
+                            "slug": translation.language,
+                            "url": f"/{translation.language}/",
+                        }
+                        for translation in project_translations
+                    ],
                     "versions": [
                         {
+                            # TODO: name this field "display_name"
                             "slug": version.slug,
                             "url": f"/{project.language}/{version.slug}/",
                         }
-                        for version in versions_active_built
+                        for version in versions_active_built_not_hidden
                     ],
-                    "downloads": [],
-                    # TODO: get this values properly
-                    "vcs": {
-                        "url": "https://github.com",
-                        "username": "readthedocs",
-                        "repository": "test-builds",
-                        "branch": version.identifier if version else None,
-                        "filepath": "/docs/index.rst",
-                    },
+                    "downloads": [
+                        {
+                            # TODO: name this field "display_name"
+                            "name": name,
+                            "url": url,
+                        }
+                        for name, url in version_downloads
+                    ],
+                    # TODO: find a way to get this data in a reliably way.
+                    # We don't have a simple way to map a URL to a file in the repository.
+                    # This feature may be deprecated/removed in this implementation since it relies
+                    # on data injected at build time and sent as `docroot=`, `source_suffix=` and `page=`.
+                    # Example URL:
+                    #   /_/api/v2/footer_html/?project=weblate&version=latest&page=index&theme=furo&docroot=/docs/&source_suffix=.rst
+                    # Data injected at:
+                    #  https://github.com/rtfd/readthedocs-sphinx-ext/blob/7c60d1646c12ac0b83d61abfbdd5bcd77d324124/readthedocs_ext/_templates/readthedocs-insert.html.tmpl#L23
+                    #
+                    # "vcs": {
+                    #     "url": "https://github.com",
+                    #     "username": "readthedocs",
+                    #     "repository": "test-builds",
+                    #     "branch": version.identifier if version else None,
+                    #     "filepath": "/docs/index.rst",
+                    # },
                 },
                 "search": {
-                    "enabled": True,
+                    "enabled": Feature.ADDONS_SEARCH_DISABLED not in project_features,
                     "project": project.slug,
                     "version": version.slug if version else None,
                     "api_endpoint": "/_/api/v3/search/",
@@ -289,6 +383,17 @@ class AddonsResponse:
                     "default_filter": f"subprojects:{project.slug}/{version.slug}"
                     if version
                     else None,
+                },
+                "hotkeys": {
+                    "enabled": Feature.ADDONS_HOTKEYS_DISABLED not in project_features,
+                    "doc_diff": {
+                        "enabled": True,
+                        "trigger": "KeyD",  # Could be something like "Ctrl + D"
+                    },
+                    "search": {
+                        "enabled": True,
+                        "trigger": "Slash",  # Could be something like "Ctrl + D"
+                    },
                 },
             },
         }
@@ -310,7 +415,8 @@ class AddonsResponse:
             data["addons"].update(
                 {
                     "ethicalads": {
-                        "enabled": True,
+                        "enabled": Feature.ADDONS_ETHICALADS_DISABLED
+                        not in project_features,
                         # NOTE: this endpoint is not authenticated, the user checks are done over an annonymous user for now
                         #
                         # NOTE: it requires ``settings.USE_PROMOS=True`` to return ``ad_free=false`` here
@@ -325,7 +431,12 @@ class AddonsResponse:
 
         return data
 
-    def _v1(self, project, version, build, filename):
+    def _v1(self, project, version, build, filename, user):
         return {
+            "api_version": "1",
             "comment": "Undefined yet. Use v0 for now",
         }
+
+
+class ReadTheDocsConfigJson(SettingsOverrideObject):
+    _default_class = BaseReadTheDocsConfigJson

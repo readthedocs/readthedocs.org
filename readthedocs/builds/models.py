@@ -199,6 +199,7 @@ class Version(TimeStampedModel):
         _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
         default=None,
         null=True,
+        blank=True,
     )
 
     addons = models.BooleanField(
@@ -319,7 +320,7 @@ class Version(TimeStampedModel):
         :rtype: dict
         """
         last_build = (
-            self.builds(manager=INTERNAL).filter(
+            self.builds.filter(
                 state=BUILD_STATE_FINISHED,
                 success=True,
             ).order_by('-date')
@@ -422,8 +423,11 @@ class Version(TimeStampedModel):
         """
         Remove all resources from this version.
 
-        This includes removing files from storage,
-        and removing its search index.
+        This includes:
+
+        - Files from storage
+        - Search index
+        - Imported files
         """
         from readthedocs.projects.tasks.utils import clean_project_resources
 
@@ -1103,6 +1107,21 @@ class Build(models.Model):
             return True
 
         return int(self.config.get("version", "1")) != LATEST_CONFIGURATION_VERSION
+
+    def deprecated_build_image_used(self):
+        """
+        Check whether this particular build is using the deprecated "build.image" config.
+
+        Note we are using this to communicate deprecation of "build.image".
+        See https://github.com/readthedocs/meta/discussions/48
+        """
+        if not self.config:
+            # Don't notify users without a config file.
+            # We hope they will migrate to `build.os` in the process of adding a `.readthedocs.yaml`
+            return False
+
+        build_config_key = self.config.get("build", {})
+        return "image" in build_config_key
 
     def reset(self):
         """

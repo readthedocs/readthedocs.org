@@ -36,25 +36,23 @@ def clean_build(version):
     """Clean the files used in the build of the given version."""
     del_dirs = [
         os.path.join(version.project.doc_path, dir_, version.slug)
-        for dir_ in ('checkouts', 'envs', 'conda', 'artifacts')
+        for dir_ in ("checkouts", "envs", "conda", "artifacts")
     ]
-    del_dirs.append(
-        os.path.join(version.project.doc_path, '.cache')
-    )
+    del_dirs.append(os.path.join(version.project.doc_path, ".cache"))
 
-    log.info('Removing directories.', directories=del_dirs)
+    log.info("Removing directories.", directories=del_dirs)
     for path in del_dirs:
         safe_rmtree(path, ignore_errors=True)
 
 
-@app.task(queue='web')
+@app.task(queue="web")
 def remove_build_storage_paths(paths):
     """
     Remove artifacts from build media storage (cloud or local storage).
 
     :param paths: list of paths in build media storage to delete
     """
-    log.info('Removing path from media storage.', paths=paths)
+    log.info("Removing path from media storage.", paths=paths)
     for storage_path in paths:
         build_media_storage.delete_directory(storage_path)
 
@@ -67,6 +65,7 @@ def clean_project_resources(project, version=None):
 
     - Artifacts from storage.
     - Search indexes from ES.
+    - Imported files.
 
     :param version: Version instance. If isn't given,
                     all resources of `project` will be deleted.
@@ -85,10 +84,17 @@ def clean_project_resources(project, version=None):
 
     # Remove indexes
     from .search import remove_search_indexes  # noqa
+
     remove_search_indexes.delay(
         project_slug=project.slug,
         version_slug=version.slug if version else None,
     )
+
+    # Remove imported files
+    if version:
+        version.imported_files.all().delete()
+    else:
+        project.imported_files.all().delete()
 
 
 @app.task()
@@ -120,7 +126,6 @@ def finish_inactive_builds():
     builds_finished = []
     builds = Build.objects.filter(query)[:50]
     for build in builds:
-
         if build.project.container_time_limit:
             custom_delta = datetime.timedelta(
                 seconds=int(build.project.container_time_limit),
@@ -133,9 +138,9 @@ def finish_inactive_builds():
         build.success = False
         build.state = BUILD_STATE_CANCELLED
         build.error = _(
-            'This build was terminated due to inactivity. If you '
-            'continue to encounter this error, file a support '
-            'request with and reference this build id ({}).'.format(build.pk),
+            "This build was terminated due to inactivity. If you "
+            "continue to encounter this error, file a support "
+            "request with and reference this build id ({}).".format(build.pk),
         )
         build.save()
         builds_finished.append(build.pk)
@@ -166,7 +171,6 @@ def send_external_build_status(version_type, build_pk, commit, status):
 
 
 class DeprecatedConfigFileSiteNotification(SiteNotification):
-
     # TODO: mention all the project slugs here
     # Maybe trim them to up to 5 projects to avoid sending a huge blob of text
     failure_message = _(
@@ -180,7 +184,6 @@ class DeprecatedConfigFileSiteNotification(SiteNotification):
 
 
 class DeprecatedConfigFileEmailNotification(Notification):
-
     app_templates = "projects"
     name = "deprecated_config_file_used"
     subject = "[Action required] Add a configuration file to your project to prevent build failures"
@@ -323,6 +326,160 @@ def deprecated_config_file_used_notification():
     )
 
 
+class DeprecatedBuildImageSiteNotification(SiteNotification):
+    failure_message = _(
+        'Your project(s) "{{ project_slugs }}" are using the deprecated "build.image" '
+        'config on their ".readthedocs.yaml" file. '
+        'This config is deprecated in favor of "build.os" and <strong>will be removed on October 16, 2023</strong>. '  # noqa
+        '<a href="https://blog.readthedocs.com/use-build-os-config/">Read our blog post to migrate to "build.os"</a> '  # noqa
+        "and ensure your project continues building successfully."
+    )
+    failure_level = WARNING_PERSISTENT
+
+
+class DeprecatedBuildImageEmailNotification(Notification):
+    app_templates = "projects"
+    name = "deprecated_build_image_used"
+    subject = '[Action required] Update your ".readthedocs.yaml" file to use "build.os"'
+    level = REQUIREMENT
+
+    def send(self):
+        """Method overwritten to remove on-site backend."""
+        backend = EmailBackend(self.request)
+        backend.send(self)
+
+
+@app.task(queue="web")
+def deprecated_build_image_notification():
+    """
+    Send an email notification about using "build.image" to all maintainers of the project.
+
+    This is a scheduled task to be executed on the webs.
+    Note the code uses `.iterator` and `.only` to avoid killing the db with this query.
+    Besdies, it excludes projects with enough spam score to be skipped.
+    """
+    # Skip projects with a spam score bigger than this value.
+    # Currently, this gives us ~250k in total (from ~550k we have in our database)
+    spam_score = 300
+
+    projects = set()
+    start_datetime = datetime.datetime.now()
+    queryset = Project.objects.exclude(users__profile__banned=True)
+    if settings.ALLOW_PRIVATE_REPOS:
+        # Only send emails to active customers
+        queryset = queryset.filter(
+            organizations__stripe_subscription__status=SubscriptionStatus.active
+        )
+    else:
+        # Take into account spam score on community
+        queryset = queryset.annotate(spam_score=Sum("spam_rules__value")).filter(
+            Q(spam_score__lt=spam_score) | Q(is_spam=False)
+        )
+    queryset = queryset.only("slug", "default_version").order_by("id")
+    n_projects = queryset.count()
+
+    for i, project in enumerate(queryset.iterator()):
+        if i % 500 == 0:
+            log.info(
+                'Finding projects using "build.image" config key.',
+                progress=f"{i}/{n_projects}",
+                current_project_pk=project.pk,
+                current_project_slug=project.slug,
+                projects_found=len(projects),
+                time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
+            )
+
+        # Only check for the default version because if the project is using tags
+        # they won't be able to update those and we will send them emails forever.
+        # We can update this query if we consider later.
+        version = (
+            project.versions.filter(slug=project.default_version).only("id").first()
+        )
+        if version:
+            # Use a fixed date here to avoid changing the date on each run
+            years_ago = timezone.datetime(2022, 8, 1)
+            build = (
+                version.builds.filter(success=True, date__gt=years_ago)
+                .only("_config")
+                .order_by("-date")
+                .first()
+            )
+            if build and build.deprecated_build_image_used():
+                projects.add(project.slug)
+
+    # Store all the users we want to contact
+    users = set()
+
+    n_projects = len(projects)
+    queryset = Project.objects.filter(slug__in=projects).order_by("id")
+    for i, project in enumerate(queryset.iterator()):
+        if i % 500 == 0:
+            log.info(
+                'Querying all the users we want to contact about "build.image" deprecation.',
+                progress=f"{i}/{n_projects}",
+                current_project_pk=project.pk,
+                current_project_slug=project.slug,
+                users_found=len(users),
+                time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
+            )
+
+        users.update(AdminPermission.owners(project).values_list("username", flat=True))
+
+    # Only send 1 email per user,
+    # even if that user has multiple projects using "build.image".
+    # The notification will mention all the projects.
+    queryset = User.objects.filter(
+        username__in=users,
+        profile__banned=False,
+        profile__optout_email_build_image_deprecation=False,
+    ).order_by("id")
+
+    n_users = queryset.count()
+    for i, user in enumerate(queryset.iterator()):
+        if i % 500 == 0:
+            log.info(
+                'Sending deprecated "build.image" config key notification to users.',
+                progress=f"{i}/{n_users}",
+                current_user_pk=user.pk,
+                current_user_username=user.username,
+                time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
+            )
+
+        # All the projects for this user that are using "build.image".
+        # Use set() intersection in Python that's pretty quick since we only need the slugs.
+        # Otherwise we have to pass 82k slugs to the DB query, which makes it pretty slow.
+        user_projects = AdminPermission.projects(user, admin=True).values_list(
+            "slug", flat=True
+        )
+        user_projects_slugs = list(set(user_projects) & projects)
+        user_projects = Project.objects.filter(slug__in=user_projects_slugs)
+
+        # Create slug string for onsite notification
+        user_project_slugs = ", ".join(user_projects_slugs[:5])
+        if len(user_projects) > 5:
+            user_project_slugs += " and others..."
+
+        n_site = DeprecatedBuildImageSiteNotification(
+            user=user,
+            context_object=user,
+            extra_context={"project_slugs": user_project_slugs},
+            success=False,
+        )
+        n_site.send()
+
+        n_email = DeprecatedBuildImageEmailNotification(
+            user=user,
+            context_object=user,
+            extra_context={"projects": user_projects},
+        )
+        n_email.send()
+
+    log.info(
+        'Finish sending deprecated "build.image" config key notifications.',
+        time_elapsed=(datetime.datetime.now() - start_datetime).seconds,
+    )
+
+
 @app.task(queue="web")
 def set_builder_scale_in_protection(instance, protected_from_scale_in):
     """
@@ -367,18 +524,17 @@ def set_builder_scale_in_protection(instance, protected_from_scale_in):
 
 
 class BuildRequest(Request):
-
     def on_timeout(self, soft, timeout):
         super().on_timeout(soft, timeout)
 
         log.bind(
             task_name=self.task.name,
             project_slug=self.task.data.project.slug,
-            build_id=self.task.data.build['id'],
+            build_id=self.task.data.build["id"],
             timeout=timeout,
             soft=soft,
         )
         if soft:
-            log.warning('Build is taking too much time. Risk to be killed soon.')
+            log.warning("Build is taking too much time. Risk to be killed soon.")
         else:
-            log.warning('A timeout was enforced for task.')
+            log.warning("A timeout was enforced for task.")

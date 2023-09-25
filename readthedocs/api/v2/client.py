@@ -16,7 +16,7 @@ class DrfJsonSerializer(serialize.JsonSerializer):
 
     """Additional serialization help from the DRF renderer."""
 
-    key = 'json-drf'
+    key = "json-drf"
 
     def dumps(self, data):
         """Used to be able to render datetime objects."""
@@ -25,7 +25,7 @@ class DrfJsonSerializer(serialize.JsonSerializer):
 
 def setup_api(build_api_key):
     session = requests.Session()
-    if settings.SLUMBER_API_HOST.startswith('https'):
+    if settings.SLUMBER_API_HOST.startswith("https"):
         # Only use the HostHeaderSSLAdapter for HTTPS connections
         adapter_class = TimeoutHostHeaderSSLAdapter
     else:
@@ -40,7 +40,7 @@ def setup_api(build_api_key):
         connect=3,
         status=3,
         backoff_factor=0.5,  # 0.5, 1, 2 seconds
-        method_whitelist=('GET', 'PUT', 'PATCH', 'POST'),
+        method_whitelist=("GET", "PUT", "PATCH", "POST"),
         status_forcelist=(408, 413, 429, 500, 502, 503, 504),
     )
 
@@ -51,14 +51,14 @@ def setup_api(build_api_key):
     session.headers.update({"Host": settings.PRODUCTION_DOMAIN})
     session.headers["Authorization"] = f"Token {build_api_key}"
     api_config = {
-        'base_url': '%s/api/v2/' % settings.SLUMBER_API_HOST,
-        'serializer': serialize.Serializer(
-            default='json-drf',
+        "base_url": "%s/api/v2/" % settings.SLUMBER_API_HOST,
+        "serializer": serialize.Serializer(
+            default="json-drf",
             serializers=[
                 serialize.JsonSerializer(),
                 DrfJsonSerializer(),
             ],
         ),
-        'session': session,
+        "session": session,
     }
     return API(**api_config)

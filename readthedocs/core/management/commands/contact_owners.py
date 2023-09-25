@@ -105,17 +105,17 @@ class Command(BaseCommand):
             dest="sticky",
             default=False,
             help=(
-                'Make the notification sticky '
-                '(the notification stays until the user closes it)'
-            )
+                "Make the notification sticky "
+                "(the notification stays until the user closes it)"
+            ),
         )
         parser.add_argument(
-            '--organization',
-            help='Organization slug to filter by.',
+            "--organization",
+            help="Organization slug to filter by.",
         )
         parser.add_argument(
-            '--project',
-            help='Project slug to filter by.',
+            "--project",
+            help="Project slug to filter by.",
         )
         parser.add_argument(
             "--usernames",
@@ -123,7 +123,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        if not options['email'] and not options['notification']:
+        if not options["email"] and not options["notification"]:
             print("--email or --notification is required.")
             sys.exit(1)
 

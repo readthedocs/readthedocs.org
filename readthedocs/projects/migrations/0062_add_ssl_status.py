@@ -4,15 +4,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0061_add_imported_file_ignore'),
+        ("projects", "0061_add_imported_file_ignore"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='domain',
-            name='ssl_status',
-            field=models.CharField(blank=True, choices=[('valid', 'Valid and active'), ('invalid', 'Invalid'), ('pending', 'Pending'), ('unknown', 'Unknown')], default='unknown', max_length=30, null=True, verbose_name='SSL certificate status'),
+            model_name="domain",
+            name="ssl_status",
+            field=models.CharField(
+                blank=True,
+                choices=[
+                    ("valid", "Valid and active"),
+                    ("invalid", "Invalid"),
+                    ("pending", "Pending"),
+                    ("unknown", "Unknown"),
+                ],
+                default="unknown",
+                max_length=30,
+                null=True,
+                verbose_name="SSL certificate status",
+            ),
         ),
     ]

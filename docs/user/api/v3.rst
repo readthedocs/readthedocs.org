@@ -279,6 +279,7 @@ Project details
             },
             "privacy_level": "public",
             "external_builds_privacy_level": "public",
+            "single_version": false,
             "_links": {
                 "_self": "/api/v3/projects/pip/",
                 "versions": "/api/v3/projects/pip/versions/",
@@ -697,7 +698,6 @@ Build details
                             "requirements": ".../stable/tools/docs-requirements.txt"
                         }
                     ],
-                    "use_system_site_packages": false
                 },
                 "conda": null,
                 "build": {

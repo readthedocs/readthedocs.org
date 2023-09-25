@@ -130,7 +130,6 @@ Configuration of the Python environment to be used.
            - docs
        - method: pip
          path: another/package
-     system_packages: true
 
 python.version
 ``````````````
@@ -228,20 +227,6 @@ With the previous settings, Read the Docs will execute the next commands:
 
    pip install .[docs]
 
-python.system_packages
-``````````````````````
-
-Give the virtual environment access to the global site-packages directory.
-
-:Type: ``bool``
-:Default: ``false``
-
-.. warning::
-
-  If you are using a :ref:`Conda <config-file/v2:conda>` environment
-  to manage the build, this setting will not have any effect, since
-  the virtual environment creation is managed by Conda.
-
 conda
 ~~~~~
 
@@ -250,6 +235,11 @@ Configuration for Conda support.
 .. code-block:: yaml
 
    version: 2
+
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "mambaforge-22.9"
 
    conda:
      environment: environment.yml
@@ -261,6 +251,10 @@ The path to the Conda `environment file <https://conda.io/projects/conda/en/late
 
 :Type: ``path``
 :Required: ``false``
+
+.. note::
+
+   When using Conda, it's required to specify ``build.tools.python`` to tell Read the Docs to use whether Conda or Mamba to create the environment.
 
 build
 ~~~~~
@@ -444,13 +438,13 @@ Specify a list of commands that Read the Docs will run on the build process.
 When ``build.commands`` is used, none of the :term:`pre-defined build jobs` will be executed.
 (see :doc:`/build-customization` for more details).
 This allows you to run custom commands and control the build process completely.
-The ``_readthedocs/html`` directory (relative to the checkout's path) will be uploaded and hosted by Read the Docs.
+The ``$READTHEDOCS_OUTPUT/html`` directory will be uploaded and hosted by Read the Docs.
 
 .. warning::
 
    This feature is in a *beta phase* and could suffer incompatible changes or even removed completely in the near feature.
-   It does not yet support some of the Read the Docs' integrations like the :term:`flyout menu`, search and ads.
-   However, integrating all of them is part of the plan.
+   We are currently testing `the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`_
+   on projects using ``build.commands`` configuration key.
    Use it under your own responsibility.
 
 .. code-block:: yaml
@@ -463,7 +457,7 @@ The ``_readthedocs/html`` directory (relative to the checkout's path) will be up
        python: "3.11"
      commands:
        - pip install pelican
-       - pelican --settings docs/pelicanconf.py --output _readthedocs/html/ docs/
+       - pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/
 
 .. note::
 
@@ -869,8 +863,6 @@ Changes
 - The settings ``python.setup_py_install`` and ``python.pip_install`` were replaced by ``python.install``.
   And now it accepts a path to the package.
   See :ref:`config-file/v2:Packages`.
-- The setting ``python.use_system_site_packages`` was renamed to ``python.system_packages``.
-  See :ref:`config-file/v2:python.system_packages`.
 - The build will fail if there are invalid keys (strict mode).
 
 .. warning::

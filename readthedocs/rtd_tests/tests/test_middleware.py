@@ -17,21 +17,20 @@ from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
 from readthedocs.subscriptions.constants import TYPE_EMBED_API
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @override_settings(
-    PUBLIC_DOMAIN='readthedocs.io',
-    RTD_DEFAULT_FEATURES={
-        TYPE_EMBED_API: 1,
-    },
+    PUBLIC_DOMAIN="readthedocs.io",
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_EMBED_API).to_item()]),
 )
 class TestCORSMiddleware(TestCase):
-
     def setUp(self):
-        self.url = '/api/v2/search'
-        self.owner = create_user(username='owner', password='test')
+        self.url = "/api/v2/search"
+        self.owner = create_user(username="owner", password="test")
         self.project = get(
-            Project, slug='pip',
+            Project,
+            slug="pip",
             users=[self.owner],
             privacy_level=PUBLIC,
             main_language_project=None,
@@ -53,27 +52,27 @@ class TestCORSMiddleware(TestCase):
         )
         self.domain = get(
             Domain,
-            domain='my.valid.domain',
+            domain="my.valid.domain",
             project=self.project,
         )
         self.another_project = get(
             Project,
             privacy_level=PUBLIC,
-            slug='another',
+            slug="another",
         )
         self.another_project.versions.update(privacy_level=PUBLIC)
         self.another_version = self.another_project.versions.get(slug=LATEST)
         self.another_domain = get(
             Domain,
-            domain='another.valid.domain',
+            domain="another.valid.domain",
             project=self.another_project,
         )
 
     def test_allow_linked_domain_from_public_version(self):
         resp = self.client.get(
             self.url,
-            {'project': self.project.slug, 'version': self.version.slug},
-            HTTP_ORIGIN='http://my.valid.domain',
+            {"project": self.project.slug, "version": self.version.slug},
+            headers={"origin": "http://my.valid.domain"},
         )
         self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
@@ -83,8 +82,8 @@ class TestCORSMiddleware(TestCase):
         self.version.save()
         resp = self.client.get(
             self.url,
-            {'project': self.project.slug, 'version': self.version.slug},
-            HTTP_ORIGIN='http://my.valid.domain',
+            {"project": self.project.slug, "version": self.version.slug},
+            headers={"origin": "http://my.valid.domain"},
         )
         self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
@@ -92,16 +91,16 @@ class TestCORSMiddleware(TestCase):
     def test_allowed_api_public_version_from_another_domain(self):
         resp = self.client.get(
             self.url,
-            {'project': self.project.slug, 'version': self.version.slug},
-            HTTP_ORIGIN='http://docs.another.domain',
+            {"project": self.project.slug, "version": self.version.slug},
+            headers={"origin": "http://docs.another.domain"},
         )
         self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
         resp = self.client.get(
             self.url,
-            {'project': self.project.slug, 'version': self.version.slug},
-            HTTP_ORIGIN='http://another.valid.domain',
+            {"project": self.project.slug, "version": self.version.slug},
+            headers={"origin": "http://another.valid.domain"},
         )
         self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
@@ -111,16 +110,16 @@ class TestCORSMiddleware(TestCase):
         self.version.save()
         resp = self.client.get(
             self.url,
-            {'project': self.project.slug, 'version': self.version.slug},
-            HTTP_ORIGIN='http://docs.another.domain',
+            {"project": self.project.slug, "version": self.version.slug},
+            headers={"origin": "http://docs.another.domain"},
         )
         self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
         resp = self.client.get(
             self.url,
-            {'project': self.project.slug, 'version': self.version.slug},
-            HTTP_ORIGIN='http://another.valid.domain',
+            {"project": self.project.slug, "version": self.version.slug},
+            headers={"origin": "http://another.valid.domain"},
         )
         self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
@@ -134,8 +133,8 @@ class TestCORSMiddleware(TestCase):
         )
         resp = self.client.get(
             self.url,
-            {'project': self.project.slug, 'version': self.version.slug},
-            HTTP_ORIGIN='http://my.valid.domain',
+            {"project": self.project.slug, "version": self.version.slug},
+            headers={"origin": "http://my.valid.domain"},
         )
         self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
@@ -144,9 +143,9 @@ class TestCORSMiddleware(TestCase):
         self.version.privacy_level = PRIVATE
         self.version.save()
         resp = self.client.get(
-            '/api/v2/embed/',
-            {'project': self.project.slug, 'version': self.version.slug},
-            HTTP_ORIGIN='http://my.valid.domain',
+            "/api/v2/embed/",
+            {"project": self.project.slug, "version": self.version.slug},
+            headers={"origin": "http://my.valid.domain"},
         )
         self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
@@ -155,85 +154,108 @@ class TestCORSMiddleware(TestCase):
         resp = self.client.get(
             "/api/v2/embed/",
             {"url": "https://pip.readthedocs.io/en/latest/index.hml"},
-            HTTP_ORIGIN="http://my.valid.domain",
+            headers={"origin": "http://my.valid.domain"},
         )
         self.assertIn("Access-Control-Allow-Origin", resp.headers)
 
         resp = self.client.get(
             "/api/v2/embed/",
             {"url": "https://docs.example.com/en/latest/index.hml"},
-            HTTP_ORIGIN="http://my.valid.domain",
+            headers={"origin": "http://my.valid.domain"},
         )
         self.assertIn("Access-Control-Allow-Origin", resp.headers)
 
     def test_sustainability_endpoint_allways_allowed(self):
         resp = self.client.get(
-            '/api/v2/sustainability/',
-            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
-            HTTP_ORIGIN='http://invalid.domain',
+            "/api/v2/sustainability/",
+            {
+                "project": self.project.slug,
+                "active": True,
+                "version": self.version.slug,
+            },
+            headers={"origin": "http://invalid.domain"},
         )
         self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
         resp = self.client.get(
-            '/api/v2/sustainability/',
-            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
-            HTTP_ORIGIN='http://my.valid.domain',
+            "/api/v2/sustainability/",
+            {
+                "project": self.project.slug,
+                "active": True,
+                "version": self.version.slug,
+            },
+            headers={"origin": "http://my.valid.domain"},
         )
         self.assertIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
     def test_apiv2_endpoint_not_allowed(self):
         resp = self.client.get(
-            '/api/v2/version/',
-            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
-            HTTP_ORIGIN='http://invalid.domain',
+            "/api/v2/version/",
+            {
+                "project": self.project.slug,
+                "active": True,
+                "version": self.version.slug,
+            },
+            headers={"origin": "http://invalid.domain"},
         )
         self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
         # This also doesn't work on registered domains.
         resp = self.client.get(
-            '/api/v2/version/',
-            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
-            HTTP_ORIGIN='http://my.valid.domain',
+            "/api/v2/version/",
+            {
+                "project": self.project.slug,
+                "active": True,
+                "version": self.version.slug,
+            },
+            headers={"origin": "http://my.valid.domain"},
         )
         self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
         # Or from our public domain.
         resp = self.client.get(
-            '/api/v2/version/',
-            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
-            HTTP_ORIGIN='http://docs.readthedocs.io/',
+            "/api/v2/version/",
+            {
+                "project": self.project.slug,
+                "active": True,
+                "version": self.version.slug,
+            },
+            headers={"origin": "http://docs.readthedocs.io/"},
         )
         self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
         # POST is not allowed
         resp = self.client.post(
-            '/api/v2/version/',
-            {'project': self.project.slug, 'active': True, 'version': self.version.slug},
-            HTTP_ORIGIN='http://my.valid.domain',
+            "/api/v2/version/",
+            {
+                "project": self.project.slug,
+                "active": True,
+                "version": self.version.slug,
+            },
+            headers={"origin": "http://my.valid.domain"},
         )
         self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, resp.headers)
 
 
 class TestSessionMiddleware(TestCase):
-
     def setUp(self):
         self.factory = RequestFactory()
-        self.middleware = ReadTheDocsSessionMiddleware()
+        self.middleware = ReadTheDocsSessionMiddleware(lambda request: HttpResponse())
 
-        self.user = create_user(username='owner', password='test')
+        self.user = create_user(username="owner", password="test")
 
     @override_settings(SESSION_COOKIE_SAMESITE=None)
     def test_fallback_cookie(self):
-        request = self.factory.get('/')
+        request = self.factory.get("/")
         response = HttpResponse()
         self.middleware.process_request(request)
-        request.session['test'] = 'value'
+        request.session["test"] = "value"
         response = self.middleware.process_response(request, response)
 
         self.assertTrue(settings.SESSION_COOKIE_NAME in response.cookies)
@@ -241,23 +263,29 @@ class TestSessionMiddleware(TestCase):
 
     @override_settings(SESSION_COOKIE_SAMESITE=None)
     def test_main_cookie_samesite_none(self):
-        request = self.factory.get('/')
+        request = self.factory.get("/")
         response = HttpResponse()
         self.middleware.process_request(request)
-        request.session['test'] = 'value'
+        request.session["test"] = "value"
         response = self.middleware.process_response(request, response)
 
-        self.assertEqual(response.cookies[settings.SESSION_COOKIE_NAME]['samesite'], 'None')
-        self.assertEqual(response.cookies[self.middleware.cookie_name_fallback]['samesite'], '')
+        self.assertEqual(
+            response.cookies[settings.SESSION_COOKIE_NAME]["samesite"], "None"
+        )
+        self.assertEqual(
+            response.cookies[self.middleware.cookie_name_fallback]["samesite"], ""
+        )
 
     def test_main_cookie_samesite_lax(self):
-        request = self.factory.get('/')
+        request = self.factory.get("/")
         response = HttpResponse()
         self.middleware.process_request(request)
-        request.session['test'] = 'value'
+        request.session["test"] = "value"
         response = self.middleware.process_response(request, response)
 
-        self.assertEqual(response.cookies[settings.SESSION_COOKIE_NAME]['samesite'], 'Lax')
+        self.assertEqual(
+            response.cookies[settings.SESSION_COOKIE_NAME]["samesite"], "Lax"
+        )
         self.assertTrue(self.test_main_cookie_samesite_none not in response.cookies)
 
 

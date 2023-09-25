@@ -136,12 +136,9 @@ class Virtualenv(PythonEnvironment):
         """
         cli_args = [
             '-mvirtualenv',
+            # Append the positional destination argument
+            "$READTHEDOCS_VIRTUALENV_PATH",
         ]
-        if self.config.python.use_system_site_packages:
-            cli_args.append('--system-site-packages')
-
-        # Append the positional destination argument
-        cli_args.append("$READTHEDOCS_VIRTUALENV_PATH")
 
         self.build_env.run(
             self.config.python_interpreter,
@@ -286,14 +283,6 @@ class Virtualenv(PythonEnvironment):
                 requirements.extend(["jinja2<3.1.0"])
 
         cmd = copy.copy(pip_install_cmd)
-        if self.config.python.use_system_site_packages:
-            # Other code expects sphinx-build to be installed inside the
-            # virtualenv.  Using the -I option makes sure it gets installed
-            # even if it is already installed system-wide (and
-            # --system-site-packages is used)
-            cmd.append('-I')
-            # The same version of setuptools used above needs to be used here.
-            requirements.append(setuptools_version)
         cmd.extend(requirements)
         self.build_env.run(
             *cmd,
@@ -379,28 +368,7 @@ class Conda(PythonEnvironment):
             return self.config.python_interpreter
         return 'conda'
 
-    def _update_conda_startup(self):
-        """
-        Update ``conda`` before use it for the first time.
-
-        This makes the Docker image to use the latest version of ``conda``
-        independently the version of Miniconda that it has installed.
-        """
-        self.build_env.run(
-            'conda',
-            'update',
-            '--yes',
-            '--quiet',
-            '--name=base',
-            '--channel=defaults',
-            'conda',
-            cwd=self.checkout_path,
-        )
-
     def setup_base(self):
-        if self.project.has_feature(Feature.UPDATE_CONDA_STARTUP):
-            self._update_conda_startup()
-
         if self.project.has_feature(Feature.CONDA_APPEND_CORE_REQUIREMENTS):
             self._append_core_requirements()
             self._show_environment_yaml()

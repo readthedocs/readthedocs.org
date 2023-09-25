@@ -1,6 +1,6 @@
 {
-  "path": "",
-  "title": "",
+  "path": "autodoc.html",
+  "title": "sphinx.ext.autodoc – Include documentation from docstrings",
   "sections": [
     {
       "id": "directive-automodule",

@@ -2,6 +2,7 @@ from contextlib import contextmanager
 from unittest import mock
 
 import pytest
+from corsheaders.middleware import ACCESS_CONTROL_ALLOW_ORIGIN
 from django.contrib.auth.models import User
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -12,15 +13,14 @@ from readthedocs.embed.v3.views import EmbedAPIBase
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
 from readthedocs.subscriptions.constants import TYPE_EMBED_API
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @override_settings(
     USE_SUBDOMAIN=True,
     PUBLIC_DOMAIN="readthedocs.io",
     RTD_ALLOW_ORGAZATIONS=False,
-    RTD_DEFAULT_FEATURES={
-        TYPE_EMBED_API: 1,
-    },
+    RTD_DEFAULT_FEATURES=dict([RTDProductFeature(TYPE_EMBED_API).to_item()]),
 )
 @mock.patch("readthedocs.embed.v3.views.build_media_storage")
 class TestEmbedAPIV3Access(TestCase):
@@ -68,6 +68,7 @@ class TestEmbedAPIV3Access(TestCase):
         resp = self.get(self.url)
         self.assertEqual(resp.status_code, 200)
         self.assertIn("Content", resp.json()["content"])
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
 
     def test_get_content_private_version_anonymous_user(self, storage_mock):
         self._mock_storage(storage_mock)
@@ -86,6 +87,7 @@ class TestEmbedAPIV3Access(TestCase):
         resp = self.get(self.url)
         self.assertEqual(resp.status_code, 200)
         self.assertIn("Content", resp.json()["content"])
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
 
     def test_get_content_private_version_logged_in_user(self, storage_mock):
         self._mock_storage(storage_mock)
@@ -97,6 +99,7 @@ class TestEmbedAPIV3Access(TestCase):
         resp = self.get(self.url)
         self.assertEqual(resp.status_code, 200)
         self.assertIn("Content", resp.json()["content"])
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
 
     @mock.patch.object(EmbedAPIBase, "_download_page_content")
     def test_get_content_allowed_external_page(
@@ -109,6 +112,7 @@ class TestEmbedAPIV3Access(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertIn("Content", resp.json()["content"])
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, resp.headers)
 
     def test_get_content_not_allowed_external_page(self, storage_mock):
         resp = self.get(reverse("embed_api_v3") + "?url=https://example.com/en/latest/")

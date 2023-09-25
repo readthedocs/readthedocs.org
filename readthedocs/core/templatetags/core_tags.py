@@ -23,18 +23,20 @@ def gravatar(email, size=48):
     render an img tag with the hashed up bits needed for leetness
     omgwtfstillreading
     """
-    url = 'http://www.gravatar.com/avatar.php?%s' % urlencode({
-        'gravatar_id': hashlib.md5(email).hexdigest(),
-        'size': str(size),
-    })
+    url = "http://www.gravatar.com/avatar.php?%s" % urlencode(
+        {
+            "gravatar_id": hashlib.md5(email).hexdigest(),
+            "size": str(size),
+        }
+    )
     return (
         '<img src="%s" width="%s" height="%s" alt="gravatar" '
         'class="gravatar" border="0" />' % (url, size, size)
     )
 
 
-@register.simple_tag(name='doc_url')
-def make_document_url(project, version=None, page='', path=''):
+@register.simple_tag(name="doc_url")
+def make_document_url(project, version=None, page="", path=""):
     """
     Create a URL for a Project, Version and page (and/or path).
 
@@ -45,7 +47,7 @@ def make_document_url(project, version=None, page='', path=''):
     :returns: URL to the page (e.g. https://docs.domain.com/en/latest/section/configuration.html)
     """
     if not project:
-        return ''
+        return ""
     filename = path or page
     return resolve(project=project, version_slug=version, filename=filename)
 
@@ -110,13 +112,14 @@ def escapejson(data, indent=None):
     if indent:
         indent = int(indent)
     _json_script_escapes = {
-        ord('>'): '\\u003E',
-        ord('<'): '\\u003C',
-        ord('&'): '\\u0026',
+        ord(">"): "\\u003E",
+        ord("<"): "\\u003C",
+        ord("&"): "\\u0026",
     }
     return mark_safe(
         json.dumps(
             data,
             cls=DjangoJSONEncoder,
             indent=indent,
-        ).translate(_json_script_escapes))
+        ).translate(_json_script_escapes)
+    )
