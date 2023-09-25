@@ -2,6 +2,7 @@
 
 """Build configuration for rtd."""
 
+import collections
 import copy
 import os
 import re
@@ -10,6 +11,7 @@ from functools import lru_cache
 
 from django.conf import settings
 
+from readthedocs.builds import constants_docker
 from readthedocs.config.utils import list_to_dict, to_dict
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.projects.constants import GENERIC
@@ -127,14 +129,44 @@ class InvalidConfig(ConfigError):
 
     """Error for a specific key validation."""
 
-    message_template = 'Invalid "{key}": {error}'
+    # Define the default message to show on ``InvalidConfig``
+    default_message_template = 'Invalid configuration option "{key}"'
+
+    # Create customized message for based on each particular ``key``
+    message_templates = collections.defaultdict(lambda: "{default_message}: {error}")
+
+    # Redirect the user to the blog post when using
+    # `python.system_packages` or `python.use_system_site_packages`
+    message_templates.update(
+        {
+            "python.system_packages": "{default_message}. "
+            "This configuration key has been deprecated and removed. "
+            "Refer to https://blog.readthedocs.com/drop-support-system-packages/ to read more about this change and how to upgrade your config file."  # noqa
+        }
+    )
+    # Use same message for `python.use_system_site_packages`
+    message_templates.update(
+        {
+            "python.use_system_site_packages": message_templates.get(
+                "python.system_packages"
+            )
+        }
+    )
 
     def __init__(self, key, code, error_message, source_file=None):
         self.key = key
         self.code = code
         self.source_file = source_file
-        message = self.message_template.format(
-            key=self._get_display_key(),
+
+        display_key = self._get_display_key()
+        default_message = self.default_message_template.format(
+            key=display_key,
+            code=code,
+            error=error_message,
+        )
+        message = self.message_templates[display_key].format(
+            default_message=default_message,
+            key=display_key,
             code=code,
             error=error_message,
         )
@@ -191,33 +223,29 @@ class BuildConfigBase:
 
     version = None
 
-    def __init__(self, env_config, raw_config, source_file):
+    def __init__(self, env_config, raw_config, source_file, base_path=None):
         self.env_config = env_config
         self._raw_config = copy.deepcopy(raw_config)
         self.source_config = copy.deepcopy(raw_config)
         self.source_file = source_file
-        if os.path.isdir(self.source_file):
-            self.base_path = self.source_file
+        # Support explicit base_path as well as implicit base_path from config_file.
+        if base_path:
+            self.base_path = base_path
         else:
-            self.base_path = os.path.dirname(self.source_file)
+            if os.path.isdir(self.source_file):
+                self.base_path = self.source_file
+            else:
+                self.base_path = os.path.dirname(self.source_file)
         self.defaults = self.env_config.get('defaults', {})
 
         self._config = {}
 
     def error(self, key, message, code):
         """Raise an error related to ``key``."""
-        if not os.path.isdir(self.source_file):
-            source = os.path.relpath(self.source_file, self.base_path)
-            error_message = '{source}: {message}'.format(
-                source=source,
-                message=message,
-            )
-        else:
-            error_message = message
         raise InvalidConfig(
             key=key,
             code=code,
-            error_message=error_message,
+            error_message=message,
             source_file=self.source_file,
         )
 
@@ -232,7 +260,7 @@ class BuildConfigBase:
                 code=error.code,
                 error_message=str(error),
                 source_file=self.source_file,
-            )
+            ) from error
 
     def pop(self, name, container, default, raise_ex):
         """
@@ -302,9 +330,6 @@ class BuildConfigBase:
                 return 'python'
             return None
         version = self.python_full_version
-        if version.startswith('pypy'):
-            # Allow to specify ``pypy3.5`` as Python interpreter
-            return version
         return f'python{version}'
 
     @property
@@ -352,7 +377,7 @@ class BuildConfigBase:
         """
         if build_image not in settings.DOCKER_IMAGE_SETTINGS:
             build_image = '{}:{}'.format(
-                settings.DOCKER_DEFAULT_IMAGE,
+                constants_docker.DOCKER_DEFAULT_IMAGE,
                 self.default_build_image,
             )
         return settings.DOCKER_IMAGE_SETTINGS[build_image]['python']['supported_versions']
@@ -374,7 +399,7 @@ class BuildConfigBase:
         """
         if build_image not in settings.DOCKER_IMAGE_SETTINGS:
             build_image = '{}:{}'.format(
-                settings.DOCKER_DEFAULT_IMAGE,
+                constants_docker.DOCKER_DEFAULT_IMAGE,
                 self.default_build_image,
             )
         return (
@@ -487,7 +512,7 @@ class BuildConfigV1(BuildConfigBase):
             if ':' not in build['image']:
                 # Prepend proper image name to user's image name
                 build['image'] = '{}:{}'.format(
-                    settings.DOCKER_DEFAULT_IMAGE,
+                    constants_docker.DOCKER_DEFAULT_IMAGE,
                     build['image'],
                 )
         # Update docker default settings from image name
@@ -505,10 +530,8 @@ class BuildConfigV1(BuildConfigBase):
     def validate_python(self):
         """Validates the ``python`` key, set default values it's necessary."""
         install_project = self.defaults.get('install_project', False)
-        use_system_packages = self.defaults.get('use_system_packages', False)
         version = self.defaults.get('python_version', '2')
         python = {
-            'use_system_site_packages': use_system_packages,
             'install_with_pip': False,
             'extra_requirements': [],
             'install_with_setup': install_project,
@@ -523,13 +546,6 @@ class BuildConfigV1(BuildConfigBase):
                     self.PYTHON_INVALID_MESSAGE,
                     code=PYTHON_INVALID,
                 )
-
-            # Validate use_system_site_packages.
-            if 'use_system_site_packages' in raw_python:
-                with self.catch_validation_error('python.use_system_site_packages'):
-                    python['use_system_site_packages'] = validate_bool(
-                        raw_python['use_system_site_packages'],
-                    )
 
             # Validate pip_install.
             if 'pip_install' in raw_python:
@@ -661,7 +677,6 @@ class BuildConfigV1(BuildConfigBase):
         return Python(
             version=python['version'],
             install=python_install,
-            use_system_site_packages=python['use_system_site_packages'],
         )
 
     @property
@@ -872,7 +887,7 @@ class BuildConfigV2(BuildConfigBase):
         with self.catch_validation_error('build.image'):
             image = self.pop_config('build.image', self.default_build_image)
             build['image'] = '{}:{}'.format(
-                settings.DOCKER_DEFAULT_IMAGE,
+                constants_docker.DOCKER_DEFAULT_IMAGE,
                 validate_choice(
                     image,
                     self.valid_build_images,
@@ -965,7 +980,6 @@ class BuildConfigV2(BuildConfigBase):
         Fall back to the defaults of:
         - ``requirements``
         - ``install`` (only for setup.py method)
-        - ``system_packages``
 
         .. note::
            - ``version`` can be a string or number type.
@@ -1008,13 +1022,6 @@ class BuildConfigV2(BuildConfigBase):
             self.validate_python_install(index)
             for index in range(len(raw_install))
         ]
-
-        with self.catch_validation_error('python.system_packages'):
-            system_packages = self.pop_config(
-                'python.system_packages',
-                False,
-            )
-            python['use_system_site_packages'] = validate_bool(system_packages)
 
         return python
 
@@ -1273,18 +1280,14 @@ class BuildConfigV2(BuildConfigBase):
         This should be called after all the validations are done and all keys
         are popped from `self._raw_config`.
         """
-        msg = (
-            'Invalid configuration option: {}. '
-            'Make sure the key name is correct.'
-        )
         # The version key isn't popped, but it's
         # validated in `load`.
         self.pop_config('version', None)
         wrong_key = '.'.join(self._get_extra_key(self._raw_config))
         if wrong_key:
             self.error(
-                wrong_key,
-                msg.format(wrong_key),
+                key=wrong_key,
+                message="Make sure the key name is correct.",
                 code=INVALID_KEY,
             )
 
@@ -1352,7 +1355,6 @@ class BuildConfigV2(BuildConfigBase):
         return Python(
             version=python.get('version'),
             install=python_install,
-            use_system_site_packages=python['use_system_site_packages'],
         )
 
     @property
@@ -1421,7 +1423,7 @@ def load(path, env_config, readthedocs_yaml_path=None):
                     message=str(error),
                 ),
                 code=CONFIG_SYNTAX_INVALID,
-            )
+            ) from error
         version = config.get('version', 1)
         build_config = get_configuration_class(version)(
             env_config,
@@ -1446,9 +1448,9 @@ def get_configuration_class(version):
     try:
         version = int(version)
         return configurations_class[version]
-    except (KeyError, ValueError):
+    except (KeyError, ValueError) as error:
         raise InvalidConfig(
             'version',
             code=VERSION_INVALID,
             error_message='Invalid version of the configuration file',
-        )
+        ) from error

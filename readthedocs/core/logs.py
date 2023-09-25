@@ -23,7 +23,8 @@ class ReadTheDocsRequestMiddleware(RequestMiddleware):
 
     """
 
-    def format_request(self, request):
+    @staticmethod
+    def format_request(request):
         return request.build_absolute_uri()
 
 
@@ -48,7 +49,7 @@ class NewRelicProcessor:
         if not isinstance(event_dict, dict):
             return event_dict
 
-        record = event_dict.get('_record')
+        record = event_dict.get("_record")
         if record is None:
             return event_dict
 
@@ -57,7 +58,7 @@ class NewRelicProcessor:
         output = {
             # "timestamp": int(record.created * 1000),
             # "message": record.getMessage(),
-            "message": event_dict['event'],
+            "message": event_dict["event"],
             # "log.level": record.levelname,
             # "logger.name": record.name,
             "thread.id": record.thread,
@@ -92,11 +93,7 @@ class SysLogRenderer(structlog.dev.ConsoleRenderer):
 
         process_id = event_dict.pop("process_id", None)
         if process_id is not None:
-            sio.write(
-                "["
-                + str(process_id)
-                + "]"
-            )
+            sio.write("[" + str(process_id) + "]")
 
         # syslog tag delimiter
         sio.write(": ")
@@ -192,16 +189,17 @@ class SysLogRenderer(structlog.dev.ConsoleRenderer):
 
 
 class SysLogProcessor:
-
     def __call__(self, logger, method_name, event_dict):
-        record = event_dict.get('_record', None)
+        record = event_dict.get("_record", None)
         if record is None:
             return event_dict
 
-        event_dict.update({
-            'process_id': record.process,
-            'line_number': record.lineno,
-        })
+        event_dict.update(
+            {
+                "process_id": record.process,
+                "line_number": record.lineno,
+            }
+        )
         return event_dict
 
 
@@ -214,11 +212,13 @@ shared_processors = [
 ]
 
 structlog.configure(
-    processors=list([
-        structlog.stdlib.filter_by_level,
-        *shared_processors,
-        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
-    ]),
+    processors=list(
+        [
+            structlog.stdlib.filter_by_level,
+            *shared_processors,
+            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+        ]
+    ),
     context_class=structlog.threadlocal.wrap_dict(dict),
     logger_factory=structlog.stdlib.LoggerFactory(),
     wrapper_class=structlog.stdlib.BoundLogger,

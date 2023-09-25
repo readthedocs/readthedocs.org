@@ -14,18 +14,21 @@ from .mixins import APIEndpointMixin
     RTD_ALLOW_ORGANIZATIONS=False,
     ALLOW_PRIVATE_REPOS=False,
 )
-@mock.patch('readthedocs.projects.tasks.builds.update_docs_task', mock.MagicMock())
+@mock.patch("readthedocs.projects.tasks.builds.update_docs_task", mock.MagicMock())
 class ProjectsEndpointTests(APIEndpointMixin):
-
     def test_projects_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse('projects-list'),
-        )
+        url = reverse("projects-list")
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertDictEqual(
             response.json(),
-            self._get_response_dict('projects-list'),
+            self._get_response_dict("projects-list"),
         )
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
@@ -96,26 +99,31 @@ class ProjectsEndpointTests(APIEndpointMixin):
         )
 
     def test_own_projects_detail(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse(
-                'projects-detail',
-                kwargs={
-                    'project_slug': self.project.slug,
-                }),
-            {
-                'expand': (
-                    'active_versions,'
-                    'active_versions.last_build,'
-                    'active_versions.last_build.config'
-                ),
+        url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": self.project.slug,
             },
         )
+        data = {
+            "expand": (
+                "active_versions,"
+                "active_versions.last_build,"
+                "active_versions.last_build.config"
+            ),
+        }
+
+        self.client.logout()
+        response = self.client.get(url, data)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url, data)
         self.assertEqual(response.status_code, 200)
 
         self.assertDictEqual(
             response.json(),
-            self._get_response_dict('projects-detail'),
+            self._get_response_dict("projects-detail"),
         )
 
     @override_settings(ALLOW_PRIVATE_REPOS=True)
@@ -173,41 +181,46 @@ class ProjectsEndpointTests(APIEndpointMixin):
 
     def test_projects_superproject(self):
         self._create_subproject()
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.get(
-            reverse(
-                'projects-superproject',
-                kwargs={
-                    'project_slug': self.subproject.slug,
-                },
-            ),
+
+        url = reverse(
+            "projects-superproject",
+            kwargs={
+                "project_slug": self.subproject.slug,
+            },
         )
+
+        self.client.logout()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
         self.assertDictEqual(
             response.json(),
-            self._get_response_dict('projects-superproject'),
+            self._get_response_dict("projects-superproject"),
         )
 
     def test_others_projects_builds_list(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(
             reverse(
-                'projects-builds-list',
+                "projects-builds-list",
                 kwargs={
-                    'parent_lookup_project__slug': self.others_project.slug,
+                    "parent_lookup_project__slug": self.others_project.slug,
                 },
             ),
         )
         self.assertEqual(response.status_code, 403)
 
     def test_others_projects_detail(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(
             reverse(
-                'projects-detail',
+                "projects-detail",
                 kwargs={
-                    'project_slug': self.others_project.slug,
+                    "project_slug": self.others_project.slug,
                 },
             ),
         )
@@ -216,21 +229,21 @@ class ProjectsEndpointTests(APIEndpointMixin):
     def test_unauthed_others_projects_detail(self):
         response = self.client.get(
             reverse(
-                'projects-detail',
+                "projects-detail",
                 kwargs={
-                    'project_slug': self.others_project.slug,
+                    "project_slug": self.others_project.slug,
                 },
             ),
         )
         self.assertEqual(response.status_code, 401)
 
     def test_nonexistent_projects_detail(self):
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.get(
             reverse(
-                'projects-detail',
+                "projects-detail",
                 kwargs={
-                    'project_slug': 'nonexistent',
+                    "project_slug": "nonexistent",
                 },
             ),
         )
@@ -238,21 +251,26 @@ class ProjectsEndpointTests(APIEndpointMixin):
 
     def test_import_project(self):
         data = {
-            'name': 'Test Project',
-            'repository': {
-                'url': 'https://github.com/rtfd/template',
-                'type': 'git',
+            "name": "Test Project",
+            "repository": {
+                "url": "https://github.com/rtfd/template",
+                "type": "git",
             },
             "homepage": "http://template.readthedocs.io/",
             "programming_language": "py",
             "tags": ["test tag", "template tag"],
         }
+        url = reverse("projects-list")
 
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.post(reverse('projects-list'), data)
+        self.client.logout()
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(url, data)
         self.assertEqual(response.status_code, 201)
 
-        query = Project.objects.filter(slug='test-project')
+        query = Project.objects.filter(slug="test-project")
         self.assertTrue(query.exists())
 
         project = query.first()
@@ -268,95 +286,103 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(project.builds.count(), 1)
 
         response_json = response.json()
-        response_json['created'] = '2019-04-29T10:00:00Z'
-        response_json['modified'] = '2019-04-29T12:00:00Z'
+        response_json["created"] = "2019-04-29T10:00:00Z"
+        response_json["modified"] = "2019-04-29T12:00:00Z"
 
         self.assertDictEqual(
             response_json,
-            self._get_response_dict('projects-list_POST'),
+            self._get_response_dict("projects-list_POST"),
         )
 
     def test_import_existing_project(self):
         fixture.get(
             Project,
-            slug='test-project',
-            name='Test Project',
+            slug="test-project",
+            name="Test Project",
         )
         data = {
-            'name': 'Test Project',
-            'repository': {
-                'url': 'https://github.com/rtfd/template',
-                'type': 'git',
+            "name": "Test Project",
+            "repository": {
+                "url": "https://github.com/rtfd/template",
+                "type": "git",
             },
-            'homepage': 'http://template.readthedocs.io/',
-            'programming_language': 'py',
+            "homepage": "http://template.readthedocs.io/",
+            "programming_language": "py",
         }
 
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.post(reverse('projects-list'), data)
-        self.assertContains(response, 'Project with slug \\"test-project\\" already exists.', status_code=400)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(reverse("projects-list"), data)
+        self.assertContains(
+            response,
+            'Project with slug \\"test-project\\" already exists.',
+            status_code=400,
+        )
 
     def test_import_empty_slug(self):
         data = {
-            'name': '*',
-            'repository': {
-                'url': 'https://github.com/rtfd/template',
-                'type': 'git',
+            "name": "*",
+            "repository": {
+                "url": "https://github.com/rtfd/template",
+                "type": "git",
             },
-            'homepage': 'http://template.readthedocs.io/',
-            'programming_language': 'py',
+            "homepage": "http://template.readthedocs.io/",
+            "programming_language": "py",
         }
 
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.post(reverse('projects-list'), data)
-        self.assertContains(response, 'Invalid project name \\"*\\": no slug generated.', status_code=400)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(reverse("projects-list"), data)
+        self.assertContains(
+            response,
+            'Invalid project name \\"*\\": no slug generated.',
+            status_code=400,
+        )
 
     def test_import_project_with_extra_fields(self):
         data = {
-            'name': 'Test Project',
-            'repository': {
-                'url': 'https://github.com/rtfd/template',
-                'type': 'git',
+            "name": "Test Project",
+            "repository": {
+                "url": "https://github.com/rtfd/template",
+                "type": "git",
             },
-            'default_version': 'v1.0',  # ignored: field not allowed
+            "default_version": "v1.0",  # ignored: field not allowed
         }
 
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.post(reverse('projects-list'), data)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(reverse("projects-list"), data)
         self.assertEqual(response.status_code, 201)
 
-        query = Project.objects.filter(slug='test-project')
+        query = Project.objects.filter(slug="test-project")
         self.assertTrue(query.exists())
 
         project = query.first()
-        self.assertEqual(project.name, 'Test Project')
-        self.assertEqual(project.slug, 'test-project')
-        self.assertEqual(project.repo, 'https://github.com/rtfd/template')
-        self.assertNotEqual(project.default_version, 'v1.0')
+        self.assertEqual(project.name, "Test Project")
+        self.assertEqual(project.slug, "test-project")
+        self.assertEqual(project.repo, "https://github.com/rtfd/template")
+        self.assertNotEqual(project.default_version, "v1.0")
         self.assertIn(self.me, project.users.all())
 
     def test_import_project_with_remote_repository(self):
         remote_repository = fixture.get(
             RemoteRepository,
-            full_name='rtfd/template',
-            clone_url='https://github.com/rtfd/template',
-            html_url='https://github.com/rtfd/template',
-            ssh_url='git@github.com:rtfd/template.git',
+            full_name="rtfd/template",
+            clone_url="https://github.com/rtfd/template",
+            html_url="https://github.com/rtfd/template",
+            ssh_url="git@github.com:rtfd/template.git",
         )
 
         data = {
-            'name': 'Test Project',
-            'repository': {
-                'url': 'https://github.com/rtfd/template',
-                'type': 'git',
+            "name": "Test Project",
+            "repository": {
+                "url": "https://github.com/rtfd/template",
+                "type": "git",
             },
         }
 
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.post(reverse('projects-list'), data)
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.post(reverse("projects-list"), data)
         self.assertEqual(response.status_code, 201)
 
-        query = Project.objects.filter(slug='test-project')
+        query = Project.objects.filter(slug="test-project")
         self.assertTrue(query.exists())
 
         project = query.first()
@@ -365,10 +391,10 @@ class ProjectsEndpointTests(APIEndpointMixin):
 
     def test_update_project(self):
         data = {
-            'name': 'Updated name',
-            'repository': {
-                'url': 'https://bitbucket.com/rtfd/updated-repository',
-                'type': 'hg',
+            "name": "Updated name",
+            "repository": {
+                "url": "https://bitbucket.com/rtfd/updated-repository",
+                "type": "hg",
             },
             "language": "es",
             "programming_language": "js",
@@ -381,17 +407,19 @@ class ProjectsEndpointTests(APIEndpointMixin):
             "single_version": True,
             "external_builds_enabled": True,
         }
-
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.put(
-            reverse(
-                'projects-detail',
-                kwargs={
-                    'project_slug': self.project.slug,
-                },
-            ),
-            data,
+        url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
         )
+
+        self.client.logout()
+        response = self.client.put(url, data)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.put(url, data)
         self.assertEqual(response.status_code, 204)
 
         self.project.refresh_from_db()
@@ -414,24 +442,27 @@ class ProjectsEndpointTests(APIEndpointMixin):
 
     def test_partial_update_project(self):
         data = {
-            'name': 'Updated name',
-            'repository': {
-                'url': 'https://github.com/rtfd/updated-repository',
+            "name": "Updated name",
+            "repository": {
+                "url": "https://github.com/rtfd/updated-repository",
             },
             "default_branch": "updated-default-branch",
             "tags": ["partial tags", "updated"],
         }
 
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
-        response = self.client.patch(
-            reverse(
-                'projects-detail',
-                kwargs={
-                    'project_slug': self.project.slug,
-                },
-            ),
-            data,
+        url = reverse(
+            "projects-detail",
+            kwargs={
+                "project_slug": self.project.slug,
+            },
         )
+
+        self.client.logout()
+        response = self.client.patch(url, data)
+        self.assertEqual(response.status_code, 401)
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+        response = self.client.patch(url, data)
         self.assertEqual(response.status_code, 204)
 
         self.project.refresh_from_db()
@@ -445,15 +476,15 @@ class ProjectsEndpointTests(APIEndpointMixin):
 
     def test_partial_update_others_project(self):
         data = {
-            'name': 'Updated name',
+            "name": "Updated name",
         }
 
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {self.token.key}')
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
         response = self.client.patch(
             reverse(
-                'projects-detail',
+                "projects-detail",
                 kwargs={
-                    'project_slug': self.others_project.slug,
+                    "project_slug": self.others_project.slug,
                 },
             ),
             data,

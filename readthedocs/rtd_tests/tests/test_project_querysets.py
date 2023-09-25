@@ -251,9 +251,9 @@ class FeatureQuerySetTests(TestCase):
             add_date=project.pub_date - timedelta(days=1),
             default_true=True,
         )
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             Feature.objects.for_project(project),
-            [repr(feature1), repr(feature3)],
+            [feature1, feature3],
             ordered=False,
         )
 
@@ -277,9 +277,9 @@ class FeatureQuerySetTests(TestCase):
             add_date=project.pub_date - timedelta(days=1),
             future_default_true=True,
         )
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             Feature.objects.for_project(project),
-            [repr(feature1), repr(feature3)],
+            [feature1, feature3],
             ordered=False,
         )
 
@@ -287,8 +287,8 @@ class FeatureQuerySetTests(TestCase):
         project1 = fixture.get(Project, main_language_project=None)
         project2 = fixture.get(Project, main_language_project=None)
         feature = fixture.get(Feature, projects=[project1, project2])
-        self.assertQuerysetEqual(
+        self.assertQuerySetEqual(
             Feature.objects.for_project(project1),
-            [repr(feature)],
+            [feature],
             ordered=False,
         )

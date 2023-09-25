@@ -8,7 +8,7 @@ from readthedocs.builds.constants import EXTERNAL
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.subscriptions.constants import TYPE_CNAME
-from readthedocs.subscriptions.models import PlanFeature
+from readthedocs.subscriptions.products import get_feature
 
 log = structlog.get_logger(__name__)
 
@@ -55,103 +55,99 @@ class ResolverBase:
     """
 
     def base_resolve_path(
-            self,
-            project_slug,
-            filename,
-            version_slug=None,
-            language=None,
-            single_version=None,
-            subproject_slug=None,
-            subdomain=None,
-            cname=None,
-            urlconf=None,
+        self,
+        project_slug,
+        filename,
+        version_slug=None,
+        language=None,
+        single_version=None,
+        project_relationship=None,
+        subdomain=None,
+        cname=None,
+        custom_prefix=None,
     ):
-        """Resolve a with nothing smart, just filling in the blanks."""
+        """
+        Build a path using the given fields.
+
+        We first build a format string based on the given fields,
+        then we just call ``string.format()`` with the given values.
+
+        For example, if custom prefix is given, the path will be prefixed with it.
+        In case of a subproject (project_relationship is given),
+        the path will be prefixed with the subproject prefix
+        (defaults to ``/projects/<subproject-slug>/``).
+        """
         # Only support `/docs/project' URLs outside our normal environment. Normally
         # the path should always have a subdomain or CNAME domain
-        if subdomain or cname or (self._use_subdomain()):
-            url = '/'
+        if subdomain or cname or self._use_subdomain():
+            path = "/"
         else:
-            url = '/docs/{project_slug}/'
+            path = "/docs/{project}/"
 
-        if subproject_slug:
-            url += 'projects/{subproject_slug}/'
+        if project_relationship:
+            path = unsafe_join_url_path(path, project_relationship.subproject_prefix)
+
+        # If the project has a custom prefix, we use it.
+        if custom_prefix:
+            path = unsafe_join_url_path(path, custom_prefix)
 
         if single_version:
-            url += '{filename}'
+            path = unsafe_join_url_path(path, "{filename}")
         else:
-            url += '{language}/{version_slug}/{filename}'
+            path = unsafe_join_url_path(path, "{language}/{version}/{filename}")
 
-        # Allow users to override their own URLConf
-        # This logic could be cleaned up with a standard set of variable replacements
-        if urlconf:
-            url = urlconf
-            url = url.replace(
-                '$version',
-                '{version_slug}',
-            )
-            url = url.replace(
-                '$language',
-                '{language}',
-            )
-            url = url.replace(
-                '$filename',
-                '{filename}',
-            )
-            url = url.replace(
-                '$subproject',
-                '{subproject_slug}',
-            )
-            if '$' in url:
-                log.warning(
-                    'Unconverted variable in a resolver URLConf.', url=url,
-                )
-
-        return url.format(
-            project_slug=project_slug,
+        subproject_alias = project_relationship.alias if project_relationship else ""
+        return path.format(
+            project=project_slug,
             filename=filename,
-            version_slug=version_slug,
+            version=version_slug,
             language=language,
-            single_version=single_version,
-            subproject_slug=subproject_slug,
+            subproject=subproject_alias,
         )
 
     def resolve_path(
-            self,
-            project,
-            filename='',
-            version_slug=None,
-            language=None,
-            single_version=None,
-            subdomain=None,
-            cname=None,
-            urlconf=None,
+        self,
+        project,
+        filename="",
+        version_slug=None,
+        language=None,
+        single_version=None,
+        subdomain=None,
+        cname=None,
     ):
         """Resolve a URL with a subset of fields defined."""
         version_slug = version_slug or project.get_default_version()
         language = language or project.language
 
-        filename = self._fix_filename(project, filename)
+        filename = self._fix_filename(filename)
 
-        main_project, subproject_slug = self._get_canonical_project_data(project)
-        project_slug = main_project.slug
+        parent_project, project_relationship = self._get_canonical_project_data(project)
         cname = (
             cname
             or self._use_subdomain()
-            or main_project.get_canonical_custom_domain()
+            or parent_project.get_canonical_custom_domain()
         )
         single_version = bool(project.single_version or single_version)
 
+        # If the project is a subproject, we use the custom prefix
+        # of the child of the relationship, this is since the project
+        # could be a translation. For a project that isn't a subproject,
+        # we use the custom prefix of the parent project.
+        if project_relationship:
+            custom_prefix = project_relationship.child.custom_prefix
+        else:
+            custom_prefix = parent_project.custom_prefix
+
         return self.base_resolve_path(
-            project_slug=project_slug,
+            project_slug=parent_project.slug,
             filename=filename,
             version_slug=version_slug,
             language=language,
             single_version=single_version,
-            subproject_slug=subproject_slug,
+            project_relationship=project_relationship,
             cname=cname,
             subdomain=subdomain,
-            urlconf=urlconf or project.urlconf,
+            custom_prefix=custom_prefix,
         )
 
     def resolve_domain(self, project, use_canonical_domain=True):
@@ -173,10 +169,15 @@ class ResolverBase:
         return settings.PRODUCTION_DOMAIN
 
     def resolve(
-            self, project, require_https=False, filename='', query_params='',
-            external=None, **kwargs
+        self,
+        project,
+        require_https=False,
+        filename="",
+        query_params="",
+        external=None,
+        **kwargs,
     ):
-        version_slug = kwargs.get('version_slug')
+        version_slug = kwargs.get("version_slug")
 
         if version_slug is None:
             version_slug = project.get_default_version()
@@ -196,53 +197,37 @@ class ResolverBase:
         else:
             domain = settings.PRODUCTION_DOMAIN
 
-        use_https_protocol = any([
-            # Rely on the ``Domain.https`` field
-            use_custom_domain and custom_domain.https,
-            # or force it if specified
-            require_https,
-            # or fallback to settings
-            settings.PUBLIC_DOMAIN_USES_HTTPS and
-            settings.PUBLIC_DOMAIN and
-            any([
-                settings.PUBLIC_DOMAIN in domain,
-                settings.RTD_EXTERNAL_VERSION_DOMAIN in domain,
-            ]),
-        ])
-        protocol = 'https' if use_https_protocol else 'http'
-
-        path = self.resolve_path(
-            project, filename=filename, **kwargs
+        use_https_protocol = any(
+            [
+                # Rely on the ``Domain.https`` field
+                use_custom_domain and custom_domain.https,
+                # or force it if specified
+                require_https,
+                # or fallback to settings
+                settings.PUBLIC_DOMAIN_USES_HTTPS
+                and settings.PUBLIC_DOMAIN
+                and any(
+                    [
+                        settings.PUBLIC_DOMAIN in domain,
+                        settings.RTD_EXTERNAL_VERSION_DOMAIN in domain,
+                    ]
+                ),
+            ]
         )
-        return urlunparse((protocol, domain, path, '', query_params, ''))
+        protocol = "https" if use_https_protocol else "http"
 
-    def _get_path_prefix(self, project):
+        path = self.resolve_path(project, filename=filename, **kwargs)
+        return urlunparse((protocol, domain, path, "", query_params, ""))
+
+    def get_subproject_url_prefix(self, project, external_version_slug=None):
         """
-        Returns the path prefix for a project.
-
-        If the project is a subproject, it will return ``/projects/<subproject-alias>/``.
-        If the project is a main project, it will return ``/``.
-        This will respect the custom urlconf of the project if it's defined.
-        """
-        custom_prefix = project.custom_path_prefix
-        parent_relationship = project.get_parent_relationship()
-        if parent_relationship:
-            prefix = custom_prefix or "projects"
-            return unsafe_join_url_path(prefix, parent_relationship.alias, "/")
-
-        prefix = custom_prefix or "/"
-        return unsafe_join_url_path(prefix, "/")
-
-    def get_url_prefix(self, project, external_version_slug=None):
-        """
-        Get the URL prefix from where the documentation of ``project`` is served from.
+        Get the URL prefix from where the documentation of a subproject is served from.
 
         This doesn't include the version or language. For example:
 
         - https://docs.example.com/projects/<project-slug>/
-        - https://docs.readthedocs.io/
 
-        This will respect the custom urlconf of the project if it's defined.
+        This will respect the custom subproject prefix if it's defined.
 
         :param project: Project object to get the root URL from
         :param external_version_slug: If given, resolve using the external version domain.
@@ -263,15 +248,14 @@ class ResolverBase:
             use_https = settings.PUBLIC_DOMAIN_USES_HTTPS
 
         protocol = "https" if use_https else "http"
-        path = self._get_path_prefix(project)
+        path = project.subproject_prefix
         return urlunparse((protocol, domain, path, "", "", ""))
 
     def _get_canonical_project_data(self, project):
         """
-        Returns a tuple with (project, subproject_slug) from the canonical project of `project`.
+        Get the parent project and subproject relationship from the canonical project of `project`.
 
-        We currently support more than 2 levels of nesting subprojects and translations,
-        but we only serve 2 levels to avoid sticking in the loop.
+        We don't support more than 2 levels of nesting subprojects and translations,
         This means, we can have the following cases:
 
         - The project isn't a translation or subproject
@@ -314,19 +298,17 @@ class ResolverBase:
         If the project is a translation,
         we need to check if the main translation is a subproject.
         """
-        main_project = project
-        subproject_slug = None
+        parent_project = project
 
-        main_language_project = main_project.main_language_project
+        main_language_project = parent_project.main_language_project
         if main_language_project:
-            main_project = main_language_project
+            parent_project = main_language_project
 
-        relation = main_project.get_parent_relationship()
-        if relation:
-            main_project = relation.parent
-            subproject_slug = relation.alias
+        relationship = parent_project.parent_relationship
+        if relationship:
+            parent_project = relationship.parent
 
-        return (main_project, subproject_slug)
+        return (parent_project, relationship)
 
     def _get_canonical_project(self, project, projects=None):
         """
@@ -351,7 +333,7 @@ class ResolverBase:
         if project.main_language_project:
             next_project = project.main_language_project
         else:
-            relation = project.get_parent_relationship()
+            relation = project.parent_relationship
             if relation:
                 next_project = relation.parent
 
@@ -361,32 +343,33 @@ class ResolverBase:
 
     def _get_external_subdomain(self, project, version_slug):
         """Determine domain for an external version."""
-        subdomain_slug = project.slug.replace('_', '-')
+        subdomain_slug = project.slug.replace("_", "-")
         # Version slug is in the domain so we can properly serve single-version projects
         # and have them resolve the proper version from the PR.
-        return f'{subdomain_slug}--{version_slug}.{settings.RTD_EXTERNAL_VERSION_DOMAIN}'
+        return (
+            f"{subdomain_slug}--{version_slug}.{settings.RTD_EXTERNAL_VERSION_DOMAIN}"
+        )
 
     def _get_project_subdomain(self, project):
         """Determine canonical project domain as subdomain."""
-        subdomain_slug = project.slug.replace('_', '-')
-        return '{}.{}'.format(subdomain_slug, settings.PUBLIC_DOMAIN)
+        subdomain_slug = project.slug.replace("_", "-")
+        return "{}.{}".format(subdomain_slug, settings.PUBLIC_DOMAIN)
 
     def _is_external(self, project, version_slug):
         type_ = (
-            project.versions
-            .values_list('type', flat=True)
+            project.versions.values_list("type", flat=True)
             .filter(slug=version_slug)
             .first()
         )
         return type_ == EXTERNAL
 
-    def _fix_filename(self, project, filename):
+    def _fix_filename(self, filename):
         """
         Force filenames that might be HTML file paths into proper URL's.
 
         This basically means stripping /.
         """
-        filename = filename.lstrip('/')
+        filename = filename.lstrip("/")
         return filename
 
     def _use_custom_domain(self, custom_domain):
@@ -406,13 +389,12 @@ class ResolverBase:
 
     def _use_cname(self, project):
         """Test if to allow direct serving for project on CNAME."""
-        return PlanFeature.objects.has_feature(project, type=TYPE_CNAME)
+        return bool(get_feature(project, feature_type=TYPE_CNAME))
 
 
 class Resolver(SettingsOverrideObject):
-
     _default_class = ResolverBase
-    _override_setting = 'RESOLVER_CLASS'
+    _override_setting = "RESOLVER_CLASS"
 
 
 resolver = Resolver()

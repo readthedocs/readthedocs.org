@@ -44,7 +44,6 @@ def load_yaml_config(version, readthedocs_yaml_path=None):
         'defaults': {
             'install_project': project.install_project,
             'formats': get_default_formats(project),
-            'use_system_packages': project.use_system_packages,
             'requirements_file': project.requirements_file,
             'python_version': python_version,
             'sphinx_configuration': sphinx_configuration,
@@ -68,7 +67,8 @@ def load_yaml_config(version, readthedocs_yaml_path=None):
         config = BuildConfigV1(
             env_config=env_config,
             raw_config={},
-            source_file=checkout_path,
+            base_path=checkout_path,
+            source_file=None,
         )
         config.validate()
     return config

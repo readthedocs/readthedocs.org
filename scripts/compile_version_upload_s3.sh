@@ -59,7 +59,7 @@ set -e # Stop on errors
 set -x # Echo commands
 
 # Define variables
-SLEEP=350 # Container timeout
+SLEEP=900 # Container timeout
 OS="${OS:-ubuntu-22.04}" # Docker image name
 
 TOOL=$1
@@ -71,6 +71,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 # Spin up a container with the Ubuntu 20.04 LTS image
 CONTAINER_ID=$(docker run --user docs --rm --detach --volume ${SCRIPT_DIR}/python-build.diff:/tmp/python-build.diff readthedocs/build:$OS sleep $SLEEP)
 echo "Running all the commands in Docker container: $CONTAINER_ID"
+
+# Run "asdf version" from inside the container
+echo -n 'asdf version: '
+docker exec --user root $CONTAINER_ID asdf version
 
 # Install the tool version requested
 if [[ $TOOL == "python" ]]

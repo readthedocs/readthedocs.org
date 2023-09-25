@@ -11,17 +11,15 @@ class ListViewWithForm(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['form'] = self.get_form(data=None, files=None)
+        context["form"] = self.get_form(data=None, files=None)
         return context
 
 
 class PrivateViewMixin(LoginRequiredMixin):
-
     pass
 
 
 class ProxiedAPIMixin:
-
     # DRF has BasicAuthentication and SessionAuthentication as default classes.
     # We don't support neither in the community site.
     authentication_classes = []

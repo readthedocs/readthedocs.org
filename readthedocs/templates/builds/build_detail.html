@@ -161,18 +161,33 @@ $(document).ready(function () {
           </p>
         </div>
       {% endif %}
-      {% if build.finished and not build.using_latest_config %}
-        <div class="build-ideas">
+
+      {# This message is not dynamic and only appears when loading the page after the build has finished #}
+      {% if build.finished and build.deprecated_build_image_used %}
+      <div class="build-ideas">
           <p>
-            {% blocktrans trimmed with config_file_link="https://docs.readthedocs.io/page/config-file/v2.html" %}
-              <strong>Configure your documentation builds!</strong>
-              Adding a <a href="{{ config_file_link }}">.readthedocs.yaml</a> file to your project
-              is the recommended way to configure your documentation builds.
-              You can declare dependencies, set up submodules, and many other great features.
-            {% endblocktrans %}
+              {% blocktrans trimmed with config_file_link="https://blog.readthedocs.com/use-build-os-config/" %}
+              <strong>Your builds will stop working soon!</strong><br/>
+              "build.image" config key is deprecated and it will be removed soon.
+              <a href="{{ config_file_link }}">Read our blog post to know how to migrate to new key "build.os"</a>
+              and ensure your project continues building successfully.
+              {% endblocktrans %}
           </p>
-        </div>
+      </div>
       {% endif %}
+      {% if build.finished and build.deprecated_config_used %}
+      <div class="build-ideas">
+        <p>
+          {% blocktrans trimmed with config_file_link="https://blog.readthedocs.com/migrate-configuration-v2/" %}
+            <strong>Your builds will stop working soon!</strong><br/>
+            Configuration files will <strong>soon be required</strong> by projects, and will no longer be optional.
+            <a href="{{ config_file_link }}">Read our blog post to create one</a>
+            and ensure your project continues building successfully.
+          {% endblocktrans %}
+        </p>
+      </div>
+      {% endif %}
+
     {% endif %}
 
     {% if build.finished and build.config.build.commands %}
@@ -224,7 +239,13 @@ $(document).ready(function () {
         <h3>{% trans "Error" %}</h3>
         <p class="build-error"
            data-bind="text: error">
-          {{ build.error }}
+            {#
+              I'd like to use ``build.error|urlize`` here, so we can have nice links.
+              However, this is not possible because we are using `data-bind="text: error"`
+              which means that Knockout.js will use the `.error` attribute to fill
+              the content of this tag dynamically.
+            #}
+            {{ build.error|urlize }}
         </p>
         <p>
           {% block github_issue_link %}

@@ -140,43 +140,18 @@ class BuildEnvironmentMocker:
             return_value=self.project_repository_path,
         )
 
-        def _repo_exists_side_effect(*args, **kwargs):
-            if self._counter == 0:
-                # TODO: create a miniamal git repository nicely or mock `git.Repo` if possible
-                os.system(f'cd {self.project_repository_path} && git init')
-                self._counter += 1
-                return False
-
-            self._counter += 1
-            return True
-
-
         self.patches['git.Backend.make_clean_working_dir'] = mock.patch(
             'readthedocs.vcs_support.backends.git.Backend.make_clean_working_dir',
         )
-        self.patches['git.Backend.repo_exists'] = mock.patch(
-            'readthedocs.vcs_support.backends.git.Backend.repo_exists',
-            side_effect=_repo_exists_side_effect,
-        )
-
 
         # Make a the backend to return 3 submodules when asked
         self.patches['git.Backend.submodules'] = mock.patch(
             'readthedocs.vcs_support.backends.git.Backend.submodules',
             new_callable=mock.PropertyMock,
             return_value=[
-                mock.Mock(
-                    path='one',
-                    url='https://github.com/submodule/one',
-                ),
-                mock.Mock(
-                    path='two',
-                    url='https://github.com/submodule/two',
-                ),
-                mock.Mock(
-                    path='three',
-                    url='https://github.com/submodule/three',
-                ),
+                "one",
+                "two",
+                "three",
             ],
         )
 
@@ -261,4 +236,9 @@ class BuildEnvironmentMocker:
         self.requestsmock.patch(
             f'{settings.SLUMBER_API_HOST}/api/v2/project/{self.project.pk}/',
             status_code=201,
+        )
+
+        self.requestsmock.post(
+            f"{settings.SLUMBER_API_HOST}/api/v2/revoke/",
+            status_code=204,
         )

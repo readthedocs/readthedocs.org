@@ -12,25 +12,25 @@ from readthedocs.projects.models import Domain, Project
 
 
 class ProjectSerializer(serializers.ModelSerializer):
-    canonical_url = serializers.ReadOnlyField(source='get_docs_url')
+    canonical_url = serializers.ReadOnlyField(source="get_docs_url")
 
     class Meta:
         model = Project
         fields = (
-            'id',
-            'name',
-            'slug',
-            'description',
-            'language',
-            'programming_language',
-            'repo',
-            'repo_type',
-            'default_version',
-            'default_branch',
-            'documentation_type',
-            'users',
-            'canonical_url',
-            'urlconf',
+            "id",
+            "name",
+            "slug",
+            "description",
+            "language",
+            "programming_language",
+            "repo",
+            "repo_type",
+            "default_version",
+            "default_branch",
+            "documentation_type",
+            "users",
+            "canonical_url",
+            "custom_prefix",
         )
 
 
@@ -46,7 +46,7 @@ class ProjectAdminSerializer(ProjectSerializer):
     features = serializers.SlugRelatedField(
         many=True,
         read_only=True,
-        slug_field='feature_id',
+        slug_field="feature_id",
     )
 
     environment_variables = serializers.SerializerMethodField()
@@ -55,10 +55,10 @@ class ProjectAdminSerializer(ProjectSerializer):
     def get_environment_variables(self, obj):
         """Get all environment variables, including public ones."""
         return {
-            variable.name: dict(
-                value=variable.value,
-                public=variable.public,
-            )
+            variable.name: {
+                "value": variable.value,
+                "public": variable.public,
+            }
             for variable in obj.environmentvariable_set.all()
         }
 
@@ -83,7 +83,6 @@ class ProjectAdminSerializer(ProjectSerializer):
             "container_mem_limit",
             "container_time_limit",
             "install_project",
-            "use_system_packages",
             "skip",
             "requirements_file",
             "python_interpreter",
@@ -98,41 +97,91 @@ class ProjectAdminSerializer(ProjectSerializer):
 
 
 class VersionSerializer(serializers.ModelSerializer):
-    project = ProjectSerializer()
-    downloads = serializers.DictField(source='get_downloads', read_only=True)
+
+    """
+    Version serializer.
+
+    Instead of using directly a ProjectSerializer for the project,
+    we user a SerializerMethodField to have more control over the
+    serialization of the project, this allows us to optimize the
+    serialization of the same project for each version.
+
+    We usually filter all versions that belong to one project,
+    so instead of serializing the same project over and over again,
+    we cache the serialized project and reuse it for each version.
+
+    Why not just rely on select_related('project')?
+    Since the project is the same for all versions most of the time,
+    we would be serializing the same project over and over again,
+    and ProjectSerializer includes a call to get_docs_url,
+    ``users``, and ``features``, get_docs_url we can cached, ``users``
+    can be included in a ``prefetch_related`` call,
+    but ``features`` is a property with a custom queryset, so it can't be added.
+
+    See https://github.com/readthedocs/readthedocs.org/pull/10460#discussion_r1238928385.
+    """
+
+    project = serializers.SerializerMethodField()
+    project_serializer_class = ProjectSerializer
+
+    downloads = serializers.DictField(source="get_downloads", read_only=True)
 
     class Meta:
         model = Version
         fields = [
-            'id',
-            'project',
-            'slug',
-            'identifier',
-            'verbose_name',
-            'privacy_level',
-            'active',
-            'built',
-            'downloads',
-            'type',
-            'has_pdf',
-            'has_epub',
-            'has_htmlzip',
-            'documentation_type',
+            "id",
+            "project",
+            "slug",
+            "identifier",
+            "verbose_name",
+            "privacy_level",
+            "active",
+            "built",
+            "downloads",
+            "type",
+            "has_pdf",
+            "has_epub",
+            "has_htmlzip",
+            "documentation_type",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._serialized_projects_cache = {}
+
+    def _get_project_serialized(self, obj):
+        """Get a serialized project from the cache or create a new one."""
+        project = obj.project
+        project_serialized = self._serialized_projects_cache.get(project.id)
+        if project_serialized:
+            return project_serialized
+
+        self._serialized_projects_cache[project.id] = self.project_serializer_class(
+            project
+        )
+        return self._serialized_projects_cache[project.id]
+
+    def get_project(self, obj):
+        project_serialized = self._get_project_serialized(obj)
+        return project_serialized.data
 
 
 class VersionAdminSerializer(VersionSerializer):
 
     """Version serializer that returns admin project data."""
 
-    project = ProjectAdminSerializer()
+    project_serializer_class = ProjectAdminSerializer
     canonical_url = serializers.SerializerMethodField()
     build_data = serializers.JSONField(required=False, write_only=True, allow_null=True)
     addons = serializers.BooleanField(required=False, write_only=True, allow_null=False)
 
     def get_canonical_url(self, obj):
-        return obj.project.get_docs_url(
-            lang_slug=obj.project.language,
+        # Use the cached object, since it has some
+        # relationships already cached from calling
+        # get_docs_url early when serializing the project.
+        project = self._get_project_serialized(obj).instance
+        return project.get_docs_url(
+            lang_slug=project.language,
             version_slug=obj.slug,
             external=obj.type == EXTERNAL,
         )
@@ -142,11 +191,11 @@ class VersionAdminSerializer(VersionSerializer):
             "addons",
             "build_data",
             "canonical_url",
+            "machine",
         ]
 
 
 class BuildCommandSerializer(serializers.ModelSerializer):
-
     run_time = serializers.ReadOnlyField()
 
     class Meta:
@@ -198,11 +247,11 @@ class BuildSerializer(serializers.ModelSerializer):
     """
 
     commands = BuildCommandReadOnlySerializer(many=True, read_only=True)
-    project_slug = serializers.ReadOnlyField(source='project.slug')
-    version_slug = serializers.ReadOnlyField(source='get_version_slug')
+    project_slug = serializers.ReadOnlyField(source="project.slug")
+    version_slug = serializers.ReadOnlyField(source="get_version_slug")
     docs_url = serializers.SerializerMethodField()
-    state_display = serializers.ReadOnlyField(source='get_state_display')
-    commit_url = serializers.ReadOnlyField(source='get_commit_url')
+    state_display = serializers.ReadOnlyField(source="get_state_display")
+    commit_url = serializers.ReadOnlyField(source="get_commit_url")
     # Jsonfield needs an explicit serializer
     # https://github.com/dmkoch/django-jsonfield/issues/188#issuecomment-300439829
     config = serializers.JSONField(required=False, allow_null=True)
@@ -210,7 +259,7 @@ class BuildSerializer(serializers.ModelSerializer):
     class Meta:
         model = Build
         # `_config` should be excluded to avoid conflicts with `config`
-        exclude = ('builder', '_config')
+        exclude = ("builder", "_config")
 
     def get_docs_url(self, obj):
         if obj.version:
@@ -231,7 +280,7 @@ class BuildAdminSerializer(BuildSerializer):
 
     class Meta(BuildSerializer.Meta):
         # `_config` should be excluded to avoid conflicts with `config`
-        exclude = ('_config',)
+        exclude = ("_config",)
 
 
 class BuildAdminReadOnlySerializer(BuildAdminSerializer):
@@ -259,20 +308,22 @@ class DomainSerializer(serializers.ModelSerializer):
     class Meta:
         model = Domain
         fields = (
-            'id',
-            'project',
-            'domain',
-            'canonical',
-            'machine',
-            'cname',
+            "id",
+            "project",
+            "domain",
+            "canonical",
+            "machine",
+            "cname",
         )
 
 
 class RemoteOrganizationSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = RemoteOrganization
-        exclude = ('email', 'users',)
+        exclude = (
+            "email",
+            "users",
+        )
 
 
 class RemoteRepositorySerializer(serializers.ModelSerializer):
@@ -283,22 +334,22 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
 
     # This field does create an additional query per object returned
     matches = serializers.SerializerMethodField()
-    admin = serializers.SerializerMethodField('is_admin')
+    admin = serializers.SerializerMethodField("is_admin")
 
     class Meta:
         model = RemoteRepository
-        exclude = ('users',)
+        exclude = ("users",)
 
     def get_matches(self, obj):
-        request = self.context['request']
+        request = self.context["request"]
         if request.user is not None and request.user.is_authenticated:
             return obj.matches(request.user)
 
     def is_admin(self, obj):
-        request = self.context['request']
+        request = self.context["request"]
 
         # Use annotated value from RemoteRepositoryViewSet queryset
-        if hasattr(obj, 'admin'):
+        if hasattr(obj, "admin"):
             return obj.admin
 
         if request.user and request.user.is_authenticated:
@@ -309,23 +360,22 @@ class RemoteRepositorySerializer(serializers.ModelSerializer):
 
 
 class ProviderSerializer(serializers.Serializer):
-
     id = serializers.CharField(max_length=20)
     name = serializers.CharField(max_length=20)
 
 
 class SocialAccountSerializer(serializers.ModelSerializer):
-
     username = serializers.SerializerMethodField()
-    avatar_url = serializers.URLField(source='get_avatar_url')
-    provider = ProviderSerializer(source='get_provider')
+    avatar_url = serializers.URLField(source="get_avatar_url")
+    provider = ProviderSerializer(source="get_provider")
 
     class Meta:
         model = SocialAccount
-        exclude = ('extra_data',)
+        exclude = ("extra_data",)
 
     def get_username(self, obj):
         return (
-            obj.extra_data.get('username') or obj.extra_data.get('login')
+            obj.extra_data.get("username")
+            or obj.extra_data.get("login")
             # FIXME: which one is GitLab?
         )

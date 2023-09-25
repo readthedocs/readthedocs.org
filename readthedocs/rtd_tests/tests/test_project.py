@@ -33,7 +33,6 @@ from readthedocs.projects.constants import (
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks.utils import finish_inactive_builds
-from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
 class ProjectMixin:
@@ -62,36 +61,6 @@ class TestProject(ProjectMixin, TestCase):
         resp = json.loads(r.content)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(resp['subprojects'][0]['id'], 23)
-
-    def test_has_pdf(self):
-        # The project has a pdf if the PDF file exists on disk.
-        with fake_paths_by_regex(r'\.pdf$'):
-            self.assertTrue(self.pip.has_pdf(LATEST))
-
-        # The project has no pdf if there is no file on disk.
-        with fake_paths_by_regex(r'\.pdf$', exists=False):
-            self.assertFalse(self.pip.has_pdf(LATEST))
-
-    def test_has_pdf_with_pdf_build_disabled(self):
-        # The project doesn't depend on `enable_pdf_build`
-        self.pip.enable_pdf_build = False
-        with fake_paths_by_regex(r'\.pdf$'):
-            self.assertTrue(self.pip.has_pdf(LATEST))
-
-    def test_has_epub(self):
-        # The project has a epub if the PDF file exists on disk.
-        with fake_paths_by_regex(r'\.epub$'):
-            self.assertTrue(self.pip.has_epub(LATEST))
-
-        # The project has no epub if there is no file on disk.
-        with fake_paths_by_regex(r'\.epub$', exists=False):
-            self.assertFalse(self.pip.has_epub(LATEST))
-
-    def test_has_epub_with_epub_build_disabled(self):
-        # The project doesn't depend on `enable_epub_build`
-        self.pip.enable_epub_build = False
-        with fake_paths_by_regex(r'\.epub$'):
-            self.assertTrue(self.pip.has_epub(LATEST))
 
     @patch('readthedocs.projects.models.Project.find')
     def test_conf_file_found(self, find_method):

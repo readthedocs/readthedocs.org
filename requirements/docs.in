@@ -1,7 +1,8 @@
 # Packages required to build docs, independent of application dependencies
 
 sphinx
-sphinx_rtd_theme
+
+sphinx_rtd_theme==2.0.0rc2
 sphinx-tabs
 sphinx-intl
 sphinx-design
@@ -18,6 +19,7 @@ sphinxcontrib-httpdomain
 sphinx-prompt
 sphinx-autobuild
 sphinxext-opengraph
+sphinx-copybutton
 
 # Markdown
 myst_parser

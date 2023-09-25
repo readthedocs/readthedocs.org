@@ -7,7 +7,6 @@ from readthedocs.projects.models import Project
 
 
 class ProjectFilter(filters.FilterSet):
-
     # TODO this is copying the patterns from other filter sets, where the fields
     # are all ``icontains`` lookups by default. We discussed reversing this
     # pattern in the future though, see:
@@ -26,30 +25,30 @@ class ProjectFilter(filters.FilterSet):
 
 
 class VersionFilter(filters.FilterSet):
-    slug = filters.CharFilter(lookup_expr='icontains')
-    verbose_name = filters.CharFilter(lookup_expr='icontains')
+    slug = filters.CharFilter(lookup_expr="icontains")
+    verbose_name = filters.CharFilter(lookup_expr="icontains")
 
     class Meta:
         model = Version
         fields = [
-            'verbose_name',
-            'privacy_level',
-            'active',
-            'built',
-            'uploaded',
-            'slug',
-            'type',
+            "verbose_name",
+            "privacy_level",
+            "active",
+            "built",
+            "uploaded",
+            "slug",
+            "type",
         ]
 
 
 class BuildFilter(filters.FilterSet):
-    running = filters.BooleanFilter(method='get_running')
+    running = filters.BooleanFilter(method="get_running")
 
     class Meta:
         model = Build
         fields = [
-            'commit',
-            'running',
+            "commit",
+            "running",
         ]
 
     def get_running(self, queryset, name, value):
@@ -60,24 +59,26 @@ class BuildFilter(filters.FilterSet):
 
 
 class RemoteRepositoryFilter(filters.FilterSet):
-    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
-    organization = filters.CharFilter(field_name='organization__slug')
+    name = filters.CharFilter(field_name="name", lookup_expr="icontains")
+    full_name = filters.CharFilter(field_name="full_name", lookup_expr="icontains")
+    organization = filters.CharFilter(field_name="organization__slug")
 
     class Meta:
         model = RemoteRepository
         fields = [
-            'name',
-            'vcs_provider',
-            'organization',
+            "name",
+            "full_name",
+            "vcs_provider",
+            "organization",
         ]
 
 
 class RemoteOrganizationFilter(filters.FilterSet):
-    name = filters.CharFilter(field_name='name', lookup_expr='icontains')
+    name = filters.CharFilter(field_name="name", lookup_expr="icontains")
 
     class Meta:
         model = RemoteOrganization
         fields = [
-            'name',
-            'vcs_provider',
+            "name",
+            "vcs_provider",
         ]

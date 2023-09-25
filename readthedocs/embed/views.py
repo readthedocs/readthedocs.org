@@ -145,6 +145,7 @@ def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
 
     content = None
     headers = None
+    # Embed API v2 supports Sphinx only.
     if version.is_sphinx_type:
         file_content = _get_doc_content(
             project=project,
@@ -160,18 +161,8 @@ def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
             url=url,
         )
     else:
-        # TODO: this should read from the html file itself,
-        # we don't have fjson files for mkdocs.
-        file_content = _get_doc_content(
-            project=project,
-            version=version,
-            doc=doc,
-        )
-        content, headers, section = parse_mkdocs(
-            content=file_content,
-            section=section,
-            url=url,
-        )
+        log.info("Using EmbedAPIv2 for a non Sphinx project.")
+        return None
 
     if content is None:
         return None
@@ -310,47 +301,3 @@ def parse_sphinx(content, section, url):
 
     ret = [dump(clean_references(obj, url)) for obj in query_result]
     return ret, headers, section
-
-
-def parse_mkdocs(content, section, url):  # pylint: disable=unused-argument
-    """Get the embed content for the section."""
-    ret = []
-    headers = []
-
-    if not content or not content.get('content'):
-        return (None, None, section)
-
-    body = content['content']
-    for element in PQ(body)('h2'):
-        headers.append(recurse_while_none(element))
-
-    if not section and headers:
-        # If no section is sent, return the content of the first one
-        section = list(headers[0].keys())[0].lower()
-
-    if section:
-        body_obj = PQ(body)
-        escaped_section = escape_selector(section)
-        section_list = body_obj(
-            ':header:contains("{title}")'.format(title=str(escaped_section)))
-        for num in range(len(section_list)):
-            header2 = section_list.eq(num)
-            # h2_title = h2.text().strip()
-            # section_id = h2.attr('id')
-            h2_content = ""
-            next_p = header2.next()
-            while next_p:
-                if next_p[0].tag == 'h2':
-                    break
-                h2_html = next_p.outerHtml()
-                if h2_html:
-                    h2_content += "\n%s\n" % h2_html
-                next_p = next_p.next()
-            if h2_content:
-                ret.append(h2_content)
-                # ret.append({
-                #     'id': section_id,
-                #     'title': h2_title,
-                #     'content': h2_content,
-                # })
-    return (ret, headers, section)

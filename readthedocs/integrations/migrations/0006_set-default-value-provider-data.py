@@ -4,15 +4,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('integrations', '0005_change_default_integration_secret'),
+        ("integrations", "0005_change_default_integration_secret"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='integration',
-            name='provider_data',
-            field=jsonfield.fields.JSONField(default=dict, verbose_name='Provider data'),
+            model_name="integration",
+            name="provider_data",
+            field=jsonfield.fields.JSONField(
+                default=dict, verbose_name="Provider data"
+            ),
         ),
     ]

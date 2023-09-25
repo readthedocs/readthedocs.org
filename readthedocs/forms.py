@@ -15,17 +15,15 @@ class SignupFormWithNewsletter(SignupForm):
 
     receive_newsletter = forms.BooleanField(
         required=False,
-        label=(
-            "Subscribe to our newsletter to get product updates."
-        ),
+        label=("Subscribe to our newsletter to get product updates."),
     )
 
     field_order = [
-        'email',
-        'username',
-        'password1',
-        'password2',
-        'receive_newsletter',
+        "email",
+        "username",
+        "password1",
+        "password2",
+        "receive_newsletter",
     ]
 
     def save(self, request):

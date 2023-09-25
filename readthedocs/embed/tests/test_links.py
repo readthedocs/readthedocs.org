@@ -7,86 +7,86 @@ from readthedocs.embed.utils import clean_references
 
 URLData = namedtuple("URLData", ["docurl", "ref", "expected"])
 
-html_base_url = 'https://t.readthedocs.io/en/latest/page.html'
-dirhtml_base_url = 'https://t.readthedocs.io/en/latest/page/'
+html_base_url = "https://t.readthedocs.io/en/latest/page.html"
+dirhtml_base_url = "https://t.readthedocs.io/en/latest/page/"
 htmldata = [
     URLData(
         html_base_url,
-        '#to-a-section',
-        'https://t.readthedocs.io/en/latest/page.html#to-a-section',
+        "#to-a-section",
+        "https://t.readthedocs.io/en/latest/page.html#to-a-section",
     ),
     URLData(
         html_base_url,
-        '/section.html',
-        '/section.html',  # don't change it if starts with /
+        "/section.html",
+        "/section.html",  # don't change it if starts with /
     ),
     URLData(
         html_base_url,
-        'internal/deep/section.html',
-        'https://t.readthedocs.io/en/latest/internal/deep/section.html',
+        "internal/deep/section.html",
+        "https://t.readthedocs.io/en/latest/internal/deep/section.html",
     ),
     URLData(
         html_base_url,
-        'section.html',
-        'https://t.readthedocs.io/en/latest/section.html',
+        "section.html",
+        "https://t.readthedocs.io/en/latest/section.html",
     ),
     URLData(
         html_base_url,
-        'relative/page.html#to-a-section',
-        'https://t.readthedocs.io/en/latest/relative/page.html#to-a-section',
+        "relative/page.html#to-a-section",
+        "https://t.readthedocs.io/en/latest/relative/page.html#to-a-section",
     ),
     URLData(
-        'https://t.readthedocs.io/en/latest/internal/deep/page/section.html',
-        '../../page.html#to-a-section',
-        'https://t.readthedocs.io/en/latest/internal/deep/page/../../page.html#to-a-section',
+        "https://t.readthedocs.io/en/latest/internal/deep/page/section.html",
+        "../../page.html#to-a-section",
+        "https://t.readthedocs.io/en/latest/internal/deep/page/../../page.html#to-a-section",
     ),
     URLData(
-        'https://t.readthedocs.io/en/latest/internal/deep/page/section.html',
-        'relative/page.html#to-a-section',
-        'https://t.readthedocs.io/en/latest/internal/deep/page/relative/page.html#to-a-section',
+        "https://t.readthedocs.io/en/latest/internal/deep/page/section.html",
+        "relative/page.html#to-a-section",
+        "https://t.readthedocs.io/en/latest/internal/deep/page/relative/page.html#to-a-section",
     ),
     URLData(
         html_base_url,
-        'https://readthedocs.org/',
-        'https://readthedocs.org/',  # don't change external links
+        "https://readthedocs.org/",
+        "https://readthedocs.org/",  # don't change external links
     ),
 ]
 
 dirhtmldata = [
     URLData(
         dirhtml_base_url,
-        '#to-a-section',
-        'https://t.readthedocs.io/en/latest/page/#to-a-section',
+        "#to-a-section",
+        "https://t.readthedocs.io/en/latest/page/#to-a-section",
     ),
     URLData(
         dirhtml_base_url,
-        '/section/',
-        '/section/',  # don't change it if starts with /
+        "/section/",
+        "/section/",  # don't change it if starts with /
     ),
     URLData(
         dirhtml_base_url,
-        'internal/deep/section/',
-        'https://t.readthedocs.io/en/latest/page/internal/deep/section/',
+        "internal/deep/section/",
+        "https://t.readthedocs.io/en/latest/page/internal/deep/section/",
     ),
     URLData(
         dirhtml_base_url,
-        'section/',
-        'https://t.readthedocs.io/en/latest/page/section/',
+        "section/",
+        "https://t.readthedocs.io/en/latest/page/section/",
     ),
     URLData(
         dirhtml_base_url,
-        'relative/page/#to-a-section',
-        'https://t.readthedocs.io/en/latest/page/relative/page/#to-a-section',
+        "relative/page/#to-a-section",
+        "https://t.readthedocs.io/en/latest/page/relative/page/#to-a-section",
     ),
     URLData(
-        'https://t.readthedocs.io/en/latest/internal/deep/page/section/',
-        '../../page/#to-a-section',
-        'https://t.readthedocs.io/en/latest/internal/deep/page/section/../../page/#to-a-section',
+        "https://t.readthedocs.io/en/latest/internal/deep/page/section/",
+        "../../page/#to-a-section",
+        "https://t.readthedocs.io/en/latest/internal/deep/page/section/../../page/#to-a-section",
     ),
     URLData(
         dirhtml_base_url,
-        'https://readthedocs.org/',
-        'https://readthedocs.org/',  # don't change external links
+        "https://readthedocs.org/",
+        "https://readthedocs.org/",  # don't change external links
     ),
 ]
 
@@ -108,11 +108,12 @@ imagedata = [
     ),
 ]
 
-@pytest.mark.parametrize('url', htmldata + dirhtmldata)
+
+@pytest.mark.parametrize("url", htmldata + dirhtmldata)
 def test_clean_links(url):
     pq = PyQuery(f'<body><a href="{url.ref}">Click here</a></body>')
     response = clean_references(pq, url.docurl)
-    assert response.find('a').attr['href'] == url.expected
+    assert response.find("a").attr["href"] == url.expected
 
 
 @pytest.mark.parametrize("url", imagedata)
@@ -130,18 +131,21 @@ def test_two_links():
     the second link.
     """
     firsturl = URLData(
-        'https://t.readthedocs.io/en/latest/internal/deep/page/section.html',
-        '../../page.html#to-a-section',
-        'https://t.readthedocs.io/en/latest/internal/deep/page/../../page.html#to-a-section',
+        "https://t.readthedocs.io/en/latest/internal/deep/page/section.html",
+        "../../page.html#to-a-section",
+        "https://t.readthedocs.io/en/latest/internal/deep/page/../../page.html#to-a-section",
     )
     secondurl = URLData(
-        '',  # docurl comes from firsturl
-        '#to-a-section',
-        'https://t.readthedocs.io/en/latest/internal/deep/page/section.html#to-a-section',
+        "",  # docurl comes from firsturl
+        "#to-a-section",
+        "https://t.readthedocs.io/en/latest/internal/deep/page/section.html#to-a-section",
     )
     pq = PyQuery(
         f'<body><a href="{firsturl.ref}">Click here</a><a href="{secondurl.ref}">Click here</a></body>'
     )
     response = clean_references(pq, firsturl.docurl)
-    firstlink, secondlink = response.find('a')
-    assert (firstlink.attrib['href'], secondlink.attrib['href']) == (firsturl.expected, secondurl.expected)
+    firstlink, secondlink = response.find("a")
+    assert (firstlink.attrib["href"], secondlink.attrib["href"]) == (
+        firsturl.expected,
+        secondurl.expected,
+    )

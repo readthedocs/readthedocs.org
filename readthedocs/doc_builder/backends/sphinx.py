@@ -12,18 +12,17 @@ from pathlib import Path
 import structlog
 from django.conf import settings
 from django.template import loader as template_loader
-from django.template.loader import render_to_string
 from django.urls import reverse
 from requests.exceptions import ConnectionError
 
-from readthedocs.api.v2.client import api
 from readthedocs.builds import utils as version_utils
+from readthedocs.builds.models import APIVersion
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.exceptions import PDFNotFound
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
 from readthedocs.projects.models import Feature
-from readthedocs.projects.utils import safe_write
+from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 
 from ..base import BaseBuilder
 from ..constants import PDF_RE
@@ -112,24 +111,6 @@ class BaseSphinx(BaseBuilder):
             # because Read the Docs will automatically create one for it.
             pass
 
-    def _write_config(self, master_doc='index'):
-        """Create ``conf.py`` if it doesn't exist."""
-        log.info(
-            'Creating default Sphinx config file for project.',
-            project_slug=self.project.slug,
-            version_slug=self.version.slug,
-        )
-        docs_dir = self.docs_dir()
-        conf_template = render_to_string(
-            'sphinx/conf.py.conf',
-            {
-                'project': self.project,
-                'version': self.version,
-                'master_doc': master_doc,
-            },
-        )
-        conf_file = os.path.join(docs_dir, 'conf.py')
-        safe_write(conf_file, conf_template)
 
     def get_config_params(self):
         """Get configuration parameters to be rendered into the conf file."""
@@ -167,62 +148,52 @@ class BaseSphinx(BaseBuilder):
         versions = []
         downloads = []
         subproject_urls = []
-        # Avoid hitting database and API if using Docker build environment
-        if settings.DONT_HIT_API:
-            if self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
-                versions = self.project.active_versions()
-            else:
-                versions = self.project.active_versions().filter(
-                    privacy_level=PUBLIC,
-                )
-            downloads = self.version.get_downloads(pretty=True)
-            subproject_urls = self.project.get_subproject_urls()
-        else:
-            try:
-                versions = self.project.api_versions()
-                if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
-                    versions = [
-                        v
-                        for v in versions
-                        if v.privacy_level == PUBLIC
-                    ]
-                downloads = api.version(self.version.pk).get()['downloads']
-                subproject_urls = self.project.get_subproject_urls()
-            except ConnectionError:
-                log.exception(
-                    'Timeout while fetching versions/downloads/subproject_urls for Sphinx context.',
-                    project_slug=self.project.slug,
-                    version_slug=self.version.slug,
-                )
+        try:
+            active_versions_data = self.api_client.project(
+                self.project.pk
+            ).active_versions.get()["versions"]
+            versions = sort_version_aware(
+                [APIVersion(**version_data) for version_data in active_versions_data]
+            )
+            if not self.project.has_feature(Feature.ALL_VERSIONS_IN_HTML_CONTEXT):
+                versions = [v for v in versions if v.privacy_level == PUBLIC]
+            downloads = self.api_client.version(self.version.pk).get()["downloads"]
+            subproject_urls = [
+                (project["slug"], project["canonical_url"])
+                for project in self.api_client.project(self.project.pk)
+                .subprojects()
+                .get()["subprojects"]
+            ]
+        except ConnectionError:
+            log.exception(
+                "Timeout while fetching versions/downloads/subproject_urls for Sphinx context.",
+                project_slug=self.project.slug,
+                version_slug=self.version.slug,
+            )
 
-        build_id = self.build_env.build.get('id')
+        build_id = self.build_env.build.get("id")
         build_url = None
         if build_id:
             build_url = reverse(
-                'builds_detail',
+                "builds_detail",
                 kwargs={
-                    'project_slug': self.project.slug,
-                    'build_pk': build_id,
+                    "project_slug": self.project.slug,
+                    "build_pk": build_id,
                 },
             )
-            protocol = 'http' if settings.DEBUG else 'https'
-            build_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{build_url}'
+            protocol = "http" if settings.DEBUG else "https"
+            build_url = f"{protocol}://{settings.PRODUCTION_DOMAIN}{build_url}"
 
         vcs_url = None
         if self.version.is_external:
             vcs_url = self.version.vcs_url
 
-        commit = (
-            self.project.vcs_repo(
-                version=self.version.slug,
-                environment=self.build_env,
-            )
-            .commit
-        )
+        commit = self.project.vcs_repo(
+            version=self.version.slug,
+            environment=self.build_env,
+        ).commit
 
         data = {
-            "html_theme": "sphinx_rtd_theme",
-            "html_theme_import": "sphinx_rtd_theme",
             "current_version": self.version.verbose_name,
             "project": self.project,
             "version": self.version,
@@ -258,14 +229,8 @@ class BaseSphinx(BaseBuilder):
             'display_gitlab': display_gitlab,
 
             # Features
-            'dont_overwrite_sphinx_context': self.project.has_feature(
-                Feature.DONT_OVERWRITE_SPHINX_CONTEXT,
-            ),
             "docsearch_disabled": self.project.has_feature(
                 Feature.DISABLE_SERVER_SIDE_SEARCH
-            ),
-            "skip_html_theme_path": self.project.has_feature(
-                Feature.SKIP_SPHINX_HTML_THEME_PATH
             ),
         }
 
@@ -279,28 +244,26 @@ class BaseSphinx(BaseBuilder):
 
     def append_conf(self):
         """
-        Find or create a ``conf.py`` and appends default content.
+        Find a ``conf.py`` and appends default content.
 
         The default content is rendered from ``doc_builder/conf.py.tmpl``.
         """
         if self.config_file is None:
-            master_doc = self.create_index(extension='rst')
-            self._write_config(master_doc=master_doc)
-
-        try:
-            self.config_file = (
-                self.config_file or self.project.conf_file(self.version.slug)
-            )
-            # Allow symlinks, but only the ones that resolve inside the base directory.
-            outfile = safe_open(
-                self.config_file, "a", allow_symlinks=True, base_path=self.project_path
-            )
-            if not outfile:
-                raise UserFileNotFound(
-                    UserFileNotFound.FILE_NOT_FOUND.format(self.config_file)
-                )
-        except IOError:
             raise ProjectConfigurationError(ProjectConfigurationError.NOT_FOUND)
+
+        self.config_file = self.config_file or self.project.conf_file(self.version.slug)
+
+        if not os.path.exists(self.config_file):
+            raise UserFileNotFound(
+                UserFileNotFound.FILE_NOT_FOUND.format(self.config_file)
+            )
+
+        # Allow symlinks, but only the ones that resolve inside the base directory.
+        # NOTE: if something goes wrong,
+        # `safe_open` raises an exception that's clearly communicated to the user.
+        outfile = safe_open(
+            self.config_file, "a", allow_symlinks=True, base_path=self.project_path
+        )
 
         # Append config to project conf file
         tmpl = template_loader.get_template('doc_builder/conf.py.tmpl')
@@ -325,9 +288,8 @@ class BaseSphinx(BaseBuilder):
         project = self.project
         build_command = [
             *self.get_sphinx_cmd(),
-            '-T',
-            '-E',
-            *self.sphinx_parallel_arg(),
+            "-T",
+            "-E",
         ]
         if self.config.sphinx.fail_on_warning:
             build_command.extend(["-W", "--keep-going"])
@@ -361,15 +323,10 @@ class BaseSphinx(BaseBuilder):
 
     def get_sphinx_cmd(self):
         return (
-            self.python_env.venv_bin(filename='python'),
-            '-m',
-            'sphinx',
+            self.python_env.venv_bin(filename="python"),
+            "-m",
+            "sphinx",
         )
-
-    def sphinx_parallel_arg(self):
-        if self.project.has_feature(Feature.SPHINX_PARALLEL):
-            return ['-j', 'auto']
-        return []
 
 
 class HtmlBuilder(BaseSphinx):
@@ -377,27 +334,21 @@ class HtmlBuilder(BaseSphinx):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.sphinx_builder = 'readthedocs'
-        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
-            self.sphinx_builder = 'html'
+        self.sphinx_builder = "html"
 
 
 class HtmlDirBuilder(HtmlBuilder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.sphinx_builder = 'readthedocsdirhtml'
-        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
-            self.sphinx_builder = 'dirhtml'
+        self.sphinx_builder = "dirhtml"
 
 
 class SingleHtmlBuilder(HtmlBuilder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.sphinx_builder = 'readthedocssinglehtml'
-        if self.project.has_feature(Feature.USE_SPHINX_BUILDERS):
-            self.sphinx_builder = 'singlehtml'
+        self.sphinx_builder = "singlehtml"
 
 
 class LocalMediaBuilder(BaseSphinx):
@@ -525,7 +476,6 @@ class PdfBuilder(BaseSphinx):
             *self.get_sphinx_cmd(),
             "-T",
             "-E",
-            *self.sphinx_parallel_arg(),
             "-b",
             self.sphinx_builder,
             "-d",
@@ -595,19 +545,19 @@ class PdfBuilder(BaseSphinx):
             latex_class = LatexBuildCommand
 
         cmd = [
-            'latexmk',
-            '-r',
+            "latexmk",
+            "-r",
             rcfile,
             # FIXME: check for platex here as well
-            '-pdfdvi' if self.project.language == 'ja' else '-pdf',
+            "-pdfdvi" if self.project.language == "ja" else "-pdf",
             # When ``-f`` is used, latexmk will continue building if it
             # encounters errors. We still receive a failure exit code in this
             # case, but the correct steps should run.
-            '-f',
-            '-dvi-',
-            '-ps-',
-            f'-jobname={self.project.slug}',
-            '-interaction=nonstopmode',
+            "-f",
+            "-dvi-",
+            "-ps-",
+            f"-jobname={self.project.slug}",
+            "-interaction=nonstopmode",
         ]
 
         cmd_ret = self.build_env.run_command_class(

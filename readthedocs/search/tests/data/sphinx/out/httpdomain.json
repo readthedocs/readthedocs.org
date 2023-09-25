@@ -1,6 +1,6 @@
 {
-  "path": "",
-  "title": "",
+  "path": "httpdomain.html",
+  "title": "Here is a nice reference",
   "sections": [
     {
       "id": "get--api-v3-projects-",
@@ -12,6 +12,5 @@
       "title": "Here is a nice reference",
       "content": ""
     }
-  ],
-  "domain_data": {}
+  ]
 }

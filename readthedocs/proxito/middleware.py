@@ -6,16 +6,20 @@ This is used to take the request and map the host to the proper project slug.
 Additional processing is done to get the project from the URL in the ``views.py`` as well.
 """
 import re
-import sys
 from urllib.parse import urlparse
 
 import structlog
+from corsheaders.middleware import (
+    ACCESS_CONTROL_ALLOW_METHODS,
+    ACCESS_CONTROL_ALLOW_ORIGIN,
+)
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
 
+from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import (
     InvalidCustomDomainError,
     InvalidExternalDomainError,
@@ -25,7 +29,8 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.models import Project
 from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
 from readthedocs.proxito.redirects import redirect_to_https
 
@@ -42,28 +47,27 @@ class ProxitoMiddleware(MiddlewareMixin):
     # The analytics API isn't listed because it depends on the unresolver,
     # which depends on the proxito middleware.
     skip_views = (
-        'health_check',
-        'footer_html',
-        'search_api',
-        'embed_api',
+        "health_check",
+        "footer_html",
+        "search_api",
+        "embed_api",
     )
 
-    # pylint: disable=no-self-use
     def add_proxito_headers(self, request, response):
         """Add debugging and cache headers to proxito responses."""
 
-        project_slug = getattr(request, 'path_project_slug', '')
-        version_slug = getattr(request, 'path_version_slug', '')
-        path = getattr(response, 'proxito_path', '')
+        project_slug = getattr(request, "path_project_slug", "")
+        version_slug = getattr(request, "path_version_slug", "")
+        path = getattr(response, "proxito_path", "")
 
-        response['X-RTD-Domain'] = request.get_host()
-        response['X-RTD-Project'] = project_slug
+        response["X-RTD-Domain"] = request.get_host()
+        response["X-RTD-Project"] = project_slug
 
         if version_slug:
-            response['X-RTD-Version'] = version_slug
+            response["X-RTD-Version"] = version_slug
 
         if path:
-            response['X-RTD-Path'] = path
+            response["X-RTD-Path"] = path
 
         # Include the project & project-version so we can do larger purges if needed
         cache_tags = []
@@ -97,12 +101,12 @@ class ProxitoMiddleware(MiddlewareMixin):
             for http_header in domain.http_headers.all():
                 if http_header.name.lower() in response_headers:
                     log.error(
-                        'Overriding an existing response HTTP header.',
+                        "Overriding an existing response HTTP header.",
                         http_header=http_header.name,
                         domain=domain.domain,
                     )
                 log.info(
-                    'Adding custom response HTTP header.',
+                    "Adding custom response HTTP header.",
                     http_header=http_header.name,
                     domain=domain.domain,
                 )
@@ -135,25 +139,25 @@ class ProxitoMiddleware(MiddlewareMixin):
             and unresolved_domain.is_from_public_domain
         ):
             hsts_header_values = [
-                'max-age=31536000',
-                'includeSubDomains',
-                'preload',
+                "max-age=31536000",
+                "includeSubDomains",
+                "preload",
             ]
         elif unresolved_domain and unresolved_domain.is_from_custom_domain:
             domain = unresolved_domain.domain
             # TODO: migrate Domains with HSTS set using these fields to
             # ``HTTPHeader`` and remove this chunk of code from here.
             if domain.hsts_max_age:
-                hsts_header_values.append(f'max-age={domain.hsts_max_age}')
+                hsts_header_values.append(f"max-age={domain.hsts_max_age}")
                 # These other options don't make sense without max_age > 0
                 if domain.hsts_include_subdomains:
-                    hsts_header_values.append('includeSubDomains')
+                    hsts_header_values.append("includeSubDomains")
                 if domain.hsts_preload:
-                    hsts_header_values.append('preload')
+                    hsts_header_values.append("preload")
 
         if hsts_header_values:
             # See https://tools.ietf.org/html/rfc6797
-            response['Strict-Transport-Security'] = '; '.join(hsts_header_values)
+            response["Strict-Transport-Security"] = "; ".join(hsts_header_values)
 
     def add_cache_headers(self, request, response):
         """
@@ -196,17 +200,14 @@ class ProxitoMiddleware(MiddlewareMixin):
         # Initialize our custom request attributes.
         request.unresolved_domain = None
 
-        skip = any(
-            request.path.startswith(reverse(view))
-            for view in self.skip_views
-        )
+        skip = any(request.path.startswith(reverse(view)) for view in self.skip_views)
         if (
             skip
             or not settings.USE_SUBDOMAIN
-            or 'localhost' in request.get_host()
-            or 'testserver' in request.get_host()
+            or "localhost" in request.get_host()
+            or "testserver" in request.get_host()
         ):
-            log.debug('Not processing Proxito middleware')
+            log.debug("Not processing Proxito middleware")
             return None
 
         try:
@@ -217,22 +218,22 @@ class ProxitoMiddleware(MiddlewareMixin):
             raise DomainDNSHttp404(
                 http_status=400,
                 domain=exc.domain,
-            )
+            ) from exc
         except (InvalidSubdomainError, InvalidExternalDomainError) as exc:
             log.debug("Invalid project set on the subdomain.")
             # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise ProjectHttp404(
                 domain=exc.domain,
-            )
+            ) from exc
         except InvalidCustomDomainError as exc:
             # Some person is CNAMEing to us without configuring a domain - 404.
             log.debug("CNAME 404.", domain=exc.domain)
             # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise DomainDNSHttp404(
                 domain=exc.domain,
-            )
-        except InvalidXRTDSlugHeaderError:
-            raise SuspiciousOperation("Invalid X-RTD-Slug header.")
+            ) from exc
+        except InvalidXRTDSlugHeaderError as exc:
+            raise SuspiciousOperation("Invalid X-RTD-Slug header.") from exc
 
         self._set_request_attributes(request, unresolved_domain)
 
@@ -241,9 +242,9 @@ class ProxitoMiddleware(MiddlewareMixin):
             return response
 
         # Remove multiple slashes from URL's
-        if '//' in request.path:
+        if "//" in request.path:
             url_parsed = urlparse(request.get_full_path())
-            clean_path = re.sub('//+', '/', url_parsed.path)
+            clean_path = re.sub("//+", "/", url_parsed.path)
             new_parsed = url_parsed._replace(path=clean_path)
             final_url = new_parsed.geturl()
             # This protects against a couple issues:
@@ -251,9 +252,9 @@ class ProxitoMiddleware(MiddlewareMixin):
             # * Second is URLs like `//google.com` which urlparse will return as `//google.com`
             #   We make sure there is _always_ a single slash in front to ensure relative redirects,
             #   instead of `//` redirects which are actually alternative domains.
-            final_url = '/' + final_url.lstrip('/')
+            final_url = "/" + final_url.lstrip("/")
             log.debug(
-                'Proxito Slash Redirect.',
+                "Proxito Slash Redirect.",
                 from_url=request.get_full_path(),
                 to_url=final_url,
             )
@@ -263,52 +264,88 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         project = unresolved_domain.project
         log.debug(
-            'Proxito Project.',
+            "Proxito Project.",
             project_slug=project.slug,
         )
-
-        # This is hacky because Django wants a module for the URLConf,
-        # instead of also accepting string
-        if project.urlconf:
-
-            # Stop Django from caching URLs
-            # https://github.com/django/django/blob/7cf7d74/django/urls/resolvers.py#L65-L69  # noqa
-            project_timestamp = project.modified_date.strftime("%Y%m%d.%H%M%S%f")
-            url_key = f'readthedocs.urls.fake.{project.slug}.{project_timestamp}'
-
-            log.info(
-                'Setting URLConf',
-                project_slug=project.slug,
-                url_key=url_key,
-                urlconf=project.urlconf,
-            )
-            if url_key not in sys.modules:
-                sys.modules[url_key] = project.proxito_urlconf
-            request.urlconf = url_key
 
         return None
 
     def add_hosting_integrations_headers(self, request, response):
+        """
+        Add HTTP headers to communicate to Cloudflare Workers.
+
+        We have configured Cloudflare Workers to inject the addons and remove
+        the old flyout integration based on HTTP headers.
+        This method uses two different headers for these purposes:
+
+        - ``X-RTD-Hosting-Integrations``: inject ``readthedocs-addons.js`` to enable addons.
+          Enabled by default on projects using ``build.commands``.
+        - ``X-RTD-Force-Addons``: inject ``readthedocs-addons.js``
+          and remove old flyout integration (via ``readthedocs-doc-embed.js``).
+          Enabled only on projects that opted-in via the admin settings.
+
+        Note these headers will not be required anymore eventually
+        since all the project will be using the new addons once we fully roll them out.
+        """
         addons = False
         project_slug = getattr(request, "path_project_slug", "")
         version_slug = getattr(request, "path_version_slug", "")
 
         if project_slug:
-            project = Project.objects.get(slug=project_slug)
+            force_addons = Project.objects.filter(
+                slug=project_slug,
+                addons__enabled=True,
+            ).exists()
+            if force_addons:
+                response["X-RTD-Force-Addons"] = "true"
+                return
 
-            # Check for the feature flag
-            if project.has_feature(Feature.HOSTING_INTEGRATIONS):
-                addons = True
-            else:
-                # Check if the version forces injecting the addons (e.g. using `build.commands`)
-                version = (
-                    project.versions.filter(slug=version_slug).only("addons").first()
-                )
-                if version and version.addons:
-                    addons = True
+            if version_slug:
+                addons = Version.objects.filter(
+                    project__slug=project_slug,
+                    slug=version_slug,
+                    addons=True,
+                ).exists()
 
             if addons:
                 response["X-RTD-Hosting-Integrations"] = "true"
+
+    def add_cors_headers(self, request, response):
+        """
+        Add CORS headers only to files from PUBLIC versions.
+
+        DocDiff addons requires making a request from
+        ``RTD_EXTERNAL_VERSION_DOMAIN`` to ``PUBLIC_DOMAIN`` to be able to
+        compare both DOMs and show the visual differences.
+
+        This request needs ``Access-Control-Allow-Origin`` HTTP headers to be
+        accepted by browsers. However, we cannot expose these headers for
+        documentation that's not PUBLIC.
+
+        We set this header to `*`, since the allowed versions are public only,
+        we don't care about the origin of the request. And we don't have the
+        need nor want to allow passing credentials from cross-origin requests.
+
+        See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin.
+        """
+        # TODO: se should add these headers to files from docs only,
+        # proxied APIs and other endpoints should not have CORS headers.
+        # These attributes aren't currently set for proxied APIs, but we shuold
+        # find a better way to do this.
+        project_slug = getattr(request, "path_project_slug", "")
+        version_slug = getattr(request, "path_version_slug", "")
+
+        if project_slug and version_slug:
+            allow_cors = Version.objects.filter(
+                project__slug=project_slug,
+                slug=version_slug,
+                privacy_level=PUBLIC,
+            ).exists()
+            if allow_cors:
+                response.headers[ACCESS_CONTROL_ALLOW_ORIGIN] = "*"
+                response.headers[ACCESS_CONTROL_ALLOW_METHODS] = "HEAD, OPTIONS, GET"
+
+        return response
 
     def _get_https_redirect(self, request):
         """
@@ -347,4 +384,5 @@ class ProxitoMiddleware(MiddlewareMixin):
         self.add_hsts_headers(request, response)
         self.add_user_headers(request, response)
         self.add_hosting_integrations_headers(request, response)
+        self.add_cors_headers(request, response)
         return response

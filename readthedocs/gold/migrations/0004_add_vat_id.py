@@ -3,15 +3,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('gold', '0003_add_missing_model_change_migrations'),
+        ("gold", "0003_add_missing_model_change_migrations"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='golduser',
-            name='business_vat_id',
+            model_name="golduser",
+            name="business_vat_id",
             field=models.CharField(blank=True, max_length=128, null=True),
         ),
     ]

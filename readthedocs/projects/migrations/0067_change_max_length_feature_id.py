@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0066_make_imported_file_slug_nullable'),
+        ("projects", "0066_make_imported_file_slug_nullable"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='feature',
-            name='feature_id',
-            field=models.CharField(max_length=255, unique=True, verbose_name='Feature identifier'),
+            model_name="feature",
+            name="feature_id",
+            field=models.CharField(
+                max_length=255, unique=True, verbose_name="Feature identifier"
+            ),
         ),
     ]

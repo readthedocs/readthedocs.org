@@ -3,15 +3,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0009_added_external_version_type'),
+        ("builds", "0009_added_external_version_type"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='versionautomationrule',
-            name='description',
-            field=models.CharField(blank=True, max_length=255, null=True, verbose_name='Description'),
+            model_name="versionautomationrule",
+            name="description",
+            field=models.CharField(
+                blank=True, max_length=255, null=True, verbose_name="Description"
+            ),
         ),
     ]
