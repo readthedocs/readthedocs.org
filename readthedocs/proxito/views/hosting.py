@@ -31,13 +31,9 @@ ADDONS_VERSIONS_SUPPORTED = (0, 1)
 
 class ClientError(Exception):
     VERSION_NOT_CURRENTLY_SUPPORTED = (
-        "The version specified in 'X-RTD-Hosting-Integrations-Version'"
-        " is currently not supported"
+        "The version specified in 'api-version' is currently not supported"
     )
-    VERSION_INVALID = "'X-RTD-Hosting-Integrations-Version' header version is invalid"
-    VERSION_HEADER_MISSING = (
-        "'X-RTD-Hosting-Integrations-Version' header attribute is required"
-    )
+    VERSION_INVALID = "The version specifified in 'api-version' is invalid"
 
 
 class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
@@ -52,6 +48,8 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
 
       url (required): absolute URL from where the request is performed
         (e.g. ``window.location.href``)
+
+      api-version (required): API JSON structure version (e.g. ``0``, ``1``, ``2``).
     """
 
     http_method_names = ["get"]
@@ -67,10 +65,15 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             return None, None, None, None
 
         unresolved_domain = self.request.unresolved_domain
+
+        # Main project from the domain.
         project = unresolved_domain.project
 
         try:
             unresolved_url = unresolver.unresolve_url(url)
+            # Project from the URL: if it's a subproject it will differ from
+            # the main project got from the domain.
+            project = unresolved_url.project
             version = unresolved_url.version
             filename = unresolved_url.filename
             build = version.builds.last()
@@ -107,12 +110,10 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 status=400,
             )
 
-        addons_version = request.headers.get("X-RTD-Hosting-Integrations-Version")
+        addons_version = request.GET.get("api-version")
         if not addons_version:
             return JsonResponse(
-                {
-                    "error": ClientError.VERSION_HEADER_MISSING,
-                },
+                {"error": "'api-version' GET attribute is required"},
                 status=400,
             )
         try:
@@ -243,11 +244,14 @@ class AddonsResponse:
         project_features = project.features.all().values_list("feature_id", flat=True)
 
         data = {
+            "api_version": "0",
             "comment": (
                 "THIS RESPONSE IS IN ALPHA FOR TEST PURPOSES ONLY"
                 " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
             ),
             "projects": {
+                # TODO: return the "parent" project here when the "current"
+                # project is a subproject/translation.
                 "current": ProjectSerializerNoLinks(project).data,
             },
             "versions": {
@@ -429,6 +433,7 @@ class AddonsResponse:
 
     def _v1(self, project, version, build, filename, user):
         return {
+            "api_version": "1",
             "comment": "Undefined yet. Use v0 for now",
         }
 

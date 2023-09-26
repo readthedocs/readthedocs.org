@@ -328,12 +328,6 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin.
         """
-
-        # Disable CORS on "Read the Docs for Business" for now.
-        # We want to be pretty sure this logic is OK before enabling it there.
-        if settings.ALLOW_PRIVATE_REPOS:
-            return
-
         # TODO: se should add these headers to files from docs only,
         # proxied APIs and other endpoints should not have CORS headers.
         # These attributes aren't currently set for proxied APIs, but we shuold

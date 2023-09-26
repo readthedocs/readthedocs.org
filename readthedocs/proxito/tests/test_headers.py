@@ -260,6 +260,37 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
         self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
 
+    @override_settings(ALLOW_PRIVATE_REPOS=True, RTD_ALLOW_ORGANIZATIONS=True)
+    def test_cors_headers_public_version_with_organizations(self):
+        get(Organization, owners=[self.eric], projects=[self.project])
+
+        self.client.force_login(self.eric)
+
+        # Normal request
+        r = self.client.get(
+            "/en/latest/",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
+
+        # Cross-origin request
+        r = self.client.get(
+            "/en/latest/",
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+                "origin": "https://example.com",
+            },
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_METHODS], "HEAD, OPTIONS, GET")
+
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cache_headers_public_version_with_private_projects_not_allowed(self):
         r = self.client.get(
