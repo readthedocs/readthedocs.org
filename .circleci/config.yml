@@ -16,6 +16,7 @@ jobs:
         environment:
           discovery.type: single-node
           ES_JAVA_OPTS: -Xms750m -Xmx750m
+          ELASTIC_PASSWORD: password
     steps:
       - checkout
       - run: git submodule sync

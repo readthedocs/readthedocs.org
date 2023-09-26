@@ -790,10 +790,9 @@ class CommunityBaseSettings(Settings):
     RTD_ORG_TRIAL_PERIOD_DAYS = 30
 
     # Elasticsearch settings.
-    ES_HOSTS = ['search:9200']
     ELASTICSEARCH_DSL = {
         'default': {
-            'hosts': 'search:9200'
+            'hosts': 'http://elastic:password@search:9200',
         },
     }
     # Chunk size for elasticsearch reindex celery tasks

@@ -87,9 +87,10 @@ django-allauth==0.51.0
 requests-oauthlib
 
 # Search
-elasticsearch<8.0
-elasticsearch-dsl<8.0
-django-elasticsearch-dsl<8.0
+elasticsearch~=8.0
+elasticsearch-dsl~=8.0
+django-elasticsearch-dsl@git+https://github.com/oehrlein/django-elasticsearch-dsl.git@elasticsearch-8
+
 selectolax
 
 # embed

@@ -26,11 +26,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.53
+boto3==1.28.54
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.53
+botocore==1.31.54
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -44,7 +44,7 @@ celery==5.2.7
 certifi==2023.7.22
     # via
     #   -r requirements/pip.txt
-    #   elasticsearch
+    #   elastic-transport
     #   requests
 cffi==1.15.1
     # via
@@ -146,7 +146,7 @@ django-csp==3.7
     # via -r requirements/pip.txt
 django-debug-toolbar==4.2.0
     # via -r requirements/pip.txt
-django-elasticsearch-dsl==7.3
+django-elasticsearch-dsl @ git+https://github.com/oehrlein/django-elasticsearch-dsl.git@elasticsearch-8
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
@@ -196,11 +196,15 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elasticsearch==7.17.9
+elastic-transport==8.4.1
+    # via
+    #   -r requirements/pip.txt
+    #   elasticsearch
+elasticsearch==8.10.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==7.4.1
+elasticsearch-dsl==8.9.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -374,7 +378,6 @@ six==1.16.0
     #   asttokens
     #   django-annoying
     #   django-elasticsearch-dsl
-    #   elasticsearch-dsl
     #   python-dateutil
     #   unicode-slugify
 slumber==0.7.1
@@ -430,7 +433,7 @@ urllib3==1.26.16
     #   -r requirements/pip.txt
     #   botocore
     #   docker
-    #   elasticsearch
+    #   elastic-transport
     #   requests
 user-agents==2.2.0
     # via -r requirements/pip.txt
