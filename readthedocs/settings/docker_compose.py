@@ -217,8 +217,5 @@ class DockerBaseSettings(CommunityBaseSettings):
     # This limit is mostly hit on large forms in the Django admin
     DATA_UPLOAD_MAX_NUMBER_FIELDS = None
 
-    # This allows us to have CORS work well in dev
-    CORS_ORIGIN_ALLOW_ALL = True
-
 
 DockerBaseSettings.load_settings(__name__)

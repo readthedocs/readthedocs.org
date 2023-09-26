@@ -359,6 +359,8 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
             versions=added_versions,
         )
 
+    # Sync latest and stable to match the correct type and identifier.
+    project.update_latest_version()
     # TODO: move this to an automation rule
     promoted_version = project.update_stable_version()
     new_stable = project.get_stable_version()

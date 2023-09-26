@@ -638,6 +638,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             "tags",
             "privacy_level",
             "external_builds_privacy_level",
+            "single_version",
             # NOTE: ``expandable_fields`` must not be included here. Otherwise,
             # they will be tried to be rendered and fail
             # 'active_versions',
