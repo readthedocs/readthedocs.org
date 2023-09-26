@@ -17,6 +17,8 @@ jobs:
           discovery.type: single-node
           ES_JAVA_OPTS: -Xms750m -Xmx750m
           ELASTIC_PASSWORD: password
+          # Disabled SSL for testing.
+          xpack.security.transport.ssl.enabled: 'false'
     steps:
       - checkout
       - run: git submodule sync
