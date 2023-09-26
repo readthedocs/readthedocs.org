@@ -1,3 +1,31 @@
+Version 10.6.0
+--------------
+
+:Date: September 26, 2023
+
+* `@stsewd <https://github.com/stsewd>`__: Test ES upgrade to 7.17.13 (`#10770 <https://github.com/readthedocs/readthedocs.org/pull/10770>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10768 <https://github.com/readthedocs/readthedocs.org/pull/10768>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: update example for AsciiDoc to simplify it a little (`#10763 <https://github.com/readthedocs/readthedocs.org/pull/10763>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxyto: Allow CORS on commercial on public docs pages (`#10762 <https://github.com/readthedocs/readthedocs.org/pull/10762>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix CORS headers in local dev (`#10761 <https://github.com/readthedocs/readthedocs.org/pull/10761>`__)
+* `@oraNod <https://github.com/oraNod>`__: Docs: add asciidoc example (`#10759 <https://github.com/readthedocs/readthedocs.org/pull/10759>`__)
+* `@humitos <https://github.com/humitos>`__: APIv3: return `single_version` field on `Project` resource (`#10758 <https://github.com/readthedocs/readthedocs.org/pull/10758>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build indexing: fix indexing of external versions (`#10756 <https://github.com/readthedocs/readthedocs.org/pull/10756>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: move the HTTP header to a GET parameter (`#10753 <https://github.com/readthedocs/readthedocs.org/pull/10753>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: update CORS settings (`#10751 <https://github.com/readthedocs/readthedocs.org/pull/10751>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.5.0 (`#10749 <https://github.com/readthedocs/readthedocs.org/pull/10749>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tasks: remove old fileify task (`#10747 <https://github.com/readthedocs/readthedocs.org/pull/10747>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: get final project (e.g. `subproject`) (`#10745 <https://github.com/readthedocs/readthedocs.org/pull/10745>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10744 <https://github.com/readthedocs/readthedocs.org/pull/10744>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: remove old models (`#10740 <https://github.com/readthedocs/readthedocs.org/pull/10740>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Change frequency of pageview delete code (`#10739 <https://github.com/readthedocs/readthedocs.org/pull/10739>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: allow latest to be a tag (`#10738 <https://github.com/readthedocs/readthedocs.org/pull/10738>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: add CORS headers only on public versions (`#10737 <https://github.com/readthedocs/readthedocs.org/pull/10737>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove feature flags page (`#10736 <https://github.com/readthedocs/readthedocs.org/pull/10736>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow users to opt-in into the beta addons (`#10733 <https://github.com/readthedocs/readthedocs.org/pull/10733>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Custom domain doc improvements (`#10719 <https://github.com/readthedocs/readthedocs.org/pull/10719>`__)
+* `@humitos <https://github.com/humitos>`__: API: return the `api_version` on the response (`#10276 <https://github.com/readthedocs/readthedocs.org/pull/10276>`__)
+
 Version 10.5.0
 --------------
 

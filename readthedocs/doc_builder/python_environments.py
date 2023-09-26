@@ -256,13 +256,7 @@ class Virtualenv(PythonEnvironment):
         )
 
         if self.config.doctype == 'mkdocs':
-            requirements.append(
-                self.project.get_feature_value(
-                    Feature.DEFAULT_TO_MKDOCS_0_17_3,
-                    positive='mkdocs==0.17.3',
-                    negative="mkdocs",
-                )
-            )
+            requirements.append("mkdocs")
         else:
             requirements.extend(
                 [
