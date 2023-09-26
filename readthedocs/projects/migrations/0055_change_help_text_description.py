@@ -4,15 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0054_urlconf_blank'),
+        ("projects", "0054_urlconf_blank"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='project',
-            name='description',
-            field=models.TextField(blank=True, help_text='Short description of this project', verbose_name='Description'),
+            model_name="project",
+            name="description",
+            field=models.TextField(
+                blank=True,
+                help_text="Short description of this project",
+                verbose_name="Description",
+            ),
         ),
     ]

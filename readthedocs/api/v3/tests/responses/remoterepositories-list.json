@@ -39,7 +39,7 @@
         "repository": { "type": "git", "url": "https://github.com/rtfd/project" },
         "slug": "project",
         "subproject_of": null,
-        "tags": ["tag", "project", "test"],
+        "tags": ["project", "tag", "test"],
         "translation_of": null,
         "urls": {
           "builds": "https://readthedocs.org/projects/project/builds/",
@@ -47,7 +47,10 @@
           "home": "https://readthedocs.org/projects/project/",
           "versions": "https://readthedocs.org/projects/project/versions/"
         },
-        "users": [{ "username": "testuser" }]
+        "users": [{ "username": "testuser" }],
+        "privacy_level": "public",
+        "external_builds_privacy_level": "public",
+        "single_version": false
       }],
       "remote_organization": {
           "avatar_url": "https://avatars.githubusercontent.com/u/366329?v=4",

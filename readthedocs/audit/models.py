@@ -7,7 +7,6 @@ from django_extensions.db.models import TimeStampedModel
 
 from readthedocs.acl.utils import get_auth_backend
 from readthedocs.analytics.utils import get_client_ip
-from readthedocs.projects.models import Project
 
 
 class AuditLogManager(models.Manager):
@@ -27,27 +26,32 @@ class AuditLogManager(models.Manager):
             AuditLog.DOWNLOAD,
             AuditLog.AUTHN,
             AuditLog.LOGOUT,
+            AuditLog.INVITATION_SENT,
+            AuditLog.INVITATION_ACCEPTED,
+            AuditLog.INVITATION_REVOKED,
         )
         if action in actions_requiring_user and (not user or not request):
-            raise TypeError(f'A user and a request is required for the {action} action.')
-        if action in (AuditLog.PAGEVIEW, AuditLog.DOWNLOAD) and 'project' not in kwargs:
-            raise TypeError(f'A project is required for the {action} action.')
+            raise TypeError(
+                f"A user and a request are required for the {action} action."
+            )
+        if action in (AuditLog.PAGEVIEW, AuditLog.DOWNLOAD) and "project" not in kwargs:
+            raise TypeError(f"A project is required for the {action} action.")
 
         # Don't save anonymous users.
         if user and user.is_anonymous:
             user = None
 
         if request:
-            kwargs['ip'] = get_client_ip(request)
-            kwargs['browser'] = request.headers.get('User-Agent')
-            kwargs.setdefault('resource', request.path_info)
-            kwargs.setdefault('auth_backend', get_auth_backend(request))
+            kwargs["ip"] = get_client_ip(request)
+            kwargs["browser"] = request.headers.get("User-Agent")
+            kwargs.setdefault("resource", request.path_info)
+            kwargs.setdefault("auth_backend", get_auth_backend(request))
 
             # Fill the project from the request if available.
             # This is frequently on actions generated from a subdomain.
-            project_slug = getattr(request, 'host_project_slug', None)
-            if 'project' not in kwargs and project_slug:
-                kwargs['project'] = Project.objects.filter(slug=project_slug).first()
+            unresolved_domain = getattr(request, "unresolved_domain", None)
+            if "project" not in kwargs and unresolved_domain:
+                kwargs["project"] = unresolved_domain.project
 
         return self.create(
             user=user,
@@ -68,36 +72,61 @@ class AuditLog(TimeStampedModel):
 
     # pylint: disable=too-many-instance-attributes
 
-    PAGEVIEW = 'pageview'
-    DOWNLOAD = 'download'
-    AUTHN = 'authentication'
-    AUTHN_FAILURE = 'authentication-failure'
-    LOGOUT = 'log-out'
+    PAGEVIEW = "pageview"
+    PAGEVIEW_TEXT = _("Page view")
+
+    DOWNLOAD = "download"
+    DOWNLOAD_TEXT = _("Download")
+
+    AUTHN = "authentication"
+    AUTHN_TEXT = _("Authentication")
+
+    AUTHN_FAILURE = "authentication-failure"
+    AUTHN_FAILURE_TEXT = _("Authentication failure")
+
+    LOGOUT = "log-out"
+    LOGOUT_TEXT = _("Log out")
+
+    INVITATION_SENT = "invitation-sent"
+    INVITATION_SENT_TEXT = _("Invitation sent")
+
+    INVITATION_REVOKED = "invitation-revoked"
+    INVITATION_REVOKED_TEXT = _("Invitation revoked")
+
+    INVITATION_ACCEPTED = "invitation-accepted"
+    INVITATION_ACCEPTED_TEXT = _("Invitation accepted")
+
+    INVITATION_DECLINED = "invitation-declined"
+    INVITATION_DECLINED_TEXT = _("Invitation declined")
 
     CHOICES = (
-        (PAGEVIEW, 'Page view'),
-        (DOWNLOAD, 'Download'),
-        (AUTHN, 'Authentication'),
-        (AUTHN_FAILURE, 'Authentication failure'),
-        (LOGOUT, 'Log out'),
+        (PAGEVIEW, PAGEVIEW_TEXT),
+        (DOWNLOAD, DOWNLOAD_TEXT),
+        (AUTHN, AUTHN_TEXT),
+        (AUTHN_FAILURE, AUTHN_FAILURE_TEXT),
+        (LOGOUT, LOGOUT_TEXT),
+        (INVITATION_SENT, INVITATION_SENT_TEXT),
+        (INVITATION_REVOKED, INVITATION_REVOKED_TEXT),
+        (INVITATION_ACCEPTED, INVITATION_ACCEPTED_TEXT),
+        (INVITATION_DECLINED, INVITATION_DECLINED_TEXT),
     )
 
     user = models.ForeignKey(
         User,
-        verbose_name=_('User'),
+        verbose_name=_("User"),
         null=True,
         on_delete=models.SET_NULL,
         db_index=True,
     )
     # Extra information in case the user is deleted.
     log_user_id = models.IntegerField(
-        _('User ID'),
+        _("User ID"),
         blank=True,
         null=True,
         db_index=True,
     )
     log_user_username = models.CharField(
-        _('Username'),
+        _("Username"),
         max_length=150,
         blank=True,
         null=True,
@@ -105,21 +134,21 @@ class AuditLog(TimeStampedModel):
     )
 
     project = models.ForeignKey(
-        'projects.Project',
-        verbose_name=_('Project'),
+        "projects.Project",
+        verbose_name=_("Project"),
         null=True,
         db_index=True,
         on_delete=models.SET_NULL,
     )
     # Extra information in case the project is deleted.
     log_project_id = models.IntegerField(
-        _('Project ID'),
+        _("Project ID"),
         blank=True,
         null=True,
         db_index=True,
     )
     log_project_slug = models.CharField(
-        _('Project slug'),
+        _("Project slug"),
         max_length=63,
         blank=True,
         null=True,
@@ -127,20 +156,20 @@ class AuditLog(TimeStampedModel):
     )
 
     organization = models.ForeignKey(
-        'organizations.Organization',
-        verbose_name=_('Organization'),
+        "organizations.Organization",
+        verbose_name=_("Organization"),
         null=True,
         db_index=True,
         on_delete=models.SET_NULL,
     )
     log_organization_id = models.IntegerField(
-        _('Organization ID'),
+        _("Organization ID"),
         blank=True,
         null=True,
         db_index=True,
     )
     log_organization_slug = models.CharField(
-        _('Organization slug'),
+        _("Organization slug"),
         max_length=255,
         blank=True,
         null=True,
@@ -148,24 +177,24 @@ class AuditLog(TimeStampedModel):
     )
 
     action = models.CharField(
-        _('Action'),
+        _("Action"),
         max_length=150,
         choices=CHOICES,
     )
     auth_backend = models.CharField(
-        _('Auth backend'),
+        _("Auth backend"),
         max_length=250,
         blank=True,
         null=True,
     )
     ip = models.CharField(
-        _('IP address'),
+        _("IP address"),
         blank=True,
         null=True,
         max_length=250,
     )
     browser = models.CharField(
-        _('Browser user-agent'),
+        _("Browser user-agent"),
         max_length=250,
         blank=True,
         null=True,
@@ -173,17 +202,23 @@ class AuditLog(TimeStampedModel):
     # Resource can be a path,
     # set it slightly greater than ``HTMLFile.path``.
     resource = models.CharField(
-        _('Resource'),
+        _("Resource"),
         max_length=5500,
         blank=True,
         null=True,
+    )
+    data = models.JSONField(
+        null=True,
+        blank=True,
+        help_text=_(
+            "Extra data about the log entry. Its structure depends on the type of log entry."
+        ),
     )
 
     objects = AuditLogManager()
 
     class Meta:
-
-        ordering = ['-created']
+        ordering = ["-created"]
 
     def save(self, **kwargs):
         if self.user:
@@ -218,15 +253,15 @@ class AuditLog(TimeStampedModel):
 
            The backends listed here are implemented on .com only.
         """
-        backend = self.auth_backend or ''
+        backend = self.auth_backend or ""
         backend_displays = {
-            'TemporaryAccessTokenBackend': _('shared link'),
-            'TemporaryAccessPasswordBackend': _('shared password'),
+            "TemporaryAccessTokenBackend": _("shared link"),
+            "TemporaryAccessPasswordBackend": _("shared password"),
         }
         for name, display in backend_displays.items():
             if name in backend:
                 return display
-        return ''
+        return ""
 
     def __str__(self):
         return self.action

@@ -1,7 +1,9 @@
-Policy for Abandoned Projects
-=============================
+Abandoned projects policy
+=========================
 
-This policy describes the process by which a Read the Docs project name may be changed.
+This policy describes the process by which a Read the Docs project :term:`slug` may be changed.
+
+.. tip:: If you want to de-list a project's fork from search results, please see :doc:`/unofficial-projects`.
 
 Rationale
 ---------
@@ -39,8 +41,8 @@ Reachability
 
 The user of Read the Docs is solely responsible for being reachable by the core team
 for matters concerning projects that the user owns. In every case where
-contacting the user is necessary, the core team will try to do so at least
-three times, using the following means of contact:
+contacting the user is necessary, the core team will try to do so,
+using the following means of contact:
 
 * E-mail address on file in the user's profile
 * E-mail addresses found in the given project's documentation
@@ -80,6 +82,31 @@ following are met:
   an acceptable workaround
 * The project has fewer than 100 monthly pageviews
 * The core team does not have any additional reservations.
+
+
+Reporting an abandoned project
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+You can report an abandoned project according to this policy by contacting our :doc:`/support`.
+
+Please include the following information:
+
+.. code-block:: text
+
+  URL of abandoned documentation project: ...
+  URL of abandoned project's repository (if any): ...
+  URL of abandoned project's website (if any): ...
+
+  Are you suggesting that an alternative project should take over the
+  name (slug) abandoned project? (y/n)
+
+  URL of alternative documentation (if any): ...
+  URL of alternative website (if any): ...
+  URL of alternative repository (if any): ...
+
+  Describe attempts of reaching the owner(s) of the abandoned project:
+  ...
+
 
 Name conflict resolution for active projects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

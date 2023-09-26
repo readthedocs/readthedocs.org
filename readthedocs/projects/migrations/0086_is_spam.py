@@ -4,20 +4,27 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('projects', '0085_subscribe_old_webhooks_to_events'),
+        ("projects", "0085_subscribe_old_webhooks_to_events"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='historicalproject',
-            name='is_spam',
-            field=models.NullBooleanField(default=None, help_text='Manually marked as (not) spam', verbose_name='Is spam?'),
+            model_name="historicalproject",
+            name="is_spam",
+            field=models.NullBooleanField(
+                default=None,
+                help_text="Manually marked as (not) spam",
+                verbose_name="Is spam?",
+            ),
         ),
         migrations.AddField(
-            model_name='project',
-            name='is_spam',
-            field=models.NullBooleanField(default=None, help_text='Manually marked as (not) spam', verbose_name='Is spam?'),
+            model_name="project",
+            name="is_spam",
+            field=models.NullBooleanField(
+                default=None,
+                help_text="Manually marked as (not) spam",
+                verbose_name="Is spam?",
+            ),
         ),
     ]

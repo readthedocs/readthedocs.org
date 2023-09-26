@@ -1,9 +1,9 @@
 """Base classes for VCS backends."""
 import os
-import shutil
 
 import structlog
 
+from readthedocs.core.utils.filesystem import safe_rmtree
 from readthedocs.doc_builder.exceptions import BuildCancelled, BuildUserError
 from readthedocs.projects.exceptions import RepositoryError
 
@@ -27,7 +27,7 @@ class VCSVersion:
         self.verbose_name = verbose_name
 
     def __repr__(self):
-        return '<VCSVersion: {}:{}'.format(
+        return "<VCSVersion: {}:{}".format(
             self.repository.repo_url,
             self.verbose_name,
         )
@@ -38,12 +38,12 @@ class BaseVCS:
     """
     Base for VCS Classes.
 
-    VCS commands are ran inside a ``LocalEnvironment``.
+    VCS commands are executed inside a ``BaseBuildEnvironment`` subclass.
     """
 
     supports_tags = False  # Whether this VCS supports tags or not.
     supports_branches = False  # Whether this VCS supports branches or not.
-    supports_submodules = False
+    supports_submodules = False  # Whether this VCS supports submodules or not.
 
     # Whether this VCS supports listing remotes (branches, tags) without cloning
     supports_lsremote = False
@@ -55,8 +55,13 @@ class BaseVCS:
     # Defining a base API, so we'll have unused args
     # pylint: disable=unused-argument
     def __init__(
-            self, project, version_slug, environment=None,
-            verbose_name=None, version_type=None, **kwargs
+        self,
+        project,
+        version_slug,
+        environment,
+        verbose_name=None,
+        version_type=None,
+        **kwargs
     ):
         self.default_branch = project.default_branch
         self.project = project
@@ -67,13 +72,7 @@ class BaseVCS:
         self.verbose_name = verbose_name
         self.version_type = version_type
 
-        # TODO: always pass an explicit environment
-        # This is only used in tests #6546
-        #
-        # TODO: we should not allow ``environment=None`` and always use the
-        # environment defined by the settings
-        from readthedocs.doc_builder.environments import LocalBuildEnvironment
-        self.environment = environment or LocalBuildEnvironment()
+        self.environment = environment
 
     def check_working_dir(self):
         if not os.path.exists(self.working_dir):
@@ -81,7 +80,7 @@ class BaseVCS:
 
     def make_clean_working_dir(self):
         """Ensures that the working dir exists and is empty."""
-        shutil.rmtree(self.working_dir, ignore_errors=True)
+        safe_rmtree(self.working_dir, ignore_errors=True)
         self.check_working_dir()
 
     def update(self):
@@ -94,23 +93,25 @@ class BaseVCS:
         self.check_working_dir()
 
     def run(self, *cmd, **kwargs):
-        kwargs.update({
-            'cwd': self.working_dir,
-            'shell': False,
-        })
+        kwargs.update(
+            {
+                "cwd": self.working_dir,
+                "shell": False,
+            }
+        )
 
         try:
             build_cmd = self.environment.run(*cmd, **kwargs)
-        except BuildCancelled:
+        except BuildCancelled as exc:
             # Catch ``BuildCancelled`` here and re raise it. Otherwise, if we
             # raise a ``RepositoryError`` then the ``on_failure`` method from
             # Celery won't treat this problem as a ``BuildCancelled`` issue.
-            raise BuildCancelled
-        except BuildUserError as e:
+            raise BuildCancelled from exc
+        except BuildUserError as exc:
             # Re raise as RepositoryError to handle it properly from outside
-            if hasattr(e, "message"):
-                raise RepositoryError(e.message)
-            raise RepositoryError
+            if hasattr(exc, "message"):
+                raise RepositoryError(exc.message) from exc
+            raise RepositoryError from exc
 
         # Return a tuple to keep compatibility
         return (build_cmd.exit_code, build_cmd.output, build_cmd.error)
@@ -161,7 +162,4 @@ class BaseVCS:
 
         :type config: readthedocs.config.BuildConfigBase
         """
-        raise NotImplementedError
-
-    def repo_exists(self):
         raise NotImplementedError

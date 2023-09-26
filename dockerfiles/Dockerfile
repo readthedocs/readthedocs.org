@@ -22,15 +22,16 @@ RUN apt-get -y install \
         build-essential \
         python3-pip \
         python3-dev \
+        postgresql-client \
         libmysqlclient-dev \
         libfreetype6 \
         libjpeg-dev \
-        postgresql-client \
         sqlite \
         netcat \
         telnet \
         lsb-release \
-        npm
+        npm \
+        rclone
 
 # Gets the MinIO mc client used to add buckets upon initialization
 # If this client should have issues running inside this image, it is also
@@ -53,7 +54,6 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 WORKDIR /tmp
 
 COPY requirements/pip.txt pip.txt
-COPY requirements/debug.txt debug.txt
 COPY requirements/docker.txt docker.txt
 RUN pip3 install --no-cache-dir -r docker.txt
 
@@ -63,8 +63,9 @@ RUN if [ -n "$GITHUB_TOKEN" ] ; \
         then \
         git clone --depth 1 https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/readthedocs/readthedocs-ext ; \
         pip3 install --no-cache-dir -e readthedocs-ext ; \
-        git clone --depth 1 https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/readthedocs/ext-theme ; \
-        pip3 install --no-cache-dir -e ext-theme ; \
         fi
+
+RUN git clone --depth 1 https://github.com/readthedocs/ext-theme ; \
+    pip3 install --no-cache-dir -e ext-theme
 
 WORKDIR /usr/src/app/checkouts/readthedocs.org

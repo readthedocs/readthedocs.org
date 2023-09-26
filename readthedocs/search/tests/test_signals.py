@@ -9,23 +9,22 @@ from readthedocs.search.documents import ProjectDocument
 
 
 @pytest.mark.search
-@override_settings(ELASTICSEARCH_DSL_AUTOSYNC = True)
+@override_settings(ELASTICSEARCH_DSL_AUTOSYNC=True)
 class TestSignals(TestCase):
-
     def setUp(self):
-        call_command('search_index', '--delete', '-f')
-        call_command('search_index', '--create')
+        call_command("search_index", "--delete", "-f")
+        call_command("search_index", "--create")
 
     def tearDown(self):
         super().tearDown()
-        call_command('search_index', '--delete', '-f')
+        call_command("search_index", "--delete", "-f")
 
     def test_project_index_is_updated(self):
         project = get(
             Project,
-            slug='testing',
-            name='A testing project',
-            description='Just another project',
+            slug="testing",
+            name="A testing project",
+            description="Just another project",
         )
         id = project.id
 
@@ -36,8 +35,8 @@ class TestSignals(TestCase):
         self.assertEqual(project.language, result.language)
         self.assertEqual(project.description, result.description)
 
-        project.name = 'A new name'
-        project.description = 'Just another cool project'
+        project.name = "A new name"
+        project.description = "Just another cool project"
         project.save()
 
         # Check after update

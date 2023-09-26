@@ -1,4 +1,3 @@
-
 """Project exceptions."""
 
 from django.conf import settings
@@ -12,15 +11,19 @@ class ProjectConfigurationError(BuildUserError):
     """Error raised trying to configure a project for build."""
 
     NOT_FOUND = _(
-        'A configuration file was not found. '
-        'Make sure you have a conf.py file in your repository.',
+        "A configuration file was not found. "
+        "Make sure you have a conf.py file in your repository.",
     )
 
     MULTIPLE_CONF_FILES = _(
-        'We found more than one conf.py and are not sure which one to use. '
-        'Please, specify the correct file under the Advanced settings tab '
+        "We found more than one conf.py and are not sure which one to use. "
+        "Please, specify the correct file under the Advanced settings tab "
         "in the project's Admin.",
     )
+
+
+class UserFileNotFound(BuildUserError):
+    FILE_NOT_FOUND = _("The file {} doesn't exist. Make sure it's a valid file path.")
 
 
 class RepositoryError(BuildUserError):
@@ -28,24 +31,20 @@ class RepositoryError(BuildUserError):
     """Failure during repository operation."""
 
     PRIVATE_ALLOWED = _(
-        'There was a problem connecting to your repository, '
-        'ensure that your repository URL is correct.',
+        "There was a problem connecting to your repository, "
+        "ensure that your repository URL is correct.",
     )
     PRIVATE_NOT_ALLOWED = _(
-        'There was a problem connecting to your repository, '
-        'ensure that your repository URL is correct and your repository is public. '
-        'Private repositories are not supported.',
-    )
-    INVALID_SUBMODULES = _(
-        'One or more submodule URLs are not valid: {}, '
-        'git/ssh URL schemas for submodules are not supported.'
+        "There was a problem connecting to your repository, "
+        "ensure that your repository URL is correct and your repository is public. "
+        "Private repositories are not supported.",
     )
     DUPLICATED_RESERVED_VERSIONS = _(
         "You can not have two versions with the name latest or stable."
         " Ensure you don't have both a branch and a tag with this name."
     )
 
-    FAILED_TO_CHECKOUT = _('Failed to checkout revision: {}')
+    FAILED_TO_CHECKOUT = _("Failed to checkout revision: {}")
 
     GENERIC_ERROR = _(
         "There was a problem cloning your repository. "

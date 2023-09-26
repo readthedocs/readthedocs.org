@@ -1,4 +1,10 @@
-# -*- coding: utf-8 -*-
+"""
+Read the Docs custom static finders.
+
+NOTE: I think we can probably remove it completely,
+since we are not storing these files anymore inside "media/"
+"""
+
 from django.contrib.staticfiles.finders import FileSystemFinder
 
 
@@ -12,5 +18,5 @@ class SelectiveFileSystemFinder(FileSystemFinder):
     """
 
     def list(self, ignore_patterns):
-        ignore_patterns.extend(['epub', 'pdf', 'htmlzip', 'json', 'man'])
+        ignore_patterns.extend(["epub", "pdf", "htmlzip", "json", "man"])
         return super().list(ignore_patterns)

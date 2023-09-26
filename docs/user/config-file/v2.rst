@@ -1,73 +1,39 @@
-Configuration File V2
-=====================
+Configuration file v2 (.readthedocs.yaml)
+=========================================
 
-Read the Docs supports configuring your documentation builds with a YAML file.
-The :doc:`configuration file <index>` must be in the root directory of your project
-and be named ``.readthedocs.yaml``.
+Read the Docs supports configuring your documentation builds with a configuration file.
+This file is named ``.readthedocs.yaml`` and should be placed in the top level of your Git repository.
 
-All options are applied to the version containing this file.
+The ``.readthedocs.yaml``  file can contain a number of settings that are not accessible through the Read the Docs website.
+
+Because the file is stored in Git,
+the configuration will apply to the exact version that is being built.
+**This allows you to store different configurations for different versions of your documentation.**
+
 Below is an example YAML file which shows the most common configuration options:
 
 .. tabs::
 
    .. tab:: Sphinx
 
-      .. code:: yaml
-
-         # .readthedocs.yaml
-         # Read the Docs configuration file
-         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
-
-         # Required
-         version: 2
-
-         # Set the version of Python and other tools you might need
-         build:
-           os: ubuntu-20.04
-           tools:
-             python: "3.9"
-             # You can also specify other tool versions:
-             # nodejs: "16"
-             # rust: "1.55"
-             # golang: "1.17"
-
-         # Build documentation in the docs/ directory with Sphinx
-         sphinx:
-            configuration: docs/conf.py
-
-         # If using Sphinx, optionally build your docs in additional formats such as PDF
-         # formats:
-         #    - pdf
-
-         # Optionally declare the Python requirements required to build your docs
-         python:
-            install:
-            - requirements: docs/requirements.txt
+        .. literalinclude:: /config-file/examples/sphinx/.readthedocs.yaml
+              :language: yaml
+              :linenos:
+              :caption: .readthedocs.yaml
 
    .. tab:: MkDocs
 
-      .. code:: yaml
+        .. literalinclude:: /config-file/examples/mkdocs/.readthedocs.yaml
+           :language: yaml
+           :linenos:
+           :caption: .readthedocs.yaml
 
-         # .readthedocs.yaml
-         # Read the Docs configuration file
-         # See https://docs.readthedocs.io/en/stable/config-file/v2.html for details
 
-         # Required
-         version: 2
+.. seealso::
 
-         # Set the version of Python and other tools you might need
-         build:
-           os: ubuntu-20.04
-           tools:
-             python: "3.9"
+   :doc:`/config-file/index`
+      Practical steps to add a configuration file to your documentation project.
 
-         mkdocs:
-           configuration: mkdocs.yml
-
-         # Optionally declare the Python requirements required to build your docs
-         python:
-            install:
-            - requirements: docs/requirements.txt
 
 Supported settings
 ------------------
@@ -144,6 +110,8 @@ Example:
    At the moment, only Sphinx supports additional formats.
    ``pdf``, ``epub``, and ``htmlzip`` output is not yet supported when using MkDocs.
 
+   With :doc:`builds from pull requests </pull-requests>`, only HTML formats are generated. Other formats are resource intensive and will be built after merging.
+
 python
 ~~~~~~
 
@@ -162,7 +130,6 @@ Configuration of the Python environment to be used.
            - docs
        - method: pip
          path: another/package
-     system_packages: true
 
 python.version
 ``````````````
@@ -192,7 +159,7 @@ The path to the requirements file, relative to the root of the project.
 
 :Key: ``requirements``
 :Type: ``path``
-:Required: ``true``
+:Required: ``false``
 
 Example:
 
@@ -201,7 +168,6 @@ Example:
    version: 2
 
    python:
-     version: "3.7"
      install:
        - requirements: docs/requirements.txt
        - requirements: requirements.txt
@@ -221,7 +187,7 @@ The path to the package, relative to the root of the project.
 
 :Key: ``path``
 :Type: ``path``
-:Required: ``true``
+:Required: ``false``
 
 The installation method.
 
@@ -249,35 +215,17 @@ Example:
    version: 2
 
    python:
-     version: "3.7"
      install:
        - method: pip
          path: .
          extra_requirements:
            - docs
-       - method: pip
-         path: package
 
 With the previous settings, Read the Docs will execute the next commands:
 
 .. prompt:: bash $
 
    pip install .[docs]
-   python package/setup.py install
-
-python.system_packages
-``````````````````````
-
-Give the virtual environment access to the global site-packages directory.
-
-:Type: ``bool``
-:Default: ``false``
-
-.. warning::
-
-  If you are using a :ref:`Conda <config-file/v2:conda>` environment
-  to manage the build, this setting will not have any effect, since
-  the virtual environment creation is managed by Conda.
 
 conda
 ~~~~~
@@ -288,16 +236,25 @@ Configuration for Conda support.
 
    version: 2
 
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       python: "mambaforge-22.9"
+
    conda:
      environment: environment.yml
 
 conda.environment
 `````````````````
 
-The path to the Conda environment file, relative to the root of the project.
+The path to the Conda `environment file <https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html>`_, relative to the root of the project.
 
 :Type: ``path``
-:Required: ``true``
+:Required: ``false``
+
+.. note::
+
+   When using Conda, it's required to specify ``build.tools.python`` to tell Read the Docs to use whether Conda or Mamba to create the environment.
 
 build
 ~~~~~
@@ -313,12 +270,12 @@ Python, Node.js, Rust, and Go.
    version: 2
 
    build:
-     os: ubuntu-20.04
+     os: ubuntu-22.04
      tools:
-       python: "3.9"
-       nodejs: "16"
-       rust: "1.55"
-       golang: "1.17"
+       python: "3.11"
+       nodejs: "18"
+       rust: "1.64"
+       golang: "1.19"
 
 build.os
 ````````
@@ -347,7 +304,7 @@ build.tools.python
 ``````````````````
 
 Python version to use.
-You can use several interpreters and versions, from CPython, PyPy, Miniconda, and Mamba.
+You can use several interpreters and versions, from CPython, Miniconda, and Mamba.
 
 .. note::
 
@@ -365,11 +322,9 @@ You can use several interpreters and versions, from CPython, PyPy, Miniconda, an
   - ``3.9``
   - ``3.10``
   - ``3.11``
-  - ``pypy3.7``
-  - ``pypy3.8``
-  - ``pypy3.9``
   - ``miniconda3-4.7``
   - ``mambaforge-4.10``
+  - ``mambaforge-22.9``
 
 build.tools.nodejs
 ``````````````````
@@ -381,6 +336,8 @@ Node.js version to use.
    - ``14``
    - ``16``
    - ``18``
+   - ``19``
+   - ``20``
 
 build.tools.rust
 ````````````````
@@ -391,6 +348,8 @@ Rust version to use.
 :Options:
    - ``1.55``
    - ``1.61``
+   - ``1.64``
+   - ``1.70``
 
 build.tools.golang
 ``````````````````
@@ -401,6 +360,8 @@ Go version to use.
 :Options:
    - ``1.17``
    - ``1.18``
+   - ``1.19``
+   - ``1.20``
 
 build.apt_packages
 ``````````````````
@@ -426,7 +387,11 @@ We don't currently support PPA's or other custom repositories.
 .. note::
 
    When possible avoid installing Python packages using apt (``python3-numpy`` for example),
-   :ref:`use pip or Conda instead <guides/reproducible-builds:pinning dependencies>`.
+   :doc:`use pip or conda instead </guides/reproducible-builds>`.
+
+.. warning::
+
+   Currently, it's not possible to use this option when using :ref:`config-file/v2:build.commands`.
 
 
 build.jobs
@@ -444,7 +409,7 @@ See :doc:`/build-customization` for more details.
    build:
      os: ubuntu-22.04
      tools:
-       python: "3.10"
+       python: "3.11"
      jobs:
        pre_create_environment:
          - echo "Command run at 'pre_create_environment' step"
@@ -473,13 +438,13 @@ Specify a list of commands that Read the Docs will run on the build process.
 When ``build.commands`` is used, none of the :term:`pre-defined build jobs` will be executed.
 (see :doc:`/build-customization` for more details).
 This allows you to run custom commands and control the build process completely.
-The ``_readthedocs/html`` directory (relative to the checkout's path) will be uploaded and hosted by Read the Docs.
+The ``$READTHEDOCS_OUTPUT/html`` directory will be uploaded and hosted by Read the Docs.
 
 .. warning::
 
    This feature is in a *beta phase* and could suffer incompatible changes or even removed completely in the near feature.
-   It does not yet support some of the Read the Docs' integrations like the :term:`flyout menu`, search and ads.
-   However, integrating all of them is part of the plan.
+   We are currently testing `the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`_
+   on projects using ``build.commands`` configuration key.
    Use it under your own responsibility.
 
 .. code-block:: yaml
@@ -489,10 +454,10 @@ The ``_readthedocs/html`` directory (relative to the checkout's path) will be up
    build:
      os: ubuntu-22.04
      tools:
-       python: "3.10"
+       python: "3.11"
      commands:
        - pip install pelican
-       - pelican --settings docs/pelicanconf.py --output _readthedocs/html/ docs/
+       - pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/
 
 .. note::
 
@@ -684,7 +649,7 @@ Do a recursive clone of the submodules.
 search
 ~~~~~~
 
-Settings for more control over :doc:`/server-side-search`.
+Settings for more control over :doc:`/server-side-search/index`.
 
 .. code-block:: yaml
 
@@ -748,13 +713,13 @@ check :ref:`config-file/v2:search.ignore`.
 search.ignore
 `````````````
 
-Don't index files matching a pattern.
-This is, you won't see search results from these files.
+List of paths to ignore and exclude from the search index.
+Paths matched will not be included in search results.
 
 :Type: ``list`` of patterns
 :Default: ``['search.html', 'search/index.html', '404.html', '404/index.html']``
 
-Patterns are matched against the final html pages produced by the build
+Patterns are matched against the relative path of html files produced by the build
 (you should try to match `index.html`, not `docs/index.rst`).
 Patterns can include some special characters:
 
@@ -768,13 +733,13 @@ Patterns can include some special characters:
 
    search:
       ignore:
-        # Ignore a single file
+        # Ignore a single file in the root of the output directory
         - 404.html
 
         # Ignore all files under the search/ directory
         - search/*
 
-        # Ignore all files that end with ref.html
+        # Ignore all files named ref.html nested inside one or more sub-folders
         - '*/ref.html'
 
 .. code-block:: yaml
@@ -803,7 +768,9 @@ Schema
 
 You can see the complete schema
 `here <https://github.com/readthedocs/readthedocs.org/blob/main/readthedocs/rtd_tests/fixtures/spec/v2/schema.json>`_.
+This schema is available at `Schema Store`_, use it with your favorite editor for validation and autocompletion.
 
+.. _Schema Store: https://www.schemastore.org/
 
 Legacy ``build`` specification
 ------------------------------
@@ -851,8 +818,10 @@ The Docker image used for building the docs.
 Each image support different Python versions and has different packages installed,
 as defined here:
 
-* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_: :buildpyversions:`stable`
-* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_: :buildpyversions:`latest`
+* `stable <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/5.x>`_:
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``
+* `latest <https://github.com/readthedocs/readthedocs-docker-images/tree/releases/6.x>`_:
+  ``2``, ``2.7``, ``3``, ``3.5``, ``3.6``, ``3.7``, ``3.8``
 
 python.version (legacy)
 ```````````````````````
@@ -894,8 +863,6 @@ Changes
 - The settings ``python.setup_py_install`` and ``python.pip_install`` were replaced by ``python.install``.
   And now it accepts a path to the package.
   See :ref:`config-file/v2:Packages`.
-- The setting ``python.use_system_site_packages`` was renamed to ``python.system_packages``.
-  See :ref:`config-file/v2:python.system_packages`.
 - The build will fail if there are invalid keys (strict mode).
 
 .. warning::
@@ -935,3 +902,23 @@ These settings aren't supported via the configuration file.
 * ``Show versions warning``
 * ``Privacy level``
 * ``Analytics code``
+
+Custom paths for .readthedocs.yaml
+----------------------------------
+
+In order to support *monorepo* layouts,
+it's possible to configure the path to where your ``.readthedocs.yaml`` is found.
+
+Using this configuration makes it possible to create several Read the Docs projects pointing at the same Git repository.
+This is recommended for monorepo layouts that host several documentation projects in the same repository.
+
+.. seealso::
+
+   :doc:`/guides/setup/monorepo`
+      This guide explains how to use the configuration.
+
+Previous version: v1
+--------------------
+
+Version 1 is deprecated and using it is discouraged,
+view its reference here :doc:`/config-file/v1`.

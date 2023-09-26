@@ -33,8 +33,8 @@
                 "versions": "https://readthedocs.org/projects/project/versions/"
             },
             "tags": [
-                "tag",
                 "project",
+                "tag",
                 "test"
             ],
             "users": [
@@ -51,7 +51,10 @@
                 "subprojects": "https://readthedocs.org/api/v3/projects/project/subprojects/",
                 "superproject": "https://readthedocs.org/api/v3/projects/project/superproject/",
                 "translations": "https://readthedocs.org/api/v3/projects/project/translations/"
-            }
+            },
+            "privacy_level": "public",
+            "external_builds_privacy_level": "public",
+            "single_version": false
         }
     ]
 }

@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
-
 """Django views for the notifications app."""
-from django.contrib import admin, messages
+from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.views.generic import FormView
 
@@ -23,8 +21,8 @@ class SendNotificationView(FormView):
     """
 
     form_class = SendNotificationForm
-    template_name = 'notifications/send_notification_form.html'
-    action_name = 'send_email'
+    template_name = "notifications/send_notification_form.html"
+    action_name = "send_email"
     notification_classes = []
 
     def get_form_kwargs(self):
@@ -35,24 +33,22 @@ class SendNotificationView(FormView):
         form post variables. Drop additional fields if we see the send button.
         """
         kwargs = super().get_form_kwargs()
-        kwargs['notification_classes'] = self.notification_classes
-        if 'send' not in self.request.POST:
-            kwargs.pop('data', None)
-            kwargs.pop('files', None)
+        kwargs["notification_classes"] = self.notification_classes
+        if "send" not in self.request.POST:
+            kwargs.pop("data", None)
+            kwargs.pop("files", None)
         return kwargs
 
     def get_initial(self):
         """Add selected ids to initial form data."""
         initial = super().get_initial()
-        initial['_selected_action'] = self.request.POST.getlist(
-            admin.ACTION_CHECKBOX_NAME,
-        )
+        initial["_selected_action"] = self.request.POST.getlist("_selected_action")
         return initial
 
     def form_valid(self, form):
         """If form is valid, send notification to recipients."""
         count = 0
-        notification_cls = form.cleaned_data['source']
+        notification_cls = form.cleaned_data["source"]
         for obj in self.get_queryset().all():
             for recipient in self.get_object_recipients(obj):
                 notification = notification_cls(
@@ -63,9 +59,9 @@ class SendNotificationView(FormView):
                 notification.send()
                 count += 1
         if count == 0:
-            self.message_user('No recipients to send to', level=messages.ERROR)
+            self.message_user("No recipients to send to", level=messages.ERROR)
         else:
-            self.message_user('Queued {} messages'.format(count))
+            self.message_user("Queued {} messages".format(count))
         return HttpResponseRedirect(self.request.get_full_path())
 
     def get_object_recipients(self, obj):
@@ -87,7 +83,7 @@ class SendNotificationView(FormView):
         yield obj
 
     def get_queryset(self):
-        return self.kwargs.get('queryset')
+        return self.kwargs.get("queryset")
 
     def get_context_data(self, **kwargs):
         """Return queryset in context."""
@@ -95,16 +91,16 @@ class SendNotificationView(FormView):
         recipients = []
         for obj in self.get_queryset().all():
             recipients.extend(self.get_object_recipients(obj))
-        context['recipients'] = recipients
-        context['action_name'] = self.action_name
+        context["recipients"] = recipients
+        context["action_name"] = self.action_name
         return context
 
     def message_user(
-            self,
-            message,
-            level=messages.INFO,
-            extra_tags='',
-            fail_silently=False,
+        self,
+        message,
+        level=messages.INFO,
+        extra_tags="",
+        fail_silently=False,
     ):
         """
         Implementation of.

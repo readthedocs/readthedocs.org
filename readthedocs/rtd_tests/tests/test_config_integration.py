@@ -1,17 +1,13 @@
 import tempfile
 from os import path
-
 from unittest import mock
+
 import yaml
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
-from readthedocs.config import (
-    SETUPTOOLS,
-    BuildConfigV1,
-    InvalidConfig,
-)
+from readthedocs.config import SETUPTOOLS, BuildConfigV1, InvalidConfig
 from readthedocs.config.models import PythonInstallRequirements
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.constants import DOCKER_IMAGE_SETTINGS
@@ -27,7 +23,7 @@ def create_load(config=None):
     if config is None:
         config = {}
 
-    def inner(path=None, env_config=None):
+    def inner(path=None, env_config=None, readthedocs_yaml_path=None):
         env_config_defaults = {
             'output_base': '',
             'name': '1',
@@ -87,7 +83,6 @@ class LoadConfigTests(TestCase):
                     'epub',
                     'pdf'
                 ],
-                'use_system_packages': self.project.use_system_packages,
                 'requirements_file': self.project.requirements_file,
                 'python_version': '3',
                 'sphinx_configuration': mock.ANY,
@@ -101,8 +96,9 @@ class LoadConfigTests(TestCase):
             expected_env_config.update(img_settings)
 
         load_config.assert_called_once_with(
-                path=mock.ANY,
-                env_config=expected_env_config,
+            path=mock.ANY,
+            env_config=expected_env_config,
+            readthedocs_yaml_path=None,
         )
         self.assertEqual(config.python.version, '3')
 
@@ -125,7 +121,7 @@ class LoadConfigTests(TestCase):
         config = load_yaml_config(self.version)
         self.assertEqual(
             config.get_valid_python_versions(),
-            ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', 'pypy3.5'],
+            ["2", "2.7", "3", "3.5", "3.6", "3.7", "3.8"],
         )
 
     @mock.patch('readthedocs.doc_builder.config.load_config')
@@ -266,7 +262,8 @@ class LoadConfigTests(TestCase):
             },
             base_path=base_path,
         )
-        config = load_yaml_config(self.version)
+        with override_settings(DOCROOT=base_path):
+            config = load_yaml_config(self.version)
         self.assertTrue(config.conda is not None)
         self.assertEqual(config.conda.environment, conda_file)
 
@@ -315,7 +312,8 @@ class LoadConfigTests(TestCase):
             },
             base_path=base_path,
         )
-        config = load_yaml_config(self.version)
+        with override_settings(DOCROOT=base_path):
+            config = load_yaml_config(self.version)
         self.assertEqual(len(config.python.install), 1)
         self.assertEqual(
             config.python.install[0].requirements,

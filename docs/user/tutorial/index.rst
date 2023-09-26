@@ -2,17 +2,17 @@ Read the Docs tutorial
 ======================
 
 In this tutorial you will create a documentation project on Read the Docs
-by importing an Sphinx project from a GitHub repository,
+by importing a Sphinx project from a GitHub repository,
 tailor its configuration, and explore several useful features of the platform.
 
 The tutorial is aimed at people interested in learning
 how to use Read the Docs to host their documentation projects.
 You will fork a fictional software library
 similar to the one developed in the :doc:`official Sphinx tutorial <sphinx:tutorial/index>`.
-No prior experience with Sphinx is required,
+No prior experience with Sphinx is required
 and you can follow this tutorial without having done the Sphinx one.
 
-The only things you will need to follow are
+The only things you will need are
 a web browser, an Internet connection, and a GitHub account
 (you can `register for a free account <https://github.com/signup>`_ if you don't have one).
 You will use Read the Docs Community, which means that the project will be public.
@@ -38,6 +38,10 @@ which will generate a new repository on your personal account
 This is the repository you will import on Read the Docs,
 and it contains the following files:
 
+``.readthedocs.yaml``
+  Read the Docs configuration file.
+  Required to setup the documentation build process.
+
 ``README.rst``
   Basic description of the repository, you will leave it untouched.
 
@@ -50,8 +54,7 @@ and it contains the following files:
 
 ``docs/``
   Directory holding all the Sphinx documentation sources,
-  including some required dependencies in ``docs/requirements.txt``,
-  the Sphinx configuration ``docs/source/conf.py``,
+  including the Sphinx configuration ``docs/source/conf.py``
   and the root document ``docs/source/index.rst`` written in reStructuredText.
 
 .. figure:: /_static/images/tutorial/github-template.png
@@ -80,9 +83,9 @@ On the authorization page, click the green :guilabel:`Authorize readthedocs` but
 
    Read the Docs needs elevated permissions to perform certain operations
    that ensure that the workflow is as smooth as possible,
-   like installing webhooks.
+   like installing :term:`webhooks <webhook>`.
    If you want to learn more,
-   check out :ref:`connected-accounts:permissions for connected accounts`.
+   check out :ref:`guides/setup/git-repo-automatic:permissions for connected accounts`.
 
 After that, you will be redirected to Read the Docs,
 where you will need to confirm your e-mail and username.
@@ -97,8 +100,8 @@ By now, you should have two email notifications:
 * Another one from Read the Docs, prompting you to "verify your email
   address". Click on the link to finalize the process.
 
-Finally, you created your account on Read the Docs
-and are ready to import your first project.
+Once done, your Read the Docs account is created
+and ready to import your first project.
 
 Welcome!
 
@@ -148,14 +151,8 @@ Name
 Repository URL
   The URL that contains the sources. Leave the automatically filled value.
 
-Repository type
-  Version control system used, leave it as "Git".
-
 Default branch
   Name of the default branch of the project, leave it as ``main``.
-
-Edit advanced project options
-  Leave it unchecked, we will make some changes later.
 
 After hitting the :guilabel:`Next` button, you will be redirected to the :term:`project home`.
 You just created your first project on Read the Docs! |:tada:|
@@ -285,10 +282,10 @@ you will access the build logs,
 otherwise it will take you directly to the documentation.
 When you are satisfied, you can merge the pull request!
 
-Customizing the build process
------------------------------
+Adding a configuration file
+---------------------------
 
-The Settings page of the :term:`project home` allows you
+The Admin tab of the :term:`project home` allows you
 to change some *global* configuration values of your project.
 In addition, you can further customize the building process
 using the ``.readthedocs.yaml`` :doc:`configuration file </config-file/v2>`.
@@ -298,31 +295,43 @@ This has several advantages:
 - It can be different for every version (more on versioning in the next section).
 - Some configurations are only available using the config file.
 
-Read the Docs works without this configuration
-by :ref:`making some decisions on your behalf <build-default-versions:Default versions of dependencies>`.
-For example, what Python version to use, how to install the requirements, and others.
+This configuration file should be part of your Git repository.
+It should be located in the base folder of the repository and be named ``.readthedocs.yaml``.
+
+.. TODO: We are adding a how-to that we need to include in this tutorial.
+.. Maybe by reference or maybe as full-featured content.
+
+In this section, we will show you some examples of what a configuration file should contain.
 
 .. tip::
 
    Settings that apply to the entire project are controlled in the web dashboard,
    while settings that are version or build specific are better in the YAML file.
 
-Upgrading the Python version
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Changing the Python version
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For example, to explicitly use Python 3.8 to build your project,
-navigate to your GitHub repository, click on the :guilabel:`Add file` button,
-and add a ``.readthedocs.yaml`` file with these contents to the root of your project:
+navigate to your GitHub repository, click on ``.readthedocs.yaml`` file and then in the pencil icon ✏️ to edit the file
+and change the Python version as follows:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
+   :emphasize-lines: 6
 
    version: 2
 
    build:
-     os: "ubuntu-20.04"
+     os: "ubuntu-22.04"
      tools:
        python: "3.8"
+
+   python:
+     install:
+       - requirements: docs/requirements.txt
+
+   sphinx:
+     configuration: docs/source/conf.py
 
 The purpose of each key is:
 
@@ -336,9 +345,12 @@ The purpose of each key is:
 ``build.tools.python``
   Declares the Python version to be used.
 
+``python.install.requirements``
+  Specifies the Python dependencies to install required to build the documentation.
+
 After you commit these changes, go back to your project home,
 navigate to the "Builds" page, and open the new build that just started.
-You will notice that one of the lines contains ``python3.8``:
+You will notice that one of the lines contains ``python -mvirtualenv``:
 if you click on it, you will see the full output of the corresponding command,
 stating that it used Python 3.8.6 to create the virtual environment.
 
@@ -353,8 +365,8 @@ Making warnings more visible
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 If you navigate to your HTML documentation,
-you will notice that the index page looks correct,
-but actually the API section is empty.
+you will notice that the index page looks correct
+but the API section is empty.
 This is a very common issue with Sphinx,
 and the reason is stated in the build logs.
 On the build page you opened before,
@@ -378,16 +390,21 @@ click on the |:pencil2:| icon, and add these contents:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
-   :emphasize-lines: 8-9
+   :emphasize-lines: 12-13
 
    version: 2
 
    build:
-     os: "ubuntu-20.04"
+     os: "ubuntu-22.04"
      tools:
        python: "3.8"
 
+   python:
+     install:
+       - requirements: docs/requirements.txt
+
    sphinx:
+     configuration: docs/source/conf.py
      fail_on_warning: true
 
 At this point, if you navigate back to your "Builds" page,
@@ -405,11 +422,12 @@ go back to editing ``.readthedocs.yaml`` on GitHub and modify it as follows:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
-   :emphasize-lines: 2-4
+   :emphasize-lines: 4-6
 
    python:
-     # Install our python package before building the docs
      install:
+       - requirements: docs/requirements.txt
+       # Install our python package before building the docs
        - method: pip
          path: .
 
@@ -429,9 +447,10 @@ To do so, add this extra content to your ``.readthedocs.yaml``:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
-   :emphasize-lines: 4-6
+   :emphasize-lines: 5-7
 
    sphinx:
+     configuration: docs/source/conf.py
      fail_on_warning: true
 
    formats:
@@ -538,36 +557,40 @@ and a new build will be triggered for it.
    You can read more about :ref:`hidden versions <versions:hidden>`
    in our documentation.
 
-Show a warning for old versions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. "Show a warning for old versions" feature is not available anymore.
+   We should re-write this section once we have the notification addons rolled out.
 
-When your project matures, the number of versions might increase.
-Sometimes you will want to warn your readers
-when they are browsing an old or outdated version of your documentation.
 
-To showcase how to do that, let's create a ``2.0`` version of the code:
-navigate to your GitHub repository, click on the branch selector,
-type ``2.0.x``, and click on "Create branch: 2.0.x from 'main'".
-This will trigger two things:
+   Show a warning for old versions
+   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- Since ``2.0.x`` is your newest branch, ``stable`` will switch to tracking it.
-- A new ``2.0.x`` version will be created on your Read the Docs project.
-- Since you already have an active ``stable`` version, ``2.0.x`` will be activated.
+   When your project matures, the number of versions might increase.
+   Sometimes you will want to warn your readers
+   when they are browsing an old or outdated version of your documentation.
 
-From this point, ``1.0.x`` version is no longer the most up to date one.
-To display a warning to your readers, go to the :guilabel:`⚙ Admin` menu of your project home,
-click on the :guilabel:`Advanced Settings` link on the left,
-enable the "Show version warning" checkbox, and click the :guilabel:`Save` button.
+   To showcase how to do that, let's create a ``2.0`` version of the code:
+   navigate to your GitHub repository, click on the branch selector,
+   type ``2.0.x``, and click on "Create branch: 2.0.x from 'main'".
+   This will trigger two things:
 
-If you now browse the ``1.0.x`` documentation, you will see a warning on top
-encouraging you to browse the latest version instead. Neat!
+   - Since ``2.0.x`` is your newest branch, ``stable`` will switch to tracking it.
+   - A new ``2.0.x`` version will be created on your Read the Docs project.
+   - Since you already have an active ``stable`` version, ``2.0.x`` will be activated.
 
-.. figure:: /_static/images/tutorial/old-version-warning.png
-   :width: 80%
-   :align: center
-   :alt: Warning for old versions
+   From this point, ``1.0.x`` version is no longer the most up to date one.
+   To display a warning to your readers, go to the :guilabel:`⚙ Admin` menu of your project home,
+   click on the :guilabel:`Advanced Settings` link on the left,
+   enable the "Show version warning" checkbox, and click the :guilabel:`Save` button.
 
-   Warning for old versions
+   If you now browse the ``1.0.x`` documentation, you will see a warning on top
+   encouraging you to browse the latest version instead. Neat!
+
+   .. figure:: /_static/images/tutorial/old-version-warning.png
+      :width: 80%
+      :align: center
+      :alt: Warning for old versions
+
+      Warning for old versions
 
 Getting insights from your projects
 -----------------------------------
@@ -581,7 +604,7 @@ how readers are using your documentation, addressing some common questions like:
 
 Read the Docs offers you some analytics tools to find out the answers.
 
-Browsing Traffic Analytics
+Browsing traffic analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The :doc:`/analytics` view shows the top viewed documentation pages of the past 30 days,
@@ -622,11 +645,11 @@ and click on the :guilabel:`Download all data` button.
 That will prompt you to download a :abbr:`CSV (Comma-Separated Values)` file
 that you can process any way you want.
 
-Browsing Search Analytics
+Browsing search analytics
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Apart from traffic analytics, Read the Docs also offers the possibility
-to inspect :ref:`what search terms your readers use <server-side-search:Search Analytics>`
+to inspect :doc:`what search terms your readers use </guides/search-analytics>`
 on your documentation.
 This can inform decisions on what areas to reinforce,
 or what parts of your project are less understood or more difficult to find.
@@ -666,7 +689,7 @@ Here you have some resources to continue learning about documentation
 and Read the Docs:
 
 - You can learn more about the functionality of the platform
-  by going over our :doc:`/features` page.
+  by going over our :doc:`features </reference/features>` page.
 - To make the most of the documentation generators that are supported,
   you can read the :doc:`Sphinx tutorial <sphinx:tutorial/index>`
   or the `MkDocs User Guide <https://www.mkdocs.org/user-guide/>`_.
@@ -674,9 +697,6 @@ and Read the Docs:
 - Whether you are a documentation author, a project administrator, a developer, or a designer,
   you can follow our how-to guides that cover specific tasks,
   available under :doc:`/guides/index`.
-- You can check out some of the
-  :ref:`index:Advanced features of Read the Docs`,
-  like :doc:`/subprojects` or :doc:`/automation-rules`, to name a few.
 - For private project support and other enterprise features,
   you can use :doc:`our commercial service </commercial/index>`
   (and if in doubt, check out :doc:`/choosing-a-site`).

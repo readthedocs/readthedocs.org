@@ -36,30 +36,17 @@
 
     {% if facets.project and not project_obj %}
       <h5>{% trans 'Projects' %}</h5>
+
+      <li class="project-list">
+        <a href="?{% url_replace request 'q' search_query %}">
+          {% trans 'Search all' %}
+        </a>
+      </li>
+
       {% for name, count, selected in facets.project %}
         <li class="{% if selected %}active{% endif %} project-list">
-          {% if project == name %}
-            <a href="?{% url_replace request 'project' ''  %}">{{ name }}
-          {% else %}
-            <a href="?{% url_replace request 'project' name  %}">{{ name }}
-          {% endif %}
-          ({{ count }})
-          </a>
-        </li>
-      {% endfor %}
-      <hr>
-    {% endif %}
-
-    {% if facets.version %}
-      <h5>{% trans 'Version' %}</h5>
-      {% for name, count, selected in facets.version %}
-        <li class="{% if selected %}active{% endif %} version-list">
-          {% if version == name %}
-            <a href="?{% url_replace request 'version' ''  %}">{{ name }}
-          {% else %}
-            <a href="?{% url_replace request 'version' name  %}">{{ name }}
-          {% endif %}
-          ({{ count }})
+          <a href="?{% url_replace request 'q' 'project:' name ' ' search_query %}">
+            {{ name }} ({{ count }})
           </a>
         </li>
       {% endfor %}
@@ -74,23 +61,6 @@
             <a href="?{% url_replace request 'language' ''  %}">{{ name }}
           {% else %}
             <a href="?{% url_replace request 'language' name  %}">{{ name }}
-          {% endif %}
-          ({{ count }})
-          </a>
-        </li>
-      {% endfor %}
-      <hr>
-    {% endif %}
-
-
-    {% if facets.role_name %}
-      <h5>{% trans 'Code API Type' %}</h5>
-      {% for name, count, selected in facets.role_name %}
-        <li class="{% if selected %}active{% endif %} role-list">
-          {% if role_name == name %}
-            <a href="?{% url_replace request 'role_name' ''  %}">{{ name }}
-          {% else %}
-            <a href="?{% url_replace request 'role_name' name  %}">{{ name }}
           {% endif %}
           ({{ count }})
           </a>
@@ -115,10 +85,7 @@
       <div class="text-input-wrapper">
         <input type="text" name="q" value="{{ query|default_if_none:"" }}" id="id_elastic_search">
         {% if type %} <input type="hidden" name="type" value="{{ type }}"> {% endif %}
-        {% if project %} <input type="hidden" name="project" value="{{ project }}"> {% endif %}
-        {% if version %} <input type="hidden" name="version" value="{{ version }}"> {% endif %}
         {% if language %} <input type="hidden" name="language" value="{{ language }}"> {% endif %}
-        {% if role_name %} <input type="hidden" name="role_name" value="{{ role_name }}"> {% endif %}
       </div>
       <div class="submit-input-wrapper">
         {% comment %}Translators: This is about starting a search{% endcomment %}
@@ -135,8 +102,8 @@
     <div class="module-wrapper">
       <div class="module-header">
         <h3>
-          {% blocktrans with count=results.hits.total query=query|default:"" %}
-            {{ count }} results for `{{ query }}`
+          {% blocktrans with count=total_count|default:"0" query=search_query|default:"" %}
+            {{ count }} results for <code>{{ query }}</code>
           {% endblocktrans %}
         </h3>
       </div>
@@ -167,14 +134,14 @@
                     {% endfor %}
 
                   {% elif result.type == 'page' %}
-                      <a href="{{ result.domain }}{{ result.path}}?highlight={{ query }}">
-                        {{ result.project }} - {% if result.highlights.title %} {{ result.highlights.title.0|safe }} {% else %} {{ result.title }} {% endif %}
+                      <a href="{{ result.domain }}{{ result.path}}?highlight={{ search_query|urlencode }}">
+                        {{ result.project.slug }} - {% if result.highlights.title %} {{ result.highlights.title.0|safe }} {% else %} {{ result.title }} {% endif %}
                       </a>
 
                       {% for block in result.blocks %}
                         {% if block.type == 'domain' %}
                           <p>
-                            <a href="{{ result.domain }}{{ result.path }}?highlight={{ query }}#{{ block.id }}">
+                            <a href="{{ result.domain }}{{ result.path }}?highlight={{ search_query|urlencode }}#{{ block.id }}">
                               {% if block.highlights.name %}
                                 {% with domain_name=block.highlights.name %}
                                   [{{ block.role }}]: {{ domain_name.0|safe }}
@@ -198,7 +165,7 @@
 
                         {% elif block.type == 'section' %}
                           <p>
-                            <a href="{{ result.domain }}{{ result.path }}?highlight={{ query }}#{{ block.id }}">
+                            <a href="{{ result.domain }}{{ result.path }}?highlight={{ search_query|urlencode }}#{{ block.id }}">
                               {% if block.highlights.title %}
                                 {% with section_title=block.highlights.title %}
                                   {{ section_title.0|safe }}

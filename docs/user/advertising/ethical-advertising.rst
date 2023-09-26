@@ -40,7 +40,7 @@ or seeing paid ads if you want.
 You will still see :ref:`community ads <advertising/ethical-advertising:Community Ads>`,
 which we run for free that promote community projects.
 
-Our Worldview
+Our worldview
 -------------
 
 We're building the advertising model we want to exist:
@@ -153,15 +153,13 @@ Please `complete an application`_ to be considered for our Community Ads program
 .. _complete an application: https://www.ethicalads.io/community-ads/?ref=docs.readthedocs.io
 
 
-Opting Out
+Opting out
 ----------
 
 We have added multiple ways to opt out of the advertising on Read the Docs.
 
-1. You can go completely ad-free
-   by becoming a `Gold member <https://readthedocs.org/accounts/gold/>`_
-   or a `Supporter <https://readthedocs.org/sustainability/#donations>`_.
-   Additionally, Gold members may remove advertising from their projects for all visitors.
+1. `Gold members <https://readthedocs.org/accounts/gold/>`_
+   may remove advertising from their projects for all visitors.
 
 2. You can opt out of seeing paid advertisements on documentation pages:
 

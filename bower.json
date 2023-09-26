@@ -14,7 +14,7 @@
     "tests"
   ],
   "dependencies": {
-    "jquery": "2.0.3",
+    "jquery": "3.6.3",
     "underscore": "~1.7.0",
     "readthedocs-client": "https://github.com/agjohnson/readthedocs-client-js.git",
     "sphinx-rtd-theme": "https://github.com/readthedocs/sphinx_rtd_theme.git#0.3.1",
@@ -25,6 +25,6 @@
     "xss": "~0.3.1"
   },
   "resolutions": {
-    "jquery": "2.0.3"
+    "jquery": "3.6.3"
   }
 }

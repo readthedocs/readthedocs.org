@@ -7,6 +7,11 @@ from django_dynamic_fixture import get
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.organizations.models import Organization
+from readthedocs.projects.constants import (
+    DOWNLOADABLE_MEDIA_TYPES,
+    MEDIA_TYPE_HTMLZIP,
+    PUBLIC,
+)
 from readthedocs.projects.models import Project
 
 
@@ -239,3 +244,29 @@ class TestProjectUsersViews(TestCase):
         )
         self.assertEqual(resp.status_code, 400)
         self.assertIn(self.user, self.project.users.all())
+
+
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
+class TestProjectDownloads(TestCase):
+    def setUp(self):
+        self.user = get(User)
+        self.project = get(Project, slug="project", users=[self.user])
+        self.version = self.project.versions.first()
+        self.version.privacy_level = PUBLIC
+        self.version.save()
+
+    def test_download_files(self):
+        for type_ in DOWNLOADABLE_MEDIA_TYPES:
+            resp = self.client.get(
+                reverse(
+                    "project_download_media",
+                    args=[self.project.slug, type_, self.version.slug],
+                ),
+                headers={"host": "project.dev.readthedocs.io"},
+            )
+            self.assertEqual(resp.status_code, 200)
+            extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
+            self.assertEqual(
+                resp["X-Accel-Redirect"],
+                f"/proxito/media/{type_}/project/latest/project.{extension}",
+            )

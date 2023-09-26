@@ -21,11 +21,18 @@ from readthedocs.builds.constants import (
 )
 from readthedocs.builds.models import Build, Version
 from readthedocs.oauth.services import GitHubService, GitLabService
-from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND
+from readthedocs.projects.constants import (
+    GITHUB_BRAND,
+    GITLAB_BRAND,
+    MEDIA_TYPE_EPUB,
+    MEDIA_TYPE_HTML,
+    MEDIA_TYPE_HTMLZIP,
+    MEDIA_TYPE_PDF,
+    MEDIA_TYPES,
+)
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Project
 from readthedocs.projects.tasks.utils import finish_inactive_builds
-from readthedocs.rtd_tests.mocks.paths import fake_paths_by_regex
 
 
 class ProjectMixin:
@@ -54,42 +61,6 @@ class TestProject(ProjectMixin, TestCase):
         resp = json.loads(r.content)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(resp['subprojects'][0]['id'], 23)
-
-    def test_token(self):
-        r = self.client.get('/api/v2/project/6/token/', {})
-        resp = json.loads(r.content)
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(resp['token'], None)
-
-    def test_has_pdf(self):
-        # The project has a pdf if the PDF file exists on disk.
-        with fake_paths_by_regex(r'\.pdf$'):
-            self.assertTrue(self.pip.has_pdf(LATEST))
-
-        # The project has no pdf if there is no file on disk.
-        with fake_paths_by_regex(r'\.pdf$', exists=False):
-            self.assertFalse(self.pip.has_pdf(LATEST))
-
-    def test_has_pdf_with_pdf_build_disabled(self):
-        # The project doesn't depend on `enable_pdf_build`
-        self.pip.enable_pdf_build = False
-        with fake_paths_by_regex(r'\.pdf$'):
-            self.assertTrue(self.pip.has_pdf(LATEST))
-
-    def test_has_epub(self):
-        # The project has a epub if the PDF file exists on disk.
-        with fake_paths_by_regex(r'\.epub$'):
-            self.assertTrue(self.pip.has_epub(LATEST))
-
-        # The project has no epub if there is no file on disk.
-        with fake_paths_by_regex(r'\.epub$', exists=False):
-            self.assertFalse(self.pip.has_epub(LATEST))
-
-    def test_has_epub_with_epub_build_disabled(self):
-        # The project doesn't depend on `enable_epub_build`
-        self.pip.enable_epub_build = False
-        with fake_paths_by_regex(r'\.epub$'):
-            self.assertTrue(self.pip.has_epub(LATEST))
 
     @patch('readthedocs.projects.models.Project.find')
     def test_conf_file_found(self, find_method):
@@ -137,18 +108,38 @@ class TestProject(ProjectMixin, TestCase):
             self.pip.conf_file()
 
     def test_get_storage_path(self):
+        for type_ in MEDIA_TYPES:
+            self.assertEqual(
+                self.pip.get_storage_path(type_, LATEST, include_file=False),
+                f"{type_}/pip/latest",
+            )
         self.assertEqual(
-            self.pip.get_storage_path('pdf', LATEST),
+            self.pip.get_storage_path(MEDIA_TYPE_PDF, LATEST),
             'pdf/pip/latest/pip.pdf',
         )
         self.assertEqual(
-            self.pip.get_storage_path('epub', LATEST),
+            self.pip.get_storage_path(MEDIA_TYPE_EPUB, LATEST),
             'epub/pip/latest/pip.epub',
         )
         self.assertEqual(
-            self.pip.get_storage_path('htmlzip', LATEST),
+            self.pip.get_storage_path(MEDIA_TYPE_HTMLZIP, LATEST),
             'htmlzip/pip/latest/pip.zip',
         )
+
+    def test_get_storage_path_invalid_inputs(self):
+        # Invalid type.
+        with pytest.raises(ValueError):
+            self.pip.get_storage_path("foo")
+
+        # Trying to get a file from a non-downloadable type.
+        with pytest.raises(ValueError):
+            self.pip.get_storage_path(MEDIA_TYPE_HTML, include_file=True)
+
+        # Trying path traversal.
+        with pytest.raises(ValueError):
+            self.pip.get_storage_path(
+                MEDIA_TYPE_HTML, version_slug="../sneaky/index.html", include_file=False
+            )
 
     def test_get_storage_path_for_external_versions(self):
         self.assertEqual(

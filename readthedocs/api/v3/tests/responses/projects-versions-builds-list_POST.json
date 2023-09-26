@@ -57,8 +57,8 @@
         "slug": "project",
         "subproject_of": null,
         "tags": [
-            "tag",
             "project",
+            "tag",
             "test"
         ],
         "translation_of": null,
@@ -72,7 +72,10 @@
             {
                 "username": "testuser"
             }
-        ]
+        ],
+        "privacy_level": "public",
+        "external_builds_privacy_level": "public",
+        "single_version": false
     },
     "triggered": true,
     "version": {
@@ -101,6 +104,7 @@
             "documentation": "http://project.readthedocs.io/en/v1.0/",
             "vcs": "https://github.com/rtfd/project/tree/v1.0/"
         },
-        "verbose_name": "v1.0"
+        "verbose_name": "v1.0",
+        "privacy_level": "public"
     }
 }

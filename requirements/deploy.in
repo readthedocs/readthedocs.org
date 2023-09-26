@@ -2,17 +2,8 @@
 
 -r pip.txt
 
-psycopg2
-gunicorn
-django-redis-cache
-
-# For resizing images
-pillow
-
 structlog-sentry
 
-# We should unpin this dependency.
-# There is a new 8.x version, but I didn't find the changelog quickly.
-newrelic==7.4.0.172
+newrelic
 
 ipython

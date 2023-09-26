@@ -418,17 +418,18 @@ the parts from the URL.
 
    LANGUAGES = {"es", "en"}
 
+
    def pop_parts(path, n):
-       if path[0] == '/':
-          path  = path[1:]
-       parts = path.split('/', maxsplit=n)
+       if path[0] == "/":
+           path = path[1:]
+       parts = path.split("/", maxsplit=n)
        start, end = parts[:n], parts[n:]
-       end = end[0] if end else ''
+       end = end[0] if end else ""
        return start, end
 
 
    def resolve(canonical_project: Project, path: str, check_subprojects=True):
-       prefix = '/'
+       prefix = "/"
        if canonical_project.prefix:
            prefix = canonical_project.prefix
        subproject_prefix = "/projects"

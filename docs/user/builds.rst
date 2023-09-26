@@ -1,54 +1,56 @@
-Build process
-=============
+Build process overview
+======================
 
 Once a project has been imported and a build is triggered,
-Read the Docs executes specific :term:`pre-defined jobs <pre-defined build jobs>` to build the project's documentation and update the hosted content.
+Read the Docs executes a set of :term:`pre-defined jobs <pre-defined build jobs>` to build and upload documentation.
 This page explains in detail what happens behind the scenes,
-and an overview of how you can change this process.
+and includes an overview of how you can change this process.
 
+Understanding the build process
+-------------------------------
 
-Understanding what's going on
------------------------------
-
-Understanding how your content is built helps with debugging the problems that may appear in the process.
-It also allows you customize the steps of the build process.
+Understanding how your content is built helps with debugging any problems you might hit.
+It also gives you the knowledge to customize the build process.
 
 .. note::
 
-   All the steps are run inside a Docker container with the image the project defines in :ref:`config-file/v2:build.os`,
-   and all the :doc:`/environment-variables` defined are exposed to them.
+   All the steps are run inside a Docker container, using the image defined in :ref:`config-file/v2:build.os`.
+   The build has access to all :doc:`pre-defined environment variables </reference/environment-variables>` and :doc:`custom environment variables </environment-variables>`.
 
 
-The following are the pre-defined jobs executed by Read the Docs:
+The build process includes the following jobs:
 
 :checkout:
 
-   Checks out project's code from the URL's repository defined for this project.
-   It will use `git clone`, `hg clone`, etc depending on the version control system you choose.
+   Checks out a project's code from the repository URL.
+   On |com_brand|,
+   this environment includes the SSH deploy key that gives access to the repository.
 
 :system_dependencies:
 
-   Installs operating system & system-level dependencies.
-   This includes specific version of languages (e.g. Python, Node.js, Go, Rust) and also ``apt`` packages.
+   Installs operating system and runtime dependencies.
+   This includes specific versions of a language (e.g. Python, Node.js, Go, Rust) and also ``apt`` packages.
 
-   At this point, :ref:`config-file/v2:build.tools` can be used to define a language version,
+   :ref:`config-file/v2:build.tools` can be used to define a language version,
    and :ref:`config-file/v2:build.apt_packages` to define ``apt`` packages.
 
 :create_environment:
 
    Creates a Python environment to install all the dependencies in an isolated and reproducible way.
-   Depending on what's defined by the project a virtualenv or a conda environment (:ref:`config-file/v2:conda`) will be used.
+   Depending on what's defined by the project,
+   a virtualenv or a conda environment (:ref:`config-file/v2:conda`) will be used.
 
 :install:
 
-   Install :doc:`default common dependencies <build-default-versions>`.
+   Install :doc:`default and project dependencies </build-default-versions>`.
+   This includes any requirements you have configured in :ref:`config-file/v2:requirements file`.
 
    If the project has extra Python requirements,
    :ref:`config-file/v2:python.install` can be used to specify them.
 
    .. tip::
 
-    We strongly recommend :ref:`pinning all the versions <guides/reproducible-builds:pinning dependencies>` required to build the documentation to avoid unexpected build errors.
+    We strongly recommend :doc:`pinning all the versions </guides/reproducible-builds>` required to build the documentation to avoid unexpected build errors.
 
 :build:
 
@@ -58,23 +60,73 @@ The following are the pre-defined jobs executed by Read the Docs:
 :upload:
 
    Once the build process finishes successfully,
-   the resulting artifacts are uploaded to our servers, and the CDN is purged so the newer version of the documentation is served.
+   the resulting artifacts are uploaded to our servers.
+   Our :doc:`CDN </reference/cdn>` is then purged so your docs are *always up to date*.
 
 
 .. seealso::
 
-    If there are extra steps required to build the documentation,
-    or you need to execute additional commands to integrate with other tools,
-    it's possible to run user-defined commands and :doc:`customize the build process <build-customization>`.
+    If you require additional build steps or customization,
+    it's possible to run user-defined commands and :doc:`customize the build process </build-customization>`.
+
+Cancelling builds
+-----------------
+
+There may be situations where you want to cancel a running build.
+Cancelling builds allows your team to speed up review times and also help us reduce server costs and our environmental footprint.
+
+A couple common reasons you might want to cancel builds are:
+
+* the build has an external dependency that hasn't been updated
+* there were no changes on the documentation files
+
+For these scenarios,
+Read the Docs supports three different mechanisms to cancel a running build:
+
+:Manually:
+
+   Once a build was triggered,
+   project administrators can go to the build detail page
+   and click :guilabel:`Cancel build`.
+
+:Automatically:
+
+   When Read the Docs detects a push to a version that is already building,
+   it cancels the running build and starts a new build using the latest commit.
+
+:Programatically:
+
+   You can use user-defined commands on ``build.jobs`` or ``build.commands`` (see :doc:`build-customization`)
+   to check for your own cancellation condition and then return exit code ``183`` to cancel a build.
+   You can exit with the code ``0`` to continue running the build.
+
+   When this happens, Read the Docs will notify your Git platform (GitHub/GitLab) that the build succeeded (✅),
+   so the pull request doesn't have any failing checks.
+
+   .. tip::
+
+      Take a look at :ref:`build-customization:cancel build based on a condition` section for some examples.
 
 
 Build resources
 ---------------
 
-Every build has limited resources to avoid misuse of the platform.
-Currently, these build limits are:
+Every build has limited resources assigned to it.
+Generally, |com_brand| users get double the build resources,
+with the option to increase that.
+
+Our build limits are:
 
 .. tabs::
+
+   .. tab:: |com_brand|
+
+      * 30 minutes build time
+      * 7GB of memory
+      * Concurrent builds vary based on your pricing plan
+
+      If you are having trouble with your documentation builds,
+      you can reach our support at support@readthedocs.com.
 
    .. tab:: |org_brand|
 
@@ -88,12 +140,3 @@ Currently, these build limits are:
       If your business is hitting build limits hosting documentation on Read the Docs,
       please consider :doc:`Read the Docs for Business </commercial/index>`
       which has much higher build resources.
-
-   .. tab:: |com_brand|
-
-      * 30 minutes build time
-      * 7GB of memory
-      * Concurrent builds vary based on your pricing plan
-
-      If you are having trouble with your documentation builds,
-      you can reach our support at support@readthedocs.com.

@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic import DeleteView, DetailView
 
+from readthedocs.audit.models import AuditLog
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.invitations.models import Invitation
@@ -16,9 +17,24 @@ log = structlog.get_logger(__name__)
 
 class RevokeInvitation(PrivateViewMixin, UserPassesTestMixin, DeleteView):
 
+    """
+    Revoke invitation view.
+
+    An invitation is revoked by simple deleting it.
+    """
+
     model = Invitation
     pk_url_kwarg = "invitation_pk"
     http_method_names = ["post"]
+
+    def form_valid(self, form):
+        invitation = self.get_object()
+        invitation.create_audit_log(
+            action=AuditLog.INVITATION_REVOKED,
+            request=self.request,
+            user=self.request.user,
+        )
+        return super().form_valid(form)
 
     def test_func(self):
         invitation = self.get_object()
@@ -54,7 +70,6 @@ class RedeemInvitation(DetailView):
         context["target_type"] = invitation.object._meta.verbose_name
         return context
 
-    # pylint: disable=unused-argument
     def post(self, request, *args, **kwargs):
         """
         Accept or decline an invitation.
@@ -73,7 +88,7 @@ class RedeemInvitation(DetailView):
             # redeem the invitation after the user has signed-up.
             if not request.user.is_authenticated and invitation.to_email:
                 return self.redeem_at_sign_up(invitation)
-            invitation.redeem(request.user)
+            invitation.redeem(request.user, request=request)
             url = invitation.get_success_url()
         else:
             log.info(
@@ -82,6 +97,11 @@ class RedeemInvitation(DetailView):
                 object_type=invitation.object_type,
                 object_name=invitation.object_name,
                 object_pk=invitation.object.pk,
+            )
+            invitation.create_audit_log(
+                action=AuditLog.INVITATION_DECLINED,
+                request=request,
+                user=invitation.to_user,
             )
         invitation.delete()
         return HttpResponseRedirect(url)

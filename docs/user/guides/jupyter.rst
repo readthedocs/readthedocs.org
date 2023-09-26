@@ -114,8 +114,8 @@ Each editor has a different way of doing it:
 
 - The classical Jupyter Notebook interface
   provides a "Save Notebook Widget State" action in the "Widgets" menu,
-  :ref:`as explained in the ipywidgets
-  documentation <ipywidgets:/embedding.md#embedding-widgets-in-html-web-pages>`.
+  :doc:`as explained in the ipywidgets
+  documentation <ipywidgets:embedding>`.
   You need to click it before exporting your notebook to HTML.
 - JupyterLab provides a "Save Widget State Automatically" option in the "Settings" menu.
   You need to leave it checked so that widget state is automatically saved.
@@ -131,7 +131,7 @@ Each editor has a different way of doing it:
    JupyterLab option to save the interactive widget state automatically
 
 For example, if you create a notebook with a simple
-:ref:`ipywidgets:/examples/widget list.ipynb#intslider`
+`IntSlider <https://ipywidgets.readthedocs.io/en/stable/examples/Widget%20List.html#intslider>`__
 widget from ipywidgets and save the widget state,
 the slider will render correctly in Sphinx.
 
@@ -175,15 +175,15 @@ For example, this is how a simple notebook looks like in MyST Markdown format:
 
    ---
    jupytext:
-   text_representation:
-      extension: .md
-      format_name: myst
-      format_version: 0.13
-      jupytext_version: 1.10.3
+     text_representation:
+       extension: .md
+       format_name: myst
+       format_version: 0.13
+       jupytext_version: 1.10.3
    kernelspec:
-   display_name: Python 3
-   language: python
-   name: python3
+     display_name: Python 3
+     language: python
+     name: python3
    ---
 
    # Plain-text notebook formats
@@ -247,8 +247,8 @@ and modify your ``conf.py`` as follows:
    :caption: conf.py
 
    extensions = [
-      'nbsphinx',
-      'sphinx_gallery.load_style',
+       "nbsphinx",
+       "sphinx_gallery.load_style",
    ]
 
 After doing that, there are two ways to create the gallery:
@@ -331,7 +331,7 @@ However, there are some differences between them:
   whereas MyST-NB uses `MyST-Parser`_
   to directly convert the Markdown text to docutils AST.
   Therefore, nbsphinx assumes `pandoc flavored Markdown <https://pandoc.org/MANUAL.html#pandocs-markdown>`_,
-  whereas MyST-NB uses :doc:`MyST flavored Markdown <myst-parser:syntax/syntax>`.
+  whereas MyST-NB uses :doc:`MyST flavored Markdown <myst-parser:index>`.
   Both Markdown flavors are mostly equal,
   but they have some differences.
 - nbsphinx executes each notebook during the parsing phase,
@@ -376,7 +376,7 @@ are by far the most widely used for historical reasons.
 
 However, to compensate some of the disadvantages of the ``.ipynb`` format
 (like cumbersome integration with version control systems),
-`jupytext`_ offers :doc:`other formats <jupytext:formats>`
+`jupytext`_ offers :doc:`other formats <jupytext:formats-markdown>`
 based on plain text rather than JSON.
 
 As a result, there are three modes of operation:
@@ -396,7 +396,7 @@ As a result, there are three modes of operation:
     to improve the review process.
   - Use a different collaboration workflow that doesn't involve notebooks.
 
-- Replace ``.ipynb`` notebooks with :doc:`a text-based format <jupytext:formats>`.
+- Replace ``.ipynb`` notebooks with :doc:`a text-based format <jupytext:formats-markdown>`.
   These formats behave better under version control
   and they can also be edited with normal text editors
   that do not support cell-based JSON notebooks.
@@ -410,8 +410,8 @@ As a result, there are three modes of operation:
 
 These approaches are not mutually exclusive,
 nor you have to use a single format for all your notebooks.
-For the examples in this document, we have used the :ref:`MyST Markdown
-format <jupytext:formats.md#myst-markdown>`.
+For the examples in this document, we have used the :doc:`MyST Markdown
+format <jupytext:formats-markdown>`.
 
 If you are using alternative formats for Jupyter notebooks,
 you can include them in your Sphinx documentation

@@ -11,7 +11,6 @@ from django_dynamic_fixture import get
 from docker.errors import APIError as DockerAPIError
 
 from readthedocs.builds.models import Version
-from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import (
     BuildCommand,
     DockerBuildCommand,
@@ -22,7 +21,6 @@ from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.doc_builder.python_environments import Conda, Virtualenv
 from readthedocs.projects.models import Project
 from readthedocs.rtd_tests.mocks.paths import fake_paths_lookup
-from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 DUMMY_BUILD_ID = 123
 SAMPLE_UNICODE = 'HérÉ îß sömê ünïçó∂é'
@@ -35,40 +33,47 @@ SAMPLE_UTF8_BYTES = SAMPLE_UNICODE.encode('utf-8')
 class TestLocalBuildEnvironment(TestCase):
 
 
-    @patch('readthedocs.doc_builder.environments.api_v2')
-    def test_command_not_recorded(self, api_v2):
-        build_env = LocalBuildEnvironment()
+    def test_command_not_recorded(self):
+        api_client = mock.MagicMock()
+        build_env = LocalBuildEnvironment(api_client=api_client)
 
         with build_env:
             build_env.run('true', record=False)
         self.assertEqual(len(build_env.commands), 0)
-        api_v2.command.post.assert_not_called()
+        api_client.command.post.assert_not_called()
 
-    @patch('readthedocs.doc_builder.environments.api_v2')
-    def test_record_command_as_success(self, api_v2):
+    def test_record_command_as_success(self):
+        api_client = mock.MagicMock()
         project = get(Project)
         build_env = LocalBuildEnvironment(
             project=project,
             build={
                 'id': 1,
             },
+            api_client=api_client,
         )
 
         with build_env:
-            build_env.run('false', record_as_success=True)
+            build_env.run(
+                "false",
+                record_as_success=True,
+                # Use a directory that exists so the command doesn't fail.
+                cwd="/tmp",
+            )
         self.assertEqual(len(build_env.commands), 1)
 
         command = build_env.commands[0]
         self.assertEqual(command.exit_code, 0)
-        api_v2.command.post.assert_called_once_with({
-            'build': mock.ANY,
-            'command': command.get_command(),
-            'output': command.output,
-            'exit_code': 0,
-            'start_time': command.start_time,
-            'end_time': command.end_time,
-        })
-
+        api_client.command.post.assert_called_once_with(
+            {
+                "build": mock.ANY,
+                "command": command.get_command(),
+                "output": command.output,
+                "exit_code": 0,
+                "start_time": command.start_time,
+                "end_time": command.end_time,
+            }
+        )
 
 
 # TODO: translate these tests into
@@ -237,7 +242,16 @@ class TestBuildCommand(TestCase):
 
     def test_output(self):
         """Test output command."""
-        cmd = BuildCommand(['/bin/bash', '-c', 'echo -n FOOBAR'])
+        project = get(Project)
+        api_client = mock.MagicMock()
+        build_env = LocalBuildEnvironment(
+            project=project,
+            build={
+                "id": 1,
+            },
+            api_client=api_client,
+        )
+        cmd = BuildCommand(["/bin/bash", "-c", "echo -n FOOBAR"], build_env=build_env)
 
         # Mock BuildCommand.sanitized_output just to count the amount of calls,
         # but use the original method to behaves as real
@@ -245,10 +259,21 @@ class TestBuildCommand(TestCase):
         with patch('readthedocs.doc_builder.environments.BuildCommand.sanitize_output') as sanitize_output:  # noqa
             sanitize_output.side_effect = original_sanitized_output
             cmd.run()
-            self.assertEqual(cmd.output, 'FOOBAR')
+            cmd.save(api_client=api_client)
+            self.assertEqual(cmd.output, "FOOBAR")
+            api_client.command.post.assert_called_once_with(
+                {
+                    "build": mock.ANY,
+                    "command": "/bin/bash -c echo -n FOOBAR",
+                    "output": "FOOBAR",
+                    "exit_code": 0,
+                    "start_time": mock.ANY,
+                    "end_time": mock.ANY,
+                }
+            )
 
             # Check that we sanitize the output
-            self.assertEqual(sanitize_output.call_count, 2)
+            self.assertEqual(sanitize_output.call_count, 1)
 
     def test_error_output(self):
         """Test error output from command."""
@@ -260,9 +285,9 @@ class TestBuildCommand(TestCase):
     def test_sanitize_output(self):
         cmd = BuildCommand(['/bin/bash', '-c', 'echo'])
         checks = (
-            (b'Hola', 'Hola'),
-            (b'H\x00i', 'Hi'),
-            (b'H\x00i \x00\x00\x00You!\x00', 'Hi You!'),
+            ("Hola", "Hola"),
+            ("H\x00i", "Hi"),
+            ("H\x00i \x00\x00\x00You!\x00", "Hi You!"),
         )
         for output, sanitized in checks:
             self.assertEqual(cmd.sanitize_output(output), sanitized)
@@ -418,50 +443,11 @@ class TestPythonEnvironment(TestCase):
         self.assertEqual(self.build_env_mock.run.call_count, 2)
         calls = self.build_env_mock.run.call_args_list
 
-        core_args = self.pip_install_args + ['pip', 'setuptools<58.3.0']
+        core_args = self.pip_install_args + ["pip", "setuptools"]
         self.assertArgsStartsWith(core_args, calls[0])
 
         requirements = self.base_requirements + requirements_sphinx
         args = self.pip_install_args + requirements
-        self.assertArgsStartsWith(args, calls[1])
-
-    @mock.patch('readthedocs.doc_builder.config.load_config')
-    @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_install_core_requirements_sphinx_system_packages_caps_setuptools(self, checkout_path, load_config):
-        config_data = {
-            'python': {
-                'use_system_site_packages': True,
-            },
-        }
-        load_config.side_effect = create_load(config_data)
-        config = load_yaml_config(self.version_sphinx)
-
-        tmpdir = tempfile.mkdtemp()
-        checkout_path.return_value = tmpdir
-        python_env = Virtualenv(
-            version=self.version_sphinx,
-            build_env=self.build_env_mock,
-            config=config,
-        )
-        python_env.install_core_requirements()
-        requirements_sphinx = [
-            "commonmark",
-            "recommonmark",
-            "sphinx",
-            "sphinx-rtd-theme",
-            "readthedocs-sphinx-ext",
-            "jinja2<3.1.0",
-            "setuptools<58.3.0",
-        ]
-
-        self.assertEqual(self.build_env_mock.run.call_count, 2)
-        calls = self.build_env_mock.run.call_args_list
-
-        core_args = self.pip_install_args + ['pip', 'setuptools<58.3.0']
-        self.assertArgsStartsWith(core_args, calls[0])
-
-        requirements = self.base_requirements + requirements_sphinx
-        args = self.pip_install_args + ['-I'] + requirements
         self.assertArgsStartsWith(args, calls[1])
 
     @patch('readthedocs.projects.models.Project.checkout_path')
@@ -482,7 +468,7 @@ class TestPythonEnvironment(TestCase):
         self.assertEqual(self.build_env_mock.run.call_count, 2)
         calls = self.build_env_mock.run.call_args_list
 
-        core_args = self.pip_install_args + ['pip', 'setuptools<58.3.0']
+        core_args = self.pip_install_args + ["pip", "setuptools"]
         self.assertArgsStartsWith(core_args, calls[0])
 
         requirements = self.base_requirements + requirements_mkdocs

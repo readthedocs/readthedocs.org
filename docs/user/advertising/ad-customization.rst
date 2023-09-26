@@ -1,6 +1,6 @@
 :orphan:
 
-Customizing Advertising
+Customizing advertising
 =======================
 
 .. warning::
@@ -44,13 +44,15 @@ for inclusion in the `HTML sidebar`_ in your ``conf.py``.
 .. code-block:: python
 
     ## In conf.py
-    html_sidebars = { '**': [
-        'localtoc.html',
-        'ethicalads.html',  # Put the ad below the navigation but above previous/next
-        'relations.html',
-        'sourcelink.html',
-        'searchbox.html',
-    ] }
+    html_sidebars = {
+        "**": [
+            "localtoc.html",
+            "ethicalads.html",  # Put the ad below the navigation but above previous/next
+            "relations.html",
+            "sourcelink.html",
+            "searchbox.html",
+        ]
+    }
 
 .. code-block:: html
 

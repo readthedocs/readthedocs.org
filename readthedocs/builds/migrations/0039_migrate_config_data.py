@@ -7,10 +7,10 @@ def forwards_func(apps, schema_editor):
     """Copy build config to JSONField."""
     # Do migration in chunks, because prod Build table is a big boi.
     # We don't use `iterator()` here because `update()` will be quicker.
-    Build = apps.get_model('builds', 'Build')
+    Build = apps.get_model("builds", "Build")
     step = 10000
-    build_pks = Build.objects.aggregate(min_pk=Min('id'), max_pk=Max('id'))
-    build_min_pk, build_max_pk = (build_pks['min_pk'], build_pks['max_pk'])
+    build_pks = Build.objects.aggregate(min_pk=Min("id"), max_pk=Max("id"))
+    build_min_pk, build_max_pk = (build_pks["min_pk"], build_pks["max_pk"])
     # Protection for tests, which have no build instances
     if not all([build_min_pk, build_max_pk]):
         return
@@ -21,17 +21,20 @@ def forwards_func(apps, schema_editor):
                 pk__gte=first_pk,
                 pk__lt=last_pk,
                 _config_json__isnull=True,
-            ).annotate(
-                _config_in_json=Cast('_config', output_field=JSONField()),
-            ).update(_config_json=F('_config_in_json'))
+            )
+            .annotate(
+                _config_in_json=Cast("_config", output_field=JSONField()),
+            )
+            .update(_config_json=F("_config_in_json"))
         )
-        print(f'Migrated builds: first_pk={first_pk} last_pk={last_pk} updated={build_update}')
+        print(
+            f"Migrated builds: first_pk={first_pk} last_pk={last_pk} updated={build_update}"
+        )
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('builds', '0038_add_new_jsonfields'),
+        ("builds", "0038_add_new_jsonfields"),
     ]
 
     operations = [

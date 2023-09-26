@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Patterns for extending Read the Docs."""
 
 import inspect
@@ -18,13 +16,14 @@ def get_override_class(proxy_class, default_class=None):
     :py:class:`SettingsOverrideObject`.
     """
     if default_class is None:
-        default_class = getattr(proxy_class, '_default_class')
-    class_id = '.'.join([
-        inspect.getmodule(proxy_class).__name__,
-        proxy_class.__name__,
-    ])
+        default_class = getattr(proxy_class, "_default_class")
+    class_id = ".".join(
+        [
+            inspect.getmodule(proxy_class).__name__,
+            proxy_class.__name__,
+        ]
+    )
     class_path = settings.CLASS_OVERRIDES.get(class_id)
-    # pylint: disable=protected-access
     if class_path is None and proxy_class._override_setting is not None:
         class_path = getattr(settings, proxy_class._override_setting, None)
     if class_path is not None:
@@ -41,7 +40,7 @@ class SettingsOverrideMeta(type):
     """
 
     def __getattr__(cls, attr):  # noqa: pep8 false positive
-        proxy_class = get_override_class(cls, getattr(cls, '_default_class'))
+        proxy_class = get_override_class(cls, getattr(cls, "_default_class"))
         return getattr(proxy_class, attr)
 
 

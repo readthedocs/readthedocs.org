@@ -30,7 +30,7 @@
     },
     "slug": "test-project",
     "subproject_of": null,
-    "tags": [],
+    "tags": ["template tag", "test tag"],
     "translation_of": null,
     "urls": {
         "builds": "https://readthedocs.org/projects/test-project/builds/",
@@ -42,5 +42,8 @@
         {
             "username": "testuser"
         }
-    ]
+    ],
+    "privacy_level": "public",
+    "external_builds_privacy_level": "public",
+    "single_version": false
 }

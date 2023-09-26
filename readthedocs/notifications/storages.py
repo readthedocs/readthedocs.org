@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Customised storage for notifications."""
 
 from django.contrib.messages.storage.base import Message
@@ -10,7 +8,6 @@ from messages_extends.models import Message as PersistentMessage
 from messages_extends.storages import FallbackStorage, PersistentStorage
 
 from .constants import NON_PERSISTENT_MESSAGE_LEVELS
-
 
 try:
     from django.utils import timezone
@@ -40,24 +37,27 @@ class FallbackUniqueStorage(FallbackStorage):
     """
 
     storages_names = (
-        'readthedocs.notifications.storages.NonPersistentStorage',
-        'messages_extends.storages.StickyStorage',
-        'messages_extends.storages.PersistentStorage',
-        'django.contrib.messages.storage.cookie.CookieStorage',
-        'django.contrib.messages.storage.session.SessionStorage',
+        "readthedocs.notifications.storages.NonPersistentStorage",
+        "messages_extends.storages.StickyStorage",
+        "messages_extends.storages.PersistentStorage",
+        "django.contrib.messages.storage.cookie.CookieStorage",
+        "django.contrib.messages.storage.session.SessionStorage",
     )
 
     def _get(self, *args, **kwargs):
         # The database backend for persistent messages doesn't support setting
         # messages with ``mark_safe``, therefore, we need to do it broadly here.
-        messages, all_ret = (super()._get(self, *args, **kwargs))
+        messages, all_ret = super()._get(self, *args, **kwargs)
 
         safe_messages = []
         for message in messages:
             # Handle all message types, if the message is persistent, take
             # special action. As the default message handler, this will also
             # process ephemeral messages
-            if message.level in PERSISTENT_MESSAGE_LEVELS + NON_PERSISTENT_MESSAGE_LEVELS:
+            if (
+                message.level
+                in PERSISTENT_MESSAGE_LEVELS + NON_PERSISTENT_MESSAGE_LEVELS
+            ):
                 message_pk = message.pk
                 message = Message(
                     message.level,
@@ -68,15 +68,13 @@ class FallbackUniqueStorage(FallbackStorage):
             safe_messages.append(message)
         return safe_messages, all_ret
 
-    def add(self, level, message, extra_tags='', *args, **kwargs):  # noqa
-        user = kwargs.get('user') or self.request.user
+    def add(self, level, message, extra_tags="", *args, **kwargs):  # noqa
+        user = kwargs.get("user") or self.request.user
         if not user.is_anonymous:
-            persist_messages = (
-                PersistentMessage.objects.filter(
-                    message=message,
-                    user=user,
-                    read=False,
-                )
+            persist_messages = PersistentMessage.objects.filter(
+                message=message,
+                user=user,
+                read=False,
             )
             if persist_messages.exists():
                 return
@@ -100,10 +98,11 @@ class NonPersistentStorage(PersistentStorage):
         """Return a queryset of non persistent messages for the request user."""
         expire = timezone.now()
 
-        qs = PersistentMessage.objects.\
-            filter(user=self.get_user()).\
-            filter(Q(expires=None) | Q(expires__gt=expire)).\
-            filter(level__in=NON_PERSISTENT_MESSAGE_LEVELS)
+        qs = (
+            PersistentMessage.objects.filter(user=self.get_user())
+            .filter(Q(expires=None) | Q(expires__gt=expire))
+            .filter(level__in=NON_PERSISTENT_MESSAGE_LEVELS)
+        )
         if not include_read:
             qs = qs.exclude(read=True)
 
@@ -123,7 +122,8 @@ class NonPersistentStorage(PersistentStorage):
     def _store(self, messages, response, *args, **kwargs):
         # There are already saved.
         return [
-            message for message in messages
+            message
+            for message in messages
             if message.level not in NON_PERSISTENT_MESSAGE_LEVELS
         ]
 
@@ -137,7 +137,7 @@ class NonPersistentStorage(PersistentStorage):
         if message.level not in NON_PERSISTENT_MESSAGE_LEVELS:
             return message
 
-        user = kwargs.get('user') or self.get_user()
+        user = kwargs.get("user") or self.get_user()
 
         try:
             anonymous = user.is_anonymous
@@ -145,7 +145,7 @@ class NonPersistentStorage(PersistentStorage):
             anonymous = user.is_anonymous
         if anonymous:
             raise NotImplementedError(
-                'Persistent message levels cannot be used for anonymous users.',
+                "Persistent message levels cannot be used for anonymous users.",
             )
         message_persistent = PersistentMessage()
         message_persistent.level = message.level
@@ -153,7 +153,7 @@ class NonPersistentStorage(PersistentStorage):
         message_persistent.extra_tags = message.extra_tags
         message_persistent.user = user
 
-        if 'expires' in kwargs:
-            message_persistent.expires = kwargs['expires']
+        if "expires" in kwargs:
+            message_persistent.expires = kwargs["expires"]
         message_persistent.save()
         return None

@@ -31,8 +31,8 @@
     "slug": "project",
     "subproject_of": null,
     "tags": [
-        "tag",
         "project",
+        "tag",
         "test"
     ],
     "translation_of": null,
@@ -46,5 +46,8 @@
         {
             "username": "testuser"
         }
-    ]
+    ],
+    "privacy_level": "public",
+    "external_builds_privacy_level": "public",
+    "single_version": false
 }

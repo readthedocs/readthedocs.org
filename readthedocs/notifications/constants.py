@@ -1,12 +1,9 @@
-# -*- coding: utf-8 -*-
-
 """Notification constants."""
 
 from messages_extends import constants as message_constants
 
-
-TEXT = 'txt'
-HTML = 'html'
+TEXT = "txt"
+HTML = "html"
 
 INFO = 0
 WARNING = 1

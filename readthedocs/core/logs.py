@@ -1,12 +1,11 @@
 import sys
 import warnings
-
 from io import StringIO
 
 import structlog
-from structlog.dev import _pad, plain_traceback
-
 from django_structlog.middlewares.request import RequestMiddleware
+from structlog.dev import _pad, plain_traceback
+from structlog.processors import _figure_out_exc_info
 
 
 class ReadTheDocsRequestMiddleware(RequestMiddleware):
@@ -24,7 +23,8 @@ class ReadTheDocsRequestMiddleware(RequestMiddleware):
 
     """
 
-    def format_request(self, request):
+    @staticmethod
+    def format_request(request):
         return request.build_absolute_uri()
 
 
@@ -49,7 +49,7 @@ class NewRelicProcessor:
         if not isinstance(event_dict, dict):
             return event_dict
 
-        record = event_dict.get('_record')
+        record = event_dict.get("_record")
         if record is None:
             return event_dict
 
@@ -58,7 +58,7 @@ class NewRelicProcessor:
         output = {
             # "timestamp": int(record.created * 1000),
             # "message": record.getMessage(),
-            "message": event_dict['event'],
+            "message": event_dict["event"],
             # "log.level": record.levelname,
             # "logger.name": record.name,
             "thread.id": record.thread,
@@ -69,8 +69,14 @@ class NewRelicProcessor:
             "line.number": record.lineno,
         }
 
+        # NOTE: For some reason structlog isn't including
+        # the exception in the record.exc_info attribute,
+        # so we need to get it from the event_dict.
+        exc_info = event_dict.pop("exc_info", None)
         if record.exc_info:
             output.update(format_exc_info(record.exc_info))
+        elif exc_info:
+            output.update(format_exc_info(_figure_out_exc_info(exc_info)))
 
         event_dict.update(output)
         return event_dict
@@ -87,11 +93,7 @@ class SysLogRenderer(structlog.dev.ConsoleRenderer):
 
         process_id = event_dict.pop("process_id", None)
         if process_id is not None:
-            sio.write(
-                "["
-                + str(process_id)
-                + "]"
-            )
+            sio.write("[" + str(process_id) + "]")
 
         # syslog tag delimiter
         sio.write(": ")
@@ -187,16 +189,17 @@ class SysLogRenderer(structlog.dev.ConsoleRenderer):
 
 
 class SysLogProcessor:
-
     def __call__(self, logger, method_name, event_dict):
-        record = event_dict.get('_record', None)
+        record = event_dict.get("_record", None)
         if record is None:
             return event_dict
 
-        event_dict.update({
-            'process_id': record.process,
-            'line_number': record.lineno,
-        })
+        event_dict.update(
+            {
+                "process_id": record.process,
+                "line_number": record.lineno,
+            }
+        )
         return event_dict
 
 
@@ -209,11 +212,13 @@ shared_processors = [
 ]
 
 structlog.configure(
-    processors=list([
-        structlog.stdlib.filter_by_level,
-        *shared_processors,
-        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
-    ]),
+    processors=list(
+        [
+            structlog.stdlib.filter_by_level,
+            *shared_processors,
+            structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+        ]
+    ),
     context_class=structlog.threadlocal.wrap_dict(dict),
     logger_factory=structlog.stdlib.LoggerFactory(),
     wrapper_class=structlog.stdlib.BoundLogger,

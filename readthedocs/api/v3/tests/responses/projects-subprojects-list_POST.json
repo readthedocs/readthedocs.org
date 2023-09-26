@@ -47,6 +47,9 @@
             {
                 "username": "testuser"
             }
-        ]
+        ],
+        "privacy_level": "public",
+        "external_builds_privacy_level": "public",
+        "single_version": false
     }
 }

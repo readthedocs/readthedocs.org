@@ -3,10 +3,13 @@ Canonical URLs
 
 A `canonical URL`_
 allows you to specify the preferred version of a web page to prevent duplicated content.
-They are mainly used by search engines to link users to the correct
-version and domain of your documentation.
+Here are some examples of when a canonical URL is used:
 
-If canonical URL's aren't used,
+- Search engines use your canonical URL to link users to the correct version and domain of your documentation.
+- Many popular chat clients and social media networks generate link previews,
+  using your canonical URL as the final destination.
+
+If canonical URLs aren't used,
 it's easy for outdated documentation to be the top search result for various pages in your documentation.
 This is not a perfect solution for this problem,
 but generally people finding outdated documentation is a big problem,
@@ -14,14 +17,24 @@ and this is one of the suggested ways to solve it from search engines.
 
 .. _canonical URL: https://developers.google.com/search/docs/advanced/crawling/consolidate-duplicate-urls
 
+.. tip::
+
+   In most cases, Read the Docs will automatically generate a canonical URL for Sphinx projects.
+   Most Sphinx users do not need to take further action.
+
+.. seealso::
+
+   :doc:`/guides/canonical-urls`
+      More information on how to enable canonical URLs in your project.
+
 How Read the Docs generates canonical URLs
 ------------------------------------------
 
-The canonical URL takes into account:
+The canonical URL takes the following into account:
 
 * The default version of your project (usually "latest" or "stable").
 * The canonical :doc:`custom domain </custom-domains>` if you have one,
-  otherwise the default :ref:`subdomain <hosting:subdomain support>` will be used.
+  otherwise the default :ref:`subdomain <default-subdomain>` will be used.
 
 For example, if you have a project named ``example-docs``
 with a custom domain ``https://docs.example.com``,
@@ -40,32 +53,10 @@ thus avoiding duplicating the content.
 Implementation
 --------------
 
-The canonical URL is set in HTML with a ``link`` element.
-For example, this page has a canonical URL of:
+A canonical URL is automatically specified in the HTML output with a ``<link>`` element.
+For instance, regardless of whether you are viewing this page on ``/en/latest`` or ``/en/stable``,
+the following HTML header data will be present:
 
 .. code-block:: html
 
    <link rel="canonical" href="https://docs.readthedocs.io/en/stable/canonical-urls.html" />
-
-Sphinx
-~~~~~~
-
-If you are using :doc:`Sphinx </intro/getting-started-with-sphinx>`,
-Read the Docs will set the value of the html_baseurl_ setting (if isn't already set) to your canonical domain.
-If you already have ``html_baseurl`` set, you need to ensure that the value is correct.
-
-.. _html_baseurl: https://www.sphinx-doc.org/page/usage/configuration.html#confval-html_baseurl
-
-Mkdocs
-~~~~~~
-
-For :doc:`MkDocs </intro/getting-started-with-mkdocs>` this isn't done automatically,
-but you can use the site_url_ setting to set a similar value.
-
-.. _site_url: https://www.mkdocs.org/user-guide/configuration/#site_url
-
-.. warning::
-
-   If you change your default version or canonical domain,
-   you'll need to re-build all your versions in order to update their
-   canonical URL to the new one.

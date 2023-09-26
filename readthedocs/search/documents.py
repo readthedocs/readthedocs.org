@@ -3,7 +3,7 @@ from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
 from elasticsearch import Elasticsearch
 
-from readthedocs.projects.models import Feature, HTMLFile, Project
+from readthedocs.projects.models import HTMLFile, Project
 
 project_conf = settings.ES_INDEXES['project']
 project_index = Index(project_conf['name'])
@@ -22,8 +22,8 @@ class RTDDocTypeMixin:
         # Hack a fix to our broken connection pooling
         # This creates a new connection on every request,
         # but actually works :)
-        log.info('Hacking Elastic indexing to fix connection pooling')
-        self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL['default'])
+        log.debug("Hacking Elastic indexing to fix connection pooling")
+        self.using = Elasticsearch(**settings.ELASTICSEARCH_DSL["default"])
         super().update(*args, **kwargs)
 
 
@@ -47,6 +47,17 @@ class ProjectDocument(RTDDocTypeMixin, Document):
     description = fields.TextField(attr='description')
 
     modified_model_field = 'modified_date'
+
+    def get_queryset(self):
+        """
+        Additional filtering of default queryset.
+
+        Don't include delisted projects.
+        This will also break in-doc search for these projects,
+        but it's not a priority to find a solution for this as long as "delisted" projects are
+        understood to be projects with a negative reason for being delisted.
+        """
+        return super().get_queryset().exclude(delisted=True).exclude(is_spam=True)
 
     class Django:
         model = Project
@@ -93,25 +104,6 @@ class PageDocument(RTDDocTypeMixin, Document):
             ),
         }
     )
-    domains = fields.NestedField(
-        properties={
-            'role_name': fields.KeywordField(),
-
-            # For linking to the URL
-            'anchor': fields.KeywordField(),
-
-            # For showing in the search result
-            'type_display': fields.TextField(),
-            'docstrings': fields.TextField(
-                term_vector='with_positions_offsets',
-            ),
-            'name': fields.TextField(
-                # Simple analyzer breaks on `.`,
-                # otherwise search results are too strict for this use case
-                analyzer='simple',
-            ),
-        }
-    )
 
     modified_model_field = 'modified_date'
 
@@ -125,61 +117,14 @@ class PageDocument(RTDDocTypeMixin, Document):
             return 0
         return html_file.rank
 
-    def prepare_domains(self, html_file):
-        """Prepares and returns the values for domains field."""
-
-        # XXX: Don't access the sphinx domains table while we migrate the ID type
-        # https://github.com/readthedocs/readthedocs.org/pull/9482.
-        if html_file.project.has_feature(Feature.DISABLE_SPHINX_DOMAINS):
-            return []
-
-        if not html_file.version.is_sphinx_type:
-            return []
-
-        all_domains = []
-        try:
-            domains_qs = html_file.sphinx_domains.exclude(
-                domain='std',
-                type__in=['doc', 'label']
-            ).iterator()
-
-            all_domains = [
-                {
-                    'role_name': domain.role_name,
-                    'anchor': domain.anchor,
-                    'type_display': domain.type_display,
-                    'docstrings': html_file.processed_json.get(
-                        'domain_data', {}
-                    ).get(domain.anchor, ''),
-                    'name': domain.name,
-                }
-                for domain in domains_qs
-            ]
-
-            log.debug(
-                "[%s] [%s] Total domains for file %s are: %s",
-                html_file.project.slug,
-                html_file.version.slug,
-                html_file.path,
-                len(all_domains)
-            )
-
-        except Exception:
-            log.exception(
-                "[%s] [%s] Error preparing domain data for file %s",
-                html_file.project.slug,
-                html_file.version.slug,
-                html_file.path
-            )
-
-        return all_domains
-
     def get_queryset(self):
-        """Don't include ignored files."""
+        """Don't include ignored files and delisted projects."""
         queryset = super().get_queryset()
         queryset = (
             queryset
             .exclude(ignore=True)
+            .exclude(project__delisted=True)
+            .exclude(project__is_spam=True)
             .select_related('version', 'project')
         )
         return queryset

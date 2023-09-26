@@ -22,10 +22,10 @@ class AccountAdapter(DefaultAccountAdapter):
 
     def send_mail(self, template_prefix, email, context):
         subject = render_to_string(
-            '{}_subject.txt'.format(template_prefix),
+            "{}_subject.txt".format(template_prefix),
             context,
         )
-        subject = ' '.join(subject.splitlines()).strip()
+        subject = " ".join(subject.splitlines()).strip()
         subject = self.format_email_subject(subject)
 
         # Allauth sends some additional data in the context, remove it if the
@@ -39,15 +39,15 @@ class AccountAdapter(DefaultAccountAdapter):
                 del context[key]
         if removed_keys:
             log.debug(
-                'Removed context we were unable to serialize.',
+                "Removed context we were unable to serialize.",
                 removed_keys=removed_keys,
             )
 
         send_email(
             recipient=email,
             subject=subject,
-            template='{}_message.txt'.format(template_prefix),
-            template_html='{}_message.html'.format(template_prefix),
+            template="{}_message.txt".format(template_prefix),
+            template_html="{}_message.html".format(template_prefix),
             context=context,
         )
 
@@ -60,7 +60,7 @@ class AccountAdapter(DefaultAccountAdapter):
             invitation = Invitation.objects.pending().filter(pk=invitation_pk).first()
             if invitation:
                 log.info("Redeeming invitation at sign-up", invitation_pk=invitation_pk)
-                invitation.redeem(user)
+                invitation.redeem(user, request=request)
                 invitation.delete()
             else:
                 log.info("Invitation not found", invitation_pk=invitation_pk)

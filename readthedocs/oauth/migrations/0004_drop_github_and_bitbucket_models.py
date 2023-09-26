@@ -1,61 +1,61 @@
-# -*- coding: utf-8 -*-
 from django.db import migrations
 
 
 def forwards_remove_content_types(apps, schema_editor):
     db = schema_editor.connection.alias
-    ContentType = apps.get_model('contenttypes', 'ContentType')
+    ContentType = apps.get_model("contenttypes", "ContentType")
     ContentType.objects.using(db).filter(
-        app_label='oauth',
+        app_label="oauth",
         model__in=[
-            'githubproject', 'githuborganization',
-            'bitbucketproject', 'bitbucketteam',
+            "githubproject",
+            "githuborganization",
+            "bitbucketproject",
+            "bitbucketteam",
         ],
     ).delete()
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('oauth', '0003_move_github'),
+        ("oauth", "0003_move_github"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='bitbucketproject',
-            name='organization',
+            model_name="bitbucketproject",
+            name="organization",
         ),
         migrations.RemoveField(
-            model_name='bitbucketproject',
-            name='users',
+            model_name="bitbucketproject",
+            name="users",
         ),
         migrations.RemoveField(
-            model_name='bitbucketteam',
-            name='users',
+            model_name="bitbucketteam",
+            name="users",
         ),
         migrations.RemoveField(
-            model_name='githuborganization',
-            name='users',
+            model_name="githuborganization",
+            name="users",
         ),
         migrations.RemoveField(
-            model_name='githubproject',
-            name='organization',
+            model_name="githubproject",
+            name="organization",
         ),
         migrations.RemoveField(
-            model_name='githubproject',
-            name='users',
+            model_name="githubproject",
+            name="users",
         ),
         migrations.DeleteModel(
-            name='BitbucketProject',
+            name="BitbucketProject",
         ),
         migrations.DeleteModel(
-            name='BitbucketTeam',
+            name="BitbucketTeam",
         ),
         migrations.DeleteModel(
-            name='GithubOrganization',
+            name="GithubOrganization",
         ),
         migrations.DeleteModel(
-            name='GithubProject',
+            name="GithubProject",
         ),
         migrations.RunPython(forwards_remove_content_types),
     ]

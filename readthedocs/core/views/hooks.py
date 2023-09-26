@@ -2,6 +2,7 @@
 
 import structlog
 
+from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.builds.constants import (
     EXTERNAL,
     EXTERNAL_VERSION_STATE_CLOSED,
@@ -52,7 +53,6 @@ def build_branches(project, branch_list):
     not_building = set()
     for branch in branch_list:
         versions = project.versions_from_branch_name(branch)
-
         for version in versions:
             log.debug(
                 'Processing.',
@@ -107,13 +107,16 @@ def trigger_sync_versions(project):
             # respect the queue for this project
             options['queue'] = project.build_queue
 
+        _, build_api_key = BuildAPIKey.objects.create_key(project=project)
+
         log.debug(
             'Triggering sync repository.',
             project_slug=version.project.slug,
             version_slug=version.slug,
         )
         sync_repository_task.apply_async(
-            (version.pk,),
+            args=[version.pk],
+            kwargs={"build_api_key": build_api_key},
             **options,
         )
         return version.slug

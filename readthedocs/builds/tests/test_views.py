@@ -68,7 +68,10 @@ class CancelBuildViewTests(TestCase):
         another_user = get(User)
         another_project = self._get_project(owners=[another_user])
         another_build = get(
-            Build, project=another_project, version=another_project.versions.first()
+            Build,
+            project=another_project,
+            version=another_project.versions.first(),
+            state=BUILD_STATE_INSTALLING,
         )
 
         self.client.force_login(another_user)
@@ -101,5 +104,4 @@ class CancelBuildViewTests(TestCase):
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
 class CancelBuildViewWithOrganizationsTests(CancelBuildViewTests):
-
     pass

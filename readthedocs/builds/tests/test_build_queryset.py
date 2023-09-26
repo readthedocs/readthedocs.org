@@ -4,10 +4,17 @@ import pytest
 from readthedocs.builds.models import Build
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
+from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @pytest.mark.django_db
 class TestBuildQuerySet:
+    @pytest.fixture(autouse=True)
+    def setup_method(self, settings):
+        settings.RTD_DEFAULT_FEATURES = dict(
+            [RTDProductFeature(type=TYPE_CONCURRENT_BUILDS, value=4).to_item()]
+        )
 
     def test_concurrent_builds(self):
         project = fixture.get(
@@ -22,7 +29,7 @@ class TestBuildQuerySet:
                 state=state,
             )
         assert (False, 2, 4) == Build.objects.concurrent(project)
-        for state in ('building', 'cloning'):
+        for state in ("building", "cloning"):
             fixture.get(
                 Build,
                 project=project,
@@ -63,7 +70,7 @@ class TestBuildQuerySet:
             )
         assert (False, 2, 4) == Build.objects.concurrent(translation)
 
-        for state in ('building', 'cloning'):
+        for state in ("building", "cloning"):
             fixture.get(
                 Build,
                 project=translation,
@@ -96,7 +103,7 @@ class TestBuildQuerySet:
 
         project = organization.projects.first()
         assert (True, 4, 4) == Build.objects.concurrent(project)
-        for state in ('building', 'cloning'):
+        for state in ("building", "cloning"):
             fixture.get(
                 Build,
                 project=project,

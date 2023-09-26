@@ -39,7 +39,6 @@ from readthedocs.builds.models import (
 )
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.services import registry
@@ -47,6 +46,7 @@ from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.forms import (
+    AddonsConfigForm,
     DomainForm,
     EmailHookForm,
     EnvironmentVariableForm,
@@ -54,7 +54,7 @@ from readthedocs.projects.forms import (
     ProjectAdvancedForm,
     ProjectAdvertisingForm,
     ProjectBasicsForm,
-    ProjectExtraForm,
+    ProjectConfigForm,
     ProjectRelationshipForm,
     RedirectForm,
     TranslationForm,
@@ -80,6 +80,12 @@ from readthedocs.projects.views.mixins import (
     ProjectRelationListMixin,
 )
 from readthedocs.search.models import SearchQuery
+from readthedocs.subscriptions.constants import (
+    TYPE_CNAME,
+    TYPE_PAGEVIEW_ANALYTICS,
+    TYPE_SEARCH_ANALYTICS,
+)
+from readthedocs.subscriptions.products import get_feature
 
 log = structlog.get_logger(__name__)
 
@@ -91,7 +97,6 @@ class ProjectDashboard(PrivateViewMixin, ListView):
     model = Project
     template_name = 'projects/project_dashboard.html'
 
-    # pylint: disable=arguments-differ
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # Set the default search to search files instead of projects
@@ -128,7 +133,7 @@ class ProjectDashboard(PrivateViewMixin, ListView):
 
     def get(self, request, *args, **kwargs):
         self.validate_primary_email(request.user)
-        return super(ProjectDashboard, self).get(self, request, *args, **kwargs)
+        return super().get(self, request, *args, **kwargs)
 
 
 class ProjectMixin(PrivateViewMixin):
@@ -162,6 +167,15 @@ class ProjectAdvancedUpdate(ProjectMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('projects_detail', args=[self.object.slug])
+
+
+class AddonsConfigUpdate(ProjectAdminMixin, PrivateViewMixin, CreateView, UpdateView):
+    form_class = AddonsConfigForm
+    success_message = _("Project addons updated")
+    template_name = "projects/addons_form.html"
+
+    def get_success_url(self):
+        return reverse("projects_addons", args=[self.object.project.slug])
 
 
 class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteView):
@@ -210,19 +224,7 @@ class ProjectVersionEditMixin(ProjectVersionMixin):
         return self.get_form_class()(data, files, **kwargs)
 
     def form_valid(self, form):
-        version = form.save()
-        if form.has_changed():
-            if 'active' in form.changed_data and version.active is False:
-                log.info(
-                    'Removing files for version.',
-                    version_slug=version.slug,
-                )
-                clean_project_resources(
-                    version.project,
-                    version,
-                )
-                version.built = False
-                version.save()
+        form.save()
         return HttpResponseRedirect(self.get_success_url())
 
 
@@ -267,10 +269,9 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
     """
 
     form_list = [
-        ('basics', ProjectBasicsForm),
-        ('extra', ProjectExtraForm),
+        ("basics", ProjectBasicsForm),
+        ("config", ProjectConfigForm),
     ]
-    condition_dict = {'extra': lambda self: self.is_advanced()}
 
     initial_dict_key = 'initial-data'
 
@@ -288,7 +289,7 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         else:
             self.initial_dict = self.storage.data.get(self.initial_dict_key, {})
 
-    def post(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def post(self, *args, **kwargs):
         self._set_initial_dict()
 
         log.bind(user_username=self.request.user.username)
@@ -304,8 +305,6 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         """Get args to pass into form instantiation."""
         kwargs = {}
         kwargs['user'] = self.request.user
-        if step == 'basics':
-            kwargs['show_advanced'] = True
         return kwargs
 
     def get_template_names(self):
@@ -320,33 +319,16 @@ class ImportWizardView(ProjectImportMixin, PrivateViewMixin, SessionWizardView):
         other side effects for now, by signalling a save without commit. Then,
         finish by added the members to the project and saving.
         """
-        form_data = self.get_all_cleaned_data()
-        extra_fields = ProjectExtraForm.Meta.fields
-        # expect the first form; manually wrap in a list in case it's a
-        # View Object, as it is in Python 3.
-        basics_form = list(form_list)[0]
+        basics_form = form_list[0]
         # Save the basics form to create the project instance, then alter
         # attributes directly from other forms
         project = basics_form.save()
 
-        # Remove tags to avoid setting them in raw instead of using ``.add``
-        tags = form_data.pop('tags', [])
-
-        for field, value in list(form_data.items()):
-            if field in extra_fields:
-                setattr(project, field, value)
-        project.save()
-
-        self.finish_import_project(self.request, project, tags)
+        self.finish_import_project(self.request, project)
 
         return HttpResponseRedirect(
             reverse('projects_detail', args=[project.slug]),
         )
-
-    def is_advanced(self):
-        """Determine if the user selected the `show advanced` field."""
-        data = self.get_cleaned_data_for_step('basics') or {}
-        return data.get('advanced', True)
 
 
 class ImportView(PrivateViewMixin, TemplateView):
@@ -752,6 +734,7 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
     model = Domain
     form_class = DomainForm
     lookup_url_kwarg = 'domain_pk'
+    feature_type = TYPE_CNAME
 
     def get_success_url(self):
         return reverse('projects_domains', args=[self.get_project().slug])
@@ -763,11 +746,10 @@ class DomainMixin(ProjectAdminMixin, PrivateViewMixin):
         return context
 
     def _is_enabled(self, project):
-        """Should we allow custom domains for this project?"""
-        return True
+        return bool(get_feature(project, feature_type=self.feature_type))
 
 
-class DomainListBase(DomainMixin, ListViewWithForm):
+class DomainList(DomainMixin, ListViewWithForm):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -782,12 +764,7 @@ class DomainListBase(DomainMixin, ListViewWithForm):
         return ctx
 
 
-class DomainList(SettingsOverrideObject):
-
-    _default_class = DomainListBase
-
-
-class DomainCreateBase(DomainMixin, CreateView):
+class DomainCreate(DomainMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         project = self.get_project()
@@ -806,12 +783,7 @@ class DomainCreateBase(DomainMixin, CreateView):
         )
 
 
-class DomainCreate(SettingsOverrideObject):
-
-    _default_class = DomainCreateBase
-
-
-class DomainUpdateBase(DomainMixin, UpdateView):
+class DomainUpdate(DomainMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -823,11 +795,6 @@ class DomainUpdateBase(DomainMixin, UpdateView):
         if self._is_enabled(project) and not project.superproject:
             return super().post(request, *args, **kwargs)
         return HttpResponse('Action not allowed', status=401)
-
-
-class DomainUpdate(SettingsOverrideObject):
-
-    _default_class = DomainUpdateBase
 
 
 class DomainDelete(DomainMixin, DeleteView):
@@ -950,7 +917,6 @@ class IntegrationWebhookSync(IntegrationMixin, GenericView):
     """
 
     def post(self, request, *args, **kwargs):
-        # pylint: disable=unused-argument
         if 'integration_pk' in kwargs:
             integration = self.get_integration()
             update_webhook(self.get_project(), integration, request=request)
@@ -1072,10 +1038,11 @@ class RegexAutomationRuleUpdate(RegexAutomationRuleMixin, UpdateView):
     pass
 
 
-class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+class SearchAnalytics(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     template_name = 'projects/projects_search_analytics.html'
     http_method_names = ['get']
+    feature_type = TYPE_SEARCH_ANALYTICS
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get('download', False)
@@ -1086,7 +1053,7 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
-        enabled = self._is_enabled(project)
+        enabled = bool(self._get_feature(project))
         context.update({'enabled': enabled})
         if not enabled:
             return context
@@ -1121,28 +1088,27 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         """Generate raw csv data of search queries."""
         project = self.get_project()
         now = timezone.now().date()
-        retention_limit = self._get_retention_days_limit(project)
-        if retention_limit in [None, -1]:
-            # Unlimited.
+        feature = self._get_feature(project)
+        if not feature:
+            raise Http404
+        if feature.unlimited:
             days_ago = project.pub_date.date()
         else:
-            days_ago = now - timezone.timedelta(days=retention_limit)
+            days_ago = now - timezone.timedelta(days=feature.value)
 
         values = [
             ('Created Date', 'created'),
             ('Query', 'query'),
             ('Total Results', 'total_results'),
         ]
-        data = []
-        if self._is_enabled(project):
-            data = (
-                SearchQuery.objects.filter(
-                    project=project,
-                    created__date__gte=days_ago,
-                )
-                .order_by('-created')
-                .values_list(*[value for _, value in values])
+        data = (
+            SearchQuery.objects.filter(
+                project=project,
+                created__date__gte=days_ago,
             )
+            .order_by("-created")
+            .values_list(*[value for _, value in values])
+        )
 
         filename = 'readthedocs_search_analytics_{project_slug}_{start}_{end}.csv'.format(
             project_slug=project.slug,
@@ -1157,23 +1123,15 @@ class SearchAnalyticsBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 
-    def _get_retention_days_limit(self, project):
-        """From how many days we need to show data for this project?"""
-        return settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
-
-    def _is_enabled(self, project):
-        """Should we show search analytics for this project?"""
-        return True
+    def _get_feature(self, project):
+        return get_feature(project, feature_type=self.feature_type)
 
 
-class SearchAnalytics(SettingsOverrideObject):
-    _default_class = SearchAnalyticsBase
-
-
-class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView):
+class TrafficAnalyticsView(ProjectAdminMixin, PrivateViewMixin, TemplateView):
 
     template_name = 'projects/project_traffic_analytics.html'
     http_method_names = ['get']
+    feature_type = TYPE_PAGEVIEW_ANALYTICS
 
     def get(self, request, *args, **kwargs):
         download_data = request.GET.get('download', False)
@@ -1184,7 +1142,7 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         project = self.get_project()
-        enabled = self._is_enabled(project)
+        enabled = bool(self._get_feature(project))
         context.update({'enabled': enabled})
         if not enabled:
             return context
@@ -1220,12 +1178,13 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
     def _get_csv_data(self):
         project = self.get_project()
         now = timezone.now().date()
-        retention_limit = self._get_retention_days_limit(project)
-        if retention_limit in [None, -1]:
-            # Unlimited.
+        feature = self._get_feature(project)
+        if not feature:
+            raise Http404
+        if feature.unlimited:
             days_ago = project.pub_date.date()
         else:
-            days_ago = now - timezone.timedelta(days=retention_limit)
+            days_ago = now - timezone.timedelta(days=feature.value)
 
         values = [
             ('Date', 'date'),
@@ -1233,17 +1192,15 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
             ('Path', 'path'),
             ('Views', 'view_count'),
         ]
-        data = []
-        if self._is_enabled(project):
-            data = (
-                PageView.objects.filter(
-                    project=project,
-                    date__gte=days_ago,
-                    status=200,
-                )
-                .order_by('-date')
-                .values_list(*[value for _, value in values])
+        data = (
+            PageView.objects.filter(
+                project=project,
+                date__gte=days_ago,
+                status=200,
             )
+            .order_by("-date")
+            .values_list(*[value for _, value in values])
+        )
 
         filename = 'readthedocs_traffic_analytics_{project_slug}_{start}_{end}.csv'.format(
             project_slug=project.slug,
@@ -1257,14 +1214,5 @@ class TrafficAnalyticsViewBase(ProjectAdminMixin, PrivateViewMixin, TemplateView
         csv_data.insert(0, [header for header, _ in values])
         return get_csv_file(filename=filename, csv_data=csv_data)
 
-    def _get_retention_days_limit(self, project):
-        """From how many days we need to show data for this project?"""
-        return settings.RTD_ANALYTICS_DEFAULT_RETENTION_DAYS
-
-    def _is_enabled(self, project):
-        """Should we show traffic analytics for this project?"""
-        return True
-
-
-class TrafficAnalyticsView(SettingsOverrideObject):
-    _default_class = TrafficAnalyticsViewBase
+    def _get_feature(self, project):
+        return get_feature(project, feature_type=self.feature_type)

@@ -11,9 +11,11 @@ import yaml
 from django.conf import settings
 from django.template import loader as template_loader
 
+from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.base import BaseBuilder
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.projects.constants import MKDOCS, MKDOCS_HTML
+from readthedocs.projects.exceptions import UserFileNotFound
 from readthedocs.projects.models import Feature
 
 log = structlog.get_logger(__name__)
@@ -43,11 +45,9 @@ class BaseMkdocs(BaseBuilder):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # This is the *MkDocs* yaml file
         self.yaml_file = self.get_yaml_config()
-        self.old_artifact_path = os.path.join(
-            os.path.dirname(self.yaml_file),
-            self.build_dir,
-        )
 
         # README: historically, the default theme was ``readthedocs`` but in
         # https://github.com/rtfd/readthedocs.org/pull/4556 we change it to
@@ -59,7 +59,7 @@ class BaseMkdocs(BaseBuilder):
         if self.project.has_feature(Feature.MKDOCS_THEME_RTD):
             self.DEFAULT_THEME_NAME = 'readthedocs'
             log.warning(
-                'Project using readthedocs theme as default for MkDocs.',
+                "Project using readthedocs theme as default for MkDocs.",
                 project_slug=self.project.slug,
             )
         else:
@@ -71,16 +71,19 @@ class BaseMkdocs(BaseBuilder):
 
         https://www.mkdocs.org/user-guide/configuration/#use_directory_urls
         """
-        with open(self.yaml_file, 'r') as f:
-            config = yaml_load_safely(f)
-            use_directory_urls = config.get('use_directory_urls', True)
+        # Allow symlinks, but only the ones that resolve inside the base directory.
+        with safe_open(
+            self.yaml_file, "r", allow_symlinks=True, base_path=self.project_path
+        ) as fh:
+            config = yaml_load_safely(fh)
+            use_directory_urls = config.get("use_directory_urls", True)
             return MKDOCS if use_directory_urls else MKDOCS_HTML
 
     def get_yaml_config(self):
         """Find the ``mkdocs.yml`` file in the project root."""
         mkdocs_path = self.config.mkdocs.configuration
         if not mkdocs_path:
-            mkdocs_path = 'mkdocs.yml'
+            mkdocs_path = "mkdocs.yml"
         return os.path.join(
             self.project_path,
             mkdocs_path,
@@ -93,28 +96,25 @@ class BaseMkdocs(BaseBuilder):
         :raises: ``MkDocsYAMLParseError`` if failed due to syntax errors.
         """
         try:
-            config = yaml_load_safely(open(self.yaml_file, 'r'))
+            # Allow symlinks, but only the ones that resolve inside the base directory.
+            result = safe_open(
+                self.yaml_file, "r", allow_symlinks=True, base_path=self.project_path
+            )
+            if not result:
+                raise UserFileNotFound(
+                    UserFileNotFound.FILE_NOT_FOUND.format(self.yaml_file)
+                )
+
+            config = yaml_load_safely(result)
 
             if not config:
-                raise MkDocsYAMLParseError(
-                    MkDocsYAMLParseError.EMPTY_CONFIG
-                )
+                raise MkDocsYAMLParseError(MkDocsYAMLParseError.EMPTY_CONFIG)
             if not isinstance(config, dict):
-                raise MkDocsYAMLParseError(
-                    MkDocsYAMLParseError.CONFIG_NOT_DICT
-                )
+                raise MkDocsYAMLParseError(MkDocsYAMLParseError.CONFIG_NOT_DICT)
             return config
 
         except IOError:
-            log.info(
-                'Creating default MkDocs config file for project.',
-                project_slug=self.project.slug,
-                version_slug=self.version.slug,
-            )
-            return {
-                'site_name': self.version.project.name,
-                'docs_dir': self.docs_dir(),
-            }
+            raise MkDocsYAMLParseError(MkDocsYAMLParseError.NOT_FOUND)
         except yaml.YAMLError as exc:
             note = ''
             if hasattr(exc, 'problem_mark'):
@@ -126,7 +126,7 @@ class BaseMkdocs(BaseBuilder):
             raise MkDocsYAMLParseError(
                 'Your mkdocs.yml could not be loaded, '
                 'possibly due to a syntax error{note}'.format(note=note),
-            )
+            ) from exc
 
     def append_conf(self):
         """
@@ -138,13 +138,12 @@ class BaseMkdocs(BaseBuilder):
         user_config = self.load_yaml_config()
 
         # Handle custom docs dirs
-        docs_dir = user_config.get('docs_dir', 'docs')
+        docs_dir = user_config.get("docs_dir", "docs")
         if not isinstance(docs_dir, (type(None), str)):
             raise MkDocsYAMLParseError(
                 MkDocsYAMLParseError.INVALID_DOCS_DIR_CONFIG,
             )
 
-        self.create_index(extension='md')
         user_config['docs_dir'] = docs_dir
 
         # MkDocs <=0.17.x doesn't support absolute paths,
@@ -156,14 +155,14 @@ class BaseMkdocs(BaseBuilder):
 
         # Set mkdocs config values.
         extra_assets = {
-            'extra_javascript': [
-                'readthedocs-data.js',
-                f'{static_url}core/js/readthedocs-doc-embed.js',
-                f'{static_url}javascript/readthedocs-analytics.js',
+            "extra_javascript": [
+                "readthedocs-data.js",
+                f"{static_url}core/js/readthedocs-doc-embed.js",
+                f"{static_url}javascript/readthedocs-analytics.js",
             ],
-            'extra_css': [
-                f'{static_url}css/badge_only.css',
-                f'{static_url}css/readthedocs-doc-embed.css',
+            "extra_css": [
+                f"{static_url}css/badge_only.css",
+                f"{static_url}css/readthedocs-doc-embed.css",
             ],
         }
 
@@ -178,11 +177,7 @@ class BaseMkdocs(BaseBuilder):
                     ),
                 )
             # Add the static file only if isn't already in the list.
-            value.extend([
-                extra
-                for extra in extras
-                if extra not in value
-            ])
+            value.extend([extra for extra in extras if extra not in value])
             user_config[config] = value
 
         # The docs path is relative to the location
@@ -203,7 +198,9 @@ class BaseMkdocs(BaseBuilder):
             docs_dir=os.path.relpath(docs_path, self.project_path),
             mkdocs_config=user_config,
         )
-        with open(os.path.join(docs_path, 'readthedocs-data.js'), 'w') as f:
+        with safe_open(
+            os.path.join(docs_path, "readthedocs-data.js"), "w", encoding="utf-8"
+        ) as f:
             f.write(rtd_data)
 
         # Use Read the Docs' analytics setup rather than mkdocs'
@@ -218,10 +215,11 @@ class BaseMkdocs(BaseBuilder):
                 user_config['theme'] = self.DEFAULT_THEME_NAME
 
         # Write the modified mkdocs configuration
-        yaml_dump_safely(
-            user_config,
-            open(self.yaml_file, 'w'),
-        )
+        with safe_open(self.yaml_file, "w", encoding="utf-8") as f:
+            yaml_dump_safely(
+                user_config,
+                f,
+            )
 
         # Write the mkdocs.yml to the build logs
         self.run(
@@ -243,42 +241,39 @@ class BaseMkdocs(BaseBuilder):
             self.version.project.vcs_repo(
                 version=self.version.slug,
                 environment=self.build_env,
-            )
-            .commit,
+            ).commit,
         )
 
         # Will be available in the JavaScript as READTHEDOCS_DATA.
         readthedocs_data = {
-            'project': self.version.project.slug,
-            'version': self.version.slug,
-            'language': self.version.project.language,
-            'programming_language': self.version.project.programming_language,
-            'page': None,
-            'theme': self.get_theme_name(mkdocs_config),
-            'builder': 'mkdocs',
-            'docroot': docs_dir,
-            'source_suffix': '.md',
-            'api_host': settings.PUBLIC_API_URL,
-            'ad_free': not self.project.show_advertising,
-            'commit': commit,
-            'global_analytics_code': (
-                None if self.project.analytics_disabled else settings.GLOBAL_ANALYTICS_CODE
+            "project": self.version.project.slug,
+            "version": self.version.slug,
+            "language": self.version.project.language,
+            "programming_language": self.version.project.programming_language,
+            "page": None,
+            "theme": self.get_theme_name(mkdocs_config),
+            "builder": "mkdocs",
+            "docroot": docs_dir,
+            "source_suffix": ".md",
+            "api_host": settings.PUBLIC_API_URL,
+            "ad_free": not self.project.show_advertising,
+            "commit": commit,
+            "global_analytics_code": (
+                None
+                if self.project.analytics_disabled
+                else settings.GLOBAL_ANALYTICS_CODE
             ),
-            'user_analytics_code': analytics_code,
-            'features': {
-                'docsearch_disabled': (
-                    not self.project.has_feature(Feature.ENABLE_MKDOCS_SERVER_SIDE_SEARCH)
-                    or self.project.has_feature(Feature.DISABLE_SERVER_SIDE_SEARCH)
-                )
-            },
+            "user_analytics_code": analytics_code,
+            "proxied_static_path": self.project.proxied_static_path,
+            "proxied_api_host": self.project.proxied_api_host,
         }
 
         data_ctx = {
-            'readthedocs_data': readthedocs_data,
-            'current_version': readthedocs_data['version'],
-            'slug': readthedocs_data['project'],
-            'html_theme': readthedocs_data['theme'],
-            'pagename': None,
+            "readthedocs_data": readthedocs_data,
+            "current_version": readthedocs_data["version"],
+            "slug": readthedocs_data["project"],
+            "html_theme": readthedocs_data["theme"],
+            "pagename": None,
         }
         tmpl = template_loader.get_template('doc_builder/data.js.tmpl')
         return tmpl.render(data_ctx)
@@ -289,10 +284,10 @@ class BaseMkdocs(BaseBuilder):
             '-m',
             'mkdocs',
             self.builder,
-            '--clean',
-            '--site-dir',
-            self.build_dir,
-            '--config-file',
+            "--clean",
+            "--site-dir",
+            os.path.join("$READTHEDOCS_OUTPUT", "html"),
+            "--config-file",
             os.path.relpath(self.yaml_file, self.project_path),
         ]
         if self.config.mkdocs.fail_on_warning:
@@ -332,10 +327,8 @@ class BaseMkdocs(BaseBuilder):
 
 
 class MkdocsHTML(BaseMkdocs):
-
-    type = 'mkdocs'
-    builder = 'build'
-    build_dir = '_build/html'
+    builder = "build"
+    build_dir = "_readthedocs/html"
 
 
 # TODO: find a better way to integrate with MkDocs.
@@ -362,10 +355,10 @@ class SafeLoader(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
     Issue https://github.com/readthedocs/readthedocs.org/issues/7461
     """
 
-    def ignore_unknown(self, node):  # pylint: disable=no-self-use, unused-argument
+    def ignore_unknown(self, node):  # pylint: disable=unused-argument
         return None
 
-    def construct_python_name(self, suffix, node):  # pylint: disable=no-self-use, unused-argument
+    def construct_python_name(self, suffix, node):  # pylint: disable=unused-argument
         return ProxyPythonName(suffix)
 
 
@@ -382,7 +375,9 @@ class SafeDumper(yaml.SafeDumper):
         return self.represent_scalar("tag:yaml.org,2002:python/name:" + data.value, "")
 
 
-SafeLoader.add_multi_constructor("tag:yaml.org,2002:python/name:", SafeLoader.construct_python_name)
+SafeLoader.add_multi_constructor(
+    "tag:yaml.org,2002:python/name:", SafeLoader.construct_python_name
+)
 SafeLoader.add_constructor(None, SafeLoader.ignore_unknown)
 SafeDumper.add_representer(ProxyPythonName, SafeDumper.represent_name)
 

@@ -3,11 +3,7 @@ import unicodedata
 
 from packaging.version import InvalidVersion, Version
 
-from readthedocs.builds.constants import (
-    LATEST_VERBOSE_NAME,
-    STABLE_VERBOSE_NAME,
-    TAG,
-)
+from readthedocs.builds.constants import LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME, TAG
 from readthedocs.vcs_support.backends import backend_cls
 
 
@@ -27,21 +23,23 @@ def parse_version_failsafe(version_string):
     :rtype: packaging.version.Version
     """
     if not isinstance(version_string, str):
-        uni_version = version_string.decode('utf-8')
+        uni_version = version_string.decode("utf-8")
     else:
         uni_version = version_string
 
-    final_form = ''
+    final_form = ""
 
     try:
-        normalized_version = unicodedata.normalize('NFKD', uni_version)
-        ascii_version = normalized_version.encode('ascii', 'ignore')
-        final_form = ascii_version.decode('ascii')
+        normalized_version = unicodedata.normalize("NFKD", uni_version)
+        ascii_version = normalized_version.encode("ascii", "ignore")
+        final_form = ascii_version.decode("ascii")
         return Version(final_form)
     except InvalidVersion:
         # Handle the special case of 1.x, 2.x or 1.0.x, 1.1.x
-        if final_form and '.x' in final_form:
-            return parse_version_failsafe(final_form.replace('.x', '.0'))
+        if final_form and ".x" in final_form:
+            # Replace the .x with .999999 so it's sorted last.
+            final_form = final_form.replace(".x", ".999999")
+            return parse_version_failsafe(final_form)
     except UnicodeError:
         pass
 
@@ -83,7 +81,7 @@ def comparable_version(version_string, repo_type=None):
             version_number = str(999999 - position)
             comparable = Version(version_number)
         else:
-            comparable = Version('0.01')
+            comparable = Version("0.01")
     return comparable
 
 

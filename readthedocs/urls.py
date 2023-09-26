@@ -1,4 +1,3 @@
-# pylint: disable=missing-docstring
 import os
 from functools import reduce
 from operator import add
@@ -23,11 +22,10 @@ handler500 = server_error_500
 
 basic_urls = [
     path("", HomepageView.as_view(), name="homepage"),
-    re_path(r"^security/", TemplateView.as_view(template_name="security.html")),
+    path("security/", TemplateView.as_view(template_name="security.html")),
     re_path(
-        r'^\.well-known/security.txt$',
-        TemplateView
-        .as_view(template_name='security.txt', content_type='text/plain'),
+        r"^\.well-known/security.txt$",
+        TemplateView.as_view(template_name="security.txt", content_type="text/plain"),
     ),
     path("support/", SupportView.as_view(), name="support"),
     # These are redirected to from the support form
@@ -45,84 +43,80 @@ basic_urls = [
 
 rtd_urls = [
     path("search/", GlobalSearchView.as_view(), name="search"),
-    re_path(r"^dashboard/", include("readthedocs.projects.urls.private")),
-    re_path(r"^profiles/", include("readthedocs.profiles.urls.public")),
-    re_path(r"^accounts/", include("readthedocs.profiles.urls.private")),
-    re_path(r"^accounts/", include("allauth.urls")),
-    re_path(r"^notifications/", include("readthedocs.notifications.urls")),
-    re_path(r"^accounts/gold/", include("readthedocs.gold.urls")),
+    path("dashboard/", include("readthedocs.projects.urls.private")),
+    path("profiles/", include("readthedocs.profiles.urls.public")),
+    path("accounts/", include("readthedocs.profiles.urls.private")),
+    path("accounts/", include("allauth.urls")),
+    path("notifications/", include("readthedocs.notifications.urls")),
+    path("accounts/gold/", include("readthedocs.gold.urls")),
     path("invitations/", include("readthedocs.invitations.urls")),
     # For redirects
-    re_path(r'^builds/', include('readthedocs.builds.urls')),
+    path("builds/", include("readthedocs.builds.urls")),
     # For testing the 500's with DEBUG on.
     path("500/", handler500),
     # Put this as a unique path for the webhook, so we don't clobber existing Stripe URL's
-    re_path(r"^djstripe/", include("djstripe.urls", namespace="djstripe")),
+    path("djstripe/", include("djstripe.urls", namespace="djstripe")),
 ]
 
 project_urls = [
-    re_path(r'^projects/', include('readthedocs.projects.urls.public')),
+    path("projects/", include("readthedocs.projects.urls.public")),
 ]
 
 
 organization_urls = [
-    re_path(
-        r'^organizations/',
-        include('readthedocs.organizations.urls.private'),
+    path(
+        "organizations/",
+        include("readthedocs.organizations.urls.private"),
+    ),
+    path(
+        "organizations/",
+        include("readthedocs.organizations.urls.public"),
     ),
     re_path(
-        r'^organizations/',
-        include('readthedocs.organizations.urls.public'),
-    ),
-    re_path(
-        r'^organizations/(?P<slug>[\w.-]+)/subscription/',
-        include('readthedocs.subscriptions.urls'),
+        r"^organizations/(?P<slug>[\w.-]+)/subscription/",
+        include("readthedocs.subscriptions.urls"),
     ),
     # NOTE: This is overridden in .com to serve a real pricing page.
-    re_path(
-        r'^pricing/',
-        RedirectView.as_view(url='https://readthedocs.org/sustainability/'),
-        name='pricing',
+    path(
+        "pricing/",
+        RedirectView.as_view(url="https://readthedocs.org/sustainability/"),
+        name="pricing",
     ),
 ]
 
 
 api_urls = [
-    re_path(r'^api/v2/', include('readthedocs.api.v2.urls')),
+    path("api/v2/", include("readthedocs.api.v2.urls")),
     # Keep `search_api` at root level, so the test does not fail for other API
-    re_path(r"^api/v2/search/$", include("readthedocs.search.api.v2.urls")),
+    path("api/v2/search/", include("readthedocs.search.api.v2.urls")),
+    path("api/v3/search/", include("readthedocs.search.api.v3.urls")),
     # Deprecated
-    re_path(r'^api/v1/embed/', include('readthedocs.embed.urls')),
-    re_path(r'^api/v2/embed/', include('readthedocs.embed.urls')),
-    re_path(
-        r'^api-auth/',
-        include('rest_framework.urls', namespace='rest_framework')
-    ),
-    re_path(r'^api/v3/', include('readthedocs.api.v3.urls')),
-    re_path(r'^api/v3/embed/', include('readthedocs.embed.v3.urls')),
+    path("api/v1/embed/", include("readthedocs.embed.urls")),
+    path("api/v2/embed/", include("readthedocs.embed.urls")),
+    path("api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    path("api/v3/", include("readthedocs.api.v3.urls")),
+    path("api/v3/embed/", include("readthedocs.embed.v3.urls")),
 ]
 
 i18n_urls = [
-    re_path(r'^i18n/', include('django.conf.urls.i18n')),
+    path("i18n/", include("django.conf.urls.i18n")),
 ]
 
 admin_urls = [
-    re_path(r'^admin/', admin.site.urls),
+    re_path(r"^admin/", admin.site.urls),
 ]
 
 dnt_urls = [
-    re_path(r'^\.well-known/dnt/$', do_not_track),
-
+    re_path(r"^\.well-known/dnt/$", do_not_track),
     # https://github.com/EFForg/dnt-guide#12-how-to-assert-dnt-compliance
     re_path(
-        r'^\.well-known/dnt-policy.txt$',
-        TemplateView
-        .as_view(template_name='dnt-policy.txt', content_type='text/plain'),
+        r"^\.well-known/dnt-policy.txt$",
+        TemplateView.as_view(template_name="dnt-policy.txt", content_type="text/plain"),
     ),
 ]
 
 debug_urls = []
-for build_format in ('epub', 'htmlzip', 'json', 'pdf'):
+for build_format in ("epub", "htmlzip", "json", "pdf"):
     debug_urls += static(
         settings.MEDIA_URL + build_format,
         document_root=os.path.join(settings.MEDIA_ROOT, build_format),
@@ -132,7 +126,6 @@ debug_urls += [
         "style-catalog/",
         TemplateView.as_view(template_name="style_catalog.html"),
     ),
-
     # This must come last after the build output files
     path(
         "media/<path:remainder>",
@@ -157,9 +150,7 @@ if settings.DO_NOT_TRACK_ENABLED:
 
 
 if settings.READ_THE_DOCS_EXTENSIONS:
-    groups.append([
-        re_path(r'^', include('readthedocsext.urls'))
-    ])
+    groups.append([path("", include("readthedocsext.urls"))])
 
 if settings.ALLOW_ADMIN:
     groups.append(admin_urls)
@@ -168,7 +159,7 @@ if settings.SHOW_DEBUG_TOOLBAR:
     import debug_toolbar
 
     debug_urls += [
-        re_path(r'^__debug__/', include(debug_toolbar.urls)),
+        path("__debug__/", include(debug_toolbar.urls)),
     ]
     groups.append(debug_urls)
 

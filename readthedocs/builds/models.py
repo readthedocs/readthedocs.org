@@ -1,5 +1,4 @@
 """Models for the builds app."""
-
 import datetime
 import os.path
 import re
@@ -52,6 +51,7 @@ from readthedocs.builds.querysets import (
     RelatedBuildQuerySet,
     VersionQuerySet,
 )
+from readthedocs.builds.signals import version_changed
 from readthedocs.builds.utils import (
     external_version_name,
     get_bitbucket_username_repo,
@@ -61,15 +61,14 @@ from readthedocs.builds.utils import (
 )
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
+from readthedocs.core.utils import extract_valid_attributes_for_model, trigger_build
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
     DOCTYPE_CHOICES,
-    GITHUB_BRAND,
     GITHUB_COMMIT_URL,
     GITHUB_PULL_REQUEST_COMMIT_URL,
     GITHUB_URL,
-    GITLAB_BRAND,
     GITLAB_COMMIT_URL,
     GITLAB_MERGE_REQUEST_COMMIT_URL,
     GITLAB_URL,
@@ -83,6 +82,7 @@ from readthedocs.projects.constants import (
     SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import APIProject, Project
+from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
 
 log = structlog.get_logger(__name__)
@@ -119,11 +119,15 @@ class Version(TimeStampedModel):
     )
     # used by the vcs backend
 
-    #: The identifier is the ID for the revision this is version is for. This
-    #: might be the revision number (e.g. in SVN), or the commit hash (e.g. in
-    #: Git). If the this version is pointing to a branch, then ``identifier``
-    #: will contain the branch name.
-    identifier = models.CharField(_('Identifier'), max_length=255)
+    #: The identifier is the ID for the revision this is version is for.
+    #: This might be the revision number (e.g. in SVN),
+    #: or the commit hash (e.g. in Git).
+    #: If the this version is pointing to a branch,
+    #: then ``identifier`` will contain the branch name.
+    #: `None`/`null` means it will use the VCS default branch.
+    identifier = models.CharField(
+        _("Identifier"), max_length=255, null=True, blank=True
+    )
 
     #: This is the actual name that we got for the commit stored in
     #: ``identifier``. This might be the tag or branch name like ``"v1.0.4"``.
@@ -141,7 +145,11 @@ class Version(TimeStampedModel):
         populate_from='verbose_name',
     )
 
+    # TODO: this field (`supported`) could be removed. It's returned only on
+    # the footer API response but I don't think anybody is using this field at
+    # all.
     supported = models.BooleanField(_('Supported'), default=True)
+
     active = models.BooleanField(_('Active'), default=False)
     state = models.CharField(
         _("State"),
@@ -152,7 +160,12 @@ class Version(TimeStampedModel):
         help_text=_("State of the PR/MR associated to this version."),
     )
     built = models.BooleanField(_("Built"), default=False)
+
+    # TODO: this field (`uploaded`) could be removed. It was used to mark a
+    # version as "Manually uploaded" by the core team, but this is not required
+    # anymore. Users can use `build.commands` for these cases now.
     uploaded = models.BooleanField(_("Uploaded"), default=False)
+
     privacy_level = models.CharField(
         _('Privacy Level'),
         max_length=20,
@@ -180,6 +193,20 @@ class Version(TimeStampedModel):
         help_text=_(
             'Type of documentation the version was built with.'
         ),
+    )
+
+    build_data = models.JSONField(
+        _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
+        default=None,
+        null=True,
+        blank=True,
+    )
+
+    addons = models.BooleanField(
+        _("Inject new addons js library for this version"),
+        null=True,
+        blank=True,
+        default=False,
     )
 
     objects = VersionManager.from_queryset(VersionQuerySet)()
@@ -214,6 +241,16 @@ class Version(TimeStampedModel):
         return self.privacy_level == PRIVATE
 
     @property
+    def is_public(self):
+        """
+        Check if the version is public (taking external versions into consideration).
+
+        This is basically ``is_private`` negated,
+        ``is_private`` understands both normal and external versions
+        """
+        return not self.is_private
+
+    @property
     def is_external(self):
         return self.type == EXTERNAL
 
@@ -237,6 +274,10 @@ class Version(TimeStampedModel):
         external_origin = external_version_name(self)
         abbrev = "".join(word[0].upper() for word in external_origin.split())
         return template.format(name=self.verbose_name, abbrev=abbrev)
+
+    @property
+    def external_version_name(self):
+        return external_version_name(self)
 
     @property
     def ref(self):
@@ -279,14 +320,16 @@ class Version(TimeStampedModel):
         :rtype: dict
         """
         last_build = (
-            self.builds(manager=INTERNAL).filter(
+            self.builds.filter(
                 state=BUILD_STATE_FINISHED,
                 success=True,
             ).order_by('-date')
             .only('_config')
             .first()
         )
-        return last_build.config
+        if last_build:
+            return last_build.config
+        return None
 
     @property
     def commit_name(self):
@@ -314,6 +357,7 @@ class Version(TimeStampedModel):
 
         # By now we must have handled all special versions.
         if self.slug in NON_REPOSITORY_VERSIONS:
+            # pylint: disable=broad-exception-raised
             raise Exception('All special versions must be handled by now.')
 
         if self.type in (BRANCH, TAG):
@@ -339,14 +383,29 @@ class Version(TimeStampedModel):
         return self.identifier
 
     def get_absolute_url(self):
-        """Get absolute url to the docs of the version."""
+        """
+        Get the absolute URL to the docs of the version.
+
+        If the version doesn't have a successfully uploaded build, then we return the project's
+        dashboard page.
+
+        Because documentation projects can be hosted on separate domains, this function ALWAYS
+        returns with a full "http(s)://<domain>/" prefix.
+        """
         if not self.built and not self.uploaded:
-            return reverse(
-                'project_version_detail',
-                kwargs={
-                    'project_slug': self.project.slug,
-                    'version_slug': self.slug,
-                },
+            # TODO: Stop assuming protocol based on settings.DEBUG
+            # (this pattern is also used in builds.tasks for sending emails)
+            protocol = "http" if settings.DEBUG else "https"
+            return "{}://{}{}".format(
+                protocol,
+                settings.PRODUCTION_DOMAIN,
+                reverse(
+                    "project_version_detail",
+                    kwargs={
+                        "project_slug": self.project.slug,
+                        "version_slug": self.slug,
+                    },
+                ),
             )
         external = self.type == EXTERNAL
         return self.project.get_docs_url(
@@ -354,15 +413,67 @@ class Version(TimeStampedModel):
             external=external,
         )
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
         log.info('Removing files for version.', version_slug=self.slug)
         clean_project_resources(self.project, self)
         super().delete(*args, **kwargs)
 
+    def clean_resources(self):
+        """
+        Remove all resources from this version.
+
+        This includes:
+
+        - Files from storage
+        - Search index
+        - Imported files
+        """
+        from readthedocs.projects.tasks.utils import clean_project_resources
+
+        log.info(
+            "Removing files for version.",
+            project_slug=self.project.slug,
+            version_slug=self.slug,
+        )
+        clean_project_resources(project=self.project, version=self)
+        self.built = False
+        self.save()
+
+    def post_save(self, was_active=False):
+        """
+        Run extra steps after updating a version.
+
+        This method isn't called automatically by a signal but is called explicitly
+        from other processes.
+
+        Useful to run after the version has been saved/updated
+        by the user, like from a form or API.
+
+        - When a version is deactivated, we need to clean up its
+          files from storage, and search index.
+        - When a version is activated, we need to trigger a build.
+        - We also need to purge the cache from the CDN,
+          since the version could have been activated/deactivated,
+          or its privacy level could have changed.
+        """
+        # If the version is deactivated, we need to clean up the files.
+        if was_active and not self.active:
+            self.clean_resources()
+        # If the version is activated, we need to trigger a build.
+        if not was_active and self.active:
+            trigger_build(project=self.project, version=self)
+        # Purge the cache from the CDN.
+        version_changed.send(sender=self.__class__, version=self)
+
     @property
     def identifier_friendly(self):
         """Return display friendly identifier."""
+        if not self.identifier:
+            # Text shown to user when we don't know yet what's the ``identifier`` for this version.
+            # This usually happens when we haven't pulled the ``default_branch`` for LATEST.
+            return "Unknown yet"
+
         if re.match(r'^[0-9a-f]{40}$', self.identifier, re.I):
             return self.identifier[:8]
         return self.identifier
@@ -576,7 +687,8 @@ class APIVersion(Version):
         proxy = True
 
     def __init__(self, *args, **kwargs):
-        self.project = APIProject(**kwargs.pop('project', {}))
+        self.project = APIProject(**kwargs.pop("project", {}))
+        self.canonical_url = kwargs.pop("canonical_url", None)
         # These fields only exist on the API return, not on the model, so we'll
         # remove them to avoid throwing exceptions due to unexpected fields
         for key in ['resource_uri', 'absolute_url', 'downloads']:
@@ -584,9 +696,19 @@ class APIVersion(Version):
                 del kwargs[key]
             except KeyError:
                 pass
-        super().__init__(*args, **kwargs)
+        valid_attributes, invalid_attributes = extract_valid_attributes_for_model(
+            model=Version,
+            attributes=kwargs,
+        )
+        if invalid_attributes:
+            log.warning(
+                "APIVersion got unexpected attributes.",
+                invalid_attributes=invalid_attributes,
+            )
 
-    def save(self, *args, **kwargs):  # pylint: disable=arguments-differ
+        super().__init__(*args, **valid_attributes)
+
+    def save(self, *args, **kwargs):
         return 0
 
 
@@ -621,7 +743,7 @@ class Build(models.Model):
         _('State'),
         max_length=55,
         choices=BUILD_STATE,
-        default='finished',
+        default=BUILD_STATE_TRIGGERED,
         db_index=True,
     )
 
@@ -680,6 +802,14 @@ class Build(models.Model):
         _('Configuration used in the build'),
         null=True,
         blank=True,
+    )
+    readthedocs_yaml_path = models.CharField(
+        _("Custom build configuration file path used in this build"),
+        max_length=1024,
+        default=None,
+        blank=True,
+        null=True,
+        validators=[validate_build_config_file],
     )
 
     length = models.IntegerField(_('Build Length'), null=True, blank=True)
@@ -886,7 +1016,7 @@ class Build(models.Model):
                     number=self.get_version_name(),
                     commit=self.commit
                 )
-            # TODO: Add External Version Commit URL for BitBucket.
+            # TODO: Add External Version Commit URL for Bitbucket.
         else:
             if 'github' in repo_url:
                 user, repo = get_github_username_repo(repo_url)
@@ -963,10 +1093,35 @@ class Build(models.Model):
     def external_version_name(self):
         return external_version_name(self)
 
-    def using_latest_config(self):
-        if self.config:
-            return int(self.config.get('version', '1')) == LATEST_CONFIGURATION_VERSION
-        return False
+    def deprecated_config_used(self):
+        """
+        Check whether this particular build is using a deprecated config file.
+
+        When using v1 or not having a config file at all, it returns ``True``.
+        Returns ``False`` only when it has a config file and it is using v2.
+
+        Note we are using this to communicate deprecation of v1 file and not using a config file.
+        See https://github.com/readthedocs/readthedocs.org/issues/10342
+        """
+        if not self.config:
+            return True
+
+        return int(self.config.get("version", "1")) != LATEST_CONFIGURATION_VERSION
+
+    def deprecated_build_image_used(self):
+        """
+        Check whether this particular build is using the deprecated "build.image" config.
+
+        Note we are using this to communicate deprecation of "build.image".
+        See https://github.com/readthedocs/meta/discussions/48
+        """
+        if not self.config:
+            # Don't notify users without a config file.
+            # We hope they will migrate to `build.os` in the process of adding a `.readthedocs.yaml`
+            return False
+
+        build_config_key = self.config.get("build", {})
+        return "image" in build_config_key
 
     def reset(self):
         """
@@ -1062,12 +1217,12 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
     SET_DEFAULT_VERSION_ACTION = 'set-default-version'
 
     ACTIONS = (
-        (ACTIVATE_VERSION_ACTION, _('Activate version')),
-        (HIDE_VERSION_ACTION, _('Hide version')),
-        (MAKE_VERSION_PUBLIC_ACTION, _('Make version public')),
-        (MAKE_VERSION_PRIVATE_ACTION, _('Make version private')),
-        (SET_DEFAULT_VERSION_ACTION, _('Set version as default')),
-        (DELETE_VERSION_ACTION, _('Delete version (on branch/tag deletion)')),
+        (ACTIVATE_VERSION_ACTION, _("Activate version")),
+        (HIDE_VERSION_ACTION, _("Hide version")),
+        (MAKE_VERSION_PUBLIC_ACTION, _("Make version public")),
+        (MAKE_VERSION_PRIVATE_ACTION, _("Make version private")),
+        (SET_DEFAULT_VERSION_ACTION, _("Set version as default")),
+        (DELETE_VERSION_ACTION, _("Delete version")),
     )
 
     allowed_actions_on_create = {}
@@ -1247,7 +1402,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         self.save()
         return True
 
-    def delete(self, *args, **kwargs):  # pylint: disable=arguments-differ
+    def delete(self, *args, **kwargs):
         """Override method to update the other priorities after delete."""
         current_priority = self.priority
         project = self.project
@@ -1342,6 +1497,20 @@ class RegexAutomationRule(VersionAutomationRule):
 
 
 class AutomationRuleMatch(TimeStampedModel):
+
+    ACTIONS_PAST_TENSE = {
+        VersionAutomationRule.ACTIVATE_VERSION_ACTION: _("Version activated"),
+        VersionAutomationRule.HIDE_VERSION_ACTION: _("Version hidden"),
+        VersionAutomationRule.MAKE_VERSION_PUBLIC_ACTION: _(
+            "Version set to public privacy"
+        ),
+        VersionAutomationRule.MAKE_VERSION_PRIVATE_ACTION: _(
+            "Version set to private privacy"
+        ),
+        VersionAutomationRule.SET_DEFAULT_VERSION_ACTION: _("Version set as default"),
+        VersionAutomationRule.DELETE_VERSION_ACTION: _("Version deleted"),
+    }
+
     rule = models.ForeignKey(
         VersionAutomationRule,
         verbose_name=_('Matched rule'),
@@ -1365,3 +1534,6 @@ class AutomationRuleMatch(TimeStampedModel):
 
     class Meta:
         ordering = ('-modified', '-created')
+
+    def get_action_past_tense(self):
+        return self.ACTIONS_PAST_TENSE.get(self.action)

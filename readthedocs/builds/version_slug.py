@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """
 Contains logic for handling version slugs.
 
@@ -37,10 +35,11 @@ def get_fields_with_model(cls):
     prescrived in the Django docs.
     https://docs.djangoproject.com/en/1.11/ref/models/meta/#migrating-from-the-old-api
     """
-    return [(f, f.model if f.model != cls else None)
-            for f in cls._meta.get_fields()
-            if not f.is_relation or f.one_to_one or
-            (f.many_to_one and f.related_model)]
+    return [
+        (f, f.model if f.model != cls else None)
+        for f in cls._meta.get_fields()
+        if not f.is_relation or f.one_to_one or (f.many_to_one and f.related_model)
+    ]
 
 
 # Regex breakdown:
@@ -49,7 +48,7 @@ def get_fields_with_model(cls):
 #   *? -- allow multiple of those, but be not greedy about the matching
 #   (?: ... ) -- wrap everything so that the pattern cannot escape when used in
 #                regexes.
-VERSION_SLUG_REGEX = '(?:[a-z0-9A-Z][-._a-z0-9A-Z]*?)'
+VERSION_SLUG_REGEX = "(?:[a-z0-9A-Z][-._a-z0-9A-Z]*?)"
 
 
 class VersionSlugField(models.CharField):
@@ -60,14 +59,14 @@ class VersionSlugField(models.CharField):
     Uses ``unicode-slugify`` to generate the slug.
     """
 
-    ok_chars = '-._'  # dash, dot, underscore
-    test_pattern = re.compile('^{pattern}$'.format(pattern=VERSION_SLUG_REGEX))
-    fallback_slug = 'unknown'
+    ok_chars = "-._"  # dash, dot, underscore
+    test_pattern = re.compile("^{pattern}$".format(pattern=VERSION_SLUG_REGEX))
+    fallback_slug = "unknown"
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('db_index', True)
+        kwargs.setdefault("db_index", True)
 
-        populate_from = kwargs.pop('populate_from', None)
+        populate_from = kwargs.pop("populate_from", None)
         if populate_from is None:
             raise ValueError("missing 'populate_from' argument")
 
@@ -75,7 +74,6 @@ class VersionSlugField(models.CharField):
         super().__init__(*args, **kwargs)
 
     def get_queryset(self, model_cls, slug_field):
-        # pylint: disable=protected-access
         for field, model in get_fields_with_model(model_cls):
             if model and field == slug_field:
                 return model._default_manager.all()
@@ -92,7 +90,7 @@ class VersionSlugField(models.CharField):
 
         For example, ``release/1.0`` will become ``release-1.0``.
         """
-        return re.sub('[/%!?]', '-', content)
+        return re.sub("[/%!?]", "-", content)
 
     def slugify(self, content):
         """
@@ -102,7 +100,7 @@ class VersionSlugField(models.CharField):
         Unicode characters.
         """
         if not content:
-            return ''
+            return ""
 
         normalized = self._normalize(content)
         slugified = unicode_slugify(
@@ -111,7 +109,7 @@ class VersionSlugField(models.CharField):
             spaces=False,
             lower=True,
             ok=self.ok_chars,
-            space_replacement='-',
+            space_replacement="-",
         )
 
         # Remove first character wile it's an invalid character for the
@@ -146,16 +144,15 @@ class VersionSlugField(models.CharField):
         else:
             power = int(math.log(iteration, length))
         current = iteration
-        suffix = ''
+        suffix = ""
         for exp in reversed(list(range(0, power + 1))):
-            digit = int(truediv(current, length ** exp))
+            digit = int(truediv(current, length**exp))
             suffix += alphabet[digit]
-            current = current % length ** exp
-        return '_{suffix}'.format(suffix=suffix)
+            current = current % length**exp
+        return "_{suffix}".format(suffix=suffix)
 
     def create_slug(self, model_instance):
         """Generate a unique slug for a model instance."""
-        # pylint: disable=protected-access
 
         # get fields to populate from and slug field to set
         slug_field = model_instance._meta.get_field(self.attname)
@@ -191,14 +188,15 @@ class VersionSlugField(models.CharField):
             end = self.uniquifying_suffix(count)
             end_len = len(end)
             if slug_len and len(slug) + end_len > slug_len:
-                slug = slug[:slug_len - end_len]
+                slug = slug[: slug_len - end_len]
             slug = slug + end
             kwargs[self.attname] = slug
             count += 1
 
         is_slug_valid = self.test_pattern.match(slug)
         if not is_slug_valid:
-            raise Exception('Invalid generated slug: {slug}'.format(slug=slug))
+            # pylint: disable=broad-exception-raised
+            raise Exception("Invalid generated slug: {slug}".format(slug=slug))
         return slug
 
     def pre_save(self, model_instance, add):
@@ -211,5 +209,5 @@ class VersionSlugField(models.CharField):
 
     def deconstruct(self):
         name, path, args, kwargs = super().deconstruct()
-        kwargs['populate_from'] = self._populate_from
+        kwargs["populate_from"] = self._populate_from
         return name, path, args, kwargs
