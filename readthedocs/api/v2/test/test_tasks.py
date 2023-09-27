@@ -1,11 +1,12 @@
+from datetime import timedelta
+
 from django.test import TestCase
 from django.utils import timezone
 from django_dynamic_fixture import get
 
 from readthedocs.api.v2.models import BuildAPIKey
-from datetime import timedelta
-from readthedocs.projects.models import Project
 from readthedocs.api.v2.tasks import delete_old_revoked_build_api_keys
+from readthedocs.projects.models import Project
 
 
 class TestTasks(TestCase):

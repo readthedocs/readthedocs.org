@@ -1,8 +1,10 @@
-from readthedocs.api.v2.models import BuildAPIKey
-import structlog
-from readthedocs.worker import app
-from django.utils import timezone
 from datetime import timedelta
+
+import structlog
+from django.utils import timezone
+
+from readthedocs.api.v2.models import BuildAPIKey
+from readthedocs.worker import app
 
 log = structlog.get_logger(__name__)
 
@@ -20,6 +22,8 @@ def delete_old_revoked_build_api_keys():
     log.info("Deleting revoked keys", count=to_delete.count())
     to_delete.delete()
 
-    to_delete = BuildAPIKey.objects.filter(expiry_date__lt=timezone.now(), created__lt=created_before)
+    to_delete = BuildAPIKey.objects.filter(
+        expiry_date__lt=timezone.now(), created__lt=created_before
+    )
     log.info("Deleting expired keys", count=to_delete.count())
     to_delete.delete()
