@@ -966,6 +966,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             output = subprocess.check_output(
                 ["du", "--summarize", "--human-readable", "--", directory]
             )
+            # The output is something like: "1.2M\t/path/to/directory".
             directory_size = output.decode().split()[0]
             log.info(
                 "Build artifacts directory size.",
