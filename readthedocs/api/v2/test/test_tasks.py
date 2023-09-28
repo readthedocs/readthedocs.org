@@ -47,7 +47,7 @@ class TestTasks(TestCase):
         )
 
         self.assertEqual(BuildAPIKey.objects.count(), 6)
-        delete_old_revoked_build_api_keys()
+        delete_old_revoked_build_api_keys(days=7)
         self.assertEqual(BuildAPIKey.objects.count(), 4)
         deleted_keys = [
             expired_old_key,
