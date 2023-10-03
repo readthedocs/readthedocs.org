@@ -1,3 +1,21 @@
+Version 10.6.1
+--------------
+
+:Date: October 03, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10784 <https://github.com/readthedocs/readthedocs.org/pull/10784>`__)
+* `@jidanni <https://github.com/jidanni>`__: Update index.rst (`#10780 <https://github.com/readthedocs/readthedocs.org/pull/10780>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: log directory size to be uploaded (`#10779 <https://github.com/readthedocs/readthedocs.org/pull/10779>`__)
+* `@stsewd <https://github.com/stsewd>`__: BuildAPIKey: remove old revoked/expired keys (`#10778 <https://github.com/readthedocs/readthedocs.org/pull/10778>`__)
+* `@stsewd <https://github.com/stsewd>`__: SSO: update Google Workspace integration docs (`#10774 <https://github.com/readthedocs/readthedocs.org/pull/10774>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.6.0 (`#10772 <https://github.com/readthedocs/readthedocs.org/pull/10772>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test ES upgrade to 7.17.13 (`#10770 <https://github.com/readthedocs/readthedocs.org/pull/10770>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: update example for AsciiDoc to simplify it a little (`#10763 <https://github.com/readthedocs/readthedocs.org/pull/10763>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove support for MkDocs <= 0.17.3 (`#10584 <https://github.com/readthedocs/readthedocs.org/pull/10584>`__)
+* `@humitos <https://github.com/humitos>`__: Deprecation: remove support for Sphinx 1.x (`#10365 <https://github.com/readthedocs/readthedocs.org/pull/10365>`__)
+* `@stsewd <https://github.com/stsewd>`__: SearchQuery: use BigAutoField for primary key (`#9671 <https://github.com/readthedocs/readthedocs.org/pull/9671>`__)
+* `@ojii <https://github.com/ojii>`__: Versioned docs (`#22 <https://github.com/readthedocs/readthedocs.org/pull/22>`__)
+
 Version 10.6.0
 --------------
 
