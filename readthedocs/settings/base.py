@@ -549,6 +549,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
+        'every-day-delete-old-revoked-build-api-keys': {
+            'task': 'readthedocs.api.v2.tasks.delete_old_revoked_build_api_keys',
+            'schedule': crontab(minute=0, hour=4),
+            'options': {'queue': 'web'},
+        },
         # We keep having celery send multiple emails,
         # which is a terrible UX,
         # so let's remove them for now.
