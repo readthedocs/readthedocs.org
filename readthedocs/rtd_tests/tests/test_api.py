@@ -65,7 +65,7 @@ from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
 
 
-@override_settings(PUBLIC_DOMAIN='readthedocs.io')
+@override_settings(PUBLIC_DOMAIN="readthedocs.io")
 class APIBuildTests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
@@ -254,12 +254,12 @@ class APIBuildTests(TestCase):
         resp = client.get('/api/v2/build/{build}/'.format(build=build.pk))
         self.assertEqual(resp.status_code, 200)
         build = resp.data
-        docs_url = f'http://{project.slug}.readthedocs.io/en/{version.slug}/'
-        self.assertEqual(build['state'], 'finished')
-        self.assertEqual(build['error'], '')
-        self.assertEqual(build['exit_code'], 0)
-        self.assertEqual(build['success'], True)
-        self.assertEqual(build['docs_url'], docs_url)
+        docs_url = f"http://{project.slug}.readthedocs.io/en/{version.slug}/"
+        self.assertEqual(build["state"], "finished")
+        self.assertEqual(build["error"], "")
+        self.assertEqual(build["exit_code"], 0)
+        self.assertEqual(build["success"], True)
+        self.assertEqual(build["docs_url"], docs_url)
         # Verify the path is trimmed
         self.assertEqual(
             build["commands"][0]["command"],
@@ -3106,7 +3106,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], ['v1.0'])
 
 
-@override_settings(PUBLIC_DOMAIN='readthedocs.io')
+@override_settings(PUBLIC_DOMAIN="readthedocs.io")
 class APIVersionTests(TestCase):
     fixtures = ['eric', 'test_data']
     maxDiff = None  # So we get an actual diff when it fails

@@ -755,7 +755,7 @@ class DomainList(DomainMixin, ListViewWithForm):
         ctx = super().get_context_data(**kwargs)
 
         # Get the default docs domain
-        ctx['default_domain'] = settings.PUBLIC_DOMAIN
+        ctx["default_domain"] = settings.PUBLIC_DOMAIN
 
         return ctx
 
