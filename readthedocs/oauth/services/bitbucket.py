@@ -8,7 +8,6 @@ from allauth.socialaccount.providers.bitbucket_oauth2.views import (
     BitbucketOAuth2Adapter,
 )
 from django.conf import settings
-from django.urls import reverse
 from requests.exceptions import RequestException
 
 from readthedocs.builds import utils as build_utils
@@ -213,16 +212,7 @@ class BitbucketService(Service):
                 "description": "Read the Docs ({domain})".format(
                     domain=settings.PRODUCTION_DOMAIN,
                 ),
-                "url": "https://{domain}{path}".format(
-                    domain=settings.PRODUCTION_DOMAIN,
-                    path=reverse(
-                        "api_webhook",
-                        kwargs={
-                            "project_slug": project.slug,
-                            "integration_pk": integration.pk,
-                        },
-                    ),
-                ),
+                "url": self.get_webhook_url(project, integration),
                 "active": True,
                 "events": ["repo:push"],
             }
@@ -247,16 +237,7 @@ class BitbucketService(Service):
         owner, repo = build_utils.get_bitbucket_username_repo(url=project.repo)
         url = f"https://api.bitbucket.org/2.0/repositories/{owner}/{repo}/hooks"
 
-        rtd_webhook_url = "https://{domain}{path}".format(
-            domain=settings.PRODUCTION_DOMAIN,
-            path=reverse(
-                "api_webhook",
-                kwargs={
-                    "project_slug": project.slug,
-                    "integration_pk": integration.pk,
-                },
-            ),
-        )
+        rtd_webhook_url = self.get_webhook_url(project, integration)
 
         log.bind(
             project_slug=project.slug,
