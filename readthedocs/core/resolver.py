@@ -147,10 +147,7 @@ class ResolverBase:
             if domain:
                 return domain.domain
 
-        if self._use_subdomain():
-            return self._get_project_subdomain(canonical_project)
-
-        return settings.PRODUCTION_DOMAIN
+        return self._get_project_subdomain(canonical_project)
 
     def resolve(
         self,
@@ -176,10 +173,8 @@ class ResolverBase:
             domain = self._get_external_subdomain(canonical_project, version_slug)
         elif use_custom_domain:
             domain = custom_domain.domain
-        elif self._use_subdomain():
-            domain = self._get_project_subdomain(canonical_project)
         else:
-            domain = settings.PRODUCTION_DOMAIN
+            domain = self._get_project_subdomain(canonical_project)
 
         use_https_protocol = any(
             [
@@ -366,10 +361,6 @@ class ResolverBase:
         :type custom_domain: readthedocs.projects.models.Domain
         """
         return custom_domain is not None
-
-    def _use_subdomain(self):
-        """Make decision about whether to use a subdomain to serve docs."""
-        return settings.PUBLIC_DOMAIN is not None
 
     def _use_cname(self, project):
         """Test if to allow direct serving for project on CNAME."""
