@@ -35,9 +35,10 @@ RTD_DOCKER_BUILD_SETTINGS = {
             "3.8": "3.8.18",
             "3.9": "3.9.18",
             "3.10": "3.10.13",
-            "3.11": "3.11.5",
+            "3.11": "3.11.6",
+            "3.12": "3.12.0",
             # Always point to the latest stable release.
-            "3": "3.11.5",
+            "3": "3.12.0",
             "miniconda3-4.7": "miniconda3-4.7.12",
             "mambaforge-4.10": "mambaforge-4.10.3-10",
             "mambaforge-22.9": "mambaforge-22.9.0-3",
