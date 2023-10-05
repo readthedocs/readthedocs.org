@@ -346,7 +346,7 @@ Docker for builds
 
 Serve documentation under a subdomain
     There are a number of resolution bugs and cross-domain behavior that can
-    only be caught by using `USE_SUBDOMAIN` setting.
+    only be caught by using a ``PUBLIC_DOMAIN`` setting different from the ``PRODUCTION_DOMAIN`` setting.
 
 PostgreSQL as a database
     It is recommended that Postgres be used as the default database whenever
