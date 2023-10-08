@@ -12,9 +12,9 @@ async-timeout==4.0.3
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.28.57
+boto3==1.28.62
     # via django-storages
-botocore==1.31.57
+botocore==1.31.62
     # via
     #   boto3
     #   s3transfer
@@ -56,7 +56,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.6.3
     # via -r requirements/pip.in
-django==4.2.5
+django==4.2.6
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -95,7 +95,7 @@ django-csp==3.7
     # via -r requirements/pip.in
 django-debug-toolbar==4.2.0
     # via -r requirements/pip.in
-django-elasticsearch-dsl==7.3
+django-elasticsearch-dsl==7.4
     # via -r requirements/pip.in
 django-extensions==3.2.3
     # via -r requirements/pip.in
@@ -105,7 +105,7 @@ django-formtools==2.3
     # via -r requirements/pip.in
 django-gravatar2==1.4.4
     # via -r requirements/pip.in
-django-ipware==5.0.0
+django-ipware==5.0.1
     # via django-structlog
 django-messages-extends==0.6.3
     # via -r requirements/pip.in
@@ -169,23 +169,23 @@ kombu==5.3.2
     # via celery
 lxml==4.9.3
     # via pyquery
-markdown==3.4.4
+markdown==3.5
     # via -r requirements/pip.in
 oauthlib==3.2.2
     # via requests-oauthlib
 orjson==3.9.7
     # via -r requirements/pip.in
-packaging==23.1
+packaging==23.2
     # via
     #   -r requirements/pip.in
     #   docker
     #   dparse
     #   gunicorn
-platformdirs==3.10.0
+platformdirs==3.11.0
     # via virtualenv
 prompt-toolkit==3.0.39
     # via click-repl
-psycopg2==2.9.8
+psycopg2==2.9.9
     # via -r requirements/pip.in
 pycparser==2.21
     # via cffi
@@ -216,7 +216,7 @@ redis==5.0.1
     # via
     #   -r requirements/pip.in
     #   django-cacheops
-regex==2023.8.8
+regex==2023.10.3
     # via -r requirements/pip.in
 requests==2.31.0
     # via
@@ -272,7 +272,7 @@ unicode-slugify @ git+https://github.com/mozilla/unicode-slugify@b696c37
     # via -r requirements/pip.in
 unidecode==1.3.7
     # via unicode-slugify
-urllib3==1.26.16
+urllib3==1.26.17
     # via
     #   botocore
     #   docker
