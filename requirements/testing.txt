@@ -40,7 +40,7 @@ celery==5.2.7
 certifi==2023.7.22
     # via
     #   -r requirements/pip.txt
-    #   elasticsearch
+    #   elastic-transport
     #   requests
 cffi==1.16.0
     # via
@@ -136,7 +136,7 @@ django-debug-toolbar==4.2.0
     # via -r requirements/pip.txt
 django-dynamic-fixture==4.0.1
     # via -r requirements/testing.in
-django-elasticsearch-dsl==7.4
+django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
@@ -156,7 +156,7 @@ django-polymorphic==3.1.0
     # via -r requirements/pip.txt
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
-django-storages[boto3]==1.14.1
+django-storages[boto3]==1.14.2
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
@@ -188,11 +188,15 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elasticsearch==7.17.9
+elastic-transport==8.4.1
+    # via
+    #   -r requirements/pip.txt
+    #   elasticsearch
+elasticsearch==8.10.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==7.4.1
+elasticsearch-dsl==8.9.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -355,7 +359,6 @@ six==1.16.0
     #   -r requirements/pip.txt
     #   django-annoying
     #   django-elasticsearch-dsl
-    #   elasticsearch-dsl
     #   python-dateutil
     #   requests-mock
     #   unicode-slugify
@@ -392,7 +395,7 @@ stripe==4.2.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-structlog==23.1.0
+structlog==23.2.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -425,7 +428,7 @@ urllib3==1.26.17
     #   -r requirements/pip.txt
     #   botocore
     #   docker
-    #   elasticsearch
+    #   elastic-transport
     #   requests
 user-agents==2.2.0
     # via -r requirements/pip.txt
@@ -441,7 +444,7 @@ wcwidth==0.2.8
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.6.3
+websocket-client==1.6.4
     # via
     #   -r requirements/pip.txt
     #   docker
