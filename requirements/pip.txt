@@ -95,7 +95,7 @@ django-csp==3.7
     # via -r requirements/pip.in
 django-debug-toolbar==4.2.0
     # via -r requirements/pip.in
-django-elasticsearch-dsl==7.4
+django-elasticsearch-dsl==8.0
     # via -r requirements/pip.in
 django-extensions==3.2.3
     # via -r requirements/pip.in
@@ -113,7 +113,7 @@ django-polymorphic==3.1.0
     # via -r requirements/pip.in
 django-simple-history==3.0.0
     # via -r requirements/pip.in
-django-storages[boto3]==1.14.1
+django-storages[boto3]==1.14.2
     # via -r requirements/pip.in
 django-structlog==2.2.0
     # via -r requirements/pip.in
@@ -255,7 +255,7 @@ stripe==4.2.0
     # via
     #   -r requirements/pip.in
     #   dj-stripe
-structlog==23.1.0
+structlog==23.2.0
     # via
     #   -r requirements/pip.in
     #   django-structlog
@@ -290,7 +290,7 @@ virtualenv==20.24.5
     # via -r requirements/pip.in
 wcwidth==0.2.8
     # via prompt-toolkit
-websocket-client==1.6.3
+websocket-client==1.6.4
     # via docker
 
 # The following packages are considered to be unsafe in a requirements file:

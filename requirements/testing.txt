@@ -136,7 +136,7 @@ django-debug-toolbar==4.2.0
     # via -r requirements/pip.txt
 django-dynamic-fixture==4.0.1
     # via -r requirements/testing.in
-django-elasticsearch-dsl==7.4
+django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
@@ -156,7 +156,7 @@ django-polymorphic==3.1.0
     # via -r requirements/pip.txt
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
-django-storages[boto3]==1.14.1
+django-storages[boto3]==1.14.2
     # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
@@ -395,7 +395,7 @@ stripe==4.2.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-structlog==23.1.0
+structlog==23.2.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -444,7 +444,7 @@ wcwidth==0.2.8
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.6.3
+websocket-client==1.6.4
     # via
     #   -r requirements/pip.txt
     #   docker
