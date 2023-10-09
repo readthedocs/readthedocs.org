@@ -7,6 +7,7 @@ rebuilding documentation.
 import os
 import signal
 import socket
+import subprocess
 from dataclasses import dataclass, field
 
 import structlog
@@ -334,7 +335,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # Only allow to cancel the build if it's not already uploading the files.
             # This is to protect our users to end up with half of the documentation uploaded.
             # TODO: remove this condition once we implement "Atomic Uploads"
-            if self.data.build["state"] == BUILD_STATE_UPLOADING:
+            if self.data.build.get("state") == BUILD_STATE_UPLOADING:
                 log.warning('Ignoring cancelling the build at "Uploading" state.')
                 return
 
@@ -912,6 +913,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 include_file=False,
                 version_type=self.data.version.type,
             )
+
+            self._log_directory_size(from_path, media_type)
+
             try:
                 build_media_storage.rclone_sync_directory(from_path, to_path)
             except Exception as exc:
@@ -956,6 +960,25 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             "Store build artifacts finished.",
             time=(timezone.now() - time_before_store_build_artifacts).seconds,
         )
+
+    def _log_directory_size(self, directory, media_type):
+        try:
+            output = subprocess.check_output(
+                ["du", "--summarize", "--human-readable", "--", directory]
+            )
+            # The output is something like: "1.2M\t/path/to/directory".
+            directory_size = output.decode().split()[0]
+            log.info(
+                "Build artifacts directory size.",
+                directory=directory,
+                size=directory_size,
+                media_type=media_type,
+            )
+        except Exception:
+            log.info(
+                "Error getting build artifacts directory size.",
+                exc_info=True,
+            )
 
     def send_notifications(self, version_pk, build_pk, event):
         """Send notifications to all subscribers of `event`."""

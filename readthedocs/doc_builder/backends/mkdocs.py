@@ -145,13 +145,7 @@ class BaseMkdocs(BaseBuilder):
             )
 
         user_config['docs_dir'] = docs_dir
-
-        # MkDocs <=0.17.x doesn't support absolute paths,
-        # it needs one with a full domain.
-        if self.project.has_feature(Feature.DEFAULT_TO_MKDOCS_0_17_3):
-            static_url = get_absolute_static_url()
-        else:
-            static_url = self.project.proxied_static_path
+        static_url = self.project.proxied_static_path
 
         # Set mkdocs config values.
         extra_assets = {
