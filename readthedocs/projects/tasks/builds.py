@@ -967,7 +967,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 ["du", "--summarize", "-m", "--", directory]
             )
             # The output is something like: "5\t/path/to/directory".
-            directory_size = output.decode().split()[0]
+            directory_size = int(output.decode().split()[0])
             log.info(
                 "Build artifacts directory size.",
                 directory=directory,
