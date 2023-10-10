@@ -1,3 +1,18 @@
+Version 10.7.0
+--------------
+
+:Date: October 10, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10807 <https://github.com/readthedocs/readthedocs.org/pull/10807>`__)
+* `@stsewd <https://github.com/stsewd>`__: Webhooks: use PUBLIC_API_URL to generate the webhook URL (`#10801 <https://github.com/readthedocs/readthedocs.org/pull/10801>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use get to access build dictionary (`#10797 <https://github.com/readthedocs/readthedocs.org/pull/10797>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.6.1 (`#10792 <https://github.com/readthedocs/readthedocs.org/pull/10792>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: remove one query from the middleware (`#10788 <https://github.com/readthedocs/readthedocs.org/pull/10788>`__)
+* `@stsewd <https://github.com/stsewd>`__: BuildAPIKey: remove old revoked/expired keys (`#10778 <https://github.com/readthedocs/readthedocs.org/pull/10778>`__)
+* `@stsewd <https://github.com/stsewd>`__: Upgrade ES to 8.x (`#10771 <https://github.com/readthedocs/readthedocs.org/pull/10771>`__)
+* `@humitos <https://github.com/humitos>`__: VCS: remove unused methods and make new Git pattern the default (`#8968 <https://github.com/readthedocs/readthedocs.org/pull/8968>`__)
+* `@ojii <https://github.com/ojii>`__: Versioned docs (`#22 <https://github.com/readthedocs/readthedocs.org/pull/22>`__)
+
 Version 10.6.1
 --------------
 
