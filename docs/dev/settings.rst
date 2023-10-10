@@ -22,7 +22,7 @@ memory
 PRODUCTION_DOMAIN
 ------------------
 
-This is the domain that is used by the main application (not documentation pages).
+This is the domain that is used by the main application dashboard (not documentation pages).
 
 RTD_INTERSPHINX_URL
 -------------------
