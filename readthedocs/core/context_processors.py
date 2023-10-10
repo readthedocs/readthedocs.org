@@ -16,5 +16,6 @@ def readthedocs_processor(request):
         "USE_PROMOS": settings.USE_PROMOS,
         "USE_ORGANIZATIONS": settings.RTD_ALLOW_ORGANIZATIONS,
         "SUPPORT_EMAIL": settings.SUPPORT_EMAIL,
+        "PUBLIC_API_URL": settings.PUBLIC_API_URL,
     }
     return exports

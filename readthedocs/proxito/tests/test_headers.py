@@ -219,7 +219,8 @@ class ProxitoHeaderTests(BaseDocServing):
             headers={"host": "project.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 200)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
 
         # Cross-origin request
         r = self.client.get(
@@ -231,7 +232,8 @@ class ProxitoHeaderTests(BaseDocServing):
             },
         )
         self.assertEqual(r.status_code, 200)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cors_headers_public_version(self):
