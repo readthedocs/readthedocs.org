@@ -200,12 +200,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         request.unresolved_domain = None
 
         skip = any(request.path.startswith(reverse(view)) for view in self.skip_views)
-        if (
-            skip
-            or not settings.USE_SUBDOMAIN
-            or "localhost" in request.get_host()
-            or "testserver" in request.get_host()
-        ):
+        if skip:
             log.debug("Not processing Proxito middleware")
             return None
 

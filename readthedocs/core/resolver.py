@@ -62,8 +62,6 @@ class ResolverBase:
         language=None,
         single_version=None,
         project_relationship=None,
-        subdomain=None,
-        cname=None,
         custom_prefix=None,
     ):
         """
@@ -77,12 +75,7 @@ class ResolverBase:
         the path will be prefixed with the subproject prefix
         (defaults to ``/projects/<subproject-slug>/``).
         """
-        # Only support `/docs/project' URLs outside our normal environment. Normally
-        # the path should always have a subdomain or CNAME domain
-        if subdomain or cname or self._use_subdomain():
-            path = "/"
-        else:
-            path = "/docs/{project}/"
+        path = "/"
 
         if project_relationship:
             path = unsafe_join_url_path(path, project_relationship.subproject_prefix)
@@ -112,8 +105,6 @@ class ResolverBase:
         version_slug=None,
         language=None,
         single_version=None,
-        subdomain=None,
-        cname=None,
     ):
         """Resolve a URL with a subset of fields defined."""
         version_slug = version_slug or project.get_default_version()
@@ -122,11 +113,6 @@ class ResolverBase:
         filename = self._fix_filename(filename)
 
         parent_project, project_relationship = self._get_canonical_project_data(project)
-        cname = (
-            cname
-            or self._use_subdomain()
-            or parent_project.get_canonical_custom_domain()
-        )
         single_version = bool(project.single_version or single_version)
 
         # If the project is a subproject, we use the custom prefix
@@ -145,8 +131,6 @@ class ResolverBase:
             language=language,
             single_version=single_version,
             project_relationship=project_relationship,
-            cname=cname,
-            subdomain=subdomain,
             custom_prefix=custom_prefix,
         )
 
@@ -163,10 +147,7 @@ class ResolverBase:
             if domain:
                 return domain.domain
 
-        if self._use_subdomain():
-            return self._get_project_subdomain(canonical_project)
-
-        return settings.PRODUCTION_DOMAIN
+        return self._get_project_subdomain(canonical_project)
 
     def resolve(
         self,
@@ -192,10 +173,8 @@ class ResolverBase:
             domain = self._get_external_subdomain(canonical_project, version_slug)
         elif use_custom_domain:
             domain = custom_domain.domain
-        elif self._use_subdomain():
-            domain = self._get_project_subdomain(canonical_project)
         else:
-            domain = settings.PRODUCTION_DOMAIN
+            domain = self._get_project_subdomain(canonical_project)
 
         use_https_protocol = any(
             [
@@ -382,10 +361,6 @@ class ResolverBase:
         :type custom_domain: readthedocs.projects.models.Domain
         """
         return custom_domain is not None
-
-    def _use_subdomain(self):
-        """Make decision about whether to use a subdomain to serve docs."""
-        return settings.USE_SUBDOMAIN and settings.PUBLIC_DOMAIN is not None
 
     def _use_cname(self, project):
         """Test if to allow direct serving for project on CNAME."""

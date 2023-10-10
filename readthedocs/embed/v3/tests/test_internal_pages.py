@@ -20,7 +20,6 @@ from .utils import get_anchor_link_title, srcdir
 class TestEmbedAPIv3InternalPages:
     @pytest.fixture(autouse=True)
     def setup_method(self, settings):
-        settings.USE_SUBDOMAIN = True
         settings.PUBLIC_DOMAIN = "readthedocs.io"
         settings.RTD_EMBED_API_EXTERNAL_DOMAINS = []
         settings.RTD_DEFAULT_FEATURES = dict(

@@ -33,7 +33,6 @@ class BaseTestEmbedAPI:
         self.version.privacy_level = PUBLIC
         self.version.save()
 
-        settings.USE_SUBDOMAIN = True
         settings.PUBLIC_DOMAIN = "readthedocs.io"
         settings.RTD_DEFAULT_FEATURES = dict(
             [RTDProductFeature(TYPE_EMBED_API).to_item()]
