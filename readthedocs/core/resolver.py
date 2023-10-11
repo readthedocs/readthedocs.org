@@ -135,6 +135,8 @@ class Resolver:
         Get the URL for a specific version of a project.
 
         If no version is given, the default version is used.
+        
+        Use this instead of ``resolve`` if you have the version object already.
         """
         if not version:
             default_version_slug = project.get_default_version()
