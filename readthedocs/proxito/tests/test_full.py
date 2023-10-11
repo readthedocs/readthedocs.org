@@ -395,6 +395,36 @@ class TestFullDocServing(BaseDocServing):
             "/proxito/media/html/project/latest/en/awesome.html",
         )
 
+    def test_old_language_code(self):
+        self.project.language = "pt-br"
+        self.project.save()
+        host = "project.dev.readthedocs.io"
+
+        url = "/pt_BR/latest/index.html"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["location"],
+            "http://project.dev.readthedocs.io/pt-br/latest/index.html",
+        )
+
+        url = "/pt-br/latest/index.html"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/index.html",
+        )
+
+        # Ambiguous path.
+        url = "/pt-br/latest/bt_BR/index.html"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/bt_BR/index.html",
+        )
+
 
 @override_settings(
     PUBLIC_DOMAIN="dev.readthedocs.io",
