@@ -67,11 +67,11 @@ class NotificationTests(TestCase):
                 "GLOBAL_ANALYTICS_CODE": mock.ANY,
                 "PRODUCTION_DOMAIN": "readthedocs.org",
                 "PUBLIC_DOMAIN": mock.ANY,
+                "PUBLIC_API_URL": mock.ANY,
                 "SITE_ROOT": mock.ANY,
                 "SUPPORT_EMAIL": "support@readthedocs.org",
                 "TEMPLATE_ROOT": mock.ANY,
                 "USE_PROMOS": mock.ANY,
-                "USE_SUBDOMAIN": mock.ANY,
                 "USE_ORGANIZATIONS": mock.ANY,
             },
         )
@@ -232,11 +232,11 @@ class SiteNotificationTests(TestCase):
             "GLOBAL_ANALYTICS_CODE": mock.ANY,
             "PRODUCTION_DOMAIN": "readthedocs.org",
             "PUBLIC_DOMAIN": mock.ANY,
+            "PUBLIC_API_URL": mock.ANY,
             "SITE_ROOT": mock.ANY,
             "SUPPORT_EMAIL": "support@readthedocs.org",
             "TEMPLATE_ROOT": mock.ANY,
             "USE_PROMOS": mock.ANY,
-            "USE_SUBDOMAIN": mock.ANY,
             "USE_ORGANIZATIONS": mock.ANY,
         }
         self.assertEqual(self.n.get_context_data(), context)

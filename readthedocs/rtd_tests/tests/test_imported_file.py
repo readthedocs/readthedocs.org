@@ -5,6 +5,7 @@ from django.core.files.storage import get_storage_class
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.projects.models import HTMLFile, ImportedFile, Project
 from readthedocs.projects.tasks.search import _create_imported_files_and_search_index
 from readthedocs.search.documents import PageDocument
@@ -26,12 +27,18 @@ class ImportedFileTests(TestCase):
         with override_settings(DOCROOT=self.test_dir):
             self._copy_storage_dir()
 
-    def tearDown(self):
+        self._create_index()
+
+    def _create_index(self):
         try:
-            PageDocument().search().filter().delete()
+            PageDocument.init()
         except Exception:
-            # If there are no documents, the query fails.
+            # If the index already exists, the init fails.
             pass
+
+    def tearDown(self):
+        # Delete index
+        PageDocument._index.delete(ignore=404)
 
     def _manage_imported_files(self, version, search_ranking=None, search_ignore=None):
         """Helper function for the tests to create and sync ImportedFiles."""
@@ -51,6 +58,7 @@ class ImportedFileTests(TestCase):
                 type_="html",
                 version_slug=self.version.slug,
                 include_file=False,
+                version_type=self.version.type,
             ),
         )
 
@@ -92,6 +100,33 @@ class ImportedFileTests(TestCase):
             {result.path for result in results},
             {"index.html", "404.html", "test.html", "api/index.html"},
         )
+
+    def test_index_external_version(self):
+        self.assertEqual(ImportedFile.objects.count(), 0)
+        self.version.type = EXTERNAL
+        self.version.save()
+
+        with override_settings(DOCROOT=self.test_dir):
+            self._copy_storage_dir()
+
+        sync_id = self._manage_imported_files(version=self.version)
+        self.assertEqual(ImportedFile.objects.count(), 3)
+        self.assertEqual(
+            set(HTMLFile.objects.all().values_list("path", flat=True)),
+            {"index.html", "api/index.html", "404.html"},
+        )
+
+        results = PageDocument().search().filter("term", build=sync_id).execute()
+        self.assertEqual(len(results), 0)
+
+        sync_id = self._manage_imported_files(version=self.version)
+        self.assertEqual(ImportedFile.objects.count(), 3)
+        self.assertEqual(
+            set(HTMLFile.objects.all().values_list("path", flat=True)),
+            {"index.html", "api/index.html", "404.html"},
+        )
+
+        self.assertEqual(len(results), 0)
 
     def test_update_build(self):
         self.assertEqual(ImportedFile.objects.count(), 0)

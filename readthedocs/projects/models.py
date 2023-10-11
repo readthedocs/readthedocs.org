@@ -23,7 +23,14 @@ from django_extensions.db.fields import CreationDateTimeField, ModificationDateT
 from django_extensions.db.models import TimeStampedModel
 from taggit.managers import TaggableManager
 
-from readthedocs.builds.constants import EXTERNAL, INTERNAL, LATEST, STABLE
+from readthedocs.builds.constants import (
+    BRANCH,
+    EXTERNAL,
+    INTERNAL,
+    LATEST,
+    LATEST_VERBOSE_NAME,
+    STABLE,
+)
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.resolver import resolve, resolve_domain
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
@@ -52,10 +59,7 @@ from readthedocs.search.parsers import GenericParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
-from .constants import (
-    DOWNLOADABLE_MEDIA_TYPES,
-    MEDIA_TYPES,
-)
+from .constants import DOWNLOADABLE_MEDIA_TYPES, MEDIA_TYPES
 
 log = structlog.get_logger(__name__)
 
@@ -1106,6 +1110,51 @@ class Project(models.Model):
         )
         return original_stable
 
+    def get_latest_version(self):
+        return self.versions.filter(slug=LATEST).first()
+
+    def get_original_latest_version(self):
+        """
+        Get the original version that latest points to.
+
+        When latest is machine created, it's basically an alias
+        for the default branch/tag (like main/master),
+
+        Returns None if the current default version doesn't point to a valid version.
+        """
+        default_version_name = self.get_default_branch()
+        return (
+            self.versions(manager=INTERNAL)
+            .exclude(slug=LATEST)
+            .filter(
+                verbose_name=default_version_name,
+            )
+            .first()
+        )
+
+    def update_latest_version(self):
+        """
+        If the current latest version is machine created, update it.
+
+        A machine created LATEST version is an alias for the default branch/tag,
+        so we need to update it to match the type and identifier of the default branch/tag.
+        """
+        latest = self.get_latest_version()
+        if not latest:
+            latest = self.versions.create_latest()
+        if not latest.machine:
+            return
+
+        # default_branch can be a tag or a branch name!
+        default_version_name = self.get_default_branch()
+        original_latest = self.get_original_latest_version()
+        latest.verbose_name = LATEST_VERBOSE_NAME
+        latest.type = original_latest.type if original_latest else BRANCH
+        # For latest, the identifier is the name of the branch/tag.
+        latest.identifier = default_version_name
+        latest.save()
+        return latest
+
     def update_stable_version(self):
         """
         Returns the version that was promoted to be the new stable version.
@@ -1842,8 +1891,6 @@ class Feature(models.Model):
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
     DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
-    USE_SPHINX_LATEST = 'use_sphinx_latest'
-    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     INSTALL_LATEST_CORE_REQUIREMENTS = "install_latest_core_requirements"
 
@@ -1948,11 +1995,6 @@ class Feature(models.Model):
         (
             DONT_INSTALL_LATEST_PIP,
             _("Build: Don't install the latest version of pip"),
-        ),
-        (USE_SPHINX_LATEST, _("Sphinx: Use latest version of Sphinx")),
-        (
-            DEFAULT_TO_MKDOCS_0_17_3,
-            _("MkDOcs: Install mkdocs 0.17.3 by default"),
         ),
         (
             USE_SPHINX_RTD_EXT_LATEST,

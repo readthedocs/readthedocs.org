@@ -15,7 +15,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     RTD_DOCKER_COMPOSE_VOLUME = "community_build-user-builds"
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
     DOCKER_LIMITS = {"memory": "1g", "time": 900}
-    USE_SUBDOMAIN = True
 
     PRODUCTION_DOMAIN = os.environ.get("RTD_PRODUCTION_DOMAIN", "devthedocs.org")
     PUBLIC_DOMAIN = os.environ.get("RTD_PUBLIC_DOMAIN", "devthedocs.org")
@@ -216,9 +215,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     # Remove the checks on the number of fields being submitted
     # This limit is mostly hit on large forms in the Django admin
     DATA_UPLOAD_MAX_NUMBER_FIELDS = None
-
-    # This allows us to have CORS work well in dev
-    CORS_ORIGIN_ALLOW_ALL = True
 
 
 DockerBaseSettings.load_settings(__name__)

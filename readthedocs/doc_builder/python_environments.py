@@ -256,28 +256,12 @@ class Virtualenv(PythonEnvironment):
         )
 
         if self.config.doctype == 'mkdocs':
-            requirements.append(
-                self.project.get_feature_value(
-                    Feature.DEFAULT_TO_MKDOCS_0_17_3,
-                    positive='mkdocs==0.17.3',
-                    negative="mkdocs",
-                )
-            )
+            requirements.append("mkdocs")
         else:
             requirements.extend(
                 [
-                    self.project.get_feature_value(
-                        Feature.USE_SPHINX_LATEST,
-                        positive="sphinx",
-                        negative="sphinx<2",
-                    ),
-                    # If defaulting to Sphinx 2+, we need to push the latest theme
-                    # release as well. `<0.5.0` is not compatible with Sphinx 2+
-                    self.project.get_feature_value(
-                        Feature.USE_SPHINX_LATEST,
-                        positive="sphinx-rtd-theme",
-                        negative="sphinx-rtd-theme<0.5",
-                    ),
+                    "sphinx",
+                    "sphinx-rtd-theme",
                     self.project.get_feature_value(
                         Feature.USE_SPHINX_RTD_EXT_LATEST,
                         positive="readthedocs-sphinx-ext",
@@ -285,8 +269,6 @@ class Virtualenv(PythonEnvironment):
                     ),
                 ]
             )
-            if not self.project.has_feature(Feature.USE_SPHINX_LATEST):
-                requirements.extend(["jinja2<3.1.0"])
 
         cmd = copy.copy(pip_install_cmd)
         cmd.extend(requirements)

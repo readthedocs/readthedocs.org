@@ -7,7 +7,6 @@ from urllib.parse import quote_plus, urlparse
 import structlog
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
-from django.urls import reverse
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 from requests.exceptions import RequestException
 
@@ -294,16 +293,7 @@ class GitLabService(Service):
                 "id": repo_id,
                 "push_events": True,
                 "tag_push_events": True,
-                "url": "https://{domain}{path}".format(
-                    domain=settings.PRODUCTION_DOMAIN,
-                    path=reverse(
-                        "api_webhook",
-                        kwargs={
-                            "project_slug": project.slug,
-                            "integration_pk": integration.pk,
-                        },
-                    ),
-                ),
+                "url": self.get_webhook_url(project, integration),
                 "token": integration.secret,
                 # Optional
                 "issues_events": False,
@@ -341,16 +331,7 @@ class GitLabService(Service):
             integration_id=integration.pk,
         )
 
-        rtd_webhook_url = "https://{domain}{path}".format(
-            domain=settings.PRODUCTION_DOMAIN,
-            path=reverse(
-                "api_webhook",
-                kwargs={
-                    "project_slug": project.slug,
-                    "integration_pk": integration.pk,
-                },
-            ),
-        )
+        rtd_webhook_url = self.get_webhook_url(project, integration)
 
         try:
             resp = session.get(
