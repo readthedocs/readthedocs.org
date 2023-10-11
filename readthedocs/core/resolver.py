@@ -135,15 +135,12 @@ class Resolver:
         Get the URL for a specific version of a project.
 
         If no version is given, the default version is used.
-        
+
         Use this instead of ``resolve`` if you have the version object already.
         """
         if not version:
             default_version_slug = project.get_default_version()
-            version = (
-                project.versions(manager=INTERNAL)
-                .get(slug=default_version_slug)
-            )
+            version = project.versions(manager=INTERNAL).get(slug=default_version_slug)
 
         domain, use_https = self._get_project_domain(
             project,
