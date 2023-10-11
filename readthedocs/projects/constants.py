@@ -293,18 +293,20 @@ LANGUAGE_CODES = [code for code, *_ in LANGUAGES]
 # The old language codes were uppercase with underscores
 # are deprecated, but we still need to support them.
 old_language_codes = [
-    'nb_NO',
-    'pt_BR',
-    'es_MX',
-    'uk_UA',
-    'zh_CN',
-    'zh_TW',
+    "nb_NO",
+    "pt_BR",
+    "es_MX",
+    "uk_UA",
+    "zh_CN",
+    "zh_TW",
 ]
 OLD_LANGUAGES_CODE_MAPPING = {
     code.lower().replace("_", "-"): code for code in old_language_codes
 }
 
-LANGUAGES_REGEX = '|'.join([re.escape(code) for code in LANGUAGE_CODES + OLD_LANGUAGES_CODE_MAPPING.values()])
+LANGUAGES_REGEX = "|".join(
+    [re.escape(code) for code in LANGUAGE_CODES + OLD_LANGUAGES_CODE_MAPPING.values()]
+)
 
 PROGRAMMING_LANGUAGES = (
     ('words', 'Only Words'),

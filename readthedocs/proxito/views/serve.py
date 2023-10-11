@@ -728,14 +728,16 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
         version_slug = project.get_default_version()
         version = project.versions.get(slug=version_slug)
 
-        no_serve_robots_txt = any([
-            # If the default version is private or,
-            version.privacy_level == PRIVATE,
-            # default version is not active or,
-            not version.active,
-            # default version is not built
-            not version.built,
-        ])
+        no_serve_robots_txt = any(
+            [
+                # If the default version is private or,
+                version.privacy_level == PRIVATE,
+                # default version is not active or,
+                not version.active,
+                # default version is not built
+                not version.built,
+            ]
+        )
 
         if no_serve_robots_txt:
             # ... we do return a 404
