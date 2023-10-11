@@ -1,10 +1,16 @@
 import django_dynamic_fixture as fixture
-from readthedocs.builds.models import Version
 from django.test import TestCase, override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.core.resolver import Resolver, resolve, resolve_domain, resolve_path, resolver
+from readthedocs.builds.models import Version
+from readthedocs.core.resolver import (
+    Resolver,
+    resolve,
+    resolve_domain,
+    resolve_path,
+    resolver,
+)
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
@@ -565,7 +571,9 @@ class ResolverTests(ResolverBase):
         url = resolver.resolve_project(self.subproject, filename="index.html")
         self.assertEqual(url, "http://pip.readthedocs.org/index.html")
 
-        url = resolver.resolve_project(self.subproject, filename="/_/api/v2/footer_html")
+        url = resolver.resolve_project(
+            self.subproject, filename="/_/api/v2/footer_html"
+        )
         self.assertEqual(url, "http://pip.readthedocs.org/_/api/v2/footer_html")
 
     def test_resolve_translation_object(self):
@@ -575,7 +583,9 @@ class ResolverTests(ResolverBase):
         url = resolver.resolve_project(self.translation, filename="index.html")
         self.assertEqual(url, "http://pip.readthedocs.org/index.html")
 
-        url = resolver.resolve_project(self.translation, filename="/_/api/v2/footer_html")
+        url = resolver.resolve_project(
+            self.translation, filename="/_/api/v2/footer_html"
+        )
         self.assertEqual(url, "http://pip.readthedocs.org/_/api/v2/footer_html")
 
     def test_resolve_version_object(self):
