@@ -140,11 +140,8 @@ class Resolver:
             default_version_slug = project.get_default_version()
             version = (
                 project.versions(manager=INTERNAL)
-                .filter(slug=default_version_slug)
-                .first()
+                .get(slug=default_version_slug)
             )
-            if not version:
-                raise Exception("No default version found for project")
 
         domain, use_https = self._get_project_domain(
             project,
