@@ -265,14 +265,25 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         filename = unresolved.filename
 
         # Check if the old language code format was used, and redirect to the new one.
-        if unresolved.language and unresolved.language in OLD_LANGUAGES_CODE_MAPPING:
-            return self.system_redirect(
-                request=request,
-                final_project=project,
-                version_slug=version.slug,
-                filename=filename,
-                is_external_version=unresolved_domain.is_from_external_domain,
-            )
+        # NOTE: we may have some false positives here, for example for an URL like:
+        # /pt-br/latest/pt-BR/index.html, but our protection for infinite redirects
+        # will prevent a redirect loop.
+        if (
+            not project.single_version
+            and project.language in OLD_LANGUAGES_CODE_MAPPING
+            and OLD_LANGUAGES_CODE_MAPPING[project.language] in path
+        ):
+            try:
+                return self.system_redirect(
+                    request=request,
+                    final_project=project,
+                    version_slug=version.slug,
+                    filename=filename,
+                    is_external_version=unresolved_domain.is_from_external_domain,
+                )
+            except InfiniteRedirectException:
+                # A false positive was detected, continue with our normal serve.
+                pass
 
         log.bind(
             project_slug=project.slug,

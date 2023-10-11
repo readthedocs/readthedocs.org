@@ -9,7 +9,6 @@ from django.conf import settings
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.constants import pattern_opts
-from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING
 from readthedocs.projects.models import Domain, Feature, Project
 
 log = structlog.get_logger(__name__)
@@ -100,8 +99,6 @@ class UnresolvedURL:
     version: Version
     filename: str
     parsed_url: ParseResult
-    # The language code extracted from the URL.
-    language: str = None
     domain: Domain = None
     external: bool = False
 
@@ -237,7 +234,7 @@ class Unresolver:
         Extracted into a separate method so it can be re-used by
         the unresolve and unresolve_path methods.
         """
-        current_project, version, filename, language = self._unresolve_path_with_parent_project(
+        current_project, version, filename = self._unresolve_path_with_parent_project(
             parent_project=unresolved_domain.project,
             path=parsed_url.path,
             external_version_slug=unresolved_domain.external_version_slug,
@@ -252,7 +249,6 @@ class Unresolver:
             version=version,
             filename=filename,
             parsed_url=parsed_url,
-            language=language,
             domain=unresolved_domain.domain,
             external=unresolved_domain.is_from_external_domain,
         )
@@ -265,18 +261,6 @@ class Unresolver:
             filename = "/" + filename
         return filename
 
-    def _get_language_codes(self, language):
-        new_code_language_to_new_code_language = {
-            new_code: old_code
-            for old_code, new_code in OLD_LANGUAGES_CODE_MAPPING.items()
-        }
-        if language in new_code_language_to_new_code_language:
-            return [language, new_code_language_to_new_code_language[language]]
-        return [language]
-
-    def _normalize_language(self, language):
-        return OLD_LANGUAGES_CODE_MAPPING.get(language, language)
-
     def _match_multiversion_project(
         self, parent_project, path, external_version_slug=None
     ):
@@ -286,9 +270,8 @@ class Unresolver:
         An exception is raised if we weren't able to find a matching version or language,
         this exception has the current project (useful for 404 pages).
 
-        :returns: A tuple with the current project, version, filename and language
-         (as extracted from the path). Returns `None` if there isn't a total or
-         partial match.
+        :returns: A tuple with the current project, version and filename.
+         Returns `None` if there isn't a total or partial match.
         """
         custom_prefix = parent_project.custom_prefix
         if custom_prefix:
@@ -306,13 +289,10 @@ class Unresolver:
         version_slug = match.group("version")
         filename = self._normalize_filename(match.group("filename"))
 
-        parent_project_language = self._normalize_language(parent_project.language)
-        normalized_language = self._normalize_language(language)
-        if parent_project_language == normalized_language:
+        if parent_project.language == language:
             project = parent_project
         else:
-            language_codes = self._get_language_codes(normalized_language)
-            project = parent_project.translations.filter(language__in=language_codes).first()
+            project = parent_project.translations.filter(language=language).first()
             if not project:
                 raise TranslationNotFoundError(
                     project=parent_project,
@@ -343,7 +323,7 @@ class Unresolver:
                 project=project, version_slug=version_slug, filename=filename
             )
 
-        return project, version, filename, language
+        return project, version, filename
 
     def _match_subproject(self, parent_project, path, external_version_slug=None):
         """
@@ -457,8 +437,7 @@ class Unresolver:
          Used instead of the default version for single version projects
          being served under an external domain.
 
-        :returns: A tuple with: project, version, filename, and language
-         (if the project is multiversion).
+        :returns: A tuple with: project, version, and filename.
         """
         # Multiversion project.
         if not parent_project.single_version:
@@ -488,9 +467,7 @@ class Unresolver:
                 external_version_slug=external_version_slug,
             )
             if response:
-                # Single version projects don't have a language,
-                # so we return None for it.
-                return *response, None
+                return response
 
         raise InvalidPathForVersionedProjectError(
             project=parent_project,

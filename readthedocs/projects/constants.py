@@ -279,12 +279,12 @@ LANGUAGES = (
     ('zh', 'Chinese'),
     ('zu', 'Zulu'),
     # Try these to test our non-2 letter language support
-    ('nb_NO', 'Norwegian Bokmal'),
-    ('pt_BR', 'Brazilian Portuguese'),
-    ('es_MX', 'Mexican Spanish'),
-    ('uk_UA', 'Ukrainian'),
-    ('zh_CN', 'Simplified Chinese'),
-    ('zh_TW', 'Traditional Chinese'),
+    ("nb-no", "Norwegian Bokmal"),
+    ("pt-br", "Brazilian Portuguese"),
+    ("es-mx", "Mexican Spanish"),
+    ("uk-ua", "Ukrainian"),
+    ("zh-cn", "Simplified Chinese"),
+    ("zh-tw", "Traditional Chinese"),
 )
 LANGUAGE_CODES = [code for code, *_ in LANGUAGES]
 
@@ -301,8 +301,7 @@ old_language_codes = [
     'zh_TW',
 ]
 OLD_LANGUAGES_CODE_MAPPING = {
-    code: code.lower().replace('_', '-')
-    for code in old_language_codes
+    code.lower().replace("_", "-"): code for code in old_language_codes
 }
 
 LANGUAGES_REGEX = '|'.join([re.escape(code) for code in LANGUAGE_CODES + OLD_LANGUAGES_CODE_MAPPING.values()])
