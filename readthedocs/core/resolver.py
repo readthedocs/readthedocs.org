@@ -5,7 +5,6 @@ import structlog
 from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
-from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.products import get_feature
@@ -13,7 +12,7 @@ from readthedocs.subscriptions.products import get_feature
 log = structlog.get_logger(__name__)
 
 
-class ResolverBase:
+class Resolver:
 
     """
     Read the Docs URL Resolver.
@@ -349,11 +348,6 @@ class ResolverBase:
     def _use_cname(self, project):
         """Test if to allow direct serving for project on CNAME."""
         return bool(get_feature(project, feature_type=TYPE_CNAME))
-
-
-class Resolver(SettingsOverrideObject):
-    _default_class = ResolverBase
-    _override_setting = "RESOLVER_CLASS"
 
 
 resolver = Resolver()
