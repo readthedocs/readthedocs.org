@@ -305,7 +305,10 @@ OLD_LANGUAGES_CODE_MAPPING = {
 }
 
 LANGUAGES_REGEX = "|".join(
-    [re.escape(code) for code in LANGUAGE_CODES + OLD_LANGUAGES_CODE_MAPPING.values()]
+    [
+        re.escape(code)
+        for code in LANGUAGE_CODES + list(OLD_LANGUAGES_CODE_MAPPING.values())
+    ]
 )
 
 PROGRAMMING_LANGUAGES = (
