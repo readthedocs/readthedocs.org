@@ -1,5 +1,4 @@
 import django_dynamic_fixture as fixture
-import pytest
 from django.test import TestCase, override_settings
 
 from readthedocs.builds.constants import EXTERNAL
@@ -210,7 +209,7 @@ class ResolverCanonicalProject(TestCase):
 
         # This tests that we aren't going to re-recurse back to resolving proj1
         r = Resolver()
-        self.assertEqual(r._get_canonical_project(proj1), proj2)
+        self.assertEqual(r._get_canonical_project(proj1), (proj2, None))
 
     def test_project_with_same_superproject_and_translation(self):
         proj1 = fixture.get(Project, main_language_project=None)
@@ -234,7 +233,7 @@ class ResolverCanonicalProject(TestCase):
 
         # This tests that we aren't going to re-recurse back to resolving proj1
         r = Resolver()
-        self.assertEqual(r._get_canonical_project(proj1), proj2)
+        self.assertEqual(r._get_canonical_project(proj1), (proj2, None))
 
     def test_project_with_same_grandchild_project(self):
         # Note: we don't disallow this, but we also don't support this in our
@@ -268,7 +267,9 @@ class ResolverCanonicalProject(TestCase):
 
         # This tests that we aren't going to re-recurse back to resolving proj1
         r = Resolver()
-        self.assertEqual(r._get_canonical_project(proj1), proj3)
+        self.assertEqual(
+            r._get_canonical_project(proj1), (proj2, proj1.parent_relationship)
+        )
 
 
 class ResolverDomainTests(ResolverBase):
@@ -440,7 +441,6 @@ class ResolverTests(ResolverBase):
             "http://pip.readthedocs.org/projects/sub/es/latest/",
         )
 
-    @pytest.mark.xfail(reason="We do not support this for now", strict=True)
     @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_resolver_nested_subproject_of_a_translation(self):
         """The project is a subproject, and the superproject is a translation of a project."""
