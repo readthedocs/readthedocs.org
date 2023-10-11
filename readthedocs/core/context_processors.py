@@ -7,7 +7,6 @@ def readthedocs_processor(request):
     exports = {
         "PUBLIC_DOMAIN": settings.PUBLIC_DOMAIN,
         "PRODUCTION_DOMAIN": settings.PRODUCTION_DOMAIN,
-        "USE_SUBDOMAIN": settings.USE_SUBDOMAIN,
         "GLOBAL_ANALYTICS_CODE": settings.GLOBAL_ANALYTICS_CODE,
         "DASHBOARD_ANALYTICS_CODE": settings.DASHBOARD_ANALYTICS_CODE,
         "SITE_ROOT": settings.SITE_ROOT + "/",
@@ -16,5 +15,6 @@ def readthedocs_processor(request):
         "USE_PROMOS": settings.USE_PROMOS,
         "USE_ORGANIZATIONS": settings.RTD_ALLOW_ORGANIZATIONS,
         "SUPPORT_EMAIL": settings.SUPPORT_EMAIL,
+        "PUBLIC_API_URL": settings.PUBLIC_API_URL,
     }
     return exports

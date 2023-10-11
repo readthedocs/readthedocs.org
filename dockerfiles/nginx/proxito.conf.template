@@ -76,10 +76,25 @@ server {
         add_header Permissions-Policy $permissions_policy always;
         set $feature_policy $upstream_http_feature_policy;
         add_header Feature-Policy $feature_policy always;
+
+        # CORS headers.
+        # Minio sets these headers, and we don't want to copy
+        # them to the response, since our application sets them.
+        proxy_hide_header Access-Control-Allow-Credentials;
+        proxy_hide_header Access-Control-Expose-Headers;
+
+        proxy_hide_header Access-Control-Allow-Origin;
         set $access_control_allow_origin $upstream_http_access_control_allow_origin;
         add_header Access-Control-Allow-Origin $access_control_allow_origin always;
+
+        proxy_hide_header Access-Control-Allow-Headers;
         set $access_control_allow_headers $upstream_http_access_control_allow_headers;
         add_header Access-Control-Allow-Headers $access_control_allow_headers always;
+
+        proxy_hide_header Access-Control-Allow-Methods;
+        set $access_control_allow_methods $upstream_http_access_control_allow_methods;
+        add_header Access-Control-Allow-Methods $access_control_allow_methods always;
+
         set $x_frame_options $upstream_http_x_frame_options;
         add_header X-Frame-Options $x_frame_options always;
         set $x_content_type_options $upstream_http_x_content_type_options;

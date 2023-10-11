@@ -9,6 +9,10 @@ import re
 from urllib.parse import urlparse
 
 import structlog
+from corsheaders.middleware import (
+    ACCESS_CONTROL_ALLOW_METHODS,
+    ACCESS_CONTROL_ALLOW_ORIGIN,
+)
 from django.conf import settings
 from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
@@ -196,12 +200,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         request.unresolved_domain = None
 
         skip = any(request.path.startswith(reverse(view)) for view in self.skip_views)
-        if (
-            skip
-            or not settings.USE_SUBDOMAIN
-            or "localhost" in request.get_host()
-            or "testserver" in request.get_host()
-        ):
+        if skip:
             log.debug("Not processing Proxito middleware")
             return None
 
@@ -305,6 +304,38 @@ class ProxitoMiddleware(MiddlewareMixin):
             if addons:
                 response["X-RTD-Hosting-Integrations"] = "true"
 
+    def add_cors_headers(self, request, response):
+        """
+        Add CORS headers only to files from docs.
+
+        DocDiff addons requires making a request from
+        ``RTD_EXTERNAL_VERSION_DOMAIN`` to ``PUBLIC_DOMAIN`` to be able to
+        compare both DOMs and show the visual differences.
+
+        This request needs ``Access-Control-Allow-Origin`` HTTP headers to be
+        accepted by browsers. However, we cannot allow passing credentials,
+        since we don't want cross-origin requests to be able to access
+        private versions.
+
+        We set this header to `*`, we don't care about the origin of the request.
+        And we don't have the need nor want to allow passing credentials from
+        cross-origin requests.
+
+        See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin.
+        """
+        # TODO: se should add these headers to files from docs only,
+        # proxied APIs and other endpoints should not have CORS headers.
+        # These attributes aren't currently set for proxied APIs, but we shuold
+        # find a better way to do this.
+        project_slug = getattr(request, "path_project_slug", "")
+        version_slug = getattr(request, "path_version_slug", "")
+
+        if project_slug and version_slug:
+            response.headers[ACCESS_CONTROL_ALLOW_ORIGIN] = "*"
+            response.headers[ACCESS_CONTROL_ALLOW_METHODS] = "HEAD, OPTIONS, GET"
+
+        return response
+
     def _get_https_redirect(self, request):
         """
         Get a redirect response if the request should be redirected to HTTPS.
@@ -342,4 +373,5 @@ class ProxitoMiddleware(MiddlewareMixin):
         self.add_hsts_headers(request, response)
         self.add_user_headers(request, response)
         self.add_hosting_integrations_headers(request, response)
+        self.add_cors_headers(request, response)
         return response

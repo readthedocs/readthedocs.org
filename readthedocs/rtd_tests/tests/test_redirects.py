@@ -7,75 +7,6 @@ from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
 
 
-# TODO: most of these tests are using USE_SUBDOMAIN, which is not supported anymore.
-# Besides, most (or all of them) were migrated to ``readthedocs/proxito/tests/test_old_redirects.py``
-# and they are using the correct settings (mocked storage to return correct value on ``.exists()``)
-# These tests could be removed completely in the near future.
-@override_settings(
-    PUBLIC_DOMAIN="readthedocs.org", USE_SUBDOMAIN=False, APPEND_SLASH=False
-)
-class RedirectTests(TestCase):
-    fixtures = ["eric", "test_data"]
-
-    def setUp(self):
-        self.client.login(username="eric", password="test")
-        pip = Project.objects.get(slug="pip")
-        pip.versions.create_latest()
-
-    def test_proper_url_no_slash(self):
-        r = self.client.get("/docs/pip")
-        self.assertEqual(r.status_code, 404)
-
-    # Specific Page Redirects
-
-    # If slug is neither valid lang nor valid version, it should 404.
-    # TODO: This should 404 directly, not redirect first
-    def test_improper_url_with_nonexistent_slug(self):
-        r = self.client.get("/docs/pip/nonexistent/")
-        self.assertEqual(r.status_code, 404)
-
-    def test_improper_url_filename_only(self):
-        r = self.client.get("/docs/pip/test.html")
-        self.assertEqual(r.status_code, 404)
-
-    def test_improper_url_dir_file(self):
-        r = self.client.get("/docs/pip/nonexistent_dir/bogus.html")
-        self.assertEqual(r.status_code, 404)
-
-    def test_improper_url_dir_subdir_file(self):
-        r = self.client.get("/docs/pip/nonexistent_dir/subdir/bogus.html")
-        self.assertEqual(r.status_code, 404)
-
-    def test_improper_url_lang_file(self):
-        r = self.client.get("/docs/pip/en/bogus.html")
-        self.assertEqual(r.status_code, 404)
-
-    def test_improper_url_lang_subdir_file(self):
-        r = self.client.get("/docs/pip/en/nonexistent_dir/bogus.html")
-        self.assertEqual(r.status_code, 404)
-
-    def test_improper_url_version_dir_file(self):
-        r = self.client.get("/docs/pip/latest/nonexistent_dir/bogus.html")
-        self.assertEqual(r.status_code, 404)
-
-    # Specific Page Redirects
-
-    @override_settings(USE_SUBDOMAIN=True)
-    def test_improper_subdomain_filename_only(self):
-        r = self.client.get("/test.html", headers={"host": "pip.readthedocs.org"})
-        self.assertEqual(r.status_code, 404)
-
-
-@override_settings(PUBLIC_DOMAIN="readthedocs.org", USE_SUBDOMAIN=False)
-class RedirectAppTests(TestCase):
-    fixtures = ["eric", "test_data"]
-
-    def setUp(self):
-        self.client.login(username="eric", password="test")
-        self.pip = Project.objects.get(slug="pip")
-        self.pip.versions.create_latest()
-
-
 class CustomRedirectTests(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -102,11 +33,11 @@ class CustomRedirectTests(TestCase):
     def test_redirect_fragment(self):
         redirect = Redirect.objects.get(project=self.pip)
         path = redirect.get_redirect_path("/install.html")
-        expected_path = "/docs/pip/en/latest/install.html#custom-fragment"
+        expected_path = "/en/latest/install.html#custom-fragment"
         self.assertEqual(path, expected_path)
 
 
-@override_settings(PUBLIC_DOMAIN="readthedocs.org", USE_SUBDOMAIN=False)
+@override_settings(PUBLIC_DOMAIN="readthedocs.org")
 class RedirectBuildTests(TestCase):
     fixtures = ["eric", "test_data"]
 
@@ -131,7 +62,7 @@ class RedirectBuildTests(TestCase):
         self.assertEqual(r["Location"], "/projects/project-1/builds/1337/")
 
 
-@override_settings(PUBLIC_DOMAIN="readthedocs.org", USE_SUBDOMAIN=False)
+@override_settings(PUBLIC_DOMAIN="readthedocs.org")
 class GetFullPathTests(TestCase):
     fixtures = ["eric", "test_data"]
 
@@ -143,7 +74,7 @@ class GetFullPathTests(TestCase):
         # If the crossdomain flag is False (default), then we don't redirect to a different host
         self.assertEqual(
             self.redirect.get_full_path("http://rtfd.org"),
-            "/docs/read-the-docs/en/latest/http://rtfd.org",
+            "/en/latest/http://rtfd.org",
         )
 
         self.assertEqual(
@@ -154,11 +85,10 @@ class GetFullPathTests(TestCase):
     def test_redirects_no_subdomain(self):
         self.assertEqual(
             self.redirect.get_full_path("index.html"),
-            "/docs/read-the-docs/en/latest/index.html",
+            "/en/latest/index.html",
         )
 
     @override_settings(
-        USE_SUBDOMAIN=True,
         PRODUCTION_DOMAIN="rtfd.org",
     )
     def test_redirects_with_subdomain(self):
@@ -168,7 +98,6 @@ class GetFullPathTests(TestCase):
         )
 
     @override_settings(
-        USE_SUBDOMAIN=True,
         PRODUCTION_DOMAIN="rtfd.org",
     )
     def test_single_version_with_subdomain(self):
@@ -182,5 +111,5 @@ class GetFullPathTests(TestCase):
         self.redirect.project.single_version = True
         self.assertEqual(
             self.redirect.get_full_path("faq.html"),
-            "/docs/read-the-docs/faq.html",
+            "/faq.html",
         )

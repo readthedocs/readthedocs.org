@@ -75,7 +75,6 @@ class CommunityBaseSettings(Settings):
     PRODUCTION_DOMAIN = 'readthedocs.org'
     PUBLIC_DOMAIN = None
     PUBLIC_DOMAIN_USES_HTTPS = False
-    USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
     RTD_INTERSPHINX_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.readthedocs.io'
@@ -499,7 +498,7 @@ class CommunityBaseSettings(Settings):
         },
         'every-day-delete-old-page-views': {
             'task': 'readthedocs.analytics.tasks.delete_old_page_counts',
-            'schedule': crontab(minute=0, hour=1),
+            'schedule': crontab(minute=27, hour='*/6'),
             'options': {'queue': 'web'},
         },
         'every-day-delete-old-buildata-models': {
@@ -547,6 +546,11 @@ class CommunityBaseSettings(Settings):
         'every-15m-delete-pidbox-objects': {
             'task': 'readthedocs.core.tasks.cleanup_pidbox_keys',
             'schedule': crontab(minute='*/15'),
+            'options': {'queue': 'web'},
+        },
+        'every-day-delete-old-revoked-build-api-keys': {
+            'task': 'readthedocs.api.v2.tasks.delete_old_revoked_build_api_keys',
+            'schedule': crontab(minute=0, hour=4),
             'options': {'queue': 'web'},
         },
         # We keep having celery send multiple emails,
@@ -790,10 +794,9 @@ class CommunityBaseSettings(Settings):
     RTD_ORG_TRIAL_PERIOD_DAYS = 30
 
     # Elasticsearch settings.
-    ES_HOSTS = ['search:9200']
     ELASTICSEARCH_DSL = {
         'default': {
-            'hosts': 'search:9200'
+            'hosts': 'http://elastic:password@search:9200',
         },
     }
     # Chunk size for elasticsearch reindex celery tasks

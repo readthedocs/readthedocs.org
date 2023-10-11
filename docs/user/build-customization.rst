@@ -136,7 +136,7 @@ Here is an example that cancels builds from pull requests when there are no chan
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.11"
+       python: "3.12"
      jobs:
        post_checkout:
          # Cancel building pull requests when there aren't changed in the docs directory or YAML file.
@@ -161,7 +161,7 @@ This other example shows how to cancel a build if the commit message contains ``
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.11"
+       python: "3.12"
      jobs:
        post_checkout:
          # Use `git log` to check if the latest commit contains "skip ci",
@@ -463,3 +463,22 @@ These projects can be built using a configuration file like this:
      commands:
        - mkdir --parents $READTHEDOCS_OUTPUT/html/
        - cp --recursive docs/* $READTHEDOCS_OUTPUT/html/
+
+Asciidoc
+^^^^^^^^
+
+`Asciidoctor <https://asciidoctor.org/>`__ is a fast processor for converting and generating documentation from AsciiDoc source.
+The Asciidoctor toolchain includes `Asciidoctor.js <https://docs.asciidoctor.org/asciidoctor.js/latest/>`__ which you can use with custom build commands.
+Here is an example configuration file:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-22.04"
+     tools:
+       nodejs: "20"
+     commands:
+       - npm install -g asciidoctor
+       - asciidoctor -D $READTHEDOCS_OUTPUT/html index.asciidoc
