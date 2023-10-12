@@ -15,7 +15,7 @@ def forwards_func(apps, schema_editor):
         "zh_TW",
     ]
     for old_language_code in old_language_codes:
-        new_language_code = old_language_code.lowe().replace("_", "-")
+        new_language_code = old_language_code.lower().replace("_", "-")
         Project.objects.filter(language=old_language_code).update(
             language=new_language_code
         )
