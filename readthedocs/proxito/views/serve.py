@@ -266,7 +266,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
 
         # Check if the old language code format was used, and redirect to the new one.
         # NOTE: we may have some false positives here, for example for an URL like:
-        # /pt-br/latest/pt-BR/index.html, but our protection for infinite redirects
+        # /pt-br/latest/pt_BR/index.html, but our protection for infinite redirects
         # will prevent a redirect loop.
         if (
             not project.single_version

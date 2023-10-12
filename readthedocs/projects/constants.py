@@ -290,8 +290,8 @@ LANGUAGE_CODES = [code for code, *_ in LANGUAGES]
 
 # Normalize the language codes to lowercase with dashes,
 # we use them to match the language codes in the URL.
-# The old language codes were uppercase with underscores
-# are deprecated, but we still need to support them.
+# The old language codes were uppercase with underscores,
+# and are deprecated, but we still need to support them.
 old_language_codes = [
     "nb_NO",
     "pt_BR",

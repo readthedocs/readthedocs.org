@@ -362,6 +362,7 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
                     project.subprojects, alias=subproject_slug
                 ).child
 
+            # Redirect old language codes with underscores to new ones with dashes and lowercase.
             normalized_language_code = lang_slug.lower().replace("_", "-")
             if normalized_language_code != lang_slug:
                 if project.language != normalized_language_code:
