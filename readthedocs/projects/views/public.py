@@ -36,7 +36,7 @@ from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.projects.views.mixins import ProjectRelationListMixin
 from readthedocs.proxito.views.mixins import ServeDocsMixin
 
-from ..constants import MEDIA_TYPE_PDF, OLD_LANGUAGES_CODE_MAPPING, PRIVATE
+from ..constants import PRIVATE
 from .base import ProjectOnboardMixin, ProjectSpamMixin
 
 log = structlog.get_logger(__name__)
@@ -362,14 +362,14 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
                     project.subprojects, alias=subproject_slug
                 ).child
 
-            if lang_slug in OLD_LANGUAGES_CODE_MAPPING:
-                project = get_object_or_404(
-                    project.translations, language=OLD_LANGUAGES_CODE_MAPPING[lang_slug]
-                )
-                return HttpResponseRedirect(
-                    project.get_production_media_url(
-                        MEDIA_TYPE_PDF, version_slug=version_slug
+            normalized_language_code = lang_slug.lower().replace("_", "-")
+            if normalized_language_code != lang_slug:
+                if project.language != normalized_language_code:
+                    project = get_object_or_404(
+                        project.translations, language=normalized_language_code
                     )
+                return HttpResponseRedirect(
+                    project.get_production_media_url(type_, version_slug=version_slug)
                 )
 
             if project.language != lang_slug:

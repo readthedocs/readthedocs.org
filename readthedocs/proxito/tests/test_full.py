@@ -495,6 +495,33 @@ class TestDocServingBackends(BaseDocServing):
             )
             self.assertEqual(resp["CDN-Cache-Control"], "public")
 
+    @override_settings(PYTHON_MEDIA=False)
+    def test_download_project_with_old_language_code(self):
+        self.project.language = "pt-br"
+        self.project.save()
+        for type_ in DOWNLOADABLE_MEDIA_TYPES:
+            resp = self.client.get(
+                f"/_/downloads/pt_BR/latest/{type_}/",
+                headers={"host": "project.dev.readthedocs.io"},
+            )
+            self.assertEqual(resp.status_code, 302)
+            self.assertEqual(
+                resp["Location"],
+                f"//project.dev.readthedocs.io/_/downloads/pt-br/latest/{type_}/",
+            )
+
+            resp = self.client.get(
+                f"/_/downloads/pt-br/latest/{type_}/",
+                headers={"host": "project.dev.readthedocs.io"},
+            )
+            self.assertEqual(resp.status_code, 200)
+            extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
+            self.assertEqual(
+                resp["X-Accel-Redirect"],
+                f"/proxito/media/{type_}/project/latest/project.{extension}",
+            )
+            self.assertEqual(resp["CDN-Cache-Control"], "public")
+
     @override_settings(PYTHON_MEDIA=False, ALLOW_PRIVATE_REPOS=True)
     def test_download_files_private_version(self):
         self.version.privacy_level = PRIVATE
