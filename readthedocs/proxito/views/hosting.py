@@ -234,8 +234,9 @@ class AddonsResponse:
                 .only("slug")
                 .order_by("slug")
             )
-            if version:
-                version_downloads = version.get_downloads(pretty=True).items()
+
+        if version:
+            version_downloads = version.get_downloads(pretty=True).items()
 
         project_translations = (
             project.translations.all().only("language").order_by("language")
