@@ -330,7 +330,7 @@ class AddonsResponse:
                                 project=project,
                                 version_slug=version.slug,
                                 language=translation.language,
-                                external=False,
+                                external=version.type == EXTERNAL,
                             ),
                         }
                         for translation in project_translations
