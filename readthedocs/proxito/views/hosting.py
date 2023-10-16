@@ -305,7 +305,9 @@ class AddonsResponse:
                     # "http://test-builds-local.devthedocs.org/en/latest/index.html"
                     "base_url": resolver.resolve(
                         project=project,
-                        version_slug=project.get_default_version(),
+                        # NOTE: we are using the default branch to compare against to for now.
+                        # Ideally, this should be configurable by the user.
+                        version_slug=project.get_default_branch(),
                         language=project.language,
                         filename=filename,
                     )
