@@ -7,6 +7,7 @@ import structlog
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404, JsonResponse
+from django.shortcuts import get_object_or_404
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 
@@ -21,7 +22,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.models import Feature
+from readthedocs.projects.models import Feature, Project
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -46,10 +47,19 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
 
     Attributes:
 
-      url (required): absolute URL from where the request is performed
-        (e.g. ``window.location.href``)
-
       api-version (required): API JSON structure version (e.g. ``0``, ``1``, ``2``).
+
+      project-slug (required): slug of the project.
+        Optional if "url" is sent.
+
+      version-slug (required): slug of the version.
+        Optional if "url" is sent.
+
+      url (optional): absolute URL from where the request is performed.
+        When sending "url" attribute, "project-slug" and "version-slug" are ignored.
+        (e.g. ``window.location.href``).
+
+      client-version (optional): JavaScript client version (e.g. ``0.6.0``).
     """
 
     http_method_names = ["get"]
@@ -60,7 +70,10 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
     @lru_cache(maxsize=1)
     def _resolve_resources(self):
         url = self.request.GET.get("url")
-        if not url:
+        project_slug = self.request.GET.get("project-slug")
+        version_slug = self.request.GET.get("version-slug")
+
+        if not project_slug or not version_slug:
             # TODO: not sure what to return here when it fails on the `has_permission`
             return None, None, None, None
 
@@ -69,28 +82,37 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         # Main project from the domain.
         project = unresolved_domain.project
 
-        try:
-            unresolved_url = unresolver.unresolve_url(url)
-            # Project from the URL: if it's a subproject it will differ from
-            # the main project got from the domain.
-            project = unresolved_url.project
-            version = unresolved_url.version
-            filename = unresolved_url.filename
+        if url:
+            try:
+                unresolved_url = unresolver.unresolve_url(url)
+                # Project from the URL: if it's a subproject it will differ from
+                # the main project got from the domain.
+                project = unresolved_url.project
+                version = unresolved_url.version
+                filename = unresolved_url.filename
+                build = version.builds.last()
+
+            except UnresolverError as exc:
+                # If an exception is raised and there is a ``project`` in the
+                # exception, it's a partial match. This could be because of an
+                # invalid URL path, but on a valid project domain. In this case, we
+                # continue with the ``project``, but without a ``version``.
+                # Otherwise, we return 404 NOT FOUND.
+                project = getattr(exc, "project", None)
+                if not project:
+                    raise Http404() from exc
+
+                version = None
+                filename = None
+                build = None
+        else:
+            project = get_object_or_404(
+                Project.objects.for_user(user=self.request.user),
+                slug=project_slug,
+            )
+            version = get_object_or_404(Version, slug=version_slug, project=project)
             build = version.builds.last()
-
-        except UnresolverError as exc:
-            # If an exception is raised and there is a ``project`` in the
-            # exception, it's a partial match. This could be because of an
-            # invalid URL path, but on a valid project domain. In this case, we
-            # continue with the ``project``, but without a ``version``.
-            # Otherwise, we return 404 NOT FOUND.
-            project = getattr(exc, "project", None)
-            if not project:
-                raise Http404() from exc
-
-            version = None
             filename = None
-            build = None
 
         return project, version, build, filename
 
@@ -104,11 +126,16 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
 
     def get(self, request, format=None):
         url = request.GET.get("url")
+        project_slug = request.GET.get("project_slug")
+        version_slug = request.GET.get("version_slug")
         if not url:
-            return JsonResponse(
-                {"error": "'url' GET attribute is required"},
-                status=400,
-            )
+            if not project_slug or not version_slug:
+                return JsonResponse(
+                    {
+                        "error": "'project-slug' and 'version-slug' GET attributes are required when not sending 'url'"
+                    },
+                    status=400,
+                )
 
         addons_version = request.GET.get("api-version")
         if not addons_version:
