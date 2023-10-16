@@ -17,6 +17,7 @@ from readthedocs.api.v3.serializers import (
     ProjectSerializer,
     VersionSerializer,
 )
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
