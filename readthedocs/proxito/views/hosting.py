@@ -326,7 +326,12 @@ class AddonsResponse:
                         {
                             # TODO: name this field "display_name"
                             "slug": translation.language,
-                            "url": f"/{translation.language}/",
+                            "url": resolver.resolve(
+                                project=project,
+                                version_slug=version.slug,
+                                language=translation.language,
+                                external=False,
+                            ),
                         }
                         for translation in project_translations
                     ],
@@ -334,7 +339,11 @@ class AddonsResponse:
                         {
                             # TODO: name this field "display_name"
                             "slug": version.slug,
-                            "url": f"/{project.language}/{version.slug}/",
+                            "url": resolver.resolve(
+                                project=project,
+                                version_slug=version.slug,
+                                external=False,
+                            ),
                         }
                         for version in versions_active_built_not_hidden
                     ],
