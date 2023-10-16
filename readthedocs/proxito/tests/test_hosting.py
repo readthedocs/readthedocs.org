@@ -163,11 +163,14 @@ class TestReadTheDocsConfigJson(TestCase):
 
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
-            {"url": "https://project.dev.readthedocs.io/en/latest/"},
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "0.1.0",
+            },
             secure=True,
             headers={
                 "host": "project.dev.readthedocs.io",
-                "x-rtd-hosting-integrations-version": "0.1.0",
             },
         )
         assert r.status_code == 200
@@ -210,11 +213,14 @@ class TestReadTheDocsConfigJson(TestCase):
 
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
-            {"url": "https://project.dev.readthedocs.io/en/latest/"},
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "0.1.0",
+            },
             secure=True,
             headers={
                 "host": "project.dev.readthedocs.io",
-                "x-rtd-hosting-integrations-version": "0.1.0",
             },
         )
         assert r.status_code == 200
@@ -263,11 +269,14 @@ class TestReadTheDocsConfigJson(TestCase):
 
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
-            {"url": "https://project.dev.readthedocs.io/en/latest/"},
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "0.1.0",
+            },
             secure=True,
             headers={
                 "host": "project.dev.readthedocs.io",
-                "x-rtd-hosting-integrations-version": "0.1.0",
             },
         )
         assert r.status_code == 200
@@ -288,11 +297,14 @@ class TestReadTheDocsConfigJson(TestCase):
 
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
-            {"url": "https://project.dev.readthedocs.io/en/latest/"},
+            {
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "0.1.0",
+            },
             secure=True,
             headers={
                 "host": "project.dev.readthedocs.io",
-                "x-rtd-hosting-integrations-version": "0.1.0",
             },
         )
         assert r.status_code == 200
@@ -318,11 +330,14 @@ class TestReadTheDocsConfigJson(TestCase):
 
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
-            {"url": "https://project.dev.readthedocs.io/en/offline/"},
+            {
+                "url": "https://project.dev.readthedocs.io/en/offline/",
+                "client-version": "0.6.0",
+                "api-version": "0.1.0",
+            },
             secure=True,
             headers={
                 "host": "project.dev.readthedocs.io",
-                "x-rtd-hosting-integrations-version": "0.1.0",
             },
         )
         assert r.status_code == 200
@@ -354,11 +369,14 @@ class TestReadTheDocsConfigJson(TestCase):
 
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
-            {"url": "https://project.dev.readthedocs.io/"},
+            {
+                "url": "https://project.dev.readthedocs.io/",
+                "client-version": "0.6.0",
+                "api-version": "0.1.0",
+            },
             secure=True,
             headers={
                 "host": "project.dev.readthedocs.io",
-                "x-rtd-hosting-integrations-version": "0.1.0",
             },
         )
         assert r.status_code == 200
@@ -391,12 +409,13 @@ class TestReadTheDocsConfigJson(TestCase):
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
             {
-                "url": "https://project.dev.readthedocs.io/projects/subproject/en/latest/"
+                "url": "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "0.1.0",
             },
             secure=True,
             headers={
                 "host": "project.dev.readthedocs.io",
-                "x-rtd-hosting-integrations-version": "0.1.0",
             },
         )
         assert r.status_code == 200
