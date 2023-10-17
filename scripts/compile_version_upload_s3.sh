@@ -108,18 +108,14 @@ docker exec $CONTAINER_ID asdf reshim $TOOL
 # for now to avoid changing versions.
 if [[ $TOOL == "python" ]] && [[ ! $VERSION =~ (^miniconda.*|^mambaforge.*) ]]
 then
-    RTD_PIP_VERSION=21.2.4
-    RTD_SETUPTOOLS_VERSION=57.4.0
     RTD_VIRTUALENV_VERSION=20.7.2
 
     if [[ $VERSION == "2.7.18" ]]
     then
         # Pin to the latest versions supported on Python 2.7
-        RTD_PIP_VERSION=20.3.4
-        RTD_SETUPTOOLS_VERSION=44.1.1
         RTD_VIRTUALENV_VERSION=20.7.2
     fi
-    docker exec $CONTAINER_ID $TOOL -m pip install -U pip==$RTD_PIP_VERSION setuptools==$RTD_SETUPTOOLS_VERSION virtualenv==$RTD_VIRTUALENV_VERSION
+    docker exec $CONTAINER_ID $TOOL -m pip install -U virtualenv==$RTD_VIRTUALENV_VERSION
 fi
 
 # Compress it as a .tar.gz without include the full path in the compressed file
