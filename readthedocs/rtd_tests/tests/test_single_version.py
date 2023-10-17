@@ -6,7 +6,6 @@ from readthedocs.projects.models import Project
 
 
 @override_settings(
-    USE_SUBDOMAIN=True,
     PUBLIC_DOMAIN="public.readthedocs.org",
     SERVE_PUBLIC_DOCS=True,
 )
@@ -17,25 +16,13 @@ class RedirectSingleVersionTests(TestCase):
         )
 
     def test_docs_url_generation(self):
-        with override_settings(USE_SUBDOMAIN=False):
-            self.assertEqual(
-                self.pip.get_docs_url(),
-                "http://readthedocs.org/docs/pip/",
-            )
-        with override_settings(USE_SUBDOMAIN=True):
-            self.assertEqual(
-                self.pip.get_docs_url(),
-                "http://pip.public.readthedocs.org/",
-            )
+        self.assertEqual(
+            self.pip.get_docs_url(),
+            "http://pip.public.readthedocs.org/",
+        )
 
         self.pip.single_version = False
-        with override_settings(USE_SUBDOMAIN=False):
-            self.assertEqual(
-                self.pip.get_docs_url(),
-                "http://readthedocs.org/docs/pip/en/latest/",
-            )
-        with override_settings(USE_SUBDOMAIN=True):
-            self.assertEqual(
-                self.pip.get_docs_url(),
-                "http://pip.public.readthedocs.org/en/latest/",
-            )
+        self.assertEqual(
+            self.pip.get_docs_url(),
+            "http://pip.public.readthedocs.org/en/latest/",
+        )

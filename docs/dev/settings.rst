@@ -19,18 +19,10 @@ memory
     Examples: '200m' for 200MB of total memory, or '2g' for 2GB of
     total memory.
 
-USE_SUBDOMAIN
----------------
-
-Whether to use subdomains in URLs on the site, or the Django-served content.
-When used in production, this should be ``True``, as Nginx will serve this content.
-During development and other possible deployments, this might be ``False``.
-
 PRODUCTION_DOMAIN
 ------------------
 
-This is the domain that gets linked to throughout the site when used in production.
-It depends on `USE_SUBDOMAIN`, otherwise it isn't used.
+This is the domain that is used by the main application dashboard (not documentation pages).
 
 RTD_INTERSPHINX_URL
 -------------------

@@ -72,9 +72,13 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 CONTAINER_ID=$(docker run --user docs --rm --detach --volume ${SCRIPT_DIR}/python-build.diff:/tmp/python-build.diff readthedocs/build:$OS sleep $SLEEP)
 echo "Running all the commands in Docker container: $CONTAINER_ID"
 
+# TODO: uncomment this to show the asdf version on the build output.
+# I'm commenting it now because it's failing for some reason and that I'm not able to solve.
+#    OCI runtime exec failed: exec failed: container_linux.go:380: starting container process caused: exec: "asdf": executable file not found in $PATH: unknown
+#
 # Run "asdf version" from inside the container
-echo -n 'asdf version: '
-docker exec --user root $CONTAINER_ID asdf version
+# echo -n 'asdf version: '
+# docker exec --user root $CONTAINER_ID asdf version
 
 # Install the tool version requested
 if [[ $TOOL == "python" ]]

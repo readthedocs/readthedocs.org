@@ -25,7 +25,6 @@ from readthedocs.projects.models import (
 @override_settings(
     PRODUCTION_DOMAIN="readthedocs.org",
     PUBLIC_DOMAIN="readthedocs.io",
-    USE_SUBDOMAIN=True,
 )
 class BuildNotificationsTests(TestCase):
     def setUp(self):
