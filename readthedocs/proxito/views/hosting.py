@@ -17,7 +17,7 @@ from readthedocs.api.v3.serializers import (
     ProjectSerializer,
     VersionSerializer,
 )
-from readthedocs.builds.constants import LATEST
+from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
@@ -329,7 +329,12 @@ class AddonsResponse:
                         {
                             # TODO: name this field "display_name"
                             "slug": translation.language,
-                            "url": f"/{translation.language}/",
+                            "url": resolver.resolve(
+                                project=project,
+                                version_slug=version.slug,
+                                language=translation.language,
+                                external=version.type == EXTERNAL,
+                            ),
                         }
                         for translation in project_translations
                     ],
@@ -337,7 +342,11 @@ class AddonsResponse:
                         {
                             # TODO: name this field "display_name"
                             "slug": version.slug,
-                            "url": f"/{project.language}/{version.slug}/",
+                            "url": resolver.resolve(
+                                project=project,
+                                version_slug=version.slug,
+                                external=version.type == EXTERNAL,
+                            ),
                         }
                         for version in versions_active_built_not_hidden
                     ],
