@@ -200,19 +200,6 @@ https://docs.netlify.com/routing/redirects/redirect-options/#trailing-slash.
 Page and exact redirects without a wildcard at the end will be normalized,
 all other redirects need to be matched as is.
 
-Improving page redirects
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-- Allow to redirect to external domains.
-  This can be useful to apply a redirect of a well known path
-  in all versions to another domain.
-
-  For example, ``/security/`` to a their security policy page in another domain.
-
-  This new feature isn't strictly needed,
-  but it will be useful to simplify the explanation of the feature
-  (one less restriction to explain).
-
 Improving exact redirects
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -240,6 +227,27 @@ Improving exact redirects
   to external domains, if we stop doing that, is there the need for this?
   We can also try to improve how our built-in redirects work
   (specially our canonical domain redirect).
+
+Improving page redirects
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Allow to redirect to external domains.
+  This can be useful to apply a redirect of a well known path
+  in all versions to another domain.
+
+  For example, ``/security/`` to a their security policy page in another domain.
+
+  This new feature isn't strictly needed,
+  but it will be useful to simplify the explanation of the feature
+  (one less restriction to explain).
+
+- Allow a wildcard at the end of the from path.
+  This will allow users to migrate a whole directory to a new path
+  without having to create an exact redirect for each version.
+
+  Similar to exact redirects, users need to add the ``$rest`` placeholder explicitly.
+  This means that that page redirects are the same as exact redirects,
+  with the only difference that they apply to all versions.
 
 Improving Sphinx redirects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
