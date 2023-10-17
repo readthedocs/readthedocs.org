@@ -6,6 +6,10 @@ they allow users to keep old URLs working when they rename or move a page.
 
 The current implementation lacks some features and has some undefined/undocumented behaviors.
 
+.. contents::
+   :local:
+   :depth: 3
+
 Goals
 -----
 
@@ -112,8 +116,8 @@ How other services implement redirects
 
   https://docs.netlify.com/routing/redirects/
 
-Improving redirects
--------------------
+Improvements
+------------
 
 General improvements
 ~~~~~~~~~~~~~~~~~~~~
