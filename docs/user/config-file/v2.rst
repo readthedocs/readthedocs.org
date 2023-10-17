@@ -62,10 +62,6 @@ Example:
 
    version: 2
 
-.. warning::
-
-   If you don't provide the version, :doc:`v1 <v1>` will be used.
-
 formats
 ~~~~~~~
 
