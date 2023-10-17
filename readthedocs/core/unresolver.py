@@ -286,7 +286,7 @@ class Unresolver:
             return None
 
         language = match.group("language")
-        # Normalize old languagec codes to lowercase with dashes.
+        # Normalize old language codes to lowercase with dashes.
         normalized_language = language.lower().replace("_", "-")
 
         # TODO: remove after deploy.
