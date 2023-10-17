@@ -231,7 +231,7 @@ class AddonsResponse:
                     user=user,
                 )
                 .exclude(hidden=True)
-                .only("slug")
+                .only("slug", "type")
                 .order_by("slug")
             )
 
