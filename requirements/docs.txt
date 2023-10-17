@@ -57,7 +57,7 @@ mdurl==0.1.2
     # via markdown-it-py
 myst-parser==2.0.0
     # via -r requirements/docs.in
-numpy==1.26.0
+numpy==1.26.1
     # via
     #   contourpy
     #   matplotlib

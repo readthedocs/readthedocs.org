@@ -6,7 +6,6 @@ Most of this code is copied from:
 and adapted to use:
 
  * El Proxito
- * USE_SUBDOMAIN=True always
 """
 
 import django_dynamic_fixture as fixture

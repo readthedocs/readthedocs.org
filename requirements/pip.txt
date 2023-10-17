@@ -12,9 +12,9 @@ async-timeout==4.0.3
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.28.62
+boto3==1.28.63
     # via django-storages
-botocore==1.31.62
+botocore==1.31.63
     # via
     #   boto3
     #   s3transfer
@@ -87,7 +87,7 @@ django-cacheops==7.0.1
     # via -r requirements/pip.in
 django-celery-beat==2.5.0
     # via -r requirements/pip.in
-django-cors-headers==4.2.0
+django-cors-headers==4.3.0
     # via -r requirements/pip.in
 django-crispy-forms==1.14.0
     # via -r requirements/pip.in
@@ -143,7 +143,7 @@ drf-flex-fields==1.0.2
     # via -r requirements/pip.in
 elastic-transport==8.4.1
     # via elasticsearch
-elasticsearch==8.10.0
+elasticsearch==8.10.1
     # via
     #   -r requirements/pip.in
     #   elasticsearch-dsl
@@ -175,7 +175,7 @@ markdown==3.5
     # via -r requirements/pip.in
 oauthlib==3.2.2
     # via requests-oauthlib
-orjson==3.9.7
+orjson==3.9.9
     # via -r requirements/pip.in
 packaging==23.2
     # via

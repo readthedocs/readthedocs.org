@@ -964,14 +964,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
     def _log_directory_size(self, directory, media_type):
         try:
             output = subprocess.check_output(
-                ["du", "--summarize", "--human-readable", "--", directory]
+                ["du", "--summarize", "-m", "--", directory]
             )
-            # The output is something like: "1.2M\t/path/to/directory".
-            directory_size = output.decode().split()[0]
+            # The output is something like: "5\t/path/to/directory".
+            directory_size = int(output.decode().split()[0])
             log.info(
                 "Build artifacts directory size.",
                 directory=directory,
-                size=directory_size,
+                size=directory_size,  # Size in mega bytes
                 media_type=media_type,
             )
         except Exception:

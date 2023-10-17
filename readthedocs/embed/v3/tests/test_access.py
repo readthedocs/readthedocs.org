@@ -17,7 +17,6 @@ from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @override_settings(
-    USE_SUBDOMAIN=True,
     PUBLIC_DOMAIN="readthedocs.io",
     RTD_ALLOW_ORGAZATIONS=False,
     RTD_DEFAULT_FEATURES=dict([RTDProductFeature(TYPE_EMBED_API).to_item()]),

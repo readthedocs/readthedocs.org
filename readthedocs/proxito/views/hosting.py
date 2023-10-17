@@ -17,6 +17,7 @@ from readthedocs.api.v3.serializers import (
     ProjectSerializer,
     VersionSerializer,
 )
+from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
@@ -233,8 +234,9 @@ class AddonsResponse:
                 .only("slug")
                 .order_by("slug")
             )
-            if version:
-                version_downloads = version.get_downloads(pretty=True).items()
+
+        if version:
+            version_downloads = version.get_downloads(pretty=True).items()
 
         project_translations = (
             project.translations.all().only("language").order_by("language")
@@ -305,7 +307,9 @@ class AddonsResponse:
                     # "http://test-builds-local.devthedocs.org/en/latest/index.html"
                     "base_url": resolver.resolve(
                         project=project,
-                        version_slug=project.get_default_version(),
+                        # NOTE: we are using LATEST version to compare against to for now.
+                        # Ideally, this should be configurable by the user.
+                        version_slug=LATEST,
                         language=project.language,
                         filename=filename,
                     )

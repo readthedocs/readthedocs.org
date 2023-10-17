@@ -24,11 +24,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.62
+boto3==1.28.63
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.62
+botocore==1.31.63
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -126,7 +126,7 @@ django-cacheops==7.0.1
     # via -r requirements/pip.txt
 django-celery-beat==2.5.0
     # via -r requirements/pip.txt
-django-cors-headers==4.2.0
+django-cors-headers==4.3.0
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
@@ -192,7 +192,7 @@ elastic-transport==8.4.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.10.0
+elasticsearch==8.10.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -249,7 +249,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.9.7
+orjson==3.9.9
     # via -r requirements/pip.txt
 packaging==23.2
     # via
