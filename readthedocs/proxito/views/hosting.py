@@ -343,7 +343,7 @@ class AddonsResponse:
                             "url": resolver.resolve(
                                 project=project,
                                 version_slug=version.slug,
-                                external=False,
+                                external=version.type == EXTERNAL,
                             ),
                         }
                         for version in versions_active_built_not_hidden
