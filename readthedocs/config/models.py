@@ -72,7 +72,6 @@ class BuildJobs(Base):
 
 
 class Python(Base):
-
     __slots__ = ("install",)
 
 

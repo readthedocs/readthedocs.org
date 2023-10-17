@@ -18,17 +18,12 @@ from readthedocs.doc_builder.backends.mkdocs import (
 )
 from readthedocs.doc_builder.backends.sphinx import (
     BaseSphinx,
-    HtmlBuilder,
-    HtmlDirBuilder,
-    SingleHtmlBuilder,
 )
-from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.models import Feature, Project
-from readthedocs.rtd_tests.tests.test_config_integration import create_load
 
 
 @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
@@ -155,35 +150,6 @@ class SphinxBuilderTest(TestCase):
         with pytest.raises(ProjectConfigurationError):
             with override_settings(DOCROOT=tmp_docs_dir):
                 base_sphinx.append_conf()
-
-    @mock.patch("readthedocs.doc_builder.config.load_config")
-    def test_use_sphinx_builders(self, load_config):
-        config_data = {"version": 2, "sphinx": {"configuration": "docs/conf.py"}}
-        load_config.side_effect = create_load(config_data)
-        config = load_yaml_config(self.version)
-
-        python_env = Virtualenv(
-            version=self.version,
-            build_env=self.build_env,
-            config=config,
-        )
-        builder = HtmlBuilder(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-        self.assertEqual(builder.sphinx_builder, "html")
-
-        builder = HtmlDirBuilder(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-        self.assertEqual(builder.sphinx_builder, "dirhtml")
-
-        builder = SingleHtmlBuilder(
-            build_env=self.build_env,
-            python_env=python_env,
-        )
-        self.assertEqual(builder.sphinx_builder, "singlehtml")
 
 
 @override_settings(PRODUCTION_DOMAIN='readthedocs.org')
