@@ -11,6 +11,7 @@
 # Fábio C. Barrionuevo da Luz <bnafta@gmail.com>, 2014
 # gilberto dos santos alves <gsavix@gmail.com>, 2016
 # Gustavo Grasso <gsinhorini@gmail.com>, 2015
+# João Vítor Morandi, 2023
 # Matheus Kautzmann <mkvchain@gmail.com>, 2018
 # Claudio Rogerio Carvalho Filho <excriptbrasil@gmail.com>, 2017
 # Rafael Fontenelle <rafaelff@gnome.org>, 2020
@@ -22,9 +23,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-03 15:41+0000\n"
+"POT-Creation-Date: 2023-10-17 15:12+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
-"Last-Translator: Rafael Fontenelle <rffontenelle@gmail.com>, 2020,2022-2023\n"
+"Last-Translator: João Vítor Morandi, 2023\n"
 "Language-Team: Portuguese (Brazil) (http://app.transifex.com/readthedocs/"
 "readthedocs/language/pt_BR/)\n"
 "Language: pt_BR\n"
@@ -1586,7 +1587,7 @@ msgstr ""
 "<a href=\"{{ url_connect_account }}\">{{ provider_name }}</a> está conectada "
 "ao Read the Docs."
 
-#: oauth/services/base.py:23
+#: oauth/services/base.py:24
 #, python-brace-format
 msgid ""
 "Our access to your following accounts was revoked: {provider}. Please, "
@@ -1912,12 +1913,12 @@ msgstr ""
 
 #: organizations/templates/organizations/onboard/team.html:7
 msgid "Create a Team"
-msgstr ""
+msgstr "Crie um Time"
 
 #: organizations/templates/organizations/organization_choose.html:7
 #: organizations/templates/organizations/organization_choose.html:16
 msgid "Choose an organization"
-msgstr ""
+msgstr "Escolha uma organização"
 
 #: organizations/templates/organizations/organization_choose.html:19
 msgid ""
@@ -2005,13 +2006,13 @@ msgstr ""
 #: organizations/templates/organizations/team_create.html:18
 #: organizations/templates/organizations/team_list.html:45
 msgid "Add Team"
-msgstr ""
+msgstr "Adicionar Time"
 
 #: organizations/templates/organizations/team_delete.html:5
 #: organizations/templates/organizations/team_delete.html:11
 #: organizations/templates/organizations/team_edit.html:21
 msgid "Delete Team"
-msgstr ""
+msgstr "Deletar Time"
 
 #: organizations/templates/organizations/team_delete.html:13
 msgid ""
@@ -2026,7 +2027,7 @@ msgstr ""
 #: organizations/templates/organizations/team_edit.html:7
 #: organizations/templates/organizations/team_edit.html:14
 msgid "Edit Team"
-msgstr ""
+msgstr "Editar Time"
 
 #: organizations/templates/organizations/team_detail.html:19
 msgid "Manage Projects"
@@ -2081,15 +2082,15 @@ msgstr ""
 
 #: organizations/views/private.py:167
 msgid "Team added"
-msgstr ""
+msgstr "Time adicionado"
 
 #: organizations/views/private.py:177
 msgid "Team deleted"
-msgstr ""
+msgstr "Time deletado"
 
 #: organizations/views/private.py:194
 msgid "Team updated"
-msgstr ""
+msgstr "Time atualizado"
 
 #: organizations/views/private.py:199
 msgid "Team projects updated"
@@ -2097,11 +2098,11 @@ msgstr ""
 
 #: organizations/views/private.py:212
 msgid "Member added to team"
-msgstr ""
+msgstr "Membro adicionado ao time"
 
 #: organizations/views/private.py:217
 msgid "Member removed from team"
-msgstr ""
+msgstr "Membro removido do time"
 
 #: profiles/views.py:67
 msgid "You have successfully deleted your account"
@@ -2165,7 +2166,7 @@ msgstr ""
 
 #: projects/constants.py:28
 msgid "Generic"
-msgstr ""
+msgstr "Genérico"
 
 #: projects/constants.py:79
 msgid "Live"
@@ -2209,11 +2210,11 @@ msgstr "CPython 3.x"
 
 #: projects/constants.py:399
 msgid "Valid and active"
-msgstr ""
+msgstr "Válido e ativo"
 
 #: projects/constants.py:400
 msgid "Invalid"
-msgstr ""
+msgstr "Inválido"
 
 #: projects/constants.py:401
 msgid "Pending"
@@ -2317,7 +2318,7 @@ msgstr ""
 
 #: projects/filters.py:190
 msgid "Visibility"
-msgstr ""
+msgstr "Visibilidade"
 
 #: projects/forms.py:120
 msgid "Invalid project name, a project already exists with that name"
@@ -3136,7 +3137,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:941
+#: projects/views/private.py:937
 msgid "Project has been opted out from advertisement support"
 msgstr "O projeto optou por desativar apoio por anúncios"
 
@@ -3269,7 +3270,7 @@ msgstr ""
 
 #: search/api/pagination.py:74
 msgid "Invalid page"
-msgstr ""
+msgstr "Página inválida"
 
 #: search/api/v2/views.py:74
 msgid "This query param is required"
@@ -3287,67 +3288,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:446
+#: settings/base.py:445
 msgid "Catalan"
 msgstr "Catalão"
 
-#: settings/base.py:447
+#: settings/base.py:446
 msgid "English"
 msgstr "Inglês"
 
-#: settings/base.py:448
+#: settings/base.py:447
 msgid "Spanish"
 msgstr "Espanhol"
 
-#: settings/base.py:449
+#: settings/base.py:448
 msgid "Brazilian Portuguese"
 msgstr "Português do Brasil"
 
-#: settings/base.py:450
+#: settings/base.py:449
 msgid "Norwegian Bokmål"
 msgstr "Norueguês"
 
-#: settings/base.py:451
+#: settings/base.py:450
 msgid "French"
 msgstr "Frances"
 
-#: settings/base.py:452
+#: settings/base.py:451
 msgid "Russian"
 msgstr "Russo"
 
-#: settings/base.py:453
+#: settings/base.py:452
 msgid "German"
 msgstr "Alemão"
 
-#: settings/base.py:454
+#: settings/base.py:453
 msgid "Galician"
 msgstr "Galego"
 
-#: settings/base.py:455
+#: settings/base.py:454
 msgid "Vietnamese"
 msgstr "Vietnamita"
 
-#: settings/base.py:456
+#: settings/base.py:455
 msgid "Simplified Chinese"
 msgstr "Chinês Simplificado"
 
-#: settings/base.py:457
+#: settings/base.py:456
 msgid "Traditional Chinese"
 msgstr "Chinês Tradicional"
 
-#: settings/base.py:458
+#: settings/base.py:457
 msgid "Japanese"
 msgstr "Japonês"
 
-#: settings/base.py:459
+#: settings/base.py:458
 msgid "Ukrainian"
 msgstr "Ucraniano"
 
-#: settings/base.py:460
+#: settings/base.py:459
 msgid "Italian"
 msgstr "Italiano"
 
-#: settings/base.py:461
+#: settings/base.py:460
 msgid "Korean"
 msgstr "Coreano"
 
@@ -3369,7 +3370,7 @@ msgstr ""
 
 #: subscriptions/constants.py:27
 msgid "Private documentation"
-msgstr ""
+msgstr "Documentação privada"
 
 #: subscriptions/constants.py:28
 msgid "Embed content via API"
@@ -3706,7 +3707,7 @@ msgstr ""
 
 #: templates/base.html:196
 msgid "Tutorial"
-msgstr ""
+msgstr "Tutorial"
 
 #: templates/base.html:202
 msgid "Documentation"
@@ -3977,7 +3978,7 @@ msgstr "Nenhum build encontrado"
 
 #: templates/core/email/base.html:78
 msgid "Hello,"
-msgstr ""
+msgstr "Olá,"
 
 #: templates/core/email/base.html:91
 msgid "Keep documenting,"
