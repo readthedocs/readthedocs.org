@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-03 15:41+0000\n"
+"POT-Creation-Date: 2023-10-17 15:12+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1468,7 +1468,7 @@ msgid ""
 "connected to Read the Docs."
 msgstr ""
 
-#: oauth/services/base.py:23
+#: oauth/services/base.py:24
 #, python-brace-format
 msgid ""
 "Our access to your following accounts was revoked: {provider}. Please, "
@@ -2968,7 +2968,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:941
+#: projects/views/private.py:937
 msgid "Project has been opted out from advertisement support"
 msgstr ""
 
@@ -3117,67 +3117,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:446
+#: settings/base.py:445
 msgid "Catalan"
 msgstr ""
 
-#: settings/base.py:447
+#: settings/base.py:446
 msgid "English"
 msgstr ""
 
-#: settings/base.py:448
+#: settings/base.py:447
 msgid "Spanish"
 msgstr ""
 
-#: settings/base.py:449
+#: settings/base.py:448
 msgid "Brazilian Portuguese"
 msgstr ""
 
-#: settings/base.py:450
+#: settings/base.py:449
 msgid "Norwegian Bokmål"
 msgstr ""
 
-#: settings/base.py:451
+#: settings/base.py:450
 msgid "French"
 msgstr ""
 
-#: settings/base.py:452
+#: settings/base.py:451
 msgid "Russian"
 msgstr ""
 
-#: settings/base.py:453
+#: settings/base.py:452
 msgid "German"
 msgstr ""
 
-#: settings/base.py:454
+#: settings/base.py:453
 msgid "Galician"
 msgstr ""
 
-#: settings/base.py:455
+#: settings/base.py:454
 msgid "Vietnamese"
 msgstr ""
 
-#: settings/base.py:456
+#: settings/base.py:455
 msgid "Simplified Chinese"
 msgstr ""
 
-#: settings/base.py:457
+#: settings/base.py:456
 msgid "Traditional Chinese"
 msgstr ""
 
-#: settings/base.py:458
+#: settings/base.py:457
 msgid "Japanese"
 msgstr ""
 
-#: settings/base.py:459
+#: settings/base.py:458
 msgid "Ukrainian"
 msgstr ""
 
-#: settings/base.py:460
+#: settings/base.py:459
 msgid "Italian"
 msgstr ""
 
-#: settings/base.py:461
+#: settings/base.py:460
 msgid "Korean"
 msgstr ""
 

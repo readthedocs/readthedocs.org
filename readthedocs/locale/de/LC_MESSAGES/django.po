@@ -23,7 +23,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-03 15:41+0000\n"
+"POT-Creation-Date: 2023-10-17 15:12+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Manuel Kaufmann <humitos@gmail.com>, 2023\n"
 "Language-Team: German (http://app.transifex.com/readthedocs/readthedocs/"
@@ -1560,7 +1560,7 @@ msgstr ""
 "href=\"{{ url_connect_account }}\">{{ provider_name }} Konto</a> mit Read "
 "the Docs verbunden ist."
 
-#: oauth/services/base.py:23
+#: oauth/services/base.py:24
 #, python-brace-format
 msgid ""
 "Our access to your following accounts was revoked: {provider}. Please, "
@@ -3127,7 +3127,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:941
+#: projects/views/private.py:937
 msgid "Project has been opted out from advertisement support"
 msgstr ""
 
@@ -3281,67 +3281,67 @@ msgstr ""
 msgid "Total results"
 msgstr ""
 
-#: settings/base.py:446
+#: settings/base.py:445
 msgid "Catalan"
 msgstr "Katalanisch"
 
-#: settings/base.py:447
+#: settings/base.py:446
 msgid "English"
 msgstr "Englisch"
 
-#: settings/base.py:448
+#: settings/base.py:447
 msgid "Spanish"
 msgstr "Spanisch"
 
-#: settings/base.py:449
+#: settings/base.py:448
 msgid "Brazilian Portuguese"
 msgstr "Brasilianisches Portugiesisch"
 
-#: settings/base.py:450
+#: settings/base.py:449
 msgid "Norwegian Bokmål"
 msgstr "Norwegisch (Bokmål)"
 
-#: settings/base.py:451
+#: settings/base.py:450
 msgid "French"
 msgstr "Französisch"
 
-#: settings/base.py:452
+#: settings/base.py:451
 msgid "Russian"
 msgstr "Russisch"
 
-#: settings/base.py:453
+#: settings/base.py:452
 msgid "German"
 msgstr "Deutsch"
 
-#: settings/base.py:454
+#: settings/base.py:453
 msgid "Galician"
 msgstr "Galicisch"
 
-#: settings/base.py:455
+#: settings/base.py:454
 msgid "Vietnamese"
 msgstr "Vietnamesisch"
 
-#: settings/base.py:456
+#: settings/base.py:455
 msgid "Simplified Chinese"
 msgstr "Vereinfachtes Chinesisch"
 
-#: settings/base.py:457
+#: settings/base.py:456
 msgid "Traditional Chinese"
 msgstr "Traditionelles Chinesisch"
 
-#: settings/base.py:458
+#: settings/base.py:457
 msgid "Japanese"
 msgstr "Japanisch"
 
-#: settings/base.py:459
+#: settings/base.py:458
 msgid "Ukrainian"
 msgstr "Ukrainisch"
 
-#: settings/base.py:460
+#: settings/base.py:459
 msgid "Italian"
 msgstr "Italienisch"
 
-#: settings/base.py:461
+#: settings/base.py:460
 msgid "Korean"
 msgstr "Koreanisch"
 
