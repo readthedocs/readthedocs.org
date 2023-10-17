@@ -136,7 +136,7 @@ Here is an example that cancels builds from pull requests when there are no chan
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.11"
+       python: "3.12"
      jobs:
        post_checkout:
          # Cancel building pull requests when there aren't changed in the docs directory or YAML file.
@@ -161,7 +161,7 @@ This other example shows how to cancel a build if the commit message contains ``
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.11"
+       python: "3.12"
      jobs:
        post_checkout:
          # Use `git log` to check if the latest commit contains "skip ci",

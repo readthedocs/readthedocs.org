@@ -436,7 +436,6 @@ class TestPythonEnvironment(TestCase):
             "sphinx",
             "sphinx-rtd-theme",
             "readthedocs-sphinx-ext",
-            "jinja2<3.1.0",
         ]
 
         self.assertEqual(self.build_env_mock.run.call_count, 2)

@@ -262,7 +262,7 @@ Python, Node.js, Rust, and Go.
    build:
      os: ubuntu-22.04
      tools:
-       python: "3.11"
+       python: "3.12"
        nodejs: "18"
        rust: "1.64"
        golang: "1.19"
@@ -312,6 +312,7 @@ You can use several interpreters and versions, from CPython, Miniconda, and Mamb
   - ``3.9``
   - ``3.10``
   - ``3.11``
+  - ``3.12``
   - ``miniconda3-4.7``
   - ``mambaforge-4.10``
   - ``mambaforge-22.9``
@@ -399,7 +400,7 @@ See :doc:`/build-customization` for more details.
    build:
      os: ubuntu-22.04
      tools:
-       python: "3.11"
+       python: "3.12"
      jobs:
        pre_create_environment:
          - echo "Command run at 'pre_create_environment' step"
@@ -444,7 +445,7 @@ The ``$READTHEDOCS_OUTPUT/html`` directory will be uploaded and hosted by Read t
    build:
      os: ubuntu-22.04
      tools:
-       python: "3.11"
+       python: "3.12"
      commands:
        - pip install pelican
        - pelican --settings docs/pelicanconf.py --output $READTHEDOCS_OUTPUT/html/ docs/

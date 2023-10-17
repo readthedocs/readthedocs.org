@@ -12,7 +12,6 @@ log = structlog.get_logger(__name__)
 
 class CommunityProxitoSettingsMixin:
     ROOT_URLCONF = "readthedocs.proxito.urls"
-    USE_SUBDOMAIN = True
     SECURE_REFERRER_POLICY = "no-referrer-when-downgrade"
 
     # Allow cookies from cross-site requests on subdomains for now.

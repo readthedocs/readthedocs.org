@@ -12,7 +12,7 @@ from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import Domain, HTTPHeader
+from readthedocs.projects.models import AddonsConfig, Domain, HTTPHeader
 
 from .base import BaseDocServing
 
@@ -168,6 +168,16 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertIsNotNone(r.get("X-RTD-Hosting-Integrations"))
         self.assertEqual(r["X-RTD-Hosting-Integrations"], "true")
 
+    def test_force_addons_header(self):
+        fixture.get(AddonsConfig, project=self.project, enabled=True)
+
+        r = self.client.get(
+            "/en/latest/", secure=True, headers={"host": "project.dev.readthedocs.io"}
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertIsNotNone(r.get("X-RTD-Force-Addons"))
+        self.assertEqual(r["X-RTD-Force-Addons"], "true")
+
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cors_headers_external_version(self):
         get(
@@ -219,7 +229,8 @@ class ProxitoHeaderTests(BaseDocServing):
             headers={"host": "project.dev.readthedocs.io"},
         )
         self.assertEqual(r.status_code, 200)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
 
         # Cross-origin request
         r = self.client.get(
@@ -231,7 +242,8 @@ class ProxitoHeaderTests(BaseDocServing):
             },
         )
         self.assertEqual(r.status_code, 200)
-        self.assertNotIn(ACCESS_CONTROL_ALLOW_ORIGIN, r.headers)
+        self.assertEqual(r[ACCESS_CONTROL_ALLOW_ORIGIN], "*")
+        self.assertNotIn(ACCESS_CONTROL_ALLOW_CREDENTIALS, r.headers)
 
     @override_settings(ALLOW_PRIVATE_REPOS=False)
     def test_cors_headers_public_version(self):

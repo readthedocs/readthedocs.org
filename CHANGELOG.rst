@@ -1,3 +1,83 @@
+Version 10.7.1
+--------------
+
+:Date: October 17, 2023
+
+* `@humitos <https://github.com/humitos>`__: Addons: docdiff compare against `LATEST` (`#10820 <https://github.com/readthedocs/readthedocs.org/pull/10820>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10819 <https://github.com/readthedocs/readthedocs.org/pull/10819>`__)
+* `@humitos <https://github.com/humitos>`__: Logs: always log documentation size in megabytes (`#10812 <https://github.com/readthedocs/readthedocs.org/pull/10812>`__)
+* `@humitos <https://github.com/humitos>`__: Script: compile versions for S3 (`#10811 <https://github.com/readthedocs/readthedocs.org/pull/10811>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: deprecated note about flyout integration/customization (`#10810 <https://github.com/readthedocs/readthedocs.org/pull/10810>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.7.0 (`#10809 <https://github.com/readthedocs/readthedocs.org/pull/10809>`__)
+* `@A5rocks <https://github.com/A5rocks>`__: Add Python 3.12 to allowed Python versions (`#10808 <https://github.com/readthedocs/readthedocs.org/pull/10808>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10807 <https://github.com/readthedocs/readthedocs.org/pull/10807>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: always use subdomain for serving docs (`#10799 <https://github.com/readthedocs/readthedocs.org/pull/10799>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.6.1 (`#10792 <https://github.com/readthedocs/readthedocs.org/pull/10792>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: add test cases for the endpoint (`#10754 <https://github.com/readthedocs/readthedocs.org/pull/10754>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Merge Diataxis into `main`! (`#10034 <https://github.com/readthedocs/readthedocs.org/pull/10034>`__)
+* `@humitos <https://github.com/humitos>`__: structlog: migrate application code to better logging (`#8705 <https://github.com/readthedocs/readthedocs.org/pull/8705>`__)
+
+Version 10.7.0
+--------------
+
+:Date: October 10, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10807 <https://github.com/readthedocs/readthedocs.org/pull/10807>`__)
+* `@stsewd <https://github.com/stsewd>`__: Webhooks: use PUBLIC_API_URL to generate the webhook URL (`#10801 <https://github.com/readthedocs/readthedocs.org/pull/10801>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use get to access build dictionary (`#10797 <https://github.com/readthedocs/readthedocs.org/pull/10797>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.6.1 (`#10792 <https://github.com/readthedocs/readthedocs.org/pull/10792>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: remove one query from the middleware (`#10788 <https://github.com/readthedocs/readthedocs.org/pull/10788>`__)
+* `@stsewd <https://github.com/stsewd>`__: BuildAPIKey: remove old revoked/expired keys (`#10778 <https://github.com/readthedocs/readthedocs.org/pull/10778>`__)
+* `@stsewd <https://github.com/stsewd>`__: Upgrade ES to 8.x (`#10771 <https://github.com/readthedocs/readthedocs.org/pull/10771>`__)
+* `@humitos <https://github.com/humitos>`__: VCS: remove unused methods and make new Git pattern the default (`#8968 <https://github.com/readthedocs/readthedocs.org/pull/8968>`__)
+* `@ojii <https://github.com/ojii>`__: Versioned docs (`#22 <https://github.com/readthedocs/readthedocs.org/pull/22>`__)
+
+Version 10.6.1
+--------------
+
+:Date: October 03, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10784 <https://github.com/readthedocs/readthedocs.org/pull/10784>`__)
+* `@jidanni <https://github.com/jidanni>`__: Update index.rst (`#10780 <https://github.com/readthedocs/readthedocs.org/pull/10780>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: log directory size to be uploaded (`#10779 <https://github.com/readthedocs/readthedocs.org/pull/10779>`__)
+* `@stsewd <https://github.com/stsewd>`__: BuildAPIKey: remove old revoked/expired keys (`#10778 <https://github.com/readthedocs/readthedocs.org/pull/10778>`__)
+* `@stsewd <https://github.com/stsewd>`__: SSO: update Google Workspace integration docs (`#10774 <https://github.com/readthedocs/readthedocs.org/pull/10774>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.6.0 (`#10772 <https://github.com/readthedocs/readthedocs.org/pull/10772>`__)
+* `@stsewd <https://github.com/stsewd>`__: Test ES upgrade to 7.17.13 (`#10770 <https://github.com/readthedocs/readthedocs.org/pull/10770>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: update example for AsciiDoc to simplify it a little (`#10763 <https://github.com/readthedocs/readthedocs.org/pull/10763>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove support for MkDocs <= 0.17.3 (`#10584 <https://github.com/readthedocs/readthedocs.org/pull/10584>`__)
+* `@humitos <https://github.com/humitos>`__: Deprecation: remove support for Sphinx 1.x (`#10365 <https://github.com/readthedocs/readthedocs.org/pull/10365>`__)
+* `@stsewd <https://github.com/stsewd>`__: SearchQuery: use BigAutoField for primary key (`#9671 <https://github.com/readthedocs/readthedocs.org/pull/9671>`__)
+* `@ojii <https://github.com/ojii>`__: Versioned docs (`#22 <https://github.com/readthedocs/readthedocs.org/pull/22>`__)
+
+Version 10.6.0
+--------------
+
+:Date: September 26, 2023
+
+* `@stsewd <https://github.com/stsewd>`__: Test ES upgrade to 7.17.13 (`#10770 <https://github.com/readthedocs/readthedocs.org/pull/10770>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10768 <https://github.com/readthedocs/readthedocs.org/pull/10768>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: update example for AsciiDoc to simplify it a little (`#10763 <https://github.com/readthedocs/readthedocs.org/pull/10763>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxyto: Allow CORS on commercial on public docs pages (`#10762 <https://github.com/readthedocs/readthedocs.org/pull/10762>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix CORS headers in local dev (`#10761 <https://github.com/readthedocs/readthedocs.org/pull/10761>`__)
+* `@oraNod <https://github.com/oraNod>`__: Docs: add asciidoc example (`#10759 <https://github.com/readthedocs/readthedocs.org/pull/10759>`__)
+* `@humitos <https://github.com/humitos>`__: APIv3: return `single_version` field on `Project` resource (`#10758 <https://github.com/readthedocs/readthedocs.org/pull/10758>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build indexing: fix indexing of external versions (`#10756 <https://github.com/readthedocs/readthedocs.org/pull/10756>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: move the HTTP header to a GET parameter (`#10753 <https://github.com/readthedocs/readthedocs.org/pull/10753>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: update CORS settings (`#10751 <https://github.com/readthedocs/readthedocs.org/pull/10751>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.5.0 (`#10749 <https://github.com/readthedocs/readthedocs.org/pull/10749>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tasks: remove old fileify task (`#10747 <https://github.com/readthedocs/readthedocs.org/pull/10747>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: get final project (e.g. `subproject`) (`#10745 <https://github.com/readthedocs/readthedocs.org/pull/10745>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10744 <https://github.com/readthedocs/readthedocs.org/pull/10744>`__)
+* `@stsewd <https://github.com/stsewd>`__: Subscriptions: remove old models (`#10740 <https://github.com/readthedocs/readthedocs.org/pull/10740>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Change frequency of pageview delete code (`#10739 <https://github.com/readthedocs/readthedocs.org/pull/10739>`__)
+* `@stsewd <https://github.com/stsewd>`__: Versions: allow latest to be a tag (`#10738 <https://github.com/readthedocs/readthedocs.org/pull/10738>`__)
+* `@humitos <https://github.com/humitos>`__: Proxito: add CORS headers only on public versions (`#10737 <https://github.com/readthedocs/readthedocs.org/pull/10737>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: remove feature flags page (`#10736 <https://github.com/readthedocs/readthedocs.org/pull/10736>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: allow users to opt-in into the beta addons (`#10733 <https://github.com/readthedocs/readthedocs.org/pull/10733>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Custom domain doc improvements (`#10719 <https://github.com/readthedocs/readthedocs.org/pull/10719>`__)
+* `@humitos <https://github.com/humitos>`__: API: return the `api_version` on the response (`#10276 <https://github.com/readthedocs/readthedocs.org/pull/10276>`__)
+
 Version 10.5.0
 --------------
 

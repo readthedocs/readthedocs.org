@@ -29,7 +29,6 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
-from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
 from readthedocs.proxito.cache import add_cache_tags, cache_response, private_response
 from readthedocs.proxito.redirects import redirect_to_https
@@ -201,12 +200,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         request.unresolved_domain = None
 
         skip = any(request.path.startswith(reverse(view)) for view in self.skip_views)
-        if (
-            skip
-            or not settings.USE_SUBDOMAIN
-            or "localhost" in request.get_host()
-            or "testserver" in request.get_host()
-        ):
+        if skip:
             log.debug("Not processing Proxito middleware")
             return None
 
@@ -312,19 +306,20 @@ class ProxitoMiddleware(MiddlewareMixin):
 
     def add_cors_headers(self, request, response):
         """
-        Add CORS headers only to files from PUBLIC versions.
+        Add CORS headers only to files from docs.
 
         DocDiff addons requires making a request from
         ``RTD_EXTERNAL_VERSION_DOMAIN`` to ``PUBLIC_DOMAIN`` to be able to
         compare both DOMs and show the visual differences.
 
         This request needs ``Access-Control-Allow-Origin`` HTTP headers to be
-        accepted by browsers. However, we cannot expose these headers for
-        documentation that's not PUBLIC.
+        accepted by browsers. However, we cannot allow passing credentials,
+        since we don't want cross-origin requests to be able to access
+        private versions.
 
-        We set this header to `*`, since the allowed versions are public only,
-        we don't care about the origin of the request. And we don't have the
-        need nor want to allow passing credentials from cross-origin requests.
+        We set this header to `*`, we don't care about the origin of the request.
+        And we don't have the need nor want to allow passing credentials from
+        cross-origin requests.
 
         See https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Access-Control-Allow-Origin.
         """
@@ -336,14 +331,8 @@ class ProxitoMiddleware(MiddlewareMixin):
         version_slug = getattr(request, "path_version_slug", "")
 
         if project_slug and version_slug:
-            allow_cors = Version.objects.filter(
-                project__slug=project_slug,
-                slug=version_slug,
-                privacy_level=PUBLIC,
-            ).exists()
-            if allow_cors:
-                response.headers[ACCESS_CONTROL_ALLOW_ORIGIN] = "*"
-                response.headers[ACCESS_CONTROL_ALLOW_METHODS] = "HEAD, OPTIONS, GET"
+            response.headers[ACCESS_CONTROL_ALLOW_ORIGIN] = "*"
+            response.headers[ACCESS_CONTROL_ALLOW_METHODS] = "HEAD, OPTIONS, GET"
 
         return response
 

@@ -1916,8 +1916,6 @@ class Feature(models.Model):
     PIP_ALWAYS_UPGRADE = 'pip_always_upgrade'
     USE_NEW_PIP_RESOLVER = 'use_new_pip_resolver'
     DONT_INSTALL_LATEST_PIP = 'dont_install_latest_pip'
-    USE_SPHINX_LATEST = 'use_sphinx_latest'
-    DEFAULT_TO_MKDOCS_0_17_3 = 'default_to_mkdocs_0_17_3'
     USE_SPHINX_RTD_EXT_LATEST = 'rtd_sphinx_ext_latest'
     INSTALL_LATEST_CORE_REQUIREMENTS = "install_latest_core_requirements"
 
@@ -2022,11 +2020,6 @@ class Feature(models.Model):
         (
             DONT_INSTALL_LATEST_PIP,
             _("Build: Don't install the latest version of pip"),
-        ),
-        (USE_SPHINX_LATEST, _("Sphinx: Use latest version of Sphinx")),
-        (
-            DEFAULT_TO_MKDOCS_0_17_3,
-            _("MkDOcs: Install mkdocs 0.17.3 by default"),
         ),
         (
             USE_SPHINX_RTD_EXT_LATEST,
