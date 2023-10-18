@@ -158,10 +158,7 @@ class Virtualenv(PythonEnvironment):
             '--no-cache-dir',
         ]
 
-        if self.project.has_feature(Feature.INSTALL_LATEST_CORE_REQUIREMENTS):
-            self._install_latest_requirements(pip_install_cmd)
-        else:
-            self._install_old_requirements(pip_install_cmd)
+        self._install_latest_requirements(pip_install_cmd)
 
     def _install_latest_requirements(self, pip_install_cmd):
         """
@@ -191,80 +188,6 @@ class Virtualenv(PythonEnvironment):
                 [
                     "sphinx",
                     "readthedocs-sphinx-ext",
-                ]
-            )
-
-        cmd = copy.copy(pip_install_cmd)
-        cmd.extend(requirements)
-        self.build_env.run(
-            *cmd,
-            bin_path=self.venv_bin(),
-            cwd=self.checkout_path,
-        )
-
-    def _install_old_requirements(self, pip_install_cmd):
-        """
-        Install old core requirements.
-
-        There are bunch of feature flags that will be taken in consideration to
-        decide whether or not upgrade some of the core dependencies to their
-        latest versions.
-
-        This is the old behavior and the one we want to get rid off.
-        """
-        # Install latest pip and setuptools first,
-        # so it is used when installing the other requirements.
-        pip_version = self.project.get_feature_value(
-            Feature.DONT_INSTALL_LATEST_PIP,
-            # 20.3 uses the new resolver by default.
-            positive='pip<20.3',
-            negative='pip',
-        )
-        # Installing a project with setup.py install is deprecated
-        # in new versions of setuptools, so we need to pin setuptools
-        # to a supported version if the project is using setup.py install.
-        setuptools_version = (
-            "setuptools<58.3.0"
-            if self.config.is_using_setup_py_install
-            else "setuptools"
-        )
-        cmd = pip_install_cmd + [pip_version, setuptools_version]
-        self.build_env.run(
-            *cmd,
-            bin_path=self.venv_bin(),
-            cwd=self.checkout_path,
-        )
-
-        requirements = []
-
-        # Unpin Pillow on newer Python versions to avoid re-compiling
-        # https://pillow.readthedocs.io/en/stable/installation.html#python-support
-        if self.config.python.version in ("2.7", "3.4", "3.5", "3.6", "3.7"):
-            requirements.append("pillow==5.4.1")
-        else:
-            requirements.append("pillow")
-
-        requirements.extend(
-            [
-                "mock==1.0.1",
-                "alabaster>=0.7,<0.8,!=0.7.5",
-                "commonmark==0.9.1",
-                "recommonmark==0.5.0",
-            ]
-        )
-
-        if self.config.doctype == 'mkdocs':
-            requirements.append("mkdocs")
-        else:
-            requirements.extend(
-                [
-                    "sphinx",
-                    "sphinx-rtd-theme",
-                    self.project.get_feature_value(
-                        Feature.USE_SPHINX_RTD_EXT_LATEST,
-                        positive="readthedocs-sphinx-ext",
-                        negative="readthedocs-sphinx-ext<2.3",
-                    ),
                 ]
             )
 

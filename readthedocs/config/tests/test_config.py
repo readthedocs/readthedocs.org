@@ -47,7 +47,7 @@ yaml_config_dir = {
 }
 
 
-def get_build_config(config, source_file="readthedocs.yml"):
+def get_build_config(config, source_file="readthedocs.yml", validate=False):
     # I'm adding these defaults here to avoid modifying all the config file from all the tests
     final_config = {
         "version": "2",
@@ -60,10 +60,14 @@ def get_build_config(config, source_file="readthedocs.yml"):
     }
     final_config.update(config)
 
-    return BuildConfigV2(
+    build_config = BuildConfigV2(
         final_config,
         source_file=source_file,
     )
+    if validate:
+        build_config.validate()
+
+    return build_config
 
 
 @pytest.mark.parametrize(
