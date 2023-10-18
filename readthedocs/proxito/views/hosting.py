@@ -17,7 +17,7 @@ from readthedocs.api.v3.serializers import (
     ProjectSerializer,
     VersionSerializer,
 )
-from readthedocs.builds.constants import EXTERNAL, LATEST
+from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
@@ -77,7 +77,10 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             project = unresolved_url.project
             version = unresolved_url.version
             filename = unresolved_url.filename
-            build = version.builds.last()
+            build = version.builds.filter(
+                success=True,
+                state=BUILD_STATE_FINISHED,
+            ).last()
 
         except UnresolverError as exc:
             # If an exception is raised and there is a ``project`` in the
