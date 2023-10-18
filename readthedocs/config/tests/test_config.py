@@ -238,223 +238,215 @@ def test_config_filenames_regex(correct_config_filename):
 
 
 class TestBuildConfigV2:
-
-    def get_build_config(
-            self, config, env_config=None, source_file='readthedocs.yml',
-    ):
-        return BuildConfigV2(
-            env_config or {},
-            config,
-            source_file=source_file,
-        )
-
     def test_version(self):
-        build = self.get_build_config({})
-        assert build.version == '2'
+        build = get_build_config({})
+        assert build.version == "2"
 
     def test_correct_error_when_source_is_dir(self, tmpdir):
-        build = self.get_build_config({}, source_file=str(tmpdir))
+        build = get_build_config({}, source_file=str(tmpdir))
         with raises(InvalidConfig) as excinfo:
-            build.error(key='key', message='Message', code='code')
+            build.error(key="key", message="Message", code="code")
         # We don't have any extra information about
         # the source_file.
         assert str(excinfo.value) == 'Invalid configuration option "key": Message'
 
     def test_formats_check_valid(self):
-        build = self.get_build_config({'formats': ['htmlzip', 'pdf', 'epub']})
+        build = get_build_config({"formats": ["htmlzip", "pdf", "epub"]})
         build.validate()
-        assert build.formats == ['htmlzip', 'pdf', 'epub']
+        assert build.formats == ["htmlzip", "pdf", "epub"]
 
-    @pytest.mark.parametrize('value', [3, 'invalid', {'other': 'value'}])
+    @pytest.mark.parametrize("value", [3, "invalid", {"other": "value"}])
     def test_formats_check_invalid_value(self, value):
-        build = self.get_build_config({'formats': value})
+        build = get_build_config({"formats": value})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'formats'
+        assert excinfo.value.key == "formats"
 
     def test_formats_check_invalid_type(self):
-        build = self.get_build_config(
-            {'formats': ['htmlzip', 'invalid', 'epub']},
+        build = get_build_config(
+            {"formats": ["htmlzip", "invalid", "epub"]},
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'formats'
+        assert excinfo.value.key == "formats"
 
     def test_formats_default_value(self):
-        build = self.get_build_config({})
+        build = get_build_config({})
         build.validate()
         assert build.formats == []
 
     # TODO: remove/adapt all these tests that use "defaults".
     # I'm removing them from the code since we don't need them anymore.
     def test_formats_overrides_default_values(self):
-        build = self.get_build_config(
+        build = get_build_config(
             {},
-            {'defaults': {'formats': ['htmlzip']}},
+            {"defaults": {"formats": ["htmlzip"]}},
         )
         build.validate()
         assert build.formats == []
 
     def test_formats_priority_over_defaults(self):
-        build = self.get_build_config(
-            {'formats': []},
-            {'defaults': {'formats': ['htmlzip']}},
+        build = get_build_config(
+            {"formats": []},
+            {"defaults": {"formats": ["htmlzip"]}},
         )
         build.validate()
         assert build.formats == []
 
-        build = self.get_build_config(
-            {'formats': ['pdf']},
-            {'defaults': {'formats': ['htmlzip']}},
+        build = get_build_config(
+            {"formats": ["pdf"]},
+            {"defaults": {"formats": ["htmlzip"]}},
         )
         build.validate()
-        assert build.formats == ['pdf']
+        assert build.formats == ["pdf"]
 
     def test_formats_allow_empty(self):
-        build = self.get_build_config({'formats': []})
+        build = get_build_config({"formats": []})
         build.validate()
         assert build.formats == []
 
     def test_formats_allow_all_keyword(self):
-        build = self.get_build_config({'formats': 'all'})
+        build = get_build_config({"formats": "all"})
         build.validate()
-        assert build.formats == ['htmlzip', 'pdf', 'epub']
+        assert build.formats == ["htmlzip", "pdf", "epub"]
 
     def test_conda_check_valid(self, tmpdir):
-        apply_fs(tmpdir, {'environment.yml': ''})
-        build = self.get_build_config(
-            {'conda': {'environment': 'environment.yml'}},
-            source_file=str(tmpdir.join('readthedocs.yml')),
+        apply_fs(tmpdir, {"environment.yml": ""})
+        build = get_build_config(
+            {"conda": {"environment": "environment.yml"}},
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
-        assert build.conda.environment == 'environment.yml'
+        assert build.conda.environment == "environment.yml"
 
-    @pytest.mark.parametrize('value', [3, [], 'invalid'])
+    @pytest.mark.parametrize("value", [3, [], "invalid"])
     def test_conda_check_invalid_value(self, value):
-        build = self.get_build_config({'conda': value})
+        build = get_build_config({"conda": value})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'conda'
+        assert excinfo.value.key == "conda"
 
-    @pytest.mark.parametrize('value', [3, [], {}])
+    @pytest.mark.parametrize("value", [3, [], {}])
     def test_conda_check_invalid_file_value(self, value):
-        build = self.get_build_config({'conda': {'file': value}})
+        build = get_build_config({"conda": {"file": value}})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'conda.environment'
+        assert excinfo.value.key == "conda.environment"
 
     def test_conda_check_file_required(self):
-        build = self.get_build_config({'conda': {'no-file': 'other'}})
+        build = get_build_config({"conda": {"no-file": "other"}})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'conda.environment'
+        assert excinfo.value.key == "conda.environment"
 
-    @pytest.mark.parametrize('value', [3, [], 'invalid'])
+    @pytest.mark.parametrize("value", [3, [], "invalid"])
     def test_build_check_invalid_type(self, value):
-        build = self.get_build_config({'build': value})
+        build = get_build_config({"build": value})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'build'
+        assert excinfo.value.key == "build"
 
     @pytest.mark.parametrize("value", [3, [], {}])
     def test_build_image_check_invalid_type(self, value):
-        build = self.get_build_config({"build": {"image": value}})
+        build = get_build_config({"build": {"image": value}})
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == "build.image"
 
-    @pytest.mark.parametrize('value', ['', None, 'latest'])
+    @pytest.mark.parametrize("value", ["", None, "latest"])
     def test_new_build_config_invalid_os(self, value):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'build': {
-                    'os': value,
-                    'tools': {'python': '3'},
+                "build": {
+                    "os": value,
+                    "tools": {"python": "3"},
                 },
             },
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'build.os'
+        assert excinfo.value.key == "build.os"
 
-    @pytest.mark.parametrize('value', ['', None, 'python', ['python', 'nodejs'], {}, {'cobol': '99'}])
+    @pytest.mark.parametrize(
+        "value", ["", None, "python", ["python", "nodejs"], {}, {"cobol": "99"}]
+    )
     def test_new_build_config_invalid_tools(self, value):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'build': {
-                    'os': 'ubuntu-20.04',
-                    'tools': value,
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": value,
                 },
             },
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'build.tools'
+        assert excinfo.value.key == "build.tools"
 
     def test_new_build_config_invalid_tools_version(self):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'build': {
-                    'os': 'ubuntu-20.04',
-                    'tools': {'python': '2.6'},
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "2.6"},
                 },
             },
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'build.tools.python'
+        assert excinfo.value.key == "build.tools.python"
 
     def test_new_build_config(self):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'build': {
-                    'os': 'ubuntu-20.04',
-                    'tools': {'python': '3.9'},
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.9"},
                 },
             },
         )
         build.validate()
         assert build.using_build_tools
         assert isinstance(build.build, BuildWithOs)
-        assert build.build.os == 'ubuntu-20.04'
-        assert build.build.tools['python'].version == '3.9'
-        full_version = settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9']
-        assert build.build.tools['python'].full_version == full_version
-        assert build.python_interpreter == 'python'
+        assert build.build.os == "ubuntu-20.04"
+        assert build.build.tools["python"].version == "3.9"
+        full_version = settings.RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.9"]
+        assert build.build.tools["python"].full_version == full_version
+        assert build.python_interpreter == "python"
 
     def test_new_build_config_conflict_with_build_image(self):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'build': {
-                    'image': 'latest',
-                    'os': 'ubuntu-20.04',
-                    'tools': {'python': '3.9'},
+                "build": {
+                    "image": "latest",
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.9"},
                 },
             },
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'build.image'
+        assert excinfo.value.key == "build.image"
 
     def test_new_build_config_conflict_with_build_python_version(self):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'build': {
-                    'os': 'ubuntu-20.04',
-                    'tools': {'python': '3.8'},
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {"python": "3.8"},
                 },
-                'python': {'version': '3.8'},
+                "python": {"version": "3.8"},
             },
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.version'
+        assert excinfo.value.key == "python.version"
 
     def test_commands_build_config_tools_and_commands_valid(self):
         """
         Test that build.tools and build.commands are valid together.
         """
-        build = self.get_build_config(
+        build = get_build_config(
             {
                 "build": {
                     "os": "ubuntu-20.04",
@@ -471,7 +463,7 @@ class TestBuildConfigV2:
         """
         build.jobs can't be used without build.os
         """
-        build = self.get_build_config(
+        build = get_build_config(
             {
                 "build": {
                     "tools": {"python": "3.8"},
@@ -486,7 +478,7 @@ class TestBuildConfigV2:
         assert excinfo.value.key == "build.os"
 
     def test_commands_build_config_invalid_command(self):
-        build = self.get_build_config(
+        build = get_build_config(
             {
                 "build": {
                     "os": "ubuntu-20.04",
@@ -500,7 +492,7 @@ class TestBuildConfigV2:
         assert excinfo.value.key == "build.commands"
 
     def test_commands_build_config_invalid_no_os(self):
-        build = self.get_build_config(
+        build = get_build_config(
             {
                 "build": {
                     "commands": ["pip install pelican", "pelican content"],
@@ -513,7 +505,7 @@ class TestBuildConfigV2:
 
     def test_commands_build_config_valid(self):
         """It's valid to build with just build.os and build.commands."""
-        build = self.get_build_config(
+        build = get_build_config(
             {
                 "build": {
                     "os": "ubuntu-22.04",
@@ -529,7 +521,7 @@ class TestBuildConfigV2:
 
     @pytest.mark.parametrize("value", ["", None, "pre_invalid"])
     def test_jobs_build_config_invalid_jobs(self, value):
-        build = self.get_build_config(
+        build = get_build_config(
             {
                 "build": {
                     "os": "ubuntu-20.04",
@@ -544,7 +536,7 @@ class TestBuildConfigV2:
 
     @pytest.mark.parametrize("value", ["", None, "echo 123", 42])
     def test_jobs_build_config_invalid_job_commands(self, value):
-        build = self.get_build_config(
+        build = get_build_config(
             {
                 "build": {
                     "os": "ubuntu-20.04",
@@ -560,7 +552,7 @@ class TestBuildConfigV2:
         assert excinfo.value.key == "build.jobs.pre_install"
 
     def test_jobs_build_config(self):
-        build = self.get_build_config(
+        build = get_build_config(
             {
                 "build": {
                     "os": "ubuntu-20.04",
@@ -612,27 +604,27 @@ class TestBuildConfigV2:
         'value',
         [
             [],
-            ['cmatrix'],
-            ['Mysql', 'cmatrix', 'postgresql-dev'],
+            ["cmatrix"],
+            ["Mysql", "cmatrix", "postgresql-dev"],
         ],
     )
     def test_build_apt_packages_check_valid(self, value):
-        build = self.get_build_config({'build': {'apt_packages': value}})
+        build = get_build_config({"build": {"apt_packages": value}})
         build.validate()
         assert build.build.apt_packages == value
 
     @pytest.mark.parametrize(
-        'value',
-        [3, 'string', {}],
+        "value",
+        [3, "string", {}],
     )
     def test_build_apt_packages_invalid_type(self, value):
-        build = self.get_build_config({'build': {'apt_packages': value}})
+        build = get_build_config({"build": {"apt_packages": value}})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'build.apt_packages'
+        assert excinfo.value.key == "build.apt_packages"
 
     @pytest.mark.parametrize(
-        'error_index, value',
+        "error_index, value",
         [
             (0, ['/', 'cmatrix']),
             (1, ['cmatrix', '-q']),
@@ -652,68 +644,70 @@ class TestBuildConfigV2:
             (1, ['mysql', 'cmatrix$']),
             (0, ['^mysql-*', 'cmatrix$']),
             # We don't allow specifying versions for now.
-            (0, ['postgresql=1.2.3']),
+            (0, ["postgresql=1.2.3"]),
             # We don't allow specifying distributions for now.
-            (0, ['cmatrix/bionic']),
+            (0, ["cmatrix/bionic"]),
         ],
     )
     def test_build_apt_packages_invalid_value(self, error_index, value):
-        build = self.get_build_config({'build': {'apt_packages': value}})
+        build = get_build_config({"build": {"apt_packages": value}})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == f'build.apt_packages.{error_index}'
+        assert excinfo.value.key == f"build.apt_packages.{error_index}"
         assert excinfo.value.code == INVALID_NAME
 
-    @pytest.mark.parametrize('value', [3, [], 'invalid'])
+    @pytest.mark.parametrize("value", [3, [], "invalid"])
     def test_python_check_invalid_types(self, value):
-        build = self.get_build_config({'python': value})
+        build = get_build_config({"python": value})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python'
+        assert excinfo.value.key == "python"
 
     def test_python_version_default(self):
-        build = self.get_build_config({})
+        build = get_build_config({})
         build.validate()
-        assert build.python.version == '3'
+        assert build.python.version == "3"
 
-    @pytest.mark.parametrize('value', [2, 3])
+    @pytest.mark.parametrize("value", [2, 3])
     def test_python_version_overrides_default(self, value):
-        build = self.get_build_config(
+        build = get_build_config(
             {},
-            {'defaults': {'python_version': value}},
+            {"defaults": {"python_version": value}},
         )
         build.validate()
-        assert build.python.version == '3'
+        assert build.python.version == "3"
 
-    @pytest.mark.parametrize('value', ['2', '3', '3.6'])
+    @pytest.mark.parametrize("value", ["2", "3", "3.6"])
     def test_python_version_priority_over_default(self, value):
-        build = self.get_build_config(
-            {'python': {'version': value}},
-            {'defaults': {'python_version': '3'}},
+        build = get_build_config(
+            {"python": {"version": value}},
+            {"defaults": {"python_version": "3"}},
         )
         build.validate()
         assert build.python.version == value
 
-    @pytest.mark.parametrize('value', [[], {}])
+    @pytest.mark.parametrize("value", [[], {}])
     def test_python_version_check_invalid_types(self, value):
-        build = self.get_build_config({'python': {'version': value}})
+        build = get_build_config({"python": {"version": value}})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.version'
+        assert excinfo.value.key == "python.version"
 
     def test_python_install_default_value(self):
-        build = self.get_build_config({})
+        build = get_build_config({})
         build.validate()
         install = build.python.install
         assert len(install) == 0
 
     def test_python_install_check_default(self, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                        }
+                    ],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -722,35 +716,35 @@ class TestBuildConfigV2:
         install = build.python.install
         assert len(install) == 1
         assert isinstance(install[0], PythonInstall)
-        assert install[0].path == '.'
+        assert install[0].path == "."
         assert install[0].method == PIP
         assert install[0].extra_requirements == []
 
-    @pytest.mark.parametrize('value', ['invalid', 'apt'])
+    @pytest.mark.parametrize("value", ["invalid", "apt"])
     def test_python_install_method_check_invalid(self, value, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'method': value,
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": value,
+                        }
+                    ],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install.0.method'
+        assert excinfo.value.key == "python.install.0.method"
 
     def test_python_install_requirements_check_valid(self, tmpdir):
-        apply_fs(tmpdir, {'requirements.txt': ''})
-        build = self.get_build_config(
+        apply_fs(tmpdir, {"requirements.txt": ""})
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'requirements': 'requirements.txt'
-                    }],
+                "python": {
+                    "install": [{"requirements": "requirements.txt"}],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -759,32 +753,36 @@ class TestBuildConfigV2:
         install = build.python.install
         assert len(install) == 1
         assert isinstance(install[0], PythonInstallRequirements)
-        assert install[0].requirements == 'requirements.txt'
+        assert install[0].requirements == "requirements.txt"
 
     def test_python_install_requirements_does_not_allow_null(self, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'requirements': None,
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "requirements": None,
+                        }
+                    ],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install.0.requirements'
+        assert excinfo.value.key == "python.install.0.requirements"
 
     def test_python_install_requirements_error_msg(self, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'requirements': None,
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "requirements": None,
+                        }
+                    ],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -798,39 +796,39 @@ class TestBuildConfigV2:
         )
 
     def test_python_install_requirements_does_not_allow_empty_string(self, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'requirements': '',
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "requirements": "",
+                        }
+                    ],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install.0.requirements'
+        assert excinfo.value.key == "python.install.0.requirements"
 
     def test_python_install_requirements_ignores_default(self, tmpdir):
-        apply_fs(tmpdir, {'requirements.txt': ''})
-        build = self.get_build_config(
+        apply_fs(tmpdir, {"requirements.txt": ""})
+        build = get_build_config(
             {},
-            {'defaults': {'requirements_file': 'requirements.txt'}},
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            {"defaults": {"requirements_file": "requirements.txt"}},
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
         assert build.python.install == []
 
     def test_python_install_requirements_priority_over_default(self, tmpdir):
-        apply_fs(tmpdir, {'requirements.txt': ''})
-        build = self.get_build_config(
+        apply_fs(tmpdir, {"requirements.txt": ""})
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'requirements': 'requirements.txt'
-                    }],
+                "python": {
+                    "install": [{"requirements": "requirements.txt"}],
                 },
             },
             {'defaults': {'requirements_file': 'requirements-default.txt'}},
@@ -839,49 +837,55 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].requirements == 'requirements.txt'
+        assert install[0].requirements == "requirements.txt"
 
-    @pytest.mark.parametrize('value', [3, [], {}])
+    @pytest.mark.parametrize("value", [3, [], {}])
     def test_python_install_requirements_check_invalid_types(self, value, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'requirements': value,
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "requirements": value,
+                        }
+                    ],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install.0.requirements'
+        assert excinfo.value.key == "python.install.0.requirements"
 
     def test_python_install_path_is_required(self, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'method': 'pip',
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "method": "pip",
+                        }
+                    ],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install.0'
+        assert excinfo.value.key == "python.install.0"
         assert excinfo.value.code == CONFIG_REQUIRED
 
     def test_python_install_pip_check_valid(self, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'method': 'pip',
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "pip",
+                        }
+                    ],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -889,17 +893,19 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].path == '.'
+        assert install[0].path == "."
         assert install[0].method == PIP
 
     def test_python_install_pip_have_priority_over_default(self, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'method': 'pip',
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "pip",
+                        }
+                    ],
                 },
             },
             {'defaults': {'install_project': True}},
@@ -908,17 +914,19 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].path == '.'
+        assert install[0].path == "."
         assert install[0].method == PIP
 
     def test_python_install_setuptools_check_valid(self, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'method': 'setuptools',
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "setuptools",
+                        }
+                    ],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -926,25 +934,27 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].path == '.'
+        assert install[0].path == "."
         assert install[0].method == SETUPTOOLS
 
     def test_python_install_setuptools_ignores_default(self):
-        build = self.get_build_config(
+        build = get_build_config(
             {},
-            {'defaults': {'install_project': True}},
+            {"defaults": {"install_project": True}},
         )
         build.validate()
         assert build.python.install == []
 
     def test_python_install_setuptools_priority_over_default(self, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'method': 'setuptools',
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "setuptools",
+                        }
+                    ],
                 },
             },
             {'defaults': {'install_project': False}},
@@ -953,35 +963,41 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].path == '.'
+        assert install[0].path == "."
         assert install[0].method == SETUPTOOLS
 
     def test_python_install_allow_empty_list(self):
-        build = self.get_build_config({'python': {'install': []}},)
+        build = get_build_config(
+            {"python": {"install": []}},
+        )
         build.validate()
         assert build.python.install == []
 
     def test_python_install_default(self):
-        build = self.get_build_config({'python': {}})
+        build = get_build_config({"python": {}})
         build.validate()
         assert build.python.install == []
 
-    @pytest.mark.parametrize('value', [2, 'string', {}])
+    @pytest.mark.parametrize("value", [2, "string", {}])
     def test_python_install_check_invalid_type(self, value):
-        build = self.get_build_config({'python': {'install': value}},)
+        build = get_build_config(
+            {"python": {"install": value}},
+        )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install'
+        assert excinfo.value.key == "python.install"
 
     def test_python_install_extra_requirements_and_pip(self, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'method': 'pip',
-                        'extra_requirements': ['docs', 'tests'],
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "pip",
+                            "extra_requirements": ["docs", "tests"],
+                        }
+                    ],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -989,52 +1005,58 @@ class TestBuildConfigV2:
         build.validate()
         install = build.python.install
         assert len(install) == 1
-        assert install[0].extra_requirements == ['docs', 'tests']
+        assert install[0].extra_requirements == ["docs", "tests"]
 
     def test_python_install_extra_requirements_and_setuptools(self, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'method': 'setuptools',
-                        'extra_requirements': ['docs', 'tests'],
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "setuptools",
+                            "extra_requirements": ["docs", "tests"],
+                        }
+                    ],
                 }
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install.0.extra_requirements'
+        assert excinfo.value.key == "python.install.0.extra_requirements"
 
-    @pytest.mark.parametrize('value', [2, 'invalid', {}, '', None])
+    @pytest.mark.parametrize("value", [2, "invalid", {}, "", None])
     def test_python_install_extra_requirements_check_type(self, value, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'method': 'pip',
-                        'extra_requirements': value,
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "pip",
+                            "extra_requirements": value,
+                        }
+                    ],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'python.install.0.extra_requirements'
+        assert excinfo.value.key == "python.install.0.extra_requirements"
 
     def test_python_install_extra_requirements_allow_empty(self, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                        'method': 'pip',
-                        'extra_requirements': [],
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "path": ".",
+                            "method": "pip",
+                            "extra_requirements": [],
+                        }
+                    ],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -1045,24 +1067,31 @@ class TestBuildConfigV2:
         assert install[0].extra_requirements == []
 
     def test_python_install_several_respects_order(self, tmpdir):
-        apply_fs(tmpdir, {
-            'one': {},
-            'two': {},
-            'three.txt': '',
-        })
-        build = self.get_build_config(
+        apply_fs(
+            tmpdir,
             {
-                'python': {
-                    'install': [{
-                        'path': 'one',
-                        'method': 'pip',
-                        'extra_requirements': [],
-                    }, {
-                        'path': 'two',
-                        'method': 'setuptools',
-                    }, {
-                        'requirements': 'three.txt',
-                    }],
+                "one": {},
+                "two": {},
+                "three.txt": "",
+            },
+        )
+        build = get_build_config(
+            {
+                "python": {
+                    "install": [
+                        {
+                            "path": "one",
+                            "method": "pip",
+                            "extra_requirements": [],
+                        },
+                        {
+                            "path": "two",
+                            "method": "setuptools",
+                        },
+                        {
+                            "requirements": "three.txt",
+                        },
+                    ],
                 },
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
@@ -1078,383 +1107,413 @@ class TestBuildConfigV2:
         assert install[1].path == 'two'
         assert install[1].method == SETUPTOOLS
 
-        assert install[2].requirements == 'three.txt'
+        assert install[2].requirements == "three.txt"
 
-    @pytest.mark.parametrize('value', [[], True, 0, 'invalid'])
+    @pytest.mark.parametrize("value", [[], True, 0, "invalid"])
     def test_sphinx_validate_type(self, value):
-        build = self.get_build_config({'sphinx': value})
+        build = get_build_config({"sphinx": value})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'sphinx'
+        assert excinfo.value.key == "sphinx"
 
     def test_sphinx_is_default_doc_type(self):
-        build = self.get_build_config({})
+        build = get_build_config({})
         build.validate()
         assert build.sphinx is not None
         assert build.mkdocs is None
-        assert build.doctype == 'sphinx'
+        assert build.doctype == "sphinx"
 
     @pytest.mark.parametrize(
         'value,expected',
         [
-            ('html', 'sphinx'),
-            ('htmldir', 'sphinx_htmldir'),
-            ('dirhtml', 'sphinx_htmldir'),
-            ('singlehtml', 'sphinx_singlehtml'),
+            ("html", "sphinx"),
+            ("htmldir", "sphinx_htmldir"),
+            ("dirhtml", "sphinx_htmldir"),
+            ("singlehtml", "sphinx_singlehtml"),
         ],
     )
     def test_sphinx_builder_check_valid(self, value, expected):
-        build = self.get_build_config(
-            {'sphinx': {'builder': value}},
-            {'defaults': {'doctype': expected}},
+        build = get_build_config(
+            {"sphinx": {"builder": value}},
+            {"defaults": {"doctype": expected}},
         )
         build.validate()
         assert build.sphinx.builder == expected
         assert build.doctype == expected
 
-    @pytest.mark.parametrize('value', [[], True, 0, 'invalid'])
+    @pytest.mark.parametrize("value", [[], True, 0, "invalid"])
     def test_sphinx_builder_check_invalid(self, value):
-        build = self.get_build_config({'sphinx': {'builder': value}})
+        build = get_build_config({"sphinx": {"builder": value}})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'sphinx.builder'
+        assert excinfo.value.key == "sphinx.builder"
 
     def test_sphinx_builder_default(self):
-        build = self.get_build_config({})
+        build = get_build_config({})
         build.validate()
-        build.sphinx.builder == 'sphinx'
+        build.sphinx.builder == "sphinx"
 
     def test_sphinx_builder_ignores_default(self):
-        build = self.get_build_config(
+        build = get_build_config(
             {},
-            {'defaults': {'doctype': 'sphinx_singlehtml'}},
+            {"defaults": {"doctype": "sphinx_singlehtml"}},
         )
         build.validate()
-        build.sphinx.builder == 'sphinx'
+        build.sphinx.builder == "sphinx"
 
     def test_sphinx_configuration_check_valid(self, tmpdir):
-        apply_fs(tmpdir, {'conf.py': ''})
-        build = self.get_build_config(
-            {'sphinx': {'configuration': 'conf.py'}},
-            source_file=str(tmpdir.join('readthedocs.yml')),
+        apply_fs(tmpdir, {"conf.py": ""})
+        build = get_build_config(
+            {"sphinx": {"configuration": "conf.py"}},
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
-        assert build.sphinx.configuration == 'conf.py'
+        assert build.sphinx.configuration == "conf.py"
 
     def test_sphinx_cant_be_used_with_mkdocs(self, tmpdir):
-        apply_fs(tmpdir, {'conf.py': ''})
-        build = self.get_build_config(
+        apply_fs(tmpdir, {"conf.py": ""})
+        build = get_build_config(
             {
-                'sphinx': {'configuration': 'conf.py'},
-                'mkdocs': {},
+                "sphinx": {"configuration": "conf.py"},
+                "mkdocs": {},
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == '.'
+        assert excinfo.value.key == "."
 
     def test_sphinx_configuration_allow_null(self):
-        build = self.get_build_config({'sphinx': {'configuration': None}},)
+        build = get_build_config(
+            {"sphinx": {"configuration": None}},
+        )
         build.validate()
         assert build.sphinx.configuration is None
 
     def test_sphinx_configuration_check_default(self):
-        build = self.get_build_config({})
+        build = get_build_config({})
         build.validate()
         assert build.sphinx.configuration is None
 
     def test_sphinx_configuration_respects_default(self, tmpdir):
-        apply_fs(tmpdir, {'conf.py': ''})
-        build = self.get_build_config(
+        apply_fs(tmpdir, {"conf.py": ""})
+        build = get_build_config(
             {},
-            {'defaults': {'sphinx_configuration': 'conf.py'}},
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            {"defaults": {"sphinx_configuration": "conf.py"}},
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
-        assert build.sphinx.configuration == 'conf.py'
+        assert build.sphinx.configuration == "conf.py"
 
     def test_sphinx_configuration_default_can_be_none(self, tmpdir):
-        apply_fs(tmpdir, {'conf.py': ''})
-        build = self.get_build_config(
+        apply_fs(tmpdir, {"conf.py": ""})
+        build = get_build_config(
             {},
-            {'defaults': {'sphinx_configuration': None}},
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            {"defaults": {"sphinx_configuration": None}},
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
         assert build.sphinx.configuration is None
 
     def test_sphinx_configuration_priorities_over_default(self, tmpdir):
-        apply_fs(tmpdir, {'conf.py': '', 'conf-default.py': ''})
-        build = self.get_build_config(
-            {'sphinx': {'configuration': 'conf.py'}},
-            {'defaults': {'sphinx_configuration': 'conf-default.py'}},
-            source_file=str(tmpdir.join('readthedocs.yml')),
+        apply_fs(tmpdir, {"conf.py": "", "conf-default.py": ""})
+        build = get_build_config(
+            {"sphinx": {"configuration": "conf.py"}},
+            {"defaults": {"sphinx_configuration": "conf-default.py"}},
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
-        assert build.sphinx.configuration == 'conf.py'
+        assert build.sphinx.configuration == "conf.py"
 
-    @pytest.mark.parametrize('value', [[], True, 0, {}])
+    @pytest.mark.parametrize("value", [[], True, 0, {}])
     def test_sphinx_configuration_validate_type(self, value):
-        build = self.get_build_config({'sphinx': {'configuration': value}},)
+        build = get_build_config(
+            {"sphinx": {"configuration": value}},
+        )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'sphinx.configuration'
+        assert excinfo.value.key == "sphinx.configuration"
 
-    @pytest.mark.parametrize('value', [True, False])
+    @pytest.mark.parametrize("value", [True, False])
     def test_sphinx_fail_on_warning_check_valid(self, value):
-        build = self.get_build_config({'sphinx': {'fail_on_warning': value}})
+        build = get_build_config({"sphinx": {"fail_on_warning": value}})
         build.validate()
         assert build.sphinx.fail_on_warning is value
 
-    @pytest.mark.parametrize('value', [[], 'invalid', 5])
+    @pytest.mark.parametrize("value", [[], "invalid", 5])
     def test_sphinx_fail_on_warning_check_invalid(self, value):
-        build = self.get_build_config({'sphinx': {'fail_on_warning': value}})
+        build = get_build_config({"sphinx": {"fail_on_warning": value}})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'sphinx.fail_on_warning'
+        assert excinfo.value.key == "sphinx.fail_on_warning"
 
     def test_sphinx_fail_on_warning_check_default(self):
-        build = self.get_build_config({})
+        build = get_build_config({})
         build.validate()
         assert build.sphinx.fail_on_warning is False
 
-    @pytest.mark.parametrize('value', [[], True, 0, 'invalid'])
+    @pytest.mark.parametrize("value", [[], True, 0, "invalid"])
     def test_mkdocs_validate_type(self, value):
-        build = self.get_build_config({'mkdocs': value})
+        build = get_build_config({"mkdocs": value})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'mkdocs'
+        assert excinfo.value.key == "mkdocs"
 
     def test_mkdocs_default(self):
-        build = self.get_build_config({})
+        build = get_build_config({})
         build.validate()
         assert build.mkdocs is None
 
     def test_mkdocs_configuration_check_valid(self, tmpdir):
-        apply_fs(tmpdir, {'mkdocs.yml': ''})
-        build = self.get_build_config(
-            {'mkdocs': {'configuration': 'mkdocs.yml'}},
-            {'defaults': {'doctype': 'mkdocs'}},
-            source_file=str(tmpdir.join('readthedocs.yml')),
+        apply_fs(tmpdir, {"mkdocs.yml": ""})
+        build = get_build_config(
+            {"mkdocs": {"configuration": "mkdocs.yml"}},
+            {"defaults": {"doctype": "mkdocs"}},
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
-        assert build.mkdocs.configuration == 'mkdocs.yml'
-        assert build.doctype == 'mkdocs'
+        assert build.mkdocs.configuration == "mkdocs.yml"
+        assert build.doctype == "mkdocs"
         assert build.sphinx is None
 
     def test_mkdocs_configuration_allow_null(self):
-        build = self.get_build_config(
-            {'mkdocs': {'configuration': None}},
-            {'defaults': {'doctype': 'mkdocs'}},
+        build = get_build_config(
+            {"mkdocs": {"configuration": None}},
+            {"defaults": {"doctype": "mkdocs"}},
         )
         build.validate()
         assert build.mkdocs.configuration is None
 
     def test_mkdocs_configuration_check_default(self):
-        build = self.get_build_config(
-            {'mkdocs': {}},
-            {'defaults': {'doctype': 'mkdocs'}},
+        build = get_build_config(
+            {"mkdocs": {}},
+            {"defaults": {"doctype": "mkdocs"}},
         )
         build.validate()
         assert build.mkdocs.configuration is None
 
-    @pytest.mark.parametrize('value', [[], True, 0, {}])
+    @pytest.mark.parametrize("value", [[], True, 0, {}])
     def test_mkdocs_configuration_validate_type(self, value):
-        build = self.get_build_config(
-            {'mkdocs': {'configuration': value}},
-            {'defaults': {'doctype': 'mkdocs'}},
+        build = get_build_config(
+            {"mkdocs": {"configuration": value}},
+            {"defaults": {"doctype": "mkdocs"}},
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'mkdocs.configuration'
+        assert excinfo.value.key == "mkdocs.configuration"
 
-    @pytest.mark.parametrize('value', [True, False])
+    @pytest.mark.parametrize("value", [True, False])
     def test_mkdocs_fail_on_warning_check_valid(self, value):
-        build = self.get_build_config(
-            {'mkdocs': {'fail_on_warning': value}},
-            {'defaults': {'doctype': 'mkdocs'}},
+        build = get_build_config(
+            {"mkdocs": {"fail_on_warning": value}},
+            {"defaults": {"doctype": "mkdocs"}},
         )
         build.validate()
         assert build.mkdocs.fail_on_warning is value
 
-    @pytest.mark.parametrize('value', [[], 'invalid', 5])
+    @pytest.mark.parametrize("value", [[], "invalid", 5])
     def test_mkdocs_fail_on_warning_check_invalid(self, value):
-        build = self.get_build_config(
-            {'mkdocs': {'fail_on_warning': value}},
-            {'defaults': {'doctype': 'mkdocs'}},
+        build = get_build_config(
+            {"mkdocs": {"fail_on_warning": value}},
+            {"defaults": {"doctype": "mkdocs"}},
         )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'mkdocs.fail_on_warning'
+        assert excinfo.value.key == "mkdocs.fail_on_warning"
 
     def test_mkdocs_fail_on_warning_check_default(self):
-        build = self.get_build_config(
-            {'mkdocs': {}},
-            {'defaults': {'doctype': 'mkdocs'}},
+        build = get_build_config(
+            {"mkdocs": {}},
+            {"defaults": {"doctype": "mkdocs"}},
         )
         build.validate()
         assert build.mkdocs.fail_on_warning is False
 
     def test_submodule_defaults(self):
-        build = self.get_build_config({})
+        build = get_build_config({})
         build.validate()
         assert build.submodules.include == []
         assert build.submodules.exclude == ALL
         assert build.submodules.recursive is False
 
-    @pytest.mark.parametrize('value', [[], 'invalid', 0])
+    @pytest.mark.parametrize("value", [[], "invalid", 0])
     def test_submodules_check_invalid_type(self, value):
-        build = self.get_build_config({'submodules': value})
+        build = get_build_config({"submodules": value})
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'submodules'
+        assert excinfo.value.key == "submodules"
 
     def test_submodules_include_check_valid(self):
-        build = self.get_build_config({
-            'submodules': {
-                'include': ['one', 'two'],
-            },
-        })
+        build = get_build_config(
+            {
+                "submodules": {
+                    "include": ["one", "two"],
+                },
+            }
+        )
         build.validate()
-        assert build.submodules.include == ['one', 'two']
+        assert build.submodules.include == ["one", "two"]
         assert build.submodules.exclude == []
         assert build.submodules.recursive is False
 
-    @pytest.mark.parametrize('value', ['invalid', True, 0, {}])
+    @pytest.mark.parametrize("value", ["invalid", True, 0, {}])
     def test_submodules_include_check_invalid(self, value):
-        build = self.get_build_config({
-            'submodules': {
-                'include': value,
-            },
-        })
+        build = get_build_config(
+            {
+                "submodules": {
+                    "include": value,
+                },
+            }
+        )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'submodules.include'
+        assert excinfo.value.key == "submodules.include"
 
     def test_submodules_include_allows_all_keyword(self):
-        build = self.get_build_config({
-            'submodules': {
-                'include': 'all',
-            },
-        })
+        build = get_build_config(
+            {
+                "submodules": {
+                    "include": "all",
+                },
+            }
+        )
         build.validate()
         assert build.submodules.include == ALL
         assert build.submodules.exclude == []
         assert build.submodules.recursive is False
 
     def test_submodules_exclude_check_valid(self):
-        build = self.get_build_config({
-            'submodules': {
-                'exclude': ['one', 'two'],
-            },
-        })
+        build = get_build_config(
+            {
+                "submodules": {
+                    "exclude": ["one", "two"],
+                },
+            }
+        )
         build.validate()
         assert build.submodules.include == []
-        assert build.submodules.exclude == ['one', 'two']
+        assert build.submodules.exclude == ["one", "two"]
         assert build.submodules.recursive is False
 
-    @pytest.mark.parametrize('value', ['invalid', True, 0, {}])
+    @pytest.mark.parametrize("value", ["invalid", True, 0, {}])
     def test_submodules_exclude_check_invalid(self, value):
-        build = self.get_build_config({
-            'submodules': {
-                'exclude': value,
-            },
-        })
+        build = get_build_config(
+            {
+                "submodules": {
+                    "exclude": value,
+                },
+            }
+        )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'submodules.exclude'
+        assert excinfo.value.key == "submodules.exclude"
 
     def test_submodules_exclude_allows_all_keyword(self):
-        build = self.get_build_config({
-            'submodules': {
-                'exclude': 'all',
-            },
-        })
+        build = get_build_config(
+            {
+                "submodules": {
+                    "exclude": "all",
+                },
+            }
+        )
         build.validate()
         assert build.submodules.include == []
         assert build.submodules.exclude == ALL
         assert build.submodules.recursive is False
 
     def test_submodules_cant_exclude_and_include(self):
-        build = self.get_build_config({
-            'submodules': {
-                'include': ['two'],
-                'exclude': ['one'],
-            },
-        })
+        build = get_build_config(
+            {
+                "submodules": {
+                    "include": ["two"],
+                    "exclude": ["one"],
+                },
+            }
+        )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'submodules'
+        assert excinfo.value.key == "submodules"
 
     def test_submodules_can_exclude_include_be_empty(self):
-        build = self.get_build_config({
-            'submodules': {
-                'exclude': 'all',
-                'include': [],
-            },
-        })
+        build = get_build_config(
+            {
+                "submodules": {
+                    "exclude": "all",
+                    "include": [],
+                },
+            }
+        )
         build.validate()
         assert build.submodules.include == []
         assert build.submodules.exclude == ALL
         assert build.submodules.recursive is False
 
-    @pytest.mark.parametrize('value', [True, False])
+    @pytest.mark.parametrize("value", [True, False])
     def test_submodules_recursive_check_valid(self, value):
-        build = self.get_build_config({
-            'submodules': {
-                'include': ['one', 'two'],
-                'recursive': value,
-            },
-        })
+        build = get_build_config(
+            {
+                "submodules": {
+                    "include": ["one", "two"],
+                    "recursive": value,
+                },
+            }
+        )
         build.validate()
-        assert build.submodules.include == ['one', 'two']
+        assert build.submodules.include == ["one", "two"]
         assert build.submodules.exclude == []
         assert build.submodules.recursive is value
 
-    @pytest.mark.parametrize('value', [[], 'invalid', 5])
+    @pytest.mark.parametrize("value", [[], "invalid", 5])
     def test_submodules_recursive_check_invalid(self, value):
-        build = self.get_build_config({
-            'submodules': {
-                'include': ['one', 'two'],
-                'recursive': value,
-            },
-        })
+        build = get_build_config(
+            {
+                "submodules": {
+                    "include": ["one", "two"],
+                    "recursive": value,
+                },
+            }
+        )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'submodules.recursive'
+        assert excinfo.value.key == "submodules.recursive"
 
     def test_submodules_recursive_explicit_default(self):
-        build = self.get_build_config({
-            'submodules': {
-                'include': [],
-                'recursive': False,
-            },
-        })
+        build = get_build_config(
+            {
+                "submodules": {
+                    "include": [],
+                    "recursive": False,
+                },
+            }
+        )
         build.validate()
         assert build.submodules.include == []
         assert build.submodules.exclude == ALL
         assert build.submodules.recursive is False
 
-        build = self.get_build_config({
-            'submodules': {
-                'exclude': [],
-                'recursive': False,
-            },
-        })
+        build = get_build_config(
+            {
+                "submodules": {
+                    "exclude": [],
+                    "recursive": False,
+                },
+            }
+        )
         build.validate()
         assert build.submodules.include == []
         assert build.submodules.exclude == []
         assert build.submodules.recursive is False
 
-    @pytest.mark.parametrize('value', ['invalid', True, 0, []])
+    @pytest.mark.parametrize("value", ["invalid", True, 0, []])
     def test_search_invalid_type(self, value):
-        build = self.get_build_config({
-            'search': value,
-        })
+        build = get_build_config(
+            {
+                "search": value,
+            }
+        )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'search'
+        assert excinfo.value.key == "search"
 
     @pytest.mark.parametrize(
         'value',
@@ -1463,59 +1522,68 @@ class TestBuildConfigV2:
             True,
             0,
             [],
-            {'foo/bar': 11},
-            {'foo/bar': -11},
-            {'foo/bar': 2.5},
-            {'foo/bar': 'bar'},
-            {'/': 1},
-            {'/foo/..': 1},
-            {'..': 1},
-            {'/foo/bar/../../../': 1},
-            {10: 'bar'},
+            {"foo/bar": 11},
+            {"foo/bar": -11},
+            {"foo/bar": 2.5},
+            {"foo/bar": "bar"},
+            {"/": 1},
+            {"/foo/..": 1},
+            {"..": 1},
+            {"/foo/bar/../../../": 1},
+            {10: "bar"},
             {10: 0},
         ],
     )
     def test_search_ranking_invalid_type(self, value):
-        build = self.get_build_config({
-            'search': {'ranking': value},
-        })
+        build = get_build_config(
+            {
+                "search": {"ranking": value},
+            }
+        )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'search.ranking'
+        assert excinfo.value.key == "search.ranking"
 
-    @pytest.mark.parametrize('value', list(range(-10, 10 + 1)))
+    @pytest.mark.parametrize("value", list(range(-10, 10 + 1)))
     def test_search_valid_ranking(self, value):
-        build = self.get_build_config({
-            'search': {
-                'ranking': {
-                    'foo/bar': value,
-                    'bar/foo': value,
+        build = get_build_config(
+            {
+                "search": {
+                    "ranking": {
+                        "foo/bar": value,
+                        "bar/foo": value,
+                    },
                 },
-            },
-        })
+            }
+        )
         build.validate()
         assert build.search.ranking == {'foo/bar': value, 'bar/foo': value}
 
-    @pytest.mark.parametrize('path, expected', [
-        ('/foo/bar', 'foo/bar'),
-        ('///foo//bar', 'foo/bar'),
-        ('///foo//bar/', 'foo/bar'),
-        ('/foo/bar/../', 'foo'),
-        ('/foo*', 'foo*'),
-        ('/foo/bar/*', 'foo/bar/*'),
-        ('/foo/bar?/*', 'foo/bar?/*'),
-        ('foo/[bc]ar/*/', 'foo/[bc]ar/*'),
-        ('*', '*'),
-        ('index.html', 'index.html'),
-    ])
+    @pytest.mark.parametrize(
+        "path, expected",
+        [
+            ("/foo/bar", "foo/bar"),
+            ("///foo//bar", "foo/bar"),
+            ("///foo//bar/", "foo/bar"),
+            ("/foo/bar/../", "foo"),
+            ("/foo*", "foo*"),
+            ("/foo/bar/*", "foo/bar/*"),
+            ("/foo/bar?/*", "foo/bar?/*"),
+            ("foo/[bc]ar/*/", "foo/[bc]ar/*"),
+            ("*", "*"),
+            ("index.html", "index.html"),
+        ],
+    )
     def test_search_ranking_normilize_path(self, path, expected):
-        build = self.get_build_config({
-            'search': {
-                'ranking': {
-                    path: 1,
+        build = get_build_config(
+            {
+                "search": {
+                    "ranking": {
+                        path: 1,
+                    },
                 },
-            },
-        })
+            }
+        )
         build.validate()
         assert build.search.ranking == {expected: 1}
 
@@ -1526,144 +1594,159 @@ class TestBuildConfigV2:
             True,
             0,
             [2, 3],
-            {'foo/bar': 11},
+            {"foo/bar": 11},
         ],
     )
     def test_search_ignore_invalid_type(self, value):
-        build = self.get_build_config({
-            'search': {'ignore': value},
-        })
+        build = get_build_config(
+            {
+                "search": {"ignore": value},
+            }
+        )
         with raises(InvalidConfig) as excinfo:
             build.validate()
-        assert excinfo.value.key == 'search.ignore'
+        assert excinfo.value.key == "search.ignore"
 
-    @pytest.mark.parametrize('path, expected', [
-        ('/foo/bar', 'foo/bar'),
-        ('///foo//bar', 'foo/bar'),
-        ('///foo//bar/', 'foo/bar'),
-        ('/foo/bar/../', 'foo'),
-        ('/foo*', 'foo*'),
-        ('/foo/bar/*', 'foo/bar/*'),
-        ('/foo/bar?/*', 'foo/bar?/*'),
-        ('foo/[bc]ar/*/', 'foo/[bc]ar/*'),
-        ('*', '*'),
-        ('index.html', 'index.html'),
-    ])
+    @pytest.mark.parametrize(
+        "path, expected",
+        [
+            ("/foo/bar", "foo/bar"),
+            ("///foo//bar", "foo/bar"),
+            ("///foo//bar/", "foo/bar"),
+            ("/foo/bar/../", "foo"),
+            ("/foo*", "foo*"),
+            ("/foo/bar/*", "foo/bar/*"),
+            ("/foo/bar?/*", "foo/bar?/*"),
+            ("foo/[bc]ar/*/", "foo/[bc]ar/*"),
+            ("*", "*"),
+            ("index.html", "index.html"),
+        ],
+    )
     def test_search_ignore_valid_type(self, path, expected):
-        build = self.get_build_config({
-            'search': {
-                'ignore': [path],
-            },
-        })
+        build = get_build_config(
+            {
+                "search": {
+                    "ignore": [path],
+                },
+            }
+        )
         build.validate()
         assert build.search.ignore == [expected]
 
-    @pytest.mark.parametrize('value,key', [
-        ({'typo': 'something'}, 'typo'),
-        (
-            {
-                'pyton': {
-                    'version': 'another typo',
-                }
-            },
-            'pyton.version'
-        ),
-        (
-            {
-                'build': {
-                    'image': 'latest',
-                    'extra': 'key',
-                }
-            },
-            'build.extra'
-        ),
-        (
-            {
-                'python': {
-                    'install': [{
-                        'path': '.',
-                    }, {
-                        'path': '.',
-                        'method': 'pip',
-                        'invalid': 'key',
-                    }]
-                }
-            },
-            'python.install.1.invalid'
-        )
-    ])
+    @pytest.mark.parametrize(
+        "value,key",
+        [
+            ({"typo": "something"}, "typo"),
+            (
+                {
+                    "pyton": {
+                        "version": "another typo",
+                    }
+                },
+                "pyton.version",
+            ),
+            (
+                {
+                    "build": {
+                        "image": "latest",
+                        "extra": "key",
+                    }
+                },
+                "build.extra",
+            ),
+            (
+                {
+                    "python": {
+                        "install": [
+                            {
+                                "path": ".",
+                            },
+                            {
+                                "path": ".",
+                                "method": "pip",
+                                "invalid": "key",
+                            },
+                        ]
+                    }
+                },
+                "python.install.1.invalid",
+            ),
+        ],
+    )
     def test_strict_validation(self, value, key):
-        build = self.get_build_config(value)
+        build = get_build_config(value)
         with raises(InvalidConfig) as excinfo:
             build.validate()
         assert excinfo.value.key == key
         assert excinfo.value.code == INVALID_KEY
 
     def test_strict_validation_pops_all_keys(self):
-        build = self.get_build_config({
-            'version': 2,
-            'python': {
-                'version': 3,
-            },
-        })
+        build = get_build_config(
+            {
+                "version": 2,
+                "python": {
+                    "version": 3,
+                },
+            }
+        )
         build.validate()
         assert build._raw_config == {}
 
     @pytest.mark.parametrize(
         'value,expected', [
             ({}, []),
-            ({'one': 1}, ['one']),
-            ({'one': {'two': 3}}, ['one', 'two']),
-            (OrderedDict([('one', 1), ('two', 2)]), ['one']),
-            (OrderedDict([('one', {'two': 2}), ('three', 3)]), ['one', 'two']),
+            ({"one": 1}, ["one"]),
+            ({"one": {"two": 3}}, ["one", "two"]),
+            (OrderedDict([("one", 1), ("two", 2)]), ["one"]),
+            (OrderedDict([("one", {"two": 2}), ("three", 3)]), ["one", "two"]),
         ],
     )
     def test_get_extra_key(self, value, expected):
-        build = self.get_build_config({})
+        build = get_build_config({})
         assert build._get_extra_key(value) == expected
 
     def test_pop_config_single(self):
-        build = self.get_build_config({'one': 1})
-        build.pop_config('one')
+        build = get_build_config({"one": 1})
+        build.pop_config("one")
         assert build._raw_config == {}
 
     def test_pop_config_nested(self):
-        build = self.get_build_config({'one': {'two': 2}})
-        build.pop_config('one.two')
+        build = get_build_config({"one": {"two": 2}})
+        build.pop_config("one.two")
         assert build._raw_config == {}
 
     def test_pop_config_nested_with_residue(self):
-        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
-        build.pop_config('one.two')
-        assert build._raw_config == {'one': {'three': 3}}
+        build = get_build_config({"one": {"two": 2, "three": 3}})
+        build.pop_config("one.two")
+        assert build._raw_config == {"one": {"three": 3}}
 
     def test_pop_config_default_none(self):
-        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
-        assert build.pop_config('one.four') is None
-        assert build._raw_config == {'one': {'two': 2, 'three': 3}}
+        build = get_build_config({"one": {"two": 2, "three": 3}})
+        assert build.pop_config("one.four") is None
+        assert build._raw_config == {"one": {"two": 2, "three": 3}}
 
     def test_pop_config_default(self):
-        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
-        assert build.pop_config('one.four', 4) == 4
-        assert build._raw_config == {'one': {'two': 2, 'three': 3}}
+        build = get_build_config({"one": {"two": 2, "three": 3}})
+        assert build.pop_config("one.four", 4) == 4
+        assert build._raw_config == {"one": {"two": 2, "three": 3}}
 
     def test_pop_config_raise_exception(self):
-        build = self.get_build_config({'one': {'two': 2, 'three': 3}})
+        build = get_build_config({"one": {"two": 2, "three": 3}})
         with raises(ValidationError) as excinfo:
-            build.pop_config('one.four', raise_ex=True)
-        assert excinfo.value.value == 'four'
+            build.pop_config("one.four", raise_ex=True)
+        assert excinfo.value.value == "four"
         assert excinfo.value.code == VALUE_NOT_FOUND
 
     def test_as_dict_new_build_config(self, tmpdir):
-        build = self.get_build_config(
+        build = get_build_config(
             {
-                'version': 2,
-                'formats': ['pdf'],
-                'build': {
-                    'os': 'ubuntu-20.04',
-                    'tools': {
-                        'python': '3.9',
-                        'nodejs': '16',
+                "version": 2,
+                "formats": ["pdf"],
+                "build": {
+                    "os": "ubuntu-20.04",
+                    "tools": {
+                        "python": "3.9",
+                        "nodejs": "16",
                     },
                 },
                 'python': {
