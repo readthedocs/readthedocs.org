@@ -37,16 +37,6 @@ from readthedocs.config.validation import VALUE_NOT_FOUND, ValidationError
 
 from .utils import apply_fs
 
-yaml_config_dir = {
-    'readthedocs.yml': textwrap.dedent(
-        '''
-        formats:
-          - pdf
-        '''
-    ),
-}
-
-
 def get_build_config(config, source_file="readthedocs.yml", validate=False):
     # I'm adding these defaults here to avoid modifying all the config file from all the tests
     final_config = {
@@ -100,37 +90,19 @@ def test_load_empty_config_file(tmpdir):
             load(base, {})
 
 
-def test_minimal_config(tmpdir):
-    apply_fs(tmpdir, yaml_config_dir)
-    base = str(tmpdir)
-    with override_settings(DOCROOT=tmpdir):
-        build = load(base, {})
-    assert isinstance(build, BuildConfigV1)
-
-
-def test_load_version1(tmpdir):
+def test_load_version2(tmpdir):
     apply_fs(
         tmpdir,
         {
             "readthedocs.yml": textwrap.dedent(
                 """
-            version: 1
+            version: 2
+            build:
+              os: "ubuntu-22.04"
+              tools:
+                python: "3"
         """
             ),
-        },
-    )
-    base = str(tmpdir)
-    with override_settings(DOCROOT=tmpdir):
-        build = load(base, {})
-    assert isinstance(build, BuildConfigV1)
-
-
-def test_load_version2(tmpdir):
-    apply_fs(
-        tmpdir, {
-            'readthedocs.yml': textwrap.dedent('''
-            version: 2
-        '''),
         },
     )
     base = str(tmpdir)
@@ -176,13 +148,6 @@ def test_load_raise_exception_invalid_syntax(tmpdir):
     assert excinfo.value.code == CONFIG_SYNTAX_INVALID
 
 
-def test_build_config_has_source_file(tmpdir):
-    base = str(apply_fs(tmpdir, yaml_config_dir))
-    with override_settings(DOCROOT=tmpdir):
-        build = load(base, {})
-    assert build.source_file == os.path.join(base, 'readthedocs.yml')
-
-
 def test_load_non_default_filename(tmpdir):
     """
     Load a config file name with a non-default name.
@@ -202,6 +167,10 @@ def test_load_non_default_filename(tmpdir):
             non_default_filename: textwrap.dedent(
                 """
                 version: 2
+                build:
+                  os: "ubuntu-22.04"
+                  tools:
+                    python: "3"
                 """
             ),
             ".readthedocs.yaml": "illegal syntax but should not load",
@@ -209,7 +178,7 @@ def test_load_non_default_filename(tmpdir):
     )
     base = str(tmpdir)
     with override_settings(DOCROOT=tmpdir):
-        build = load(base, {}, readthedocs_yaml_path="myconfig.yaml")
+        build = load(base, readthedocs_yaml_path="myconfig.yaml")
     assert isinstance(build, BuildConfigV2)
     assert build.source_file == os.path.join(base, non_default_filename)
 
@@ -231,6 +200,10 @@ def test_load_non_yaml_extension(tmpdir):
                 non_default_filename: textwrap.dedent(
                     """
                     version: 2
+                    build:
+                      os: "ubuntu-22.04"
+                      tools:
+                        python: "3"
                     """
                 ),
             },
@@ -239,7 +212,7 @@ def test_load_non_yaml_extension(tmpdir):
     )
     base = str(tmpdir)
     with override_settings(DOCROOT=tmpdir):
-        build = load(base, {}, readthedocs_yaml_path="subdir/.readthedocs.skrammel")
+        build = load(base, readthedocs_yaml_path="subdir/.readthedocs.skrammel")
     assert isinstance(build, BuildConfigV2)
     assert build.source_file == os.path.join(base, "subdir/.readthedocs.skrammel")
 
