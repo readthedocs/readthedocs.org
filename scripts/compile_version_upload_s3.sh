@@ -108,11 +108,14 @@ docker exec $CONTAINER_ID asdf reshim $TOOL
 # for now to avoid changing versions.
 if [[ $TOOL == "python" ]] && [[ ! $VERSION =~ (^miniconda.*|^mambaforge.*) ]]
 then
-    RTD_VIRTUALENV_VERSION=20.7.2
+    # Virtualenv 20.21.1 is the latest version that supports Python 3.7 till 3.12.
+    # When adding a new version of Python, we need to pin a compatible version of
+    # virtualenv for that version of Python.
+    RTD_VIRTUALENV_VERSION=20.21.1
 
-    if [[ $VERSION == "2.7.18" ]]
+    if [[ $VERSION == 2.7.* || $VERSION == 3.6.* ]]
     then
-        # Pin to the latest versions supported on Python 2.7
+        # Pin to the latest versions supported on Python 2.7 and 3.6.
         RTD_VIRTUALENV_VERSION=20.7.2
     fi
     docker exec $CONTAINER_ID $TOOL -m pip install -U virtualenv==$RTD_VIRTUALENV_VERSION
