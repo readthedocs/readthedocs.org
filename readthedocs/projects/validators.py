@@ -202,7 +202,7 @@ def validate_custom_subproject_prefix(project, prefix):
     # Since this will result in an ambiguous path that can't be resolved as a subproject.
     # This check is only needed if the project is a multiversion project,
     # a single version project will resolve the subproject correctly.
-    if not project.single_version and prefix.startswith(project_prefix):
+    if not project.is_single_version and prefix.startswith(project_prefix):
         first_component = prefix.removeprefix(project_prefix).split("/")[0]
         valid_languages = [language[0] for language in LANGUAGES]
         if first_component in valid_languages:

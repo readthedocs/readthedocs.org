@@ -383,43 +383,40 @@ BITBUCKET_URL = (
     'https://bitbucket.org/{user}/{repo}/'
     'src/{version}{docroot}{path}{source_suffix}'
 )
-BITBUCKET_COMMIT_URL = (
-    'https://bitbucket.org/{user}/{repo}/'
-    'commits/{commit}'
-)
+BITBUCKET_COMMIT_URL = "https://bitbucket.org/{user}/{repo}/" "commits/{commit}"
 GITLAB_URL = (
-    'https://gitlab.com/{user}/{repo}/'
-    '{action}/{version}{docroot}{path}{source_suffix}'
+    "https://gitlab.com/{user}/{repo}/"
+    "{action}/{version}{docroot}{path}{source_suffix}"
 )
-GITLAB_COMMIT_URL = (
-    'https://gitlab.com/{user}/{repo}/'
-    'commit/{commit}'
-)
+GITLAB_COMMIT_URL = "https://gitlab.com/{user}/{repo}/" "commit/{commit}"
 GITLAB_MERGE_REQUEST_COMMIT_URL = (
-    'https://gitlab.com/{user}/{repo}/'
-    'commit/{commit}?merge_request_iid={number}'
+    "https://gitlab.com/{user}/{repo}/" "commit/{commit}?merge_request_iid={number}"
 )
-GITLAB_MERGE_REQUEST_URL = (
-    'https://gitlab.com/{user}/{repo}/'
-    'merge_requests/{number}'
-)
+GITLAB_MERGE_REQUEST_URL = "https://gitlab.com/{user}/{repo}/" "merge_requests/{number}"
 
 # Patterns to pull merge/pull request from providers
-GITHUB_PR_PULL_PATTERN = 'pull/{id}/head:external-{id}'
-GITLAB_MR_PULL_PATTERN = 'merge-requests/{id}/head:external-{id}'
+GITHUB_PR_PULL_PATTERN = "pull/{id}/head:external-{id}"
+GITLAB_MR_PULL_PATTERN = "merge-requests/{id}/head:external-{id}"
 
 # Git provider names
-GITHUB_BRAND = 'GitHub'
-GITLAB_BRAND = 'GitLab'
+GITHUB_BRAND = "GitHub"
+GITLAB_BRAND = "GitLab"
 
 # SSL statuses
-SSL_STATUS_VALID = 'valid'
-SSL_STATUS_INVALID = 'invalid'
-SSL_STATUS_PENDING = 'pending'
-SSL_STATUS_UNKNOWN = 'unknown'
+SSL_STATUS_VALID = "valid"
+SSL_STATUS_INVALID = "invalid"
+SSL_STATUS_PENDING = "pending"
+SSL_STATUS_UNKNOWN = "unknown"
 SSL_STATUS_CHOICES = (
-    (SSL_STATUS_VALID, _('Valid and active')),
-    (SSL_STATUS_INVALID, _('Invalid')),
-    (SSL_STATUS_PENDING, _('Pending')),
-    (SSL_STATUS_UNKNOWN, _('Unknown')),
+    (SSL_STATUS_VALID, _("Valid and active")),
+    (SSL_STATUS_INVALID, _("Invalid")),
+    (SSL_STATUS_PENDING, _("Pending")),
+    (SSL_STATUS_UNKNOWN, _("Unknown")),
+)
+
+SINGLE_VERSION = "single_version_single_language"
+MULTI_VERSION = "multi_version_multi_language"
+VERSIONING_SCHEME_CHOICES = (
+    (SINGLE_VERSION, _("Single version")),
+    (MULTI_VERSION, _("Multi version")),
 )

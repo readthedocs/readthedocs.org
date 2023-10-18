@@ -448,7 +448,7 @@ class Unresolver:
         :returns: A tuple with: project, version, and filename.
         """
         # Multiversion project.
-        if not parent_project.single_version:
+        if not parent_project.is_single_version:
             response = self._match_multiversion_project(
                 parent_project=parent_project,
                 path=path,
@@ -468,7 +468,7 @@ class Unresolver:
                 return response
 
         # Single version project.
-        if parent_project.single_version:
+        if parent_project.is_single_version:
             response = self._match_single_version_project(
                 parent_project=parent_project,
                 path=path,

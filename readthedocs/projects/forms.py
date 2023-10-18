@@ -16,6 +16,7 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.history import SimpleHistoryModelForm
+from readthedocs.core.resolver import resolver
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -209,7 +210,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             "analytics_code",
             "analytics_disabled",
             "show_version_warning",
-            "single_version",
+            "versioning_scheme",
             "external_builds_enabled",
             "external_builds_privacy_level",
             "readthedocs_yaml_path",
@@ -235,6 +236,13 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         # Remove the nullable option from the form
         self.fields['analytics_disabled'].widget = forms.CheckboxInput()
         self.fields['analytics_disabled'].empty_value = False
+
+        # Remove empty choice from options, and add a preview to the choices.
+        self.fields["versioning_scheme"].choices = [
+            (key, f"{value} ({self._get_versionin_scheme_preview(key)})")
+            for key, value in self.fields["versioning_scheme"].choices
+            if key
+        ]
 
         self.helper = FormHelper()
         help_text = render_to_string(
@@ -289,6 +297,17 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             self.fields['default_version'].widget.attrs['readonly'] = True
 
         self.setup_external_builds_option()
+
+    def _get_versionin_scheme_preview(self, versioning_scheme):
+        # Change the versioning scheme momentarily to get the preview.
+        original_version_scheme = self.instance.versioning_scheme
+        self.instance.versioning_scheme = versioning_scheme
+        path = resolver.resolve_path(
+            project=self.instance,
+            filename="file.html",
+        )
+        self.instance.versioning_scheme = original_version_scheme
+        return path
 
     def setup_external_builds_option(self):
         """Disable the external builds option if the project doesn't meet the requirements."""

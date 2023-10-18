@@ -241,6 +241,20 @@ class Project(models.Model):
         blank=True,
         help_text=_('URL that documentation is expected to serve from'),
     )
+    versioning_scheme = models.CharField(
+        _("Versioning scheme"),
+        max_length=120,
+        default=constants.MULTI_VERSION,
+        choices=constants.VERSIONING_SCHEME_CHOICES,
+        # TODO: remove after migration
+        null=True,
+        help_text=_(
+            "This affects how the URL of your documentation looks like, "
+            "and if it supports translations or multiple versions. "
+            "Changing the versioning scheme will break your current URLs."
+        ),
+    )
+    # TODO: this field is deprecated, use `versioning_scheme` instead.
     single_version = models.BooleanField(
         _('Single version'),
         default=False,
@@ -817,6 +831,17 @@ class Project(models.Model):
         """Return the alias (as subproject) if it's a subproject."""  # noqa
         if self.is_subproject:
             return self.superprojects.first().alias
+
+    @property
+    def is_single_version(self):
+        """
+        Return whether or not this project is a single version project.
+
+        Kept for backwards compatibility while we migrate the old field to the new one.
+        """
+        if self.single_version:
+            return True
+        return self.versioning_scheme == constants.SINGLE_VERSION
 
     def subdomain(self, use_canonical_domain=True):
         """Get project subdomain from resolver."""
