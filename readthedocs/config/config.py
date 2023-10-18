@@ -497,10 +497,7 @@ class BuildConfigV2(BuildConfigBase):
         raw_build = self._raw_config.get('build', {})
         with self.catch_validation_error('build'):
             validate_dict(raw_build)
-        if "os" in raw_build or "commands" in raw_build or "tools" in raw_build:
-            return self.validate_build_config_with_os()
-        # TODO: raise the proper exception here communicating that "os" is required now
-        return Exception
+        return self.validate_build_config_with_os()
 
     def validate_apt_package(self, index):
         """
