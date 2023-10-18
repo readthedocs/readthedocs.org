@@ -38,7 +38,9 @@ RTD_DOCKER_BUILD_SETTINGS = {
             "3.11": "3.11.6",
             "3.12": "3.12.0",
             # Always point to the latest stable release.
-            "3": "3.12.0",
+            # Pin to 3.11 till we fix an issue with 3.12
+            # https://github.com/readthedocs/readthedocs.org/issues/10832.
+            "3": "3.11.6",
             "miniconda3-4.7": "miniconda3-4.7.12",
             "mambaforge-4.10": "mambaforge-4.10.3-10",
             "mambaforge-22.9": "mambaforge-22.9.0-3",
