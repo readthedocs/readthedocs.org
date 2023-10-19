@@ -10,10 +10,8 @@ pass in related querysets at view time.
 
 import structlog
 from django.db.models import F
-from django.forms.widgets import HiddenInput
 from django.utils.translation import gettext_lazy as _
 from django_filters import (
-    CharFilter,
     ChoiceFilter,
     FilterSet,
     ModelChoiceFilter,
@@ -21,7 +19,7 @@ from django_filters import (
 )
 
 from readthedocs.organizations.constants import ACCESS_LEVELS
-from readthedocs.organizations.models import Team
+from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
@@ -75,12 +73,37 @@ class OrganizationListFilterSet(FilterSet):
 
     """Filter and sorting for organization listing page."""
 
-    slug = CharFilter(field_name="slug", widget=HiddenInput)
+    slug = ModelChoiceFilter(
+        label=_("Organization"),
+        empty_label=_("All organizations"),
+        to_field_name="slug",
+        # Queryset is required, give an empty queryset from the correct model
+        queryset=Organization.objects.none(),
+        method="get_organization",
+    )
 
     sort = OrganizationSortOrderingFilter(
         field_name="sort",
         label=_("Sort by"),
     )
+
+    def __init__(
+        self,
+        data=None,
+        queryset=None,
+        *,
+        request=None,
+        prefix=None,
+    ):
+        super().__init__(data, queryset, request=request, prefix=prefix)
+        # Redefine the querysets used for the filter fields using the querysets
+        # defined at view time. This populates the filter field with only the
+        # correct related objects for the user. Otherwise, the default for model
+        # choice filter fields is ``<Model>.objects.all()``.
+        self.filters["slug"].field.queryset = self.queryset.all()
+
+    def get_organization(self, queryset, field_name, organization):
+        return queryset.filter(slug=organization.slug)
 
 
 class OrganizationProjectListFilterSet(FilterSet):
@@ -111,6 +134,7 @@ class OrganizationProjectListFilterSet(FilterSet):
         label=_("Project"),
         empty_label=_("All projects"),
         to_field_name="slug",
+        # Queryset is required, give an empty queryset from the correct model
         queryset=Project.objects.none(),
         method="get_project",
     )
