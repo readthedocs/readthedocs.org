@@ -421,7 +421,6 @@ class TestBuildTask(BuildEnvironmentBase):
     ):
         load_yaml_config.return_value = get_build_config(
             {
-                "version": 2,
                 "formats": "all",
                 "sphinx": {
                     "configuration": "docs/conf.py",
@@ -526,7 +525,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     },
                     "tools": {
                         "python": {
-                            "full_version": "3.12.0",
+                            "full_version": "3.11.6",
                             "version": "3",
                         }
                     },
@@ -1430,14 +1429,14 @@ class TestBuildTask(BuildEnvironmentBase):
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_sphinx_normalized_language(self, load_yaml_config):
-        load_yaml_config.return_value = self._config_file(
+        load_yaml_config.return_value = get_build_config(
             {
-                "version": 2,
                 "sphinx": {
                     "configuration": "docs/conf.py",
                     "fail_on_warning": True,
                 },
             },
+            validate=True,
         )
         self.project.language = "es-mx"
         self.project.save()
