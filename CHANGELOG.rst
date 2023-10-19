@@ -1,3 +1,22 @@
+Version 10.7.1
+--------------
+
+:Date: October 17, 2023
+
+* `@humitos <https://github.com/humitos>`__: Addons: docdiff compare against `LATEST` (`#10820 <https://github.com/readthedocs/readthedocs.org/pull/10820>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10819 <https://github.com/readthedocs/readthedocs.org/pull/10819>`__)
+* `@humitos <https://github.com/humitos>`__: Logs: always log documentation size in megabytes (`#10812 <https://github.com/readthedocs/readthedocs.org/pull/10812>`__)
+* `@humitos <https://github.com/humitos>`__: Script: compile versions for S3 (`#10811 <https://github.com/readthedocs/readthedocs.org/pull/10811>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: deprecated note about flyout integration/customization (`#10810 <https://github.com/readthedocs/readthedocs.org/pull/10810>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.7.0 (`#10809 <https://github.com/readthedocs/readthedocs.org/pull/10809>`__)
+* `@A5rocks <https://github.com/A5rocks>`__: Add Python 3.12 to allowed Python versions (`#10808 <https://github.com/readthedocs/readthedocs.org/pull/10808>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10807 <https://github.com/readthedocs/readthedocs.org/pull/10807>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: always use subdomain for serving docs (`#10799 <https://github.com/readthedocs/readthedocs.org/pull/10799>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.6.1 (`#10792 <https://github.com/readthedocs/readthedocs.org/pull/10792>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: add test cases for the endpoint (`#10754 <https://github.com/readthedocs/readthedocs.org/pull/10754>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Merge Diataxis into `main`! (`#10034 <https://github.com/readthedocs/readthedocs.org/pull/10034>`__)
+* `@humitos <https://github.com/humitos>`__: structlog: migrate application code to better logging (`#8705 <https://github.com/readthedocs/readthedocs.org/pull/8705>`__)
+
 Version 10.7.0
 --------------
 

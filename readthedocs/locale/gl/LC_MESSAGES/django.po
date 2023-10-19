@@ -10,7 +10,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-03 15:41+0000\n"
+"POT-Creation-Date: 2023-10-17 15:12+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>, 2023\n"
 "Language-Team: Galician (http://app.transifex.com/readthedocs/readthedocs/"
@@ -1584,7 +1584,7 @@ msgstr ""
 "href=\"{{ url_connect_account }}\"> conta de {{ provider_name }}</a> está "
 "conectada a Read the Docs."
 
-#: oauth/services/base.py:23
+#: oauth/services/base.py:24
 #, python-brace-format
 msgid ""
 "Our access to your following accounts was revoked: {provider}. Please, "
@@ -3249,7 +3249,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr "{username} é o último propietario, non é posíbel retiralo"
 
-#: projects/views/private.py:941
+#: projects/views/private.py:937
 msgid "Project has been opted out from advertisement support"
 msgstr "O proxecto foi excluído do apoio publicitario"
 
@@ -3402,67 +3402,67 @@ msgstr "Consulta"
 msgid "Total results"
 msgstr "Resultados totais"
 
-#: settings/base.py:446
+#: settings/base.py:445
 msgid "Catalan"
 msgstr "Catalan"
 
-#: settings/base.py:447
+#: settings/base.py:446
 msgid "English"
 msgstr "Inglés"
 
-#: settings/base.py:448
+#: settings/base.py:447
 msgid "Spanish"
 msgstr "Español"
 
-#: settings/base.py:449
+#: settings/base.py:448
 msgid "Brazilian Portuguese"
 msgstr "Portugués do Brasil"
 
-#: settings/base.py:450
+#: settings/base.py:449
 msgid "Norwegian Bokmål"
 msgstr "Noruegués Bokmål"
 
-#: settings/base.py:451
+#: settings/base.py:450
 msgid "French"
 msgstr "Francés"
 
-#: settings/base.py:452
+#: settings/base.py:451
 msgid "Russian"
 msgstr "Ruso"
 
-#: settings/base.py:453
+#: settings/base.py:452
 msgid "German"
 msgstr "Alemán"
 
-#: settings/base.py:454
+#: settings/base.py:453
 msgid "Galician"
 msgstr "Galego"
 
-#: settings/base.py:455
+#: settings/base.py:454
 msgid "Vietnamese"
 msgstr "Vietnamita"
 
-#: settings/base.py:456
+#: settings/base.py:455
 msgid "Simplified Chinese"
 msgstr "Chinés simplificado"
 
-#: settings/base.py:457
+#: settings/base.py:456
 msgid "Traditional Chinese"
 msgstr "Chinés tradicional"
 
-#: settings/base.py:458
+#: settings/base.py:457
 msgid "Japanese"
 msgstr "Xaponés"
 
-#: settings/base.py:459
+#: settings/base.py:458
 msgid "Ukrainian"
 msgstr "Ucraíno"
 
-#: settings/base.py:460
+#: settings/base.py:459
 msgid "Italian"
 msgstr "Italiano"
 
-#: settings/base.py:461
+#: settings/base.py:460
 msgid "Korean"
 msgstr "Coreano"
 
@@ -6060,9 +6060,3 @@ msgstr ""
 "servizo, tamén debe visitar o seu provedor de Git para eliminar a conexión "
 "OAuth de Read the Docs. En GitHub, atópase en <code>Axustes > Aplicacións > "
 "Aplicacións OAuth autorizadas</code>."
-
-#~ msgid "Sphinx: Use latest version of Sphinx"
-#~ msgstr "Sphinx: utilice a última versión de Sphinx"
-
-#~ msgid "MkDOcs: Install mkdocs 0.17.3 by default"
-#~ msgstr "MkDOcs: instale mkdocs 0.17.3 de xeito predeteminado"

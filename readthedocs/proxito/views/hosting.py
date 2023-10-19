@@ -17,6 +17,7 @@ from readthedocs.api.v3.serializers import (
     ProjectSerializer,
     VersionSerializer,
 )
+from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.builds.models import Version
 from readthedocs.core.resolver import resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
@@ -253,7 +254,7 @@ class AddonsResponse:
                     user=user,
                 )
                 .exclude(hidden=True)
-                .only("slug")
+                .only("slug", "type")
                 .order_by("slug")
             )
 
@@ -330,7 +331,12 @@ class AddonsResponse:
                         {
                             # TODO: name this field "display_name"
                             "slug": translation.language,
-                            "url": f"/{translation.language}/",
+                            "url": resolver.resolve(
+                                project=project,
+                                version_slug=version.slug,
+                                language=translation.language,
+                                external=version.type == EXTERNAL,
+                            ),
                         }
                         for translation in project_translations
                     ],
@@ -338,7 +344,11 @@ class AddonsResponse:
                         {
                             # TODO: name this field "display_name"
                             "slug": version_.slug,
-                            "url": f"/{project.language}/{version_.slug}/",
+                            "url": resolver.resolve(
+                                project=project,
+                                version_slug=version_.slug,
+                                external=version_.type == EXTERNAL,
+                            ),
                         }
                         for version_ in versions_active_built_not_hidden
                     ],
@@ -416,7 +426,9 @@ class AddonsResponse:
                         # "http://test-builds-local.devthedocs.org/en/latest/index.html"
                         "base_url": resolver.resolve(
                             project=project,
-                            version_slug=project.get_default_version(),
+                            # NOTE: we are using LATEST version to compare against to for now.
+                            # Ideally, this should be configurable by the user.
+                            version_slug=LATEST,
                             language=project.language,
                             filename=filename,
                         )

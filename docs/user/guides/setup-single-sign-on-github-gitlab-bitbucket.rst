@@ -47,7 +47,7 @@ Having **read** permissions to the git repository translates to having **view** 
 Grant access to administer a project
 ------------------------------------
 
-By granting **write** permission to a user in the git repository,
+By granting **admin** permission to a user in the git repository,
 you are giving the user access to read the documentation *and* to be an administrator of the associated project on Read the Docs.
 
 Grant access to import a project
