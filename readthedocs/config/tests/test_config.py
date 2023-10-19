@@ -37,6 +37,7 @@ from readthedocs.config.validation import VALUE_NOT_FOUND, ValidationError
 
 from .utils import apply_fs
 
+
 def get_build_config(config, source_file="readthedocs.yml", validate=False):
     # I'm adding these defaults here to avoid modifying all the config file from all the tests
     final_config = {
