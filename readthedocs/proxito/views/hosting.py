@@ -7,7 +7,6 @@ import structlog
 from django.conf import settings
 from django.contrib.auth.models import AnonymousUser
 from django.http import Http404, JsonResponse
-from django.shortcuts import get_object_or_404
 from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 
@@ -73,9 +72,10 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
         project_slug = self.request.GET.get("project-slug")
         version_slug = self.request.GET.get("version-slug")
 
-        if not project_slug or not version_slug:
-            # TODO: not sure what to return here when it fails on the `has_permission`
-            return None, None, None, None
+        project = None
+        version = None
+        build = None
+        filename = None
 
         unresolved_domain = self.request.unresolved_domain
 
@@ -102,32 +102,26 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 if not project:
                     raise Http404() from exc
 
-                version = None
-                filename = None
-                build = None
         else:
-            project = get_object_or_404(
-                Project.objects.for_user(user=self.request.user),
-                slug=project_slug,
-            )
-            version = get_object_or_404(Version, slug=version_slug, project=project)
-            build = version.builds.last()
-            filename = None
+            project = Project.objects.filter(slug=project_slug).first()
+            version = Version.objects.filter(slug=version_slug, project=project).first()
+            if version:
+                build = version.builds.last()
 
         return project, version, build, filename
 
     def _get_project(self):
-        project, version, build, filename = self._resolve_resources()
+        project, _, _, _ = self._resolve_resources()
         return project
 
     def _get_version(self):
-        project, version, build, filename = self._resolve_resources()
+        _, version, _, _ = self._resolve_resources()
         return version
 
     def get(self, request, format=None):
         url = request.GET.get("url")
-        project_slug = request.GET.get("project_slug")
-        version_slug = request.GET.get("version_slug")
+        project_slug = request.GET.get("project-slug")
+        version_slug = request.GET.get("version-slug")
         if not url:
             if not project_slug or not version_slug:
                 return JsonResponse(
@@ -168,6 +162,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             version,
             build,
             filename,
+            url,
             user=request.user,
         )
         return JsonResponse(data, json_dumps_params={"indent": 4, "sort_keys": True})
@@ -219,6 +214,7 @@ class AddonsResponse:
         version=None,
         build=None,
         filename=None,
+        url=None,
         user=None,
     ):
         """
@@ -228,12 +224,12 @@ class AddonsResponse:
         best JSON structure for that particular version.
         """
         if addons_version.major == 0:
-            return self._v0(project, version, build, filename, user)
+            return self._v0(project, version, build, filename, url, user)
 
         if addons_version.major == 1:
-            return self._v1(project, version, build, filename, user)
+            return self._v1(project, version, build, filename, url, user)
 
-    def _v0(self, project, version, build, filename, user):
+    def _v0(self, project, version, build, filename, url, user):
         """
         Initial JSON data structure consumed by the JavaScript client.
 
@@ -328,25 +324,6 @@ class AddonsResponse:
                         versions_active_built_not_hidden.values_list("slug", flat=True)
                     ),
                 },
-                "doc_diff": {
-                    "enabled": Feature.ADDONS_DOC_DIFF_DISABLED not in project_features,
-                    # "http://test-builds-local.devthedocs.org/en/latest/index.html"
-                    "base_url": resolver.resolve(
-                        project=project,
-                        version_slug=project.get_default_version(),
-                        language=project.language,
-                        filename=filename,
-                    )
-                    if filename
-                    else None,
-                    "root_selector": "[role=main]",
-                    "inject_styles": True,
-                    # NOTE: `base_host` and `base_page` are not required, since
-                    # we are constructing the `base_url` in the backend instead
-                    # of the frontend, as the doc-diff extension does.
-                    "base_host": "",
-                    "base_page": "",
-                },
                 "flyout": {
                     "enabled": Feature.ADDONS_FLYOUT_DISABLED not in project_features,
                     "translations": [
@@ -360,18 +337,18 @@ class AddonsResponse:
                     "versions": [
                         {
                             # TODO: name this field "display_name"
-                            "slug": version.slug,
-                            "url": f"/{project.language}/{version.slug}/",
+                            "slug": version_.slug,
+                            "url": f"/{project.language}/{version_.slug}/",
                         }
-                        for version in versions_active_built_not_hidden
+                        for version_ in versions_active_built_not_hidden
                     ],
                     "downloads": [
                         {
                             # TODO: name this field "display_name"
                             "name": name,
-                            "url": url,
+                            "url": url_,
                         }
-                        for name, url in version_downloads
+                        for name, url_ in version_downloads
                     ],
                     # TODO: find a way to get this data in a reliably way.
                     # We don't have a simple way to map a URL to a file in the repository.
@@ -426,6 +403,36 @@ class AddonsResponse:
             },
         }
 
+        # DocDiff depends on `url=` GET attribute.
+        # This attribute allows us to know the exact filename where the request was made.
+        # If we don't know the filename, we cannot return the data required by DocDiff to work.
+        # In that case, we just don't include the `doc_diff` object in the response.
+        if url:
+            data["addons"].update(
+                {
+                    "doc_diff": {
+                        "enabled": Feature.ADDONS_DOC_DIFF_DISABLED
+                        not in project_features,
+                        # "http://test-builds-local.devthedocs.org/en/latest/index.html"
+                        "base_url": resolver.resolve(
+                            project=project,
+                            version_slug=project.get_default_version(),
+                            language=project.language,
+                            filename=filename,
+                        )
+                        if filename
+                        else None,
+                        "root_selector": "[role=main]",
+                        "inject_styles": True,
+                        # NOTE: `base_host` and `base_page` are not required, since
+                        # we are constructing the `base_url` in the backend instead
+                        # of the frontend, as the doc-diff extension does.
+                        "base_host": "",
+                        "base_page": "",
+                    },
+                }
+            )
+
         # Update this data with the one generated at build time by the doctool
         if version and version.build_data:
             data.update(version.build_data)
@@ -459,7 +466,7 @@ class AddonsResponse:
 
         return data
 
-    def _v1(self, project, version, build, filename, user):
+    def _v1(self, project, version, build, filename, url, user):
         return {
             "api_version": "1",
             "comment": "Undefined yet. Use v0 for now",
