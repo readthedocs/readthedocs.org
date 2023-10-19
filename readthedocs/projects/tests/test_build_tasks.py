@@ -1429,6 +1429,46 @@ class TestBuildTask(BuildEnvironmentBase):
         )
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_sphinx_normalized_language(self, load_yaml_config):
+        load_yaml_config.return_value = self._config_file(
+            {
+                "version": 2,
+                "sphinx": {
+                    "configuration": "docs/conf.py",
+                    "fail_on_warning": True,
+                },
+            },
+        )
+        self.project.language = "es-mx"
+        self.project.save()
+
+        self._trigger_update_docs_task()
+
+        self.mocker.mocks["environment.run"].assert_has_calls(
+            [
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "sphinx",
+                    "-T",
+                    "-E",
+                    "-W",  # fail on warning flag
+                    "--keep-going",  # fail on warning flag
+                    "-b",
+                    "html",
+                    "-d",
+                    "_build/doctrees",
+                    "-D",
+                    "language=es_MX",
+                    ".",
+                    "$READTHEDOCS_OUTPUT/html",
+                    cwd=mock.ANY,
+                    bin_path=mock.ANY,
+                ),
+            ]
+        )
+
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_sphinx_fail_on_warning(self, load_yaml_config):
         load_yaml_config.return_value = get_build_config(
             {

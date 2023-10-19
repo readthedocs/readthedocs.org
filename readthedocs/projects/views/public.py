@@ -9,7 +9,7 @@ import structlog
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import prefetch_related_objects
-from django.http import Http404, HttpResponse
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.crypto import constant_time_compare
@@ -361,6 +361,17 @@ class ProjectDownloadMediaBase(CDNCacheControlMixin, ServeDocsMixin, View):
                 project = get_object_or_404(
                     project.subprojects, alias=subproject_slug
                 ).child
+
+            # Redirect old language codes with underscores to new ones with dashes and lowercase.
+            normalized_language_code = lang_slug.lower().replace("_", "-")
+            if normalized_language_code != lang_slug:
+                if project.language != normalized_language_code:
+                    project = get_object_or_404(
+                        project.translations, language=normalized_language_code
+                    )
+                return HttpResponseRedirect(
+                    project.get_production_media_url(type_, version_slug=version_slug)
+                )
 
             if project.language != lang_slug:
                 project = get_object_or_404(project.translations, language=lang_slug)
