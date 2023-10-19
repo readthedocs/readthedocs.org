@@ -248,8 +248,8 @@ class OrganizationTeamMemberListFilterSet(FilterSet):
     teams__slug = ModelChoiceFilter(
         label=_("Team"),
         empty_label=_("All teams"),
-        # teams__slug refers to User.teams.slug.
-        field_name="teams__slug",
+        field_name="teams",
+        to_field_name="slug",
         queryset=Team.objects.none(),
     )
 
