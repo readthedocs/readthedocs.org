@@ -410,6 +410,7 @@ class TestReadTheDocsConfigJson(TestCase):
             repo="https://github.com/readthedocs/subproject",
             privacy_level=PUBLIC,
         )
+        subproject.versions.update(privacy_level=PUBLIC, built=True, active=True)
         self.project.add_subproject(subproject)
 
         r = self.client.get(
