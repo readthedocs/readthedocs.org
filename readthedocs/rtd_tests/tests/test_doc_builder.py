@@ -11,14 +11,13 @@ from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
+from readthedocs.config.tests.test_config import get_build_config
 from readthedocs.doc_builder.backends.mkdocs import (
     MkdocsHTML,
     SafeDumper,
     yaml_load_safely,
 )
-from readthedocs.doc_builder.backends.sphinx import (
-    BaseSphinx,
-)
+from readthedocs.doc_builder.backends.sphinx import BaseSphinx
 from readthedocs.doc_builder.environments import LocalBuildEnvironment
 from readthedocs.doc_builder.exceptions import MkDocsYAMLParseError
 from readthedocs.doc_builder.python_environments import Virtualenv
@@ -46,9 +45,10 @@ class SphinxBuilderTest(TestCase):
         BaseSphinx.sphinx_build_dir = tempfile.mkdtemp()
         BaseSphinx.relative_output_dir = "_readthedocs/"
 
-    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
-    @patch('readthedocs.projects.models.Project.checkout_path')
-    def test_conf_py_path(self, checkout_path, docs_dir):
+    @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir")
+    @patch("readthedocs.projects.models.Project.checkout_path")
+    @patch("readthedocs.doc_builder.python_environments.load_yaml_config")
+    def test_conf_py_path(self, load_yaml_config, checkout_path, docs_dir):
         """
         Test the conf_py_path that is added to the conf.py file.
 
@@ -61,7 +61,7 @@ class SphinxBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config({}, validate=True),
         )
         base_sphinx = BaseSphinx(
             build_env=self.build_env,
@@ -78,13 +78,15 @@ class SphinxBuilderTest(TestCase):
                 expected,
             )
 
-    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
-    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params')
-    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
-    @patch('readthedocs.builds.models.Version.get_conf_py_path')
-    @patch('readthedocs.projects.models.Project.checkout_path')
+    @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir")
+    @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params")
+    @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.run")
+    @patch("readthedocs.builds.models.Version.get_conf_py_path")
+    @patch("readthedocs.projects.models.Project.checkout_path")
+    @patch("readthedocs.doc_builder.python_environments.load_yaml_config")
     def test_project_without_conf_py(
         self,
+        load_yaml_config,
         checkout_path,
         get_conf_py_path,
         _,
@@ -105,7 +107,7 @@ class SphinxBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config({}, validate=True),
         )
         base_sphinx = BaseSphinx(
             build_env=self.build_env,
@@ -116,13 +118,20 @@ class SphinxBuilderTest(TestCase):
         ):
             base_sphinx.append_conf()
 
-    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir')
-    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params')
-    @patch('readthedocs.doc_builder.backends.sphinx.BaseSphinx.run')
-    @patch('readthedocs.builds.models.Version.get_conf_py_path')
-    @patch('readthedocs.projects.models.Project.checkout_path')
+    @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir")
+    @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params")
+    @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.run")
+    @patch("readthedocs.builds.models.Version.get_conf_py_path")
+    @patch("readthedocs.projects.models.Project.checkout_path")
+    @patch("readthedocs.doc_builder.python_environments.load_yaml_config")
     def test_multiple_conf_py(
-        self, checkout_path, get_conf_py_path, _, get_config_params, docs_dir
+        self,
+        load_yaml_config,
+        checkout_path,
+        get_conf_py_path,
+        _,
+        get_config_params,
+        docs_dir,
     ):
         """
         Test for a project with multiple ``conf.py`` files.
@@ -141,7 +150,7 @@ class SphinxBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config({}, validate=True),
         )
         base_sphinx = BaseSphinx(
             build_env=self.build_env,
@@ -170,7 +179,9 @@ class MkdocsBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config(
+                {"mkdocs": {"configuration": "mkdocs.yml"}}, validate=True
+            ),
         )
         builder = MkdocsHTML(
             build_env=self.build_env,
@@ -219,7 +230,9 @@ class MkdocsBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config(
+                {"mkdocs": {"configuration": "mkdocs.yml"}}, validate=True
+            ),
         )
         builder = MkdocsHTML(
             build_env=self.build_env,
@@ -294,7 +307,9 @@ class MkdocsBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config(
+                {"mkdocs": {"configuration": "mkdocs.yml"}}, validate=True
+            ),
         )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
@@ -344,7 +359,9 @@ class MkdocsBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config(
+                {"mkdocs": {"configuration": "mkdocs.yml"}}, validate=True
+            ),
         )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
@@ -377,7 +394,9 @@ class MkdocsBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config(
+                {"mkdocs": {"configuration": "mkdocs.yml"}}, validate=True
+            ),
         )
         builder = MkdocsHTML(
             build_env=self.build_env,
@@ -431,7 +450,9 @@ class MkdocsBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config(
+                {"mkdocs": {"configuration": "mkdocs.yml"}}, validate=True
+            ),
         )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
@@ -468,7 +489,9 @@ class MkdocsBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config(
+                {"mkdocs": {"configuration": "mkdocs.yml"}}, validate=True
+            ),
         )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
@@ -505,7 +528,9 @@ class MkdocsBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config(
+                {"mkdocs": {"configuration": "mkdocs.yml"}}, validate=True
+            ),
         )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
@@ -536,7 +561,9 @@ class MkdocsBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config(
+                {"mkdocs": {"configuration": "mkdocs.yml"}}, validate=True
+            ),
         )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
@@ -579,7 +606,9 @@ class MkdocsBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config(
+                {"mkdocs": {"configuration": "mkdocs.yml"}}, validate=True
+            ),
         )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
@@ -606,7 +635,9 @@ class MkdocsBuilderTest(TestCase):
         python_env = Virtualenv(
             version=self.version,
             build_env=self.build_env,
-            config=None,
+            config=get_build_config(
+                {"mkdocs": {"configuration": "mkdocs.yml"}}, validate=True
+            ),
         )
         self.searchbuilder = MkdocsHTML(
             build_env=self.build_env,
