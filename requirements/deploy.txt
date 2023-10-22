@@ -24,11 +24,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.63
+boto3==1.28.68
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.63
+botocore==1.31.68
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -156,7 +156,9 @@ django-polymorphic==3.1.0
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
 django-storages[boto3]==1.14.2
-    # via -r requirements/pip.txt
+    # via
+    #   -r requirements/pip.txt
+    #   django-storages
 django-structlog==2.2.0
     # via -r requirements/pip.txt
 django-taggit==4.0.0
@@ -171,7 +173,7 @@ djangorestframework==3.14.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
-djangorestframework-api-key==2.3.0
+djangorestframework-api-key==3.0.0
     # via -r requirements/pip.txt
 djangorestframework-jsonp==1.0.2
     # via -r requirements/pip.txt
@@ -240,7 +242,7 @@ markdown==3.5
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.6
     # via ipython
-newrelic==9.1.0
+newrelic==9.1.1
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
@@ -251,6 +253,7 @@ orjson==3.9.9
 packaging==23.2
     # via
     #   -r requirements/pip.txt
+    #   djangorestframework-api-key
     #   docker
     #   dparse
     #   gunicorn
@@ -287,6 +290,7 @@ pyjwt[crypto]==2.8.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
+    #   pyjwt
 pyquery==2.0.0
     # via -r requirements/pip.txt
 python-crontab==3.0.0
@@ -335,7 +339,7 @@ s3transfer==0.7.0
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.16
+selectolax==0.3.17
     # via -r requirements/pip.txt
 sentry-sdk==1.32.0
     # via structlog-sentry
@@ -393,7 +397,7 @@ unidecode==1.3.7
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
-urllib3==1.26.17
+urllib3==1.26.18
     # via
     #   -r requirements/pip.txt
     #   botocore
