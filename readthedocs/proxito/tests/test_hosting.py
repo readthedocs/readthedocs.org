@@ -405,8 +405,12 @@ class TestReadTheDocsConfigJson(TestCase):
 
     def test_project_subproject(self):
         subproject = fixture.get(
-            Project, slug="subproject", repo="https://github.com/readthedocs/subproject"
+            Project,
+            slug="subproject",
+            repo="https://github.com/readthedocs/subproject",
+            privacy_level=PUBLIC,
         )
+        subproject.versions.update(privacy_level=PUBLIC, built=True, active=True)
         self.project.add_subproject(subproject)
 
         r = self.client.get(

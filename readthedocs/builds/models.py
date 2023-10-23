@@ -847,8 +847,11 @@ class Build(models.Model):
         ordering = ['-date']
         get_latest_by = 'date'
         index_together = [
-            ['version', 'state', 'type'],
-            ['date', 'id'],
+            # Useful for `/_/addons/` API endpoint.
+            # Query: ``version.builds.filter(success=True, state=BUILD_STATE_FINISHED)``
+            ["version", "state", "date", "success"],
+            ["version", "state", "type"],
+            ["date", "id"],
         ]
         indexes = [
             models.Index(fields=['project', 'date']),
