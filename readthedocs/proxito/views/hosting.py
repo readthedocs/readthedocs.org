@@ -77,11 +77,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             project = unresolved_url.project
             version = unresolved_url.version
             filename = unresolved_url.filename
-            # TODO build listing is disabled for now as it caused a big jump in
-            # query time, consider adding it back in:
-            # https://github.com/readthedocs/readthedocs.org/issues/10830
-            # build = version.builds.last()
-            build = None
+            build = version.builds.last()
 
         except UnresolverError as exc:
             # If an exception is raised and there is a ``project`` in the
