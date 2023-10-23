@@ -16,8 +16,8 @@ Goals
 - Improve the user experience when creating redirects.
 - Improve the current implementation without big breaking changes.
 
-No goals
---------
+Non-goals
+---------
 
 - Replicate every feature of other services without
   having a clear use case for them.
@@ -59,6 +59,8 @@ Page redirect:
 
    A whole directory can't be redirected with a page redirect,
    an exact redirect with a wildcard at the end needs to be used instead.
+
+   A page redirect on a single version project is the same as an exact redirect.
 
 Exact redirect:
    Allows to redirect an exact URL to a new URL,
