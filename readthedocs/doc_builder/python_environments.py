@@ -161,15 +161,7 @@ class Virtualenv(PythonEnvironment):
         self._install_latest_requirements(pip_install_cmd)
 
     def _install_latest_requirements(self, pip_install_cmd):
-        """
-        Install all the latest core requirements.
-
-        By enabling the feature flag ``INSTALL_LATEST_CORE_REQUIREMENTS``
-        projects will automatically get installed all the latest core
-        requirements: pip, setuptools, sphinx, readthedocs-sphinx-ext and mkdocs.
-
-        This is the new behavior and where we are moving towards.
-        """
+        """Install all the latest core requirements."""
         # First, upgrade pip and setuptools to their latest versions
         cmd = pip_install_cmd + ["pip", "setuptools"]
         self.build_env.run(
@@ -317,10 +309,7 @@ class Conda(PythonEnvironment):
         else:
             # Append conda dependencies directly to ``dependencies`` and pip
             # dependencies to ``dependencies.pip``
-            if self.project.has_feature(Feature.INSTALL_LATEST_CORE_REQUIREMENTS):
-                pip_requirements, conda_requirements = self._get_new_core_requirements()
-            else:
-                pip_requirements, conda_requirements = self._get_old_core_requirements()
+            pip_requirements, conda_requirements = self._get_core_requirements()
             dependencies = environment.get('dependencies', [])
             pip_dependencies = {'pip': pip_requirements}
 
@@ -358,7 +347,7 @@ class Conda(PythonEnvironment):
                     'environment file.',
                 )
 
-    def _get_new_core_requirements(self):
+    def _get_core_requirements(self):
         # Use conda for requirements it packages
         conda_requirements = []
 
@@ -373,26 +362,6 @@ class Conda(PythonEnvironment):
 
         return pip_requirements, conda_requirements
 
-    def _get_old_core_requirements(self):
-        # Use conda for requirements it packages
-        conda_requirements = [
-            'mock',
-            'pillow',
-        ]
-
-        # Install pip-only things.
-        pip_requirements = [
-            'recommonmark',
-        ]
-
-        if self.config.doctype == 'mkdocs':
-            pip_requirements.append('mkdocs')
-        else:
-            pip_requirements.append('readthedocs-sphinx-ext')
-            conda_requirements.extend(['sphinx', 'sphinx_rtd_theme'])
-
-        return pip_requirements, conda_requirements
-
     def install_core_requirements(self):
         """Install basic Read the Docs requirements into the Conda env."""
 
@@ -402,7 +371,7 @@ class Conda(PythonEnvironment):
             # create`` step.
             return
 
-        pip_requirements, conda_requirements = self._get_old_core_requirements()
+        pip_requirements, conda_requirements = self._get_core_requirements()
         # Install requirements via ``conda install`` command if they were
         # not appended to the ``environment.yml`` file.
         cmd = [
