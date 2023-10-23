@@ -1321,10 +1321,7 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--quiet",
                     "--name",
                     self.version.slug,
-                    "mock",
-                    "pillow",
                     "sphinx",
-                    "sphinx_rtd_theme",
                     cwd=mock.ANY,
                 ),
                 mock.call(
@@ -1334,7 +1331,6 @@ class TestBuildTask(BuildEnvironmentBase):
                     "install",
                     "-U",
                     "--no-cache-dir",
-                    "recommonmark",
                     "readthedocs-sphinx-ext",
                     cwd=mock.ANY,
                     bin_path=mock.ANY,
@@ -1396,6 +1392,7 @@ class TestBuildTask(BuildEnvironmentBase):
 
         self.mocker.mocks["environment.run"].assert_has_calls(
             [
+                mock.call("cat", "readthedocs.yml", cwd=mock.ANY),
                 mock.call("asdf", "install", "python", "mambaforge-4.10.3-10"),
                 mock.call("asdf", "global", "python", "mambaforge-4.10.3-10"),
                 mock.call("asdf", "reshim", "python", record=False),
@@ -1418,10 +1415,18 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--quiet",
                     "--name",
                     "latest",
-                    "mock",
-                    "pillow",
                     "sphinx",
-                    "sphinx_rtd_theme",
+                    cwd=mock.ANY,
+                ),
+                mock.call(
+                    mock.ANY,
+                    "-m",
+                    "pip",
+                    "install",
+                    "-U",
+                    "--no-cache-dir",
+                    "readthedocs-sphinx-ext",
+                    bin_path=mock.ANY,
                     cwd=mock.ANY,
                 ),
             ]
