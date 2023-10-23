@@ -18,6 +18,7 @@ Read the Docs injects or modifies some content while building your docs.
 In the past we used to install several dependencies to a specific version and update them after some time,
 but doing so would break some builds and make it more difficult for new projects to use new versions.
 For this reason, we are now installing just the minimal required dependencies using their latest version by default.
+You can see the full list of historical dependencies and advice for migrating in our `blog post <https://blog.readthedocs.com/defaulting-latest-build-tools/>`_ announcing this change.
 
 .. note::
 
