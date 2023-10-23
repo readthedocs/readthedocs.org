@@ -77,7 +77,8 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             project = unresolved_url.project
             version = unresolved_url.version
             filename = unresolved_url.filename
-            # This query should use a particular index: ``builds_build_version_id_state_date_success_12dfb214_idx``.
+            # This query should use a particular index:
+            # ``builds_build_version_id_state_date_success_12dfb214_idx``.
             # Otherwise, if the index is not used, the query gets too slow.
             build = version.builds.filter(
                 success=True,
