@@ -309,6 +309,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         self.setup_external_builds_option()
 
     def _get_versionin_scheme_preview(self, versioning_scheme):
+        """Get a preview of the versioning scheme when used in the project."""
         # Change the versioning scheme momentarily to get the preview.
         original_version_scheme = self.instance.versioning_scheme
         self.instance.versioning_scheme = versioning_scheme

@@ -640,7 +640,8 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             "privacy_level",
             "external_builds_privacy_level",
             "versioning_scheme",
-            # Kept for backwards compatibility.
+            # Kept for backwards compatibility,
+            # versioning_scheme should be used instead.
             "single_version",
             # NOTE: ``expandable_fields`` must not be included here. Otherwise,
             # they will be tried to be rendered and fail
