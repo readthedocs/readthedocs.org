@@ -498,3 +498,81 @@ class TestReadTheDocsConfigJson(TestCase):
             },
         ]
         assert r.json()["addons"]["flyout"]["translations"] == expected_translations
+
+    def test_send_project_not_version_slugs(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "0.1.0",
+                "client-version": "0.6.0",
+                "project-slug": self.project.slug,
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 400
+        assert r.json() == {
+            "error": "'project-slug' and 'version-slug' GET attributes are required when not sending 'url'"
+        }
+
+    def test_send_version_not_project_slugs(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "0.1.0",
+                "client-version": "0.6.0",
+                "version-slug": self.version.slug,
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 400
+        assert r.json() == {
+            "error": "'project-slug' and 'version-slug' GET attributes are required when not sending 'url'"
+        }
+
+    def test_send_project_version_slugs(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "0.1.0",
+                "client-version": "0.6.0",
+                "project-slug": self.project.slug,
+                "version-slug": self.version.slug,
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        expected_response = self._get_response_dict("v0")
+        # Remove `addons.doc_diff` from the response because it's not present when `url=` is not sent
+        expected_response["addons"].pop("doc_diff")
+
+        assert self._normalize_datetime_fields(r.json()) == expected_response
+
+    def test_send_project_version_slugs_and_url(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "0.1.0",
+                "client-version": "0.6.0",
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                # When sending `url=`, slugs are ignored
+                "project-slug": "different-project-slug-than-url",
+                "version-slug": "different-version-slug-than-url",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        assert self._normalize_datetime_fields(r.json()) == self._get_response_dict(
+            "v0"
+        )
