@@ -318,6 +318,21 @@ class ServeRedirectMixin:
         log.debug(
             "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
         )
+
+        new_path_parsed = urlparse(to)
+        old_path_parsed = urlparse(request.build_absolute_uri())
+        # Check explicitly only the path and hostname, since a different
+        # protocol or query parameters could lead to a infinite redirect.
+        if (
+            new_path_parsed.hostname == old_path_parsed.hostname
+            and new_path_parsed.path == old_path_parsed.path
+        ):
+            log.debug(
+                "Infinite Redirect: FROM URL is the same than TO URL.",
+                url=to,
+            )
+            raise InfiniteRedirectException()
+
         # All system redirects can be cached, since the final URL will check for authz.
         self.cache_response = True
         resp = HttpResponseRedirect(to)

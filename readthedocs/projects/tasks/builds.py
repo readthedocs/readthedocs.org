@@ -38,7 +38,7 @@ from readthedocs.builds.models import APIVersion, Build
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.utils import memcache_lock
 from readthedocs.config import ConfigError
-from readthedocs.config.config import BuildConfigV1, BuildConfigV2
+from readthedocs.config.config import BuildConfigV2
 from readthedocs.doc_builder.director import BuildDirector
 from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
@@ -116,7 +116,7 @@ class TaskData:
     start_time: timezone.datetime = None
     environment_class: type[DockerBuildEnvironment] | type[LocalBuildEnvironment] = None
     build_director: BuildDirector = None
-    config: BuildConfigV1 | BuildConfigV2 = None
+    config: BuildConfigV2 = None
     project: APIProject = None
     version: APIVersion = None
 

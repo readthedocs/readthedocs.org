@@ -110,7 +110,7 @@
     "flyout": {
       "enabled": true,
       "translations": [],
-      "versions": [{ "slug": "latest", "url": "/en/latest/" }],
+      "versions": [{ "slug": "latest", "url": "https://project.dev.readthedocs.io/en/latest/" }],
       "downloads": []
     },
     "search": {

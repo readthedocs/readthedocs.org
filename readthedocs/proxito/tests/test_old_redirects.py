@@ -251,6 +251,13 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/faq.html",
         )
 
+        # Prefix redirects should match the whole path.
+        with self.assertRaises(Http404):
+            self.client.get(
+                "/en/latest/woot/faq.html",
+                headers={"host": "project.dev.readthedocs.io"},
+            )
+
     def test_redirect_page(self):
         Redirect.objects.create(
             project=self.project,

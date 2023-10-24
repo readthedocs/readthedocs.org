@@ -64,7 +64,7 @@ class RedirectQuerySet(models.QuerySet):
         )
         prefix = Q(
             redirect_type="prefix",
-            path__startswith=F("from_url"),
+            full_path__startswith=F("from_url"),
         )
         page = Q(
             redirect_type="page",
