@@ -111,9 +111,10 @@ server {
         set $rtd_force_addons $upstream_http_x_rtd_force_addons;
         add_header X-RTD-Force-Addons $rtd_force_addons always;
 
-        # Inject our own script dynamically
+        # Inject our own script dynamically and project/version slugs into the HTML to emulate what CF worker does
         # TODO: find a way to make this work _without_ running `npm run dev` from the `addons` repository
-        sub_filter '</head>' '<script language="javascript" src="http://localhost:8000/readthedocs-addons.js"></script>\n</head>';
+        sub_filter '</head>' '<script async language="javascript" src="http://localhost:8000/readthedocs-addons.js"></script>\n<meta name="readthedocs-project-slug" content="$rtd_project" />\n<meta name="readthedocs-version-slug" content="latest" />\n</head>';
+        sub_filter_types text/html;
         sub_filter_last_modified on;
         sub_filter_once on;
     }

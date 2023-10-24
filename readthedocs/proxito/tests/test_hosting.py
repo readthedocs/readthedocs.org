@@ -282,8 +282,11 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
 
         expected = [
-            {"slug": "latest", "url": "/en/latest/"},
-            {"slug": "public-built", "url": "/en/public-built/"},
+            {"slug": "latest", "url": "https://project.dev.readthedocs.io/en/latest/"},
+            {
+                "slug": "public-built",
+                "url": "https://project.dev.readthedocs.io/en/public-built/",
+            },
         ]
         assert r.json()["addons"]["flyout"]["versions"] == expected
 
@@ -310,7 +313,7 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
 
         expected = [
-            {"slug": "ja", "url": "/ja/"},
+            {"slug": "ja", "url": "https://project.dev.readthedocs.io/ja/latest/"},
         ]
         assert r.json()["addons"]["flyout"]["translations"] == expected
 
@@ -402,8 +405,12 @@ class TestReadTheDocsConfigJson(TestCase):
 
     def test_project_subproject(self):
         subproject = fixture.get(
-            Project, slug="subproject", repo="https://github.com/readthedocs/subproject"
+            Project,
+            slug="subproject",
+            repo="https://github.com/readthedocs/subproject",
+            privacy_level=PUBLIC,
         )
+        subproject.versions.update(privacy_level=PUBLIC, built=True, active=True)
         self.project.add_subproject(subproject)
 
         r = self.client.get(
@@ -425,4 +432,147 @@ class TestReadTheDocsConfigJson(TestCase):
         assert (
             r.json()["projects"]["current"]["repository"]["url"]
             == "https://github.com/readthedocs/subproject"
+        )
+
+    def test_flyout_subproject_urls(self):
+        translation = fixture.get(
+            Project,
+            slug="translation",
+            language="es",
+            repo="https://github.com/readthedocs/subproject",
+        )
+        translation.versions.update(
+            built=True,
+            active=True,
+        )
+        subproject = fixture.get(
+            Project, slug="subproject", repo="https://github.com/readthedocs/subproject"
+        )
+        self.project.add_subproject(subproject)
+        subproject.translations.add(translation)
+        subproject.save()
+
+        fixture.get(Version, slug="v1", project=subproject)
+        fixture.get(Version, slug="v2.3", project=subproject)
+        subproject.versions.update(
+            privacy_level=PUBLIC,
+            built=True,
+            active=True,
+            hidden=False,
+        )
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "url": "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
+                "client-version": "0.6.0",
+                "api-version": "0.1.0",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+
+        expected_versions = [
+            {
+                "slug": "latest",
+                "url": "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
+            },
+            {
+                "slug": "v1",
+                "url": "https://project.dev.readthedocs.io/projects/subproject/en/v1/",
+            },
+            {
+                "slug": "v2.3",
+                "url": "https://project.dev.readthedocs.io/projects/subproject/en/v2.3/",
+            },
+        ]
+        assert r.json()["addons"]["flyout"]["versions"] == expected_versions
+
+        expected_translations = [
+            {
+                "slug": "es",
+                "url": "https://project.dev.readthedocs.io/projects/subproject/es/latest/",
+            },
+        ]
+        assert r.json()["addons"]["flyout"]["translations"] == expected_translations
+
+    def test_send_project_not_version_slugs(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "0.1.0",
+                "client-version": "0.6.0",
+                "project-slug": self.project.slug,
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 400
+        assert r.json() == {
+            "error": "'project-slug' and 'version-slug' GET attributes are required when not sending 'url'"
+        }
+
+    def test_send_version_not_project_slugs(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "0.1.0",
+                "client-version": "0.6.0",
+                "version-slug": self.version.slug,
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 400
+        assert r.json() == {
+            "error": "'project-slug' and 'version-slug' GET attributes are required when not sending 'url'"
+        }
+
+    def test_send_project_version_slugs(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "0.1.0",
+                "client-version": "0.6.0",
+                "project-slug": self.project.slug,
+                "version-slug": self.version.slug,
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        expected_response = self._get_response_dict("v0")
+        # Remove `addons.doc_diff` from the response because it's not present when `url=` is not sent
+        expected_response["addons"].pop("doc_diff")
+
+        assert self._normalize_datetime_fields(r.json()) == expected_response
+
+    def test_send_project_version_slugs_and_url(self):
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "0.1.0",
+                "client-version": "0.6.0",
+                "url": "https://project.dev.readthedocs.io/en/latest/",
+                # When sending `url=`, slugs are ignored
+                "project-slug": "different-project-slug-than-url",
+                "version-slug": "different-version-slug-than-url",
+            },
+            secure=True,
+            headers={
+                "host": "project.dev.readthedocs.io",
+            },
+        )
+        assert r.status_code == 200
+        assert self._normalize_datetime_fields(r.json()) == self._get_response_dict(
+            "v0"
         )

@@ -183,8 +183,7 @@ class BuildDirector:
         self.run_build_job("post_system_dependencies")
 
         # Install all ``build.tools`` specified by the user
-        if self.data.config.using_build_tools:
-            self.install_build_tools()
+        self.install_build_tools()
 
         self.run_build_job("pre_create_environment")
         self.create_environment()

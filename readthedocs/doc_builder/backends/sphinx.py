@@ -19,7 +19,7 @@ from readthedocs.builds import utils as version_utils
 from readthedocs.builds.models import APIVersion
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.exceptions import PDFNotFound
-from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING, PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
 from readthedocs.projects.models import Feature
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
@@ -111,6 +111,10 @@ class BaseSphinx(BaseBuilder):
             # because Read the Docs will automatically create one for it.
             pass
 
+    def get_language(self, project):
+        """Get a Sphinx compatible language code."""
+        language = project.language
+        return OLD_LANGUAGES_CODE_MAPPING.get(language, language)
 
     def get_config_params(self):
         """Get configuration parameters to be rendered into the conf file."""
@@ -293,6 +297,7 @@ class BaseSphinx(BaseBuilder):
         ]
         if self.config.sphinx.fail_on_warning:
             build_command.extend(["-W", "--keep-going"])
+        language = self.get_language(project)
         build_command.extend(
             [
                 "-b",
@@ -300,7 +305,7 @@ class BaseSphinx(BaseBuilder):
                 "-d",
                 self.sphinx_doctrees_dir,
                 "-D",
-                f"language={project.language}",
+                f"language={language}",
                 # Sphinx's source directory (SOURCEDIR).
                 # We are executing this command at the location of the `conf.py` file (CWD).
                 # TODO: ideally we should execute it from where the repository was clonned,
@@ -472,6 +477,7 @@ class PdfBuilder(BaseSphinx):
     pdf_file_name = None
 
     def build(self):
+        language = self.get_language(self.project)
         self.run(
             *self.get_sphinx_cmd(),
             "-T",
@@ -481,7 +487,7 @@ class PdfBuilder(BaseSphinx):
             "-d",
             self.sphinx_doctrees_dir,
             "-D",
-            f"language={self.project.language}",
+            f"language={language}",
             # Sphinx's source directory (SOURCEDIR).
             # We are executing this command at the location of the `conf.py` file (CWD).
             # TODO: ideally we should execute it from where the repository was clonned,

@@ -23,7 +23,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects import constants
+from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING, PRIVATE
 from readthedocs.projects.models import Domain, Feature, HTMLFile
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
 from readthedocs.proxito.constants import RedirectType
@@ -263,6 +263,27 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         project = unresolved.project
         version = unresolved.version
         filename = unresolved.filename
+
+        # Check if the old language code format was used, and redirect to the new one.
+        # NOTE: we may have some false positives here, for example for an URL like:
+        # /pt-br/latest/pt_BR/index.html, but our protection for infinite redirects
+        # will prevent a redirect loop.
+        if (
+            not project.single_version
+            and project.language in OLD_LANGUAGES_CODE_MAPPING
+            and OLD_LANGUAGES_CODE_MAPPING[project.language] in path
+        ):
+            try:
+                return self.system_redirect(
+                    request=request,
+                    final_project=project,
+                    version_slug=version.slug,
+                    filename=filename,
+                    is_external_version=unresolved_domain.is_from_external_domain,
+                )
+            except InfiniteRedirectException:
+                # A false positive was detected, continue with our normal serve.
+                pass
 
         log.bind(
             project_slug=project.slug,
@@ -707,14 +728,16 @@ class ServeRobotsTXTBase(CDNCacheControlMixin, CDNCacheTagsMixin, ServeDocsMixin
         version_slug = project.get_default_version()
         version = project.versions.get(slug=version_slug)
 
-        no_serve_robots_txt = any([
-            # If the default version is private or,
-            version.privacy_level == constants.PRIVATE,
-            # default version is not active or,
-            not version.active,
-            # default version is not built
-            not version.built,
-        ])
+        no_serve_robots_txt = any(
+            [
+                # If the default version is private or,
+                version.privacy_level == PRIVATE,
+                # default version is not active or,
+                not version.active,
+                # default version is not built
+                not version.built,
+            ]
+        )
 
         if no_serve_robots_txt:
             # ... we do return a 404
