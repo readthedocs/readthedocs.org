@@ -54,34 +54,7 @@
       "title": "Build",
       "description": "Configuration for the documentation build process.",
       "type": "object",
-      "anyOf": [
-        {
-          "properties": {
-            "image": {
-              "title": "Image",
-              "description": "DEPRECATED: use build.os instead.\n\nThe build docker image to be used.",
-              "enum": [
-                "stable",
-                "latest"
-              ],
-              "default": "latest",
-              "deprecated": true
-            },
-            "apt_packages": {
-              "title": "APT Packages",
-              "description": "List of packages to be installed with apt-get.",
-              "type": "array",
-              "items": {
-                "title": "APT Package",
-                "type": "string"
-              },
-              "default": []
-            }
-          },
-          "additionalProperties": false
-        },
-        {
-          "properties": {
+      "properties": {
             "os": {
               "title": "Operating System",
               "description": "Operating system to be used in the build.",
@@ -230,38 +203,18 @@
                 "type": "string"
               }
             }
-          },
-          "required": [
-            "os",
-            "tools"
-          ],
-          "additionalProperties": false
-        }
-      ]
+      },
+      "required": [
+        "os",
+        "tools"
+      ],
+      "additionalProperties": false
     },
     "python": {
       "title": "Python",
       "description": "Configuration of the Python environment to be used.",
       "type": "object",
       "properties": {
-        "version": {
-          "title": "Version",
-          "description": "DEPRECATED: use build.tools.python instead.\n\nThe Python version to activate for your build (availability of Python versions depend on the build image).",
-          "type": "string",
-          "enum": [
-            "2",
-            "2.7",
-            "3",
-            "3.3",
-            "3.4",
-            "3.5",
-            "3.6",
-            "3.7",
-            "3.8"
-          ],
-          "default": "3",
-          "deprecated": true
-        },
         "install": {
           "title": "Install",
           "description": "Installation of packages and requiremens.",
