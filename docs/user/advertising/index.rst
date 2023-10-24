@@ -37,3 +37,4 @@ please consider :doc:`Read the Docs for Business </commercial/index>`.
     ethical-advertising
     advertising-details
     ad-blocking
+    ad-customization
