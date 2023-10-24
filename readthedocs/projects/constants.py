@@ -383,16 +383,16 @@ BITBUCKET_URL = (
     'https://bitbucket.org/{user}/{repo}/'
     'src/{version}{docroot}{path}{source_suffix}'
 )
-BITBUCKET_COMMIT_URL = "https://bitbucket.org/{user}/{repo}/" "commits/{commit}"
+BITBUCKET_COMMIT_URL = "https://bitbucket.org/{user}/{repo}/commits/{commit}"
 GITLAB_URL = (
     "https://gitlab.com/{user}/{repo}/"
     "{action}/{version}{docroot}{path}{source_suffix}"
 )
-GITLAB_COMMIT_URL = "https://gitlab.com/{user}/{repo}/" "commit/{commit}"
+GITLAB_COMMIT_URL = "https://gitlab.com/{user}/{repo}/commit/{commit}"
 GITLAB_MERGE_REQUEST_COMMIT_URL = (
-    "https://gitlab.com/{user}/{repo}/" "commit/{commit}?merge_request_iid={number}"
+    "https://gitlab.com/{user}/{repo}/commit/{commit}?merge_request_iid={number}"
 )
-GITLAB_MERGE_REQUEST_URL = "https://gitlab.com/{user}/{repo}/" "merge_requests/{number}"
+GITLAB_MERGE_REQUEST_URL = "https://gitlab.com/{user}/{repo}/merge_requests/{number}"
 
 # Patterns to pull merge/pull request from providers
 GITHUB_PR_PULL_PATTERN = "pull/{id}/head:external-{id}"
