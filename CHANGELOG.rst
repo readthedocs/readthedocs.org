@@ -1,3 +1,32 @@
+Version 10.8.0
+--------------
+
+:Date: October 24, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10860 <https://github.com/readthedocs/readthedocs.org/pull/10860>`__)
+* `@mathbunnyru <https://github.com/mathbunnyru>`__: Docs: fix formatting of commented configuration example (`#10858 <https://github.com/readthedocs/readthedocs.org/pull/10858>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: set privacy level explicitly (`#10854 <https://github.com/readthedocs/readthedocs.org/pull/10854>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: set privacy level explicitly (`#10852 <https://github.com/readthedocs/readthedocs.org/pull/10852>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update docs about default dependencies (`#10851 <https://github.com/readthedocs/readthedocs.org/pull/10851>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#10850 <https://github.com/readthedocs/readthedocs.org/pull/10850>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Build (python): default 3 to 3.11" (`#10846 <https://github.com/readthedocs/readthedocs.org/pull/10846>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: install compatible version of virtualenv in images (`#10844 <https://github.com/readthedocs/readthedocs.org/pull/10844>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Keep Ad Customization in the docs (`#10843 <https://github.com/readthedocs/readthedocs.org/pull/10843>`__)
+* `@humitos <https://github.com/humitos>`__: DB: create an index for `builds_build` table to improve Addons API (`#10840 <https://github.com/readthedocs/readthedocs.org/pull/10840>`__)
+* `@jugmac00 <https://github.com/jugmac00>`__: Fix broken link syntax (`#10837 <https://github.com/readthedocs/readthedocs.org/pull/10837>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: don't pre-install pip and setuptools in images (`#10834 <https://github.com/readthedocs/readthedocs.org/pull/10834>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build (python): default 3 to 3.11 (`#10833 <https://github.com/readthedocs/readthedocs.org/pull/10833>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: expand db query to get the `type` as well (`#10829 <https://github.com/readthedocs/readthedocs.org/pull/10829>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: fix prefix redirects (`#10828 <https://github.com/readthedocs/readthedocs.org/pull/10828>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.7.1 (`#10827 <https://github.com/readthedocs/readthedocs.org/pull/10827>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: accept `project-slug` and `version-slug` on endpoint (`#10823 <https://github.com/readthedocs/readthedocs.org/pull/10823>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Clarify admin permission (`#10822 <https://github.com/readthedocs/readthedocs.org/pull/10822>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: resolve versions/translations URLs properly (`#10821 <https://github.com/readthedocs/readthedocs.org/pull/10821>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update root language redirect docs (`#10817 <https://github.com/readthedocs/readthedocs.org/pull/10817>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: normalize code languages and redirect to them (`#10750 <https://github.com/readthedocs/readthedocs.org/pull/10750>`__)
+* `@humitos <https://github.com/humitos>`__: Deprecation: remove code for config file v1 and default config file (`#10367 <https://github.com/readthedocs/readthedocs.org/pull/10367>`__)
+* `@nikblanchet <https://github.com/nikblanchet>`__: Docs: Configuration file how-to guide (`#10301 <https://github.com/readthedocs/readthedocs.org/pull/10301>`__)
+
 Version 10.7.1
 --------------
 
