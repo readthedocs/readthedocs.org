@@ -1,3 +1,11 @@
+Version 10.8.1
+--------------
+
+:Date: October 24, 2023
+
+* `@humitos <https://github.com/humitos>`__: Release 10.8.0 (`#10864 <https://github.com/readthedocs/readthedocs.org/pull/10864>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: accept `project-slug` and `version-slug` on endpoint (`#10823 <https://github.com/readthedocs/readthedocs.org/pull/10823>`__)
+
 Version 10.8.0
 --------------
 
