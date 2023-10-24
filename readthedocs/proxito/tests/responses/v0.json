@@ -25,6 +25,7 @@
         "url": "https://github.com/readthedocs/project"
       },
       "single_version": false,
+      "versioning_scheme": "multi_version",
       "slug": "project",
       "subproject_of": null,
       "tags": ["project", "tag", "test"],

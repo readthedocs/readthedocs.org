@@ -414,8 +414,8 @@ SSL_STATUS_CHOICES = (
     (SSL_STATUS_UNKNOWN, _("Unknown")),
 )
 
-SINGLE_VERSION = "single_version_single_language"
-MULTI_VERSION = "multi_version_multi_language"
+SINGLE_VERSION = "single_version"
+MULTI_VERSION = "multi_version"
 VERSIONING_SCHEME_CHOICES = (
     (SINGLE_VERSION, _("Single version")),
     (MULTI_VERSION, _("Multi version")),

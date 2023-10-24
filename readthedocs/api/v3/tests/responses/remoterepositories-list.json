@@ -50,7 +50,8 @@
         "users": [{ "username": "testuser" }],
         "privacy_level": "public",
         "external_builds_privacy_level": "public",
-        "single_version": false
+        "single_version": false,
+        "versioning_scheme": "multi_version"
       }],
       "remote_organization": {
           "avatar_url": "https://avatars.githubusercontent.com/u/366329?v=4",
