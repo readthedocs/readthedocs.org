@@ -156,8 +156,37 @@ class ResolverBase:
         filename="",
         query_params="",
         external=None,
+        custom_domain=None,
         **kwargs,
     ):
+        """
+        Resolve the URL of the project/version/filename combination.
+
+        :param project: Project to resolve.
+        :param require_https: resulting URL should include SSL or not.
+        :param filename: exact filename the resulting URL should contain.
+        :param query_params: query string params the resulting URL should contain.
+        :param external: whether or not the resolved URL would be external (`*.readthedocs.build`).
+        :param custom_domain: known custom Domain instance for the project.
+
+        Possible values:
+
+          - ``Domain`` instance pointing to the custom domain of the project.
+          - ``False`` the project does not have a custom domain.
+          - ``None`` the custom domain will be queried while resolving the URL.
+
+        There are situations where it's more DB performant to resolve the custom domain once
+        before calling this method and re-use it on consecutives calls.
+
+        Example:
+
+          canonical_project = resolver._get_canonical_project(project)
+          custom_domain = canonical_project.get_canonical_custom_domain() or False
+          for version in project.versions.all():
+            resolver.resolve(project=project, ..., custom_domain=custom_domain)
+
+        :param kwargs: extra attributes to be passed to ``resolve_path``.
+        """
         version_slug = kwargs.get("version_slug")
 
         if version_slug is None:
@@ -166,8 +195,11 @@ class ResolverBase:
             external = self._is_external(project, version_slug)
 
         canonical_project = self._get_canonical_project(project)
-        custom_domain = canonical_project.get_canonical_custom_domain()
-        use_custom_domain = self._use_custom_domain(custom_domain)
+
+        use_custom_domain = False
+        if custom_domain is None:
+            custom_domain = canonical_project.get_canonical_custom_domain()
+            use_custom_domain = self._use_custom_domain(custom_domain)
 
         if external:
             domain = self._get_external_subdomain(canonical_project, version_slug)
