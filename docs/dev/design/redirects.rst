@@ -23,6 +23,7 @@ Non-goals
   having a clear use case for them.
 - Improve the performance of redirects.
   This can be discussed in an issue or pull request.
+  Performance should be considered when implementing new improvements.
 - Allow importing redirects.
   We should push users to use our API instead.
 - Allow specifying redirects in the RTD config file.
@@ -43,8 +44,10 @@ Prefix redirect:
    They are basically the same as an exact redirect with a wildcard at the end.
    They are a shortcut for a redirect like:
 
-   - From: ``/prefix/$rest``
-     To: ``/en/latest/``
+   From:
+     ``/prefix/$rest``
+   To:
+     ``/en/latest/``
 
    Or maybe we could use a prefix redirect to replace the exact redirect with a wildcard?
 
@@ -139,51 +142,14 @@ The following improvements will be applied to all types of redirects.
 - Allow to add a short description.
   It's useful to document why the redirect was created.
 
-Allow matching query arguments
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-We can do this in two ways:
-
-- At the DB level with some restrictions.
-  If done at the DB level,
-  we would need to have a different field
-  with just the path, and other with the query arguments normalized and sorted.
-
-  For example, if we have a redirect with the value ``/foo?blue=1&yellow=2&red=3``,
-  if would be normalized in the DB as ``/foo`` and ``blue=1&red=3&yellow=2``.
-  This implies that the URL to be matched must have the exact same query arguments,
-  it can't have more or less.
-
-  I believe the implementation described here is the same being used by Netlify,
-  since they have that same restriction.
-
-      If the URL contains other parameters in addition to or instead of id, the request doesn't match that rule.
-
-      https://docs.netlify.com/routing/redirects/redirect-options/#query-parameters
-
-- At the Python level.
-  If done at the DB level,
-  we would need to have a different field
-  with just the path, and other with query arguments.
-
-  The matching of the path would be done at the DB level,
-  and the matching of the query arguments would be done at the Python level.
-  Here we can be more flexible, allowing any query arguments in the matched URL.
-
-  We had some performance problems in the past,
-  but I believe it was mainly due to the use of regex instead of using string operations.
-  And matching the path is still done at the DB level.
-  We could limit the number of redirects that can be created with query arguments,
-  or the number of redirects in general.
-
 Don't run redirects on domains from pull request previews
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We currently run redirects on domains from pull request previews,
 this is a problem when moving a whole project to a new domain.
 
-Do we have the need to run redirects on external domains?
-They are suppose to be temporary domains.
+We don't the need to run redirects on external domains, they
+should be treated as temporary domains.
 
 Normalize paths with trailing slashes
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -195,8 +161,10 @@ We can simplify this by normalizing the path before matching it.
 
 For example:
 
-- From: ``/page/``
-  To: ``/new/page``
+From:
+  ``/page/``
+To:
+  ``/new/page``
 
 The from path will be normalized to ``/page``,
 and the filename to match will also be normalized before matching it.
@@ -206,33 +174,32 @@ https://docs.netlify.com/routing/redirects/redirect-options/#trailing-slash.
 Page and exact redirects without a wildcard at the end will be normalized,
 all other redirects need to be matched as is.
 
-Improving exact redirects
-~~~~~~~~~~~~~~~~~~~~~~~~~
+This makes it impossible to match a path with a trailing slash.
 
-- Explicitly place the ``$rest`` placeholder in the target URL,
-  instead of adding it automatically.
+Explicit ``$rest`` placeholder
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-  Some times users want to redirect to a different path,
-  we have been adding a query parameter in the target URL to
-  prevent the old path from being added in the final path.
-  For example ``/new/path/?_=``.
+Explicitly place the ``$rest`` placeholder in the target URL,
+instead of adding it automatically.
 
-  Instead of adding the path automatically,
-  users have to add the ``$rest`` placeholder in the target URL.
-  For example:
+Some times users want to redirect to a different path,
+we have been adding a query parameter in the target URL to
+prevent the old path from being added in the final path.
+For example ``/new/path/?_=``.
 
-  - From: ``/old/path/$rest``
-    To: ``/new/path/$rest``
+Instead of adding the path automatically,
+users have to add the ``$rest`` placeholder in the target URL.
+For example:
 
-  - From: ``/old/path/$rest``
-    To: ``/new/path/?page=$rest&foo=bar``
+From:
+  ``/old/path/$rest``
+To:
+  ``/new/path/$rest``
 
-- Per-domain redirects.
-  Do users have the need for this?
-  The main problem is that we were applying the redirect
-  to external domains, if we stop doing that, is there the need for this?
-  We can also try to improve how our built-in redirects work
-  (specially our canonical domain redirect).
+From:
+  ``/old/path/$rest``
+To:
+  ``/new/path/?page=$rest&foo=bar``
 
 Improving page redirects
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -306,6 +273,52 @@ Other ideas to improve redirects
   We currently only allow a suffix wildcard,
   adding support for a prefix wildcard should be easy.
   But do users need this feature?
+
+- Per-domain redirects.
+  The main problem that originated this request was that we were applying redirects on external domains,
+  if we stop doing that, there is no need for this feature.
+  We can also try to improve how our built-in redirects work
+  (specially our canonical domain redirect).
+
+Allow matching query arguments
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+We can do this in two ways:
+
+- At the DB level with some restrictions.
+  If done at the DB level,
+  we would need to have a different field
+  with just the path, and other with the query arguments normalized and sorted.
+
+  For example, if we have a redirect with the value ``/foo?blue=1&yellow=2&red=3``,
+  if would be normalized in the DB as ``/foo`` and ``blue=1&red=3&yellow=2``.
+  This implies that the URL to be matched must have the exact same query arguments,
+  it can't have more or less.
+
+  I believe the implementation described here is the same being used by Netlify,
+  since they have that same restriction.
+
+      If the URL contains other parameters in addition to or instead of id, the request doesn't match that rule.
+
+      https://docs.netlify.com/routing/redirects/redirect-options/#query-parameters
+
+- At the Python level.
+  If done at the DB level,
+  we would need to have a different field
+  with just the path, and other with query arguments.
+
+  The matching of the path would be done at the DB level,
+  and the matching of the query arguments would be done at the Python level.
+  Here we can be more flexible, allowing any query arguments in the matched URL.
+
+  We had some performance problems in the past,
+  but I believe it was mainly due to the use of regex instead of using string operations.
+  And matching the path is still done at the DB level.
+  We could limit the number of redirects that can be created with query arguments,
+  or the number of redirects in general.
+
+We hava had only one user requesting this feature,
+so this is not a priority.
 
 Migration
 ---------
