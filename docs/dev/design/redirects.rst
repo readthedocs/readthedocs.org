@@ -257,6 +257,11 @@ Other ideas to improve redirects
 - Merge prefix redirects with exact redirects.
   Prefix redirects are the same as exact redirects with a wildcard at the end.
 
+- Merge all redirects into a single type.
+  This may simplify the implementation,
+  but it will make it harder to explain the feature to users.
+  And to replace some redirects we need to implement some new features.
+
 - Placeholders.
   I haven't seen users requesting this feature.
   We can consider adding it in the future.
