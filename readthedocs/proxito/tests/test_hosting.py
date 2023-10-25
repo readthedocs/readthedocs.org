@@ -12,7 +12,7 @@ from django.urls import reverse
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Domain, Feature, Project
 
 
 @override_settings(
@@ -576,6 +576,34 @@ class TestReadTheDocsConfigJson(TestCase):
         assert self._normalize_datetime_fields(r.json()) == self._get_response_dict(
             "v0"
         )
+
+    def test_custom_domain_url(self):
+        fixture.get(
+            Domain,
+            domain="docs.example.com",
+            canonical=True,
+            project=self.project,
+        )
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "0.1.0",
+                "client-version": "0.6.0",
+                "url": "https://docs.example.com/en/latest/",
+            },
+            secure=True,
+            headers={
+                "host": "docs.example.com",
+            },
+        )
+        assert r.status_code == 200
+        expected_versions = [
+            {
+                "url": "https://docs.example.com/en/latest/",
+                "slug": "latest",
+            },
+        ]
+        assert r.json()["addons"]["flyout"]["versions"] == expected_versions
 
     def test_number_of_queries_project_version_slug(self):
         # The number of queries should not increase too much, even if we change
