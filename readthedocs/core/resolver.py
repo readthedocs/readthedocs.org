@@ -198,7 +198,10 @@ class ResolverBase:
 
         if custom_domain is None:
             custom_domain = canonical_project.get_canonical_custom_domain()
-        use_custom_domain = self._use_custom_domain(custom_domain)
+
+        use_custom_domain = False
+        if custom_domain:
+            use_custom_domain = self._use_custom_domain(custom_domain)
 
         if external:
             domain = self._get_external_subdomain(canonical_project, version_slug)
