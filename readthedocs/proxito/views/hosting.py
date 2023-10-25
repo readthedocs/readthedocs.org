@@ -97,7 +97,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 build = version.builds.filter(
                     success=True,
                     state=BUILD_STATE_FINISHED,
-                ).last()
+                ).first()
 
             except UnresolverError as exc:
                 # If an exception is raised and there is a ``project`` in the
@@ -113,7 +113,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             project = Project.objects.filter(slug=project_slug).first()
             version = Version.objects.filter(slug=version_slug, project=project).first()
             if version:
-                build = version.builds.last()
+                build = version.builds.first()
 
         return project, version, build, filename
 
