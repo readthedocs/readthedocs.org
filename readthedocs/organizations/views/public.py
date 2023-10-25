@@ -48,23 +48,24 @@ class DetailOrganization(OrganizationView, DetailView):
             .filter(organizations=org)
             .all()
         )
-        teams = (
-            Team.objects
-            .member(self.request.user, organization=org)
-            .prefetch_related('organization')
-            .all()
-        )
         if settings.RTD_EXT_THEME_ENABLED:
             filter = OrganizationProjectListFilterSet(
                 self.request.GET,
                 request=self.request,
                 queryset=projects,
-                teams_queryset=teams,
+                organization=org,
             )
             context["filter"] = filter
             projects = filter.qs
+        else:
+            teams = (
+                Team.objects.member(self.request.user, organization=org)
+                .prefetch_related("organization")
+                .all()
+            )
+            context["teams"] = teams
+
         context["projects"] = projects
-        context["teams"] = teams
         context["owners"] = org.owners.all()
         return context
 
@@ -121,6 +122,8 @@ class ListOrganizationTeams(OrganizationTeamView, ListView):
             filter = OrganizationTeamListFilterSet(
                 self.request.GET,
                 queryset=teams,
+                request=self.request,
+                organization=org,
             )
             context["filter"] = filter
             teams = filter.qs

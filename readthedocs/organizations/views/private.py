@@ -75,7 +75,9 @@ class ListOrganization(PrivateViewMixin, OrganizationView, ListView):
         context = super().get_context_data(**kwargs)
         if settings.RTD_EXT_THEME_ENABLED:
             filter = OrganizationListFilterSet(
-                self.request.GET, queryset=self.get_queryset()
+                self.request.GET,
+                queryset=self.get_queryset(),
+                request=self.request,
             )
             context["filter"] = filter
             context["organization_list"] = filter.qs

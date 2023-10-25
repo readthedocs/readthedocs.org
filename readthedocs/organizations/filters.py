@@ -14,15 +14,43 @@ from django.utils.translation import gettext_lazy as _
 from django_filters import (
     ChoiceFilter,
     FilterSet,
-    ModelChoiceFilter,
     OrderingFilter,
 )
 
+from readthedocs.core.filters import FilteredModelChoiceFilter
 from readthedocs.organizations.constants import ACCESS_LEVELS
 from readthedocs.organizations.models import Organization, Team
-from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
+
+
+class OrganizationFilterSet(FilterSet):
+
+    """
+    Organization base filter set.
+
+    Adds some object attributes that are used for orgaization related queries
+    and common base querysets for filter fields.
+
+    Note, the querysets here are also found in the organization base views and
+    mixin classes. These are redefined here instead of passing in the querysets
+    from the view.
+
+    :param organization: Organization instance for current view
+    """
+
+    def __init__(self, *args, **kwargs):
+        self.organization = kwargs.pop("organization", None)
+        super().__init__(*args, **kwargs)
+
+    def get_organization_queryset(self):
+        return Organization.objects.for_user(user=self.request.user)
+
+    def get_team_queryset(self):
+        return Team.objects.member(
+            self.request.user,
+            organization=self.organization,
+        ).prefetch_related("organization")
 
 
 class OrganizationSortOrderingFilter(OrderingFilter):
@@ -69,16 +97,15 @@ class OrganizationSortOrderingFilter(OrderingFilter):
         return qs.order_by(*order_bys)
 
 
-class OrganizationListFilterSet(FilterSet):
+class OrganizationListFilterSet(OrganizationFilterSet):
 
     """Filter and sorting for organization listing page."""
 
-    slug = ModelChoiceFilter(
+    slug = FilteredModelChoiceFilter(
         label=_("Organization"),
         empty_label=_("All organizations"),
         to_field_name="slug",
-        # Queryset is required, give an empty queryset from the correct model
-        queryset=Organization.objects.none(),
+        queryset_method="get_organization_queryset",
         method="get_organization",
     )
 
@@ -87,26 +114,11 @@ class OrganizationListFilterSet(FilterSet):
         label=_("Sort by"),
     )
 
-    def __init__(
-        self,
-        data=None,
-        queryset=None,
-        *,
-        request=None,
-        prefix=None,
-    ):
-        super().__init__(data, queryset, request=request, prefix=prefix)
-        # Redefine the querysets used for the filter fields using the querysets
-        # defined at view time. This populates the filter field with only the
-        # correct related objects for the user. Otherwise, the default for model
-        # choice filter fields is ``<Model>.objects.all()``.
-        self.filters["slug"].field.queryset = self.queryset.all()
-
     def get_organization(self, queryset, field_name, organization):
         return queryset.filter(slug=organization.slug)
 
 
-class OrganizationProjectListFilterSet(FilterSet):
+class OrganizationProjectListFilterSet(OrganizationFilterSet):
 
     """
     Filter and sorting set for organization project listing page.
@@ -130,46 +142,30 @@ class OrganizationProjectListFilterSet(FilterSet):
     :param team_queryset: Organization team list queryset
     """
 
-    slug = ModelChoiceFilter(
+    slug = FilteredModelChoiceFilter(
         label=_("Project"),
         empty_label=_("All projects"),
         to_field_name="slug",
-        # Queryset is required, give an empty queryset from the correct model
-        queryset=Project.objects.none(),
+        queryset_method="get_project_queryset",
         method="get_project",
     )
 
-    teams__slug = ModelChoiceFilter(
+    teams__slug = FilteredModelChoiceFilter(
         label=_("Team"),
         empty_label=_("All teams"),
         field_name="teams",
         to_field_name="slug",
-        # Queryset is required, give an empty queryset from the correct model
-        queryset=Team.objects.none(),
+        queryset_method="get_team_queryset",
     )
 
-    def __init__(
-        self,
-        data=None,
-        queryset=None,
-        *,
-        request=None,
-        prefix=None,
-        teams_queryset=None,
-    ):
-        super().__init__(data, queryset, request=request, prefix=prefix)
-        # Redefine the querysets used for the filter fields using the querysets
-        # defined at view time. This populates the filter field with only the
-        # correct related objects for the user. Otherwise, the default for model
-        # choice filter fields is ``<Model>.objects.all()``.
-        self.filters["slug"].field.queryset = self.queryset.all()
-        self.filters["teams__slug"].field.queryset = teams_queryset.all()
+    def get_project_queryset(self):
+        return self.queryset
 
     def get_project(self, queryset, field_name, project):
         return queryset.filter(slug=project.slug)
 
 
-class OrganizationTeamListFilterSet(FilterSet):
+class OrganizationTeamListFilterSet(OrganizationFilterSet):
 
     """
     Filter and sorting for organization team listing page.
@@ -184,37 +180,23 @@ class OrganizationTeamListFilterSet(FilterSet):
         with the dropdown too.
     """
 
-    slug = ModelChoiceFilter(
+    slug = FilteredModelChoiceFilter(
         label=_("Team"),
         empty_label=_("All teams"),
         field_name="teams",
         to_field_name="slug",
-        # Queryset is required, give an empty queryset from the correct model
-        queryset=Team.objects.none(),
+        queryset_method="get_team_queryset",
         method="get_team",
     )
 
-    def __init__(
-        self,
-        data=None,
-        queryset=None,
-        *,
-        request=None,
-        prefix=None,
-        teams_queryset=None,
-    ):
-        super().__init__(data, queryset, request=request, prefix=prefix)
-        # Redefine the querysets used for the filter fields using the querysets
-        # defined at view time. This populates the filter field with only the
-        # correct related objects for the user/organization. Otherwise, the
-        # default for model choice filter fields is ``<Model>.objects.all()``.
-        self.filters["slug"].field.queryset = queryset.all()
+    def get_team_queryset(self):
+        return self.queryset
 
     def get_team(self, queryset, field_name, team):
         return queryset.filter(slug=team.slug)
 
 
-class OrganizationTeamMemberListFilterSet(FilterSet):
+class OrganizationTeamMemberListFilterSet(OrganizationFilterSet):
 
     """
     Filter and sorting set for organization member listing page.
@@ -245,12 +227,12 @@ class OrganizationTeamMemberListFilterSet(FilterSet):
 
     ACCESS_OWNER = "owner"
 
-    teams__slug = ModelChoiceFilter(
+    teams__slug = FilteredModelChoiceFilter(
         label=_("Team"),
         empty_label=_("All teams"),
         field_name="teams",
         to_field_name="slug",
-        queryset=Team.objects.none(),
+        queryset_method="get_team_queryset",
     )
 
     access = ChoiceFilter(
@@ -259,34 +241,6 @@ class OrganizationTeamMemberListFilterSet(FilterSet):
         choices=ACCESS_LEVELS + ((ACCESS_OWNER, _("Owner")),),
         method="get_access",
     )
-
-    def __init__(
-        self, data=None, queryset=None, *, request=None, prefix=None, organization=None
-    ):
-        """
-        Organization members filter set.
-
-        This filter set requires the following additional parameters:
-
-        :param organization: Organization for field ``filter()`` and used to
-                             check for organization owner access.
-        """
-        super().__init__(data, queryset, request=request, prefix=prefix)
-        self.organization = organization
-        # Redefine the querysets used for the filter fields using the querysets
-        # defined at view time. This populates the filter field with only the
-        # correct related objects for the user/organization. Otherwise, the
-        # default for model choice filter fields is ``<Model>.objects.all()``.
-        filter_with_user_relationship = True
-        team_queryset = self.organization.teams
-        if filter_with_user_relationship:
-            # XXX remove this conditional and decide which one of these is most
-            # correct There are reasons for both showing all the teams here and
-            # only the team that the user has access to.
-            team_queryset = Team.objects.member(request.user).filter(
-                organization=self.organization,
-            )
-        self.filters["teams__slug"].field.queryset = team_queryset.all()
 
     def get_access(self, queryset, field_name, value):
         # Note: the queryset here is effectively against the ``User`` model, and
