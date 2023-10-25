@@ -576,3 +576,38 @@ class TestReadTheDocsConfigJson(TestCase):
         assert self._normalize_datetime_fields(r.json()) == self._get_response_dict(
             "v0"
         )
+
+    def test_number_of_queries_project_version_slug(self):
+        # The number of queries should not increase too much, even if we change
+        # some of the responses from the API. This test will help us to
+        # understand how much this number varies depending on the changes we do.
+        with self.assertNumQueries(16):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "api-version": "0.1.0",
+                    "client-version": "0.6.0",
+                    "project-slug": "project",
+                    "version-slug": "latest",
+                },
+                secure=True,
+                headers={
+                    "host": "project.dev.readthedocs.io",
+                },
+            )
+        assert r.status_code == 200
+
+    def test_number_of_queries_url(self):
+        with self.assertNumQueries(17):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "url": "https://project.dev.readthedocs.io/en/latest/",
+                    "api-version": "0.1.0",
+                },
+                secure=True,
+                headers={
+                    "host": "project.dev.readthedocs.io",
+                },
+            )
+        assert r.status_code == 200
