@@ -860,13 +860,13 @@ class Project(models.Model):
     @property
     def is_single_version(self):
         """
-        Return whether or not this project is a single version project.
+        Return whether or not this project is a single version without translations.
 
         Kept for backwards compatibility while we migrate the old field to the new one.
         """
         if self.single_version:
             return True
-        return self.versioning_scheme == constants.SINGLE_VERSION
+        return self.versioning_scheme == constants.SINGLE_VERSION_WITHOUT_TRANSLATIONS
 
     def subdomain(self, use_canonical_domain=True):
         """Get project subdomain from resolver."""
