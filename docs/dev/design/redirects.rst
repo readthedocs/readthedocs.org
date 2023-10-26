@@ -188,10 +188,22 @@ all other redirects need to be matched as is.
 
 This makes it impossible to match a path with a trailing slash.
 
-Explicit ``$rest`` placeholder
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Use ``*`` and ``:splat`` for wildcards
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Explicitly place the ``$rest`` placeholder in the target URL,
+Currently we are using ``$rest`` at the end of the ``From URL``
+to indicate that the rest of the path should be added to the target URL.
+
+A similar feature is implemented in other services using ``*`` and ``:splat``.
+
+Instead of using ``$rest`` in the URL for the suffix wildcard, we now will use ``*``,
+and ``:splat`` as a placeholder in the target URL to be more consistent with other services.
+Existing redirects can be migrated automatically.
+
+Explicit ``:splat`` placeholder
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Explicitly place the ``:splat`` placeholder in the target URL,
 instead of adding it automatically.
 
 Some times users want to redirect to a different path,
@@ -200,18 +212,18 @@ prevent the old path from being added in the final path.
 For example ``/new/path/?_=``.
 
 Instead of adding the path automatically,
-users have to add the ``$rest`` placeholder in the target URL.
+users have to add the ``:splat`` placeholder in the target URL.
 For example:
 
 From:
-  ``/old/path/$rest``
+  ``/old/path/*``
 To:
-  ``/new/path/$rest``
+  ``/new/path/:splat``
 
 From:
-  ``/old/path/$rest``
+  ``/old/path/*``
 To:
-  ``/new/path/?page=$rest&foo=bar``
+  ``/new/path/?page=:splat&foo=bar``
 
 Improving page redirects
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -237,16 +249,16 @@ Improving page redirects
   This will allow users to migrate a whole directory to a new path
   without having to create an exact redirect for each version.
 
-  Similar to exact redirects, users need to add the ``$rest`` placeholder explicitly.
+  Similar to exact redirects, users need to add the ``:splat`` placeholder explicitly.
   This means that that page redirects are the same as exact redirects,
   with the only difference that they apply to all versions.
 
   Example:
 
   From:
-    ``/old/path/$rest``
+    ``/old/path/*``
   To:
-    ``/new/path/$rest``
+    ``/new/path/:splat``
 
 Improving Sphinx redirects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -261,6 +273,8 @@ Proposed names:
 
 Other ideas to improve redirects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following improvements will not be implemented in the first iteration.
 
 - Run forced redirects before built-in redirects.
   We currently run built-in redirects before forced redirects,
@@ -292,10 +306,6 @@ Other ideas to improve redirects
   I haven't seen users requesting this feature.
   We can consider adding it in the future.
   Maybe we can expose the current language and version as placeholders.
-
-- Replace ``$rest`` with ``*`` in the from_url.
-  This will be more consistent with other services,
-  but it will require users to re-learn the feature.
 
 - Per-protocol redirects.
   We should push users to always use HTTPS.
