@@ -1020,3 +1020,16 @@ class TestResolverWithCustomPrefixes(ResolverBase):
         self.assertEqual(
             url, "http://pip.readthedocs.io/s/sub/prefix/es/latest/api/index.html"
         )
+
+    def test_get_project_domain(self):
+        domain = resolver.get_domain(self.pip)
+        self.assertEqual(domain, "http://pip.readthedocs.io")
+
+        domain = resolver.get_domain(self.subproject)
+        self.assertEqual(domain, "http://pip.readthedocs.io")
+
+        domain = resolver.get_domain(self.translation)
+        self.assertEqual(domain, "http://pip.readthedocs.io")
+
+        domain = resolver.get_domain(self.subproject_translation)
+        self.assertEqual(domain, "http://pip.readthedocs.io")

@@ -194,7 +194,14 @@ class Resolver:
 
         return domain, use_https
 
-    def resolve_domain(self, project, use_canonical_domain=True):
+    def get_domain(self, project, use_canonical_domain=True):
+        domain, use_https = self._get_project_domain(
+            project, use_canonical_domain=use_canonical_domain
+        )
+        protocol = "https" if use_https else "http"
+        return urlunparse((protocol, domain, "", "", "", ""))
+
+    def get_domain_without_protocol(self, project, use_canonical_domain=True):
         """
         Get the domain from where the documentation of ``project`` is served from.
 
@@ -348,5 +355,5 @@ class Resolver:
 
 resolver = Resolver()
 resolve_path = resolver.resolve_path
-resolve_domain = resolver.resolve_domain
+resolve_domain = resolver.get_domain_without_protocol
 resolve = resolver.resolve
