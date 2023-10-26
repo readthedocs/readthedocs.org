@@ -244,7 +244,7 @@ class Project(models.Model):
     versioning_scheme = models.CharField(
         _("Versioning scheme"),
         max_length=120,
-        default=constants.MULTI_VERSION,
+        default=constants.MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
         choices=constants.VERSIONING_SCHEME_CHOICES,
         # TODO: remove after migration
         null=True,

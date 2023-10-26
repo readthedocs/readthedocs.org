@@ -8,7 +8,7 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
-    MULTI_VERSION,
+    MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
     PRIVATE,
     PUBLIC,
     REPO_TYPE_GIT,
@@ -239,7 +239,7 @@ class TestProjectAdvancedForm(TestCase):
                 "documentation_type": SPHINX,
                 "python_interpreter": "python3",
                 "privacy_level": PRIVATE,
-                "versioning_scheme": MULTI_VERSION,
+                "versioning_scheme": MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
             },
             instance=self.project,
         )
@@ -256,7 +256,7 @@ class TestProjectAdvancedForm(TestCase):
                 "python_interpreter": "python3",
                 "privacy_level": PRIVATE,
                 "external_builds_privacy_level": PRIVATE,
-                "versioning_scheme": MULTI_VERSION,
+                "versioning_scheme": MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
             },
             instance=self.project,
         )
@@ -274,7 +274,7 @@ class TestProjectAdvancedForm(TestCase):
                 "python_interpreter": "python3",
                 "privacy_level": PRIVATE,
                 "readthedocs_yaml_path": custom_readthedocs_yaml_path,
-                "versioning_scheme": MULTI_VERSION,
+                "versioning_scheme": MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
             },
             instance=self.project,
         )
