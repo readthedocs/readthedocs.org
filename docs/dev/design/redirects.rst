@@ -118,8 +118,20 @@ How other services implement redirects
   - Match by country/language and cookies
   - Per-domain and protocol redirects
   - In case of multiple matches, the topmost redirect will be used.
+  - Rewrites, serve a different file without redirecting.
 
   https://docs.netlify.com/routing/redirects/
+
+- GitLab pages supports the same syntax as Netlify,
+  and supports a subset of their features:
+
+  - ``_redirects`` config file
+  - Status codes
+  - Rewrites
+  - Wildcards (splats)
+  - Placeholders
+
+  https://docs.gitlab.com/ee/user/project/pages/redirects.html
 
 Improvements
 ------------
@@ -214,6 +226,13 @@ Improving page redirects
   but it will be useful to simplify the explanation of the feature
   (one less restriction to explain).
 
+  Example:
+
+  From:
+    ``/security/``
+  To:
+    ``https://example.com/security/``
+
 - Allow a wildcard at the end of the from path.
   This will allow users to migrate a whole directory to a new path
   without having to create an exact redirect for each version.
@@ -221,6 +240,13 @@ Improving page redirects
   Similar to exact redirects, users need to add the ``$rest`` placeholder explicitly.
   This means that that page redirects are the same as exact redirects,
   with the only difference that they apply to all versions.
+
+  Example:
+
+  From:
+    ``/old/path/$rest``
+  To:
+    ``/new/path/$rest``
 
 Improving Sphinx redirects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
