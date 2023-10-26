@@ -51,7 +51,7 @@
         "privacy_level": "public",
         "external_builds_privacy_level": "public",
         "single_version": false,
-        "versioning_scheme": "multi_version"
+        "versioning_scheme": "multiple_versions_with_translations"
       }],
       "remote_organization": {
           "avatar_url": "https://avatars.githubusercontent.com/u/366329?v=4",

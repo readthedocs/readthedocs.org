@@ -14,10 +14,10 @@ class Migration(migrations.Migration):
             name="versioning_scheme",
             field=models.CharField(
                 choices=[
-                    ("single_version", "Single version"),
-                    ("multi_version", "Multi version"),
+                    ("single_version_without_translations", "Single version without translations"),
+                    ("multiple_versions_with_translations", "Multiple versions with translations"),
                 ],
-                default="multi_version",
+                default="multiple_versions_with_translations",
                 help_text="This affects how the URL of your documentation looks like, and if it supports translations or multiple versions. Changing the versioning scheme will break your current URLs.",
                 max_length=120,
                 null=True,
@@ -29,10 +29,10 @@ class Migration(migrations.Migration):
             name="versioning_scheme",
             field=models.CharField(
                 choices=[
-                    ("single_version", "Single version"),
-                    ("multi_version", "Multi version"),
+                    ("single_version_without_translations", "Single version without translations"),
+                    ("multiple_versions_with_translations", "Multiple versions with translations"),
                 ],
-                default="multi_version",
+                default="multiple_versions_with_translations",
                 help_text="This affects how the URL of your documentation looks like, and if it supports translations or multiple versions. Changing the versioning scheme will break your current URLs.",
                 max_length=120,
                 null=True,

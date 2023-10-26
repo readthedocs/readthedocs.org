@@ -5,7 +5,7 @@ from django.test import override_settings
 from django.urls import reverse
 
 from readthedocs.oauth.models import RemoteRepository
-from readthedocs.projects.constants import SINGLE_VERSION
+from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Project
 
 from .mixins import APIEndpointMixin
@@ -405,7 +405,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             "default_branch": "updated-default-branch",
             "analytics_code": "UA-XXXXXX",
             "show_version_warning": False,
-            "versioning_scheme": SINGLE_VERSION,
+            "versioning_scheme": SINGLE_VERSION_WITHOUT_TRANSLATIONS,
             "external_builds_enabled": True,
         }
         url = reverse(
