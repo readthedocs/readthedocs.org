@@ -272,7 +272,13 @@ class AddonsResponse:
         )
         # Make one DB query here and then check on Python code
         # TODO: make usage of ``Project.addons.<name>_enabled`` to decide if enabled
-        project_features = project.features.all().values_list("feature_id", flat=True)
+        #
+        # NOTE: using ``feature_id__startswith="addons_"`` to make the query faster.
+        # It went down from 20ms to 1ms since it does not have to check the
+        # `Project.pub_date` against all the features.
+        project_features = project.features.filter(
+            feature_id__startswith="addons_"
+        ).values_list("feature_id", flat=True)
 
         data = {
             "api_version": "0",
