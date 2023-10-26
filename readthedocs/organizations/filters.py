@@ -11,11 +11,7 @@ pass in related querysets at view time.
 import structlog
 from django.db.models import F
 from django.utils.translation import gettext_lazy as _
-from django_filters import (
-    ChoiceFilter,
-    FilterSet,
-    OrderingFilter,
-)
+from django_filters import ChoiceFilter, FilterSet, OrderingFilter
 
 from readthedocs.core.filters import FilteredModelChoiceFilter
 from readthedocs.organizations.constants import ACCESS_LEVELS
