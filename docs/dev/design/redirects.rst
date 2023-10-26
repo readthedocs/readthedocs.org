@@ -169,7 +169,7 @@ Normalize paths with trailing slashes
 Currently, if users want to redirect a path with a trailing slash and without it,
 they need to create two separate redirects (``/page/`` and ``/page``).
 
-We can simplify this by normalizing the path before matching it.
+We can simplify this by normalizing the path before matching it, or before saving it.
 
 For example:
 
