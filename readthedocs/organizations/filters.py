@@ -1,12 +1,4 @@
-"""
-Filters used in the organization dashboard.
-
-Some of the below filters instantiate with multiple querysets as django-filter
-doesn't use the supplied queryset for filter field choices. By default the
-``all()`` manager method is used from the filter field model. ``FilterSet`` is
-mostly instantiated at class definition time, not per-instance, so we need to
-pass in related querysets at view time.
-"""
+"""Filters used in the organization dashboard views."""
 
 import structlog
 from django.db.models import F
@@ -25,8 +17,8 @@ class OrganizationFilterSet(FilterSet):
     """
     Organization base filter set.
 
-    Adds some object attributes that are used for orgaization related queries
-    and common base querysets for filter fields.
+    Adds some methods that are used for organization related queries and common
+    base querysets for filter fields.
 
     Note, the querysets here are also found in the organization base views and
     mixin classes. These are redefined here instead of passing in the querysets
@@ -131,11 +123,6 @@ class OrganizationProjectListFilterSet(OrganizationFilterSet):
         A list of team names that the user has access to, using ``slug`` as a
         lookup field. This filter is linked to directly by the team listing
         view, as a shortcut for listing projects managed by the team.
-
-    This filter set takes an additional argument, used to limit the model choice
-    filter field values:
-
-    :param team_queryset: Organization team list queryset
     """
 
     slug = FilteredModelChoiceFilter(

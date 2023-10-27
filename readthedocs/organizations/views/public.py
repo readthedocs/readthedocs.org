@@ -80,9 +80,6 @@ class ListOrganizationMembers(OrganizationMixin, ListView):
         context = super().get_context_data(**kwargs)
         team_members = self.get_queryset()
         if settings.RTD_EXT_THEME_ENABLED:
-            # Because of the split between TeamMember and Organization.owners,
-            # we have to pass in two querysets here. This is what makes it
-            # possible to list the available organization Teams in
             filter = OrganizationTeamMemberListFilterSet(
                 self.request.GET,
                 queryset=team_members,
