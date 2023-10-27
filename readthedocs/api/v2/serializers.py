@@ -5,8 +5,8 @@ from allauth.socialaccount.models import SocialAccount
 from rest_framework import serializers
 
 from readthedocs.api.v2.utils import normalize_build_command
-from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.core.resolver import resolver
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, Project
 
@@ -179,11 +179,10 @@ class VersionAdminSerializer(VersionSerializer):
         # Use the cached object, since it has some
         # relationships already cached from calling
         # get_docs_url early when serializing the project.
-        project = self._get_project_serialized(obj).instance
-        return project.get_docs_url(
-            lang_slug=project.language,
-            version_slug=obj.slug,
-            external=obj.type == EXTERNAL,
+        project = self._get_project_get_subdomain_urlserialized(obj).instance
+        return resolver.resolve_version(
+            project=project,
+            version=obj,
         )
 
     class Meta(VersionSerializer.Meta):

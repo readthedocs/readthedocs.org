@@ -15,8 +15,7 @@ from rest_framework.views import APIView
 from readthedocs.api.mixins import CDNCacheTagsMixin, EmbedAPIMixin
 from readthedocs.api.v2.permissions import IsAuthorizedToViewVersion
 from readthedocs.api.v3.permissions import HasEmbedAPIAccess
-from readthedocs.builds.constants import EXTERNAL
-from readthedocs.core.resolver import resolve
+from readthedocs.core.resolver import resolver
 from readthedocs.embed.utils import clean_references, recurse_while_none
 from readthedocs.storage import build_media_storage
 
@@ -135,12 +134,10 @@ class EmbedAPI(EmbedAPIMixin, CDNCacheTagsMixin, APIView):
 def do_embed(*, project, version, doc=None, path=None, section=None, url=None):
     """Get the embed response from a document section."""
     if not url:
-        external = version.type == EXTERNAL
-        url = resolve(
+        url = resolver.resolve_version(
             project=project,
-            version_slug=version.slug,
+            version=version,
             filename=path or doc,
-            external=external,
         )
 
     content = None
