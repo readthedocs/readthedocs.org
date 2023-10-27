@@ -179,7 +179,7 @@ class VersionAdminSerializer(VersionSerializer):
         # Use the cached object, since it has some
         # relationships already cached from calling
         # get_docs_url early when serializing the project.
-        project = self._get_project_get_subdomain_urlserialized(obj).instance
+        project = self._get_project_serialized(obj).instance
         return resolver.resolve_version(
             project=project,
             version=obj,
