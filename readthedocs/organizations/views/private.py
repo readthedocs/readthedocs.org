@@ -13,6 +13,7 @@ from vanilla import CreateView, DeleteView, FormView, ListView, UpdateView
 
 from readthedocs.audit.filters import OrganizationSecurityLogFilter
 from readthedocs.audit.models import AuditLog
+from readthedocs.core.filters import FilterMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.invitations.models import Invitation
@@ -64,9 +65,12 @@ class CreateOrganizationSignup(PrivateViewMixin, OrganizationView, CreateView):
         )
 
 
-class ListOrganization(PrivateViewMixin, OrganizationView, ListView):
+class ListOrganization(FilterMixin, PrivateViewMixin, OrganizationView, ListView):
     template_name = 'organizations/organization_list.html'
     admin_only = False
+
+    filterset_class = OrganizationListFilterSet
+    strict = True  # Return an empty queryset on filter validation errors
 
     def get_queryset(self):
         return Organization.objects.for_user(user=self.request.user)
@@ -74,13 +78,8 @@ class ListOrganization(PrivateViewMixin, OrganizationView, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if settings.RTD_EXT_THEME_ENABLED:
-            filter = OrganizationListFilterSet(
-                self.request.GET,
-                queryset=self.get_queryset(),
-                request=self.request,
-            )
-            context["filter"] = filter
-            context["organization_list"] = filter.qs
+            context["filter"] = self.get_filterset()
+            context["organization_list"] = self.get_filtered_queryset()
         return context
 
 

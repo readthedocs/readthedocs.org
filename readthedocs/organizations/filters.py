@@ -40,6 +40,11 @@ class OrganizationFilterSet(FilterSet):
             organization=self.organization,
         ).prefetch_related("organization")
 
+    def is_valid(self):
+        # This differs from the default logic as we want to consider unbound
+        # data as a valid filterset state.
+        return (self.is_bound is False) or self.form.is_valid()
+
 
 class OrganizationSortOrderingFilter(OrderingFilter):
 

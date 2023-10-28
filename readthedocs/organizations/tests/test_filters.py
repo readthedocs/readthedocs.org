@@ -1,15 +1,9 @@
 import django_dynamic_fixture as fixture
 import pytest
 from django.contrib.auth.models import User
-from django.test.client import RequestFactory
+from django.urls import reverse
 from pytest_django.asserts import assertQuerySetEqual
 
-from readthedocs.organizations.filters import (
-    OrganizationListFilterSet,
-    OrganizationProjectListFilterSet,
-    OrganizationTeamListFilterSet,
-    OrganizationTeamMemberListFilterSet,
-)
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.models import Project
 
@@ -17,83 +11,122 @@ from readthedocs.projects.models import Project
 @pytest.mark.django_db
 class OrganizationFilterTestCase:
     @pytest.fixture(autouse=True)
-    def set_up(self, settings):
+    def set_up(self, settings, client):
         settings.RTD_ALLOW_ORGANIZATIONS = True
+        settings.RTD_EXT_THEME_ENABLED = True
+        self.client = client
 
-        self.owner = fixture.get(User)
-        self.user = fixture.get(User)
-        self.project = fixture.get(Project)
 
-        self.organization = fixture.get(
+@pytest.fixture
+def filter_data(request):
+    users = dict(
+        user_a=fixture.get(User),
+        owner_a=fixture.get(User),
+        user_b=fixture.get(User),
+        owner_b=fixture.get(User),
+    )
+
+    projects = dict(
+        project_a=fixture.get(Project),
+        project_b=fixture.get(Project),
+    )
+
+    organizations = dict(
+        org_a=fixture.get(
             Organization,
-            owners=[self.owner],
-            projects=[self.project],
-        )
-        self.team = fixture.get(
+            owners=[users["owner_a"]],
+            projects=[projects["project_a"]],
+        ),
+        org_b=fixture.get(
+            Organization,
+            owners=[users["owner_b"]],
+            projects=[projects["project_b"]],
+        ),
+    )
+
+    teams = dict(
+        team_a=fixture.get(
             Team,
             access="admin",
-            organization=self.organization,
-            members=[self.user],
-            projects=[self.project],
-        )
-        self.team_empty = fixture.get(
+            organization=organizations["org_a"],
+            members=[users["user_a"]],
+            projects=[projects["project_a"]],
+        ),
+        team_a_empty=fixture.get(
             Team,
             access="readonly",
-            organization=self.organization,
+            organization=organizations["org_a"],
             members=[],
             projects=[],
-        )
-
-        # Create extra objects just to ensure there are no extra objects in our
-        # filter querysets
-        self.other_owner = fixture.get(User)
-        self.other_user = fixture.get(User)
-        self.other_project = fixture.get(Project)
-        self.other_organization = fixture.get(
-            Organization,
-            owners=[self.other_owner],
-            projects=[self.other_project],
-        )
-        self.other_team = fixture.get(
+        ),
+        team_b=fixture.get(
             Team,
             access="admin",
-            organization=self.other_organization,
-            members=[self.other_user],
-            projects=[self.other_project],
-        )
+            organization=organizations["org_b"],
+            members=[users["user_b"]],
+            projects=[projects["project_b"]],
+        ),
+    )
 
-        self.set_up_extra()
+    return dict(
+        users=users,
+        projects=projects,
+        organizations=organizations,
+        teams=teams,
+    )
 
-    def set_up_extra(self):
-        pass
+
+@pytest.fixture
+def user(request, filter_data):
+    return filter_data.get("users", {}).get(request.param)
 
 
+@pytest.fixture
+def organization(request, filter_data):
+    return filter_data.get("organizations", {}).get(request.param)
+
+
+@pytest.fixture
+def team(request, filter_data):
+    return filter_data.get("teams", {}).get(request.param)
+
+
+@pytest.fixture
+def teams(request, filter_data):
+    return [filter_data.get("teams", {}).get(key) for key in request.param]
+
+
+@pytest.fixture
+def project(request, filter_data):
+    return filter_data.get("projects", {}).get(request.param)
+
+
+@pytest.fixture
+def users(request, filter_data):
+    return [filter_data.get("users", {}).get(key) for key in request.param]
+
+
+@pytest.mark.parametrize(
+    "user,organization",
+    [
+        ("user_a", "org_a"),
+        ("owner_a", "org_a"),
+        ("user_b", "org_b"),
+        ("owner_b", "org_b"),
+    ],
+    indirect=True,
+)
 class TestOrganizationFilterSet(OrganizationFilterTestCase):
-    def get_filterset_for_user(self, user, *args, **kwargs):
-        request = RequestFactory().get("")
-        request.user = user
-        queryset = Organization.objects.for_user(user)
-        kwargs.update(
-            {
-                "queryset": queryset,
-                "request": request,
-            }
-        )
-        return OrganizationListFilterSet(*args, **kwargs)
+    def get_filterset_for_user(self, user, organization, data=None, **kwargs):
+        self.client.force_login(user)
+        # url = reverse("organization_detail", kwargs={"slug": organization.slug})
+        url = reverse("organization_list")
+        resp = self.client.get(url, data=data)
+        return resp.context_data.get("filter")
 
-    @pytest.mark.parametrize(
-        "get_params",
-        [
-            lambda self: (self.user, self.organization),
-            lambda self: (self.owner, self.organization),
-            lambda self: (self.other_user, self.other_organization),
-            lambda self: (self.other_owner, self.other_organization),
-        ],
-    )
-    def test_unfiltered_queryset(self, get_params):
+    def test_unfiltered_queryset(self, user, organization):
         """No active filters returns full queryset."""
-        (user, organization) = get_params(self)
-        filter = self.get_filterset_for_user(user, organization=organization)
+        filter = self.get_filterset_for_user(user, organization)
         assertQuerySetEqual(
             filter.qs,
             [organization],
@@ -101,27 +134,14 @@ class TestOrganizationFilterSet(OrganizationFilterTestCase):
             ordered=False,
         )
 
-    @pytest.mark.parametrize(
-        "get_params",
-        [
-            lambda self: (self.user, self.organization),
-            lambda self: (self.owner, self.organization),
-            lambda self: (self.other_user, self.other_organization),
-            lambda self: (self.other_owner, self.other_organization),
-        ],
-    )
-    def test_filtered_queryset_choice(self, get_params):
+    def test_filtered_queryset_choice(self, user, organization):
         """Valid project choice returns expected results."""
-        (user, organization) = get_params(self)
-        request = RequestFactory().get("")
-        request.user = user
-        queryset = Organization.objects.for_user(user)
-        filter = OrganizationListFilterSet(
-            {"slug": organization.slug},
-            queryset=queryset,
-            request=request,
-            organization=organization,
+        filter = self.get_filterset_for_user(
+            user,
+            organization,
+            data={"slug": organization.slug},
         )
+        assert filter.is_valid()
         assertQuerySetEqual(
             filter.qs,
             [organization],
@@ -129,23 +149,22 @@ class TestOrganizationFilterSet(OrganizationFilterTestCase):
             ordered=False,
         )
 
-    @pytest.mark.parametrize(
-        "get_params",
-        [
-            lambda self: (self.user, self.organization, self.other_organization),
-            lambda self: (self.owner, self.organization, self.other_organization),
-            lambda self: (self.other_user, self.other_organization, self.organization),
-            lambda self: (self.other_owner, self.other_organization, self.organization),
-        ],
-    )
-    def test_filtered_queryset_invalid_choice(self, get_params):
+    def test_filtered_queryset_invalid_choice(self, user, organization):
         """Invalid project choice returns the original queryset."""
-        (user, organization, wrong_organization) = get_params(self)
+        wrong_organization = fixture.get(
+            Organization,
+            owners=[],
+            projects=[],
+            teams=[],
+        )
         filter = self.get_filterset_for_user(
             user,
-            {"slug": wrong_organization.slug},
-            organization=organization,
+            organization,
+            data={"slug": wrong_organization.slug},
         )
+        assert not filter.is_valid()
+        # Validation will fail, but the full queryset is still returned. This is
+        # handled differently at the view level however.
         assertQuerySetEqual(
             filter.qs,
             [organization],
@@ -153,20 +172,10 @@ class TestOrganizationFilterSet(OrganizationFilterTestCase):
             ordered=False,
         )
 
-    @pytest.mark.parametrize(
-        "get_params",
-        [
-            lambda self: (self.user, self.organization),
-            lambda self: (self.owner, self.organization),
-            lambda self: (self.other_user, self.other_organization),
-            lambda self: (self.other_owner, self.other_organization),
-        ],
-    )
-    def test_organization_filter_choices(self, get_params):
-        (user, organization) = get_params(self)
+    def test_organization_filter_choices(self, user, organization):
         filter = self.get_filterset_for_user(
             user,
-            organization=organization,
+            organization,
         )
         assert list(dict(filter.filters["slug"].field.choices).keys()) == [
             "",
@@ -175,37 +184,25 @@ class TestOrganizationFilterSet(OrganizationFilterTestCase):
 
 
 class TestOrganizationProjectFilterSet(OrganizationFilterTestCase):
-    def get_filterset_for_user(self, user, *args, **kwargs):
-        request = RequestFactory().get("")
-        request.user = user
-        queryset = Project.objects.for_user(user).filter(
-            organizations=kwargs.get("organization", self.organization)
-        )
-        kwargs.update(
-            {
-                "queryset": queryset,
-                "request": request,
-            }
-        )
-        return OrganizationProjectListFilterSet(*args, **kwargs)
+    def get_filterset_for_user(self, user, organization, data=None, **kwargs):
+        self.client.force_login(user)
+        url = reverse("organization_detail", kwargs={"slug": organization.slug})
+        resp = self.client.get(url, data=data)
+        return resp.context_data.get("filter")
 
     @pytest.mark.parametrize(
-        "get_params",
+        "user,organization,project",
         [
-            lambda self: (self.user, self.organization, self.project),
-            lambda self: (self.owner, self.organization, self.project),
-            lambda self: (self.other_user, self.other_organization, self.other_project),
-            lambda self: (
-                self.other_owner,
-                self.other_organization,
-                self.other_project,
-            ),
+            ("user_a", "org_a", "project_a"),
+            ("owner_a", "org_a", "project_a"),
+            ("user_b", "org_b", "project_b"),
+            ("owner_b", "org_b", "project_b"),
         ],
+        indirect=True,
     )
-    def test_unfiltered_queryset(self, get_params):
+    def test_unfiltered_queryset(self, user, organization, project):
         """No active filters returns full queryset."""
-        (user, organization, project) = get_params(self)
-        filter = self.get_filterset_for_user(user, organization=organization)
+        filter = self.get_filterset_for_user(user, organization)
         assertQuerySetEqual(
             filter.qs,
             [project],
@@ -214,25 +211,21 @@ class TestOrganizationProjectFilterSet(OrganizationFilterTestCase):
         )
 
     @pytest.mark.parametrize(
-        "get_params",
+        "user,organization,project",
         [
-            lambda self: (self.user, self.organization, self.project),
-            lambda self: (self.owner, self.organization, self.project),
-            lambda self: (self.other_user, self.other_organization, self.other_project),
-            lambda self: (
-                self.other_owner,
-                self.other_organization,
-                self.other_project,
-            ),
+            ("user_a", "org_a", "project_a"),
+            ("owner_a", "org_a", "project_a"),
+            ("user_b", "org_b", "project_b"),
+            ("owner_b", "org_b", "project_b"),
         ],
+        indirect=True,
     )
-    def test_filtered_queryset_project_choice(self, get_params):
+    def test_filtered_queryset_project_choice(self, user, organization, project):
         """Valid project choice returns expected results."""
-        (user, organization, project) = get_params(self)
         filter = self.get_filterset_for_user(
             user,
-            {"slug": project.slug},
-            organization=organization,
+            organization,
+            data={"slug": project.slug},
         )
         assertQuerySetEqual(
             filter.qs,
@@ -241,163 +234,154 @@ class TestOrganizationProjectFilterSet(OrganizationFilterTestCase):
             ordered=False,
         )
 
-    def test_filtered_queryset_project_invalid_choice(self):
+    @pytest.mark.parametrize(
+        "user,organization,project",
+        [
+            ("user_a", "org_a", "project_a"),
+            ("owner_a", "org_a", "project_a"),
+            ("user_b", "org_b", "project_b"),
+            ("owner_b", "org_b", "project_b"),
+        ],
+        indirect=True,
+    )
+    def test_filtered_queryset_project_invalid_choice(
+        self, user, organization, project
+    ):
         """Invalid project choice returns the original queryset."""
+        wrong_project = fixture.get(Project)
         filter = self.get_filterset_for_user(
-            self.user,
-            {"slug": self.other_project.slug},
-            organization=self.organization,
+            user,
+            organization,
+            data={"slug": wrong_project.slug},
         )
+        assert not filter.is_valid()
+        # The full queryset is still returned when a filterset is invalid
         assertQuerySetEqual(
             filter.qs,
-            [self.project],
+            [project],
             transform=lambda o: o,
             ordered=False,
         )
 
     @pytest.mark.parametrize(
-        "get_params",
+        "user,organization,team,projects",
         [
-            lambda self: (self.user, self.organization, self.team, [self.project]),
-            lambda self: (self.owner, self.organization, self.team, [self.project]),
-            # This is an invalid slug choice, so the default queryset is returned
-            lambda self: (
-                self.user,
-                self.organization,
-                self.team_empty,
-                [self.project],
-            ),
-            lambda self: (self.owner, self.organization, self.team_empty, []),
+            ("user_a", "org_a", "team_a", ["project_a"]),
+            ("owner_a", "org_a", "team_a", ["project_a"]),
+            ("user_a", "org_a", "team_a_empty", ["project_a"]),
+            ("owner_a", "org_a", "team_a_empty", []),
+            ("user_b", "org_b", "team_b", ["project_b"]),
+            ("owner_b", "org_b", "team_b", ["project_b"]),
         ],
+        indirect=["user", "organization", "team"],
     )
-    def test_filtered_queryset_team_choice(self, get_params):
+    def test_filtered_queryset_team_choice(
+        self, user, organization, team, projects, filter_data
+    ):
         """Valid team choice returns expected results."""
-        (user, organization, team, projects) = get_params(self)
         filter = self.get_filterset_for_user(
             user,
-            {"teams__slug": team.slug},
-            organization=organization,
+            organization,
+            data={"teams__slug": team.slug},
         )
         assertQuerySetEqual(
             filter.qs,
-            projects,
+            [filter_data.get("projects").get(key) for key in projects],
             transform=lambda o: o,
             ordered=False,
         )
 
-    def test_filtered_queryset_team_invalid_choice(self):
+    @pytest.mark.parametrize(
+        "user,organization,project",
+        [
+            ("user_a", "org_a", "project_a"),
+            ("owner_a", "org_a", "project_a"),
+            ("user_b", "org_b", "project_b"),
+            ("owner_b", "org_b", "project_b"),
+        ],
+        indirect=True,
+    )
+    def test_filtered_queryset_team_invalid_choice(self, user, organization, project):
         """Invalid team choice returns the original queryset."""
+        wrong_team = fixture.get(Team)
         filter = self.get_filterset_for_user(
-            self.user,
-            {"teams__slug": self.other_team.slug},
-            organization=self.organization,
+            user,
+            organization,
+            data={"teams__slug": wrong_team.slug},
         )
+        assert not filter.is_valid()
+        # By default, invalid filtersets return the original queryset
         assertQuerySetEqual(
             filter.qs,
-            [self.project],
+            [project],
             transform=lambda o: o,
             ordered=False,
         )
 
     @pytest.mark.parametrize(
-        "get_params",
+        "user,organization,project",
         [
-            lambda self: (self.user, self.organization, ["", self.project.slug]),
-            lambda self: (self.owner, self.organization, ["", self.project.slug]),
-            lambda self: (
-                self.other_user,
-                self.other_organization,
-                ["", self.other_project.slug],
-            ),
-            lambda self: (
-                self.other_owner,
-                self.other_organization,
-                ["", self.other_project.slug],
-            ),
+            ("user_a", "org_a", "project_a"),
+            ("owner_a", "org_a", "project_a"),
+            ("user_b", "org_b", "project_b"),
+            ("owner_b", "org_b", "project_b"),
         ],
+        indirect=True,
     )
-    def test_project_filter_choices(self, get_params):
+    def test_project_filter_choices(self, user, organization, project):
         """Project filter choices limited to organization projects."""
-        (user, organization, projects) = get_params(self)
         filter = self.get_filterset_for_user(
             user,
-            organization=organization,
+            organization,
         )
-        assert list(dict(filter.filters["slug"].field.choices).keys()) == projects
+        assert list(dict(filter.filters["slug"].field.choices).keys()) == [
+            "",
+            project.slug,
+        ]
 
     @pytest.mark.parametrize(
-        "get_params",
+        "user,organization,teams",
         [
-            lambda self: (self.user, self.organization, ["", self.team.slug]),
-            lambda self: (
-                self.owner,
-                self.organization,
-                ["", self.team.slug, self.team_empty.slug],
-            ),
-            lambda self: (
-                self.other_user,
-                self.other_organization,
-                ["", self.other_team.slug],
-            ),
-            lambda self: (
-                self.other_owner,
-                self.other_organization,
-                ["", self.other_team.slug],
-            ),
+            ("user_a", "org_a", ["team_a"]),
+            ("owner_a", "org_a", ["team_a", "team_a_empty"]),
+            ("user_b", "org_b", ["team_b"]),
+            ("owner_b", "org_b", ["team_b"]),
         ],
+        indirect=["user", "organization"],
     )
-    def test_team_filter_choices(self, get_params):
+    def test_team_filter_choices(self, user, organization, teams, filter_data):
         """Team filter choices limited to organization teams."""
-        (user, organization, teams) = get_params(self)
         filter = self.get_filterset_for_user(
             user,
-            organization=organization,
+            organization,
         )
-        assert list(dict(filter.filters["teams__slug"].field.choices).keys()) == teams
+        choices = [filter_data.get("teams").get(key).slug for key in teams]
+        choices.insert(0, "")
+        assert list(dict(filter.filters["teams__slug"].field.choices).keys()) == choices
 
 
 class TestOrganizationTeamListFilterSet(OrganizationFilterTestCase):
-    def get_filterset_for_user(self, user, *args, **kwargs):
-        request = RequestFactory().get("")
-        request.user = user
-        queryset = Team.objects.member(user).filter(
-            organization=kwargs.get("organization", self.organization),
-        )
-        kwargs.update(
-            {
-                "queryset": queryset,
-                "request": request,
-            }
-        )
-        return OrganizationTeamListFilterSet(*args, **kwargs)
+    def get_filterset_for_user(self, user, organization, data=None, **kwargs):
+        self.client.force_login(user)
+        url = reverse("organization_team_list", kwargs={"slug": organization.slug})
+        resp = self.client.get(url, data=data)
+        return resp.context_data.get("filter")
 
     @pytest.mark.parametrize(
-        "get_params",
+        "user,organization,teams",
         [
-            lambda self: (self.user, self.organization, [self.team]),
-            lambda self: (
-                self.owner,
-                self.organization,
-                [self.team, self.team_empty],
-            ),
-            lambda self: (
-                self.other_user,
-                self.other_organization,
-                [self.other_team],
-            ),
-            lambda self: (
-                self.other_owner,
-                self.other_organization,
-                [self.other_team],
-            ),
+            ("user_a", "org_a", ["team_a"]),
+            ("owner_a", "org_a", ["team_a", "team_a_empty"]),
+            ("user_b", "org_b", ["team_b"]),
+            ("owner_b", "org_b", ["team_b"]),
         ],
+        indirect=True,
     )
-    def test_unfiltered_queryset(self, get_params):
+    def test_unfiltered_queryset(self, user, organization, teams):
         """No active filters returns full queryset."""
-        (user, organization, teams) = get_params(self)
         filter = self.get_filterset_for_user(
             user,
-            organization=organization,
+            organization,
         )
         assertQuerySetEqual(
             filter.qs,
@@ -407,21 +391,22 @@ class TestOrganizationTeamListFilterSet(OrganizationFilterTestCase):
         )
 
     @pytest.mark.parametrize(
-        "get_params",
+        "user,organization,team",
         [
-            lambda self: (self.user, self.organization, self.team),
-            lambda self: (self.owner, self.organization, self.team_empty),
-            lambda self: (self.other_user, self.other_organization, self.other_team),
-            lambda self: (self.other_owner, self.other_organization, self.other_team),
+            ("user_a", "org_a", "team_a"),
+            ("owner_a", "org_a", "team_a"),
+            ("owner_a", "org_a", "team_a_empty"),
+            ("user_b", "org_b", "team_b"),
+            ("owner_b", "org_b", "team_b"),
         ],
+        indirect=True,
     )
-    def test_filtered_queryset_team_choice(self, get_params):
+    def test_filtered_queryset_team_choice(self, user, organization, team):
         """Valid team choice returns expected results."""
-        (user, organization, team) = get_params(self)
         filter = self.get_filterset_for_user(
             user,
-            {"slug": team.slug},
-            organization=organization,
+            organization,
+            data={"slug": team.slug},
         )
         assertQuerySetEqual(
             filter.qs,
@@ -430,191 +415,183 @@ class TestOrganizationTeamListFilterSet(OrganizationFilterTestCase):
             ordered=False,
         )
 
-    def test_filtered_queryset_team_invalid_choice(self):
-        """Invalid team choice returns the original queryset."""
-        filter = self.get_filterset_for_user(
-            self.user,
-            {"slug": self.other_team.slug},
-            organization=self.organization,
-        )
-        assertQuerySetEqual(
-            filter.qs,
-            [self.team],
-            transform=lambda o: o,
-            ordered=False,
-        )
-
     @pytest.mark.parametrize(
-        "get_params",
+        "user,organization,team",
         [
-            lambda self: (self.user, self.organization, ["", self.team.slug]),
-            lambda self: (
-                self.owner,
-                self.organization,
-                ["", self.team.slug, self.team_empty.slug],
-            ),
-            lambda self: (
-                self.other_user,
-                self.other_organization,
-                ["", self.other_team.slug],
-            ),
-            lambda self: (
-                self.other_owner,
-                self.other_organization,
-                ["", self.other_team.slug],
-            ),
+            ("user_a", "org_a", "team_a"),
+            ("owner_a", "org_a", "team_a"),
+            ("user_b", "org_b", "team_b"),
+            ("owner_b", "org_b", "team_b"),
         ],
+        indirect=True,
     )
-    def test_team_filter_choices(self, get_params):
-        """Team filter choices limited to organization teams."""
-        (user, organization, teams) = get_params(self)
+    def test_filtered_queryset_team_invalid_choice(self, user, organization, team):
+        """Invalid team choice returns the original queryset."""
+        wrong_team = fixture.get(Team)
         filter = self.get_filterset_for_user(
             user,
-            organization=organization,
+            organization,
+            {"slug": wrong_team.slug},
         )
-        assert list(dict(filter.filters["slug"].field.choices).keys()) == teams
+        assert not filter.is_valid()
+
+    @pytest.mark.parametrize(
+        "user,organization,teams",
+        [
+            ("user_a", "org_a", ["team_a"]),
+            ("owner_a", "org_a", ["team_a", "team_a_empty"]),
+            ("user_b", "org_b", ["team_b"]),
+            ("owner_b", "org_b", ["team_b"]),
+        ],
+        indirect=True,
+    )
+    def test_team_filter_choices(self, user, organization, teams):
+        """Team filter choices limited to organization teams."""
+        filter = self.get_filterset_for_user(
+            user,
+            organization,
+        )
+        choices = [team.slug for team in teams]
+        choices.insert(0, "")
+        assert list(dict(filter.filters["slug"].field.choices).keys()) == choices
 
 
 class TestOrganizationTeamMemberFilterSet(OrganizationFilterTestCase):
-    def get_filterset_for_user(self, user, *args, **kwargs):
-        request = RequestFactory().get("")
-        request.user = user
-        organization = kwargs.get("organization", self.organization)
-        queryset = organization.members
-        kwargs.update(
-            {
-                "queryset": queryset,
-                "request": request,
-            }
-        )
-        return OrganizationTeamMemberListFilterSet(*args, **kwargs)
+    def get_filterset_for_user(self, user, organization, data=None, **kwargs):
+        self.client.force_login(user)
+        url = reverse("organization_members", kwargs={"slug": organization.slug})
+        resp = self.client.get(url, data=data)
+        return resp.context_data.get("filter")
 
     @pytest.mark.parametrize(
-        "get_params",
+        "user,organization,users",
         [
-            lambda self: (self.user, self.organization, [self.user, self.owner]),
-            lambda self: (self.owner, self.organization, [self.user, self.owner]),
-            lambda self: (
-                self.other_user,
-                self.other_organization,
-                [self.other_user, self.other_owner],
-            ),
-            lambda self: (
-                self.other_owner,
-                self.other_organization,
-                [self.other_user, self.other_owner],
-            ),
+            ("user_a", "org_a", ["user_a", "owner_a"]),
+            ("owner_a", "org_a", ["user_a", "owner_a"]),
+            ("user_b", "org_b", ["user_b", "owner_b"]),
+            ("owner_b", "org_b", ["user_b", "owner_b"]),
         ],
+        indirect=True,
     )
-    def test_unfiltered_queryset(self, get_params):
+    def test_unfiltered_queryset(self, user, organization, users):
         """No active filters returns full queryset."""
-        (user, organization, members) = get_params(self)
         filter = self.get_filterset_for_user(
             user,
-            organization=organization,
+            organization,
         )
         assertQuerySetEqual(
             filter.qs,
-            members,
+            users,
             transform=lambda o: o,
             ordered=False,
         )
 
     @pytest.mark.parametrize(
-        "get_params",
+        "user,organization,team,users",
         [
-            lambda self: (self.user, self.organization, self.team, [self.user]),
-            lambda self: (self.owner, self.organization, self.team, [self.user]),
-            lambda self: (self.owner, self.organization, self.team_empty, []),
+            ("user_a", "org_a", "team_a", ["user_a"]),
+            ("owner_a", "org_a", "team_a", ["user_a"]),
+            ("owner_a", "org_a", "team_a_empty", []),
+            ("user_b", "org_b", "team_b", ["user_b"]),
+            ("owner_b", "org_b", "team_b", ["user_b"]),
         ],
+        indirect=True,
     )
-    def test_filtered_queryset_team_choice(self, get_params):
+    def test_filtered_queryset_team_choice(self, user, organization, team, users):
         """Valid team choice returns expected results."""
-        (user, organization, team, members) = get_params(self)
         filter = self.get_filterset_for_user(
             user,
-            {"teams__slug": team.slug},
-            organization=organization,
+            organization,
+            data={"teams__slug": team.slug},
         )
         assertQuerySetEqual(
             filter.qs,
-            members,
+            users,
             transform=lambda o: o,
             ordered=False,
         )
 
     @pytest.mark.parametrize(
-        "get_params",
+        "user,organization,access,users",
         [
-            lambda self: (self.user, self.organization, "readonly", []),
-            lambda self: (self.user, self.organization, "admin", [self.user]),
-            lambda self: (self.user, self.organization, "owner", [self.owner]),
+            ("user_a", "org_a", "readonly", []),
+            ("user_a", "org_a", "admin", ["user_a"]),
+            ("user_a", "org_a", "owner", ["owner_a"]),
+            ("owner_a", "org_a", "readonly", []),
+            ("owner_a", "org_a", "admin", ["user_a"]),
+            ("owner_a", "org_a", "owner", ["owner_a"]),
         ],
+        indirect=["user", "organization", "users"],
     )
-    def test_filtered_queryset_access_choice(self, get_params):
+    def test_filtered_queryset_access_choice(self, user, organization, access, users):
         """Valid access choice returns expected results."""
-        (user, organization, access, members) = get_params(self)
         filter = self.get_filterset_for_user(
             user,
-            {"access": access},
-            organization=organization,
+            organization,
+            data={"access": access},
         )
         assertQuerySetEqual(
             filter.qs,
-            members,
-            transform=lambda o: o,
-            ordered=False,
-        )
-
-    def test_filtered_queryset_team_invalid_choice(self):
-        """Invalid team choice returns the original queryset."""
-        filter = self.get_filterset_for_user(
-            self.user,
-            {"teams__slug": self.other_team.slug},
-            organization=self.organization,
-        )
-        assertQuerySetEqual(
-            filter.qs,
-            [self.owner, self.user],
+            users,
             transform=lambda o: o,
             ordered=False,
         )
 
     @pytest.mark.parametrize(
-        "get_params",
+        "user,organization",
         [
-            lambda self: (self.user, self.organization, ["", self.team.slug]),
-            lambda self: (
-                self.owner,
-                self.organization,
-                ["", self.team.slug, self.team_empty.slug],
-            ),
-            lambda self: (
-                self.other_user,
-                self.other_organization,
-                ["", self.other_team.slug],
-            ),
-            lambda self: (
-                self.other_owner,
-                self.other_organization,
-                ["", self.other_team.slug],
-            ),
+            ("user_a", "org_a"),
+            ("owner_a", "org_a"),
+            ("user_b", "org_b"),
+            ("owner_b", "org_b"),
         ],
+        indirect=True,
     )
-    def test_team_filter_choices(self, get_params):
+    def test_filtered_queryset_team_invalid_choice(self, user, organization):
+        """Invalid team choice returns the original queryset."""
+        wrong_team = fixture.get(Team)
+        filter = self.get_filterset_for_user(
+            user,
+            organization,
+            data={"teams__slug": wrong_team.slug},
+        )
+        assert not filter.is_valid()
+
+    @pytest.mark.parametrize(
+        "user,organization,teams",
+        [
+            ("user_a", "org_a", ["team_a"]),
+            ("owner_a", "org_a", ["team_a", "team_a_empty"]),
+            ("user_b", "org_b", ["team_b"]),
+            ("owner_b", "org_b", ["team_b"]),
+        ],
+        indirect=True,
+    )
+    def test_team_filter_choices(self, user, organization, teams):
         """Team filter choices limited to organization teams with permisisons."""
-        (user, organization, choices) = get_params(self)
         filter = self.get_filterset_for_user(
             user,
             organization=organization,
         )
+        choices = [team.slug for team in teams]
+        choices.insert(0, "")
         assert list(dict(filter.filters["teams__slug"].field.choices).keys()) == choices
 
-    def test_access_filter_choices(self):
+    @pytest.mark.parametrize(
+        "user,organization",
+        [
+            ("user_a", "org_a"),
+            ("owner_a", "org_a"),
+            ("user_b", "org_b"),
+            ("owner_b", "org_b"),
+        ],
+        indirect=True,
+    )
+    def test_access_filter_choices(self, user, organization):
         """Access filter choices are correct."""
         filter = self.get_filterset_for_user(
-            self.user,
-            organization=self.organization,
+            user,
+            organization,
         )
         assert list(dict(filter.filters["access"].field.choices).keys()) == [
             "",

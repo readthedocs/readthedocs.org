@@ -7,6 +7,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
 from vanilla import DetailView, GenericView, ListView
 
+from readthedocs.core.filters import FilterMixin
 from readthedocs.organizations.filters import (
     OrganizationProjectListFilterSet,
     OrganizationTeamListFilterSet,
@@ -32,12 +33,16 @@ class OrganizationTemplateView(CheckOrganizationsEnabled, TemplateView):
 
 # Organization
 
-class DetailOrganization(OrganizationView, DetailView):
+
+class DetailOrganization(FilterMixin, OrganizationView, DetailView):
 
     """Display information about an organization."""
 
     template_name = 'organizations/organization_detail.html'
     admin_only = False
+
+    filterset_class = OrganizationProjectListFilterSet
+    strict = True
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -49,14 +54,11 @@ class DetailOrganization(OrganizationView, DetailView):
             .all()
         )
         if settings.RTD_EXT_THEME_ENABLED:
-            filter = OrganizationProjectListFilterSet(
-                self.request.GET,
-                request=self.request,
+            context["filter"] = self.get_filterset(
                 queryset=projects,
                 organization=org,
             )
-            context["filter"] = filter
-            projects = filter.qs
+            projects = self.get_filtered_queryset()
         else:
             teams = (
                 Team.objects.member(self.request.user, organization=org)
@@ -64,31 +66,28 @@ class DetailOrganization(OrganizationView, DetailView):
                 .all()
             )
             context["teams"] = teams
+            context["owners"] = org.owners.all()
 
         context["projects"] = projects
-        context["owners"] = org.owners.all()
         return context
 
 
 # Member Views
-class ListOrganizationMembers(OrganizationMixin, ListView):
+class ListOrganizationMembers(FilterMixin, OrganizationMixin, ListView):
     template_name = "organizations/member_list.html"
     context_object_name = "members"
     admin_only = False
 
+    filterset_class = OrganizationTeamMemberListFilterSet
+    strict = True
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        team_members = self.get_queryset()
         if settings.RTD_EXT_THEME_ENABLED:
-            filter = OrganizationTeamMemberListFilterSet(
-                self.request.GET,
-                queryset=team_members,
+            context["filter"] = self.get_filterset(
                 organization=self.get_organization(),
-                request=self.request,
             )
-            context["filter"] = filter
-            team_members = filter.qs
-        context["members"] = team_members
+            context[self.get_context_object_name()] = self.get_filtered_queryset()
         return context
 
     def get_queryset(self):
@@ -102,29 +101,28 @@ class ListOrganizationMembers(OrganizationMixin, ListView):
 
 
 # Team Views
-class ListOrganizationTeams(OrganizationTeamView, ListView):
+class ListOrganizationTeams(FilterMixin, OrganizationTeamView, ListView):
     template_name = 'organizations/team_list.html'
     context_object_name = 'teams'
     admin_only = False
 
+    filterset_class = OrganizationTeamListFilterSet
+    strict = True
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         org = self.get_organization()
-        context['owners'] = org.owners.all()
 
-        # Note, the team queryset defines sorting at the parent class. Sorting
-        # should happen in the filter instead so it can be controlled in the UI.
-        teams = self.get_team_queryset()
         if settings.RTD_EXT_THEME_ENABLED:
-            filter = OrganizationTeamListFilterSet(
-                self.request.GET,
-                queryset=teams,
-                request=self.request,
+            # TODO the team queryset, used through ``get_queryset()`` defines
+            # sorting. Sorting should only happen in the filterset, so it can be
+            # controlled in the UI.
+            context["filter"] = self.get_filterset(
                 organization=org,
             )
-            context["filter"] = filter
-            teams = filter.qs
-        context["teams"] = teams
+            context[self.get_context_object_name()] = self.get_filtered_queryset()
+        else:
+            context["owners"] = org.owners.all()
         return context
 
 
