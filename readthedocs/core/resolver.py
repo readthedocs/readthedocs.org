@@ -3,6 +3,7 @@ from urllib.parse import urlunparse
 
 import structlog
 from django.conf import settings
+from django.utils import timezone
 
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.core.utils.url import unsafe_join_url_path
@@ -52,6 +53,9 @@ class Resolver:
         # Subproject Single Version
         /docs/<project_slug>/projects/<subproject_slug>/<filename>
     """
+
+    # Domains cached at instance level by ``_get_project_domain`` to save DB queries.
+    _cached_domains = {}
 
     def base_resolve_path(
         self,
@@ -170,15 +174,26 @@ class Resolver:
         return urlunparse((protocol, domain, filename, "", "", ""))
 
     def _get_project_domain(
-        self, project, external_version_slug=None, use_canonical_domain=True
+        self,
+        project,
+        external_version_slug=None,
+        use_canonical_domain=True,
+        cache_domain=False,
     ):
         """
         Get the domain from where the documentation of ``project`` is served from.
 
         :param project: Project object
         :param bool use_canonical_domain: If `True` use its canonical custom domain if available.
+        :param bool cache_domain: If `True` it will cache at instance level the resolution of the project's domain.
         :returns: Tuple of ``(domain, use_https)``.
         """
+        cache_key = f"{project.pk}-{external_version_slug}-{use_canonical_domain}"
+        if cache_domain and cache_key in self._cached_domains:
+            domain, use_https, expires_at = self._cached_domains.get(cache_key)
+            if timezone.now() < expires_at:
+                return domain, use_https
+
         use_https = settings.PUBLIC_DOMAIN_USES_HTTPS
         canonical_project, _ = self._get_canonical_project(project)
         domain = self._get_project_subdomain(canonical_project)
@@ -192,6 +207,9 @@ class Resolver:
                 use_https = domain_object.https
                 domain = domain_object.domain
 
+        # Cache the calculated domain in the instance before returning and define an expiration time.
+        expires_at = timezone.now() + timezone.timedelta(minutes=1)
+        self._cached_domains[cache_key] = (domain, use_https, expires_at)
         return domain, use_https
 
     def get_domain(self, project, use_canonical_domain=True):
@@ -221,6 +239,7 @@ class Resolver:
         filename="",
         query_params="",
         external=None,
+        cache_domain=False,
         **kwargs,
     ):
         version_slug = kwargs.get("version_slug")
@@ -233,6 +252,7 @@ class Resolver:
         domain, use_https = self._get_project_domain(
             project,
             external_version_slug=version_slug if external else None,
+            cache_domain=cache_domain,
         )
         protocol = "https" if use_https else "http"
         path = self.resolve_path(project, filename=filename, **kwargs)

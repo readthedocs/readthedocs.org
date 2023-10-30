@@ -347,6 +347,7 @@ class AddonsResponse:
                                 project=project,
                                 version_slug=version.slug,
                                 language=translation.language,
+                                cache_domain=True,
                                 external=version.type == EXTERNAL,
                             ),
                         }
@@ -359,6 +360,7 @@ class AddonsResponse:
                             "url": resolver.resolve(
                                 project=project,
                                 version_slug=version_.slug,
+                                cache_domain=True,
                                 external=version_.type == EXTERNAL,
                             ),
                         }
@@ -443,6 +445,7 @@ class AddonsResponse:
                             version_slug=LATEST,
                             language=project.language,
                             filename=filename,
+                            cache_domain=True,
                         )
                         if filename
                         else None,

@@ -12,8 +12,9 @@ from django.utils import timezone
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.resolver import resolver
 from readthedocs.projects.constants import PRIVATE, PUBLIC
-from readthedocs.projects.models import Feature, Project
+from readthedocs.projects.models import Domain, Feature, Project
 
 
 @override_settings(
@@ -621,3 +622,161 @@ class TestReadTheDocsConfigJson(TestCase):
         assert self._normalize_datetime_fields(r.json()) == self._get_response_dict(
             "v0"
         )
+
+    def test_custom_domain_url(self):
+        fixture.get(
+            Domain,
+            domain="docs.example.com",
+            canonical=True,
+            project=self.project,
+        )
+
+        # Flush cached domains from ``Resolver`` instance
+        resolver._cached_domains = {}
+
+        r = self.client.get(
+            reverse("proxito_readthedocs_docs_addons"),
+            {
+                "api-version": "0.1.0",
+                "client-version": "0.6.0",
+                "url": "https://docs.example.com/en/latest/",
+            },
+            secure=True,
+            headers={
+                "host": "docs.example.com",
+            },
+        )
+        assert r.status_code == 200
+        expected_versions = [
+            {
+                "url": "https://docs.example.com/en/latest/",
+                "slug": "latest",
+            },
+        ]
+        assert r.json()["addons"]["flyout"]["versions"] == expected_versions
+
+    def test_number_of_queries_project_version_slug(self):
+        # The number of queries should not increase too much, even if we change
+        # some of the responses from the API. This test will help us to
+        # understand how much this number varies depending on the changes we do.
+
+        # Create many versions for this project.
+        # These versions will call `resolver.resolve` to generate the URL returned for the flyout.
+        # No matter how big the number of versions is, the amount of queries should stay the same.
+        for i in range(35):
+            name = f"public-built-{i}"
+            fixture.get(
+                Version,
+                project=self.project,
+                privacy_level=PUBLIC,
+                slug=name,
+                verbose_name=name,
+                built=True,
+                active=True,
+            )
+
+        with self.assertNumQueries(15):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "api-version": "0.1.0",
+                    "client-version": "0.6.0",
+                    "project-slug": "project",
+                    "version-slug": "latest",
+                },
+                secure=True,
+                headers={
+                    "host": "project.dev.readthedocs.io",
+                },
+            )
+        assert r.status_code == 200
+
+    def test_number_of_queries_url(self):
+        for i in range(35):
+            name = f"public-built-{i}"
+            fixture.get(
+                Version,
+                project=self.project,
+                privacy_level=PUBLIC,
+                slug=name,
+                verbose_name=name,
+                built=True,
+                active=True,
+            )
+
+        with self.assertNumQueries(15):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "url": "https://project.dev.readthedocs.io/en/latest/",
+                    "api-version": "0.1.0",
+                },
+                secure=True,
+                headers={
+                    "host": "project.dev.readthedocs.io",
+                },
+            )
+        assert r.status_code == 200
+
+    def test_number_of_queries_url_subproject(self):
+        subproject = fixture.get(
+            Project,
+            slug="subproject",
+            repo="https://github.com/readthedocs/subproject",
+            privacy_level=PUBLIC,
+        )
+        subproject.versions.update(privacy_level=PUBLIC, built=True, active=True)
+        self.project.add_subproject(subproject)
+
+        for i in range(35):
+            name = f"public-built-{i}"
+            fixture.get(
+                Version,
+                project=subproject,
+                privacy_level=PUBLIC,
+                slug=name,
+                verbose_name=name,
+                built=True,
+                active=True,
+            )
+
+        with self.assertNumQueries(20):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "url": "https://project.dev.readthedocs.io/projects/subproject/en/latest/",
+                    "client-version": "0.6.0",
+                    "api-version": "0.1.0",
+                },
+                secure=True,
+                headers={
+                    "host": "project.dev.readthedocs.io",
+                },
+            )
+        assert r.status_code == 200
+
+    def test_number_of_queries_url_translations(self):
+        # Create multiple translations to be shown in the flyout
+        for language in ["ja", "es", "ru", "pt-br"]:
+            slug = f"translation-{language}"
+            fixture.get(
+                Project,
+                slug=slug,
+                main_language_project=self.project,
+                language=language,
+            )
+
+        with self.assertNumQueries(19):
+            r = self.client.get(
+                reverse("proxito_readthedocs_docs_addons"),
+                {
+                    "url": "https://project.dev.readthedocs.io/en/latest/",
+                    "client-version": "0.6.0",
+                    "api-version": "0.1.0",
+                },
+                secure=True,
+                headers={
+                    "host": "project.dev.readthedocs.io",
+                },
+            )
+        assert r.status_code == 200
