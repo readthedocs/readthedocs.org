@@ -149,14 +149,14 @@ Version Control Support Matrix
 Version warning
 ---------------
 
-A banner can be automatically displayed to notify viewers that there may be 
+A banner can be automatically displayed to notify viewers that there may be
 a more stable version of the documentation available. Specifically:
 
-- When the ``latest`` version is being shown, and there's also a ``stable`` version available, 
-  then the banner will remind the viewer that some of the documented features may not yet be 
+- When the ``latest`` version is being shown, and there's also a ``stable`` version available,
+  then the banner will remind the viewer that some of the documented features may not yet be
   available, and suggest that the viewer switch to the ``stable`` version.
-- When a version is being shown that is not the ``stable`` version, and there's a ``stable`` 
-  version available, then the banner will suggest that the viewer switch to the ``stable`` version 
+- When a version is being shown that is not the ``stable`` version, and there's a ``stable``
+  version available, then the banner will suggest that the viewer switch to the ``stable`` version
   to see the newest documentation.
 
 
@@ -165,7 +165,7 @@ you can enable it in the admin section of your docs (:guilabel:`Admin` > :guilab
 
 .. note::
 
-   An older version of this feature is currently only available to projects that have already enabled it. 
+   An older version of this feature is currently only available to projects that have already enabled it.
    When the updated feature development is finished the toggle setting will be enabled for all projects.
 
 .. note::
