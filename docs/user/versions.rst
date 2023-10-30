@@ -165,22 +165,22 @@ you can enable it in the admin section of your docs (:guilabel:`Admin` > :guilab
 
 .. note::
 
-    An older version of this feature is currently only available to projects that have already enabled it. 
-    When the updated feature development is finished the toggle setting will be enabled for all projects.
+   An older version of this feature is currently only available to projects that have already enabled it. 
+   When the updated feature development is finished the toggle setting will be enabled for all projects.
 
 .. note::
-  
-    The banner will be injected in an HTML element with the ``main`` role or in the ``main`` tag.
-    For example:
 
-    .. code-block:: html
+   The banner will be injected in an HTML element with the ``main`` role or in the ``main`` tag.
+   For example:
+
+   .. code-block:: html
 
       <div role="main">
         <!-- The banner would be injected here -->
         ...
       </div>
 
-    .. code-block:: html
+   .. code-block:: html
 
       <main>
         <!-- The banner would be injected here -->
