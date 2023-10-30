@@ -3207,7 +3207,7 @@ class APIVersionTests(TestCase):
             'active': 'true',
         }
         url = reverse("version-list")
-        with self.assertNumQueries(4):
+        with self.assertNumQueries(5):
             resp = self.client.get(url, data)
 
         self.assertEqual(resp.status_code, 200)
