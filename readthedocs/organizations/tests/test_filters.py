@@ -78,32 +78,32 @@ def filter_data(request):
 
 @pytest.fixture
 def user(request, filter_data):
-    return filter_data.get("users", {}).get(request.param)
+    return filter_data["users"][request.param]
 
 
 @pytest.fixture
 def organization(request, filter_data):
-    return filter_data.get("organizations", {}).get(request.param)
+    return filter_data["organizations"][request.param]
 
 
 @pytest.fixture
 def team(request, filter_data):
-    return filter_data.get("teams", {}).get(request.param)
+    return filter_data["teams"][request.param]
 
 
 @pytest.fixture
 def teams(request, filter_data):
-    return [filter_data.get("teams", {}).get(key) for key in request.param]
+    return [filter_data["teams"][key] for key in request.param]
 
 
 @pytest.fixture
 def project(request, filter_data):
-    return filter_data.get("projects", {}).get(request.param)
+    return filter_data["projects"][request.param]
 
 
 @pytest.fixture
 def users(request, filter_data):
-    return [filter_data.get("users", {}).get(key) for key in request.param]
+    return [filter_data["users"][key] for key in request.param]
 
 
 @pytest.mark.parametrize(
@@ -119,7 +119,6 @@ def users(request, filter_data):
 class TestOrganizationFilterSet(OrganizationFilterTestCase):
     def get_filterset_for_user(self, user, organization, data=None, **kwargs):
         self.client.force_login(user)
-        # url = reverse("organization_detail", kwargs={"slug": organization.slug})
         url = reverse("organization_list")
         resp = self.client.get(url, data=data)
         return resp.context_data.get("filter")
@@ -286,7 +285,7 @@ class TestOrganizationProjectFilterSet(OrganizationFilterTestCase):
         )
         assertQuerySetEqual(
             filter.qs,
-            [filter_data.get("projects").get(key) for key in projects],
+            [filter_data["projects"][key] for key in projects],
             transform=lambda o: o,
             ordered=False,
         )
@@ -355,7 +354,7 @@ class TestOrganizationProjectFilterSet(OrganizationFilterTestCase):
             user,
             organization,
         )
-        choices = [filter_data.get("teams").get(key).slug for key in teams]
+        choices = [filter_data["teams"][key].slug for key in teams]
         choices.insert(0, "")
         assert list(dict(filter.filters["teams__slug"].field.choices).keys()) == choices
 

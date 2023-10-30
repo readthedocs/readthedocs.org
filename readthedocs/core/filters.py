@@ -32,7 +32,8 @@ class FilteredModelChoiceFilter(ModelChoiceFilter):
     def get_queryset(self, request):
         if self.queryset_method:
             fn = getattr(self.parent, self.queryset_method, None)
-            assert callable(fn)
+            if not callable(fn):
+                raise ValueError(f"Method {self.queryset_method} is not callable")
             return fn()
         return super().get_queryset(request)
 

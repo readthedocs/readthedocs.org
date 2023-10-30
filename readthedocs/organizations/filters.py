@@ -27,8 +27,8 @@ class OrganizationFilterSet(FilterSet):
     :param organization: Organization instance for current view
     """
 
-    def __init__(self, *args, **kwargs):
-        self.organization = kwargs.pop("organization", None)
+    def __init__(self, *args, organization=None, **kwargs):
+        self.organization = organization
         super().__init__(*args, **kwargs)
 
     def get_organization_queryset(self):
