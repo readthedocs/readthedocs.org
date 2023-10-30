@@ -63,6 +63,9 @@ class ResolverBase(TestCase):
         )
         self.subproject.translations.add(self.subproject_translation)
 
+    def tearDown(self):
+        # Clear cache used by ``lru_cache`` before running the next test
+        resolver._get_project_domain.cache_clear()
 
 class SmartResolverPathTests(ResolverBase):
     def test_resolver_filename(self):
@@ -399,7 +402,7 @@ class ResolverTests(ResolverBase):
             canonical=True,
             https=False,
         )
-        url = resolve(project=self.pip)
+        url = resolver.resolve(project=self.pip)
         self.assertEqual(url, "http://docs.foobar.com/en/latest/")
 
     def test_resolver_domain_https(self):
@@ -410,7 +413,7 @@ class ResolverTests(ResolverBase):
             https=True,
             canonical=True,
         )
-        url = resolve(project=self.pip)
+        url = resolver.resolve(project=self.pip)
         self.assertEqual(url, "https://docs.foobar.com/en/latest/")
 
     def test_resolver_subproject(self):
@@ -514,12 +517,13 @@ class ResolverTests(ResolverBase):
         PUBLIC_DOMAIN="public.readthedocs.org",
     )
     def test_resolver_public_domain_overrides(self):
-        url = resolve(project=self.pip)
+        url = resolver.resolve(project=self.pip)
         self.assertEqual(
             url,
             "http://pip.public.readthedocs.org/en/latest/",
         )
-        url = resolve(project=self.pip)
+        resolver._get_project_domain.cache_clear()
+        url = resolver.resolve(project=self.pip)
         self.assertEqual(
             url,
             "http://pip.public.readthedocs.org/en/latest/",
@@ -533,9 +537,11 @@ class ResolverTests(ResolverBase):
             canonical=True,
             https=False,
         )
-        url = resolve(project=self.pip)
+        resolver._get_project_domain.cache_clear()
+        url = resolver.resolve(project=self.pip)
         self.assertEqual(url, "http://docs.foobar.com/en/latest/")
-        url = resolve(project=self.pip)
+        resolver._get_project_domain.cache_clear()
+        url = resolver.resolve(project=self.pip)
         self.assertEqual(url, "http://docs.foobar.com/en/latest/")
 
     @override_settings(
@@ -544,14 +550,16 @@ class ResolverTests(ResolverBase):
     )
     def test_resolver_domain_https(self):
         with override_settings(PUBLIC_DOMAIN_USES_HTTPS=True):
-            url = resolve(project=self.pip)
+            url = resolver.resolve(project=self.pip)
             self.assertEqual(url, "https://pip.readthedocs.io/en/latest/")
 
-            url = resolve(project=self.pip)
+            resolver._get_project_domain.cache_clear()
+            url = resolver.resolve(project=self.pip)
             self.assertEqual(url, "https://pip.readthedocs.io/en/latest/")
 
         with override_settings(PUBLIC_DOMAIN_USES_HTTPS=False):
-            url = resolve(project=self.pip)
+            resolver._get_project_domain.cache_clear()
+            url = resolver.resolve(project=self.pip)
             self.assertEqual(url, "http://pip.readthedocs.io/en/latest/")
 
     def test_resolve_project_object(self):
