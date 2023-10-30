@@ -1,4 +1,5 @@
 """URL resolver for documentation."""
+from functools import lru_cache
 from urllib.parse import urlunparse
 
 import structlog
@@ -169,6 +170,7 @@ class Resolver:
         protocol = "https" if use_https else "http"
         return urlunparse((protocol, domain, filename, "", "", ""))
 
+    @lru_cache(maxsize=1)
     def _get_project_domain(
         self, project, external_version_slug=None, use_canonical_domain=True
     ):
@@ -178,6 +180,11 @@ class Resolver:
         :param project: Project object
         :param bool use_canonical_domain: If `True` use its canonical custom domain if available.
         :returns: Tuple of ``(domain, use_https)``.
+
+        Note that we are using ``lru_cache`` decorator on this function.
+        This is useful when generating the flyout addons response since we call
+        ``resolver.resolve`` multi times for the same ``Project``.
+        This cache avoids hitting the DB to get the canonical custom domain over and over again.
         """
         use_https = settings.PUBLIC_DOMAIN_USES_HTTPS
         canonical_project, _ = self._get_canonical_project(project)
@@ -223,6 +230,15 @@ class Resolver:
         external=None,
         **kwargs,
     ):
+        """
+        Resolve the URL of the project/version_slug/filename combination.
+
+        :param project: Project to resolve.
+        :param filename: exact filename the resulting URL should contain.
+        :param query_params: query string params the resulting URL should contain.
+        :param external: whether or not the resolved URL would be external (`*.readthedocs.build`).
+        :param kwargs: extra attributes to be passed to ``resolve_path``.
+        """
         version_slug = kwargs.get("version_slug")
 
         if version_slug is None:

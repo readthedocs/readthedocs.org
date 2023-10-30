@@ -12,6 +12,7 @@ from django.utils import timezone
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.resolver import resolver
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Domain, Feature, Project
 
@@ -65,6 +66,10 @@ class TestReadTheDocsConfigJson(TestCase):
             state="finished",
             success=True,
         )
+
+    def tearDown(self):
+        # Clear cache used by ``lru_cache`` before running the next test
+        resolver._get_project_domain.cache_clear()
 
     def _get_response_dict(self, view_name, filepath=None):
         filepath = filepath or __file__
@@ -699,7 +704,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(17):
+        with self.assertNumQueries(16):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -735,7 +740,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(22):
+        with self.assertNumQueries(20):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -761,7 +766,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(21):
+        with self.assertNumQueries(20):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

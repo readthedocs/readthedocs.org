@@ -280,11 +280,6 @@ class AddonsResponse:
             feature_id__startswith="addons_"
         ).values_list("feature_id", flat=True)
 
-        # Query the custom ``Domain`` object only once here, and re-use it call
-        # ``resolver.resolve`` later to reduce the number of times we query our DB.
-        canonical_project = resolver._get_canonical_project(project)
-        custom_domain = canonical_project.get_canonical_custom_domain() or False
-
         data = {
             "api_version": "0",
             "comment": (
@@ -353,7 +348,6 @@ class AddonsResponse:
                                 version_slug=version.slug,
                                 language=translation.language,
                                 external=version.type == EXTERNAL,
-                                custom_domain=custom_domain,
                             ),
                         }
                         for translation in project_translations
@@ -366,7 +360,6 @@ class AddonsResponse:
                                 project=project,
                                 version_slug=version_.slug,
                                 external=version_.type == EXTERNAL,
-                                custom_domain=custom_domain,
                             ),
                         }
                         for version_ in versions_active_built_not_hidden
