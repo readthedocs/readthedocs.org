@@ -29,6 +29,7 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.permissions import AdminPermission
+from readthedocs.core.resolver import resolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.filters import ProjectVersionListFilterSet
 from readthedocs.projects.models import Project
@@ -125,16 +126,17 @@ class ProjectDetailViewBase(
         if self.request.is_secure():
             protocol = "https"
 
-        version_slug = project.get_default_version()
+        default_version_slug = project.get_default_version()
+        default_version = project.versions.get(slug=default_version_slug)
 
         context["badge_url"] = ProjectBadgeView.get_badge_url(
             project.slug,
-            version_slug,
+            default_version_slug,
             protocol=protocol,
         )
         context["site_url"] = "{url}?badge={version}".format(
-            url=project.get_docs_url(version_slug),
-            version=version_slug,
+            url=resolver.resolve_version(project, version=default_version),
+            version=default_version_slug,
         )
 
         context["is_project_admin"] = AdminPermission.is_admin(

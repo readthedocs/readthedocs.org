@@ -9,7 +9,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.models import Version
-from readthedocs.core.resolver import resolve, resolve_path
+from readthedocs.core.resolver import resolver
 from readthedocs.projects.models import Feature, Project
 
 
@@ -132,13 +132,13 @@ class PageView(models.Model):
 
         PageViewResult = namedtuple("PageViewResult", "path, url, count")
         result = []
-        parsed_domain = urlparse(resolve(project))
+        parsed_domain = urlparse(resolver.get_domain(project))
         default_version = project.get_default_version()
         for row in queryset:
             if not per_version:
                 # If we aren't groupig by version,
                 # then always link to the default version.
-                url_path = resolve_path(
+                url_path = resolver.resolve_path(
                     project=project,
                     version_slug=default_version,
                     filename=row.path,
