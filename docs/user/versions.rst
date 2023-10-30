@@ -149,25 +149,38 @@ Version Control Support Matrix
 Version warning
 ---------------
 
-This is a banner that appears on the top of every page of your docs that aren't stable or latest.
-This banner has a text with a link redirecting the users to the latest version of your docs.
+A banner can be automatically displayed to notify viewers that there may be 
+a more stable version of the documentation available. Specifically:
+
+- When the ``latest`` version is being shown, and there's also a ``stable`` version available, 
+  then the banner will remind the viewer that some of the documented features may not yet be 
+  available, and suggest that the viewer switch to the ``stable`` version.
+- When a version is being shown that is not the ``stable`` version, and there's a ``stable`` 
+  version available, then the banner will suggest that the viewer switch to the ``stable`` version 
+  to see the newest documentation.
+
 
 This feature is disabled by default on new projects,
 you can enable it in the admin section of your docs (:guilabel:`Admin` > :guilabel:`Advanced Settings`).
 
 .. note::
 
-   The banner will be injected in an HTML element with the ``main`` role or in the ``main`` tag.
-   For example:
+    An older version of this feature is currently only available to projects that have already enabled it. 
+    When the updated feature development is finished the toggle setting will be enabled for all projects.
 
-   .. code-block:: html
+.. note::
+  
+    The banner will be injected in an HTML element with the ``main`` role or in the ``main`` tag.
+    For example:
+
+    .. code-block:: html
 
       <div role="main">
         <!-- The banner would be injected here -->
         ...
       </div>
 
-   .. code-block:: html
+    .. code-block:: html
 
       <main>
         <!-- The banner would be injected here -->
