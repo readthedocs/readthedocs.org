@@ -112,7 +112,7 @@ class ProjectRelationship(models.Model):
 
     # HACK
     def get_absolute_url(self):
-        return resolver.resolve_version(self.child)
+        return resolver.resolve_version(project=self.child)
 
     @cached_property
     def subproject_prefix(self):
