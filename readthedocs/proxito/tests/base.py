@@ -8,6 +8,7 @@ from django.core.files.storage import get_storage_class
 from django.test import TestCase
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.core.resolver import resolver
 from readthedocs.projects.constants import PUBLIC, SSL_STATUS_VALID
 from readthedocs.projects.models import Domain, Project
 from readthedocs.proxito.views import serve
@@ -95,3 +96,7 @@ class BaseDocServing(TestCase):
             https=True,
             ssl_status=SSL_STATUS_VALID,
         )
+
+    def tearDown(self):
+        # Clear cache used by ``lru_cache`` before running the next test
+        resolver._get_project_domain.cache_clear()
