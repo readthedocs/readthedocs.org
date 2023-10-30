@@ -225,7 +225,7 @@ class BuildDirector:
         log.info("Cloning and fetching.")
         self.vcs_repository.update()
 
-        identifier = self.data.build_commit or self.data.version.identifier
+        identifier = self.data.build_commit or self.data.version.commit_name
         log.info("Checking out.", identifier=identifier)
         self.vcs_repository.checkout(identifier)
 
