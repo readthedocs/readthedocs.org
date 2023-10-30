@@ -18,17 +18,17 @@ async-timeout==4.0.3
     # via
     #   -r requirements/pip.txt
     #   redis
-babel==2.13.0
+babel==2.13.1
     # via sphinx
 billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.68
+boto3==1.28.73
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.68
+botocore==1.31.73
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -46,7 +46,7 @@ cffi==1.16.0
     # via
     #   -r requirements/pip.txt
     #   cryptography
-charset-normalizer==3.3.0
+charset-normalizer==3.3.1
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -77,7 +77,7 @@ cron-descriptor==1.4.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==41.0.4
+cryptography==41.0.5
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -124,7 +124,7 @@ django-annoying==0.10.6
     # via -r requirements/pip.txt
 django-autoslug==1.9.9
     # via -r requirements/pip.txt
-django-cacheops==7.0.1
+django-cacheops==7.0.2
     # via -r requirements/pip.txt
 django-celery-beat==2.5.0
     # via -r requirements/pip.txt
@@ -148,7 +148,7 @@ django-formtools==2.3
     # via -r requirements/pip.txt
 django-gravatar2==1.4.4
     # via -r requirements/pip.txt
-django-ipware==5.0.1
+django-ipware==5.0.2
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -164,7 +164,7 @@ django-storages[boto3]==1.14.2
     #   django-storages
 django-structlog==2.2.0
     # via -r requirements/pip.txt
-django-taggit==4.0.0
+django-taggit==5.0.0
     # via -r requirements/pip.txt
 django-timezone-field==6.0.1
     # via
@@ -206,11 +206,11 @@ elasticsearch-dsl==8.9.0
     #   django-elasticsearch-dsl
 exceptiongroup==1.1.3
     # via pytest
-filelock==3.12.4
+filelock==3.13.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
-funcy==1.18
+funcy==2.0
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
@@ -253,7 +253,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.9.9
+orjson==3.9.10
     # via -r requirements/pip.txt
 packaging==23.2
     # via
@@ -291,7 +291,7 @@ pyjwt[crypto]==2.8.0
     #   pyjwt
 pyquery==2.0.0
     # via -r requirements/pip.txt
-pytest==7.4.2
+pytest==7.4.3
     # via
     #   -r requirements/testing.in
     #   pytest-cov
@@ -444,7 +444,7 @@ vine==5.0.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.24.5
+virtualenv==20.24.6
     # via -r requirements/pip.txt
 wcwidth==0.2.8
     # via
