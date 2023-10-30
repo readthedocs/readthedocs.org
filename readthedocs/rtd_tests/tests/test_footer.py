@@ -13,6 +13,7 @@ from readthedocs.api.v2.views.footer_views import get_version_compare_data
 from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
+from readthedocs.core.resolver import resolver
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND, PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
@@ -503,6 +504,10 @@ class TestFooterPerformance(TestCase):
             + f"?project={self.pip.slug}&version={self.latest.slug}&page=index&docroot=/docs/"
         )
         self.host = "pip.readthedocs.io"
+
+    def tearDown(self):
+        # Clear cache used by ``lru_cache`` before running the next test
+        resolver._get_project_domain.cache_clear()
 
     def test_version_queries(self):
         with self.assertNumQueries(self.EXPECTED_QUERIES):
