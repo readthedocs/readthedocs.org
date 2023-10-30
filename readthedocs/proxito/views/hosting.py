@@ -97,7 +97,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
                 build = version.builds.filter(
                     success=True,
                     state=BUILD_STATE_FINISHED,
-                ).last()
+                ).first()
 
             except UnresolverError as exc:
                 # If an exception is raised and there is a ``project`` in the
@@ -113,7 +113,7 @@ class BaseReadTheDocsConfigJson(CDNCacheTagsMixin, APIView):
             project = Project.objects.filter(slug=project_slug).first()
             version = Version.objects.filter(slug=version_slug, project=project).first()
             if version:
-                build = version.builds.last()
+                build = version.builds.first()
 
         return project, version, build, filename
 
@@ -272,7 +272,13 @@ class AddonsResponse:
         )
         # Make one DB query here and then check on Python code
         # TODO: make usage of ``Project.addons.<name>_enabled`` to decide if enabled
-        project_features = project.features.all().values_list("feature_id", flat=True)
+        #
+        # NOTE: using ``feature_id__startswith="addons_"`` to make the query faster.
+        # It went down from 20ms to 1ms since it does not have to check the
+        # `Project.pub_date` against all the features.
+        project_features = project.features.filter(
+            feature_id__startswith="addons_"
+        ).values_list("feature_id", flat=True)
 
         # Query the custom ``Domain`` object only once here, and re-use it call
         # ``resolver.resolve`` later to reduce the number of times we query our DB.
