@@ -12,7 +12,6 @@ from django.utils import timezone
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.core.resolver import resolver
 from readthedocs.projects.constants import PRIVATE, PUBLIC
 from readthedocs.projects.models import Domain, Feature, Project
 
@@ -66,10 +65,6 @@ class TestReadTheDocsConfigJson(TestCase):
             state="finished",
             success=True,
         )
-
-    def tearDown(self):
-        # Clear cache used by ``lru_cache`` before running the next test
-        resolver._get_project_domain.cache_clear()
 
     def _get_response_dict(self, view_name, filepath=None):
         filepath = filepath or __file__

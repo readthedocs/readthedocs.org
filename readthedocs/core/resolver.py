@@ -368,8 +368,5 @@ class Resolver:
         """Test if to allow direct serving for project on CNAME."""
         return bool(get_feature(project, feature_type=TYPE_CNAME))
 
-
-resolver = Resolver()
-resolve_path = resolver.resolve_path
-resolve_domain = resolver.get_domain_without_protocol
-resolve = resolver.resolve
+    def clean_cache(self):
+        self._get_project_domain.cache_clear()

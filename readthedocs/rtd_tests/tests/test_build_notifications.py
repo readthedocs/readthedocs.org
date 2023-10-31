@@ -13,7 +13,6 @@ from django_dynamic_fixture import get
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Build, Version
 from readthedocs.builds.tasks import send_build_notifications
-from readthedocs.core.resolver import resolver
 from readthedocs.projects.forms import WebHookForm
 from readthedocs.projects.models import EmailHook, Project, WebHook, WebHookEvent
 
@@ -27,10 +26,6 @@ class BuildNotificationsTests(TestCase):
         self.project = get(Project, slug="test", language="en")
         self.version = get(Version, project=self.project, slug="1.0")
         self.build = get(Build, version=self.version, commit="abc1234567890")
-
-    def tearDown(self):
-        # Clear cache used by ``lru_cache`` before running the next test
-        resolver._get_project_domain.cache_clear()
 
     @mock.patch("readthedocs.builds.managers.log")
     def test_send_notification_none_if_wrong_version_pk(self, mock_logger):

@@ -46,7 +46,6 @@ from readthedocs.builds.constants import (
     LATEST,
 )
 from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, Version
-from readthedocs.core.resolver import resolver
 from readthedocs.integrations.models import Integration
 from readthedocs.oauth.models import (
     RemoteOrganization,
@@ -74,10 +73,6 @@ class APIBuildTests(TestCase):
         self.user = User.objects.get(username='eric')
         self.project = get(Project, users=[self.user])
         self.version = self.project.versions.get(slug=LATEST)
-
-    def tearDown(self):
-        # Clear cache used by ``lru_cache`` before running the next test
-        resolver._get_project_domain.cache_clear()
 
     def test_reset_build(self):
         build = get(
@@ -3217,7 +3212,7 @@ class APIVersionTests(TestCase):
         data.update({
             'active': 'false',
         })
-        with self.assertNumQueries(4):
+        with self.assertNumQueries(5):
             resp = self.client.get(url, data)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['count'], pip.versions.filter(active=False).count())
@@ -3225,7 +3220,7 @@ class APIVersionTests(TestCase):
     def test_project_get_active_versions(self):
         pip = Project.objects.get(slug="pip")
         url = reverse("project-active-versions", args=[pip.pk])
-        with self.assertNumQueries(4):
+        with self.assertNumQueries(5):
             resp = self.client.get(url)
         self.assertEqual(
             len(resp.data["versions"]), pip.versions.filter(active=True).count()

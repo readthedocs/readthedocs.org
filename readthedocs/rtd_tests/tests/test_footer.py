@@ -13,7 +13,6 @@ from readthedocs.api.v2.views.footer_views import get_version_compare_data
 from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, TAG
 from readthedocs.builds.models import Version
 from readthedocs.core.middleware import ReadTheDocsSessionMiddleware
-from readthedocs.core.resolver import resolver
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import GITHUB_BRAND, GITLAB_BRAND, PRIVATE, PUBLIC
 from readthedocs.projects.models import Project
@@ -505,10 +504,6 @@ class TestFooterPerformance(TestCase):
         )
         self.host = "pip.readthedocs.io"
 
-    def tearDown(self):
-        # Clear cache used by ``lru_cache`` before running the next test
-        resolver._get_project_domain.cache_clear()
-
     def test_version_queries(self):
         with self.assertNumQueries(self.EXPECTED_QUERIES):
             response = self.client.get(self.url, headers={"host": self.host})
@@ -516,7 +511,7 @@ class TestFooterPerformance(TestCase):
 
         # Second time we don't create a new page view,
         # this reduces one query since the canonical domain is already cached
-        with self.assertNumQueries(self.EXPECTED_QUERIES - 1):
+        with self.assertNumQueries(self.EXPECTED_QUERIES):
             response = self.client.get(self.url, headers={"host": self.host})
             self.assertContains(response, "0.8.1")
 
@@ -531,7 +526,7 @@ class TestFooterPerformance(TestCase):
                 built=True,
             )
 
-        with self.assertNumQueries(self.EXPECTED_QUERIES - 1):
+        with self.assertNumQueries(self.EXPECTED_QUERIES):
             response = self.client.get(self.url, headers={"host": self.host})
             self.assertContains(response, "0.99.0")
 

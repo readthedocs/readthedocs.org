@@ -32,7 +32,7 @@ from readthedocs.builds.constants import (
     STABLE,
 )
 from readthedocs.core.history import ExtraHistoricalRecords
-from readthedocs.core.resolver import resolve, resolve_domain
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
@@ -112,7 +112,7 @@ class ProjectRelationship(models.Model):
 
     # HACK
     def get_absolute_url(self):
-        return resolve(self.child)
+        return Resolver().resolve(self.child)
 
     @cached_property
     def subproject_prefix(self):
@@ -673,7 +673,7 @@ class Project(models.Model):
 
         ``external`` defaults False because we only link external versions in very specific places
         """
-        return resolve(
+        return Resolver().resolve(
             project=self,
             version_slug=version_slug,
             language=lang_slug,
@@ -845,7 +845,9 @@ class Project(models.Model):
 
     def subdomain(self, use_canonical_domain=True):
         """Get project subdomain from resolver."""
-        return resolve_domain(self, use_canonical_domain=use_canonical_domain)
+        return Resolver().get_domain_without_protocol(
+            self, use_canonical_domain=use_canonical_domain
+        )
 
     def get_downloads(self):
         downloads = {}
@@ -1510,7 +1512,7 @@ class ImportedFile(models.Model):
     )
 
     def get_absolute_url(self):
-        return resolve(
+        return Resolver().resolve(
             project=self.project,
             version_slug=self.version.slug,
             filename=self.path,
