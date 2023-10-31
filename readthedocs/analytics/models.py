@@ -133,7 +133,7 @@ class PageView(models.Model):
         PageViewResult = namedtuple("PageViewResult", "path, url, count")
         resolver = Resolver()
         result = []
-        parsed_domain = urlparse(resolver.resolve(project))
+        parsed_domain = urlparse(resolver.get_domain(project))
         default_version = project.get_default_version()
         for row in queryset:
             if not per_version:
