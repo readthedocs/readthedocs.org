@@ -65,8 +65,10 @@ class CreateOrganizationSignup(PrivateViewMixin, OrganizationView, CreateView):
         )
 
 
-class ListOrganization(FilterContextMixin, PrivateViewMixin, OrganizationView, ListView):
-    template_name = 'organizations/organization_list.html'
+class ListOrganization(
+    FilterContextMixin, PrivateViewMixin, OrganizationView, ListView
+):
+    template_name = "organizations/organization_list.html"
     admin_only = False
 
     filterset_class = OrganizationListFilterSet
