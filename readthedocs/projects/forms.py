@@ -740,11 +740,24 @@ class RedirectForm(forms.ModelForm):
 
     class Meta:
         model = Redirect
-        fields = ["project", "redirect_type", "from_url", "to_url", "force"]
+        fields = [
+            "project",
+            "redirect_type",
+            "from_url",
+            "to_url",
+            "http_status",
+            "force",
+            "enabled",
+            "description",
+        ]
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
+
+        # Remove the nullable option from the form.
+        self.fields["enabled"].widget = forms.CheckboxInput()
+        self.fields["enabled"].empty_value = False
 
         if self.project.has_feature(Feature.ALLOW_FORCED_REDIRECTS):
             # Remove the nullable option from the form.

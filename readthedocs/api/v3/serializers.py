@@ -847,8 +847,14 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             "type",
             "from_url",
             "to_url",
+            "force",
+            "enabled",
+            "description",
+            "http_status",
             "_links",
         ]
+        # TODO: allow editing this field for projects that have this feature enabled.
+        read_only_fields = ["force"]
 
 
 class RedirectCreateSerializer(RedirectSerializerBase):
