@@ -29,7 +29,7 @@ from readthedocs.builds.models import Version
 from readthedocs.builds.views import BuildTriggerMixin
 from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.permissions import AdminPermission
-from readthedocs.core.resolver import resolver
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.filters import ProjectVersionListFilterSet
 from readthedocs.projects.models import Project
@@ -135,7 +135,7 @@ class ProjectDetailViewBase(
             protocol=protocol,
         )
         context["site_url"] = "{url}?badge={version}".format(
-            url=resolver.resolve_version(project, version=default_version),
+            url=Resolver().resolve_version(project, version=default_version),
             version=default_version_slug,
         )
 
