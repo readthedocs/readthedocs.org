@@ -11,6 +11,7 @@ from readthedocs.builds.constants import (
     BUILD_STATUS_FAILURE,
     BUILD_STATUS_SUCCESS,
     EXTERNAL,
+    TAG,
 )
 from readthedocs.builds.models import Build
 from readthedocs.config import ALL, ConfigError
@@ -21,6 +22,7 @@ from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
 from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
 from readthedocs.telemetry.models import BuildData
+from readthedocs.vcs_support.backends.git import Backend
 
 from .mockers import BuildEnvironmentMocker
 
@@ -60,17 +62,19 @@ class BuildEnvironmentBase:
         return fixture.get(
             Project,
             slug="project",
+            repo="https://github.com/readthedocs/readthedocs.org",
             enable_epub_build=True,
             enable_pdf_build=True,
         )
 
-    def _trigger_update_docs_task(self):
+    def _trigger_update_docs_task(self, **kwargs):
         # NOTE: is it possible to replace calling this directly by `trigger_build` instead? :)
+        kwargs.setdefault("build_api_key", "1234")
+        kwargs.setdefault("build_commit", self.build.commit)
         return update_docs_task.delay(
             self.version.pk,
             self.build.pk,
-            build_api_key="1234",
-            build_commit=self.build.commit,
+            **kwargs,
         )
 
 class TestCustomConfigFile(BuildEnvironmentBase):
@@ -689,6 +693,72 @@ class TestBuildTask(BuildEnvironmentBase):
         revoke_key_request = self.requests_mock.request_history[-1]
         assert revoke_key_request._request.method == "POST"
         assert revoke_key_request.path == "/api/v2/revoke/"
+
+    @mock.patch.object(Backend, "ref_exists")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_checkout_tag_by_name(self, load_yaml_config, ref_exists):
+        ref_exists.return_value = False
+        self.version.type = TAG
+        self.version.identifier = "abc123"
+        self.version.verbose_name = "v1.0"
+        self.version.slug = "v1.0"
+        self.machine = False
+        self.version.save()
+        load_yaml_config.return_value = get_build_config({})
+
+        self._trigger_update_docs_task(build_commit=None)
+
+        self.mocker.mocks["git.Backend.run"].assert_has_calls(
+            [
+                mock.call("git", "clone", "--depth", "1", mock.ANY, "."),
+                mock.call(
+                    "git",
+                    "fetch",
+                    "origin",
+                    "--force",
+                    "--prune",
+                    "--prune-tags",
+                    "--depth",
+                    "50",
+                    "refs/tags/v1.0:refs/tags/v1.0",
+                ),
+                mock.call("git", "checkout", "--force", "v1.0"),
+                mock.call("git", "clean", "-d", "-f", "-f"),
+            ]
+        )
+
+    @mock.patch.object(Backend, "ref_exists")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_checkout_external_version_by_commit(self, load_yaml_config, ref_exists):
+        ref_exists.return_value = False
+        self.version.type = EXTERNAL
+        self.version.identifier = "abc123"
+        self.version.verbose_name = "22"
+        self.version.slug = "22"
+        self.machine = False
+        self.version.save()
+        load_yaml_config.return_value = get_build_config({})
+
+        self._trigger_update_docs_task(build_commit=None)
+
+        self.mocker.mocks["git.Backend.run"].assert_has_calls(
+            [
+                mock.call("git", "clone", "--depth", "1", mock.ANY, "."),
+                mock.call(
+                    "git",
+                    "fetch",
+                    "origin",
+                    "--force",
+                    "--prune",
+                    "--prune-tags",
+                    "--depth",
+                    "50",
+                    "pull/22/head:external-22",
+                ),
+                mock.call("git", "checkout", "--force", "abc123"),
+                mock.call("git", "clean", "-d", "-f", "-f"),
+            ]
+        )
 
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_build_commands_executed(

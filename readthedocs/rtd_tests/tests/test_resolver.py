@@ -1,9 +1,16 @@
 import django_dynamic_fixture as fixture
-import pytest
 from django.test import TestCase, override_settings
+from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL
-from readthedocs.core.resolver import Resolver, resolve, resolve_domain, resolve_path
+from readthedocs.builds.models import Version
+from readthedocs.core.resolver import (
+    Resolver,
+    resolve,
+    resolve_domain,
+    resolve_path,
+    resolver,
+)
 from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
@@ -210,7 +217,7 @@ class ResolverCanonicalProject(TestCase):
 
         # This tests that we aren't going to re-recurse back to resolving proj1
         r = Resolver()
-        self.assertEqual(r._get_canonical_project(proj1), proj2)
+        self.assertEqual(r._get_canonical_project(proj1), (proj2, None))
 
     def test_project_with_same_superproject_and_translation(self):
         proj1 = fixture.get(Project, main_language_project=None)
@@ -234,7 +241,7 @@ class ResolverCanonicalProject(TestCase):
 
         # This tests that we aren't going to re-recurse back to resolving proj1
         r = Resolver()
-        self.assertEqual(r._get_canonical_project(proj1), proj2)
+        self.assertEqual(r._get_canonical_project(proj1), (proj2, None))
 
     def test_project_with_same_grandchild_project(self):
         # Note: we don't disallow this, but we also don't support this in our
@@ -268,11 +275,12 @@ class ResolverCanonicalProject(TestCase):
 
         # This tests that we aren't going to re-recurse back to resolving proj1
         r = Resolver()
-        self.assertEqual(r._get_canonical_project(proj1), proj3)
+        self.assertEqual(
+            r._get_canonical_project(proj1), (proj2, proj1.parent_relationship)
+        )
 
 
 class ResolverDomainTests(ResolverBase):
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_domain_resolver(self):
         url = resolve_domain(project=self.pip)
         self.assertEqual(url, "pip.readthedocs.org")
@@ -306,7 +314,6 @@ class ResolverDomainTests(ResolverBase):
         url = resolve_domain(project=self.subproject, use_canonical_domain=False)
         self.assertEqual(url, "pip.readthedocs.io")
 
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_domain_resolver_subproject_itself(self):
         """
         Test inconsistent project/subproject relationship.
@@ -334,7 +341,6 @@ class ResolverDomainTests(ResolverBase):
         url = resolve_domain(project=self.translation, use_canonical_domain=False)
         self.assertEqual(url, "pip.readthedocs.io")
 
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_domain_resolver_translation_itself(self):
         """
         Test inconsistent project/translation relationship.
@@ -381,12 +387,10 @@ class ResolverDomainTests(ResolverBase):
 
 
 class ResolverTests(ResolverBase):
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_resolver(self):
         url = resolve(project=self.pip)
         self.assertEqual(url, "http://pip.readthedocs.org/en/latest/")
 
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_resolver_domain(self):
         self.domain = fixture.get(
             Domain,
@@ -398,7 +402,6 @@ class ResolverTests(ResolverBase):
         url = resolve(project=self.pip)
         self.assertEqual(url, "http://docs.foobar.com/en/latest/")
 
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_resolver_domain_https(self):
         self.domain = fixture.get(
             Domain,
@@ -410,7 +413,6 @@ class ResolverTests(ResolverBase):
         url = resolve(project=self.pip)
         self.assertEqual(url, "https://docs.foobar.com/en/latest/")
 
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_resolver_subproject(self):
         url = resolve(project=self.subproject)
         self.assertEqual(
@@ -418,12 +420,10 @@ class ResolverTests(ResolverBase):
             "http://pip.readthedocs.org/projects/sub/ja/latest/",
         )
 
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_resolver_translation(self):
         url = resolve(project=self.translation)
         self.assertEqual(url, "http://pip.readthedocs.org/ja/latest/")
 
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_resolver_nested_translation_of_a_subproject(self):
         """The project is a translation, and the main translation is a subproject of a project."""
         translation = fixture.get(
@@ -440,8 +440,6 @@ class ResolverTests(ResolverBase):
             "http://pip.readthedocs.org/projects/sub/es/latest/",
         )
 
-    @pytest.mark.xfail(reason="We do not support this for now", strict=True)
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_resolver_nested_subproject_of_a_translation(self):
         """The project is a subproject, and the superproject is a translation of a project."""
         project = fixture.get(
@@ -473,13 +471,11 @@ class ResolverTests(ResolverBase):
             url, "http://docs-es.readthedocs.org/projects/api-es/es/latest/"
         )
 
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_resolver_single_version(self):
         self.pip.single_version = True
         url = resolve(project=self.pip)
         self.assertEqual(url, "http://pip.readthedocs.org/")
 
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_resolver_subproject_alias(self):
         relation = self.pip.subprojects.first()
         relation.alias = "sub_alias"
@@ -490,14 +486,12 @@ class ResolverTests(ResolverBase):
             "http://pip.readthedocs.org/projects/sub_alias/ja/latest/",
         )
 
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_resolver_private_project(self):
         self.pip.privacy_level = PRIVATE
         self.pip.save()
         url = resolve(project=self.pip)
         self.assertEqual(url, "http://pip.readthedocs.org/en/latest/")
 
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_resolver_private_project_override(self):
         self.pip.privacy_level = PRIVATE
         self.pip.save()
@@ -506,7 +500,6 @@ class ResolverTests(ResolverBase):
         url = resolve(project=self.pip)
         self.assertEqual(url, "http://pip.readthedocs.org/en/latest/")
 
-    @override_settings(PRODUCTION_DOMAIN="readthedocs.org")
     def test_resolver_private_version_override(self):
         latest = self.pip.versions.first()
         latest.privacy_level = PRIVATE
@@ -561,6 +554,75 @@ class ResolverTests(ResolverBase):
             url = resolve(project=self.pip)
             self.assertEqual(url, "http://pip.readthedocs.io/en/latest/")
 
+    def test_resolve_project_object(self):
+        url = resolver.resolve_project(self.pip)
+        self.assertEqual(url, "http://pip.readthedocs.org/")
+
+        url = resolver.resolve_project(self.pip, filename="index.html")
+        self.assertEqual(url, "http://pip.readthedocs.org/index.html")
+
+        url = resolver.resolve_project(self.pip, filename="/_/api/v2/footer_html")
+        self.assertEqual(url, "http://pip.readthedocs.org/_/api/v2/footer_html")
+
+    def test_resolve_subproject_object(self):
+        url = resolver.resolve_project(self.subproject)
+        self.assertEqual(url, "http://pip.readthedocs.org/")
+
+        url = resolver.resolve_project(self.subproject, filename="index.html")
+        self.assertEqual(url, "http://pip.readthedocs.org/index.html")
+
+        url = resolver.resolve_project(
+            self.subproject, filename="/_/api/v2/footer_html"
+        )
+        self.assertEqual(url, "http://pip.readthedocs.org/_/api/v2/footer_html")
+
+    def test_resolve_translation_object(self):
+        url = resolver.resolve_project(self.translation)
+        self.assertEqual(url, "http://pip.readthedocs.org/")
+
+        url = resolver.resolve_project(self.translation, filename="index.html")
+        self.assertEqual(url, "http://pip.readthedocs.org/index.html")
+
+        url = resolver.resolve_project(
+            self.translation, filename="/_/api/v2/footer_html"
+        )
+        self.assertEqual(url, "http://pip.readthedocs.org/_/api/v2/footer_html")
+
+    def test_resolve_version_object(self):
+        url = resolver.resolve_version(self.pip)
+        self.assertEqual(url, "http://pip.readthedocs.org/en/latest/")
+
+        url = resolver.resolve_version(self.pip, version=self.version)
+        self.assertEqual(url, "http://pip.readthedocs.org/en/latest/")
+
+        version = get(Version, project=self.pip, slug="v2")
+        url = resolver.resolve_version(self.pip, version=version)
+        self.assertEqual(url, "http://pip.readthedocs.org/en/v2/")
+
+    def test_resolve_version_from_subproject(self):
+        url = resolver.resolve_version(self.subproject)
+        self.assertEqual(url, "http://pip.readthedocs.org/projects/sub/ja/latest/")
+
+        version = self.subproject.versions.first()
+        url = resolver.resolve_version(self.subproject, version=version)
+        self.assertEqual(url, "http://pip.readthedocs.org/projects/sub/ja/latest/")
+
+        version = get(Version, project=self.subproject, slug="v2")
+        url = resolver.resolve_version(self.subproject, version=version)
+        self.assertEqual(url, "http://pip.readthedocs.org/projects/sub/ja/v2/")
+
+    def test_resolve_version_from_translation(self):
+        url = resolver.resolve_version(self.translation)
+        self.assertEqual(url, "http://pip.readthedocs.org/ja/latest/")
+
+        version = self.translation.versions.first()
+        url = resolver.resolve_version(self.translation, version=version)
+        self.assertEqual(url, "http://pip.readthedocs.org/ja/latest/")
+
+        version = get(Version, project=self.translation, slug="v2")
+        url = resolver.resolve_version(self.translation, version=version)
+        self.assertEqual(url, "http://pip.readthedocs.org/ja/v2/")
+
 
 class ResolverAltSetUp:
     def setUp(self):
@@ -572,6 +634,7 @@ class ResolverAltSetUp:
             users=[self.owner],
             main_language_project=None,
         )
+        self.version = self.pip.versions.first()
         self.seed = fixture.get(
             Project,
             slug="sub",
@@ -957,3 +1020,16 @@ class TestResolverWithCustomPrefixes(ResolverBase):
         self.assertEqual(
             url, "http://pip.readthedocs.io/s/sub/prefix/es/latest/api/index.html"
         )
+
+    def test_get_project_domain(self):
+        domain = resolver.get_domain(self.pip)
+        self.assertEqual(domain, "http://pip.readthedocs.io")
+
+        domain = resolver.get_domain(self.subproject)
+        self.assertEqual(domain, "http://pip.readthedocs.io")
+
+        domain = resolver.get_domain(self.translation)
+        self.assertEqual(domain, "http://pip.readthedocs.io")
+
+        domain = resolver.get_domain(self.subproject_translation)
+        self.assertEqual(domain, "http://pip.readthedocs.io")

@@ -287,20 +287,15 @@ class Unresolver:
 
         language = match.group("language")
         # Normalize old language codes to lowercase with dashes.
-        normalized_language = language.lower().replace("_", "-")
-
-        # TODO: remove after deploy.
-        # This is so we can temporarily support old language codes
-        # while we migrate existing projects.
-        languages = [language, normalized_language]
+        language = language.lower().replace("_", "-")
 
         version_slug = match.group("version")
         filename = self._normalize_filename(match.group("filename"))
 
-        if parent_project.language in languages:
+        if parent_project.language == language:
             project = parent_project
         else:
-            project = parent_project.translations.filter(language__in=languages).first()
+            project = parent_project.translations.filter(language=language).first()
             if not project:
                 raise TranslationNotFoundError(
                     project=parent_project,
