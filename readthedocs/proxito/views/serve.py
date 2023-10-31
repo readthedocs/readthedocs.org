@@ -912,14 +912,15 @@ class ServeSitemapXMLBase(CDNCacheControlMixin, CDNCacheTagsMixin, View):
 
             if project.translations.exists():
                 for translation in project.translations.all():
-                    translation_versions = (
-                        Version.internal.public(project=translation
-                                                ).values_list('slug', flat=True)
+                    translated_version = (
+                        Version.internal.public(project=translation)
+                        .filter(slug=version.slug)
+                        .first()
                     )
-                    if version.slug in translation_versions:
-                        href = project.get_docs_url(
-                            version_slug=version.slug,
-                            lang_slug=translation.language,
+                    if translated_version:
+                        href = resolver.resolve_version(
+                            project=translation,
+                            version=translated_version,
                         )
                         element['languages'].append({
                             'hreflang': hreflang_formatter(translation.language),

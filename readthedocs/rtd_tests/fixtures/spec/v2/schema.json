@@ -54,176 +54,77 @@
       "title": "Build",
       "description": "Configuration for the documentation build process.",
       "type": "object",
-      "anyOf": [
-        {
-          "properties": {
-            "image": {
-              "title": "Image",
-              "description": "DEPRECATED: use build.os instead.\n\nThe build docker image to be used.",
-              "enum": [
-                "stable",
-                "latest"
-              ],
-              "default": "latest",
-              "deprecated": true
-            },
-            "apt_packages": {
-              "title": "APT Packages",
-              "description": "List of packages to be installed with apt-get.",
-              "type": "array",
-              "items": {
-                "title": "APT Package",
-                "type": "string"
-              },
-              "default": []
-            }
-          },
-          "additionalProperties": false
+      "properties": {
+        "os": {
+          "title": "Operating System",
+          "description": "Operating system to be used in the build.",
+          "enum": [
+            "ubuntu-20.04",
+            "ubuntu-22.04"
+          ]
         },
-        {
+        "jobs": {
+          "title": "Build jobs",
+          "description": "Run custom commands at any point in the build process",
+          "type": "object",
           "properties": {
-            "os": {
-              "title": "Operating System",
-              "description": "Operating system to be used in the build.",
-              "enum": [
-                "ubuntu-20.04",
-                "ubuntu-22.04"
-              ]
-            },
-            "jobs": {
-              "title": "Build jobs",
-              "description": "Run custom commands at any point in the build process",
-              "type": "object",
-              "properties": {
-                "post_checkout": {
-                  "type": "array",
-                  "items": {
-                    "title": "Custom commands",
-                    "type": "string"
-                  }
-                },
-                "pre_system_dependencies": {
-                  "type": "array",
-                  "items": {
-                    "title": "Custom commands",
-                    "type": "string"
-                  }
-                },
-                "post_system_dependencies": {
-                  "type": "array",
-                  "items": {
-                    "title": "Custom commands",
-                    "type": "string"
-                  }
-                },
-                "pre_create_environment": {
-                  "type": "array",
-                  "items": {
-                    "title": "Custom commands",
-                    "type": "string"
-                  }
-                },
-                "post_create_environment": {
-                  "type": "array",
-                  "items": {
-                    "title": "Custom commands",
-                    "type": "string"
-                  }
-                },
-                "pre_install": {
-                  "type": "array",
-                  "items": {
-                    "title": "Custom commands",
-                    "type": "string"
-                  }
-                },
-                "post_install": {
-                  "type": "array",
-                  "items": {
-                    "title": "Custom commands",
-                    "type": "string"
-                  }
-                },
-                "pre_build": {
-                  "type": "array",
-                  "items": {
-                    "title": "Custom commands",
-                    "type": "string"
-                  }
-                },
-                "post_build": {
-                  "type": "array",
-                  "items": {
-                    "title": "Custom commands",
-                    "type": "string"
-                  }
-                }
-              },
-              "additionalProperties": false
-            },
-            "tools": {
-              "title": "Tools",
-              "description": "Tools and their version to be used in the build.",
-              "type": "object",
-              "properties": {
-                "python": {
-                  "enum": [
-                    "2.7",
-                    "3",
-                    "3.6",
-                    "3.7",
-                    "3.8",
-                    "3.9",
-                    "3.10",
-                    "3.11",
-                    "3.12",
-                    "miniconda3-4.7",
-                    "mambaforge-4.10",
-                    "mambaforge-22.9"
-                  ]
-                },
-                "nodejs": {
-                  "enum": [
-                    "14",
-                    "16",
-                    "18",
-                    "19",
-                    "20"
-                  ]
-                },
-                "rust": {
-                  "enum": [
-                    "1.55",
-                    "1.61",
-                    "1.64",
-                    "1.70"
-                  ]
-                },
-                "golang": {
-                  "enum": [
-                    "1.17",
-                    "1.18",
-                    "1.19",
-                    "1.20"
-                  ]
-                }
-              },
-              "minProperties": 1,
-              "additionalProperties": false
-            },
-            "apt_packages": {
-              "title": "APT Packages",
-              "description": "List of packages to be installed with apt-get.",
+            "post_checkout": {
               "type": "array",
               "items": {
-                "title": "APT Package",
+                "title": "Custom commands",
                 "type": "string"
-              },
-              "default": []
+              }
             },
-            "commands": {
-              "title": "Build commands",
-              "description": "Override the whole build process with custom commands. When using this option, none of the commands from build.jobs will be executed.",
+            "pre_system_dependencies": {
+              "type": "array",
+              "items": {
+                "title": "Custom commands",
+                "type": "string"
+              }
+            },
+            "post_system_dependencies": {
+              "type": "array",
+              "items": {
+                "title": "Custom commands",
+                "type": "string"
+              }
+            },
+            "pre_create_environment": {
+              "type": "array",
+              "items": {
+                "title": "Custom commands",
+                "type": "string"
+              }
+            },
+            "post_create_environment": {
+              "type": "array",
+              "items": {
+                "title": "Custom commands",
+                "type": "string"
+              }
+            },
+            "pre_install": {
+              "type": "array",
+              "items": {
+                "title": "Custom commands",
+                "type": "string"
+              }
+            },
+            "post_install": {
+              "type": "array",
+              "items": {
+                "title": "Custom commands",
+                "type": "string"
+              }
+            },
+            "pre_build": {
+              "type": "array",
+              "items": {
+                "title": "Custom commands",
+                "type": "string"
+              }
+            },
+            "post_build": {
               "type": "array",
               "items": {
                 "title": "Custom commands",
@@ -231,37 +132,89 @@
               }
             }
           },
-          "required": [
-            "os",
-            "tools"
-          ],
           "additionalProperties": false
+        },
+        "tools": {
+          "title": "Tools",
+          "description": "Tools and their version to be used in the build.",
+          "type": "object",
+          "properties": {
+            "python": {
+              "enum": [
+                "2.7",
+                "3",
+                "3.6",
+                "3.7",
+                "3.8",
+                "3.9",
+                "3.10",
+                "3.11",
+                "3.12",
+                "miniconda3-4.7",
+                "mambaforge-4.10",
+                "mambaforge-22.9"
+              ]
+            },
+            "nodejs": {
+              "enum": [
+                "14",
+                "16",
+                "18",
+                "19",
+                "20"
+              ]
+            },
+            "rust": {
+              "enum": [
+                "1.55",
+                "1.61",
+                "1.64",
+                "1.70"
+              ]
+            },
+            "golang": {
+              "enum": [
+                "1.17",
+                "1.18",
+                "1.19",
+                "1.20"
+              ]
+            }
+          },
+          "minProperties": 1,
+          "additionalProperties": false
+        },
+        "apt_packages": {
+          "title": "APT Packages",
+          "description": "List of packages to be installed with apt-get.",
+          "type": "array",
+          "items": {
+            "title": "APT Package",
+            "type": "string"
+          },
+          "default": []
+        },
+        "commands": {
+          "title": "Build commands",
+          "description": "Override the whole build process with custom commands. When using this option, none of the commands from build.jobs will be executed.",
+          "type": "array",
+          "items": {
+            "title": "Custom commands",
+            "type": "string"
+          }
         }
-      ]
+      },
+      "required": [
+        "os",
+        "tools"
+      ],
+      "additionalProperties": false
     },
     "python": {
       "title": "Python",
       "description": "Configuration of the Python environment to be used.",
       "type": "object",
       "properties": {
-        "version": {
-          "title": "Version",
-          "description": "DEPRECATED: use build.tools.python instead.\n\nThe Python version to activate for your build (availability of Python versions depend on the build image).",
-          "type": "string",
-          "enum": [
-            "2",
-            "2.7",
-            "3",
-            "3.3",
-            "3.4",
-            "3.5",
-            "3.6",
-            "3.7",
-            "3.8"
-          ],
-          "default": "3",
-          "deprecated": true
-        },
         "install": {
           "title": "Install",
           "description": "Installation of packages and requiremens.",
