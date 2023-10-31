@@ -510,7 +510,7 @@ class TestFooterPerformance(TestCase):
             self.assertContains(response, "0.8.1")
 
         # Second time we don't create a new page view,
-        # this reduces one query since the canonical domain is already cached
+        # this shouldn't impact the number of queries.
         with self.assertNumQueries(self.EXPECTED_QUERIES):
             response = self.client.get(self.url, headers={"host": self.host})
             self.assertContains(response, "0.8.1")
