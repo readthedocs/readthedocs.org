@@ -260,6 +260,32 @@ Improving page redirects
   To:
     ``/new/path/:splat``
 
+Merge prefix redirects with exact redirects
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Prefix redirects are the same as exact redirects with a wildcard at the end.
+We will migrate all prefix redirects to exact redirects with a wildcard at the end.
+
+For example:
+
+From:
+   ``/prefix/``
+
+Will be migrated to:
+
+From:
+   ``/prefix/*``
+To:
+   ``/en/latest/:splat``
+
+Where ``/en/latest`` is the default version and language of the project.
+For single version projects, the redirect will be:
+
+From:
+   ``/prefix/*``
+To:
+   ``/:splat``
+
 Improving Sphinx redirects
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -294,9 +320,6 @@ The following improvements will not be implemented in the first iteration.
   And they will be useful for forced exact redirects only,
   since we can't match a redirect based on the response of the origin server.
 
-- Merge prefix redirects with exact redirects.
-  Prefix redirects are the same as exact redirects with a wildcard at the end.
-
 - Merge all redirects into a single type.
   This may simplify the implementation,
   but it will make it harder to explain the feature to users.
@@ -324,7 +347,7 @@ The following improvements will not be implemented in the first iteration.
 Allow matching query arguments
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We can do this in two ways:
+We can do this in three ways:
 
 - At the DB level with some restrictions.
   If done at the DB level,
@@ -342,6 +365,11 @@ We can do this in two ways:
       If the URL contains other parameters in addition to or instead of id, the request doesn't match that rule.
 
       https://docs.netlify.com/routing/redirects/redirect-options/#query-parameters
+
+- At the DB level using a JSONField.
+  All query arguments will be saved normalized as a dictionary.
+  When matching the URL, we will need to normalize the query arguments,
+  and use some a combination of ``has_keys`` and ``contained_by`` to match the exact number of query arguments.
 
 - At the Python level.
   If done at the DB level,
