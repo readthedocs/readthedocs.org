@@ -78,7 +78,7 @@ class ProjectRelationListMixin:
             return subprojects_and_urls
 
         resolver = Resolver()
-        main_domain = resolver.resolve(project)
+        main_domain = resolver.get_domain(project)
         parsed_main_domain = urlparse(main_domain)
 
         for subproject in subprojects:

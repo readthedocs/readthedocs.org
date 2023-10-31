@@ -112,7 +112,7 @@ class ProjectRelationship(models.Model):
 
     # HACK
     def get_absolute_url(self):
-        return Resolver().resolve(self.child)
+        return Resolver().resolve_version(project=self.child)
 
     @cached_property
     def subproject_prefix(self):
@@ -1512,12 +1512,10 @@ class ImportedFile(models.Model):
     )
 
     def get_absolute_url(self):
-        return Resolver().resolve(
+        return Resolver().resolve_version(
             project=self.project,
-            version_slug=self.version.slug,
+            version=self.version.slug,
             filename=self.path,
-            # this should always be False because we don't have ImportedFile's for external versions
-            external=False,
         )
 
     def __str__(self):
@@ -1661,10 +1659,7 @@ class WebHook(Notification):
         protocol = 'http' if settings.DEBUG else 'https'
         project_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{project.get_absolute_url()}'
         build_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{build.get_absolute_url()}'
-        build_docsurl = project.get_docs_url(
-            version_slug=version.slug,
-            external=version.is_external,
-        )
+        build_docsurl = Resolver().resolve_version(project, version=version)
 
         # Remove timezone and microseconds from the date,
         # so it's more readable.
