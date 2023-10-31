@@ -38,10 +38,10 @@ class FilteredModelChoiceFilter(ModelChoiceFilter):
         return super().get_queryset(request)
 
 
-class FilterMixin(views.FilterMixin):
+class FilterContextMixin(views.FilterMixin):
 
     """
-    Django-filter filterset mixin class.
+    Django-filter filterset mixin class for context data.
 
     Django-filter gives two classes for constructing views:
 
@@ -49,7 +49,8 @@ class FilterMixin(views.FilterMixin):
     - :py:class:`~django_filters.views.FilterMixin`
 
     These aren't quite yet usable, as some of our views still support our legacy
-    dashboard. For now, this class will aim to be an intermediate step, but
+    dashboard. For now, this class will aim to be an intermediate step. It will
+    expect these methods to be called from ``get_context_data()``, but will
     maintain some level of compatibility with the native mixin/view classes.
     """
 

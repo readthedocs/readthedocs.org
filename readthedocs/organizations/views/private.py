@@ -13,7 +13,7 @@ from vanilla import CreateView, DeleteView, FormView, ListView, UpdateView
 
 from readthedocs.audit.filters import OrganizationSecurityLogFilter
 from readthedocs.audit.models import AuditLog
-from readthedocs.core.filters import FilterMixin
+from readthedocs.core.filters import FilterContextMixin
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import PrivateViewMixin
 from readthedocs.invitations.models import Invitation
@@ -65,7 +65,7 @@ class CreateOrganizationSignup(PrivateViewMixin, OrganizationView, CreateView):
         )
 
 
-class ListOrganization(FilterMixin, PrivateViewMixin, OrganizationView, ListView):
+class ListOrganization(FilterContextMixin, PrivateViewMixin, OrganizationView, ListView):
     template_name = 'organizations/organization_list.html'
     admin_only = False
 

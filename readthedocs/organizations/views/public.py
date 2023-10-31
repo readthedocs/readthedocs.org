@@ -7,7 +7,7 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic.base import TemplateView
 from vanilla import DetailView, GenericView, ListView
 
-from readthedocs.core.filters import FilterMixin
+from readthedocs.core.filters import FilterContextMixin
 from readthedocs.organizations.filters import (
     OrganizationProjectListFilterSet,
     OrganizationTeamListFilterSet,
@@ -34,7 +34,7 @@ class OrganizationTemplateView(CheckOrganizationsEnabled, TemplateView):
 # Organization
 
 
-class DetailOrganization(FilterMixin, OrganizationView, DetailView):
+class DetailOrganization(FilterContextMixin, OrganizationView, DetailView):
 
     """Display information about an organization."""
 
@@ -73,7 +73,7 @@ class DetailOrganization(FilterMixin, OrganizationView, DetailView):
 
 
 # Member Views
-class ListOrganizationMembers(FilterMixin, OrganizationMixin, ListView):
+class ListOrganizationMembers(FilterContextMixin, OrganizationMixin, ListView):
     template_name = "organizations/member_list.html"
     context_object_name = "members"
     admin_only = False
@@ -101,7 +101,7 @@ class ListOrganizationMembers(FilterMixin, OrganizationMixin, ListView):
 
 
 # Team Views
-class ListOrganizationTeams(FilterMixin, OrganizationTeamView, ListView):
+class ListOrganizationTeams(FilterContextMixin, OrganizationTeamView, ListView):
     template_name = 'organizations/team_list.html'
     context_object_name = 'teams'
     admin_only = False
