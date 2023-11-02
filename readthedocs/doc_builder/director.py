@@ -225,12 +225,7 @@ class BuildDirector:
         log.info("Cloning and fetching.")
         self.vcs_repository.update()
 
-        # NOTE: we use `commit_name` instead of `identifier`,
-        # since identifier can be a ref name or a commit hash,
-        # and we want to use the ref name when doing the checkout when possible
-        # (e.g. `main` instead of `a1b2c3d4`, or `v1.0` instead of `a1b2c3d4`).
-        # See https://github.com/readthedocs/readthedocs.org/issues/10838.
-        identifier = self.data.build_commit or self.data.version.commit_name
+        identifier = self.data.build_commit or self.data.version.identifier
         log.info("Checking out.", identifier=identifier)
         self.vcs_repository.checkout(identifier)
 
