@@ -696,6 +696,35 @@ class TestBuildTask(BuildEnvironmentBase):
 
     @mock.patch.object(Backend, "ref_exists")
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
+    def test_checkout_latest(self, load_yaml_config, ref_exists):
+        ref_exists.return_value = False
+        self.version.identifier = "main"
+        self.version.save()
+        load_yaml_config.return_value = get_build_config({})
+
+        self._trigger_update_docs_task(build_commit=None)
+
+        self.mocker.mocks["git.Backend.run"].assert_has_calls(
+            [
+                mock.call("git", "clone", "--depth", "1", mock.ANY, "."),
+                mock.call(
+                    "git",
+                    "fetch",
+                    "origin",
+                    "--force",
+                    "--prune",
+                    "--prune-tags",
+                    "--depth",
+                    "50",
+                    "refs/heads/main:refs/remotes/origin/main",
+                ),
+                mock.call("git", "checkout", "--force", "main"),
+                mock.call("git", "clean", "-d", "-f", "-f"),
+            ]
+        )
+
+    @mock.patch.object(Backend, "ref_exists")
+    @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_checkout_tag_by_name(self, load_yaml_config, ref_exists):
         ref_exists.return_value = False
         self.version.type = TAG
