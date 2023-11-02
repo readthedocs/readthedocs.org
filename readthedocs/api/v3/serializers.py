@@ -27,7 +27,7 @@ from readthedocs.projects.models import (
     Project,
     ProjectRelationship,
 )
-from readthedocs.redirects.models import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
+from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
 
 

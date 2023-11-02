@@ -11,30 +11,10 @@ from readthedocs.core.resolver import resolve_path
 from readthedocs.projects.models import Project
 
 from .querysets import RedirectQuerySet
+from readthedocs.redirects.constants import TYPE_CHOICES, HTTP_STATUS_CHOICES, PAGE_REDIRECT, EXACT_REDIRECT
 
 log = structlog.get_logger(__name__)
 
-HTTP_STATUS_CHOICES = (
-    (302, _("302 - Temporary Redirect")),
-    (301, _("301 - Permanent Redirect")),
-)
-
-STATUS_CHOICES = (
-    (True, _("Active")),
-    (False, _("Inactive")),
-)
-
-PAGE_REDIRECT = "page"
-EXACT_REDIRECT = "exact"
-CLEAN_URL_TO_HTML_REDIRECT = "clean_url_to_html"
-HTML_TO_CLEAN_URL_REDIRECT = "html_to_clean_url"
-
-TYPE_CHOICES = (
-    (PAGE_REDIRECT, _("Page Redirect")),
-    (EXACT_REDIRECT, _("Exact Redirect")),
-    (CLEAN_URL_TO_HTML_REDIRECT, _("Clean URL to HTML (file/ to file.html)")),
-    (HTML_TO_CLEAN_URL_REDIRECT, _("HTML to clean URL (file.html to file/)")),
-)
 
 # FIXME: this help_text message should be dynamic since "Absolute path" doesn't
 # make sense for "Prefix Redirects" since the from URL is considered after the
@@ -121,7 +101,7 @@ class Redirect(models.Model):
     )
 
     # TODO: remove this field and use `enabled` instead.
-    status = models.BooleanField(choices=STATUS_CHOICES, default=True, null=True)
+    status = models.BooleanField(choices=[], default=True, null=True)
 
     create_dt = models.DateTimeField(auto_now_add=True)
     update_dt = models.DateTimeField(auto_now=True)

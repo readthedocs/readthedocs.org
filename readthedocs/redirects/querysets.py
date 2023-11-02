@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import CharField, F, Q, Value
 
 from readthedocs.core.permissions import AdminPermission
-from readthedocs.redirects.models import (
+from readthedocs.redirects.constants import (
     CLEAN_URL_TO_HTML_REDIRECT,
     EXACT_REDIRECT,
     HTML_TO_CLEAN_URL_REDIRECT,

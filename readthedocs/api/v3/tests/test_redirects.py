@@ -1,3 +1,4 @@
+from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT
 from .mixins import APIEndpointMixin
 from django.urls import reverse
 
@@ -146,7 +147,7 @@ class RedirectsEndpointTests(APIEndpointMixin):
     def test_projects_redirects_type_sphinx_html_list_post(self):
         self.assertEqual(Redirect.objects.count(), 1)
         data = {
-            "type": "sphinx_html",
+            "type": CLEAN_URL_TO_HTML_REDIRECT,
         }
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
@@ -163,7 +164,7 @@ class RedirectsEndpointTests(APIEndpointMixin):
         self.assertEqual(Redirect.objects.all().count(), 2)
 
         redirect = Redirect.objects.first()
-        self.assertEqual(redirect.redirect_type, "sphinx_html")
+        self.assertEqual(redirect.redirect_type, CLEAN_URL_TO_HTML_REDIRECT)
         self.assertEqual(redirect.from_url, "")
         self.assertEqual(redirect.to_url, "")
 

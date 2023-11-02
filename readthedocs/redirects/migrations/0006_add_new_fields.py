@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
             model_name="redirect",
             name="status",
             field=models.BooleanField(
-                choices=[(True, "Active"), (False, "Inactive")], default=True, null=True
+                choices=[], default=True, null=True
             ),
         ),
         migrations.AlterField(

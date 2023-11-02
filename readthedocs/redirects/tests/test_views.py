@@ -5,6 +5,7 @@ from django_dynamic_fixture import get
 
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
+from readthedocs.redirects.constants import EXACT_REDIRECT, PAGE_REDIRECT
 from readthedocs.redirects.models import Redirect
 
 
@@ -16,7 +17,7 @@ class TestViews(TestCase):
         self.redirect = get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/404.html",
             to_url="/en/latest/",
         )
@@ -27,7 +28,7 @@ class TestViews(TestCase):
         resp = self.client.post(
             reverse("projects_redirects_create", args=[self.project.slug]),
             data={
-                "redirect_type": "page",
+                "redirect_type": PAGE_REDIRECT,
                 "from_url": "/config.html",
                 "to_url": "/configuration.html",
             },
@@ -42,14 +43,14 @@ class TestViews(TestCase):
                 "projects_redirects_edit", args=[self.project.slug, self.redirect.pk]
             ),
             data={
-                "redirect_type": "page",
+                "redirect_type": PAGE_REDIRECT,
                 "from_url": "/config.html",
                 "to_url": "/configuration.html",
             },
         )
         self.assertEqual(resp.status_code, 302)
         redirect = self.project.redirects.get()
-        self.assertEqual(redirect.redirect_type, "page")
+        self.assertEqual(redirect.redirect_type, PAGE_REDIRECT)
         self.assertEqual(redirect.from_url, "/config.html")
         self.assertEqual(redirect.to_url, "/configuration.html")
         self.assertEqual(self.project.redirects.all().count(), 1)
