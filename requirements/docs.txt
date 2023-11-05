@@ -12,7 +12,7 @@ babel==2.13.1
     #   sphinx-intl
 certifi==2023.7.22
     # via requests
-charset-normalizer==3.3.1
+charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via sphinx-intl
