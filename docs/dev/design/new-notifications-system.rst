@@ -52,6 +52,7 @@ Non-goals
 * Create new Build "state" or "status"
 * Implement the new notification in the old dashboard
 * Define front-end code implementation
+* Replace email or webhook notifications
 
 
 Small notes and other considerations
