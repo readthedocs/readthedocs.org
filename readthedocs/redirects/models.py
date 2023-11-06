@@ -103,6 +103,7 @@ class Redirect(models.Model):
         blank=True,
         null=True,
         max_length=255,
+        default="",
     )
 
     # TODO: remove this field and use `enabled` instead.

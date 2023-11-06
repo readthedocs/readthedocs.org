@@ -13,7 +13,11 @@ class Migration(migrations.Migration):
             model_name="redirect",
             name="description",
             field=models.CharField(
-                blank=True, max_length=255, verbose_name="Description", null=True
+                blank=True,
+                max_length=255,
+                verbose_name="Description",
+                null=True,
+                default="",
             ),
         ),
         migrations.AddField(

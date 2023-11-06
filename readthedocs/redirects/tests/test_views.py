@@ -31,6 +31,7 @@ class TestViews(TestCase):
                 "redirect_type": PAGE_REDIRECT,
                 "from_url": "/config.html",
                 "to_url": "/configuration.html",
+                "http_status": 302,
             },
         )
         self.assertEqual(resp.status_code, 302)
@@ -46,6 +47,7 @@ class TestViews(TestCase):
                 "redirect_type": PAGE_REDIRECT,
                 "from_url": "/config.html",
                 "to_url": "/configuration.html",
+                "http_status": 302,
             },
         )
         self.assertEqual(resp.status_code, 302)

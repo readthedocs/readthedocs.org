@@ -120,32 +120,30 @@ class RedirectsEndpointTests(APIEndpointMixin):
             self._get_response_dict("projects-redirects-list_POST"),
         )
 
-    def test_projects_redirects_type_prefix_list_post(self):
-        self.assertEqual(Redirect.objects.count(), 1)
-        data = {
-            "from_url": "/redirect-this/",
-            "type": "prefix",
-        }
+    def test_projects_redirects_old_type_post(self):
+        for redirect_type in ["prefix", "sphinx_html", "sphinx_htmldir"]:
+            self.assertEqual(Redirect.objects.count(), 1)
+            data = {
+                "from_url": "/redirect-this/",
+                "type": redirect_type,
+            }
 
-        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
-        response = self.client.post(
-            reverse(
-                "projects-redirects-list",
-                kwargs={
-                    "parent_lookup_project__slug": self.project.slug,
-                },
-            ),
-            data,
-        )
-        self.assertEqual(response.status_code, 201)
-        self.assertEqual(Redirect.objects.all().count(), 2)
+            self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+            response = self.client.post(
+                reverse(
+                    "projects-redirects-list",
+                    kwargs={
+                        "parent_lookup_project__slug": self.project.slug,
+                    },
+                ),
+                data,
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(Redirect.objects.all().count(), 1)
+            json_response = response.json()
+            self.assertIn("type", json_response)
 
-        redirect = Redirect.objects.first()
-        self.assertEqual(redirect.redirect_type, "prefix")
-        self.assertEqual(redirect.from_url, "/redirect-this/")
-        self.assertEqual(redirect.to_url, "")
-
-    def test_projects_redirects_type_sphinx_html_list_post(self):
+    def test_projects_redirects_type_clean_url_to_html_list_post(self):
         self.assertEqual(Redirect.objects.count(), 1)
         data = {
             "type": CLEAN_URL_TO_HTML_REDIRECT,

@@ -856,6 +856,34 @@ class RedirectSerializerBase(serializers.ModelSerializer):
         # TODO: allow editing this field for projects that have this feature enabled.
         read_only_fields = ["force"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._removed_redirects = [
+            ("prefix", "Removed, use an exact redirect `/prefix/*` instead."),
+            ("sphinx_html", "Renamed, use `clean_url_to_html` instead."),
+            ("sphinx_htmldir", "Renamed, use `html_to_clean_url` instead."),
+        ]
+        self.fields["type"].choices = (
+            list(REDIRECT_TYPE_CHOICES) + self._removed_redirects
+        )
+
+    def validate_type(self, value):
+        if value == "prefix":
+            raise serializers.ValidationError(
+                _(
+                    "Prefix redirects have been removed. Please use an exact redirect `/prefix/*` instead. See <link to blog>."
+                )
+            )
+        elif value == "sphinx_html":
+            raise serializers.ValidationError(
+                _("sphinx_html redirect has been renamed to clean_url_to_html.")
+            )
+        elif value == "sphinx_htmldir":
+            raise serializers.ValidationError(
+                _("sphinx_htmldir redirect has been renamed to html_to_clean_url.")
+            )
+        return value
+
 
 class RedirectCreateSerializer(RedirectSerializerBase):
     pass
