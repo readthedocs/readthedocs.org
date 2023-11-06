@@ -351,7 +351,7 @@ This means that we will add a ``/notifications/`` postfix to most of the resourc
 where we want to be able to attach/list notifications.
 
 Notifications list
-++++++++++++++++++
+~~~~~~~~~~~~~~~~~~
 
 .. http:get:: /api/v3/users/(str:user_username)/notifications/
 
@@ -399,7 +399,7 @@ Notifications list
 
 
 Notification create
-+++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~
 
 
 .. http:post:: /api/v3/projects/(str:project_slug)/builds/(int:build_id)/notifications/
