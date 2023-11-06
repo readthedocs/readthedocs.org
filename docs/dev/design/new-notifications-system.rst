@@ -61,7 +61,7 @@ Small notes and other considerations
 * Django message system is not enough for this purpose.
 * Use a new model to store all the required data (expandable in the future)
 * How do we handle translations?
-  We should use _("This is the message shown to the user") in Python code and return the proper translation when they are read.
+  We should use ``_("This is the message shown to the user")`` in Python code and return the proper translation when they are read.
 * Reduce complexity on ``Build`` object (remove ``Build.status`` and ``Build.error`` fields among others).
 * Since the ``Build`` object could have more than 1 notification, when showing them, we will sort them by importane: errors, warnings, note, tip.
 * In case we need a pretty specific order, we can add an extra field for that, but it adds unnecessary complexity at this point.
@@ -71,6 +71,7 @@ Small notes and other considerations
 * Notification could be attached to a ``BuildCommand`` in case we want to display a specific message on a command itself.
   We don't know how useful this will be, but it's something we can consider in the future.
 * Notification preferences: what kind of notifications I want to see in my own bell icon?
+
   - Build errors
   - Build tips
   - Product updates
