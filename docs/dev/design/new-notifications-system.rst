@@ -49,7 +49,7 @@ Goals
 Non-goals
 ---------
 
-* Create new Build "state" or "status"
+* Create new Build "state" or "status" option for these fields
 * Implement the new notification in the old dashboard
 * Define front-end code implementation
 * Replace email or webhook notifications
