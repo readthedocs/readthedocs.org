@@ -212,7 +212,11 @@ It contains an identifier (``slug``) pointing to one of the messages defined in 
         # UNREAD: the notification was not shown to the user
         # READ: the notifiation was shown
         # DISMISSED: the notification was shown and the user dismissed it
-        state = models.CharField(choices=[UNREAD, READ, DISMISSED], default=UNREAD)
+        state = models.CharField(
+            choices=[UNREAD, READ, DISMISSED],
+            default=UNREAD,
+            db_index=True,
+        )
 
         # Makes the notification imposible to dismiss (useful for Build notifications)
         dismissable = models.BooleanField(default=False)
