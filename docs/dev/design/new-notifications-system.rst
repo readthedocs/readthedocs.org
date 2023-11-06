@@ -376,7 +376,7 @@ Notifications list
 
         {
             "count": 25,
-            "next": "/api/v3/projects/pip/builds/12345/notifications/?unread=true&limit=10&offset=10",
+            "next": "/api/v3/projects/pip/builds/12345/notifications/?unread=true&sort=type&limit=10&offset=10",
             "previous": null,
             "results": [
                 {
@@ -397,6 +397,8 @@ Notifications list
         }
 
     :query boolean unread: return only unread notifications
+    :query string type: filter notifications by type (``error``, ``note``, ``tip``)
+    :query string sort: sort the notifications (``type``, ``date`` (default))
 
 
 Notification create
