@@ -5,7 +5,7 @@ import structlog
 from celery import chain
 from django.shortcuts import get_object_or_404
 
-from readthedocs.core.resolver import resolver
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import prepare_build
 from readthedocs.projects.models import Project
 from readthedocs.projects.signals import project_import
@@ -77,6 +77,7 @@ class ProjectRelationListMixin:
         if not subprojects.exists():
             return subprojects_and_urls
 
+        resolver = Resolver()
         main_domain = resolver.get_domain(project)
         parsed_main_domain = urlparse(main_domain)
 
