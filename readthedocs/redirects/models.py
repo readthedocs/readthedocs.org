@@ -9,9 +9,14 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.resolver import resolve_path
 from readthedocs.projects.models import Project
+from readthedocs.redirects.constants import (
+    EXACT_REDIRECT,
+    HTTP_STATUS_CHOICES,
+    PAGE_REDIRECT,
+    TYPE_CHOICES,
+)
 
 from .querysets import RedirectQuerySet
-from readthedocs.redirects.constants import TYPE_CHOICES, HTTP_STATUS_CHOICES, PAGE_REDIRECT, EXACT_REDIRECT
 
 log = structlog.get_logger(__name__)
 

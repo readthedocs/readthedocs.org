@@ -1,8 +1,9 @@
-from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT
-from .mixins import APIEndpointMixin
 from django.urls import reverse
 
+from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT
 from readthedocs.redirects.models import Redirect
+
+from .mixins import APIEndpointMixin
 
 
 class RedirectsEndpointTests(APIEndpointMixin):

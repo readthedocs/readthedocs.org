@@ -41,9 +41,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="redirect",
             name="status",
-            field=models.BooleanField(
-                choices=[], default=True, null=True
-            ),
+            field=models.BooleanField(choices=[], default=True, null=True),
         ),
         migrations.AlterField(
             model_name="redirect",
