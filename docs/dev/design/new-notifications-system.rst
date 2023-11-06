@@ -427,6 +427,12 @@ Notification create
         }
 
 
+.. note::
+
+   Similar API endpoints will be created for each of the resources
+   we want to attach a ``Notification`` (e.g. ``User``, ``Organization``, etc)
+
+
 Backward compatibility
 ----------------------
 
