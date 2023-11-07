@@ -152,7 +152,7 @@ Version warning
 A banner can be automatically displayed to notify viewers that there may be
 a more stable version of the documentation available. Specifically:
 
-- When the ``latest`` version is being shown, and there's also a ``stable`` version available,
+- When the ``latest`` version is being shown, and there's also a ``stable`` version active and not hidden,
   then the banner will remind the viewer that some of the documented features may not yet be
   available, and suggest that the viewer switch to the ``stable`` version.
 - When a version is being shown that is not the ``stable`` version, and there's a ``stable``
