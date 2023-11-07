@@ -160,8 +160,8 @@ a more stable version of the documentation available. Specifically:
   to see the newest documentation.
 
 
-This feature is disabled by default on new projects,
-you can enable it in the admin section of your docs (:guilabel:`Admin` > :guilabel:`Advanced Settings`).
+This feature is enabled by default on projects using the new beta addons.
+The beta addons can be enabled by using ``build.commands`` config key or via the new beta dashboard (https://beta.readthedocs.org) going to the admin section of your docs (:guilabel:`Admin` > :guilabel:`Advanced Settings`)
 
 .. note::
 
