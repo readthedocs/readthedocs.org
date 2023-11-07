@@ -7,7 +7,7 @@ from django.db import models
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.core.resolver import resolve_path
+from readthedocs.core.resolver import Resolver
 from readthedocs.projects.models import Project
 
 from .querysets import RedirectQuerySet
@@ -160,7 +160,7 @@ class Redirect(models.Model):
         if allow_crossdomain and re.match("^https?://", filename):
             return filename
 
-        return resolve_path(
+        return Resolver().resolve_path(
             project=self.project,
             language=language,
             version_slug=version_slug,

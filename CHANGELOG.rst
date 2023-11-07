@@ -1,3 +1,18 @@
+Version 10.10.0
+---------------
+
+:Date: November 07, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10889 <https://github.com/readthedocs/readthedocs.org/pull/10889>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Build: use tag name for checkout" (`#10887 <https://github.com/readthedocs/readthedocs.org/pull/10887>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make Ubuntu callout correct (`#10883 <https://github.com/readthedocs/readthedocs.org/pull/10883>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.9.0 (`#10880 <https://github.com/readthedocs/readthedocs.org/pull/10880>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use tag name for checkout (`#10879 <https://github.com/readthedocs/readthedocs.org/pull/10879>`__)
+* `@stsewd <https://github.com/stsewd>`__: Resolver: use new methods to resolve documentation pages (`#10875 <https://github.com/readthedocs/readthedocs.org/pull/10875>`__)
+* `@humitos <https://github.com/humitos>`__: Resolver: don't use one global instance and implement caching (`#10872 <https://github.com/readthedocs/readthedocs.org/pull/10872>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add organization view UI filters (`#10847 <https://github.com/readthedocs/readthedocs.org/pull/10847>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects (design doc): improving existing functionality (`#10825 <https://github.com/readthedocs/readthedocs.org/pull/10825>`__)
+
 Version 10.9.0
 --------------
 
