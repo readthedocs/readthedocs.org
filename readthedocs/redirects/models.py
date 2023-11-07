@@ -10,11 +10,12 @@ from django.utils.translation import gettext_lazy as _
 from readthedocs.core.resolver import resolve_path
 from readthedocs.projects.models import Project
 from readthedocs.redirects.constants import (
-    EXACT_REDIRECT,
+    CLEAN_URL_TO_HTML_REDIRECT,
+    HTML_TO_CLEAN_URL_REDIRECT,
     HTTP_STATUS_CHOICES,
-    PAGE_REDIRECT,
     TYPE_CHOICES,
 )
+from readthedocs.redirects.validators import validate_redirect
 
 from .querysets import RedirectQuerySet
 
@@ -120,20 +121,55 @@ class Redirect(models.Model):
         ordering = ("-update_dt",)
 
     def save(self, *args, **kwargs):
-        self.from_url = self.normalize_path(self.from_url)
         self.from_url_without_rest = None
         if self.redirect_type in [
-            PAGE_REDIRECT,
-            EXACT_REDIRECT,
-        ] and self.from_url.endswith("*"):
-            self.from_url_without_rest = self.from_url.removesuffix("*")
+            CLEAN_URL_TO_HTML_REDIRECT,
+            HTML_TO_CLEAN_URL_REDIRECT,
+        ]:
+            # These redirects don't make use of the ``from_url``/``to_url`` fields.
+            self.to_url = ""
+            self.from_url = ""
+        else:
+            self.to_url = self.normalize_to_url(self.to_url)
+            self.from_url = self.normalize_from_url(self.from_url)
+            if self.from_url.endswith("*"):
+                self.from_url_without_rest = self.from_url.removesuffix("*")
+
         super().save(*args, **kwargs)
 
-    def normalize_path(self, path):
-        """Normalize a path to be used for matching."""
-        path = "/" + path.lstrip("/")
+    def normalize_from_url(self, path):
+        """
+        Normalize from_url to be used for matching.
+
+        Normalize the path to always start with one slash,
+        and end without a slash, so we can match both,
+        with and without a trailing slash.
+        """
         path = path.rstrip("/")
+        path = "/" + path.lstrip("/")
         return path
+
+    def normalize_to_url(self, path):
+        """
+        Normalize to_url to be used for redirecting.
+
+        Normalize the path to always start with one slash,
+        if the path is not an absolute URL.
+        Otherwise, return the path as is.
+        """
+        if re.match("^https?://", path):
+            return path
+        path = "/" + path.lstrip("/")
+        return path
+
+    def clean(self):
+        validate_redirect(
+            project=self.project,
+            pk=self.pk,
+            redirect_type=self.redirect_type,
+            from_url=self.from_url,
+            to_url=self.to_url,
+        )
 
     def __str__(self):
         redirect_text = "{type}: {from_to_url}"

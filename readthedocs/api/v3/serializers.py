@@ -29,6 +29,7 @@ from readthedocs.projects.models import (
 )
 from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
+from readthedocs.redirects.validators import validate_redirect
 
 
 class UserSerializer(FlexFieldsModelSerializer):
@@ -884,6 +885,28 @@ class RedirectSerializerBase(serializers.ModelSerializer):
                 _("sphinx_htmldir redirect has been renamed to html_to_clean_url.")
             )
         return value
+
+    def create(self, validated_data):
+        validate_redirect(
+            project=validated_data["project"],
+            pk=None,
+            redirect_type=validated_data["redirect_type"],
+            from_url=validated_data["from_url"],
+            to_url=validated_data["to_url"],
+            error_class=serializers.ValidationError,
+        )
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validate_redirect(
+            project=instance.project,
+            pk=instance.pk,
+            redirect_type=validated_data["redirect_type"],
+            from_url=validated_data["from_url"],
+            to_url=validated_data["to_url"],
+            error_class=serializers.ValidationError,
+        )
+        return super().update(instance, validated_data)
 
 
 class RedirectCreateSerializer(RedirectSerializerBase):

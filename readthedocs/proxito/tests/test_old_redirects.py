@@ -13,6 +13,7 @@ import pytest
 from django.http import Http404
 from django.test.utils import override_settings
 
+from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Feature
 from readthedocs.redirects.constants import (
@@ -153,6 +154,7 @@ class InternalRedirectTests(BaseDocServing):
     PYTHON_MEDIA=True,
     PUBLIC_DOMAIN="dev.readthedocs.io",
     ROOT_URLCONF="readthedocs.proxito.tests.handler_404_urls",
+    RTD_EXTERNAL_VERSION_DOMAIN="readthedocs.build",
 )
 class UserRedirectTests(MockStorageMixin, BaseDocServing):
     def test_forced_redirect(self):
@@ -172,6 +174,55 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             r["Location"],
             "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
         )
+
+    def test_disabled_redirect(self):
+        redirect = fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/tutorial/install.html",
+            enabled=True,
+        )
+        url = "/en/latest/install.html"
+        r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
+
+        redirect.enabled = False
+        redirect.save()
+
+        with self.assertRaises(Http404):
+            self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+
+    def test_redirect_ignored_on_external_domain(self):
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="/en/latest/:splat",
+        )
+        url = "/install.html"
+        r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"], "http://project.dev.readthedocs.io/en/latest/install.html"
+        )
+
+        fixture.get(
+            Version,
+            project=self.project,
+            active=True,
+            built=True,
+            slug="22",
+            type=EXTERNAL,
+        )
+        with self.assertRaises(Http404):
+            self.client.get(url, headers={"host": "project--22.readthedocs.build"})
 
     def test_infinite_redirect(self):
         host = "project.dev.readthedocs.io"
