@@ -874,11 +874,11 @@ class RedirectSerializerBase(serializers.ModelSerializer):
                     "Prefix redirects have been removed. Please use an exact redirect `/prefix/*` instead. See <link to blog>."
                 )
             )
-        elif value == "sphinx_html":
+        if value == "sphinx_html":
             raise serializers.ValidationError(
                 _("sphinx_html redirect has been renamed to clean_url_to_html.")
             )
-        elif value == "sphinx_htmldir":
+        if value == "sphinx_htmldir":
             raise serializers.ValidationError(
                 _("sphinx_htmldir redirect has been renamed to html_to_clean_url.")
             )
