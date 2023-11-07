@@ -52,7 +52,6 @@ class Migration(migrations.Migration):
             name="redirect_type",
             field=models.CharField(
                 choices=[
-                    ("prefix", "Prefix Redirect"),
                     ("page", "Page Redirect"),
                     ("exact", "Exact Redirect"),
                     ("clean_url_to_html", "Clean URL to HTML (file/ to file.html)"),
