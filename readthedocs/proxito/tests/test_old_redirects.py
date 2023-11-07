@@ -210,13 +210,14 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         return a 404.
 
         These examples comes from this issue:
-          * http://github.com/rtfd/readthedocs.org/issues/4673
+          * http://github.com/readthedocs/readthedocs.org/issues/4673
         """
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="prefix",
-            from_url="/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="/en/latest/:splat",
         )
         r = self.client.get(
             "/redirect.html", headers={"host": "project.dev.readthedocs.io"}
@@ -244,8 +245,9 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
     def test_redirect_root(self):
         Redirect.objects.create(
             project=self.project,
-            redirect_type="prefix",
-            from_url="/woot/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/woot/*",
+            to_url="/en/latest/:splat",
         )
         r = self.client.get(
             "/woot/faq.html", headers={"host": "project.dev.readthedocs.io"}
@@ -558,8 +560,6 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
                 r = self.client.get(
                     "/en/latest/", headers={"host": "project.dev.readthedocs.io"}
                 )
-                breakpoint()
-                print()
 
     def test_redirect_html_index(self):
         fixture.get(
@@ -580,7 +580,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
+            redirect_type=HTML_TO_CLEAN_URL_REDIRECT,
         )
         r = self.client.get(
             "/en/latest/faq.html", headers={"host": "project.dev.readthedocs.io"}
@@ -595,8 +595,9 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="prefix",
-            from_url="/woot/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/woot/*",
+            to_url="/en/latest/:splat",
             http_status=301,
         )
         r = self.client.get(
@@ -613,8 +614,9 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="prefix",
-            from_url="/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="/en/latest/:splat",
         )
 
         with self.assertRaises(Http404):
@@ -652,8 +654,9 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="prefix",
-            from_url="/woot/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/woot/*",
+            to_url="/en/latest/:splat",
             force=True,
         )
         r = self.client.get(
@@ -918,8 +921,9 @@ class UserRedirectCrossdomainTest(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="prefix",
-            from_url="/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="/en/latest/:splat",
         )
 
         urls = [
@@ -960,8 +964,9 @@ class UserRedirectCrossdomainTest(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="prefix",
-            from_url="/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/*",
+            to_url="/en/latest/:splat",
         )
         urls = [
             (
@@ -978,7 +983,7 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             self.assertEqual(r.status_code, 302, url)
             self.assertEqual(r["Location"], expected_location, url)
 
-    def test_redirect_sphinx_htmldir_crossdomain(self):
+    def test_redirect_html_to_clean_url_crossdomain(self):
         """
         Avoid redirecting to an external site unless the external site is in to_url
         """
@@ -1014,7 +1019,7 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             self.assertEqual(r.status_code, 302, url)
             self.assertEqual(r["Location"], expected_location, url)
 
-    def test_redirect_sphinx_html_crossdomain(self):
+    def test_redirect_clean_url_to_html_crossdomain(self):
         """Avoid redirecting to an external site unless the external site is in to_url."""
         fixture.get(
             Redirect,

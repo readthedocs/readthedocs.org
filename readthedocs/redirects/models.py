@@ -194,14 +194,33 @@ class Redirect(models.Model):
             filename=filename, path=path, language=language, version_slug=version_slug
         )
 
+    def _redirect_with_wildcard(self, current_path):
+        if self.from_url.endswith("*"):
+            # Detect infinite redirects of the form:
+            # /dir/* -> /dir/subdir/:splat
+            # For example:
+            # /dir/test.html will redirect to /dir/subdir/test.html,
+            # and if file doesn't exist, it will redirect to
+            # /dir/subdir/subdir/test.html and then to /dir/subdir/subdir/test.html and so on.
+            if ":splat" in self.to_url:
+                to_url_without_splat = self.to_url.split(":splat")[0]
+                if current_path.startswith(to_url_without_splat):
+                    log.debug(
+                        "Infinite redirect loop detected",
+                        redirect=self,
+                    )
+                    return None
+
+            splat = current_path[len(self.from_url_without_rest) :]
+            to_url = self.to_url.replace(":splat", splat)
+            return to_url
+        return self.to_url
+
     def redirect_page(self, filename, path, language=None, version_slug=None):
         log.debug("Redirecting...", redirect=self)
-        to = self.to_url
-        if self.from_url.endswith("*"):
-            splat = filename[len(self.from_url_without_rest) :]
-            to = to.replace(":splat", splat)
+        to_url = self._redirect_with_wildcard(current_path=filename)
         return self.get_full_path(
-            filename=to,
+            filename=to_url,
             language=language,
             version_slug=version_slug,
             allow_crossdomain=True,
@@ -209,11 +228,7 @@ class Redirect(models.Model):
 
     def redirect_exact(self, filename, path, language=None, version_slug=None):
         log.debug("Redirecting...", redirect=self)
-        if self.from_url.endswith("*"):
-            splat = path[len(self.from_url_without_rest) :]
-            to = self.to_url.replace(":splat", splat)
-            return to
-        return self.to_url
+        return self._redirect_with_wildcard(current_path=path)
 
     def redirect_clean_url_to_html(
         self, filename, path, language=None, version_slug=None
