@@ -183,6 +183,7 @@ class RedirectTests(BaseDocServing):
             r.headers["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
         )
 
+    def test_subproject_redirect_canonical_domain(self):
         self.domain.canonical = True
         self.domain.save()
         r = self.client.get(
@@ -232,6 +233,10 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(
             r.headers["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
         )
+
+    def test_single_version_subproject_redirect_canonical_domain(self):
+        self.subproject.single_version = True
+        self.subproject.save()
 
         self.domain.canonical = True
         self.domain.save()

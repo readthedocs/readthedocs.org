@@ -12,7 +12,7 @@ from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.core.resolver import resolver
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
@@ -244,7 +244,7 @@ class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     dashboard = VersionDashboardURLsSerializer(source="*")
 
     def get_documentation(self, obj):
-        return resolver.resolve_version(
+        return Resolver().resolve_version(
             project=obj.project,
             version=obj,
         )

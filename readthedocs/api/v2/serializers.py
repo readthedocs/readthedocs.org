@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.models import Build, BuildCommandResult, Version
-from readthedocs.core.resolver import resolver
+from readthedocs.core.resolver import Resolver
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, Project
 
@@ -180,7 +180,7 @@ class VersionAdminSerializer(VersionSerializer):
         # relationships already cached from calling
         # get_docs_url early when serializing the project.
         project = self._get_project_serialized(obj).instance
-        return resolver.resolve_version(
+        return Resolver().resolve_version(
             project=project,
             version=obj,
         )
