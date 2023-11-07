@@ -198,7 +198,7 @@ class Redirect(models.Model):
         log.debug("Redirecting...", redirect=self)
         to = self.to_url
         if self.from_url.endswith("*"):
-            splat = filename[len(self.from_url_without_rest) - 1 :]
+            splat = filename[len(self.from_url_without_rest) :]
             to = to.replace(":splat", splat)
         return self.get_full_path(
             filename=to,
@@ -210,7 +210,7 @@ class Redirect(models.Model):
     def redirect_exact(self, filename, path, language=None, version_slug=None):
         log.debug("Redirecting...", redirect=self)
         if self.from_url.endswith("*"):
-            splat = path[len(self.from_url_without_rest) - 1 :]
+            splat = path[len(self.from_url_without_rest) :]
             to = self.to_url.replace(":splat", splat)
             return to
         return self.to_url

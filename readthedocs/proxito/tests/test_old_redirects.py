@@ -15,6 +15,11 @@ from django.test.utils import override_settings
 
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Feature
+from readthedocs.redirects.constants import (
+    CLEAN_URL_TO_HTML_REDIRECT,
+    EXACT_REDIRECT,
+    HTML_TO_CLEAN_URL_REDIRECT,
+)
 from readthedocs.redirects.models import Redirect
 
 from .base import BaseDocServing
@@ -153,7 +158,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url="/en/latest/tutorial/install.html",
             force=True,
@@ -172,7 +177,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url="/en/latest/install.html",
         )
@@ -187,7 +192,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url=f"https://{host}/en/latest/install.html",
         )
@@ -335,7 +340,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url="/en/latest/tutorial/install.html",
         )
@@ -352,7 +357,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/versions.json",
             to_url="/en/latest/versions.json",
         )
@@ -365,20 +370,20 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/versions.json",
         )
 
-    def test_redirect_exact_with_rest(self):
+    def test_redirect_exact_with_wildcard(self):
         """
-        Exact redirects can have a ``$rest`` in the ``from_url``.
+        Exact redirects can have a ``*`` at the end of ``from_url``.
 
         Use case: we want to deprecate version ``2.0`` and replace it by
-        ``3.0``. We write an exact redirect from ``/en/2.0/$rest`` to
-        ``/en/3.0/``.
+        ``3.0``. We write an exact redirect from ``/en/2.0/*`` to
+        ``/en/3.0/:splat``.
         """
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
-            from_url="/en/latest/$rest",
-            to_url="/en/version/",  # change version
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/*",
+            to_url="/en/version/:splat",  # change version
         )
         self.assertEqual(self.project.redirects.count(), 1)
         r = self.client.get(
@@ -398,9 +403,9 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.translation,
-            redirect_type="exact",
-            from_url="/es/version/$rest",
-            to_url="/en/master/",  # change language and version
+            redirect_type=EXACT_REDIRECT,
+            from_url="/es/version/*",
+            to_url="/en/master/:splat",  # change language and version
         )
         r = self.client.get(
             "/es/version/guides/install.html",
@@ -428,7 +433,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/oldversion/",
             to_url="/en/newversion/",
         )
@@ -511,7 +516,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_html",
+            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
         )
         r = self.client.get(
             "/en/latest/faq/", headers={"host": "project.dev.readthedocs.io"}
@@ -533,7 +538,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_html",
+            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
         )
 
         with override_settings(PYTHON_MEDIA=False):
@@ -553,12 +558,14 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
                 r = self.client.get(
                     "/en/latest/", headers={"host": "project.dev.readthedocs.io"}
                 )
+                breakpoint()
+                print()
 
     def test_redirect_html_index(self):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_html",
+            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
         )
         r = self.client.get(
             "/en/latest/faq/index.html", headers={"host": "project.dev.readthedocs.io"}
@@ -573,7 +580,7 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_htmldir",
+            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
         )
         r = self.client.get(
             "/en/latest/faq.html", headers={"host": "project.dev.readthedocs.io"}
@@ -624,7 +631,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url="/en/latest/tutorial/install.html",
             force=False,
@@ -675,7 +682,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/install.html",
             to_url=f"https://{host}/install.html",
             force=True,
@@ -730,7 +737,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url="/en/latest/tutorial/install.html",
             force=True,
@@ -744,13 +751,13 @@ class UserForcedRedirectTests(BaseDocServing):
             "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
         )
 
-    def test_redirect_exact_with_rest(self):
+    def test_redirect_exact_with_wildcard(self):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
-            from_url="/en/latest/$rest",
-            to_url="/en/version/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/*",
+            to_url="/en/version/:splat",
             force=True,
         )
         self.assertEqual(self.project.redirects.count(), 1)
@@ -767,9 +774,9 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.translation,
-            redirect_type="exact",
-            from_url="/es/latest/$rest",
-            to_url="/en/master/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/es/latest/*",
+            to_url="/en/master/:splat",
             force=True,
         )
         r = self.client.get(
@@ -831,7 +838,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_html",
+            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
             force=True,
         )
         r = self.client.get(
@@ -847,7 +854,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_html",
+            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
             force=True,
         )
         r = self.client.get(
@@ -863,7 +870,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_htmldir",
+            redirect_type=HTML_TO_CLEAN_URL_REDIRECT,
             force=True,
         )
         r = self.client.get(
@@ -879,7 +886,7 @@ class UserForcedRedirectTests(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
+            redirect_type=EXACT_REDIRECT,
             from_url="/en/latest/install.html",
             to_url="/en/latest/tutorial/install.html",
             http_status=301,
@@ -978,7 +985,7 @@ class UserRedirectCrossdomainTest(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_htmldir",
+            redirect_type=HTML_TO_CLEAN_URL_REDIRECT,
         )
 
         urls = [
@@ -1012,7 +1019,7 @@ class UserRedirectCrossdomainTest(BaseDocServing):
         fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="sphinx_html",
+            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
         )
 
         urls = [
@@ -1047,9 +1054,9 @@ class UserRedirectCrossdomainTest(BaseDocServing):
         redirect = fixture.get(
             Redirect,
             project=self.project,
-            redirect_type="exact",
-            from_url="/projects/$rest",
-            to_url="https://example.com/projects/",
+            redirect_type=EXACT_REDIRECT,
+            from_url="/projects/*",
+            to_url="https://example.com/projects/:splat",
         )
         self.assertEqual(self.project.redirects.count(), 1)
         r = self.client.get(
@@ -1062,8 +1069,8 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             "https://example.com/projects/deleted-subproject/en/latest/guides/install.html",
         )
 
-        redirect.from_url = "/projects/not-found/$rest"
-        redirect.to_url = "/projects/subproject/"
+        redirect.from_url = "/projects/not-found/*"
+        redirect.to_url = "/projects/subproject/:splat"
         redirect.save()
         r = self.client.get(
             "/projects/not-found/en/latest/guides/install.html",

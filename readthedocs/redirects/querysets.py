@@ -95,22 +95,20 @@ class RedirectQuerySet(models.QuerySet):
             from_url_without_rest__isnull=True,
             path_without_trailling_slash__exact=F("from_url"),
         )
-        clean_url_to_html = Q(
-            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
-            filename__endswith="/",
-        ) | Q(
-            redirect_type=CLEAN_URL_TO_HTML_REDIRECT,
-            filename__endswith="/index.html",
-        )
-        html_to_clean_url = Q(
-            redirect_type=HTML_TO_CLEAN_URL_REDIRECT,
-            filename__endswith=".html",
-        )
+        clean_url_to_html = Q(redirect_type=CLEAN_URL_TO_HTML_REDIRECT)
+        html_to_clean_url = Q(redirect_type=HTML_TO_CLEAN_URL_REDIRECT)
 
-        if filename:
-            queryset = queryset.filter(
-                page | exact | clean_url_to_html | html_to_clean_url
-            )
+        if filename in ["/index.html", "/"]:
+            # If the filename is the root index file, we only need to match page and exact redirects.
+            # Since we don't have a filename to redirect to, since ``/``/``/index.html`` is already the root.
+            queryset = queryset.filter(page | exact)
+        elif filename:
+            if filename.endswith(("/index.html", "/")):
+                queryset = queryset.filter(page | exact | clean_url_to_html)
+            elif filename.endswith(".html"):
+                queryset = queryset.filter(page | exact | html_to_clean_url)
+            else:
+                queryset = queryset.filter(page | exact)
         else:
             # If the filename is empty, we only need to match exact redirects.
             # Since the other types of redirects are not valid without a filename.
