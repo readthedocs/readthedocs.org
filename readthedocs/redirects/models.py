@@ -219,12 +219,14 @@ class Redirect(models.Model):
     def redirect_page(self, filename, path, language=None, version_slug=None):
         log.debug("Redirecting...", redirect=self)
         to_url = self._redirect_with_wildcard(current_path=filename)
-        return self.get_full_path(
-            filename=to_url,
-            language=language,
-            version_slug=version_slug,
-            allow_crossdomain=True,
-        )
+        if to_url:
+            return self.get_full_path(
+                filename=to_url,
+                language=language,
+                version_slug=version_slug,
+                allow_crossdomain=True,
+            )
+        return None
 
     def redirect_exact(self, filename, path, language=None, version_slug=None):
         log.debug("Redirecting...", redirect=self)

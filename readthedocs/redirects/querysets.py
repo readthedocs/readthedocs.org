@@ -84,16 +84,21 @@ class RedirectQuerySet(models.QuerySet):
         )
         page = Q(
             redirect_type=PAGE_REDIRECT,
+            from_url_without_rest__isnull=True,
             filename_without_trailling_slash__exact=F("from_url"),
+        ) | Q(
+            redirect_type=PAGE_REDIRECT,
+            from_url_without_rest__isnull=False,
+            filename__startswith=F("from_url_without_rest"),
         )
         exact = Q(
             redirect_type=EXACT_REDIRECT,
-            from_url_without_rest__isnull=False,
-            path__startswith=F("from_url_without_rest"),
-        ) | Q(
-            redirect_type=EXACT_REDIRECT,
             from_url_without_rest__isnull=True,
             path_without_trailling_slash__exact=F("from_url"),
+        ) | Q(
+            redirect_type=EXACT_REDIRECT,
+            from_url_without_rest__isnull=False,
+            path__startswith=F("from_url_without_rest"),
         )
         clean_url_to_html = Q(redirect_type=CLEAN_URL_TO_HTML_REDIRECT)
         html_to_clean_url = Q(redirect_type=HTML_TO_CLEAN_URL_REDIRECT)

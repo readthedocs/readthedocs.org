@@ -858,8 +858,9 @@ class RedirectSerializerBase(serializers.ModelSerializer):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Allow using the old redirect types, so we can raise the proper error in ``validate_type`.
         self._removed_redirects = [
-            ("prefix", "Removed, use an exact redirect `/prefix/*` instead."),
+            ("prefix", "Removed, use an `exact` redirect instead."),
             ("sphinx_html", "Renamed, use `clean_url_to_html` instead."),
             ("sphinx_htmldir", "Renamed, use `html_to_clean_url` instead."),
         ]
