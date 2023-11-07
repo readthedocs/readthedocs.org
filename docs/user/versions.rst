@@ -168,26 +168,6 @@ The beta addons can be enabled by using ``build.commands`` config key or via the
    An older version of this feature is currently only available to projects that have already enabled it.
    When the updated feature development is finished the toggle setting will be enabled for all projects.
 
-.. note::
-
-   The banner will be injected in an HTML element with the ``main`` role or in the ``main`` tag.
-   For example:
-
-   .. code-block:: html
-
-      <div role="main">
-        <!-- The banner would be injected here -->
-        ...
-      </div>
-
-   .. code-block:: html
-
-      <main>
-        <!-- The banner would be injected here -->
-        ...
-      </main>
-
-
 Redirects on root URLs
 ----------------------
 
