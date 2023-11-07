@@ -203,7 +203,7 @@ class Redirect(models.Model):
             # and if file doesn't exist, it will redirect to
             # /dir/subdir/subdir/test.html and then to /dir/subdir/subdir/test.html and so on.
             if ":splat" in self.to_url:
-                to_url_without_splat = self.to_url.split(":splat")[0]
+                to_url_without_splat = self.to_url.split(":splat", maxsplit=1)[0]
                 if current_path.startswith(to_url_without_splat):
                     log.debug(
                         "Infinite redirect loop detected",
