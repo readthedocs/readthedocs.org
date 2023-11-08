@@ -38,7 +38,7 @@ class VersionManager(models.Manager):
         # no direct members.
         queryset_class = get_override_class(
             VersionQuerySet,
-            VersionQuerySet._default_class,  # pylint: disable=protected-access
+            VersionQuerySet._default_class,
         )
         return super().from_queryset(queryset_class, class_name)
 

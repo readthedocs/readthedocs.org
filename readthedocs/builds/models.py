@@ -1377,12 +1377,11 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         # If the rule was just created, we just need to insert it at the given priority.
         # We do this by moving the other rules down before saving.
         if not self.pk:
-            if self.priority > total:
-                # A new rule can be created at the end.
-                self.priority = total
+            # A new rule can be created at the end as max.
+            self.priority = min(self.priority, total)
 
-            if self.priority < 0:
-                self.priority = 0
+            # A new rule can't be created with a negative priority. all rules start at 0.
+            self.priority = max(self.priority, 0)
 
             rules = (
                 self.project.automation_rules.filter(priority__gte=self.priority)
@@ -1398,12 +1397,11 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
                 flat=True,
             ).get(pk=self.pk)
 
-            if self.priority >= total:
-                # An existing rule can't be moved past the end.
-                self.priority = total - 1
+            # An existing rule can't be moved past the end.
+            self.priority = min(self.priority, total - 1)
 
-            if self.priority < 0:
-                self.priority = 0
+            # A new rule can't be created with a negative priority. all rules start at 0.
+            self.priority = max(self.priority, 0)
 
             # The rule wasn't moved, so we don't need to do anything.
             if self.priority == current_priority:
