@@ -891,8 +891,8 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             project=validated_data["project"],
             pk=None,
             redirect_type=validated_data["redirect_type"],
-            from_url=validated_data["from_url"],
-            to_url=validated_data["to_url"],
+            from_url=validated_data.get("from_url", ""),
+            to_url=validated_data.get("to_url", ""),
             error_class=serializers.ValidationError,
         )
         return super().create(validated_data)
@@ -902,8 +902,8 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             project=instance.project,
             pk=instance.pk,
             redirect_type=validated_data["redirect_type"],
-            from_url=validated_data["from_url"],
-            to_url=validated_data["to_url"],
+            from_url=validated_data.get("from_url", ""),
+            to_url=validated_data.get("to_url", ""),
             error_class=serializers.ValidationError,
         )
         return super().update(instance, validated_data)
