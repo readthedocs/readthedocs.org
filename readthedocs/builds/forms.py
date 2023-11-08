@@ -173,20 +173,3 @@ class RegexAutomationRuleForm(forms.ModelForm):
                 _('Invalid Python regular expression.'),
             )
         return match_arg
-
-    def save(self, commit=True):
-        if self.instance.pk:
-            rule = super().save(commit=commit)
-        else:
-            rule = RegexAutomationRule.objects.add_rule(
-                project=self.project,
-                description=self.cleaned_data['description'],
-                match_arg=self.cleaned_data['match_arg'],
-                predefined_match_arg=self.cleaned_data['predefined_match_arg'],
-                version_type=self.cleaned_data['version_type'],
-                action=self.cleaned_data['action'],
-            )
-        if not rule.description:
-            rule.description = rule.get_description()
-            rule.save()
-        return rule

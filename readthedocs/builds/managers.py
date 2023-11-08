@@ -3,7 +3,6 @@
 import structlog
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from polymorphic.managers import PolymorphicManager
 
 from readthedocs.builds.constants import (
     BRANCH,
@@ -133,52 +132,6 @@ class ExternalBuildManager(models.Manager):
 
     def get_queryset(self):
         return super().get_queryset().filter(version__type=EXTERNAL)
-
-
-class VersionAutomationRuleManager(PolymorphicManager):
-
-    """
-    Manager for VersionAutomationRule.
-
-    .. note::
-
-       This manager needs to inherit from PolymorphicManager,
-       since the model is a PolymorphicModel.
-       See https://django-polymorphic.readthedocs.io/page/managers.html
-    """
-
-    def add_rule(
-        self, *, project, description, match_arg, version_type,
-        action, action_arg=None, predefined_match_arg=None,
-    ):
-        """
-        Append an automation rule to `project`.
-
-        The rule is created with a priority lower than the last rule
-        in `project`.
-        """
-        last_priority = (
-            project.automation_rules
-            .values_list('priority', flat=True)
-            .order_by('priority')
-            .last()
-        )
-        if last_priority is None:
-            priority = 0
-        else:
-            priority = last_priority + 1
-
-        rule = self.create(
-            project=project,
-            priority=priority,
-            description=description,
-            match_arg=match_arg,
-            predefined_match_arg=predefined_match_arg,
-            version_type=version_type,
-            action=action,
-            action_arg=action_arg,
-        )
-        return rule
 
 
 class AutomationRuleMatchManager(models.Manager):
