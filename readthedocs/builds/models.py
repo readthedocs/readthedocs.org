@@ -1380,7 +1380,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
             # A new rule can be created at the end as max.
             self.priority = min(self.priority, total)
 
-            # A new rule can't be created with a negative priority. all rules start at 0.
+            # A new rule can't be created with a negative priority. All rules start at 0.
             self.priority = max(self.priority, 0)
 
             rules = (
