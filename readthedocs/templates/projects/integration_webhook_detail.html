@@ -60,7 +60,25 @@
       <a href="//{{ PRODUCTION_DOMAIN }}{{ webhook_url }}">{{ PRODUCTION_DOMAIN }}{{ webhook_url }}</a>
     </p>
 
-    {% block integration_details %}{% endblock %}
+    {% block integration_details %}
+      <div class="integration-details">
+        {% if integration.secret %}
+        <p>
+          <label for="id_secret">Secret:</label>
+          <input type="text" id="id_secret" value="{{ integration.secret }}">
+        </p>
+        {% else %}
+        <p class="empty">
+          {% blocktrans trimmed %}
+            This integration does not have a secret,
+            the authenticity of the incoming webhook cannot be verified.
+            <strong>Click on "Resync webhook" to generate a secret.</strong>
+            Read more in our <a href="https://blog.readthedocs.com/security-update-on-incoming-webhooks/">blog post</a>.
+          {% endblocktrans %}
+        </p>
+        {% endif %}
+      </div>
+    {% endblock %}
 
     <p>
       {% blocktrans trimmed %}

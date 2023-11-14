@@ -45,7 +45,7 @@ Read the Docs will sync versions and build your documentation when your Git repo
         You may need to prepend *https://* to the URL.
       * For **Content type**, both *application/json* and
         *application/x-www-form-urlencoded* work
-      * Leave the **Secrets** field blank
+      * Fill the **Secret** field with the value from the integration on Read the Docs
       * Select **Let me select individual events**,
         and mark **Branch or tag creation**, **Branch or tag deletion**, **Pull requests** and **Pushes** events
       * Ensure **Active** is enabled; it is by default
@@ -55,14 +55,13 @@ Read the Docs will sync versions and build your documentation when your Git repo
       If you see a Response 200, then the webhook is correctly configured.
       For a 403 error, it's likely that the Payload URL is incorrect.
 
-      .. note:: The webhook token, intended for the GitHub **Secret** field, is not yet implemented.
-
    .. tab:: Bitbucket
 
       * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` > :guilabel:`Add webhook` page for your project
       * For **URL**, use the URL of the integration on Read the Docs,
         found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
       * Under **Triggers**, **Repository push** should be selected
+      * Fill the **Secret** field with the value from the integration on Read the Docs
       * Finish by clicking **Save**
 
    .. tab:: GitLab
@@ -70,6 +69,7 @@ Read the Docs will sync versions and build your documentation when your Git repo
       * Go to the :guilabel:`Settings` > :guilabel:`Webhooks` page for your GitLab project
       * For **URL**, use the URL of the integration on **Read the Docs project**,
         found on the :guilabel:`Admin` > :guilabel:`Integrations`  page
+      * Fill the **Secret token** field with the value from the integration on Read the Docs
       * Leave the default **Push events** selected,
         additionally mark **Tag push events** and **Merge request events**.
       * Finish by clicking **Add Webhook**
@@ -99,7 +99,7 @@ Read the Docs will sync versions and build your documentation when your Git repo
       * Leave the default **HTTP Method** as POST
       * For **Content type**, both *application/json* and
         *application/x-www-form-urlencoded* work
-      * Leave the **Secret** field blank
+      * Fill the **Secret** field with the value from the integration on Read the Docs
       * Select **Choose events**,
         and mark **Branch or tag creation**, **Branch or tag deletion** and **Push** events
       * Ensure **Active** is enabled; it is by default
@@ -205,10 +205,14 @@ will be performed to ensure the authenticated user is an owner of the project.
 Payload validation
 ------------------
 
-If your project was imported through a connected account,
-we create a secret for every integration that offers a way to verify that a webhook request is legitimate.
-Currently, `GitHub <https://developer.github.com/webhooks/securing/>`__ and `GitLab <https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#validate-payloads-by-using-a-secret-token>`__
-offer a way to check this.
+All integrations are created with a secret token,
+this offers a way to verify that a webhook request is legitimate.
+
+This validation is done according to each provider:
+
+- `GitHub <https://developer.github.com/webhooks/securing/>`__
+- `GitLab <https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#validate-payloads-by-using-a-secret-token>`__
+- `Bitbucket <https://support.atlassian.com/bitbucket-cloud/docs/manage-webhooks/#Secure-webhooks>`__
 
 Troubleshooting
 ---------------

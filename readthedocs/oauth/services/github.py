@@ -295,9 +295,6 @@ class GitHubService(Service):
                 integration_type=Integration.GITHUB_WEBHOOK,
             )
 
-        if not integration.secret:
-            integration.recreate_secret()
-
         data = self.get_webhook_data(project, integration)
         url = f"https://api.github.com/repos/{owner}/{repo}/hooks"
         log.bind(
@@ -341,8 +338,6 @@ class GitHubService(Service):
         except (RequestException, ValueError):
             log.exception("GitHub webhook creation failed for project.")
 
-        # Always remove the secret and return False if we don't return True above
-        integration.remove_secret()
         return (False, resp)
 
     def update_webhook(self, project, integration):
@@ -357,8 +352,6 @@ class GitHubService(Service):
         :rtype: (Bool, Response)
         """
         session = self.get_session()
-        if not integration.secret:
-            integration.recreate_secret()
         data = self.get_webhook_data(project, integration)
         resp = None
 
@@ -412,7 +405,6 @@ class GitHubService(Service):
         except (AttributeError, RequestException, ValueError):
             log.exception("GitHub webhook update failed for project.")
 
-        integration.remove_secret()
         return (False, resp)
 
     def send_build_status(self, build, commit, status):
