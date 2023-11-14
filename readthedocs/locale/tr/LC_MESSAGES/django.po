@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-07 12:48+0000\n"
+"POT-Creation-Date: 2023-11-14 16:43+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: BouRock, 2020\n"
 "Language-Team: Turkish (http://app.transifex.com/readthedocs/readthedocs/"
@@ -295,7 +295,7 @@ msgstr ""
 #: audit/templates/audit/list_logs.html:55
 #: templates/core/build_list_detailed.html:21
 #: templates/core/project_list_detailed.html:26
-#: templates/projects/integration_webhook_detail.html:91
+#: templates/projects/integration_webhook_detail.html:109
 #: templates/projects/project_dashboard_base.html:74
 #: templates/projects/webhook_form.html:55
 #, python-format
@@ -578,7 +578,7 @@ msgstr "{project} projesinin sürümü {version} ({pk})"
 msgid "Status"
 msgstr ""
 
-#: builds/models.py:762 integrations/models.py:147
+#: builds/models.py:762 integrations/models.py:148
 msgid "Date"
 msgstr "Tarih"
 
@@ -1246,56 +1246,56 @@ msgid ""
 "There was an error connecting to Stripe, please try again in a few minutes"
 msgstr ""
 
-#: integrations/models.py:150 integrations/models.py:158
+#: integrations/models.py:151 integrations/models.py:159
 msgid "Request headers"
 msgstr "İstenen üstbilgiler"
 
-#: integrations/models.py:155
+#: integrations/models.py:156
 msgid "Request body"
 msgstr "İstenen gövde"
 
-#: integrations/models.py:163
+#: integrations/models.py:164
 msgid "Response body"
 msgstr "Yanıtlanan gövde"
 
-#: integrations/models.py:166
+#: integrations/models.py:167
 msgid "Status code"
 msgstr "Durum kodu"
 
-#: integrations/models.py:176
+#: integrations/models.py:177
 #, python-brace-format
 msgid "Exchange {0}"
 msgstr "{0} değiştir"
 
-#: integrations/models.py:274
+#: integrations/models.py:275
 msgid "GitHub incoming webhook"
 msgstr "GitHub gelen web kancası"
 
-#: integrations/models.py:275
+#: integrations/models.py:276
 msgid "Bitbucket incoming webhook"
 msgstr "Bitbucket gelen web kancası"
 
-#: integrations/models.py:276
+#: integrations/models.py:277
 msgid "GitLab incoming webhook"
 msgstr "GitLab gelen web kancası"
 
-#: integrations/models.py:277
+#: integrations/models.py:278
 msgid "Generic API incoming webhook"
 msgstr "Genel API gelen web kancası"
 
-#: integrations/models.py:288
+#: integrations/models.py:289
 msgid "Integration type"
 msgstr "Bütünleştirme türü"
 
-#: integrations/models.py:293
+#: integrations/models.py:294
 msgid "Provider data"
 msgstr "Sağlayıcı verileri"
 
-#: integrations/models.py:302
+#: integrations/models.py:303
 msgid "Secret used to validate the payload of the webhook"
 msgstr ""
 
-#: integrations/models.py:323
+#: integrations/models.py:315
 #, python-brace-format
 msgid "{0} for {1}"
 msgstr "{1} için {0}"
@@ -1494,11 +1494,11 @@ msgid ""
 "reconnect them from your social account connections."
 msgstr ""
 
-#: oauth/utils.py:53
+#: oauth/utils.py:57
 msgid "Webhook activated"
 msgstr "Web kancası etkinleştirildi"
 
-#: oauth/utils.py:61
+#: oauth/utils.py:65
 msgid ""
 "Webhook activation failed. Make sure you have the necessary permissions."
 msgstr ""
@@ -1528,20 +1528,16 @@ msgid "Name (descending)"
 msgstr ""
 
 #: organizations/filters.py:99
-#, fuzzy
-#| msgid "Organization"
 msgid "All organizations"
-msgstr "Kuruluş"
+msgstr ""
 
 #: organizations/filters.py:107 projects/filters.py:150 projects/filters.py:198
 msgid "Sort by"
 msgstr ""
 
 #: organizations/filters.py:135
-#, fuzzy
-#| msgid "user projects"
 msgid "All projects"
-msgstr "kullanıcı projeleri"
+msgstr ""
 
 #: organizations/filters.py:142 organizations/filters.py:172
 #: organizations/filters.py:219 organizations/models.py:305
@@ -2294,23 +2290,23 @@ msgstr ""
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:928
+#: projects/forms.py:925
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "Değişken adı __ (çift alt çizgi) ile başlayamaz"
 
-#: projects/forms.py:932
+#: projects/forms.py:929
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "Değişken adı READTHEDOCS ile başlayamaz"
 
-#: projects/forms.py:937
+#: projects/forms.py:934
 msgid "There is already a variable with this name for this project"
 msgstr "Bu proje için bu ada sahip bir değişken zaten var"
 
-#: projects/forms.py:942
+#: projects/forms.py:939
 msgid "Variable name can't contain spaces"
 msgstr "Değişken adı boşluklar içeremez"
 
-#: projects/forms.py:946
+#: projects/forms.py:943
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Sadece harflere, sayılara ve alt çizgiye izin verilir"
 
@@ -3824,7 +3820,7 @@ msgid "No automation rules are currently configured."
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:85
-#: templates/projects/integration_webhook_detail.html:83
+#: templates/projects/integration_webhook_detail.html:101
 #: templates/projects/webhook_form.html:47
 msgid "Recent Activity"
 msgstr "Son Etkinlik"
@@ -3837,7 +3833,7 @@ msgid ""
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:101
-#: templates/projects/integration_webhook_detail.html:99
+#: templates/projects/integration_webhook_detail.html:117
 #: templates/projects/webhook_form.html:63
 msgid "There is no recent activity"
 msgstr "Son etkinlik yok"
@@ -4744,18 +4740,26 @@ msgstr ""
 "Bu web kancasını sağlayıcınızla el ile yapılandırmak için aşağıdaki adresi "
 "kullanın:"
 
-#: templates/projects/integration_webhook_detail.html:67
+#: templates/projects/integration_webhook_detail.html:73
+msgid ""
+"This integration does not have a secret, the authenticity of the incoming "
+"webhook cannot be verified. <strong>Click on \"Resync webhook\" to generate "
+"a secret.</strong> Read more in our <a href=\"https://blog.readthedocs.com/"
+"security-update-on-incoming-webhooks/\">blog post</a>."
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:85
 msgid ""
 "For more information on manually configuring a webhook, refer to <a "
 "href=\"https://docs.readthedocs.io/page/guides/setup/git-repo-automatic."
 "html\"> our webhook documentation </a>"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:79
+#: templates/projects/integration_webhook_detail.html:97
 msgid "Resync webhook"
 msgstr "Web kancasını yeniden eşitle"
 
-#: templates/projects/integration_webhook_detail.html:108
+#: templates/projects/integration_webhook_detail.html:126
 msgid "Delete webhook"
 msgstr "Web kancasını sil"
 

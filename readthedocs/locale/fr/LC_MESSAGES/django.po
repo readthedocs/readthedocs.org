@@ -40,7 +40,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-07 12:48+0000\n"
+"POT-Creation-Date: 2023-11-14 16:43+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Jérémie Tarot <silopolis@gmail.com>, 2022-2023\n"
 "Language-Team: French (http://app.transifex.com/readthedocs/readthedocs/"
@@ -330,7 +330,7 @@ msgstr "L'utilisateur a décliné une invitation"
 #: audit/templates/audit/list_logs.html:55
 #: templates/core/build_list_detailed.html:21
 #: templates/core/project_list_detailed.html:26
-#: templates/projects/integration_webhook_detail.html:91
+#: templates/projects/integration_webhook_detail.html:109
 #: templates/projects/project_dashboard_base.html:74
 #: templates/projects/webhook_form.html:55
 #, python-format
@@ -617,7 +617,7 @@ msgstr "Version {version} de {project} ({pk})"
 msgid "Status"
 msgstr "Statut"
 
-#: builds/models.py:762 integrations/models.py:147
+#: builds/models.py:762 integrations/models.py:148
 msgid "Date"
 msgstr "Date"
 
@@ -1351,56 +1351,56 @@ msgstr ""
 "Il y a eu une erreur lors de la connection à Stripe, merci de reessayer dans "
 "quelques minutes"
 
-#: integrations/models.py:150 integrations/models.py:158
+#: integrations/models.py:151 integrations/models.py:159
 msgid "Request headers"
 msgstr "Entêtes de la requête"
 
-#: integrations/models.py:155
+#: integrations/models.py:156
 msgid "Request body"
 msgstr "Corps de la requête"
 
-#: integrations/models.py:163
+#: integrations/models.py:164
 msgid "Response body"
 msgstr "Corps de la réponse"
 
-#: integrations/models.py:166
+#: integrations/models.py:167
 msgid "Status code"
 msgstr "Code HTTP"
 
-#: integrations/models.py:176
+#: integrations/models.py:177
 #, python-brace-format
 msgid "Exchange {0}"
 msgstr "Échange {0}"
 
-#: integrations/models.py:274
+#: integrations/models.py:275
 msgid "GitHub incoming webhook"
 msgstr "Webhook entrant de GitHub"
 
-#: integrations/models.py:275
+#: integrations/models.py:276
 msgid "Bitbucket incoming webhook"
 msgstr "Webhook entrant de Bitbucket"
 
-#: integrations/models.py:276
+#: integrations/models.py:277
 msgid "GitLab incoming webhook"
 msgstr "Webhook entrant de GitLab"
 
-#: integrations/models.py:277
+#: integrations/models.py:278
 msgid "Generic API incoming webhook"
 msgstr "Webhook entrant pour une API générique"
 
-#: integrations/models.py:288
+#: integrations/models.py:289
 msgid "Integration type"
 msgstr "Type d’intégration"
 
-#: integrations/models.py:293
+#: integrations/models.py:294
 msgid "Provider data"
 msgstr "Information du fournisseur"
 
-#: integrations/models.py:302
+#: integrations/models.py:303
 msgid "Secret used to validate the payload of the webhook"
 msgstr "Secret utilisé pour valider les données du webhook"
 
-#: integrations/models.py:323
+#: integrations/models.py:315
 #, python-brace-format
 msgid "{0} for {1}"
 msgstr "{0} pour {1}"
@@ -1612,11 +1612,11 @@ msgstr ""
 "Notre accès à {provider} a été révoqué. S'il vous plait, reconnectez-vous "
 "avec vos comptes de réseaux sociaux."
 
-#: oauth/utils.py:53
+#: oauth/utils.py:57
 msgid "Webhook activated"
 msgstr "Webhook activé"
 
-#: oauth/utils.py:61
+#: oauth/utils.py:65
 msgid ""
 "Webhook activation failed. Make sure you have the necessary permissions."
 msgstr ""
@@ -1646,20 +1646,16 @@ msgid "Name (descending)"
 msgstr "Nom (descendant)"
 
 #: organizations/filters.py:99
-#, fuzzy
-#| msgid "organization"
 msgid "All organizations"
-msgstr "organisation"
+msgstr ""
 
 #: organizations/filters.py:107 projects/filters.py:150 projects/filters.py:198
 msgid "Sort by"
 msgstr "Trier par"
 
 #: organizations/filters.py:135
-#, fuzzy
-#| msgid "Gold projects"
 msgid "All projects"
-msgstr "Projets Gold"
+msgstr ""
 
 #: organizations/filters.py:142 organizations/filters.py:172
 #: organizations/filters.py:219 organizations/models.py:305
@@ -1669,10 +1665,8 @@ msgstr "L'équipe"
 
 #: organizations/filters.py:143 organizations/filters.py:173
 #: organizations/filters.py:220
-#, fuzzy
-#| msgid "team"
 msgid "All teams"
-msgstr "équipe"
+msgstr ""
 
 #: organizations/filters.py:227 organizations/models.py:251
 msgid "Access"
@@ -1683,10 +1677,8 @@ msgid "All access levels"
 msgstr ""
 
 #: organizations/filters.py:229
-#, fuzzy
-#| msgid "Owners"
 msgid "Owner"
-msgstr "Propriétaires"
+msgstr ""
 
 #: organizations/forms.py:41 organizations/forms.py:98
 msgid "Organization Name"
@@ -2470,23 +2462,23 @@ msgstr "Les données doivent être un objet JSON valide."
 msgid "Only one domain can be canonical at a time."
 msgstr "Un seul domaine peut être canonique à la fois."
 
-#: projects/forms.py:928
+#: projects/forms.py:925
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "Un nom de variable ne peut pas commencer par __ (double underscore)"
 
-#: projects/forms.py:932
+#: projects/forms.py:929
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "Un nom de variable ne peut pas commancer par READTHEDOCS"
 
-#: projects/forms.py:937
+#: projects/forms.py:934
 msgid "There is already a variable with this name for this project"
 msgstr "Il y a déjà un variable nommée de cette manière dans ce projet."
 
-#: projects/forms.py:942
+#: projects/forms.py:939
 msgid "Variable name can't contain spaces"
 msgstr "Un nom de variable ne peut pas contenir d'espace"
 
-#: projects/forms.py:946
+#: projects/forms.py:943
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Seuls les lettres, les chiffres et le blanc souligné sont autorisés"
 
@@ -4071,7 +4063,7 @@ msgid "No automation rules are currently configured."
 msgstr "Aucune règle n'est actuellement configurée."
 
 #: templates/builds/versionautomationrule_list.html:85
-#: templates/projects/integration_webhook_detail.html:83
+#: templates/projects/integration_webhook_detail.html:101
 #: templates/projects/webhook_form.html:47
 msgid "Recent Activity"
 msgstr "Activité récente"
@@ -4087,7 +4079,7 @@ msgstr ""
 "a été exécutée il y a %(date)s. "
 
 #: templates/builds/versionautomationrule_list.html:101
-#: templates/projects/integration_webhook_detail.html:99
+#: templates/projects/integration_webhook_detail.html:117
 #: templates/projects/webhook_form.html:63
 msgid "There is no recent activity"
 msgstr "Aucune activité récente"
@@ -5089,18 +5081,26 @@ msgstr ""
 "Pour configurer manuellement ce webhook avec votre fournisseur, utiliser les "
 "adresses suivantes:"
 
-#: templates/projects/integration_webhook_detail.html:67
+#: templates/projects/integration_webhook_detail.html:73
+msgid ""
+"This integration does not have a secret, the authenticity of the incoming "
+"webhook cannot be verified. <strong>Click on \"Resync webhook\" to generate "
+"a secret.</strong> Read more in our <a href=\"https://blog.readthedocs.com/"
+"security-update-on-incoming-webhooks/\">blog post</a>."
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:85
 msgid ""
 "For more information on manually configuring a webhook, refer to <a "
 "href=\"https://docs.readthedocs.io/page/guides/setup/git-repo-automatic."
 "html\"> our webhook documentation </a>"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:79
+#: templates/projects/integration_webhook_detail.html:97
 msgid "Resync webhook"
 msgstr "Resynchroniser le webhook"
 
-#: templates/projects/integration_webhook_detail.html:108
+#: templates/projects/integration_webhook_detail.html:126
 msgid "Delete webhook"
 msgstr "Supprimer le webhook"
 

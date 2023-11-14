@@ -1,8 +1,5 @@
 """Integration utility functions."""
 
-import os
-
-
 def normalize_request_payload(request):
     """
     Normalize the request body, hopefully to JSON.
@@ -23,13 +20,3 @@ def normalize_request_payload(request):
         except AttributeError:
             pass
     return request_payload
-
-
-def get_secret(size=64):
-    """
-    Get a random string of `size` bytes.
-
-    :param size: Number of bytes
-    """
-    secret = os.urandom(size)
-    return secret.hex()

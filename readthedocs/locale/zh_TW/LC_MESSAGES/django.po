@@ -18,7 +18,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-07 12:48+0000\n"
+"POT-Creation-Date: 2023-11-14 16:43+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Cheng-Chia Tseng <pswo10680@gmail.com>, 2023\n"
 "Language-Team: Chinese (Taiwan) (http://app.transifex.com/readthedocs/"
@@ -304,7 +304,7 @@ msgstr ""
 #: audit/templates/audit/list_logs.html:55
 #: templates/core/build_list_detailed.html:21
 #: templates/core/project_list_detailed.html:26
-#: templates/projects/integration_webhook_detail.html:91
+#: templates/projects/integration_webhook_detail.html:109
 #: templates/projects/project_dashboard_base.html:74
 #: templates/projects/webhook_form.html:55
 #, python-format
@@ -587,7 +587,7 @@ msgstr "{project} 的版本 {version} ({pk})"
 msgid "Status"
 msgstr ""
 
-#: builds/models.py:762 integrations/models.py:147
+#: builds/models.py:762 integrations/models.py:148
 msgid "Date"
 msgstr "日期"
 
@@ -1252,56 +1252,56 @@ msgid ""
 "There was an error connecting to Stripe, please try again in a few minutes"
 msgstr ""
 
-#: integrations/models.py:150 integrations/models.py:158
+#: integrations/models.py:151 integrations/models.py:159
 msgid "Request headers"
 msgstr "要求標頭"
 
-#: integrations/models.py:155
+#: integrations/models.py:156
 msgid "Request body"
 msgstr "要求本文"
 
-#: integrations/models.py:163
+#: integrations/models.py:164
 msgid "Response body"
 msgstr "回應本文"
 
-#: integrations/models.py:166
+#: integrations/models.py:167
 msgid "Status code"
 msgstr "狀態代碼"
 
-#: integrations/models.py:176
+#: integrations/models.py:177
 #, python-brace-format
 msgid "Exchange {0}"
 msgstr "交換 {0}"
 
-#: integrations/models.py:274
+#: integrations/models.py:275
 msgid "GitHub incoming webhook"
 msgstr "GitHub Incoming Webhook"
 
-#: integrations/models.py:275
+#: integrations/models.py:276
 msgid "Bitbucket incoming webhook"
 msgstr "Bitbucket Incoming Webhook"
 
-#: integrations/models.py:276
+#: integrations/models.py:277
 msgid "GitLab incoming webhook"
 msgstr "GitLab Incoming Webhook"
 
-#: integrations/models.py:277
+#: integrations/models.py:278
 msgid "Generic API incoming webhook"
 msgstr "通用 API Incoming Webhook"
 
-#: integrations/models.py:288
+#: integrations/models.py:289
 msgid "Integration type"
 msgstr "整合類型"
 
-#: integrations/models.py:293
+#: integrations/models.py:294
 msgid "Provider data"
 msgstr "提供者資料"
 
-#: integrations/models.py:302
+#: integrations/models.py:303
 msgid "Secret used to validate the payload of the webhook"
 msgstr ""
 
-#: integrations/models.py:323
+#: integrations/models.py:315
 #, python-brace-format
 msgid "{0} for {1}"
 msgstr "用於 {1} 的 {0}"
@@ -1497,11 +1497,11 @@ msgid ""
 "reconnect them from your social account connections."
 msgstr ""
 
-#: oauth/utils.py:53
+#: oauth/utils.py:57
 msgid "Webhook activated"
 msgstr "已啟用 Webhook"
 
-#: oauth/utils.py:61
+#: oauth/utils.py:65
 msgid ""
 "Webhook activation failed. Make sure you have the necessary permissions."
 msgstr "Webhook 啟用失敗。請確認是否有足夠權限。"
@@ -1529,20 +1529,16 @@ msgid "Name (descending)"
 msgstr ""
 
 #: organizations/filters.py:99
-#, fuzzy
-#| msgid "organization:"
 msgid "All organizations"
-msgstr "組織單位："
+msgstr ""
 
 #: organizations/filters.py:107 projects/filters.py:150 projects/filters.py:198
 msgid "Sort by"
 msgstr ""
 
 #: organizations/filters.py:135
-#, fuzzy
-#| msgid "user projects"
 msgid "All projects"
-msgstr "使用者專案"
+msgstr ""
 
 #: organizations/filters.py:142 organizations/filters.py:172
 #: organizations/filters.py:219 organizations/models.py:305
@@ -1564,10 +1560,8 @@ msgid "All access levels"
 msgstr ""
 
 #: organizations/filters.py:229
-#, fuzzy
-#| msgid "Owners"
 msgid "Owner"
-msgstr "擁有者"
+msgstr ""
 
 #: organizations/forms.py:41 organizations/forms.py:98
 msgid "Organization Name"
@@ -2290,23 +2284,23 @@ msgstr ""
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:928
+#: projects/forms.py:925
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "變數名稱不可以 __ 開頭（雙底線）"
 
-#: projects/forms.py:932
+#: projects/forms.py:929
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "變數名稱不可以 READTHEDOCS 開頭"
 
-#: projects/forms.py:937
+#: projects/forms.py:934
 msgid "There is already a variable with this name for this project"
 msgstr "該專案中已有相同名稱的變數"
 
-#: projects/forms.py:942
+#: projects/forms.py:939
 msgid "Variable name can't contain spaces"
 msgstr "變數名稱不可包含空白字元"
 
-#: projects/forms.py:946
+#: projects/forms.py:943
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "僅可使用字母、數字與底線"
 
@@ -3789,7 +3783,7 @@ msgid "No automation rules are currently configured."
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:85
-#: templates/projects/integration_webhook_detail.html:83
+#: templates/projects/integration_webhook_detail.html:101
 #: templates/projects/webhook_form.html:47
 msgid "Recent Activity"
 msgstr "近期動態"
@@ -3802,7 +3796,7 @@ msgid ""
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:101
-#: templates/projects/integration_webhook_detail.html:99
+#: templates/projects/integration_webhook_detail.html:117
 #: templates/projects/webhook_form.html:63
 msgid "There is no recent activity"
 msgstr "無近期動態"
@@ -4691,18 +4685,26 @@ msgid ""
 "address:"
 msgstr "若要以您的提供者來設定此 Webhook，請使用下列位址："
 
-#: templates/projects/integration_webhook_detail.html:67
+#: templates/projects/integration_webhook_detail.html:73
+msgid ""
+"This integration does not have a secret, the authenticity of the incoming "
+"webhook cannot be verified. <strong>Click on \"Resync webhook\" to generate "
+"a secret.</strong> Read more in our <a href=\"https://blog.readthedocs.com/"
+"security-update-on-incoming-webhooks/\">blog post</a>."
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:85
 msgid ""
 "For more information on manually configuring a webhook, refer to <a "
 "href=\"https://docs.readthedocs.io/page/guides/setup/git-repo-automatic."
 "html\"> our webhook documentation </a>"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:79
+#: templates/projects/integration_webhook_detail.html:97
 msgid "Resync webhook"
 msgstr "重新同步 Webhook"
 
-#: templates/projects/integration_webhook_detail.html:108
+#: templates/projects/integration_webhook_detail.html:126
 msgid "Delete webhook"
 msgstr "刪除 Webhook"
 
