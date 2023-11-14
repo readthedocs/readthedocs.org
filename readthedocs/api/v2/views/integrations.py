@@ -31,7 +31,7 @@ from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
 
-GITHUB_EVENT_HEADER = "GitHub-Event"
+GITHUB_EVENT_HEADER = "X-GitHub-Event"
 GITHUB_SIGNATURE_HEADER = "X-Hub-Signature-256"
 GITHUB_PING = "ping"
 GITHUB_PUSH = "push"
