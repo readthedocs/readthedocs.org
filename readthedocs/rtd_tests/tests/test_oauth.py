@@ -380,7 +380,7 @@ class GitHubOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertFalse(success)
-        self.assertIsNone(self.integration.secret)
+        self.assertIsNotNone(self.integration.secret)
         mock_logger.bind.assert_called_with(http_status_code=404)
         mock_logger.warning.assert_called_with(
             "GitHub project does not exist or user does not have permissions.",
@@ -394,7 +394,7 @@ class GitHubOAuthTests(TestCase):
 
         self.integration.refresh_from_db()
 
-        self.assertIsNone(self.integration.secret)
+        self.assertIsNotNone(self.integration.secret)
         mock_logger.bind.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
@@ -450,7 +450,7 @@ class GitHubOAuthTests(TestCase):
 
         self.integration.refresh_from_db()
 
-        self.assertIsNone(self.integration.secret)
+        self.assertIsNotNone(self.integration.secret)
         mock_logger.exception.assert_called_with(
             "GitHub webhook update failed for project."
         )
@@ -1239,7 +1239,7 @@ class GitLabOAuthTests(TestCase):
         self.integration.refresh_from_db()
 
         self.assertFalse(success)
-        self.assertIsNone(self.integration.secret)
+        self.assertIsNotNone(self.integration.secret)
         mock_logger.bind.assert_called_with(http_status_code=404)
         mock_logger.info.assert_called_with(
             "Gitlab project does not exist or user does not have permissions.",
@@ -1253,7 +1253,7 @@ class GitLabOAuthTests(TestCase):
 
         self.integration.refresh_from_db()
 
-        self.assertIsNone(self.integration.secret)
+        self.assertIsNotNone(self.integration.secret)
         mock_logger.bind.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,
@@ -1317,7 +1317,7 @@ class GitLabOAuthTests(TestCase):
 
         self.integration.refresh_from_db()
 
-        self.assertIsNone(self.integration.secret)
+        self.assertIsNotNone(self.integration.secret)
         mock_logger.bind.assert_called_with(
             project_slug=self.project.slug,
             integration_id=self.integration.pk,

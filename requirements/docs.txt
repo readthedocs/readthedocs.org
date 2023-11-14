@@ -49,7 +49,7 @@ myst-parser==2.0.0
     # via -r requirements/docs.in
 packaging==23.2
     # via sphinx
-pbr==5.11.1
+pbr==6.0.0
     # via sphinxcontrib-video
 pygments==2.16.1
     # via
