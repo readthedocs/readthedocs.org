@@ -5,6 +5,7 @@ import hmac
 import json
 import re
 from functools import namedtuple
+from textwrap import dedent
 
 import structlog
 from django.shortcuts import get_object_or_404
@@ -71,6 +72,13 @@ class WebhookMixin:
     integration = None
     integration_type = None
     invalid_payload_msg = 'Payload not valid'
+    missing_secret_for_pr_events_msg = dedent(
+        """
+        The webhook doesn't have a secret configured.
+        For security reasons, webhooks without a secret can't process pull/merge request events.
+        You can read more information about this in our blog post: https://blog.readthedocs.com/security-update-on-incoming-webhooks/.
+        """
+    ).strip()
 
     def post(self, request, project_slug):
         """Set up webhook post view with request and project objects."""
@@ -107,6 +115,11 @@ class WebhookMixin:
         if resp is None:
             log.info('Unhandled webhook event')
             resp = {'detail': 'Unhandled webhook event'}
+
+        # The response can be a DRF Response with with the status code already set.
+        # In that case, we just return it as is.
+        if isinstance(resp, Response):
+            return resp
         return Response(resp)
 
     def get_project(self, **kwargs):
@@ -450,12 +463,14 @@ class GitHubWebhookView(WebhookMixin, APIView):
         integration = self.get_integration()
 
         # Handle pull request events.
-        # Requests from anonymous users are ignored.
-        if (
-            integration.secret
-            and self.project.external_builds_enabled
-            and event == GITHUB_PULL_REQUEST
-        ):
+        if self.project.external_builds_enabled and event == GITHUB_PULL_REQUEST:
+            # Requests from anonymous users are ignored.
+            if not integration.secret:
+                return Response(
+                    {"detail": self.missing_secret_for_pr_events_msg},
+                    status=HTTP_400_BAD_REQUEST,
+                )
+
             if action in [
                 GITHUB_PULL_REQUEST_OPENED,
                 GITHUB_PULL_REQUEST_REOPENED,
@@ -621,11 +636,13 @@ class GitLabWebhookView(WebhookMixin, APIView):
             except KeyError as exc:
                 raise ParseError('Parameter "ref" is required') from exc
 
-        if (
-            integration.secret
-            and self.project.external_builds_enabled
-            and event == GITLAB_MERGE_REQUEST
-        ):
+        if self.project.external_builds_enabled and event == GITLAB_MERGE_REQUEST:
+            if not integration.secret:
+                return Response(
+                    {"detail": self.missing_secret_for_pr_events_msg},
+                    status=HTTP_400_BAD_REQUEST,
+                )
+
             if action in [
                 GITLAB_MERGE_REQUEST_OPEN,
                 GITLAB_MERGE_REQUEST_REOPEN,
