@@ -1,3 +1,12 @@
+Version 10.11.0
+---------------
+
+:Date: November 14, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10898 <https://github.com/readthedocs/readthedocs.org/pull/10898>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.10.0 (`#10893 <https://github.com/readthedocs/readthedocs.org/pull/10893>`__)
+* `@jertel <https://github.com/jertel>`__: docs: update documentation around version warning banner (`#10877 <https://github.com/readthedocs/readthedocs.org/pull/10877>`__)
+
 Version 10.10.0
 ---------------
 

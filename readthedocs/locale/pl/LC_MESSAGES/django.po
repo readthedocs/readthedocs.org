@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-07 12:48+0000\n"
+"POT-Creation-Date: 2023-11-14 16:43+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Michal, 2020\n"
 "Language-Team: Polish (http://app.transifex.com/readthedocs/readthedocs/"
@@ -302,7 +302,7 @@ msgstr ""
 #: audit/templates/audit/list_logs.html:55
 #: templates/core/build_list_detailed.html:21
 #: templates/core/project_list_detailed.html:26
-#: templates/projects/integration_webhook_detail.html:91
+#: templates/projects/integration_webhook_detail.html:109
 #: templates/projects/project_dashboard_base.html:74
 #: templates/projects/webhook_form.html:55
 #, python-format
@@ -585,7 +585,7 @@ msgstr "Wersja {version} {project} ({pk})"
 msgid "Status"
 msgstr ""
 
-#: builds/models.py:762 integrations/models.py:147
+#: builds/models.py:762 integrations/models.py:148
 msgid "Date"
 msgstr "Data"
 
@@ -1246,56 +1246,56 @@ msgid ""
 "There was an error connecting to Stripe, please try again in a few minutes"
 msgstr ""
 
-#: integrations/models.py:150 integrations/models.py:158
+#: integrations/models.py:151 integrations/models.py:159
 msgid "Request headers"
 msgstr ""
 
-#: integrations/models.py:155
+#: integrations/models.py:156
 msgid "Request body"
 msgstr ""
 
-#: integrations/models.py:163
+#: integrations/models.py:164
 msgid "Response body"
 msgstr ""
 
-#: integrations/models.py:166
+#: integrations/models.py:167
 msgid "Status code"
 msgstr "Kod odpowiedzi"
 
-#: integrations/models.py:176
+#: integrations/models.py:177
 #, python-brace-format
 msgid "Exchange {0}"
 msgstr ""
 
-#: integrations/models.py:274
+#: integrations/models.py:275
 msgid "GitHub incoming webhook"
 msgstr "Nadchodzący webhook GitHub"
 
-#: integrations/models.py:275
+#: integrations/models.py:276
 msgid "Bitbucket incoming webhook"
 msgstr "Nadchodzący webhook Bitbucket"
 
-#: integrations/models.py:276
+#: integrations/models.py:277
 msgid "GitLab incoming webhook"
 msgstr "Nadchodzący webhook GitLab"
 
-#: integrations/models.py:277
+#: integrations/models.py:278
 msgid "Generic API incoming webhook"
 msgstr ""
 
-#: integrations/models.py:288
+#: integrations/models.py:289
 msgid "Integration type"
 msgstr ""
 
-#: integrations/models.py:293
+#: integrations/models.py:294
 msgid "Provider data"
 msgstr ""
 
-#: integrations/models.py:302
+#: integrations/models.py:303
 msgid "Secret used to validate the payload of the webhook"
 msgstr ""
 
-#: integrations/models.py:323
+#: integrations/models.py:315
 #, python-brace-format
 msgid "{0} for {1}"
 msgstr "{0} dla {1}"
@@ -1485,11 +1485,11 @@ msgid ""
 "reconnect them from your social account connections."
 msgstr ""
 
-#: oauth/utils.py:53
+#: oauth/utils.py:57
 msgid "Webhook activated"
 msgstr "Webhook aktywowany"
 
-#: oauth/utils.py:61
+#: oauth/utils.py:65
 msgid ""
 "Webhook activation failed. Make sure you have the necessary permissions."
 msgstr ""
@@ -1519,20 +1519,16 @@ msgid "Name (descending)"
 msgstr ""
 
 #: organizations/filters.py:99
-#, fuzzy
-#| msgid "Organization"
 msgid "All organizations"
-msgstr "Organizacja"
+msgstr ""
 
 #: organizations/filters.py:107 projects/filters.py:150 projects/filters.py:198
 msgid "Sort by"
 msgstr ""
 
 #: organizations/filters.py:135
-#, fuzzy
-#| msgid "user projects"
 msgid "All projects"
-msgstr "projekty użytkownika"
+msgstr ""
 
 #: organizations/filters.py:142 organizations/filters.py:172
 #: organizations/filters.py:219 organizations/models.py:305
@@ -1554,10 +1550,8 @@ msgid "All access levels"
 msgstr ""
 
 #: organizations/filters.py:229
-#, fuzzy
-#| msgid "Owners"
 msgid "Owner"
-msgstr "Właściciele"
+msgstr ""
 
 #: organizations/forms.py:41 organizations/forms.py:98
 msgid "Organization Name"
@@ -2278,23 +2272,23 @@ msgstr ""
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:928
+#: projects/forms.py:925
 msgid "Variable name can't start with __ (double underscore)"
 msgstr ""
 
-#: projects/forms.py:932
+#: projects/forms.py:929
 msgid "Variable name can't start with READTHEDOCS"
 msgstr ""
 
-#: projects/forms.py:937
+#: projects/forms.py:934
 msgid "There is already a variable with this name for this project"
 msgstr ""
 
-#: projects/forms.py:942
+#: projects/forms.py:939
 msgid "Variable name can't contain spaces"
 msgstr ""
 
-#: projects/forms.py:946
+#: projects/forms.py:943
 msgid "Only letters, numbers and underscore are allowed"
 msgstr ""
 
@@ -3761,7 +3755,7 @@ msgid "No automation rules are currently configured."
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:85
-#: templates/projects/integration_webhook_detail.html:83
+#: templates/projects/integration_webhook_detail.html:101
 #: templates/projects/webhook_form.html:47
 msgid "Recent Activity"
 msgstr "Ostatnia aktywność"
@@ -3774,7 +3768,7 @@ msgid ""
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:101
-#: templates/projects/integration_webhook_detail.html:99
+#: templates/projects/integration_webhook_detail.html:117
 #: templates/projects/webhook_form.html:63
 msgid "There is no recent activity"
 msgstr "Brak ostatniej aktywności"
@@ -4653,18 +4647,26 @@ msgid ""
 "address:"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:67
+#: templates/projects/integration_webhook_detail.html:73
+msgid ""
+"This integration does not have a secret, the authenticity of the incoming "
+"webhook cannot be verified. <strong>Click on \"Resync webhook\" to generate "
+"a secret.</strong> Read more in our <a href=\"https://blog.readthedocs.com/"
+"security-update-on-incoming-webhooks/\">blog post</a>."
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:85
 msgid ""
 "For more information on manually configuring a webhook, refer to <a "
 "href=\"https://docs.readthedocs.io/page/guides/setup/git-repo-automatic."
 "html\"> our webhook documentation </a>"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:79
+#: templates/projects/integration_webhook_detail.html:97
 msgid "Resync webhook"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:108
+#: templates/projects/integration_webhook_detail.html:126
 msgid "Delete webhook"
 msgstr "Usuń webhook"
 
