@@ -299,6 +299,6 @@ class TestNullCharactersMiddleware(TestCase):
         response = self.middleware(request)
         self.assertContains(
             response,
-            "There are NULL (0x00) characters in at least one of the parameters (language) passed to the request.",
+            "There are NULL (0x00) characters in at least one of the parameters passed to the request.",
             status_code=400,
         )
