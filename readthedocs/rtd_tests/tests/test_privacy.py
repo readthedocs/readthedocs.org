@@ -227,7 +227,6 @@ class PrivacyTests(TestCase):
     @override_settings(
         DEFAULT_PRIVACY_LEVEL="private",
         PUBLIC_DOMAIN="readthedocs.io",
-        USE_SUBDOMAIN=True,
     )
     def test_private_download_filename(self):
         self._create_kong("private", "private")
@@ -270,7 +269,6 @@ class PrivacyTests(TestCase):
     @override_settings(
         DEFAULT_PRIVACY_LEVEL="public",
         PUBLIC_DOMAIN="readthedocs.io",
-        USE_SUBDOMAIN=True,
     )
     def test_public_repo_downloading(self):
         self._create_kong("public", "public")
@@ -308,7 +306,6 @@ class PrivacyTests(TestCase):
     @override_settings(
         DEFAULT_PRIVACY_LEVEL="public",
         PUBLIC_DOMAIN="readthedocs.io",
-        USE_SUBDOMAIN=True,
     )
     def test_public_private_repo_downloading(self):
         self._create_kong("private", "private")
@@ -338,7 +335,6 @@ class PrivacyTests(TestCase):
     @override_settings(
         DEFAULT_PRIVACY_LEVEL="public",
         PUBLIC_DOMAIN="readthedocs.io",
-        USE_SUBDOMAIN=True,
     )
     def test_public_download_filename(self):
         self._create_kong("public", "public")

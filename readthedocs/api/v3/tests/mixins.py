@@ -21,7 +21,6 @@ from readthedocs.redirects.models import Redirect
 @override_settings(
     PUBLIC_DOMAIN="readthedocs.io",
     PRODUCTION_DOMAIN="readthedocs.org",
-    USE_SUBDOMAIN=True,
     RTD_BUILD_MEDIA_STORAGE="readthedocs.rtd_tests.storage.BuildMediaFileSystemStorageTest",
     RTD_ALLOW_ORGANIZATIONS=False,
 )

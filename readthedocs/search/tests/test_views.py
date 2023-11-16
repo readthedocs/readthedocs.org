@@ -260,11 +260,11 @@ class TestPageSearch:
         # There are two results,
         # one from each version of the "kuma" project.
         assert len(results) == 2
-        assert results[0]["version"] == {"slug": "stable"}
-        assert results[1]["version"] == {"slug": "latest"}
+        assert results[0]["version"] == {"slug": "latest"}
+        assert results[1]["version"] == {"slug": "stable"}
         for result in results:
             assert result["project"] == {"alias": None, "slug": "kuma"}
-            assert result["domain"] == "http://readthedocs.org"
+            assert result["domain"] == "http://kuma.readthedocs.io"
             assert result["path"].endswith("/documentation.html")
 
         blocks = results[0]["blocks"]

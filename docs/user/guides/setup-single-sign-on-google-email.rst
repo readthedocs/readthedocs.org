@@ -12,6 +12,14 @@ Prerequisites
 
 .. include:: /shared/organization-permissions.rst
 
+Connect your Google account to Read the Docs
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+In order to enable the Google Workspace integration,
+you need to connect your Google account to Read the Docs.
+
+The domain attached to your Google account will be used to match users that sign up with a Google account to your organization.
+
 User setup
 ~~~~~~~~~~
 
@@ -32,7 +40,7 @@ However, you can define which teams users matching your company's domain email a
 
 1. Navigate to the `authorization setting page <https://readthedocs.com/organizations/choose/organization_sso/>`__.
 2. Select **Google** in the :guilabel:`Provider` drop-down.
-3. Specify your Google Workspace domain in the :guilabel:`Domain` input field and press :guilabel:`Save`.
+3. Press :guilabel:`Save`.
 
 Configure team for all users to join
 ------------------------------------

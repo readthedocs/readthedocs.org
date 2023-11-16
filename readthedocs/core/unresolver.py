@@ -296,6 +296,9 @@ class Unresolver:
             return None
 
         language = match.group("language")
+        # Normalize old language codes to lowercase with dashes.
+        language = language.lower().replace("_", "-")
+
         version_slug = match.group("version")
         filename = self._normalize_filename(match.group("filename"))
 

@@ -6,7 +6,6 @@ Most of this code is copied from:
 and adapted to use:
 
  * El Proxito
- * USE_SUBDOMAIN=True always
 """
 
 import django_dynamic_fixture as fixture
@@ -251,6 +250,13 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
             r["Location"],
             "http://project.dev.readthedocs.io/en/latest/faq.html",
         )
+
+        # Prefix redirects should match the whole path.
+        with self.assertRaises(Http404):
+            self.client.get(
+                "/en/latest/woot/faq.html",
+                headers={"host": "project.dev.readthedocs.io"},
+            )
 
     def test_redirect_page(self):
         Redirect.objects.create(

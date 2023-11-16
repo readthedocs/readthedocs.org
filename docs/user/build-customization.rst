@@ -88,7 +88,8 @@ we recommend you use them as a starting point.
 Unshallow git clone
 ^^^^^^^^^^^^^^^^^^^
 
-Read the Docs does not perform a full clone on ``checkout`` job to reduce network data and speed up the build process.
+Read the Docs does not perform a full clone in the ``checkout`` job in order to reduce network data and speed up the build process.
+Instead, it performs a `shallow clone <https://git-scm.com/docs/shallow>`_ and only fetches the branch or tag that you are building documentation for.
 Because of this, extensions that depend on the full Git history will fail.
 To avoid this, it's possible to unshallow the :program:`git clone`:
 
@@ -103,6 +104,22 @@ To avoid this, it's possible to unshallow the :program:`git clone`:
      jobs:
        post_checkout:
          - git fetch --unshallow || true
+
+If your build also relies on the contents of other branches, it may also be necessary to re-configure git to fetch these:
+
+.. code-block:: yaml
+   :caption: .readthedocs.yaml
+
+   version: 2
+   build:
+     os: "ubuntu-20.04"
+     tools:
+       python: "3.10"
+     jobs:
+       post_checkout:
+         - git fetch --unshallow || true
+         - git config remote.origin.fetch '+refs/heads/*:refs/remotes/origin/*' || true
+         - git fetch --all --tags || true
 
 
 Cancel build based on a condition
@@ -136,7 +153,7 @@ Here is an example that cancels builds from pull requests when there are no chan
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.11"
+       python: "3.12"
      jobs:
        post_checkout:
          # Cancel building pull requests when there aren't changed in the docs directory or YAML file.
@@ -161,7 +178,7 @@ This other example shows how to cancel a build if the commit message contains ``
    build:
      os: "ubuntu-22.04"
      tools:
-       python: "3.11"
+       python: "3.12"
      jobs:
        post_checkout:
          # Use `git log` to check if the latest commit contains "skip ci",

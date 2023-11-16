@@ -325,7 +325,6 @@ class TestFooterHTML(BaseTestFooterHTML, TestCase):
 
 
 @override_settings(
-    USE_SUBDOMAIN=True,
     PUBLIC_DOMAIN="readthedocs.io",
     PUBLIC_DOMAIN_USES_HTTPS=True,
 )

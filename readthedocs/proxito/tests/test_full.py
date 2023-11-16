@@ -437,6 +437,36 @@ class TestFullDocServing(BaseDocServing):
             "/proxito/media/html/project/projects/api/awesome.html",
         )
 
+    def test_old_language_code(self):
+        self.project.language = "pt-br"
+        self.project.save()
+        host = "project.dev.readthedocs.io"
+
+        url = "/pt_BR/latest/index.html"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["location"],
+            "http://project.dev.readthedocs.io/pt-br/latest/index.html",
+        )
+
+        url = "/pt-br/latest/index.html"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/index.html",
+        )
+
+        # Ambiguous path.
+        url = "/pt-br/latest/bt_BR/index.html"
+        resp = self.client.get(url, headers={"host": host})
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp["x-accel-redirect"],
+            "/proxito/media/html/project/latest/bt_BR/index.html",
+        )
+
 
 @override_settings(
     PUBLIC_DOMAIN="dev.readthedocs.io",
@@ -504,6 +534,33 @@ class TestDocServingBackends(BaseDocServing):
             self.assertEqual(
                 resp["X-Accel-Redirect"],
                 f"/proxito/media/{type_}/translation/latest/translation.{extension}",
+            )
+            self.assertEqual(resp["CDN-Cache-Control"], "public")
+
+    @override_settings(PYTHON_MEDIA=False)
+    def test_download_project_with_old_language_code(self):
+        self.project.language = "pt-br"
+        self.project.save()
+        for type_ in DOWNLOADABLE_MEDIA_TYPES:
+            resp = self.client.get(
+                f"/_/downloads/pt_BR/latest/{type_}/",
+                headers={"host": "project.dev.readthedocs.io"},
+            )
+            self.assertEqual(resp.status_code, 302)
+            self.assertEqual(
+                resp["Location"],
+                f"//project.dev.readthedocs.io/_/downloads/pt-br/latest/{type_}/",
+            )
+
+            resp = self.client.get(
+                f"/_/downloads/pt-br/latest/{type_}/",
+                headers={"host": "project.dev.readthedocs.io"},
+            )
+            self.assertEqual(resp.status_code, 200)
+            extension = "zip" if type_ == MEDIA_TYPE_HTMLZIP else type_
+            self.assertEqual(
+                resp["X-Accel-Redirect"],
+                f"/proxito/media/{type_}/project/latest/project.{extension}",
             )
             self.assertEqual(resp["CDN-Cache-Control"], "public")
 

@@ -19,7 +19,7 @@ from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.core.resolver import resolve
+from readthedocs.core.resolver import Resolver
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
@@ -308,7 +308,7 @@ class ServeRedirectMixin:
         :param external: If the version is from a pull request preview.
         """
         urlparse_result = urlparse(request.get_full_path())
-        to = resolve(
+        to = Resolver().resolve(
             project=final_project,
             version_slug=version_slug,
             filename=filename,
@@ -318,6 +318,21 @@ class ServeRedirectMixin:
         log.debug(
             "System Redirect.", host=request.get_host(), from_url=filename, to_url=to
         )
+
+        new_path_parsed = urlparse(to)
+        old_path_parsed = urlparse(request.build_absolute_uri())
+        # Check explicitly only the path and hostname, since a different
+        # protocol or query parameters could lead to a infinite redirect.
+        if (
+            new_path_parsed.hostname == old_path_parsed.hostname
+            and new_path_parsed.path == old_path_parsed.path
+        ):
+            log.debug(
+                "Infinite Redirect: FROM URL is the same than TO URL.",
+                url=to,
+            )
+            raise InfiniteRedirectException()
+
         # All system redirects can be cached, since the final URL will check for authz.
         self.cache_response = True
         resp = HttpResponseRedirect(to)

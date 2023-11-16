@@ -216,13 +216,13 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         )
         # These that can be set per-version using a config file.
         per_version_settings = (
-            'documentation_type',
-            'requirements_file',
-            'python_interpreter',
-            'install_project',
-            'conf_py_file',
-            'enable_pdf_build',
-            'enable_epub_build',
+            "documentation_type",
+            "requirements_file",
+            "python_interpreter",
+            "install_project",
+            "conf_py_file",
+            "enable_pdf_build",
+            "enable_epub_build",
         )
         fields = (
             *per_project_settings,
@@ -255,6 +255,11 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
                 self.fields.pop(field)
                 per_project_settings.remove(field)
 
+        # TODO: remove the "Global settings" fieldset since we only have one
+        # fieldset not. Also, considering merging this "Advanced settings" with
+        # the regular "Settings" tab. Also also, take into account that we may
+        # want to add a new tab for "Read the Docs Addons" to configure each of
+        # them from there.
         field_sets = [
             Fieldset(
                 _("Global settings"),
@@ -287,6 +292,11 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             )
         else:
             self.fields['default_version'].widget.attrs['readonly'] = True
+
+        # Disable "per_version_settings" because they are deprecated.
+        # This fieldset will be removed in the next few weeks, after giving users some time to perform the migration.
+        for field in self.Meta.per_version_settings:
+            self.fields[field].disabled = True
 
         self.setup_external_builds_option()
 
@@ -838,8 +848,8 @@ class IntegrationForm(forms.ModelForm):
     class Meta:
         model = Integration
         fields = [
-            'project',
-            'integration_type',
+            "project",
+            "integration_type",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -853,9 +863,6 @@ class IntegrationForm(forms.ModelForm):
 
     def save(self, commit=True):
         self.instance = Integration.objects.subclass(self.instance)
-        # We don't set the secret on the integration
-        # when it's created via the form.
-        self.instance.secret = None
         return super().save(commit)
 
 

@@ -75,7 +75,6 @@ class CommunityBaseSettings(Settings):
     PRODUCTION_DOMAIN = 'readthedocs.org'
     PUBLIC_DOMAIN = None
     PUBLIC_DOMAIN_USES_HTTPS = False
-    USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
     RTD_INTERSPHINX_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.readthedocs.io'
@@ -549,20 +548,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
-        # We keep having celery send multiple emails,
-        # which is a terrible UX,
-        # so let's remove them for now.
-
-        # 'weekly-config-file-notification': {
-        #     'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
-        #     'schedule': crontab(day_of_week='wed', hour=11, minute=15),
-        #     'options': {'queue': 'web'},
-        # },
-        # 'weekly-build-image-notification': {
-        #     'task': 'readthedocs.projects.tasks.utils.deprecated_build_image_notification',
-        #     'schedule': crontab(day_of_week='wed', hour=9, minute=15),
-        #     'options': {'queue': 'web'},
-        # },
+        'every-day-delete-old-revoked-build-api-keys': {
+            'task': 'readthedocs.api.v2.tasks.delete_old_revoked_build_api_keys',
+            'schedule': crontab(minute=0, hour=4),
+            'options': {'queue': 'web'},
+        },
     }
 
     # Sentry
@@ -585,64 +575,9 @@ class CommunityBaseSettings(Settings):
     RTD_DOCKER_COMPOSE = False
 
     DOCKER_VERSION = 'auto'
-    DOCKER_DEFAULT_VERSION = 'latest'
+    DOCKER_DEFAULT_VERSION = 'ubuntu-22.04'
     DOCKER_IMAGE = '{}:{}'.format(constants_docker.DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
-    DOCKER_IMAGE_SETTINGS = {
-        # A large number of users still have this pinned in their config file.
-        # We must have documented it at some point.
-        'readthedocs/build:2.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5'],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.5',
-                },
-            },
-        },
-        'readthedocs/build:4.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', 3.7],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.7',
-                },
-            },
-        },
-        'readthedocs/build:5.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7'],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.7',
-                },
-            },
-        },
-        'readthedocs/build:6.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8'],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.7',
-                },
-            },
-        },
-        'readthedocs/build:7.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10'],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.7',
-                },
-            },
-        },
-    }
 
-    # Alias tagged via ``docker tag`` on the build servers
-    DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
-        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:6.0'),
-        'readthedocs/build:testing': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:7.0'),
-    })
     # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
     RTD_DOCKER_BUILD_SETTINGS = constants_docker.RTD_DOCKER_BUILD_SETTINGS
@@ -790,10 +725,9 @@ class CommunityBaseSettings(Settings):
     RTD_ORG_TRIAL_PERIOD_DAYS = 30
 
     # Elasticsearch settings.
-    ES_HOSTS = ['search:9200']
     ELASTICSEARCH_DSL = {
         'default': {
-            'hosts': 'search:9200'
+            'hosts': 'http://elastic:password@search:9200',
         },
     }
     # Chunk size for elasticsearch reindex celery tasks

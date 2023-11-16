@@ -14,6 +14,8 @@ from rest_framework.test import APIClient
 
 from readthedocs.api.v2.models import BuildAPIKey
 from readthedocs.api.v2.views.integrations import (
+    BITBUCKET_EVENT_HEADER,
+    BITBUCKET_SIGNATURE_HEADER,
     GITHUB_CREATE,
     GITHUB_DELETE,
     GITHUB_EVENT_HEADER,
@@ -36,6 +38,7 @@ from readthedocs.api.v2.views.integrations import (
     GITLAB_TOKEN_HEADER,
     GitHubWebhookView,
     GitLabWebhookView,
+    WebhookMixin,
 )
 from readthedocs.builds.constants import (
     BUILD_STATE_CLONING,
@@ -46,7 +49,7 @@ from readthedocs.builds.constants import (
     LATEST,
 )
 from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, Version
-from readthedocs.integrations.models import Integration
+from readthedocs.integrations.models import GenericAPIWebhook, Integration
 from readthedocs.oauth.models import (
     RemoteOrganization,
     RemoteOrganizationRelation,
@@ -65,6 +68,19 @@ from readthedocs.subscriptions.constants import TYPE_CONCURRENT_BUILDS
 from readthedocs.subscriptions.products import RTDProductFeature
 
 
+def get_signature(integration, payload):
+    if not isinstance(payload, str):
+        payload = json.dumps(payload, separators=(",", ":"))
+    return "sha256=" + WebhookMixin.get_digest(
+        secret=integration.secret,
+        # When the test client sends the payload, it doesn't
+        # separate the json keys with spaces, so when getting
+        # the digest, we need to remove the spaces.
+        msg=payload,
+    )
+
+
+@override_settings(PUBLIC_DOMAIN="readthedocs.io")
 class APIBuildTests(TestCase):
     fixtures = ['eric.json', 'test_data.json']
 
@@ -253,15 +269,12 @@ class APIBuildTests(TestCase):
         resp = client.get('/api/v2/build/{build}/'.format(build=build.pk))
         self.assertEqual(resp.status_code, 200)
         build = resp.data
-        docs_url = 'http://readthedocs.org/docs/{project}/en/{version}/'.format(
-            project=project.slug,
-            version=version.slug,
-        )
-        self.assertEqual(build['state'], 'finished')
-        self.assertEqual(build['error'], '')
-        self.assertEqual(build['exit_code'], 0)
-        self.assertEqual(build['success'], True)
-        self.assertEqual(build['docs_url'], docs_url)
+        docs_url = f"http://{project.slug}.readthedocs.io/en/{version.slug}/"
+        self.assertEqual(build["state"], "finished")
+        self.assertEqual(build["error"], "")
+        self.assertEqual(build["exit_code"], 0)
+        self.assertEqual(build["success"], True)
+        self.assertEqual(build["docs_url"], docs_url)
         # Verify the path is trimmed
         self.assertEqual(
             build["commands"][0]["command"],
@@ -1691,6 +1704,27 @@ class IntegrationsTests(TestCase):
             },
         }
 
+        self.github_integration = get(
+            Integration,
+            project=self.project,
+            integration_type=Integration.GITHUB_WEBHOOK,
+        )
+        self.gitlab_integration = get(
+            Integration,
+            project=self.project,
+            integration_type=Integration.GITLAB_WEBHOOK,
+        )
+        self.bitbucket_integration = get(
+            Integration,
+            project=self.project,
+            integration_type=Integration.BITBUCKET_WEBHOOK,
+        )
+        self.generic_integration = get(
+            GenericAPIWebhook,
+            project=self.project,
+            integration_type=Integration.API_WEBHOOK,
+        )
+
     def test_webhook_skipped_project(self, trigger_build):
         client = APIClient()
         self.project.skip = True
@@ -1701,7 +1735,12 @@ class IntegrationsTests(TestCase):
                 self.project.slug,
             ),
             self.github_payload,
-            format='json',
+            format="json",
+            headers={
+                GITHUB_SIGNATURE_HEADER: get_signature(
+                    self.github_integration, self.github_payload
+                ),
+            },
         )
         self.assertDictEqual(response.data, {'detail': 'This project is currently disabled'})
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
@@ -1713,12 +1752,17 @@ class IntegrationsTests(TestCase):
         self.project.build_queue = 'specific-build-queue'
         self.project.save()
 
-        headers = {GITHUB_EVENT_HEADER: GITHUB_CREATE}
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_CREATE,
+            GITHUB_SIGNATURE_HEADER: get_signature(
+                self.github_integration, self.github_payload
+            ),
+        }
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             self.github_payload,
             format='json',
-            **headers,
+            headers=headers,
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertFalse(resp.data['build_triggered'])
@@ -1741,28 +1785,40 @@ class IntegrationsTests(TestCase):
         """GitHub webhook API."""
         client = APIClient()
 
+        data = {"ref": "master"}
         client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            {'ref': 'master'},
-            format='json',
+            data,
+            format="json",
+            headers={
+                GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, data),
+            },
         )
         trigger_build.assert_has_calls(
             [mock.call(version=self.version, project=self.project)],
         )
 
+        data = {"ref": "non-existent"}
         client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            {'ref': 'non-existent'},
-            format='json',
+            data,
+            format="json",
+            headers={
+                GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, data),
+            },
         )
         trigger_build.assert_has_calls(
             [mock.call(version=mock.ANY, project=self.project)],
         )
 
+        data = {"ref": "refs/heads/master"}
         client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            {'ref': 'refs/heads/master'},
-            format='json',
+            data,
+            format="json",
+            headers={
+                GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, data),
+            },
         )
         trigger_build.assert_has_calls(
             [mock.call(version=self.version, project=self.project)],
@@ -1771,29 +1827,41 @@ class IntegrationsTests(TestCase):
     def test_github_webhook_for_tags(self, trigger_build):
         """GitHub webhook API."""
         client = APIClient()
+        data = {"ref": "v1.0"}
 
         client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            {'ref': 'v1.0'},
-            format='json',
+            data,
+            format="json",
+            headers={
+                GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, data),
+            },
         )
         trigger_build.assert_has_calls(
             [mock.call(version=self.version_tag, project=self.project)],
         )
 
+        data = {"ref": "refs/heads/non-existent"}
         client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            {'ref': 'refs/heads/non-existent'},
+            data,
             format='json',
+            headers={
+                GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, data),
+            },
         )
         trigger_build.assert_has_calls(
             [mock.call(version=mock.ANY, project=self.project)],
         )
 
+        data = {"ref": "refs/tags/v1.0"}
         client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            {'ref': 'refs/tags/v1.0'},
+            data,
             format='json',
+            headers={
+                GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, data),
+            },
         )
         trigger_build.assert_has_calls(
             [mock.call(version=self.version_tag, project=self.project)],
@@ -1804,12 +1872,15 @@ class IntegrationsTests(TestCase):
         client = APIClient()
 
         payload = {'ref': 'master', 'deleted': True}
-        headers = {GITHUB_EVENT_HEADER: GITHUB_PUSH}
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PUSH,
+            GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, payload),
+        }
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             payload,
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertFalse(resp.data['build_triggered'])
@@ -1825,12 +1896,17 @@ class IntegrationsTests(TestCase):
     def test_github_ping_event(self, sync_repository_task, trigger_build):
         client = APIClient()
 
-        headers = {GITHUB_EVENT_HEADER: GITHUB_PING}
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PING,
+            GITHUB_SIGNATURE_HEADER: get_signature(
+                self.github_integration, self.github_payload
+            ),
+        }
         resp = client.post(
             "/api/v2/webhook/github/{}/".format(self.project.slug),
             self.github_payload,
             format="json",
-            **headers,
+            headers=headers,
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertDictEqual(resp.data, {"detail": "Webhook configured correctly"})
@@ -1841,12 +1917,17 @@ class IntegrationsTests(TestCase):
     def test_github_create_event(self, sync_repository_task, trigger_build):
         client = APIClient()
 
-        headers = {GITHUB_EVENT_HEADER: GITHUB_CREATE}
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_CREATE,
+            GITHUB_SIGNATURE_HEADER: get_signature(
+                self.github_integration, self.github_payload
+            ),
+        }
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             self.github_payload,
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertFalse(resp.data['build_triggered'])
@@ -1862,12 +1943,17 @@ class IntegrationsTests(TestCase):
     def test_github_pull_request_opened_event(self, trigger_build, core_trigger_build):
         client = APIClient()
 
-        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST,
+            GITHUB_SIGNATURE_HEADER: get_signature(
+                self.github_integration, self.github_pull_request_payload
+            ),
+        }
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             self.github_pull_request_payload,
             format='json',
-            **headers
+            headers=headers,
         )
         # get the created external version
         external_version = self.project.versions(
@@ -1894,12 +1980,15 @@ class IntegrationsTests(TestCase):
         payload["action"] = GITHUB_PULL_REQUEST_REOPENED
         payload["number"] = pull_request_number
 
-        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST,
+            GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, payload),
+        }
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             payload,
             format='json',
-            **headers
+            headers=headers,
         )
         # get the created external version
         external_version = self.project.versions(
@@ -1939,12 +2028,15 @@ class IntegrationsTests(TestCase):
         payload["action"] = GITHUB_PULL_REQUEST_SYNC
         payload["number"] = pull_request_number
 
-        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST,
+            GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, payload),
+        }
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             payload,
             format='json',
-            **headers
+            headers=headers,
         )
         # get updated external version
         external_version = self.project.versions(
@@ -1986,12 +2078,15 @@ class IntegrationsTests(TestCase):
         payload["number"] = pull_request_number
         payload["pull_request"]["head"]["sha"] = identifier
 
-        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST,
+            GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, payload),
+        }
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             payload,
             format='json',
-            **headers
+            headers=headers,
         )
         external_version = self.project.versions(
             manager=EXTERNAL
@@ -2016,12 +2111,15 @@ class IntegrationsTests(TestCase):
                 }
             }
         }
-        headers = {GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST}
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PULL_REQUEST,
+            GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, payload),
+        }
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             payload,
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
@@ -2038,7 +2136,7 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             payload,
             format='json',
-            **headers
+            headers=headers,
         )
 
         self.assertEqual(resp.status_code, 400)
@@ -2055,7 +2153,7 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             payload,
             format='json',
-            **headers
+            headers=headers,
         )
 
         self.assertEqual(resp.status_code, 400)
@@ -2064,12 +2162,17 @@ class IntegrationsTests(TestCase):
     def test_github_delete_event(self, sync_repository_task, trigger_build):
         client = APIClient()
 
-        headers = {GITHUB_EVENT_HEADER: GITHUB_DELETE}
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_DELETE,
+            GITHUB_SIGNATURE_HEADER: get_signature(
+                self.github_integration, self.github_payload
+            ),
+        }
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
             self.github_payload,
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertFalse(resp.data['build_triggered'])
@@ -2094,23 +2197,25 @@ class IntegrationsTests(TestCase):
     def test_github_invalid_webhook(self, trigger_build):
         """GitHub webhook unhandled event."""
         client = APIClient()
+        payload = {"foo": "bar"}
         resp = client.post(
             '/api/v2/webhook/github/{}/'.format(self.project.slug),
-            {'foo': 'bar'},
+            payload,
             format='json',
-            HTTP_X_GITHUB_EVENT='issues',
+            headers={
+                GITHUB_EVENT_HEADER: "issues",
+                GITHUB_SIGNATURE_HEADER: get_signature(
+                    self.github_integration, payload
+                ),
+            },
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
 
     def test_github_invalid_payload(self, trigger_build):
         client = APIClient()
-        integration = Integration.objects.create(
-            project=self.project,
-            integration_type=Integration.GITHUB_WEBHOOK,
-        )
         wrong_signature = '1234'
-        self.assertNotEqual(integration.secret, wrong_signature)
+        self.assertNotEqual(self.github_integration.secret, wrong_signature)
         headers = {
             GITHUB_EVENT_HEADER: GITHUB_PUSH,
             GITHUB_SIGNATURE_HEADER: wrong_signature,
@@ -2122,7 +2227,7 @@ class IntegrationsTests(TestCase):
             ),
             self.github_payload,
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(
@@ -2133,17 +2238,13 @@ class IntegrationsTests(TestCase):
     def test_github_valid_payload(self, trigger_build):
         client = APIClient()
         payload = '{"ref":"master"}'
-        integration = Integration.objects.create(
-            project=self.project,
-            integration_type=Integration.GITHUB_WEBHOOK,
-        )
-        digest = GitHubWebhookView.get_digest(
-            integration.secret,
+        signature = get_signature(
+            self.github_integration,
             payload,
         )
         headers = {
             GITHUB_EVENT_HEADER: GITHUB_PUSH,
-            GITHUB_SIGNATURE_HEADER: 'sha1=' + digest,
+            GITHUB_SIGNATURE_HEADER: signature,
         }
         resp = client.post(
             reverse(
@@ -2152,7 +2253,7 @@ class IntegrationsTests(TestCase):
             ),
             json.loads(payload),
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertEqual(resp.status_code, 200)
 
@@ -2162,10 +2263,6 @@ class IntegrationsTests(TestCase):
             GITHUB_EVENT_HEADER: GITHUB_PUSH,
             GITHUB_SIGNATURE_HEADER: '',
         }
-        integration = Integration.objects.create(
-            project=self.project,
-            integration_type=Integration.GITHUB_WEBHOOK,
-        )
         resp = client.post(
             reverse(
                 'api_webhook_github',
@@ -2173,7 +2270,7 @@ class IntegrationsTests(TestCase):
             ),
             self.github_payload,
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(
@@ -2184,12 +2281,7 @@ class IntegrationsTests(TestCase):
     def test_github_skip_signature_validation(self, trigger_build):
         client = APIClient()
         payload = '{"ref":"master"}'
-        integration = Integration.objects.create(
-            project=self.project,
-            integration_type=Integration.GITHUB_WEBHOOK,
-            secret=None,
-        )
-        self.assertFalse(integration.secret)
+        Integration.objects.filter(pk=self.github_integration.pk).update(secret=None)
         headers = {
             GITHUB_EVENT_HEADER: GITHUB_PUSH,
             GITHUB_SIGNATURE_HEADER: 'skipped',
@@ -2201,31 +2293,28 @@ class IntegrationsTests(TestCase):
             ),
             json.loads(payload),
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertEqual(resp.status_code, 200)
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task', mock.MagicMock())
     def test_github_sync_on_push_event(self, trigger_build):
         """Sync if the webhook doesn't have the create/delete events, but we receive a push event with created/deleted."""
-        integration = Integration.objects.create(
-            project=self.project,
-            integration_type=Integration.GITHUB_WEBHOOK,
-            provider_data={
-                'events': [],
-            },
-            secret=None,
-        )
+        self.github_integration.provider_data = {
+            "events": [],
+        }
+        self.github_integration.save()
 
         client = APIClient()
 
-        headers = {
-            GITHUB_EVENT_HEADER: GITHUB_PUSH,
-        }
         payload = {
             'ref': 'master',
             'created': True,
             'deleted': False,
+        }
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PUSH,
+            GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, payload),
         }
         resp = client.post(
             reverse(
@@ -2234,35 +2323,32 @@ class IntegrationsTests(TestCase):
             ),
             payload,
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertTrue(resp.json()['versions_synced'])
 
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task', mock.MagicMock())
     def test_github_dont_trigger_double_sync(self, trigger_build):
         """Don't trigger a sync twice if the webhook has the create/delete events."""
-        integration = Integration.objects.create(
-            project=self.project,
-            integration_type=Integration.GITHUB_WEBHOOK,
-            provider_data={
-                'events': [
-                    GITHUB_CREATE,
-                    GITHUB_DELETE,
-                ],
-            },
-            secret=None,
-        )
+        self.github_integration.provider_data = {
+            "events": [
+                GITHUB_CREATE,
+                GITHUB_DELETE,
+            ],
+        }
+        self.github_integration.save()
 
         client = APIClient()
 
-        headers = {
-            GITHUB_EVENT_HEADER: GITHUB_PUSH,
-        }
         payload = {
             'ref': 'master',
             'created': True,
             'deleted': False,
         }
+        headers = {
+            GITHUB_EVENT_HEADER: GITHUB_PUSH,
+            GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, payload),
+        }
         resp = client.post(
             reverse(
                 'api_webhook_github',
@@ -2270,14 +2356,15 @@ class IntegrationsTests(TestCase):
             ),
             payload,
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertFalse(resp.json()['versions_synced'])
 
+        payload = {"ref": "master"}
         headers = {
             GITHUB_EVENT_HEADER: GITHUB_CREATE,
+            GITHUB_SIGNATURE_HEADER: get_signature(self.github_integration, payload),
         }
-        payload = {'ref': 'master'}
         resp = client.post(
             reverse(
                 'api_webhook_github',
@@ -2285,7 +2372,7 @@ class IntegrationsTests(TestCase):
             ),
             payload,
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertTrue(resp.json()['versions_synced'])
 
@@ -2300,10 +2387,14 @@ class IntegrationsTests(TestCase):
     def test_gitlab_webhook_for_branches(self, trigger_build):
         """GitLab webhook API."""
         client = APIClient()
+        headers = {
+            GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
+        }
         client.post(
             '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
             self.gitlab_payload,
             format='json',
+            headers=headers,
         )
         trigger_build.assert_called_with(
             version=mock.ANY, project=self.project,
@@ -2326,10 +2417,14 @@ class IntegrationsTests(TestCase):
             object_kind=GITLAB_TAG_PUSH,
             ref='v1.0',
         )
+        headers = {
+            GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
+        }
         client.post(
             '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
             self.gitlab_payload,
             format='json',
+            headers=headers,
         )
         trigger_build.assert_called_with(
             version=self.version_tag, project=self.project,
@@ -2343,6 +2438,7 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
             self.gitlab_payload,
             format='json',
+            headers=headers,
         )
         trigger_build.assert_called_with(
             version=self.version_tag, project=self.project,
@@ -2356,6 +2452,7 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
             self.gitlab_payload,
             format='json',
+            headers=headers,
         )
         trigger_build.assert_not_called()
 
@@ -2372,6 +2469,9 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
             self.gitlab_payload,
             format='json',
+            headers={
+                GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
+            },
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertFalse(resp.data['build_triggered'])
@@ -2396,6 +2496,9 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
             self.gitlab_payload,
             format='json',
+            headers={
+                GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
+            },
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertFalse(resp.data['build_triggered'])
@@ -2421,6 +2524,9 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
             self.gitlab_payload,
             format='json',
+            headers={
+                GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
+            },
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertFalse(resp.data['build_triggered'])
@@ -2446,6 +2552,9 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
             self.gitlab_payload,
             format='json',
+            headers={
+                GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
+            },
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertFalse(resp.data['build_triggered'])
@@ -2464,6 +2573,9 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/gitlab/{}/'.format(self.project.slug),
             {'object_kind': 'pull_request'},
             format='json',
+            headers={
+                GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
+            },
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
@@ -2471,11 +2583,7 @@ class IntegrationsTests(TestCase):
     def test_gitlab_invalid_payload(self, trigger_build):
         client = APIClient()
         wrong_secret = '1234'
-        integration = Integration.objects.create(
-            project=self.project,
-            integration_type=Integration.GITLAB_WEBHOOK,
-        )
-        self.assertNotEqual(integration.secret, wrong_secret)
+        self.assertNotEqual(self.gitlab_integration.secret, wrong_secret)
         headers = {
             GITLAB_TOKEN_HEADER: wrong_secret,
         }
@@ -2486,7 +2594,7 @@ class IntegrationsTests(TestCase):
             ),
             self.gitlab_payload,
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(
@@ -2496,12 +2604,8 @@ class IntegrationsTests(TestCase):
 
     def test_gitlab_valid_payload(self, trigger_build):
         client = APIClient()
-        integration = Integration.objects.create(
-            project=self.project,
-            integration_type=Integration.GITLAB_WEBHOOK,
-        )
         headers = {
-            GITLAB_TOKEN_HEADER: integration.secret,
+            GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
         }
         resp = client.post(
             reverse(
@@ -2510,16 +2614,12 @@ class IntegrationsTests(TestCase):
             ),
             {'object_kind': 'pull_request'},
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertEqual(resp.status_code, 200)
 
     def test_gitlab_empty_token(self, trigger_build):
         client = APIClient()
-        integration = Integration.objects.create(
-            project=self.project,
-            integration_type=Integration.GITLAB_WEBHOOK,
-        )
         headers = {
             GITLAB_TOKEN_HEADER: '',
         }
@@ -2530,7 +2630,7 @@ class IntegrationsTests(TestCase):
             ),
             {'object_kind': 'pull_request'},
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertEqual(resp.status_code, 400)
         self.assertEqual(
@@ -2540,12 +2640,7 @@ class IntegrationsTests(TestCase):
 
     def test_gitlab_skip_token_validation(self, trigger_build):
         client = APIClient()
-        integration = Integration.objects.create(
-            project=self.project,
-            integration_type=Integration.GITLAB_WEBHOOK,
-            secret=None,
-        )
-        self.assertFalse(integration.secret)
+        Integration.objects.filter(pk=self.gitlab_integration.pk).update(secret=None)
         headers = {
             GITLAB_TOKEN_HEADER: 'skipped',
         }
@@ -2556,7 +2651,7 @@ class IntegrationsTests(TestCase):
             ),
             {'object_kind': 'pull_request'},
             format='json',
-            **headers
+            headers=headers,
         )
         self.assertEqual(resp.status_code, 200)
 
@@ -2571,6 +2666,9 @@ class IntegrationsTests(TestCase):
             ),
             self.gitlab_merge_request_payload,
             format='json',
+            headers={
+                GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
+            },
         )
         # get the created external version
         external_version = self.project.versions(
@@ -2604,6 +2702,9 @@ class IntegrationsTests(TestCase):
             ),
             payload,
             format='json',
+            headers={
+                GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
+            },
         )
         # get the created external version
         external_version = self.project.versions(
@@ -2650,6 +2751,9 @@ class IntegrationsTests(TestCase):
             ),
             payload,
             format='json',
+            headers={
+                GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
+            },
         )
         # get updated external version
         external_version = self.project.versions(
@@ -2698,6 +2802,9 @@ class IntegrationsTests(TestCase):
             ),
             payload,
             format='json',
+            headers={
+                GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
+            },
         )
         external_version = self.project.versions(
             manager=EXTERNAL
@@ -2742,6 +2849,9 @@ class IntegrationsTests(TestCase):
             ),
             payload,
             format='json',
+            headers={
+                GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
+            },
         )
         external_version = self.project.versions(
             manager=EXTERNAL
@@ -2776,6 +2886,9 @@ class IntegrationsTests(TestCase):
             ),
             payload,
             format='json',
+            headers={
+                GITLAB_TOKEN_HEADER: self.gitlab_integration.secret,
+            },
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
@@ -2836,6 +2949,11 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/bitbucket/{}/'.format(self.project.slug),
             self.bitbucket_payload,
             format='json',
+            headers={
+                BITBUCKET_SIGNATURE_HEADER: get_signature(
+                    self.bitbucket_integration, self.bitbucket_payload
+                ),
+            },
         )
         trigger_build.assert_has_calls(
             [mock.call(version=mock.ANY, project=self.project)],
@@ -2884,6 +3002,11 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/bitbucket/{}/'.format(self.project.slug),
             self.bitbucket_payload,
             format='json',
+            headers={
+                BITBUCKET_SIGNATURE_HEADER: get_signature(
+                    self.bitbucket_integration, self.bitbucket_payload
+                ),
+            },
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertFalse(resp.data['build_triggered'])
@@ -2905,6 +3028,11 @@ class IntegrationsTests(TestCase):
             '/api/v2/webhook/bitbucket/{}/'.format(self.project.slug),
             self.bitbucket_payload,
             format='json',
+            headers={
+                BITBUCKET_SIGNATURE_HEADER: get_signature(
+                    self.bitbucket_integration, self.bitbucket_payload
+                ),
+            },
         )
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         self.assertFalse(resp.data['build_triggered'])
@@ -2919,9 +3047,17 @@ class IntegrationsTests(TestCase):
     def test_bitbucket_invalid_webhook(self, trigger_build):
         """Bitbucket webhook unhandled event."""
         client = APIClient()
+        payload = {"foo": "bar"}
         resp = client.post(
             '/api/v2/webhook/bitbucket/{}/'.format(self.project.slug),
-            {'foo': 'bar'}, format='json', HTTP_X_EVENT_KEY='pull_request',
+            payload,
+            format="json",
+            headers={
+                BITBUCKET_EVENT_HEADER: "pull_request",
+                BITBUCKET_SIGNATURE_HEADER: get_signature(
+                    self.bitbucket_integration, payload
+                ),
+            },
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['detail'], 'Unhandled webhook event')
@@ -2941,18 +3077,14 @@ class IntegrationsTests(TestCase):
 
     def test_generic_api_respects_token_auth(self, trigger_build):
         client = APIClient()
-        integration = Integration.objects.create(
-            project=self.project,
-            integration_type=Integration.API_WEBHOOK,
-        )
-        self.assertIsNotNone(integration.token)
+        self.assertIsNotNone(self.generic_integration.token)
         resp = client.post(
             '/api/v2/webhook/{}/{}/'.format(
                 self.project.slug,
-                integration.pk,
+                self.generic_integration.pk,
             ),
-            {'token': integration.token},
-            format='json',
+            {"token": self.generic_integration.token},
+            format="json",
         )
         self.assertEqual(resp.status_code, 200)
         self.assertTrue(resp.data['build_triggered'])
@@ -2960,10 +3092,10 @@ class IntegrationsTests(TestCase):
         resp = client.post(
             '/api/v2/webhook/{}/{}/'.format(
                 self.project.slug,
-                integration.pk,
+                self.generic_integration.pk,
             ),
-            {'token': integration.token, 'branches': 'nonexistent'},
-            format='json',
+            {"token": self.generic_integration.token, "branches": "nonexistent"},
+            format="json",
         )
         self.assertEqual(resp.status_code, 200)
         self.assertFalse(resp.data['build_triggered'])
@@ -3108,6 +3240,7 @@ class IntegrationsTests(TestCase):
         self.assertEqual(resp.data['versions'], ['v1.0'])
 
 
+@override_settings(PUBLIC_DOMAIN="readthedocs.io")
 class APIVersionTests(TestCase):
     fixtures = ['eric', 'test_data']
     maxDiff = None  # So we get an actual diff when it fails
@@ -3139,11 +3272,11 @@ class APIVersionTests(TestCase):
             "built": False,
             "id": 18,
             "active": True,
-            "canonical_url": "http://readthedocs.org/docs/pip/en/0.8/",
+            "canonical_url": "http://pip.readthedocs.io/en/0.8/",
             "project": {
                 "analytics_code": None,
                 "analytics_disabled": False,
-                "canonical_url": "http://readthedocs.org/docs/pip/en/latest/",
+                "canonical_url": "http://pip.readthedocs.io/en/latest/",
                 "cdn_enabled": False,
                 "conf_py_file": "",
                 "container_image": None,
@@ -3203,7 +3336,7 @@ class APIVersionTests(TestCase):
             'active': 'true',
         }
         url = reverse("version-list")
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(5):
             resp = self.client.get(url, data)
 
         self.assertEqual(resp.status_code, 200)
@@ -3213,7 +3346,7 @@ class APIVersionTests(TestCase):
         data.update({
             'active': 'false',
         })
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(5):
             resp = self.client.get(url, data)
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.data['count'], pip.versions.filter(active=False).count())
@@ -3221,7 +3354,7 @@ class APIVersionTests(TestCase):
     def test_project_get_active_versions(self):
         pip = Project.objects.get(slug="pip")
         url = reverse("project-active-versions", args=[pip.pk])
-        with self.assertNumQueries(6):
+        with self.assertNumQueries(5):
             resp = self.client.get(url)
         self.assertEqual(
             len(resp.data["versions"]), pip.versions.filter(active=True).count()
