@@ -16,7 +16,6 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.core.history import SimpleHistoryModelForm
-from readthedocs.core.resolver import resolver
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
@@ -239,7 +238,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
         # Remove empty choice from options, and add a preview to the choices.
         self.fields["versioning_scheme"].choices = [
-            (key, f"{value} ({self._get_versionin_scheme_preview(key)})")
+            (key, value)
             for key, value in self.fields["versioning_scheme"].choices
             if key
         ]
@@ -307,18 +306,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             self.fields[field].disabled = True
 
         self.setup_external_builds_option()
-
-    def _get_versionin_scheme_preview(self, versioning_scheme):
-        """Get a preview of the versioning scheme when used in the project."""
-        # Change the versioning scheme momentarily to get the preview.
-        original_version_scheme = self.instance.versioning_scheme
-        self.instance.versioning_scheme = versioning_scheme
-        path = resolver.resolve_path(
-            project=self.instance,
-            filename="file.html",
-        )
-        self.instance.versioning_scheme = original_version_scheme
-        return path
 
     def setup_external_builds_option(self):
         """Disable the external builds option if the project doesn't meet the requirements."""

@@ -15,12 +15,12 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 choices=[
                     (
-                        "single_version_without_translations",
-                        "Single version without translations",
+                        "multiple_versions_with_translations",
+                        "Multiple versions with translations (/<language>/<version>/<filename>)",
                     ),
                     (
-                        "multiple_versions_with_translations",
-                        "Multiple versions with translations",
+                        "single_version_without_translations",
+                        "Single version without translations (/<filename>)",
                     ),
                 ],
                 default="multiple_versions_with_translations",
@@ -36,12 +36,12 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 choices=[
                     (
-                        "single_version_without_translations",
-                        "Single version without translations",
+                        "multiple_versions_with_translations",
+                        "Multiple versions with translations (/<language>/<version>/<filename>)",
                     ),
                     (
-                        "multiple_versions_with_translations",
-                        "Multiple versions with translations",
+                        "single_version_without_translations",
+                        "Single version without translations (/<filename>)",
                     ),
                 ],
                 default="multiple_versions_with_translations",
