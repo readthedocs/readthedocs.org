@@ -1,3 +1,49 @@
+Version 10.11.0
+---------------
+
+:Date: November 14, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10898 <https://github.com/readthedocs/readthedocs.org/pull/10898>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.10.0 (`#10893 <https://github.com/readthedocs/readthedocs.org/pull/10893>`__)
+* `@jertel <https://github.com/jertel>`__: docs: update documentation around version warning banner (`#10877 <https://github.com/readthedocs/readthedocs.org/pull/10877>`__)
+
+Version 10.10.0
+---------------
+
+:Date: November 07, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10889 <https://github.com/readthedocs/readthedocs.org/pull/10889>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Build: use tag name for checkout" (`#10887 <https://github.com/readthedocs/readthedocs.org/pull/10887>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make Ubuntu callout correct (`#10883 <https://github.com/readthedocs/readthedocs.org/pull/10883>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.9.0 (`#10880 <https://github.com/readthedocs/readthedocs.org/pull/10880>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use tag name for checkout (`#10879 <https://github.com/readthedocs/readthedocs.org/pull/10879>`__)
+* `@stsewd <https://github.com/stsewd>`__: Resolver: use new methods to resolve documentation pages (`#10875 <https://github.com/readthedocs/readthedocs.org/pull/10875>`__)
+* `@humitos <https://github.com/humitos>`__: Resolver: don't use one global instance and implement caching (`#10872 <https://github.com/readthedocs/readthedocs.org/pull/10872>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add organization view UI filters (`#10847 <https://github.com/readthedocs/readthedocs.org/pull/10847>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects (design doc): improving existing functionality (`#10825 <https://github.com/readthedocs/readthedocs.org/pull/10825>`__)
+
+Version 10.9.0
+--------------
+
+:Date: October 31, 2023
+
+* `@stsewd <https://github.com/stsewd>`__: Build: use tag name for checkout (`#10879 <https://github.com/readthedocs/readthedocs.org/pull/10879>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10876 <https://github.com/readthedocs/readthedocs.org/pull/10876>`__)
+* `@stsewd <https://github.com/stsewd>`__: Resolver: use new methods to resolve documentation pages (`#10875 <https://github.com/readthedocs/readthedocs.org/pull/10875>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: update circleci API call (`#10874 <https://github.com/readthedocs/readthedocs.org/pull/10874>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: improve DB query for `projects_feature` table (`#10871 <https://github.com/readthedocs/readthedocs.org/pull/10871>`__)
+* `@humitos <https://github.com/humitos>`__: NGINX: inject the proper `readthedocs-version-slug` (`#10870 <https://github.com/readthedocs/readthedocs.org/pull/10870>`__)
+* `@stsewd <https://github.com/stsewd>`__: Unresolver: remove old language code compatibility (`#10869 <https://github.com/readthedocs/readthedocs.org/pull/10869>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: return the `.first()` object (`#10868 <https://github.com/readthedocs/readthedocs.org/pull/10868>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config file: remove deprecated keys from json schema (`#10867 <https://github.com/readthedocs/readthedocs.org/pull/10867>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.8.1 (`#10865 <https://github.com/readthedocs/readthedocs.org/pull/10865>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.8.0 (`#10864 <https://github.com/readthedocs/readthedocs.org/pull/10864>`__)
+* `@humitos <https://github.com/humitos>`__: DB: create an index for `builds_build` table to improve Addons API (`#10840 <https://github.com/readthedocs/readthedocs.org/pull/10840>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects (design doc): improving existing functionality (`#10825 <https://github.com/readthedocs/readthedocs.org/pull/10825>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: accept `project-slug` and `version-slug` on endpoint (`#10823 <https://github.com/readthedocs/readthedocs.org/pull/10823>`__)
+* `@stsewd <https://github.com/stsewd>`__: Resolver: refactor (`#10813 <https://github.com/readthedocs/readthedocs.org/pull/10813>`__)
+* `@stephenfin <https://github.com/stephenfin>`__: docs: Document how to fetch additional branches (`#10795 <https://github.com/readthedocs/readthedocs.org/pull/10795>`__)
+
 Version 10.8.1
 --------------
 

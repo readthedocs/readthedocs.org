@@ -19,7 +19,7 @@ from readthedocs.api.v3.serializers import (
 )
 from readthedocs.builds.constants import BUILD_STATE_FINISHED, EXTERNAL, LATEST
 from readthedocs.builds.models import Version
-from readthedocs.core.resolver import resolver
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.projects.models import Feature, Project
@@ -248,6 +248,7 @@ class AddonsResponse:
         It tries to follow some similarity with the APIv3 for already-known resources
         (Project, Version, Build, etc).
         """
+        resolver = Resolver()
         version_downloads = []
         versions_active_built_not_hidden = Version.objects.none()
 

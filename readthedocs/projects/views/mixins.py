@@ -1,16 +1,14 @@
 """Mixin classes for project views."""
 from urllib.parse import urlparse
 
+import structlog
 from celery import chain
 from django.shortcuts import get_object_or_404
 
-import structlog
-
-from readthedocs.core.resolver import resolve, resolve_path
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import prepare_build
 from readthedocs.projects.models import Project
 from readthedocs.projects.signals import project_import
-
 
 log = structlog.get_logger(__name__)
 
@@ -79,11 +77,12 @@ class ProjectRelationListMixin:
         if not subprojects.exists():
             return subprojects_and_urls
 
-        main_domain = resolve(project)
+        resolver = Resolver()
+        main_domain = resolver.get_domain(project)
         parsed_main_domain = urlparse(main_domain)
 
         for subproject in subprojects:
-            subproject_path = resolve_path(subproject.child)
+            subproject_path = resolver.resolve_path(subproject.child)
             parsed_subproject_domain = parsed_main_domain._replace(
                 path=subproject_path,
             )
