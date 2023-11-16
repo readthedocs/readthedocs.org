@@ -9,6 +9,7 @@ from django.conf import settings
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.constants import pattern_opts
+from readthedocs.projects.constants import MULTIPLE_VERSIONS_WITH_TRANSLATIONS, MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS, SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Domain, Feature, Project
 
 log = structlog.get_logger(__name__)
@@ -488,7 +489,7 @@ class Unresolver:
         :returns: A tuple with: project, version, and filename.
         """
         # Multiversion project.
-        if not parent_project.single_version and not parent_project.single_language:
+        if parent_project.versioning_scheme == MULTIPLE_VERSIONS_WITH_TRANSLATIONS:
             response = self._match_multiversion_project(
                 parent_project=parent_project,
                 path=path,
@@ -508,7 +509,7 @@ class Unresolver:
                 return response
 
         # Single version project.
-        if parent_project.single_version:
+        if parent_project.versioning_scheme == SINGLE_VERSION_WITHOUT_TRANSLATIONS:
             response = self._match_single_version_project(
                 parent_project=parent_project,
                 path=path,
@@ -518,7 +519,7 @@ class Unresolver:
                 return response
 
         # Single language project.
-        if parent_project.single_language:
+        if parent_project.versioning_scheme == MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS:
             response = self._match_single_language_project(
                 parent_project=parent_project,
                 path=path,
