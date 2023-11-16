@@ -20,7 +20,7 @@ You can see a live example of this at http://www.contribution-guide.org
 Enabling
 ~~~~~~~~
 
-In your project's :guilabel:`Admin` page, you can toggle the :guilabel:`Single version` option on or off for your project .
+In your project's :guilabel:`Admin` page, you can change the :guilabel:`Versioning scheme` option to :guilabel:`Single version without translations`.
 Check your :term:`dashboard` for a list of your projects.
 
 Effects
