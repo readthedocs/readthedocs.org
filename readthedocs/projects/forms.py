@@ -209,7 +209,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             "analytics_code",
             "analytics_disabled",
             "show_version_warning",
-            "single_version",
+            "versioning_scheme",
             "external_builds_enabled",
             "external_builds_privacy_level",
             "readthedocs_yaml_path",
@@ -235,6 +235,13 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         # Remove the nullable option from the form
         self.fields['analytics_disabled'].widget = forms.CheckboxInput()
         self.fields['analytics_disabled'].empty_value = False
+
+        # Remove empty choice from options, and add a preview to the choices.
+        self.fields["versioning_scheme"].choices = [
+            (key, value)
+            for key, value in self.fields["versioning_scheme"].choices
+            if key
+        ]
 
         self.helper = FormHelper()
         help_text = render_to_string(

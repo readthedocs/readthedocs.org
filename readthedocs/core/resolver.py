@@ -111,7 +111,7 @@ class Resolver:
         filename = self._fix_filename(filename)
 
         parent_project, project_relationship = self._get_canonical_project(project)
-        single_version = bool(project.single_version or single_version)
+        single_version = bool(project.is_single_version or single_version)
 
         # If the project is a subproject, we use the custom prefix
         # of the child of the relationship, this is since the project
