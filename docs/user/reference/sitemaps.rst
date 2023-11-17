@@ -31,4 +31,11 @@ Custom ``sitemap.xml``
 You can control the sitemap that is used via the ``robots.txt`` file.
 Our :doc:`/reference/robots` allows you to host a custom version of this file.
 
+An example would look like::
+
+  User-agent: *
+  Allow: /
+
+  Sitemap: https://www.example.com/sitemap.xml
+
 .. _semantic versioning: https://semver.org/
