@@ -9,7 +9,11 @@ from django.conf import settings
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.constants import pattern_opts
-from readthedocs.projects.constants import MULTIPLE_VERSIONS_WITH_TRANSLATIONS, MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS, SINGLE_VERSION_WITHOUT_TRANSLATIONS
+from readthedocs.projects.constants import (
+    MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+    SINGLE_VERSION_WITHOUT_TRANSLATIONS,
+)
 from readthedocs.projects.models import Domain, Feature, Project
 
 log = structlog.get_logger(__name__)
