@@ -112,7 +112,7 @@ class TestCustomPathPrefixes(BaseDocServing):
             "/proxito/media/html/project/latest/api/index.html",
         )
 
-    def test_custom_prefix_single_language_project(self):
+    def test_custom_prefix_multiple_versions_without_translations_project(self):
         self.project.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.project.custom_prefix = "/custom-prefix/"
         self.project.save()

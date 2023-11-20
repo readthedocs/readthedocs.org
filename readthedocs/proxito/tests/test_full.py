@@ -397,7 +397,7 @@ class TestFullDocServing(BaseDocServing):
             "/proxito/media/html/project/latest/en/awesome.html",
         )
 
-    def test_single_language_serving(self):
+    def test_multiple_versions_without_translations_serving(self):
         self.project.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.project.save()
         url = "/latest/awesome.html"
@@ -407,7 +407,7 @@ class TestFullDocServing(BaseDocServing):
             resp["x-accel-redirect"], "/proxito/media/html/project/latest/awesome.html"
         )
 
-    def test_single_language_serving_language_like_subdir(self):
+    def test_multiple_versions_without_translations_serving_language_like_subdir(self):
         self.project.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.project.save()
         url = "/en/api/awesome.html"
@@ -423,7 +423,9 @@ class TestFullDocServing(BaseDocServing):
             "/proxito/media/html/project/en/api/awesome.html",
         )
 
-    def test_single_language_serving_subprojects_like_subdir(self):
+    def test_multiple_versions_without_translations_serving_subprojects_like_subdir(
+        self,
+    ):
         self.project.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.project.save()
         url = "/projects/api/awesome.html"

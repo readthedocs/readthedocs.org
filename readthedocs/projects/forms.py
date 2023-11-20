@@ -667,10 +667,10 @@ class TranslationBaseForm(forms.Form):
         ) for project in self.get_translation_queryset().all()]
 
     def clean(self):
-        if self.parent.single_language:
+        if not self.parent.supports_translations:
             raise forms.ValidationError(
                 _(
-                    'This project is configured as "single language", and can\'t have translations.'
+                    "This project is configured with a versioning scheme that doesn't support translations."
                 ),
             )
         return super().clean()

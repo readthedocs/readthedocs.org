@@ -564,7 +564,7 @@ class ResolverTests(ResolverBase):
         PUBLIC_DOMAIN="readthedocs.io",
         USE_SUBDOMAIN=True,
     )
-    def test_resolver_single_language(self):
+    def test_resolver_multiple_versions_without_translations(self):
         self.pip.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.pip.save()
 
@@ -578,7 +578,7 @@ class ResolverTests(ResolverBase):
         PUBLIC_DOMAIN="readthedocs.io",
         USE_SUBDOMAIN=True,
     )
-    def test_resolver_single_language_with_subproject(self):
+    def test_resolver_multiple_versions_without_translations_with_subproject(self):
         self.pip.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.pip.save()
 
@@ -592,7 +592,7 @@ class ResolverTests(ResolverBase):
         PUBLIC_DOMAIN="readthedocs.io",
         USE_SUBDOMAIN=True,
     )
-    def test_resolver_subproject_with_single_language(self):
+    def test_resolver_subproject_with_multiple_versions_without_translations(self):
         self.subproject.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.pip.save()
 

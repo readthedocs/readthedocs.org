@@ -18,11 +18,11 @@
     {% endblocktrans %}
   </p>
 
-  {% if project.single_language %}
+  {% if not project.supports_translations %}
     {% url 'projects_advanced' project_slug=project.slug as advanced_settings_url %}
     <p>
       {% blocktrans trimmed with advanced_settings_url=advanced_settings_url %}
-      This project is <a href="{{ advanced_settings_url }}">configured</a> as "single language", and can't have translations.
+      This project is <a href="{{ advanced_settings_url }}">configured</a> with a versioning scheme that doesn't support translations.
       {% endblocktrans %}
     </p>
   {% elif project.main_language_project %}
