@@ -39,7 +39,6 @@ class TestReadTheDocsConfigJson(TestCase):
             external_builds_privacy_level=PUBLIC,
             repo="https://github.com/readthedocs/project",
             programming_language="words",
-            single_version=False,
             users=[self.user],
             main_language_project=None,
             project_url="http://project.com",

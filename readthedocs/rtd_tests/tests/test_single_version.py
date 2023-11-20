@@ -2,6 +2,7 @@ import django_dynamic_fixture as fixture
 from django.test import TestCase
 from django.test.utils import override_settings
 
+from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Project
 
 
@@ -12,7 +13,10 @@ from readthedocs.projects.models import Project
 class RedirectSingleVersionTests(TestCase):
     def setUp(self):
         self.pip = fixture.get(
-            Project, slug="pip", single_version=True, main_language_project=None
+            Project,
+            slug="pip",
+            versioning_scheme=SINGLE_VERSION_WITHOUT_TRANSLATIONS,
+            main_language_project=None,
         )
 
     def test_docs_url_generation(self):

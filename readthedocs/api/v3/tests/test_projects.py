@@ -440,6 +440,9 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.project.show_version_warning, False)
         self.assertEqual(self.project.is_single_version, True)
         self.assertEqual(self.project.external_builds_enabled, True)
+        self.assertEqual(
+            self.project.versioning_scheme, SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        )
 
     def test_partial_update_project(self):
         data = {

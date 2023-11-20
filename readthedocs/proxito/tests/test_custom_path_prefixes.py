@@ -1,5 +1,6 @@
 from django.test.utils import override_settings
 
+from readthedocs.projects.constants import MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
 from readthedocs.proxito.tests.base import BaseDocServing
 
 
@@ -112,7 +113,7 @@ class TestCustomPathPrefixes(BaseDocServing):
         )
 
     def test_custom_prefix_single_language_project(self):
-        self.project.single_language = True
+        self.project.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.project.custom_prefix = "/custom-prefix/"
         self.project.save()
         host = "project.readthedocs.io"

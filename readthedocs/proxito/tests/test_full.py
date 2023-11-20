@@ -19,8 +19,10 @@ from readthedocs.projects.constants import (
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPE_HTMLZIP,
     MKDOCS,
+    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
     PRIVATE,
     PUBLIC,
+    SINGLE_VERSION_WITHOUT_TRANSLATIONS,
     SPHINX,
     SPHINX_HTMLDIR,
     SPHINX_SINGLEHTML,
@@ -111,7 +113,7 @@ class TestFullDocServing(BaseDocServing):
         )
 
     def test_single_version_serving(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
         url = '/awesome.html'
         host = 'project.dev.readthedocs.io'
@@ -396,7 +398,7 @@ class TestFullDocServing(BaseDocServing):
         )
 
     def test_single_language_serving(self):
-        self.project.single_language = True
+        self.project.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.project.save()
         url = "/latest/awesome.html"
         host = "project.dev.readthedocs.io"
@@ -406,7 +408,7 @@ class TestFullDocServing(BaseDocServing):
         )
 
     def test_single_language_serving_language_like_subdir(self):
-        self.project.single_language = True
+        self.project.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.project.save()
         url = "/en/api/awesome.html"
         host = "project.dev.readthedocs.io"
@@ -422,7 +424,7 @@ class TestFullDocServing(BaseDocServing):
         )
 
     def test_single_language_serving_subprojects_like_subdir(self):
-        self.project.single_language = True
+        self.project.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.project.save()
         url = "/projects/api/awesome.html"
         host = "project.dev.readthedocs.io"

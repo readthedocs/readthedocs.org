@@ -4,15 +4,16 @@ from django_dynamic_fixture import get
 
 from readthedocs.builds.constants import EXTERNAL
 from readthedocs.builds.models import Version
-from readthedocs.core.resolver import (
-    Resolver,
+from readthedocs.core.resolver import Resolver
+from readthedocs.projects.constants import (
+    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+    PRIVATE,
+    SINGLE_VERSION_WITHOUT_TRANSLATIONS,
 )
-from readthedocs.projects.constants import PRIVATE
 from readthedocs.projects.models import Domain, Project, ProjectRelationship
 from readthedocs.rtd_tests.utils import create_user
 from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.products import RTDProductFeature
-
 
 resolver = Resolver()
 
@@ -164,7 +165,7 @@ class ResolverPathOverrideTests(ResolverBase):
         url = resolver.resolve_path(
             project=self.pip,
             filename="index.html",
-            single_version=True,
+            versioning_scheme=SINGLE_VERSION_WITHOUT_TRANSLATIONS,
         )
         self.assertEqual(url, "/index.html")
 
@@ -564,7 +565,7 @@ class ResolverTests(ResolverBase):
         USE_SUBDOMAIN=True,
     )
     def test_resolver_single_language(self):
-        self.pip.single_language = True
+        self.pip.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.pip.save()
 
         url = Resolver().resolve(project=self.pip)
@@ -578,7 +579,7 @@ class ResolverTests(ResolverBase):
         USE_SUBDOMAIN=True,
     )
     def test_resolver_single_language_with_subproject(self):
-        self.pip.single_language = True
+        self.pip.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.pip.save()
 
         url = Resolver().resolve(project=self.subproject)
@@ -592,7 +593,7 @@ class ResolverTests(ResolverBase):
         USE_SUBDOMAIN=True,
     )
     def test_resolver_subproject_with_single_language(self):
-        self.subproject.single_language = True
+        self.subproject.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.pip.save()
 
         url = Resolver().resolve(project=self.subproject)

@@ -9,6 +9,7 @@ from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
     PRIVATE,
     PUBLIC,
     REPO_TYPE_GIT,
@@ -668,7 +669,7 @@ class TestTranslationForms(TestCase):
         self.assertTrue(form.is_valid())
 
     def test_cant_add_translations_to_single_language_project(self):
-        self.project_a_es.single_language = True
+        self.project_a_es.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
         self.project_a_es.save()
 
         form = TranslationForm(

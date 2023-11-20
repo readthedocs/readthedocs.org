@@ -59,7 +59,12 @@ from readthedocs.search.parsers import GenericParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
-from .constants import DOWNLOADABLE_MEDIA_TYPES, MEDIA_TYPES
+from .constants import (
+    DOWNLOADABLE_MEDIA_TYPES,
+    MEDIA_TYPES,
+    MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -259,10 +264,10 @@ class Project(models.Model):
         _('Single version'),
         default=False,
         help_text=_(
-            "A single version project has no translations and only your "
+            "A single version site has no translations and only your "
             '"latest" version, served at the root of the domain. Use '
             "this with caution, only turn it on if you will <b>never</b> "
-            "have multiple versions or translations of your docs.",
+            "have multiple versions of your docs.",
         ),
     )
     default_version = models.CharField(
@@ -867,6 +872,19 @@ class Project(models.Model):
         if self.single_version:
             return True
         return self.versioning_scheme == constants.SINGLE_VERSION_WITHOUT_TRANSLATIONS
+
+    @property
+    def supports_multiple_versions(self):
+        """Return whether or not this project supports multiple versions."""
+        return self.versioning_scheme in [
+            MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+            MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+        ]
+
+    @property
+    def supports_translations(self):
+        """Return whether or not this project supports translations."""
+        return self.versioning_scheme == MULTIPLE_VERSIONS_WITH_TRANSLATIONS
 
     def subdomain(self, use_canonical_domain=True):
         """Get project subdomain from resolver."""
