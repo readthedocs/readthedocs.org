@@ -36,6 +36,6 @@ An example would look like::
   User-agent: *
   Allow: /
 
-  Sitemap: https://www.example.com/sitemap.xml
+  Sitemap: https://docs.example.com/en/stable/sitemap.xml
 
 .. _semantic versioning: https://semver.org/
