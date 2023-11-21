@@ -682,7 +682,7 @@ class TestTranslationForms(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertIn(
-            "This project is configured with a versioning scheme that doesn't support translations."
+            "This project is configured with a versioning scheme that doesn't support translations.",
             "".join(form.errors["__all__"]),
         )
 
@@ -697,7 +697,7 @@ class TestTranslationForms(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertIn(
-            "This project is configured with a versioning scheme that doesn't support translations."
+            "This project is configured with a versioning scheme that doesn't support translations.",
             "".join(form.errors["__all__"]),
         )
 

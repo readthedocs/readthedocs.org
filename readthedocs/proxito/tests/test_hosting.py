@@ -12,7 +12,11 @@ from django.utils import timezone
 
 from readthedocs.builds.constants import LATEST
 from readthedocs.builds.models import Build, Version
-from readthedocs.projects.constants import PRIVATE, PUBLIC
+from readthedocs.projects.constants import (
+    PRIVATE,
+    PUBLIC,
+    SINGLE_VERSION_WITHOUT_TRANSLATIONS,
+)
 from readthedocs.projects.models import Domain, Feature, Project
 
 
@@ -367,7 +371,7 @@ class TestReadTheDocsConfigJson(TestCase):
         self.version.has_htmlzip = True
         self.version.save()
 
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
 
         r = self.client.get(

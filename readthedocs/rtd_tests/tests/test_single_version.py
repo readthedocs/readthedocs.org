@@ -2,7 +2,10 @@ import django_dynamic_fixture as fixture
 from django.test import TestCase
 from django.test.utils import override_settings
 
-from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
+from readthedocs.projects.constants import (
+    MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+    SINGLE_VERSION_WITHOUT_TRANSLATIONS,
+)
 from readthedocs.projects.models import Project
 
 
@@ -25,7 +28,8 @@ class RedirectSingleVersionTests(TestCase):
             "http://pip.public.readthedocs.org/",
         )
 
-        self.pip.single_version = False
+        self.pip.versioning_scheme = MULTIPLE_VERSIONS_WITH_TRANSLATIONS
+        self.pip.save()
         self.assertEqual(
             self.pip.get_docs_url(),
             "http://pip.public.readthedocs.org/en/latest/",

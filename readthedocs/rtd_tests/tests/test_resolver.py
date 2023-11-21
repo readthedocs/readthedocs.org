@@ -141,13 +141,13 @@ class SmartResolverPathTests(ResolverBase):
         self.assertEqual(url, "/projects/sub/ja/latest/index.html")
 
     def test_resolver_subproject_single_version(self):
-        self.subproject.single_version = True
+        self.subproject.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         url = resolver.resolve_path(project=self.subproject, filename="index.html")
         self.assertEqual(url, "/projects/sub/index.html")
 
     def test_resolver_subproject_both_single_version(self):
-        self.pip.single_version = True
-        self.subproject.single_version = True
+        self.pip.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.subproject.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         url = resolver.resolve_path(project=self.subproject, filename="index.html")
         self.assertEqual(url, "/projects/sub/index.html")
 
@@ -159,15 +159,6 @@ class SmartResolverPathTests(ResolverBase):
 class ResolverPathOverrideTests(ResolverBase):
 
     """Tests to make sure we can override resolve_path correctly."""
-
-    def test_resolver_force_single_version(self):
-        self.pip.single_version = False
-        url = resolver.resolve_path(
-            project=self.pip,
-            filename="index.html",
-            versioning_scheme=SINGLE_VERSION_WITHOUT_TRANSLATIONS,
-        )
-        self.assertEqual(url, "/index.html")
 
     def test_resolver_force_language(self):
         url = resolver.resolve_path(
@@ -478,7 +469,8 @@ class ResolverTests(ResolverBase):
         )
 
     def test_resolver_single_version(self):
-        self.pip.single_version = True
+        self.pip.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.pip.save()
         url = resolver.resolve(project=self.pip)
         self.assertEqual(url, "http://pip.readthedocs.org/")
 
@@ -885,7 +877,7 @@ class TestResolverWithCustomPrefixes(ResolverBase):
         )
 
     def test_custom_prefix_single_version_project(self):
-        self.pip.single_version = True
+        self.pip.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.pip.custom_prefix = "/custom-prefix/"
         self.pip.save()
 

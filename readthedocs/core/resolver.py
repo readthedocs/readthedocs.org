@@ -156,7 +156,6 @@ class Resolver:
             filename=filename,
             version_slug=version.slug,
             language=project.language,
-            versioning_scheme=project.versioning_scheme,
         )
         protocol = "https" if use_https else "http"
         return urlunparse((protocol, domain, path, "", "", ""))

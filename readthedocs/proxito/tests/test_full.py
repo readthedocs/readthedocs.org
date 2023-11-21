@@ -71,7 +71,7 @@ class TestFullDocServing(BaseDocServing):
         )
 
     def test_subproject_single_version(self):
-        self.subproject.single_version = True
+        self.subproject.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.subproject.save()
         url = '/projects/subproject/awesome.html'
         host = 'project.dev.readthedocs.io'
@@ -123,7 +123,7 @@ class TestFullDocServing(BaseDocServing):
         )
 
     def test_single_version_serving_looks_like_normal(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
         url = '/en/stable/awesome.html'
         host = 'project.dev.readthedocs.io'
@@ -142,7 +142,7 @@ class TestFullDocServing(BaseDocServing):
             )
 
     def test_single_version_external_serving(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
         fixture.get(
             Version,
@@ -365,7 +365,7 @@ class TestFullDocServing(BaseDocServing):
         )
 
     def test_single_version_serving_projects_dir(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
         url = "/projects/awesome.html"
         host = "project.dev.readthedocs.io"
@@ -376,7 +376,7 @@ class TestFullDocServing(BaseDocServing):
         )
 
     def test_single_version_serving_language_like_subdir(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
         url = "/en/api/awesome.html"
         host = "project.dev.readthedocs.io"
@@ -387,7 +387,7 @@ class TestFullDocServing(BaseDocServing):
         )
 
     def test_single_version_serving_language_like_dir(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
         url = "/en/awesome.html"
         host = "project.dev.readthedocs.io"
