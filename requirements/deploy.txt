@@ -12,6 +12,7 @@ asgiref==3.7.2
     # via
     #   -r requirements/pip.txt
     #   django
+    #   django-cors-headers
 asttokens==2.4.1
     # via stack-data
 async-timeout==4.0.3
@@ -22,11 +23,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.28.84
+boto3==1.29.3
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.31.84
+botocore==1.32.3
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -35,7 +36,7 @@ celery==5.2.7
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-certifi==2023.7.22
+certifi==2023.11.17
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -125,7 +126,7 @@ django-cacheops==7.0.2
     # via -r requirements/pip.txt
 django-celery-beat==2.5.0
     # via -r requirements/pip.txt
-django-cors-headers==4.3.0
+django-cors-headers==4.3.1
     # via -r requirements/pip.txt
 django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
@@ -189,11 +190,11 @@ elastic-transport==8.10.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.10.1
+elasticsearch==8.11.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
-elasticsearch-dsl==8.9.0
+elasticsearch-dsl==8.11.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
@@ -228,7 +229,7 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.3.3
+kombu==5.3.4
     # via
     #   -r requirements/pip.txt
     #   celery
@@ -240,7 +241,7 @@ markdown==3.5.1
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.6
     # via ipython
-newrelic==9.1.1
+newrelic==9.2.0
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
@@ -263,7 +264,7 @@ platformdirs==3.11.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
-prompt-toolkit==3.0.40
+prompt-toolkit==3.0.41
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -278,7 +279,7 @@ pycparser==2.21
     # via
     #   -r requirements/pip.txt
     #   cffi
-pygments==2.16.1
+pygments==2.17.0
     # via
     #   -r requirements/pip.txt
     #   ipython
@@ -337,7 +338,7 @@ s3transfer==0.7.0
     #   boto3
 selectolax==0.3.17
     # via -r requirements/pip.txt
-sentry-sdk==1.34.0
+sentry-sdk==1.35.0
     # via structlog-sentry
 six==1.16.0
     # via
@@ -411,7 +412,7 @@ vine==5.1.0
     #   kombu
 virtualenv==20.24.6
     # via -r requirements/pip.txt
-wcwidth==0.2.9
+wcwidth==0.2.10
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
