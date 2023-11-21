@@ -6,9 +6,9 @@ and if your project supports multiple versions or translations.
 
 Read the Docs supports three different versioning schemes:
 
-- `Multiple versions with translations`_
-- `Multiple versions without translations`_
-- `Single version without translations`_
+- `Multiple versions with translations`_.
+- `Multiple versions without translations`_.
+- `Single version without translations`_.
 
 .. seealso::
 
@@ -16,7 +16,7 @@ Read the Docs supports three different versioning schemes:
      How to configure your project to use a specific versioning scheme.
 
    :doc:`/versions`
-     General explanation of how versioning works on Read the Docs
+     General explanation of how versioning works on Read the Docs.
 
 Multiple versions with translations
 -----------------------------------
