@@ -128,6 +128,13 @@ class TestCustomPathPrefixes(BaseDocServing):
             resp["Location"], "http://project.readthedocs.io/custom-prefix/latest/"
         )
 
+        # Root prefix redirect.
+        resp = self.client.get("/custom-prefix/", headers={"host": host})
+        self.assertEqual(resp.status_code, 302)
+        self.assertEqual(
+            resp["Location"], "http://project.readthedocs.io/custom-prefix/latest/"
+        )
+
         # Trailing slash redirect
         resp = self.client.get("/custom-prefix/latest", headers={"host": host})
         self.assertEqual(resp.status_code, 302)

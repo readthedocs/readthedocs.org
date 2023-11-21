@@ -168,7 +168,7 @@ class Unresolver:
     # - /en/latest
     # - /en/latest/
     # - /en/latest/file/name/
-    multiversion_with_translations_pattern = _expand_regex(
+    multiple_versions_with_translations_pattern = _expand_regex(
         # The path must have a language slug,
         # optionally a version slug followed by a filename.
         "^/{language}(/({version}(/{filename})?)?)?$"
@@ -178,7 +178,7 @@ class Unresolver:
     # - /latest
     # - /latest/
     # - /latest/file/name/
-    multiversion_without_translations_pattern = _expand_regex(
+    multiple_versions_without_translations_pattern = _expand_regex(
         # The path must have a version slug,
         # optionally followed by a filename.
         "^/{version}(/{filename})?$"
@@ -276,7 +276,7 @@ class Unresolver:
             filename = "/" + filename
         return filename
 
-    def _match_multiversion_with_translations_project(
+    def _match_multiple_versions_with_translations_project(
         self, parent_project, path, external_version_slug=None
     ):
         """
@@ -296,7 +296,7 @@ class Unresolver:
             # so syntax is black with noqa for pep8.
             path = self._normalize_filename(path[len(custom_prefix) :])  # noqa
 
-        match = self.multiversion_with_translations_pattern.match(path)
+        match = self.multiple_versions_with_translations_pattern.match(path)
         if not match:
             return None
 
@@ -343,7 +343,7 @@ class Unresolver:
 
         return project, version, filename
 
-    def _match_multiversion_without_translations_project(
+    def _match_multiple_versions_without_translations_project(
         self, parent_project, path, external_version_slug=None
     ):
         custom_prefix = parent_project.custom_prefix
@@ -354,7 +354,7 @@ class Unresolver:
             # so syntax is black with noqa for pep8.
             path = self._normalize_filename(path[len(custom_prefix) :])  # noqa
 
-        match = self.multiversion_without_translations_pattern.match(path)
+        match = self.multiple_versions_without_translations_pattern.match(path)
         if not match:
             return None
 
@@ -494,7 +494,7 @@ class Unresolver:
         """
         # Multiversion project.
         if parent_project.versioning_scheme == MULTIPLE_VERSIONS_WITH_TRANSLATIONS:
-            response = self._match_multiversion_with_translations_project(
+            response = self._match_multiple_versions_with_translations_project(
                 parent_project=parent_project,
                 path=path,
                 external_version_slug=external_version_slug,
@@ -514,7 +514,7 @@ class Unresolver:
 
         # Single language project.
         if parent_project.versioning_scheme == MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS:
-            response = self._match_multiversion_without_translations_project(
+            response = self._match_multiple_versions_without_translations_project(
                 parent_project=parent_project,
                 path=path,
                 external_version_slug=external_version_slug,

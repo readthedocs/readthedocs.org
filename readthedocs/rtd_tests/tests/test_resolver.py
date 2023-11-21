@@ -142,12 +142,15 @@ class SmartResolverPathTests(ResolverBase):
 
     def test_resolver_subproject_single_version(self):
         self.subproject.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.subproject.save()
         url = resolver.resolve_path(project=self.subproject, filename="index.html")
         self.assertEqual(url, "/projects/sub/index.html")
 
     def test_resolver_subproject_both_single_version(self):
         self.pip.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.pip.save()
         self.subproject.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.subproject.save()
         url = resolver.resolve_path(project=self.subproject, filename="index.html")
         self.assertEqual(url, "/projects/sub/index.html")
 
