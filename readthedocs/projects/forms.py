@@ -245,13 +245,13 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
         if self.instance.main_language_project:
             link = reverse(
-                'projects_advanced',
+                "projects_advanced",
                 args=[self.instance.main_language_project.slug],
             )
-            self.fields['versioning_scheme'].help_text = _(
+            self.fields["versioning_scheme"].help_text = _(
                 f'This setting is inherited from the <a href="{link}">main language project</a>.',
             )
-            self.fields['versioning_scheme'].disabled = True
+            self.fields["versioning_scheme"].disabled = True
 
         self.helper = FormHelper()
         help_text = render_to_string(
