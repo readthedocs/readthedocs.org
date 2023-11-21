@@ -54,4 +54,4 @@ The following how-to guides help you solve common tasks and challenges in the se
    Hiding a version </guides/hiding-a-version>
    Using a .readthedocs.yaml file in a sub-folder </guides/setup/monorepo>
    Using custom URL redirects in documentation projects </guides/redirects>
-   Changing the versioning scheme of your project </guides/setup/versioninG-schemes>
+   Changing the versioning scheme of your project </guides/setup/versioning-schemes>
