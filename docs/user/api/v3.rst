@@ -300,6 +300,7 @@ Project details
        ``versioning_scheme`` can be one of the following values:
 
        - ``multiple_versions_with_translations``
+       - ``multiple_versions_without_translations``
        - ``single_version_without_translations``
 
     .. note::

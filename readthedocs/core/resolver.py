@@ -117,20 +117,22 @@ class Resolver:
 
         parent_project, project_relationship = self._get_canonical_project(project)
 
-        # If the project is a subproject, we use the custom prefix
+        # If the project is a subproject, we use the custom prefix and versioning scheme
         # of the child of the relationship, this is since the project
         # could be a translation. For a project that isn't a subproject,
-        # we use the custom prefix of the parent project.
+        # we use the custom prefix and versioning scheme of the parent project.
         if project_relationship:
             custom_prefix = project_relationship.child.custom_prefix
+            versioning_scheme = project_relationship.child.versioning_scheme
         else:
             custom_prefix = parent_project.custom_prefix
+            versioning_scheme = parent_project.versioning_scheme
 
         return self.base_resolve_path(
             filename=filename,
             version_slug=version_slug,
             language=language,
-            versioning_scheme=project.versioning_scheme,
+            versioning_scheme=versioning_scheme,
             project_relationship=project_relationship,
             custom_prefix=custom_prefix,
         )
