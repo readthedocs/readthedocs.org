@@ -719,6 +719,8 @@ class TranslationBaseForm(forms.Form):
             Project.objects.for_admin_user(self.user)
             .filter(main_language_project=None)
             .exclude(pk=self.parent.pk)
+            .exclude(language=self.parent.language)
+            # TODO: exclude languages that are already translations of the parent.
         )
         return queryset
 
