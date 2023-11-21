@@ -12,7 +12,7 @@ Read the Docs supports three different versioning schemes:
 
 .. seealso::
 
-   :doc:`/guides/versioning-schemes`
+   :doc:`/guides/setup/versioning-schemes`
      How to configure your project to use a specific versioning scheme.
 
    :doc:`/versions`
