@@ -224,7 +224,7 @@ It contains an identifier (``slug``) pointing to one of the messages defined in 
         dismissable = models.BooleanField(default=False)
 
         # Show the notification under the bell icon for the user
-        bell = models.BooleanField(default=False, help_text="Show under bell icon")
+        news = models.BooleanField(default=False, help_text="Show under bell icon")
 
         # Notification attached to
         #
@@ -320,7 +320,7 @@ after publishing a blog post:
         Notification.objects.create(
             slug="blog-post-beta-addons",
             dismissable=True,
-            bell=True,
+            news=True,
             attached_to=User,
             attached_to_id=user.id,
         )
@@ -389,7 +389,7 @@ Notifications list
                     "slug": "cancelled-by-user",
                     "state": "unread",
                     "dismissable": false,
-                    "bell": false,
+                    "news": false,
                     "attached_to": "build",
                     "message": {
                         "header": "User action",
@@ -426,7 +426,7 @@ Notification create
             "type": "error",
             "state": "unread",
             "dismissable": false,
-            "bell": false,
+            "news": false,
         }
 
 
