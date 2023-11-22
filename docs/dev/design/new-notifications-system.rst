@@ -32,7 +32,7 @@ Goals
 
 * Keep raising exceptions for errors from the build process
 * Ability to add non-error notifications from the build process
-* Add extra metadata associated to the notification: icon, color, header, body, etc
+* Add extra metadata associated to the notification: icon, header, body, etc
 * Support different types of notifications (e.g. error, warning, note, tip)
 * Re-use the new notification system for product updates (e.g. new features, deprecated config keys)
 * Message content lives on Python classes that can be translated and formatted with objects (e.g. Build, Project)
@@ -116,7 +116,6 @@ and some helper logic to return in the API response.
             body = str
             icon = str
             icon_style = str(SOLID, DUOTONE)
-            color = str
             type = str(ERROR, WARINIG, NOTE, TIP)
 
         def get_display_icon(self):
@@ -127,16 +126,6 @@ and some helper logic to return in the API response.
                 return "fa-exclamation"
             if self.type == WARNING:
                 return "fa-triangle-exclamation"
-
-        def get_display_color(self):
-            if self.color:
-                return color
-
-            if self.type == ERROR:
-                return "red"
-            if self.type == WARNING:
-                return "yellow"
-
 
 
 Definition of notifications to display to users
@@ -397,7 +386,6 @@ Notifications list
                         "type": "error",
                         "icon": "fa-exclamation",
                         "icon_style": "duotone",
-                        "color": "red"
                     }
                 }
             ]
