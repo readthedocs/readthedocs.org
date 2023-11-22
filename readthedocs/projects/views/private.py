@@ -863,8 +863,7 @@ class IntegrationCreate(IntegrationMixin, CreateView):
 
 
 class IntegrationDetail(IntegrationMixin, DetailView):
-
-    template_name = 'projects/integration_webhook_detail.html'
+    template_name = "projects/integration_webhook_detail.html"
 
 
 class IntegrationDelete(IntegrationMixin, DeleteView):
