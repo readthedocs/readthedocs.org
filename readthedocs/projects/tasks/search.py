@@ -217,7 +217,7 @@ def _create_imported_files_and_search_index(
             index_name=search_index_name,
             # Pages are indexed in small chunks to avoid a
             # large payload that will probably timeout ES.
-            chunk_size=25,
+            chunk_size=100,
         )
 
     # Remove old HTMLFiles from ElasticSearch
