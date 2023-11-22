@@ -37,7 +37,7 @@ Goals
 * Re-use the new notification system for product updates (e.g. new features, deprecated config keys)
 * Message content lives on Python classes that can be translated and formatted with objects (e.g. Build, Project)
 * Message could have richer content (e.g. HTML code) to generate links and emphasis
-* Notifications have trackable state (e.g. unread (default)=never shown, read=shown, dismissed=don't show again)
+* Notifications have trackable state (e.g. unread (default)=never shown, read=shown, dismissed=don't show again, cancelled=auto-removed after user action)
 * An object (e.g. Build, Organization) can have more than 1 notification attached
 * Remove hardcoded notifications from the templates
 * Notifications can be attached to Project, Organization, Build and User models
@@ -203,8 +203,9 @@ It contains an identifier (``message_id``) pointing to one of the messages defin
         # UNREAD: the notification was not shown to the user
         # READ: the notifiation was shown
         # DISMISSED: the notification was shown and the user dismissed it
+        # CANCELLED: removed automatically because the user has done the action required (e.g. paid the subscription)
         state = models.CharField(
-            choices=[UNREAD, READ, DISMISSED],
+            choices=[UNREAD, READ, DISMISSED, CANCELLED],
             default=UNREAD,
             db_index=True,
         )
@@ -335,7 +336,7 @@ We can do this with the following code:
                 state__in=[UNREAD, READ],
                 attached_to=Organization,
                 attached_to_id=organization.id,
-            ).update(state=DISMISSED)
+            ).update(state=CANCELLED)
 
 
 
