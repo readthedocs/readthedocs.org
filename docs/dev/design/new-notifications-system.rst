@@ -448,3 +448,9 @@ It's not strickly required, but if we want, we could extract the current notific
   * etc
 
 and iterate over all the ``Build`` objects to create a ``Notification`` object for each of them.
+
+I'm not planning to implement the "new notification system" in the old templates.
+It doesn't make sense to spend time in them since we are deprecating them.
+
+Old builds will keep using the current notification approach based on ``build.error`` field.
+New builds won't have ``build.error`` anymore and they will use the new notification system on ext-theme.
