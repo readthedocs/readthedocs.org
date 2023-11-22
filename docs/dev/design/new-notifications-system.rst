@@ -188,7 +188,7 @@ Each notification has to be defined here using the ``Message`` class previously 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This class is the representation of a notification attached to an resource (e.g. User, Build, etc) in the database.
-It contains an identifier (``slug``) pointing to one of the messages defined in the previous section (key in constant ``NOTIFICATION_MESSAGES``).
+It contains an identifier (``message_id``) pointing to one of the messages defined in the previous section (key in constant ``NOTIFICATION_MESSAGES``).
 
 .. code-block:: python
 
@@ -198,7 +198,7 @@ It contains an identifier (``slug``) pointing to one of the messages defined in 
 
     class Notification(TimeStampedModel):
         # Message identifier
-        slug = models.CharField(max_length=128)
+        message_id = models.CharField(max_length=128)
 
         # UNREAD: the notification was not shown to the user
         # READ: the notifiation was shown
@@ -234,7 +234,7 @@ It contains an identifier (``slug``) pointing to one of the messages defined in 
 
         def get_display_message(self):
             return textwrap.dedent(
-                NOTIFICATION_MESSAGES.get(self.slug).format(
+                NOTIFICATION_MESSAGES.get(self.message_id).format(
                     instance=self.attached_to,  # Build, Project, Organization, User
                 )
             )
@@ -263,7 +263,7 @@ Example of how the exception ``BuildCancelled`` creates an error ``Notification`
         def on_failure(self):
             self.data.api_client.build(self.data.build["id"]).notifications.post(
                 {
-                    "slug": "cancelled-by-user",
+                    "message_id": "cancelled-by-user",
                     # Override default fields if required
                     "type": WARNING,
                 }
@@ -286,7 +286,7 @@ During the build, we will be able attach non-error notifications with the follow
             if self.config.build.os == "ubuntu-18.04":
                 self.api_client.build(self.data.build["id"]).notifications.post(
                     {
-                        "slug": "os-ubuntu-18.04-deprecated",
+                        "message_id": "os-ubuntu-18.04-deprecated",
                     }
                 )
 
@@ -307,7 +307,7 @@ after publishing a blog post:
 
     for user in users_to_show_notification:
         Notification.objects.create(
-            slug="blog-post-beta-addons",
+            message_id="blog-post-beta-addons",
             dismissable=True,
             news=True,
             attached_to=User,
@@ -331,7 +331,7 @@ We can do this with the following code:
             organization = Organization.objects.get(slug="read-the-docs")
 
             Notification.objects.filter(
-                slug="subscription-update-your-cc-details",
+                message_id="subscription-update-your-cc-details",
                 state__in=[UNREAD, READ],
                 attached_to=Organization,
                 attached_to_id=organization.id,
@@ -375,7 +375,7 @@ Notifications list
             "previous": null,
             "results": [
                 {
-                    "slug": "cancelled-by-user",
+                    "message_id": "cancelled-by-user",
                     "state": "unread",
                     "dismissable": false,
                     "news": false,
@@ -410,7 +410,7 @@ Notification create
     .. sourcecode:: json
 
         {
-            "slug": "cancelled-by-user",
+            "message_id": "cancelled-by-user",
             "type": "error",
             "state": "unread",
             "dismissable": false,
