@@ -1235,7 +1235,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         related_name='automation_rules',
         on_delete=models.CASCADE,
     )
-    priority = models.IntegerField(
+    priority = models.PositiveIntegerField(
         _('Rule priority'),
         help_text=_('A lower number (0) means a higher priority'),
         default=0,
@@ -1352,7 +1352,6 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
         :param steps: Number of steps to be moved
                       (it can be negative)
-        :returns: True if the priority was changed
         """
         total = self.project.automation_rules.count()
         current_priority = self.priority
