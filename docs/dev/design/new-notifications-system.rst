@@ -115,6 +115,7 @@ and some helper logic to return in the API response.
             header = str
             body = str
             icon = str
+            icon_style = str(SOLID, DUOTONE)
             color = str
             type = str(ERROR, WARINIG, NOTE, TIP)
 
@@ -395,6 +396,7 @@ Notifications list
                         "body": "Build cancelled by the user.",
                         "type": "error",
                         "icon": "fa-exclamation",
+                        "icon_style": "duotone",
                         "color": "red"
                     }
                 }
