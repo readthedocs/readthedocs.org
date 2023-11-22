@@ -426,6 +426,30 @@ class AddonsResponse:
             },
         }
 
+        # Get the original stable and latest versions
+        stable_version_original = project.get_original_stable_version()
+        latest_version_original = project.get_original_latest_version()
+        if (
+            stable_version_original
+            and stable_version_original.active
+            and latest_version_original
+            and latest_version_original.active
+        ):
+            data["addons"]["non_latest_version_warning"].update(
+                {
+                    "aliases": {
+                        "latest": [
+                            "latest",
+                            latest_version_original.slug,  # e.g. main
+                        ],
+                        "stable": [
+                            "stable",
+                            stable_version_original.slug,  # e.g. v0.18.14
+                        ],
+                    },
+                }
+            )
+
         # DocDiff depends on `url=` GET attribute.
         # This attribute allows us to know the exact filename where the request was made.
         # If we don't know the filename, we cannot return the data required by DocDiff to work.
