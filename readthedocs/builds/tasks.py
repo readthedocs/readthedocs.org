@@ -470,6 +470,8 @@ def send_build_status(build_pk, commit, status):
         for user in users:
             # Send Site notification about Build status reporting failure
             # to all the users of the project.
+            #
+            # TODO: migrate this notification to the new system
             notification = GitBuildStatusFailureNotification(
                 context_object=build.project,
                 extra_context={"provider_name": provider_name},

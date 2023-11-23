@@ -122,6 +122,7 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         email_qs = user.emailaddress_set.filter(primary=True)
         email = email_qs.first()
         if not email or not email.verified:
+            # TODO: migrate this notification to the new system
             notification = EmailConfirmNotification(user=user, success=False)
             notification.send()
 

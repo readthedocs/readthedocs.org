@@ -1,3 +1,6 @@
+# TODO: all these notification should be migrated to the new notification system.
+# Most / All of them will be attached to an Organization
+
 """Organization level notifications."""
 
 

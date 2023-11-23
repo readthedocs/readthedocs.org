@@ -8,6 +8,7 @@ from readthedocs.notifications import Notification, SiteNotification
 from readthedocs.notifications.constants import REQUIREMENT
 
 
+# TODO: this notification can be removed, it's just an admin action we don't really use
 class ResourceUsageNotification(Notification):
     name = "resource_usage"
     context_object_name = "project"
@@ -15,6 +16,7 @@ class ResourceUsageNotification(Notification):
     level = REQUIREMENT
 
 
+# TODO: migrate this communication to the new system, attached to a User
 class EmailConfirmNotification(SiteNotification):
     failure_level = ERROR_PERSISTENT
     failure_message = _(

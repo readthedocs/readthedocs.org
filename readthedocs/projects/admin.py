@@ -49,6 +49,7 @@ class ReadOnlyInlineMixin:
         return False
 
 
+# TODO: remove this view since it's not really used
 class ProjectSendNotificationView(SendNotificationView):
     notification_classes = [
         ResourceUsageNotification,

@@ -60,6 +60,9 @@ def contact_users(
     email_txt_template = engine.get_template("core/email/common.txt")
     email_html_template = engine.get_template("core/email/common.html")
 
+    # TODO: migrate this notification to the new notifications system.
+    # This notification are currently tied to a particular user.
+    # However, in the new system they will be tied to a Project.
     class TempNotification(SiteNotification):
         if sticky_notification:
             success_level = message_constants.SUCCESS_PERSISTENT

@@ -5,7 +5,8 @@ from django.views.generic import FormView
 
 from .forms import SendNotificationForm
 
-
+# TODO: remove this view since we don't really use it from the admin.
+# It doesn't really worth re-implementing it in the new notification system.
 class SendNotificationView(FormView):
 
     """

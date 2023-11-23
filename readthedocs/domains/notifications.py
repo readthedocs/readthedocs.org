@@ -4,6 +4,7 @@ from readthedocs.notifications import Notification
 from readthedocs.notifications.constants import REQUIREMENT
 
 
+# TODO: migrate this notification to the new system
 class PendingCustomDomainValidation(Notification):
     app_templates = "domains"
     context_object_name = "domain"

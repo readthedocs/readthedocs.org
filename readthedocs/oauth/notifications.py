@@ -1,3 +1,9 @@
+# TODO: all the site notifications from this file should be re-implemented
+# using the new notification system.
+#
+# These notifications will be attached to a Project.
+
+
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from messages_extends.constants import ERROR_PERSISTENT
