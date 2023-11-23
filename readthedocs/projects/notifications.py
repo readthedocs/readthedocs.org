@@ -4,16 +4,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from messages_extends.constants import ERROR_PERSISTENT
 
-from readthedocs.notifications import Notification, SiteNotification
-from readthedocs.notifications.constants import REQUIREMENT
-
-
-# TODO: this notification can be removed, it's just an admin action we don't really use
-class ResourceUsageNotification(Notification):
-    name = "resource_usage"
-    context_object_name = "project"
-    subject = "Builds for {{ project.name }} are using too many resources"
-    level = REQUIREMENT
+from readthedocs.notifications import SiteNotification
 
 
 # TODO: migrate this communication to the new system, attached to a User
