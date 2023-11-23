@@ -34,3 +34,22 @@ NON_PERSISTENT_MESSAGE_LEVELS = (
     WARNING_NON_PERSISTENT,
     ERROR_NON_PERSISTENT,
 )
+
+
+# TODO: use Enum here for these ones
+# Status
+UNREAD = "unread"
+READ = "read"
+DISMISSED = "dissmissed"
+CANCELLED = "cancelled"
+
+# Type
+ERROR = "error"
+WARNING = "warning"
+INFO = "info"
+NOTE = "note"
+TIP = "tip"
+
+# Icons
+SOLID = "solid"
+DUOTONE = "duotone"
