@@ -15,6 +15,13 @@ from .backends import send_notification
 log = structlog.get_logger(__name__)
 
 
+# NOTE: this Notification class should be renamed to EmailNotification,
+# since it won't share too much code with the SiteNotification anymore.
+#
+# We can extract the shared logic if we want,
+# but I don't think there is going to be too much in common.
+# SiteNotification won't use render from TXT/HTML files.
+#
 class Notification:
 
     """
@@ -51,6 +58,8 @@ class Notification:
     def get_context_data(self):
         context = {
             self.context_object_name: self.object,
+            # NOTE: I checked the notifications templates, and the "request" attribute is not used.
+            # We can remove this complexity.
             "request": self.request,
             "production_uri": "{scheme}://{host}".format(
                 scheme="https",
@@ -95,6 +104,9 @@ class Notification:
         :py:func:`send_notification`, taking care to limit which backends are
         avoided.
         """
+
+        # NOTE: the concept of "backend" can be removed because we won't have multiple backends.
+        # Just overriding the `send()` method will be enough and reduce the complexity.
         send_notification(self.request, self)
 
 

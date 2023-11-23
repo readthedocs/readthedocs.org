@@ -73,6 +73,11 @@ class EmailBackend(Backend):
             )
 
 
+# TODO: modify this backend to create a `Notification` object
+# instead of calling `storage.add()`.
+#
+# Note that probably `request` argument can be deleted from here
+# since it's not required.
 class SiteBackend(Backend):
 
     """

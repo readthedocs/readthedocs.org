@@ -1570,6 +1570,9 @@ class HTMLFile(ImportedFile):
 
 
 class Notification(TimeStampedModel):
+
+    """WebHook / Email notification attached to a Project."""
+
     # TODO: Overridden from TimeStampedModel just to allow null values,
     # remove after deploy.
     created = CreationDateTimeField(
