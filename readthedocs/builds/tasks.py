@@ -494,6 +494,7 @@ def send_build_notifications(version_pk, build_pk, event):
     if not build:
         return
 
+    # NOTE: this class is used to send email/webhook notification on build success/failure
     sender = BuildNotificationSender(
         version=version,
         build=build,

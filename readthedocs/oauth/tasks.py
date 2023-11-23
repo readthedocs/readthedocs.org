@@ -166,6 +166,8 @@ def attach_webhook(project_pk, user_pk, integration=None):
     if not project or not user:
         return False
 
+    # TODO: migrate this notification to the new system.
+    # I will be attached to a Project.
     project_notification = InvalidProjectWebhookNotification(
         context_object=project,
         user=user,
@@ -189,6 +191,9 @@ def attach_webhook(project_pk, user_pk, integration=None):
             return None
 
     provider = allauth_registry.by_id(service.adapter.provider_id)
+
+    # TODO: migrate this notification to the new system.
+    # I will be attached to a Project.
     notification = AttachWebhookNotification(
         context_object=provider,
         extra_context={"project": project},

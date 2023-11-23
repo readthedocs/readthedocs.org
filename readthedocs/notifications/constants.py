@@ -1,3 +1,5 @@
+# TODO: remove most of this file since it won't be used anymore.
+
 """Notification constants."""
 
 from messages_extends import constants as message_constants
