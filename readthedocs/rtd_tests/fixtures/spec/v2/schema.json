@@ -270,7 +270,7 @@
       "additionalProperties": false
     },
     "sphinx": {
-      "title": "Sphix",
+      "title": "Sphinx",
       "description": "Configuration for sphinx documentation.",
       "type": "object",
       "properties": {
