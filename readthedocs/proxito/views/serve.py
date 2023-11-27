@@ -269,7 +269,7 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
         # /pt-br/latest/pt_BR/index.html, but our protection for infinite redirects
         # will prevent a redirect loop.
         if (
-            not project.is_single_version
+            project.supports_translations
             and project.language in OLD_LANGUAGES_CODE_MAPPING
             and OLD_LANGUAGES_CODE_MAPPING[project.language] in path
         ):

@@ -9,10 +9,12 @@ from readthedocs.builds.constants import EXTERNAL, LATEST, STABLE
 from readthedocs.builds.models import Version
 from readthedocs.projects.constants import (
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
     PRIVATE,
     PUBLIC,
     REPO_TYPE_GIT,
     REPO_TYPE_HG,
+    SINGLE_VERSION_WITHOUT_TRANSLATIONS,
     SPHINX,
 )
 from readthedocs.projects.forms import (
@@ -666,6 +668,38 @@ class TestTranslationForms(TestCase):
             instance=self.project_b_en,
         )
         self.assertTrue(form.is_valid())
+
+    def test_cant_add_translations_to_multiple_versions_without_translations_project(
+        self,
+    ):
+        self.project_a_es.versioning_scheme = MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS
+        self.project_a_es.save()
+
+        form = TranslationForm(
+            {"project": self.project_b_en.slug},
+            parent=self.project_a_es,
+            user=self.user_a,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "This project is configured with a versioning scheme that doesn't support translations.",
+            "".join(form.errors["__all__"]),
+        )
+
+    def test_cant_add_translations_to_single_version_without_translations_project(self):
+        self.project_a_es.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project_a_es.save()
+
+        form = TranslationForm(
+            {"project": self.project_b_en.slug},
+            parent=self.project_a_es,
+            user=self.user_a,
+        )
+        self.assertFalse(form.is_valid())
+        self.assertIn(
+            "This project is configured with a versioning scheme that doesn't support translations.",
+            "".join(form.errors["__all__"]),
+        )
 
 
 class TestWebhookForm(TestCase):

@@ -236,12 +236,22 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         self.fields['analytics_disabled'].widget = forms.CheckboxInput()
         self.fields['analytics_disabled'].empty_value = False
 
-        # Remove empty choice from options, and add a preview to the choices.
+        # Remove empty choice from options.
         self.fields["versioning_scheme"].choices = [
             (key, value)
             for key, value in self.fields["versioning_scheme"].choices
             if key
         ]
+
+        if self.instance.main_language_project:
+            link = reverse(
+                "projects_advanced",
+                args=[self.instance.main_language_project.slug],
+            )
+            self.fields["versioning_scheme"].help_text = _(
+                f'This setting is inherited from the <a href="{link}">parent translation</a>.',
+            )
+            self.fields["versioning_scheme"].disabled = True
 
         self.helper = FormHelper()
         help_text = render_to_string(
@@ -665,6 +675,15 @@ class TranslationBaseForm(forms.Form):
                 lang=project.get_language_display(),
             ),
         ) for project in self.get_translation_queryset().all()]
+
+    def clean(self):
+        if not self.parent.supports_translations:
+            raise forms.ValidationError(
+                _(
+                    "This project is configured with a versioning scheme that doesn't support translations."
+                ),
+            )
+        return super().clean()
 
     def clean_project(self):
         """Ensures that selected project is valid as a translation."""
