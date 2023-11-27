@@ -1,6 +1,7 @@
 import django_filters.rest_framework as filters
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Exists, OuterRef
+from django.shortcuts import get_object_or_404
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
@@ -64,6 +65,7 @@ from .serializers import (
     BuildCreateSerializer,
     BuildSerializer,
     EnvironmentVariableSerializer,
+    NotificationCreateSerializer,
     NotificationSerializer,
     OrganizationSerializer,
     ProjectCreateSerializer,
@@ -408,6 +410,34 @@ class NotificationsViewSet(
         return queryset.filter(
             attached_to_id=self.kwargs.get("parent_lookup_build__id")
         )
+
+
+class NotificationsCreateViewSet(
+    NotificationsViewSet,
+    CreateModelMixin,
+):
+    def get_serializer_class(self):
+        if self.action == "create":
+            return NotificationCreateSerializer
+
+        return super().get_serializer_class()
+
+    def create(self, request, **kwargs):  # pylint: disable=arguments-differ
+        # TODO: move this into `self._get_parent_build()` method
+        build_id = kwargs.get("parent_lookup_build__id")
+        build = get_object_or_404(Build, pk=build_id)
+
+        # TODO: find a better way to create a Notification object from a serializer "automatically"
+        n = NotificationCreateSerializer(data=request.POST)
+        if n.is_valid():
+            build.notifications.create(**n.data)
+            return Response(status=status.HTTP_204_NO_CONTENT)
+
+        code = status.HTTP_400_BAD_REQUEST
+        return Response(status=code)
+
+        # build = self._get_parent_build()
+        # notification = build.notifications.create()
 
 
 class RedirectsViewSet(

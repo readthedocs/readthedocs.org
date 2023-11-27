@@ -3,6 +3,7 @@ from .views import (
     BuildsCreateViewSet,
     BuildsViewSet,
     EnvironmentVariablesViewSet,
+    NotificationsCreateViewSet,
     NotificationsViewSet,
     ProjectsViewSet,
     RedirectsViewSet,
@@ -68,6 +69,14 @@ builds = projects.register(
     BuildsViewSet,
     basename="projects-builds",
     parents_query_lookups=["project__slug"],
+)
+
+# allows /api/v3/projects/pip/builds/1053/notifications/
+builds.register(
+    r"notifications",
+    NotificationsCreateViewSet,
+    basename="project-builds-notifications",
+    parents_query_lookups=["project__slug", "build__id"],
 )
 
 # allows /api/v3/projects/pip/builds/1053/notifications/

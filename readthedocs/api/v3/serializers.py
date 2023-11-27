@@ -242,6 +242,16 @@ class NotificationMessageSerializer(serializers.Serializer):
         ]
 
 
+class NotificationCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = [
+            "message_id",
+            "dismissable",
+            "news",
+            "state",
+        ]
+
 class NotificationSerializer(serializers.ModelSerializer):
     message = NotificationMessageSerializer(source="get_message")
     attached_to_content_type = serializers.SerializerMethodField()
