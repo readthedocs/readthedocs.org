@@ -3,6 +3,7 @@ from .views import (
     BuildsCreateViewSet,
     BuildsViewSet,
     EnvironmentVariablesViewSet,
+    NotificationsViewSet,
     ProjectsViewSet,
     RedirectsViewSet,
     RemoteOrganizationViewSet,
@@ -11,7 +12,6 @@ from .views import (
     TranslationRelationshipViewSet,
     VersionsViewSet,
 )
-
 
 router = DefaultRouterWithNesting()
 
@@ -63,11 +63,19 @@ versions.register(
 
 # allows /api/v3/projects/pip/builds/
 # allows /api/v3/projects/pip/builds/1053/
-projects.register(
+builds = projects.register(
     r"builds",
     BuildsViewSet,
     basename="projects-builds",
     parents_query_lookups=["project__slug"],
+)
+
+# allows /api/v3/projects/pip/builds/1053/notifications/
+builds.register(
+    r"notifications",
+    NotificationsViewSet,
+    basename="project-builds-notifications",
+    parents_query_lookups=["project__slug", "build__id"],
 )
 
 # allows /api/v3/projects/pip/redirects/

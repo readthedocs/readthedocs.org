@@ -4,7 +4,8 @@ from .constants import ERROR, SOLID, TIP, WARNING
 
 
 class Message:
-    def __init__(self, header, body, type, icon=None, icon_style=SOLID):
+    def __init__(self, id, header, body, type, icon=None, icon_style=SOLID):
+        self.id = id
         self.header = header
         self.body = body
         self.type = type  # (ERROR, WARNING, INFO, NOTE, TIP)
@@ -23,6 +24,7 @@ class Message:
 
 NOTIFICATION_MESSAGES = {
     "generic-with-build-id": Message(
+        id="generic-with-build-id",
         header=_("Unknown problem"),
         # Note the message receives the instance it's attached to
         # and could be use it to inject related data
@@ -37,6 +39,7 @@ NOTIFICATION_MESSAGES = {
         type=ERROR,
     ),
     "build-os-required": Message(
+        id="build-os-required",
         header=_("Invalid configuration"),
         body=_(
             """
@@ -47,6 +50,7 @@ NOTIFICATION_MESSAGES = {
         type=ERROR,
     ),
     "cancelled-by-user": Message(
+        id="cancelled-by-user",
         header=_("User action"),
         body=_(
             """
@@ -56,6 +60,7 @@ NOTIFICATION_MESSAGES = {
         type=ERROR,
     ),
     "os-ubuntu-18.04-deprecated": Message(
+        id="os-ubuntu-18.04-deprecated",
         header=_("Deprecated OS selected"),
         body=_(
             """

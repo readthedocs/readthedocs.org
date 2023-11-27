@@ -36,7 +36,7 @@ class Notification(TimeStampedModel):
     # Show the notification under the bell icon for the user
     news = models.BooleanField(default=False, help_text=_("Show under bell icon"))
 
-    # Notification attached to
+    # Notification attached to Organization, Project, Build or User
     #
     # Uses ContentType for this.
     # https://docs.djangoproject.com/en/4.2/ref/contrib/contenttypes/#generic-relations
@@ -45,13 +45,11 @@ class Notification(TimeStampedModel):
     attached_to_id = models.PositiveIntegerField()
     attached_to = GenericForeignKey("attached_to_content_type", "attached_to_id")
 
-    # If we don't want to use ContentType, we could define all the potential models
-    # the notification could be attached to
-    #
-    # organization = models.ForeignKey(Organization, null=True, blank=True, default=None)
-    # project = models.ForeignKey(Project, null=True, blank=True, default=None)
-    # build = models.ForeignKey(Build, null=True, blank=True, default=None)
-    # user = models.ForeignKey(User, null=True, blank=True, default=None)
+    def __str__(self):
+        return self.message_id
+
+    def get_message(self):
+        return NOTIFICATION_MESSAGES.get(self.message_id)
 
     def get_display_message(self):
         return textwrap.dedent(

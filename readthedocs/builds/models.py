@@ -7,6 +7,7 @@ from functools import partial
 import regex
 import structlog
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import F
 from django.urls import reverse
@@ -62,6 +63,7 @@ from readthedocs.builds.utils import (
 from readthedocs.builds.version_slug import VersionSlugField
 from readthedocs.config import LATEST_CONFIGURATION_VERSION
 from readthedocs.core.utils import extract_valid_attributes_for_model, trigger_build
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
@@ -832,6 +834,13 @@ class Build(models.Model):
         max_length=36,
         null=True,
         blank=True,
+    )
+
+    notifications = GenericRelation(
+        Notification,
+        related_query_name="build",
+        content_type_field="attached_to_content_type",
+        object_id_field="attached_to_id",
     )
 
     # Managers

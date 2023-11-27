@@ -36,6 +36,7 @@ from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
+from readthedocs.notifications.models import Notification as SiteNotification
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
@@ -530,6 +531,13 @@ class Project(models.Model):
         related_name='projects',
         null=True,
         blank=True,
+    )
+
+    notifications = GenericRelation(
+        SiteNotification,
+        related_query_name="build",
+        content_type_field="attached_to_content_type",
+        object_id_field="attached_to_id",
     )
 
     # TODO: remove the following fields since they all are going to be ignored

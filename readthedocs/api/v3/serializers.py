@@ -15,6 +15,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
@@ -59,10 +60,33 @@ class BuildCreateSerializer(serializers.ModelSerializer):
         fields = []
 
 
+# TODO: decide whether or not include a `_links` field on the object
+#
+# This also includes adding `/api/v3/notifications/<pk>` endpoint,
+# which I'm not sure it's useful at this point.
+#
+# class NotificationLinksSerializer(BaseLinksSerializer):
+#     _self = serializers.SerializerMethodField()
+#     attached_to = serializers.SerializerMethodField()
+
+#     def get__self(self, obj):
+#         path = reverse(
+#             "notifications-detail",
+#             kwargs={
+#                 "pk": obj.pk,
+#             },
+#         )
+#         return self._absolute_url(path)
+
+#     def get_attached_to(self, obj):
+#         return None
+
+
 class BuildLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
     version = serializers.SerializerMethodField()
     project = serializers.SerializerMethodField()
+    notifications = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse(
@@ -91,6 +115,16 @@ class BuildLinksSerializer(BaseLinksSerializer):
             "projects-detail",
             kwargs={
                 "project_slug": obj.project.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_notifications(self, obj):
+        path = reverse(
+            "project-builds-notifications-list",
+            kwargs={
+                "parent_lookup_project__slug": obj.project.slug,
+                "parent_lookup_build__id": obj.pk,
             },
         )
         return self._absolute_url(path)
@@ -187,6 +221,48 @@ class BuildSerializer(FlexFieldsModelSerializer):
             return obj.success
 
         return None
+
+
+class NotificationMessageSerializer(serializers.Serializer):
+    id = serializers.SlugField()
+    header = serializers.CharField()
+    body = serializers.CharField()
+    type = serializers.CharField()
+    icon = serializers.CharField()
+    icon_style = serializers.CharField()
+
+    class Meta:
+        fields = [
+            "id",
+            "header",
+            "body",
+            "type",
+            "icon",
+            "icon_style",
+        ]
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    message = NotificationMessageSerializer(source="get_message")
+    attached_to_content_type = serializers.SerializerMethodField()
+    # TODO: review these fields
+    # _links = BuildLinksSerializer(source="*")
+    # urls = BuildURLsSerializer(source="*")
+
+    class Meta:
+        model = Notification
+        fields = [
+            "id",
+            "state",
+            "dismissable",
+            "news",
+            "attached_to_content_type",
+            "attached_to_id",
+            "message",
+        ]
+
+    def get_attached_to_content_type(self, obj):
+        return obj.attached_to_content_type.name
 
 
 class VersionLinksSerializer(BaseLinksSerializer):
