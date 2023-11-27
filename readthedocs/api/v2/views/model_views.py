@@ -18,6 +18,7 @@ from readthedocs.api.v2.permissions import HasBuildAPIKey, IsOwner, ReadOnlyPerm
 from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.constants import INTERNAL
 from readthedocs.builds.models import Build, BuildCommandResult, Version
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.oauth.services import registry
 from readthedocs.projects.models import Domain, Project
@@ -29,6 +30,7 @@ from ..serializers import (
     BuildCommandSerializer,
     BuildSerializer,
     DomainSerializer,
+    NotificationSerializer,
     ProjectAdminSerializer,
     ProjectSerializer,
     RemoteOrganizationSerializer,
@@ -359,6 +361,45 @@ class BuildCommandViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
 
     def get_queryset_for_api_key(self, api_key):
         return self.model.objects.filter(build__project=api_key.project)
+
+
+class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewSet):
+
+    """
+    Create a notification attached to an object (User, Project, Build, Organization).
+
+    This endpoint is currently used only internally by the builder.
+    Notifications are attached to `Build` objects only when using this endpoint.
+    This limitation will change in the future when re-implementing this on APIv3 if neeed.
+    """
+
+    parser_classes = [JSONParser, MultiPartParser]
+    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
+    renderer_classes = (JSONRenderer,)
+    serializer_class = NotificationSerializer
+    model = Notification
+
+    def perform_create(self, serializer):
+        """Restrict creation to notifications attached to the project's builds from the api key."""
+        attached_to_id = serializer.validated_data["attached_to_id"]
+        attached_to_content_type = serializer.validated_data["attached_to_content_type"]
+
+        # Limit the checks to Build objects only for now
+        # content_type = ContentType.objects.get(pk=attached_to_content_type)
+        if not attached_to_content_type.name == "build":
+            raise Http404()
+
+        # Limit the permissions to create a notification on this object only if the API key
+        # is attached to the related project
+        build = attached_to_content_type.get_object_for_this_type(pk=attached_to_id)
+        build_api_key = self.request.build_api_key
+        if not build_api_key.project.slug == build.project.slug:
+            raise PermissionDenied()
+
+        return super().perform_create(serializer)
+
+    # def get_queryset_for_api_key(self, api_key):
+    #     return self.model.objects.filter(build__project=api_key.project)
 
 
 class DomainViewSet(DisableListEndpoint, UserSelectViewSet):

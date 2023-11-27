@@ -7,6 +7,7 @@ from rest_framework import serializers
 from readthedocs.api.v2.utils import normalize_build_command
 from readthedocs.builds.models import Build, BuildCommandResult, Version
 from readthedocs.core.resolver import Resolver
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.projects.models import Domain, Project
 
@@ -378,3 +379,13 @@ class SocialAccountSerializer(serializers.ModelSerializer):
             or obj.extra_data.get("login")
             # FIXME: which one is GitLab?
         )
+
+
+# TODO: consider using a third party library.
+# See https://github.com/LilyFoote/rest-framework-generic-relations
+# and overwrite the `.to_internal_value()` of the serializers to allow writting.
+#
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        exclude = []
