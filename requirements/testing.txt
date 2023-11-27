@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.29.3
+boto3==1.29.6
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.32.3
+botocore==1.32.6
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -143,13 +143,13 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
-django-filter==23.3
+django-filter==23.4
     # via -r requirements/pip.txt
 django-formtools==2.3
     # via -r requirements/pip.txt
 django-gravatar2==1.4.4
     # via -r requirements/pip.txt
-django-ipware==5.0.2
+django-ipware==6.0.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -167,7 +167,7 @@ django-structlog==2.2.0
     # via -r requirements/pip.txt
 django-taggit==5.0.1
     # via -r requirements/pip.txt
-django-timezone-field==6.0.1
+django-timezone-field==6.1.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -205,7 +205,7 @@ elasticsearch-dsl==8.11.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
-exceptiongroup==1.1.3
+exceptiongroup==1.2.0
     # via pytest
 filelock==3.13.1
     # via
@@ -217,7 +217,7 @@ funcy==2.0
     #   django-cacheops
 gunicorn==21.2.0
     # via -r requirements/pip.txt
-idna==3.4
+idna==3.6
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -248,7 +248,7 @@ markdown==3.5.1
     # via -r requirements/pip.txt
 markupsafe==2.1.3
     # via jinja2
-mercurial==6.5.3
+mercurial==6.6
     # via -r requirements/testing.in
 oauthlib==3.2.2
     # via
@@ -265,7 +265,7 @@ packaging==23.2
     #   gunicorn
     #   pytest
     #   sphinx
-platformdirs==3.11.0
+platformdirs==4.0.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -281,7 +281,7 @@ pycparser==2.21
     # via
     #   -r requirements/pip.txt
     #   cffi
-pygments==2.17.0
+pygments==2.17.2
     # via
     #   -r requirements/pip.txt
     #   sphinx
@@ -317,6 +317,10 @@ python-dateutil==2.8.2
     #   botocore
     #   elasticsearch-dsl
     #   python-crontab
+python-ipware==2.0.0
+    # via
+    #   -r requirements/pip.txt
+    #   django-ipware
 python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
@@ -445,9 +449,9 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.24.6
+virtualenv==20.24.7
     # via -r requirements/pip.txt
-wcwidth==0.2.10
+wcwidth==0.2.12
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
