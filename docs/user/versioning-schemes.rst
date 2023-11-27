@@ -1,7 +1,7 @@
 Versioning schemes
 ==================
 
-The versioning scheme of your project defines how the URL of your documentation looks like,
+The versioning scheme of your project defines the URL of your documentation,
 and if your project supports multiple versions or translations.
 
 Read the Docs supports three different versioning schemes:
