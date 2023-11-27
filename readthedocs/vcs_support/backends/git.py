@@ -173,7 +173,7 @@ class Backend(BaseVCS):
         #  of the default branch. Once this case has been made redundant, we can have
         #  --no-checkout for all clones.
         # --depth 1: Shallow clone, fetch as little data as possible.
-        cmd = ["git", "clone", "--depth", "1", self.repo_url, "."]
+        cmd = ["git", "clone", "--depth", "1", "--", self.repo_url, "."]
 
         try:
             # TODO: Explain or remove the return value
@@ -204,7 +204,7 @@ class Backend(BaseVCS):
         if remote_reference:
             # TODO: We are still fetching the latest 50 commits.
             # A PR might have another commit added after the build has started...
-            cmd.append(remote_reference)
+            cmd.extend(["--", remote_reference])
 
         # Log a warning, except for machine versions since it's a known bug that
         # we haven't stored a remote refspec in Version for those "stable" versions.
@@ -310,7 +310,7 @@ class Backend(BaseVCS):
         if include_branches:
             extra_args.append("--heads")
 
-        cmd = ["git", "ls-remote", *extra_args, self.repo_url]
+        cmd = ["git", "ls-remote", *extra_args, "--", self.repo_url]
 
         self.check_working_dir()
         _, stdout, _ = self.run(*cmd, demux=True, record=False)
