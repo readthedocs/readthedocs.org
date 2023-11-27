@@ -26,6 +26,7 @@ class Notification(TimeStampedModel):
             (CANCELLED, CANCELLED),
         ],
         default=UNREAD,
+        max_length=128,
         db_index=True,
     )
 

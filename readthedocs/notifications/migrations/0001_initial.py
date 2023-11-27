@@ -49,6 +49,7 @@ class Migration(migrations.Migration):
                         ],
                         db_index=True,
                         default="unread",
+                        max_length=128,
                     ),
                 ),
                 ("dismissable", models.BooleanField(default=False)),
