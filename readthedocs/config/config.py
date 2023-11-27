@@ -100,7 +100,8 @@ class DefaultConfigFileNotFound(ConfigError):
 
     def __init__(self):
         super().__init__(
-            "No default configuration file found at repository's root.",
+            "No default configuration file found at repository's root. "
+            "See https://docs.readthedocs.io/en/stable/config-file/",
             CONFIG_FILE_REQUIRED,
         )
 
