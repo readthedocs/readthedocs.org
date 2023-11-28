@@ -17,6 +17,7 @@ django-simple-history==3.0.0
 
 djangorestframework
 djangorestframework-api-key
+rest-framework-generic-relations
 
 # Embed v1 still uses docutils.
 # Remove this dependency once we deprecate this API.

@@ -129,6 +129,7 @@ djangorestframework==3.14.0
     # via
     #   -r requirements/pip.in
     #   drf-extensions
+    #   rest-framework-generic-relations
 djangorestframework-api-key==3.0.0
     # via -r requirements/pip.in
 djangorestframework-jsonp==1.0.2
@@ -239,6 +240,8 @@ requests-oauthlib==1.3.1
     #   -r requirements/pip.in
     #   django-allauth
 requests-toolbelt==1.0.0
+    # via -r requirements/pip.in
+rest-framework-generic-relations==2.1.0
     # via -r requirements/pip.in
 s3transfer==0.7.0
     # via boto3

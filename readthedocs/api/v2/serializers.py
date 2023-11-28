@@ -2,6 +2,9 @@
 
 
 from allauth.socialaccount.models import SocialAccount
+from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import gettext as _
+from generic_relations.relations import GenericRelatedField
 from rest_framework import serializers
 
 from readthedocs.api.v2.utils import normalize_build_command
@@ -381,11 +384,51 @@ class SocialAccountSerializer(serializers.ModelSerializer):
         )
 
 
-# TODO: consider using a third party library.
-# See https://github.com/LilyFoote/rest-framework-generic-relations
-# and overwrite the `.to_internal_value()` of the serializers to allow writting.
-#
+class NotificationAttachedToRelatedField(serializers.RelatedField):
+
+    """
+    Attached to related field for Notifications.
+
+    Used together with ``rest-framework-generic-relations`` to accept multiple object types on ``attached_to``.
+
+    See https://github.com/LilyFoote/rest-framework-generic-relations
+    """
+
+    default_error_messages = {
+        "required": _("This field is required."),
+        "does_not_exist": _("Object does not exist."),
+        "incorrect_type": _(
+            "Incorrect type. Expected URL string, received {data_type}."
+        ),
+    }
+
+    def to_representation(self, value):
+        return f"{self.queryset.model._meta.model_name}/{value.pk}"
+
+    def to_internal_value(self, data):
+        # TODO: handle exceptions
+        model, pk = data.strip("/").split("/")
+        if self.queryset.model._meta.model_name != model:
+            self.fail("incorrect_type")
+
+        try:
+            return self.queryset.get(pk=pk)
+        except (ObjectDoesNotExist, ValueError, TypeError):
+            self.fail("does_not_exist")
+
+
 class NotificationSerializer(serializers.ModelSerializer):
+    # Accept different object types (Project, Build, User, etc) depending on what the notification is attached to.
+    # The client has to send a value like "<model>/<pk>".
+    # Example: "build/3522" will attach the notification to the Build object with id 3522
+    attached_to = GenericRelatedField(
+        {
+            Build: NotificationAttachedToRelatedField(queryset=Build.objects.all()),
+            Project: NotificationAttachedToRelatedField(queryset=Project.objects.all()),
+        },
+        required=True,
+    )
+
     class Meta:
         model = Notification
-        exclude = []
+        exclude = ["attached_to_id", "attached_to_content_type"]

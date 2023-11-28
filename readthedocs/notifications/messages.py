@@ -4,6 +4,9 @@ from .constants import ERROR, SOLID, TIP, WARNING
 
 
 class Message:
+    # TODO: consider inheriting this class as BuildMessage, SubscriptionMessage, etc
+    GENERIC_WITH_MESSAGE_ID = "generic-with-message-id"
+
     def __init__(self, id, header, body, type, icon=None, icon_style=SOLID):
         self.id = id
         self.header = header

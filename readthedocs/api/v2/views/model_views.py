@@ -381,25 +381,17 @@ class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
 
     def perform_create(self, serializer):
         """Restrict creation to notifications attached to the project's builds from the api key."""
-        attached_to_id = serializer.validated_data["attached_to_id"]
-        attached_to_content_type = serializer.validated_data["attached_to_content_type"]
-
-        # Limit the checks to Build objects only for now
-        # content_type = ContentType.objects.get(pk=attached_to_content_type)
-        if not attached_to_content_type.name == "build":
-            raise Http404()
+        attached_to = serializer.validated_data["attached_to"]
 
         # Limit the permissions to create a notification on this object only if the API key
         # is attached to the related project
-        build = attached_to_content_type.get_object_for_this_type(pk=attached_to_id)
+        #
+        # TODO: get the Project object from any ``attached_to`` object
         build_api_key = self.request.build_api_key
-        if not build_api_key.project.slug == build.project.slug:
+        if not build_api_key.project.slug == attached_to.project.slug:
             raise PermissionDenied()
 
         return super().perform_create(serializer)
-
-    # def get_queryset_for_api_key(self, api_key):
-    #     return self.model.objects.filter(build__project=api_key.project)
 
 
 class DomainViewSet(DisableListEndpoint, UserSelectViewSet):
