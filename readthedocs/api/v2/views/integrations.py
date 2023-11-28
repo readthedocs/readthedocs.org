@@ -447,6 +447,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
             event=event,
         )
 
+        # TODO: do we need this?
         # Always update `latest` branch to point to the default branch in the repository
         # even if the event is not gonna be handled. This helps us to keep our db in sync.
         default_branch = self.data.get("repository", {}).get("default_branch", None)
@@ -611,6 +612,7 @@ class GitLabWebhookView(WebhookMixin, APIView):
 
         integration = self.get_integration()
 
+        # TODO: do we need this?
         # Always update `latest` branch to point to the default branch in the repository
         # even if the event is not gonna be handled. This helps us to keep our db in sync.
         default_branch = self.data.get("project", {}).get("default_branch", None)
@@ -713,6 +715,7 @@ class BitbucketWebhookView(WebhookMixin, APIView):
             event=event,
         )
 
+        # TODO: do we need this?
         # NOTE: we can't call `self.update_default_branch` here because
         # BitBucket does not tell us what is the `default_branch` for a
         # repository in these incoming webhooks.
@@ -836,6 +839,7 @@ class APIWebhookView(WebhookMixin, APIView):
             if isinstance(branches, str):
                 branches = [branches]
 
+            # TODO: do we need this?
             if default_branch and isinstance(default_branch, str):
                 self.update_default_branch(default_branch)
 

@@ -359,13 +359,9 @@ def sync_versions_task(project_pk, tags_data, branches_data, **kwargs):
             versions=added_versions,
         )
 
-    # Sync latest to match the correct type and identifier
-    # if the project has a default branch set,
-    # otherwise the latest version was already updated in the previous step.
-    if project.default_branch:
-        project.update_latest_version()
+    # Sync latest and stable to match the correct type and identifier.
+    project.update_latest_version()
     # TODO: move this to an automation rule
-    # Sync stable to match the correct type and identifier.
     promoted_version = project.update_stable_version()
     new_stable = project.get_stable_version()
     if promoted_version and new_stable and new_stable.active:

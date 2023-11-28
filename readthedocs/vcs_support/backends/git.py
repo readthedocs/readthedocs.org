@@ -295,6 +295,25 @@ class Backend(BaseVCS):
                 RepositoryError.FAILED_TO_CHECKOUT.format(revision),
             ) from exc
 
+    def get_default_branch(self):
+        """
+        Return the default branch of the repository.
+
+        The default branch is the branch that is checked out when cloning the
+        repository. This is usually master or main, it can be configured
+        in the repository settings.
+
+        The ``git symbolic-ref`` command will produce an output like:
+
+        .. code-block:: text
+
+           origin/main
+        """
+        cmd = ["git", "symbolic-ref", "--short", "refs/remotes/origin/HEAD"]
+        _, stdout, _ = self.run(*cmd, demux=True, record=False)
+        default_branch = stdout.strip().removeprefix("origin/")
+        return default_branch or self.fallback_branch
+
     def lsremote(self, include_tags=True, include_branches=True):
         """
         Use ``git ls-remote`` to list branches and tags without cloning the repository.

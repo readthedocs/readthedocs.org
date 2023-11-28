@@ -7,6 +7,7 @@ from readthedocs.builds.constants import (
     EXTERNAL,
     EXTERNAL_VERSION_STATE_CLOSED,
     EXTERNAL_VERSION_STATE_OPEN,
+    LATEST,
 )
 from readthedocs.core.utils import trigger_build
 from readthedocs.projects.models import Feature, Project
@@ -88,14 +89,11 @@ def trigger_sync_versions(project):
         return None
 
     try:
-        version_identifier = project.get_default_branch()
-        version = (
-            project.versions.filter(
-                identifier=version_identifier,
-            ).first()
-        )
+        version = project.versions.filter(slug=LATEST).first()
         if not version:
-            log.info('Unable to sync from version.', version_identifier=version_identifier)
+            log.info(
+                "Unable to sync from version latest version.", project_slug=project.slug
+            )
             return None
 
         if project.has_feature(Feature.SKIP_SYNC_VERSIONS):

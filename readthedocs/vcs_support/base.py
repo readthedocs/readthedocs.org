@@ -48,6 +48,8 @@ class BaseVCS:
     # Whether this VCS supports listing remotes (branches, tags) without cloning
     supports_lsremote = False
 
+    fallback_branch = ""
+
     # =========================================================================
     # General methods
     # =========================================================================
@@ -63,7 +65,6 @@ class BaseVCS:
         version_type=None,
         **kwargs
     ):
-        self.default_branch = project.default_branch
         self.project = project
         self.name = project.name
         self.repo_url = project.clean_repo
@@ -163,3 +164,6 @@ class BaseVCS:
         :type config: readthedocs.config.BuildConfigBase
         """
         raise NotImplementedError
+
+    def get_default_branch(self):
+        return self.fallback_branch

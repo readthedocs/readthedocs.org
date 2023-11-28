@@ -645,21 +645,7 @@ class Project(models.Model):
                     _("Model must have slug")
                 )
         super().save(*args, **kwargs)
-
-        try:
-            if not self.versions.filter(slug=LATEST).exists():
-                self.versions.create_latest()
-        except Exception:
-            log.exception("Error creating default branches")
-
-        # Update `Version.identifier` for `latest` with the default branch the user has selected,
-        # even if it's `None` (meaning to match the `default_branch` of the repository)
-        # NOTE: this code is required to be *after* ``create_latest()``.
-        # It has to be updated after creating LATEST originally.
-        log.debug(
-            "Updating default branch.", slug=LATEST, identifier=self.default_branch
-        )
-        self.versions.filter(slug=LATEST).update(identifier=self.default_branch)
+        self.update_latest_version()
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
@@ -1190,15 +1176,19 @@ class Project(models.Model):
 
         A machine created LATEST version is an alias for the default branch/tag,
         so we need to update it to match the type and identifier of the default branch/tag.
+
+        If the project doesn't have an explicit default branch set,
+        we don't update the latest version, since it will be updated after a successful build.
         """
         latest = self.get_latest_version()
         if not latest:
             latest = self.versions.create_latest()
-        if not latest.machine:
+
+        if not self.default_branch or not latest.machine:
             return
 
         # default_branch can be a tag or a branch name!
-        default_version_name = self.get_default_branch()
+        default_version_name = self.default_branch
         original_latest = self.get_original_latest_version()
         latest.verbose_name = LATEST_VERBOSE_NAME
         latest.type = original_latest.type if original_latest else BRANCH
@@ -1282,14 +1272,24 @@ class Project(models.Model):
         return LATEST
 
     def get_default_branch(self):
-        """Get the version representing 'latest'."""
+        """
+        Get the branch/tag name of the version representing 'latest'.
+
+        If the project has a default branch explicitly set, we use that,
+        otherwise we try to get it from the latest version,
+        since that should be in sync with the default branch of the repository.
+        """
         if self.default_branch:
             return self.default_branch
 
-        if self.remote_repository and self.remote_repository.default_branch:
-            return self.remote_repository.default_branch
+        fallback_branch = self.vcs_class.fallback_branch
+        latest_version = self.versions.filter(slug=LATEST).first()
+        if latest_version:
+            if latest_version.machine:
+                return latest_version.identifer or fallback_branch
+            return latest_version.verbose_name or fallback_branch
 
-        return self.vcs_class().fallback_branch
+        return fallback_branch
 
     def add_subproject(self, child, alias=None):
         subproject, _ = ProjectRelationship.objects.get_or_create(

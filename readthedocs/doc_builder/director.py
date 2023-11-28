@@ -226,8 +226,11 @@ class BuildDirector:
         self.vcs_repository.update()
 
         identifier = self.data.build_commit or self.data.version.identifier
-        log.info("Checking out.", identifier=identifier)
-        self.vcs_repository.checkout(identifier)
+        if not self.data.project.default_branch or not identifier:
+            log.info("Skipping checkout, using default branch.")
+        else:
+            log.info("Checking out.", identifier=identifier)
+            self.vcs_repository.checkout(identifier)
 
         # The director is responsible for understanding which config file to use for a build.
         # In order to reproduce a build 1:1, we may use readthedocs_yaml_path defined by the build
