@@ -5,14 +5,15 @@
 # Translators:
 # Eric Holscher, 2023
 # Leandro Regueiro <leandro.regueiro@gmail.com>, 2013
+# Manuel Kaufmann <humitos@gmail.com>, 2023
 # Miguel Anxo Bouzada <mbouzada@gmail.com>, 2023
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-28 10:38+0000\n"
+"POT-Creation-Date: 2023-11-28 10:47+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
-"Last-Translator: Miguel Anxo Bouzada <mbouzada@gmail.com>, 2023\n"
+"Last-Translator: Manuel Kaufmann <humitos@gmail.com>, 2023\n"
 "Language-Team: Galician (http://app.transifex.com/readthedocs/readthedocs/"
 "language/gl/)\n"
 "Language: gl\n"

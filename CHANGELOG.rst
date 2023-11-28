@@ -1,3 +1,11 @@
+Version 10.12.1
+---------------
+
+:Date: November 28, 2023
+
+* `@humitos <https://github.com/humitos>`__: Release/10.12.0 (`#10928 <https://github.com/readthedocs/readthedocs.org/pull/10928>`__)
+* `@humitos <https://github.com/humitos>`__: Design: small update to add a PATCH endpoint (`#10919 <https://github.com/readthedocs/readthedocs.org/pull/10919>`__)
+
 Version 10.12.0
 ---------------
 
