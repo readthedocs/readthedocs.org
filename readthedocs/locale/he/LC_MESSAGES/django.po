@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-28 10:47+0000\n"
+"POT-Creation-Date: 2023-11-28 16:59+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019,2022-2023\n"
 "Language-Team: Hebrew (http://app.transifex.com/readthedocs/readthedocs/"
@@ -2233,15 +2233,15 @@ msgstr "ממתין"
 
 #: projects/constants.py:423
 msgid "Multiple versions with translations (/<language>/<version>/<filename>)"
-msgstr ""
+msgstr "מגוון גרסאות עם תרגומים (/<language>/<version>/<filename>)"
 
 #: projects/constants.py:427
 msgid "Multiple versions without translations (/<version>/<filename>)"
-msgstr ""
+msgstr "מגוון גרסאות ללא תרגומים (/<version>/<filename>)"
 
 #: projects/constants.py:431
 msgid "Single version without translations (/<filename>)"
-msgstr ""
+msgstr "גרסה יחידה ללא תרגומים (/<filename>)"
 
 #: projects/exceptions.py:14
 msgid ""
@@ -2360,7 +2360,7 @@ msgstr "אורכה של כל תגית חייבת להיות באורך של 100 
 #, python-brace-format
 msgid ""
 "This setting is inherited from the <a href=\"{link}\">parent translation</a>."
-msgstr ""
+msgstr "הגדרה זו התקבלה בירושה מ<a href=\"{link}\">גרסת ההורה</a>."
 
 #: projects/forms.py:282
 msgid "Global settings"
@@ -2403,7 +2403,7 @@ msgstr "המטען חייב להיות עצם JSON תקני."
 msgid ""
 "This project is configured with a versioning scheme that doesn't support "
 "translations."
-msgstr ""
+msgstr "מיזם זה מוגדר עם שיטת גרסאות שאינה תומכת בתרגומים."
 
 #: projects/forms.py:850
 msgid "Only one domain can be canonical at a time."
@@ -2475,7 +2475,7 @@ msgstr "כתובת שמצופה ממנה להציג את התיעוד"
 
 #: projects/models.py:250
 msgid "Versioning scheme"
-msgstr ""
+msgstr "שיטת גרסאות"
 
 #: projects/models.py:257
 msgid ""
@@ -4984,12 +4984,12 @@ msgstr ""
 
 #: templates/projects/integration_webhook_detail.html:59
 msgid "Webhook URL:"
-msgstr ""
+msgstr "כתובת התליה:"
 
 #: templates/projects/integration_webhook_detail.html:68
 #: templates/projects/integration_webhook_detail.html:73
 msgid "Secret:"
-msgstr ""
+msgstr "סוד:"
 
 #: templates/projects/integration_webhook_detail.html:81
 msgid ""
