@@ -252,7 +252,7 @@ class AddonsResponse:
         version_downloads = []
         versions_active_built_not_hidden = Version.objects.none()
 
-        if not project.is_single_version:
+        if project.supports_multiple_versions:
             versions_active_built_not_hidden = (
                 Version.internal.public(
                     project=project,

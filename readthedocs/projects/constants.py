@@ -415,11 +415,16 @@ SSL_STATUS_CHOICES = (
 )
 
 MULTIPLE_VERSIONS_WITH_TRANSLATIONS = "multiple_versions_with_translations"
+MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS = "multiple_versions_without_translations"
 SINGLE_VERSION_WITHOUT_TRANSLATIONS = "single_version_without_translations"
 VERSIONING_SCHEME_CHOICES = (
     (
         MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
         _("Multiple versions with translations (/<language>/<version>/<filename>)"),
+    ),
+    (
+        MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+        _("Multiple versions without translations (/<version>/<filename>)"),
     ),
     (
         SINGLE_VERSION_WITHOUT_TRANSLATIONS,

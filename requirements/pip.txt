@@ -14,9 +14,9 @@ async-timeout==4.0.3
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.29.3
+boto3==1.29.6
     # via django-storages
-botocore==1.32.3
+botocore==1.32.6
     # via
     #   boto3
     #   s3transfer
@@ -101,14 +101,16 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.in
 django-extensions==3.2.3
     # via -r requirements/pip.in
-django-filter==23.3
+django-filter==23.4
     # via -r requirements/pip.in
 django-formtools==2.3
     # via -r requirements/pip.in
 django-gravatar2==1.4.4
     # via -r requirements/pip.in
 django-ipware==5.0.2
-    # via django-structlog
+    # via
+    #   -r requirements/pip.in
+    #   django-structlog
 django-messages-extends==0.6.3
     # via -r requirements/pip.in
 django-polymorphic==3.1.0
@@ -121,7 +123,7 @@ django-structlog==2.2.0
     # via -r requirements/pip.in
 django-taggit==5.0.1
     # via -r requirements/pip.in
-django-timezone-field==6.0.1
+django-timezone-field==6.1.0
     # via django-celery-beat
 django-vanilla-views==3.0.0
     # via -r requirements/pip.in
@@ -159,7 +161,7 @@ funcy==2.0
     # via django-cacheops
 gunicorn==21.2.0
     # via -r requirements/pip.in
-idna==3.4
+idna==3.6
     # via requests
 jmespath==1.0.1
     # via
@@ -186,7 +188,7 @@ packaging==23.2
     #   docker
     #   dparse
     #   gunicorn
-platformdirs==3.11.0
+platformdirs==4.0.0
     # via virtualenv
 prompt-toolkit==3.0.41
     # via click-repl
@@ -194,7 +196,7 @@ psycopg2==2.9.9
     # via -r requirements/pip.in
 pycparser==2.21
     # via cffi
-pygments==2.17.0
+pygments==2.17.2
     # via -r requirements/pip.in
 pyjwt[crypto]==2.8.0
     # via
@@ -291,9 +293,9 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.24.6
+virtualenv==20.24.7
     # via -r requirements/pip.in
-wcwidth==0.2.10
+wcwidth==0.2.12
     # via prompt-toolkit
 websocket-client==1.6.4
     # via docker
