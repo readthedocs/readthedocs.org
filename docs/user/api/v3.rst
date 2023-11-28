@@ -279,7 +279,7 @@ Project details
             },
             "privacy_level": "public",
             "external_builds_privacy_level": "public",
-            "single_version": false,
+            "versioning_scheme": "multiple_versions_with_translations",
             "_links": {
                 "_self": "/api/v3/projects/pip/",
                 "versions": "/api/v3/projects/pip/versions/",
@@ -297,6 +297,14 @@ Project details
 
     .. note::
 
+       ``versioning_scheme`` can be one of the following values:
+
+       - ``multiple_versions_with_translations``
+       - ``multiple_versions_without_translations``
+       - ``single_version_without_translations``
+
+    .. note::
+
        .. FIXME: we can't use :query string: here because it doesn't render properly
 
       :doc:`Read the Docs for Business </commercial/index>`, also accepts
@@ -304,6 +312,11 @@ Project details
       :Query Parameters:
 
          * **expand** (*string*) -- with ``organization`` and ``teams``.
+
+    .. note::
+
+       The ``single_version`` attribute is deprecated,
+       use ``versioning_scheme`` instead.
 
 Project create
 ++++++++++++++
@@ -434,7 +447,7 @@ Project update
             "default_branch": "develop",
             "analytics_code": "UA000000",
             "analytics_disabled": false,
-            "single_version": false,
+            "versioning_scheme": "multiple_versions_with_translations",
             "external_builds_enabled": true,
             "privacy_level": "public",
             "external_builds_privacy_level": "public"

@@ -1,3 +1,34 @@
+Version 10.12.1
+---------------
+
+:Date: November 28, 2023
+
+* `@humitos <https://github.com/humitos>`__: Release/10.12.0 (`#10928 <https://github.com/readthedocs/readthedocs.org/pull/10928>`__)
+* `@humitos <https://github.com/humitos>`__: Design: small update to add a PATCH endpoint (`#10919 <https://github.com/readthedocs/readthedocs.org/pull/10919>`__)
+
+Version 10.12.0
+---------------
+
+:Date: November 28, 2023
+
+* `@kurtmckee <https://github.com/kurtmckee>`__: Fix a typo in the word 'Sphinx' (`#10926 <https://github.com/readthedocs/readthedocs.org/pull/10926>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10925 <https://github.com/readthedocs/readthedocs.org/pull/10925>`__)
+* `@humitos <https://github.com/humitos>`__: Feature flag: remove `CDN_ENABLED` which is not used anymore (`#10921 <https://github.com/readthedocs/readthedocs.org/pull/10921>`__)
+* `@humitos <https://github.com/humitos>`__: Design: small update to add a PATCH endpoint (`#10919 <https://github.com/readthedocs/readthedocs.org/pull/10919>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: index in small chunks (`#10914 <https://github.com/readthedocs/readthedocs.org/pull/10914>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: check for build being None (`#10913 <https://github.com/readthedocs/readthedocs.org/pull/10913>`__)
+* `@hugovk <https://github.com/hugovk>`__: Add link to docs in error message (`#10910 <https://github.com/readthedocs/readthedocs.org/pull/10910>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10909 <https://github.com/readthedocs/readthedocs.org/pull/10909>`__)
+* `@stsewd <https://github.com/stsewd>`__: Integrations: always show secret and show warning if secret is not set (`#10908 <https://github.com/readthedocs/readthedocs.org/pull/10908>`__)
+* `@stsewd <https://github.com/stsewd>`__: Integrations: better error message for integrations without a secret (`#10903 <https://github.com/readthedocs/readthedocs.org/pull/10903>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.11.0 (`#10900 <https://github.com/readthedocs/readthedocs.org/pull/10900>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Mention custom sitemap via robots.txt (`#10899 <https://github.com/readthedocs/readthedocs.org/pull/10899>`__)
+* `@humitos <https://github.com/humitos>`__: Design doc: new notification system (`#10890 <https://github.com/readthedocs/readthedocs.org/pull/10890>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: use a choicefield for selecting the versioning scheme (`#10845 <https://github.com/readthedocs/readthedocs.org/pull/10845>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: support single language project  (`#10766 <https://github.com/readthedocs/readthedocs.org/pull/10766>`__)
+* `@nikblanchet <https://github.com/nikblanchet>`__: Docs: Configuration file how-to guide (`#10301 <https://github.com/readthedocs/readthedocs.org/pull/10301>`__)
+* `@humitos <https://github.com/humitos>`__: Build: expose VCS-related environment variables (`#10168 <https://github.com/readthedocs/readthedocs.org/pull/10168>`__)
+
 Version 10.11.0
 ---------------
 

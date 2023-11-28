@@ -200,9 +200,8 @@ def validate_custom_subproject_prefix(project, prefix):
     # If the custom project prefix and subproject prefix overlap,
     # we need to check that the first non-overlapping component isn't a valid language.
     # Since this will result in an ambiguous path that can't be resolved as a subproject.
-    # This check is only needed if the project is a multiversion project,
-    # a single version project will resolve the subproject correctly.
-    if not project.single_version and prefix.startswith(project_prefix):
+    # This check is only needed if the project supports translations.
+    if project.supports_translations and prefix.startswith(project_prefix):
         first_component = prefix.removeprefix(project_prefix).split("/")[0]
         valid_languages = [language[0] for language in LANGUAGES]
         if first_component in valid_languages:
