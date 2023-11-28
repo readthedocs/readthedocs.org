@@ -3,6 +3,7 @@ from django.test.utils import override_settings
 from django_dynamic_fixture import fixture, get
 
 from readthedocs.builds.constants import LATEST
+from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Project
 from readthedocs.redirects.models import Redirect
 
@@ -101,14 +102,14 @@ class GetFullPathTests(TestCase):
         PRODUCTION_DOMAIN="rtfd.org",
     )
     def test_single_version_with_subdomain(self):
-        self.redirect.project.single_version = True
+        self.redirect.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.assertEqual(
             self.redirect.get_full_path("faq.html"),
             "/faq.html",
         )
 
     def test_single_version_no_subdomain(self):
-        self.redirect.project.single_version = True
+        self.redirect.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.assertEqual(
             self.redirect.get_full_path("faq.html"),
             "/faq.html",

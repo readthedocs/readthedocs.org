@@ -863,24 +863,7 @@ class IntegrationCreate(IntegrationMixin, CreateView):
 
 
 class IntegrationDetail(IntegrationMixin, DetailView):
-
-    # Some of the templates can be combined, we'll avoid duplicating templates
-    SUFFIX_MAP = {
-        Integration.GITHUB_WEBHOOK: 'webhook',
-        Integration.GITLAB_WEBHOOK: 'webhook',
-        Integration.BITBUCKET_WEBHOOK: 'webhook',
-        Integration.API_WEBHOOK: 'generic_webhook',
-    }
-
-    def get_template_names(self):
-        if self.template_name:
-            return self.template_name
-        integration_type = self.get_integration().integration_type
-        suffix = self.SUFFIX_MAP.get(integration_type, integration_type)
-        return (
-            'projects/integration_{}{}.html'
-            .format(suffix, self.template_name_suffix)
-        )
+    template_name = "projects/integration_webhook_detail.html"
 
 
 class IntegrationDelete(IntegrationMixin, DeleteView):
