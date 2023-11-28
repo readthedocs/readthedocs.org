@@ -478,7 +478,7 @@ msgstr "Privacidade"
 #, python-brace-format
 msgid "{version} is the default version of the project, it should be active."
 msgstr ""
-"{versión} é a versión predeterminada do proxecto, debería estar activa."
+"{version} é a versión predeterminada do proxecto, debería estar activa."
 
 #: builds/forms.py:166
 msgid "Custom match should not be empty."
