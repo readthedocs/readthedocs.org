@@ -155,7 +155,7 @@ django-formtools==2.3
     # via -r requirements/pip.txt
 django-gravatar2==1.4.4
     # via -r requirements/pip.txt
-django-ipware==6.0.0
+django-ipware==5.0.2
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -333,10 +333,6 @@ python-dateutil==2.8.2
     #   botocore
     #   elasticsearch-dsl
     #   python-crontab
-python-ipware==2.0.0
-    # via
-    #   -r requirements/pip.txt
-    #   django-ipware
 python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
