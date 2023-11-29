@@ -23,12 +23,16 @@ class Message:
         self.type = type  # (ERROR, WARNING, INFO, NOTE, TIP)
         self.icon = icon
         self.icon_style = icon_style  # (SOLID, DUOTONE)
+        self.format_values = {}
 
     def __repr__(self):
         return f"<Message: {self.id}>"
 
     def __str__(self):
         return f"Message: {self.id} | {self.header}"
+
+    def set_format_values(self, format_values):
+        self.format_values = format_values or {}
 
     def get_display_icon(self):
         if self.icon:
@@ -38,6 +42,12 @@ class Message:
             return "fa-exclamation"
         if self.type == WARNING:
             return "fa-triangle-exclamation"
+
+    def get_rendered_header(self):
+        return self.header.format(**self.format_values)
+
+    def get_rendered_body(self):
+        return self.body.format(**self.format_values)
 
 
 CONFIG_YAML_MESSAGES = []

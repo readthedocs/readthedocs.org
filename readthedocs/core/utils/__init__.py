@@ -154,10 +154,11 @@ def prepare_build(
         options["countdown"] = settings.RTD_BUILDS_RETRY_DELAY
         options["max_retries"] = settings.RTD_BUILDS_MAX_RETRIES
         # TODO: adapt this code to create a Notification on Build here.
-        build.error = BuildMaxConcurrencyError.message.format(
-            limit=max_concurrent_builds,
+
+        build.notifications.create(
+            message_id=BuildMaxConcurrencyError.LIMIT_REACHED,
+            format_values={"limit": max_concurrent_builds},
         )
-        build.save()
 
     _, build_api_key = BuildAPIKey.objects.create_key(project=project)
 
