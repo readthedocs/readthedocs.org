@@ -1,3 +1,5 @@
+import itertools
+
 from django.utils.translation import gettext_noop as _
 
 from readthedocs.doc_builder.exceptions import (
@@ -21,6 +23,12 @@ class Message:
         self.type = type  # (ERROR, WARNING, INFO, NOTE, TIP)
         self.icon = icon
         self.icon_style = icon_style  # (SOLID, DUOTONE)
+
+    def __repr__(self):
+        return f"<Message: {self.id}>"
+
+    def __str__(self):
+        return f"Message: {self.id} | {self.header}"
 
     def get_display_icon(self):
         if self.icon:
@@ -336,6 +344,12 @@ SYMLINK_MESSAGES = [
         type=ERROR,
     ),
 ]
+
+# Merge all the notifications into one object
 NOTIFICATION_MESSAGES = {}
-for message in zip(CONFIG_YAML_MESSAGES, BUILD_MKDOCS_MESSAGES, BUILD_MESSAGES):
+for message in itertools.chain(
+    CONFIG_YAML_MESSAGES,
+    BUILD_MKDOCS_MESSAGES,
+    BUILD_MESSAGES,
+):
     NOTIFICATION_MESSAGES[message.id] = message

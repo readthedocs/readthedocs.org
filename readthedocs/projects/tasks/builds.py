@@ -491,7 +491,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             if hasattr(exc, "message_id") and exc.message_id is not None:
                 message_id = exc.message_id
             else:
-                message_id = "build:user:generic"
+                message_id = BuildUserError.GENERIC
 
         else:
             # We don't know what happened in the build. Log the exception and
