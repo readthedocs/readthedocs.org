@@ -77,11 +77,11 @@ def safe_open(
     )
 
     if path.exists() and not path.is_file():
-        raise FileIsNotRegularFile()
+        raise FileIsNotRegularFile(FileIsNotRegularFile.SYMLINK_USED)
 
     if not allow_symlinks and path.is_symlink():
-        log.info("Skipping file becuase it's a symlink.")
-        raise UnsupportedSymlinkFileError()
+        log.info("Skipping file because it's a symlink.")
+        raise UnsupportedSymlinkFileError(UnsupportedSymlinkFileError.SYMLINK_USED)
 
     # Expand symlinks.
     resolved_path = path.resolve()
@@ -97,7 +97,7 @@ def safe_open(
         if not resolved_path.is_relative_to(base_path):
             # Trying to path traversal via a symlink, sneaky!
             log.info("Path traversal via symlink.")
-            raise SymlinkOutsideBasePath()
+            raise SymlinkOutsideBasePath(SymlinkOutsideBasePath.SYMLINK_USED)
 
     _assert_path_is_inside_docroot(resolved_path)
 

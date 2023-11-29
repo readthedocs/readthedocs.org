@@ -6,6 +6,7 @@ from readthedocs.doc_builder.exceptions import (
     BuildMaxConcurrencyError,
     BuildUserError,
     MkDocsYAMLParseError,
+    UnsupportedSymlinkFileError,
 )
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 
@@ -323,6 +324,18 @@ BUILD_MKDOCS_MESSAGES = [
     ),
 ]
 
+SYMLINK_MESSAGES = [
+    Message(
+        id=UnsupportedSymlinkFileError.SYMLINK_USED,
+        header=_(""),
+        body=_(
+            """
+            Symlinks are not fully supported.
+            """
+        ),
+        type=ERROR,
+    ),
+]
 NOTIFICATION_MESSAGES = {}
 for message in zip(CONFIG_YAML_MESSAGES, BUILD_MKDOCS_MESSAGES, BUILD_MESSAGES):
     NOTIFICATION_MESSAGES[message.id] = message

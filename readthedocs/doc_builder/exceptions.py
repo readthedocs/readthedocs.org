@@ -11,7 +11,6 @@ All these exception should only define the "message id" under one of these categ
 Then the header/body texts should be defined in ``readthedocs/notifications/messages.py``.
 """
 
-from django.utils.translation import gettext_noop
 
 
 class BuildBaseException(Exception):
@@ -62,10 +61,12 @@ class MkDocsYAMLParseError(BuildUserError):
     CONFIG_NOT_DICT = "build:user:mkdocs:invalid-yaml"
 
 
+# NOTE: there is no need to have three different error classes for this.
+# We can merge all of them in one, always raise the same exception with different messages.
+#
 # TODO: improve messages for symlink errors with a more detailed error and include the `filepath`.
 class UnsupportedSymlinkFileError(BuildUserError):
     SYMLINK_USED = "build:user:symlink:used"
-    message = gettext_noop("Symlinks are not fully supported")
 
 
 class FileIsNotRegularFile(UnsupportedSymlinkFileError):
