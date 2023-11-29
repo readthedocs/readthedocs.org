@@ -1194,9 +1194,6 @@ class Project(models.Model):
 
         A machine created LATEST version is an alias for the default branch/tag,
         so we need to update it to match the type and identifier of the default branch/tag.
-
-        If the project doesn't have an explicit default branch set,
-        we don't update the latest version, since it will be updated after a successful build.
         """
         latest = self.get_latest_version()
         if not latest:
@@ -1301,10 +1298,10 @@ class Project(models.Model):
         if self.default_branch:
             return self.default_branch
 
-        fallback_branch = self.vcs_class().fallback_branch
         if self.remote_repository and self.remote_repository.default_branch:
-            fallback_branch = self.remote_repository.default_branch
+            return self.remote_repository.default_branch
 
+        fallback_branch = self.vcs_class().fallback_branch
         latest_version = self.versions.filter(slug=LATEST).first()
         if latest_version:
             if latest_version.machine:

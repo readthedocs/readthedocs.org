@@ -338,8 +338,8 @@ class Version(TimeStampedModel):
         The result could be used as ref in a git repo, e.g. for linking to
         GitHub, Bitbucket or GitLab.
         """
-        # LATEST is special as it doesn't contain the branch/tag name in
-        # verbose_name, but in identifier.
+        # LATEST is special as it is usually a branch but does not contain the
+        # name in verbose_name.
         if self.slug == LATEST and self.machine:
             return self.project.get_default_branch()
 

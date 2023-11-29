@@ -302,11 +302,9 @@ class TestSyncVersions(TestCase):
         )
 
         latest_version = self.pip.versions.get(slug=LATEST)
-        # Since the project doesn't have a default branch, the latest version
-        # will be synced after the next build.
         self.assertEqual(self.pip.default_branch, None)
         self.assertEqual(latest_version.type, BRANCH)
-        self.assertEqual(latest_version.identifier, "abc123")
+        self.assertEqual(latest_version.identifier, "master")
         self.assertEqual(latest_version.verbose_name, "latest")
         self.assertEqual(latest_version.machine, True)
 
