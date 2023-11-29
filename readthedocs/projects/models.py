@@ -1300,11 +1300,11 @@ class Project(models.Model):
         if self.default_branch:
             return self.default_branch
 
-        fallback_branch = self.vcs_class.fallback_branch
+        fallback_branch = self.vcs_class().fallback_branch
         latest_version = self.versions.filter(slug=LATEST).first()
         if latest_version:
             if latest_version.machine:
-                return latest_version.identifer or fallback_branch
+                return latest_version.identifier or fallback_branch
             return latest_version.verbose_name or fallback_branch
 
         return fallback_branch

@@ -116,8 +116,8 @@ class Backend(BaseVCS):
         # Git backend.
         # If version_identifier is empty, then the fetch operation cannot know what to fetch
         # and will fetch everything, in order to build what might be defined elsewhere
-        # as the "default branch". This can be the case for an initial build started BEFORE
-        # a webhook or sync versions task has concluded what the default branch is.
+        # as the "default branch". This can be the case for old projects that don't have
+        # their latest branch in sync with the default branch.
         if self.version_type == BRANCH and self.version_identifier:
             # Here we point directly to the remote branch name and update our local remote
             # refspec to point here.
@@ -199,12 +199,16 @@ class Backend(BaseVCS):
             "--depth",
             str(self.repo_depth),
         ]
-        remote_reference = self.get_remote_fetch_refspec()
-
-        if remote_reference:
-            # TODO: We are still fetching the latest 50 commits.
-            # A PR might have another commit added after the build has started...
-            cmd.extend(["--", remote_reference])
+        is_rtd_latest = (
+            self.verbose_name == LATEST_VERBOSE_NAME and self.version_machine
+        )
+        ommit_remote_reference = is_rtd_latest and not self.project.default_branch
+        if not ommit_remote_reference:
+            remote_reference = self.get_remote_fetch_refspec()
+            if remote_reference:
+                # TODO: We are still fetching the latest 50 commits.
+                # A PR might have another commit added after the build has started...
+                cmd.extend(["--", remote_reference])
 
         # Log a warning, except for machine versions since it's a known bug that
         # we haven't stored a remote refspec in Version for those "stable" versions.
