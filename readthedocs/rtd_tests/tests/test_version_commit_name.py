@@ -21,6 +21,7 @@ class VersionCommitNameTests(TestCase):
             slug=STABLE,
             verbose_name=STABLE,
             type=TAG,
+            machine=True,
         )
         # we shorten commit hashes to keep things readable
         self.assertEqual(version.identifier_friendly, "3d92b728")
@@ -52,6 +53,7 @@ class VersionCommitNameTests(TestCase):
             slug=STABLE,
             verbose_name="stable",
             type=BRANCH,
+            machine=True,
         )
         self.assertEqual(version.commit_name, "stable")
 
@@ -62,6 +64,7 @@ class VersionCommitNameTests(TestCase):
             slug=STABLE,
             verbose_name=STABLE,
             type=TAG,
+            machine=True,
         )
         self.assertEqual(
             version.commit_name,
@@ -77,6 +80,7 @@ class VersionCommitNameTests(TestCase):
             verbose_name=LATEST,
             type=BRANCH,
             project=hg_project,
+            machine=True,
         )
         self.assertEqual(version.commit_name, "default")
 
@@ -85,10 +89,11 @@ class VersionCommitNameTests(TestCase):
         version = new(
             Version,
             project=git_project,
-            identifier="origin/master",
+            identifier="master",
             slug=LATEST,
             verbose_name=LATEST,
             type=BRANCH,
+            machine=True,
         )
         self.assertEqual(version.commit_name, "master")
 

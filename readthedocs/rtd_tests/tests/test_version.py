@@ -2,7 +2,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, TAG
+from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, LATEST_VERBOSE_NAME, STABLE, STABLE_VERBOSE_NAME, TAG
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 
@@ -26,20 +26,22 @@ class VersionMixin:
         self.branch_version = get(
             Version,
             identifier="origin/stable",
-            verbose_name="stable",
-            slug="stable",
+            verbose_name=STABLE_VERBOSE_NAME,
+            slug=STABLE,
             project=self.pip,
             active=True,
             type=BRANCH,
+            machine=True,
         )
         self.tag_version = get(
             Version,
-            identifier="origin/master",
-            verbose_name="latest",
-            slug="latest",
+            identifier="master",
+            verbose_name=LATEST_VERBOSE_NAME,
+            slug=LATEST,
             project=self.pip,
             active=True,
             type=TAG,
+            machine=True,
         )
 
         self.subproject = get(Project, slug="subproject", language="en")

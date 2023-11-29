@@ -1200,13 +1200,14 @@ class Project(models.Model):
         """
         latest = self.get_latest_version()
         if not latest:
-            latest = self.versions.create_latest()
+            default_branch = self.get_default_branch()
+            latest = self.versions.create_latest(identifier=default_branch)
 
-        if not self.default_branch or not latest.machine:
+        if not latest.machine:
             return
 
         # default_branch can be a tag or a branch name!
-        default_version_name = self.default_branch
+        default_version_name = self.get_default_branch()
         original_latest = self.get_original_latest_version()
         latest.verbose_name = LATEST_VERBOSE_NAME
         latest.type = original_latest.type if original_latest else BRANCH
@@ -1301,6 +1302,9 @@ class Project(models.Model):
             return self.default_branch
 
         fallback_branch = self.vcs_class().fallback_branch
+        if self.remote_repository and self.remote_repository.default_branch:
+            fallback_branch = self.remote_repository.default_branch
+
         latest_version = self.versions.filter(slug=LATEST).first()
         if latest_version:
             if latest_version.machine:

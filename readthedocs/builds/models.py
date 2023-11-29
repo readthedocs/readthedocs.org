@@ -294,7 +294,7 @@ class Version(TimeStampedModel):
             if self.slug == STABLE and self.machine:
                 version_name = self.ref
             elif self.slug == LATEST and self.machine:
-                version_name = self.identifier
+                version_name = self.project.get_default_branch()
             else:
                 version_name = self.slug
             if 'bitbucket' in self.project.repo:
@@ -341,7 +341,7 @@ class Version(TimeStampedModel):
         # LATEST is special as it doesn't contain the branch/tag name in
         # verbose_name, but in identifier.
         if self.slug == LATEST and self.machine:
-            return self.identifier
+            return self.project.get_default_branch()
 
         if self.slug == STABLE and self.machine:
             if self.type == BRANCH:

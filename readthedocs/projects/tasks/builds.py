@@ -651,10 +651,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 }
                 # Update the latest version to point to the current default branch,
                 # if the project doesn't have a default branch set.
+                is_rtd_latest = self.data.version.slug == LATEST and self.data.version.machine
                 if (
-                    not self.data.project.default_branch
-                    and self.data.version.slug == LATEST
-                    and self.data.version.machine
+                    is_rtd_latest
+                    and not self.data.project.default_branch
                     and self.data.default_branch
                 ):
                     payload["identifier"] = self.data.default_branch
@@ -795,11 +795,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # Save the default branch of the repository if the project doesn't
             # have an explicit default branch set. The latest version is
             # updated if the build succeeds.
-            if (
-                not self.data.project.default_branch
-                and self.data.version.slug == LATEST
-                and self.data.version.machine
-            ):
+            is_rtd_latest = self.data.version.slug == LATEST and self.data.version.machine
+            if is_rtd_latest and not self.data.project.default_branch:
                 self.data.default_branch = (
                     self.data.build_director.vcs_repository.get_default_branch()
                 )

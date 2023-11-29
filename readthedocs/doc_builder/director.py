@@ -17,7 +17,7 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
-from readthedocs.builds.constants import EXTERNAL
+from readthedocs.builds.constants import EXTERNAL, LATEST
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.doc_builder.config import load_yaml_config
 from readthedocs.doc_builder.exceptions import BuildUserError
@@ -226,7 +226,9 @@ class BuildDirector:
         self.vcs_repository.update()
 
         identifier = self.data.build_commit or self.data.version.identifier
-        if not self.data.project.default_branch or not identifier:
+        is_rtd_latest = self.data.version.slug == LATEST and self.data.version.machine
+        skip_checkout = not identifier or (is_rtd_latest and not self.data.project.default_branch)
+        if skip_checkout:
             log.info("Skipping checkout, using default branch.")
         else:
             log.info("Checking out.", identifier=identifier)
