@@ -502,7 +502,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             message_id = "build:app:generic-with-build-id"
 
         # TODO: finish sending "format_values" via the API
-        exc.kwargs if hasattr(exc, "kwargs") else None
+        # format_values = exc.kwargs if hasattr(exc, "kwargs") else None
 
         # POST the notification via the APIv2
         self.data.api_client.notifications.post(
