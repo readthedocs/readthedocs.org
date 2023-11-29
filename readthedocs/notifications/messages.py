@@ -31,309 +31,298 @@ class Message:
             return "fa-triangle-exclamation"
 
 
-CONFIG_YAML_MESSAGES = {
-    message.id: message
-    for message in [
-        Message(
-            id=f"build:config-yaml:generic",
-            header=_("Error while parsing configuration file."),
-            body=_("Take a look at your YAML file looking for syntax errors."),
-            type=ERROR,
-        )
-    ]
-}
+CONFIG_YAML_MESSAGES = []
 
 # TODO: review the copy of these notifications/messages on PR review and adapt them.
 # Most of them are copied from what we had in `readthedocs.doc_builder.exceptions`
 # and slightly adapted to have a header and a better body.
-BUILD_MESSAGES = {
-    message.id: message
-    for message in [
-        Message(
-            id=BuildAppError.GENERIC_WITH_BUILD_ID,
-            header=_("Unknown problem"),
-            # Note the message receives the instance it's attached to
-            # and could be use it to inject related data
-            body=_(
+BUILD_MESSAGES = [
+    Message(
+        id=BuildAppError.GENERIC_WITH_BUILD_ID,
+        header=_("Unknown problem"),
+        # Note the message receives the instance it's attached to
+        # and could be use it to inject related data
+        body=_(
+            """
+                There was a problem with Read the Docs while building your documentation.
+                Please try again later.
+                If this problem persists,
+                report this error to us with your build id ({instance.pk}).
                 """
-                    There was a problem with Read the Docs while building your documentation.
-                    Please try again later.
-                    If this problem persists,
-                    report this error to us with your build id ({instance.pk}).
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=BuildUserError.GENERIC,
-            header=_("Unknown problem"),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.GENERIC,
+        header=_("Unknown problem"),
+        body=_(
+            """
+                We encountered a problem with a command while building your project.
+                To resolve this error, double check your project configuration and installed
+                dependencies are correct and have not changed recently.
                 """
-                    We encountered a problem with a command while building your project.
-                    To resolve this error, double check your project configuration and installed
-                    dependencies are correct and have not changed recently.
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=BuildMaxConcurrencyError.LIMIT_REACHED,
-            header=_("Maximum concurrency limit reached."),
-            # TODO: how we are going to format variables (e.g. ``limit`` here)?
-            # The variables are passed when it's instantiated.
-            # However, we need to render the notification from the front-end in a different moment.
-            # Do we want to store the key/values in the database and use them to render the message?
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=BuildMaxConcurrencyError.LIMIT_REACHED,
+        header=_("Maximum concurrency limit reached."),
+        # TODO: how we are going to format variables (e.g. ``limit`` here)?
+        # The variables are passed when it's instantiated.
+        # However, we need to render the notification from the front-end in a different moment.
+        # Do we want to store the key/values in the database and use them to render the message?
+        body=_(
+            """
+                Concurrency limit reached ({limit}), retrying in 5 minutes.
                 """
-                    Concurrency limit reached ({limit}), retrying in 5 minutes.
-                    """
-            ),
-            type=INFO,
         ),
-        Message(
-            id=BuildCancelled.CANCELLED_BY_USER,
-            header=_("Build cancelled manually."),
-            body=_(
+        type=INFO,
+    ),
+    Message(
+        id=BuildCancelled.CANCELLED_BY_USER,
+        header=_("Build cancelled manually."),
+        body=_(
+            """
+                The user has cancel this build.
                 """
-                    The user has cancel this build.
-                    """
-            ),
-            type=INFO,
         ),
-        Message(
-            id=BuildUserError.SKIPPED_EXIT_CODE_183,
-            header=_("Build skipped manually."),
-            body=_(
+        type=INFO,
+    ),
+    Message(
+        id=BuildUserError.SKIPPED_EXIT_CODE_183,
+        header=_("Build skipped manually."),
+        body=_(
+            """
+                One of the commands exited with code 183
+                and the build was skipped.
                 """
-                    One of the commands exited with code 183
-                    and the build was skipped.
-                    """
-            ),
-            type=INFO,
         ),
-        Message(
-            id=BuildAppError.BUILDS_DISABLED,
-            header=_("Builds are temporary disabled for this project."),
-            body=_(
+        type=INFO,
+    ),
+    Message(
+        id=BuildAppError.BUILDS_DISABLED,
+        header=_("Builds are temporary disabled for this project."),
+        body=_(
+            """
+                This is due to an excess usage of our resources.
+                Please, contact our support team if you think this is a mistake
+                and builds should be re-enabled.
                 """
-                    This is due to an excess usage of our resources.
-                    Please, contact our support team if you think this is a mistake
-                    and builds should be re-enabled.
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=BuildUserError.MAX_CONCURRENCY,
-            header=_("Concurrency limit reached"),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.MAX_CONCURRENCY,
+        header=_("Concurrency limit reached"),
+        body=_(
+            """
+                Your project/organization/user is currently building the maximum concurrency builds allowed ({limit}).
+                It will automatically retried in 5 minutes.
                 """
-                    Your project/organization/user is currently building the maximum concurrency builds allowed ({limit}).
-                    It will automatically retried in 5 minutes.
-                    """
-            ),
-            type=WARNING,
         ),
-        Message(
-            id=BuildUserError.BUILD_COMMANDS_WITHOUT_OUTPUT,
-            header=_("No HTML content found"),
-            body=_(
-                f"""
-                    No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.
-                    """
-            ),
-            type=ERROR,
-        ),
-        Message(
-            id=BuildUserError.BUILD_OUTPUT_IS_NOT_A_DIRECTORY,
-            header=_("Build output directory is not a directory"),
-            body=_(
+        type=WARNING,
+    ),
+    Message(
+        id=BuildUserError.BUILD_COMMANDS_WITHOUT_OUTPUT,
+        header=_("No HTML content found"),
+        body=_(
+            f"""
+                No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.
                 """
-                    Build output directory for format "{artifact_type}" is not a directory.
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=BuildUserError.BUILD_OUTPUT_HAS_0_FILES,
-            header=_("Build output directory doesn't contain any file"),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_OUTPUT_IS_NOT_A_DIRECTORY,
+        header=_("Build output directory is not a directory"),
+        body=_(
+            """
+                Build output directory for format "{artifact_type}" is not a directory.
                 """
-                    Build output directory for format "{artifact_type}" does not contain any files.
-                    It seems the build process created the directory but did not save any file to it.
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=BuildUserError.BUILD_OUTPUT_HAS_MULTIPLE_FILES,
-            header=_("Build output directory contains multiple files"),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_OUTPUT_HAS_0_FILES,
+        header=_("Build output directory doesn't contain any file"),
+        body=_(
+            """
+                Build output directory for format "{artifact_type}" does not contain any files.
+                It seems the build process created the directory but did not save any file to it.
                 """
-                    Build output directory for format "{artifact_type}" contains multiple files
-                    and it is not currently supported.
-                    Please, remove all the files but the "{artifact_type}" you want to upload.
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=BuildUserError.BUILD_OUTPUT_HTML_NO_INDEX_FILE,
-            header=_("Index file is not present in HTML output directory"),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_OUTPUT_HAS_MULTIPLE_FILES,
+        header=_("Build output directory contains multiple files"),
+        body=_(
+            """
+                Build output directory for format "{artifact_type}" contains multiple files
+                and it is not currently supported.
+                Please, remove all the files but the "{artifact_type}" you want to upload.
                 """
-                    Your documentation did not generate an 'index.html' at its root directory.
-                    This is required for documentation serving at the root URL for this version.
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=BuildUserError.BUILD_OUTPUT_OLD_DIRECTORY_USED,
-            header=_("Your project is outputing files in an old directory"),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_OUTPUT_HTML_NO_INDEX_FILE,
+        header=_("Index file is not present in HTML output directory"),
+        body=_(
+            """
+                Your documentation did not generate an 'index.html' at its root directory.
+                This is required for documentation serving at the root URL for this version.
                 """
-                    Some files were detected in an unsupported output path, '_build/html'.
-                    Ensure your project is configured to use the output path
-                    '$READTHEDOCS_OUTPUT/html' instead.
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=BuildUserError.NO_CONFIG_FILE_DEPRECATED,
-            header=_("Your project doesn't have a <code>.readthedocs.yaml</code> file"),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_OUTPUT_OLD_DIRECTORY_USED,
+        header=_("Your project is outputing files in an old directory"),
+        body=_(
+            """
+                Some files were detected in an unsupported output path, '_build/html'.
+                Ensure your project is configured to use the output path
+                '$READTHEDOCS_OUTPUT/html' instead.
                 """
-                    The configuration file required to build documentation is missing from your project.
-                    Add a configuration file to your project to make it build successfully.
-                    Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=BuildUserError.BUILD_IMAGE_CONFIG_KEY_DEPRECATED,
-            header=_("Configuration key <code>build.image</code> is deprecated"),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.NO_CONFIG_FILE_DEPRECATED,
+        header=_("Your project doesn't have a <code>.readthedocs.yaml</code> file"),
+        body=_(
+            """
+                The configuration file required to build documentation is missing from your project.
+                Add a configuration file to your project to make it build successfully.
+                Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html
                 """
-                    The configuration key "build.image" is deprecated.
-                    Use "build.os" instead to continue building your project.
-                    Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=BuildUserError.BUILD_OS_REQUIRED,
-            header=_("Configuration key <code>build.os</code> is required"),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_IMAGE_CONFIG_KEY_DEPRECATED,
+        header=_("Configuration key <code>build.image</code> is deprecated"),
+        body=_(
+            """
+                The configuration key "build.image" is deprecated.
+                Use "build.os" instead to continue building your project.
+                Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os
                 """
-                    The configuration key "build.os" is required to build your documentation.
-                    Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=BuildUserError.FILE_TOO_LARGE,
-            header=_("There is at least one file size that exceeds the limits"),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_OS_REQUIRED,
+        header=_("Configuration key <code>build.os</code> is required"),
+        body=_(
+            """
+                The configuration key "build.os" is required to build your documentation.
+                Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os
                 """
-                    A file from your build process is too large to be processed by Read the Docs.
-                    Please ensure no files generated are larger than 1GB.
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=BuildUserError.FILE_TOO_LARGE,
-            header=_("There is no PDF file in output directory"),
-            body=_(
-                f"""
-                    PDF file was not generated/found in "{BUILD_COMMANDS_OUTPUT_PATH_HTML}/pdf" output directory.
-                    """
-            ),
-            type=ERROR,
-        ),
-        # TODO: it probably makes sense to split the notification object here.
-        Message(
-            id=MkDocsYAMLParseError.GENERIC_WITH_PARSE_EXCEPTION,
-            header=_(""),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.FILE_TOO_LARGE,
+        header=_("There is at least one file size that exceeds the limits"),
+        body=_(
+            """
+                A file from your build process is too large to be processed by Read the Docs.
+                Please ensure no files generated are larger than 1GB.
                 """
-                    Problem parsing MkDocs YAML configuration. {exception}
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=MkDocsYAMLParseError.INVALID_DOCS_DIR_CONFIG,
-            header=_(""),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.FILE_TOO_LARGE,
+        header=_("There is no PDF file in output directory"),
+        body=_(
+            f"""
+                PDF file was not generated/found in "{BUILD_COMMANDS_OUTPUT_PATH_HTML}/pdf" output directory.
                 """
-        The "docs_dir" config from your MkDocs YAML config file has to be a
-        string with relative or absolute path.
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=MkDocsYAMLParseError.INVALID_DOCS_DIR_PATH,
-            header=_(""),
-            body=_(
+        type=ERROR,
+    ),
+]
+
+BUILD_MKDOCS_MESSAGES = [
+    Message(
+        id=MkDocsYAMLParseError.GENERIC_WITH_PARSE_EXCEPTION,
+        header=_(""),
+        body=_(
+            """
+                Problem parsing MkDocs YAML configuration. {exception}
                 """
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=MkDocsYAMLParseError.INVALID_EXTRA_CONFIG,
-            header=_(""),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=MkDocsYAMLParseError.INVALID_DOCS_DIR_CONFIG,
+        header=_(""),
+        body=_(
+            """
+    The "docs_dir" config from your MkDocs YAML config file has to be a
+    string with relative or absolute path.
                 """
-        The "{config}" config from your MkDocs YAML config file has to be a
-        list of relative paths.
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=MkDocsYAMLParseError.EMPTY_CONFIG,
-            header=_(""),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=MkDocsYAMLParseError.INVALID_DOCS_DIR_PATH,
+        header=_(""),
+        body=_(
+            """
                 """
-        Please make sure the MkDocs YAML configuration file is not empty.
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=MkDocsYAMLParseError.NOT_FOUND,
-            header=_(""),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=MkDocsYAMLParseError.INVALID_EXTRA_CONFIG,
+        header=_(""),
+        body=_(
+            """
+    The "{config}" config from your MkDocs YAML config file has to be a
+    list of relative paths.
                 """
-        A configuration file was not found.
-        Make sure you have a "mkdocs.yml" file in your repository.
-                    """
-            ),
-            type=ERROR,
         ),
-        Message(
-            id=MkDocsYAMLParseError.CONFIG_NOT_DICT,
-            header=_(""),
-            body=_(
+        type=ERROR,
+    ),
+    Message(
+        id=MkDocsYAMLParseError.EMPTY_CONFIG,
+        header=_(""),
+        body=_(
+            """
+    Please make sure the MkDocs YAML configuration file is not empty.
                 """
-        Your MkDocs YAML config file is incorrect.
-        Please follow the user guide https://www.mkdocs.org/user-guide/configuration/
-        to configure the file properly.
-                    """
-            ),
-            type=ERROR,
         ),
-    ]
-}
+        type=ERROR,
+    ),
+    Message(
+        id=MkDocsYAMLParseError.NOT_FOUND,
+        header=_(""),
+        body=_(
+            """
+    A configuration file was not found.
+    Make sure you have a "mkdocs.yml" file in your repository.
+                """
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=MkDocsYAMLParseError.CONFIG_NOT_DICT,
+        header=_(""),
+        body=_(
+            """
+    Your MkDocs YAML config file is incorrect.
+    Please follow the user guide https://www.mkdocs.org/user-guide/configuration/
+    to configure the file properly.
+                """
+        ),
+        type=ERROR,
+    ),
+]
 
 NOTIFICATION_MESSAGES = {}
-NOTIFICATION_MESSAGES.update(CONFIG_YAML_MESSAGES)
-NOTIFICATION_MESSAGES.update(BUILD_MESSAGES)
+for message in zip(CONFIG_YAML_MESSAGES, BUILD_MKDOCS_MESSAGES, BUILD_MESSAGES):
+    NOTIFICATION_MESSAGES[message.id] = message
