@@ -31,7 +31,7 @@ from .constants import (
     DOCKER_VERSION,
     RTD_SKIP_BUILD_EXIT_CODE,
 )
-from .exceptions import BuildAppError, BuildUserError, BuildUserSkip
+from .exceptions import BuildAppError, BuildUserError
 
 log = structlog.get_logger(__name__)
 
@@ -527,13 +527,13 @@ class BaseBuildEnvironment:
                     version_slug=self.version.slug if self.version else "",
                 )
             elif build_cmd.exit_code == RTD_SKIP_BUILD_EXIT_CODE:
-                raise BuildUserSkip()
+                raise BuildAppError(BuildAppError.SKIPPED_EXIT_CODE_183)
             else:
                 # TODO: for now, this still outputs a generic error message
                 # that is the same across all commands. We could improve this
                 # with more granular error messages that vary by the command
                 # being run.
-                raise BuildUserError()
+                raise BuildUserError(BuildUserError.GENERIC)
         return build_cmd
 
 

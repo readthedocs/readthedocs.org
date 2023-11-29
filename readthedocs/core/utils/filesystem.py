@@ -13,8 +13,8 @@ from django.conf import settings
 from django.core.exceptions import SuspiciousFileOperation
 
 from readthedocs.doc_builder.exceptions import (
+    BuildUserError,
     FileIsNotRegularFile,
-    FileTooLarge,
     SymlinkOutsideBasePath,
     UnsupportedSymlinkFileError,
 )
@@ -90,7 +90,7 @@ def safe_open(
         file_size = resolved_path.stat().st_size
         if file_size > max_size_bytes:
             log.info("File is too large.", size_bytes=file_size)
-            raise FileTooLarge()
+            raise BuildUserError(BuildUserError.FILE_TOO_LARGE)
 
     if allow_symlinks and base_path:
         base_path = Path(base_path).absolute()

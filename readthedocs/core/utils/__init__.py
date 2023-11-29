@@ -153,6 +153,7 @@ def prepare_build(
         # and the user will be alerted in the UI from the Error below.
         options["countdown"] = settings.RTD_BUILDS_RETRY_DELAY
         options["max_retries"] = settings.RTD_BUILDS_MAX_RETRIES
+        # TODO: adapt this code to create a Notification on Build here.
         build.error = BuildMaxConcurrencyError.message.format(
             limit=max_concurrent_builds,
         )

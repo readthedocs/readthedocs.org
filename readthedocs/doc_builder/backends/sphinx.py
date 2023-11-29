@@ -18,7 +18,6 @@ from requests.exceptions import ConnectionError
 from readthedocs.builds import utils as version_utils
 from readthedocs.builds.models import APIVersion
 from readthedocs.core.utils.filesystem import safe_open
-from readthedocs.doc_builder.exceptions import PDFNotFound
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING, PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
 from readthedocs.projects.models import Feature
@@ -581,7 +580,7 @@ class PdfBuilder(BaseSphinx):
         """Internal post build to cleanup PDF output directory and leave only one .pdf file."""
 
         if not self.pdf_file_name:
-            raise PDFNotFound()
+            raise BuildUserError(BuildUserError.PDF_NOT_FOUND)
 
         # TODO: merge this with ePUB since it's pretty much the same
         temp_pdf_file = f"/tmp/{self.project.slug}-{self.version.slug}.pdf"

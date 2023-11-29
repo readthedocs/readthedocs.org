@@ -45,15 +45,33 @@ class Notification(TimeStampedModel):
     attached_to_id = models.PositiveIntegerField()
     attached_to = GenericForeignKey("attached_to_content_type", "attached_to_id")
 
+    # Store values known at creation time that are required to render the final message
+    format_values = models.JSONField(null=True, blank=True)
+
     def __str__(self):
         return self.message_id
 
     def get_message(self):
         return NOTIFICATION_MESSAGES.get(self.message_id)
 
-    def get_display_message(self):
+    def get_header(self):
+        return NOTIFICATION_MESSAGES.get(self.message_id).header
+
+    def get_display_header(self):
         return textwrap.dedent(
-            NOTIFICATION_MESSAGES.get(self.message_id).format(
+            NOTIFICATION_MESSAGES.get(self.message_id).header.format(
                 instance=self.attached_to,  # Build, Project, Organization, User
+                **self.format_values,
+            )
+        )
+
+    def get_body(self):
+        return NOTIFICATION_MESSAGES.get(self.message_id).body
+
+    def get_display_body(self):
+        return textwrap.dedent(
+            NOTIFICATION_MESSAGES.get(self.message_id).body.format(
+                instance=self.attached_to,  # Build, Project, Organization, User
+                **self.format_values,
             )
         )
