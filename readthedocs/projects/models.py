@@ -1296,8 +1296,8 @@ class Project(models.Model):
         Get the branch/tag name of the version representing 'latest'.
 
         If the project has a default branch explicitly set, we use that,
-        otherwise we try to get it from the latest version,
-        since that should be in sync with the default branch of the repository.
+        otherwise we try to get it from the remote repository,
+        or fallback to the default branch of the VCS backend.
         """
         if self.default_branch:
             return self.default_branch
