@@ -650,7 +650,12 @@ class Project(models.Model):
                     _("Model must have slug")
                 )
         super().save(*args, **kwargs)
-        self.update_latest_version()
+
+        try:
+            if not self.versions.filter(slug=LATEST).exists():
+                self.versions.create_latest(identifier=self.get_default_branch())
+        except Exception:
+            log.exception("Error creating default branches")
 
     def delete(self, *args, **kwargs):
         from readthedocs.projects.tasks.utils import clean_project_resources
@@ -1197,8 +1202,7 @@ class Project(models.Model):
         """
         latest = self.get_latest_version()
         if not latest:
-            default_branch = self.get_default_branch()
-            latest = self.versions.create_latest(identifier=default_branch)
+            latest = self.versions.create_latest(identifier=self.get_default_branch())
 
         if not latest.machine:
             return
