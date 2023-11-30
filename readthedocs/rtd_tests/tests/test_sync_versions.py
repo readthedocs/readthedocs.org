@@ -302,9 +302,11 @@ class TestSyncVersions(TestCase):
         )
 
         latest_version = self.pip.versions.get(slug=LATEST)
-        self.assertEqual(self.pip.default_branch, None)
+        self.assertIsNone(self.pip.default_branch)
+        # Since the project doesn't have an explicit default branch, the latest
+        # version will be updated after the next build.
         self.assertEqual(latest_version.type, BRANCH)
-        self.assertEqual(latest_version.identifier, "master")
+        self.assertEqual(latest_version.identifier, "abc123")
         self.assertEqual(latest_version.verbose_name, "latest")
         self.assertEqual(latest_version.machine, True)
 
@@ -719,13 +721,38 @@ class TestSyncVersions(TestCase):
             tags_data=[],
         )
 
-        # The latest isn't stuck with the previous commit
+        # Latest isn't stuck with the previous commit, as it's managed by RTD now.
+        # Since the project doesn't have an explicit default branch, the latest
+        # version will be updated after the next build.
         version_latest = self.pip.versions.get(slug="latest")
-        self.assertEqual(
-            "master",
-            version_latest.identifier,
-        )
+        self.assertIsNone(self.pip.default_branch)
         self.assertTrue(version_latest.machine)
+        self.assertEqual(
+            version_latest.identifier,
+            "1abc2def3",
+        )
+
+        # Test with an explicit default branch (tag).
+        self.pip.default_branch = "default-tag"
+        self.pip.save()
+
+        tags_data = [
+            {
+                "identifier": "1abc2def3",
+                "verbose_name": "default-tag",
+            }
+        ]
+
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=branches_data,
+            tags_data=tags_data,
+        )
+
+        version_latest = self.pip.versions.get(slug="latest")
+        self.assertTrue(version_latest.machine)
+        self.assertEqual(version_latest.identifier, "default-tag")
+        self.assertEqual(version_latest.type, TAG)
 
     def test_machine_attr_when_user_define_latest_branch_and_delete_it(self):
         """The user creates a branch named ``latest`` on an existing repo, when
@@ -758,6 +785,7 @@ class TestSyncVersions(TestCase):
             "origin/latest",
             version_latest.identifier,
         )
+        self.assertFalse(version_latest.machine)
 
         # Deleting the branch should return the RTD's latest
         branches_data = [
@@ -773,13 +801,40 @@ class TestSyncVersions(TestCase):
             tags_data=[],
         )
 
-        # The latest isn't stuck with the previous branch
+        # Latest isn't stuck with the previous branch, as it's managed by RTD now.
+        # Since the project doesn't have an explicit default branch, the latest
+        # version will be updated after the next build.
         version_latest = self.pip.versions.get(slug="latest")
-        self.assertEqual(
-            "master",
-            version_latest.identifier,
-        )
+        self.assertIsNone(self.pip.default_branch)
         self.assertTrue(version_latest.machine)
+        self.assertEqual(
+            version_latest.identifier,
+            "origin/latest",
+        )
+
+        # Test with an explicit default branch.
+        branches_data = [
+            {
+                "identifier": "origin/master",
+                "verbose_name": "master",
+            },
+            {
+                "identifier": "origin/default-branch",
+                "verbose_name": "default-branch",
+            },
+        ]
+        self.pip.default_branch = "default-branch"
+        self.pip.save()
+        sync_versions_task(
+            self.pip.pk,
+            branches_data=branches_data,
+            tags_data=[],
+        )
+
+        version_latest = self.pip.versions.get(slug="latest")
+        self.assertTrue(version_latest.machine)
+        self.assertEqual(version_latest.identifier, "default-branch")
+        self.assertEqual(version_latest.type, BRANCH)
 
     def test_deletes_version_with_same_identifier(self):
         branches_data = [
