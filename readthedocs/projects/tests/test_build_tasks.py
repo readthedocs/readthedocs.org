@@ -734,7 +734,14 @@ class TestBuildTask(BuildEnvironmentBase):
                     "--depth",
                     "50",
                 ),
-                mock.call('git', 'symbolic-ref', '--short', 'refs/remotes/origin/HEAD', demux=True, record=False),
+                mock.call(
+                    "git",
+                    "symbolic-ref",
+                    "--short",
+                    "refs/remotes/origin/HEAD",
+                    demux=True,
+                    record=False,
+                ),
                 mock.call(
                     "git",
                     "ls-remote",

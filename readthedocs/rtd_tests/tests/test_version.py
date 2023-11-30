@@ -2,7 +2,15 @@ from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
 
-from readthedocs.builds.constants import BRANCH, EXTERNAL, LATEST, LATEST_VERBOSE_NAME, STABLE, STABLE_VERBOSE_NAME, TAG
+from readthedocs.builds.constants import (
+    BRANCH,
+    EXTERNAL,
+    LATEST,
+    LATEST_VERBOSE_NAME,
+    STABLE,
+    STABLE_VERBOSE_NAME,
+    TAG,
+)
 from readthedocs.builds.models import Version
 from readthedocs.projects.models import Project
 

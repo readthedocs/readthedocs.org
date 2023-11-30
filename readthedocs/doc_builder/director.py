@@ -227,7 +227,9 @@ class BuildDirector:
 
         identifier = self.data.build_commit or self.data.version.identifier
         is_rtd_latest = self.data.version.slug == LATEST and self.data.version.machine
-        skip_checkout = not identifier or (is_rtd_latest and not self.data.project.default_branch)
+        skip_checkout = not identifier or (
+            is_rtd_latest and not self.data.project.default_branch
+        )
         if skip_checkout:
             log.info("Skipping checkout, using default branch.")
         else:
