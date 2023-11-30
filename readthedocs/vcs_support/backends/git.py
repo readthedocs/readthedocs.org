@@ -202,8 +202,8 @@ class Backend(BaseVCS):
         is_rtd_latest = (
             self.verbose_name == LATEST_VERBOSE_NAME and self.version_machine
         )
-        ommit_remote_reference = is_rtd_latest and not self.project.default_branch
-        if not ommit_remote_reference:
+        omit_remote_reference = is_rtd_latest and not self.project.default_branch
+        if not omit_remote_reference:
             remote_reference = self.get_remote_fetch_refspec()
             if remote_reference:
                 # TODO: We are still fetching the latest 50 commits.
