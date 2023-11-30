@@ -303,10 +303,8 @@ class TestSyncVersions(TestCase):
 
         latest_version = self.pip.versions.get(slug=LATEST)
         self.assertIsNone(self.pip.default_branch)
-        # Since the project doesn't have an explicit default branch, the latest
-        # version will be updated after the next build.
         self.assertEqual(latest_version.type, BRANCH)
-        self.assertEqual(latest_version.identifier, "abc123")
+        self.assertEqual(latest_version.identifier, "master")
         self.assertEqual(latest_version.verbose_name, "latest")
         self.assertEqual(latest_version.machine, True)
 
@@ -721,15 +719,13 @@ class TestSyncVersions(TestCase):
             tags_data=[],
         )
 
-        # Latest isn't stuck with the previous commit, as it's managed by RTD now.
-        # Since the project doesn't have an explicit default branch, the latest
-        # version will be updated after the next build.
+        # The latest isn't stuck with the previous commit
         version_latest = self.pip.versions.get(slug="latest")
         self.assertIsNone(self.pip.default_branch)
         self.assertTrue(version_latest.machine)
         self.assertEqual(
+            "master",
             version_latest.identifier,
-            "1abc2def3",
         )
 
         # Test with an explicit default branch (tag).
@@ -801,15 +797,13 @@ class TestSyncVersions(TestCase):
             tags_data=[],
         )
 
-        # Latest isn't stuck with the previous branch, as it's managed by RTD now.
-        # Since the project doesn't have an explicit default branch, the latest
-        # version will be updated after the next build.
+        # The latest isn't stuck with the previous branch
         version_latest = self.pip.versions.get(slug="latest")
         self.assertIsNone(self.pip.default_branch)
         self.assertTrue(version_latest.machine)
         self.assertEqual(
+            "master",
             version_latest.identifier,
-            "origin/latest",
         )
 
         # Test with an explicit default branch.

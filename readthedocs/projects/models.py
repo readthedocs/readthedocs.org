@@ -1305,14 +1305,7 @@ class Project(models.Model):
         if self.remote_repository and self.remote_repository.default_branch:
             return self.remote_repository.default_branch
 
-        fallback_branch = self.vcs_class().fallback_branch
-        latest_version = self.versions.filter(slug=LATEST).first()
-        if latest_version:
-            if latest_version.machine:
-                return latest_version.identifier or fallback_branch
-            return latest_version.verbose_name or fallback_branch
-
-        return fallback_branch
+        return self.vcs_class().fallback_branch
 
     def add_subproject(self, child, alias=None):
         subproject, _ = ProjectRelationship.objects.get_or_create(
