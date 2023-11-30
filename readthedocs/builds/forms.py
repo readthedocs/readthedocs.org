@@ -93,6 +93,7 @@ class VersionForm(forms.ModelForm):
 
 class RegexAutomationRuleForm(forms.ModelForm):
 
+    project = forms.CharField(widget=forms.HiddenInput(), required=False)
     match_arg = forms.CharField(
         label='Custom match',
         help_text=_(textwrap.dedent(
@@ -109,11 +110,12 @@ class RegexAutomationRuleForm(forms.ModelForm):
     class Meta:
         model = RegexAutomationRule
         fields = [
-            'description',
-            'predefined_match_arg',
-            'match_arg',
-            'version_type',
-            'action',
+            "project",
+            "description",
+            "predefined_match_arg",
+            "match_arg",
+            "version_type",
+            "action",
         ]
         # Don't pollute the UI with help texts
         help_texts = {
@@ -174,19 +176,5 @@ class RegexAutomationRuleForm(forms.ModelForm):
             )
         return match_arg
 
-    def save(self, commit=True):
-        if self.instance.pk:
-            rule = super().save(commit=commit)
-        else:
-            rule = RegexAutomationRule.objects.add_rule(
-                project=self.project,
-                description=self.cleaned_data['description'],
-                match_arg=self.cleaned_data['match_arg'],
-                predefined_match_arg=self.cleaned_data['predefined_match_arg'],
-                version_type=self.cleaned_data['version_type'],
-                action=self.cleaned_data['action'],
-            )
-        if not rule.description:
-            rule.description = rule.get_description()
-            rule.save()
-        return rule
+    def clean_project(self):
+        return self.project

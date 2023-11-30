@@ -81,4 +81,5 @@ You can change the order using the up and down arrow buttons.
 
 .. note::
 
-   New rules are added at the end (lower priority).
+   New rules are added at the start of the list
+   (i.e. they have the highest priority).
