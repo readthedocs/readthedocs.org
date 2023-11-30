@@ -55,7 +55,8 @@
                 ],
                 "privacy_level": "public",
                 "external_builds_privacy_level": "public",
-                "single_version": false
+                "single_version": false,
+                "versioning_scheme": "multiple_versions_with_translations"
             }
         }
     ]

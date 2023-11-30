@@ -10,7 +10,7 @@ from readthedocs.search.documents import PageDocument
 log = structlog.get_logger(__name__)
 
 
-def index_objects(document, objects, index_name=None):
+def index_objects(document, objects, index_name=None, chunk_size=500):
     if not DEDConfig.autosync_enabled():
         log.info("Autosync disabled, skipping searh indexing.")
         return
@@ -21,7 +21,7 @@ def index_objects(document, objects, index_name=None):
     if index_name:
         document._index._name = index_name
 
-    document().update(objects)
+    document().update(objects, chunk_size=chunk_size)
 
     # Restore the old index name.
     if index_name:

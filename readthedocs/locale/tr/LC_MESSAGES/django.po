@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-07 12:48+0000\n"
+"POT-Creation-Date: 2023-11-28 10:47+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: BouRock, 2020\n"
 "Language-Team: Turkish (http://app.transifex.com/readthedocs/readthedocs/"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: analytics/models.py:69 builds/models.py:727 projects/models.py:1488
+#: analytics/models.py:69 builds/models.py:727 projects/models.py:1531
 #: search/models.py:28 templates/base.html:262
 msgid "Version"
 msgstr "Sürüm"
@@ -136,12 +136,12 @@ msgstr ""
 msgid "Project with slug \"{0}\" already exists."
 msgstr ""
 
-#: api/v3/serializers.py:724
+#: api/v3/serializers.py:728
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr ""
 
-#: api/v3/serializers.py:732 projects/forms.py:502
+#: api/v3/serializers.py:736 projects/forms.py:519
 msgid "A subproject with this alias already exists"
 msgstr ""
 
@@ -185,7 +185,7 @@ msgid "Invitation declined"
 msgstr ""
 
 #: audit/models.py:116 core/models.py:21 gold/models.py:33
-#: projects/models.py:207
+#: projects/models.py:212
 msgid "User"
 msgstr "Kullanıcı"
 
@@ -198,7 +198,7 @@ msgid "Username"
 msgstr "Kullanıcı adı"
 
 #: audit/models.py:138 builds/models.py:110 builds/models.py:721
-#: organizations/filters.py:134 projects/models.py:1482 redirects/models.py:56
+#: organizations/filters.py:134 projects/models.py:1525 redirects/models.py:56
 msgid "Project"
 msgstr "Proje"
 
@@ -295,7 +295,7 @@ msgstr ""
 #: audit/templates/audit/list_logs.html:55
 #: templates/core/build_list_detailed.html:21
 #: templates/core/project_list_detailed.html:26
-#: templates/projects/integration_webhook_detail.html:91
+#: templates/projects/integration_webhook_detail.html:116
 #: templates/projects/project_dashboard_base.html:74
 #: templates/projects/webhook_form.html:55
 #, python-format
@@ -405,7 +405,7 @@ msgstr "Dal"
 msgid "Tag"
 msgstr "Etiket"
 
-#: builds/constants.py:56 projects/constants.py:424
+#: builds/constants.py:56 projects/constants.py:414
 msgid "Unknown"
 msgstr "Bilinmiyor"
 
@@ -437,7 +437,7 @@ msgstr "Etkin"
 msgid "Build successful"
 msgstr ""
 
-#: builds/filters.py:28 projects/models.py:1588
+#: builds/filters.py:28 projects/models.py:1631
 #: templates/builds/build_detail.html:143
 msgid "Build failed"
 msgstr "Oluşturma başarısız oldu"
@@ -484,11 +484,11 @@ msgstr ""
 msgid "Invalid Python regular expression."
 msgstr ""
 
-#: builds/models.py:98 projects/models.py:1551 projects/models.py:1716
+#: builds/models.py:98 projects/models.py:1594 projects/models.py:1759
 msgid "created"
 msgstr ""
 
-#: builds/models.py:103 projects/models.py:1556
+#: builds/models.py:103 projects/models.py:1599
 msgid "modified"
 msgstr ""
 
@@ -501,7 +501,7 @@ msgid "Verbose Name"
 msgstr "Ayrıntılı Adı"
 
 #: builds/models.py:143 oauth/models.py:32 organizations/models.py:48
-#: projects/models.py:212
+#: projects/models.py:217
 msgid "Slug"
 msgstr "Başlık Bilgisi"
 
@@ -521,7 +521,7 @@ msgstr "Oluşturuldu"
 msgid "Uploaded"
 msgstr "Gönderildi"
 
-#: builds/models.py:170 projects/models.py:450
+#: builds/models.py:170 projects/models.py:469
 msgid "Privacy Level"
 msgstr "Gizlilik Seviyesi"
 
@@ -553,7 +553,7 @@ msgstr ""
 msgid "Has HTML Zip"
 msgstr ""
 
-#: builds/models.py:189 projects/models.py:287 projects/models.py:547
+#: builds/models.py:189 projects/models.py:306 projects/models.py:566
 msgid "Documentation type"
 msgstr "Belgelendirme türü"
 
@@ -578,7 +578,7 @@ msgstr "{project} projesinin sürümü {version} ({pk})"
 msgid "Status"
 msgstr ""
 
-#: builds/models.py:762 integrations/models.py:147
+#: builds/models.py:762 integrations/models.py:148
 msgid "Date"
 msgstr "Tarih"
 
@@ -606,7 +606,7 @@ msgstr "Hata"
 msgid "Exit code"
 msgstr "Çıkış kodu"
 
-#: builds/models.py:777 projects/models.py:1499
+#: builds/models.py:777 projects/models.py:1542
 msgid "Commit"
 msgstr "İşle"
 
@@ -660,7 +660,7 @@ msgid "Command"
 msgstr "Komut"
 
 #: builds/models.py:1184 builds/models.py:1244 oauth/models.py:133
-#: organizations/models.py:62 projects/models.py:214
+#: organizations/models.py:62 projects/models.py:219
 #: templates/core/project_details.html:78
 msgid "Description"
 msgstr "Tanım"
@@ -824,7 +824,7 @@ msgstr ""
 
 #: core/forms.py:55
 #: organizations/templates/organizations/admin/organization_edit.html:15
-#: projects/forms.py:275 redirects/templates/redirects/redirect_form.html:80
+#: projects/forms.py:292 redirects/templates/redirects/redirect_form.html:80
 #: templates/builds/regexautomationrule_form.html:28
 #: templates/projects/environmentvariable_form.html:20
 #: templates/projects/project_edit.html:22
@@ -1087,12 +1087,12 @@ msgid "This project is already Ad-Free."
 msgstr ""
 
 #: gold/models.py:28 organizations/models.py:29 organizations/models.py:220
-#: organizations/models.py:294 projects/models.py:201
+#: organizations/models.py:294 projects/models.py:206
 msgid "Publication date"
 msgstr "Yayımlanma tarihi"
 
 #: gold/models.py:29 organizations/models.py:30 organizations/models.py:221
-#: organizations/models.py:295 projects/models.py:202 projects/models.py:1501
+#: organizations/models.py:295 projects/models.py:207 projects/models.py:1544
 msgid "Modified date"
 msgstr "Değiştirilme tarihi"
 
@@ -1150,7 +1150,7 @@ msgstr ""
 #: templates/account/email.html:38 templates/projects/domain_list.html:40
 #: templates/projects/environmentvariable_list.html:45
 #: templates/projects/project_notifications.html:66
-#: templates/projects/project_translations.html:50
+#: templates/projects/project_translations.html:57
 #: templates/projects/project_users.html:34
 msgid "Remove"
 msgstr "Kaldır"
@@ -1246,56 +1246,56 @@ msgid ""
 "There was an error connecting to Stripe, please try again in a few minutes"
 msgstr ""
 
-#: integrations/models.py:150 integrations/models.py:158
+#: integrations/models.py:151 integrations/models.py:159
 msgid "Request headers"
 msgstr "İstenen üstbilgiler"
 
-#: integrations/models.py:155
+#: integrations/models.py:156
 msgid "Request body"
 msgstr "İstenen gövde"
 
-#: integrations/models.py:163
+#: integrations/models.py:164
 msgid "Response body"
 msgstr "Yanıtlanan gövde"
 
-#: integrations/models.py:166
+#: integrations/models.py:167
 msgid "Status code"
 msgstr "Durum kodu"
 
-#: integrations/models.py:176
+#: integrations/models.py:177
 #, python-brace-format
 msgid "Exchange {0}"
 msgstr "{0} değiştir"
 
-#: integrations/models.py:274
+#: integrations/models.py:275
 msgid "GitHub incoming webhook"
 msgstr "GitHub gelen web kancası"
 
-#: integrations/models.py:275
+#: integrations/models.py:276
 msgid "Bitbucket incoming webhook"
 msgstr "Bitbucket gelen web kancası"
 
-#: integrations/models.py:276
+#: integrations/models.py:277
 msgid "GitLab incoming webhook"
 msgstr "GitLab gelen web kancası"
 
-#: integrations/models.py:277
+#: integrations/models.py:278
 msgid "Generic API incoming webhook"
 msgstr "Genel API gelen web kancası"
 
-#: integrations/models.py:288
+#: integrations/models.py:289
 msgid "Integration type"
 msgstr "Bütünleştirme türü"
 
-#: integrations/models.py:293
+#: integrations/models.py:294
 msgid "Provider data"
 msgstr "Sağlayıcı verileri"
 
-#: integrations/models.py:302
+#: integrations/models.py:303
 msgid "Secret used to validate the payload of the webhook"
 msgstr ""
 
-#: integrations/models.py:323
+#: integrations/models.py:315
 #, python-brace-format
 msgid "{0} for {1}"
 msgstr "{1} için {0}"
@@ -1379,7 +1379,7 @@ msgstr "Kullanıcılar"
 #: oauth/models.py:33 oauth/models.py:126 organizations/filters.py:59
 #: organizations/filters.py:65 organizations/models.py:46
 #: organizations/models.py:244 projects/filters.py:42 projects/filters.py:107
-#: projects/models.py:211 projects/models.py:1493
+#: projects/models.py:216 projects/models.py:1536
 msgid "Name"
 msgstr "Adı"
 
@@ -1494,11 +1494,11 @@ msgid ""
 "reconnect them from your social account connections."
 msgstr ""
 
-#: oauth/utils.py:53
+#: oauth/utils.py:57
 msgid "Webhook activated"
 msgstr "Web kancası etkinleştirildi"
 
-#: oauth/utils.py:61
+#: oauth/utils.py:65
 msgid ""
 "Webhook activation failed. Make sure you have the necessary permissions."
 msgstr ""
@@ -1528,20 +1528,16 @@ msgid "Name (descending)"
 msgstr ""
 
 #: organizations/filters.py:99
-#, fuzzy
-#| msgid "Organization"
 msgid "All organizations"
-msgstr "Kuruluş"
+msgstr ""
 
 #: organizations/filters.py:107 projects/filters.py:150 projects/filters.py:198
 msgid "Sort by"
 msgstr ""
 
 #: organizations/filters.py:135
-#, fuzzy
-#| msgid "user projects"
 msgid "All projects"
-msgstr "kullanıcı projeleri"
+msgstr ""
 
 #: organizations/filters.py:142 organizations/filters.py:172
 #: organizations/filters.py:219 organizations/models.py:305
@@ -1587,11 +1583,11 @@ msgstr ""
 msgid "Organization %(name)s already exists"
 msgstr ""
 
-#: organizations/forms.py:133 organizations/forms.py:218 projects/forms.py:535
+#: organizations/forms.py:133 organizations/forms.py:218 projects/forms.py:552
 msgid "Email address or username"
 msgstr ""
 
-#: organizations/forms.py:149 organizations/forms.py:253 projects/forms.py:550
+#: organizations/forms.py:149 organizations/forms.py:253 projects/forms.py:567
 #, python-format
 msgid "User %(username)s does not exist"
 msgstr ""
@@ -2108,7 +2104,7 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:99 projects/models.py:2149
+#: projects/constants.py:99 projects/models.py:2184
 msgid "Public"
 msgstr "Ortak"
 
@@ -2124,16 +2120,28 @@ msgstr "CPython 2.x"
 msgid "CPython 3.x"
 msgstr "CPython 3.x"
 
-#: projects/constants.py:421
+#: projects/constants.py:411
 msgid "Valid and active"
 msgstr ""
 
-#: projects/constants.py:422
+#: projects/constants.py:412
 msgid "Invalid"
 msgstr ""
 
-#: projects/constants.py:423
+#: projects/constants.py:413
 msgid "Pending"
+msgstr ""
+
+#: projects/constants.py:423
+msgid "Multiple versions with translations (/<language>/<version>/<filename>)"
+msgstr ""
+
+#: projects/constants.py:427
+msgid "Multiple versions without translations (/<version>/<filename>)"
+msgstr ""
+
+#: projects/constants.py:431
+msgid "Single version without translations (/<filename>)"
 msgstr ""
 
 #: projects/exceptions.py:14
@@ -2252,117 +2260,140 @@ msgstr "Depo geçersiz"
 msgid "Length of each tag must be less than or equal to 100 characters."
 msgstr "Her etiketin uzunluğu 100 karakterden az veya eşit olmak zorundadır."
 
-#: projects/forms.py:265
+#: projects/forms.py:252
+#, python-brace-format
+msgid ""
+"This setting is inherited from the <a href=\"{link}\">parent translation</a>."
+msgstr ""
+
+#: projects/forms.py:282
 msgid "Global settings"
 msgstr ""
 
-#: projects/forms.py:269
+#: projects/forms.py:286
 msgid "Default settings"
 msgstr ""
 
-#: projects/forms.py:318
+#: projects/forms.py:335
 msgid "To build from pull requests you need a "
 msgstr ""
 
-#: projects/forms.py:329
+#: projects/forms.py:346
 msgid ""
 "To build from pull requests your repository's webhook needs to send pull "
 "request events. "
 msgstr ""
 
-#: projects/forms.py:377
+#: projects/forms.py:394
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr ""
 "Yapılandırma dosyanız geçersiz, conf.py dosyasını içerdiğinden emin olun."
 
-#: projects/forms.py:439
+#: projects/forms.py:456
 #, python-brace-format
 msgid "There is already a \"{lang}\" translation for the {proj} project."
 msgstr "{proj} projesi için zaten bir \"{lang}\" çevirisi var."
 
-#: projects/forms.py:554
+#: projects/forms.py:571
 #, python-format
 msgid "User %(username)s is already a maintainer"
 msgstr ""
 
-#: projects/forms.py:636
+#: projects/forms.py:653
 msgid "The payload must be a valid JSON object."
 msgstr ""
 
-#: projects/forms.py:824
+#: projects/forms.py:683
+msgid ""
+"This project is configured with a versioning scheme that doesn't support "
+"translations."
+msgstr ""
+
+#: projects/forms.py:850
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:928
+#: projects/forms.py:951
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "Değişken adı __ (çift alt çizgi) ile başlayamaz"
 
-#: projects/forms.py:932
+#: projects/forms.py:955
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "Değişken adı READTHEDOCS ile başlayamaz"
 
-#: projects/forms.py:937
+#: projects/forms.py:960
 msgid "There is already a variable with this name for this project"
 msgstr "Bu proje için bu ada sahip bir değişken zaten var"
 
-#: projects/forms.py:942
+#: projects/forms.py:965
 msgid "Variable name can't contain spaces"
 msgstr "Değişken adı boşluklar içeremez"
 
-#: projects/forms.py:946
+#: projects/forms.py:969
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Sadece harflere, sayılara ve alt çizgiye izin verilir"
 
-#: projects/models.py:85
+#: projects/models.py:90
 msgid "Main project"
 msgstr ""
 
-#: projects/models.py:91
+#: projects/models.py:96
 msgid "Subproject"
 msgstr ""
 
-#: projects/models.py:96
+#: projects/models.py:101
 msgid "Alias"
 msgstr "Kod adı"
 
-#: projects/models.py:216
+#: projects/models.py:221
 msgid "Short description of this project"
 msgstr ""
 
-#: projects/models.py:219
+#: projects/models.py:224
 msgid "Repository URL"
 msgstr "Depo URL'si"
 
-#: projects/models.py:222
+#: projects/models.py:227
 msgid "Hosted documentation repository URL"
 msgstr "Barındırılan belgelendirme deposu URL'si"
 
-#: projects/models.py:229
+#: projects/models.py:234
 msgid "Repository type"
 msgstr "Depo türü"
 
-#: projects/models.py:235
+#: projects/models.py:240
 msgid "Project homepage"
 msgstr "Proje anasayfası"
 
-#: projects/models.py:237
+#: projects/models.py:242
 msgid "The project's homepage"
 msgstr "Projenin anasayfası"
 
-#: projects/models.py:240
+#: projects/models.py:245
 msgid "Canonical URL"
 msgstr "Kurallı URL"
 
-#: projects/models.py:242
+#: projects/models.py:247
 msgid "URL that documentation is expected to serve from"
 msgstr "Belgelendirmenin sunulmasının beklendiği URL"
 
-#: projects/models.py:245
+#: projects/models.py:250
+msgid "Versioning scheme"
+msgstr ""
+
+#: projects/models.py:257
+msgid ""
+"This affects how the URL of your documentation looks like, and if it "
+"supports translations or multiple versions. Changing the versioning scheme "
+"will break your current URLs."
+msgstr ""
+
+#: projects/models.py:264
 msgid "Single version"
 msgstr "Tek sürüm"
 
-#: projects/models.py:248
+#: projects/models.py:267
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
@@ -2372,29 +2403,29 @@ msgstr ""
 "sunulan \"en son\" sürümünüz vardır. Bunu dikkatli kullanın, bunu sadece "
 "belgelerinizin birden çok sürümü <b>hiçbir zaman</b> olmayacaksa açın."
 
-#: projects/models.py:255
+#: projects/models.py:274
 msgid "Default version"
 msgstr "Varsayılan sürüm"
 
-#: projects/models.py:258
+#: projects/models.py:277
 msgid "The version of your project that / redirects to"
 msgstr "Projenizin / işaretinin yönlendirdiği sürümü"
 
-#: projects/models.py:263
+#: projects/models.py:282
 msgid "Default branch"
 msgstr "Varsayılan dal"
 
-#: projects/models.py:269
+#: projects/models.py:288
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS."
 msgstr ""
 
-#: projects/models.py:274 projects/models.py:534
+#: projects/models.py:293 projects/models.py:553
 msgid "Requirements file"
 msgstr "Gereksinimler dosyası"
 
-#: projects/models.py:280 projects/models.py:540
+#: projects/models.py:299 projects/models.py:559
 msgid ""
 "A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
 "files\">pip requirements file</a> needed to build your documentation. Path "
@@ -2404,61 +2435,61 @@ msgstr ""
 "latest/user_guide.html#requirements-files\">pip gereksinimler dosyası</a> "
 "gerekir. Projenizin kök dizininden gelen yol."
 
-#: projects/models.py:292 projects/models.py:552
+#: projects/models.py:311 projects/models.py:571
 msgid ""
 "Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
 "en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
 "info on sphinx builders</a>."
 msgstr ""
 
-#: projects/models.py:299
+#: projects/models.py:318
 msgid "Custom path prefix"
 msgstr ""
 
-#: projects/models.py:305
+#: projects/models.py:324
 msgid ""
 "A custom path prefix used when serving documentation from this project. By "
 "default we serve documentation at the root (/) of a domain."
 msgstr ""
 
-#: projects/models.py:310
+#: projects/models.py:329
 msgid "Custom subproject path prefix"
 msgstr ""
 
-#: projects/models.py:316
+#: projects/models.py:335
 msgid ""
 "A custom path prefix used when evaluating the root of a subproject. By "
 "default we serve documentation from subprojects under the `/projects/` "
 "prefix."
 msgstr ""
 
-#: projects/models.py:323
+#: projects/models.py:342
 msgid "Build pull requests for this project"
 msgstr ""
 
-#: projects/models.py:326
+#: projects/models.py:345
 msgid ""
 "More information in <a href=\"https://docs.readthedocs.io/page/guides/"
 "autobuild-docs-for-pull-requests.html\">our docs</a>."
 msgstr ""
 
-#: projects/models.py:330
+#: projects/models.py:349
 msgid "Privacy level of Pull Requests"
 msgstr ""
 
-#: projects/models.py:337
+#: projects/models.py:356
 msgid "Should builds from pull requests be public?"
 msgstr ""
 
-#: projects/models.py:342
+#: projects/models.py:361
 msgid "CDN Enabled"
 msgstr "CDN Etkinleştirildi"
 
-#: projects/models.py:344
+#: projects/models.py:363
 msgid "Analytics code"
 msgstr "Çözümleme kodu"
 
-#: projects/models.py:349
+#: projects/models.py:368
 msgid ""
 "Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow "
 "down your page loads."
@@ -2466,25 +2497,25 @@ msgstr ""
 "Google Analytics İzleme Kimliği (ör. <code>UA-22345342-1</code>). Bu, sayfa "
 "yüklemelerinizi yavaşlatabilir."
 
-#: projects/models.py:355
+#: projects/models.py:374
 msgid "Disable Analytics"
 msgstr ""
 
-#: projects/models.py:359
+#: projects/models.py:378
 msgid ""
 "Disable Google Analytics completely for this project (requires rebuilding "
 "documentation)"
 msgstr ""
 
-#: projects/models.py:364
+#: projects/models.py:383
 msgid "Alternative container image"
 msgstr "Alternatif kapsayıcı resmi"
 
-#: projects/models.py:370
+#: projects/models.py:389
 msgid "Container memory limit"
 msgstr "Kapsayıcı bellek sınırı"
 
-#: projects/models.py:375
+#: projects/models.py:394
 msgid ""
 "Memory limit in Docker format -- example: <code>512m</code> or <code>1g</"
 "code>"
@@ -2492,52 +2523,52 @@ msgstr ""
 "Docker biçiminde bellek sınırı -- örnek: <code>512m</code> veya <code>1g</"
 "code>"
 
-#: projects/models.py:380
+#: projects/models.py:399
 msgid "Container time limit in seconds"
 msgstr "Saniye olarak kapsayıcı zaman sınırı"
 
-#: projects/models.py:385
+#: projects/models.py:404
 msgid "Alternate build queue id"
 msgstr "Alternatif oluşturma kuyruğu kimliği"
 
-#: projects/models.py:391
+#: projects/models.py:410
 msgid "Maximum concurrent builds allowed for this project"
 msgstr ""
 
-#: projects/models.py:396
+#: projects/models.py:415
 msgid "Allow paid advertising"
 msgstr "Ücretli reklamlara izin verin"
 
-#: projects/models.py:398
+#: projects/models.py:417
 msgid "If unchecked, users will still see community ads."
 msgstr ""
 "Eğer işaretlenmediyse, kullanıcılar hala topluluk reklamlarını görecek."
 
-#: projects/models.py:401
+#: projects/models.py:420
 msgid "Ad-free"
 msgstr "Reklamsız"
 
-#: projects/models.py:406
+#: projects/models.py:425
 msgid "Is spam?"
 msgstr ""
 
-#: projects/models.py:409
+#: projects/models.py:428
 msgid "Manually marked as (not) spam"
 msgstr ""
 
-#: projects/models.py:412
+#: projects/models.py:431
 msgid "Show version warning"
 msgstr "Sürüm uyarısını göster"
 
-#: projects/models.py:414
+#: projects/models.py:433
 msgid "Show warning banner in non-stable nor latest versions."
 msgstr "Kararlı olmayan ne de en son sürümlerde uyarı afişi göster."
 
-#: projects/models.py:418
+#: projects/models.py:437
 msgid "Path for .readthedocs.yaml"
 msgstr ""
 
-#: projects/models.py:424
+#: projects/models.py:443
 msgid ""
 "<strong>Warning: experimental feature</strong>. Custom path from repository "
 "top-level to your <code>.readthedocs.yaml</code>, ex. <code>subpath/docs/."
@@ -2545,88 +2576,88 @@ msgid ""
 "yaml</code>."
 msgstr ""
 
-#: projects/models.py:432
+#: projects/models.py:451
 msgid "Featured"
 msgstr "Öne Çıkanlar"
 
-#: projects/models.py:434
+#: projects/models.py:453
 msgid "Skip (disable) building this project"
 msgstr ""
 
-#: projects/models.py:442
+#: projects/models.py:461
 msgid "Delisted"
 msgstr ""
 
-#: projects/models.py:444
+#: projects/models.py:463
 msgid ""
 "Delisting a project removes it from Read the Docs search indexing and asks "
 "external search engines to remove it via robots.txt"
 msgstr ""
 
-#: projects/models.py:455
+#: projects/models.py:474
 msgid "Should the project dashboard be public?"
 msgstr ""
 
-#: projects/models.py:462
+#: projects/models.py:481
 msgid "Related projects"
 msgstr "İlgili projeler"
 
-#: projects/models.py:470 templates/search/elastic_search.html:57
+#: projects/models.py:489 templates/search/elastic_search.html:57
 msgid "Language"
 msgstr "Dil"
 
-#: projects/models.py:474
+#: projects/models.py:493
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
 msgstr ""
 "Proje belgelendirmede işlenen dil. Not: bu, projenizin URL'sini etkiler."
 
-#: projects/models.py:482
+#: projects/models.py:501
 msgid "Programming Language"
 msgstr "Programlama Dili"
 
-#: projects/models.py:486
+#: projects/models.py:505
 msgid "The primary programming language the project is written in."
 msgstr "Projenin yazıldığı birincil programlama dili."
 
-#: projects/models.py:502
+#: projects/models.py:521
 msgid "This project has been built with a webhook"
 msgstr "Bu proje bir web kancası ile oluşturuldu"
 
-#: projects/models.py:506
+#: projects/models.py:525
 msgid "This project has been successfully cloned"
 msgstr "Bu proje başarılı olarak kopyalandı"
 
-#: projects/models.py:558
+#: projects/models.py:577
 msgid "Enable EPUB build"
 msgstr "EPUB oluşturmayı etkinleştir"
 
-#: projects/models.py:561
+#: projects/models.py:580
 msgid "Create a EPUB version of your documentation with each build."
 msgstr "Her oluşturma ile belgelendirmenizin bir EPUB sürümünü oluşturun."
 
-#: projects/models.py:565
+#: projects/models.py:584
 msgid "Enable PDF build"
 msgstr "PDF oluşturmayı etkinleştir"
 
-#: projects/models.py:568
+#: projects/models.py:587
 msgid "Create a PDF version of your documentation with each build."
 msgstr "Her oluşturma ile belgelendirmenizin bir PDF sürümünü oluşturun."
 
-#: projects/models.py:572 projects/models.py:1498
+#: projects/models.py:591 projects/models.py:1541
 msgid "Path"
 msgstr "Yol"
 
-#: projects/models.py:576
+#: projects/models.py:595
 msgid "The directory where <code>conf.py</code> lives"
 msgstr "<code>conf.py</code> dosyasının bulunduğu dizin"
 
-#: projects/models.py:580
+#: projects/models.py:599
 msgid "Python configuration file"
 msgstr "Python yapılandırma dosyası"
 
-#: projects/models.py:585
+#: projects/models.py:604
 msgid ""
 "Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</"
 "code>). Leave blank if you want us to find it for you."
@@ -2634,310 +2665,304 @@ msgstr ""
 "Proje kök dizininden <code>conf.py</code> dosyasına giden yol (ör. "
 "<code>docs/conf.py</code>). Sizin için bulmamızı istiyorsanız boş bırakın."
 
-#: projects/models.py:591
+#: projects/models.py:610
 msgid "Install Project"
 msgstr "Projeyi yükle"
 
-#: projects/models.py:593
+#: projects/models.py:612
 msgid ""
 "Install your project inside a virtualenv using <code>setup.py install</code>"
 msgstr ""
 "<code>setup.py install</code> kullanarak projenizi bir sanal ortam içine "
 "yükleyin"
 
-#: projects/models.py:599
+#: projects/models.py:618
 msgid "Python Interpreter"
 msgstr "Python Yorumlayıcı"
 
-#: projects/models.py:604
+#: projects/models.py:623
 msgid "The Python interpreter used to create the virtual environment."
 msgstr "Python yorumlayıcısı sanal ortamı oluşturmak için kullanılır."
 
-#: projects/models.py:608
+#: projects/models.py:627
 msgid "Use system packages"
 msgstr "Sistem paketlerini kullan"
 
-#: projects/models.py:610
+#: projects/models.py:629
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr "Genel site paketleri dizinine sanal ortam erişimi verin."
 
-#: projects/models.py:620
+#: projects/models.py:639
 msgid "project"
 msgstr ""
 
-#: projects/models.py:631
+#: projects/models.py:650
 msgid "Model must have slug"
 msgstr "Model başlık bilgisine sahip olmak zorundadır"
 
-#: projects/models.py:1369
+#: projects/models.py:1412
 msgid "Subproject nesting is not supported"
 msgstr "Alt proje iç içe geçme desteklenmiyor"
 
-#: projects/models.py:1500
+#: projects/models.py:1543
 msgid "Build id"
 msgstr ""
 
-#: projects/models.py:1503
+#: projects/models.py:1546
 msgid "Page search rank"
 msgstr ""
 
-#: projects/models.py:1508
+#: projects/models.py:1551
 msgid "Ignore this file from operations like indexing"
 msgstr ""
 
-#: projects/models.py:1586
+#: projects/models.py:1629
 msgid "Build triggered"
 msgstr ""
 
-#: projects/models.py:1587
+#: projects/models.py:1630
 msgid "Build passed"
 msgstr ""
 
-#: projects/models.py:1604
+#: projects/models.py:1647
 msgid "URL"
 msgstr ""
 
-#: projects/models.py:1606
+#: projects/models.py:1649
 msgid "URL to send the webhook to"
 msgstr "Web kancasının göndereceği URL"
 
-#: projects/models.py:1609
+#: projects/models.py:1652
 msgid "Secret used to sign the payload of the webhook"
 msgstr ""
 
-#: projects/models.py:1617
+#: projects/models.py:1660
 msgid "Events to subscribe"
 msgstr ""
 
-#: projects/models.py:1620
+#: projects/models.py:1663
 msgid "JSON payload"
 msgstr ""
 
-#: projects/models.py:1622
+#: projects/models.py:1665
 msgid ""
 "JSON payload to send to the webhook. Check <a href=\"https://docs."
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
 "reference\">the docs</a> for available substitutions."
 msgstr ""
 
-#: projects/models.py:1727
+#: projects/models.py:1770
 msgid "Domain"
 msgstr "Etki Alanı"
 
-#: projects/models.py:1734
+#: projects/models.py:1777
 msgid "This domain was auto-created"
 msgstr ""
 
-#: projects/models.py:1738
+#: projects/models.py:1781
 msgid "This domain is a CNAME for the project"
 msgstr ""
 
-#: projects/models.py:1743
+#: projects/models.py:1786
 msgid "This domain is the primary one where the documentation is served from"
 msgstr ""
 
-#: projects/models.py:1747
+#: projects/models.py:1790
 msgid "Use HTTPS"
 msgstr "HTTPS kullan"
 
-#: projects/models.py:1749
+#: projects/models.py:1792
 msgid "Always use HTTPS for this domain"
 msgstr "Bu etki alanı için her zaman HTTPS kullan"
 
-#: projects/models.py:1753
+#: projects/models.py:1796
 msgid "Number of times this domain has been hit"
 msgstr "Bu etki alanına kaç kez uğrandığının sayısı"
 
-#: projects/models.py:1758 templates/projects/domain_form.html:49
+#: projects/models.py:1801 templates/projects/domain_form.html:49
 msgid "SSL certificate status"
 msgstr ""
 
-#: projects/models.py:1767
+#: projects/models.py:1810
 msgid "Skip validation process."
 msgstr ""
 
-#: projects/models.py:1773
+#: projects/models.py:1816
 msgid "Start date of the validation process."
 msgstr ""
 
-#: projects/models.py:1784
+#: projects/models.py:1827
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
 msgstr ""
 
-#: projects/models.py:1788
+#: projects/models.py:1831
 msgid ""
 "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1792
+#: projects/models.py:1835
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1949
+#: projects/models.py:1991
 msgid "MkDocs: Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 
-#: projects/models.py:1953
+#: projects/models.py:1995
 msgid "Build: Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1957
+#: projects/models.py:1999
 msgid "Conda: Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1962
+#: projects/models.py:2004
 msgid ""
 "Sphinx: Pass all versions (including private) into the html context when "
 "building with Sphinx"
 msgstr ""
 
-#: projects/models.py:1969
-msgid ""
-"Proxito: CDN support for a project's public versions when privacy levels are "
-"enabled."
-msgstr ""
-
-#: projects/models.py:1975
+#: projects/models.py:2010
 msgid "Proxito: Record 404s page views."
 msgstr ""
 
-#: projects/models.py:1979
+#: projects/models.py:2014
 msgid "Proxito: Allow forced redirects."
 msgstr ""
 
-#: projects/models.py:1983
+#: projects/models.py:2018
 msgid "Proxito: Disable all page views"
 msgstr ""
 
-#: projects/models.py:1987
+#: projects/models.py:2022
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr ""
 
-#: projects/models.py:1992
+#: projects/models.py:2027
 msgid ""
 "Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has "
 "one (Project.custom_prefix)."
 msgstr ""
 
-#: projects/models.py:1997
+#: projects/models.py:2032
 msgid "Dashboard: Allow project to use the version warning banner."
 msgstr ""
 
-#: projects/models.py:2003
+#: projects/models.py:2038
 msgid "Webhook: Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:2007
+#: projects/models.py:2042
 msgid "Webhook: Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:2011
+#: projects/models.py:2046
 msgid "Webhook: Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:2015
+#: projects/models.py:2050
 msgid "Build: Always run pip install --upgrade"
 msgstr ""
 
-#: projects/models.py:2016
+#: projects/models.py:2051
 msgid "Build: Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:2019
+#: projects/models.py:2054
 msgid "Build: Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:2023
+#: projects/models.py:2058
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
-#: projects/models.py:2028
+#: projects/models.py:2063
 msgid ""
 "Build: Install all the latest versions of Read the Docs core requirements"
 msgstr ""
 
-#: projects/models.py:2035
+#: projects/models.py:2070
 msgid "Search: Disable server side search"
 msgstr ""
 
-#: projects/models.py:2039
+#: projects/models.py:2074
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:2043
+#: projects/models.py:2078
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:2048
+#: projects/models.py:2083
 msgid "Build: Set scale-in protection before/after building."
 msgstr ""
 
-#: projects/models.py:2054
+#: projects/models.py:2089
 msgid ""
 "Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
 msgstr ""
 
-#: projects/models.py:2059
+#: projects/models.py:2094
 msgid "Addons: Disable Analytics."
 msgstr ""
 
-#: projects/models.py:2063
+#: projects/models.py:2098
 msgid "Addons: Disable Doc Diff."
 msgstr ""
 
-#: projects/models.py:2067
+#: projects/models.py:2102
 msgid "Addons: Disable EthicalAds."
 msgstr ""
 
-#: projects/models.py:2071
+#: projects/models.py:2106
 msgid "Addons: Disable External version warning."
 msgstr ""
 
-#: projects/models.py:2075
+#: projects/models.py:2110
 msgid "Addons: Disable Flyout."
 msgstr ""
 
-#: projects/models.py:2079
+#: projects/models.py:2114
 msgid "Addons: Disable Non latest version warning."
 msgstr ""
 
-#: projects/models.py:2083
+#: projects/models.py:2118
 msgid "Addons: Disable Search."
 msgstr ""
 
-#: projects/models.py:2087
+#: projects/models.py:2122
 msgid "Addons: Disable Hotkeys."
 msgstr ""
 
-#: projects/models.py:2100
+#: projects/models.py:2135
 msgid "Feature identifier"
 msgstr "Özellik tanımlayıcısı"
 
-#: projects/models.py:2105
+#: projects/models.py:2140
 msgid "Date feature was added"
 msgstr "Tarih özelliği eklendi"
 
-#: projects/models.py:2111
+#: projects/models.py:2146
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:2115
+#: projects/models.py:2150
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2137
+#: projects/models.py:2172
 msgid "Name of the environment variable"
 msgstr "Ortam değişkeninin adı"
 
-#: projects/models.py:2141
+#: projects/models.py:2176
 msgid "Value of the environment variable"
 msgstr "Ortam değişkeninin değeri"
 
-#: projects/models.py:2146
+#: projects/models.py:2181
 msgid "Project where this variable will be used"
 msgstr "Bu değişkenin kullanılacağı proje"
 
-#: projects/models.py:2152
+#: projects/models.py:2187
 msgid "Expose this environment variable in PR builds?"
 msgstr ""
 
@@ -3031,7 +3056,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:937
+#: projects/views/private.py:920
 msgid "Project has been opted out from advertisement support"
 msgstr "Proje reklam desteğinden çekildi"
 
@@ -3824,7 +3849,7 @@ msgid "No automation rules are currently configured."
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:85
-#: templates/projects/integration_webhook_detail.html:83
+#: templates/projects/integration_webhook_detail.html:108
 #: templates/projects/webhook_form.html:47
 msgid "Recent Activity"
 msgstr "Son Etkinlik"
@@ -3837,7 +3862,7 @@ msgid ""
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:101
-#: templates/projects/integration_webhook_detail.html:99
+#: templates/projects/integration_webhook_detail.html:124
 #: templates/projects/webhook_form.html:63
 msgid "There is no recent activity"
 msgstr "Son etkinlik yok"
@@ -4581,7 +4606,7 @@ msgstr ""
 #: templates/projects/domain_list.html:56
 #: templates/projects/project_import.html:170
 #: templates/projects/project_notifications.html:79
-#: templates/projects/project_translations.html:71
+#: templates/projects/project_translations.html:78
 #: templates/projects/project_users.html:53
 msgid "Add"
 msgstr "Ekle"
@@ -4701,14 +4726,6 @@ msgstr "Değiştirme"
 msgid "Add integration"
 msgstr "Bütünleştirme ekle"
 
-#: templates/projects/integration_generic_webhook_detail.html:7
-msgid "The following parameters are configured for this integration:"
-msgstr "Bu bütünleştirme için aşağıdaki parametreler yapılandırıldı:"
-
-#: templates/projects/integration_generic_webhook_detail.html:14
-msgid "Token"
-msgstr "Belirteç"
-
 #: templates/projects/integration_list.html:38
 msgid "No integrations are currently configured."
 msgstr "Şu anda yapılandırılmış bütünleştirmeler yok."
@@ -4722,13 +4739,13 @@ msgstr "Bütünleştirme"
 msgid "Integration - %(type)s"
 msgstr "Bütünleştirme - %(type)s"
 
-#: templates/projects/integration_webhook_detail.html:21
+#: templates/projects/integration_webhook_detail.html:22
 msgid ""
 "This integration is being managed automatically by Read the Docs. If it "
 "isn't functioning correctly, try re-syncing the webhook:"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:42
+#: templates/projects/integration_webhook_detail.html:38
 msgid ""
 "This integration is not managed by Read the Docs currently. If this "
 "integration is not functioning correctly, you can try re-syncing it. "
@@ -4736,26 +4753,41 @@ msgid ""
 "can use the following address to manually configure this webhook."
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:52
+#: templates/projects/integration_webhook_detail.html:50
 msgid ""
 "To manually configure this webhook with your provider, use the following "
-"address:"
+"information:"
 msgstr ""
-"Bu web kancasını sağlayıcınızla el ile yapılandırmak için aşağıdaki adresi "
-"kullanın:"
 
-#: templates/projects/integration_webhook_detail.html:67
+#: templates/projects/integration_webhook_detail.html:59
+msgid "Webhook URL:"
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:68
+#: templates/projects/integration_webhook_detail.html:73
+msgid "Secret:"
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:81
+msgid ""
+"This integration does not have a secret, the authenticity of the incoming "
+"webhook cannot be verified. <strong>Click on \"Resync webhook\" to generate "
+"a secret.</strong> Read more in our <a href=\"https://blog.readthedocs.com/"
+"security-update-on-incoming-webhooks/\">blog post</a>."
+msgstr ""
+
+#: templates/projects/integration_webhook_detail.html:92
 msgid ""
 "For more information on manually configuring a webhook, refer to <a "
 "href=\"https://docs.readthedocs.io/page/guides/setup/git-repo-automatic."
-"html\"> our webhook documentation </a>"
+"html\"> our webhook documentation. </a>"
 msgstr ""
 
-#: templates/projects/integration_webhook_detail.html:79
+#: templates/projects/integration_webhook_detail.html:104
 msgid "Resync webhook"
 msgstr "Web kancasını yeniden eşitle"
 
-#: templates/projects/integration_webhook_detail.html:108
+#: templates/projects/integration_webhook_detail.html:133
 msgid "Delete webhook"
 msgstr "Web kancasını sil"
 
@@ -5313,7 +5345,14 @@ msgstr "Çevirileri Düzenle"
 msgid "To add a translation to your project, select a project below."
 msgstr "Projenize bir çeviri eklemek için aşağıda bir proje seçin."
 
-#: templates/projects/project_translations.html:23
+#: templates/projects/project_translations.html:24
+#, python-format
+msgid ""
+"This project is <a href=\"%(advanced_settings_url)s\">configured</a> with a "
+"versioning scheme that doesn't support translations."
+msgstr ""
+
+#: templates/projects/project_translations.html:30
 #, python-format
 msgid ""
 "This project is already configured as the <code>%(language)s</code> "
@@ -5322,20 +5361,20 @@ msgstr ""
 "Bu proje zaten \"%(main_project)s\" projesinin <code>%(language)s</code> "
 "çevirisi olarak yapılandırıldı. İç içe çeviriler desteklenmez."
 
-#: templates/projects/project_translations.html:31
+#: templates/projects/project_translations.html:38
 #, python-format
 msgid "View translations of \"%(main_project)s\"."
 msgstr "\"%(main_project)s\" çevirilerini görüntüleyin."
 
-#: templates/projects/project_translations.html:36
+#: templates/projects/project_translations.html:43
 msgid "Existing Translations"
 msgstr "Varolan Çeviriler"
 
-#: templates/projects/project_translations.html:58
+#: templates/projects/project_translations.html:65
 msgid "No translations are currently configured"
 msgstr ""
 
-#: templates/projects/project_translations.html:67
+#: templates/projects/project_translations.html:74
 msgid "Choose which project you would like to add as a translation."
 msgstr "Bir çeviri olarak eklemek istediğiniz projeyi seçin."
 
