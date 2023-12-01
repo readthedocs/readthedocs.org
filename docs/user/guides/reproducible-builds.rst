@@ -12,6 +12,12 @@ so that you can focus on content.
    :local:
    :depth: 3
 
+.. note::
+   This page explains how to pin the versions that correctly build your project.
+   The versions used in this page are just for illustrative purpose.
+   They are not the latest nor the recommended versions.
+   It is up to you to find those versions.
+
 Before reading this page, be sure to read the doc about the :doc:`configuration file </config-file/v2>` (``.readthedocs.yaml``).
 This file controls how you documentation is build so it plays a crucial role for reproducible builds.
 
