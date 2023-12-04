@@ -232,7 +232,7 @@ class NullCharactersMiddleware:
                     url=request.build_absolute_uri(),
                 )
                 return HttpResponse(
-                    f"There are NULL (0x00) characters in at least one of the parameters ({key}) passed to the request.",  # noqa
+                    "There are NULL (0x00) characters in at least one of the parameters passed to the request.",
                     status=400,
                 )
         return self.get_response(request)

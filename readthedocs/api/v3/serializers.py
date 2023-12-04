@@ -12,7 +12,7 @@ from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from readthedocs.builds.models import Build, Version
-from readthedocs.core.resolver import resolver
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
@@ -245,7 +245,7 @@ class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     dashboard = VersionDashboardURLsSerializer(source="*")
 
     def get_documentation(self, obj):
-        return resolver.resolve_version(
+        return Resolver().resolve_version(
             project=obj.project,
             version=obj,
         )
@@ -571,7 +571,7 @@ class ProjectUpdateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
             "analytics_code",
             "analytics_disabled",
             "show_version_warning",
-            "single_version",
+            "versioning_scheme",
             "external_builds_enabled",
             "privacy_level",
             "external_builds_privacy_level",
@@ -613,6 +613,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     default_branch = serializers.CharField(source="get_default_branch")
     tags = serializers.StringRelatedField(many=True)
     users = UserSerializer(many=True)
+    single_version = serializers.BooleanField(source="is_single_version")
 
     _links = ProjectLinksSerializer(source="*")
 
@@ -641,6 +642,9 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             "tags",
             "privacy_level",
             "external_builds_privacy_level",
+            "versioning_scheme",
+            # Kept for backwards compatibility,
+            # versioning_scheme should be used instead.
             "single_version",
             # NOTE: ``expandable_fields`` must not be included here. Otherwise,
             # they will be tried to be rendered and fail

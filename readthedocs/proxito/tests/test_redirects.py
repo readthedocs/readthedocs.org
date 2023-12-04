@@ -3,7 +3,7 @@ from django.test import override_settings
 from django_dynamic_fixture import get
 
 from readthedocs.builds.models import Version
-from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.constants import PUBLIC, SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.products import RTDProductFeature
@@ -73,7 +73,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
     def test_single_version_root_url_doesnt_redirect(self):
-        self.project.single_version = True
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.project.save()
         r = self.client.get(
             "/", secure=True, headers={"host": "project.dev.readthedocs.io"}
@@ -111,7 +111,7 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(r.headers["X-RTD-Redirect"], RedirectType.system.name)
 
     def test_single_version_subproject_root_url_no_slash(self):
-        self.subproject.single_version = True
+        self.subproject.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.subproject.save()
         r = self.client.get(
             "/projects/subproject",
@@ -183,6 +183,7 @@ class RedirectTests(BaseDocServing):
             r.headers["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
         )
 
+    def test_subproject_redirect_canonical_domain(self):
         self.domain.canonical = True
         self.domain.save()
         r = self.client.get(
@@ -202,7 +203,7 @@ class RedirectTests(BaseDocServing):
         )
 
     def test_single_version_subproject_redirect(self):
-        self.subproject.single_version = True
+        self.subproject.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.subproject.save()
 
         r = self.client.get(
@@ -232,6 +233,10 @@ class RedirectTests(BaseDocServing):
         self.assertEqual(
             r.headers["X-RTD-Redirect"], RedirectType.subproject_to_main_domain.name
         )
+
+    def test_single_version_subproject_redirect_canonical_domain(self):
+        self.subproject.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.subproject.save()
 
         self.domain.canonical = True
         self.domain.save()

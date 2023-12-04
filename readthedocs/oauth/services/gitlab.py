@@ -382,15 +382,10 @@ class GitLabService(Service):
                 integration_type=Integration.GITLAB_WEBHOOK,
             )
 
-        if not integration.secret:
-            integration.recreate_secret()
-
         repo_id = self._get_repo_id(project)
         url = f"{self.adapter.provider_base_url}/api/v4/projects/{repo_id}/hooks"
 
         if repo_id is None:
-            # Set the secret to None so that the integration can be used manually.
-            integration.remove_secret()
             return (False, resp)
 
         log.bind(
@@ -426,8 +421,6 @@ class GitLabService(Service):
         except Exception:
             log.exception("GitLab webhook creation failed.")
 
-        # Always remove secret and return False if we don't return True above
-        integration.remove_secret()
         return (False, resp)
 
     def update_webhook(self, project, integration):
@@ -458,9 +451,6 @@ class GitLabService(Service):
 
         if repo_id is None:
             return (False, resp)
-
-        if not integration.secret:
-            integration.recreate_secret()
 
         data = self.get_webhook_data(repo_id, project, integration)
 
@@ -504,7 +494,6 @@ class GitLabService(Service):
                 debug_data=debug_data,
             )
 
-        integration.remove_secret()
         return (False, resp)
 
     def send_build_status(self, build, commit, status):

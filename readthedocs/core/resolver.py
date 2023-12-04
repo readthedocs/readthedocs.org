@@ -1,4 +1,5 @@
 """URL resolver for documentation."""
+from functools import lru_cache
 from urllib.parse import urlunparse
 
 import structlog
@@ -6,6 +7,10 @@ from django.conf import settings
 
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.core.utils.url import unsafe_join_url_path
+from readthedocs.projects.constants import (
+    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+    SINGLE_VERSION_WITHOUT_TRANSLATIONS,
+)
 from readthedocs.subscriptions.constants import TYPE_CNAME
 from readthedocs.subscriptions.products import get_feature
 
@@ -58,7 +63,7 @@ class Resolver:
         filename,
         version_slug=None,
         language=None,
-        single_version=None,
+        versioning_scheme=None,
         project_relationship=None,
         custom_prefix=None,
     ):
@@ -82,8 +87,10 @@ class Resolver:
         if custom_prefix:
             path = unsafe_join_url_path(path, custom_prefix)
 
-        if single_version:
+        if versioning_scheme == SINGLE_VERSION_WITHOUT_TRANSLATIONS:
             path = unsafe_join_url_path(path, "{filename}")
+        elif versioning_scheme == MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS:
+            path = unsafe_join_url_path(path, "{version}/{filename}")
         else:
             path = unsafe_join_url_path(path, "{language}/{version}/{filename}")
 
@@ -101,7 +108,6 @@ class Resolver:
         filename="",
         version_slug=None,
         language=None,
-        single_version=None,
     ):
         """Resolve a URL with a subset of fields defined."""
         version_slug = version_slug or project.get_default_version()
@@ -110,22 +116,23 @@ class Resolver:
         filename = self._fix_filename(filename)
 
         parent_project, project_relationship = self._get_canonical_project(project)
-        single_version = bool(project.single_version or single_version)
 
-        # If the project is a subproject, we use the custom prefix
+        # If the project is a subproject, we use the custom prefix and versioning scheme
         # of the child of the relationship, this is since the project
         # could be a translation. For a project that isn't a subproject,
-        # we use the custom prefix of the parent project.
+        # we use the custom prefix and versioning scheme of the parent project.
         if project_relationship:
             custom_prefix = project_relationship.child.custom_prefix
+            versioning_scheme = project_relationship.child.versioning_scheme
         else:
             custom_prefix = parent_project.custom_prefix
+            versioning_scheme = parent_project.versioning_scheme
 
         return self.base_resolve_path(
             filename=filename,
             version_slug=version_slug,
             language=language,
-            single_version=single_version,
+            versioning_scheme=versioning_scheme,
             project_relationship=project_relationship,
             custom_prefix=custom_prefix,
         )
@@ -151,7 +158,6 @@ class Resolver:
             filename=filename,
             version_slug=version.slug,
             language=project.language,
-            single_version=project.single_version,
         )
         protocol = "https" if use_https else "http"
         return urlunparse((protocol, domain, path, "", "", ""))
@@ -169,6 +175,7 @@ class Resolver:
         protocol = "https" if use_https else "http"
         return urlunparse((protocol, domain, filename, "", "", ""))
 
+    @lru_cache(maxsize=1)
     def _get_project_domain(
         self, project, external_version_slug=None, use_canonical_domain=True
     ):
@@ -178,6 +185,11 @@ class Resolver:
         :param project: Project object
         :param bool use_canonical_domain: If `True` use its canonical custom domain if available.
         :returns: Tuple of ``(domain, use_https)``.
+
+        Note that we are using ``lru_cache`` decorator on this function.
+        This is useful when generating the flyout addons response since we call
+        ``resolver.resolve`` multi times for the same ``Project``.
+        This cache avoids hitting the DB to get the canonical custom domain over and over again.
         """
         use_https = settings.PUBLIC_DOMAIN_USES_HTTPS
         canonical_project, _ = self._get_canonical_project(project)
@@ -223,6 +235,15 @@ class Resolver:
         external=None,
         **kwargs,
     ):
+        """
+        Resolve the URL of the project/version_slug/filename combination.
+
+        :param project: Project to resolve.
+        :param filename: exact filename the resulting URL should contain.
+        :param query_params: query string params the resulting URL should contain.
+        :param external: whether or not the resolved URL would be external (`*.readthedocs.build`).
+        :param kwargs: extra attributes to be passed to ``resolve_path``.
+        """
         version_slug = kwargs.get("version_slug")
 
         if version_slug is None:
@@ -351,9 +372,3 @@ class Resolver:
     def _use_cname(self, project):
         """Test if to allow direct serving for project on CNAME."""
         return bool(get_feature(project, feature_type=TYPE_CNAME))
-
-
-resolver = Resolver()
-resolve_path = resolver.resolve_path
-resolve_domain = resolver.get_domain_without_protocol
-resolve = resolver.resolve

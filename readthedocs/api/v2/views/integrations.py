@@ -5,9 +5,11 @@ import hmac
 import json
 import re
 from functools import namedtuple
+from textwrap import dedent
 
 import structlog
 from django.shortcuts import get_object_or_404
+from django.utils.crypto import constant_time_compare
 from rest_framework import permissions, status
 from rest_framework.exceptions import NotFound, ParseError
 from rest_framework.renderers import JSONRenderer
@@ -29,8 +31,8 @@ from readthedocs.projects.models import Project
 
 log = structlog.get_logger(__name__)
 
-GITHUB_EVENT_HEADER = "HTTP_X_GITHUB_EVENT"
-GITHUB_SIGNATURE_HEADER = "HTTP_X_HUB_SIGNATURE"
+GITHUB_EVENT_HEADER = "X-GitHub-Event"
+GITHUB_SIGNATURE_HEADER = "X-Hub-Signature-256"
 GITHUB_PING = "ping"
 GITHUB_PUSH = "push"
 GITHUB_PULL_REQUEST = "pull_request"
@@ -46,11 +48,12 @@ GITLAB_MERGE_REQUEST_MERGE = "merge"
 GITLAB_MERGE_REQUEST_OPEN = "open"
 GITLAB_MERGE_REQUEST_REOPEN = "reopen"
 GITLAB_MERGE_REQUEST_UPDATE = "update"
-GITLAB_TOKEN_HEADER = "HTTP_X_GITLAB_TOKEN"
+GITLAB_TOKEN_HEADER = "X-GitLab-Token"
 GITLAB_PUSH = "push"
 GITLAB_NULL_HASH = "0" * 40
 GITLAB_TAG_PUSH = "tag_push"
-BITBUCKET_EVENT_HEADER = "HTTP_X_EVENT_KEY"
+BITBUCKET_EVENT_HEADER = "X-Event-Key"
+BITBUCKET_SIGNATURE_HEADER = "X-Hub-Signature"
 BITBUCKET_PUSH = "repo:push"
 
 
@@ -69,6 +72,13 @@ class WebhookMixin:
     integration = None
     integration_type = None
     invalid_payload_msg = 'Payload not valid'
+    missing_secret_for_pr_events_msg = dedent(
+        """
+        The webhook doesn't have a secret configured.
+        For security reasons, webhooks without a secret can't process pull/merge request events.
+        You can read more information about this in our blog post: https://blog.readthedocs.com/security-update-on-incoming-webhooks/.
+        """
+    ).strip()
 
     def post(self, request, project_slug):
         """Set up webhook post view with request and project objects."""
@@ -105,6 +115,11 @@ class WebhookMixin:
         if resp is None:
             log.info('Unhandled webhook event')
             resp = {'detail': 'Unhandled webhook event'}
+
+        # The response can be a DRF Response with with the status code already set.
+        # In that case, we just return it as is.
+        if isinstance(resp, Response):
+            return resp
         return Response(resp)
 
     def get_project(self, **kwargs):
@@ -142,35 +157,35 @@ class WebhookMixin:
         """Validates the webhook's payload using the integration's secret."""
         return False
 
+    @staticmethod
+    def get_digest(secret, msg):
+        """Get a HMAC digest of `msg` using `secret`."""
+        digest = hmac.new(
+            secret.encode(),
+            msg=msg.encode(),
+            digestmod=hashlib.sha256,
+        )
+        return digest.hexdigest()
+
     def get_integration(self):
         """
         Get or create an inbound webhook to track webhook requests.
 
-        We shouldn't need this, but to support legacy webhooks, we can't assume
-        that a webhook has ever been created on our side. Most providers don't
-        pass the webhook ID in either, so we default to just finding *any*
-        integration from the provider. This is not ideal, but the
-        :py:class:`WebhookView` view solves this by performing a lookup on the
-        integration instead of guessing.
+        Most providers don't pass the webhook ID in either, so we default
+        to just finding *any* integration from the provider. This is not ideal,
+        but the :py:class:`WebhookView` view solves this by performing a lookup
+        on the integration instead of guessing.
         """
         # `integration` can be passed in as an argument to `as_view`, as it is
         # in `WebhookView`
         if self.integration is not None:
             return self.integration
-        try:
-            integration = Integration.objects.get(
-                project=self.project,
-                integration_type=self.integration_type,
-            )
-        except Integration.DoesNotExist:
-            integration = Integration.objects.create(
-                project=self.project,
-                integration_type=self.integration_type,
-                # If we didn't create the integration,
-                # we didn't set a secret.
-                secret=None,
-            )
-        return integration
+        self.integration = get_object_or_404(
+            Integration,
+            project=self.project,
+            integration_type=self.integration_type,
+        )
+        return self.integration
 
     def get_response_push(self, project, branches):
         """
@@ -293,12 +308,15 @@ class WebhookMixin:
 
         In case the user already selected a `default-branch` from the "Advanced settings",
         it does not override it.
+
+        This action can be performed only if the integration has a secret,
+        requests from anonymous users are ignored.
         """
-        if not self.project.default_branch:
-            (
-                self.project.versions.filter(slug=LATEST).update(
-                    identifier=default_branch
-                )
+        if self.get_integration().secret and not self.project.default_branch:
+            # Always check for the machine attribute, since latest can be user created.
+            # RTD doesn't manage those.
+            self.project.versions.filter(slug=LATEST, machine=True).update(
+                identifier=default_branch
             )
 
 
@@ -371,7 +389,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
 
         See https://developer.github.com/webhooks/securing/.
         """
-        signature = self.request.META.get(GITHUB_SIGNATURE_HEADER)
+        signature = self.request.headers.get(GITHUB_SIGNATURE_HEADER)
         secret = self.get_integration().secret
         if not secret:
             log.debug('Skipping payload signature validation.')
@@ -379,22 +397,12 @@ class GitHubWebhookView(WebhookMixin, APIView):
         if not signature:
             return False
         msg = self.request.body.decode()
-        digest = GitHubWebhookView.get_digest(secret, msg)
+        digest = WebhookMixin.get_digest(secret, msg)
         result = hmac.compare_digest(
-            b'sha1=' + digest.encode(),
+            b"sha256=" + digest.encode(),
             signature.encode(),
         )
         return result
-
-    @staticmethod
-    def get_digest(secret, msg):
-        """Get a HMAC digest of `msg` using `secret`."""
-        digest = hmac.new(
-            secret.encode(),
-            msg=msg.encode(),
-            digestmod=hashlib.sha1,
-        )
-        return digest.hexdigest()
 
     def handle_webhook(self):
         """
@@ -429,7 +437,7 @@ class GitHubWebhookView(WebhookMixin, APIView):
         action = self.data.get('action', None)
         created = self.data.get('created', False)
         deleted = self.data.get('deleted', False)
-        event = self.request.META.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
+        event = self.request.headers.get(GITHUB_EVENT_HEADER, GITHUB_PUSH)
         log.bind(webhook_event=event)
         webhook_github.send(
             Project,
@@ -452,16 +460,22 @@ class GitHubWebhookView(WebhookMixin, APIView):
             log.debug('Triggered sync_versions.')
             return self.sync_versions_response(self.project)
 
-        # Handle pull request events
+        integration = self.get_integration()
+
+        # Handle pull request events.
         if self.project.external_builds_enabled and event == GITHUB_PULL_REQUEST:
-            if (
-                action in
-                [
-                    GITHUB_PULL_REQUEST_OPENED,
-                    GITHUB_PULL_REQUEST_REOPENED,
-                    GITHUB_PULL_REQUEST_SYNC
-                ]
-            ):
+            # Requests from anonymous users are ignored.
+            if not integration.secret:
+                return Response(
+                    {"detail": self.missing_secret_for_pr_events_msg},
+                    status=HTTP_400_BAD_REQUEST,
+                )
+
+            if action in [
+                GITHUB_PULL_REQUEST_OPENED,
+                GITHUB_PULL_REQUEST_REOPENED,
+                GITHUB_PULL_REQUEST_SYNC,
+            ]:
                 # Trigger a build when PR is opened/reopened/sync
                 return self.get_external_version_response(self.project)
 
@@ -474,7 +488,6 @@ class GitHubWebhookView(WebhookMixin, APIView):
                 event == GITHUB_PUSH,
                 (created or deleted),
         ]):
-            integration = self.get_integration()
             events = integration.provider_data.get('events', []) if integration.provider_data else []  # noqa
             if any([
                     GITHUB_CREATE in events,
@@ -556,14 +569,12 @@ class GitLabWebhookView(WebhookMixin, APIView):
         It is sent in the request's header.
         See https://docs.gitlab.com/ee/user/project/integrations/webhooks.html#secret-token.
         """
-        token = self.request.META.get(GITLAB_TOKEN_HEADER)
+        token = self.request.headers.get(GITLAB_TOKEN_HEADER, "")
         secret = self.get_integration().secret
         if not secret:
             log.debug('Skipping payload signature validation.')
             return True
-        if not token:
-            return False
-        return token == secret
+        return constant_time_compare(secret, token)
 
     def get_external_version_data(self):
         """Get commit SHA and merge request number from payload."""
@@ -597,6 +608,8 @@ class GitLabWebhookView(WebhookMixin, APIView):
             event=event,
         )
 
+        integration = self.get_integration()
+
         # Always update `latest` branch to point to the default branch in the repository
         # even if the event is not gonna be handled. This helps us to keep our db in sync.
         default_branch = self.data.get("project", {}).get("default_branch", None)
@@ -624,14 +637,17 @@ class GitLabWebhookView(WebhookMixin, APIView):
                 raise ParseError('Parameter "ref" is required') from exc
 
         if self.project.external_builds_enabled and event == GITLAB_MERGE_REQUEST:
-            if (
-                action in
-                [
-                    GITLAB_MERGE_REQUEST_OPEN,
-                    GITLAB_MERGE_REQUEST_REOPEN,
-                    GITLAB_MERGE_REQUEST_UPDATE
-                ]
-            ):
+            if not integration.secret:
+                return Response(
+                    {"detail": self.missing_secret_for_pr_events_msg},
+                    status=HTTP_400_BAD_REQUEST,
+                )
+
+            if action in [
+                GITLAB_MERGE_REQUEST_OPEN,
+                GITLAB_MERGE_REQUEST_REOPEN,
+                GITLAB_MERGE_REQUEST_UPDATE,
+            ]:
                 # Handle open, update, reopen merge_request event.
                 return self.get_external_version_response(self.project)
 
@@ -687,7 +703,7 @@ class BitbucketWebhookView(WebhookMixin, APIView):
         it sets the new attribute (null if it is a deletion) and the old
         attribute (null if it is a creation).
         """
-        event = self.request.META.get(BITBUCKET_EVENT_HEADER, BITBUCKET_PUSH)
+        event = self.request.headers.get(BITBUCKET_EVENT_HEADER, BITBUCKET_PUSH)
         log.bind(webhook_event=event)
         webhook_bitbucket.send(
             Project,
@@ -727,8 +743,27 @@ class BitbucketWebhookView(WebhookMixin, APIView):
         return None
 
     def is_payload_valid(self):
-        """Bitbucket doesn't have an option for payload validation."""
-        return True
+        """
+        BitBucket use a HMAC hexdigest hash to sign the payload.
+
+        It is sent in the request's header.
+
+        See https://support.atlassian.com/bitbucket-cloud/docs/manage-webhooks/#Secure-webhooks.
+        """
+        signature = self.request.headers.get(BITBUCKET_SIGNATURE_HEADER)
+        secret = self.get_integration().secret
+        if not secret:
+            log.debug("Skipping payload signature validation.")
+            return True
+        if not signature:
+            return False
+        msg = self.request.body.decode()
+        digest = WebhookMixin.get_digest(secret, msg)
+        result = hmac.compare_digest(
+            b"sha256=" + digest.encode(),
+            signature.encode(),
+        )
+        return result
 
 
 class IsAuthenticatedOrHasToken(permissions.IsAuthenticated):
@@ -783,9 +818,8 @@ class APIWebhookView(WebhookMixin, APIView):
         if token:
             integration = self.get_integration()
             obj = Project.objects.get(**kwargs)
-            is_valid = (
-                integration.project == obj and
-                token == getattr(integration, 'token', None)
+            is_valid = integration.project == obj and constant_time_compare(
+                token, getattr(integration, "token", "")
             )
             if is_valid:
                 return obj
@@ -810,10 +844,10 @@ class APIWebhookView(WebhookMixin, APIView):
 
     def is_payload_valid(self):
         """
-        We can't have payload validation in the generic webhook.
+        Generic webhooks don't have payload validation.
 
-        Since we don't know the system that would trigger the webhook.
-        We have a token for authentication.
+        We use basic auth or token auth to validate that the user has access to
+        the project and integration (get_project() method).
         """
         return True
 

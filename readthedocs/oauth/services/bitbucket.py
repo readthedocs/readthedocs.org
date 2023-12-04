@@ -214,6 +214,7 @@ class BitbucketService(Service):
                 ),
                 "url": self.get_webhook_url(project, integration),
                 "active": True,
+                "secret": integration.secret,
                 "events": ["repo:push"],
             }
         )
@@ -290,6 +291,7 @@ class BitbucketService(Service):
                 project=project,
                 integration_type=Integration.BITBUCKET_WEBHOOK,
             )
+
         data = self.get_webhook_data(project, integration)
         resp = None
         log.bind(

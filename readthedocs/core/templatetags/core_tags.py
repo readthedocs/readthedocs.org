@@ -9,7 +9,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.safestring import mark_safe
 
 from readthedocs import __version__
-from readthedocs.core.resolver import resolve
+from readthedocs.core.resolver import Resolver
 from readthedocs.projects.models import Project
 
 register = template.Library()
@@ -49,7 +49,7 @@ def make_document_url(project, version=None, page="", path=""):
     if not project:
         return ""
     filename = path or page
-    return resolve(project=project, version_slug=version, filename=filename)
+    return Resolver().resolve(project=project, version_slug=version, filename=filename)
 
 
 @register.filter

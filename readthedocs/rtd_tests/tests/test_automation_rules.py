@@ -377,7 +377,7 @@ class TestAutomationRuleManager:
     def test_add_rule_regex(self):
         assert not self.project.automation_rules.all()
 
-        rule = RegexAutomationRule.objects.add_rule(
+        rule = RegexAutomationRule.objects.create(
             project=self.project,
             description='First rule',
             match_arg='.*',
@@ -390,7 +390,7 @@ class TestAutomationRuleManager:
         assert rule.priority == 0
 
         # Adding a second rule
-        rule = RegexAutomationRule.objects.add_rule(
+        rule = RegexAutomationRule.objects.create(
             project=self.project,
             description='Second rule',
             match_arg='.*',
@@ -398,7 +398,7 @@ class TestAutomationRuleManager:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
         )
         assert self.project.automation_rules.count() == 2
-        assert rule.priority == 1
+        assert rule.priority == 0
 
         # Adding a rule with a not secuencial priority
         rule = get(
@@ -411,10 +411,10 @@ class TestAutomationRuleManager:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
         )
         assert self.project.automation_rules.count() == 3
-        assert rule.priority == 9
+        assert rule.priority == 2
 
         # Adding a new rule
-        rule = RegexAutomationRule.objects.add_rule(
+        rule = RegexAutomationRule.objects.create(
             project=self.project,
             description='Fourth rule',
             match_arg='.*',
@@ -422,7 +422,11 @@ class TestAutomationRuleManager:
             action=VersionAutomationRule.ACTIVATE_VERSION_ACTION,
         )
         assert self.project.automation_rules.count() == 4
-        assert rule.priority == 10
+        assert rule.priority == 0
+
+        assert list(
+            self.project.automation_rules.all().values_list("priority", flat=True)
+        ) == [0, 1, 2, 3]
 
 
 @pytest.mark.django_db
@@ -431,16 +435,17 @@ class TestAutomationRuleMove:
     @pytest.fixture(autouse=True)
     def setup_method(self):
         self.project = get(Project)
-        self.rule_0 = self._add_rule('Zero')
-        self.rule_1 = self._add_rule('One')
-        self.rule_2 = self._add_rule('Two')
-        self.rule_3 = self._add_rule('Three')
-        self.rule_4 = self._add_rule('Four')
-        self.rule_5 = self._add_rule('Five')
+        self.rule_5 = self._add_rule("Five")
+        self.rule_4 = self._add_rule("Four")
+        self.rule_3 = self._add_rule("Three")
+        self.rule_2 = self._add_rule("Two")
+        self.rule_1 = self._add_rule("One")
+        self.rule_0 = self._add_rule("Zero")
+        self._refresh_rules()
         assert self.project.automation_rules.count() == 6
 
     def _add_rule(self, description):
-        rule = RegexAutomationRule.objects.add_rule(
+        rule = RegexAutomationRule.objects.create(
             project=self.project,
             description=description,
             match_arg='.*',
@@ -661,12 +666,26 @@ class TestAutomationRuleMove:
             assert rule == new_order[priority]
             assert rule.priority == priority
 
+    def _refresh_rules(self):
+        rules = [
+            self.rule_0,
+            self.rule_1,
+            self.rule_2,
+            self.rule_3,
+            self.rule_4,
+            self.rule_5,
+        ]
+        for rule in rules:
+            if rule.pk:
+                rule.refresh_from_db()
+
     def test_delete_some_rules(self):
         self.rule_2.delete()
-        self.rule_0.refresh_from_db()
+        self._refresh_rules()
         self.rule_0.delete()
-        self.rule_5.refresh_from_db()
+        self._refresh_rules()
         self.rule_5.delete()
+        self._refresh_rules()
 
         assert self.project.automation_rules.all().count() == 3
 

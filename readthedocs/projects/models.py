@@ -32,7 +32,7 @@ from readthedocs.builds.constants import (
     STABLE,
 )
 from readthedocs.core.history import ExtraHistoricalRecords
-from readthedocs.core.resolver import resolve, resolve_domain, resolver
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
@@ -59,7 +59,12 @@ from readthedocs.search.parsers import GenericParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
-from .constants import DOWNLOADABLE_MEDIA_TYPES, MEDIA_TYPES
+from .constants import (
+    DOWNLOADABLE_MEDIA_TYPES,
+    MEDIA_TYPES,
+    MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -112,7 +117,7 @@ class ProjectRelationship(models.Model):
 
     # HACK
     def get_absolute_url(self):
-        return resolver.resolve_version(project=self.child)
+        return Resolver().resolve_version(project=self.child)
 
     @cached_property
     def subproject_prefix(self):
@@ -241,14 +246,28 @@ class Project(models.Model):
         blank=True,
         help_text=_('URL that documentation is expected to serve from'),
     )
+    versioning_scheme = models.CharField(
+        _("Versioning scheme"),
+        max_length=120,
+        default=constants.MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+        choices=constants.VERSIONING_SCHEME_CHOICES,
+        # TODO: remove after migration
+        null=True,
+        help_text=_(
+            "This affects how the URL of your documentation looks like, "
+            "and if it supports translations or multiple versions. "
+            "Changing the versioning scheme will break your current URLs."
+        ),
+    )
+    # TODO: this field is deprecated, use `versioning_scheme` instead.
     single_version = models.BooleanField(
         _('Single version'),
         default=False,
         help_text=_(
-            'A single version site has no translations and only your '
+            "A single version site has no translations and only your "
             '"latest" version, served at the root of the domain. Use '
-            'this with caution, only turn it on if you will <b>never</b> '
-            'have multiple versions of your docs.',
+            "this with caution, only turn it on if you will <b>never</b> "
+            "have multiple versions of your docs.",
         ),
     )
     default_version = models.CharField(
@@ -673,7 +692,7 @@ class Project(models.Model):
 
         ``external`` defaults False because we only link external versions in very specific places
         """
-        return resolve(
+        return Resolver().resolve(
             project=self,
             version_slug=version_slug,
             language=lang_slug,
@@ -843,9 +862,35 @@ class Project(models.Model):
         if self.is_subproject:
             return self.superprojects.first().alias
 
+    @property
+    def is_single_version(self):
+        """
+        Return whether or not this project is a single version without translations.
+
+        Kept for backwards compatibility while we migrate the old field to the new one.
+        """
+        if self.single_version:
+            return True
+        return self.versioning_scheme == constants.SINGLE_VERSION_WITHOUT_TRANSLATIONS
+
+    @property
+    def supports_multiple_versions(self):
+        """Return whether or not this project supports multiple versions."""
+        return self.versioning_scheme in [
+            MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+            MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+        ]
+
+    @property
+    def supports_translations(self):
+        """Return whether or not this project supports translations."""
+        return self.versioning_scheme == MULTIPLE_VERSIONS_WITH_TRANSLATIONS
+
     def subdomain(self, use_canonical_domain=True):
         """Get project subdomain from resolver."""
-        return resolve_domain(self, use_canonical_domain=use_canonical_domain)
+        return Resolver().get_domain_without_protocol(
+            self, use_canonical_domain=use_canonical_domain
+        )
 
     def get_downloads(self):
         downloads = {}
@@ -1510,7 +1555,7 @@ class ImportedFile(models.Model):
     )
 
     def get_absolute_url(self):
-        return resolver.resolve_version(
+        return Resolver().resolve_version(
             project=self.project,
             version=self.version.slug,
             filename=self.path,
@@ -1657,7 +1702,7 @@ class WebHook(Notification):
         protocol = 'http' if settings.DEBUG else 'https'
         project_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{project.get_absolute_url()}'
         build_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{build.get_absolute_url()}'
-        build_docsurl = resolver.resolve_version(project, version=version)
+        build_docsurl = Resolver().resolve_version(project, version=version)
 
         # Remove timezone and microseconds from the date,
         # so it's more readable.
@@ -1894,7 +1939,6 @@ class Feature(models.Model):
     API_LARGE_DATA = "api_large_data"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
-    CDN_ENABLED = "cdn_enabled"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
     ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
@@ -1959,13 +2003,6 @@ class Feature(models.Model):
             _(
                 "Sphinx: Pass all versions (including private) into the html context "
                 "when building with Sphinx"
-            ),
-        ),
-        (
-            CDN_ENABLED,
-            _(
-                "Proxito: CDN support for a project's public versions when privacy levels "
-                "are enabled."
             ),
         ),
         (

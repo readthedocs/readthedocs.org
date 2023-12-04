@@ -19,7 +19,7 @@ from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.core.resolver import resolve
+from readthedocs.core.resolver import Resolver
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
@@ -308,7 +308,7 @@ class ServeRedirectMixin:
         :param external: If the version is from a pull request preview.
         """
         urlparse_result = urlparse(request.get_full_path())
-        to = resolve(
+        to = Resolver().resolve(
             project=final_project,
             version_slug=version_slug,
             filename=filename,
