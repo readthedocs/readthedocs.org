@@ -198,6 +198,51 @@ class UserRedirectTests(MockStorageMixin, BaseDocServing):
         with self.assertRaises(Http404):
             self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
 
+    def test_redirect_order(self):
+        redirect_a = fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/*",
+            to_url="/en/latest/tutorial/:splat",
+            enabled=True,
+        )
+        redirect_b = fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/install.html",
+            to_url="/en/latest/installation.html",
+            enabled=True,
+        )
+
+        redirect_a.refresh_from_db()
+        self.assertEqual(redirect_b.position, 0)
+        self.assertEqual(redirect_a.position, 1)
+
+        url = "/en/latest/install.html"
+        r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/installation.html",
+        )
+
+        redirect_a.position = 0
+        redirect_a.save()
+        redirect_b.refresh_from_db()
+
+        self.assertEqual(redirect_a.position, 0)
+        self.assertEqual(redirect_b.position, 1)
+
+        url = "/en/latest/install.html"
+        r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+        self.assertEqual(r.status_code, 302)
+        self.assertEqual(
+            r["Location"],
+            "http://project.dev.readthedocs.io/en/latest/tutorial/install.html",
+        )
+
     def test_redirect_ignored_on_external_domain(self):
         fixture.get(
             Redirect,

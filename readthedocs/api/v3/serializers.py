@@ -885,13 +885,13 @@ class RedirectSerializerBase(serializers.ModelSerializer):
         if value == "sphinx_html":
             raise serializers.ValidationError(
                 _(
-                    f"sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}"
+                    f"sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
                 )
             )
         if value == "sphinx_htmldir":
             raise serializers.ValidationError(
                 _(
-                    f"sphinx_htmldir redirect has been renamed to html_to_clean_url. See {blog_link}"
+                    f"sphinx_htmldir redirect has been renamed to html_to_clean_url. See {blog_link}."
                 )
             )
         return value
