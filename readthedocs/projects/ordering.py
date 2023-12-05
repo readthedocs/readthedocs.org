@@ -1,3 +1,5 @@
+"""Utilities to manage the position of items in a project."""
+
 from django.db.models import F
 
 
@@ -101,8 +103,8 @@ class ProjectItemPositionManager:
         # NOTE: we can't use items.update(position=expression), because SQLite is used
         # in tests and hits a UNIQUE constraint error. PostgreSQL doesn't have this issue.
         # We use update() instead of save() to avoid calling the save() method.
-        for item in items:
-            model.objects.filter(pk=item.pk).update(
+        for item_to_update in items:
+            model.objects.filter(pk=item_to_update.pk).update(
                 **{self.position_field_name: expression}
             )
 
@@ -128,7 +130,7 @@ class ProjectItemPositionManager:
         # We update each object one by one to
         # avoid hitting the unique constraint (project, position).
         # We use update() instead of save() to avoid calling the save() method.
-        for item in items:
-            model.objects.filter(pk=item.pk).update(
+        for item_to_update in items:
+            model.objects.filter(pk=item_to_update.pk).update(
                 **{self.position_field_name: F(self.position_field_name) - 1}
             )

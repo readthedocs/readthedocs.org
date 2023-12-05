@@ -1,6 +1,6 @@
 from django.urls import reverse
 
-from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT
+from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT, EXACT_REDIRECT
 from readthedocs.redirects.models import Redirect
 
 from .mixins import APIEndpointMixin
@@ -195,6 +195,88 @@ class RedirectsEndpointTests(APIEndpointMixin):
             response_json,
             self._get_response_dict("projects-redirects-detail_PUT"),
         )
+
+    def test_projects_redirects_position(self):
+        url = reverse(
+            "projects-redirects-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        # A new redirect will be created at the start by default.
+        response = self.client.post(
+            url,
+            data={
+                "from_url": "/one/",
+                "to_url": "/two/",
+                "type": EXACT_REDIRECT,
+            },
+        )
+        self.assertEqual(response.status_code, 201)
+        second_redirect = Redirect.objects.get(pk=response.json()["pk"])
+
+        self.redirect.refresh_from_db()
+
+        self.assertEqual(second_redirect.position, 0)
+        self.assertEqual(self.redirect.position, 1)
+
+        # Explicitly create a redirect at the end.
+        response = self.client.post(
+            url,
+            data={
+                "from_url": "/two/",
+                "to_url": "/three/",
+                "type": EXACT_REDIRECT,
+                "position": 2,
+            },
+        )
+        self.assertEqual(response.status_code, 201)
+        third_redirect = Redirect.objects.get(pk=response.json()["pk"])
+
+        self.redirect.refresh_from_db()
+        second_redirect.refresh_from_db()
+
+        self.assertEqual(second_redirect.position, 0)
+        self.assertEqual(self.redirect.position, 1)
+        self.assertEqual(third_redirect.position, 2)
+
+        url = reverse(
+            "projects-redirects-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "redirect_pk": self.redirect.pk,
+            },
+        )
+
+        # Move redirect to the end.
+        response = self.client.put(url, {"position": 2, "type": EXACT_REDIRECT})
+        self.assertEqual(response.status_code, 200)
+
+        self.redirect.refresh_from_db()
+        second_redirect.refresh_from_db()
+        third_redirect.refresh_from_db()
+
+        self.assertEqual(second_redirect.position, 0)
+        self.assertEqual(third_redirect.position, 1)
+        self.assertEqual(self.redirect.position, 2)
+
+        url = reverse(
+            "projects-redirects-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "redirect_pk": second_redirect.pk,
+            },
+        )
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 204)
+
+        self.redirect.refresh_from_db()
+        third_redirect.refresh_from_db()
+
+        self.assertEqual(third_redirect.position, 0)
+        self.assertEqual(self.redirect.position, 1)
 
     def test_projects_redirects_detail_delete(self):
         url = reverse(

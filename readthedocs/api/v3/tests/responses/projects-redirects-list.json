@@ -18,7 +18,8 @@
             "http_status": 302,
             "description": "",
             "enabled": true,
-            "force": false
+            "force": false,
+            "position": 0
         }
     ]
 }

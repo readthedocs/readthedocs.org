@@ -875,19 +875,24 @@ class RedirectSerializerBase(serializers.ModelSerializer):
         )
 
     def validate_type(self, value):
+        blog_link = "https://blog.readthedocs.com/new-improvements-to-redirects/"
         if value == "prefix":
             raise serializers.ValidationError(
                 _(
-                    "Prefix redirects have been removed. Please use an exact redirect `/prefix/*` instead. See <link to blog>."
+                    f"Prefix redirects have been removed. Please use an exact redirect `/prefix/*` instead. See {blog_link}."
                 )
             )
         if value == "sphinx_html":
             raise serializers.ValidationError(
-                _("sphinx_html redirect has been renamed to clean_url_to_html.")
+                _(
+                    f"sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}"
+                )
             )
         if value == "sphinx_htmldir":
             raise serializers.ValidationError(
-                _("sphinx_htmldir redirect has been renamed to html_to_clean_url.")
+                _(
+                    f"sphinx_htmldir redirect has been renamed to html_to_clean_url. See {blog_link}"
+                )
             )
         return value
 
