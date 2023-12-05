@@ -20,7 +20,7 @@ def validate_redirect(
     """
     if redirect_type in [EXACT_REDIRECT, PAGE_REDIRECT]:
         if from_url.endswith("$rest"):
-            raise error_class("The $rest wildcard have been removed in favor of *.")
+            raise error_class("The $rest wildcard has been removed in favor of *.")
         if "*" in from_url and not from_url.endswith("*"):
             raise error_class("The * wildcard must be at the end of the path.")
         if ":splat" in to_url and not from_url.endswith("*"):

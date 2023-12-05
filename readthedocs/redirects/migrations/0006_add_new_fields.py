@@ -30,6 +30,14 @@ class Migration(migrations.Migration):
                 null=True,
             ),
         ),
+        migrations.AddField(
+            model_name="redirect",
+            name="position",
+            field=models.PositiveIntegerField(
+                default=0,
+                help_text="Order of execution of the redirect.",
+            ),
+        ),
         migrations.AlterField(
             model_name="redirect",
             name="http_status",

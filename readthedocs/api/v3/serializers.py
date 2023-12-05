@@ -856,6 +856,7 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             "enabled",
             "description",
             "http_status",
+            "position",
             "_links",
         ]
         # TODO: allow editing this field for projects that have this feature enabled.

@@ -9,10 +9,13 @@ from django.utils.translation import gettext_lazy as _
 
 from readthedocs.core.resolver import Resolver
 from readthedocs.projects.models import Project
+from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.redirects.constants import (
     CLEAN_URL_TO_HTML_REDIRECT,
+    EXACT_REDIRECT,
     HTML_TO_CLEAN_URL_REDIRECT,
     HTTP_STATUS_CHOICES,
+    PAGE_REDIRECT,
     TYPE_CHOICES,
 )
 from readthedocs.redirects.validators import validate_redirect
@@ -107,18 +110,31 @@ class Redirect(models.Model):
         default="",
     )
 
+    position = models.PositiveIntegerField(
+        _("Position"),
+        default=0,
+        help_text=_("Order of execution of the redirect."),
+    )
+
     # TODO: remove this field and use `enabled` instead.
     status = models.BooleanField(choices=[], default=True, null=True)
 
     create_dt = models.DateTimeField(auto_now_add=True)
     update_dt = models.DateTimeField(auto_now=True)
 
+    _position_manager = ProjectItemPositionManager(position_field_name="position")
+
     objects = RedirectQuerySet.as_manager()
 
     class Meta:
         verbose_name = _("redirect")
         verbose_name_plural = _("redirects")
-        ordering = ("-update_dt",)
+        ordering = (
+            "position",
+            "-update_dt",
+        )
+        # TODO: add the project, position unique_together constraint once
+        # all redirects have a position set.
 
     def save(self, *args, **kwargs):
         self.from_url_without_rest = None
@@ -135,7 +151,12 @@ class Redirect(models.Model):
             if self.from_url.endswith("*"):
                 self.from_url_without_rest = self.from_url.removesuffix("*")
 
+        self._position_manager.change_position_before_save(self)
         super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        super().delete(*args, **kwargs)
+        self._position_manager.change_position_after_delete(self)
 
     def normalize_from_url(self, path):
         """
@@ -173,7 +194,7 @@ class Redirect(models.Model):
 
     def __str__(self):
         redirect_text = "{type}: {from_to_url}"
-        if self.redirect_type in ["prefix", "page", "exact"]:
+        if self.redirect_type in [PAGE_REDIRECT, EXACT_REDIRECT]:
             return redirect_text.format(
                 type=self.get_redirect_type_display(),
                 from_to_url=self.get_from_to_url_display(),
@@ -185,17 +206,10 @@ class Redirect(models.Model):
         )
 
     def get_from_to_url_display(self):
-        if self.redirect_type in ["prefix", "page", "exact"]:
-            from_url = self.from_url
-            to_url = self.to_url
-            if self.redirect_type == "prefix":
-                to_url = "/{lang}/{version}/".format(
-                    lang=self.project.language,
-                    version=self.project.default_version,
-                )
+        if self.redirect_type in [PAGE_REDIRECT, EXACT_REDIRECT]:
             return "{from_url} -> {to_url}".format(
-                from_url=from_url,
-                to_url=to_url,
+                from_url=self.from_url,
+                to_url=self.to_url,
             )
         return ""
 
