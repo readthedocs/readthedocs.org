@@ -65,7 +65,7 @@ class Redirect(models.Model):
         blank=True,
     )
 
-    # Store the from_url without the ``*`` wildcard in it for easier and faster querying.
+    # Store the from_url without the ``*`` wildcard for easier and faster querying.
     from_url_without_rest = models.CharField(
         max_length=255,
         db_index=True,
@@ -113,6 +113,7 @@ class Redirect(models.Model):
     position = models.PositiveIntegerField(
         _("Position"),
         default=0,
+        null=True,
         help_text=_("Order of execution of the redirect."),
     )
 
@@ -234,6 +235,20 @@ class Redirect(models.Model):
         )
 
     def get_redirect_path(self, filename, path=None, language=None, version_slug=None):
+        """
+        Resolve the redirect for the given filename.
+
+        .. note::
+
+           This method doesn't check if the current path matches ``from_url``,
+           that should be done before calling this method
+           using ``Redirect.objects.get_redirect_path_with_status``.
+
+        :param filename: The filename being served.
+        :param path: The whole path from the request.
+        :param language: The language of the project.
+        :param version_slug: The slug of the current version.
+        """
         method = getattr(
             self,
             "redirect_{type}".format(

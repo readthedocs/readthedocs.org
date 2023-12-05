@@ -45,8 +45,8 @@ class RedirectQuerySet(models.QuerySet):
         """
         Get the final redirect with its status code.
 
-        :param path: Is the path without the language and version parts.
-        :param full_path: Is the full path including the language and version parts.
+        :param filename: The filename being served.
+        :param path: The whole path from the request.
         :param forced_only: Include only forced redirects in the results.
         """
         # Small optimization to skip executing the big query below.

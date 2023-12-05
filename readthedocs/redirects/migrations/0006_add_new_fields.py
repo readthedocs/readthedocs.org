@@ -35,6 +35,7 @@ class Migration(migrations.Migration):
             name="position",
             field=models.PositiveIntegerField(
                 default=0,
+                null=True,
                 help_text="Order of execution of the redirect.",
             ),
         ),
