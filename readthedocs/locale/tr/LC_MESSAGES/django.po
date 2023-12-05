@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-28 10:47+0000\n"
+"POT-Creation-Date: 2023-12-05 16:29+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: BouRock, 2020\n"
 "Language-Team: Turkish (http://app.transifex.com/readthedocs/readthedocs/"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: analytics/models.py:69 builds/models.py:727 projects/models.py:1531
+#: analytics/models.py:69 builds/models.py:726 projects/models.py:1531
 #: search/models.py:28 templates/base.html:262
 msgid "Version"
 msgstr "Sürüm"
@@ -197,7 +197,7 @@ msgstr ""
 msgid "Username"
 msgstr "Kullanıcı adı"
 
-#: audit/models.py:138 builds/models.py:110 builds/models.py:721
+#: audit/models.py:138 builds/models.py:109 builds/models.py:720
 #: organizations/filters.py:134 projects/models.py:1525 redirects/models.py:56
 msgid "Project"
 msgstr "Proje"
@@ -429,7 +429,7 @@ msgstr ""
 msgid "Custom match"
 msgstr ""
 
-#: builds/filters.py:26 builds/models.py:153 redirects/models.py:23
+#: builds/filters.py:26 builds/models.py:152 redirects/models.py:23
 msgid "Active"
 msgstr "Etkin"
 
@@ -450,7 +450,7 @@ msgstr ""
 msgid "Pull/merge request"
 msgstr ""
 
-#: builds/filters.py:41 builds/models.py:155 builds/models.py:743
+#: builds/filters.py:41 builds/models.py:154 builds/models.py:742
 msgid "State"
 msgstr "Durum"
 
@@ -459,7 +459,7 @@ msgstr "Durum"
 msgid "Any"
 msgstr ""
 
-#: builds/filters.py:47 builds/models.py:115 builds/models.py:733
+#: builds/filters.py:47 builds/models.py:114 builds/models.py:732
 msgid "Type"
 msgstr "Tür"
 
@@ -476,245 +476,245 @@ msgstr ""
 msgid "{version} is the default version of the project, it should be active."
 msgstr "{version}, projenin varsayılan sürümüdür, etkin olmalıdır."
 
-#: builds/forms.py:166
+#: builds/forms.py:168
 msgid "Custom match should not be empty."
 msgstr ""
 
-#: builds/forms.py:173
+#: builds/forms.py:175
 msgid "Invalid Python regular expression."
 msgstr ""
 
-#: builds/models.py:98 projects/models.py:1594 projects/models.py:1759
+#: builds/models.py:97 projects/models.py:1594 projects/models.py:1759
 msgid "created"
 msgstr ""
 
-#: builds/models.py:103 projects/models.py:1599
+#: builds/models.py:102 projects/models.py:1599
 msgid "modified"
 msgstr ""
 
-#: builds/models.py:129
+#: builds/models.py:128
 msgid "Identifier"
 msgstr "Tanımlayıcı"
 
-#: builds/models.py:136
+#: builds/models.py:135
 msgid "Verbose Name"
 msgstr "Ayrıntılı Adı"
 
-#: builds/models.py:143 oauth/models.py:32 organizations/models.py:48
+#: builds/models.py:142 oauth/models.py:32 organizations/models.py:48
 #: projects/models.py:217
 msgid "Slug"
 msgstr "Başlık Bilgisi"
 
-#: builds/models.py:151
+#: builds/models.py:150
 msgid "Supported"
 msgstr "Destekleniyor"
 
-#: builds/models.py:160
+#: builds/models.py:159
 msgid "State of the PR/MR associated to this version."
 msgstr ""
 
-#: builds/models.py:162
+#: builds/models.py:161
 msgid "Built"
 msgstr "Oluşturuldu"
 
-#: builds/models.py:167
+#: builds/models.py:166
 msgid "Uploaded"
 msgstr "Gönderildi"
 
-#: builds/models.py:170 projects/models.py:469
+#: builds/models.py:169 projects/models.py:469
 msgid "Privacy Level"
 msgstr "Gizlilik Seviyesi"
 
-#: builds/models.py:174
+#: builds/models.py:173
 msgid "Level of privacy for this Version."
 msgstr "Bu Sürüm için gizlilik seviyesi."
 
-#: builds/models.py:177
+#: builds/models.py:176
 msgid "Hidden"
 msgstr ""
 
-#: builds/models.py:179
+#: builds/models.py:178
 msgid "Hide this version from the version (flyout) menu and search results?"
 msgstr ""
 
-#: builds/models.py:181
+#: builds/models.py:180
 msgid "Machine Created"
 msgstr "Makine Oluşturuldu"
 
-#: builds/models.py:184
+#: builds/models.py:183
 msgid "Has PDF"
 msgstr ""
 
-#: builds/models.py:185
+#: builds/models.py:184
 msgid "Has ePub"
 msgstr ""
 
-#: builds/models.py:186
+#: builds/models.py:185
 msgid "Has HTML Zip"
 msgstr ""
 
-#: builds/models.py:189 projects/models.py:306 projects/models.py:566
+#: builds/models.py:188 projects/models.py:306 projects/models.py:566
 msgid "Documentation type"
 msgstr "Belgelendirme türü"
 
-#: builds/models.py:194
+#: builds/models.py:193
 msgid "Type of documentation the version was built with."
 msgstr ""
 
-#: builds/models.py:199
+#: builds/models.py:198
 msgid "Data generated at build time by the doctool (`readthedocs-build.yaml`)."
 msgstr ""
 
-#: builds/models.py:206
+#: builds/models.py:205
 msgid "Inject new addons js library for this version"
 msgstr ""
 
-#: builds/models.py:224
+#: builds/models.py:223
 #, python-brace-format
 msgid "Version {version} of {project} ({pk})"
 msgstr "{project} projesinin sürümü {version} ({pk})"
 
-#: builds/models.py:755
+#: builds/models.py:754
 msgid "Status"
 msgstr ""
 
-#: builds/models.py:762 integrations/models.py:148
+#: builds/models.py:761 integrations/models.py:148
 msgid "Date"
 msgstr "Tarih"
 
-#: builds/models.py:763
+#: builds/models.py:762
 msgid "Success"
 msgstr "Başarılı"
 
-#: builds/models.py:768
+#: builds/models.py:767
 msgid "Setup"
 msgstr "Kurulum"
 
-#: builds/models.py:769
+#: builds/models.py:768
 msgid "Setup error"
 msgstr "Kurulum hatası"
 
-#: builds/models.py:770
+#: builds/models.py:769
 msgid "Output"
 msgstr "Çıktı"
 
-#: builds/models.py:771 templates/builds/build_detail.html:239
+#: builds/models.py:770 templates/builds/build_detail.html:239
 msgid "Error"
 msgstr "Hata"
 
-#: builds/models.py:772
+#: builds/models.py:771
 msgid "Exit code"
 msgstr "Çıkış kodu"
 
-#: builds/models.py:777 projects/models.py:1542
+#: builds/models.py:776 projects/models.py:1542
 msgid "Commit"
 msgstr "İşle"
 
-#: builds/models.py:783
+#: builds/models.py:782
 msgid "Version slug"
 msgstr ""
 
-#: builds/models.py:789
+#: builds/models.py:788
 msgid "Version name"
 msgstr ""
 
-#: builds/models.py:795 builds/models.py:1280
+#: builds/models.py:794 builds/models.py:1280
 msgid "Version type"
 msgstr ""
 
-#: builds/models.py:802
+#: builds/models.py:801
 msgid "Configuration used in the build"
 msgstr "Oluşturmada kullanılan yapılandırma"
 
-#: builds/models.py:807
+#: builds/models.py:806
 msgid "Custom build configuration file path used in this build"
 msgstr ""
 
-#: builds/models.py:815
+#: builds/models.py:814
 msgid "Build Length"
 msgstr "Oluşturma Uzunluğu"
 
-#: builds/models.py:818
+#: builds/models.py:817
 msgid "Builder"
 msgstr "Oluşturucu"
 
-#: builds/models.py:825
+#: builds/models.py:824
 msgid "Cold Storage"
 msgstr "Uzak Depolama"
 
-#: builds/models.py:831
+#: builds/models.py:830
 msgid "Celery task id"
 msgstr ""
 
-#: builds/models.py:945
+#: builds/models.py:944
 #, python-brace-format
 msgid "Build {project} for {usernames} ({pk})"
 msgstr "{usernames} için {project} projesini oluştur ({pk})"
 
-#: builds/models.py:1178
+#: builds/models.py:1177
 msgid "Build"
 msgstr "Oluştur"
 
-#: builds/models.py:1183
+#: builds/models.py:1182
 msgid "Command"
 msgstr "Komut"
 
-#: builds/models.py:1184 builds/models.py:1244 oauth/models.py:133
+#: builds/models.py:1183 builds/models.py:1244 oauth/models.py:133
 #: organizations/models.py:62 projects/models.py:219
 #: templates/core/project_details.html:78
 msgid "Description"
 msgstr "Tanım"
 
-#: builds/models.py:1185
+#: builds/models.py:1184
 msgid "Command output"
 msgstr "Komut çıktısı"
 
-#: builds/models.py:1186
+#: builds/models.py:1185
 msgid "Command exit code"
 msgstr "Komut çıkış kodu"
 
-#: builds/models.py:1188
+#: builds/models.py:1187
 msgid "Start time"
 msgstr "Başlama zamanı"
 
-#: builds/models.py:1189
+#: builds/models.py:1188
 msgid "End time"
 msgstr "Bitiş zamanı"
 
-#: builds/models.py:1199
+#: builds/models.py:1198
 #, python-brace-format
 msgid "Build command {pk} for build {build}"
 msgstr "{build} oluşturması için oluşturma komutu {pk}"
 
-#: builds/models.py:1223
+#: builds/models.py:1222
 msgid "Activate version"
 msgstr ""
 
-#: builds/models.py:1224
+#: builds/models.py:1223
 msgid "Hide version"
 msgstr ""
 
-#: builds/models.py:1225
+#: builds/models.py:1224
 msgid "Make version public"
 msgstr ""
 
-#: builds/models.py:1226
+#: builds/models.py:1225
 msgid "Make version private"
 msgstr ""
 
-#: builds/models.py:1227
+#: builds/models.py:1226
 msgid "Set version as default"
 msgstr ""
 
-#: builds/models.py:1228
+#: builds/models.py:1227
 msgid "Delete version"
 msgstr ""
 
-#: builds/models.py:1240
+#: builds/models.py:1239
 msgid "Rule priority"
 msgstr ""
 
-#: builds/models.py:1241
+#: builds/models.py:1240
 msgid "A lower number (0) means a higher priority"
 msgstr ""
 
@@ -752,31 +752,31 @@ msgstr ""
 msgid "Type of version the rule should be applied to"
 msgstr ""
 
-#: builds/models.py:1505
+#: builds/models.py:1552
 msgid "Version activated"
 msgstr ""
 
-#: builds/models.py:1506
+#: builds/models.py:1553
 msgid "Version hidden"
 msgstr ""
 
-#: builds/models.py:1508
+#: builds/models.py:1555
 msgid "Version set to public privacy"
 msgstr ""
 
-#: builds/models.py:1511
+#: builds/models.py:1558
 msgid "Version set to private privacy"
 msgstr ""
 
-#: builds/models.py:1513
+#: builds/models.py:1560
 msgid "Version set as default"
 msgstr ""
 
-#: builds/models.py:1514
+#: builds/models.py:1561
 msgid "Version deleted"
 msgstr ""
 
-#: builds/models.py:1519
+#: builds/models.py:1566
 msgid "Matched rule"
 msgstr ""
 
