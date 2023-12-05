@@ -1,3 +1,17 @@
+Version 10.12.2
+---------------
+
+:Date: December 05, 2023
+
+* `@humitos <https://github.com/humitos>`__: Requirements: pin `django-ipware<6` (`#10932 <https://github.com/readthedocs/readthedocs.org/pull/10932>`__)
+* `@humitos <https://github.com/humitos>`__: Translation: revert German translation (`#10931 <https://github.com/readthedocs/readthedocs.org/pull/10931>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.12.1 (`#10929 <https://github.com/readthedocs/readthedocs.org/pull/10929>`__)
+* `@humitos <https://github.com/humitos>`__: Release/10.12.0 (`#10928 <https://github.com/readthedocs/readthedocs.org/pull/10928>`__)
+* `@humitos <https://github.com/humitos>`__: Design: small update to add a PATCH endpoint (`#10919 <https://github.com/readthedocs/readthedocs.org/pull/10919>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: index in small chunks (`#10914 <https://github.com/readthedocs/readthedocs.org/pull/10914>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: check for build being None (`#10913 <https://github.com/readthedocs/readthedocs.org/pull/10913>`__)
+* `@stsewd <https://github.com/stsewd>`__: Automation Rules: simplify ordering (`#10896 <https://github.com/readthedocs/readthedocs.org/pull/10896>`__)
+
 Version 10.12.1
 ---------------
 
