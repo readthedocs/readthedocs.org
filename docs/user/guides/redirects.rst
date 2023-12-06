@@ -64,7 +64,7 @@ Clean URL to HTML
 
   Read more about this option in :ref:`user-defined-redirects:Clean/HTML URLs redirects`
 
-HTML to Clean URL
+HTML to clean URL
   Similarly to the former option,
   if you choose to change the style of your URLs from *HTML URLs* (``/en/latest/tutorial.html``) to *clean URLs* (``/en/latest/tutorial/``),
   you can redirect all mismatches automatically.
@@ -116,5 +116,7 @@ The order of redirects is important,
 if you have multiple rules that match the same URL,
 the first redirect in the list will be used.
 
-You can change the order of the redirect from the :menuselection:`Admin > Redirects` page.
+You can change the order of the redirect from the :menuselection:`Admin > Redirects` page,
+by using the up and down arrow buttons.
+
 New redirects are added at the start of the list (i.e. they have the highest priority).

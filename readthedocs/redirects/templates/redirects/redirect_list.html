@@ -47,7 +47,7 @@
               <ul class="module-item-menu">
                 {% if not forloop.first %}
                   <li class="automation-rule">
-                    <form method="post" action="{% url 'projects_redirects_insert' project_slug=project.slug redirect_pk=redirect.pk position=forloop.counter0|add:"-1" %}">
+                    <form method="post" action="{% url 'projects_redirects_insert' project_slug=project.slug redirect_pk=redirect.pk position=redirect.position|add:"-1" %}">
                       {% csrf_token %}
                       <button aria-label="{% trans 'Move up' %}" title="{% trans 'Move up' %}" class="automation-rule-up">
                         <span>{% trans 'Move up' %}</span>
@@ -58,7 +58,7 @@
 
                 {% if not forloop.last %}
                   <li class="automation-rule">
-                    <form method="post" action="{% url 'projects_redirects_insert' project_slug=project.slug redirect_pk=redirect.pk position=forloop.counter0|add:"1" %}">
+                    <form method="post" action="{% url 'projects_redirects_insert' project_slug=project.slug redirect_pk=redirect.pk position=redirect.position|add:"1" %}">
                       {% csrf_token %}
                       <button aria-label="{% trans 'Move down' %}" title="{% trans 'Move down' %}" class="automation-rule-down">
                         <span>{% trans 'Move down' %}</span>
