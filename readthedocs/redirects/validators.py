@@ -12,7 +12,7 @@ def validate_redirect(
     *, project, pk, redirect_type, from_url, to_url, error_class=ValidationError
 ):
     """
-    Validation for redirects.
+    Validations for redirects.
 
     This is in a separate function so we can use it in the clean method of the model
     (used in forms), and in the Django Rest Framework serializer (used in the API).

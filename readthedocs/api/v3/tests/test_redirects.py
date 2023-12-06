@@ -1,6 +1,11 @@
 from django.urls import reverse
+from django_dynamic_fixture import get
 
-from readthedocs.redirects.constants import CLEAN_URL_TO_HTML_REDIRECT, EXACT_REDIRECT
+from readthedocs.redirects.constants import (
+    CLEAN_URL_TO_HTML_REDIRECT,
+    EXACT_REDIRECT,
+    HTML_TO_CLEAN_URL_REDIRECT,
+)
 from readthedocs.redirects.models import Redirect
 
 from .mixins import APIEndpointMixin
@@ -277,6 +282,83 @@ class RedirectsEndpointTests(APIEndpointMixin):
 
         self.assertEqual(third_redirect.position, 0)
         self.assertEqual(self.redirect.position, 1)
+
+    def test_projects_redirects_validations(self):
+        url = reverse(
+            "projects-redirects-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.token.key}")
+
+        response = self.client.post(
+            url,
+            data={
+                "from_url": "/one/$rest",
+                "to_url": "/two/",
+                "type": EXACT_REDIRECT,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(), ["The $rest wildcard has been removed in favor of *."]
+        )
+
+        response = self.client.post(
+            url,
+            data={
+                "from_url": "/one/*.html",
+                "to_url": "/two/",
+                "type": EXACT_REDIRECT,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(), ["The * wildcard must be at the end of the path."]
+        )
+
+        response = self.client.post(
+            url,
+            data={
+                "from_url": "/one/",
+                "to_url": "/two/:splat",
+                "type": EXACT_REDIRECT,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            [
+                "The * wildcard must be at the end of from_url to use the :splat placeholder in to_url."
+            ],
+        )
+
+        get(Redirect, redirect_type=CLEAN_URL_TO_HTML_REDIRECT, project=self.project)
+        response = self.client.post(
+            url,
+            data={
+                "type": CLEAN_URL_TO_HTML_REDIRECT,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            ["Only one redirect of type `clean_url_to_html` is allowed per project."],
+        )
+
+        get(Redirect, redirect_type=HTML_TO_CLEAN_URL_REDIRECT, project=self.project)
+        response = self.client.post(
+            url,
+            data={
+                "type": HTML_TO_CLEAN_URL_REDIRECT,
+            },
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.json(),
+            ["Only one redirect of type `html_to_clean_url` is allowed per project."],
+        )
 
     def test_projects_redirects_detail_delete(self):
         url = reverse(
