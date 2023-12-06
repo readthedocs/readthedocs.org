@@ -24,18 +24,6 @@ the bad user experience of a 404 page is usually best to avoid.
    :doc:`/guides/deprecating-content`
      A guide to deprecating features and other topics in a documentation.
 
-
-Limitations
------------
-
-- By default, redirects only apply on pages that don't exist.
-  **Forced redirects** allow you to apply redirects on existing pages,
-  but incur a small performance penalty, so aren't enabled by default.
-  You can ask for them to be enabled via support.
-- Only :ref:`user-defined-redirects:page redirects` and :ref:`user-defined-redirects:exact redirects`
-  can redirect to URLs outside Read the Docs,
-  just include the protocol in ``To URL``, e.g ``https://example.com``.
-
 Built-in redirects
 ------------------
 
@@ -106,135 +94,249 @@ You can reach these docs at https://docs.rtfd.io.
 User-defined redirects
 ----------------------
 
-Prefix redirects
-~~~~~~~~~~~~~~~~
-
-The most useful and requested feature of redirects was when migrating to Read the Docs from an old host.
-You would have your docs served at a previous URL,
-but that URL would break once you moved them.
-Read the Docs includes a language and version slug in your documentation,
-but not all documentation is hosted this way.
-
-Say that you previously had your docs hosted at ``https://docs.example.com/dev/``,
-you move ``docs.example.com`` to point at Read the Docs.
-So users will have a bookmark saved to a page at ``https://docs.example.com/dev/install.html``.
-
-You can now set a *Prefix Redirect* that will redirect all 404's with a prefix to a new place.
-The example configuration would be::
-
-    Type: Prefix Redirect
-    From URL: /dev/
-
-Your users query would now redirect in the following manner::
-
-        docs.example.com/dev/install.html ->
-        docs.example.com/en/latest/install.html
-
-Where ``en`` and ``latest`` are the default language and version values for your project.
-
-.. note::
-
-   If you were hosting your docs without a prefix, you can create a ``/`` Prefix Redirect,
-   which will prepend ``/$lang/$version/`` to all incoming URLs.
-
-
 Page redirects
 ~~~~~~~~~~~~~~
 
-A more specific case is when you move a page around in your docs.
-The old page will start 404'ing,
-and your users will be confused.
-*Page Redirects* let you redirect a specific page.
+*Page Redirects* let you redirect a page across all versions of your documentation.
+
+.. note::
+
+   Since pages redirects apply to all versions,
+   ``From URL`` doesn't need to include the ``/<language>/<version>`` prefix (e.g. ``/en/latest``),
+   but just the version-specific part of the URL.
+   If you want to set redirects only for some languages or some versions, you should use
+   :ref:`user-defined-redirects:exact redirects` with the fully-specified path.
+
+Exact redirects
+~~~~~~~~~~~~~~~
+
+*Exact Redirects* take into account the full URL (including language and version),
+allowing you to create a redirect for a specific version or language of your documentation.
+
+.. _Sphinx redirects:
+
+Clean/HTML URLs redirects
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you decide to change the style of the URLs of your documentation,
+you can use *Clean URL to HTML* or *HTML to clean URL* redirects to redirect users to the new URL style.
+
+For example, if a previous page was at ``/en/latest/install.html``,
+and now is served at ``/en/latest/install/``, or vice versa,
+users will be redirected to the new URL.
+
+Limitations and observations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- By default, redirects only apply on pages that don't exist.
+  **Forced redirects** allow you to apply redirects on existing pages,
+  but incur a small performance penalty, so aren't enabled by default.
+  You can ask for them to be enabled via support.
+- Redirects aren't applied on :doc:`previews of pull requests </pull-requests>`.
+  You should treat pull request previews as temporary.
+- You can redirect to URLs outside Read the Docs,
+  just include the protocol in ``To URL``, e.g ``https://example.com``.
+- A wildcard can be used at the end of ``From URL`` (suffix wildcard) to redirect all pages matching a prefix.
+  Prefix and infix wildcards are not supported.
+- If a wildcard is used in ``From URL``,
+  the part of the URL that matches the wildcard can be used in ``To URL`` with the ``:splat`` placeholder.
+- Redirects without a wildcard match paths with or without a trailing slash,
+  e.g. ``/install`` matches ``/install`` and ``/install/``.
+- The order of redirects matters.
+  If multiple redirects match the same URL,
+  the first one will be applied.
+  The order of redirects :ref:`can be changed from your project's dashboard <guides/redirects:Changing the order of redirects>`.
+
+Examples
+~~~~~~~~
+
+Redirecting a page
+``````````````````
 
 Say you move the ``example.html`` page into a subdirectory of examples: ``examples/intro.html``.
-You would set the following configuration::
+You can create a redirect with the following configuration::
 
     Type: Page Redirect
     From URL: /example.html
     To URL: /examples/intro.html
 
-**Page Redirects apply to all versions of your documentation.**
-Because of this,
-the ``/`` at the start of the ``From URL`` doesn't include the ``/$lang/$version`` prefix (e.g.
-``/en/latest``), but just the version-specific part of the URL.
-If you want to set redirects only for some languages or some versions, you should use
-:ref:`user-defined-redirects:exact redirects` with the fully-specified path.
+Users will now be redirected:
 
-Exact redirects
-~~~~~~~~~~~~~~~
+- From ``https://docs.example.com/en/latest/example.html``
+  to ``https://docs.example.com/en/latest/examples/intro.html``.
+- From ``https://docs.example.com/en/stable/example.html``
+  to ``https://docs.example.com/en/stable/examples/intro.html``.
 
-*Exact Redirects* are for redirecting a single URL,
-taking into account the full URL (including language and version).
-
-You can also redirect a subset of URLs by including the ``$rest`` keyword
-at the end of the ``From URL``.
-
-Exact redirects examples
-^^^^^^^^^^^^^^^^^^^^^^^^
-
-Redirecting a single URL
-````````````````````````
-
-Say you're moving ``docs.example.com`` to Read the Docs and want to redirect traffic
-from an old page at ``https://docs.example.com/dev/install.html`` to a new URL
-of ``https://docs.example.com/en/latest/installing-your-site.html``.
-
-The example configuration would be::
+If you want this redirect to apply to a specific version of your documentation,
+you can create a redirect with the following configuration::
 
     Type: Exact Redirect
-    From URL: /dev/install.html
-    To URL:   /en/latest/installing-your-site.html
+    From URL: /en/latest/example.html
+    To URL: /en/latest/examples/intro.html
 
-Your users query would now redirect in the following manner::
+.. note::
 
-        docs.example.com/dev/install.html ->
-        docs.example.com/en/latest/installing-your-site.html
+   Use the desired version and language instead of ``latest`` and ``en``.
 
-Note that you should insert the desired language for "en" and version for "latest" to
-achieve the desired redirect.
+Redirecting a directory
+```````````````````````
 
-Redirecting a whole sub-path to a different one
-```````````````````````````````````````````````
+Say you rename the ``/api/`` directory to ``/api/v1/``.
+Instead of creating a redirect for each page in the directory,
+you can use a wildcard to redirect all pages in that directory::
 
-*Exact Redirects* could be also useful to redirect a whole sub-path to a different one by using a special ``$rest`` keyword in the "From URL".
+    Type: Page Redirect
+    From URL: /api/*
+    To URL: /api/v1/:splat
+
+Users will now be redirected:
+
+- From ``https://docs.example.com/en/latest/api/``
+  to ``https://docs.example.com/en/latest/api/v1/``.
+- From ``https://docs.example.com/en/latest/api/projects.html``
+  to ``https://docs.example.com/en/latest/api/v1/projects.html``.
+
+If you want this redirect to apply to a specific version of your documentation,
+you can create a redirect with the following configuration::
+
+    Type: Exact Redirect
+    From URL: /en/latest/api/*
+    To URL: /en/latest/api/v1/:splat
+
+.. note::
+
+   Use the desired version and language instead of ``latest`` and ``en``.
+
+Redirecting a directory to a single page
+````````````````````````````````````````
+
+Say you put the contents of the ``/examples/`` directory into a single page at ``/examples.html``.
+You can use a wildcard to redirect all pages in that directory to the new page::
+
+    Type: Page Redirect
+    From URL: /examples/*
+    To URL: /examples.html
+
+Users will now be redirected:
+
+- From ``https://docs.example.com/en/latest/examples/``
+  to ``https://docs.example.com/en/latest/examples.html``.
+- From ``https://docs.example.com/en/latest/examples/intro.html``
+  to ``https://docs.example.com/en/latest/examples.html``.
+
+If you want this redirect to apply to a specific version of your documentation,
+you can create a redirect with the following configuration::
+
+    Type: Exact Redirect
+    From URL: /en/latest/examples/*
+    To URL: /en/latest/examples.html
+
+.. note::
+
+   Use the desired version and language instead of ``latest`` and ``en``.
+
+Redirecting a page to the latest version
+````````````````````````````````````````
+
+Say you want your users to always be redirected to the latest version of a page,
+your security policy (``/security.html``) for example.
+You can use a wildcard with a forced redirect to redirect all versions of that page to the latest version::
+
+    Type: Page Redirect
+    From URL: /security.html
+    To URL: https://docs.example.com/en/latest/security.html
+    Force Redirect: True
+
+Users will now be redirected:
+
+- From ``https://docs.example.com/en/v1.0/security.html``
+  to ``https://docs.example.com/en/latest/security.html``.
+- From ``https://docs.example.com/en/v2.5/security.html``
+  to ``https://docs.example.com/en/latest/security.html``.
+
+.. note::
+
+   ``To URL`` includes the domain, this is required,
+   otherwise the redirect will be relative to the current version,
+   resulting in a redirect to ``https://docs.example.com/en/v1.0/en/latest/security.html``.
+
+Redirecting an old version to a new one
+```````````````````````````````````````
+
 Let's say that you want to redirect your readers of your version ``2.0`` of your documentation under ``/en/2.0/`` because it's deprecated,
 to the newest ``3.0`` version of it at ``/en/3.0/``.
-
-This example would be::
+You can use an exact redirect to do so::
 
   Type: Exact Redirect
-  From URL: /en/2.0/$rest
-  To URL: /en/3.0/
+  From URL: /en/2.0/*
+  To URL: /en/3.0/:splat
 
-The readers of your documentation will now be redirected as::
+Users will now be redirected:
 
-  docs.example.com/en/2.0/dev/install.html ->
-  docs.example.com/en/3.0/dev/install.html
+- From ``https://docs.example.com/en/2.0/dev/install.html``
+  to ``https://docs.example.com/en/3.0/dev/install.html``.
 
-Similarly, if you maintain several branches of your documentation (e.g. ``3.0`` and
-``latest``) and decide to move pages in ``latest`` but not the older branches, you can use
-*Exact Redirects* to do so.
+.. note::
+
+   For this redirect to work, your old version must be disabled,
+   if the version is still active, you can use the ``Force Redirect`` option.
+
+Creating a shortlink
+````````````````````
+
+Say you want to redirect ``https://docs.example.com/security`` to ``https://docs.example.com/en/latest/security.html``,
+so it's easier to share the link to the page.
+You can create a redirect with the following configuration::
+
+    Type: Exact Redirect
+    From URL: /security
+    To URL: /en/latest/security.html
+
+Users will now be redirected:
+
+- From ``https://docs.example.com/security`` (no trailing slash)
+  to ``https://docs.example.com/en/latest/security.html``.
+- From ``https://docs.example.com/security/`` (trailing slash)
+  to ``https://docs.example.com/en/latest/security.html``.
+
+Migrating your docs to Read the Docs
+````````````````````````````````````
+
+Say that you previously had your docs hosted at ``https://docs.example.com/dev/``,
+and choose to migrate to Read the Docs with support for multiple versions and translations.
+Your documentation will now be served at ``https://docs.example.com/en/latest/``,
+but your users may have bookmarks saved with the old URL structure, for example ``https://docs.example.com/dev/install.html``.
+
+You can use an exact redirect with a wildcard to redirect all pages from the old URL structure to the new one::
+
+   Type: Exact Redirect
+   From URL: /dev/*
+   To URL: /en/latest/:splat
+
+Users will now be redirected:
+
+- From ``https://docs.example.com/dev/install.html``
+  to ``https://docs.example.com/en/latest/install.html``.
 
 Migrating your documentation to another domain
 ``````````````````````````````````````````````
 
-You can use an exact redirect to migrate your documentation to another domain,
+You can use an exact redirect with the force option to migrate your documentation to another domain,
 for example::
 
   Type: Exact Redirect
-  From URL: /$rest
+  From URL: /*
   To URL: https://newdocs.example.com/
   Force Redirect: True
 
-Then all pages will redirect to the new domain, for example
-``https://docs.example.com/en/latest/install.html`` will redirect to
-``https://newdocs.example.com/en/latest/install.html``.
+Users will now be redirected:
 
-Sphinx redirects
-~~~~~~~~~~~~~~~~
+- From ``https://docs.example.com/en/latest/install.html``
+  to ``https://newdocs.example.com/en/latest/install.html``.
 
-We also support redirects for changing the type of documentation Sphinx is building.
-If you switch between *HTMLDir* and *HTML*, your URLs will change.
-A page at ``/en/latest/install.html`` will be served at ``/en/latest/install/``,
-or vice versa.
-The built in redirects for this will handle redirecting users appropriately.
+Changing your Sphinx builder from ``html`` to ``dirhtml``
+`````````````````````````````````````````````````````````
+
+When you change your Sphinx builder from ``html`` to ``dirhtml``,
+all your URLs will change from ``/page.html`` to ``/page/``.
+You can create a redirect of type ``HTML to clean URL`` to redirect all your old URLs to the new style.
