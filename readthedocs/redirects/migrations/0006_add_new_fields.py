@@ -35,8 +35,9 @@ class Migration(migrations.Migration):
             name="position",
             field=models.PositiveIntegerField(
                 default=0,
-                null=True,
                 help_text="Order of execution of the redirect.",
+                null=True,
+                verbose_name="Position",
             ),
         ),
         migrations.AlterField(
@@ -70,5 +71,13 @@ class Migration(migrations.Migration):
                 max_length=255,
                 verbose_name="Redirect Type",
             ),
+        ),
+        migrations.AlterModelOptions(
+            name="redirect",
+            options={
+                "ordering": ("position", "-update_dt"),
+                "verbose_name": "redirect",
+                "verbose_name_plural": "redirects",
+            },
         ),
     ]
