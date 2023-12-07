@@ -726,6 +726,14 @@ class ProjectRedirectsUpdate(ProjectRedirectsMixin, UpdateView):
 
 
 class ProjectRedirectsInsert(ProjectRedirectsMixin, GenericModelView):
+    """
+    Insert a redirect in a specific position.
+
+    This is done by changing the position of the redirect,
+    after saving the redirect, all other positions are updated
+    automatically.
+    """
+
     http_method_names = ["post"]
 
     def post(self, request, *args, **kwargs):

@@ -113,8 +113,6 @@ Exact redirects
 *Exact Redirects* take into account the full URL (including language and version),
 allowing you to create a redirect for a specific version or language of your documentation.
 
-.. _Sphinx redirects:
-
 Clean/HTML URLs redirects
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
