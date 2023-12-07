@@ -726,6 +726,7 @@ class ProjectRedirectsUpdate(ProjectRedirectsMixin, UpdateView):
 
 
 class ProjectRedirectsInsert(ProjectRedirectsMixin, GenericModelView):
+
     """
     Insert a redirect in a specific position.
 
