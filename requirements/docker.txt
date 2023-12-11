@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.29.6
+boto3==1.33.11
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.32.6
+botocore==1.33.11
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -80,7 +80,7 @@ cron-descriptor==1.4.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==41.0.5
+cryptography==41.0.7
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -106,7 +106,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.7
+django==4.2.8
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -149,7 +149,7 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
-django-filter==23.4
+django-filter==23.5
     # via -r requirements/pip.txt
 django-formtools==2.3
     # via -r requirements/pip.txt
@@ -201,7 +201,7 @@ elastic-transport==8.10.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.11.0
+elasticsearch==8.11.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -232,7 +232,7 @@ idna==3.6
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==8.18.0
+ipython==8.18.1
     # via ipdb
 jedi==0.19.1
     # via ipython
@@ -282,7 +282,7 @@ pdbpp==0.10.3
     # via -r requirements/docker.in
 pexpect==4.9.0
     # via ipython
-platformdirs==4.0.0
+platformdirs==4.1.0
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -367,7 +367,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rich==13.7.0
     # via -r requirements/docker.in
-s3transfer==0.7.0
+s3transfer==0.8.2
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -405,9 +405,9 @@ tomli==2.0.1
     #   ipdb
     #   pyproject-api
     #   tox
-tox==4.11.3
+tox==4.11.4
     # via -r requirements/docker.in
-traitlets==5.13.0
+traitlets==5.14.0
     # via
     #   ipython
     #   matplotlib-inline
@@ -444,7 +444,7 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.24.7
+virtualenv==20.25.0
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -452,7 +452,7 @@ wcwidth==0.2.12
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.6.4
+websocket-client==1.7.0
     # via
     #   -r requirements/pip.txt
     #   docker
