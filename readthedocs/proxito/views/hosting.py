@@ -268,8 +268,9 @@ class AddonsResponse:
         if version:
             version_downloads = version.get_downloads(pretty=True).items()
 
+        main_project = project.main_language_project or project
         project_translations = (
-            project.translations.all().only("language").order_by("language")
+            main_project.translations.all().only("language").order_by("language")
         )
         # Make one DB query here and then check on Python code
         # TODO: make usage of ``Project.addons.<name>_enabled`` to decide if enabled
