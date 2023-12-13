@@ -225,11 +225,10 @@ class BuildSerializer(FlexFieldsModelSerializer):
 
 class NotificationMessageSerializer(serializers.Serializer):
     id = serializers.SlugField()
-    # TODO: how do we render these string formatted with the Notifcation instance from here?
     header = serializers.CharField(source="get_rendered_header")
     body = serializers.CharField(source="get_rendered_body")
     type = serializers.CharField()
-    icon = serializers.CharField()
+    icon = serializers.CharField(source="get_display_icon")
     icon_style = serializers.CharField()
 
     class Meta:

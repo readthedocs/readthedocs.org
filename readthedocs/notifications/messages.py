@@ -12,7 +12,7 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 
-from .constants import ERROR, INFO, SOLID, WARNING
+from .constants import ERROR, INFO, NOTE, SOLID, TIP, WARNING
 
 
 class Message:
@@ -42,6 +42,12 @@ class Message:
             return "fa-exclamation"
         if self.type == WARNING:
             return "fa-triangle-exclamation"
+        if self.type == INFO:
+            return "fa-????"
+        if self.type == NOTE:
+            return "fa-????"
+        if self.type == TIP:
+            return "fa-????"
 
     def get_rendered_header(self):
         return self.header.format(**self.format_values)
