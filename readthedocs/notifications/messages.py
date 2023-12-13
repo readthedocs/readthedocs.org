@@ -378,11 +378,58 @@ SYMLINK_MESSAGES = [
     ),
 ]
 
+# TODO: think a way to define these notifications from other apps.
+# Maybe implement a "registry.add(messages)" that updates the available messages?
+DOMAIN_MESSAGES = [
+    Message(
+        id="project:domain:validation-pending",
+        header=_("Pending configuration of custom domain: {domain}"),
+        body=_(
+            """
+            The configuration of your custom domain <code>{domain}</code> is pending.
+            Go to the <a href="{domain_url}">domain page</a> and follow the instructions to complete it.
+            """
+        ),
+        type=INFO,
+    ),
+    # TODO: the custom domain expired notification requires a periodic task to
+    # remove the old notification and create a new one pointing to this
+    # ``message_id``
+    Message(
+        id="project:domain:validation-expired",
+        header=_("Validation of custom domain expired: {domain}"),
+        body=_(
+            """
+            The validation period of your custom domain <code>{domain}</code> has ended.
+            Go to the <a href="{domain_url}">domain page</a> and click on "Save" to restart the process.
+            """
+        ),
+        type=INFO,
+    ),
+]
+
+SUBSCRIPTION_MESSAGES = []
+USER_MESSAGES = [
+    Message(
+        id="user:email:validation-pending",
+        header=_("You primary email is pending for validation."),
+        body=_(
+            """
+            Your primary email address is not verified.
+            Please <a href="{account_email_url}">verify it here</a>.
+            """
+        ),
+        type=INFO,
+    ),
+]
+
 # Merge all the notifications into one object
 NOTIFICATION_MESSAGES = {}
 for message in itertools.chain(
     CONFIG_YAML_MESSAGES,
     BUILD_MKDOCS_MESSAGES,
     BUILD_MESSAGES,
+    SUBSCRIPTION_MESSAGES,
+    USER_MESSAGES,
 ):
     NOTIFICATION_MESSAGES[message.id] = message

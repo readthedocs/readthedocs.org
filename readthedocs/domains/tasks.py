@@ -30,6 +30,11 @@ def email_pending_custom_domains(number_of_emails=3):
     for domain in queryset:
         for user in AdminPermission.admins(domain.project):
             # TODO: migrate this to the new system
+            #
+            # Here, we want to create only one notification attached to a Project,
+            # but send the email to all the users?
+            #
+            # or do we want to create a notification per-user?
             notification = PendingCustomDomainValidation(
                 context_object=domain,
                 request=HttpRequest(),
