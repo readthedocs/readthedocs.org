@@ -4,10 +4,6 @@ import markdown
 from django.conf import settings
 from django.core.mail import send_mail
 from django.template import Context, Engine
-from messages_extends import constants as message_constants
-
-from readthedocs.notifications import SiteNotification
-from readthedocs.notifications.backends import SiteBackend
 
 log = structlog.get_logger(__name__)
 
@@ -51,7 +47,9 @@ def contact_users(
     sent_notifications = set()
     failed_notifications = set()
 
-    backend = SiteBackend(request=None)
+    # TODO: migrate this to ``Notification.objects.create()``
+    #
+    # backend = SiteBackend(request=None)
 
     engine = Engine.get_default()
     notification_template = engine.from_string(notification_content or "")
@@ -63,10 +61,7 @@ def contact_users(
     # TODO: migrate this notification to the new notifications system.
     # This notification are currently tied to a particular user.
     # However, in the new system they will be tied to a Project.
-    class TempNotification(SiteNotification):
-        if sticky_notification:
-            success_level = message_constants.SUCCESS_PERSISTENT
-
+    class TempNotification:
         def render(self, *args, **kwargs):
             return markdown.markdown(
                 notification_template.render(Context(self.get_context_data()))
@@ -83,12 +78,11 @@ def contact_users(
         if notification_content:
             notification = TempNotification(
                 user=user,
-                success=True,
                 extra_context=context,
             )
             try:
                 if not dryrun:
-                    backend.send(notification)
+                    notification.send()
                 else:
                     # Check we can render the notification with the context properly
                     log.debug(

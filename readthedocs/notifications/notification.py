@@ -8,48 +8,45 @@ from django.template import Context, Template
 from django.template.loader import render_to_string
 
 from readthedocs.core.context_processors import readthedocs_processor
+from readthedocs.core.utils import send_email
 
 from . import constants
-from .backends import send_notification
 
 log = structlog.get_logger(__name__)
 
 
-# NOTE: this Notification class should be renamed to EmailNotification,
-# since it won't share too much code with the SiteNotification anymore.
+# TODO: remove this, it's just a quick test for QA from the console.
 #
-# We can extract the shared logic if we want,
-# but I don't think there is going to be too much in common.
-# SiteNotification won't use render from TXT/HTML files.
-#
-class Notification:
+# from readthedocs.domains.notifications import PendingCustomDomainValidation
+# domain = Domain.objects.get(domain='docs.humitos.com')
+# project = Project.objects.get(slug='test-builds')
+# user = User.objects.get(username='admin')
+# n = PendingCustomDomainValidation(context_object=domain, user=user)
+# n.send()
+
+
+class EmailNotification:
 
     """
     An unsent notification linked to an object.
 
     This class provides an interface to construct notification messages by
-    rendering Django templates. The ``Notification`` itself is not expected
-    to be persisted by the backends.
+    rendering Django templates and send them via email.
 
-    Call .send() to send the notification.
+    Call .send() to send the email notification.
     """
 
     name = None
     context_object_name = "object"
     app_templates = None
-    level = constants.INFO
     subject = None
     user = None
-    send_email = True
     extra_tags = ""
 
-    def __init__(self, context_object, request=None, user=None, extra_context=None):
-        self.object = context_object
-        self.request = request or HttpRequest()
+    def __init__(self, context_object, user, extra_context=None):
+        self.context_object = context_object
         self.extra_context = extra_context or {}
         self.user = user
-        if self.user is None:
-            self.user = request.user
 
     def get_subject(self):
         template = Template(self.subject)
@@ -57,39 +54,35 @@ class Notification:
 
     def get_context_data(self):
         context = {
-            self.context_object_name: self.object,
-            # NOTE: I checked the notifications templates, and the "request" attribute is not used.
-            # We can remove this complexity.
-            "request": self.request,
+            self.context_object_name: self.context_object,
             "production_uri": "{scheme}://{host}".format(
                 scheme="https",
                 host=settings.PRODUCTION_DOMAIN,
             ),
         }
         context.update(self.extra_context)
-        context.update(readthedocs_processor(self.request))
+        context.update(readthedocs_processor(None))
         return context
 
-    def get_template_names(self, backend_name, source_format=constants.HTML):
+    def get_template_names(self, source_format=constants.HTML):
         names = []
-        if self.object and isinstance(self.object, models.Model):
-            meta = self.object._meta
+        if self.context_object and isinstance(self.context_object, models.Model):
+            meta = self.context_object._meta
             names.append(
                 "{app}/notifications/{name}_{backend}.{source_format}".format(
                     app=self.app_templates or meta.app_label,
                     name=self.name or meta.model_name,
-                    backend=backend_name,
+                    backend="email",
                     source_format=source_format,
                 ),
             )
             return names
 
-        raise AttributeError()
+        raise AttributeError("Template for this email not found.")
 
-    def render(self, backend_name, source_format=constants.HTML):
+    def render(self, source_format=constants.HTML):
         return render_to_string(
             template_name=self.get_template_names(
-                backend_name=backend_name,
                 source_format=source_format,
             ),
             context=self.get_context_data(),
@@ -97,20 +90,25 @@ class Notification:
 
     def send(self):
         """
-        Trigger notification send through all notification backends.
+        Send templated notification emails through our standard email backend.
 
-        In order to limit which backends a notification will send out from,
-        override this method and duplicate the logic from
-        :py:func:`send_notification`, taking care to limit which backends are
-        avoided.
+        The content body is first rendered from an on-disk template, then passed
+        into the standard email templates as a string.
         """
 
-        # NOTE: the concept of "backend" can be removed because we won't have multiple backends.
-        # Just overriding the `send()` method will be enough and reduce the complexity.
-        send_notification(self.request, self)
+        template = self.get_template_names(source_format=constants.TEXT)
+        template_html = self.get_template_names(source_format=constants.HTML)
+        send_email(
+            recipient=self.user.email,
+            subject=self.get_subject(),
+            template=template,
+            template_html=template_html,
+            context=self.get_context_data(),
+        )
 
 
-class SiteNotification(Notification):
+# NOTE: this class is replaced by the new Notification model.
+class SiteNotification:
 
     """
     Simple notification to show *only* on site messages.

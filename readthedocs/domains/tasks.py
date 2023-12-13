@@ -1,11 +1,12 @@
 """Tasks related to custom domains."""
 
 from django.conf import settings
-from django.http import HttpRequest
+from django.urls import reverse
 from django.utils import timezone
 
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.domains.notifications import PendingCustomDomainValidation
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Domain
 from readthedocs.worker import app
 
@@ -28,16 +29,24 @@ def email_pending_custom_domains(number_of_emails=3):
         validation_process_start__date__in=dates
     )
     for domain in queryset:
+        # NOTE: this site notification was attach to every single user.
+        # The new behavior is to attach it to the project.
+        #
+        # We send an email notification to all the project's admins.
+        Notification.objects.create(
+            message_id="project:domain:validation-pending",
+            attached_to=domain.project,
+            format_values={
+                "domain": domain.domain,
+                "domain_url": reverse(
+                    "projects_domains_edit", args=[domain.project.slug, domain.pk]
+                ),
+            },
+        )
+
         for user in AdminPermission.admins(domain.project):
-            # TODO: migrate this to the new system
-            #
-            # Here, we want to create only one notification attached to a Project,
-            # but send the email to all the users?
-            #
-            # or do we want to create a notification per-user?
             notification = PendingCustomDomainValidation(
                 context_object=domain,
-                request=HttpRequest(),
                 user=user,
             )
             notification.send()

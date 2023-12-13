@@ -1,13 +1,10 @@
 """Notifications related to custom domains."""
 
-from readthedocs.notifications import Notification
-from readthedocs.notifications.constants import REQUIREMENT
+from readthedocs.notifications import EmailNotification
 
 
-# TODO: migrate this notification to the new system
-class PendingCustomDomainValidation(Notification):
+class PendingCustomDomainValidation(EmailNotification):
     app_templates = "domains"
     context_object_name = "domain"
     name = "pending_domain_configuration"
     subject = "Pending configuration of custom domain {{ domain.domain }}"
-    level = REQUIREMENT
