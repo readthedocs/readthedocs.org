@@ -535,7 +535,7 @@ class Project(models.Model):
 
     notifications = GenericRelation(
         SiteNotification,
-        related_query_name="build",
+        related_query_name="project",
         content_type_field="attached_to_content_type",
         object_id_field="attached_to_id",
     )
