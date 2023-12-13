@@ -475,12 +475,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # TODO: handle this `ConfigError` as a `BuildUserError` in the
         # following block
         if isinstance(exc, ConfigError):
+            # TODO: create ConfigError messages under
+            # "readthedocs.notification.messages.CONFIG_YAML_MESSAGES"
             message_id = "build:config-yaml:generic"
 
         # Known errors in our application code (e.g. we couldn't connect to
         # Docker API). Report a generic message to the user.
         elif isinstance(exc, BuildAppError):
-            message_id = "build:app:generic-with-build-id"
+            message_id = BuildAppError.GENERIC_WITH_BUILD_ID
 
         # Known errors in the user's project (e.g. invalid config file, invalid
         # repository, command failed, etc). Report the error back to the user
@@ -501,7 +503,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             # Note we are using `log.error(exc_info=...)` instead of `log.exception`
             # because this is not executed inside a try/except block.
             log.error("Build failed with unhandled exception.", exc_info=exc)
-            message_id = "build:app:generic-with-build-id"
+            message_id = BuildAppError.GENERIC_WITH_BUILD_ID
 
         # Grab the format values from the exception in case it contains
         format_values = exc.format_values if hasattr(exc, "format_values") else None
@@ -600,7 +602,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 )
                 raise BuildUserError(
                     BuildUserError.BUILD_OUTPUT_IS_NOT_A_DIRECTORY,
-                    artifact_type=artifact_type,
+                    format_values={
+                        "artifact_type": artifact_type,
+                    },
                 )
 
             # Check if there are multiple files on artifact directories.
@@ -699,6 +703,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 version_slug=self.data.version.slug,
             )
             # TODO: update this code to add the notification to the Build instance
+            #
+            # TODO: think about how to de-duplicate notifications.
+            # It may happens the build is retried multiple times.
             self.data.build['error'] = exc.message
             self.update_build(state=BUILD_STATE_TRIGGERED)
 
