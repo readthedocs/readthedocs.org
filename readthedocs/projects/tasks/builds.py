@@ -370,7 +370,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             self.retry(
                 exc=BuildMaxConcurrencyError(
                     BuildMaxConcurrencyError.LIMIT_REACHED,
-                    limit=max_concurrent_builds,
+                    format_values={
+                        "limit": max_concurrent_builds,
+                    },
                 )
             )
 
