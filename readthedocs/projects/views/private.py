@@ -39,8 +39,10 @@ from readthedocs.builds.models import (
 )
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
+from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.invitations.models import Invitation
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
@@ -71,7 +73,6 @@ from readthedocs.projects.models import (
     ProjectRelationship,
     WebHook,
 )
-from readthedocs.projects.notifications import EmailConfirmNotification
 from readthedocs.projects.tasks.utils import clean_project_resources
 from readthedocs.projects.utils import get_csv_file
 from readthedocs.projects.views.base import ProjectAdminMixin
@@ -113,18 +114,23 @@ class ProjectDashboard(PrivateViewMixin, ListView):
 
     def validate_primary_email(self, user):
         """
-        Sends a persistent error notification.
+        Sends a dismissable site notification to this user.
 
         Checks if the user has a primary email or if the primary email
-        is verified or not. Sends a persistent error notification if
+        is verified or not. Sends a dismissable notification if
         either of the condition is False.
         """
         email_qs = user.emailaddress_set.filter(primary=True)
         email = email_qs.first()
         if not email or not email.verified:
-            # TODO: migrate this notification to the new system
-            notification = EmailConfirmNotification(user=user, success=False)
-            notification.send()
+            Notification.objects.add(
+                attached_to=user,
+                message_id=MESSAGE_EMAIL_VALIDATION_PENDING,
+                dismissable=True,
+                format_values={
+                    "account_email_url": reverse("account_email"),
+                },
+            )
 
     def get_queryset(self):
         sort = self.request.GET.get('sort')

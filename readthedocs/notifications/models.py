@@ -7,6 +7,7 @@ from django_extensions.db.models import TimeStampedModel
 
 from .constants import CANCELLED, DISMISSED, READ, UNREAD
 from .messages import registry
+from .querysets import NotificationQuerySet
 
 
 class Notification(TimeStampedModel):
@@ -46,6 +47,10 @@ class Notification(TimeStampedModel):
 
     # Store values known at creation time that are required to render the final message
     format_values = models.JSONField(null=True, blank=True)
+
+    # Use a custom manager with an ``.add()`` method that deduplicates
+    # notifications attached to the same object.
+    objects = NotificationQuerySet.as_manager()
 
     def __str__(self):
         return self.message_id

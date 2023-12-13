@@ -33,7 +33,7 @@ def email_pending_custom_domains(number_of_emails=3):
         # The new behavior is to attach it to the project.
         #
         # We send an email notification to all the project's admins.
-        Notification.objects.create(
+        Notification.objects.add(
             message_id="project:domain:validation-pending",
             attached_to=domain.project,
             format_values={
