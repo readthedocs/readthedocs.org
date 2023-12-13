@@ -52,5 +52,13 @@ class Notification(TimeStampedModel):
 
     def get_message(self):
         message = NOTIFICATION_MESSAGES.get(self.message_id)
-        message.set_format_values(self.format_values)
+
+        # Pass the instance attached to this notification
+        all_format_values = {
+            "instance": self.attached_to,
+        }
+
+        # Pass the values stored in the database
+        all_format_values.update(self.format_values or {})
+        message.set_format_values(all_format_values)
         return message

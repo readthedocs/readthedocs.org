@@ -15,9 +15,10 @@ Then the header/body texts should be defined in ``readthedocs/notifications/mess
 
 class BuildBaseException(Exception):
 
-    def __init__(self, message_id, **kwargs):
+    def __init__(self, message_id, format_values=None, **kwargs):
         self.message_id = message_id
-        super().__init__("Build exception", **kwargs)
+        self.format_values = format_values
+        super().__init__("Build user exception", **kwargs)
 
 
 class BuildAppError(BuildBaseException):
@@ -41,6 +42,8 @@ class BuildUserError(BuildBaseException):
     NO_CONFIG_FILE_DEPRECATED = "build:user:config:no-config-file"
     BUILD_IMAGE_CONFIG_KEY_DEPRECATED = "build:user:config:build-image-deprecated"
     BUILD_OS_REQUIRED = "build:user:config:build-os-required"
+
+    TEST_FORMAT_VALUES = "build:user:test-format-values"
 
 
 class BuildMaxConcurrencyError(BuildUserError):

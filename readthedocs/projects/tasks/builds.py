@@ -501,8 +501,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.error("Build failed with unhandled exception.", exc_info=exc)
             message_id = "build:app:generic-with-build-id"
 
-        # TODO: finish sending "format_values" via the API
-        format_values = exc.kwargs if hasattr(exc, "kwargs") else None
+        # Grab the format values from the exception in case it contains
+        format_values = exc.format_values if hasattr(exc, "format_values") else None
 
         # POST the notification via the APIv2
         self.data.api_client.notifications.post(

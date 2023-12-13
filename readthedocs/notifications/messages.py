@@ -263,6 +263,23 @@ BUILD_MESSAGES = [
         ),
         type=ERROR,
     ),
+    # TODO: remove this test for a message with format values
+    Message(
+        id=BuildUserError.TEST_FORMAT_VALUES,
+        header=_("Test format values. Build: {instance.pk}"),
+        # Note the message receives the instance it's attached to
+        # and could be use it to inject related data
+        body=_(
+            """
+            Some of the values passed in "format_values":
+
+            message: {message}
+            another: {another}
+            number: {number}
+                """
+        ),
+        type=ERROR,
+    ),
 ]
 
 BUILD_MKDOCS_MESSAGES = [

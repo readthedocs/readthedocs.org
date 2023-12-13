@@ -110,6 +110,22 @@ class BuildDirector:
         # self.run_build_job("pre_checkout")
         self.checkout()
 
+        # FIXME: remove this example of how to raise and exception + notification from the builder.
+        # raise BuildUserError(BuildUserError.BUILD_OS_REQUIRED)
+
+        # FIXME: remove this example of a notification that uses "instance" format values
+        # raise BuildAppError(BuildAppError.GENERIC_WITH_BUILD_ID)
+
+        # FIXME: remove this example of a notification that uses extra format values
+        raise BuildUserError(
+            BuildUserError.TEST_FORMAT_VALUES,
+            format_values={
+                "message": "My message",
+                "another": "Another text",
+                "number": 42,
+            },
+        )
+
         # Output the path for the config file used.
         # This works as confirmation for us & the user about which file is used,
         # as well as the fact that *any* config file is used.
