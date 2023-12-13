@@ -6,7 +6,7 @@ from django.utils.translation import gettext_noop as _
 from django_extensions.db.models import TimeStampedModel
 
 from .constants import CANCELLED, DISMISSED, READ, UNREAD
-from .messages import NOTIFICATION_MESSAGES
+from .messages import registry
 
 
 class Notification(TimeStampedModel):
@@ -51,7 +51,7 @@ class Notification(TimeStampedModel):
         return self.message_id
 
     def get_message(self):
-        message = NOTIFICATION_MESSAGES.get(self.message_id)
+        message = registry.get(self.message_id)
 
         # Pass the instance attached to this notification
         all_format_values = {

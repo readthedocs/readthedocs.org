@@ -1,4 +1,3 @@
-import itertools
 
 from django.utils.translation import gettext_noop as _
 
@@ -378,36 +377,6 @@ SYMLINK_MESSAGES = [
     ),
 ]
 
-# TODO: think a way to define these notifications from other apps.
-# Maybe implement a "registry.add(messages)" that updates the available messages?
-DOMAIN_MESSAGES = [
-    Message(
-        id="project:domain:validation-pending",
-        header=_("Pending configuration of custom domain: {domain}"),
-        body=_(
-            """
-            The configuration of your custom domain <code>{domain}</code> is pending.
-            Go to the <a href="{domain_url}">domain page</a> and follow the instructions to complete it.
-            """
-        ),
-        type=INFO,
-    ),
-    # TODO: the custom domain expired notification requires a periodic task to
-    # remove the old notification and create a new one pointing to this
-    # ``message_id``
-    Message(
-        id="project:domain:validation-expired",
-        header=_("Validation of custom domain expired: {domain}"),
-        body=_(
-            """
-            The validation period of your custom domain <code>{domain}</code> has ended.
-            Go to the <a href="{domain_url}">domain page</a> and click on "Save" to restart the process.
-            """
-        ),
-        type=INFO,
-    ),
-]
-
 SUBSCRIPTION_MESSAGES = []
 USER_MESSAGES = [
     Message(
@@ -423,13 +392,32 @@ USER_MESSAGES = [
     ),
 ]
 
-# Merge all the notifications into one object
-NOTIFICATION_MESSAGES = {}
-for message in itertools.chain(
-    CONFIG_YAML_MESSAGES,
-    BUILD_MKDOCS_MESSAGES,
-    BUILD_MESSAGES,
-    SUBSCRIPTION_MESSAGES,
-    USER_MESSAGES,
-):
-    NOTIFICATION_MESSAGES[message.id] = message
+
+class MessagesRegistry:
+    def __init__(self):
+        self.messages = {}
+
+    def add(self, messages):
+        if not isinstance(messages, list):
+            if not isinstance(messages, Message):
+                raise ValueError(
+                    "A message should be instance of Message or a list of Messages."
+                )
+
+            messages = [messages]
+
+        for message in messages:
+            if message.id in messages:
+                raise ValueError("A message with the same 'id' is already registered.")
+            self.messages[message.id] = message
+
+    def get(self, message_id):
+        return self.messages.get(message_id)
+
+
+registry = MessagesRegistry()
+registry.add(CONFIG_YAML_MESSAGES)
+registry.add(BUILD_MKDOCS_MESSAGES)
+registry.add(BUILD_MESSAGES)
+registry.add(SUBSCRIPTION_MESSAGES)
+registry.add(USER_MESSAGES)
