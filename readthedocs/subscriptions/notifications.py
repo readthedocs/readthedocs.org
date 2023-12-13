@@ -1,6 +1,3 @@
-# TODO: all these notification should be migrated to the new notification system.
-# Most / All of them will be attached to an Organization
-
 """Organization level notifications."""
 
 
@@ -11,13 +8,12 @@ from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.constants import DISABLE_AFTER_DAYS
 
 
-# NOTE: these notifications need to be re-written using the new system.
-# However, the email notification should keep being working as-is.
 class SubscriptionNotificationMixin:
 
     """Force to read templates from the subscriptions app."""
 
     app_templates = "subscriptions"
+    context_object_name = "organization"
 
 
 class TrialEndingNotification(SubscriptionNotificationMixin, EmailNotification):
@@ -25,7 +21,6 @@ class TrialEndingNotification(SubscriptionNotificationMixin, EmailNotification):
     """Trial is ending, nudge user towards subscribing."""
 
     name = "trial_ending"
-    context_object_name = "organization"
     subject = "Your trial is ending soon"
 
     @staticmethod
@@ -44,7 +39,6 @@ class SubscriptionRequiredNotification(
     """Trial has ended, push user into subscribing."""
 
     name = "subscription_required"
-    context_object_name = "organization"
     subject = "We hope you enjoyed your trial of Read the Docs!"
 
 
@@ -58,7 +52,6 @@ class SubscriptionEndedNotification(SubscriptionNotificationMixin, EmailNotifica
     """
 
     name = "subscription_ended"
-    context_object_name = "organization"
     subject = "Your subscription to Read the Docs has ended"
 
 
@@ -75,7 +68,6 @@ class OrganizationDisabledNotification(
     """
 
     name = "organization_disabled"
-    context_object_name = "organization"
     subject = "Your Read the Docs organization will be disabled soon"
 
     days_after_end = DISABLE_AFTER_DAYS
