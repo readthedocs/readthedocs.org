@@ -1,9 +1,12 @@
 """Organization level notifications."""
 
 
+from django.utils.translation import gettext_noop as _
 from djstripe import models as djstripe
 
 from readthedocs.notifications import EmailNotification
+from readthedocs.notifications.constants import INFO
+from readthedocs.notifications.messages import Message, registry
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.constants import DISABLE_AFTER_DAYS
 
@@ -81,22 +84,17 @@ class OrganizationDisabledNotification(
         return organizations
 
 
-# TODO: migrate this to the new system
-#
-# class OrganizationDisabledSiteNotification(
-#     SubscriptionNotificationMixin, SiteNotification
-# ):
-#     success_message = 'The organization "{{ object.name }}" is currently disabled. You need to <a href="{{ url }}">renew your subscription</a> to keep using Read the Docs.'  # noqa
-#     success_level = WARNING_PERSISTENT
-
-#     def get_context_data(self):
-#         context = super().get_context_data()
-#         context.update(
-#             {
-#                 "url": reverse(
-#                     "subscription_detail",
-#                     args=[self.object.slug],
-#                 ),
-#             }
-#         )
-#         return context
+MESSAGE_ORGANIZATION_DISABLED = "organization:disabled"
+messages = [
+    Message(
+        id=MESSAGE_ORGANIZATION_DISABLED,
+        header=_("Your organization has been disabled"),
+        body=_(
+            """
+            The organization "{instance.name}" is currently disabled. You need to <a href="{{ subscription_url }}">renew your subscription</a> to keep using Read the Docs
+            """
+        ),
+        type=INFO,
+    ),
+]
+registry.add(messages)
