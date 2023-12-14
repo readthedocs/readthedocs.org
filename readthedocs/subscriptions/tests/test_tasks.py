@@ -21,7 +21,6 @@ from readthedocs.subscriptions.tasks import (
     RTD_ORG_DEFAULT_STRIPE_SUBSCRIPTION_PRICE="trialing",
 )
 @mock.patch("readthedocs.notifications.backends.send_email")
-@mock.patch("readthedocs.notifications.storages.FallbackUniqueStorage")
 class DailyEmailTests(TestCase):
     def test_trial_ending(self, mock_storage_class, mock_send_email):
         """Trial ending daily email."""

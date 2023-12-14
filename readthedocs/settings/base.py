@@ -229,7 +229,6 @@ class CommunityBaseSettings(Settings):
             'annoying',
             'django_extensions',
             'crispy_forms',
-            'messages_extends',
             'django_elasticsearch_dsl',
             'django_filters',
             'polymorphic',
@@ -349,8 +348,6 @@ class CommunityBaseSettings(Settings):
             'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
         },
     ]
-
-    MESSAGE_STORAGE = 'readthedocs.notifications.storages.FallbackUniqueStorage'
 
     # TODO: remove this setting since it's not used anymore
     NOTIFICATION_BACKENDS = []
@@ -483,11 +480,6 @@ class CommunityBaseSettings(Settings):
         'quarter-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.utils.finish_inactive_builds',
             'schedule': crontab(minute='*/15'),
-            'options': {'queue': 'web'},
-        },
-        'every-three-hour-clear-persistent-messages': {
-            'task': 'readthedocs.core.tasks.clear_persistent_messages',
-            'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
         'every-day-delete-old-search-queries': {
