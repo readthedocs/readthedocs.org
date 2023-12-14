@@ -5,6 +5,8 @@ from django.db import models
 from django.utils.translation import gettext_noop as _
 from django_extensions.db.models import TimeStampedModel
 
+from readthedocs.core.context_processors import readthedocs_processor
+
 from .constants import CANCELLED, DISMISSED, READ, UNREAD
 from .messages import registry
 from .querysets import NotificationQuerySet
@@ -57,11 +59,16 @@ class Notification(TimeStampedModel):
 
     def get_message(self):
         message = registry.get(self.message_id)
+        if message is None:
+            raise ValueError(f"Message ID '{self.message_id}' not found in registry.")
 
         # Pass the instance attached to this notification
         all_format_values = {
             "instance": self.attached_to,
         }
+
+        # Always include global variables
+        all_format_values.update(readthedocs_processor(None))
 
         # Pass the values stored in the database
         all_format_values.update(self.format_values or {})
