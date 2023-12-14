@@ -14,16 +14,6 @@ from . import constants
 log = structlog.get_logger(__name__)
 
 
-# TODO: remove this, it's just a quick test for QA from the console.
-#
-# from readthedocs.domains.notifications import PendingCustomDomainValidation
-# domain = Domain.objects.get(domain='docs.humitos.com')
-# project = Project.objects.get(slug='test-builds')
-# user = User.objects.get(username='admin')
-# n = PendingCustomDomainValidation(context_object=domain, user=user)
-# n.send()
-
-
 class EmailNotification:
 
     """
