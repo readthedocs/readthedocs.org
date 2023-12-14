@@ -508,17 +508,8 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Grab the format values from the exception in case it contains
         format_values = exc.format_values if hasattr(exc, "format_values") else None
 
-        # POST the notification via the APIv2
-        self.data.api_client.notifications.post(
-            {
-                "attached_to": f'build/{self.data.build["id"]}',
-                "message_id": message_id,
-                "state": "unread",  # Optional
-                "dismissable": False,
-                "news": False,
-                "format_values": format_values,
-            }
-        )
+        # Attach the notification to the build
+        self.data.build_director.attach_notification(message_id, format_values)
 
         # Send notifications for unhandled errors
         if message_id not in self.exceptions_without_notifications:

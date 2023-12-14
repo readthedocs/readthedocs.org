@@ -117,14 +117,14 @@ class BuildDirector:
         # raise BuildAppError(BuildAppError.GENERIC_WITH_BUILD_ID)
 
         # FIXME: remove this example of a notification that uses extra format values
-        raise BuildUserError(
-            BuildUserError.TEST_FORMAT_VALUES,
-            format_values={
-                "message": "My message",
-                "another": "Another text",
-                "number": 42,
-            },
-        )
+        # raise BuildUserError(
+        #     BuildUserError.TEST_FORMAT_VALUES,
+        #     format_values={
+        #         "message": "My message",
+        #         "another": "Another text",
+        #         "number": 42,
+        #     },
+        # )
 
         # Output the path for the config file used.
         # This works as confirmation for us & the user about which file is used,
@@ -459,6 +459,14 @@ class BuildDirector:
 
     def run_build_commands(self):
         """Runs each build command in the build environment."""
+
+        self.attach_notification(
+            message_id=BuildUserError.BUILD_COMMANDS_IN_BETA,
+            format_values={
+                "config_file_link": "https://docs.readthedocs.io/page/build-customization.html#override-the-build-process",
+            },
+        )
+
         reshim_commands = (
             {"pip", "install"},
             {"conda", "create"},
@@ -783,3 +791,18 @@ class BuildDirector:
         # It will be saved when the API is hit.
         # This data will be used by the `/_/readthedocs-config.json` API endpoint.
         self.data.version.build_data = data
+
+    def attach_notification(
+        self, message_id, format_values, state="unread", dismissable=False, news=False
+    ):
+        """Attach a notification to build in progress using the APIv2."""
+        self.data.api_client.notifications.post(
+            {
+                "attached_to": f'build/{self.data.build["id"]}',
+                "message_id": message_id,
+                "state": state,  # Optional
+                "dismissable": dismissable,
+                "news": news,
+                "format_values": format_values,
+            }
+        )

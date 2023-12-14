@@ -44,6 +44,7 @@ class BuildUserError(BuildBaseException):
     BUILD_OS_REQUIRED = "build:user:config:build-os-required"
 
     TEST_FORMAT_VALUES = "build:user:test-format-values"
+    BUILD_COMMANDS_IN_BETA = "build:user:build-commands-config-key-in-beta"
 
 
 class BuildMaxConcurrencyError(BuildUserError):
