@@ -1,85 +1,61 @@
-# TODO: all the site notifications from this file should be re-implemented
-# using the new notification system.
-#
-# These notifications will be attached to a Project.
+"""Notifications related to OAuth."""
 
-
-from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from messages_extends.constants import ERROR_PERSISTENT
 
-from readthedocs.notifications import SiteNotification
-from readthedocs.notifications.constants import ERROR_NON_PERSISTENT
+from readthedocs.notifications.constants import ERROR
+from readthedocs.notifications.messages import Message, registry
 
-
-class AttachWebhookNotification(SiteNotification):
-    # Fail reasons
-    NO_PERMISSIONS = "no_permissions"
-    NO_ACCOUNTS = "no_accounts"
-
-    context_object_name = "provider"
-    success_message = _("Webhook successfully added.")
-    failure_message = {
-        NO_PERMISSIONS: _(
-            'Could not add webhook for {{ project.name }}. Make sure <a href="{{ url_docs_webhook }}">you have the correct {{ provider.name }} permissions</a>.',  # noqa
+MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS = "oauth:webhook:no-permissions"
+MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT = "oauth:webhook:no-account"
+MESSAGE_OAUTH_WEBHOOK_INVALID = "oauth:webhook:invalid"
+MESSAGE_OAUTH_BUILD_STATUS_FAILURE = "oauth:status:send-failed"
+messages = [
+    Message(
+        id=MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT,
+        header=_("Webhook not attached to this project"),
+        body=_(
+            """
+            Could not add webhook for {instance.name}.
+            Please <a href="{url_connect_account}">connect your {provider_name} account</a>.
+            """
         ),
-        NO_ACCOUNTS: _(
-            'Could not add webhook for {{ project.name }}. Please <a href="{{ url_connect_account }}">connect your {{ provider.name }} account</a>.',  # noqa
+        type=ERROR,
+    ),
+    Message(
+        id=MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS,
+        header=_("Webhook not attached to this project"),
+        body=_(
+            """
+            Could not add webhook for {instance.name}.
+            Make sure <a href="{url_docs_webhook}">you have the correct {provider_name} permissions</a>.
+            """
         ),
-    }
-
-    def get_context_data(self):
-        context = super().get_context_data()
-        project = self.extra_context.get("project")
-        context.update(
-            {
-                "url_connect_account": reverse(
-                    "projects_integrations",
-                    args=[project.slug],
-                ),
-                "url_docs_webhook": "http://docs.readthedocs.io/en/latest/webhooks.html",  # noqa
-            }
-        )
-        return context
-
-
-class InvalidProjectWebhookNotification(SiteNotification):
-    context_object_name = "project"
-    failure_level = ERROR_PERSISTENT
-    failure_message = _(
-        "The project {{ project.name }} doesn't have a valid webhook set up, "
-        "commits won't trigger new builds for this project. "
-        "See <a href='{{ url_integrations }}'>the project integrations</a> for more information.",
-    )  # noqa
-
-    def get_context_data(self):
-        context = super().get_context_data()
-        context.update(
-            {
-                "url_integrations": reverse(
-                    "projects_integrations",
-                    args=[self.object.slug],
-                ),
-            }
-        )
-        return context
-
-
-class GitBuildStatusFailureNotification(SiteNotification):
-    context_object_name = "project"
-    failure_level = ERROR_NON_PERSISTENT
-    failure_message = _(
-        "Could not send {{ provider_name }} build status report for {{ project.name }}. "
-        "Make sure you have the correct {{ provider_name }} repository permissions</a> and "
-        'your <a href="{{ url_connect_account }}">{{ provider_name }} account</a> '
-        "is connected to Read the Docs."
-    )  # noqa
-
-    def get_context_data(self):
-        context = super().get_context_data()
-        context.update(
-            {
-                "url_connect_account": reverse("socialaccount_connections"),
-            }
-        )
-        return context
+        type=ERROR,
+    ),
+    Message(
+        id=MESSAGE_OAUTH_WEBHOOK_INVALID,
+        header=_("The project doesn't have a valid webhook setup"),
+        body=_(
+            """
+        The project {instance.name} doesn't have a valid webhook set up,
+        commits won't trigger new builds for this project.
+        See <a href='{url_integrations}'>the project integrations</a> for more information.
+            """
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=MESSAGE_OAUTH_BUILD_STATUS_FAILURE,
+        header=_("{provier_name} build status report failed"),
+        body=_(
+            """
+        Could not send {provider_name} build status report for {instance.name}.
+        Make sure you have the correct {provider_name} repository permissions</a> and
+        your <a href="{url_connect_account}">{provider_name} account</a>
+        is connected to Read the Docs.
+            """
+        ),
+        type=ERROR,
+    ),
+]
+registry.add(messages)
