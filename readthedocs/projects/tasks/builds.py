@@ -472,16 +472,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 'id': self.data.build_pk,
             }
 
-        # TODO: handle this `ConfigError` as a `BuildUserError` in the
-        # following block
-        if isinstance(exc, ConfigError):
-            # TODO: create ConfigError messages under
-            # "readthedocs.notification.messages.CONFIG_YAML_MESSAGES"
-            message_id = "build:config-yaml:generic"
-
         # Known errors in our application code (e.g. we couldn't connect to
         # Docker API). Report a generic message to the user.
-        elif isinstance(exc, BuildAppError):
+        if isinstance(exc, BuildAppError):
             message_id = BuildAppError.GENERIC_WITH_BUILD_ID
 
         # Known errors in the user's project (e.g. invalid config file, invalid

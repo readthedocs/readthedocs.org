@@ -11,6 +11,7 @@ from django.conf import settings
 
 from readthedocs.config.utils import list_to_dict, to_dict
 from readthedocs.core.utils.filesystem import safe_open
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.constants import GENERIC
 
 from .find import find_one
@@ -73,14 +74,15 @@ INVALID_NAME = 'invalid-name'
 LATEST_CONFIGURATION_VERSION = 2
 
 
-# TODO: make these exception to inherit from `BuildUserError`
-class ConfigError(Exception):
+class ConfigError(BuildUserError):
 
-    """Base error for the rtd configuration file."""
+    GENERIC = "config:generic"
+    DEFAULT_PATH_NOT_FOUND = "config:default-path-not-found"
 
-    def __init__(self, message, code):
-        self.code = code
-        super().__init__(message)
+    # NOTE: this init method can be removed
+    # def __init__(self, message, code=None):
+    #     self.code = code
+    #     super().__init__(message)
 
 
 class ConfigFileNotFound(ConfigError):
@@ -938,7 +940,7 @@ def load(path, readthedocs_yaml_path=None):
     else:
         filename = find_one(path, CONFIG_FILENAME_REGEX)
         if not filename:
-            raise DefaultConfigFileNotFound()
+            raise ConfigError(ConfigError.DEFAULT_PATH_NOT_FOUND)
 
     # Allow symlinks, but only the ones that resolve inside the base directory.
     with safe_open(
