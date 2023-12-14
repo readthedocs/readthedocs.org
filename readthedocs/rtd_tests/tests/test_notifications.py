@@ -10,7 +10,7 @@ from django.test import TestCase
 from django.test.utils import override_settings
 
 from readthedocs.builds.models import Build
-from readthedocs.notifications import EmailNotification
+from readthedocs.notifications.email import EmailNotification
 
 
 @override_settings(

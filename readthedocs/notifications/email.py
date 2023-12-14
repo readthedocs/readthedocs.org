@@ -1,4 +1,4 @@
-"""Support for templating of notifications."""
+"""Email notifications."""
 
 import structlog
 from django.conf import settings

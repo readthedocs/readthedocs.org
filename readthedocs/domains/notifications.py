@@ -2,8 +2,8 @@
 
 from django.utils.translation import gettext_noop as _
 
-from readthedocs.notifications import EmailNotification
 from readthedocs.notifications.constants import INFO
+from readthedocs.notifications.email import EmailNotification
 from readthedocs.notifications.messages import Message, registry
 
 

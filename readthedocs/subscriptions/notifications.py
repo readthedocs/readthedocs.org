@@ -4,8 +4,8 @@
 from django.utils.translation import gettext_noop as _
 from djstripe import models as djstripe
 
-from readthedocs.notifications import EmailNotification
 from readthedocs.notifications.constants import INFO
+from readthedocs.notifications.email import EmailNotification
 from readthedocs.notifications.messages import Message, registry
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.constants import DISABLE_AFTER_DAYS
