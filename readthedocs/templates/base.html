@@ -103,6 +103,13 @@
     <div id="content">
       <div class="wrapper">
 
+        {# NOTE: we need to use a CustomUser to have access to "user.notifications" #}
+        {% for notification in request.user.notifications.all %}
+        <p class="build-failure">
+            {{ notification.get_message.get_rendered_body|safe }}
+        </p>
+        {% endfor %}
+
         <!-- BEGIN notify -->
         {% block notify %}
           {# TODO: migrate these notifications to new system #}
