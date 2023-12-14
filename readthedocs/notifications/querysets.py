@@ -31,4 +31,4 @@ class NotificationQuerySet(models.QuerySet):
             notification.refresh_from_db()
             return notification
 
-        return super().create(*args, **kwargs)
+        return super().create(*args, attached_to=attached_to, **kwargs)
