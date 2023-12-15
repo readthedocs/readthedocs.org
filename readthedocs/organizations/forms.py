@@ -208,6 +208,7 @@ class OrganizationTeamProjectForm(forms.ModelForm):
         self.fields["projects"] = forms.ModelMultipleChoiceField(
             queryset=self.organization.projects,
             widget=forms.CheckboxSelectMultiple,
+            required=False,
         )
 
 
