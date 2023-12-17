@@ -19,17 +19,17 @@ async-timeout==4.0.3
     # via
     #   -r requirements/pip.txt
     #   redis
-babel==2.13.1
+babel==2.14.0
     # via sphinx
 billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.33.11
+boto3==1.34.2
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.33.11
+botocore==1.34.2
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -70,7 +70,7 @@ click-repl==0.3.0
     # via
     #   -r requirements/pip.txt
     #   celery
-coverage[toml]==7.3.2
+coverage[toml]==7.3.3
     # via
     #   coverage
     #   pytest-cov
@@ -90,7 +90,7 @@ defusedxml==0.7.1
     # via
     #   -r requirements/pip.txt
     #   python3-openid
-distlib==0.3.7
+distlib==0.3.8
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -193,7 +193,7 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elastic-transport==8.10.0
+elastic-transport==8.11.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
@@ -271,7 +271,7 @@ platformdirs==4.1.0
     #   virtualenv
 pluggy==1.3.0
     # via pytest
-prompt-toolkit==3.0.41
+prompt-toolkit==3.0.43
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -355,7 +355,7 @@ requests-oauthlib==1.3.1
     #   django-allauth
 requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
-s3transfer==0.8.2
+s3transfer==0.9.0
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -412,7 +412,7 @@ tomli==2.0.1
     #   coverage
     #   dparse
     #   pytest
-typing-extensions==4.8.0
+typing-extensions==4.9.0
     # via
     #   -r requirements/pip.txt
     #   asgiref
