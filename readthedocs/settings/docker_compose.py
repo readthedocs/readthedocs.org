@@ -206,6 +206,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     STRIPE_SECRET = os.environ.get("RTD_STRIPE_SECRET")
     STRIPE_PUBLISHABLE = os.environ.get("RTD_STRIPE_PUBLISHABLE")
     STRIPE_TEST_SECRET_KEY = STRIPE_SECRET
+    DJSTRIPE_WEBHOOK_SECRET = os.environ.get("RTD_DJSTRIPE_WEBHOOK_SECRET")
 
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
     RTD_BUILD_COMMANDS_STORAGE = "readthedocs.storage.s3_storage.S3BuildCommandsStorage"
