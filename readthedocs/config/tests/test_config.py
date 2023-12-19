@@ -14,7 +14,6 @@ from readthedocs.config import (
     SETUPTOOLS,
     BuildConfigV2,
     ConfigError,
-    DefaultConfigFileNotFound,
     InvalidConfig,
     load,
 )
@@ -73,7 +72,7 @@ def get_build_config(config, source_file="readthedocs.yml", validate=False):
 def test_load_no_config_file(tmpdir, files):
     apply_fs(tmpdir, files)
     base = str(tmpdir)
-    with raises(DefaultConfigFileNotFound) as e:
+    with raises(ConfigError) as e:
         with override_settings(DOCROOT=tmpdir):
             load(base, {})
     assert e.value.code == CONFIG_FILE_REQUIRED

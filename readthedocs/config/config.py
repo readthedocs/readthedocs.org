@@ -1,6 +1,5 @@
 """Build configuration for rtd."""
 
-import collections
 import copy
 import os
 import re
@@ -11,9 +10,9 @@ from django.conf import settings
 
 from readthedocs.config.utils import list_to_dict, to_dict
 from readthedocs.core.utils.filesystem import safe_open
-from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.constants import GENERIC
 
+from .exceptions import ConfigError
 from .find import find_one
 from .models import (
     BuildJobs,
@@ -45,11 +44,6 @@ __all__ = (
     "ALL",
     "load",
     "BuildConfigV2",
-    "ConfigError",
-    "ConfigOptionNotSupportedError",
-    "ConfigFileNotFound",
-    "DefaultConfigFileNotFound",
-    "InvalidConfig",
     "PIP",
     "SETUPTOOLS",
     "LATEST_CONFIGURATION_VERSION",
@@ -60,129 +54,7 @@ PIP = 'pip'
 SETUPTOOLS = 'setuptools'
 CONFIG_FILENAME_REGEX = r'^\.?readthedocs.ya?ml$'
 
-CONFIG_NOT_SUPPORTED = 'config-not-supported'
-VERSION_INVALID = 'version-invalid'
-CONFIG_SYNTAX_INVALID = 'config-syntax-invalid'
-CONFIG_REQUIRED = 'config-required'
-CONFIG_FILE_REQUIRED = 'config-file-required'
-PYTHON_INVALID = 'python-invalid'
-SUBMODULES_INVALID = 'submodules-invalid'
-INVALID_KEYS_COMBINATION = 'invalid-keys-combination'
-INVALID_KEY = 'invalid-key'
-INVALID_NAME = 'invalid-name'
-
 LATEST_CONFIGURATION_VERSION = 2
-
-
-class ConfigError(BuildUserError):
-
-    GENERIC = "config:generic"
-    DEFAULT_PATH_NOT_FOUND = "config:default-path-not-found"
-
-    # NOTE: this init method can be removed
-    # def __init__(self, message, code=None):
-    #     self.code = code
-    #     super().__init__(message)
-
-
-class ConfigFileNotFound(ConfigError):
-
-    """Error when we can't find a configuration file."""
-
-    def __init__(self, directory):
-        super().__init__(
-            f'Configuration file not found in: {directory}',
-            CONFIG_FILE_REQUIRED,
-        )
-
-
-class DefaultConfigFileNotFound(ConfigError):
-
-    """Error when we can't find a configuration file."""
-
-    def __init__(self):
-        super().__init__(
-            "No default configuration file found at repository's root.",
-            CONFIG_FILE_REQUIRED,
-        )
-
-
-class ConfigOptionNotSupportedError(ConfigError):
-
-    """Error for unsupported configuration options in a version."""
-
-    def __init__(self, configuration):
-        self.configuration = configuration
-        template = (
-            'The "{}" configuration option is not supported in this version'
-        )
-        super().__init__(
-            template.format(self.configuration),
-            CONFIG_NOT_SUPPORTED,
-        )
-
-
-class InvalidConfig(ConfigError):
-
-    """Error for a specific key validation."""
-
-    # Define the default message to show on ``InvalidConfig``
-    default_message_template = 'Invalid configuration option "{key}"'
-
-    # Create customized message for based on each particular ``key``
-    message_templates = collections.defaultdict(lambda: "{default_message}: {error}")
-
-    # Redirect the user to the blog post when using
-    # `python.system_packages` or `python.use_system_site_packages`
-    message_templates.update(
-        {
-            "python.system_packages": "{default_message}. "
-            "This configuration key has been deprecated and removed. "
-            "Refer to https://blog.readthedocs.com/drop-support-system-packages/ to read more about this change and how to upgrade your config file."  # noqa
-        }
-    )
-    # Use same message for `python.use_system_site_packages`
-    message_templates.update(
-        {
-            "python.use_system_site_packages": message_templates.get(
-                "python.system_packages"
-            )
-        }
-    )
-
-    def __init__(self, key, code, error_message, source_file=None):
-        self.key = key
-        self.code = code
-        self.source_file = source_file
-
-        display_key = self._get_display_key()
-        default_message = self.default_message_template.format(
-            key=display_key,
-            code=code,
-            error=error_message,
-        )
-        message = self.message_templates[display_key].format(
-            default_message=default_message,
-            key=display_key,
-            code=code,
-            error=error_message,
-        )
-        super().__init__(message, code=code)
-
-    def _get_display_key(self):
-        """
-        Display keys in a more friendly format.
-
-        Indexes are displayed like ``n``,
-        but users may be more familiar with the ``[n]`` syntax.
-        For example ``python.install.0.requirements``
-        is changed to `python.install[0].requirements`.
-        """
-        return re.sub(
-            r'^([a-zA-Z_.-]+)\.(\d+)([a-zA-Z_.-]*)$',
-            r'\1[\2]\3',
-            self.key
-        )
 
 
 class BuildConfigBase:
@@ -231,26 +103,19 @@ class BuildConfigBase:
 
         self._config = {}
 
-    def error(self, key, message, code):
-        """Raise an error related to ``key``."""
-        raise InvalidConfig(
-            key=key,
-            code=code,
-            error_message=message,
-            source_file=self.source_file,
-        )
-
     @contextmanager
     def catch_validation_error(self, key):
-        """Catch a ``ValidationError`` and raises an ``InvalidConfig`` error."""
+        """Catch a ``ValidationError`` and raises a ``ConfigError`` error."""
         try:
             yield
         except ValidationError as error:
-            raise InvalidConfig(
-                key=key,
-                code=error.code,
-                error_message=str(error),
-                source_file=self.source_file,
+            raise ConfigError(
+                message_id=ConfigError.GENERIC_INVALID_CONFIG_KEY,
+                format_values={
+                    "key": key,
+                    "error_message": str(error),
+                    "source_file": self.source_file,
+                },
             ) from error
 
     def pop(self, name, container, default, raise_ex):
@@ -327,7 +192,10 @@ class BuildConfigBase:
 
     def __getattr__(self, name):
         """Raise an error for unknown attributes."""
-        raise ConfigOptionNotSupportedError(name)
+        raise ConfigError(
+            message_id=ConfigError.KEY_NOT_SUPPORTED_IN_VERSION,
+            format_values={"key": name},
+        )
 
 
 class BuildConfigV2(BuildConfigBase):
@@ -436,19 +304,13 @@ class BuildConfigV2(BuildConfigBase):
             validate_list(commands)
 
         if not (tools or commands):
-            self.error(
-                key="build.tools",
-                message=(
-                    "At least one item should be provided in 'tools' or 'commands'"
-                ),
-                code=CONFIG_REQUIRED,
+            raise ConfigError(
+                message_id=ConfigError.NOT_BUILD_TOOLS_OR_COMMANDS,
             )
 
         if commands and jobs:
-            self.error(
-                key="build.commands",
-                message="The keys build.jobs and build.commands can't be used together.",
-                code=INVALID_KEYS_COMBINATION,
+            raise ConfigError(
+                message_id=ConfigError.BUILD_JOBS_AND_COMMANDS,
             )
 
         build["jobs"] = {}
@@ -524,21 +386,22 @@ class BuildConfigV2(BuildConfigBase):
             ]
             for start in invalid_starts:
                 if package.startswith(start):
-                    self.error(
-                        key=key,
-                        message=(
-                            'Invalid package name. '
-                            f'Package can\'t start with {start}.',
-                        ),
-                        code=INVALID_NAME,
+                    raise ConfigError(
+                        message_id=ConfigError.APT_INVALID_PACKAGE_NAME_PREFIX,
+                        format_values={
+                            "prefix": start,
+                            "package": package,
+                        },
                     )
+
             # List of valid chars in packages names.
             pattern = re.compile(r'^[a-zA-Z0-9][a-zA-Z0-9.+-]*$')
             if not pattern.match(package):
-                self.error(
-                    key=key,
-                    message='Invalid package name.',
-                    code=INVALID_NAME,
+                raise ConfigError(
+                    message_id=ConfigError.APT_INVALID_PACKAGE_NAME,
+                    format_values={
+                        "package": package,
+                    },
                 )
         return package
 
@@ -616,19 +479,15 @@ class BuildConfigV2(BuildConfigBase):
                     self.pop_config(extra_req_key, []),
                 )
                 if extra_requirements and python_install['method'] != PIP:
-                    self.error(
-                        extra_req_key,
-                        'You need to install your project with pip '
-                        'to use extra_requirements',
-                        code=PYTHON_INVALID,
+                    raise ConfigError(
+                        message_id=ConfigError.USE_PIP_FOR_EXTRA_REQUIREMENTS,
                     )
                 python_install['extra_requirements'] = extra_requirements
         else:
-            self.error(
-                key,
-                '"path" or "requirements" key is required',
-                code=CONFIG_REQUIRED,
+            raise ConfigError(
+                message_id=ConfigError.PIP_PATH_OR_REQUIREMENT_REQUIRED,
             )
+
         return python_install
 
     def validate_doc_types(self):
@@ -640,11 +499,8 @@ class BuildConfigV2(BuildConfigBase):
         """
         with self.catch_validation_error('.'):
             if 'sphinx' in self._raw_config and 'mkdocs' in self._raw_config:
-                self.error(
-                    '.',
-                    'You can not have the ``sphinx`` and ``mkdocs`` '
-                    'keys at the same time',
-                    code=INVALID_KEYS_COMBINATION,
+                raise ConfigError(
+                    message_id=ConfigError.SPHINX_MKDOCS_CONFIG_TOGETHER,
                 )
 
     def validate_mkdocs(self):
@@ -752,12 +608,10 @@ class BuildConfigV2(BuildConfigBase):
                 submodules['exclude'] == ALL or bool(submodules['exclude'])
             )
             if is_including and is_excluding:
-                self.error(
-                    'submodules',
-                    'You can not exclude and include submodules '
-                    'at the same time',
-                    code=SUBMODULES_INVALID,
+                raise ConfigError(
+                    message_id=ConfigError.SUBMODULES_INCLUDE_EXCLUDE_TOGETHER,
                 )
+
 
         with self.catch_validation_error('submodules.recursive'):
             recursive = self.pop_config('submodules.recursive', False)
@@ -823,10 +677,11 @@ class BuildConfigV2(BuildConfigBase):
         self.pop_config('version', None)
         wrong_key = '.'.join(self._get_extra_key(self._raw_config))
         if wrong_key:
-            self.error(
-                key=wrong_key,
-                message="Make sure the key name is correct.",
-                code=INVALID_KEY,
+            raise ConfigError(
+                message_id=ConfigError.INVALID_KEY_NAME,
+                format_values={
+                    "key": wrong_key,
+                },
             )
 
     def _get_extra_key(self, value):
@@ -932,10 +787,11 @@ def load(path, readthedocs_yaml_path=None):
     # Custom non-default config file location
     if readthedocs_yaml_path:
         filename = os.path.join(path, readthedocs_yaml_path)
-        # When a config file is specified and not found, we raise ConfigError
-        # because ConfigFileNotFound
         if not os.path.exists(filename):
-            raise ConfigFileNotFound(os.path.relpath(filename, path))
+            raise ConfigError(
+                message_id=ConfigError.CONFIG_PATH_NOT_FOUND,
+                format_values={"directory": os.path.relpath(filename, path)},
+            )
     # Default behavior
     else:
         filename = find_one(path, CONFIG_FILENAME_REGEX)
@@ -950,37 +806,21 @@ def load(path, readthedocs_yaml_path=None):
             config = parse(configuration_file.read())
         except ParseError as error:
             raise ConfigError(
-                'Parse error in {filename}: {message}'.format(
-                    filename=os.path.relpath(filename, path),
-                    message=str(error),
-                ),
-                code=CONFIG_SYNTAX_INVALID,
+                message_id=ConfigError.SYNTAX_INVALID,
+                format_values={
+                    "filename": os.path.relpath(filename, path),
+                    "error_message": str(error),
+                },
             ) from error
+
         version = config.get("version", 2)
-        build_config = get_configuration_class(version)(
+        if version not in (2, "2"):
+            raise ConfigError(message_id=ConfigError)
+
+        build_config = BuildConfigV2(
             config,
             source_file=filename,
         )
 
     build_config.validate()
     return build_config
-
-
-def get_configuration_class(version):
-    """
-    Get the appropriate config class for ``version``.
-
-    :type version: str or int
-    """
-    configurations_class = {
-        2: BuildConfigV2,
-    }
-    try:
-        version = int(version)
-        return configurations_class[version]
-    except (KeyError, ValueError) as error:
-        raise InvalidConfig(
-            'version',
-            code=VERSION_INVALID,
-            error_message='Invalid version of the configuration file',
-        ) from error

@@ -37,8 +37,8 @@ from readthedocs.builds.constants import (
 from readthedocs.builds.models import APIVersion, Build
 from readthedocs.builds.signals import build_complete
 from readthedocs.builds.utils import memcache_lock
-from readthedocs.config import ConfigError
 from readthedocs.config.config import BuildConfigV2
+from readthedocs.config.exceptions import ConfigError
 from readthedocs.doc_builder.director import BuildDirector
 from readthedocs.doc_builder.environments import (
     DockerBuildEnvironment,
