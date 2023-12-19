@@ -1,3 +1,16 @@
+Version 10.13.0
+---------------
+
+:Date: December 19, 2023
+
+* `@agjohnson <https://github.com/agjohnson>`__: Allow override of env settings from host (`#10959 <https://github.com/readthedocs/readthedocs.org/pull/10959>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10957 <https://github.com/readthedocs/readthedocs.org/pull/10957>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: normalize search filters (`#10951 <https://github.com/readthedocs/readthedocs.org/pull/10951>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10949 <https://github.com/readthedocs/readthedocs.org/pull/10949>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Allow empty project list on organization team form (`#10947 <https://github.com/readthedocs/readthedocs.org/pull/10947>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.12.2 (`#10944 <https://github.com/readthedocs/readthedocs.org/pull/10944>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add AddonsConfig admin (`#10938 <https://github.com/readthedocs/readthedocs.org/pull/10938>`__)
+
 Version 10.12.2
 ---------------
 
