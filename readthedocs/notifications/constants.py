@@ -21,7 +21,3 @@ WARNING = "warning"
 INFO = "info"
 NOTE = "note"
 TIP = "tip"
-
-# Icons
-SOLID = "solid"
-DUOTONE = "duotone"

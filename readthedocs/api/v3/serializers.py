@@ -228,8 +228,7 @@ class NotificationMessageSerializer(serializers.Serializer):
     header = serializers.CharField(source="get_rendered_header")
     body = serializers.CharField(source="get_rendered_body")
     type = serializers.CharField()
-    icon = serializers.CharField(source="get_display_icon")
-    icon_style = serializers.CharField()
+    icon_classes = serializers.CharField(source="get_display_icon_classes")
 
     class Meta:
         fields = [
@@ -237,8 +236,7 @@ class NotificationMessageSerializer(serializers.Serializer):
             "header",
             "body",
             "type",
-            "icon",
-            "icon_style",
+            "icon_classes",
         ]
 
 

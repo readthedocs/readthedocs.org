@@ -11,17 +11,16 @@ from readthedocs.doc_builder.exceptions import (
 )
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 
-from .constants import ERROR, INFO, NOTE, SOLID, TIP, WARNING
+from .constants import ERROR, INFO, NOTE, TIP, WARNING
 
 
 class Message:
-    def __init__(self, id, header, body, type, icon=None, icon_style=SOLID):
+    def __init__(self, id, header, body, type, icon_classes=None):
         self.id = id
         self.header = header
         self.body = body
         self.type = type  # (ERROR, WARNING, INFO, NOTE, TIP)
-        self.icon = icon
-        self.icon_style = icon_style  # (SOLID, DUOTONE)
+        self.icon_classes = icon_classes
         self.format_values = {}
 
     def __repr__(self):
@@ -33,20 +32,29 @@ class Message:
     def set_format_values(self, format_values):
         self.format_values = format_values or {}
 
-    def get_display_icon(self):
-        if self.icon:
-            return self.icon
+    def get_display_icon_classes(self):
+        if self.icon_classes:
+            return self.icon_classes
+
+        # Default classes that apply to all the notifications
+        classes = [
+            "fas",
+            "fa-user-group",
+            "fa-swap-opacity",
+        ]
 
         if self.type == ERROR:
-            return "fa-exclamation"
+            classes.append("fa-exclamation")
         if self.type == WARNING:
-            return "fa-triangle-exclamation"
+            classes.append("fa-triangle-exclamation")
         if self.type == INFO:
-            return "fa-????"
+            classes.append("fa-????")
         if self.type == NOTE:
-            return "fa-????"
+            classes.append("fa-????")
         if self.type == TIP:
-            return "fa-????"
+            classes.append("fa-????")
+
+        return " ".join(classes)
 
     def get_rendered_header(self):
         return self.header.format(**self.format_values)
