@@ -349,9 +349,6 @@ class CommunityBaseSettings(Settings):
         },
     ]
 
-    # TODO: remove this setting since it's not used anymore
-    NOTIFICATION_BACKENDS = []
-
     # Paths
     SITE_ROOT = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
