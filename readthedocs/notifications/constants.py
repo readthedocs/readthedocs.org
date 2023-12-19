@@ -12,7 +12,7 @@ ERROR = 3
 # Status
 UNREAD = "unread"
 READ = "read"
-DISMISSED = "dissmissed"
+DISMISSED = "dismissed"
 CANCELLED = "cancelled"
 
 # Type

@@ -44,7 +44,7 @@ class Migration(migrations.Migration):
                         choices=[
                             ("unread", "unread"),
                             ("read", "read"),
-                            ("dissmissed", "dissmissed"),
+                            ("dismissed", "dismissed"),
                             ("cancelled", "cancelled"),
                         ],
                         db_index=True,
