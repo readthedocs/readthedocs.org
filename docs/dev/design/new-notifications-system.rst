@@ -425,6 +425,30 @@ Notification create
    we want to attach a ``Notification`` (e.g. ``User``, ``Organization``, etc)
 
 
+Notification update
+~~~~~~~~~~~~~~~~~~~
+
+
+.. http:patch:: /api/v3/projects/(str:project_slug)/builds/(int:build_id)/notifications/(int:notification_id)/
+
+    Update an existing notification.
+    Mainly used to change the state from the front-end.
+
+    **Example request**:
+
+    .. sourcecode:: json
+
+        {
+            "state": "read",
+        }
+
+
+.. note::
+
+   Similar API endpoints will be created for each of the resources
+   we want to attach a ``Notification`` (e.g. ``User``, ``Organization``, etc)
+
+
 Backward compatibility
 ----------------------
 

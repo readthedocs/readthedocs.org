@@ -252,7 +252,7 @@ class AddonsResponse:
         version_downloads = []
         versions_active_built_not_hidden = Version.objects.none()
 
-        if not project.is_single_version:
+        if project.supports_multiple_versions:
             versions_active_built_not_hidden = (
                 Version.internal.public(
                     project=project,
@@ -398,17 +398,13 @@ class AddonsResponse:
                     # TODO: figure it out where this data comes from
                     "filters": [
                         [
-                            "Search only in this project",
-                            f"project:{project.slug}/{version.slug}",
-                        ],
-                        [
-                            "Search subprojects",
+                            "Include subprojects",
                             f"subprojects:{project.slug}/{version.slug}",
                         ],
                     ]
                     if version
                     else [],
-                    "default_filter": f"subprojects:{project.slug}/{version.slug}"
+                    "default_filter": f"project:{project.slug}/{version.slug}"
                     if version
                     else None,
                 },

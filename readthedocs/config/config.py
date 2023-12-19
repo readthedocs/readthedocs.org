@@ -56,7 +56,6 @@ CONFIG_FILENAME_REGEX = r'^\.?readthedocs.ya?ml$'
 
 LATEST_CONFIGURATION_VERSION = 2
 
-
 class BuildConfigBase:
 
     """

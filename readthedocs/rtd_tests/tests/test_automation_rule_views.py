@@ -69,7 +69,7 @@ class TestAutomationRulesViews:
         assert r["Location"] == self.list_rules_url
 
         rule = self.project.automation_rules.get(description="Another rule")
-        assert rule.priority == 1
+        assert rule.priority == 0
 
         r = self.client.post(
             reverse(
@@ -88,7 +88,7 @@ class TestAutomationRulesViews:
 
         rule.refresh_from_db()
         assert rule.description == "Edit rule"
-        assert rule.priority == 1
+        assert rule.priority == 0
 
     def test_create_regex_rule_default_description(self):
         r = self.client.post(
@@ -194,7 +194,7 @@ class TestAutomationRulesViews:
                 args=[self.project.slug],
             ),
             {
-                "description": "rule-0",
+                "description": "rule-2",
                 "predefined_match_arg": ALL_VERSIONS,
                 "version_type": TAG,
                 "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
@@ -218,7 +218,7 @@ class TestAutomationRulesViews:
                 args=[self.project.slug],
             ),
             {
-                "description": "rule-2",
+                "description": "rule-0",
                 "predefined_match_arg": ALL_VERSIONS,
                 "version_type": BRANCH,
                 "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
@@ -259,7 +259,7 @@ class TestAutomationRulesViews:
                 args=[self.project.slug],
             ),
             {
-                "description": "rule-0",
+                "description": "rule-2",
                 "predefined_match_arg": ALL_VERSIONS,
                 "version_type": TAG,
                 "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
@@ -283,7 +283,7 @@ class TestAutomationRulesViews:
                 args=[self.project.slug],
             ),
             {
-                "description": "rule-2",
+                "description": "rule-0",
                 "predefined_match_arg": ALL_VERSIONS,
                 "version_type": BRANCH,
                 "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
@@ -318,7 +318,7 @@ class TestAutomationRulesViews:
                 args=[self.project.slug],
             ),
             {
-                "description": "rule-0",
+                "description": "rule-2",
                 "predefined_match_arg": ALL_VERSIONS,
                 "version_type": TAG,
                 "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,
@@ -342,7 +342,7 @@ class TestAutomationRulesViews:
                 args=[self.project.slug],
             ),
             {
-                "description": "rule-2",
+                "description": "rule-0",
                 "predefined_match_arg": ALL_VERSIONS,
                 "version_type": BRANCH,
                 "action": VersionAutomationRule.ACTIVATE_VERSION_ACTION,

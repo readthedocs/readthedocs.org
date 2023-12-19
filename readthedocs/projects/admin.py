@@ -15,6 +15,7 @@ from readthedocs.redirects.models import Redirect
 
 from .forms import FeatureForm
 from .models import (
+    AddonsConfig,
     Domain,
     EmailHook,
     EnvironmentVariable,
@@ -463,6 +464,14 @@ class EnvironmentVariableAdmin(admin.ModelAdmin):
     model = EnvironmentVariable
     list_display = ("name", "value", "public", "project", "created")
     search_fields = ("name", "project__slug")
+
+
+@admin.register(AddonsConfig)
+class AddonsConfigAdmin(admin.ModelAdmin):
+    model = AddonsConfig
+    list_display = ("project", "enabled")
+    search_fields = ("project__slug",)
+    list_editable = ("enabled",)
 
 
 admin.site.register(EmailHook)

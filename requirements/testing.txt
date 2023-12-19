@@ -19,17 +19,17 @@ async-timeout==4.0.3
     # via
     #   -r requirements/pip.txt
     #   redis
-babel==2.13.1
+babel==2.14.0
     # via sphinx
 billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.29.3
+boto3==1.34.3
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.32.3
+botocore==1.34.3
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -70,15 +70,13 @@ click-repl==0.3.0
     # via
     #   -r requirements/pip.txt
     #   celery
-coverage[toml]==7.3.2
-    # via
-    #   coverage
-    #   pytest-cov
+coverage[toml]==7.3.3
+    # via pytest-cov
 cron-descriptor==1.4.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==41.0.5
+cryptography==41.0.7
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -90,7 +88,7 @@ defusedxml==0.7.1
     # via
     #   -r requirements/pip.txt
     #   python3-openid
-distlib==0.3.7
+distlib==0.3.8
     # via
     #   -r requirements/pip.txt
     #   virtualenv
@@ -98,7 +96,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.7
+django==4.2.8
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -143,7 +141,7 @@ django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
 django-extensions==3.2.3
     # via -r requirements/pip.txt
-django-filter==23.3
+django-filter==23.5
     # via -r requirements/pip.txt
 django-formtools==2.3
     # via -r requirements/pip.txt
@@ -153,21 +151,17 @@ django-ipware==5.0.2
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-django-messages-extends==0.6.3
-    # via -r requirements/pip.txt
 django-polymorphic==3.1.0
     # via -r requirements/pip.txt
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
 django-storages[boto3]==1.14.2
-    # via
-    #   -r requirements/pip.txt
-    #   django-storages
+    # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
 django-taggit==5.0.1
     # via -r requirements/pip.txt
-django-timezone-field==6.0.1
+django-timezone-field==6.1.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
@@ -194,11 +188,11 @@ drf-extensions==0.7.1
     # via -r requirements/pip.txt
 drf-flex-fields==1.0.2
     # via -r requirements/pip.txt
-elastic-transport==8.10.0
+elastic-transport==8.11.0
     # via
     #   -r requirements/pip.txt
     #   elasticsearch
-elasticsearch==8.11.0
+elasticsearch==8.11.1
     # via
     #   -r requirements/pip.txt
     #   elasticsearch-dsl
@@ -206,7 +200,7 @@ elasticsearch-dsl==8.11.0
     # via
     #   -r requirements/pip.txt
     #   django-elasticsearch-dsl
-exceptiongroup==1.1.3
+exceptiongroup==1.2.0
     # via pytest
 filelock==3.13.1
     # via
@@ -218,7 +212,7 @@ funcy==2.0
     #   django-cacheops
 gunicorn==21.2.0
     # via -r requirements/pip.txt
-idna==3.4
+idna==3.6
     # via
     #   -r requirements/pip.txt
     #   requests
@@ -249,7 +243,7 @@ markdown==3.5.1
     # via -r requirements/pip.txt
 markupsafe==2.1.3
     # via jinja2
-mercurial==6.5.3
+mercurial==6.6.1
     # via -r requirements/testing.in
 oauthlib==3.2.2
     # via
@@ -266,13 +260,13 @@ packaging==23.2
     #   gunicorn
     #   pytest
     #   sphinx
-platformdirs==3.11.0
+platformdirs==4.1.0
     # via
     #   -r requirements/pip.txt
     #   virtualenv
 pluggy==1.3.0
     # via pytest
-prompt-toolkit==3.0.41
+prompt-toolkit==3.0.43
     # via
     #   -r requirements/pip.txt
     #   click-repl
@@ -282,7 +276,7 @@ pycparser==2.21
     # via
     #   -r requirements/pip.txt
     #   cffi
-pygments==2.17.0
+pygments==2.17.2
     # via
     #   -r requirements/pip.txt
     #   sphinx
@@ -290,7 +284,6 @@ pyjwt[crypto]==2.8.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-    #   pyjwt
 pyquery==2.0.0
     # via -r requirements/pip.txt
 pytest==7.4.3
@@ -358,7 +351,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rest-framework-generic-relations==2.1.0
     # via -r requirements/pip.txt
-s3transfer==0.7.0
+s3transfer==0.9.0
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -415,7 +408,7 @@ tomli==2.0.1
     #   coverage
     #   dparse
     #   pytest
-typing-extensions==4.8.0
+typing-extensions==4.9.0
     # via
     #   -r requirements/pip.txt
     #   asgiref
@@ -448,13 +441,13 @@ vine==5.1.0
     #   amqp
     #   celery
     #   kombu
-virtualenv==20.24.6
+virtualenv==20.25.0
     # via -r requirements/pip.txt
-wcwidth==0.2.10
+wcwidth==0.2.12
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
-websocket-client==1.6.4
+websocket-client==1.7.0
     # via
     #   -r requirements/pip.txt
     #   docker
