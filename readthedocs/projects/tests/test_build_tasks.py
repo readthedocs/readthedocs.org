@@ -638,7 +638,6 @@ class TestBuildTask(BuildEnvironmentBase):
 
         # Force an exception from the execution of the task. We don't really
         # care "where" it was raised: setup, build, syncing directories, etc
-        # We make it fail immediately after the ``BuildDirector`` was instantiated.
         execute.side_effect = BuildUserError(message_id=BuildUserError.GENERIC)
 
         self._trigger_update_docs_task()
