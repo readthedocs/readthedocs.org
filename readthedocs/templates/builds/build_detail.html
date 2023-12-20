@@ -198,7 +198,12 @@ $(document).ready(function () {
 
     {% endif %}
 
-    {# Show non error notifications as "build-ideas" #}
+
+    {% comment %}
+      Show non-error notifications as "build-ideas" (e.g. "build.commands is in beta")
+
+      This temporal until we render these notifications from the front-end.
+    {% endcomment %}
     {% for notification in build.notifications.all %}
     {% if notification.get_message.type != "error" %}
     <p class="build-ideas">
@@ -240,7 +245,11 @@ $(document).ready(function () {
     {% else %}
       {# Show new command output if lacking build.output #}
 
-    {# Show error notifications as "build-error" #}
+    {% comment %}
+      Show error notifications as "build-error" (e.g. "syntax error in YAML")
+
+      This temporal until we render these notifications from the front-end.
+    {% endcomment %}
     {% for notification in build.notifications.all %}
     {% if notification.get_message.type == "error" %}
     <div class="build-error">
