@@ -1,7 +1,7 @@
 # Proxito
 server {
-    listen 80 default_server;
-    server_name $NGINX_PROXITO_SERVER_NAME;
+    listen 8080;
+    server_name nginx;
 
     # Docker Compose's "logging.driver: none" is not working anymore.
     # So, we are disabling the logs from NGINX directly.
@@ -23,10 +23,8 @@ server {
     # Proxito doc serving
     location / {
         proxy_pass http://proxito:8000;
-        proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Host $host;
 
         proxy_intercept_errors on;
         error_page 404 = @notfoundfallback;
@@ -110,13 +108,6 @@ server {
         add_header X-RTD-Hosting-Integrations $rtd_hosting_integrations always;
         set $rtd_force_addons $upstream_http_x_rtd_force_addons;
         add_header X-RTD-Force-Addons $rtd_force_addons always;
-
-        # Inject our own script dynamically and project/version slugs into the HTML to emulate what CF worker does
-        # TODO: find a way to make this work _without_ running `npm run dev` from the `addons` repository
-        sub_filter '</head>' '<script async language="javascript" src="http://localhost:8000/readthedocs-addons.js"></script>\n<meta name="readthedocs-project-slug" content="$rtd_project" />\n<meta name="readthedocs-version-slug" content="$rtd_version" />\n</head>';
-        sub_filter_types text/html;
-        sub_filter_last_modified on;
-        sub_filter_once on;
     }
 
     # Serve 404 pages here
