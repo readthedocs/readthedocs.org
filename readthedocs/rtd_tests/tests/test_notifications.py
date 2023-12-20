@@ -86,6 +86,7 @@ class NotificationBackendTests(TestCase):
         build = fixture.get(Build)
         user = fixture.get(User)
         notify = TestNotification(context_object=build, user=user)
+        notify.send()
 
         send_email.assert_has_calls(
             [

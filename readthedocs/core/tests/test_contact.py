@@ -6,8 +6,6 @@ from django_dynamic_fixture import get
 
 from readthedocs.core.utils.contact import contact_users
 
-# from readthedocs.notifications.backends import SiteBackend
-
 User = get_user_model()
 
 
@@ -24,7 +22,6 @@ class TestContactUsers(TestCase):
             users=User.objects.all(),
             email_subject="Subject",
             email_content="Content",
-            notification_content="Notification",
             dryrun=True,
         )
         self.assertEqual(
@@ -32,14 +29,6 @@ class TestContactUsers(TestCase):
             {
                 "email": {
                     "sent": {"one@test.com", "two@test.com", "three@test.com"},
-                    "failed": set(),
-                },
-                "notification": {
-                    "sent": {
-                        self.user.username,
-                        self.user_two.username,
-                        self.user_three.username,
-                    },
                     "failed": set(),
                 },
             },
@@ -54,7 +43,6 @@ class TestContactUsers(TestCase):
             users=User.objects.all(),
             email_subject="Subject",
             email_content="Content",
-            notification_content="Notification",
             dryrun=False,
         )
         self.assertEqual(
@@ -62,14 +50,6 @@ class TestContactUsers(TestCase):
             {
                 "email": {
                     "sent": {"one@test.com", "two@test.com", "three@test.com"},
-                    "failed": set(),
-                },
-                "notification": {
-                    "sent": {
-                        self.user.username,
-                        self.user_two.username,
-                        self.user_three.username,
-                    },
                     "failed": set(),
                 },
             },
