@@ -784,6 +784,8 @@ class BuildDirector:
         """Attach a notification to build in progress using the APIv2."""
 
         format_values = format_values or {}
+        # NOTE: we are using APIv2 here because it uses BuildAPIKey authentication,
+        # which is not currently supported by APIv3.
         self.data.api_client.notifications.post(
             {
                 "attached_to": f'build/{self.data.build["id"]}',

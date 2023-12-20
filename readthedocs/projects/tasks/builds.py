@@ -482,9 +482,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # by creating a notification attached to the build
         # Otherwise, use a notification with a generic message.
         elif isinstance(exc, BuildUserError):
-            # TODO: we are using APIv2 here :/
-            # We just can't migrate everything to APIv3 -- that would be a bigger project
-
             if hasattr(exc, "message_id") and exc.message_id is not None:
                 message_id = exc.message_id
             else:
