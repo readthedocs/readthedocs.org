@@ -446,9 +446,6 @@ class BuildDirector:
 
         self.attach_notification(
             message_id=BuildUserError.BUILD_COMMANDS_IN_BETA,
-            format_values={
-                "config_file_link": "https://docs.readthedocs.io/page/build-customization.html#override-the-build-process",
-            },
         )
 
         reshim_commands = (
@@ -777,9 +774,16 @@ class BuildDirector:
         self.data.version.build_data = data
 
     def attach_notification(
-        self, message_id, format_values, state="unread", dismissable=False, news=False
+        self,
+        message_id,
+        format_values=None,
+        state="unread",
+        dismissable=False,
+        news=False,
     ):
         """Attach a notification to build in progress using the APIv2."""
+
+        format_values = format_values or {}
         self.data.api_client.notifications.post(
             {
                 "attached_to": f'build/{self.data.build["id"]}',
