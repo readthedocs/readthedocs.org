@@ -5,7 +5,10 @@ from django.urls import reverse
 from django.utils import timezone
 
 from readthedocs.core.permissions import AdminPermission
-from readthedocs.domains.notifications import PendingCustomDomainValidation
+from readthedocs.domains.notifications import (
+    MESSAGE_DOMAIN_VALIDATION_PENDING,
+    PendingCustomDomainValidation,
+)
 from readthedocs.notifications.models import Notification
 from readthedocs.projects.models import Domain
 from readthedocs.worker import app
@@ -34,7 +37,7 @@ def email_pending_custom_domains(number_of_emails=3):
         #
         # We send an email notification to all the project's admins.
         Notification.objects.add(
-            message_id="project:domain:validation-pending",
+            message_id=MESSAGE_DOMAIN_VALIDATION_PENDING,
             attached_to=domain.project,
             format_values={
                 "domain": domain.domain,

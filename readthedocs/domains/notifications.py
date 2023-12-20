@@ -14,9 +14,11 @@ class PendingCustomDomainValidation(EmailNotification):
     subject = "Pending configuration of custom domain {{ domain.domain }}"
 
 
+MESSAGE_DOMAIN_VALIDATION_PENDING = "project:domain:validation-pending"
+MESSAGE_DOMAIN_VALIDATION_EXPIRED = "project:domain:validation-expired"
 messages = [
     Message(
-        id="project:domain:validation-pending",
+        id=MESSAGE_DOMAIN_VALIDATION_PENDING,
         header=_("Pending configuration of custom domain: {domain}"),
         body=_(
             """
@@ -30,7 +32,7 @@ messages = [
     # remove the old notification and create a new one pointing to this
     # ``message_id``
     Message(
-        id="project:domain:validation-expired",
+        id=MESSAGE_DOMAIN_VALIDATION_EXPIRED,
         header=_("Validation of custom domain expired: {domain}"),
         body=_(
             """
