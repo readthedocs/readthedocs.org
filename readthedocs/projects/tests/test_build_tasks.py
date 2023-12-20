@@ -671,12 +671,24 @@ class TestBuildTask(BuildEnvironmentBase):
         # and the task won't be run.
         assert not BuildData.objects.all().exists()
 
+        notification_request = self.requests_mock.request_history[-3]
+        assert notification_request._request.method == "POST"
+        assert notification_request.path == "/api/v2/notifications/"
+        assert notification_request.json() == {
+            "attached_to": f"build/{self.build.pk}",
+            "message_id": BuildUserError.GENERIC,
+            "state": "unread",
+            "dismissable": False,
+            "news": False,
+            "format_values": {},
+        }
+
         # Test we are updating the DB by calling the API with the updated build object
         # The second last one should be the PATCH for the build
-        api_request = self.requests_mock.request_history[-2]
-        assert api_request._request.method == "PATCH"
-        assert api_request.path == "/api/v2/build/1/"
-        assert api_request.json() == {
+        build_status_request = self.requests_mock.request_history[-2]
+        assert build_status_request._request.method == "PATCH"
+        assert build_status_request.path == "/api/v2/build/1/"
+        assert build_status_request.json() == {
             "builder": mock.ANY,
             "commit": self.build.commit,
             "error": "",  # We are not sending ``error`` anymore
@@ -1856,13 +1868,24 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
         )
         self._trigger_update_docs_task()
 
-        # This is a known exceptions. We hit the API saving the correct error
-        # in the Build object. In this case, the "error message" coming from
-        # the exception will be shown to the user
-        api_request = self.requests_mock.request_history[-2]
-        assert api_request._request.method == "PATCH"
-        assert api_request.path == "/api/v2/build/1/"
-        assert api_request.json() == {
+        # This is a known exceptions. We hit the notification API to attach a
+        # notification to this particular build.
+        notification_request = self.requests_mock.request_history[-3]
+        assert notification_request._request.method == "POST"
+        assert notification_request.path == "/api/v2/notifications/"
+        assert notification_request.json() == {
+            "attached_to": f"build/{self.build.pk}",
+            "message_id": ConfigError.INVALID_VERSION,
+            "state": "unread",
+            "dismissable": False,
+            "news": False,
+            "format_values": {},
+        }
+
+        build_status_request = self.requests_mock.request_history[-2]
+        assert build_status_request._request.method == "PATCH"
+        assert build_status_request.path == "/api/v2/build/1/"
+        assert build_status_request.json() == {
             "id": 1,
             "state": "finished",
             "commit": "a1b2c3",
@@ -1871,8 +1894,6 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
             "builder": mock.ANY,
             "length": 0,
         }
-
-        # TODO: make sure we are hitting `/api/v2/notifications/` to save the notification build error
 
         revoke_key_request = self.requests_mock.request_history[-1]
         assert revoke_key_request._request.method == "POST"
