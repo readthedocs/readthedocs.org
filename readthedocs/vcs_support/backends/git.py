@@ -180,7 +180,7 @@ class Backend(BaseVCS):
             code, stdout, stderr = self.run(*cmd)
             return code, stdout, stderr
         except RepositoryError as exc:
-            raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
+            raise RepositoryError(message_id=RepositoryError.CLONE_ERROR) from exc
 
     def fetch(self):
         # --force: Likely legacy, it seems to be irrelevant to this usage
@@ -292,7 +292,10 @@ class Backend(BaseVCS):
             return [code, out, err]
         except RepositoryError as exc:
             raise RepositoryError(
-                RepositoryError.FAILED_TO_CHECKOUT.format(revision),
+                message_id=RepositoryError.FAILED_TO_CHECKOUT,
+                format_values={
+                    "revision": revision,
+                },
             ) from exc
 
     def lsremote(self, include_tags=True, include_branches=True):

@@ -28,7 +28,7 @@ class Backend(BaseVCS):
             )
             return output
         except RepositoryError:
-            raise RepositoryError(RepositoryError.CLONE_ERROR())
+            raise RepositoryError(message_id=RepositoryError.CLONE_ERROR)
 
     @property
     def branches(self):
@@ -119,5 +119,8 @@ class Backend(BaseVCS):
             return code, stdout, stderr
         except RepositoryError:
             raise RepositoryError(
-                RepositoryError.FAILED_TO_CHECKOUT.format(identifier),
+                message_id=RepositoryError.FAILED_TO_CHECKOUT,
+                format_values={
+                    "identifier": identifier,
+                },
             )

@@ -5,6 +5,8 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.template import Context, Engine
 
+from readthedocs.notifications.email import EmailNotification
+
 log = structlog.get_logger(__name__)
 
 
@@ -47,9 +49,8 @@ def contact_users(
     sent_notifications = set()
     failed_notifications = set()
 
-    # TODO: migrate this to ``Notification.objects.create()``
-    #
-    # backend = SiteBackend(request=None)
+    # TODO: migrate this to ``Notification.objects.add()`` per Project,
+    # while keep sending emails to all the users.
 
     engine = Engine.get_default()
     notification_template = engine.from_string(notification_content or "")
@@ -58,10 +59,7 @@ def contact_users(
     email_txt_template = engine.get_template("core/email/common.txt")
     email_html_template = engine.get_template("core/email/common.html")
 
-    # TODO: migrate this notification to the new notifications system.
-    # This notification are currently tied to a particular user.
-    # However, in the new system they will be tied to a Project.
-    class TempNotification:
+    class TempNotification(EmailNotification):
         def render(self, *args, **kwargs):
             return markdown.markdown(
                 notification_template.render(Context(self.get_context_data()))
@@ -77,6 +75,7 @@ def contact_users(
 
         if notification_content:
             notification = TempNotification(
+                context_object=None,
                 user=user,
                 extra_context=context,
             )

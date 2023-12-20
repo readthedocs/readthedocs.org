@@ -28,17 +28,17 @@ class NotificationTests(TestCase):
             subject = "This is {{ foo.id }}"
             context_object_name = "foo"
 
+        user = fixture.get(User)
         build = fixture.get(Build)
-        req = mock.MagicMock()
-        notify = TestNotification(context_object=build, request=req)
+        notify = TestNotification(context_object=build, user=user)
 
         self.assertEqual(
-            notify.get_template_names("email"),
+            notify.get_template_names("html"),
             ["builds/notifications/foo_email.html"],
         )
         self.assertEqual(
-            notify.get_template_names("site"),
-            ["builds/notifications/foo_site.html"],
+            notify.get_template_names("txt"),
+            ["builds/notifications/foo_email.txt"],
         )
         self.assertEqual(
             notify.get_subject(),
@@ -49,7 +49,6 @@ class NotificationTests(TestCase):
             {
                 "foo": build,
                 "production_uri": "https://readthedocs.org",
-                "request": req,
                 # readthedocs_processor context
                 "DASHBOARD_ANALYTICS_CODE": mock.ANY,
                 "DO_NOT_TRACK_ENABLED": mock.ANY,
@@ -65,12 +64,12 @@ class NotificationTests(TestCase):
             },
         )
 
-        notify.render("site")
+        notify.render("html")
         render_to_string.assert_has_calls(
             [
                 mock.call(
                     context=mock.ANY,
-                    template_name=["builds/notifications/foo_site.html"],
+                    template_name=["builds/notifications/foo_email.html"],
                 ),
             ]
         )
@@ -79,17 +78,14 @@ class NotificationTests(TestCase):
 class NotificationBackendTests(TestCase):
     @mock.patch("readthedocs.notifications.email.send_email")
     def test_email_backend(self, send_email):
-        class TestNotification(Notification):
+        class TestNotification(EmailNotification):
             name = "foo"
             subject = "This is {{ foo.id }}"
             context_object_name = "foo"
 
         build = fixture.get(Build)
-        req = mock.MagicMock()
         user = fixture.get(User)
-        notify = TestNotification(context_object=build, request=req, user=user)
-        # backend = EmailBackend(request=req)
-        # backend.send(notify)
+        notify = TestNotification(context_object=build, user=user)
 
         send_email.assert_has_calls(
             [

@@ -1,11 +1,11 @@
 """Project exceptions."""
 
-from django.conf import settings
 from django.utils.translation import gettext_noop as _
 
 from readthedocs.doc_builder.exceptions import BuildAppError, BuildUserError
 
 
+# TODO: migrate these to the new notification system
 class ProjectConfigurationError(BuildUserError):
 
     """Error raised trying to configure a project for build."""
@@ -58,9 +58,12 @@ class RepositoryError(BuildUserError):
     # as a function/method.
     @classmethod
     def CLONE_ERROR(cls):  # noqa: N802
-        if settings.ALLOW_PRIVATE_REPOS:
-            return cls.PRIVATE_ALLOWED
-        return cls.PRIVATE_NOT_ALLOWED
+        return "project:git:checkout-error"
+
+        # TODO: update this to manage different messages depending on the platform
+        # if settings.ALLOW_PRIVATE_REPOS:
+        #     return cls.PRIVATE_ALLOWED
+        # return cls.PRIVATE_NOT_ALLOWED
 
     def get_default_message(self):
         return self.GENERIC_ERROR

@@ -623,14 +623,14 @@ class TestBuildTask(BuildEnvironmentBase):
 
     @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
-    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.execute")
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.update_build")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build")
     def test_failed_build(
         self,
         clean_build,
         send_notifications,
-        execute,
+        update_build,
         send_external_build_status,
         build_complete,
     ):
@@ -638,7 +638,8 @@ class TestBuildTask(BuildEnvironmentBase):
 
         # Force an exception from the execution of the task. We don't really
         # care "where" it was raised: setup, build, syncing directories, etc
-        execute.side_effect = Exception('Force and exception here.')
+        # We make it fail immediately after the ``BuildDirector`` was instantiated.
+        update_build.side_effect = Exception("Force and exception here.")
 
         self._trigger_update_docs_task()
 
@@ -1929,4 +1930,4 @@ class TestSyncRepositoryTask(BuildEnvironmentBase):
 
         exception = on_failure.call_args[0][0]
         assert isinstance(exception, RepositoryError) == True
-        assert exception.message == RepositoryError.DUPLICATED_RESERVED_VERSIONS
+        assert exception.message_id == RepositoryError.DUPLICATED_RESERVED_VERSIONS
