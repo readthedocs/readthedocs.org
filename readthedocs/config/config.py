@@ -113,7 +113,8 @@ class BuildConfigBase:
                 format_values={
                     "key": key,
                     "error_message": str(error),
-                    "source_file": self.source_file,
+                    # TODO: make sure this base_path is correct
+                    "source_file": self.source_file.replace(self.base_path, ""),
                 },
             ) from error
 

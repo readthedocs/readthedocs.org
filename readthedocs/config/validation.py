@@ -12,6 +12,8 @@ INVALID_STRING = "invalid-string"
 VALUE_NOT_FOUND = "value-not-found"
 
 
+# TODO: improve these error messages shown to the user
+# See https://github.com/readthedocs/readthedocs.org/issues/10502
 class ValidationError(Exception):
 
     """Base error for validations."""

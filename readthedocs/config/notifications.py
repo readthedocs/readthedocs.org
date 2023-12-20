@@ -88,9 +88,9 @@ messages = [
         header=_("Invalid configuration option"),
         body=_(
             """
-            Invalid configuration option: "{key}".
+            Invalid configuration option: <code>{key}</code>.
 
-            Read the Docs configuration file: <code>{source_file}</code>
+            Read the Docs configuration file: <code>{source_file}</code>.
 
             <code>{error_message}</code>
             """
