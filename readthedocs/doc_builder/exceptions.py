@@ -15,13 +15,17 @@ Then the header/body texts should be defined in ``readthedocs/notifications/mess
 
 class BuildBaseException(Exception):
 
+    default_message = "Build user exception"
+
     def __init__(self, message_id, format_values=None, **kwargs):
         self.message_id = message_id
         self.format_values = format_values
-        super().__init__("Build user exception", **kwargs)
+        super().__init__(self.default_message, **kwargs)
 
 
 class BuildAppError(BuildBaseException):
+    default_message = "Build app exception"
+
     GENERIC_WITH_BUILD_ID = "build:app:generic-with-build-id"
     BUILDS_DISABLED = "build:app:project-builds-disabled"
 
