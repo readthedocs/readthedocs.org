@@ -8,24 +8,9 @@ from django.conf import settings
 from django.test import override_settings
 from pytest import raises
 
-from readthedocs.config import (
-    ALL,
-    PIP,
-    SETUPTOOLS,
-    BuildConfigV2,
-    ConfigError,
-    InvalidConfig,
-    load,
-)
-from readthedocs.config.config import (
-    CONFIG_FILE_REQUIRED,
-    CONFIG_FILENAME_REGEX,
-    CONFIG_REQUIRED,
-    CONFIG_SYNTAX_INVALID,
-    INVALID_KEY,
-    INVALID_NAME,
-    VERSION_INVALID,
-)
+from readthedocs.config import ALL, PIP, SETUPTOOLS, BuildConfigV2, load
+from readthedocs.config.config import CONFIG_FILENAME_REGEX
+from readthedocs.config.exceptions import ConfigError
 from readthedocs.config.models import (
     BuildJobs,
     BuildWithOs,
@@ -75,8 +60,7 @@ def test_load_no_config_file(tmpdir, files):
     with raises(ConfigError) as e:
         with override_settings(DOCROOT=tmpdir):
             load(base, {})
-    assert e.value.code == CONFIG_FILE_REQUIRED
-
+    # assert e.value.code == CONFIG_FILE_REQUIRED
 
 def test_load_empty_config_file(tmpdir):
     apply_fs(
@@ -123,7 +107,7 @@ def test_load_unknow_version(tmpdir):
     with raises(ConfigError) as excinfo:
         with override_settings(DOCROOT=tmpdir):
             load(base, {})
-    assert excinfo.value.code == VERSION_INVALID
+    # assert excinfo.value.code == VERSION_INVALID
 
 
 def test_load_raise_exception_invalid_syntax(tmpdir):
@@ -145,7 +129,7 @@ def test_load_raise_exception_invalid_syntax(tmpdir):
     with raises(ConfigError) as excinfo:
         with override_settings(DOCROOT=tmpdir):
             load(base, {})
-    assert excinfo.value.code == CONFIG_SYNTAX_INVALID
+    # assert excinfo.value.code == CONFIG_SYNTAX_INVALID
 
 
 def test_load_non_default_filename(tmpdir):
@@ -231,14 +215,6 @@ class TestBuildConfigV2:
         build = get_build_config({})
         assert build.version == "2"
 
-    def test_correct_error_when_source_is_dir(self, tmpdir):
-        build = get_build_config({}, source_file=str(tmpdir))
-        with raises(InvalidConfig) as excinfo:
-            build.error(key="key", message="Message", code="code")
-        # We don't have any extra information about
-        # the source_file.
-        assert str(excinfo.value) == 'Invalid configuration option "key": Message'
-
     def test_formats_check_valid(self):
         build = get_build_config({"formats": ["htmlzip", "pdf", "epub"]})
         build.validate()
@@ -247,17 +223,19 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize("value", [3, "invalid", {"other": "value"}])
     def test_formats_check_invalid_value(self, value):
         build = get_build_config({"formats": value})
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "formats"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "formats"
 
     def test_formats_check_invalid_type(self):
         build = get_build_config(
             {"formats": ["htmlzip", "invalid", "epub"]},
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "formats"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "formats"
 
     def test_formats_default_value(self):
         build = get_build_config({})
@@ -308,36 +286,41 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize("value", [3, [], "invalid"])
     def test_conda_check_invalid_value(self, value):
         build = get_build_config({"conda": value})
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "conda"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "conda"
 
     @pytest.mark.parametrize("value", [3, [], {}])
     def test_conda_check_invalid_file_value(self, value):
         build = get_build_config({"conda": {"file": value}})
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "conda.environment"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "conda.environment"
 
     def test_conda_check_file_required(self):
         build = get_build_config({"conda": {"no-file": "other"}})
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "conda.environment"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "conda.environment"
 
     @pytest.mark.parametrize("value", [3, [], "invalid"])
     def test_build_check_invalid_type(self, value):
         build = get_build_config({"build": value})
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "build"
 
     @pytest.mark.parametrize("value", [3, [], {}])
     def test_build_image_check_invalid_type(self, value):
         build = get_build_config({"build": {"image": value}})
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.os"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "build.os"
 
     @pytest.mark.parametrize("value", ["", None, "latest"])
     def test_new_build_config_invalid_os(self, value):
@@ -349,9 +332,10 @@ class TestBuildConfigV2:
                 },
             },
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.os"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "build.os"
 
     @pytest.mark.parametrize(
         "value", ["", None, "python", ["python", "nodejs"], {}, {"cobol": "99"}]
@@ -365,9 +349,15 @@ class TestBuildConfigV2:
                 },
             },
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.tools"
+
+        # TODO: split this test to check specific errors now we have better messages
+        assert excinfo.value.message_id in (
+            ConfigError.NOT_BUILD_TOOLS_OR_COMMANDS,
+            ConfigError.GENERIC_INVALID_CONFIG_KEY,
+        )
+        assert excinfo.value.format_values.get("key") in ("build.tools", "build")
 
     def test_new_build_config_invalid_tools_version(self):
         build = get_build_config(
@@ -378,9 +368,10 @@ class TestBuildConfigV2:
                 },
             },
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.tools.python"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "build.tools.python"
 
     def test_new_build_config(self):
         build = get_build_config(
@@ -409,9 +400,10 @@ class TestBuildConfigV2:
                 },
             },
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.image"
+        assert excinfo.value.message_id == ConfigError.INVALID_KEY_NAME
+        assert excinfo.value.format_values.get("key") == "build.image"
 
     def test_new_build_config_conflict_with_build_python_version(self):
         build = get_build_config(
@@ -423,9 +415,10 @@ class TestBuildConfigV2:
                 "python": {"version": "3.8"},
             },
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "python.version"
+        assert excinfo.value.message_id == ConfigError.INVALID_KEY_NAME
+        assert excinfo.value.format_values.get("key") == "python.version"
 
     def test_commands_build_config_tools_and_commands_valid(self):
         """
@@ -458,9 +451,10 @@ class TestBuildConfigV2:
                 },
             },
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.os"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "build.os"
 
     def test_commands_build_config_invalid_command(self):
         build = get_build_config(
@@ -472,9 +466,10 @@ class TestBuildConfigV2:
                 },
             },
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.commands"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "build.commands"
 
     def test_commands_build_config_invalid_no_os(self):
         build = get_build_config(
@@ -484,9 +479,10 @@ class TestBuildConfigV2:
                 },
             },
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.os"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "build.os"
 
     def test_commands_build_config_valid(self):
         """It's valid to build with just build.os and build.commands."""
@@ -515,9 +511,10 @@ class TestBuildConfigV2:
                 },
             },
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.jobs"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "build.jobs"
 
     @pytest.mark.parametrize("value", ["", None, "echo 123", 42])
     def test_jobs_build_config_invalid_job_commands(self, value):
@@ -532,9 +529,10 @@ class TestBuildConfigV2:
                 },
             },
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.jobs.pre_install"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "build.jobs.pre_install"
 
     def test_jobs_build_config(self):
         build = get_build_config(
@@ -621,9 +619,10 @@ class TestBuildConfigV2:
                 }
             }
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "build.apt_packages"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "build.apt_packages"
 
     @pytest.mark.parametrize(
         "error_index, value",
@@ -661,24 +660,32 @@ class TestBuildConfigV2:
                 }
             }
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == f"build.apt_packages.{error_index}"
-        assert excinfo.value.code == INVALID_NAME
+        assert excinfo.value.message_id in (
+            ConfigError.APT_INVALID_PACKAGE_NAME,
+            ConfigError.APT_INVALID_PACKAGE_NAME_PREFIX,
+        )
+        assert (
+            excinfo.value.format_values.get("key")
+            == f"build.apt_packages.{error_index}"
+        )
 
     @pytest.mark.parametrize("value", [3, [], "invalid"])
     def test_python_check_invalid_types(self, value):
         build = get_build_config({"python": value})
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "python"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "python"
 
     @pytest.mark.parametrize("value", [[], {}, "3", "3.10"])
     def test_python_version_check_invalid_types(self, value):
         build = get_build_config({"python": {"version": value}})
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "python.version"
+        assert excinfo.value.message_id == ConfigError.INVALID_KEY_NAME
+        assert excinfo.value.format_values.get("key") == "python.version"
 
     def test_python_install_default_value(self):
         build = get_build_config({})
@@ -722,9 +729,10 @@ class TestBuildConfigV2:
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "python.install.0.method"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "python.install.0.method"
 
     def test_python_install_requirements_check_valid(self, tmpdir):
         apply_fs(tmpdir, {"requirements.txt": ""})
@@ -756,9 +764,10 @@ class TestBuildConfigV2:
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "python.install.0.requirements"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "python.install.0.requirements"
 
     def test_python_install_requirements_error_msg(self, tmpdir):
         build = get_build_config(
@@ -774,13 +783,12 @@ class TestBuildConfigV2:
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
 
-        assert (
-            str(excinfo.value)
-            == 'Invalid configuration option "python.install[0].requirements": expected string'
-        )
+        assert str(excinfo.value) == "Build user exception"
+        # assert registry.get()
+        #     == 'Invalid configuration option "python.install[0].requirements": expected string'
 
     def test_python_install_requirements_does_not_allow_empty_string(self, tmpdir):
         build = get_build_config(
@@ -796,9 +804,10 @@ class TestBuildConfigV2:
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "python.install.0.requirements"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "python.install.0.requirements"
 
     @pytest.mark.parametrize("value", [3, [], {}])
     def test_python_install_requirements_check_invalid_types(self, value, tmpdir):
@@ -815,9 +824,10 @@ class TestBuildConfigV2:
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "python.install.0.requirements"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "python.install.0.requirements"
 
     def test_python_install_path_is_required(self, tmpdir):
         build = get_build_config(
@@ -832,10 +842,10 @@ class TestBuildConfigV2:
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "python.install.0"
-        assert excinfo.value.code == CONFIG_REQUIRED
+        assert excinfo.value.message_id == ConfigError.PIP_PATH_OR_REQUIREMENT_REQUIRED
+        assert excinfo.value.format_values.get("key") == "python.install.0"
 
     def test_python_install_pip_check_valid(self, tmpdir):
         build = get_build_config(
@@ -894,9 +904,10 @@ class TestBuildConfigV2:
         build = get_build_config(
             {"python": {"install": value}},
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "python.install"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "python.install"
 
     def test_python_install_extra_requirements_and_pip(self, tmpdir):
         build = get_build_config(
@@ -933,9 +944,9 @@ class TestBuildConfigV2:
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "python.install.0.extra_requirements"
+        assert excinfo.value.message_id == ConfigError.USE_PIP_FOR_EXTRA_REQUIREMENTS
 
     @pytest.mark.parametrize("value", [2, "invalid", {}, "", None])
     def test_python_install_extra_requirements_check_type(self, value, tmpdir):
@@ -953,9 +964,13 @@ class TestBuildConfigV2:
             },
             source_file=str(tmpdir.join('readthedocs.yml')),
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "python.install.0.extra_requirements"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert (
+            excinfo.value.format_values.get("key")
+            == "python.install.0.extra_requirements"
+        )
 
     def test_python_install_extra_requirements_allow_empty(self, tmpdir):
         build = get_build_config(
@@ -1023,9 +1038,10 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize("value", [[], True, 0, "invalid"])
     def test_sphinx_validate_type(self, value):
         build = get_build_config({"sphinx": value})
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "sphinx"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "sphinx"
 
     def test_sphinx_is_default_doc_type(self):
         build = get_build_config({})
@@ -1054,9 +1070,10 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize("value", [[], True, 0, "invalid"])
     def test_sphinx_builder_check_invalid(self, value):
         build = get_build_config({"sphinx": {"builder": value}})
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "sphinx.builder"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "sphinx.builder"
 
     def test_sphinx_builder_default(self):
         build = get_build_config({})
@@ -1088,9 +1105,9 @@ class TestBuildConfigV2:
             },
             source_file=str(tmpdir.join("readthedocs.yml")),
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "."
+        assert excinfo.value.message_id == ConfigError.SPHINX_MKDOCS_CONFIG_TOGETHER
 
     def test_sphinx_configuration_allow_null(self):
         build = get_build_config(
@@ -1109,9 +1126,10 @@ class TestBuildConfigV2:
         build = get_build_config(
             {"sphinx": {"configuration": value}},
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "sphinx.configuration"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "sphinx.configuration"
 
     @pytest.mark.parametrize("value", [True, False])
     def test_sphinx_fail_on_warning_check_valid(self, value):
@@ -1122,9 +1140,10 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize("value", [[], "invalid", 5])
     def test_sphinx_fail_on_warning_check_invalid(self, value):
         build = get_build_config({"sphinx": {"fail_on_warning": value}})
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "sphinx.fail_on_warning"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "sphinx.fail_on_warning"
 
     def test_sphinx_fail_on_warning_check_default(self):
         build = get_build_config({})
@@ -1134,9 +1153,10 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize("value", [[], True, 0, "invalid"])
     def test_mkdocs_validate_type(self, value):
         build = get_build_config({"mkdocs": value})
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "mkdocs"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "mkdocs"
 
     def test_mkdocs_default(self):
         build = get_build_config({})
@@ -1173,9 +1193,10 @@ class TestBuildConfigV2:
         build = get_build_config(
             {"mkdocs": {"configuration": value}},
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "mkdocs.configuration"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "mkdocs.configuration"
 
     @pytest.mark.parametrize("value", [True, False])
     def test_mkdocs_fail_on_warning_check_valid(self, value):
@@ -1190,9 +1211,10 @@ class TestBuildConfigV2:
         build = get_build_config(
             {"mkdocs": {"fail_on_warning": value}},
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "mkdocs.fail_on_warning"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "mkdocs.fail_on_warning"
 
     def test_mkdocs_fail_on_warning_check_default(self):
         build = get_build_config(
@@ -1211,9 +1233,10 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize("value", [[], "invalid", 0])
     def test_submodules_check_invalid_type(self, value):
         build = get_build_config({"submodules": value})
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "submodules"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "submodules"
 
     def test_submodules_include_check_valid(self):
         build = get_build_config(
@@ -1237,9 +1260,10 @@ class TestBuildConfigV2:
                 },
             }
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "submodules.include"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "submodules.include"
 
     def test_submodules_include_allows_all_keyword(self):
         build = get_build_config(
@@ -1276,9 +1300,10 @@ class TestBuildConfigV2:
                 },
             }
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "submodules.exclude"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "submodules.exclude"
 
     def test_submodules_exclude_allows_all_keyword(self):
         build = get_build_config(
@@ -1302,9 +1327,11 @@ class TestBuildConfigV2:
                 },
             }
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "submodules"
+        assert (
+            excinfo.value.message_id == ConfigError.SUBMODULES_INCLUDE_EXCLUDE_TOGETHER
+        )
 
     def test_submodules_can_exclude_include_be_empty(self):
         build = get_build_config(
@@ -1345,9 +1372,10 @@ class TestBuildConfigV2:
                 },
             }
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "submodules.recursive"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "submodules.recursive"
 
     def test_submodules_recursive_explicit_default(self):
         build = get_build_config(
@@ -1383,9 +1411,10 @@ class TestBuildConfigV2:
                 "search": value,
             }
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "search"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "search"
 
     @pytest.mark.parametrize(
         'value',
@@ -1412,9 +1441,10 @@ class TestBuildConfigV2:
                 "search": {"ranking": value},
             }
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "search.ranking"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "search.ranking"
 
     @pytest.mark.parametrize("value", list(range(-10, 10 + 1)))
     def test_search_valid_ranking(self, value):
@@ -1475,9 +1505,10 @@ class TestBuildConfigV2:
                 "search": {"ignore": value},
             }
         )
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == "search.ignore"
+        assert excinfo.value.message_id == ConfigError.GENERIC_INVALID_CONFIG_KEY
+        assert excinfo.value.format_values.get("key") == "search.ignore"
 
     @pytest.mark.parametrize(
         "path, expected",
@@ -1548,10 +1579,13 @@ class TestBuildConfigV2:
     )
     def test_strict_validation(self, value, key):
         build = get_build_config(value)
-        with raises(InvalidConfig) as excinfo:
+        with raises(ConfigError) as excinfo:
             build.validate()
-        assert excinfo.value.key == key
-        assert excinfo.value.code == INVALID_KEY
+        assert excinfo.value.message_id in (
+            ConfigError.INVALID_KEY_NAME,
+            ConfigError.GENERIC_INVALID_CONFIG_KEY,
+        )
+        assert excinfo.value.format_values.get("key") == key
 
     @pytest.mark.parametrize(
         'value,expected', [

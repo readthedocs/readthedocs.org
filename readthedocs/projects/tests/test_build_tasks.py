@@ -13,8 +13,9 @@ from readthedocs.builds.constants import (
     EXTERNAL,
 )
 from readthedocs.builds.models import Build
-from readthedocs.config import ALL, ConfigError
+from readthedocs.config import ALL
 from readthedocs.config.config import BuildConfigV2
+from readthedocs.config.exceptions import ConfigError
 from readthedocs.config.tests.test_config import get_build_config
 from readthedocs.doc_builder.exceptions import BuildAppError
 from readthedocs.projects.exceptions import RepositoryError
@@ -1851,7 +1852,7 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
     @mock.patch("readthedocs.doc_builder.director.load_yaml_config")
     def test_config_file_exception(self, load_yaml_config):
         load_yaml_config.side_effect = ConfigError(
-            code="invalid", message="Invalid version in config file."
+            message_id=ConfigError.INVALID_VERSION,
         )
         self._trigger_update_docs_task()
 
@@ -1865,11 +1866,13 @@ class TestBuildTaskExceptionHandler(BuildEnvironmentBase):
             "id": 1,
             "state": "finished",
             "commit": "a1b2c3",
-            "error": "Problem in your project's configuration. Invalid version in config file.",
+            "error": "",  # We not sending "error" anymore
             "success": False,
             "builder": mock.ANY,
             "length": 0,
         }
+
+        # TODO: make sure we are hitting `/api/v2/notifications/` to save the notification build error
 
         revoke_key_request = self.requests_mock.request_history[-1]
         assert revoke_key_request._request.method == "POST"

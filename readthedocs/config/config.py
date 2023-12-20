@@ -305,11 +305,17 @@ class BuildConfigV2(BuildConfigBase):
         if not (tools or commands):
             raise ConfigError(
                 message_id=ConfigError.NOT_BUILD_TOOLS_OR_COMMANDS,
+                format_values={
+                    "key": "build",
+                },
             )
 
         if commands and jobs:
             raise ConfigError(
                 message_id=ConfigError.BUILD_JOBS_AND_COMMANDS,
+                format_values={
+                    "key": "build",
+                },
             )
 
         build["jobs"] = {}
@@ -390,6 +396,7 @@ class BuildConfigV2(BuildConfigBase):
                         format_values={
                             "prefix": start,
                             "package": package,
+                            "key": key,
                         },
                     )
 
@@ -400,6 +407,7 @@ class BuildConfigV2(BuildConfigBase):
                     message_id=ConfigError.APT_INVALID_PACKAGE_NAME,
                     format_values={
                         "package": package,
+                        "key": key,
                     },
                 )
         return package
@@ -485,6 +493,9 @@ class BuildConfigV2(BuildConfigBase):
         else:
             raise ConfigError(
                 message_id=ConfigError.PIP_PATH_OR_REQUIREMENT_REQUIRED,
+                format_values={
+                    "key": key,
+                },
             )
 
         return python_install

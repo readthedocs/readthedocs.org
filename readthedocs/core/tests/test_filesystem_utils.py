@@ -7,6 +7,7 @@ from django.test import TestCase, override_settings
 
 from readthedocs.core.utils.filesystem import safe_copytree, safe_open, safe_rmtree
 from readthedocs.doc_builder.exceptions import (
+    BuildUserError,
     SymlinkOutsideBasePath,
     UnsupportedSymlinkFileError,
 )

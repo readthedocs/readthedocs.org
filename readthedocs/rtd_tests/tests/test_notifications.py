@@ -17,7 +17,7 @@ from readthedocs.notifications.email import EmailNotification
     PRODUCTION_DOMAIN="readthedocs.org",
     SUPPORT_EMAIL="support@readthedocs.org",
 )
-@mock.patch("readthedocs.notifications.notification.render_to_string")
+@mock.patch("readthedocs.notifications.email.render_to_string")
 @mock.patch.object(EmailNotification, "send")
 class NotificationTests(TestCase):
     def test_notification_custom(self, send, render_to_string):
@@ -77,7 +77,7 @@ class NotificationTests(TestCase):
 
 
 class NotificationBackendTests(TestCase):
-    @mock.patch("readthedocs.notifications.backends.send_email")
+    @mock.patch("readthedocs.notifications.email.send_email")
     def test_email_backend(self, send_email):
         class TestNotification(Notification):
             name = "foo"
