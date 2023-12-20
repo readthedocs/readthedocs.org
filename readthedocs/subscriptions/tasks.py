@@ -11,7 +11,6 @@ from readthedocs.builds.models import Build
 from readthedocs.core.utils import send_email
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Domain, Project
-
 from readthedocs.subscriptions.notifications import (
     OrganizationDisabledNotification,
     TrialEndingNotification,

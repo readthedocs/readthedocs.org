@@ -250,6 +250,7 @@ class NotificationCreateSerializer(serializers.ModelSerializer):
             "state",
         ]
 
+
 class NotificationSerializer(serializers.ModelSerializer):
     message = NotificationMessageSerializer(source="get_message")
     attached_to_content_type = serializers.SerializerMethodField()
