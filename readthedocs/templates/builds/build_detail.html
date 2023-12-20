@@ -149,13 +149,6 @@ $(document).ready(function () {
       </span>
     </div>
 
-    {# Temporary link just for quick access until we implement the font-end in ext-theme #}
-    <br />
-    <a href="/api/v3/projects/{{ build.project.slug }}/builds/{{ build.pk }}/notifications/">See notifications for this Build</a>
-    <br />
-    <br />
-
-
     {% if request.user|is_admin:project %}
       {# TODO: migrate these "build ideas" to the new notification system #}
       {% if not build.success and "setup.py install" in build.commands.last.output %}
