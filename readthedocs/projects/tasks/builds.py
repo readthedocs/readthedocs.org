@@ -335,7 +335,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 log.warning('Ignoring cancelling the build at "Uploading" state.')
                 return
 
-            raise BuildCancelled(BuildCancelled.CANCELLED_BY_USER)
+            raise BuildCancelled(message_id=BuildCancelled.CANCELLED_BY_USER)
 
         # Do not send the SIGTERM signal to children (pip is automatically killed when
         # receives SIGTERM and make the build to fail one command and stop build)

@@ -18,6 +18,7 @@ from readthedocs.builds.constants import (
     EXTERNAL,
 )
 from readthedocs.doc_builder.exceptions import BuildCancelled, BuildMaxConcurrencyError
+from readthedocs.notifications.models import Notification
 from readthedocs.worker import app
 
 log = structlog.get_logger(__name__)
@@ -246,7 +247,14 @@ def cancel_build(build):
         terminate = False
         build.state = BUILD_STATE_CANCELLED
         build.success = False
-        build.error = BuildCancelled.message
+
+        # Add a notification for this build
+        Notification.objects.add(
+            message_id=BuildCancelled.CANCELLED_BY_USER,
+            attached_to=build,
+            dismissable=False,
+        )
+
         build.length = 0
         build.save()
     else:
