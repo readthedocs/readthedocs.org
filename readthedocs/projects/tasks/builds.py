@@ -414,6 +414,10 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # because they just build the latest commit for that version
         self.data.build_commit = kwargs.get('build_commit')
 
+        self.data.build_director = BuildDirector(
+            data=self.data,
+        )
+
         log.bind(
             # NOTE: ``self.data.build`` is just a regular dict, not an APIBuild :'(
             builder=self.data.build['builder'],
@@ -758,10 +762,6 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
             log.exception("Error while updating the build object.", state=state)
 
     def execute(self):
-        self.data.build_director = BuildDirector(
-            data=self.data,
-        )
-
         # Clonning
         self.update_build(state=BUILD_STATE_CLONING)
 
