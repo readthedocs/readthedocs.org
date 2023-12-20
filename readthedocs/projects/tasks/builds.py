@@ -684,11 +684,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 project_slug=self.data.project.slug,
                 version_slug=self.data.version.slug,
             )
-            # TODO: update this code to add the notification to the Build instance
-            #
-            # TODO: think about how to de-duplicate notifications.
-            # It may happens the build is retried multiple times.
-            self.data.build['error'] = exc.message
+            self.data.director.attach_notification(
+                BuildMaxConcurrencyError.LIMIT_REACHED
+            )
             self.update_build(state=BUILD_STATE_TRIGGERED)
 
     def after_return(self, status, retval, task_id, args, kwargs, einfo):
