@@ -109,7 +109,7 @@ class BaseVCS:
             raise BuildCancelled(message_id=BuildCancelled.CANCELLED_BY_USER) from exc
         except BuildUserError as exc:
             # Re raise as RepositoryError to handle it properly from outside
-            raise RepositoryError(message_id=RepositoryError.GENERIC_ERROR) from exc
+            raise RepositoryError(message_id=RepositoryError.GENERIC) from exc
 
         # Return a tuple to keep compatibility
         return (build_cmd.exit_code, build_cmd.output, build_cmd.error)

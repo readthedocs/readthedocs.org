@@ -4,6 +4,7 @@ import re
 from typing import Iterable
 
 import structlog
+from django.conf import settings
 
 from readthedocs.builds.constants import (
     BRANCH,
@@ -180,7 +181,10 @@ class Backend(BaseVCS):
             code, stdout, stderr = self.run(*cmd)
             return code, stdout, stderr
         except RepositoryError as exc:
-            raise RepositoryError(message_id=RepositoryError.CLONE_ERROR) from exc
+            message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_NOT_ALLOWED
+            if settings.ALLOW_PRIVATE_REPOS:
+                message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_ALLOWED
+            raise RepositoryError(message_id=message_id) from exc
 
     def fetch(self):
         # --force: Likely legacy, it seems to be irrelevant to this usage
