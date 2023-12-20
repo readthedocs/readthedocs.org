@@ -299,18 +299,14 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
 
     # Do not send notifications on failure builds for these exceptions.
     exceptions_without_notifications = (
-        BuildCancelled,
-        # BuildUserError.MAX_CONCURRENCY,
+        BuildCancelled.CANCELLED_BY_USER,
+        BuildUserError.MAX_CONCURRENCY,
         BuildUserError.SKIPPED_EXIT_CODE_183,
-        # TODO: use BuildAppError.BUILDS_DISABLED (message_id's) here instead of specific exceptions.
-        # There is no need to have multiple different exceptions when only the message changes.
         BuildAppError.BUILDS_DISABLED,
     )
 
     # Do not send external build status on failure builds for these exceptions.
-    exceptions_without_external_build_status = (
-        BuildMaxConcurrencyError,
-    )
+    exceptions_without_external_build_status = (BuildUserError.MAX_CONCURRENCY,)
 
     acks_late = True
     track_started = True
@@ -522,8 +518,9 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Oh, I think this is to differentiate a task triggered with
         # `Build.commit` than a one triggered just with the `Version` to build
         # the _latest_ commit of it
-        if self.data.build_commit and not isinstance(
-            exc, self.exceptions_without_external_build_status
+        if (
+            self.data.build_commit
+            and message_id not in self.exceptions_without_external_build_status
         ):
             version_type = None
             if self.data.version:
