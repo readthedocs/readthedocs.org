@@ -17,7 +17,7 @@ from readthedocs.config import ALL
 from readthedocs.config.config import BuildConfigV2
 from readthedocs.config.exceptions import ConfigError
 from readthedocs.config.tests.test_config import get_build_config
-from readthedocs.doc_builder.exceptions import BuildAppError
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.projects.exceptions import RepositoryError
 from readthedocs.projects.models import EnvironmentVariable, Project, WebHookEvent
 from readthedocs.projects.tasks.builds import sync_repository_task, update_docs_task
@@ -623,14 +623,14 @@ class TestBuildTask(BuildEnvironmentBase):
 
     @mock.patch("readthedocs.projects.tasks.builds.build_complete")
     @mock.patch("readthedocs.projects.tasks.builds.send_external_build_status")
-    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.update_build")
+    @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.execute")
     @mock.patch("readthedocs.projects.tasks.builds.UpdateDocsTask.send_notifications")
     @mock.patch("readthedocs.projects.tasks.builds.clean_build")
     def test_failed_build(
         self,
         clean_build,
         send_notifications,
-        update_build,
+        execute,
         send_external_build_status,
         build_complete,
     ):
@@ -639,10 +639,9 @@ class TestBuildTask(BuildEnvironmentBase):
         # Force an exception from the execution of the task. We don't really
         # care "where" it was raised: setup, build, syncing directories, etc
         # We make it fail immediately after the ``BuildDirector`` was instantiated.
-        update_build.side_effect = Exception("Force and exception here.")
+        execute.side_effect = BuildUserError(message_id=BuildUserError.GENERIC)
 
         self._trigger_update_docs_task()
-
 
         # It has to be called twice, ``before_start`` and ``after_return``
         clean_build.assert_has_calls([
@@ -680,7 +679,7 @@ class TestBuildTask(BuildEnvironmentBase):
         assert api_request.json() == {
             "builder": mock.ANY,
             "commit": self.build.commit,
-            "error": BuildAppError.GENERIC_WITH_BUILD_ID.format(build_id=self.build.pk),
+            "error": "",  # We are not sending ``error`` anymore
             "id": self.build.pk,
             "length": mock.ANY,
             "state": "finished",
