@@ -6,7 +6,6 @@ from readthedocs.doc_builder.exceptions import (
     BuildMaxConcurrencyError,
     BuildUserError,
     MkDocsYAMLParseError,
-    UnsupportedSymlinkFileError,
 )
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 
@@ -61,8 +60,6 @@ class Message:
     def get_rendered_body(self):
         return self.body.format(**self.format_values)
 
-
-CONFIG_YAML_MESSAGES = []
 
 # TODO: review the copy of these notifications/messages on PR review and adapt them.
 # Most of them are copied from what we had in `readthedocs.doc_builder.exceptions`
@@ -286,23 +283,6 @@ BUILD_MESSAGES = [
         ),
         type=INFO,
     ),
-    # TODO: remove this test for a message with format values
-    Message(
-        id=BuildUserError.TEST_FORMAT_VALUES,
-        header=_("Test format values. Build: {instance.pk}"),
-        # Note the message receives the instance it's attached to
-        # and could be use it to inject related data
-        body=_(
-            """
-            Some of the values passed in "format_values":
-
-            message: {message}
-            another: {another}
-            number: {number}
-                """
-        ),
-        type=ERROR,
-    ),
 ]
 
 BUILD_MKDOCS_MESSAGES = [
@@ -382,35 +362,6 @@ BUILD_MKDOCS_MESSAGES = [
     ),
 ]
 
-SYMLINK_MESSAGES = [
-    Message(
-        id=UnsupportedSymlinkFileError.SYMLINK_USED,
-        header=_(""),
-        body=_(
-            """
-            Symlinks are not fully supported.
-            """
-        ),
-        type=ERROR,
-    ),
-]
-
-SUBSCRIPTION_MESSAGES = []
-USER_MESSAGES = [
-    Message(
-        id="user:email:validation-pending",
-        header=_("You primary email is pending for validation."),
-        body=_(
-            """
-            Your primary email address is not verified.
-            Please <a href="{account_email_url}">verify it here</a>.
-            """
-        ),
-        type=INFO,
-    ),
-]
-
-
 class MessagesRegistry:
     def __init__(self):
         self.messages = {}
@@ -434,8 +385,5 @@ class MessagesRegistry:
 
 
 registry = MessagesRegistry()
-registry.add(CONFIG_YAML_MESSAGES)
 registry.add(BUILD_MKDOCS_MESSAGES)
 registry.add(BUILD_MESSAGES)
-registry.add(SUBSCRIPTION_MESSAGES)
-registry.add(USER_MESSAGES)
