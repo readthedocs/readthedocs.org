@@ -24,7 +24,7 @@ class TestValidateBool:
         assert validate_bool(1) is True
 
     def test_it_fails_on_string(self):
-        with raises(ValidationError) as excinfo:
+        with raises(ConfigValidationError) as excinfo:
             validate_bool("random string")
         assert excinfo.value.message_id == ConfigValidationError.INVALID_BOOL
 
@@ -34,12 +34,12 @@ class TestValidateChoice:
         result = validate_choice("choice", ("choice", "another_choice"))
         assert result == "choice"
 
-        with raises(ValidationError) as excinfo:
+        with raises(ConfigValidationError) as excinfo:
             validate_choice("c", "abc")
         assert excinfo.value.message_id == ConfigValidationError.INVALID_LIST
 
     def test_it_rejects_invalid_choice(self):
-        with raises(ValidationError) as excinfo:
+        with raises(ConfigValidationError) as excinfo:
             validate_choice("not-a-choice", ("choice", "another_choice"))
         assert excinfo.value.message_id == ConfigValidationError.INVALID_CHOICE
 
@@ -58,12 +58,12 @@ class TestValidateList:
         result = validate_list(iterator())
         assert result == ["choice"]
 
-        with raises(ValidationError) as excinfo:
+        with raises(ConfigValidationError) as excinfo:
             validate_choice("c", "abc")
         assert excinfo.value.message_id == ConfigValidationError.INVALID_LIST
 
     def test_it_rejects_string_types(self):
-        with raises(ValidationError) as excinfo:
+        with raises(ConfigValidationError) as excinfo:
             validate_list("choice")
         assert excinfo.value.message_id == ConfigValidationError.INVALID_LIST
 
@@ -87,7 +87,7 @@ class TestValidatePath:
         assert path == "a directory"
 
     def test_it_only_accepts_strings(self):
-        with raises(ValidationError) as excinfo:
+        with raises(ConfigValidationError) as excinfo:
             validate_path(None, "")
         assert excinfo.value.message_id == ConfigValidationError.INVALID_STRING
 
@@ -102,11 +102,11 @@ class TestValidateString:
         assert isinstance(result, str)
 
     def test_it_rejects_float(self):
-        with raises(ValidationError) as excinfo:
+        with raises(ConfigValidationError) as excinfo:
             validate_string(123.456)
         assert excinfo.value.message_id == ConfigValidationError.INVALID_STRING
 
     def test_it_rejects_none(self):
-        with raises(ValidationError) as excinfo:
+        with raises(ConfigValidationError) as excinfo:
             validate_string(None)
         assert excinfo.value.message_id == ConfigValidationError.INVALID_STRING
