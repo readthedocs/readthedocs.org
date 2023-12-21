@@ -43,11 +43,13 @@ def user_notifications(request):
     # Import here due to circular import
     from readthedocs.notifications.models import Notification
 
-    content_type = ContentType.objects.get_for_model(request.user)
-    user_notifications = Notification.objects.filter(
-        attached_to_content_type=content_type,
-        attached_to_id=request.user.pk,
-    )
+    user_notifications = Notification.objects.none()
+    if request.user.is_authenticated:
+        content_type = ContentType.objects.get_for_model(request.user)
+        user_notifications = Notification.objects.filter(
+            attached_to_content_type=content_type,
+            attached_to_id=request.user.pk,
+        )
 
     return {
         "user_notifications": user_notifications,
