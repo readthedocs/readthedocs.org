@@ -12,7 +12,7 @@ from readthedocs.config.utils import list_to_dict, to_dict
 from readthedocs.core.utils.filesystem import safe_open
 from readthedocs.projects.constants import GENERIC
 
-from .exceptions import ConfigError
+from .exceptions import ConfigError, ConfigValidationError
 from .find import find_one
 from .models import (
     BuildJobs,
@@ -29,8 +29,6 @@ from .models import (
 )
 from .parser import ParseError, parse
 from .validation import (
-    VALUE_NOT_FOUND,
-    ValidationError,
     validate_bool,
     validate_choice,
     validate_dict,
@@ -104,17 +102,21 @@ class BuildConfigBase:
 
     @contextmanager
     def catch_validation_error(self, key):
-        """Catch a ``ValidationError`` and raises a ``ConfigError`` error."""
+        """Catch a ``ConfigValidationError`` and raises a ``ConfigError`` error."""
+        # NOTE: I don't like too much this pattern of re-raising an exception via a context manager.
+        # I think we should raise the exception where it happens, instead of encapsulating all of them.
+        # The only small limitation that I found is the requirement of passing ``key`` down to where
+        # the exception happens.
+        # I'm keeping this pattern for now until we decide to refactor it.
         try:
             yield
-        except ValidationError as error:
+        except ConfigValidationError as error:
             raise ConfigError(
-                message_id=ConfigError.GENERIC_INVALID_CONFIG_KEY,
+                message_id=error.message_id,
                 format_values={
                     "key": key,
-                    "error_message": str(error),
-                    # TODO: make sure this base_path is correct
-                    "source_file": self.source_file.replace(self.base_path, ""),
+                    "value": error.format_values.get("value"),
+                    "source_file": os.path.relpath(self.source_file, self.base_path),
                 },
             ) from error
 
@@ -140,7 +142,12 @@ class BuildConfigBase:
                 value = container.pop(key)
             return value
         if raise_ex:
-            raise ValidationError(key, VALUE_NOT_FOUND)
+            raise ConfigValidationError(
+                message_id=ConfigValidationError.VALUE_NOT_FOUND,
+                format_values={
+                    "value": key,
+                },
+            )
         return default
 
     def pop_config(self, key, default=None, raise_ex=False):

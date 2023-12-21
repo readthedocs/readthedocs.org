@@ -22,3 +22,16 @@ class ConfigError(BuildUserError):
     SUBMODULES_INCLUDE_EXCLUDE_TOGETHER = "config:submodules:include-exclude-together"
     INVALID_KEY_NAME = "config:base:invalid-key-name"
     SYNTAX_INVALID = "config:base:invalid-syntax"
+
+
+# TODO: improve these error messages shown to the user
+# See https://github.com/readthedocs/readthedocs.org/issues/10502
+class ConfigValidationError(BuildUserError):
+    INVALID_BOOL = "config:validation:invalid-bool"
+    INVALID_CHOICE = "config:validation:invalid-choice"
+    INVALID_DICT = "config:validation:invalid-dict"
+    INVALID_PATH = "config:validation:invalid-path"
+    INVALID_PATH_PATTERN = "config:validation:invalid-path-pattern"
+    INVALID_STRING = "config:validation:invalid-string"
+    INVALID_LIST = "config:validation:invalid-list"
+    VALUE_NOT_FOUND = "config:validation:value-not-found"

@@ -5,8 +5,9 @@ from django.utils.translation import gettext_noop as _
 from readthedocs.notifications.constants import ERROR
 from readthedocs.notifications.messages import Message, registry
 
-from .exceptions import ConfigError
+from .exceptions import ConfigError, ConfigValidationError
 
+# General errors
 messages = [
     Message(
         id=ConfigError.GENERIC,
@@ -195,6 +196,99 @@ messages = [
             Error while parsing <code>{filename}</code>.
 
             {error_message}
+            """
+        ),
+        type=ERROR,
+    ),
+]
+registry.add(messages)
+
+# Validation errors
+messages = [
+    Message(
+        id=ConfigValidationError.INVALID_BOOL,
+        header=_("Config file validation error"),
+        body=_(
+            """
+            Config validation error in <code>{key}</code>.
+            Expected one of (0, 1, true, false), got <code>{value}</code>.
+            """
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigValidationError.INVALID_CHOICE,
+        header=_("Config file validation error"),
+        body=_(
+            """
+            Config validation error in <code>{key}</code>.
+            Expected one of ({choices}), got <code>{value}</code>.
+            """
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigValidationError.INVALID_DICT,
+        header=_("Config file validation error"),
+        body=_(
+            """
+            Config validation error in <code>{key}</code>.
+            Expected a dictionary, got <code>{value}</code>.
+            """
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigValidationError.INVALID_PATH,
+        header=_("Config file validation error"),
+        body=_(
+            """
+            Config validation error in <code>{key}</code>.
+            The path <code>{value}</code> does not exist.
+            """
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigValidationError.INVALID_PATH_PATTERN,
+        header=_("Config file validation error"),
+        body=_(
+            """
+            Config validation error in <code>{key}</code>.
+            The path <code>{value}</code> is not a valid path pattern.
+            """
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigValidationError.INVALID_STRING,
+        header=_("Config file validation error"),
+        body=_(
+            """
+            Config validation error in <code>{key}</code>.
+            Expected a string, got <code>{value}</code>.
+            """
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigValidationError.INVALID_LIST,
+        header=_("Config file validation error"),
+        body=_(
+            """
+            Config validation error in <code>{key}</code>.
+            Expected a list, got <code>{value}</code>.
+            """
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ConfigValidationError.VALUE_NOT_FOUND,
+        header=_("Config file validation error"),
+        body=_(
+            """
+            Config validation error in <code>{key}</code>.
+            Value <code>{value}</code> not found.
             """
         ),
         type=ERROR,
