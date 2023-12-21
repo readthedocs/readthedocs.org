@@ -416,6 +416,7 @@ class CommunityBaseSettings(Settings):
                         'django.template.context_processors.request',
                         # Read the Docs processor
                         'readthedocs.core.context_processors.readthedocs_processor',
+                        'readthedocs.core.context_processors.user_notifications',
                     ],
                 },
             },
