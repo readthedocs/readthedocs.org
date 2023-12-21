@@ -40,7 +40,7 @@ def validate_choice(value, choices):
     choices = validate_list(choices)
     if value not in choices:
         raise ConfigValidationError(
-            message_id=ConfigValidationError.INVALID_CHOICES,
+            message_id=ConfigValidationError.INVALID_CHOICE,
             format_values={
                 "value": value,
                 "choices": ", ".join(map(str, choices)),
