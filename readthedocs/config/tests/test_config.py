@@ -59,7 +59,7 @@ def test_load_no_config_file(tmpdir, files):
     with raises(ConfigError) as e:
         with override_settings(DOCROOT=tmpdir):
             load(base, {})
-    # assert e.value.code == CONFIG_FILE_REQUIRED
+    assert e.value.message_id == ConfigError.DEFAULT_PATH_NOT_FOUND
 
 def test_load_empty_config_file(tmpdir):
     apply_fs(
@@ -106,7 +106,7 @@ def test_load_unknow_version(tmpdir):
     with raises(ConfigError) as excinfo:
         with override_settings(DOCROOT=tmpdir):
             load(base, {})
-    # assert excinfo.value.code == VERSION_INVALID
+    assert excinfo.value.message_id == ConfigError.INVALID_VERSION
 
 
 def test_load_raise_exception_invalid_syntax(tmpdir):
@@ -128,7 +128,7 @@ def test_load_raise_exception_invalid_syntax(tmpdir):
     with raises(ConfigError) as excinfo:
         with override_settings(DOCROOT=tmpdir):
             load(base, {})
-    # assert excinfo.value.code == CONFIG_SYNTAX_INVALID
+    assert excinfo.value.message_id == ConfigError.SYNTAX_INVALID
 
 
 def test_load_non_default_filename(tmpdir):

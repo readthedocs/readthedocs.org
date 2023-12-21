@@ -833,7 +833,7 @@ def load(path, readthedocs_yaml_path=None):
 
         version = config.get("version", 2)
         if version not in (2, "2"):
-            raise ConfigError(message_id=ConfigError)
+            raise ConfigError(message_id=ConfigError.INVALID_VERSION)
 
         build_config = BuildConfigV2(
             config,
