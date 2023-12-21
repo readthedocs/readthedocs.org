@@ -104,21 +104,15 @@
       <div class="wrapper">
 
         {% comment %}
-          NOTE: we need to use a CustomUser to have access to "user.notifications"
+          ``user_notifications`` comes from a Context Processor.
+          We need to use a CustomUser to have access to "user.notifications"
           See https://docs.djangoproject.com/en/4.2/ref/settings/#std-setting-AUTH_USER_MODEL
-
-          If we want to show user notifications here, we can use the following code and pass it via context:
-
-          content_type = ContentType.objects.get_for_model(User)
-          user_notifications = Notification.objects.filter(attached_to_content_type=content_type, attached_to_id=request.user.pk)
-
-          {% for notification in user_notificationsl %}
-          <p class="build-failure">
-              {{ notification.get_message.get_rendered_body|safe }}
-          </p>
-          {% endfor %}
-
         {% endcomment %}
+        {% for notification in user_notifications %}
+        <p class="build-failure">
+            {{ notification.get_message.get_rendered_body|safe }}
+        </p>
+        {% endfor %}
 
         <!-- BEGIN notify -->
         {% block notify %}
