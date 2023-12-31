@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.7
+boto3==1.34.11
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.7
+botocore==1.34.11
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -70,7 +70,7 @@ click-repl==0.3.0
     # via
     #   -r requirements/pip.txt
     #   celery
-coverage[toml]==7.3.4
+coverage[toml]==7.4.0
     # via
     #   coverage
     #   pytest-cov
@@ -240,7 +240,7 @@ kombu==5.3.4
     # via
     #   -r requirements/pip.txt
     #   celery
-lxml==4.9.4
+lxml==5.0.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -334,7 +334,7 @@ redis==5.0.1
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
-regex==2023.10.3
+regex==2023.12.25
     # via -r requirements/pip.txt
 requests==2.31.0
     # via
@@ -402,7 +402,7 @@ stripe==4.2.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-structlog==23.2.0
+structlog==23.3.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -416,7 +416,7 @@ typing-extensions==4.9.0
     # via
     #   -r requirements/pip.txt
     #   asgiref
-tzdata==2023.3
+tzdata==2023.4
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
