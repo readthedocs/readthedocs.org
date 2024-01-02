@@ -27,8 +27,9 @@ from readthedocs.projects.models import (
     Project,
     ProjectRelationship,
 )
-from readthedocs.redirects.models import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
+from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
+from readthedocs.redirects.validators import validate_redirect
 
 
 class UserSerializer(FlexFieldsModelSerializer):
@@ -851,8 +852,71 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             "type",
             "from_url",
             "to_url",
+            "force",
+            "enabled",
+            "description",
+            "http_status",
+            "position",
             "_links",
         ]
+        # TODO: allow editing this field for projects that have this feature enabled.
+        read_only_fields = ["force"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Allow using the old redirect types, so we can raise the proper error in ``validate_type`.
+        self._removed_redirects = [
+            ("prefix", "Removed, use an `exact` redirect instead."),
+            ("sphinx_html", "Renamed, use `clean_url_to_html` instead."),
+            ("sphinx_htmldir", "Renamed, use `html_to_clean_url` instead."),
+        ]
+        self.fields["type"].choices = (
+            list(REDIRECT_TYPE_CHOICES) + self._removed_redirects
+        )
+
+    def validate_type(self, value):
+        blog_link = "https://blog.readthedocs.com/new-improvements-to-redirects/"
+        if value == "prefix":
+            raise serializers.ValidationError(
+                _(
+                    f"Prefix redirects have been removed. Please use an exact redirect `/prefix/*` instead. See {blog_link}."
+                )
+            )
+        if value == "sphinx_html":
+            raise serializers.ValidationError(
+                _(
+                    f"sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
+                )
+            )
+        if value == "sphinx_htmldir":
+            raise serializers.ValidationError(
+                _(
+                    f"sphinx_htmldir redirect has been renamed to html_to_clean_url. See {blog_link}."
+                )
+            )
+        return value
+
+    def create(self, validated_data):
+        validate_redirect(
+            project=validated_data["project"],
+            pk=None,
+            redirect_type=validated_data["redirect_type"],
+            from_url=validated_data.get("from_url", ""),
+            to_url=validated_data.get("to_url", ""),
+            error_class=serializers.ValidationError,
+        )
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validate_redirect(
+            project=instance.project,
+            pk=instance.pk,
+            redirect_type=validated_data["redirect_type"],
+            from_url=validated_data.get("from_url", ""),
+            to_url=validated_data.get("to_url", ""),
+            error_class=serializers.ValidationError,
+        )
+        return super().update(instance, validated_data)
 
 
 class RedirectCreateSerializer(RedirectSerializerBase):

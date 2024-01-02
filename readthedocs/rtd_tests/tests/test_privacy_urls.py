@@ -233,6 +233,7 @@ class ProjectMixin(URLAccessMixin):
             "invalid_project_slug": "invalid_slug",
             "webhook_pk": self.webhook.pk,
             "webhook_exchange_pk": self.webhook_exchange.pk,
+            "position": 0,
         }
 
 
@@ -306,6 +307,9 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
         "/dashboard/pip/users/delete/": {"status_code": 405},
         "/dashboard/pip/notifications/delete/": {"status_code": 405},
         "/dashboard/pip/redirects/{redirect_pk}/delete/": {"status_code": 405},
+        "/dashboard/pip/redirects/{redirect_pk}/insert/{position}/": {
+            "status_code": 405
+        },
         "/dashboard/pip/subprojects/sub/delete/": {"status_code": 405},
         "/dashboard/pip/integrations/sync/": {"status_code": 405},
         "/dashboard/pip/integrations/{integration_id}/sync/": {"status_code": 405},
@@ -328,6 +332,7 @@ class PrivateProjectAdminAccessTest(PrivateProjectMixin, TestCase):
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,
             "steps": 1,
+            "position": 0,
         }
 
     def login(self):
@@ -351,6 +356,9 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
         "/dashboard/pip/users/delete/": {"status_code": 405},
         "/dashboard/pip/notifications/delete/": {"status_code": 405},
         "/dashboard/pip/redirects/{redirect_pk}/delete/": {"status_code": 405},
+        "/dashboard/pip/redirects/{redirect_pk}/insert/{position}/": {
+            "status_code": 405
+        },
         "/dashboard/pip/subprojects/sub/delete/": {"status_code": 405},
         "/dashboard/pip/integrations/sync/": {"status_code": 405},
         "/dashboard/pip/integrations/{integration_id}/sync/": {"status_code": 405},
@@ -376,6 +384,7 @@ class PrivateProjectUserAccessTest(PrivateProjectMixin, TestCase):
             "webhook_id": self.webhook.id,
             "redirect_pk": self.redirect.pk,
             "steps": 1,
+            "position": 0,
         }
 
     def login(self):
