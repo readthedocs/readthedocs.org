@@ -131,7 +131,7 @@ Limitations and observations
   but incur a small performance penalty, so aren't enabled by default.
   You can ask for them to be enabled via support.
 - Redirects aren't applied on :doc:`previews of pull requests </pull-requests>`.
-  You should treat pull request previews as temporary.
+  You should treat these domains as ephemeral and not rely on them for user-facing content.
 - You can redirect to URLs outside Read the Docs,
   just include the protocol in ``To URL``, e.g ``https://example.com``.
 - A wildcard can be used at the end of ``From URL`` (suffix wildcard) to redirect all pages matching a prefix.
@@ -144,6 +144,8 @@ Limitations and observations
   If multiple redirects match the same URL,
   the first one will be applied.
   The order of redirects :ref:`can be changed from your project's dashboard <guides/redirects:Changing the order of redirects>`.
+- If an infinite redirect is detected, a 404 error will be returned,
+  and no other redirects will be applied.
 
 Examples
 ~~~~~~~~
