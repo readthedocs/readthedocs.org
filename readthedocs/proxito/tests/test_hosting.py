@@ -317,6 +317,7 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 200
 
         expected = [
+            {"slug": "en", "url": "https://project.dev.readthedocs.io/en/latest/"},
             {"slug": "ja", "url": "https://project.dev.readthedocs.io/ja/latest/"},
         ]
         assert r.json()["addons"]["flyout"]["translations"] == expected
