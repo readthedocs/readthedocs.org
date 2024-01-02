@@ -1,3 +1,30 @@
+Version 10.13.0
+---------------
+
+:Date: December 19, 2023
+
+* `@agjohnson <https://github.com/agjohnson>`__: Allow override of env settings from host (`#10959 <https://github.com/readthedocs/readthedocs.org/pull/10959>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10957 <https://github.com/readthedocs/readthedocs.org/pull/10957>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: normalize search filters (`#10951 <https://github.com/readthedocs/readthedocs.org/pull/10951>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10949 <https://github.com/readthedocs/readthedocs.org/pull/10949>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Allow empty project list on organization team form (`#10947 <https://github.com/readthedocs/readthedocs.org/pull/10947>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.12.2 (`#10944 <https://github.com/readthedocs/readthedocs.org/pull/10944>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add AddonsConfig admin (`#10938 <https://github.com/readthedocs/readthedocs.org/pull/10938>`__)
+
+Version 10.12.2
+---------------
+
+:Date: December 05, 2023
+
+* `@humitos <https://github.com/humitos>`__: Requirements: pin `django-ipware<6` (`#10932 <https://github.com/readthedocs/readthedocs.org/pull/10932>`__)
+* `@humitos <https://github.com/humitos>`__: Translation: revert German translation (`#10931 <https://github.com/readthedocs/readthedocs.org/pull/10931>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.12.1 (`#10929 <https://github.com/readthedocs/readthedocs.org/pull/10929>`__)
+* `@humitos <https://github.com/humitos>`__: Release/10.12.0 (`#10928 <https://github.com/readthedocs/readthedocs.org/pull/10928>`__)
+* `@humitos <https://github.com/humitos>`__: Design: small update to add a PATCH endpoint (`#10919 <https://github.com/readthedocs/readthedocs.org/pull/10919>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: index in small chunks (`#10914 <https://github.com/readthedocs/readthedocs.org/pull/10914>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: check for build being None (`#10913 <https://github.com/readthedocs/readthedocs.org/pull/10913>`__)
+* `@stsewd <https://github.com/stsewd>`__: Automation Rules: simplify ordering (`#10896 <https://github.com/readthedocs/readthedocs.org/pull/10896>`__)
+
 Version 10.12.1
 ---------------
 
