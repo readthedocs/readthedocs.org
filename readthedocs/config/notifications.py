@@ -237,6 +237,16 @@ messages = [
         ),
         type=ERROR,
     ),
+    Message(
+        id=ConfigError.CONDA_KEY_REQUIRED,
+        header=_("Missing required key"),
+        body=_(
+            """
+            The key <code>conda.environment</code> is required when using Conda or Mamba.
+            """
+        ),
+        type=ERROR,
+    ),
 ]
 registry.add(messages)
 
