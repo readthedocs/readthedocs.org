@@ -104,8 +104,8 @@ class RedirectQuerySet(models.QuerySet):
         html_to_clean_url = Q(redirect_type=HTML_TO_CLEAN_URL_REDIRECT)
 
         if filename in ["/index.html", "/"]:
-            # If the filename is the root index file, we only need to match page and exact redirects.
-            # Since we don't have a filename to redirect to, since ``/``/``/index.html`` is already the root.
+            # If the filename is a root index file (``/index.html`` or ``/``), we only need to match page and exact redirects,
+            # since we don't have a filename to redirect to for clean_url_to_html and html_to_clean_url redirects.
             queryset = queryset.filter(page | exact)
         elif filename:
             if filename.endswith(("/index.html", "/")):
