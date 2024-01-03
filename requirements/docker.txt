@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.2
+boto3==1.34.11
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.2
+botocore==1.34.11
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -232,7 +232,7 @@ idna==3.6
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==8.18.1
+ipython==8.19.0
     # via ipdb
 jedi==0.19.1
     # via ipython
@@ -249,7 +249,7 @@ kombu==5.3.4
     # via
     #   -r requirements/pip.txt
     #   celery
-lxml==4.9.3
+lxml==5.0.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -348,7 +348,7 @@ redis==5.0.1
     # via
     #   -r requirements/pip.txt
     #   django-cacheops
-regex==2023.10.3
+regex==2023.12.25
     # via -r requirements/pip.txt
 requests==2.31.0
     # via
@@ -367,7 +367,7 @@ requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
 rich==13.7.0
     # via -r requirements/docker.in
-s3transfer==0.9.0
+s3transfer==0.10.0
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -394,7 +394,7 @@ stripe==4.2.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-structlog==23.2.0
+structlog==23.3.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -415,7 +415,7 @@ typing-extensions==4.9.0
     # via
     #   -r requirements/pip.txt
     #   asgiref
-tzdata==2023.3
+tzdata==2023.4
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
