@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-05 16:29+0000\n"
+"POT-Creation-Date: 2024-01-03 16:28+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: BouRock, 2020\n"
 "Language-Team: Turkish (http://app.transifex.com/readthedocs/readthedocs/"
@@ -33,7 +33,7 @@ msgstr ""
 msgid "Full path including the version and language parts."
 msgstr ""
 
-#: analytics/models.py:88
+#: analytics/models.py:88 redirects/models.py:93
 msgid "HTTP status code"
 msgstr ""
 
@@ -91,7 +91,7 @@ msgstr ""
 #: api/v2/templates/restapi/footer.html:90
 #: api/v2/templates/restapi/footer.html:98
 #: api/v2/templates/restapi/footer.html:109
-#: redirects/templates/redirects/redirect_list.html:45
+#: redirects/templates/redirects/redirect_list.html:72
 #: templates/core/project_details.html:41
 #: templates/projects/project_version_list.html:49
 #: templates/projects/webhook_list.html:39
@@ -126,23 +126,43 @@ msgstr ""
 msgid "Privacy Policy"
 msgstr "Gizlilik İlkesi"
 
-#: api/v3/serializers.py:501
+#: api/v3/serializers.py:502
 #, python-brace-format
 msgid "Invalid project name \"{0}\": no slug generated."
 msgstr ""
 
-#: api/v3/serializers.py:505
+#: api/v3/serializers.py:506
 #, python-brace-format
 msgid "Project with slug \"{0}\" already exists."
 msgstr ""
 
-#: api/v3/serializers.py:728
+#: api/v3/serializers.py:729
 #, python-brace-format
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr ""
 
-#: api/v3/serializers.py:736 projects/forms.py:519
+#: api/v3/serializers.py:737 projects/forms.py:519
 msgid "A subproject with this alias already exists"
+msgstr ""
+
+#: api/v3/serializers.py:882
+#, python-brace-format
+msgid ""
+"Prefix redirects have been removed. Please use an exact redirect `/prefix/*` "
+"instead. See {blog_link}."
+msgstr ""
+
+#: api/v3/serializers.py:888
+#, python-brace-format
+msgid ""
+"sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
+msgstr ""
+
+#: api/v3/serializers.py:894
+#, python-brace-format
+msgid ""
+"sphinx_htmldir redirect has been renamed to html_to_clean_url. See "
+"{blog_link}."
 msgstr ""
 
 #: audit/models.py:76
@@ -198,7 +218,7 @@ msgid "Username"
 msgstr "Kullanıcı adı"
 
 #: audit/models.py:138 builds/models.py:109 builds/models.py:720
-#: organizations/filters.py:134 projects/models.py:1525 redirects/models.py:56
+#: organizations/filters.py:134 projects/models.py:1525 redirects/models.py:48
 msgid "Project"
 msgstr "Proje"
 
@@ -429,7 +449,7 @@ msgstr ""
 msgid "Custom match"
 msgstr ""
 
-#: builds/filters.py:26 builds/models.py:152 redirects/models.py:23
+#: builds/filters.py:26 builds/models.py:152
 msgid "Active"
 msgstr "Etkin"
 
@@ -660,7 +680,7 @@ msgid "Command"
 msgstr "Komut"
 
 #: builds/models.py:1183 builds/models.py:1244 oauth/models.py:133
-#: organizations/models.py:62 projects/models.py:219
+#: organizations/models.py:62 projects/models.py:219 redirects/models.py:106
 #: templates/core/project_details.html:78
 msgid "Description"
 msgstr "Tanım"
@@ -752,31 +772,31 @@ msgstr ""
 msgid "Type of version the rule should be applied to"
 msgstr ""
 
-#: builds/models.py:1552
+#: builds/models.py:1453
 msgid "Version activated"
 msgstr ""
 
-#: builds/models.py:1553
+#: builds/models.py:1454
 msgid "Version hidden"
 msgstr ""
 
-#: builds/models.py:1555
+#: builds/models.py:1456
 msgid "Version set to public privacy"
 msgstr ""
 
-#: builds/models.py:1558
+#: builds/models.py:1459
 msgid "Version set to private privacy"
 msgstr ""
 
-#: builds/models.py:1560
+#: builds/models.py:1461
 msgid "Version set as default"
 msgstr ""
 
-#: builds/models.py:1561
+#: builds/models.py:1462
 msgid "Version deleted"
 msgstr ""
 
-#: builds/models.py:1566
+#: builds/models.py:1467
 msgid "Matched rule"
 msgstr ""
 
@@ -1583,11 +1603,11 @@ msgstr ""
 msgid "Organization %(name)s already exists"
 msgstr ""
 
-#: organizations/forms.py:133 organizations/forms.py:218 projects/forms.py:552
+#: organizations/forms.py:133 organizations/forms.py:219 projects/forms.py:552
 msgid "Email address or username"
 msgstr ""
 
-#: organizations/forms.py:149 organizations/forms.py:253 projects/forms.py:567
+#: organizations/forms.py:149 organizations/forms.py:254 projects/forms.py:567
 #, python-format
 msgid "User %(username)s does not exist"
 msgstr ""
@@ -1601,7 +1621,7 @@ msgstr ""
 msgid "Team already exists"
 msgstr ""
 
-#: organizations/forms.py:260
+#: organizations/forms.py:261
 msgid "User is already a team member"
 msgstr ""
 
@@ -2024,35 +2044,35 @@ msgstr ""
 msgid "Updated your advertising preferences"
 msgstr "Reklam tercihleriniz güncellendi"
 
-#: projects/admin.py:121
+#: projects/admin.py:122
 msgid "Yes"
 msgstr "Evet"
 
-#: projects/admin.py:122
+#: projects/admin.py:123
 msgid "No"
 msgstr ""
 
-#: projects/admin.py:151
+#: projects/admin.py:152
 msgid "Not spam (1-{})"
 msgstr ""
 
-#: projects/admin.py:157
+#: projects/admin.py:158
 msgid "Don't show Ads ({}-{})"
 msgstr ""
 
-#: projects/admin.py:164
+#: projects/admin.py:165
 msgid "Deny on robots ({}-{})"
 msgstr ""
 
-#: projects/admin.py:171
+#: projects/admin.py:172
 msgid "Don't show dashboard ({}-{})"
 msgstr ""
 
-#: projects/admin.py:178
+#: projects/admin.py:179
 msgid "Don't serve docs ({}-{})"
 msgstr ""
 
-#: projects/admin.py:185
+#: projects/admin.py:186
 msgid "Delete project (>={})"
 msgstr ""
 
@@ -2310,27 +2330,27 @@ msgid ""
 "translations."
 msgstr ""
 
-#: projects/forms.py:850
+#: projects/forms.py:863
 msgid "Only one domain can be canonical at a time."
 msgstr ""
 
-#: projects/forms.py:951
+#: projects/forms.py:964
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "Değişken adı __ (çift alt çizgi) ile başlayamaz"
 
-#: projects/forms.py:955
+#: projects/forms.py:968
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "Değişken adı READTHEDOCS ile başlayamaz"
 
-#: projects/forms.py:960
+#: projects/forms.py:973
 msgid "There is already a variable with this name for this project"
 msgstr "Bu proje için bu ada sahip bir değişken zaten var"
 
-#: projects/forms.py:965
+#: projects/forms.py:978
 msgid "Variable name can't contain spaces"
 msgstr "Değişken adı boşluklar içeremez"
 
-#: projects/forms.py:969
+#: projects/forms.py:982
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Sadece harflere, sayılara ve alt çizgiye izin verilir"
 
@@ -3056,7 +3076,7 @@ msgstr ""
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:920
+#: projects/views/private.py:945
 msgid "Project has been opted out from advertisement support"
 msgstr "Proje reklam desteğinden çekildi"
 
@@ -3070,86 +3090,94 @@ msgctxt "Names an object not found in a 404 error"
 msgid "translation"
 msgstr ""
 
-#: redirects/models.py:18
-msgid "301 - Permanent Redirect"
-msgstr "301 - Kalıcı Yönlendirme"
-
-#: redirects/models.py:19
+#: redirects/constants.py:4
 msgid "302 - Temporary Redirect"
 msgstr "302 - Geçici Yönlendirme"
 
-#: redirects/models.py:24
-msgid "Inactive"
-msgstr "Etkin değil"
+#: redirects/constants.py:5
+msgid "301 - Permanent Redirect"
+msgstr "301 - Kalıcı Yönlendirme"
 
-#: redirects/models.py:28
-msgid "Prefix Redirect"
-msgstr "Önek Yönlendirme"
-
-#: redirects/models.py:29
+#: redirects/constants.py:14
 msgid "Page Redirect"
 msgstr "Sayfa Yönlendirme"
 
-#: redirects/models.py:30
+#: redirects/constants.py:15
 msgid "Exact Redirect"
 msgstr "Tam Yönlendirme"
 
-#: redirects/models.py:31
-msgid "Sphinx HTMLDir -> HTML"
-msgstr "Sphinx HTMLDizini -> HTML"
+#: redirects/constants.py:16
+msgid "Clean URL to HTML (file/ to file.html)"
+msgstr ""
 
-#: redirects/models.py:32
-msgid "Sphinx HTML -> HTMLDir"
-msgstr "Sphinx HTML -> HTMLDizini"
+#: redirects/constants.py:17
+msgid "HTML to clean URL (file.html to file/)"
+msgstr ""
 
-#: redirects/models.py:41
+#: redirects/models.py:33
 msgid ""
 "Absolute path, excluding the domain. Example: <b>/docs/</b>  or <b>/install."
 "html</b>"
 msgstr ""
 "Etki alanı hariç, tam yol. Örnek: <b>/docs/</b> veya <b>/install.html</b>"
 
-#: redirects/models.py:45
+#: redirects/models.py:37
 msgid "Absolute or relative URL. Example: <b>/tutorial/install.html</b>"
 msgstr "Tam veya göreceli URL. Örnek: <b>/tutorial/install.html</b>"
 
-#: redirects/models.py:47
+#: redirects/models.py:39
 msgid "The type of redirect you wish to use."
 msgstr "Kullanmak istediğiniz yönlendirme türü."
 
-#: redirects/models.py:62
+#: redirects/models.py:54
 msgid "Redirect Type"
 msgstr "Yönlendirme Türü"
 
-#: redirects/models.py:69
+#: redirects/models.py:61
 msgid "From URL"
 msgstr "URL'den"
 
-#: redirects/models.py:87
+#: redirects/models.py:78
 msgid "To URL"
 msgstr "URL'ye"
 
-#: redirects/models.py:94
+#: redirects/models.py:86
 msgid "Force redirect"
 msgstr ""
 
-#: redirects/models.py:97
+#: redirects/models.py:89
 msgid "Apply the redirect even if the page exists."
 msgstr ""
 
-#: redirects/models.py:101
-msgid "HTTP Status"
-msgstr "HTTP Durumu"
+#: redirects/models.py:99
+#, fuzzy
+#| msgid "CDN Enabled"
+msgid "Enabled"
+msgstr "CDN Etkinleştirildi"
 
-#: redirects/models.py:113
+#: redirects/models.py:102
+msgid "Enable or disable the redirect."
+msgstr ""
+
+#: redirects/models.py:114
+#, fuzzy
+#| msgid "Description"
+msgid "Position"
+msgstr "Tanım"
+
+#: redirects/models.py:117
+msgid "Order of execution of the redirect."
+msgstr ""
+
+#: redirects/models.py:131
 msgid "redirect"
 msgstr "yönlendirme"
 
-#: redirects/models.py:114
+#: redirects/models.py:132
 msgid "redirects"
 msgstr "yönlendirme"
 
-#: redirects/models.py:130
+#: redirects/models.py:204
 msgid "Redirect: {}"
 msgstr "Yönlendirme: {}"
 
@@ -3158,14 +3186,14 @@ msgid "Redirect"
 msgstr ""
 
 #: redirects/templates/redirects/redirect_form.html:8
-#: redirects/templates/redirects/redirect_list.html:5
-#: redirects/templates/redirects/redirect_list.html:8
+#: redirects/templates/redirects/redirect_list.html:6
+#: redirects/templates/redirects/redirect_list.html:13
 #: templates/projects/project_edit_base.html:23
 msgid "Redirects"
 msgstr "Yönlendirmeler"
 
 #: redirects/templates/redirects/redirect_form.html:72
-#: redirects/templates/redirects/redirect_list.html:12
+#: redirects/templates/redirects/redirect_list.html:17
 #, python-format
 msgid ""
 "Add redirects for your project. This allows you to fix links to old pages "
@@ -3178,11 +3206,25 @@ msgstr ""
 msgid "Delete"
 msgstr "Sil"
 
-#: redirects/templates/redirects/redirect_list.html:22
+#: redirects/templates/redirects/redirect_list.html:27
 msgid "Add Redirect"
 msgstr ""
 
+#: redirects/templates/redirects/redirect_list.html:52
 #: redirects/templates/redirects/redirect_list.html:53
+#: templates/builds/versionautomationrule_list.html:54
+#: templates/builds/versionautomationrule_list.html:55
+msgid "Move up"
+msgstr ""
+
+#: redirects/templates/redirects/redirect_list.html:63
+#: redirects/templates/redirects/redirect_list.html:64
+#: templates/builds/versionautomationrule_list.html:65
+#: templates/builds/versionautomationrule_list.html:66
+msgid "Move down"
+msgstr ""
+
+#: redirects/templates/redirects/redirect_list.html:80
 msgid "No redirects found."
 msgstr ""
 
@@ -3832,16 +3874,6 @@ msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:32
 msgid "Add Rule"
-msgstr ""
-
-#: templates/builds/versionautomationrule_list.html:54
-#: templates/builds/versionautomationrule_list.html:55
-msgid "Move up"
-msgstr ""
-
-#: templates/builds/versionautomationrule_list.html:65
-#: templates/builds/versionautomationrule_list.html:66
-msgid "Move down"
 msgstr ""
 
 #: templates/builds/versionautomationrule_list.html:76
@@ -5633,3 +5665,18 @@ msgid ""
 "OAuth connection of Read the Docs. On GitHub, this is located in "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
+
+#~ msgid "Inactive"
+#~ msgstr "Etkin değil"
+
+#~ msgid "Prefix Redirect"
+#~ msgstr "Önek Yönlendirme"
+
+#~ msgid "Sphinx HTMLDir -> HTML"
+#~ msgstr "Sphinx HTMLDizini -> HTML"
+
+#~ msgid "Sphinx HTML -> HTMLDir"
+#~ msgstr "Sphinx HTML -> HTMLDizini"
+
+#~ msgid "HTTP Status"
+#~ msgstr "HTTP Durumu"
