@@ -79,6 +79,18 @@ BUILD_MESSAGES = [
         type=ERROR,
     ),
     Message(
+        id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
+        header=_("Build terminated due inactivity"),
+        body=_(
+            """
+            This build was terminated due to inactivity.
+            If you continue to encounter this error,
+            file a support request with and reference this build id ({instance.pk}).
+            """
+        ),
+        type=ERROR,
+    ),
+    Message(
         id=BuildUserError.GENERIC,
         header=_("Unknown problem"),
         body=_(
@@ -287,7 +299,7 @@ BUILD_MESSAGES = [
         type=ERROR,
     ),
     Message(
-        id=BuildUserError.FILE_TOO_LARGE,
+        id=BuildUserError.BUILD_OUTPUT_HAS_NO_PDF_FILES,
         header=_("There is no PDF file in output directory"),
         body=_(
             f"""
@@ -306,6 +318,16 @@ BUILD_MESSAGES = [
             """
         ),
         type=INFO,
+    ),
+    Message(
+        id=BuildUserError.TEX_FILE_NOT_FOUND,
+        header=_("No TeX files were found"),
+        body=_(
+            """
+            No TeX files were found.
+            """
+        ),
+        type=ERROR,
     ),
 ]
 
@@ -381,6 +403,17 @@ BUILD_MKDOCS_MESSAGES = [
     Please follow the user guide https://www.mkdocs.org/user-guide/configuration/
     to configure the file properly.
                 """
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=MkDocsYAMLParseError.SYNTAX_ERROR,
+        header=_("Syntax error in <code>mkdocs.yml</code>"),
+        body=_(
+            """
+            Your <code>mkdocs.yml</code> could not be loaded,
+            possibly due to a syntax error.
+            """
         ),
         type=ERROR,
     ),

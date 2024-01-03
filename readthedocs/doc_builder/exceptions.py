@@ -29,6 +29,7 @@ class BuildAppError(BuildBaseException):
     GENERIC_WITH_BUILD_ID = "build:app:generic-with-build-id"
     BUILDS_DISABLED = "build:app:project-builds-disabled"
     BUILD_DOCKER_UNKNOWN_ERROR = "build:app:docker:unknown-error"
+    BUILD_TERMINATED_DUE_INACTIVITY = "build:app:terminated-due-inactivity"
 
 
 class BuildUserError(BuildBaseException):
@@ -39,10 +40,12 @@ class BuildUserError(BuildBaseException):
     BUILD_COMMANDS_WITHOUT_OUTPUT = "build:user:output:no-html"
     BUILD_OUTPUT_IS_NOT_A_DIRECTORY = "build:user:output:is-no-a-directory"
     BUILD_OUTPUT_HAS_0_FILES = "build:user:output:has-0-files"
+    BUILD_OUTPUT_HAS_NO_PDF_FILES = "build:user:output:has-no-pdf-files"
     BUILD_OUTPUT_HAS_MULTIPLE_FILES = "build:user:output:has-multiple-files"
     BUILD_OUTPUT_HTML_NO_INDEX_FILE = "build:user:output:html-no-index-file"
     BUILD_OUTPUT_OLD_DIRECTORY_USED = "build:user:output:old-directory-used"
     FILE_TOO_LARGE = "build:user:output:file-too-large"
+    TEX_FILE_NOT_FOUND = "build:user:tex-file-not-found"
 
     NO_CONFIG_FILE_DEPRECATED = "build:user:config:no-config-file"
     BUILD_IMAGE_CONFIG_KEY_DEPRECATED = "build:user:config:build-image-deprecated"
@@ -69,6 +72,7 @@ class MkDocsYAMLParseError(BuildUserError):
     EMPTY_CONFIG = "build:user:mkdocs:empty-config"
     NOT_FOUND = "build:user:mkdocs:config-not-found"
     CONFIG_NOT_DICT = "build:user:mkdocs:invalid-yaml"
+    SYNTAX_ERROR = "build:user:mkdocs:syntax-error"
 
 
 # NOTE: there is no need to have three different error classes for this.

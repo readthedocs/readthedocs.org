@@ -501,7 +501,7 @@ class PdfBuilder(BaseSphinx):
 
         tex_files = glob(os.path.join(self.absolute_host_output_dir, "*.tex"))
         if not tex_files:
-            raise BuildUserError("No TeX files were found.")
+            raise BuildUserError(message_id=BuildUserError.TEX_FILE_NOT_FOUND)
 
         # Run LaTeX -> PDF conversions
         success = self._build_latexmk(self.project_path)
