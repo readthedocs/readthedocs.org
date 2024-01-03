@@ -85,7 +85,7 @@ BUILD_MESSAGES = [
             """
             This build was terminated due to inactivity.
             If you continue to encounter this error,
-            file a support request with and reference this build id ({instance.pk}).
+            file a support request and reference this build id ({instance.pk}).
             """
         ),
         type=ERROR,
