@@ -227,7 +227,7 @@ def attach_webhook(project_pk, user_pk, integration=None):
             attached_to=project,
             format_values={
                 "provider_name": provider.name,
-                "url_docs_webhook": "http://docs.readthedocs.io/en/latest/webhooks.html",
+                "url_docs_webhook": "https://docs.readthedocs.io/page/webhooks.html",
             },
         )
     else:

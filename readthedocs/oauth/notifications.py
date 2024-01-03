@@ -12,7 +12,7 @@ MESSAGE_OAUTH_BUILD_STATUS_FAILURE = "oauth:status:send-failed"
 messages = [
     Message(
         id=MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT,
-        header=_("Webhook not attached to this project"),
+        header=_("Unable to attach webhook to this project"),
         body=_(
             """
             Could not add webhook for {instance.name}.
@@ -23,7 +23,7 @@ messages = [
     ),
     Message(
         id=MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS,
-        header=_("Webhook not attached to this project"),
+        header=_("Unable to attach webhook to this project"),
         body=_(
             """
             Could not add webhook for {instance.name}.
@@ -34,7 +34,7 @@ messages = [
     ),
     Message(
         id=MESSAGE_OAUTH_WEBHOOK_INVALID,
-        header=_("The project doesn't have a valid webhook setup"),
+        header=_("The project doesn't have a valid webhook set up"),
         body=_(
             """
         The project {instance.name} doesn't have a valid webhook set up,

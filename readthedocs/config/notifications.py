@@ -32,7 +32,7 @@ messages = [
     ),
     Message(
         id=ConfigError.CONFIG_PATH_NOT_FOUND,
-        header=_("Config file not found"),
+        header=_("Configuration file not found"),
         body=_(
             """
             Configuration file not found in <code>{directory}</code>.

@@ -37,20 +37,18 @@ class Message:
         # Default classes that apply to all the notifications
         classes = [
             "fas",
-            "fa-user-group",
-            "fa-swap-opacity",
         ]
 
         if self.type == ERROR:
-            classes.append("fa-exclamation")
+            classes.append("fa-circle-xmark")
         if self.type == WARNING:
-            classes.append("fa-triangle-exclamation")
+            classes.append("fa-circle-exclamation")
         if self.type == INFO:
-            classes.append("fa-????")
+            classes.append("fa-circle-info")
         if self.type == NOTE:
-            classes.append("fa-????")
+            classes.append("fa-circle-info")
         if self.type == TIP:
-            classes.append("fa-????")
+            classes.append("fa-circle-info")
 
         return " ".join(classes)
 
@@ -111,7 +109,7 @@ BUILD_MESSAGES = [
         header=_("Build cancelled manually."),
         body=_(
             """
-                The user has cancel this build.
+                The user has cancelled this build.
                 """
         ),
         type=INFO,
@@ -121,8 +119,8 @@ BUILD_MESSAGES = [
         header=_("Build skipped manually."),
         body=_(
             """
-                One of the commands exited with code 183
-                and the build was skipped.
+                This build was skipped because
+                one of the commands exited with code 183
                 """
         ),
         type=INFO,
@@ -132,7 +130,7 @@ BUILD_MESSAGES = [
         header=_("Builds are temporary disabled for this project."),
         body=_(
             """
-                This is due to an excess usage of our resources.
+                This is due to excessive usage of our resources.
                 Please, contact our support team if you think this is a mistake
                 and builds should be re-enabled.
                 """
@@ -144,8 +142,8 @@ BUILD_MESSAGES = [
         header=_("Concurrency limit reached"),
         body=_(
             """
-                Your project/organization/user is currently building the maximum concurrency builds allowed ({limit}).
-                It will automatically retried in 5 minutes.
+                Your project, organization, or user is currently building the maximum concurrency builds allowed ({limit}).
+                It will automatically retry in 5 minutes.
                 """
         ),
         type=WARNING,
@@ -253,11 +251,11 @@ BUILD_MESSAGES = [
     ),
     Message(
         id=BuildUserError.FILE_TOO_LARGE,
-        header=_("There is at least one file size that exceeds the limits"),
+        header=_("There is at least one file that exceeds the size limit"),
         body=_(
             """
                 A file from your build process is too large to be processed by Read the Docs.
-                Please ensure no files generated are larger than 1GB.
+                Please ensure no generated files are larger than 1GB.
                 """
         ),
         type=ERROR,

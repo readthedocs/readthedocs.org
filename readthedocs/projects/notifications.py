@@ -26,7 +26,7 @@ messages = [
     ),
     Message(
         id=RepositoryError.GENERIC,
-        header=_("Error when cloning the repository"),
+        header=_("Error while cloning the repository"),
         body=_(
             """
             There was a problem cloning your repository.
@@ -48,7 +48,7 @@ messages = [
     ),
     Message(
         id=RepositoryError.FAILED_TO_CHECKOUT,
-        header=_("Error when checking out the repository"),
+        header=_("Error while checking out the repository"),
         body=_(
             """
             Failed to checkout revision: <code>{revision}</code>
@@ -58,7 +58,7 @@ messages = [
     ),
     Message(
         id=RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_ALLOWED,
-        header=_("Error when cloning the repository"),
+        header=_("Error while cloning the repository"),
         body=_(
             """
             There was a problem connecting to your repository,
@@ -69,7 +69,7 @@ messages = [
     ),
     Message(
         id=RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_NOT_ALLOWED,
-        header=_("Error when cloning the repository"),
+        header=_("Error while cloning the repository"),
         body=_(
             """
             There was a problem connecting to your repository,
@@ -81,7 +81,7 @@ messages = [
     ),
     Message(
         id=ProjectConfigurationError.NOT_FOUND,
-        header=_("Sphinx's configuration file missing"),
+        header=_("Sphinx configuration file is missing"),
         body=_(
             """
             A configuration file was not found.
@@ -92,7 +92,7 @@ messages = [
     ),
     Message(
         id=ProjectConfigurationError.MULTIPLE_CONF_FILES,
-        header=_("Multiple Sphinx's configuration file found"),
+        header=_("Multiple Sphinx configuration files found"),
         body=_(
             """
             We found more than one <code>conf.py</code> and are not sure which one to use.
