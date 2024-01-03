@@ -28,6 +28,7 @@ class BuildAppError(BuildBaseException):
 
     GENERIC_WITH_BUILD_ID = "build:app:generic-with-build-id"
     BUILDS_DISABLED = "build:app:project-builds-disabled"
+    BUILD_DOCKER_UNKNOWN_ERROR = "build:app:docker:unknown-error"
 
 
 class BuildUserError(BuildBaseException):
@@ -48,6 +49,8 @@ class BuildUserError(BuildBaseException):
     BUILD_OS_REQUIRED = "build:user:config:build-os-required"
 
     BUILD_COMMANDS_IN_BETA = "build:user:build-commands-config-key-in-beta"
+    BUILD_TIME_OUT = "build:user:time-out"
+    BUILD_EXCESSIVE_MEMORY = "build:user:excessive-memory"
 
 
 class BuildMaxConcurrencyError(BuildUserError):

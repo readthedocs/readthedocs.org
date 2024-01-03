@@ -776,22 +776,17 @@ class DockerBuildEnvironment(BaseBuildEnvironment):
         """
         if state is not None and state.get("Running") is False:
             if state.get("ExitCode") == DOCKER_TIMEOUT_EXIT_CODE:
-                raise BuildUserError(
-                    _("Build exited due to time out"),
-                )
+                raise BuildUserError(message_id=BuildUserError.BUILD_TIME_OUT)
 
             if state.get("OOMKilled", False):
-                raise BuildUserError(
-                    _("Build exited due to excessive memory consumption"),
-                )
+                raise BuildUserError(message_id=BuildUserError.BUILD_EXCESSIVE_MEMORY)
 
             if state.get("Error"):
                 raise BuildAppError(
-                    (
-                        _("Build exited due to unknown error: {0}").format(
-                            state.get("Error")
-                        ),
-                    )
+                    message_id=BuildAppError.BUILD_DOCKER_UNKNOWN_ERROR,
+                    format_values={
+                        "message": state.get("Error"),
+                    },
                 )
 
     def create_container(self):

@@ -122,6 +122,36 @@ BUILD_MESSAGES = [
         type=INFO,
     ),
     Message(
+        id=BuildUserError.BUILD_TIME_OUT,
+        header=_("Build exited due to time out."),
+        body=_(
+            """
+            Build exited due to time out.
+            """
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=BuildUserError.BUILD_EXCESSIVE_MEMORY,
+        header=_("Build exited due to excessive memory consumption."),
+        body=_(
+            """
+            Build exited due to excessive memory consumption.
+            """
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=BuildAppError.BUILD_DOCKER_UNKNOWN_ERROR,
+        header=_("Build exited due to unknown error."),
+        body=_(
+            """
+            Build exited due to unknown error: {message}
+            """
+        ),
+        type=ERROR,
+    ),
+    Message(
         id=BuildAppError.BUILDS_DISABLED,
         header=_("Builds are temporary disabled for this project."),
         body=_(
