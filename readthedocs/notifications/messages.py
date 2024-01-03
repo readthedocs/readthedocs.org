@@ -120,7 +120,7 @@ BUILD_MESSAGES = [
                 The user has cancelled this build.
                 """
         ),
-        type=INFO,
+        type=ERROR,
     ),
     Message(
         id=BuildUserError.SKIPPED_EXIT_CODE_183,
