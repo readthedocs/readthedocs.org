@@ -1,3 +1,19 @@
+Version 10.14.0
+---------------
+
+:Date: January 03, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10977 <https://github.com/readthedocs/readthedocs.org/pull/10977>`__)
+* `@basnijholt <https://github.com/basnijholt>`__: Fix YAML indentation in example `.readthedocs.yaml` (`#10970 <https://github.com/readthedocs/readthedocs.org/pull/10970>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10969 <https://github.com/readthedocs/readthedocs.org/pull/10969>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.13.0 (`#10961 <https://github.com/readthedocs/readthedocs.org/pull/10961>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Allow override of env settings from host (`#10959 <https://github.com/readthedocs/readthedocs.org/pull/10959>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: get translation from main project (`#10952 <https://github.com/readthedocs/readthedocs.org/pull/10952>`__)
+* `@dependabot[bot] <https://github.com/dependabot[bot]>`__: Bump actions/setup-python from 4 to 5 (`#10950 <https://github.com/readthedocs/readthedocs.org/pull/10950>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: fix default for search.ranking when indexing (`#10945 <https://github.com/readthedocs/readthedocs.org/pull/10945>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.12.2 (`#10944 <https://github.com/readthedocs/readthedocs.org/pull/10944>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: improvements from design doc (`#10881 <https://github.com/readthedocs/readthedocs.org/pull/10881>`__)
+
 Version 10.13.0
 ---------------
 

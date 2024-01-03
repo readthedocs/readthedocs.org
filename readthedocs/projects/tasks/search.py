@@ -45,7 +45,7 @@ def index_build(build_id):
 
     build_config = build.config or {}
     search_config = build_config.get("search", {})
-    search_ranking = search_config.get("ranking", [])
+    search_ranking = search_config.get("ranking", {})
     search_ignore = search_config.get("ignore", [])
 
     try:
