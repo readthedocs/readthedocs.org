@@ -162,40 +162,6 @@ $(document).ready(function () {
           </p>
         </div>
       {% endif %}
-
-     {% comment %}
-        NOTE: I'm not migrating "deprecated build image used" nor "deprecated config used"
-        since these notifications are not useful anymore.
-        The YAML config file is required now and it's not possible to use `build.image` anymore.
-        We should probably remove these blocks completely now.
-
-      {# This message is not dynamic and only appears when loading the page after the build has finished #}
-      {% if build.finished and build.deprecated_build_image_used %}
-      <div class="build-ideas">
-          <p>
-              {% blocktrans trimmed with config_file_link="https://blog.readthedocs.com/use-build-os-config/" %}
-              <strong>Your builds will stop working soon!</strong><br/>
-              "build.image" config key is deprecated and it will be removed soon.
-              <a href="{{ config_file_link }}">Read our blog post to know how to migrate to new key "build.os"</a>
-              and ensure your project continues building successfully.
-              {% endblocktrans %}
-          </p>
-      </div>
-      {% endif %}
-      {% if build.finished and build.deprecated_config_used %}
-      <div class="build-ideas">
-        <p>
-          {% blocktrans trimmed with config_file_link="https://blog.readthedocs.com/migrate-configuration-v2/" %}
-            <strong>Your builds will stop working soon!</strong><br/>
-            Configuration files will <strong>soon be required</strong> by projects, and will no longer be optional.
-            <a href="{{ config_file_link }}">Read our blog post to create one</a>
-            and ensure your project continues building successfully.
-          {% endblocktrans %}
-        </p>
-      </div>
-      {% endif %}
-    {% endcomment %}
-
     {% endif %}
 
 
