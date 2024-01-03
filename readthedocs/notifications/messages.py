@@ -93,10 +93,6 @@ BUILD_MESSAGES = [
     Message(
         id=BuildMaxConcurrencyError.LIMIT_REACHED,
         header=_("Maximum concurrency limit reached."),
-        # TODO: how we are going to format variables (e.g. ``limit`` here)?
-        # The variables are passed when it's instantiated.
-        # However, we need to render the notification from the front-end in a different moment.
-        # Do we want to store the key/values in the database and use them to render the message?
         body=_(
             """
                 Concurrency limit reached ({limit}), retrying in 5 minutes.
