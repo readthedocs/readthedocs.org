@@ -225,31 +225,6 @@ $(document).ready(function () {
     {% endif %}
     {% endfor %}
 
-      <div class="build-error"
-           data-bind="visible: error"
-           style="display: none;">
-        <h3>{% trans "Error" %}</h3>
-        <p class="build-error"
-           data-bind="text: error">
-            {#
-              I'd like to use ``build.error|urlize`` here, so we can have nice links.
-              However, this is not possible because we are using `data-bind="text: error"`
-              which means that Knockout.js will use the `.error` attribute to fill
-              the content of this tag dynamically.
-            #}
-            {{ build.error|urlize }}
-        </p>
-        <p>
-          {% block github_issue_link %}
-            {% if issue_url %}
-              {% blocktrans trimmed with url=issue_url %}
-                <a href="{{ url }}">Report any build issues here</a>.
-              {% endblocktrans %}
-            {% endif %}
-          {% endblock %}
-        </p>
-      </div>
-
       <div id="build-commands"
            class="build-command-list"
            data-bind="visible: commands, foreach: display_commands"
