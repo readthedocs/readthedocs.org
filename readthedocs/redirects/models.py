@@ -113,7 +113,6 @@ class Redirect(models.Model):
     position = models.PositiveIntegerField(
         _("Position"),
         default=0,
-        null=True,
         help_text=_("Order of execution of the redirect."),
     )
 
