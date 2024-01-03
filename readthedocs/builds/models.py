@@ -9,7 +9,6 @@ import structlog
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import F
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext
@@ -82,6 +81,7 @@ from readthedocs.projects.constants import (
     SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import APIProject, Project
+from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
 
@@ -1261,6 +1261,8 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         choices=VERSION_TYPES,
     )
 
+    _position_manager = ProjectItemPositionManager(position_field_name="priority")
+
     class Meta:
         unique_together = (('project', 'priority'),)
         ordering = ('priority', '-modified', '-created')
@@ -1337,118 +1339,17 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         self.priority = new_priority
         self.save()
 
-    def _change_priority(self):
-        """
-        Re-order the priorities of the other rules when the priority of this rule changes.
-
-        If the rule is new, we just need to move all other rules down,
-        so there is space for the new rule.
-
-        If the rule already exists, we need to move the other rules up or down,
-        depending on the new priority, so we can insert the rule at the new priority.
-
-        The save() method needs to be called after this method.
-        """
-        total = self.project.automation_rules.count()
-
-        # If the rule was just created, we just need to insert it at the given priority.
-        # We do this by moving the other rules down before saving.
-        if not self.pk:
-            # A new rule can be created at the end as max.
-            self.priority = min(self.priority, total)
-
-            # A new rule can't be created with a negative priority. All rules start at 0.
-            self.priority = max(self.priority, 0)
-
-            rules = (
-                self.project.automation_rules.filter(priority__gte=self.priority)
-                # We sort the queryset in desc order
-                # to be updated in that order
-                # to avoid hitting the unique constraint (project, priority).
-                .order_by('-priority')
-            )
-            expression = F('priority') + 1
-        else:
-            current_priority = self.project.automation_rules.values_list(
-                "priority",
-                flat=True,
-            ).get(pk=self.pk)
-
-            # An existing rule can't be moved past the end.
-            self.priority = min(self.priority, total - 1)
-
-            # A new rule can't be created with a negative priority. all rules start at 0.
-            self.priority = max(self.priority, 0)
-
-            # The rule wasn't moved, so we don't need to do anything.
-            if self.priority == current_priority:
-                return
-
-            if self.priority > current_priority:
-                # It was moved down, so we need to move the other rules up.
-                rules = (
-                    self.project.automation_rules.filter(
-                        priority__gt=current_priority, priority__lte=self.priority
-                    )
-                    # We sort the queryset in asc order
-                    # to be updated in that order
-                    # to avoid hitting the unique constraint (project, priority).
-                    .order_by("priority")
-                )
-                expression = F("priority") - 1
-            else:
-                # It was moved up, so we need to move the other rules down.
-                rules = (
-                    self.project.automation_rules.filter(
-                        priority__lt=current_priority, priority__gte=self.priority
-                    )
-                    # We sort the queryset in desc order
-                    # to be updated in that order
-                    # to avoid hitting the unique constraint (project, priority).
-                    .order_by("-priority")
-                )
-                expression = F("priority") + 1
-
-        # Put an impossible priority to avoid
-        # the unique constraint (project, priority) while updating.
-        # We use update() instead of save() to avoid calling the save() method again.
-        if self.pk:
-            self._meta.model.objects.filter(pk=self.pk).update(priority=total + 99)
-
-        # NOTE: we can't use rules.update(priority=expression), because SQLite is used
-        # in tests and hits a UNIQUE constraint error. PostgreSQL doesn't have this issue.
-        # We use update() instead of save() to avoid calling the save() method.
-        for rule in rules:
-            self._meta.model.objects.filter(pk=rule.pk).update(priority=expression)
-
     def save(self, *args, **kwargs):
         """Override method to update the other priorities before save."""
-        self._change_priority()
+        self._position_manager.change_position_before_save(self)
         if not self.description:
             self.description = self.get_description()
         super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         """Override method to update the other priorities after delete."""
-        current_priority = self.priority
-        project = self.project
         super().delete(*args, **kwargs)
-
-        rules = (
-            project.automation_rules
-            .filter(priority__gte=current_priority)
-            # We sort the queryset in asc order
-            # to be updated in that order
-            # to avoid hitting the unique constraint (project, priority).
-            .order_by('priority')
-        )
-        # We update each object one by one to
-        # avoid hitting the unique constraint (project, priority).
-        # We use update() instead of save() to avoid calling the save() method.
-        for rule in rules:
-            self._meta.model.objects.filter(pk=rule.pk).update(
-                priority=F("priority") - 1,
-            )
+        self._position_manager.change_position_after_delete(self)
 
     def get_description(self):
         if self.description:

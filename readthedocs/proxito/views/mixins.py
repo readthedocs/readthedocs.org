@@ -340,7 +340,7 @@ class ServeRedirectMixin:
         return resp
 
     def get_redirect(
-        self, project, lang_slug, version_slug, filename, full_path, forced_only=False
+        self, project, lang_slug, version_slug, filename, path, forced_only=False
     ):
         """
         Check for a redirect for this project that matches ``full_path``.
@@ -351,8 +351,8 @@ class ServeRedirectMixin:
         redirect_path, http_status = project.redirects.get_redirect_path_with_status(
             language=lang_slug,
             version_slug=version_slug,
-            path=filename,
-            full_path=full_path,
+            filename=filename,
+            path=path,
             forced_only=forced_only,
         )
         return redirect_path, http_status

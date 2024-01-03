@@ -1,5 +1,6 @@
 """Views for hosting features."""
 
+import itertools
 from functools import lru_cache
 
 import packaging
@@ -268,9 +269,17 @@ class AddonsResponse:
         if version:
             version_downloads = version.get_downloads(pretty=True).items()
 
+        main_project = project.main_language_project or project
         project_translations = (
-            project.translations.all().only("language").order_by("language")
+            main_project.translations.all().only("language").order_by("language")
         )
+        if project_translations.exists():
+            # Always prefix the list of translations with the main project's language,
+            # when there are translations present.
+            # Example: a project with Russian and Spanish translations will be showns as:
+            #     en (original), es, ru
+            project_translations = itertools.chain([main_project], project_translations)
+
         # Make one DB query here and then check on Python code
         # TODO: make usage of ``Project.addons.<name>_enabled`` to decide if enabled
         #
@@ -288,8 +297,6 @@ class AddonsResponse:
                 " AND IT'S GOING TO CHANGE COMPLETELY -- DO NOT USE IT!"
             ),
             "projects": {
-                # TODO: return the "parent" project here when the "current"
-                # project is a subproject/translation.
                 "current": ProjectSerializerNoLinks(project).data,
             },
             "versions": {
