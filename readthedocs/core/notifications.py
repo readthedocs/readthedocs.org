@@ -13,7 +13,7 @@ messages = [
         body=_(
             """
             Your primary email address is not verified.
-            Please <a href="{account_email_url}">verify it here</a>.,
+            Please <a href="{account_email_url}">verify it here</a>.
             """
         ),
         type=WARNING,
