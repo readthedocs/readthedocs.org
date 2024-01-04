@@ -3246,17 +3246,19 @@ class IntegrationsTests(TestCase):
 
         Integration.objects.filter(pk=self.github_integration.pk).update(secret=None)
         resp = client.post(
-            f'/api/v2/webhook/github/{self.project.slug}/',
+            f"/api/v2/webhook/github/{self.project.slug}/",
             self.github_payload,
             format="json",
             headers={GITHUB_SIGNATURE_HEADER: "skip"},
         )
-        self.assertContains(resp, "This webhook doesn't have a secret configured.", status_code=400)
+        self.assertContains(
+            resp, "This webhook doesn't have a secret configured.", status_code=400
+        )
 
         self.generic_integration.provider_data = {"token": None}
         self.generic_integration.save()
         resp = client.post(
-            f'/api/v2/webhook/{self.project.slug}/{self.generic_integration.pk}/',
+            f"/api/v2/webhook/{self.project.slug}/{self.generic_integration.pk}/",
             {"token": "skip"},
             format="json",
         )

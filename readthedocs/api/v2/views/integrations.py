@@ -1,8 +1,7 @@
 """Endpoints integrating with Github, Bitbucket, and other webhooks."""
 
-from django.utils import timezone
-import hashlib
 import datetime
+import hashlib
 import hmac
 import json
 import re
@@ -11,6 +10,7 @@ from textwrap import dedent
 
 import structlog
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from django.utils.crypto import constant_time_compare
 from rest_framework import permissions, status
 from rest_framework.exceptions import NotFound, ParseError
@@ -120,10 +120,10 @@ class WebhookMixin:
         # https://blog.readthedocs.com/security-update-on-incoming-webhooks/.
         now = timezone.now()
         deprecation_date = datetime.datetime(2024, 1, 31, tzinfo=datetime.timezone.utc)
-        is_deprecated =  now >= deprecation_date
+        is_deprecated = now >= deprecation_date
         if is_deprecated and not self.has_secret():
             return Response(
-                {'detail': self.missing_secret_deprecated_msg},
+                {"detail": self.missing_secret_deprecated_msg},
                 status=HTTP_400_BAD_REQUEST,
             )
 
