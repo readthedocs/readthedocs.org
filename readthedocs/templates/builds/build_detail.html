@@ -225,6 +225,16 @@ $(document).ready(function () {
     {% endif %}
     {% endfor %}
 
+      {% comment %}
+      After deploying the new notification system (`Notification` model),
+      we won't be populating `Build.error` field anymore and these errors won't be shown anymore.
+      However, old builds will still need to render the `Build.error` message
+      and that's why we are keeping this HTML + KO code here.
+
+      In the future, we can decide fully migrate `Build.error` -> `Notification` and remove this
+      block completely. Read more at
+      https://github.com/readthedocs/readthedocs.org/issues/10980#issuecomment-1876785304
+      {% endcomment %}
       <div class="build-error"
            data-bind="visible: error"
            style="display: none;">
