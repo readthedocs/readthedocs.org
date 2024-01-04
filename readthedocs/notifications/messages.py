@@ -485,6 +485,7 @@ BUILD_MKDOCS_MESSAGES = [
     ),
 ]
 
+
 class MessagesRegistry:
     def __init__(self):
         self.messages = {}
