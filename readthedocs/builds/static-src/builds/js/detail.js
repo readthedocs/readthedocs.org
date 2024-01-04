@@ -104,7 +104,7 @@ function BuildDetailView(instance) {
             if (poll_api_counts !== 1) {
               location.reload();
             }
-          return;
+            return;
         }
 
         setTimeout(poll_api, 2000);
