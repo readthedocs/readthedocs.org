@@ -390,7 +390,7 @@ Override the build process
 .. warning::
 
    This feature is in *beta* and could change without warning.
-   We are currently testing `the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`_
+   We are currently testing :ref:`the new addons integrations we are building <rtd-blog:addons-flyout-menu-beta>`
    on projects using ``build.commands`` configuration key.
 
 If your project requires full control of the build process,
