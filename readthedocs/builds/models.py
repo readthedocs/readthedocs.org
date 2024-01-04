@@ -7,6 +7,7 @@ from functools import partial
 import regex
 import structlog
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -58,8 +59,8 @@ from readthedocs.builds.utils import (
     get_vcs_url,
 )
 from readthedocs.builds.version_slug import VersionSlugField
-from readthedocs.config import LATEST_CONFIGURATION_VERSION
 from readthedocs.core.utils import extract_valid_attributes_for_model, trigger_build
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
@@ -833,6 +834,13 @@ class Build(models.Model):
         blank=True,
     )
 
+    notifications = GenericRelation(
+        Notification,
+        related_query_name="build",
+        content_type_field="attached_to_content_type",
+        object_id_field="attached_to_id",
+    )
+
     # Managers
     objects = BuildQuerySet.as_manager()
     # Only include BRANCH, TAG, UNKNOWN type Version builds.
@@ -1094,36 +1102,6 @@ class Build(models.Model):
     @property
     def external_version_name(self):
         return external_version_name(self)
-
-    def deprecated_config_used(self):
-        """
-        Check whether this particular build is using a deprecated config file.
-
-        When using v1 or not having a config file at all, it returns ``True``.
-        Returns ``False`` only when it has a config file and it is using v2.
-
-        Note we are using this to communicate deprecation of v1 file and not using a config file.
-        See https://github.com/readthedocs/readthedocs.org/issues/10342
-        """
-        if not self.config:
-            return True
-
-        return int(self.config.get("version", "1")) != LATEST_CONFIGURATION_VERSION
-
-    def deprecated_build_image_used(self):
-        """
-        Check whether this particular build is using the deprecated "build.image" config.
-
-        Note we are using this to communicate deprecation of "build.image".
-        See https://github.com/readthedocs/meta/discussions/48
-        """
-        if not self.config:
-            # Don't notify users without a config file.
-            # We hope they will migrate to `build.os` in the process of adding a `.readthedocs.yaml`
-            return False
-
-        build_config_key = self.config.get("build", {})
-        return "image" in build_config_key
 
     def reset(self):
         """

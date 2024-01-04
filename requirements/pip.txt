@@ -58,7 +58,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.in
 dj-stripe==2.6.3
     # via -r requirements/pip.in
-django==4.2.8
+django==4.2.9
     # via
     #   -r requirements/pip.in
     #   dj-stripe
@@ -111,8 +111,6 @@ django-ipware==5.0.2
     # via
     #   -r requirements/pip.in
     #   django-structlog
-django-messages-extends==0.6.3
-    # via -r requirements/pip.in
 django-polymorphic==3.1.0
     # via -r requirements/pip.in
 django-simple-history==3.0.0
@@ -131,6 +129,7 @@ djangorestframework==3.14.0
     # via
     #   -r requirements/pip.in
     #   drf-extensions
+    #   rest-framework-generic-relations
 djangorestframework-api-key==3.0.0
     # via -r requirements/pip.in
 djangorestframework-jsonp==1.0.2
@@ -199,9 +198,7 @@ pycparser==2.21
 pygments==2.17.2
     # via -r requirements/pip.in
 pyjwt[crypto]==2.8.0
-    # via
-    #   django-allauth
-    #   pyjwt
+    # via django-allauth
 pyquery==2.0.0
     # via -r requirements/pip.in
 python-crontab==3.0.0
@@ -241,6 +238,8 @@ requests-oauthlib==1.3.1
     #   -r requirements/pip.in
     #   django-allauth
 requests-toolbelt==1.0.0
+    # via -r requirements/pip.in
+rest-framework-generic-relations==2.1.0
     # via -r requirements/pip.in
 s3transfer==0.10.0
     # via boto3

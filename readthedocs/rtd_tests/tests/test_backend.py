@@ -160,8 +160,8 @@ class TestGitBackend(TestCase):
         with self.assertRaises(RepositoryError) as e:
             repo.checkout(version)
         self.assertEqual(
-            str(e.exception),
-            RepositoryError.FAILED_TO_CHECKOUT.format(version),
+            e.exception.message_id,
+            RepositoryError.FAILED_TO_CHECKOUT,
         )
 
     def test_check_for_submodules(self):
@@ -408,8 +408,8 @@ class TestHgBackend(TestCase):
         with self.assertRaises(RepositoryError) as e:
             repo.checkout(version)
         self.assertEqual(
-            str(e.exception),
-            RepositoryError.FAILED_TO_CHECKOUT.format(version),
+            e.exception.message_id,
+            RepositoryError.FAILED_TO_CHECKOUT,
         )
 
     def test_parse_tags(self):

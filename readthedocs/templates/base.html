@@ -103,8 +103,24 @@
     <div id="content">
       <div class="wrapper">
 
+        {% comment %}
+          ``user_notifications`` comes from a Context Processor.
+          We need to use a CustomUser to have access to "user.notifications"
+          See https://docs.djangoproject.com/en/4.2/ref/settings/#std-setting-AUTH_USER_MODEL
+        {% endcomment %}
+        {% if user_notifications %}
+          <ul class="notifications">
+          {% for notification in user_notifications %}
+            <li class="notification">
+              {{ notification.get_message.get_rendered_body|safe }}
+            </li>
+          {% endfor %}
+          </ul>
+        {% endif %}
+
         <!-- BEGIN notify -->
         {% block notify %}
+          {# TODO: migrate these notifications to new system #}
           {% if messages %}
             <ul class="notifications">
               {% for message in messages %}
