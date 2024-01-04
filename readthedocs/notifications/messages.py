@@ -41,8 +41,16 @@ class Message:
         This is a protection against rendering potential values defined by the user.
         It uses the Django's util function ``escape`` (similar to ``|escape`` template tag filter)
         to convert HTML characters into regular characters.
+
+        NOTE: currently, we don't support values that are not ``str`` or ``int``.
+        If we want to support other types or nested dictionaries,
+        we will need to iterate recursively to apply the ``escape`` function.
         """
-        return {key: escape(value) for key, value in format_values.items()}
+        return {
+            key: escape(value)
+            for key, value in format_values.items()
+            if isinstance(value, (str, int))
+        }
 
     def set_format_values(self, format_values):
         self.format_values = self._escape_format_values(format_values)

@@ -20,6 +20,25 @@ class TestMessage:
         assert message.get_rendered_header() == "XSS: &lt;p&gt;xss&lt;/p&gt;"
         assert message.get_rendered_body() == "XSS: &lt;span&gt;xss&lt;/span&gt;"
 
+    def test_invalid_format_values_type(self):
+        message = Message(
+            id="test",
+            header="Header: {dict}",
+            body="Body: {dict}",
+            type=INFO,
+        )
+        message.set_format_values(
+            {
+                "dict": {
+                    "key": "value",
+                },
+            }
+        )
+
+        # The rendered version skips the ``dict`` because it's not supported
+        assert message.get_rendered_header() == "Header: "
+        assert message.get_rendered_body() == "Body: "
+
     def test_missing_key_format_values(self):
         message = Message(
             id="test",
