@@ -3,6 +3,7 @@ import textwrap
 
 import structlog
 
+from django.utils.html import escape
 from django.utils.translation import gettext_noop as _
 
 from readthedocs.doc_builder.exceptions import (
@@ -34,8 +35,18 @@ class Message:
     def __str__(self):
         return f"Message: {self.id} | {self.header}"
 
+    def _escape_format_values(self, format_values):
+        """
+        Escape all potential HTML tags included in format values.
+
+        This is a protection against rendering potential values defined by the user.
+        It uses the Django's util function ``escape`` (similar to ``|escape`` template tag filter)
+        to convert HTML characters into regular characters.
+        """
+        return {key: escape(value) for key, value in format_values.items()}
+
     def set_format_values(self, format_values):
-        self.format_values = format_values or {}
+        self.format_values = self._escape_format_values(format_values)
 
     def get_display_icon_classes(self):
         if self.icon_classes:
