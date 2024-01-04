@@ -1,4 +1,6 @@
+import textwrap
 
+import structlog
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -7,9 +9,11 @@ from django_extensions.db.models import TimeStampedModel
 
 from readthedocs.core.context_processors import readthedocs_processor
 
-from .constants import CANCELLED, DISMISSED, READ, UNREAD
-from .messages import registry
+from .constants import CANCELLED, DISMISSED, READ, UNREAD, WARNING
+from .messages import Message, registry
 from .querysets import NotificationQuerySet
+
+log = structlog.get_logger(__name__)
 
 
 class Notification(TimeStampedModel):
@@ -60,7 +64,24 @@ class Notification(TimeStampedModel):
     def get_message(self):
         message = registry.get(self.message_id)
         if message is None:
-            raise ValueError(f"Message ID '{self.message_id}' not found in registry.")
+            # Log the error and return an unknown error to avoid breaking the response.
+            log.error(
+                "The message ID retrieved is not in our registry anymore.",
+                message_id=self.message_id,
+            )
+            return Message(
+                id="unknown-message",
+                header=_("Unknown message"),
+                body=_(
+                    textwrap.dedent(
+                        """
+                        It seems it was an old message,
+                        and is not in our registry anymore.
+                        """
+                    ).strip(),
+                ),
+                type=WARNING,
+            )
 
         # Pass the instance attached to this notification
         all_format_values = {
