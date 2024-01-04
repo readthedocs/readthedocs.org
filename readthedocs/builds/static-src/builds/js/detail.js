@@ -77,7 +77,7 @@ function BuildDetailView(instance) {
             self.docs_url(data.docs_url);
             self.commit_url(data.commit_url);
 
-            poll_api_counts = poll_api_counts + 1;
+            poll_api_counts += 1;
 
             var n;
             for (n in data.commands) {
@@ -95,12 +95,14 @@ function BuildDetailView(instance) {
         });
 
         if (self.finished()) {
-            // HACK: this is a small hack to avoid re-implementing the new notification system
-            // in the old dashboard with Knockout.
-            // The notifications are rendered properly via Django template in a static way.
-            // So, we refresh the page once the build has finished to make Django render the notifications.
-            // We use a check of 1 API poll for those builds that are already finished when opened.
-            // The new dashboard will implement the new notification system in a nicer way using APIv3.
+            // HACK: this is a small hack to avoid re-implementing the new
+            // notification system in the old dashboard with Knockout. The
+            // notifications are rendered properly via Django template in a
+            // static way. So, we refresh the page once the build has finished
+            // to make Django render the notifications. We use a check of 1 API
+            // poll for those builds that are already finished when opened. The
+            // new dashboard will implement the new notification system in a
+            // nicer way using APIv3.
             if (poll_api_counts !== 1) {
               location.reload();
             }
