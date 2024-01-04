@@ -1,5 +1,6 @@
 """Organization level notifications."""
 
+import textwrap
 
 from django.utils.translation import gettext_noop as _
 from djstripe import models as djstripe
@@ -90,9 +91,11 @@ messages = [
         id=MESSAGE_ORGANIZATION_DISABLED,
         header=_("Your organization has been disabled"),
         body=_(
-            """
+            textwrap.dedent(
+                """
             The organization "{instance.name}" is currently disabled. You need to <a href="{{ subscription_url }}">renew your subscription</a> to keep using Read the Docs
             """
+            ).strip(),
         ),
         type=INFO,
     ),

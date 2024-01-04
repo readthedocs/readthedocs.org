@@ -1,5 +1,7 @@
 """Read the Docs notifications."""
 
+import textwrap
+
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.notifications.constants import WARNING
@@ -11,10 +13,12 @@ messages = [
         id=MESSAGE_EMAIL_VALIDATION_PENDING,
         header=_("Email address not verified"),
         body=_(
-            """
+            textwrap.dedent(
+                """
             Your primary email address is not verified.
             Please <a href="{account_email_url}">verify it here</a>.
             """
+            ).strip(),
         ),
         type=WARNING,
     ),

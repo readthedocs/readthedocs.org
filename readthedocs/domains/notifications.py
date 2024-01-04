@@ -1,4 +1,5 @@
 """Notifications related to custom domains."""
+import textwrap
 
 from django.utils.translation import gettext_noop as _
 
@@ -21,10 +22,12 @@ messages = [
         id=MESSAGE_DOMAIN_VALIDATION_PENDING,
         header=_("Pending configuration of custom domain: {domain}"),
         body=_(
-            """
+            textwrap.dedent(
+                """
             The configuration of your custom domain <code>{domain}</code> is pending.
             Go to the <a href="{domain_url}">domain page</a> and follow the instructions to complete it.
             """
+            ).strip(),
         ),
         type=INFO,
     ),
@@ -35,10 +38,12 @@ messages = [
         id=MESSAGE_DOMAIN_VALIDATION_EXPIRED,
         header=_("Validation of custom domain expired: {domain}"),
         body=_(
-            """
+            textwrap.dedent(
+                """
             The validation period of your custom domain <code>{domain}</code> has ended.
             Go to the <a href="{domain_url}">domain page</a> and click on "Save" to restart the process.
             """
+            ).strip(),
         ),
         type=INFO,
     ),

@@ -1,3 +1,5 @@
+import textwrap
+
 from django.utils.translation import gettext_noop as _
 
 from readthedocs.doc_builder.exceptions import (
@@ -69,12 +71,14 @@ BUILD_MESSAGES = [
         # Note the message receives the instance it's attached to
         # and could be use it to inject related data
         body=_(
-            """
+            textwrap.dedent(
+                """
                 There was a problem with Read the Docs while building your documentation.
                 Please try again later.
                 If this problem persists,
                 report this error to us with your build id ({instance.pk}).
                 """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -82,11 +86,13 @@ BUILD_MESSAGES = [
         id=BuildAppError.BUILD_TERMINATED_DUE_INACTIVITY,
         header=_("Build terminated due inactivity"),
         body=_(
-            """
+            textwrap.dedent(
+                """
             This build was terminated due to inactivity.
             If you continue to encounter this error,
             file a support request and reference this build id ({instance.pk}).
             """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -94,11 +100,13 @@ BUILD_MESSAGES = [
         id=BuildUserError.GENERIC,
         header=_("Unknown problem"),
         body=_(
-            """
-                We encountered a problem with a command while building your project.
-                To resolve this error, double check your project configuration and installed
-                dependencies are correct and have not changed recently.
+            textwrap.dedent(
                 """
+            We encountered a problem with a command while building your project.
+            To resolve this error, double check your project configuration and installed
+            dependencies are correct and have not changed recently.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -106,9 +114,11 @@ BUILD_MESSAGES = [
         id=BuildMaxConcurrencyError.LIMIT_REACHED,
         header=_("Maximum concurrency limit reached."),
         body=_(
-            """
-                Concurrency limit reached ({limit}), retrying in 5 minutes.
+            textwrap.dedent(
                 """
+            Concurrency limit reached ({limit}), retrying in 5 minutes.
+            """
+            ).strip(),
         ),
         type=INFO,
     ),
@@ -116,9 +126,11 @@ BUILD_MESSAGES = [
         id=BuildCancelled.CANCELLED_BY_USER,
         header=_("Build cancelled manually."),
         body=_(
-            """
-                The user has cancelled this build.
+            textwrap.dedent(
                 """
+            The user has cancelled this build.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -126,10 +138,12 @@ BUILD_MESSAGES = [
         id=BuildUserError.SKIPPED_EXIT_CODE_183,
         header=_("Build skipped manually."),
         body=_(
-            """
-                This build was skipped because
-                one of the commands exited with code 183
+            textwrap.dedent(
                 """
+            This build was skipped because
+            one of the commands exited with code 183
+            """
+            ).strip(),
         ),
         type=INFO,
     ),
@@ -137,9 +151,11 @@ BUILD_MESSAGES = [
         id=BuildUserError.BUILD_TIME_OUT,
         header=_("Build exited due to time out."),
         body=_(
-            """
+            textwrap.dedent(
+                """
             Build exited due to time out.
             """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -147,9 +163,11 @@ BUILD_MESSAGES = [
         id=BuildUserError.BUILD_EXCESSIVE_MEMORY,
         header=_("Build exited due to excessive memory consumption."),
         body=_(
-            """
+            textwrap.dedent(
+                """
             Build exited due to excessive memory consumption.
             """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -157,9 +175,11 @@ BUILD_MESSAGES = [
         id=BuildAppError.BUILD_DOCKER_UNKNOWN_ERROR,
         header=_("Build exited due to unknown error."),
         body=_(
-            """
+            textwrap.dedent(
+                """
             Build exited due to unknown error: {message}
             """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -167,11 +187,13 @@ BUILD_MESSAGES = [
         id=BuildAppError.BUILDS_DISABLED,
         header=_("Builds are temporary disabled for this project."),
         body=_(
-            """
-                This is due to excessive usage of our resources.
-                Please, contact our support team if you think this is a mistake
-                and builds should be re-enabled.
+            textwrap.dedent(
                 """
+            This is due to excessive usage of our resources.
+            Please, contact our support team if you think this is a mistake
+            and builds should be re-enabled.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -179,10 +201,12 @@ BUILD_MESSAGES = [
         id=BuildUserError.MAX_CONCURRENCY,
         header=_("Concurrency limit reached"),
         body=_(
-            """
-                Your project, organization, or user is currently building the maximum concurrency builds allowed ({limit}).
-                It will automatically retry in 5 minutes.
+            textwrap.dedent(
                 """
+            Your project, organization, or user is currently building the maximum concurrency builds allowed ({limit}).
+            It will automatically retry in 5 minutes.
+            """
+            ).strip(),
         ),
         type=WARNING,
     ),
@@ -190,9 +214,11 @@ BUILD_MESSAGES = [
         id=BuildUserError.BUILD_COMMANDS_WITHOUT_OUTPUT,
         header=_("No HTML content found"),
         body=_(
-            f"""
-                No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.
-                """
+            textwrap.dedent(
+                f"""
+             No "{BUILD_COMMANDS_OUTPUT_PATH_HTML}" folder was created during this build.
+             """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -200,9 +226,11 @@ BUILD_MESSAGES = [
         id=BuildUserError.BUILD_OUTPUT_IS_NOT_A_DIRECTORY,
         header=_("Build output directory is not a directory"),
         body=_(
-            """
-                Build output directory for format "{artifact_type}" is not a directory.
+            textwrap.dedent(
                 """
+            Build output directory for format "{artifact_type}" is not a directory.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -210,10 +238,12 @@ BUILD_MESSAGES = [
         id=BuildUserError.BUILD_OUTPUT_HAS_0_FILES,
         header=_("Build output directory doesn't contain any file"),
         body=_(
-            """
-                Build output directory for format "{artifact_type}" does not contain any files.
-                It seems the build process created the directory but did not save any file to it.
+            textwrap.dedent(
                 """
+            Build output directory for format "{artifact_type}" does not contain any files.
+            It seems the build process created the directory but did not save any file to it.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -221,11 +251,13 @@ BUILD_MESSAGES = [
         id=BuildUserError.BUILD_OUTPUT_HAS_MULTIPLE_FILES,
         header=_("Build output directory contains multiple files"),
         body=_(
-            """
-                Build output directory for format "{artifact_type}" contains multiple files
-                and it is not currently supported.
-                Please, remove all the files but the "{artifact_type}" you want to upload.
+            textwrap.dedent(
                 """
+            Build output directory for format "{artifact_type}" contains multiple files
+            and it is not currently supported.
+            Please, remove all the files but the "{artifact_type}" you want to upload.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -233,10 +265,12 @@ BUILD_MESSAGES = [
         id=BuildUserError.BUILD_OUTPUT_HTML_NO_INDEX_FILE,
         header=_("Index file is not present in HTML output directory"),
         body=_(
-            """
-                Your documentation did not generate an 'index.html' at its root directory.
-                This is required for documentation serving at the root URL for this version.
+            textwrap.dedent(
                 """
+            Your documentation did not generate an 'index.html' at its root directory.
+            This is required for documentation serving at the root URL for this version.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -244,11 +278,13 @@ BUILD_MESSAGES = [
         id=BuildUserError.BUILD_OUTPUT_OLD_DIRECTORY_USED,
         header=_("Your project is outputing files in an old directory"),
         body=_(
-            """
-                Some files were detected in an unsupported output path, '_build/html'.
-                Ensure your project is configured to use the output path
-                '$READTHEDOCS_OUTPUT/html' instead.
+            textwrap.dedent(
                 """
+            Some files were detected in an unsupported output path, '_build/html'.
+            Ensure your project is configured to use the output path
+            '$READTHEDOCS_OUTPUT/html' instead.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -256,11 +292,13 @@ BUILD_MESSAGES = [
         id=BuildUserError.NO_CONFIG_FILE_DEPRECATED,
         header=_("Your project doesn't have a <code>.readthedocs.yaml</code> file"),
         body=_(
-            """
-                The configuration file required to build documentation is missing from your project.
-                Add a configuration file to your project to make it build successfully.
-                Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html
+            textwrap.dedent(
                 """
+            The configuration file required to build documentation is missing from your project.
+            Add a configuration file to your project to make it build successfully.
+            Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -268,11 +306,13 @@ BUILD_MESSAGES = [
         id=BuildUserError.BUILD_IMAGE_CONFIG_KEY_DEPRECATED,
         header=_("Configuration key <code>build.image</code> is deprecated"),
         body=_(
-            """
-                The configuration key "build.image" is deprecated.
-                Use "build.os" instead to continue building your project.
-                Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os
+            textwrap.dedent(
                 """
+            The configuration key "build.image" is deprecated.
+            Use "build.os" instead to continue building your project.
+            Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -280,10 +320,12 @@ BUILD_MESSAGES = [
         id=BuildUserError.BUILD_OS_REQUIRED,
         header=_("Configuration key <code>build.os</code> is required"),
         body=_(
-            """
-                The configuration key "build.os" is required to build your documentation.
-                Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os
+            textwrap.dedent(
                 """
+            The configuration key "build.os" is required to build your documentation.
+            Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -291,10 +333,12 @@ BUILD_MESSAGES = [
         id=BuildUserError.FILE_TOO_LARGE,
         header=_("There is at least one file that exceeds the size limit"),
         body=_(
-            """
-                A file from your build process is too large to be processed by Read the Docs.
-                Please ensure no generated files are larger than 1GB.
+            textwrap.dedent(
                 """
+            A file from your build process is too large to be processed by Read the Docs.
+            Please ensure no generated files are larger than 1GB.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -302,9 +346,11 @@ BUILD_MESSAGES = [
         id=BuildUserError.BUILD_OUTPUT_HAS_NO_PDF_FILES,
         header=_("There is no PDF file in output directory"),
         body=_(
-            f"""
-                PDF file was not generated/found in "{BUILD_COMMANDS_OUTPUT_PATH_HTML}/pdf" output directory.
-                """
+            textwrap.dedent(
+                f"""
+             PDF file was not generated/found in "{BUILD_COMMANDS_OUTPUT_PATH_HTML}/pdf" output directory.
+             """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -312,10 +358,12 @@ BUILD_MESSAGES = [
         id=BuildUserError.BUILD_COMMANDS_IN_BETA,
         header=_("Config key <code>build.commands</code> is in beta"),
         body=_(
+            textwrap.dedent(
+                """
+            <strong>The <code>"build.commands"</code> feature is in beta, and could have backwards incompatible changes while in beta.</strong>
+            Read more at <a href=""https://docs.readthedocs.io/page/build-customization.html#override-the-build-process">our documentation</a> to find out its limitations and potential issues.
             """
-        <strong>The <code>"build.commands"</code> feature is in beta, and could have backwards incompatible changes while in beta.</strong>
-        Read more at <a href=""https://docs.readthedocs.io/page/build-customization.html#override-the-build-process">our documentation</a> to find out its limitations and potential issues.
-            """
+            ).strip(),
         ),
         type=INFO,
     ),
@@ -323,9 +371,11 @@ BUILD_MESSAGES = [
         id=BuildUserError.TEX_FILE_NOT_FOUND,
         header=_("No TeX files were found"),
         body=_(
-            """
+            textwrap.dedent(
+                """
             No TeX files were found.
             """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -336,9 +386,11 @@ BUILD_MKDOCS_MESSAGES = [
         id=MkDocsYAMLParseError.GENERIC_WITH_PARSE_EXCEPTION,
         header=_(""),
         body=_(
-            """
-                Problem parsing MkDocs YAML configuration. {exception}
+            textwrap.dedent(
                 """
+            Problem parsing MkDocs YAML configuration. {exception}
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -346,10 +398,12 @@ BUILD_MKDOCS_MESSAGES = [
         id=MkDocsYAMLParseError.INVALID_DOCS_DIR_CONFIG,
         header=_(""),
         body=_(
-            """
-    The "docs_dir" config from your MkDocs YAML config file has to be a
-    string with relative or absolute path.
+            textwrap.dedent(
                 """
+            The "docs_dir" config from your MkDocs YAML config file has to be a
+            string with relative or absolute path.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -357,8 +411,10 @@ BUILD_MKDOCS_MESSAGES = [
         id=MkDocsYAMLParseError.INVALID_DOCS_DIR_PATH,
         header=_(""),
         body=_(
-            """
+            textwrap.dedent(
                 """
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -366,10 +422,12 @@ BUILD_MKDOCS_MESSAGES = [
         id=MkDocsYAMLParseError.INVALID_EXTRA_CONFIG,
         header=_(""),
         body=_(
-            """
-    The "{config}" config from your MkDocs YAML config file has to be a
-    list of relative paths.
+            textwrap.dedent(
                 """
+            The "{config}" config from your MkDocs YAML config file has to be a
+            list of relative paths.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -377,9 +435,11 @@ BUILD_MKDOCS_MESSAGES = [
         id=MkDocsYAMLParseError.EMPTY_CONFIG,
         header=_(""),
         body=_(
-            """
-    Please make sure the MkDocs YAML configuration file is not empty.
+            textwrap.dedent(
                 """
+            Please make sure the MkDocs YAML configuration file is not empty.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -387,10 +447,12 @@ BUILD_MKDOCS_MESSAGES = [
         id=MkDocsYAMLParseError.NOT_FOUND,
         header=_(""),
         body=_(
-            """
-    A configuration file was not found.
-    Make sure you have a "mkdocs.yml" file in your repository.
+            textwrap.dedent(
                 """
+            A configuration file was not found.
+            Make sure you have a "mkdocs.yml" file in your repository.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -398,11 +460,13 @@ BUILD_MKDOCS_MESSAGES = [
         id=MkDocsYAMLParseError.CONFIG_NOT_DICT,
         header=_(""),
         body=_(
-            """
-    Your MkDocs YAML config file is incorrect.
-    Please follow the user guide https://www.mkdocs.org/user-guide/configuration/
-    to configure the file properly.
+            textwrap.dedent(
                 """
+            Your MkDocs YAML config file is incorrect.
+            Please follow the user guide https://www.mkdocs.org/user-guide/configuration/
+            to configure the file properly.
+            """
+            ).strip(),
         ),
         type=ERROR,
     ),
@@ -410,10 +474,12 @@ BUILD_MKDOCS_MESSAGES = [
         id=MkDocsYAMLParseError.SYNTAX_ERROR,
         header=_("Syntax error in <code>mkdocs.yml</code>"),
         body=_(
-            """
+            textwrap.dedent(
+                """
             Your <code>mkdocs.yml</code> could not be loaded,
             possibly due to a syntax error.
             """
+            ).strip(),
         ),
         type=ERROR,
     ),
