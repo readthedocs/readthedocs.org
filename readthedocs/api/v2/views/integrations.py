@@ -1,6 +1,8 @@
 """Endpoints integrating with Github, Bitbucket, and other webhooks."""
 
+from django.utils import timezone
 import hashlib
+import datetime
 import hmac
 import json
 import re
@@ -74,9 +76,17 @@ class WebhookMixin:
     invalid_payload_msg = 'Payload not valid'
     missing_secret_for_pr_events_msg = dedent(
         """
-        The webhook doesn't have a secret configured.
+        This webhook doesn't have a secret configured.
         For security reasons, webhooks without a secret can't process pull/merge request events.
-        You can read more information about this in our blog post: https://blog.readthedocs.com/security-update-on-incoming-webhooks/.
+        For more information, read our blog post: https://blog.readthedocs.com/security-update-on-incoming-webhooks/.
+        """
+    ).strip()
+
+    missing_secret_deprecated_msg = dedent(
+        """
+        This webhook doesn't have a secret configured.
+        For security reasons, webhooks without a secret are no longer permitted.
+        For more information, read our blog post: https://blog.readthedocs.com/security-update-on-incoming-webhooks/.
         """
     ).strip()
 
@@ -105,6 +115,18 @@ class WebhookMixin:
                 return Response(resp, status=status.HTTP_406_NOT_ACCEPTABLE)
         except Project.DoesNotExist as exc:
             raise NotFound("Project not found") from exc
+
+        # Deprecate webhooks without a secret
+        # https://blog.readthedocs.com/security-update-on-incoming-webhooks/.
+        now = timezone.now()
+        deprecation_date = datetime.datetime(2024, 1, 31, tzinfo=datetime.timezone.utc)
+        is_deprecated =  now >= deprecation_date
+        if is_deprecated and not self.has_secret():
+            return Response(
+                {'detail': self.missing_secret_deprecated_msg},
+                status=HTTP_400_BAD_REQUEST,
+            )
+
         if not self.is_payload_valid():
             log.warning('Invalid payload for project and integration.')
             return Response(
@@ -121,6 +143,12 @@ class WebhookMixin:
         if isinstance(resp, Response):
             return resp
         return Response(resp)
+
+    def has_secret(self):
+        integration = self.get_integration()
+        if hasattr(integration, "token"):
+            return bool(integration.token)
+        return bool(integration.secret)
 
     def get_project(self, **kwargs):
         return Project.objects.get(**kwargs)
