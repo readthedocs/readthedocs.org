@@ -1,8 +1,7 @@
-from collections import defaultdict
 import textwrap
+from collections import defaultdict
 
 import structlog
-
 from django.utils.html import escape
 from django.utils.translation import gettext_noop as _
 
