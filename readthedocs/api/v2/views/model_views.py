@@ -374,7 +374,7 @@ class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
     """
 
     parser_classes = [JSONParser, MultiPartParser]
-    permission_classes = [HasBuildAPIKey | ReadOnlyPermission]
+    permission_classes = [HasBuildAPIKey]
     renderer_classes = (JSONRenderer,)
     serializer_class = NotificationSerializer
     model = Notification
@@ -385,6 +385,7 @@ class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
 
         build_api_key = self.request.build_api_key
 
+        project_slug = None
         if isinstance(attached_to, Build):
             project_slug = attached_to.project.slug
         elif isinstance(attached_to, Project):
@@ -392,7 +393,7 @@ class NotificationViewSet(DisableListEndpoint, CreateModelMixin, UserSelectViewS
 
         # Limit the permissions to create a notification on this object only if the API key
         # is attached to the related project
-        if not project_slug or not build_api_key.project.slug == project_slug:
+        if not project_slug or build_api_key.project.slug != project_slug:
             raise PermissionDenied()
 
         return super().perform_create(serializer)
