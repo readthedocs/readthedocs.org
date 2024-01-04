@@ -3241,7 +3241,7 @@ class IntegrationsTests(TestCase):
 
     @mock.patch("readthedocs.api.v2.views.integrations.timezone.now")
     def test_deprecate_webhooks_without_a_secret(self, now, trigger_build):
-        now.return_value = datetime.datetime(2024, 1, 31, tzinfo=timezone.utc)
+        now.return_value = datetime.datetime(2024, 1, 31, tzinfo=datetime.timezone.utc)
         client = APIClient()
 
         Integration.objects.filter(pk=self.github_integration.pk).update(secret=None)
