@@ -261,7 +261,7 @@ stripe==4.2.0
     # via
     #   -r requirements/pip.in
     #   dj-stripe
-structlog==23.3.0
+structlog==23.2.0
     # via
     #   -r requirements/pip.in
     #   django-structlog
