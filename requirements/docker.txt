@@ -19,17 +19,17 @@ async-timeout==4.0.3
     # via
     #   -r requirements/pip.txt
     #   redis
-attrs==23.1.0
+attrs==23.2.0
     # via wmctrl
 billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.11
+boto3==1.34.14
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.11
+botocore==1.34.14
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -164,7 +164,9 @@ django-polymorphic==3.1.0
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
 django-storages[boto3]==1.14.2
-    # via -r requirements/pip.txt
+    # via
+    #   -r requirements/pip.txt
+    #   django-storages
 django-structlog==2.2.0
     # via -r requirements/pip.txt
 django-taggit==5.0.1
@@ -229,7 +231,7 @@ idna==3.6
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==8.18.1
+ipython==8.19.0
     # via ipdb
 jedi==0.19.1
     # via ipython
@@ -246,7 +248,7 @@ kombu==5.3.4
     # via
     #   -r requirements/pip.txt
     #   celery
-lxml==5.0.0
+lxml==5.0.1
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -313,6 +315,7 @@ pyjwt[crypto]==2.8.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
+    #   pyjwt
 pyproject-api==1.6.1
     # via tox
 pyquery==2.0.0
@@ -405,7 +408,7 @@ tomli==2.0.1
     #   tox
 tox==4.11.4
     # via -r requirements/docker.in
-traitlets==5.14.0
+traitlets==5.14.1
     # via
     #   ipython
     #   matplotlib-inline
@@ -446,7 +449,7 @@ virtualenv==20.25.0
     # via
     #   -r requirements/pip.txt
     #   tox
-wcwidth==0.2.12
+wcwidth==0.2.13
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit

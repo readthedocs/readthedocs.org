@@ -14,9 +14,9 @@ async-timeout==4.0.3
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.34.11
+boto3==1.34.14
     # via django-storages
-botocore==1.34.11
+botocore==1.34.14
     # via
     #   boto3
     #   s3transfer
@@ -172,7 +172,7 @@ jsonfield==3.1.0
     #   dj-stripe
 kombu==5.3.4
     # via celery
-lxml==5.0.0
+lxml==5.0.1
     # via pyquery
 markdown==3.5.1
     # via -r requirements/pip.in
@@ -198,7 +198,9 @@ pycparser==2.21
 pygments==2.17.2
     # via -r requirements/pip.in
 pyjwt[crypto]==2.8.0
-    # via django-allauth
+    # via
+    #   django-allauth
+    #   pyjwt
 pyquery==2.0.0
     # via -r requirements/pip.in
 python-crontab==3.0.0
@@ -294,7 +296,7 @@ vine==5.1.0
     #   kombu
 virtualenv==20.25.0
     # via -r requirements/pip.in
-wcwidth==0.2.12
+wcwidth==0.2.13
     # via prompt-toolkit
 websocket-client==1.7.0
     # via docker
