@@ -1,5 +1,8 @@
 import textwrap
+from collections import defaultdict
 
+import structlog
+from django.utils.html import escape
 from django.utils.translation import gettext_noop as _
 
 from readthedocs.doc_builder.exceptions import (
@@ -12,6 +15,8 @@ from readthedocs.doc_builder.exceptions import (
 from readthedocs.projects.constants import BUILD_COMMANDS_OUTPUT_PATH_HTML
 
 from .constants import ERROR, INFO, NOTE, TIP, WARNING
+
+log = structlog.get_logger(__name__)
 
 
 class Message:
@@ -29,8 +34,26 @@ class Message:
     def __str__(self):
         return f"Message: {self.id} | {self.header}"
 
+    def _escape_format_values(self, format_values):
+        """
+        Escape all potential HTML tags included in format values.
+
+        This is a protection against rendering potential values defined by the user.
+        It uses the Django's util function ``escape`` (similar to ``|escape`` template tag filter)
+        to convert HTML characters into regular characters.
+
+        NOTE: currently, we don't support values that are not ``str`` or ``int``.
+        If we want to support other types or nested dictionaries,
+        we will need to iterate recursively to apply the ``escape`` function.
+        """
+        return {
+            key: escape(value)
+            for key, value in format_values.items()
+            if isinstance(value, (str, int))
+        }
+
     def set_format_values(self, format_values):
-        self.format_values = format_values or {}
+        self.format_values = self._escape_format_values(format_values)
 
     def get_display_icon_classes(self):
         if self.icon_classes:
@@ -55,10 +78,20 @@ class Message:
         return " ".join(classes)
 
     def get_rendered_header(self):
-        return self.header.format(**self.format_values)
+        try:
+            return self.header.format(**self.format_values)
+        except KeyError:
+            # There was a key missing
+            log.exception("There was a missing key when formating a header's Message.")
+            return self.header.format_map(defaultdict(str, **self.format_values))
 
     def get_rendered_body(self):
-        return self.body.format(**self.format_values)
+        try:
+            return self.body.format(**self.format_values)
+        except KeyError:
+            # There was a key missing
+            log.exception("There was a missing key when formating a body's Message.")
+            return self.body.format_map(defaultdict(str, **self.format_values))
 
 
 # TODO: review the copy of these notifications/messages on PR review and adapt them.
