@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.11
+boto3==1.34.14
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.11
+botocore==1.34.14
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -70,8 +70,10 @@ click-repl==0.3.0
     # via
     #   -r requirements/pip.txt
     #   celery
-coverage[toml]==7.3.3
-    # via pytest-cov
+coverage[toml]==7.4.0
+    # via
+    #   coverage
+    #   pytest-cov
 cron-descriptor==1.4.0
     # via
     #   -r requirements/pip.txt
@@ -156,7 +158,9 @@ django-polymorphic==3.1.0
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
 django-storages[boto3]==1.14.2
-    # via -r requirements/pip.txt
+    # via
+    #   -r requirements/pip.txt
+    #   django-storages
 django-structlog==2.2.0
     # via -r requirements/pip.txt
 django-taggit==5.0.1
@@ -235,7 +239,7 @@ kombu==5.3.4
     # via
     #   -r requirements/pip.txt
     #   celery
-lxml==5.0.0
+lxml==5.0.1
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -284,9 +288,10 @@ pyjwt[crypto]==2.8.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
+    #   pyjwt
 pyquery==2.0.0
     # via -r requirements/pip.txt
-pytest==7.4.3
+pytest==7.4.4
     # via
     #   -r requirements/testing.in
     #   pytest-cov
@@ -443,7 +448,7 @@ vine==5.1.0
     #   kombu
 virtualenv==20.25.0
     # via -r requirements/pip.txt
-wcwidth==0.2.12
+wcwidth==0.2.13
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit
