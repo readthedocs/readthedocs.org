@@ -1,6 +1,7 @@
 import django_filters.rest_framework as filters
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Exists, OuterRef
+from django.db.models import Exists, OuterRef, Subquery
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
@@ -11,6 +12,7 @@ from rest_framework.mixins import (
     CreateModelMixin,
     DestroyModelMixin,
     ListModelMixin,
+    RetrieveModelMixin,
     UpdateModelMixin,
 )
 from rest_framework.pagination import LimitOffsetPagination
@@ -22,6 +24,7 @@ from rest_framework.viewsets import GenericViewSet, ModelViewSet, ReadOnlyModelV
 from rest_framework_extensions.mixins import NestedViewSetMixin
 
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.notifications.models import Notification
@@ -41,6 +44,7 @@ from readthedocs.redirects.models import Redirect
 
 from .filters import (
     BuildFilter,
+    NotificationFilter,
     ProjectFilter,
     RemoteOrganizationFilter,
     RemoteRepositoryFilter,
@@ -384,30 +388,114 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
         return Response(data=data, status=code)
 
 
-class NotificationsViewSet(
+class NotificationsForUserViewSet(
+    APIv3Settings,
+    FlexFieldsMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    GenericViewSet,
+):
+
+    """
+    Endpoint to return all the notifications related to the logged in user.
+
+    Hitting this endpoint while logged in will return notifications attached to:
+
+     - User making the request
+     - Organizations where the user is owner/member
+     - Projects where the user is admin/member
+    """
+
+    model = Notification
+    serializer_class = NotificationSerializer
+    queryset = Notification.objects.all()
+    permission_classes = (IsAuthenticated,)
+    filterset_class = NotificationFilter
+
+    # http://chibisov.github.io/drf-extensions/docs/#usage-with-generic-relations
+    def get_queryset(self):
+        user = Notification.objects.filter(
+            attached_to_content_type=ContentType.objects.get_for_model(User),
+            attached_to_id=self.request.user.pk,
+        )
+
+        # NOTE: using ``Subquery`` work better regarding performance since it makes only one query to the databse,
+        # instead of doing one to get the ids and another one to get the notifications.
+        # It also works better for users that have many projects/organizations since we don't need to load the ids
+        # in memory and then dump them into the SQL query.
+        # Besides, it performs better when applying the filters via ``NotificationFilter``
+        project = Notification.objects.filter(
+            attached_to_content_type=ContentType.objects.get_for_model(Project),
+            attached_to_id__in=Subquery(
+                AdminPermission.projects(
+                    self.request.user, admin=True, member=False
+                ).values("id")
+            ),
+        )
+        organization = Notification.objects.filter(
+            attached_to_content_type=ContentType.objects.get_for_model(Organization),
+            attached_to_id__in=Subquery(
+                AdminPermission.organizations(
+                    self.request.user, admin=True, member=False
+                ).values("id")
+            ),
+        )
+
+        # Return all the notifications related to this user attached to:
+        # User, Project and Organization models where the user is admin.
+        return user | project | organization
+
+
+# TODO: verify permissions over all ``**/notifications/`` endpoints.
+class NotificationsProjectViewSet(
     APIv3Settings,
     NestedViewSetMixin,
     ProjectQuerySetMixin,
     FlexFieldsMixin,
-    ReadOnlyModelViewSet,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    GenericViewSet,
 ):
     model = Notification
     lookup_field = "pk"
     lookup_url_kwarg = "notification_pk"
     serializer_class = NotificationSerializer
     queryset = Notification.objects.all()
-    # filterset_class = BuildFilter
+    filterset_class = NotificationFilter
 
-    # http://chibisov.github.io/drf-extensions/docs/#usage-with-generic-relations
     def get_queryset(self):
-        queryset = self.queryset.filter(
-            attached_to_content_type=ContentType.objects.get_for_model(Build)
-        )
+        project = self._get_parent_project()
+        return project.notifications.all()
 
-        # TODO: make sure if this particular filter should be applied here or somewhere else.
-        return queryset.filter(
-            attached_to_id=self.kwargs.get("parent_lookup_build__id")
-        )
+
+class NotificationsBuildViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    ProjectQuerySetMixin,
+    FlexFieldsMixin,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateModelMixin,
+    GenericViewSet,
+):
+    model = Notification
+    lookup_field = "pk"
+    lookup_url_kwarg = "notification_pk"
+    serializer_class = NotificationSerializer
+    queryset = Notification.objects.all()
+    filterset_class = NotificationFilter
+
+    def get_queryset(self):
+        build = self._get_parent_build()
+        return build.notifications.all()
+
+
+# TODO: should we create different endpoints?
+# - List all notifications related to the user (User, Project, Organization): /api/v3/notifications/
+# - List all notifications related to a particular Build: /api/v3/projects/docs/builds/12345/notifications/
+# - Update notification: /api/v3/notifications/123/
 
 
 class RedirectsViewSet(

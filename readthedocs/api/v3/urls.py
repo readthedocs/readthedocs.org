@@ -3,7 +3,9 @@ from .views import (
     BuildsCreateViewSet,
     BuildsViewSet,
     EnvironmentVariablesViewSet,
-    NotificationsViewSet,
+    NotificationsBuildViewSet,
+    NotificationsForUserViewSet,
+    NotificationsProjectViewSet,
     ProjectsViewSet,
     RedirectsViewSet,
     RemoteOrganizationViewSet,
@@ -22,6 +24,14 @@ projects = router.register(
     r"projects",
     ProjectsViewSet,
     basename="projects",
+)
+
+# allows /api/v3/projects/pip/notifications/
+projects.register(
+    r"notifications",
+    NotificationsProjectViewSet,
+    basename="projects-notifications",
+    parents_query_lookups=["project__slug"],
 )
 
 # allows /api/v3/projects/pip/subprojects/
@@ -75,8 +85,8 @@ builds = projects.register(
 # allows /api/v3/projects/pip/builds/1053/notifications/
 builds.register(
     r"notifications",
-    NotificationsViewSet,
-    basename="project-builds-notifications",
+    NotificationsBuildViewSet,
+    basename="projects-builds-notifications",
     parents_query_lookups=["project__slug", "build__id"],
 )
 
@@ -103,6 +113,13 @@ projects.register(
     parents_query_lookups=["project__slug"],
 )
 
+# allows /api/v3/notifications/
+router.register(
+    r"notifications",
+    NotificationsForUserViewSet,
+    basename="notifications",
+)
+
 # allows /api/v3/remote/repositories/
 router.register(
     r"remote/repositories",
@@ -116,6 +133,14 @@ router.register(
     RemoteOrganizationViewSet,
     basename="remoteorganizations",
 )
+
+# allows /api/v3/organizations/
+# projects = router.register(
+#     r"organizations",
+#     OrganizationsViewSet,
+#     basename="organizations",
+# )
+
 
 urlpatterns = []
 urlpatterns += router.urls

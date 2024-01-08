@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 
-from readthedocs.builds.models import Version
+from readthedocs.builds.models import Build, Version
 from readthedocs.core.history import safe_update_change_reason, set_change_reason
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
@@ -67,6 +67,10 @@ class NestedParentObjectMixin:
         "organizations__slug",
     ]
 
+    BUILD_LOOKUP_NAMES = [
+        "build__id",
+    ]
+
     def _get_parent_object_lookup(self, lookup_names):
         query_dict = self.get_parents_query_dict()
         for lookup in lookup_names:
@@ -83,6 +87,10 @@ class NestedParentObjectMixin:
         slug = slug or self.kwargs.get("project_slug")
 
         return get_object_or_404(Project, slug=slug)
+
+    def _get_parent_build(self):
+        pk = self._get_parent_object_lookup(self.BUILD_LOOKUP_NAMES)
+        return get_object_or_404(Build, pk=pk)
 
     def _get_parent_version(self):
         project_slug = self._get_parent_object_lookup(self.PROJECT_LOOKUP_NAMES)

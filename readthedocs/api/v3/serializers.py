@@ -15,6 +15,7 @@ from readthedocs.builds.models import Build, Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.notifications.messages import registry
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.organizations.models import Organization, Team
@@ -61,26 +62,56 @@ class BuildCreateSerializer(serializers.ModelSerializer):
         fields = []
 
 
-# TODO: decide whether or not include a `_links` field on the object
-#
-# This also includes adding `/api/v3/notifications/<pk>` endpoint,
-# which I'm not sure it's useful at this point.
-#
-# class NotificationLinksSerializer(BaseLinksSerializer):
-#     _self = serializers.SerializerMethodField()
-#     attached_to = serializers.SerializerMethodField()
+class NotificationLinksSerializer(BaseLinksSerializer):
+    _self = serializers.SerializerMethodField()
 
-#     def get__self(self, obj):
-#         path = reverse(
-#             "notifications-detail",
-#             kwargs={
-#                 "pk": obj.pk,
-#             },
-#         )
-#         return self._absolute_url(path)
+    def get__self(self, obj):
+        content_type_name = obj.attached_to_content_type.name
+        if content_type_name == "user":
+            return ""
+            url = "user-notifications-detail"
+            path = reverse(
+                url,
+                kwargs={
+                    "notification_pk": obj.pk,
+                },
+            )
 
-#     def get_attached_to(self, obj):
-#         return None
+        elif content_type_name == "build":
+            url = "projects-builds-notifications-detail"
+            project_slug = obj.attached_to.project.slug
+            path = reverse(
+                url,
+                kwargs={
+                    "notification_pk": obj.pk,
+                    "parent_lookup_project__slug": project_slug,
+                    "parent_lookup_build__id": obj.attached_to_id,
+                },
+            )
+
+        elif content_type_name == "project":
+            url = "projects-notifications-detail"
+            project_slug = obj.attached_to.slug
+            path = reverse(
+                url,
+                kwargs={
+                    "notification_pk": obj.pk,
+                    "parent_lookup_project__slug": project_slug,
+                },
+            )
+
+        elif content_type_name == "organization":
+            return ""
+            url = "organizations-notifications-detail"
+            path = reverse(
+                url,
+                kwargs={
+                    "notification_pk": obj.pk,
+                    "parent_lookup_organization__slug": obj.attached_to.slug,
+                },
+            )
+
+        return self._absolute_url(path)
 
 
 class BuildLinksSerializer(BaseLinksSerializer):
@@ -122,7 +153,7 @@ class BuildLinksSerializer(BaseLinksSerializer):
 
     def get_notifications(self, obj):
         path = reverse(
-            "project-builds-notifications-list",
+            "projects-builds-notifications-list",
             kwargs={
                 "parent_lookup_project__slug": obj.project.slug,
                 "parent_lookup_build__id": obj.pk,
@@ -242,6 +273,10 @@ class NotificationMessageSerializer(serializers.Serializer):
 
 
 class NotificationCreateSerializer(serializers.ModelSerializer):
+    message_id = serializers.ChoiceField(
+        choices=sorted([(key, key) for key in registry.messages.keys()])
+    )
+
     class Meta:
         model = Notification
         fields = [
@@ -253,11 +288,10 @@ class NotificationCreateSerializer(serializers.ModelSerializer):
 
 
 class NotificationSerializer(serializers.ModelSerializer):
-    message = NotificationMessageSerializer(source="get_message")
+    message = NotificationMessageSerializer(source="get_message", read_only=True)
     attached_to_content_type = serializers.SerializerMethodField()
-    # TODO: review these fields
-    # _links = BuildLinksSerializer(source="*")
-    # urls = BuildURLsSerializer(source="*")
+    _links = NotificationLinksSerializer(source="*", read_only=True)
+    attached_to_id = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Notification
@@ -269,6 +303,7 @@ class NotificationSerializer(serializers.ModelSerializer):
             "attached_to_content_type",
             "attached_to_id",
             "message",
+            "_links",
         ]
 
     def get_attached_to_content_type(self, obj):
