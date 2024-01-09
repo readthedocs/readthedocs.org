@@ -113,10 +113,13 @@ class SphinxBuilderTest(TestCase):
             build_env=self.build_env,
             python_env=python_env,
         )
-        with pytest.raises(
-            ProjectConfigurationError, match=ProjectConfigurationError.NOT_FOUND
-        ):
+        with self.assertRaises(ProjectConfigurationError) as e:
             base_sphinx.append_conf()
+
+        self.assertEqual(
+            e.exception.message_id,
+            ProjectConfigurationError.NOT_FOUND,
+        )
 
     @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.docs_dir")
     @patch("readthedocs.doc_builder.backends.sphinx.BaseSphinx.get_config_params")
@@ -615,11 +618,10 @@ class MkdocsBuilderTest(TestCase):
             python_env=python_env,
         )
 
-        with self.assertRaisesMessage(
-            MkDocsYAMLParseError, MkDocsYAMLParseError.EMPTY_CONFIG
-        ):
+        with self.assertRaises(MkDocsYAMLParseError) as exc:
             with override_settings(DOCROOT=tmpdir):
                 self.searchbuilder.append_conf()
+        self.assertEqual(exc.exception.message_id, MkDocsYAMLParseError.EMPTY_CONFIG)
 
     @patch("readthedocs.projects.models.Project.checkout_path")
     def test_yaml_config_not_returns_dict(self, checkout_path):
@@ -644,8 +646,10 @@ class MkdocsBuilderTest(TestCase):
             python_env=python_env,
         )
 
-        with self.assertRaisesMessage(
-            MkDocsYAMLParseError, MkDocsYAMLParseError.CONFIG_NOT_DICT
-        ):
+        with self.assertRaises(MkDocsYAMLParseError) as e:
             with override_settings(DOCROOT=tmpdir):
                 self.searchbuilder.append_conf()
+        self.assertEqual(
+            e.exception.message_id,
+            MkDocsYAMLParseError.CONFIG_NOT_DICT,
+        )

@@ -1,4 +1,5 @@
 import django_filters.rest_framework as filters
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Exists, OuterRef
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
@@ -23,6 +24,7 @@ from rest_framework_extensions.mixins import NestedViewSetMixin
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.utils import trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import (
     RemoteOrganization,
     RemoteRepository,
@@ -62,6 +64,7 @@ from .serializers import (
     BuildCreateSerializer,
     BuildSerializer,
     EnvironmentVariableSerializer,
+    NotificationSerializer,
     OrganizationSerializer,
     ProjectCreateSerializer,
     ProjectSerializer,
@@ -379,6 +382,32 @@ class BuildsCreateViewSet(BuildsViewSet, CreateModelMixin):
             data.update({"triggered": False})
             code = status.HTTP_400_BAD_REQUEST
         return Response(data=data, status=code)
+
+
+class NotificationsViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    ProjectQuerySetMixin,
+    FlexFieldsMixin,
+    ReadOnlyModelViewSet,
+):
+    model = Notification
+    lookup_field = "pk"
+    lookup_url_kwarg = "notification_pk"
+    serializer_class = NotificationSerializer
+    queryset = Notification.objects.all()
+    # filterset_class = BuildFilter
+
+    # http://chibisov.github.io/drf-extensions/docs/#usage-with-generic-relations
+    def get_queryset(self):
+        queryset = self.queryset.filter(
+            attached_to_content_type=ContentType.objects.get_for_model(Build)
+        )
+
+        # TODO: make sure if this particular filter should be applied here or somewhere else.
+        return queryset.filter(
+            attached_to_id=self.kwargs.get("parent_lookup_build__id")
+        )
 
 
 class RedirectsViewSet(

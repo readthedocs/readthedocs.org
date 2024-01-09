@@ -203,7 +203,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     AWS_S3_ENDPOINT_URL = "http://storage:9000/"
     AWS_QUERYSTRING_AUTH = False
 
-    STRIPE_SECRET = os.environ.get("RTD_STRIPE_SECRET")
+    STRIPE_SECRET = os.environ.get("RTD_STRIPE_SECRET", "sk_test_x")
     STRIPE_PUBLISHABLE = os.environ.get("RTD_STRIPE_PUBLISHABLE")
     STRIPE_TEST_SECRET_KEY = STRIPE_SECRET
     DJSTRIPE_WEBHOOK_SECRET = os.environ.get("RTD_DJSTRIPE_WEBHOOK_SECRET")

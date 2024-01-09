@@ -26,6 +26,7 @@ from readthedocs.redirects.models import Redirect
 )
 class APIEndpointMixin(TestCase):
     fixtures = []
+    maxDiff = None  # So we get an actual diff when it fails
 
     def setUp(self):
         self.created = make_aware(datetime.datetime(2019, 4, 29, 10, 0, 0))

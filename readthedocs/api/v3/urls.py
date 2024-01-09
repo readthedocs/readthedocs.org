@@ -3,6 +3,7 @@ from .views import (
     BuildsCreateViewSet,
     BuildsViewSet,
     EnvironmentVariablesViewSet,
+    NotificationsViewSet,
     ProjectsViewSet,
     RedirectsViewSet,
     RemoteOrganizationViewSet,
@@ -11,7 +12,6 @@ from .views import (
     TranslationRelationshipViewSet,
     VersionsViewSet,
 )
-
 
 router = DefaultRouterWithNesting()
 
@@ -63,12 +63,27 @@ versions.register(
 
 # allows /api/v3/projects/pip/builds/
 # allows /api/v3/projects/pip/builds/1053/
-projects.register(
+builds = projects.register(
     r"builds",
     BuildsViewSet,
     basename="projects-builds",
     parents_query_lookups=["project__slug"],
 )
+
+# NOTE: we are only listing notifications on APIv3 for now.
+# The front-end will use this endpoint.
+# allows /api/v3/projects/pip/builds/1053/notifications/
+builds.register(
+    r"notifications",
+    NotificationsViewSet,
+    basename="project-builds-notifications",
+    parents_query_lookups=["project__slug", "build__id"],
+)
+
+# TODO: create an APIv3 endpoint to PATCH Build/Project notifications.
+# This way the front-end can mark them as READ/DISMISSED.
+#
+# TODO: create an APIv3 endpoint to list notifications for Projects.
 
 # allows /api/v3/projects/pip/redirects/
 # allows /api/v3/projects/pip/redirects/1053/

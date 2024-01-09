@@ -10,7 +10,6 @@ from django.utils.translation import gettext_lazy as _
 from readthedocs.builds.models import Version
 from readthedocs.core.history import ExtraSimpleHistoryAdmin, set_change_reason
 from readthedocs.core.utils import trigger_build
-from readthedocs.notifications.views import SendNotificationView
 from readthedocs.projects.tasks.search import reindex_version
 from readthedocs.redirects.models import Redirect
 
@@ -29,7 +28,6 @@ from .models import (
     WebHook,
     WebHookEvent,
 )
-from .notifications import ResourceUsageNotification
 from .tag_utils import import_tags
 from .tasks.utils import clean_project_resources
 
@@ -48,16 +46,6 @@ class ReadOnlyInlineMixin:
 
     def has_delete_permission(self, request, obj=None):
         return False
-
-
-class ProjectSendNotificationView(SendNotificationView):
-    notification_classes = [
-        ResourceUsageNotification,
-    ]
-
-    def get_object_recipients(self, obj):
-        for owner in obj.users.all():
-            yield owner
 
 
 class ProjectRelationshipInline(admin.TabularInline):
@@ -260,7 +248,6 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
     )
     raw_id_fields = ("users", "main_language_project", "remote_repository")
     actions = [
-        "send_owner_email",
         "ban_owner",
         "run_spam_rule_checks",
         "build_default_version",
@@ -276,13 +263,6 @@ class ProjectAdmin(ExtraSimpleHistoryAdmin):
 
     def feature_flags(self, obj):
         return "\n".join([str(f.get_feature_display()) for f in obj.features])
-
-    @admin.action(description="Notify project owners")
-    def send_owner_email(self, request, queryset):
-        view = ProjectSendNotificationView.as_view(
-            action_name="send_owner_email",
-        )
-        return view(request, queryset=queryset)
 
     def run_spam_rule_checks(self, request, queryset):
         """Run all the spam checks on this project."""

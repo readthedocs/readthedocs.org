@@ -171,7 +171,9 @@ class BuildDetail(BuildBase, DetailView):
 
         build = self.get_object()
 
-        if build.error != BuildAppError.GENERIC_WITH_BUILD_ID.format(build_id=build.pk):
+        if not build.notifications.filter(
+            message_id=BuildAppError.GENERIC_WITH_BUILD_ID
+        ).exists():
             # Do not suggest to open an issue if the error is not generic
             return context
 

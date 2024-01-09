@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.11
+boto3==1.34.14
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.11
+botocore==1.34.14
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -98,7 +98,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.8
+django==4.2.9
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -153,8 +153,6 @@ django-ipware==5.0.2
     # via
     #   -r requirements/pip.txt
     #   django-structlog
-django-messages-extends==0.6.3
-    # via -r requirements/pip.txt
 django-polymorphic==3.1.0
     # via -r requirements/pip.txt
 django-simple-history==3.0.0
@@ -177,6 +175,7 @@ djangorestframework==3.14.0
     # via
     #   -r requirements/pip.txt
     #   drf-extensions
+    #   rest-framework-generic-relations
 djangorestframework-api-key==3.0.0
     # via -r requirements/pip.txt
 djangorestframework-jsonp==1.0.2
@@ -240,7 +239,7 @@ kombu==5.3.4
     # via
     #   -r requirements/pip.txt
     #   celery
-lxml==5.0.0
+lxml==5.0.1
     # via
     #   -r requirements/pip.txt
     #   pyquery
@@ -292,7 +291,7 @@ pyjwt[crypto]==2.8.0
     #   pyjwt
 pyquery==2.0.0
     # via -r requirements/pip.txt
-pytest==7.4.3
+pytest==7.4.4
     # via
     #   -r requirements/testing.in
     #   pytest-cov
@@ -355,6 +354,8 @@ requests-oauthlib==1.3.1
     #   django-allauth
 requests-toolbelt==1.0.0
     # via -r requirements/pip.txt
+rest-framework-generic-relations==2.1.0
+    # via -r requirements/pip.txt
 s3transfer==0.10.0
     # via
     #   -r requirements/pip.txt
@@ -402,7 +403,7 @@ stripe==4.2.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-structlog==23.3.0
+structlog==23.2.0
     # via
     #   -r requirements/pip.txt
     #   django-structlog
@@ -447,7 +448,7 @@ vine==5.1.0
     #   kombu
 virtualenv==20.25.0
     # via -r requirements/pip.txt
-wcwidth==0.2.12
+wcwidth==0.2.13
     # via
     #   -r requirements/pip.txt
     #   prompt-toolkit

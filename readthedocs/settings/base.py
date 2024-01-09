@@ -224,11 +224,11 @@ class CommunityBaseSettings(Settings):
             'rest_framework',
             'rest_framework.authtoken',
             "rest_framework_api_key",
+            "generic_relations",
             'corsheaders',
             'annoying',
             'django_extensions',
             'crispy_forms',
-            'messages_extends',
             'django_elasticsearch_dsl',
             'django_filters',
             'polymorphic',
@@ -349,13 +349,6 @@ class CommunityBaseSettings(Settings):
         },
     ]
 
-    MESSAGE_STORAGE = 'readthedocs.notifications.storages.FallbackUniqueStorage'
-
-    NOTIFICATION_BACKENDS = [
-        'readthedocs.notifications.backends.EmailBackend',
-        'readthedocs.notifications.backends.SiteBackend',
-    ]
-
     # Paths
     SITE_ROOT = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -423,6 +416,7 @@ class CommunityBaseSettings(Settings):
                         'django.template.context_processors.request',
                         # Read the Docs processor
                         'readthedocs.core.context_processors.readthedocs_processor',
+                        'readthedocs.core.context_processors.user_notifications',
                     ],
                 },
             },
@@ -484,11 +478,6 @@ class CommunityBaseSettings(Settings):
         'quarter-finish-inactive-builds': {
             'task': 'readthedocs.projects.tasks.utils.finish_inactive_builds',
             'schedule': crontab(minute='*/15'),
-            'options': {'queue': 'web'},
-        },
-        'every-three-hour-clear-persistent-messages': {
-            'task': 'readthedocs.core.tasks.clear_persistent_messages',
-            'schedule': crontab(minute=0, hour='*/3'),
             'options': {'queue': 'web'},
         },
         'every-day-delete-old-search-queries': {
