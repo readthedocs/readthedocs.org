@@ -61,7 +61,6 @@ from .permissions import (
     CommonPermissions,
     IsOrganizationAdminMember,
     IsProjectAdmin,
-    UserOrganizationsListing,
 )
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
@@ -80,6 +79,7 @@ from .serializers import (
     SubprojectCreateSerializer,
     SubprojectDestroySerializer,
     SubprojectSerializer,
+    UserSerializer,
     VersionSerializer,
     VersionUpdateSerializer,
 )
@@ -393,6 +393,7 @@ class NotificationsForUserViewSet(
     FlexFieldsMixin,
     ListModelMixin,
     RetrieveModelMixin,
+    UpdateMixin,
     UpdateModelMixin,
     GenericViewSet,
 ):
@@ -455,6 +456,7 @@ class NotificationsProjectViewSet(
     FlexFieldsMixin,
     ListModelMixin,
     RetrieveModelMixin,
+    UpdateMixin,
     UpdateModelMixin,
     GenericViewSet,
 ):
@@ -477,6 +479,7 @@ class NotificationsBuildViewSet(
     FlexFieldsMixin,
     ListModelMixin,
     RetrieveModelMixin,
+    UpdateMixin,
     UpdateModelMixin,
     GenericViewSet,
 ):
@@ -560,37 +563,41 @@ class EnvironmentVariablesViewSet(
         serializer.save()
 
 
-class OrganizationsViewSet(
-    APIv3Settings,
-    NestedViewSetMixin,
-    OrganizationQuerySetMixin,
-    ReadOnlyModelViewSet,
-):
-    model = Organization
-    lookup_field = "slug"
-    lookup_url_kwarg = "organization_slug"
-    queryset = Organization.objects.all()
-    serializer_class = OrganizationSerializer
-    permission_classes = [
-        IsAuthenticated & (UserOrganizationsListing | IsOrganizationAdminMember)
-    ]
-    permit_list_expands = [
-        "projects",
-        "teams",
-        "teams.members",
-    ]
+# NOTE: old attempt to implement /api/v3/organizations/
+# Currently, it's commented because we are not allowing hitting this endpoint.
+# We can recover this implementation once we are ready.
+#
+# class OrganizationsViewSet(
+#     APIv3Settings,
+#     NestedViewSetMixin,
+#     OrganizationQuerySetMixin,
+#     ReadOnlyModelViewSet,
+# ):
+#     model = Organization
+#     lookup_field = "slug"
+#     lookup_url_kwarg = "organization_slug"
+#     queryset = Organization.objects.all()
+#     serializer_class = OrganizationSerializer
+#     permission_classes = [
+#         IsAuthenticated & (UserOrganizationsListing | IsOrganizationAdminMember)
+#     ]
+#     permit_list_expands = [
+#         "projects",
+#         "teams",
+#         "teams.members",
+#     ]
 
-    def get_view_name(self):
-        return f"Organizations {self.suffix}"
+#     def get_view_name(self):
+#         return f"Organizations {self.suffix}"
 
-    def get_queryset(self):
-        # Allow hitting ``/api/v3/organizations/`` to list their own organizations
-        if self.basename == "organizations" and self.action == "list":
-            # We force returning ``Organization`` objects here because it's
-            # under the ``organizations`` view.
-            return self.admin_organizations(self.request.user)
+#     def get_queryset(self):
+#         # Allow hitting ``/api/v3/organizations/`` to list their own organizations
+#         if self.basename == "organizations" and self.action == "list":
+#             # We force returning ``Organization`` objects here because it's
+#             # under the ``organizations`` view.
+#             return self.admin_organizations(self.request.user)
 
-        return super().get_queryset()
+#         return super().get_queryset()
 
 
 class OrganizationsProjectsViewSet(
@@ -653,3 +660,87 @@ class RemoteOrganizationViewSet(
     filterset_class = RemoteOrganizationFilter
     queryset = RemoteOrganization.objects.all()
     permission_classes = (IsAuthenticated,)
+
+
+class UsersViewSet(
+    APIv3Settings,
+    GenericViewSet,
+):
+    # NOTE: this viewset is only useful for nested URLs required for notifications:
+    # /api/v3/users/<username>/notifications/
+    # However, accessing to /api/v3/users/ or /api/v3/users/<username>/ will return 404.
+    # We can implement these endpoints when we need them, tho.
+
+    model = User
+    serializer_class = UserSerializer
+    queryset = User.objects.none()
+    permission_classes = (IsAuthenticated,)
+
+
+class NotificationsUserViewSet(
+    APIv3Settings,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateMixin,
+    UpdateModelMixin,
+    GenericViewSet,
+):
+    model = Notification
+    lookup_field = "pk"
+    lookup_url_kwarg = "notification_pk"
+    serializer_class = NotificationSerializer
+    queryset = Notification.objects.all()
+    permission_classes = (IsAuthenticated,)
+    filterset_class = NotificationFilter
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        content_type = ContentType.objects.get_for_model(User)
+        return queryset.filter(
+            attached_to_content_type=content_type,
+            attached_to_id=self.request.user.pk,
+        )
+
+
+class OrganizationsViewSet(
+    APIv3Settings,
+    GenericViewSet,
+):
+    # NOTE: this viewset is only useful for nested URLs required for notifications:
+    # /api/v3/organizations/<slug>/notifications/
+    # However, accessing to /api/v3/organizations/ or /api/v3/organizations/<slug>/ will return 404.
+    # We can implement these endpoints when we need them, tho.
+
+    model = Organization
+    serializer_class = OrganizationSerializer
+    queryset = Organization.objects.none()
+    permission_classes = (IsAuthenticated,)
+
+
+class NotificationsOrganizationViewSet(
+    APIv3Settings,
+    ListModelMixin,
+    RetrieveModelMixin,
+    UpdateMixin,
+    UpdateModelMixin,
+    GenericViewSet,
+):
+    model = Notification
+    lookup_field = "pk"
+    lookup_url_kwarg = "notification_pk"
+    serializer_class = NotificationSerializer
+    queryset = Notification.objects.all()
+    permission_classes = (IsAuthenticated,)
+    filterset_class = NotificationFilter
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        content_type = ContentType.objects.get_for_model(Organization)
+        return queryset.filter(
+            attached_to_content_type=content_type,
+            attached_to_id__in=Subquery(
+                AdminPermission.organizations(
+                    self.request.user, admin=True, member=False
+                ).values("id"),
+            ),
+        )

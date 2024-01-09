@@ -68,12 +68,12 @@ class NotificationLinksSerializer(BaseLinksSerializer):
     def get__self(self, obj):
         content_type_name = obj.attached_to_content_type.name
         if content_type_name == "user":
-            return ""
-            url = "user-notifications-detail"
+            url = "users-notifications-detail"
             path = reverse(
                 url,
                 kwargs={
                     "notification_pk": obj.pk,
+                    "parent_lookup_user__username": obj.attached_to.username,
                 },
             )
 
@@ -101,7 +101,6 @@ class NotificationLinksSerializer(BaseLinksSerializer):
             )
 
         elif content_type_name == "organization":
-            return ""
             url = "organizations-notifications-detail"
             path = reverse(
                 url,
@@ -274,7 +273,7 @@ class NotificationMessageSerializer(serializers.Serializer):
 
 class NotificationCreateSerializer(serializers.ModelSerializer):
     message_id = serializers.ChoiceField(
-        choices=sorted([(key, key) for key in registry.messages.keys()])
+        choices=sorted([(key, key) for key in registry.messages])
     )
 
     class Meta:
