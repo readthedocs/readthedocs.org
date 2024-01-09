@@ -241,9 +241,11 @@ messages = [
         id=ConfigError.CONDA_KEY_REQUIRED,
         header=_("Missing required key"),
         body=_(
-            """
+            textwrap.dedent(
+                """
             The key <code>conda.environment</code> is required when using Conda or Mamba.
             """
+            ).strip(),
         ),
         type=ERROR,
     ),
