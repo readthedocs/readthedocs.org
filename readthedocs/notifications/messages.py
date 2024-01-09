@@ -46,11 +46,17 @@ class Message:
         If we want to support other types or nested dictionaries,
         we will need to iterate recursively to apply the ``escape`` function.
         """
-        return {
+        result = {
             key: escape(value)
             for key, value in format_values.items()
             if isinstance(value, (str, int))
         }
+
+        # TODO: improve this code; I need to hotfix it for now.
+        # We need to keep passing the "instance" that comes from the notification object itself.
+        if "instance" in format_values:
+            result["instance"] = format_values["instance"]
+        return result
 
     def set_format_values(self, format_values):
         self.format_values = self._escape_format_values(format_values)
