@@ -1,3 +1,24 @@
+Version 10.15.0
+---------------
+
+:Date: January 09, 2024
+
+* `@humitos <https://github.com/humitos>`__: pip-compile fixes (`#11010 <https://github.com/readthedocs/readthedocs.org/pull/11010>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11005 <https://github.com/readthedocs/readthedocs.org/pull/11005>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix structlog by downgrading it (`#11003 <https://github.com/readthedocs/readthedocs.org/pull/11003>`__)
+* `@humitos <https://github.com/humitos>`__: Eslint fix issues (`#10998 <https://github.com/readthedocs/readthedocs.org/pull/10998>`__)
+* `@webknjaz <https://github.com/webknjaz>`__: Fix ref to the "new addons integrations" blog post @ custom build doc (`#10997 <https://github.com/readthedocs/readthedocs.org/pull/10997>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: small fixes found after reviewer (`#10996 <https://github.com/readthedocs/readthedocs.org/pull/10996>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#10995 <https://github.com/readthedocs/readthedocs.org/pull/10995>`__)
+* `@humitos <https://github.com/humitos>`__: Remove leftovers from `django-messages-extends` (`#10994 <https://github.com/readthedocs/readthedocs.org/pull/10994>`__)
+* `@stsewd <https://github.com/stsewd>`__: Integrations: hardcode deprecation date for incoming webhooks without a secret (`#10993 <https://github.com/readthedocs/readthedocs.org/pull/10993>`__)
+* `@stsewd <https://github.com/stsewd>`__: Development: update steps for testing subscriptions (`#10992 <https://github.com/readthedocs/readthedocs.org/pull/10992>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: remove null option from position field (`#10991 <https://github.com/readthedocs/readthedocs.org/pull/10991>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.14.0 (`#10989 <https://github.com/readthedocs/readthedocs.org/pull/10989>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: get translation from main project (`#10952 <https://github.com/readthedocs/readthedocs.org/pull/10952>`__)
+* `@humitos <https://github.com/humitos>`__: New notification system: implementation (`#10922 <https://github.com/readthedocs/readthedocs.org/pull/10922>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom domains: don't allow adding a custom domain on subprojects (`#8953 <https://github.com/readthedocs/readthedocs.org/pull/8953>`__)
+
 Version 10.14.0
 ---------------
 

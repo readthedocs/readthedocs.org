@@ -102,7 +102,10 @@ class BaseMkdocs(BaseBuilder):
             )
             if not result:
                 raise UserFileNotFound(
-                    UserFileNotFound.FILE_NOT_FOUND.format(self.yaml_file)
+                    message_id=UserFileNotFound.FILE_NOT_FOUND,
+                    format_values={
+                        "filename": self.yaml_file,
+                    },
                 )
 
             config = yaml_load_safely(result)
@@ -124,8 +127,7 @@ class BaseMkdocs(BaseBuilder):
                     mark.column + 1,
                 )
             raise MkDocsYAMLParseError(
-                'Your mkdocs.yml could not be loaded, '
-                'possibly due to a syntax error{note}'.format(note=note),
+                MkDocsYAMLParseError.SYNTAX_ERROR,
             ) from exc
 
     def append_conf(self):

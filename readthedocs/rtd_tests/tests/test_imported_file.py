@@ -1,5 +1,6 @@
 import os
 
+import pytest
 from django.conf import settings
 from django.core.files.storage import get_storage_class
 from django.test import TestCase
@@ -13,6 +14,7 @@ from readthedocs.search.documents import PageDocument
 base_dir = os.path.dirname(os.path.dirname(__file__))
 
 
+@pytest.mark.search
 @override_settings(ELASTICSEARCH_DSL_AUTOSYNC=True)
 class ImportedFileTests(TestCase):
     fixtures = ["eric", "test_data"]

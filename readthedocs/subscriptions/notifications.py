@@ -1,12 +1,13 @@
 """Organization level notifications."""
 
+import textwrap
 
-from django.urls import reverse
+from django.utils.translation import gettext_noop as _
 from djstripe import models as djstripe
-from messages_extends.constants import WARNING_PERSISTENT
 
-from readthedocs.notifications import Notification, SiteNotification
-from readthedocs.notifications.constants import REQUIREMENT
+from readthedocs.notifications.constants import INFO
+from readthedocs.notifications.email import EmailNotification
+from readthedocs.notifications.messages import Message, registry
 from readthedocs.organizations.models import Organization
 from readthedocs.subscriptions.constants import DISABLE_AFTER_DAYS
 
@@ -16,16 +17,15 @@ class SubscriptionNotificationMixin:
     """Force to read templates from the subscriptions app."""
 
     app_templates = "subscriptions"
+    context_object_name = "organization"
 
 
-class TrialEndingNotification(SubscriptionNotificationMixin, Notification):
+class TrialEndingNotification(SubscriptionNotificationMixin, EmailNotification):
 
     """Trial is ending, nudge user towards subscribing."""
 
     name = "trial_ending"
-    context_object_name = "organization"
     subject = "Your trial is ending soon"
-    level = REQUIREMENT
 
     @staticmethod
     def for_subscriptions():
@@ -36,17 +36,17 @@ class TrialEndingNotification(SubscriptionNotificationMixin, Notification):
         )
 
 
-class SubscriptionRequiredNotification(SubscriptionNotificationMixin, Notification):
+class SubscriptionRequiredNotification(
+    SubscriptionNotificationMixin, EmailNotification
+):
 
     """Trial has ended, push user into subscribing."""
 
     name = "subscription_required"
-    context_object_name = "organization"
     subject = "We hope you enjoyed your trial of Read the Docs!"
-    level = REQUIREMENT
 
 
-class SubscriptionEndedNotification(SubscriptionNotificationMixin, Notification):
+class SubscriptionEndedNotification(SubscriptionNotificationMixin, EmailNotification):
 
     """
     Subscription has ended.
@@ -56,12 +56,12 @@ class SubscriptionEndedNotification(SubscriptionNotificationMixin, Notification)
     """
 
     name = "subscription_ended"
-    context_object_name = "organization"
     subject = "Your subscription to Read the Docs has ended"
-    level = REQUIREMENT
 
 
-class OrganizationDisabledNotification(SubscriptionNotificationMixin, Notification):
+class OrganizationDisabledNotification(
+    SubscriptionNotificationMixin, EmailNotification
+):
 
     """
     Subscription has ended a month ago.
@@ -72,9 +72,7 @@ class OrganizationDisabledNotification(SubscriptionNotificationMixin, Notificati
     """
 
     name = "organization_disabled"
-    context_object_name = "organization"
     subject = "Your Read the Docs organization will be disabled soon"
-    level = REQUIREMENT
 
     days_after_end = DISABLE_AFTER_DAYS
 
@@ -87,20 +85,19 @@ class OrganizationDisabledNotification(SubscriptionNotificationMixin, Notificati
         return organizations
 
 
-class OrganizationDisabledSiteNotification(
-    SubscriptionNotificationMixin, SiteNotification
-):
-    success_message = 'The organization "{{ object.name }}" is currently disabled. You need to <a href="{{ url }}">renew your subscription</a> to keep using Read the Docs.'  # noqa
-    success_level = WARNING_PERSISTENT
-
-    def get_context_data(self):
-        context = super().get_context_data()
-        context.update(
-            {
-                "url": reverse(
-                    "subscription_detail",
-                    args=[self.object.slug],
-                ),
-            }
-        )
-        return context
+MESSAGE_ORGANIZATION_DISABLED = "organization:disabled"
+messages = [
+    Message(
+        id=MESSAGE_ORGANIZATION_DISABLED,
+        header=_("Your organization has been disabled"),
+        body=_(
+            textwrap.dedent(
+                """
+            The organization "{instance.name}" is currently disabled. You need to <a href="{subscription_url}">renew your subscription</a> to keep using Read the Docs
+            """
+            ).strip(),
+        ),
+        type=INFO,
+    ),
+]
+registry.add(messages)

@@ -3239,6 +3239,33 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data['build_triggered'])
         self.assertEqual(resp.data['versions'], ['v1.0'])
 
+    @mock.patch("readthedocs.api.v2.views.integrations.timezone.now")
+    def test_deprecate_webhooks_without_a_secret(self, now, trigger_build):
+        now.return_value = datetime.datetime(2024, 1, 31, tzinfo=datetime.timezone.utc)
+        client = APIClient()
+
+        Integration.objects.filter(pk=self.github_integration.pk).update(secret=None)
+        resp = client.post(
+            f"/api/v2/webhook/github/{self.project.slug}/",
+            self.github_payload,
+            format="json",
+            headers={GITHUB_SIGNATURE_HEADER: "skip"},
+        )
+        self.assertContains(
+            resp, "This webhook doesn't have a secret configured.", status_code=400
+        )
+
+        self.generic_integration.provider_data = {"token": None}
+        self.generic_integration.save()
+        resp = client.post(
+            f"/api/v2/webhook/{self.project.slug}/{self.generic_integration.pk}/",
+            {"token": "skip"},
+            format="json",
+        )
+        # For generic webhooks, we first check if the secret matches,
+        # and return a 400 if it doesn't.
+        self.assertEqual(resp.status_code, 404)
+
 
 @override_settings(PUBLIC_DOMAIN="readthedocs.io")
 class APIVersionTests(TestCase):
