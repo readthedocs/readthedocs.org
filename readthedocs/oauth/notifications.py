@@ -11,7 +11,9 @@ MESSAGE_OAUTH_WEBHOOK_NO_PERMISSIONS = "oauth:webhook:no-permissions"
 MESSAGE_OAUTH_WEBHOOK_NO_ACCOUNT = "oauth:webhook:no-account"
 MESSAGE_OAUTH_WEBHOOK_INVALID = "oauth:webhook:invalid"
 MESSAGE_OAUTH_BUILD_STATUS_FAILURE = "oauth:status:send-failed"
-MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_SUCCESSFULY = "oauth:deploy-key:attached-successfully"
+MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_SUCCESSFULLY = (
+    "oauth:deploy-key:attached-successfully"
+)
 MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_FAILED = "oauth:deploy-key:attached-failed"
 
 messages = [
@@ -71,7 +73,7 @@ messages = [
         type=ERROR,
     ),
     Message(
-        id=MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_SUCCESSFULY,
+        id=MESSAGE_OAUTH_DEPLOY_KEY_ATTACHED_SUCCESSFULLY,
         header=_("Deploy key added successfully"),
         body=_(
             textwrap.dedent(
