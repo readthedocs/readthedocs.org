@@ -684,7 +684,7 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 project_slug=self.data.project.slug,
                 version_slug=self.data.version.slug,
             )
-            self.data.director.attach_notification(
+            self.data.build_director.attach_notification(
                 BuildMaxConcurrencyError.LIMIT_REACHED
             )
             self.update_build(state=BUILD_STATE_TRIGGERED)
