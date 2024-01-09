@@ -57,11 +57,7 @@ from .mixins import (
     UpdateChangeReasonMixin,
     UpdateMixin,
 )
-from .permissions import (
-    CommonPermissions,
-    IsOrganizationAdminMember,
-    IsProjectAdmin,
-)
+from .permissions import CommonPermissions, IsOrganizationAdminMember, IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
