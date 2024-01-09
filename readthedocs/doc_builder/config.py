@@ -32,9 +32,9 @@ def load_yaml_config(version, readthedocs_yaml_path=None):
 
 def get_default_formats(project):
     """Get a list of the default formats for ``project``."""
-    formats = ['htmlzip']
+    formats = ["htmlzip"]
     if project.enable_epub_build:
-        formats += ['epub']
+        formats += ["epub"]
     if project.enable_pdf_build:
-        formats += ['pdf']
+        formats += ["pdf"]
     return formats
