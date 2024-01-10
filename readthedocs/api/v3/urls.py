@@ -84,8 +84,6 @@ builds = projects.register(
     parents_query_lookups=["project__slug"],
 )
 
-# NOTE: we are only listing notifications on APIv3 for now.
-# The front-end will use this endpoint.
 # allows /api/v3/projects/pip/builds/1053/notifications/
 builds.register(
     r"notifications",
@@ -93,11 +91,6 @@ builds.register(
     basename="projects-builds-notifications",
     parents_query_lookups=["project__slug", "build__id"],
 )
-
-# TODO: create an APIv3 endpoint to PATCH Build/Project notifications.
-# This way the front-end can mark them as READ/DISMISSED.
-#
-# TODO: create an APIv3 endpoint to list notifications for Projects.
 
 # allows /api/v3/projects/pip/redirects/
 # allows /api/v3/projects/pip/redirects/1053/
@@ -124,6 +117,7 @@ users = router.register(
     basename="users",
 )
 
+# allows /api/v3/users/<username>/notifications/
 users.register(
     r"notifications",
     NotificationsUserViewSet,
@@ -138,6 +132,7 @@ organizations = router.register(
     basename="organizations",
 )
 
+# allows /api/v3/organizations/<slug>/notifications/
 organizations.register(
     r"notifications",
     NotificationsOrganizationViewSet,
