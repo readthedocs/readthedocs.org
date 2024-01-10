@@ -684,8 +684,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 project_slug=self.data.project.slug,
                 version_slug=self.data.version.slug,
             )
+
+            # Grab the format values from the exception in case it contains
+            format_values = exc.format_values if hasattr(exc, "format_values") else None
             self.data.director.attach_notification(
-                BuildMaxConcurrencyError.LIMIT_REACHED
+                BuildMaxConcurrencyError.LIMIT_REACHED,
+                format_values=format_values,
             )
             self.update_build(state=BUILD_STATE_TRIGGERED)
 
