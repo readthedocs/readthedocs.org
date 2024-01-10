@@ -601,15 +601,17 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                         output_format=artifact_type,
                     )
                     raise BuildUserError(
-                        BuildUserError.BUILD_OUTPUT_HAS_MULTIPLE_FILES.format(
-                            artifact_type=artifact_type
-                        )
+                        BuildUserError.BUILD_OUTPUT_HAS_MULTIPLE_FILES,
+                        format_values={
+                            "artifact_type": artifact_type,
+                        },
                     )
                 if artifact_format_files == 0:
                     raise BuildUserError(
-                        BuildUserError.BUILD_OUTPUT_HAS_0_FILES.format(
-                            artifact_type=artifact_type
-                        )
+                        BuildUserError.BUILD_OUTPUT_HAS_0_FILES,
+                        format_values={
+                            "artifact_type": artifact_type,
+                        },
                     )
 
             # If all the conditions were met, the artifact is valid
