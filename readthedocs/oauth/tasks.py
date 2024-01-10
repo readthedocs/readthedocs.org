@@ -238,7 +238,7 @@ def attach_webhook(project_pk, user_pk, integration=None):
             format_values={
                 "provider_name": provider.name,
                 "url_connect_account": reverse(
-                    "project_integrations",
+                    "projects_integrations",
                     args=[project.slug],
                 ),
             },
