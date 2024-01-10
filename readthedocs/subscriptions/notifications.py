@@ -93,7 +93,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            The organization "{instance.name}" is currently disabled. You need to <a href="{subscription_url}">renew your subscription</a> to keep using Read the Docs
+            The organization "{instance.slug}" is currently disabled. You need to <a href="{subscription_url}">renew your subscription</a> to keep using Read the Docs
             """
             ).strip(),
         ),

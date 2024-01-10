@@ -23,7 +23,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Could not add webhook for {instance.name}.
+            Could not add webhook for "{instance.slug}".
             Please <a href="{url_connect_account}">connect your {provider_name} account</a>.
             """
             ).strip(),
@@ -36,7 +36,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Could not add webhook for {instance.name}.
+            Could not add webhook for "{instance.slug}".
             Make sure <a href="{url_docs_webhook}">you have the correct {provider_name} permissions</a>.
             """
             ).strip(),
@@ -49,7 +49,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-        The project {instance.name} doesn't have a valid webhook set up,
+        The project "{instance.slug}" doesn't have a valid webhook set up,
         commits won't trigger new builds for this project.
         See <a href='{url_integrations}'>the project integrations</a> for more information.
             """
@@ -63,7 +63,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-        Could not send {provider_name} build status report for {instance.name}.
+        Could not send {provider_name} build status report for "{instance.slug}".
         Make sure you have the correct {provider_name} repository permissions</a> and
         your <a href="{url_connect_account}">{provider_name} account</a>
         is connected to Read the Docs.

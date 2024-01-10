@@ -527,7 +527,7 @@ class BaseBuildEnvironment:
                     version_slug=self.version.slug if self.version else "",
                 )
             elif build_cmd.exit_code == RTD_SKIP_BUILD_EXIT_CODE:
-                raise BuildAppError(BuildAppError.SKIPPED_EXIT_CODE_183)
+                raise BuildUserError(BuildUserError.SKIPPED_EXIT_CODE_183)
             else:
                 # TODO: for now, this still outputs a generic error message
                 # that is the same across all commands. We could improve this
