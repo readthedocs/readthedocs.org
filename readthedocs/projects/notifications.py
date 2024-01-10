@@ -21,7 +21,7 @@ messages = [
                 """
             Your project is currently disabled for abuse of the system.
             Please make sure it isn't using unreasonable amounts of resources or triggering lots of builds in a short amount of time.
-            Please <a href="mailto:{SUPPORT_EMAIL}">contact support</a> to get your project re-enabled.
+            Please <a href="mailto:{{SUPPORT_EMAIL}}">contact support</a> to get your project re-enabled.
             """
             ).strip(),
         ),
@@ -59,7 +59,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Failed to checkout revision: <code>{revision}</code>
+            Failed to checkout revision: <code>{{revision}}</code>
             """
             ).strip(),
         ),
@@ -125,7 +125,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            The file <code>{filename}</code> doesn't exist. Make sure it's a valid file path.
+            The file <code>{{filename}}</code> doesn't exist. Make sure it's a valid file path.
             """
             ).strip(),
         ),
