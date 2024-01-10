@@ -1,7 +1,7 @@
 """Objects for User permission checks."""
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import Q
+from django.db.models import Q, Subquery
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.organizations.constants import ADMIN_ACCESS, READ_ONLY_ACCESS
@@ -78,7 +78,7 @@ class AdminPermissionBase:
     def organizations(cls, user, admin=False, member=False):
         from readthedocs.organizations.models import Organization
 
-        projects = cls.projects(user, admin, member)
+        projects = Subquery(cls.projects(user, admin, member).values("id"))
         return Organization.objects.filter(projects__in=projects)
 
     @classmethod
