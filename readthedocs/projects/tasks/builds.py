@@ -259,7 +259,7 @@ def sync_repository_task(self, version_id, *, build_api_key, **kwargs):
         # by a different worker.
         # See https://github.com/readthedocs/readthedocs.org/pull/9021/files#r828509016
         if not lock_acquired:
-            raise SyncRepositoryLocked
+            raise SyncRepositoryLocked(SyncRepositoryLocked.REPOSITORY_LOCKED)
 
         self.execute()
 
