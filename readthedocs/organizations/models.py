@@ -2,6 +2,7 @@
 import structlog
 from autoslug import AutoSlugField
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
@@ -12,6 +13,7 @@ from djstripe.enums import SubscriptionStatus
 from readthedocs.core.history import ExtraHistoricalRecords
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify
+from readthedocs.notifications.models import Notification
 
 from . import constants
 from .managers import TeamManager, TeamMemberManager
@@ -116,6 +118,13 @@ class Organization(models.Model):
         related_name="rtd_organization",
         null=True,
         blank=True,
+    )
+
+    notifications = GenericRelation(
+        Notification,
+        related_query_name="organization",
+        content_type_field="attached_to_content_type",
+        object_id_field="attached_to_id",
     )
 
     # Managers
