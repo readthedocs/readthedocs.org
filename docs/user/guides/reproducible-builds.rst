@@ -18,7 +18,7 @@ so that you can focus on content.
    They are not the latest nor the recommended versions.
    It is up to you to find those versions.
 
-Before reading this page, be sure to read the doc about the :doc:`configuration file </config-file/v2>` (``.readthedocs.yaml``).
+Before reading this page, be sure to read the doc about the :doc:`configuration file </config-file/index>` (``.readthedocs.yaml``).
 This file controls how you documentation is build so it plays a crucial role for reproducible builds.
 
 Pin the tools version
