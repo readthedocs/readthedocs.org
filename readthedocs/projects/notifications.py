@@ -3,11 +3,12 @@ import textwrap
 
 from django.utils.translation import gettext_noop as _
 
-from readthedocs.notifications.constants import ERROR, INFO
+from readthedocs.notifications.constants import ERROR, INFO, WARNING
 from readthedocs.notifications.messages import Message, registry
 from readthedocs.projects.exceptions import (
     ProjectConfigurationError,
     RepositoryError,
+    SyncRepositoryLocked,
     UserFileNotFound,
 )
 
@@ -130,6 +131,19 @@ messages = [
             ).strip(),
         ),
         type=ERROR,
+    ),
+    Message(
+        id=SyncRepositoryLocked.REPOSITORY_LOCKED,
+        header=_("Repository locked"),
+        body=_(
+            textwrap.dedent(
+                """
+                We can't perform the versions/branches synchronize at the moment.
+                There is another sync already running.
+                """
+            ).strip(),
+        ),
+        type=WARNING,
     ),
 ]
 registry.add(messages)
