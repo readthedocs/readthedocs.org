@@ -140,7 +140,7 @@ messages = [
                 """
                 We can't perform the versions/branches synchronize at the moment.
                 There is another sync already running.
-            """
+                """
             ).strip(),
         ),
         type=WARNING,
