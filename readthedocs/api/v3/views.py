@@ -410,38 +410,8 @@ class NotificationsForUserViewSet(
     permission_classes = (IsAuthenticated,)
     filterset_class = NotificationFilter
 
-    # http://chibisov.github.io/drf-extensions/docs/#usage-with-generic-relations
     def get_queryset(self):
-        user = Notification.objects.filter(
-            attached_to_content_type=ContentType.objects.get_for_model(User),
-            attached_to_id=self.request.user.pk,
-        )
-
-        # NOTE: using ``Subquery`` work better regarding performance since it makes only one query to the databse,
-        # instead of doing one to get the ids and another one to get the notifications.
-        # It also works better for users that have many projects/organizations since we don't need to load the ids
-        # in memory and then dump them into the SQL query.
-        # Besides, it performs better when applying the filters via ``NotificationFilter``
-        project = Notification.objects.filter(
-            attached_to_content_type=ContentType.objects.get_for_model(Project),
-            attached_to_id__in=Subquery(
-                AdminPermission.projects(
-                    self.request.user, admin=True, member=False
-                ).values("id")
-            ),
-        )
-        organization = Notification.objects.filter(
-            attached_to_content_type=ContentType.objects.get_for_model(Organization),
-            attached_to_id__in=Subquery(
-                AdminPermission.organizations(
-                    self.request.user, admin=True, member=False
-                ).values("id")
-            ),
-        )
-
-        # Return all the notifications related to this user attached to:
-        # User, Project and Organization models where the user is admin.
-        return user | project | organization
+        return Notification.objects.for_user(self.request.user)
 
 
 # TODO: verify permissions over all ``**/notifications/`` endpoints.
