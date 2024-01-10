@@ -491,12 +491,6 @@ class NotificationsBuildViewSet(
         return build.notifications.all()
 
 
-# TODO: should we create different endpoints?
-# - List all notifications related to the user (User, Project, Organization): /api/v3/notifications/
-# - List all notifications related to a particular Build: /api/v3/projects/docs/builds/12345/notifications/
-# - Update notification: /api/v3/notifications/123/
-
-
 class RedirectsViewSet(
     APIv3Settings,
     NestedViewSetMixin,
