@@ -220,7 +220,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     # Remove the checks on the number of fields being submitted
     # This limit is mostly hit on large forms in the Django admin
     DATA_UPLOAD_MAX_NUMBER_FIELDS = None
-    SUPPORT_EMAIL = "example@company.com"
+    SUPPORT_EMAIL = "support@example.com"
 
 
 DockerBaseSettings.load_settings(__name__)
