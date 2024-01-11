@@ -41,7 +41,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Configuration file not found in <code>{directory}</code>.
+            Configuration file not found in <code>{{directory}}</code>.
             """
             ).strip(),
         ),
@@ -53,7 +53,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            The <code>{key}</code> configuration option is not supported in this version.
+            The <code>{{key}}</code> configuration option is not supported in this version.
             """
             ).strip(),
         ),
@@ -105,11 +105,11 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Invalid configuration option: <code>{key}</code>.
+            Invalid configuration option: <code>{{key}}</code>.
 
-            Read the Docs configuration file: <code>{source_file}</code>.
+            Read the Docs configuration file: <code>{{source_file}}</code>.
 
-            <code>{error_message}</code>
+            <code>{{error_message}}</code>
             """
             ).strip(),
         ),
@@ -145,7 +145,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            The name of the packages (e.g. <code>{package}</code>) can't start with <code>{prefix}</code>
+            The name of the packages (e.g. <code>{{package}}</code>) can't start with <code>{{prefix}}</code>
             """
             ).strip(),
         ),
@@ -157,7 +157,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            The name of the package <code>{pacakge}</name> is invalid.
+            The name of the package <code>{{pacakge}}</name> is invalid.
             """
             ).strip(),
         ),
@@ -213,11 +213,11 @@ messages = [
     ),
     Message(
         id=ConfigError.INVALID_KEY_NAME,
-        header=_("Invalid configuration key: {key}"),
+        header=_("Invalid configuration key: {{key}}"),
         body=_(
             textwrap.dedent(
                 """
-            Make sure the key name <code>{key}</code> is correct.
+            Make sure the key name <code>{{key}}</code> is correct.
             """
             ).strip(),
         ),
@@ -229,9 +229,9 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Error while parsing <code>{filename}</code>.
+            Error while parsing <code>{{filename}}</code>.
 
-            {error_message}
+            {{error_message}}
             """
             ).strip(),
         ),
@@ -248,8 +248,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Config validation error in <code>{key}</code>.
-            Expected one of (0, 1, true, false), got <code>{value}</code>.
+            Config validation error in <code>{{key}}</code>.
+            Expected one of (0, 1, true, false), got <code>{{value}}</code>.
             """
             ).strip(),
         ),
@@ -261,8 +261,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Config validation error in <code>{key}</code>.
-            Expected one of ({choices}), got <code>{value}</code>.
+            Config validation error in <code>{{key}}</code>.
+            Expected one of ({{choices}}), got <code>{{value}}</code>.
             """
             ).strip(),
         ),
@@ -274,8 +274,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Config validation error in <code>{key}</code>.
-            Expected a dictionary, got <code>{value}</code>.
+            Config validation error in <code>{{key}}</code>.
+            Expected a dictionary, got <code>{{value}}</code>.
             """
             ).strip(),
         ),
@@ -287,8 +287,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Config validation error in <code>{key}</code>.
-            The path <code>{value}</code> does not exist.
+            Config validation error in <code>{{key}}</code>.
+            The path <code>{{value}}</code> does not exist.
             """
             ).strip(),
         ),
@@ -300,8 +300,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Config validation error in <code>{key}</code>.
-            The path <code>{value}</code> is not a valid path pattern.
+            Config validation error in <code>{{key}}</code>.
+            The path <code>{{value}}</code> is not a valid path pattern.
             """
             ).strip(),
         ),
@@ -313,8 +313,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Config validation error in <code>{key}</code>.
-            Expected a string, got <code>{value}</code>.
+            Config validation error in <code>{{key}}</code>.
+            Expected a string, got <code>{{value}}</code>.
             """
             ).strip(),
         ),
@@ -326,8 +326,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Config validation error in <code>{key}</code>.
-            Expected a list, got <code>{value}</code>.
+            Config validation error in <code>{{key}}</code>.
+            Expected a list, got <code>{{value}}</code>.
             """
             ).strip(),
         ),
@@ -339,8 +339,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Config validation error in <code>{key}</code>.
-            Value <code>{value}</code> not found.
+            Config validation error in <code>{{key}}</code>.
+            Value <code>{{value}}</code> not found.
             """
             ).strip(),
         ),

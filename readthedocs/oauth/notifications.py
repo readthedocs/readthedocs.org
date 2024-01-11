@@ -23,8 +23,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Could not add webhook for "{instance.slug}".
-            Please <a href="{url_connect_account}">connect your {provider_name} account</a>.
+            Could not add webhook for "{{instance.name}}".
+            Please <a href="{{url_connect_account}}">connect your {{provider_name}} account</a>.
             """
             ).strip(),
         ),
@@ -36,8 +36,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Could not add webhook for "{instance.slug}".
-            Make sure <a href="{url_docs_webhook}">you have the correct {provider_name} permissions</a>.
+            Could not add webhook for "{{instance.name}}".
+            Make sure <a href="{{url_docs_webhook}}">you have the correct {{provider_name}} permissions</a>.
             """
             ).strip(),
         ),
@@ -49,9 +49,9 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-        The project "{instance.slug}" doesn't have a valid webhook set up,
+        The project "{{instance.name}}" doesn't have a valid webhook set up,
         commits won't trigger new builds for this project.
-        See <a href='{url_integrations}'>the project integrations</a> for more information.
+        See <a href='{{url_integrations}}'>the project integrations</a> for more information.
             """
             ).strip(),
         ),
@@ -59,13 +59,13 @@ messages = [
     ),
     Message(
         id=MESSAGE_OAUTH_BUILD_STATUS_FAILURE,
-        header=_("{provier_name} build status report failed"),
+        header=_("{{provier_name}} build status report failed"),
         body=_(
             textwrap.dedent(
                 """
-        Could not send {provider_name} build status report for "{instance.slug}".
-        Make sure you have the correct {provider_name} repository permissions</a> and
-        your <a href="{url_connect_account}">{provider_name} account</a>
+        Could not send {{provider_name}} build status report for "{{instance.name}}".
+        Make sure you have the correct {{provider_name}} repository permissions</a> and
+        your <a href="{{url_connect_account}}">{{provider_name}} account</a>
         is connected to Read the Docs.
             """
             ).strip(),
@@ -78,7 +78,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Successfully added deploy key to {provider_name} project.
+            Successfully added deploy key to {{provider_name}} project.
             """
             ).strip(),
         ),
@@ -90,7 +90,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            Failed to add deploy key to {provider_name} project, ensure you have the correct permissions and try importing again.
+            Failed to add deploy key to {{provider_name}} project, ensure you have the correct permissions and try importing again.
             """
             ).strip(),
         ),
