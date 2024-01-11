@@ -282,6 +282,23 @@ class TestBuildConfigV2:
         build.validate()
         assert build.conda.environment == "environment.yml"
 
+    def test_conda_key_required_for_conda_mamba(self):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "miniconda3-4.7",
+                    },
+                },
+            }
+        )
+        print(build)
+        with raises(ConfigError) as excinfo:
+            build.validate()
+        assert excinfo.value.message_id == ConfigError.CONDA_KEY_REQUIRED
+        assert excinfo.value.format_values.get("key") == "conda"
+
     @pytest.mark.parametrize("value", [3, [], "invalid"])
     def test_conda_check_invalid_value(self, value):
         build = get_build_config({"conda": value})
