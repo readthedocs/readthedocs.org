@@ -49,9 +49,7 @@ def validate_redirect(
 
 
 def _check_redirects_limit(project, error_class):
-    """
-    Check if the project has reached the limit on the number of redirects.
-    """
+    """Check if the project has reached the limit on the number of redirects."""
     feature = get_feature(project, TYPE_REDIRECTS_LIMIT)
     if feature.unlimited:
         return
