@@ -127,9 +127,7 @@ Limitations and observations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - By default, redirects only apply on pages that don't exist.
-  **Forced redirects** allow you to apply redirects on existing pages,
-  but incur a small performance penalty, so aren't enabled by default.
-  You can ask for them to be enabled via support.
+  **Forced redirects** allow you to apply redirects on existing pages.
 - Redirects aren't applied on :doc:`previews of pull requests </pull-requests>`.
   You should treat these domains as ephemeral and not rely on them for user-facing content.
 - You can redirect to URLs outside Read the Docs,
