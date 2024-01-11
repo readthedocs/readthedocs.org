@@ -1951,7 +1951,6 @@ class Feature(models.Model):
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
-    ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
@@ -2019,10 +2018,6 @@ class Feature(models.Model):
         (
             RECORD_404_PAGE_VIEWS,
             _("Proxito: Record 404s page views."),
-        ),
-        (
-            ALLOW_FORCED_REDIRECTS,
-            _("Proxito: Allow forced redirects."),
         ),
         (
             DISABLE_PAGEVIEWS,
