@@ -49,7 +49,9 @@ from readthedocs.builds.constants import (
     LATEST,
 )
 from readthedocs.builds.models import APIVersion, Build, BuildCommandResult, Version
+from readthedocs.doc_builder.exceptions import BuildUserError
 from readthedocs.integrations.models import GenericAPIWebhook, Integration
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import (
     RemoteOrganization,
     RemoteOrganizationRelation,
@@ -108,7 +110,13 @@ class APIBuildTests(TestCase):
         )
         build.commands.add(command)
 
+        Notification.objects.add(
+            attached_to=build,
+            message_id=BuildUserError.SKIPPED_EXIT_CODE_183,
+        )
+
         self.assertEqual(build.commands.count(), 1)
+        self.assertEqual(build.notifications.count(), 1)
 
         client = APIClient()
         _, build_api_key = BuildAPIKey.objects.create_key(self.project)
@@ -129,6 +137,7 @@ class APIBuildTests(TestCase):
         self.assertEqual(build.builder, '')
         self.assertFalse(build.cold_storage)
         self.assertEqual(build.commands.count(), 0)
+        self.assertEqual(build.notifications.count(), 0)
 
 
     def test_api_does_not_have_private_config_key_superuser(self):
