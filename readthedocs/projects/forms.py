@@ -529,7 +529,17 @@ class AddonsConfigForm(forms.ModelForm):
 
     class Meta:
         model = AddonsConfig
-        fields = ("enabled", "project")
+        fields = (
+            "enabled",
+            "project",
+            "analytics_enabled",
+            "doc_diff_enabled",
+            "external_version_warning_enabled",
+            "flyout_enabled",
+            "hotkeys_enabled",
+            "search_enabled",
+            "stable_latest_version_warning_enabled",
+        )
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
@@ -540,6 +550,72 @@ class AddonsConfigForm(forms.ModelForm):
             self.fields["enabled"].initial = self.project.addons.enabled
         except AddonsConfig.DoesNotExist:
             self.fields["enabled"].initial = False
+
+        fieldsets = [
+            Fieldset(
+                _("Global"),
+                "enabled",
+            ),
+            Fieldset(
+                _("Analytics"),
+                HTML(
+                    "<p>Analytics addon allows you to store traffic analytics in your project.</p>"
+                ),
+                *[field for field in self.fields if field.startswith("analytics_")],
+            ),
+            Fieldset(
+                _("DocDiff"),
+                HTML(
+                    "<p>DocDicc addon helps you to review changes from PR by visually showing the differences.</p>"
+                ),
+                *[field for field in self.fields if field.startswith("doc_diff_")],
+            ),
+            Fieldset(
+                _("Flyout"),
+                HTML(
+                    "<p>Flyout addon shows a small menu at bottom-right of each page with useful links to switch between versions and translations.</p>"
+                ),
+                *[field for field in self.fields if field.startswith("flyout_")],
+            ),
+            Fieldset(
+                _("Hotkeys"),
+                HTML(
+                    "<p>Hotkeys addon enables keyboard shortcuts to access other addons quickly.</p>"
+                ),
+                *[field for field in self.fields if field.startswith("hotkeys_")],
+            ),
+            Fieldset(
+                _("Search"),
+                HTML(
+                    "<p>Search addon improves your search experience with the search-as-you-type feature.</p>"
+                ),
+                *[field for field in self.fields if field.startswith("search_")],
+            ),
+            Fieldset(
+                _("Warning on PR previews"),
+                HTML("<p>Shows a warning notification on PR previews.</p>"),
+                *[
+                    field
+                    for field in self.fields
+                    if field.startswith("external_version_warning_")
+                ],
+            ),
+            Fieldset(
+                _("Warning on non-stable/latest versions"),
+                HTML(
+                    "<p>Shows a warning notification stable and latest versions letting the user know they may be reading an outdated page or a non-released one.</p>"
+                ),
+                *[
+                    field
+                    for field in self.fields
+                    if field.startswith("stable_latest_version_warning_")
+                ],
+            ),
+        ]
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(*fieldsets)
+        self.helper.add_input(Submit("save", _("Save")))
 
     def clean_project(self):
         return self.project
