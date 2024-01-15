@@ -1244,8 +1244,6 @@ Redirect create
          * ``page`` and ``exact`` types require ``from_url`` and ``to_url``.
          * ``clean_url_to_html`` and ``html_to_clean_url`` types do not require ``from_url`` and ``to_url``.
 
-       - Forced redirects are not enabled by default,
-         you can ask for them to be enabled via support.
        - Position starts at 0 and is used to order redirects.
 
     **Example response**:
