@@ -58,7 +58,7 @@ pygments==2.17.2
     #   sphinx-tabs
 pyyaml==6.0.1
     # via myst-parser
-readthedocs-sphinx-search==0.3.1
+readthedocs-sphinx-search==0.3.2
     # via -r requirements/docs.in
 requests==2.31.0
     # via sphinx
