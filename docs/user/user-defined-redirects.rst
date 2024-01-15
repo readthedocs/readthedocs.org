@@ -126,6 +126,8 @@ users will be redirected to the new URL.
 Limitations and observations
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+- |org_brand| users are limited to 100 redirects per project,
+  and |com_brand| users have a number of redirects limited by their plan. 
 - By default, redirects only apply on pages that don't exist.
   **Forced redirects** allow you to apply redirects on existing pages.
 - Redirects aren't applied on :doc:`previews of pull requests </pull-requests>`.
