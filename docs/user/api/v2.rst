@@ -330,6 +330,11 @@ Embed
 
     Retrieve HTML-formatted content from documentation page or section.
 
+    .. warning::
+
+       The content will be returned as is, without any sanitization or escaping.
+       You should not include content from arbitrary projects, or projects you do not trust.
+
     **Example request**:
 
     .. prompt:: bash $

@@ -1925,6 +1925,10 @@ Embed
        Passing ``?doctool=`` and ``?doctoolversion=`` may improve the response,
        since the endpoint will know more about the exact structure of the HTML and can make better decisions.
 
+    .. warning::
+
+       The content will be returned as is, without any sanitization or escaping.
+       You should not include content from arbitrary projects, or projects you do not trust.
 
 Additional APIs
 ---------------
