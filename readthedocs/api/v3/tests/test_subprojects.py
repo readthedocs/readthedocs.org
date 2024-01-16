@@ -56,6 +56,8 @@ class SubprojectsEndpointTests(APIEndpointMixin):
 
     def test_projects_subprojects_list_post(self):
         newproject = self._create_new_project()
+        self.organization.projects.add(newproject)
+
         self.assertEqual(self.project.subprojects.count(), 1)
         url = reverse(
             "projects-subprojects-list",

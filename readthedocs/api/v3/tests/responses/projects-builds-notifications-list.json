@@ -5,12 +5,12 @@
   "results": [
     {
       "_links": {
-        "_self": "https://readthedocs.org/api/v3/projects/project/builds/1/notifications/2/"
+        "_self": "https://readthedocs.org/api/v3/projects/project/builds/1/notifications/3/"
       },
       "attached_to_content_type": "build",
       "attached_to_id": 1,
       "dismissable": false,
-      "id": 2,
+      "id": 3,
       "message": {
         "body": "The user has cancelled this build.",
         "header": "Build cancelled manually.",
