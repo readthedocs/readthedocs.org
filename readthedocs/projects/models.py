@@ -1977,25 +1977,6 @@ class Feature(models.Model):
     # Build related features
     SCALE_IN_PROTECTION = "scale_in_prtection"
 
-    # Addons related features
-    HOSTING_INTEGRATIONS = "hosting_integrations"
-    # NOTE: this is mainly temporal while we are rolling these features out.
-    # The idea here is to have more control over particular projects and do some testing.
-    # All these features will be enabled by default to all projects,
-    # and we can disable them if we want to
-    ADDONS_ANALYTICS_DISABLED = "addons_analytics_disabled"
-    ADDONS_DOC_DIFF_DISABLED = "addons_doc_diff_disabled"
-    ADDONS_ETHICALADS_DISABLED = "addons_ethicalads_disabled"
-    ADDONS_EXTERNAL_VERSION_WARNING_DISABLED = (
-        "addons_external_version_warning_disabled"
-    )
-    ADDONS_FLYOUT_DISABLED = "addons_flyout_disabled"
-    ADDONS_NON_LATEST_VERSION_WARNING_DISABLED = (
-        "addons_non_latest_version_warning_disabled"
-    )
-    ADDONS_SEARCH_DISABLED = "addons_search_disabled"
-    ADDONS_HOTKEYS_DISABLED = "addons_hotkeys_disabled"
-
     FEATURES = (
         (
             MKDOCS_THEME_RTD,
@@ -2092,45 +2073,6 @@ class Feature(models.Model):
         (
             SCALE_IN_PROTECTION,
             _("Build: Set scale-in protection before/after building."),
-        ),
-        # Addons related features.
-        (
-            HOSTING_INTEGRATIONS,
-            _(
-                "Proxito: Inject 'readthedocs-addons.js' as <script> HTML tag in responses."
-            ),
-        ),
-        (
-            ADDONS_ANALYTICS_DISABLED,
-            _("Addons: Disable Analytics."),
-        ),
-        (
-            ADDONS_DOC_DIFF_DISABLED,
-            _("Addons: Disable Doc Diff."),
-        ),
-        (
-            ADDONS_ETHICALADS_DISABLED,
-            _("Addons: Disable EthicalAds."),
-        ),
-        (
-            ADDONS_EXTERNAL_VERSION_WARNING_DISABLED,
-            _("Addons: Disable External version warning."),
-        ),
-        (
-            ADDONS_FLYOUT_DISABLED,
-            _("Addons: Disable Flyout."),
-        ),
-        (
-            ADDONS_NON_LATEST_VERSION_WARNING_DISABLED,
-            _("Addons: Disable Non latest version warning."),
-        ),
-        (
-            ADDONS_SEARCH_DISABLED,
-            _("Addons: Disable Search."),
-        ),
-        (
-            ADDONS_HOTKEYS_DISABLED,
-            _("Addons: Disable Hotkeys."),
         ),
     )
 
