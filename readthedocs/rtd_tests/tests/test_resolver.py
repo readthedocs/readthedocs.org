@@ -17,6 +17,7 @@ from readthedocs.subscriptions.products import RTDProductFeature
 
 resolver = Resolver()
 
+
 @override_settings(
     PUBLIC_DOMAIN="readthedocs.org",
     RTD_DEFAULT_FEATURES=dict([RTDProductFeature(type=TYPE_CNAME).to_item()]),
@@ -61,6 +62,7 @@ class ResolverBase(TestCase):
             self.subproject_translation.versions.first()
         )
         self.subproject.translations.add(self.subproject_translation)
+
 
 class SmartResolverPathTests(ResolverBase):
     def test_resolver_filename(self):

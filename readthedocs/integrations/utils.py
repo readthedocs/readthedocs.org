@@ -1,5 +1,6 @@
 """Integration utility functions."""
 
+
 def normalize_request_payload(request):
     """
     Normalize the request body, hopefully to JSON.

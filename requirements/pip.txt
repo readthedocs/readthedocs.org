@@ -14,9 +14,9 @@ async-timeout==4.0.3
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.34.14
+boto3==1.34.18
     # via django-storages
-botocore==1.34.14
+botocore==1.34.18
     # via
     #   boto3
     #   s3transfer
@@ -170,11 +170,11 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.in
     #   dj-stripe
-kombu==5.3.4
+kombu==5.3.5
     # via celery
-lxml==5.0.1
+lxml==5.1.0
     # via pyquery
-markdown==3.5.1
+markdown==3.5.2
     # via -r requirements/pip.in
 oauthlib==3.2.2
     # via requests-oauthlib
@@ -279,7 +279,7 @@ ua-parser==0.18.0
     # via user-agents
 unicode-slugify @ git+https://github.com/mozilla/unicode-slugify@b696c37
     # via -r requirements/pip.in
-unidecode==1.3.7
+unidecode==1.3.8
     # via unicode-slugify
 urllib3==2.0.7
     # via

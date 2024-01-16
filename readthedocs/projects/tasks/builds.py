@@ -259,7 +259,7 @@ def sync_repository_task(self, version_id, *, build_api_key, **kwargs):
         # by a different worker.
         # See https://github.com/readthedocs/readthedocs.org/pull/9021/files#r828509016
         if not lock_acquired:
-            raise SyncRepositoryLocked
+            raise SyncRepositoryLocked(SyncRepositoryLocked.REPOSITORY_LOCKED)
 
         self.execute()
 
@@ -601,15 +601,17 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                         output_format=artifact_type,
                     )
                     raise BuildUserError(
-                        BuildUserError.BUILD_OUTPUT_HAS_MULTIPLE_FILES.format(
-                            artifact_type=artifact_type
-                        )
+                        BuildUserError.BUILD_OUTPUT_HAS_MULTIPLE_FILES,
+                        format_values={
+                            "artifact_type": artifact_type,
+                        },
                     )
                 if artifact_format_files == 0:
                     raise BuildUserError(
-                        BuildUserError.BUILD_OUTPUT_HAS_0_FILES.format(
-                            artifact_type=artifact_type
-                        )
+                        BuildUserError.BUILD_OUTPUT_HAS_0_FILES,
+                        format_values={
+                            "artifact_type": artifact_type,
+                        },
                     )
 
             # If all the conditions were met, the artifact is valid
@@ -684,8 +686,12 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
                 project_slug=self.data.project.slug,
                 version_slug=self.data.version.slug,
             )
-            self.data.director.attach_notification(
-                BuildMaxConcurrencyError.LIMIT_REACHED
+
+            # Grab the format values from the exception in case it contains
+            format_values = exc.format_values if hasattr(exc, "format_values") else None
+            self.data.build_director.attach_notification(
+                BuildMaxConcurrencyError.LIMIT_REACHED,
+                format_values=format_values,
             )
             self.update_build(state=BUILD_STATE_TRIGGERED)
 

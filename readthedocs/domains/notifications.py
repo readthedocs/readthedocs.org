@@ -20,12 +20,12 @@ MESSAGE_DOMAIN_VALIDATION_EXPIRED = "project:domain:validation-expired"
 messages = [
     Message(
         id=MESSAGE_DOMAIN_VALIDATION_PENDING,
-        header=_("Pending configuration of custom domain: {domain}"),
+        header=_("Pending configuration of custom domain: {{domain}}"),
         body=_(
             textwrap.dedent(
                 """
-            The configuration of your custom domain <code>{domain}</code> is pending.
-            Go to the <a href="{domain_url}">domain page</a> and follow the instructions to complete it.
+            The configuration of your custom domain <code>{{domain}}</code> is pending.
+            Go to the <a href="{{domain_url}}">domain page</a> and follow the instructions to complete it.
             """
             ).strip(),
         ),
@@ -36,12 +36,12 @@ messages = [
     # ``message_id``
     Message(
         id=MESSAGE_DOMAIN_VALIDATION_EXPIRED,
-        header=_("Validation of custom domain expired: {domain}"),
+        header=_("Validation of custom domain expired: {{domain}}"),
         body=_(
             textwrap.dedent(
                 """
-            The validation period of your custom domain <code>{domain}</code> has ended.
-            Go to the <a href="{domain_url}">domain page</a> and click on "Save" to restart the process.
+            The validation period of your custom domain <code>{{domain}}</code> has ended.
+            Go to the <a href="{{domain_url}}">domain page</a> and click on "Save" to restart the process.
             """
             ).strip(),
         ),

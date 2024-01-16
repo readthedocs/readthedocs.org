@@ -174,6 +174,8 @@ class CommunityBaseSettings(Settings):
             RTDProductFeature(type=constants.TYPE_AUDIT_LOGS, value=self.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS).to_item(),
             # Max number of concurrent builds.
             RTDProductFeature(type=constants.TYPE_CONCURRENT_BUILDS, value=self.RTD_MAX_CONCURRENT_BUILDS).to_item(),
+            # Max number of redirects allowed per project.
+            RTDProductFeature(type=constants.TYPE_REDIRECTS_LIMIT, value=100).to_item(),
         ))
 
     # A dictionary of Stripe products mapped to a RTDProduct object.

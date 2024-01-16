@@ -30,3 +30,5 @@ class RepositoryError(BuildUserError):
 class SyncRepositoryLocked(BuildAppError):
 
     """Error risen when there is another sync_repository_task already running."""
+
+    REPOSITORY_LOCKED = "project:repository:locked"

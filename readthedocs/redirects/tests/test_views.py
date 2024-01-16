@@ -12,6 +12,8 @@ from readthedocs.redirects.constants import (
     PAGE_REDIRECT,
 )
 from readthedocs.redirects.models import Redirect
+from readthedocs.subscriptions.constants import TYPE_REDIRECTS_LIMIT
+from readthedocs.subscriptions.products import RTDProductFeature
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=False)
@@ -223,6 +225,66 @@ class TestViews(TestCase):
             resp,
             "Only one redirect of type `html_to_clean_url` is allowed per project.",
         )
+
+    @override_settings(
+        RTD_DEFAULT_FEATURES=dict(
+            (
+                RTDProductFeature(
+                    type=TYPE_REDIRECTS_LIMIT,
+                    value=2,
+                ).to_item(),
+            )
+        )
+    )
+    def test_redirects_limit(self):
+        self.assertEqual(self.project.redirects.all().count(), 1)
+        url = reverse("projects_redirects_create", args=[self.project.slug])
+        resp = self.client.post(
+            url,
+            data={
+                "redirect_type": EXACT_REDIRECT,
+                "from_url": "a",
+                "to_url": "b",
+                "http_status": 302,
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+
+        resp = self.client.post(
+            url,
+            data={
+                "redirect_type": EXACT_REDIRECT,
+                "from_url": "c",
+                "to_url": "d",
+                "http_status": 302,
+            },
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertContains(
+            resp,
+            "This project has reached the limit of 2 redirects.",
+        )
+        self.assertEqual(self.project.redirects.all().count(), 2)
+
+        # Update works
+        resp = self.client.post(
+            reverse(
+                "projects_redirects_edit", args=[self.project.slug, self.redirect.pk]
+            ),
+            data={
+                "redirect_type": PAGE_REDIRECT,
+                "http_status": 302,
+            },
+        )
+        self.assertEqual(resp.status_code, 302)
+
+        # Delete works
+        resp = self.client.post(
+            reverse(
+                "projects_redirects_delete", args=[self.project.slug, self.redirect.pk]
+            ),
+        )
+        self.assertEqual(resp.status_code, 302)
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)

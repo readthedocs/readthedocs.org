@@ -978,8 +978,6 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             "position",
             "_links",
         ]
-        # TODO: allow editing this field for projects that have this feature enabled.
-        read_only_fields = ["force"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -320,7 +320,6 @@ class BaseTestFooterHTML:
 
 
 class TestFooterHTML(BaseTestFooterHTML, TestCase):
-
     pass
 
 
@@ -329,7 +328,6 @@ class TestFooterHTML(BaseTestFooterHTML, TestCase):
     PUBLIC_DOMAIN_USES_HTTPS=True,
 )
 class TestVersionCompareFooter(TestCase):
-
     fixtures = ["test_data", "eric"]
 
     def setUp(self):
@@ -470,6 +468,7 @@ class TestVersionCompareFooter(TestCase):
             "is_highest": False,
         }
         self.assertDictEqual(valid_data, returned_data)
+
 
 @pytest.mark.proxito
 @override_settings(
