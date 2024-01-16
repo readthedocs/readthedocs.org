@@ -1,3 +1,28 @@
+Version 10.15.1
+---------------
+
+:Date: January 16, 2024
+
+* `@stsewd <https://github.com/stsewd>`__: Update docs requirements (`#11032 <https://github.com/readthedocs/readthedocs.org/pull/11032>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11029 <https://github.com/readthedocs/readthedocs.org/pull/11029>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: limit to 100 per project (`#11028 <https://github.com/readthedocs/readthedocs.org/pull/11028>`__)
+* `@humitos <https://github.com/humitos>`__: Build: reset notifications when reseting a build (`#11027 <https://github.com/readthedocs/readthedocs.org/pull/11027>`__)
+* `@humitos <https://github.com/humitos>`__: Development: define `SUPPORT_EMAIL` setting (`#11026 <https://github.com/readthedocs/readthedocs.org/pull/11026>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: use Template's Django engine to render them (`#11024 <https://github.com/readthedocs/readthedocs.org/pull/11024>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: render `Organization` notifications on details page (`#11023 <https://github.com/readthedocs/readthedocs.org/pull/11023>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: add missing `format_values` (`#11021 <https://github.com/readthedocs/readthedocs.org/pull/11021>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: save `format_values` when `on_retry` exception (`#11020 <https://github.com/readthedocs/readthedocs.org/pull/11020>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: initialize exception properly (`#11019 <https://github.com/readthedocs/readthedocs.org/pull/11019>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: use `instance.slug` instead of `instance.name` (`#11018 <https://github.com/readthedocs/readthedocs.org/pull/11018>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: oauth typo on URL name (`#11017 <https://github.com/readthedocs/readthedocs.org/pull/11017>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: typo on constant (`#11015 <https://github.com/readthedocs/readthedocs.org/pull/11015>`__)
+* `@humitos <https://github.com/humitos>`__: Build: typo on `on_retry` (`#11014 <https://github.com/readthedocs/readthedocs.org/pull/11014>`__)
+* `@humitos <https://github.com/humitos>`__: Black: run black over all the code base (Part 2) (`#11013 <https://github.com/readthedocs/readthedocs.org/pull/11013>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove browndates for config file (`#11012 <https://github.com/readthedocs/readthedocs.org/pull/11012>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.15.0 (`#11011 <https://github.com/readthedocs/readthedocs.org/pull/11011>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: small fixes found after reviewer (`#10996 <https://github.com/readthedocs/readthedocs.org/pull/10996>`__)
+* `@humitos <https://github.com/humitos>`__: Config: better validation error for `conda.environment` (`#10979 <https://github.com/readthedocs/readthedocs.org/pull/10979>`__)
+
 Version 10.15.0
 ---------------
 

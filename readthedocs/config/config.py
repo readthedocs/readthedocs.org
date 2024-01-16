@@ -226,9 +226,11 @@ class BuildConfigV2(BuildConfigBase):
     def validate(self):
         """Validates and process ``raw_config``."""
         self._config['formats'] = self.validate_formats()
+
+        # This should be called before ``validate_python`` and ``validate_conda``
+        self._config["build"] = self.validate_build()
+
         self._config['conda'] = self.validate_conda()
-        # This should be called before validate_python
-        self._config['build'] = self.validate_build()
         self._config['python'] = self.validate_python()
         # Call this before validate sphinx and mkdocs
         self.validate_doc_types()
@@ -258,6 +260,11 @@ class BuildConfigV2(BuildConfigBase):
         """Validates the conda key."""
         raw_conda = self._raw_config.get('conda')
         if raw_conda is None:
+            if self.is_using_conda:
+                raise ConfigError(
+                    message_id=ConfigError.CONDA_KEY_REQUIRED,
+                    format_values={"key": "conda"},
+                )
             return None
 
         with self.catch_validation_error('conda'):

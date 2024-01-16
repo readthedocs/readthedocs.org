@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/testing.txt requirements/testing.in
 #
-alabaster==0.7.13
+alabaster==0.7.16
     # via sphinx
 amqp==5.2.0
     # via
@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.14
+boto3==1.34.18
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.14
+botocore==1.34.18
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -224,7 +224,7 @@ imagesize==1.4.1
     # via sphinx
 iniconfig==2.0.0
     # via pytest
-jinja2==3.1.2
+jinja2==3.1.3
     # via sphinx
 jmespath==1.0.1
     # via
@@ -235,19 +235,19 @@ jsonfield==3.1.0
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
-kombu==5.3.4
+kombu==5.3.5
     # via
     #   -r requirements/pip.txt
     #   celery
-lxml==5.0.1
+lxml==5.1.0
     # via
     #   -r requirements/pip.txt
     #   pyquery
-markdown==3.5.1
+markdown==3.5.2
     # via -r requirements/pip.txt
 markupsafe==2.1.3
     # via jinja2
-mercurial==6.6.1
+mercurial==6.6.2
     # via -r requirements/testing.in
 oauthlib==3.2.2
     # via
@@ -375,24 +375,18 @@ slumber==0.7.1
 snowballstemmer==2.2.0
     # via sphinx
 sphinx==7.2.6
-    # via
-    #   -r requirements/testing.in
-    #   sphinxcontrib-applehelp
-    #   sphinxcontrib-devhelp
-    #   sphinxcontrib-htmlhelp
-    #   sphinxcontrib-qthelp
-    #   sphinxcontrib-serializinghtml
-sphinxcontrib-applehelp==1.0.7
+    # via -r requirements/testing.in
+sphinxcontrib-applehelp==1.0.8
     # via sphinx
-sphinxcontrib-devhelp==1.0.5
+sphinxcontrib-devhelp==1.0.6
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.4
+sphinxcontrib-htmlhelp==2.0.5
     # via sphinx
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
-sphinxcontrib-qthelp==1.0.6
+sphinxcontrib-qthelp==1.0.7
     # via sphinx
-sphinxcontrib-serializinghtml==1.1.9
+sphinxcontrib-serializinghtml==1.1.10
     # via sphinx
 sqlparse==0.4.4
     # via
@@ -427,7 +421,7 @@ ua-parser==0.18.0
     #   user-agents
 unicode-slugify @ git+https://github.com/mozilla/unicode-slugify@b696c37
     # via -r requirements/pip.txt
-unidecode==1.3.7
+unidecode==1.3.8
     # via
     #   -r requirements/pip.txt
     #   unicode-slugify
