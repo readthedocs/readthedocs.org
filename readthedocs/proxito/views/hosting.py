@@ -23,7 +23,7 @@ from readthedocs.builds.models import Version
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.unresolver import UnresolverError, unresolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
-from readthedocs.projects.models import Project
+from readthedocs.projects.models import AddonsConfig, Project
 
 log = structlog.get_logger(__name__)  # noqa
 
@@ -280,15 +280,9 @@ class AddonsResponse:
             #     en (original), es, ru
             project_translations = itertools.chain([main_project], project_translations)
 
-        # Make one DB query here and then check on Python code
-        # TODO: make usage of ``Project.addons.<name>_enabled`` to decide if enabled
-        #
-        # NOTE: using ``feature_id__startswith="addons_"`` to make the query faster.
-        # It went down from 20ms to 1ms since it does not have to check the
-        # `Project.pub_date` against all the features.
-        project_features = project.features.filter(
-            feature_id__startswith="addons_"
-        ).values_list("feature_id", flat=True)
+        # Automatically create an AddonsConfig with the default values for
+        # projects that don't have one already
+        AddonsConfig.objects.get_or_create(project=project)
 
         data = {
             "api_version": "0",
