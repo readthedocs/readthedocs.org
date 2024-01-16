@@ -304,6 +304,7 @@ class NotificationSerializer(serializers.ModelSerializer):
             "message",
             "_links",
         ]
+        read_only_fields = ["dismissable", "news"]
 
     def get_attached_to_content_type(self, obj):
         return obj.attached_to_content_type.name
