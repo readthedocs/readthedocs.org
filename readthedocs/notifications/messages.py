@@ -1,8 +1,7 @@
 import textwrap
-from collections import defaultdict
 
 import structlog
-from django.utils.html import escape
+from django.template import Context, Template
 from django.utils.translation import gettext_noop as _
 
 from readthedocs.doc_builder.exceptions import (
@@ -34,32 +33,8 @@ class Message:
     def __str__(self):
         return f"Message: {self.id} | {self.header}"
 
-    def _escape_format_values(self, format_values):
-        """
-        Escape all potential HTML tags included in format values.
-
-        This is a protection against rendering potential values defined by the user.
-        It uses the Django's util function ``escape`` (similar to ``|escape`` template tag filter)
-        to convert HTML characters into regular characters.
-
-        NOTE: currently, we don't support values that are not ``str`` or ``int``.
-        If we want to support other types or nested dictionaries,
-        we will need to iterate recursively to apply the ``escape`` function.
-        """
-        result = {
-            key: escape(value)
-            for key, value in format_values.items()
-            if isinstance(value, (str, int))
-        }
-
-        # TODO: improve this code; I need to hotfix it for now.
-        # We need to keep passing the "instance" that comes from the notification object itself.
-        if "instance" in format_values:
-            result["instance"] = format_values["instance"]
-        return result
-
     def set_format_values(self, format_values):
-        self.format_values = self._escape_format_values(format_values)
+        self.format_values = format_values
 
     def get_display_icon_classes(self):
         if self.icon_classes:
@@ -84,20 +59,12 @@ class Message:
         return " ".join(classes)
 
     def get_rendered_header(self):
-        try:
-            return self.header.format(**self.format_values)
-        except KeyError:
-            # There was a key missing
-            log.exception("There was a missing key when formating a header's Message.")
-            return self.header.format_map(defaultdict(str, **self.format_values))
+        template = Template(self.header)
+        return template.render(context=Context(self.format_values))
 
     def get_rendered_body(self):
-        try:
-            return self.body.format(**self.format_values)
-        except KeyError:
-            # There was a key missing
-            log.exception("There was a missing key when formating a body's Message.")
-            return self.body.format_map(defaultdict(str, **self.format_values))
+        template = Template(self.body)
+        return template.render(context=Context(self.format_values))
 
 
 # TODO: review the copy of these notifications/messages on PR review and adapt them.
@@ -115,7 +82,7 @@ BUILD_MESSAGES = [
                 There was a problem with Read the Docs while building your documentation.
                 Please try again later.
                 If this problem persists,
-                report this error to us with your build id ({instance.pk}).
+                report this error to us with your build id ({{instance.pk}}).
                 """
             ).strip(),
         ),
@@ -129,7 +96,7 @@ BUILD_MESSAGES = [
                 """
             This build was terminated due to inactivity.
             If you continue to encounter this error,
-            file a support request and reference this build id ({instance.pk}).
+            file a support request and reference this build id ({{instance.pk}}).
             """
             ).strip(),
         ),
@@ -155,7 +122,7 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Concurrency limit reached ({limit}), retrying in 5 minutes.
+            Concurrency limit reached ({{limit}}), retrying in 5 minutes.
             """
             ).strip(),
         ),
@@ -216,7 +183,7 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Build exited due to unknown error: {message}
+            Build exited due to unknown error: {{message}}
             """
             ).strip(),
         ),
@@ -242,7 +209,7 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Your project, organization, or user is currently building the maximum concurrency builds allowed ({limit}).
+            Your project, organization, or user is currently building the maximum concurrency builds allowed ({{limit}}).
             It will automatically retry in 5 minutes.
             """
             ).strip(),
@@ -267,7 +234,7 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Build output directory for format "{artifact_type}" is not a directory.
+            Build output directory for format "{{artifact_type}}" is not a directory.
             """
             ).strip(),
         ),
@@ -279,7 +246,7 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Build output directory for format "{artifact_type}" does not contain any files.
+            Build output directory for format "{{artifact_type}}" does not contain any files.
             It seems the build process created the directory but did not save any file to it.
             """
             ).strip(),
@@ -292,9 +259,9 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Build output directory for format "{artifact_type}" contains multiple files
+            Build output directory for format "{{artifact_type}}" contains multiple files
             and it is not currently supported.
-            Please, remove all the files but the "{artifact_type}" you want to upload.
+            Please, remove all the files but the "{{artifact_type}}" you want to upload.
             """
             ).strip(),
         ),
@@ -427,7 +394,7 @@ BUILD_MKDOCS_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Problem parsing MkDocs YAML configuration. {exception}
+            Problem parsing MkDocs YAML configuration. {{exception}}
             """
             ).strip(),
         ),
@@ -463,7 +430,7 @@ BUILD_MKDOCS_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            The "{config}" config from your MkDocs YAML config file has to be a
+            The "{{config}}" config from your MkDocs YAML config file has to be a
             list of relative paths.
             """
             ).strip(),

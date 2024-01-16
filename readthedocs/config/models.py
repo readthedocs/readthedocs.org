@@ -20,15 +20,11 @@ class Base:
             setattr(self, name, kwargs[name])
 
     def as_dict(self):
-        return {
-            name: to_dict(getattr(self, name))
-            for name in self.__slots__
-        }
+        return {name: to_dict(getattr(self, name)) for name in self.__slots__}
 
 
 # TODO: rename this class to `Build`
 class BuildWithOs(Base):
-
     __slots__ = ("os", "tools", "jobs", "apt_packages", "commands")
 
     def __init__(self, **kwargs):
@@ -38,8 +34,7 @@ class BuildWithOs(Base):
 
 
 class BuildTool(Base):
-
-    __slots__ = ('version', 'full_version')
+    __slots__ = ("version", "full_version")
 
 
 class BuildJobs(Base):
@@ -76,39 +71,32 @@ class Python(Base):
 
 
 class PythonInstallRequirements(Base):
-
-    __slots__ = ('requirements',)
+    __slots__ = ("requirements",)
 
 
 class PythonInstall(Base):
-
     __slots__ = (
-        'path',
-        'method',
-        'extra_requirements',
+        "path",
+        "method",
+        "extra_requirements",
     )
 
 
 class Conda(Base):
-
-    __slots__ = ('environment',)
+    __slots__ = ("environment",)
 
 
 class Sphinx(Base):
-
-    __slots__ = ('builder', 'configuration', 'fail_on_warning')
+    __slots__ = ("builder", "configuration", "fail_on_warning")
 
 
 class Mkdocs(Base):
-
-    __slots__ = ('configuration', 'fail_on_warning')
+    __slots__ = ("configuration", "fail_on_warning")
 
 
 class Submodules(Base):
-
-    __slots__ = ('include', 'exclude', 'recursive')
+    __slots__ = ("include", "exclude", "recursive")
 
 
 class Search(Base):
-
-    __slots__ = ('ranking', 'ignore')
+    __slots__ = ("ranking", "ignore")

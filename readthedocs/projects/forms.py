@@ -785,13 +785,10 @@ class RedirectForm(forms.ModelForm):
         self.fields["enabled"].widget = forms.CheckboxInput()
         self.fields["enabled"].empty_value = False
 
-        if self.project.has_feature(Feature.ALLOW_FORCED_REDIRECTS):
-            # Remove the nullable option from the form.
-            # TODO: remove after migration.
-            self.fields["force"].widget = forms.CheckboxInput()
-            self.fields["force"].empty_value = False
-        else:
-            self.fields.pop("force")
+        # Remove the nullable option from the form.
+        # TODO: remove after migration.
+        self.fields["force"].widget = forms.CheckboxInput()
+        self.fields["force"].empty_value = False
 
     def clean_project(self):
         return self.project

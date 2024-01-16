@@ -1119,6 +1119,7 @@ class Build(models.Model):
         self.builder = ''
         self.cold_storage = False
         self.commands.all().delete()
+        self.notifications.all().delete()
         self.save()
 
 

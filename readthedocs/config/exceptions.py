@@ -22,6 +22,7 @@ class ConfigError(BuildUserError):
     SUBMODULES_INCLUDE_EXCLUDE_TOGETHER = "config:submodules:include-exclude-together"
     INVALID_KEY_NAME = "config:base:invalid-key-name"
     SYNTAX_INVALID = "config:base:invalid-syntax"
+    CONDA_KEY_REQUIRED = "config:conda:required"
 
 
 # TODO: improve these error messages shown to the user
