@@ -282,7 +282,7 @@ class Redirect(models.Model):
 
         For example, /dir/test.html will redirect to /dir/subdir/test.html,
         and if the file doesn't exist, it will redirect to
-        /dir/subdir/subdir/test.html and then to /dir/subdir/subdir/test.html and so on.
+        /dir/subdir/subdir/test.html and then to /dir/subdir/subdir/subdir/test.html and so on.
 
         We do this by checking if we will redirect to a subdirectory of the current path,
         and if the current path already starts with the path we will redirect to.
