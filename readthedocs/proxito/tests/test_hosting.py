@@ -131,7 +131,7 @@ class TestReadTheDocsConfigJson(TestCase):
     def test_disabled_addons_via_addons_config(self):
         addons = fixture.get(
             AddonsConfig,
-            projects=[self.project],
+            project=self.project,
         )
         addons.analytics_enabled = False
         addons.doc_diff_enabled = False
