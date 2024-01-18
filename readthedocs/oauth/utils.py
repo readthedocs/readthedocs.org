@@ -25,6 +25,10 @@ def update_webhook(project, integration, request=None):
     if service_cls is None:
         return None
 
+    # TODO: remove after integrations without a secret are removed.
+    if not integration.secret:
+        integration.save()
+
     updated = False
     if project.remote_repository:
         remote_repository_relations = (

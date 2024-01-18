@@ -106,12 +106,10 @@ class BaseVCS:
             # Catch ``BuildCancelled`` here and re raise it. Otherwise, if we
             # raise a ``RepositoryError`` then the ``on_failure`` method from
             # Celery won't treat this problem as a ``BuildCancelled`` issue.
-            raise BuildCancelled from exc
+            raise BuildCancelled(message_id=BuildCancelled.CANCELLED_BY_USER) from exc
         except BuildUserError as exc:
             # Re raise as RepositoryError to handle it properly from outside
-            if hasattr(exc, "message"):
-                raise RepositoryError(exc.message) from exc
-            raise RepositoryError from exc
+            raise RepositoryError(message_id=RepositoryError.GENERIC) from exc
 
         # Return a tuple to keep compatibility
         return (build_cmd.exit_code, build_cmd.output, build_cmd.error)

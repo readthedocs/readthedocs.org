@@ -32,10 +32,11 @@ from readthedocs.builds.constants import (
     STABLE,
 )
 from readthedocs.core.history import ExtraHistoricalRecords
-from readthedocs.core.resolver import resolve, resolve_domain
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import extract_valid_attributes_for_model, slugify
 from readthedocs.core.utils.url import unsafe_join_url_path
 from readthedocs.domains.querysets import DomainQueryset
+from readthedocs.notifications.models import Notification as NewNotification
 from readthedocs.projects import constants
 from readthedocs.projects.exceptions import ProjectConfigurationError
 from readthedocs.projects.managers import HTMLFileManager
@@ -59,7 +60,12 @@ from readthedocs.search.parsers import GenericParser
 from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
-from .constants import DOWNLOADABLE_MEDIA_TYPES, MEDIA_TYPES
+from .constants import (
+    DOWNLOADABLE_MEDIA_TYPES,
+    MEDIA_TYPES,
+    MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+)
 
 log = structlog.get_logger(__name__)
 
@@ -112,7 +118,7 @@ class ProjectRelationship(models.Model):
 
     # HACK
     def get_absolute_url(self):
-        return resolve(self.child)
+        return Resolver().resolve_version(project=self.child)
 
     @cached_property
     def subproject_prefix(self):
@@ -241,14 +247,28 @@ class Project(models.Model):
         blank=True,
         help_text=_('URL that documentation is expected to serve from'),
     )
+    versioning_scheme = models.CharField(
+        _("Versioning scheme"),
+        max_length=120,
+        default=constants.MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+        choices=constants.VERSIONING_SCHEME_CHOICES,
+        # TODO: remove after migration
+        null=True,
+        help_text=_(
+            "This affects how the URL of your documentation looks like, "
+            "and if it supports translations or multiple versions. "
+            "Changing the versioning scheme will break your current URLs."
+        ),
+    )
+    # TODO: this field is deprecated, use `versioning_scheme` instead.
     single_version = models.BooleanField(
         _('Single version'),
         default=False,
         help_text=_(
-            'A single version site has no translations and only your '
+            "A single version site has no translations and only your "
             '"latest" version, served at the root of the domain. Use '
-            'this with caution, only turn it on if you will <b>never</b> '
-            'have multiple versions of your docs.',
+            "this with caution, only turn it on if you will <b>never</b> "
+            "have multiple versions of your docs.",
         ),
     )
     default_version = models.CharField(
@@ -271,26 +291,26 @@ class Project(models.Model):
         ),
     )
     requirements_file = models.CharField(
-        _('Requirements file'),
+        _("Requirements file"),
         max_length=255,
         default=None,
         null=True,
         blank=True,
         help_text=_(
-            'A <a '
+            "A <a "
             'href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">'
-            'pip requirements file</a> needed to build your documentation. '
-            'Path from the root of your project.',
+            "pip requirements file</a> needed to build your documentation. "
+            "Path from the root of your project.",
         ),
     )
     documentation_type = models.CharField(
-        _('Documentation type'),
+        _("Documentation type"),
         max_length=20,
         choices=constants.DOCUMENTATION_CHOICES,
-        default='sphinx',
+        default="sphinx",
         help_text=_(
             'Type of documentation you are building. <a href="'
-            'http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html.'
+            "http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html."
             'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
         ),
     )
@@ -414,44 +434,6 @@ class Project(models.Model):
         help_text=_('Show warning banner in non-stable nor latest versions.'),
     )
 
-    # Sphinx specific build options.
-    enable_epub_build = models.BooleanField(
-        _('Enable EPUB build'),
-        default=False,
-        help_text=_(
-            'Create a EPUB version of your documentation with each build.',
-        ),
-    )
-    enable_pdf_build = models.BooleanField(
-        _('Enable PDF build'),
-        default=False,
-        help_text=_(
-            'Create a PDF version of your documentation with each build.',
-        ),
-    )
-
-    # Other model data.
-    path = models.CharField(
-        _('Path'),
-        max_length=255,
-        editable=False,
-        help_text=_(
-            'The directory where '
-            '<code>conf.py</code> lives',
-        ),
-    )
-    conf_py_file = models.CharField(
-        _('Python configuration file'),
-        max_length=255,
-        default="",
-        blank=True,
-        help_text=_(
-            "Path from project root to <code>conf.py</code> file "
-            "(ex. <code>docs/conf.py</code>). "
-            "Leave blank if you want us to find it for you.",
-        ),
-    )
-
     readthedocs_yaml_path = models.CharField(
         _("Path for .readthedocs.yaml"),
         max_length=1024,
@@ -484,37 +466,6 @@ class Project(models.Model):
         ),
     )
 
-    install_project = models.BooleanField(
-        _('Install Project'),
-        help_text=_(
-            'Install your project inside a virtualenv using <code>setup.py '
-            'install</code>',
-        ),
-        default=False,
-    )
-
-    # This model attribute holds the python interpreter used to create the
-    # virtual environment
-    python_interpreter = models.CharField(
-        _('Python Interpreter'),
-        max_length=20,
-        choices=constants.PYTHON_CHOICES,
-        default='python3',
-        help_text=_(
-            'The Python interpreter used to create the virtual '
-            'environment.',
-        ),
-    )
-
-    # TODO: remove `use_system_packages` after deploying.
-    # This field is not used anymore.
-    use_system_packages = models.BooleanField(
-        _("Use system packages"),
-        help_text=_(
-            "Give the virtual environment access to the global site-packages dir.",
-        ),
-        default=False,
-    )
     privacy_level = models.CharField(
         _('Privacy Level'),
         max_length=20,
@@ -587,6 +538,107 @@ class Project(models.Model):
         blank=True,
     )
 
+    notifications = GenericRelation(
+        NewNotification,
+        related_query_name="project",
+        content_type_field="attached_to_content_type",
+        object_id_field="attached_to_id",
+    )
+
+    # TODO: remove the following fields since they all are going to be ignored
+    # by the application when we start requiring a ``.readthedocs.yaml`` file.
+    # These fields are:
+    #  - requirements_file
+    #  - documentation_type
+    #  - enable_epub_build
+    #  - enable_pdf_build
+    #  - path
+    #  - conf_py_file
+    #  - install_project
+    #  - python_interpreter
+    #  - use_system_packages
+    requirements_file = models.CharField(
+        _("Requirements file"),
+        max_length=255,
+        default=None,
+        null=True,
+        blank=True,
+        help_text=_(
+            "A <a "
+            'href="https://pip.pypa.io/en/latest/user_guide.html#requirements-files">'
+            "pip requirements file</a> needed to build your documentation. "
+            "Path from the root of your project.",
+        ),
+    )
+    documentation_type = models.CharField(
+        _("Documentation type"),
+        max_length=20,
+        choices=constants.DOCUMENTATION_CHOICES,
+        default="sphinx",
+        help_text=_(
+            'Type of documentation you are building. <a href="'
+            "http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html."
+            'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
+        ),
+    )
+    enable_epub_build = models.BooleanField(
+        _("Enable EPUB build"),
+        default=False,
+        help_text=_(
+            "Create a EPUB version of your documentation with each build.",
+        ),
+    )
+    enable_pdf_build = models.BooleanField(
+        _("Enable PDF build"),
+        default=False,
+        help_text=_(
+            "Create a PDF version of your documentation with each build.",
+        ),
+    )
+    path = models.CharField(
+        _("Path"),
+        max_length=255,
+        editable=False,
+        help_text=_(
+            "The directory where <code>conf.py</code> lives",
+        ),
+    )
+    conf_py_file = models.CharField(
+        _("Python configuration file"),
+        max_length=255,
+        default="",
+        blank=True,
+        help_text=_(
+            "Path from project root to <code>conf.py</code> file "
+            "(ex. <code>docs/conf.py</code>). "
+            "Leave blank if you want us to find it for you.",
+        ),
+    )
+    install_project = models.BooleanField(
+        _("Install Project"),
+        help_text=_(
+            "Install your project inside a virtualenv using <code>setup.py "
+            "install</code>",
+        ),
+        default=False,
+    )
+    python_interpreter = models.CharField(
+        _("Python Interpreter"),
+        max_length=20,
+        choices=constants.PYTHON_CHOICES,
+        default="python3",
+        help_text=_(
+            "The Python interpreter used to create the virtual environment.",
+        ),
+    )
+    use_system_packages = models.BooleanField(
+        _("Use system packages"),
+        help_text=_(
+            "Give the virtual environment access to the global site-packages dir.",
+        ),
+        default=False,
+    )
+
     # Property used for storing the latest build for a project when prefetching
     LATEST_BUILD_CACHE = '_latest_build'
 
@@ -648,7 +700,7 @@ class Project(models.Model):
 
         ``external`` defaults False because we only link external versions in very specific places
         """
-        return resolve(
+        return Resolver().resolve(
             project=self,
             version_slug=version_slug,
             language=lang_slug,
@@ -818,9 +870,35 @@ class Project(models.Model):
         if self.is_subproject:
             return self.superprojects.first().alias
 
+    @property
+    def is_single_version(self):
+        """
+        Return whether or not this project is a single version without translations.
+
+        Kept for backwards compatibility while we migrate the old field to the new one.
+        """
+        if self.single_version:
+            return True
+        return self.versioning_scheme == constants.SINGLE_VERSION_WITHOUT_TRANSLATIONS
+
+    @property
+    def supports_multiple_versions(self):
+        """Return whether or not this project supports multiple versions."""
+        return self.versioning_scheme in [
+            MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+            MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+        ]
+
+    @property
+    def supports_translations(self):
+        """Return whether or not this project supports translations."""
+        return self.versioning_scheme == MULTIPLE_VERSIONS_WITH_TRANSLATIONS
+
     def subdomain(self, use_canonical_domain=True):
         """Get project subdomain from resolver."""
-        return resolve_domain(self, use_canonical_domain=use_canonical_domain)
+        return Resolver().get_domain_without_protocol(
+            self, use_canonical_domain=use_canonical_domain
+        )
 
     def get_downloads(self):
         downloads = {}
@@ -1485,12 +1563,10 @@ class ImportedFile(models.Model):
     )
 
     def get_absolute_url(self):
-        return resolve(
+        return Resolver().resolve_version(
             project=self.project,
-            version_slug=self.version.slug,
+            version=self.version.slug,
             filename=self.path,
-            # this should always be False because we don't have ImportedFile's for external versions
-            external=False,
         )
 
     def __str__(self):
@@ -1520,6 +1596,9 @@ class HTMLFile(ImportedFile):
 
 
 class Notification(TimeStampedModel):
+
+    """WebHook / Email notification attached to a Project."""
+
     # TODO: Overridden from TimeStampedModel just to allow null values,
     # remove after deploy.
     created = CreationDateTimeField(
@@ -1634,10 +1713,7 @@ class WebHook(Notification):
         protocol = 'http' if settings.DEBUG else 'https'
         project_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{project.get_absolute_url()}'
         build_url = f'{protocol}://{settings.PRODUCTION_DOMAIN}{build.get_absolute_url()}'
-        build_docsurl = project.get_docs_url(
-            version_slug=version.slug,
-            external=version.is_external,
-        )
+        build_docsurl = Resolver().resolve_version(project, version=version)
 
         # Remove timezone and microseconds from the date,
         # so it's more readable.
@@ -1874,9 +1950,7 @@ class Feature(models.Model):
     API_LARGE_DATA = "api_large_data"
     CONDA_APPEND_CORE_REQUIREMENTS = "conda_append_core_requirements"
     ALL_VERSIONS_IN_HTML_CONTEXT = "all_versions_in_html_context"
-    CDN_ENABLED = "cdn_enabled"
     RECORD_404_PAGE_VIEWS = "record_404_page_views"
-    ALLOW_FORCED_REDIRECTS = "allow_forced_redirects"
     DISABLE_PAGEVIEWS = "disable_pageviews"
     RESOLVE_PROJECT_FROM_HEADER = "resolve_project_from_header"
     USE_PROXIED_APIS_WITH_PREFIX = "use_proxied_apis_with_prefix"
@@ -1942,19 +2016,8 @@ class Feature(models.Model):
             ),
         ),
         (
-            CDN_ENABLED,
-            _(
-                "Proxito: CDN support for a project's public versions when privacy levels "
-                "are enabled."
-            ),
-        ),
-        (
             RECORD_404_PAGE_VIEWS,
             _("Proxito: Record 404s page views."),
-        ),
-        (
-            ALLOW_FORCED_REDIRECTS,
-            _("Proxito: Allow forced redirects."),
         ),
         (
             DISABLE_PAGEVIEWS,

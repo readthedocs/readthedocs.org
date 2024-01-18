@@ -12,8 +12,10 @@ from rest_framework import serializers
 from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils import slugify
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.models import RemoteOrganization, RemoteRepository
 from readthedocs.organizations.models import Organization, Team
 from readthedocs.projects.constants import (
@@ -26,8 +28,9 @@ from readthedocs.projects.models import (
     Project,
     ProjectRelationship,
 )
-from readthedocs.redirects.models import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
+from readthedocs.redirects.constants import TYPE_CHOICES as REDIRECT_TYPE_CHOICES
 from readthedocs.redirects.models import Redirect
+from readthedocs.redirects.validators import validate_redirect
 
 
 class UserSerializer(FlexFieldsModelSerializer):
@@ -58,10 +61,33 @@ class BuildCreateSerializer(serializers.ModelSerializer):
         fields = []
 
 
+# TODO: decide whether or not include a `_links` field on the object
+#
+# This also includes adding `/api/v3/notifications/<pk>` endpoint,
+# which I'm not sure it's useful at this point.
+#
+# class NotificationLinksSerializer(BaseLinksSerializer):
+#     _self = serializers.SerializerMethodField()
+#     attached_to = serializers.SerializerMethodField()
+
+#     def get__self(self, obj):
+#         path = reverse(
+#             "notifications-detail",
+#             kwargs={
+#                 "pk": obj.pk,
+#             },
+#         )
+#         return self._absolute_url(path)
+
+#     def get_attached_to(self, obj):
+#         return None
+
+
 class BuildLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
     version = serializers.SerializerMethodField()
     project = serializers.SerializerMethodField()
+    notifications = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse(
@@ -90,6 +116,16 @@ class BuildLinksSerializer(BaseLinksSerializer):
             "projects-detail",
             kwargs={
                 "project_slug": obj.project.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_notifications(self, obj):
+        path = reverse(
+            "project-builds-notifications-list",
+            kwargs={
+                "parent_lookup_project__slug": obj.project.slug,
+                "parent_lookup_build__id": obj.pk,
             },
         )
         return self._absolute_url(path)
@@ -188,6 +224,57 @@ class BuildSerializer(FlexFieldsModelSerializer):
         return None
 
 
+class NotificationMessageSerializer(serializers.Serializer):
+    id = serializers.SlugField()
+    header = serializers.CharField(source="get_rendered_header")
+    body = serializers.CharField(source="get_rendered_body")
+    type = serializers.CharField()
+    icon_classes = serializers.CharField(source="get_display_icon_classes")
+
+    class Meta:
+        fields = [
+            "id",
+            "header",
+            "body",
+            "type",
+            "icon_classes",
+        ]
+
+
+class NotificationCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = [
+            "message_id",
+            "dismissable",
+            "news",
+            "state",
+        ]
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    message = NotificationMessageSerializer(source="get_message")
+    attached_to_content_type = serializers.SerializerMethodField()
+    # TODO: review these fields
+    # _links = BuildLinksSerializer(source="*")
+    # urls = BuildURLsSerializer(source="*")
+
+    class Meta:
+        model = Notification
+        fields = [
+            "id",
+            "state",
+            "dismissable",
+            "news",
+            "attached_to_content_type",
+            "attached_to_id",
+            "message",
+        ]
+
+    def get_attached_to_content_type(self, obj):
+        return obj.attached_to_content_type.name
+
+
 class VersionLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
     builds = serializers.SerializerMethodField()
@@ -243,8 +330,9 @@ class VersionURLsSerializer(BaseLinksSerializer, serializers.Serializer):
     dashboard = VersionDashboardURLsSerializer(source="*")
 
     def get_documentation(self, obj):
-        return obj.project.get_docs_url(
-            version_slug=obj.slug,
+        return Resolver().resolve_version(
+            project=obj.project,
+            version=obj,
         )
 
 
@@ -568,7 +656,7 @@ class ProjectUpdateSerializerBase(TaggitSerializer, FlexFieldsModelSerializer):
             "analytics_code",
             "analytics_disabled",
             "show_version_warning",
-            "single_version",
+            "versioning_scheme",
             "external_builds_enabled",
             "privacy_level",
             "external_builds_privacy_level",
@@ -610,6 +698,7 @@ class ProjectSerializer(FlexFieldsModelSerializer):
     default_branch = serializers.CharField(source="get_default_branch")
     tags = serializers.StringRelatedField(many=True)
     users = UserSerializer(many=True)
+    single_version = serializers.BooleanField(source="is_single_version")
 
     _links = ProjectLinksSerializer(source="*")
 
@@ -638,6 +727,9 @@ class ProjectSerializer(FlexFieldsModelSerializer):
             "tags",
             "privacy_level",
             "external_builds_privacy_level",
+            "versioning_scheme",
+            # Kept for backwards compatibility,
+            # versioning_scheme should be used instead.
             "single_version",
             # NOTE: ``expandable_fields`` must not be included here. Otherwise,
             # they will be tried to be rendered and fail
@@ -845,8 +937,69 @@ class RedirectSerializerBase(serializers.ModelSerializer):
             "type",
             "from_url",
             "to_url",
+            "force",
+            "enabled",
+            "description",
+            "http_status",
+            "position",
             "_links",
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Allow using the old redirect types, so we can raise the proper error in ``validate_type`.
+        self._removed_redirects = [
+            ("prefix", "Removed, use an `exact` redirect instead."),
+            ("sphinx_html", "Renamed, use `clean_url_to_html` instead."),
+            ("sphinx_htmldir", "Renamed, use `html_to_clean_url` instead."),
+        ]
+        self.fields["type"].choices = (
+            list(REDIRECT_TYPE_CHOICES) + self._removed_redirects
+        )
+
+    def validate_type(self, value):
+        blog_link = "https://blog.readthedocs.com/new-improvements-to-redirects/"
+        if value == "prefix":
+            raise serializers.ValidationError(
+                _(
+                    f"Prefix redirects have been removed. Please use an exact redirect `/prefix/*` instead. See {blog_link}."
+                )
+            )
+        if value == "sphinx_html":
+            raise serializers.ValidationError(
+                _(
+                    f"sphinx_html redirect has been renamed to clean_url_to_html. See {blog_link}."
+                )
+            )
+        if value == "sphinx_htmldir":
+            raise serializers.ValidationError(
+                _(
+                    f"sphinx_htmldir redirect has been renamed to html_to_clean_url. See {blog_link}."
+                )
+            )
+        return value
+
+    def create(self, validated_data):
+        validate_redirect(
+            project=validated_data["project"],
+            pk=None,
+            redirect_type=validated_data["redirect_type"],
+            from_url=validated_data.get("from_url", ""),
+            to_url=validated_data.get("to_url", ""),
+            error_class=serializers.ValidationError,
+        )
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validate_redirect(
+            project=instance.project,
+            pk=instance.pk,
+            redirect_type=validated_data["redirect_type"],
+            from_url=validated_data.get("from_url", ""),
+            to_url=validated_data.get("to_url", ""),
+            error_class=serializers.ValidationError,
+        )
+        return super().update(instance, validated_data)
 
 
 class RedirectCreateSerializer(RedirectSerializerBase):

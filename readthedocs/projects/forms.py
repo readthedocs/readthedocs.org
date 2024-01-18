@@ -4,13 +4,10 @@ from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Fieldset, Layout, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -202,31 +199,17 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     class Meta:
         model = Project
-        per_project_settings = (
+        fields = (
             "default_version",
             "default_branch",
             "privacy_level",
             "analytics_code",
             "analytics_disabled",
             "show_version_warning",
-            "single_version",
+            "versioning_scheme",
             "external_builds_enabled",
             "external_builds_privacy_level",
             "readthedocs_yaml_path",
-        )
-        # These that can be set per-version using a config file.
-        per_version_settings = (
-            'documentation_type',
-            'requirements_file',
-            'python_interpreter',
-            'install_project',
-            'conf_py_file',
-            'enable_pdf_build',
-            'enable_epub_build',
-        )
-        fields = (
-            *per_project_settings,
-            *per_version_settings,
         )
 
     def __init__(self, *args, **kwargs):
@@ -236,38 +219,32 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
         self.fields['analytics_disabled'].widget = forms.CheckboxInput()
         self.fields['analytics_disabled'].empty_value = False
 
-        self.helper = FormHelper()
-        help_text = render_to_string(
-            'projects/project_advanced_settings_helptext.html'
-        )
+        # Remove empty choice from options.
+        self.fields["versioning_scheme"].choices = [
+            (key, value)
+            for key, value in self.fields["versioning_scheme"].choices
+            if key
+        ]
 
-        per_project_settings = list(self.Meta.per_project_settings)
+        if self.instance.main_language_project:
+            link = reverse(
+                "projects_advanced",
+                args=[self.instance.main_language_project.slug],
+            )
+            self.fields["versioning_scheme"].help_text = _(
+                f'This setting is inherited from the <a href="{link}">parent translation</a>.',
+            )
+            self.fields["versioning_scheme"].disabled = True
 
         # NOTE: we are deprecating this feature.
         # However, we will keep it available for projects that already using it.
         # Old projects not using it already or new projects won't be able to enable.
         if not self.instance.has_feature(Feature.ALLOW_VERSION_WARNING_BANNER):
             self.fields.pop("show_version_warning")
-            per_project_settings.remove("show_version_warning")
 
         if not settings.ALLOW_PRIVATE_REPOS:
             for field in ['privacy_level', 'external_builds_privacy_level']:
                 self.fields.pop(field)
-                per_project_settings.remove(field)
-
-        field_sets = [
-            Fieldset(
-                _("Global settings"),
-                *per_project_settings,
-            ),
-            Fieldset(
-                _("Default settings"),
-                HTML(help_text),
-                *self.Meta.per_version_settings,
-            ),
-        ]
-        self.helper.layout = Layout(*field_sets)
-        self.helper.add_input(Submit('save', _('Save')))
 
         default_choice = (None, '-' * 9)
         versions_choices = self.instance.versions(manager=INTERNAL).filter(
@@ -649,6 +626,15 @@ class TranslationBaseForm(forms.Form):
             ),
         ) for project in self.get_translation_queryset().all()]
 
+    def clean(self):
+        if not self.parent.supports_translations:
+            raise forms.ValidationError(
+                _(
+                    "This project is configured with a versioning scheme that doesn't support translations."
+                ),
+            )
+        return super().clean()
+
     def clean_project(self):
         """Ensures that selected project is valid as a translation."""
 
@@ -730,19 +716,29 @@ class RedirectForm(forms.ModelForm):
 
     class Meta:
         model = Redirect
-        fields = ["project", "redirect_type", "from_url", "to_url", "force"]
+        fields = [
+            "project",
+            "redirect_type",
+            "from_url",
+            "to_url",
+            "http_status",
+            "force",
+            "enabled",
+            "description",
+        ]
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop('project', None)
         super().__init__(*args, **kwargs)
 
-        if self.project.has_feature(Feature.ALLOW_FORCED_REDIRECTS):
-            # Remove the nullable option from the form.
-            # TODO: remove after migration.
-            self.fields["force"].widget = forms.CheckboxInput()
-            self.fields["force"].empty_value = False
-        else:
-            self.fields.pop("force")
+        # Remove the nullable option from the form.
+        self.fields["enabled"].widget = forms.CheckboxInput()
+        self.fields["enabled"].empty_value = False
+
+        # Remove the nullable option from the form.
+        # TODO: remove after migration.
+        self.fields["force"].widget = forms.CheckboxInput()
+        self.fields["force"].empty_value = False
 
     def clean_project(self):
         return self.project
@@ -829,8 +825,8 @@ class IntegrationForm(forms.ModelForm):
     class Meta:
         model = Integration
         fields = [
-            'project',
-            'integration_type',
+            "project",
+            "integration_type",
         ]
 
     def __init__(self, *args, **kwargs):
@@ -844,9 +840,6 @@ class IntegrationForm(forms.ModelForm):
 
     def save(self, commit=True):
         self.instance = Integration.objects.subclass(self.instance)
-        # We don't set the secret on the integration
-        # when it's created via the form.
-        self.instance.secret = None
         return super().save(commit)
 
 

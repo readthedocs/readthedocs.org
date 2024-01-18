@@ -19,7 +19,7 @@ from readthedocs.analytics.tasks import analytics_event
 from readthedocs.analytics.utils import get_client_ip
 from readthedocs.audit.models import AuditLog
 from readthedocs.builds.constants import INTERNAL
-from readthedocs.core.resolver import resolve
+from readthedocs.core.resolver import Resolver
 from readthedocs.projects.constants import MEDIA_TYPE_HTML
 from readthedocs.proxito.constants import RedirectType
 from readthedocs.redirects.exceptions import InfiniteRedirectException
@@ -308,7 +308,7 @@ class ServeRedirectMixin:
         :param external: If the version is from a pull request preview.
         """
         urlparse_result = urlparse(request.get_full_path())
-        to = resolve(
+        to = Resolver().resolve(
             project=final_project,
             version_slug=version_slug,
             filename=filename,
@@ -340,7 +340,7 @@ class ServeRedirectMixin:
         return resp
 
     def get_redirect(
-        self, project, lang_slug, version_slug, filename, full_path, forced_only=False
+        self, project, lang_slug, version_slug, filename, path, forced_only=False
     ):
         """
         Check for a redirect for this project that matches ``full_path``.
@@ -351,8 +351,8 @@ class ServeRedirectMixin:
         redirect_path, http_status = project.redirects.get_redirect_path_with_status(
             language=lang_slug,
             version_slug=version_slug,
-            path=filename,
-            full_path=full_path,
+            filename=filename,
+            path=path,
             forced_only=forced_only,
         )
         return redirect_path, http_status

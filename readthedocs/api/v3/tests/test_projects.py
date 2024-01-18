@@ -5,6 +5,7 @@ from django.test import override_settings
 from django.urls import reverse
 
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Project
 
 from .mixins import APIEndpointMixin
@@ -404,7 +405,7 @@ class ProjectsEndpointTests(APIEndpointMixin):
             "default_branch": "updated-default-branch",
             "analytics_code": "UA-XXXXXX",
             "show_version_warning": False,
-            "single_version": True,
+            "versioning_scheme": SINGLE_VERSION_WITHOUT_TRANSLATIONS,
             "external_builds_enabled": True,
         }
         url = reverse(
@@ -437,8 +438,11 @@ class ProjectsEndpointTests(APIEndpointMixin):
         self.assertEqual(self.project.default_branch, "updated-default-branch")
         self.assertEqual(self.project.analytics_code, "UA-XXXXXX")
         self.assertEqual(self.project.show_version_warning, False)
-        self.assertEqual(self.project.single_version, True)
+        self.assertEqual(self.project.is_single_version, True)
         self.assertEqual(self.project.external_builds_enabled, True)
+        self.assertEqual(
+            self.project.versioning_scheme, SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        )
 
     def test_partial_update_project(self):
         data = {

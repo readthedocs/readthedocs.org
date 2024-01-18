@@ -104,7 +104,7 @@ class ProxitoMiddleware(MiddlewareMixin):
                         http_header=http_header.name,
                         domain=domain.domain,
                     )
-                log.info(
+                log.debug(
                     "Adding custom response HTTP header.",
                     http_header=http_header.name,
                     domain=domain.domain,
@@ -207,7 +207,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         try:
             unresolved_domain = unresolver.unresolve_domain_from_request(request)
         except SuspiciousHostnameError as exc:
-            log.warning("Weird variation on our hostname.", domain=exc.domain)
+            log.debug("Weird variation on our hostname.", domain=exc.domain)
             # Raise a contextualized 404 that will be handled by proxito's 404 handler
             raise DomainDNSHttp404(
                 http_status=400,

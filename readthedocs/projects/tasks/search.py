@@ -45,7 +45,7 @@ def index_build(build_id):
 
     build_config = build.config or {}
     search_config = build_config.get("search", {})
-    search_ranking = search_config.get("ranking", [])
+    search_ranking = search_config.get("ranking", {})
     search_ignore = search_config.get("ignore", [])
 
     try:
@@ -141,8 +141,10 @@ def _create_imported_files_and_search_index(
     # it's used to differentiate the files from the current sync from the previous one.
     # This is useful to easily delete the previous files from the DB and ES.
     # See https://github.com/readthedocs/readthedocs.org/issues/10734.
-    imported_file = version.imported_files.first()
-    sync_id = imported_file.build + 1 if imported_file else 1
+    imported_file_build_id = version.imported_files.values_list(
+        "build", flat=True
+    ).first()
+    sync_id = imported_file_build_id + 1 if imported_file_build_id else 1
 
     log.debug(
         "Using sync ID for search indexing",
@@ -213,6 +215,9 @@ def _create_imported_files_and_search_index(
             document=PageDocument,
             objects=html_files_to_index,
             index_name=search_index_name,
+            # Pages are indexed in small chunks to avoid a
+            # large payload that will probably timeout ES.
+            chunk_size=100,
         )
 
     # Remove old HTMLFiles from ElasticSearch

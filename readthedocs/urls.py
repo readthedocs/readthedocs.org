@@ -47,7 +47,6 @@ rtd_urls = [
     path("profiles/", include("readthedocs.profiles.urls.public")),
     path("accounts/", include("readthedocs.profiles.urls.private")),
     path("accounts/", include("allauth.urls")),
-    path("notifications/", include("readthedocs.notifications.urls")),
     path("accounts/gold/", include("readthedocs.gold.urls")),
     path("invitations/", include("readthedocs.invitations.urls")),
     # For redirects

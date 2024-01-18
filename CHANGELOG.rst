@@ -1,3 +1,206 @@
+Version 10.15.1
+---------------
+
+:Date: January 16, 2024
+
+* `@stsewd <https://github.com/stsewd>`__: Update docs requirements (`#11032 <https://github.com/readthedocs/readthedocs.org/pull/11032>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11029 <https://github.com/readthedocs/readthedocs.org/pull/11029>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: limit to 100 per project (`#11028 <https://github.com/readthedocs/readthedocs.org/pull/11028>`__)
+* `@humitos <https://github.com/humitos>`__: Build: reset notifications when reseting a build (`#11027 <https://github.com/readthedocs/readthedocs.org/pull/11027>`__)
+* `@humitos <https://github.com/humitos>`__: Development: define `SUPPORT_EMAIL` setting (`#11026 <https://github.com/readthedocs/readthedocs.org/pull/11026>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: use Template's Django engine to render them (`#11024 <https://github.com/readthedocs/readthedocs.org/pull/11024>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: render `Organization` notifications on details page (`#11023 <https://github.com/readthedocs/readthedocs.org/pull/11023>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: add missing `format_values` (`#11021 <https://github.com/readthedocs/readthedocs.org/pull/11021>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: save `format_values` when `on_retry` exception (`#11020 <https://github.com/readthedocs/readthedocs.org/pull/11020>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: initialize exception properly (`#11019 <https://github.com/readthedocs/readthedocs.org/pull/11019>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: use `instance.slug` instead of `instance.name` (`#11018 <https://github.com/readthedocs/readthedocs.org/pull/11018>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: oauth typo on URL name (`#11017 <https://github.com/readthedocs/readthedocs.org/pull/11017>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: typo on constant (`#11015 <https://github.com/readthedocs/readthedocs.org/pull/11015>`__)
+* `@humitos <https://github.com/humitos>`__: Build: typo on `on_retry` (`#11014 <https://github.com/readthedocs/readthedocs.org/pull/11014>`__)
+* `@humitos <https://github.com/humitos>`__: Black: run black over all the code base (Part 2) (`#11013 <https://github.com/readthedocs/readthedocs.org/pull/11013>`__)
+* `@humitos <https://github.com/humitos>`__: Build: remove browndates for config file (`#11012 <https://github.com/readthedocs/readthedocs.org/pull/11012>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.15.0 (`#11011 <https://github.com/readthedocs/readthedocs.org/pull/11011>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: small fixes found after reviewer (`#10996 <https://github.com/readthedocs/readthedocs.org/pull/10996>`__)
+* `@humitos <https://github.com/humitos>`__: Config: better validation error for `conda.environment` (`#10979 <https://github.com/readthedocs/readthedocs.org/pull/10979>`__)
+
+Version 10.15.0
+---------------
+
+:Date: January 09, 2024
+
+* `@humitos <https://github.com/humitos>`__: pip-compile fixes (`#11010 <https://github.com/readthedocs/readthedocs.org/pull/11010>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11005 <https://github.com/readthedocs/readthedocs.org/pull/11005>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix structlog by downgrading it (`#11003 <https://github.com/readthedocs/readthedocs.org/pull/11003>`__)
+* `@humitos <https://github.com/humitos>`__: Eslint fix issues (`#10998 <https://github.com/readthedocs/readthedocs.org/pull/10998>`__)
+* `@webknjaz <https://github.com/webknjaz>`__: Fix ref to the "new addons integrations" blog post @ custom build doc (`#10997 <https://github.com/readthedocs/readthedocs.org/pull/10997>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: small fixes found after reviewer (`#10996 <https://github.com/readthedocs/readthedocs.org/pull/10996>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#10995 <https://github.com/readthedocs/readthedocs.org/pull/10995>`__)
+* `@humitos <https://github.com/humitos>`__: Remove leftovers from `django-messages-extends` (`#10994 <https://github.com/readthedocs/readthedocs.org/pull/10994>`__)
+* `@stsewd <https://github.com/stsewd>`__: Integrations: hardcode deprecation date for incoming webhooks without a secret (`#10993 <https://github.com/readthedocs/readthedocs.org/pull/10993>`__)
+* `@stsewd <https://github.com/stsewd>`__: Development: update steps for testing subscriptions (`#10992 <https://github.com/readthedocs/readthedocs.org/pull/10992>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: remove null option from position field (`#10991 <https://github.com/readthedocs/readthedocs.org/pull/10991>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.14.0 (`#10989 <https://github.com/readthedocs/readthedocs.org/pull/10989>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: get translation from main project (`#10952 <https://github.com/readthedocs/readthedocs.org/pull/10952>`__)
+* `@humitos <https://github.com/humitos>`__: New notification system: implementation (`#10922 <https://github.com/readthedocs/readthedocs.org/pull/10922>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom domains: don't allow adding a custom domain on subprojects (`#8953 <https://github.com/readthedocs/readthedocs.org/pull/8953>`__)
+
+Version 10.14.0
+---------------
+
+:Date: January 03, 2024
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10977 <https://github.com/readthedocs/readthedocs.org/pull/10977>`__)
+* `@basnijholt <https://github.com/basnijholt>`__: Fix YAML indentation in example `.readthedocs.yaml` (`#10970 <https://github.com/readthedocs/readthedocs.org/pull/10970>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10969 <https://github.com/readthedocs/readthedocs.org/pull/10969>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.13.0 (`#10961 <https://github.com/readthedocs/readthedocs.org/pull/10961>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Allow override of env settings from host (`#10959 <https://github.com/readthedocs/readthedocs.org/pull/10959>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: get translation from main project (`#10952 <https://github.com/readthedocs/readthedocs.org/pull/10952>`__)
+* `@dependabot[bot] <https://github.com/dependabot[bot]>`__: Bump actions/setup-python from 4 to 5 (`#10950 <https://github.com/readthedocs/readthedocs.org/pull/10950>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: fix default for search.ranking when indexing (`#10945 <https://github.com/readthedocs/readthedocs.org/pull/10945>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.12.2 (`#10944 <https://github.com/readthedocs/readthedocs.org/pull/10944>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: improvements from design doc (`#10881 <https://github.com/readthedocs/readthedocs.org/pull/10881>`__)
+
+Version 10.13.0
+---------------
+
+:Date: December 19, 2023
+
+* `@agjohnson <https://github.com/agjohnson>`__: Allow override of env settings from host (`#10959 <https://github.com/readthedocs/readthedocs.org/pull/10959>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10957 <https://github.com/readthedocs/readthedocs.org/pull/10957>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: normalize search filters (`#10951 <https://github.com/readthedocs/readthedocs.org/pull/10951>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10949 <https://github.com/readthedocs/readthedocs.org/pull/10949>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Allow empty project list on organization team form (`#10947 <https://github.com/readthedocs/readthedocs.org/pull/10947>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.12.2 (`#10944 <https://github.com/readthedocs/readthedocs.org/pull/10944>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Add AddonsConfig admin (`#10938 <https://github.com/readthedocs/readthedocs.org/pull/10938>`__)
+
+Version 10.12.2
+---------------
+
+:Date: December 05, 2023
+
+* `@humitos <https://github.com/humitos>`__: Requirements: pin `django-ipware<6` (`#10932 <https://github.com/readthedocs/readthedocs.org/pull/10932>`__)
+* `@humitos <https://github.com/humitos>`__: Translation: revert German translation (`#10931 <https://github.com/readthedocs/readthedocs.org/pull/10931>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.12.1 (`#10929 <https://github.com/readthedocs/readthedocs.org/pull/10929>`__)
+* `@humitos <https://github.com/humitos>`__: Release/10.12.0 (`#10928 <https://github.com/readthedocs/readthedocs.org/pull/10928>`__)
+* `@humitos <https://github.com/humitos>`__: Design: small update to add a PATCH endpoint (`#10919 <https://github.com/readthedocs/readthedocs.org/pull/10919>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: index in small chunks (`#10914 <https://github.com/readthedocs/readthedocs.org/pull/10914>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: check for build being None (`#10913 <https://github.com/readthedocs/readthedocs.org/pull/10913>`__)
+* `@stsewd <https://github.com/stsewd>`__: Automation Rules: simplify ordering (`#10896 <https://github.com/readthedocs/readthedocs.org/pull/10896>`__)
+
+Version 10.12.1
+---------------
+
+:Date: November 28, 2023
+
+* `@humitos <https://github.com/humitos>`__: Release/10.12.0 (`#10928 <https://github.com/readthedocs/readthedocs.org/pull/10928>`__)
+* `@humitos <https://github.com/humitos>`__: Design: small update to add a PATCH endpoint (`#10919 <https://github.com/readthedocs/readthedocs.org/pull/10919>`__)
+
+Version 10.12.0
+---------------
+
+:Date: November 28, 2023
+
+* `@kurtmckee <https://github.com/kurtmckee>`__: Fix a typo in the word 'Sphinx' (`#10926 <https://github.com/readthedocs/readthedocs.org/pull/10926>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10925 <https://github.com/readthedocs/readthedocs.org/pull/10925>`__)
+* `@humitos <https://github.com/humitos>`__: Feature flag: remove `CDN_ENABLED` which is not used anymore (`#10921 <https://github.com/readthedocs/readthedocs.org/pull/10921>`__)
+* `@humitos <https://github.com/humitos>`__: Design: small update to add a PATCH endpoint (`#10919 <https://github.com/readthedocs/readthedocs.org/pull/10919>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: index in small chunks (`#10914 <https://github.com/readthedocs/readthedocs.org/pull/10914>`__)
+* `@stsewd <https://github.com/stsewd>`__: Search: check for build being None (`#10913 <https://github.com/readthedocs/readthedocs.org/pull/10913>`__)
+* `@hugovk <https://github.com/hugovk>`__: Add link to docs in error message (`#10910 <https://github.com/readthedocs/readthedocs.org/pull/10910>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10909 <https://github.com/readthedocs/readthedocs.org/pull/10909>`__)
+* `@stsewd <https://github.com/stsewd>`__: Integrations: always show secret and show warning if secret is not set (`#10908 <https://github.com/readthedocs/readthedocs.org/pull/10908>`__)
+* `@stsewd <https://github.com/stsewd>`__: Integrations: better error message for integrations without a secret (`#10903 <https://github.com/readthedocs/readthedocs.org/pull/10903>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.11.0 (`#10900 <https://github.com/readthedocs/readthedocs.org/pull/10900>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Mention custom sitemap via robots.txt (`#10899 <https://github.com/readthedocs/readthedocs.org/pull/10899>`__)
+* `@humitos <https://github.com/humitos>`__: Design doc: new notification system (`#10890 <https://github.com/readthedocs/readthedocs.org/pull/10890>`__)
+* `@stsewd <https://github.com/stsewd>`__: Project: use a choicefield for selecting the versioning scheme (`#10845 <https://github.com/readthedocs/readthedocs.org/pull/10845>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: support single language project  (`#10766 <https://github.com/readthedocs/readthedocs.org/pull/10766>`__)
+* `@nikblanchet <https://github.com/nikblanchet>`__: Docs: Configuration file how-to guide (`#10301 <https://github.com/readthedocs/readthedocs.org/pull/10301>`__)
+* `@humitos <https://github.com/humitos>`__: Build: expose VCS-related environment variables (`#10168 <https://github.com/readthedocs/readthedocs.org/pull/10168>`__)
+
+Version 10.11.0
+---------------
+
+:Date: November 14, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10898 <https://github.com/readthedocs/readthedocs.org/pull/10898>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.10.0 (`#10893 <https://github.com/readthedocs/readthedocs.org/pull/10893>`__)
+* `@jertel <https://github.com/jertel>`__: docs: update documentation around version warning banner (`#10877 <https://github.com/readthedocs/readthedocs.org/pull/10877>`__)
+
+Version 10.10.0
+---------------
+
+:Date: November 07, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10889 <https://github.com/readthedocs/readthedocs.org/pull/10889>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Build: use tag name for checkout" (`#10887 <https://github.com/readthedocs/readthedocs.org/pull/10887>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Make Ubuntu callout correct (`#10883 <https://github.com/readthedocs/readthedocs.org/pull/10883>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.9.0 (`#10880 <https://github.com/readthedocs/readthedocs.org/pull/10880>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use tag name for checkout (`#10879 <https://github.com/readthedocs/readthedocs.org/pull/10879>`__)
+* `@stsewd <https://github.com/stsewd>`__: Resolver: use new methods to resolve documentation pages (`#10875 <https://github.com/readthedocs/readthedocs.org/pull/10875>`__)
+* `@humitos <https://github.com/humitos>`__: Resolver: don't use one global instance and implement caching (`#10872 <https://github.com/readthedocs/readthedocs.org/pull/10872>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Add organization view UI filters (`#10847 <https://github.com/readthedocs/readthedocs.org/pull/10847>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects (design doc): improving existing functionality (`#10825 <https://github.com/readthedocs/readthedocs.org/pull/10825>`__)
+
+Version 10.9.0
+--------------
+
+:Date: October 31, 2023
+
+* `@stsewd <https://github.com/stsewd>`__: Build: use tag name for checkout (`#10879 <https://github.com/readthedocs/readthedocs.org/pull/10879>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10876 <https://github.com/readthedocs/readthedocs.org/pull/10876>`__)
+* `@stsewd <https://github.com/stsewd>`__: Resolver: use new methods to resolve documentation pages (`#10875 <https://github.com/readthedocs/readthedocs.org/pull/10875>`__)
+* `@stsewd <https://github.com/stsewd>`__: CI: update circleci API call (`#10874 <https://github.com/readthedocs/readthedocs.org/pull/10874>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: improve DB query for `projects_feature` table (`#10871 <https://github.com/readthedocs/readthedocs.org/pull/10871>`__)
+* `@humitos <https://github.com/humitos>`__: NGINX: inject the proper `readthedocs-version-slug` (`#10870 <https://github.com/readthedocs/readthedocs.org/pull/10870>`__)
+* `@stsewd <https://github.com/stsewd>`__: Unresolver: remove old language code compatibility (`#10869 <https://github.com/readthedocs/readthedocs.org/pull/10869>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: return the `.first()` object (`#10868 <https://github.com/readthedocs/readthedocs.org/pull/10868>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config file: remove deprecated keys from json schema (`#10867 <https://github.com/readthedocs/readthedocs.org/pull/10867>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.8.1 (`#10865 <https://github.com/readthedocs/readthedocs.org/pull/10865>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.8.0 (`#10864 <https://github.com/readthedocs/readthedocs.org/pull/10864>`__)
+* `@humitos <https://github.com/humitos>`__: DB: create an index for `builds_build` table to improve Addons API (`#10840 <https://github.com/readthedocs/readthedocs.org/pull/10840>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects (design doc): improving existing functionality (`#10825 <https://github.com/readthedocs/readthedocs.org/pull/10825>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: accept `project-slug` and `version-slug` on endpoint (`#10823 <https://github.com/readthedocs/readthedocs.org/pull/10823>`__)
+* `@stsewd <https://github.com/stsewd>`__: Resolver: refactor (`#10813 <https://github.com/readthedocs/readthedocs.org/pull/10813>`__)
+* `@stephenfin <https://github.com/stephenfin>`__: docs: Document how to fetch additional branches (`#10795 <https://github.com/readthedocs/readthedocs.org/pull/10795>`__)
+
+Version 10.8.1
+--------------
+
+:Date: October 24, 2023
+
+* `@humitos <https://github.com/humitos>`__: Release 10.8.0 (`#10864 <https://github.com/readthedocs/readthedocs.org/pull/10864>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: accept `project-slug` and `version-slug` on endpoint (`#10823 <https://github.com/readthedocs/readthedocs.org/pull/10823>`__)
+
+Version 10.8.0
+--------------
+
+:Date: October 24, 2023
+
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10860 <https://github.com/readthedocs/readthedocs.org/pull/10860>`__)
+* `@mathbunnyru <https://github.com/mathbunnyru>`__: Docs: fix formatting of commented configuration example (`#10858 <https://github.com/readthedocs/readthedocs.org/pull/10858>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: set privacy level explicitly (`#10854 <https://github.com/readthedocs/readthedocs.org/pull/10854>`__)
+* `@stsewd <https://github.com/stsewd>`__: Tests: set privacy level explicitly (`#10852 <https://github.com/readthedocs/readthedocs.org/pull/10852>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update docs about default dependencies (`#10851 <https://github.com/readthedocs/readthedocs.org/pull/10851>`__)
+* `@stsewd <https://github.com/stsewd>`__: Update common (`#10850 <https://github.com/readthedocs/readthedocs.org/pull/10850>`__)
+* `@stsewd <https://github.com/stsewd>`__: Revert "Build (python): default 3 to 3.11" (`#10846 <https://github.com/readthedocs/readthedocs.org/pull/10846>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: install compatible version of virtualenv in images (`#10844 <https://github.com/readthedocs/readthedocs.org/pull/10844>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Keep Ad Customization in the docs (`#10843 <https://github.com/readthedocs/readthedocs.org/pull/10843>`__)
+* `@humitos <https://github.com/humitos>`__: DB: create an index for `builds_build` table to improve Addons API (`#10840 <https://github.com/readthedocs/readthedocs.org/pull/10840>`__)
+* `@jugmac00 <https://github.com/jugmac00>`__: Fix broken link syntax (`#10837 <https://github.com/readthedocs/readthedocs.org/pull/10837>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: don't pre-install pip and setuptools in images (`#10834 <https://github.com/readthedocs/readthedocs.org/pull/10834>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build (python): default 3 to 3.11 (`#10833 <https://github.com/readthedocs/readthedocs.org/pull/10833>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: expand db query to get the `type` as well (`#10829 <https://github.com/readthedocs/readthedocs.org/pull/10829>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: fix prefix redirects (`#10828 <https://github.com/readthedocs/readthedocs.org/pull/10828>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.7.1 (`#10827 <https://github.com/readthedocs/readthedocs.org/pull/10827>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: accept `project-slug` and `version-slug` on endpoint (`#10823 <https://github.com/readthedocs/readthedocs.org/pull/10823>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Clarify admin permission (`#10822 <https://github.com/readthedocs/readthedocs.org/pull/10822>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: resolve versions/translations URLs properly (`#10821 <https://github.com/readthedocs/readthedocs.org/pull/10821>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: update root language redirect docs (`#10817 <https://github.com/readthedocs/readthedocs.org/pull/10817>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: normalize code languages and redirect to them (`#10750 <https://github.com/readthedocs/readthedocs.org/pull/10750>`__)
+* `@humitos <https://github.com/humitos>`__: Deprecation: remove code for config file v1 and default config file (`#10367 <https://github.com/readthedocs/readthedocs.org/pull/10367>`__)
+* `@nikblanchet <https://github.com/nikblanchet>`__: Docs: Configuration file how-to guide (`#10301 <https://github.com/readthedocs/readthedocs.org/pull/10301>`__)
+
 Version 10.7.1
 --------------
 

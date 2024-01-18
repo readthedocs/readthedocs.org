@@ -17,6 +17,7 @@ django-simple-history==3.0.0
 
 djangorestframework
 djangorestframework-api-key
+rest-framework-generic-relations
 
 # Embed v1 still uses docutils.
 # Remove this dependency once we deprecate this API.
@@ -137,7 +138,6 @@ django-crispy-forms<2
 docker==6.1.2
 
 django-annoying
-django-messages-extends
 djangorestframework-jsonp
 django-taggit
 dj-pagination
@@ -162,9 +162,15 @@ django-csp
 
 # Upgrading to 3.x requires some extra work
 # https://django-structlog.readthedocs.io/en/latest/upgrade_guide.html#upgrading-to-3-0
+# NOTE: that django-structlog is in version 6.x now,
+# so we should probably consider migrating to avoid incompatibility issues.
 django-structlog==2.2.0
+# Pining due to a Sentry error we started getting
+# https://read-the-docs.sentry.io/issues/4678167578/events/2d9d348729874d67b120b153908ca54c/
+django-ipware<6.0.0
 
-structlog
+# https://github.com/readthedocs/readthedocs.org/issues/10990
+structlog==23.2.0
 dparse
 
 gunicorn
