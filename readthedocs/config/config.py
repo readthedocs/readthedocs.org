@@ -168,6 +168,10 @@ class BuildConfigBase:
         return self.python_interpreter in ("conda", "mamba")
 
     @property
+    def is_using_build_commands(self):
+        return self.build.commands != []
+
+    @property
     def is_using_setup_py_install(self):
         """Check if this project is using `setup.py install` as installation method."""
         for install in self.python.install:
@@ -260,7 +264,7 @@ class BuildConfigV2(BuildConfigBase):
         """Validates the conda key."""
         raw_conda = self._raw_config.get('conda')
         if raw_conda is None:
-            if self.is_using_conda:
+            if self.is_using_conda and not self.is_using_build_commands:
                 raise ConfigError(
                     message_id=ConfigError.CONDA_KEY_REQUIRED,
                     format_values={"key": "conda"},
