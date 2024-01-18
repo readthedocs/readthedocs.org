@@ -550,6 +550,10 @@ class AddonsConfigForm(forms.ModelForm):
             self.fields["enabled"].initial = self.project.addons.enabled
         except AddonsConfig.DoesNotExist:
             self.fields["enabled"].initial = False
+        addons, created = AddonsConfig.objects.get_or_create(project=self.project)
+        if created:
+            addons.enabled = False
+            addons.save()
 
         fieldsets = [
             Fieldset(
