@@ -70,13 +70,13 @@ class Resolver:
         """
         Build a path using the given fields.
 
-        We first build a format string based on the given fields,
-        then we just call ``string.format()`` with the given values.
-
         For example, if custom prefix is given, the path will be prefixed with it.
         In case of a subproject (project_relationship is given),
         the path will be prefixed with the subproject prefix
         (defaults to ``/projects/<subproject-slug>/``).
+
+        Then we add the filename, version_slug and language to the path
+        depending on the versioning scheme.
         """
         path = "/"
 
@@ -88,19 +88,13 @@ class Resolver:
             path = unsafe_join_url_path(path, custom_prefix)
 
         if versioning_scheme == SINGLE_VERSION_WITHOUT_TRANSLATIONS:
-            path = unsafe_join_url_path(path, "{filename}")
+            path = unsafe_join_url_path(path, filename)
         elif versioning_scheme == MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS:
-            path = unsafe_join_url_path(path, "{version}/{filename}")
+            path = unsafe_join_url_path(path, f"{version_slug}/{filename}")
         else:
-            path = unsafe_join_url_path(path, "{language}/{version}/{filename}")
+            path = unsafe_join_url_path(path, f"{language}/{version_slug}/{filename}")
 
-        subproject_alias = project_relationship.alias if project_relationship else ""
-        return path.format(
-            filename=filename,
-            version=version_slug,
-            language=language,
-            subproject=subproject_alias,
-        )
+        return path
 
     def resolve_path(
         self,
