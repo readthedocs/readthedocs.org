@@ -141,6 +141,7 @@ class TestReadTheDocsConfigJson(TestCase):
         addons.hotkeys_enabled = False
         addons.search_enabled = False
         addons.stable_latest_version_warning_enabled = False
+        addons.save()
 
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
