@@ -17,7 +17,7 @@ from readthedocs.projects.constants import (
     PUBLIC,
     SINGLE_VERSION_WITHOUT_TRANSLATIONS,
 )
-from readthedocs.projects.models import Domain, Project
+from readthedocs.projects.models import AddonsConfig, Domain, Project
 
 
 @override_settings(

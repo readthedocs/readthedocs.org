@@ -540,6 +540,9 @@ class AddonsConfigForm(forms.ModelForm):
             "search_enabled",
             "stable_latest_version_warning_enabled",
         )
+        labels = {
+            "enabled": _("Enable Addons"),
+        }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
