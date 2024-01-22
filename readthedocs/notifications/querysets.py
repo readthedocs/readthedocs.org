@@ -60,7 +60,7 @@ class NotificationQuerySet(models.QuerySet):
             attached_to_content_type=ContentType.objects.get_for_model(Project),
             attached_to_id__in=AdminPermission.projects(
                 user,
-                owner=True,
+                admin=True,
                 member=False,
             ).values("id"),
         )
