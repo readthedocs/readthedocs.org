@@ -1,7 +1,7 @@
 import django_filters.rest_framework as filters
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Exists, OuterRef, Subquery
+from django.db.models import Exists, OuterRef
 from rest_flex_fields import is_expanded
 from rest_flex_fields.views import FlexFieldsMixin
 from rest_framework import status
@@ -650,9 +650,7 @@ class NotificationsOrganizationViewSet(
         content_type = ContentType.objects.get_for_model(Organization)
         return self.queryset.filter(
             attached_to_content_type=content_type,
-            attached_to_id__in=Subquery(
-                AdminPermission.organizations(
-                    self.request.user, admin=True, member=False
-                ).values("id"),
-            ),
+            attached_to_id__in=AdminPermission.organizations(
+                self.request.user, owner=True, member=False
+            ).values("id"),
         )

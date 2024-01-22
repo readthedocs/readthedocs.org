@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from django.db.models import Subquery
 from django.utils import timezone
 
 from readthedocs.core.permissions import AdminPermission
@@ -57,30 +56,22 @@ class NotificationQuerySet(models.QuerySet):
             attached_to_id=user.pk,
         )
 
-        # NOTE: using ``Subquery`` work better regarding performance since it makes only one query to the databse,
-        # instead of doing one to get the ids and another one to get the notifications.
-        # It also works better for users that have many projects/organizations since we don't need to load the ids
-        # in memory and then dump them into the SQL query.
-        # Besides, it performs better when applying the filters via ``NotificationFilter``
         project_notifications = self.filter(
             attached_to_content_type=ContentType.objects.get_for_model(Project),
-            attached_to_id__in=Subquery(
-                AdminPermission.projects(
-                    user,
-                    admin=True,
-                    member=False,
-                ).values("id")
-            ),
+            attached_to_id__in=AdminPermission.projects(
+                user,
+                owner=True,
+                member=False,
+            ).values("id"),
         )
+
         organization_notifications = self.filter(
             attached_to_content_type=ContentType.objects.get_for_model(Organization),
-            attached_to_id__in=Subquery(
-                AdminPermission.organizations(
-                    user,
-                    admin=True,
-                    member=False,
-                ).values("id")
-            ),
+            attached_to_id__in=AdminPermission.organizations(
+                user,
+                owner=True,
+                member=False,
+            ).values("id"),
         )
 
         # Return all the notifications related to this user attached to:

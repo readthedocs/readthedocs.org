@@ -1,7 +1,7 @@
 """Objects for User permission checks."""
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.db.models import Q, Subquery
+from django.db.models import Q
 
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.organizations.constants import ADMIN_ACCESS, READ_ONLY_ACCESS
@@ -75,14 +75,20 @@ class AdminPermissionBase:
         return projects
 
     @classmethod
-    def organizations(cls, user, admin=False, member=False):
+    def organizations(cls, user, owner=False, member=False):
         from readthedocs.organizations.models import Organization
 
-        projects = Subquery(cls.projects(user, admin, member).values("id"))
-        # Note that the user is not owner of the organization here,
-        # but has admin/read permissions on projects that belong to the organization.
-        # It's not the same as ``Organization.objects.for_admin_user(user)``
-        return Organization.objects.filter(projects__in=projects)
+        organizations = Organization.objects.none()
+
+        if owner:
+            organizations |= Organization.objects.filter(owners__in=[user]).distinct()
+
+        if member:
+            organizations |= Organization.objects.filter(
+                projects__in=cls.projects(user, admin=True, member=True)
+            ).distinct()
+
+        return organizations
 
     @classmethod
     def has_sso_enabled(cls, obj, provider=None):
