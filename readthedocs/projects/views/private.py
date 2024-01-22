@@ -119,6 +119,9 @@ class ProjectDashboard(PrivateViewMixin, ListView):
         Checks if the user has a primary email or if the primary email
         is verified or not. Sends a dismissable notification if
         either of the condition is False.
+
+        Marks the notification as ``CANCELLED`` if the user already
+        validated the email.
         """
         email_qs = user.emailaddress_set.filter(primary=True)
         email = email_qs.first()
@@ -130,6 +133,11 @@ class ProjectDashboard(PrivateViewMixin, ListView):
                 format_values={
                     "account_email_url": reverse("account_email"),
                 },
+            )
+        else:
+            Notification.objects.cancel(
+                attached_to=user,
+                message_id=MESSAGE_EMAIL_VALIDATION_PENDING,
             )
 
     def get_queryset(self):
