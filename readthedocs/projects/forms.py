@@ -542,6 +542,12 @@ class AddonsConfigForm(forms.ModelForm):
         )
         labels = {
             "enabled": _("Enable Addons"),
+            "external_version_warning_enabled": _(
+                "Show a notification on builds from pull requests"
+            ),
+            "stable_latest_version_warning_enabled": _(
+                "Show a notification on non-stable and latest versions"
+            ),
         }
 
     def __init__(self, *args, **kwargs):
