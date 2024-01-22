@@ -6,10 +6,12 @@ from django_dynamic_fixture import get
 
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
+from readthedocs.oauth.models import RemoteRepository
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import (
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPE_HTMLZIP,
+    PRIVATE,
     PUBLIC,
 )
 from readthedocs.projects.models import Project
@@ -107,6 +109,28 @@ class TestExternalBuildOption(TestCase):
                 "To build from pull requests your repository's webhook needs to send pull request events."
             )
         )
+
+    @override_settings(ALLOW_PRIVATE_REPOS=True)
+    def test_privacy_level_pr_previews_match_remote_repository(self):
+        remote_repository = get(RemoteRepository, private=False)
+        self.project.remote_repository = remote_repository
+        self.project.save()
+
+        resp = self.client.get(self.url)
+        field = resp.context["form"].fields["external_builds_privacy_level"]
+        self.assertTrue(field.disabled)
+        self.assertIn("We have detected that this project is public", field.help_text)
+        self.assertEqual(self.project.external_builds_privacy_level, PUBLIC)
+
+        remote_repository.private = True
+        remote_repository.save()
+        self.project.save()
+
+        resp = self.client.get(self.url)
+        field = resp.context["form"].fields["external_builds_privacy_level"]
+        self.assertTrue(field.disabled)
+        self.assertIn("We have detected that this project is private", field.help_text)
+        self.assertEqual(self.project.external_builds_privacy_level, PRIVATE)
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
