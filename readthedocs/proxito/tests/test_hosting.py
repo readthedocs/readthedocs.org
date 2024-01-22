@@ -17,7 +17,7 @@ from readthedocs.projects.constants import (
     PUBLIC,
     SINGLE_VERSION_WITHOUT_TRANSLATIONS,
 )
-from readthedocs.projects.models import Domain, Feature, Project
+from readthedocs.projects.models import AddonsConfig, Domain, Project
 
 
 @override_settings(
@@ -128,42 +128,20 @@ class TestReadTheDocsConfigJson(TestCase):
         assert r.status_code == 400
         assert r.json() == self._get_response_dict("v2")
 
-    def test_disabled_addons_via_feature_flags(self):
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_ANALYTICS_DISABLED,
+    def test_disabled_addons_via_addons_config(self):
+        addons = fixture.get(
+            AddonsConfig,
+            project=self.project,
         )
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_EXTERNAL_VERSION_WARNING_DISABLED,
-        )
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_NON_LATEST_VERSION_WARNING_DISABLED,
-        )
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_DOC_DIFF_DISABLED,
-        )
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_FLYOUT_DISABLED,
-        )
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_SEARCH_DISABLED,
-        )
-        fixture.get(
-            Feature,
-            projects=[self.project],
-            feature_id=Feature.ADDONS_HOTKEYS_DISABLED,
-        )
+        addons.analytics_enabled = False
+        addons.doc_diff_enabled = False
+        addons.external_version_warning_enabled = False
+        addons.ethicalads_enabled = False
+        addons.flyout_enabled = False
+        addons.hotkeys_enabled = False
+        addons.search_enabled = False
+        addons.stable_latest_version_warning_enabled = False
+        addons.save()
 
         r = self.client.get(
             reverse("proxito_readthedocs_docs_addons"),
@@ -678,7 +656,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(17):
+        with self.assertNumQueries(20):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -707,7 +685,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(17):
+        with self.assertNumQueries(20):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -743,7 +721,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 active=True,
             )
 
-        with self.assertNumQueries(21):
+        with self.assertNumQueries(24):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {
@@ -769,7 +747,7 @@ class TestReadTheDocsConfigJson(TestCase):
                 language=language,
             )
 
-        with self.assertNumQueries(21):
+        with self.assertNumQueries(24):
             r = self.client.get(
                 reverse("proxito_readthedocs_docs_addons"),
                 {

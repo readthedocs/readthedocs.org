@@ -479,17 +479,36 @@ class AddonsConfigForm(forms.ModelForm):
 
     class Meta:
         model = AddonsConfig
-        fields = ("enabled", "project")
+        fields = (
+            "enabled",
+            "project",
+            "analytics_enabled",
+            "doc_diff_enabled",
+            "external_version_warning_enabled",
+            "flyout_enabled",
+            "hotkeys_enabled",
+            "search_enabled",
+            "stable_latest_version_warning_enabled",
+        )
+        labels = {
+            "enabled": _("Enable Addons"),
+            "external_version_warning_enabled": _(
+                "Show a notification on builds from pull requests"
+            ),
+            "stable_latest_version_warning_enabled": _(
+                "Show a notification on non-stable and latest versions"
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
-        kwargs["instance"] = getattr(self.project, "addons", None)
-        super().__init__(*args, **kwargs)
+        addons, created = AddonsConfig.objects.get_or_create(project=self.project)
+        if created:
+            addons.enabled = False
+            addons.save()
 
-        try:
-            self.fields["enabled"].initial = self.project.addons.enabled
-        except AddonsConfig.DoesNotExist:
-            self.fields["enabled"].initial = False
+        kwargs["instance"] = addons
+        super().__init__(*args, **kwargs)
 
     def clean_project(self):
         return self.project
