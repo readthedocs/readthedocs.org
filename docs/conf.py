@@ -97,7 +97,6 @@ intersphinx_mapping = {
     "jupytext": ("https://jupytext.readthedocs.io/en/stable/", None),
     "ipyleaflet": ("https://ipyleaflet.readthedocs.io/en/latest/", None),
     "poliastro": ("https://docs.poliastro.space/en/stable/", None),
-    "qiskit": ("https://qiskit.org/documentation/", None),
     "myst-parser": ("https://myst-parser.readthedocs.io/en/stable/", None),
     "writethedocs": ("https://www.writethedocs.org/", None),
     "jupyterbook": ("https://jupyterbook.org/en/stable/", None),
