@@ -528,61 +528,6 @@ class EnvironmentVariablesViewSet(
         serializer.save()
 
 
-# NOTE: old attempt to implement /api/v3/organizations/
-# Currently, it's commented because we are not allowing hitting this endpoint.
-# We can recover this implementation once we are ready.
-#
-# class OrganizationsViewSet(
-#     APIv3Settings,
-#     NestedViewSetMixin,
-#     OrganizationQuerySetMixin,
-#     ReadOnlyModelViewSet,
-# ):
-#     model = Organization
-#     lookup_field = "slug"
-#     lookup_url_kwarg = "organization_slug"
-#     queryset = Organization.objects.all()
-#     serializer_class = OrganizationSerializer
-#     permission_classes = [
-#         IsAuthenticated & (UserOrganizationsListing | IsOrganizationAdminMember)
-#     ]
-#     permit_list_expands = [
-#         "projects",
-#         "teams",
-#         "teams.members",
-#     ]
-
-#     def get_view_name(self):
-#         return f"Organizations {self.suffix}"
-
-#     def get_queryset(self):
-#         # Allow hitting ``/api/v3/organizations/`` to list their own organizations
-#         if self.basename == "organizations" and self.action == "list":
-#             # We force returning ``Organization`` objects here because it's
-#             # under the ``organizations`` view.
-#             return self.admin_organizations(self.request.user)
-
-#         return super().get_queryset()
-
-
-# class OrganizationsProjectsViewSet(
-#     APIv3Settings, NestedViewSetMixin, OrganizationQuerySetMixin, ReadOnlyModelViewSet
-# ):
-#     model = Project
-#     lookup_field = "slug"
-#     lookup_url_kwarg = "project_slug"
-#     queryset = Project.objects.all()
-#     serializer_class = ProjectSerializer
-#     permission_classes = [IsAuthenticated & IsOrganizationAdminMember]
-#     permit_list_expands = [
-#         "organization",
-#         "organization.teams",
-#     ]
-
-#     def get_view_name(self):
-#         return f"Organizations Projects {self.suffix}"
-
-
 class RemoteRepositoryViewSet(
     APIv3Settings, RemoteQuerySetMixin, FlexFieldsMixin, ListModelMixin, GenericViewSet
 ):
