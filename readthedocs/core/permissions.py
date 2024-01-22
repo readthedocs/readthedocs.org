@@ -79,6 +79,9 @@ class AdminPermissionBase:
         from readthedocs.organizations.models import Organization
 
         projects = Subquery(cls.projects(user, admin, member).values("id"))
+        # Note that the user is not owner of the organization here,
+        # but has admin/read permissions on projects that belong to the organization.
+        # It's not the same as ``Organization.objects.for_admin_user(user)``
         return Organization.objects.filter(projects__in=projects)
 
     @classmethod

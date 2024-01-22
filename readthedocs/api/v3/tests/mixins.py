@@ -116,6 +116,7 @@ class APIEndpointMixin(TestCase):
             Project,
             id=2,
             slug="others-project",
+            name="others-project",
             related_projects=[],
             main_language_project=None,
             users=[self.other],
@@ -138,6 +139,7 @@ class APIEndpointMixin(TestCase):
             modified_date=self.modified,
             name="organization",
             slug="organization",
+            owners=[self.me],
         )
         self.organization.projects.add(self.project)
 

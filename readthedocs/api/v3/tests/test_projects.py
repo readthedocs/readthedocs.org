@@ -579,6 +579,18 @@ class ProjectsEndpointTests(APIEndpointMixin):
             self._get_response_dict("projects-notifications-list"),
         )
 
+    def test_projects_notifications_list_other_user(self):
+        url = reverse(
+            "projects-notifications-list",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
     def test_projects_notifications_list_post(self):
         url = reverse(
             "projects-notifications-list",
@@ -618,6 +630,19 @@ class ProjectsEndpointTests(APIEndpointMixin):
             response.json(),
             self._get_response_dict("projects-notifications-detail"),
         )
+
+    def test_projects_notifications_detail_other_user(self):
+        url = reverse(
+            "projects-notifications-detail",
+            kwargs={
+                "parent_lookup_project__slug": self.project.slug,
+                "notification_pk": self.notification_project.pk,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
 
     def test_projects_notifications_detail_patch(self):
         url = reverse(

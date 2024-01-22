@@ -56,8 +56,9 @@ from .mixins import (
     RemoteQuerySetMixin,
     UpdateChangeReasonMixin,
     UpdateMixin,
+    UserQuerySetMixin,
 )
-from .permissions import CommonPermissions, IsOrganizationAdminMember, IsProjectAdmin
+from .permissions import CommonPermissions, IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
@@ -407,6 +408,11 @@ class NotificationsForUserViewSet(
     model = Notification
     serializer_class = NotificationSerializer
     queryset = Notification.objects.all()
+
+    # Override global permissions here because it doesn't not make sense to hit
+    # this endpoint without being logged in. We can't use our
+    # ``CommonPermissions`` because it requires the endpoint to be nested under
+    # ``projects``
     permission_classes = (IsAuthenticated,)
     filterset_class = NotificationFilter
 
@@ -414,7 +420,6 @@ class NotificationsForUserViewSet(
         return Notification.objects.for_user(self.request.user)
 
 
-# TODO: verify permissions over all ``**/notifications/`` endpoints.
 class NotificationsProjectViewSet(
     APIv3Settings,
     NestedViewSetMixin,
@@ -560,22 +565,22 @@ class EnvironmentVariablesViewSet(
 #         return super().get_queryset()
 
 
-class OrganizationsProjectsViewSet(
-    APIv3Settings, NestedViewSetMixin, OrganizationQuerySetMixin, ReadOnlyModelViewSet
-):
-    model = Project
-    lookup_field = "slug"
-    lookup_url_kwarg = "project_slug"
-    queryset = Project.objects.all()
-    serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated & IsOrganizationAdminMember]
-    permit_list_expands = [
-        "organization",
-        "organization.teams",
-    ]
+# class OrganizationsProjectsViewSet(
+#     APIv3Settings, NestedViewSetMixin, OrganizationQuerySetMixin, ReadOnlyModelViewSet
+# ):
+#     model = Project
+#     lookup_field = "slug"
+#     lookup_url_kwarg = "project_slug"
+#     queryset = Project.objects.all()
+#     serializer_class = ProjectSerializer
+#     permission_classes = [IsAuthenticated & IsOrganizationAdminMember]
+#     permit_list_expands = [
+#         "organization",
+#         "organization.teams",
+#     ]
 
-    def get_view_name(self):
-        return f"Organizations Projects {self.suffix}"
+#     def get_view_name(self):
+#         return f"Organizations Projects {self.suffix}"
 
 
 class RemoteRepositoryViewSet(
@@ -639,6 +644,8 @@ class UsersViewSet(
 
 class NotificationsUserViewSet(
     APIv3Settings,
+    NestedViewSetMixin,
+    UserQuerySetMixin,
     ListModelMixin,
     RetrieveModelMixin,
     UpdateMixin,
@@ -650,13 +657,13 @@ class NotificationsUserViewSet(
     lookup_url_kwarg = "notification_pk"
     serializer_class = NotificationSerializer
     queryset = Notification.objects.all()
-    permission_classes = (IsAuthenticated,)
     filterset_class = NotificationFilter
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        # Filter the queryset by only notifications attached to the particular user
+        # that's making the request to this endpoint
         content_type = ContentType.objects.get_for_model(User)
-        return queryset.filter(
+        return self.queryset.filter(
             attached_to_content_type=content_type,
             attached_to_id=self.request.user.pk,
         )
@@ -679,6 +686,8 @@ class OrganizationsViewSet(
 
 class NotificationsOrganizationViewSet(
     APIv3Settings,
+    NestedViewSetMixin,
+    OrganizationQuerySetMixin,
     ListModelMixin,
     RetrieveModelMixin,
     UpdateMixin,
@@ -690,13 +699,11 @@ class NotificationsOrganizationViewSet(
     lookup_url_kwarg = "notification_pk"
     serializer_class = NotificationSerializer
     queryset = Notification.objects.all()
-    permission_classes = (IsAuthenticated,)
     filterset_class = NotificationFilter
 
     def get_queryset(self):
-        queryset = super().get_queryset()
         content_type = ContentType.objects.get_for_model(Organization)
-        return queryset.filter(
+        return self.queryset.filter(
             attached_to_content_type=content_type,
             attached_to_id__in=Subquery(
                 AdminPermission.organizations(

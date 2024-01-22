@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
@@ -71,6 +72,10 @@ class NestedParentObjectMixin:
         "build__id",
     ]
 
+    USER_LOOKUP_NAMES = [
+        "user__username",
+    ]
+
     def _get_parent_object_lookup(self, lookup_names):
         query_dict = self.get_parents_query_dict()
         for lookup in lookup_names:
@@ -112,6 +117,15 @@ class NestedParentObjectMixin:
         return get_object_or_404(
             Organization,
             slug=slug,
+        )
+
+    def _get_parent_user(self):
+        username = self._get_parent_object_lookup(self.USER_LOOKUP_NAMES)
+        username = username or self.kwargs.get("user_username")
+
+        return get_object_or_404(
+            User,
+            username=username,
         )
 
 
@@ -225,6 +239,22 @@ class OrganizationQuerySetMixin(NestedParentObjectMixin):
 
         # List view are only allowed if user is owner of parent project
         return self.listing_objects(queryset, self.request.user)
+
+
+class UserQuerySetMixin(NestedParentObjectMixin):
+
+    """
+    Mixin to define queryset permissions for ViewSet only in one place.
+
+    All APIv3 user' ViewSet should inherit this mixin, unless specific permissions
+    required. In that case, a specific mixin for that case should be defined.
+    """
+
+    def has_admin_permission(self, requesting_user, accessing_user):
+        if requesting_user == accessing_user:
+            return True
+
+        return False
 
 
 class UpdateMixin:

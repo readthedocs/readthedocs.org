@@ -53,6 +53,18 @@ class UsersEndpointTests(APIEndpointMixin):
             self._get_response_dict("users-notifications-list"),
         )
 
+    def test_users_notifications_list_other_user(self):
+        url = reverse(
+            "users-notifications-list",
+            kwargs={
+                "parent_lookup_user__username": self.me.username,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
     def test_users_notifications_list_post(self):
         url = reverse(
             "users-notifications-list",
@@ -92,6 +104,19 @@ class UsersEndpointTests(APIEndpointMixin):
             response.json(),
             self._get_response_dict("users-notifications-detail"),
         )
+
+    def test_users_notifications_detail_other(self):
+        url = reverse(
+            "users-notifications-detail",
+            kwargs={
+                "parent_lookup_user__username": self.me.username,
+                "notification_pk": self.notification_user.pk,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
 
     def test_users_notifications_detail_patch(self):
         url = reverse(

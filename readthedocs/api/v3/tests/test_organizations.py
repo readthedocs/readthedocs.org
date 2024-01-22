@@ -51,6 +51,18 @@ class OrganizationsEndpointTests(APIEndpointMixin):
             self._get_response_dict("organizations-notifications-list"),
         )
 
+    def test_organizations_notifications_list_other_user(self):
+        url = reverse(
+            "organizations-notifications-list",
+            kwargs={
+                "parent_lookup_organization__slug": self.organization.slug,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
     def test_organizations_notifications_list_post(self):
         url = reverse(
             "organizations-notifications-list",
@@ -90,6 +102,19 @@ class OrganizationsEndpointTests(APIEndpointMixin):
             response.json(),
             self._get_response_dict("organizations-notifications-detail"),
         )
+
+    def test_organizations_notifications_detail_other(self):
+        url = reverse(
+            "organizations-notifications-detail",
+            kwargs={
+                "parent_lookup_organization__slug": self.organization.slug,
+                "notification_pk": self.notification_organization.pk,
+            },
+        )
+
+        self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
 
     def test_organizations_notifications_detail_patch(self):
         url = reverse(
