@@ -58,7 +58,7 @@ from .mixins import (
     UpdateMixin,
     UserQuerySetMixin,
 )
-from .permissions import CommonPermissions, IsProjectAdmin
+from .permissions import CommonPermissions, IsOrganizationAdminMember, IsProjectAdmin
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
@@ -614,7 +614,7 @@ class NotificationsUserViewSet(
         )
 
 
-class OrganizationsViewSet(
+class OrganizationsViewSetBase(
     APIv3Settings,
     GenericViewSet,
 ):
@@ -622,11 +622,37 @@ class OrganizationsViewSet(
     # /api/v3/organizations/<slug>/notifications/
     # However, accessing to /api/v3/organizations/ or /api/v3/organizations/<slug>/ will return 404.
     # We can implement these endpoints when we need them, tho.
+    # Also note that Read the Docs for Business expose this endpoint already.
 
     model = Organization
     serializer_class = OrganizationSerializer
     queryset = Organization.objects.none()
     permission_classes = (IsAuthenticated,)
+
+
+class OrganizationsViewSet(SettingsOverrideObject):
+    _default_class = OrganizationsViewSetBase
+
+
+class OrganizationsProjectsViewSet(
+    APIv3Settings,
+    NestedViewSetMixin,
+    OrganizationQuerySetMixin,
+    ReadOnlyModelViewSet,
+):
+    model = Project
+    lookup_field = "slug"
+    lookup_url_kwarg = "project_slug"
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [IsAuthenticated & IsOrganizationAdminMember]
+    permit_list_expands = [
+        "organization",
+        "organization.teams",
+    ]
+
+    def get_view_name(self):
+        return f"Organizations Projects {self.suffix}"
 
 
 class NotificationsOrganizationViewSet(
