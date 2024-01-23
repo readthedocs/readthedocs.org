@@ -914,6 +914,14 @@ class CommunityBaseSettings(Settings):
                 'handlers': ['null'],
                 'propagate': False,
             },
+            'elastic_transport.transport': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
+            'celery.worker.consumer.gossip': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
         },
     }
 

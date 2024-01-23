@@ -2,6 +2,7 @@ import os
 import re
 import textwrap
 from collections import OrderedDict
+from contextlib import nullcontext as does_not_raise
 
 import pytest
 from django.conf import settings
@@ -293,11 +294,27 @@ class TestBuildConfigV2:
                 },
             }
         )
-        print(build)
         with raises(ConfigError) as excinfo:
             build.validate()
         assert excinfo.value.message_id == ConfigError.CONDA_KEY_REQUIRED
         assert excinfo.value.format_values.get("key") == "conda"
+
+    def test_conda_key_not_required_for_conda_mamba_when_build_commands(self):
+        build = get_build_config(
+            {
+                "build": {
+                    "os": "ubuntu-22.04",
+                    "tools": {
+                        "python": "mambaforge-22.9",
+                    },
+                    "commands": [
+                        "mamba env create --file environment.yml",
+                    ],
+                },
+            }
+        )
+        with does_not_raise(ConfigError):
+            build.validate()
 
     @pytest.mark.parametrize("value", [3, [], "invalid"])
     def test_conda_check_invalid_value(self, value):

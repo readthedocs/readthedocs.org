@@ -77,7 +77,7 @@ html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "/")
 
 master_doc = "index"
 copyright = "Read the Docs, Inc & contributors"
-version = "10.15.1"
+version = "10.16.0"
 release = version
 exclude_patterns = ["_build", "shared", "_includes"]
 default_role = "obj"
@@ -97,7 +97,6 @@ intersphinx_mapping = {
     "jupytext": ("https://jupytext.readthedocs.io/en/stable/", None),
     "ipyleaflet": ("https://ipyleaflet.readthedocs.io/en/latest/", None),
     "poliastro": ("https://docs.poliastro.space/en/stable/", None),
-    "qiskit": ("https://qiskit.org/documentation/", None),
     "myst-parser": ("https://myst-parser.readthedocs.io/en/stable/", None),
     "writethedocs": ("https://www.writethedocs.org/", None),
     "jupyterbook": ("https://jupyterbook.org/en/stable/", None),
