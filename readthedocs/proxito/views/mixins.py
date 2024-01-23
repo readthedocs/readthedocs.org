@@ -362,7 +362,7 @@ class ServeRedirectMixin:
             path=path,
             forced_only=forced_only,
         )
-        if not redirect:
+        if not redirect or not redirect_path:
             return None
 
         # `path` doesn't include query params.
@@ -390,10 +390,21 @@ class ServeRedirectMixin:
                     forced_only=forced_only,
                 )
         else:
+            parsed_redirect_path = urlparse(redirect_path)
+            query = parsed_redirect_path.query
+            fragment = parsed_redirect_path.fragment
+            # We use geturl() to get path, since the original path may begin with a protocol,
+            # but we still want to keep that as part of the path.
+            redirect_path = parsed_redirect_path._replace(
+                fragment="",
+                query="",
+            ).geturl()
             # SECURITY: If the redirect doesn't explicitly redirect to an external domain,
             # we force the final redirect to be to the same domain as the current request
             # to avoid open redirects vulnerabilities.
-            new_url_parsed = current_url_parsed._replace(path=redirect_path)
+            new_url_parsed = current_url_parsed._replace(
+                path=redirect_path, query=query, fragment=fragment
+            )
 
         # Combine the query params from the original request with the ones from the redirect.
         query_list.extend(parse_qsl(new_url_parsed.query, keep_blank_values=True))
