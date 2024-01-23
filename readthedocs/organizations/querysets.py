@@ -23,7 +23,7 @@ class BaseOrganizationQuerySet(models.QuerySet):
         ).distinct()
 
     def for_admin_user(self, user):
-        return self.filter(owners__in=[user],).distinct()
+        return self.filter(owners__in=[user]).distinct()
 
     def created_days_ago(self, days, field='pub_date'):
         """

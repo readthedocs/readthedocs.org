@@ -4,6 +4,7 @@ from pathlib import Path
 
 import django_dynamic_fixture as fixture
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.test import TestCase
 from django.test.utils import override_settings
@@ -13,9 +14,15 @@ from rest_framework.test import APIClient
 
 from readthedocs.builds.constants import TAG
 from readthedocs.builds.models import Build, Version
+from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
+from readthedocs.doc_builder.exceptions import BuildCancelled
+from readthedocs.notifications.models import Notification
+from readthedocs.organizations.models import Organization
 from readthedocs.projects.constants import PUBLIC
 from readthedocs.projects.models import Project
+from readthedocs.projects.notifications import MESSAGE_PROJECT_SKIP_BUILDS
 from readthedocs.redirects.models import Redirect
+from readthedocs.subscriptions.notifications import MESSAGE_ORGANIZATION_DISABLED
 
 
 @override_settings(
@@ -109,6 +116,7 @@ class APIEndpointMixin(TestCase):
             Project,
             id=2,
             slug="others-project",
+            name="others-project",
             related_projects=[],
             main_language_project=None,
             users=[self.other],
@@ -122,6 +130,44 @@ class APIEndpointMixin(TestCase):
             has_pdf=True,
             has_epub=True,
             has_htmlzip=True,
+        )
+
+        self.organization = fixture.get(
+            Organization,
+            id=1,
+            pub_date=self.created,
+            modified_date=self.modified,
+            name="organization",
+            slug="organization",
+            owners=[self.me],
+        )
+        self.organization.projects.add(self.project)
+
+        self.notification_organization = fixture.get(
+            Notification,
+            attached_to_content_type=ContentType.objects.get_for_model(
+                self.organization
+            ),
+            attached_to_id=self.organization.pk,
+            message_id=MESSAGE_ORGANIZATION_DISABLED,
+        )
+        self.notification_project = fixture.get(
+            Notification,
+            attached_to_content_type=ContentType.objects.get_for_model(self.project),
+            attached_to_id=self.project.pk,
+            message_id=MESSAGE_PROJECT_SKIP_BUILDS,
+        )
+        self.notification_build = fixture.get(
+            Notification,
+            attached_to_content_type=ContentType.objects.get_for_model(self.build),
+            attached_to_id=self.build.pk,
+            message_id=BuildCancelled.CANCELLED_BY_USER,
+        )
+        self.notification_user = fixture.get(
+            Notification,
+            attached_to_content_type=ContentType.objects.get_for_model(self.me),
+            attached_to_id=self.me.pk,
+            message_id=MESSAGE_EMAIL_VALIDATION_PENDING,
         )
 
         self.client = APIClient()

@@ -309,9 +309,6 @@ To see some examples of notebook galleries in the wild:
   In addition, `poliastro uses unpaired MyST
   Notebooks <https://github.com/poliastro/poliastro/tree/0.15.x/docs/source/examples>`_
   to reduce repository size and improve integration with git.
-- `Qiskit <https://qiskit.org/>`_ is a framework for quantum computing
-  that leverages ``nbgallery`` :doc:`for its tutorials <qiskit:tutorials>`
-  and uses a highly customized style to match the branding of the website.
 
 Background
 ----------

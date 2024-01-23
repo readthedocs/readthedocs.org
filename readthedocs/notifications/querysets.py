@@ -1,6 +1,9 @@
+from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils import timezone
+
+from readthedocs.core.permissions import AdminPermission
 
 from .constants import CANCELLED, READ, UNREAD
 
@@ -63,24 +66,48 @@ class NotificationQuerySet(models.QuerySet):
             modified=timezone.now(),
         )
 
-    def _for_object(self, obj):
+    def for_user(self, user):
         """
-        Generic method to return notifications attached to a particular object.
+        Retrieve all notifications related to a particular user.
+
+        Given a user, returns all the notifications that:
+
+         - are attached to an ``Organization`` where the user is owner
+         - are attached to a ``Project`` where the user is admin
+         - are attacehd to the ``User`` themselves
 
         It only returns notifications that are ``READ`` or ``UNREAD``.
         """
-        content_type = ContentType.objects.get_for_model(obj)
-        return self.filter(
-            attached_to_content_type=content_type,
-            attached_to_id=obj.id,
-            state__in=(UNREAD, READ),
+        # Need to be here due to circular imports
+        from readthedocs.organizations.models import Organization
+        from readthedocs.projects.models import Project
+
+        # http://chibisov.github.io/drf-extensions/docs/#usage-with-generic-relations
+        user_notifications = self.filter(
+            attached_to_content_type=ContentType.objects.get_for_model(User),
+            attached_to_id=user.pk,
         )
 
-    def for_user(self, user):
-        """
-        Return all the notifications to shown to the user.
+        project_notifications = self.filter(
+            attached_to_content_type=ContentType.objects.get_for_model(Project),
+            attached_to_id__in=AdminPermission.projects(
+                user,
+                admin=True,
+                member=False,
+            ).values("id"),
+        )
 
-        It uses ``_for_object()`` behind the scenes which returns only ``READ``
-        and ``UNREAD`` notifications.
-        """
-        return self._for_object(user)
+        organization_notifications = self.filter(
+            attached_to_content_type=ContentType.objects.get_for_model(Organization),
+            attached_to_id__in=AdminPermission.organizations(
+                user,
+                owner=True,
+                member=False,
+            ).values("id"),
+        )
+
+        # Return all the notifications related to this user attached to:
+        # User, Project and Organization models where the user is admin.
+        return (
+            user_notifications | project_notifications | organization_notifications
+        ).filter(state__in=(UNREAD, READ))

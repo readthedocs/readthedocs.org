@@ -26,6 +26,7 @@ Read the Docs: documentation simplified
    /localization
    /explanation/advanced
    /explanation/methodology
+   /security-implications
 
 .. toctree::
    :maxdepth: 2
