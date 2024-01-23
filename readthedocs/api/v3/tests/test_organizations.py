@@ -114,7 +114,7 @@ class OrganizationsEndpointTests(APIEndpointMixin):
 
         self.client.credentials(HTTP_AUTHORIZATION=f"Token {self.others_token.key}")
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
 
     def test_organizations_notifications_detail_patch(self):
         url = reverse(
