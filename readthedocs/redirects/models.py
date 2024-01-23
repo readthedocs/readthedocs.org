@@ -192,6 +192,11 @@ class Redirect(models.Model):
             to_url=self.to_url,
         )
 
+    @property
+    def redirects_to_external_domain(self):
+        """Check if the redirect is to an external domain."""
+        return bool(re.match("^https?://", self.to_url))
+
     def __str__(self):
         redirect_text = "{type}: {from_to_url}"
         if self.redirect_type in [PAGE_REDIRECT, EXACT_REDIRECT]:
@@ -241,7 +246,7 @@ class Redirect(models.Model):
 
            This method doesn't check if the current path matches ``from_url``,
            that should be done before calling this method
-           using ``Redirect.objects.get_redirect_path_with_status``.
+           using ``Redirect.objects.get_matching_redirect_with_path``.
 
         :param filename: The filename being served.
         :param path: The whole path from the request.
