@@ -1,3 +1,11 @@
+Version 10.16.1
+---------------
+
+:Date: January 23, 2024
+
+* `@humitos <https://github.com/humitos>`__: APIv3: bring back `OrganizationsViewSet` that was removed (`#11052 <https://github.com/readthedocs/readthedocs.org/pull/11052>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.16.0 (`#11051 <https://github.com/readthedocs/readthedocs.org/pull/11051>`__)
+
 Version 10.16.0
 ---------------
 
