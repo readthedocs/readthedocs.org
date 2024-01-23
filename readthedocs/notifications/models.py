@@ -58,6 +58,11 @@ class Notification(TimeStampedModel):
     # notifications attached to the same object.
     objects = NotificationQuerySet.as_manager()
 
+    class Meta:
+        indexes = [
+            models.Index(fields=["attached_to_content_type", "attached_to_id"]),
+        ]
+
     def __str__(self):
         return self.message_id
 
