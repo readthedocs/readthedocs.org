@@ -1103,6 +1103,7 @@ class EnvironmentVariableSerializer(serializers.ModelSerializer):
 class OrganizationLinksSerializer(BaseLinksSerializer):
     _self = serializers.SerializerMethodField()
     projects = serializers.SerializerMethodField()
+    notifications = serializers.SerializerMethodField()
 
     def get__self(self, obj):
         path = reverse(
@@ -1118,6 +1119,15 @@ class OrganizationLinksSerializer(BaseLinksSerializer):
             "organizations-projects-list",
             kwargs={
                 "parent_lookup_organizations__slug": obj.slug,
+            },
+        )
+        return self._absolute_url(path)
+
+    def get_notifications(self, obj):
+        path = reverse(
+            "organizations-notifications-list",
+            kwargs={
+                "parent_lookup_organization__slug": obj.slug,
             },
         )
         return self._absolute_url(path)

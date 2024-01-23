@@ -58,7 +58,12 @@ from .mixins import (
     UpdateMixin,
     UserQuerySetMixin,
 )
-from .permissions import CommonPermissions, IsOrganizationAdminMember, IsProjectAdmin
+from .permissions import (
+    CommonPermissions,
+    IsOrganizationAdmin,
+    IsOrganizationAdminMember,
+    IsProjectAdmin,
+)
 from .renderers import AlphabeticalSortedJSONRenderer
 from .serializers import (
     BuildCreateSerializer,
@@ -671,6 +676,7 @@ class NotificationsOrganizationViewSet(
     serializer_class = NotificationSerializer
     queryset = Notification.objects.all()
     filterset_class = NotificationFilter
+    permission_classes = [IsAuthenticated & IsOrganizationAdmin]
 
     def get_queryset(self):
         content_type = ContentType.objects.get_for_model(Organization)
