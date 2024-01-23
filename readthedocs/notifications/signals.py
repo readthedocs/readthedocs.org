@@ -1,9 +1,11 @@
 """Custom Django signals related to notifications."""
 
 import structlog
+from allauth.account.models import EmailAddress
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.notifications.models import Notification
 from readthedocs.organizations.models import Organization
 from readthedocs.projects.models import Project
@@ -42,4 +44,14 @@ def organization_disabled(instance, *args, **kwargs):
         Notification.objects.cancel(
             message_id=MESSAGE_ORGANIZATION_DISABLED,
             attached_to=instance,
+        )
+
+
+@receiver(post_save, sender=EmailAddress)
+def user_email_verified(instance, *args, **kwargs):
+    """Check if the primary email is validated and cancel the notification."""
+    if instance.primary and instance.verified:
+        Notification.objects.cancel(
+            attached_to=instance.user,
+            message_id=MESSAGE_EMAIL_VALIDATION_PENDING,
         )
