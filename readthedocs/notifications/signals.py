@@ -4,6 +4,7 @@ import structlog
 from allauth.account.models import EmailAddress
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.notifications.models import Notification
@@ -50,8 +51,18 @@ def organization_disabled(instance, *args, **kwargs):
 @receiver(post_save, sender=EmailAddress)
 def user_email_verified(instance, *args, **kwargs):
     """Check if the primary email is validated and cancel the notification."""
-    if instance.primary and instance.verified:
-        Notification.objects.cancel(
-            attached_to=instance.user,
-            message_id=MESSAGE_EMAIL_VALIDATION_PENDING,
-        )
+    if instance.primary:
+        if instance.verified:
+            Notification.objects.cancel(
+                attached_to=instance.user,
+                message_id=MESSAGE_EMAIL_VALIDATION_PENDING,
+            )
+        else:
+            Notification.objects.add(
+                attached_to=instance.user,
+                message_id=MESSAGE_EMAIL_VALIDATION_PENDING,
+                dismissable=True,
+                format_values={
+                    "account_email_url": reverse("account_email"),
+                },
+            )
