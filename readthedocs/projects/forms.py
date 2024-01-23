@@ -4,13 +4,10 @@ from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
 
-from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Fieldset, Layout, Submit
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db.models import Q
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -202,7 +199,7 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     class Meta:
         model = Project
-        per_project_settings = (
+        fields = (
             "default_version",
             "default_branch",
             "privacy_level",
@@ -213,20 +210,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             "external_builds_enabled",
             "external_builds_privacy_level",
             "readthedocs_yaml_path",
-        )
-        # These that can be set per-version using a config file.
-        per_version_settings = (
-            "documentation_type",
-            "requirements_file",
-            "python_interpreter",
-            "install_project",
-            "conf_py_file",
-            "enable_pdf_build",
-            "enable_epub_build",
-        )
-        fields = (
-            *per_project_settings,
-            *per_version_settings,
         )
 
     def __init__(self, *args, **kwargs):
@@ -253,43 +236,15 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             )
             self.fields["versioning_scheme"].disabled = True
 
-        self.helper = FormHelper()
-        help_text = render_to_string(
-            'projects/project_advanced_settings_helptext.html'
-        )
-
-        per_project_settings = list(self.Meta.per_project_settings)
-
         # NOTE: we are deprecating this feature.
         # However, we will keep it available for projects that already using it.
         # Old projects not using it already or new projects won't be able to enable.
         if not self.instance.has_feature(Feature.ALLOW_VERSION_WARNING_BANNER):
             self.fields.pop("show_version_warning")
-            per_project_settings.remove("show_version_warning")
 
         if not settings.ALLOW_PRIVATE_REPOS:
             for field in ['privacy_level', 'external_builds_privacy_level']:
                 self.fields.pop(field)
-                per_project_settings.remove(field)
-
-        # TODO: remove the "Global settings" fieldset since we only have one
-        # fieldset not. Also, considering merging this "Advanced settings" with
-        # the regular "Settings" tab. Also also, take into account that we may
-        # want to add a new tab for "Read the Docs Addons" to configure each of
-        # them from there.
-        field_sets = [
-            Fieldset(
-                _("Global settings"),
-                *per_project_settings,
-            ),
-            Fieldset(
-                _("Default settings"),
-                HTML(help_text),
-                *self.Meta.per_version_settings,
-            ),
-        ]
-        self.helper.layout = Layout(*field_sets)
-        self.helper.add_input(Submit('save', _('Save')))
 
         default_choice = (None, '-' * 9)
         versions_choices = self.instance.versions(manager=INTERNAL).filter(
@@ -309,11 +264,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
             )
         else:
             self.fields['default_version'].widget.attrs['readonly'] = True
-
-        # Disable "per_version_settings" because they are deprecated.
-        # This fieldset will be removed in the next few weeks, after giving users some time to perform the migration.
-        for field in self.Meta.per_version_settings:
-            self.fields[field].disabled = True
 
         self.setup_external_builds_option()
 
@@ -529,17 +479,36 @@ class AddonsConfigForm(forms.ModelForm):
 
     class Meta:
         model = AddonsConfig
-        fields = ("enabled", "project")
+        fields = (
+            "enabled",
+            "project",
+            "analytics_enabled",
+            "doc_diff_enabled",
+            "external_version_warning_enabled",
+            "flyout_enabled",
+            "hotkeys_enabled",
+            "search_enabled",
+            "stable_latest_version_warning_enabled",
+        )
+        labels = {
+            "enabled": _("Enable Addons"),
+            "external_version_warning_enabled": _(
+                "Show a notification on builds from pull requests"
+            ),
+            "stable_latest_version_warning_enabled": _(
+                "Show a notification on non-stable and latest versions"
+            ),
+        }
 
     def __init__(self, *args, **kwargs):
         self.project = kwargs.pop("project", None)
-        kwargs["instance"] = getattr(self.project, "addons", None)
-        super().__init__(*args, **kwargs)
+        addons, created = AddonsConfig.objects.get_or_create(project=self.project)
+        if created:
+            addons.enabled = False
+            addons.save()
 
-        try:
-            self.fields["enabled"].initial = self.project.addons.enabled
-        except AddonsConfig.DoesNotExist:
-            self.fields["enabled"].initial = False
+        kwargs["instance"] = addons
+        super().__init__(*args, **kwargs)
 
     def clean_project(self):
         return self.project

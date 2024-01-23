@@ -260,25 +260,43 @@ class Redirect(models.Model):
 
     def _redirect_with_wildcard(self, current_path):
         if self.from_url.endswith("*"):
-            # Detect infinite redirects of the form:
-            # /dir/* -> /dir/subdir/:splat
-            # For example:
-            # /dir/test.html will redirect to /dir/subdir/test.html,
-            # and if file doesn't exist, it will redirect to
-            # /dir/subdir/subdir/test.html and then to /dir/subdir/subdir/test.html and so on.
-            if ":splat" in self.to_url:
-                to_url_without_splat = self.to_url.split(":splat", maxsplit=1)[0]
-                if current_path.startswith(to_url_without_splat):
-                    log.debug(
-                        "Infinite redirect loop detected",
-                        redirect=self,
-                    )
-                    return None
+            if self._will_cause_infinite_redirect(current_path):
+                log.debug(
+                    "Infinite redirect loop detected",
+                    redirect=self,
+                )
+                return None
 
             splat = current_path[len(self.from_url_without_rest) :]
             to_url = self.to_url.replace(":splat", splat)
             return to_url
         return self.to_url
+
+    def _will_cause_infinite_redirect(self, current_path):
+        """
+        Check if this redirect will cause an infinite redirect for the given path.
+
+        We detect infinite redirects of the form:
+
+          /dir/* -> /dir/subdir/:splat
+
+        For example, /dir/test.html will redirect to /dir/subdir/test.html,
+        and if the file doesn't exist, it will redirect to
+        /dir/subdir/subdir/test.html and then to /dir/subdir/subdir/subdir/test.html and so on.
+
+        We do this by checking if we will redirect to a subdirectory of the current path,
+        and if the current path already starts with the path we will redirect to.
+        """
+        if self.from_url.endswith("*") and ":splat" in self.to_url:
+            to_url_without_splat = self.to_url.split(":splat", maxsplit=1)[0]
+
+            redirects_to_subpath = to_url_without_splat.startswith(
+                self.from_url_without_rest
+            )
+            if redirects_to_subpath and current_path.startswith(to_url_without_splat):
+                return True
+
+        return False
 
     def redirect_page(self, filename, path, language=None, version_slug=None):
         log.debug("Redirecting...", redirect=self)

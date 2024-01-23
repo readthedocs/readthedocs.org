@@ -1078,6 +1078,13 @@ class TestResolverWithCustomPrefixes(ResolverBase):
             url, "http://pip.readthedocs.io/s/sub/prefix/es/latest/api/index.html"
         )
 
+    def test_format_injection(self):
+        self.pip.custom_prefix = "/prefix/{language}"
+        self.pip.save()
+        url = resolver.resolve(self.pip)
+        # THe {language} inside the prefix isn't evaluated.
+        self.assertEqual(url, "http://pip.readthedocs.io/prefix/{language}/en/latest/")
+
     def test_get_project_domain(self):
         domain = resolver.get_domain(self.pip)
         self.assertEqual(domain, "http://pip.readthedocs.io")

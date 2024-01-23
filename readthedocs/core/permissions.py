@@ -75,6 +75,22 @@ class AdminPermissionBase:
         return projects
 
     @classmethod
+    def organizations(cls, user, owner=False, member=False):
+        from readthedocs.organizations.models import Organization
+
+        organizations = Organization.objects.none()
+
+        if owner:
+            organizations |= Organization.objects.filter(owners__in=[user]).distinct()
+
+        if member:
+            organizations |= Organization.objects.filter(
+                projects__in=cls.projects(user, admin=True, member=True)
+            ).distinct()
+
+        return organizations
+
+    @classmethod
     def has_sso_enabled(cls, obj, provider=None):
         return False
 

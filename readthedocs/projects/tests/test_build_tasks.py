@@ -121,10 +121,10 @@ class TestCustomConfigFile(BuildEnvironmentBase):
         # Assert that we are building a PDF, since that is what our custom config file says
         build_docs_class.assert_called_with("sphinx_pdf")
 
-    @mock.patch("readthedocs.core.utils.filesystem._assert_path_is_inside_docroot")
+    @mock.patch("readthedocs.core.utils.filesystem.assert_path_is_inside_docroot")
     @mock.patch("readthedocs.doc_builder.director.BuildDirector.build_docs_class")
     def test_config_file_is_loaded(
-        self, build_docs_class, _assert_path_is_inside_docroot
+        self, build_docs_class, assert_path_is_inside_docroot
     ):
         """Test that a custom config file is loaded
 
@@ -132,7 +132,7 @@ class TestCustomConfigFile(BuildEnvironmentBase):
         to the repo."""
 
         # While testing, we are unsure if temporary test files exist in the docroot
-        _assert_path_is_inside_docroot.return_value = True
+        assert_path_is_inside_docroot.return_value = True
 
         self.mocker.add_file_in_repo_checkout(
             self.config_file_name,
