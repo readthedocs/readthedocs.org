@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("projects", "0111_add_multiple_versions_without_translations"),
+        ("projects", "0112_alter_project_help_text"),
     ]
 
     operations = [
