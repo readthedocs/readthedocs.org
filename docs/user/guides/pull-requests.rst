@@ -26,8 +26,21 @@ Privacy levels
 
    Privacy levels are only supported on :doc:`/commercial/index`.
 
-By default, all docs built from pull requests are private.
-To change their privacy level:
+If you didn’t import your project manually, the privacy level of pull request previews will match your repository,
+otherwise it will be set to *Private*.
+Public pull request previews are available to anyone with the link to the preview,
+while private previews are only available to users with access to the Read the Docs project.
+
+.. warning::
+
+   If you set the privacy level of pull request previews to *Private*,
+   make sure that only trusted users can open pull requests in your repository.
+
+   Setting pull request previews to private on a public repository can allow a malicious user
+   to access read-only APIs using the user's session that is reading the pull request preview.
+   Similar to `GHSA-pw32-ffxw-68rh <https://github.com/readthedocs/readthedocs.org/security/advisories/GHSA-pw32-ffxw-68rh>`__.
+
+To change the privacy level:
 
 #. Go to your project dashboard
 #. Go to :guilabel:`Admin`, then :guilabel:`Advanced settings`

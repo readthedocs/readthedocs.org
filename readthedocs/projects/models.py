@@ -65,6 +65,8 @@ from .constants import (
     MEDIA_TYPES,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
     MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+    PRIVATE,
+    PUBLIC,
 )
 
 log = structlog.get_logger(__name__)
@@ -357,7 +359,7 @@ class Project(models.Model):
         choices=constants.PRIVACY_CHOICES,
         default=default_privacy_level,
         help_text=_(
-            'Should builds from pull requests be public?',
+            "Should builds from pull requests be public? <strong>If your repository is public, don't set this to private</strong>."
         ),
     )
 
@@ -660,6 +662,11 @@ class Project(models.Model):
                 raise Exception(  # pylint: disable=broad-exception-raised
                     _("Model must have slug")
                 )
+
+        if self.remote_repository:
+            privacy_level = PRIVATE if self.remote_repository.private else PUBLIC
+            self.external_builds_privacy_level = privacy_level
+
         super().save(*args, **kwargs)
 
         try:
