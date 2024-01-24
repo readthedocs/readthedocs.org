@@ -100,22 +100,6 @@ messages = [
         type=ERROR,
     ),
     Message(
-        id=ConfigError.GENERIC_INVALID_CONFIG_KEY,
-        header=_("Invalid configuration option"),
-        body=_(
-            textwrap.dedent(
-                """
-            Invalid configuration option: <code>{{key}}</code>.
-
-            Read the Docs configuration file: <code>{{source_file}}</code>.
-
-            <code>{{error_message}}</code>
-            """
-            ).strip(),
-        ),
-        type=ERROR,
-    ),
-    Message(
         id=ConfigError.NOT_BUILD_TOOLS_OR_COMMANDS,
         header=_("Invalid configuration option: <code>build</code>"),
         body=_(
