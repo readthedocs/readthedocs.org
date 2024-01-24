@@ -29,7 +29,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            No default configuration file found at repository's root.
+            The required <code>readthedocs.yaml</code> configuration file was not found at repository's root.
+            Read more about this in our <a href="https://docs.readthedocs.io/en/stable/config-file/index.html">config file documentation tutorial</a>.
             """
             ).strip(),
         ),
@@ -66,8 +67,8 @@ messages = [
             textwrap.dedent(
                 """
             The configuration key <code>python.system_packages</code> has been deprecated and removed.
-            Refer to https://blog.readthedocs.com/drop-support-system-packages/ to read more
-            about this change and how to upgrade your config file."
+            <a href="https://blog.readthedocs.com/drop-support-system-packages/">Read our blog post</a>
+            to know more about this change and how to upgrade your config file."
             """
             ).strip(),
         ),
@@ -80,8 +81,8 @@ messages = [
             textwrap.dedent(
                 """
             The configuration key <code>python.use_system_site_packages</code> has been deprecated and removed.
-            Refer to https://blog.readthedocs.com/drop-support-system-packages/ to read more
-            about this change and how to upgrade your config file."
+            <a href="https://blog.readthedocs.com/drop-support-system-packages/">Read our blog post</a>
+            to know more about this change and how to upgrade your config file."
             """
             ).strip(),
         ),
@@ -101,11 +102,11 @@ messages = [
     ),
     Message(
         id=ConfigError.NOT_BUILD_TOOLS_OR_COMMANDS,
-        header=_("Invalid configuration option: <code>build</code>"),
+        header=_("Invalid configuration option"),
         body=_(
             textwrap.dedent(
                 """
-            At least one item should be provided in "tools" or "commands".
+            At least one item should be provided <code>build.tools</code> or <code>build.commands</code>.
             """
             ).strip(),
         ),
@@ -153,7 +154,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            You need to install your project with pip to use <code>extra_requirements</code>.
+            You need to install your project with <code>python.install.method: pip</code>
+            to use <code>python.install.extra_requirements</code>.
             """
             ).strip(),
         ),
@@ -165,7 +167,8 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            <code>path</code> or <code>requirements</code> key is required for <code>python.install</code>.
+                When using <code>python.install</code>,
+                one of the keys <code>python.install.path</code> or <code>python.install.requirements</code> are required.
             """
             ).strip(),
         ),
@@ -189,7 +192,7 @@ messages = [
         body=_(
             textwrap.dedent(
                 """
-            You can not have <code>exclude</code> and <code>include</code> submodules at the same time.
+            You can not have <code>submodules.exclude</code> and <code>submodules.include</code> at the same time.
             """
             ).strip(),
         ),
@@ -214,6 +217,7 @@ messages = [
             textwrap.dedent(
                 """
             Error while parsing <code>{{filename}}</code>.
+            Make sure your config file doesn't have any errors.
 
             {{error_message}}
             """
@@ -246,6 +250,7 @@ messages = [
                 """
             Config validation error in <code>{{key}}</code>.
             Expected one of (0, 1, true, false), got <code>{{value}}</code>.
+            Make sure the type of the value is not a string.
             """
             ).strip(),
         ),
@@ -259,6 +264,8 @@ messages = [
                 """
             Config validation error in <code>{{key}}</code>.
             Expected one of ({{choices}}), got <code>{{value}}</code>.
+            Double check the type of the value.
+            A string may be required (e.g. <code>"3.10"</code> insted of <code>3.10</code>)
             """
             ).strip(),
         ),
