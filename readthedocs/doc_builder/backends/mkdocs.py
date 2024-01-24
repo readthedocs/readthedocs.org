@@ -168,9 +168,10 @@ class BaseMkdocs(BaseBuilder):
                 value = []
             if not isinstance(value, list):
                 raise MkDocsYAMLParseError(
-                    MkDocsYAMLParseError.INVALID_EXTRA_CONFIG.format(
-                        config=config,
-                    ),
+                    message_id=MkDocsYAMLParseError.INVALID_EXTRA_CONFIG,
+                    format_values={
+                        "extra_config": config,
+                    },
                 )
             # Add the static file only if isn't already in the list.
             value.extend([extra for extra in extras if extra not in value])
