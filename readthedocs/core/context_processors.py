@@ -1,7 +1,6 @@
 """Template context processors for core app."""
 
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 
 
 def readthedocs_processor(request):
@@ -45,11 +44,7 @@ def user_notifications(request):
 
     user_notifications = Notification.objects.none()
     if request.user.is_authenticated:
-        content_type = ContentType.objects.get_for_model(request.user)
-        user_notifications = Notification.objects.filter(
-            attached_to_content_type=content_type,
-            attached_to_id=request.user.pk,
-        )
+        user_notifications = Notification.objects.for_user(request.user)
 
     return {
         "user_notifications": user_notifications,
