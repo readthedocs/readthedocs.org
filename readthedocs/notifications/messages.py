@@ -448,7 +448,8 @@ BUILD_MKDOCS_MESSAGES = [
             textwrap.dedent(
                 """
             The configuration file for MkDocs was not found.
-            Make sure you have a <code>mkdocs.yml</code> file in your repository.
+            Make sure the <code>mkdocs.configuration</code> config is correct,
+            and you have the <code>mkdocs.yml</code> in that location.
             """
             ).strip(),
         ),
