@@ -295,18 +295,19 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         RepositoryError,
         MkDocsYAMLParseError,
         ProjectConfigurationError,
+        BuildMaxConcurrencyError,
     )
 
     # Do not send notifications on failure builds for these exceptions.
     exceptions_without_notifications = (
         BuildCancelled.CANCELLED_BY_USER,
-        BuildUserError.MAX_CONCURRENCY,
         BuildUserError.SKIPPED_EXIT_CODE_183,
         BuildAppError.BUILDS_DISABLED,
+        BuildMaxConcurrencyError.LIMIT_REACHED,
     )
 
     # Do not send external build status on failure builds for these exceptions.
-    exceptions_without_external_build_status = (BuildUserError.MAX_CONCURRENCY,)
+    exceptions_without_external_build_status = (BuildMaxConcurrencyError.LIMIT_REACHED,)
 
     acks_late = True
     track_started = True

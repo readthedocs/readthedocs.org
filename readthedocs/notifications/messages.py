@@ -122,11 +122,12 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Concurrency limit reached ({{limit}}), retrying in 5 minutes.
+            Your project, organization, or user is currently building the maximum concurrency builds allowed ({{limit}}).
+            It will automatically retry in 5 minutes.
             """
             ).strip(),
         ),
-        type=INFO,
+        type=ERROR,
     ),
     Message(
         id=BuildCancelled.CANCELLED_BY_USER,
@@ -202,19 +203,6 @@ BUILD_MESSAGES = [
             ).strip(),
         ),
         type=ERROR,
-    ),
-    Message(
-        id=BuildUserError.MAX_CONCURRENCY,
-        header=_("Concurrency limit reached"),
-        body=_(
-            textwrap.dedent(
-                """
-            Your project, organization, or user is currently building the maximum concurrency builds allowed ({{limit}}).
-            It will automatically retry in 5 minutes.
-            """
-            ).strip(),
-        ),
-        type=WARNING,
     ),
     Message(
         id=BuildUserError.BUILD_COMMANDS_WITHOUT_OUTPUT,
