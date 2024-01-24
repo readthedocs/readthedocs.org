@@ -39,15 +39,16 @@ class RedirectQuerySet(models.QuerySet):
             queryset = self._add_from_user_projects(queryset, user)
         return queryset
 
-    def get_redirect_path_with_status(
+    def get_matching_redirect_with_path(
         self, filename, path=None, language=None, version_slug=None, forced_only=False
     ):
         """
-        Get the final redirect with its status code.
+        Get the matching redirect with the path to redirect to.
 
         :param filename: The filename being served.
         :param path: The whole path from the request.
         :param forced_only: Include only forced redirects in the results.
+        :returns: A tuple with the matching redirect and new path.
         """
         # Small optimization to skip executing the big query below.
         # TODO: use filter(enabled=True) once we have removed the null option from the field.
@@ -132,7 +133,7 @@ class RedirectQuerySet(models.QuerySet):
                 language=language,
                 version_slug=version_slug,
             )
-            return new_path, redirect.http_status
+            return redirect, new_path
         return None, None
 
     def _normalize_path(self, path):

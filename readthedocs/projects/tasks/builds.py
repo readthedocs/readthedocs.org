@@ -498,8 +498,15 @@ class UpdateDocsTask(SyncRepositoryMixin, Task):
         # Grab the format values from the exception in case it contains
         format_values = exc.format_values if hasattr(exc, "format_values") else None
 
-        # Attach the notification to the build
-        self.data.build_director.attach_notification(message_id, format_values)
+        # Attach the notification to the build, only when ``BuildDirector`` is available.
+        # It may happens the director is not created because the API failed to retrieve
+        # required data to initialize it on ``before_start``.
+        if self.data.build_director:
+            log.warning(
+                "We couldn't attach a notification to the build since "
+                "it failed on an early stage."
+            )
+            self.data.build_director.attach_notification(message_id, format_values)
 
         # Send notifications for unhandled errors
         if message_id not in self.exceptions_without_notifications:

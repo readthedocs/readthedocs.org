@@ -339,73 +339,95 @@ class ServeRedirectMixin:
         resp["X-RTD-Redirect"] = RedirectType.system.name
         return resp
 
-    def get_redirect(
-        self, project, lang_slug, version_slug, filename, path, forced_only=False
+    def get_redirect_response(
+        self,
+        request,
+        project,
+        language,
+        version_slug,
+        filename,
+        path,
+        forced_only=False,
     ):
         """
-        Check for a redirect for this project that matches ``full_path``.
+        Check for a redirect for this project that matches the current path, and return a response if found.
 
-        :returns: the path to redirect the request and its status code
-        :rtype: tuple
+        :returns: redirect response with the correct path
+        :rtype: HttpResponseRedirect or HttpResponsePermanentRedirect
         """
-        redirect_path, http_status = project.redirects.get_redirect_path_with_status(
-            language=lang_slug,
+        redirect, redirect_path = project.redirects.get_matching_redirect_with_path(
+            language=language,
             version_slug=version_slug,
             filename=filename,
             path=path,
             forced_only=forced_only,
         )
-        return redirect_path, http_status
+        if not redirect:
+            return None
 
-    def get_redirect_response(self, request, redirect_path, proxito_path, http_status):
-        """
-        Build the response for the ``redirect_path``, ``proxito_path`` and its ``http_status``.
-
-        :returns: redirect response with the correct path
-        :rtype: HttpResponseRedirect or HttpResponsePermanentRedirect
-        """
-        # `proxito_path` doesn't include query params.
+        # `path` doesn't include query params.
         query_list = parse_qsl(
             urlparse(request.get_full_path()).query,
             keep_blank_values=True,
         )
 
-        # Combine the query params from the original request with the ones from the redirect.
-        redirect_parsed = urlparse(redirect_path)
-        query_list.extend(parse_qsl(redirect_parsed.query, keep_blank_values=True))
-        query = urlencode(query_list)
-        new_path = redirect_parsed._replace(query=query).geturl()
+        current_url_parsed = urlparse(request.build_absolute_uri())
+        current_url = current_url_parsed.geturl()
 
-        # Re-use the domain and protocol used in the current request.
-        # Redirects shouldn't change the domain, version or language.
-        # However, if the new_path is already an absolute URI, just use it
-        new_path = request.build_absolute_uri(new_path)
+        if redirect.redirects_to_external_domain:
+            # If the redirect is to an external domain, we use it as is.
+            new_url_parsed = urlparse(redirect_path)
+
+            # TODO: Maybe exclude some query params from the redirect,
+            # like `ticket` (used by our CAS client) if it's to an external domain.
+            # We are logging a warning for now.
+            has_ticket_param = any(param == "ticket" for param, _ in query_list)
+            if has_ticket_param:
+                log.warning(
+                    "Redirecting to an external domain with a ticket param.",
+                    from_url=current_url,
+                    to_url=new_url_parsed.geturl(),
+                    forced_only=forced_only,
+                )
+        else:
+            # SECURITY: If the redirect doesn't explicitly redirect to an external domain,
+            # we force the final redirect to be to the same domain as the current request
+            # to avoid open redirects vulnerabilities.
+            new_url_parsed = current_url_parsed._replace(path=redirect_path)
+
+        # Combine the query params from the original request with the ones from the redirect.
+        query_list.extend(parse_qsl(new_url_parsed.query, keep_blank_values=True))
+        query = urlencode(query_list)
+        new_url_parsed = new_url_parsed._replace(query=query)
+        new_url = new_url_parsed.geturl()
+
         log.debug(
             "Redirecting...",
-            from_url=request.build_absolute_uri(proxito_path),
-            to_url=new_path,
-            http_status_code=http_status,
+            from_url=current_url,
+            to_url=new_url,
+            http_status_code=redirect.http_status,
+            forced_only=forced_only,
         )
 
-        new_path_parsed = urlparse(new_path)
-        old_path_parsed = urlparse(request.build_absolute_uri(proxito_path))
         # Check explicitly only the path and hostname, since a different
         # protocol or query parameters could lead to a infinite redirect.
         if (
-            new_path_parsed.hostname == old_path_parsed.hostname
-            and new_path_parsed.path == old_path_parsed.path
+            new_url_parsed.hostname == current_url_parsed.hostname
+            and new_url_parsed.path == current_url_parsed.path
         ):
             # check that we do have a response and avoid infinite redirect
             log.debug(
                 "Infinite Redirect: FROM URL is the same than TO URL.",
-                url=new_path,
+                from_url=current_url,
+                to_url=new_url,
+                forced_only=forced_only,
             )
             raise InfiniteRedirectException()
 
-        if http_status and http_status == 301:
-            resp = HttpResponsePermanentRedirect(new_path)
+        if redirect.http_status == 301:
+            resp = HttpResponsePermanentRedirect(new_url)
         else:
-            resp = HttpResponseRedirect(new_path)
+            resp = HttpResponseRedirect(new_url)
 
         # Add a user-visible header to make debugging easier
         resp["X-RTD-Redirect"] = RedirectType.user.name

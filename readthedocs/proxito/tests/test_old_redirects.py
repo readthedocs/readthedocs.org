@@ -1322,6 +1322,37 @@ class UserRedirectCrossdomainTest(BaseDocServing):
             self.assertEqual(r.status_code, 302, url)
             self.assertEqual(r["Location"], expected_location, url)
 
+    def test_redirect_exact_with_wildcard_crossdomain(self):
+        self.project.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
+        self.project.save()
+
+        fixture.get(
+            Redirect,
+            project=self.project,
+            redirect_type=EXACT_REDIRECT,
+            from_url="/en/latest/*",
+            to_url="/:splat",
+        )
+        urls = [
+            (
+                "http://project.dev.readthedocs.io/en/latest/%0D/example.com/path.html",
+                "http://project.dev.readthedocs.io//example.com/path.html",
+            ),
+            # These are caught by the slash redirect.
+            (
+                "http://project.dev.readthedocs.io/en/latest//example.com",
+                "/en/latest/example.com",
+            ),
+            (
+                "http://project.dev.readthedocs.io/en/latest/https://example.com",
+                "/en/latest/https:/example.com",
+            ),
+        ]
+        for url, expected_location in urls:
+            r = self.client.get(url, headers={"host": "project.dev.readthedocs.io"})
+            self.assertEqual(r.status_code, 302, url)
+            self.assertEqual(r["Location"], expected_location, url)
+
     def test_redirect_html_to_clean_url_crossdomain(self):
         """
         Avoid redirecting to an external site unless the external site is in to_url

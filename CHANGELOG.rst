@@ -1,3 +1,32 @@
+Version 10.16.1
+---------------
+
+:Date: January 23, 2024
+
+* `@humitos <https://github.com/humitos>`__: APIv3: bring back `OrganizationsViewSet` that was removed (`#11052 <https://github.com/readthedocs/readthedocs.org/pull/11052>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.16.0 (`#11051 <https://github.com/readthedocs/readthedocs.org/pull/11051>`__)
+
+Version 10.16.0
+---------------
+
+:Date: January 23, 2024
+
+* `@humitos <https://github.com/humitos>`__: Docs: remove dead example (`#11047 <https://github.com/readthedocs/readthedocs.org/pull/11047>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11046 <https://github.com/readthedocs/readthedocs.org/pull/11046>`__)
+* `@stsewd <https://github.com/stsewd>`__: Expose `assert_path_is_inside_docroot` function (`#11045 <https://github.com/readthedocs/readthedocs.org/pull/11045>`__)
+* `@stsewd <https://github.com/stsewd>`__: Resolver: don't use str.format (`#11044 <https://github.com/readthedocs/readthedocs.org/pull/11044>`__)
+* `@humitos <https://github.com/humitos>`__: Analytics: remove them from 404 pages (`#11041 <https://github.com/readthedocs/readthedocs.org/pull/11041>`__)
+* `@humitos <https://github.com/humitos>`__: Config: allow missing `conda.environment` when using `build.commands` (`#11040 <https://github.com/readthedocs/readthedocs.org/pull/11040>`__)
+* `@humitos <https://github.com/humitos>`__: Translations: update all of them (`#11039 <https://github.com/readthedocs/readthedocs.org/pull/11039>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: fix infinite loop detection (`#11038 <https://github.com/readthedocs/readthedocs.org/pull/11038>`__)
+* `@humitos <https://github.com/humitos>`__: Admin: remove "default settings" (`#11036 <https://github.com/readthedocs/readthedocs.org/pull/11036>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.15.1 (`#11034 <https://github.com/readthedocs/readthedocs.org/pull/11034>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: update form to show all the options (`#11031 <https://github.com/readthedocs/readthedocs.org/pull/11031>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: reduce not useful lines (`#11030 <https://github.com/readthedocs/readthedocs.org/pull/11030>`__)
+* `@humitos <https://github.com/humitos>`__: APIv3: endpoints for notifications (`#11009 <https://github.com/readthedocs/readthedocs.org/pull/11009>`__)
+* `@humitos <https://github.com/humitos>`__: Config: better validation error for `conda.environment` (`#10979 <https://github.com/readthedocs/readthedocs.org/pull/10979>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: document CORS policies (`#10853 <https://github.com/readthedocs/readthedocs.org/pull/10853>`__)
+
 Version 10.15.1
 ---------------
 

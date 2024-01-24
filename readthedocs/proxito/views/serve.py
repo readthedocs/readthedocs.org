@@ -333,26 +333,21 @@ class ServeDocsBase(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin, Vi
 
         # Check for forced redirects on non-external domains only.
         if not unresolved_domain.is_from_external_domain:
-            redirect_path, http_status = self.get_redirect(
-                project=project,
-                lang_slug=project.language,
-                version_slug=version.slug,
-                filename=filename,
-                path=request.path,
-                forced_only=True,
-            )
-            if redirect_path and http_status:
-                log.bind(forced_redirect=True)
-                try:
-                    return self.get_redirect_response(
-                        request=request,
-                        redirect_path=redirect_path,
-                        proxito_path=request.path,
-                        http_status=http_status,
-                    )
-                except InfiniteRedirectException:
-                    # Continue with our normal serve.
-                    pass
+            try:
+                redirect_response = self.get_redirect_response(
+                    request=request,
+                    project=project,
+                    language=project.language,
+                    version_slug=version.slug,
+                    filename=filename,
+                    path=request.path,
+                    forced_only=True,
+                )
+                if redirect_response:
+                    return redirect_response
+            except InfiniteRedirectException:
+                # Continue with our normal serve.
+                pass
 
         # Check user permissions and return an unauthed response if needed.
         if not self.allowed_user(request, version):
@@ -485,23 +480,22 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
         # ``index.html`` and ``README.html`` to emulate the behavior we had when
         # serving directly from NGINX without passing through Python.
         if not unresolved_domain.is_from_external_domain:
-            redirect_path, http_status = self.get_redirect(
-                project=project,
-                lang_slug=lang_slug,
-                version_slug=version_slug,
-                filename=filename,
-                path=proxito_path,
-            )
-            if redirect_path and http_status:
-                try:
-                    return self.get_redirect_response(
-                        request, redirect_path, proxito_path, http_status
-                    )
-                except InfiniteRedirectException:
-                    # ``get_redirect_response`` raises this when it's redirecting back to itself.
-                    # We can safely ignore it here because it's logged in ``canonical_redirect``,
-                    # and we don't want to issue infinite redirects.
-                    pass
+            try:
+                redirect_response = self.get_redirect_response(
+                    request=request,
+                    project=project,
+                    language=lang_slug,
+                    version_slug=version_slug,
+                    filename=filename,
+                    path=proxito_path,
+                )
+                if redirect_response:
+                    return redirect_response
+            except InfiniteRedirectException:
+                # ``get_redirect_response`` raises this when it's redirecting back to itself.
+                # We can safely ignore it here because it's logged in ``canonical_redirect``,
+                # and we don't want to issue infinite redirects.
+                pass
 
         # Register 404 pages into our database for user's analytics
         self._register_broken_link(
