@@ -59,7 +59,7 @@ messages = [
     ),
     Message(
         id=MESSAGE_OAUTH_BUILD_STATUS_FAILURE,
-        header=_("{{provier_name}} build status report failed"),
+        header=_("{provider_name} build status report failed"),
         body=_(
             textwrap.dedent(
                 """
