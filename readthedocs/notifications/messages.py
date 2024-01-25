@@ -418,7 +418,9 @@ BUILD_MKDOCS_MESSAGES = [
     ),
     Message(
         id=MkDocsYAMLParseError.INVALID_EXTRA_CONFIG,
-        header=_("MkDocs <code>{{extra_config}}</code> configuration option is invalid"),
+        header=_(
+            "MkDocs <code>{{extra_config}}</code> configuration option is invalid"
+        ),
         body=_(
             textwrap.dedent(
                 """
