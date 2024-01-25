@@ -75,7 +75,8 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
         """Increase the page view count for the given project."""
         if is_suspicious_request(self.request):
             log.info(
-                "Suspicious request, not recording 404.",
+                "Suspicious request, not recording pageview.",
+                url=absolute_uri,
             )
             return
 
