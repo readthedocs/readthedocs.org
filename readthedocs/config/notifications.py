@@ -249,7 +249,7 @@ messages = [
             textwrap.dedent(
                 """
             Config validation error in <code>{{key}}</code>.
-            Expected one of <code>[0, 1, true, false]</code>, got type <code>{{value.__class__}}</code> (<code>{{value}}</code>).
+            Expected one of <code>[0, 1, true, false]</code>, got type <code>{{value|to_class_name}}</code> (<code>{{value}}</code>).
             Make sure the type of the value is not a string.
             """
             ).strip(),
@@ -263,7 +263,7 @@ messages = [
             textwrap.dedent(
                 """
             Config validation error in <code>{{key}}</code>.
-            Expected one of ({{choices}}), got type <code>{{value.__class__}}</code> (<code>{{value}}</code>).
+            Expected one of ({{choices}}), got type <code>{{value|to_class_name}}</code> (<code>{{value}}</code>).
             Double check the type of the value.
             A string may be required (e.g. <code>"3.10"</code> insted of <code>3.10</code>)
             """
@@ -278,7 +278,7 @@ messages = [
             textwrap.dedent(
                 """
             Config validation error in <code>{{key}}</code>.
-            Expected a dictionary, got type <code>{{value.__class__}}</code> (<code>{{value}}</code>).
+            Expected a dictionary, got type <code>{{value|to_class_name}}</code> (<code>{{value}}</code>).
             """
             ).strip(),
         ),
@@ -317,7 +317,7 @@ messages = [
             textwrap.dedent(
                 """
             Config validation error in <code>{{key}}</code>.
-            Expected a string, got type <code>{{value.__class__}}</code> (<code>{{value}}</code>).
+            Expected a string, got type <code>{{value|to_class_name}}</code> (<code>{{value}}</code>).
             """
             ).strip(),
         ),
@@ -330,7 +330,7 @@ messages = [
             textwrap.dedent(
                 """
             Config validation error in <code>{{key}}</code>.
-            Expected a list, got type <code>{{value.__class__}}</code> (<code>{{value}}</code>).
+            Expected a list, got type <code>{{value|to_class_name}}</code> (<code>{{value}}</code>).
             """
             ).strip(),
         ),

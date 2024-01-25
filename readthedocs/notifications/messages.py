@@ -58,12 +58,21 @@ class Message:
 
         return " ".join(classes)
 
+    def _prepend_template_prefix(self, template):
+        """
+        Prepend Django {% load %} template tag.
+
+        This is required to render the notifications with custom filters/tags.
+        """
+        prefix = "{% load notifications_filters %}"
+        return prefix + "\n\n\n" + template
+
     def get_rendered_header(self):
-        template = Template(self.header)
+        template = Template(self._prepend_template_prefix(self.header))
         return template.render(context=Context(self.format_values))
 
     def get_rendered_body(self):
-        template = Template(self.body)
+        template = Template(self._prepend_template_prefix(self.body))
         return template.render(context=Context(self.format_values))
 
 
