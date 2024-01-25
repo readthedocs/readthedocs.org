@@ -83,10 +83,10 @@ class DockerBaseSettings(CommunityBaseSettings):
         domains = super().RTD_EMBED_API_EXTERNAL_DOMAINS
         domains.extend(
             [
-                r".*\.readthedocs\.io",
-                r".*\.org\.readthedocs\.build",
-                r".*\.readthedocs-hosted\.com",
-                r".*\.com\.readthedocs\.build",
+                r"^.*\.readthedocs\.io$",
+                r"^.*\.org\.readthedocs\.build$",
+                r"^.*\.readthedocs-hosted\.com$",
+                r"^.*\.com\.readthedocs\.build$",
             ]
         )
         return domains

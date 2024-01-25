@@ -269,6 +269,18 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
 
     def setup_external_builds_option(self):
         """Disable the external builds option if the project doesn't meet the requirements."""
+        if settings.ALLOW_PRIVATE_REPOS and self.instance.remote_repository:
+            self.fields["external_builds_privacy_level"].disabled = True
+            if self.instance.remote_repository.private:
+                help_text = _(
+                    "We have detected that this project is private, pull request previews are set to private."
+                )
+            else:
+                help_text = _(
+                    "We have detected that this project is public, pull request previews are set to public."
+                )
+            self.fields["external_builds_privacy_level"].help_text = help_text
+
         integrations = list(self.instance.integrations.all())
         has_supported_integration = self.has_supported_integration(integrations)
         can_build_external_versions = self.can_build_external_versions(integrations)
