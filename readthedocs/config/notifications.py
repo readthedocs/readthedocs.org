@@ -163,7 +163,7 @@ messages = [
     ),
     Message(
         id=ConfigError.PIP_PATH_OR_REQUIREMENT_REQUIRED,
-        header=_("Invalid configuration key"),
+        header=_("Missing configuration key"),
         body=_(
             textwrap.dedent(
                 """
