@@ -54,6 +54,7 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
         return version
 
     def get(self, request, *args, **kwargs):
+        # TODO: Use absolute_uri only, we don't need project and version.
         project = self._get_project()
         version = self._get_version()
         absolute_uri = self.request.GET.get("absolute_uri")
@@ -77,6 +78,10 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
                 "Suspicious request, not recording 404.",
             )
             return
+
+        if self.request.unresolved_domain.is_from_external_domain:
+            return
+
         try:
             unresolved = unresolve(absolute_uri)
         except UnresolverError:
@@ -84,7 +89,7 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
             # isn't pointing to a valid RTD project.
             return
 
-        if unresolved.external or not unresolved.filename:
+        if version.is_external or not unresolved.filename:
             return
 
         path = urlparse(absolute_uri).path
