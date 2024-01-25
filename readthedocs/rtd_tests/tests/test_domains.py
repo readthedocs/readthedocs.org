@@ -101,7 +101,7 @@ class FormTests(TestCase):
             )
             self.assertFalse(form.is_valid())
             self.assertEqual(
-                form.errors["domain"][0], f"{domain} is not a valid domain."
+                form.errors["domain"][0], "readthedocs.build is not a valid domain."
             )
 
     def test_domain_with_path(self):
