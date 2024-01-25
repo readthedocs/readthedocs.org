@@ -30,7 +30,7 @@ messages = [
             textwrap.dedent(
                 """
             The required <code>readthedocs.yaml</code> configuration file was not found at repository's root.
-            Read more about this in our <a href="https://docs.readthedocs.io/en/stable/config-file/index.html">config file documentation tutorial</a>.
+            Learn how to use this file in our <a href="https://docs.readthedocs.io/en/stable/config-file/index.html">configuration file tutorial</a>.
             """
             ).strip(),
         ),
@@ -68,7 +68,7 @@ messages = [
                 """
             The configuration key <code>python.system_packages</code> has been deprecated and removed.
             <a href="https://blog.readthedocs.com/drop-support-system-packages/">Read our blog post</a>
-            to know more about this change and how to upgrade your config file."
+            to learn more about this change and how to upgrade your configuration file."
             """
             ).strip(),
         ),
@@ -82,7 +82,7 @@ messages = [
                 """
             The configuration key <code>python.use_system_site_packages</code> has been deprecated and removed.
             <a href="https://blog.readthedocs.com/drop-support-system-packages/">Read our blog post</a>
-            to know more about this change and how to upgrade your config file."
+            to learn more about this change and how to upgrade your configuration file."
             """
             ).strip(),
         ),
@@ -102,11 +102,11 @@ messages = [
     ),
     Message(
         id=ConfigError.NOT_BUILD_TOOLS_OR_COMMANDS,
-        header=_("Invalid configuration option"),
+        header=_("Missing configuration option"),
         body=_(
             textwrap.dedent(
                 """
-            At least one item should be provided <code>build.tools</code> or <code>build.commands</code>.
+            At least one of the following configuration options is required: <code>build.tools</code> or <code>build.commands</code>.
             """
             ).strip(),
         ),
@@ -168,7 +168,7 @@ messages = [
             textwrap.dedent(
                 """
                 When using <code>python.install</code>,
-                one of the keys <code>python.install.path</code> or <code>python.install.requirements</code> are required.
+                one of the following keys are required: <code>python.install.path</code> or <code>python.install.requirements</code>.
             """
             ).strip(),
         ),
@@ -217,7 +217,7 @@ messages = [
             textwrap.dedent(
                 """
             Error while parsing <code>{{filename}}</code>.
-            Make sure your config file doesn't have any errors.
+            Make sure your configuration file doesn't have any errors.
 
             {{error_message}}
             """

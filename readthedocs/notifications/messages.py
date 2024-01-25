@@ -119,8 +119,8 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Your project, organization, or user is currently building the maximum concurrency builds allowed ({{limit}}).
-            It will automatically retry in 5 minutes.
+            Your project, organization, or user has reached its maximum number of concurrent builds allowed ({{limit}}).
+            This build will automatically retry in 5 minutes.
             """
             ).strip(),
         ),
@@ -183,7 +183,7 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            The build was terminated due to unknown error: {{message}}
+            This build was terminated due to unknown error: {{message}}
             """
             ).strip(),
         ),
@@ -290,7 +290,7 @@ BUILD_MESSAGES = [
                 """
             The configuration file required to build documentation is missing from your project.
             Add a configuration file to your project to make it build successfully.
-            Read more in our <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html">config file documentation</a>.
+            Read more in our <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html">configuration file documentation</a>.
             """
             ).strip(),
         ),
@@ -304,7 +304,7 @@ BUILD_MESSAGES = [
                 """
             The configuration key <code>build.image</code> is deprecated.
             Use <code>build.os</code> instead to continue building your project.
-            Read more in our <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os">confg file documentation</a>.
+            Read more in our <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os">configuration file documentation</a>.
             """
             ).strip(),
         ),
@@ -317,7 +317,7 @@ BUILD_MESSAGES = [
             textwrap.dedent(
                 """
             The configuration key <code>build.os</code> is required to build your documentation.
-            Read more in our <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os">confg file documentation</a>.
+            Read more in our <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os">configuration file documentation</a>.
             """
             ).strip(),
         ),
@@ -344,7 +344,7 @@ BUILD_MESSAGES = [
             textwrap.dedent(
                 f"""
              PDF file was not generated/found in "{BUILD_COMMANDS_OUTPUT_PATH_HTML}/pdf" output directory.
-             Make sure your are saving the the PDF file in the correct directory.
+             Make sure the PDF file is saved in this directory.
              """
             ).strip(),
         ),
@@ -369,7 +369,7 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Read the Docs could not generate the PDF because the intermediate step to generate the TeX file failed.
+            Read the Docs could not generate a PDF file because the intermediate step generating the TeX file failed.
             """
             ).strip(),
         ),
@@ -392,11 +392,11 @@ BUILD_MKDOCS_MESSAGES = [
     ),
     Message(
         id=MkDocsYAMLParseError.INVALID_DOCS_DIR_CONFIG,
-        header=_("MkDocs <code>docs_dir</code> config is invalid"),
+        header=_("MkDocs <code>docs_dir</code> configuration option is invalid"),
         body=_(
             textwrap.dedent(
                 """
-            The <code>docs_dir</code> config from your <code>mkdocs.yml</code> config file has to be a
+            The <code>docs_dir</code> option from your <code>mkdocs.yml</code> configuration file has to be a
             string with relative or absolute path.
             """
             ).strip(),
@@ -409,8 +409,8 @@ BUILD_MKDOCS_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-                The path specified for <code>docs_dir</code> in the <code>mkdocs.yml</code> file does not exist.
-                Make sure the path is correct.
+                The path specified by <code>docs_dir</code> in the <code>mkdocs.yml</code> file does not exist.
+                Make sure this path is correct.
             """
             ).strip(),
         ),
@@ -418,11 +418,11 @@ BUILD_MKDOCS_MESSAGES = [
     ),
     Message(
         id=MkDocsYAMLParseError.INVALID_EXTRA_CONFIG,
-        header=_("MkDocs <code>{{extra_config}}</code> config is invalid"),
+        header=_("MkDocs <code>{{extra_config}}</code> configuration option is invalid"),
         body=_(
             textwrap.dedent(
                 """
-            The <code>{{extra_config}}</code> config from your <code>mkdocs.yml</code> config file has to be a
+            The <code>{{extra_config}}</code> option from your <code>mkdocs.yml</code> configuration file has to be a
             list of relative paths.
             """
             ).strip(),
@@ -448,7 +448,7 @@ BUILD_MKDOCS_MESSAGES = [
             textwrap.dedent(
                 """
             The configuration file for MkDocs was not found.
-            Make sure the <code>mkdocs.configuration</code> config is correct,
+            Make sure the <code>mkdocs.configuration</code> option is correct,
             and you have the <code>mkdocs.yml</code> in that location.
             """
             ).strip(),
@@ -461,7 +461,7 @@ BUILD_MKDOCS_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Your <code>mkdocs.yml</code> config file is incorrect.
+            Your <code>mkdocs.yml</code> configuration file is incorrect.
             Please follow the <a href="https://www.mkdocs.org/user-guide/configuration/">official user guide</a>
             to configure the file properly.
             """
