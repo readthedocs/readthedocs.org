@@ -65,7 +65,7 @@ class Message:
         This is required to render the notifications with custom filters/tags.
         """
         prefix = "{% load notifications_filters %}"
-        return prefix + "\n\n\n" + template
+        return prefix + template
 
     def get_rendered_header(self):
         template = Template(self._prepend_template_prefix(self.header))
