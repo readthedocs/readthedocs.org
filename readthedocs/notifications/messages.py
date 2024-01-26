@@ -149,7 +149,7 @@ BUILD_MESSAGES = [
     ),
     Message(
         id=BuildUserError.SKIPPED_EXIT_CODE_183,
-        header=_("Build skipped programmatically."),
+        header=_("Build skipped."),
         body=_(
             textwrap.dedent(
                 """
