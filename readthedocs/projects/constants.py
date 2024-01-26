@@ -431,3 +431,23 @@ VERSIONING_SCHEME_CHOICES = (
         _("Single version without translations (/<filename>)"),
     ),
 )
+
+
+ADDONS_FLYOUT_SORTING_LEXICOGRAPHYCALLY = "lexicographically"
+# Compatibility to keep the behavior of the old flyout.
+# This isn't a good algorithm, but it's a way to keep the old behavior in case we need it.
+ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE = "semver-readthedocs-compatible"
+# https://pypi.org/project/packaging/
+ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING = "python-packaging"
+ADDONS_FLYOUT_SORTING_CALVER = "calver"
+# Let the user to define a custom pattern and use BumpVer to parse and sort the versions.
+# https://github.com/mbarkhau/bumpver#pattern-examples
+ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN = "custom-pattern"
+
+ADDONS_FLYOUT_SORTING_CHOICES = (
+    (ADDONS_FLYOUT_SORTING_LEXICOGRAPHYCALLY, "Lexicographically"),
+    (ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE, "SemVer (Read the Docs)"),
+    (ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING, "Python Packaging (PEP 440 and PEP 425)"),
+    (ADDONS_FLYOUT_SORTING_CALVER, "CalVer (YYYY.0M.0M)"),
+    (ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN, "Define your own pattern"),
+)

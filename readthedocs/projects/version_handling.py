@@ -1,7 +1,10 @@
 """Project version handling."""
+import operator
 import unicodedata
 
-from packaging.version import InvalidVersion, Version
+from bumpver.v2version import parse_version_info
+from bumpver.version import PatternError
+from packaging.version import InvalidVersion, Version, parse
 
 from readthedocs.builds.constants import LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME, TAG
 from readthedocs.vcs_support.backends import backend_cls
@@ -158,3 +161,86 @@ def determine_stable_version(version_list):
         version_obj, comparable = versions[0]
         return version_obj
     return None
+
+
+def sort_versions_python_packaging(version_list):
+    """
+    Sort Read the Docs versions list using ``packaging`` algorithm.
+
+    All the invalid version (raise ``InvalidVersion``) are added at the end
+    sorted lexicographically.
+
+    https://pypi.org/project/packaging/
+    https://packaging.python.org/en/latest/specifications/version-specifiers/
+    """
+    lexicographically_sorted_version_list = sorted(
+        version_list,
+        key=operator.attrgetter("slug"),
+    )
+
+    valid_versions = []
+    invalid_versions = []
+    for i, version in enumerate(lexicographically_sorted_version_list):
+        try:
+            valid_versions.append((version, Version(version.slug)))
+        except InvalidVersion:
+            # When the version is invalid, we put it at the end while keeping
+            # the lexicographically sorting between the invalid ones.
+            invalid_versions.append((version, parse(str(100000 + i))))
+
+    return [
+        item[0]
+        for item in sorted(valid_versions, key=operator.itemgetter(1))
+        + invalid_versions
+    ]
+
+
+def sort_versions_calver(version_list):
+    """
+    Sort Read the Docs versions using CalVer pattern: ``YYYY.0M.0M``.
+
+    All the invalid version are added at the end sorted lexicographically.
+    """
+    raw_pattern = "YYYY.0M.0D"
+    return sort_versions_custom_pattern(version_list, raw_pattern)
+
+
+def sort_versions_custom_pattern(version_list, raw_pattern):
+    """
+    Sort Read the Docs versions using a custom pattern.
+
+    All the invalid version (raise ``PatternError``) are added at the end
+    sorted lexicographically.
+
+    It uses ``Bumpver`` behinds the scenes for the parsing and sorting.
+    https://github.com/mbarkhau/bumpver
+    """
+    raw_pattern = "YYYY.0M.0D"
+    lexicographically_sorted_version_list = sorted(
+        version_list,
+        key=operator.attrgetter("slug"),
+    )
+
+    valid_versions = []
+    invalid_versions = []
+    for i, version in enumerate(lexicographically_sorted_version_list):
+        try:
+            valid_versions.append(
+                (
+                    version,
+                    parse_version_info(
+                        version.slug,
+                        raw_pattern=raw_pattern,
+                    ),
+                )
+            )
+        except PatternError:
+            # When the version is invalid, we put it at the end while keeping
+            # the lexicographically sorting between the invalid ones.
+            invalid_versions.append((version, parse(str(100000 + i))))
+
+    return [
+        item[0]
+        for item in sorted(valid_versions, key=operator.itemgetter(1))
+        + invalid_versions
+    ]

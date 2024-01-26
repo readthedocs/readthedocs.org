@@ -61,6 +61,8 @@ from readthedocs.storage import build_media_storage
 from readthedocs.vcs_support.backends import backend_cls
 
 from .constants import (
+    ADDONS_FLYOUT_SORTING_CHOICES,
+    ADDONS_FLYOUT_SORTING_LEXICOGRAPHYCALLY,
     DOWNLOADABLE_MEDIA_TYPES,
     MEDIA_TYPES,
     MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
@@ -179,6 +181,17 @@ class AddonsConfig(TimeStampedModel):
 
     # Flyout
     flyout_enabled = models.BooleanField(default=True)
+    flyout_sorting = models.CharField(
+        choices=ADDONS_FLYOUT_SORTING_CHOICES,
+        default=ADDONS_FLYOUT_SORTING_LEXICOGRAPHYCALLY,
+    )
+    flyout_sorting_custom_pattern = models.CharField(
+        max_length=32,
+        default=None,
+        null=True,
+        blank=True,
+        help_text="Sorting pattern supported by BumpVer",
+    )
 
     # Hotkeys
     hotkeys_enabled = models.BooleanField(default=True)

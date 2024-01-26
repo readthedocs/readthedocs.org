@@ -18,6 +18,7 @@ from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.projects.constants import ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
 from readthedocs.projects.models import (
     AddonsConfig,
     Domain,
@@ -498,6 +499,8 @@ class AddonsConfigForm(forms.ModelForm):
             "doc_diff_enabled",
             "external_version_warning_enabled",
             "flyout_enabled",
+            "flyout_sorting",
+            "flyout_sorting_custom_pattern",
             "hotkeys_enabled",
             "search_enabled",
             "stable_latest_version_warning_enabled",
@@ -521,6 +524,18 @@ class AddonsConfigForm(forms.ModelForm):
 
         kwargs["instance"] = addons
         super().__init__(*args, **kwargs)
+
+    def clean(self):
+        if (
+            self.cleaned_data["flyout_sorting"] == ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN
+            and not self.cleaned_data["flyout_sorting_custom_pattern"]
+        ):
+            raise forms.ValidationError(
+                _(
+                    "The flyout sorting custom pattern is required when selecting a custom pattern."
+                ),
+            )
+        return super().clean()
 
     def clean_project(self):
         return self.project
