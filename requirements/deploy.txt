@@ -23,11 +23,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.23
+boto3==1.34.29
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.23
+botocore==1.34.29
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -73,7 +73,7 @@ cron-descriptor==1.4.0
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==41.0.7
+cryptography==42.0.1
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -240,7 +240,7 @@ markdown==3.5.2
     # via -r requirements/pip.txt
 matplotlib-inline==0.1.6
     # via ipython
-newrelic==9.5.0
+newrelic==9.6.0
     # via -r requirements/deploy.in
 oauthlib==3.2.2
     # via
@@ -337,7 +337,7 @@ s3transfer==0.10.0
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.17
+selectolax==0.3.19
     # via -r requirements/pip.txt
 sentry-sdk==1.39.2
     # via structlog-sentry
