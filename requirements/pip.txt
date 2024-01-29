@@ -14,9 +14,9 @@ async-timeout==4.0.3
     # via redis
 billiard==3.6.4.0
     # via celery
-boto3==1.34.23
+boto3==1.34.29
     # via django-storages
-botocore==1.34.23
+botocore==1.34.29
     # via
     #   boto3
     #   s3transfer
@@ -51,7 +51,7 @@ colorama==0.4.6
     # via bumpver
 cron-descriptor==1.4.0
     # via django-celery-beat
-cryptography==41.0.7
+cryptography==42.0.1
     # via pyjwt
 cssselect==1.2.0
     # via pyquery
@@ -252,7 +252,7 @@ rest-framework-generic-relations==2.1.0
     # via -r requirements/pip.in
 s3transfer==0.10.0
     # via boto3
-selectolax==0.3.17
+selectolax==0.3.19
     # via -r requirements/pip.in
 six==1.16.0
     # via
