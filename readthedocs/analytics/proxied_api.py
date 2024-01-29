@@ -80,6 +80,7 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
             )
             return
 
+        # Don't allow tracking page views from external domains.
         if self.request.unresolved_domain.is_from_external_domain:
             return
 
@@ -90,6 +91,7 @@ class BaseAnalyticsView(CDNCacheControlMixin, APIView):
             # isn't pointing to a valid RTD project.
             return
 
+        # Don't track external versions.
         if version.is_external or not unresolved.filename:
             return
 
