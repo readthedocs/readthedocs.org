@@ -190,7 +190,8 @@ class AddonsConfig(TimeStampedModel):
         default=None,
         null=True,
         blank=True,
-        help_text="Sorting pattern supported by BumpVer",
+        help_text="Sorting pattern supported by BumpVer "
+        '(<a href="https://github.com/mbarkhau/bumpver#pattern-examples"> See examples</a>',
     )
 
     # Hotkeys
