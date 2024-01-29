@@ -11,7 +11,6 @@ def forwards_func(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("integrations", "0011_add_created_and_updated_fields"),
     ]
