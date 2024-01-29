@@ -15,7 +15,8 @@ class Migration(migrations.Migration):
             field=models.CharField(
                 blank=True,
                 default=None,
-                help_text="Sorting pattern supported by BumpVer",
+                help_text="Sorting pattern supported by BumpVer "
+                '(<a href="https://github.com/mbarkhau/bumpver#pattern-examples"> See examples</a>',
                 max_length=32,
                 null=True,
             ),
