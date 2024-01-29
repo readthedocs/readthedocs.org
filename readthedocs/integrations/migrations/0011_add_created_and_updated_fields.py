@@ -22,6 +22,8 @@ class Migration(migrations.Migration):
                 auto_now_add=True,
                 default=django.utils.timezone.now,
                 verbose_name="created",
+                null=True,
+                blank=True,
             ),
             preserve_default=False,
         ),
@@ -29,7 +31,10 @@ class Migration(migrations.Migration):
             model_name="integration",
             name="modified",
             field=django_extensions.db.fields.ModificationDateTimeField(
-                auto_now=True, verbose_name="modified"
+                auto_now=True,
+                verbose_name="modified",
+                null=True,
+                blank=True,
             ),
         ),
     ]

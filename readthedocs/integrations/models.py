@@ -9,6 +9,7 @@ from django.db import models, transaction
 from django.utils.crypto import get_random_string
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
@@ -276,6 +277,19 @@ class Integration(TimeStampedModel):
     )
 
     INTEGRATIONS = WEBHOOK_INTEGRATIONS
+
+    # Overridden from TimeStampedModel just to allow null values.
+    # TODO: remove after deploy.
+    created = CreationDateTimeField(
+        _("created"),
+        null=True,
+        blank=True,
+    )
+    modified = ModificationDateTimeField(
+        _("modified"),
+        null=True,
+        blank=True,
+    )
 
     project = models.ForeignKey(
         Project,
