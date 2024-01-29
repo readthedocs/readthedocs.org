@@ -433,7 +433,7 @@ VERSIONING_SCHEME_CHOICES = (
 )
 
 
-ADDONS_FLYOUT_SORTING_LEXICOGRAPHYCALLY = "lexicographically"
+ADDONS_FLYOUT_SORTING_LEXICOGRAPHYCALLY = "alphabetically"
 # Compatibility to keep the behavior of the old flyout.
 # This isn't a good algorithm, but it's a way to keep the old behavior in case we need it.
 ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE = "semver-readthedocs-compatible"
@@ -445,7 +445,7 @@ ADDONS_FLYOUT_SORTING_CALVER = "calver"
 ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN = "custom-pattern"
 
 ADDONS_FLYOUT_SORTING_CHOICES = (
-    (ADDONS_FLYOUT_SORTING_LEXICOGRAPHYCALLY, "Lexicographically"),
+    (ADDONS_FLYOUT_SORTING_LEXICOGRAPHYCALLY, "Alphabetically"),
     (ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE, "SemVer (Read the Docs)"),
     (ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING, "Python Packaging (PEP 440 and PEP 425)"),
     (ADDONS_FLYOUT_SORTING_CALVER, "CalVer (YYYY.0M.0M)"),

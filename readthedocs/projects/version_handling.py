@@ -168,24 +168,24 @@ def sort_versions_python_packaging(version_list):
     Sort Read the Docs versions list using ``packaging`` algorithm.
 
     All the invalid version (raise ``InvalidVersion``) are added at the end
-    sorted lexicographically.
+    sorted alphabetically.
 
     https://pypi.org/project/packaging/
     https://packaging.python.org/en/latest/specifications/version-specifiers/
     """
-    lexicographically_sorted_version_list = sorted(
+    alphabetically_sorted_version_list = sorted(
         version_list,
         key=operator.attrgetter("slug"),
     )
 
     valid_versions = []
     invalid_versions = []
-    for i, version in enumerate(lexicographically_sorted_version_list):
+    for i, version in enumerate(alphabetically_sorted_version_list):
         try:
             valid_versions.append((version, Version(version.slug)))
         except InvalidVersion:
             # When the version is invalid, we put it at the end while keeping
-            # the lexicographically sorting between the invalid ones.
+            # the alphabetically sorting between the invalid ones.
             invalid_versions.append((version, parse(str(100000 + i))))
 
     return [
@@ -199,7 +199,7 @@ def sort_versions_calver(version_list):
     """
     Sort Read the Docs versions using CalVer pattern: ``YYYY.0M.0M``.
 
-    All the invalid version are added at the end sorted lexicographically.
+    All the invalid version are added at the end sorted alphabetically.
     """
     raw_pattern = "YYYY.0M.0D"
     return sort_versions_custom_pattern(version_list, raw_pattern)
@@ -210,20 +210,20 @@ def sort_versions_custom_pattern(version_list, raw_pattern):
     Sort Read the Docs versions using a custom pattern.
 
     All the invalid version (raise ``PatternError``) are added at the end
-    sorted lexicographically.
+    sorted alphabetically.
 
     It uses ``Bumpver`` behinds the scenes for the parsing and sorting.
     https://github.com/mbarkhau/bumpver
     """
     raw_pattern = "YYYY.0M.0D"
-    lexicographically_sorted_version_list = sorted(
+    alphabetically_sorted_version_list = sorted(
         version_list,
         key=operator.attrgetter("slug"),
     )
 
     valid_versions = []
     invalid_versions = []
-    for i, version in enumerate(lexicographically_sorted_version_list):
+    for i, version in enumerate(alphabetically_sorted_version_list):
         try:
             valid_versions.append(
                 (
@@ -236,7 +236,7 @@ def sort_versions_custom_pattern(version_list, raw_pattern):
             )
         except PatternError:
             # When the version is invalid, we put it at the end while keeping
-            # the lexicographically sorting between the invalid ones.
+            # the alphabetically sorting between the invalid ones.
             invalid_versions.append((version, parse(str(100000 + i))))
 
     return [

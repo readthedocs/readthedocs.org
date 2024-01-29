@@ -25,13 +25,13 @@ class Migration(migrations.Migration):
             name="flyout_sorting",
             field=models.CharField(
                 choices=[
-                    ("lexicographically", "Lexicographically"),
+                    ("alphabetically", "Alphabetically"),
                     ("semver-readthedocs-compatible", "SemVer (Read the Docs)"),
                     ("python-packaging", "Python Packaging (PEP 440 and PEP 425)"),
                     ("calver", "CalVer (YYYY.0M.0M)"),
                     ("custom-pattern", "Define your own pattern"),
                 ],
-                default="lexicographically",
+                default="alphabetically",
             ),
         ),
     ]
