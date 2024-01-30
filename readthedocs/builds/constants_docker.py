@@ -9,17 +9,16 @@ Note these constants where previously defined as Django settings in ``readthedoc
 
 DOCKER_DEFAULT_IMAGE = "readthedocs/build"
 
-# Adding a new tool/version to this setting requires:
+# When adding a new tool/version to this setting, you should:
 #
-# - a mapping between the expected version in the config file, to the full
-# version installed via asdf (found via ``asdf list all <tool>``)
-#
-# - running the script ``./scripts/compile_version_upload.sh`` in
-# development and production environments to compile and cache the new
-# tool/version
-#
-# Note that when updating this options, you should also update the file:
-# readthedocs/rtd_tests/fixtures/spec/v2/schema.json
+# - Add a mapping between the expected version in the config file, to the full
+#   version installed via asdf (found via ``asdf list all <tool>``).
+# - Run the script ``./scripts/compile_version_upload.sh`` in
+#   development and production environments to compile and cache the new
+#   tool/version.
+# - Update the latest aliases for OS and tools (below this setting).
+# - Update readthedocs/rtd_tests/fixtures/spec/v2/schema.json.
+# - Update the documentation in ``docs/user/config-file/v2.rst``.
 RTD_DOCKER_BUILD_SETTINGS = {
     # Mapping of build.os options to docker image.
     "os": {
@@ -37,8 +36,6 @@ RTD_DOCKER_BUILD_SETTINGS = {
             "3.10": "3.10.13",
             "3.11": "3.11.6",
             "3.12": "3.12.0",
-            # Always point to the latest stable release.
-            "3": "3.12.0",
             "miniconda3-4.7": "miniconda3-4.7.12",
             "mambaforge-4.10": "mambaforge-4.10.3-10",
             "mambaforge-22.9": "mambaforge-22.9.0-3",
@@ -66,3 +63,13 @@ RTD_DOCKER_BUILD_SETTINGS = {
         },
     },
 }
+
+# Set latest aliases for OS and tools.
+RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-latest-lts"] = RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-20.04"]
+RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.12"]
+RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["latest"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3"]
+RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["miniconda-latest"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["miniconda3-4.7"]
+RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["mambaforge-latest"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["mambaforge-22.9"]
+RTD_DOCKER_BUILD_SETTINGS["tools"]["nodejs"]["latest"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["nodejs"]["20"]
+RTD_DOCKER_BUILD_SETTINGS["tools"]["rust"]["latest"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["rust"]["1.75"]
+RTD_DOCKER_BUILD_SETTINGS["tools"]["golang"]["latest"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["golang"]["1.21"]
