@@ -7,10 +7,10 @@
 # Felix Henninger <mailbox@felixhenninger.com>, 2016
 # Jannis Leidel <jannis@leidel.info>, 2012,2014
 # Jonas Obrist <ojiidotch@gmail.com>, 2012
-# Justin “Justman10000” Nogossek, 2023
-# Justin “Justman10000” Nogossek, 2022
-# Justin “Justman10000” Nogossek, 2022
-# Justin “Justman10000” Nogossek, 2022-2023
+# Justman10000, 2023
+# Justman10000, 2022
+# Justman10000, 2022
+# Justman10000, 2022-2023
 # e57e0b6693d8a26d2bd54bd8ef3c1815, 2014,2017
 # Manuel Kaufmann <humitos@gmail.com>, 2023
 # f82ebdce6c7af46e12742407f341268c_9e4b487, 2020
@@ -19,17 +19,14 @@
 # spky, 2014,2017
 # Tobias Bannert <tobannert@gmail.com>, 2018
 # Wieland Hoffmann <themineo+transifex@googlemail.com>, 2014
-#: notifications/messages.py:393 notifications/messages.py:405
-#: notifications/messages.py:418 notifications/messages.py:429
-#: notifications/messages.py:442 notifications/messages.py:454
-#: notifications/messages.py:467
+#: notifications/messages.py:392
 msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-23 11:49+0000\n"
+"POT-Creation-Date: 2024-01-30 11:15+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
-"Last-Translator: Justin “Justman10000” Nogossek, 2023\n"
+"Last-Translator: Justman10000, 2023\n"
 "Language-Team: German (http://app.transifex.com/readthedocs/readthedocs/"
 "language/de/)\n"
 "Language: de\n"
@@ -38,7 +35,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: analytics/models.py:69 builds/models.py:727 projects/models.py:1539
+#: analytics/models.py:69 builds/models.py:727 projects/models.py:1549
 #: search/models.py:28 templates/base.html:274
 msgid "Version"
 msgstr "Version"
@@ -172,7 +169,7 @@ msgstr "Projekt mit Slug \"{0}\" existiert bereits."
 msgid "Project with {slug_name}={value} is not valid as subproject"
 msgstr "Projekt mit {slug_name}={value} ist als Unterprojekt nicht gültig"
 
-#: api/v3/serializers.py:857 projects/forms.py:469
+#: api/v3/serializers.py:857 projects/forms.py:481
 msgid "A subproject with this alias already exists"
 msgstr "Ein Unterprojekt mit diesem Alias ​​existiert bereits"
 
@@ -236,7 +233,7 @@ msgid "Invitation declined"
 msgstr "Einladung abgelehnt"
 
 #: audit/models.py:116 core/models.py:21 gold/models.py:33
-#: projects/models.py:213
+#: projects/models.py:218
 msgid "User"
 msgstr "Benutzer"
 
@@ -249,7 +246,7 @@ msgid "Username"
 msgstr "Benutzername"
 
 #: audit/models.py:138 builds/models.py:110 builds/models.py:721
-#: organizations/filters.py:134 projects/models.py:1533 redirects/models.py:48
+#: organizations/filters.py:134 projects/models.py:1543 redirects/models.py:48
 msgid "Project"
 msgstr "Projekt"
 
@@ -490,7 +487,7 @@ msgstr "Aktiv"
 msgid "Build successful"
 msgstr ""
 
-#: builds/filters.py:28 projects/models.py:1642
+#: builds/filters.py:28 projects/models.py:1652
 #: templates/builds/build_detail.html:143
 msgid "Build failed"
 msgstr "Build fehlgeschlagen"
@@ -537,11 +534,12 @@ msgstr "Benutzerdefinierte Übereinstimmung sollte nicht leer sein."
 msgid "Invalid Python regular expression."
 msgstr "Ungültiger regulärer Python-Ausdruck."
 
-#: builds/models.py:98 projects/models.py:1605 projects/models.py:1770
+#: builds/models.py:98 integrations/models.py:284 projects/models.py:1615
+#: projects/models.py:1780
 msgid "created"
 msgstr "erstellt"
 
-#: builds/models.py:103 projects/models.py:1610
+#: builds/models.py:103 integrations/models.py:289 projects/models.py:1620
 msgid "modified"
 msgstr "geändert"
 
@@ -554,7 +552,7 @@ msgid "Verbose Name"
 msgstr "Name"
 
 #: builds/models.py:143 oauth/models.py:32 organizations/models.py:50
-#: projects/models.py:218
+#: projects/models.py:223
 msgid "Slug"
 msgstr "Kürzel"
 
@@ -574,7 +572,7 @@ msgstr "Erstellt"
 msgid "Uploaded"
 msgstr "Hochgeladen"
 
-#: builds/models.py:170 projects/models.py:470
+#: builds/models.py:170 projects/models.py:475
 msgid "Privacy Level"
 msgstr "Sicherheitsstufe"
 
@@ -608,7 +606,7 @@ msgstr "Hat ePub"
 msgid "Has HTML Zip"
 msgstr "Hat HTML-Zip"
 
-#: builds/models.py:189 projects/models.py:307 projects/models.py:574
+#: builds/models.py:189 projects/models.py:312 projects/models.py:579
 msgid "Documentation type"
 msgstr "Dokumentationstyp"
 
@@ -635,7 +633,7 @@ msgstr "Version {version} von {project} ({pk})"
 msgid "Status"
 msgstr "Status"
 
-#: builds/models.py:762 integrations/models.py:148
+#: builds/models.py:762 integrations/models.py:146
 msgid "Date"
 msgstr "Datum"
 
@@ -663,7 +661,7 @@ msgstr "Fehler"
 msgid "Exit code"
 msgstr "Exit code"
 
-#: builds/models.py:777 projects/models.py:1550
+#: builds/models.py:777 projects/models.py:1560
 msgid "Commit"
 msgstr "Übernehmen"
 
@@ -719,7 +717,7 @@ msgid "Command"
 msgstr "Befehl"
 
 #: builds/models.py:1162 builds/models.py:1223 oauth/models.py:133
-#: organizations/models.py:64 projects/models.py:220 redirects/models.py:106
+#: organizations/models.py:64 projects/models.py:225 redirects/models.py:106
 #: templates/core/project_details.html:78
 msgid "Description"
 msgstr "Beschreibung"
@@ -858,72 +856,59 @@ msgstr ""
 msgid "Config file not found at default path"
 msgstr ""
 
-#: config/notifications.py:40
-#, fuzzy
-#| msgid "Configuration used in the build"
+#: config/notifications.py:41
 msgid "Configuration file not found"
-msgstr "Im Build verwendete Konfiguration"
-
-#: config/notifications.py:52
-#, fuzzy
-#| msgid "Configuration used in the build"
-msgid "Configuration key not supported in this version"
-msgstr "Im Build verwendete Konfiguration"
-
-#: config/notifications.py:64 config/notifications.py:78
-#: config/notifications.py:180 config/notifications.py:192
-#: config/notifications.py:204
-#, fuzzy
-#| msgid "Python configuration file"
-msgid "Invalid configuration key"
-msgstr "Python-Konfigurationsdatei"
-
-#: config/notifications.py:92
-#, fuzzy
-#| msgid "Invalid Python regular expression."
-msgid "Invalid configuration version"
-msgstr "Ungültiger regulärer Python-Ausdruck."
-
-#: config/notifications.py:104 config/notifications.py:132
-#, fuzzy
-#| msgid "Python configuration file"
-msgid "Invalid configuration option"
-msgstr "Python-Konfigurationsdatei"
-
-#: config/notifications.py:120
-msgid "Invalid configuration option: <code>build</code>"
 msgstr ""
 
-#: config/notifications.py:144 config/notifications.py:156
-#, fuzzy
-#| msgid "Invalid project name"
+#: config/notifications.py:53
+msgid "Configuration key not supported in this version"
+msgstr ""
+
+#: config/notifications.py:65 config/notifications.py:79
+#: config/notifications.py:179 config/notifications.py:191
+msgid "Invalid configuration key"
+msgstr ""
+
+#: config/notifications.py:93
+msgid "Invalid configuration version"
+msgstr ""
+
+#: config/notifications.py:105
+msgid "Missing configuration option"
+msgstr ""
+
+#: config/notifications.py:117
+msgid "Invalid configuration option"
+msgstr ""
+
+#: config/notifications.py:129 config/notifications.py:141
 msgid "Invalid APT package name"
-msgstr "Ungültiger Projektname"
+msgstr ""
 
-#: config/notifications.py:168
-#, fuzzy
-#| msgid "Invalid Python regular expression."
+#: config/notifications.py:153
 msgid "Invalid Python install method"
-msgstr "Ungültiger regulärer Python-Ausdruck."
+msgstr ""
 
-#: config/notifications.py:216
+#: config/notifications.py:166
+msgid "Missing configuration key"
+msgstr ""
+
+#: config/notifications.py:203
 msgid "Invalid configuration key: {{key}}"
 msgstr ""
 
-#: config/notifications.py:228
-#, fuzzy
-#| msgid "Python configuration file"
+#: config/notifications.py:215
 msgid "Invalid syntax in configuration file"
-msgstr "Python-Konfigurationsdatei"
+msgstr ""
 
-#: config/notifications.py:242
+#: config/notifications.py:230
 msgid "Missing required key"
 msgstr ""
 
-#: config/notifications.py:259 config/notifications.py:272
-#: config/notifications.py:285 config/notifications.py:298
-#: config/notifications.py:311 config/notifications.py:324
-#: config/notifications.py:337 config/notifications.py:350
+#: config/notifications.py:247 config/notifications.py:261
+#: config/notifications.py:276 config/notifications.py:289
+#: config/notifications.py:302 config/notifications.py:315
+#: config/notifications.py:328 config/notifications.py:341
 msgid "Config file validation error"
 msgstr ""
 
@@ -1026,10 +1011,8 @@ msgid "%(username)s's profile"
 msgstr "Profil von %(username)s"
 
 #: core/notifications.py:14
-#, fuzzy
-#| msgid "Email address or username"
 msgid "Email address not verified"
-msgstr "E-Mail-Adresse oder Benutzername"
+msgstr ""
 
 #: doc_builder/director.py:79
 #, python-brace-format
@@ -1068,12 +1051,12 @@ msgid "This project is already Ad-Free."
 msgstr ""
 
 #: gold/models.py:28 organizations/models.py:31 organizations/models.py:229
-#: organizations/models.py:303 projects/models.py:207
+#: organizations/models.py:303 projects/models.py:212
 msgid "Publication date"
 msgstr "Veröffentlichungsdatum"
 
 #: gold/models.py:29 organizations/models.py:32 organizations/models.py:230
-#: organizations/models.py:304 projects/models.py:208 projects/models.py:1552
+#: organizations/models.py:304 projects/models.py:213 projects/models.py:1562
 msgid "Modified date"
 msgstr "Modifizierungsdatum"
 
@@ -1243,57 +1226,57 @@ msgid ""
 "There was an error connecting to Stripe, please try again in a few minutes"
 msgstr ""
 
-#: integrations/models.py:151 integrations/models.py:159
+#: integrations/models.py:149 integrations/models.py:157
 msgid "Request headers"
 msgstr ""
 
-#: integrations/models.py:156
+#: integrations/models.py:154
 msgid "Request body"
 msgstr ""
 
-#: integrations/models.py:164
+#: integrations/models.py:162
 msgid "Response body"
 msgstr ""
 
-#: integrations/models.py:167
+#: integrations/models.py:165
 msgid "Status code"
 msgstr ""
 
-#: integrations/models.py:177
+#: integrations/models.py:175
 #, python-brace-format
 msgid "Exchange {0}"
 msgstr ""
 
-#: integrations/models.py:275
+#: integrations/models.py:273
 msgid "GitHub incoming webhook"
 msgstr ""
 
-#: integrations/models.py:276
+#: integrations/models.py:274
 msgid "Bitbucket incoming webhook"
 msgstr ""
 
-#: integrations/models.py:277
+#: integrations/models.py:275
 msgid "GitLab incoming webhook"
 msgstr ""
 
-#: integrations/models.py:278
+#: integrations/models.py:276
 msgid "Generic API incoming webhook"
 msgstr ""
 
-#: integrations/models.py:289
+#: integrations/models.py:300
 msgid "Integration type"
 msgstr "Integration Typ"
 
-#: integrations/models.py:294
+#: integrations/models.py:305
 msgid "Provider data"
 msgstr "Anbieter Daten"
 
-#: integrations/models.py:303
+#: integrations/models.py:314
 msgid "Secret used to validate the payload of the webhook"
 msgstr ""
 "Geheimnis, das zur Validierung der Nutzdaten des Webhooks verwendet wird"
 
-#: integrations/models.py:315
+#: integrations/models.py:326
 #, python-brace-format
 msgid "{0} for {1}"
 msgstr "{0} für {1}"
@@ -1368,117 +1351,119 @@ msgstr "Akzeptieren"
 msgid "Decline"
 msgstr "Ablehnen"
 
-#: notifications/messages.py:76 notifications/messages.py:107
-#, fuzzy
-#| msgid "Unknown"
+#: notifications/messages.py:82 notifications/messages.py:113
 msgid "Unknown problem"
-msgstr "Unbekannt"
+msgstr ""
 
-#: notifications/messages.py:93
-#, fuzzy
-#| msgid "Build exited due to time out"
+#: notifications/messages.py:99
 msgid "Build terminated due inactivity"
-msgstr "Build beendet aufgrund von Zeitüberschreitung"
+msgstr ""
 
-#: notifications/messages.py:121
+#: notifications/messages.py:127
 msgid "Maximum concurrency limit reached."
 msgstr ""
 
-#: notifications/messages.py:133
-#, fuzzy
-#| msgid "Build cancelled"
+#: notifications/messages.py:140
 msgid "Build cancelled manually."
-msgstr "Bauen abgebrochen"
-
-#: notifications/messages.py:145
-msgid "Build skipped manually."
 msgstr ""
 
-#: notifications/messages.py:158
-#, fuzzy
-#| msgid "Build exited due to time out"
-msgid "Build exited due to time out."
-msgstr "Build beendet aufgrund von Zeitüberschreitung"
+#: notifications/messages.py:152
+msgid "Build skipped."
+msgstr ""
 
-#: notifications/messages.py:170
-#, fuzzy
-#| msgid "Build exited due to excessive memory consumption"
-msgid "Build exited due to excessive memory consumption."
-msgstr "Build wurde aufgrund übermäßiger Speicherauslastung beendet"
+#: notifications/messages.py:165
+msgid "Build terminated due to time out."
+msgstr ""
 
-#: notifications/messages.py:182
-#, fuzzy
-#| msgid "Build exited due to unknown error: {0}"
-msgid "Build exited due to unknown error."
-msgstr "Build wurde aufgrund eines unbekannten Fehlers beendet: {0}"
+#: notifications/messages.py:178
+msgid "Build terminated due to excessive memory consumption."
+msgstr ""
 
-#: notifications/messages.py:194
-#, fuzzy
-#| msgid "Build pull requests for this project"
+#: notifications/messages.py:191
+msgid "Build terminated due to unknown error."
+msgstr ""
+
+#: notifications/messages.py:203
 msgid "Builds are temporary disabled for this project."
-msgstr "Pull-Requests für dieses Projekt erstellen"
-
-#: notifications/messages.py:208
-msgid "Concurrency limit reached"
 msgstr ""
 
-#: notifications/messages.py:221
-#, fuzzy
-#| msgid "No project found."
+#: notifications/messages.py:217
 msgid "No HTML content found"
-msgstr "Kein Projekt gefunden."
+msgstr ""
 
-#: notifications/messages.py:233
+#: notifications/messages.py:229
 msgid "Build output directory is not a directory"
 msgstr ""
 
-#: notifications/messages.py:245
+#: notifications/messages.py:242
 msgid "Build output directory doesn't contain any file"
 msgstr ""
 
-#: notifications/messages.py:258
+#: notifications/messages.py:255
 msgid "Build output directory contains multiple files"
 msgstr ""
 
-#: notifications/messages.py:272
+#: notifications/messages.py:269
 msgid "Index file is not present in HTML output directory"
 msgstr ""
 
-#: notifications/messages.py:285
+#: notifications/messages.py:282
 msgid "Your project is outputing files in an old directory"
 msgstr ""
 
-#: notifications/messages.py:299
+#: notifications/messages.py:296
 msgid "Your project doesn't have a <code>.readthedocs.yaml</code> file"
 msgstr ""
 
-#: notifications/messages.py:313
+#: notifications/messages.py:310
 msgid "Configuration key <code>build.image</code> is deprecated"
 msgstr ""
 
-#: notifications/messages.py:327
+#: notifications/messages.py:324
 msgid "Configuration key <code>build.os</code> is required"
 msgstr ""
 
-#: notifications/messages.py:340
+#: notifications/messages.py:338
 msgid "There is at least one file that exceeds the size limit"
 msgstr ""
 
-#: notifications/messages.py:353
+#: notifications/messages.py:351
 msgid "There is no PDF file in output directory"
 msgstr ""
 
-#: notifications/messages.py:365
+#: notifications/messages.py:364
 msgid "Config key <code>build.commands</code> is in beta"
 msgstr ""
 
-#: notifications/messages.py:378
-#, fuzzy
-#| msgid "No builds found"
+#: notifications/messages.py:377
 msgid "No TeX files were found"
-msgstr "Keine Builds gefunden"
+msgstr ""
 
-#: notifications/messages.py:481
+#: notifications/messages.py:404
+msgid "MkDocs <code>docs_dir</code> configuration option is invalid"
+msgstr ""
+
+#: notifications/messages.py:417
+msgid "MkDocs <code>docs_dir</code> path not found"
+msgstr ""
+
+#: notifications/messages.py:431
+msgid "MkDocs <code>{{extra_config}}</code> configuration option is invalid"
+msgstr ""
+
+#: notifications/messages.py:445
+msgid "MkDocs configuration file is empty"
+msgstr ""
+
+#: notifications/messages.py:457
+msgid "MkDocs configuration file not found"
+msgstr ""
+
+#: notifications/messages.py:471
+msgid "Unknown error when loading your MkDocs configuration file"
+msgstr ""
+
+#: notifications/messages.py:485
 msgid "Syntax error in <code>mkdocs.yml</code>"
 msgstr ""
 
@@ -1486,11 +1471,9 @@ msgstr ""
 msgid "Show under bell icon"
 msgstr ""
 
-#: notifications/models.py:74
-#, fuzzy
-#| msgid "Unknown"
+#: notifications/models.py:79
 msgid "Unknown message"
-msgstr "Unbekannt"
+msgstr ""
 
 #: oauth/models.py:28 oauth/models.py:114 organizations/models.py:246
 msgid "Users"
@@ -1499,7 +1482,7 @@ msgstr "Benutzer"
 #: oauth/models.py:33 oauth/models.py:126 organizations/filters.py:59
 #: organizations/filters.py:65 organizations/models.py:48
 #: organizations/models.py:253 projects/filters.py:42 projects/filters.py:107
-#: projects/models.py:217 projects/models.py:1544
+#: projects/models.py:222 projects/models.py:1554
 msgid "Name"
 msgstr "Name"
 
@@ -1572,7 +1555,7 @@ msgid "The project doesn't have a valid webhook set up"
 msgstr ""
 
 #: oauth/notifications.py:62
-msgid "{{provier_name}} build status report failed"
+msgid "{{provider_name}} build status report failed"
 msgstr ""
 
 #: oauth/notifications.py:77
@@ -1679,11 +1662,11 @@ msgstr ""
 msgid "Organization %(name)s already exists"
 msgstr ""
 
-#: organizations/forms.py:133 organizations/forms.py:219 projects/forms.py:521
+#: organizations/forms.py:133 organizations/forms.py:219 projects/forms.py:533
 msgid "Email address or username"
 msgstr "E-Mail-Adresse oder Benutzername"
 
-#: organizations/forms.py:149 organizations/forms.py:254 projects/forms.py:536
+#: organizations/forms.py:149 organizations/forms.py:254 projects/forms.py:548
 #, python-format
 msgid "User %(username)s does not exist"
 msgstr ""
@@ -2204,7 +2187,7 @@ msgstr "Mercurial"
 msgid "Bazaar"
 msgstr "Bazaar"
 
-#: projects/constants.py:99 projects/models.py:2132
+#: projects/constants.py:99 projects/models.py:2142
 msgid "Public"
 msgstr "Öffentlich"
 
@@ -2310,11 +2293,23 @@ msgid ""
 "This setting is inherited from the <a href=\"{link}\">parent translation</a>."
 msgstr ""
 
-#: projects/forms.py:285
+#: projects/forms.py:276
+msgid ""
+"We have detected that this project is private, pull request previews are set "
+"to private."
+msgstr ""
+
+#: projects/forms.py:280
+msgid ""
+"We have detected that this project is public, pull request previews are set "
+"to public."
+msgstr ""
+
+#: projects/forms.py:297
 msgid "To build from pull requests you need a "
 msgstr "Um aus Pull Requests zu bauen, benötigen Sie eine"
 
-#: projects/forms.py:296
+#: projects/forms.py:308
 msgid ""
 "To build from pull requests your repository's webhook needs to send pull "
 "request events. "
@@ -2322,134 +2317,130 @@ msgstr ""
 "Um aus Pull-Requests zu erstellen, muss der Webhook Ihres Repositorys Pull-"
 "Request-Ereignisse senden."
 
-#: projects/forms.py:344
+#: projects/forms.py:356
 msgid ""
 "Your configuration file is invalid, make sure it contains conf.py in it."
 msgstr ""
 "Die Konfiguration is fehlerhaft, bitte überprüfen, ob eine conf.py-Datei "
 "existiert."
 
-#: projects/forms.py:406
+#: projects/forms.py:418
 #, python-brace-format
 msgid "There is already a \"{lang}\" translation for the {proj} project."
 msgstr ""
 "Es existiert bereits eine \"{lang}\" Übersetzung für das Projekt {proj}."
 
-#: projects/forms.py:494
+#: projects/forms.py:506
 msgid "Enable Addons"
 msgstr ""
 
-#: projects/forms.py:496
-#, fuzzy
-#| msgid "Should builds from pull requests be public?"
+#: projects/forms.py:508
 msgid "Show a notification on builds from pull requests"
-msgstr "Sollten Builds aus Pull Requests öffentlich sein?"
+msgstr ""
 
-#: projects/forms.py:499
-#, fuzzy
-#| msgid "Show warning banner in non-stable nor latest versions."
+#: projects/forms.py:511
 msgid "Show a notification on non-stable and latest versions"
-msgstr "Warnbanner in nicht stabilen oder neuesten Versionen anzeigen."
+msgstr ""
 
-#: projects/forms.py:540
+#: projects/forms.py:552
 #, python-format
 msgid "User %(username)s is already a maintainer"
 msgstr "Der Benutzer %(username)s ist bereits ein Maintainer"
 
-#: projects/forms.py:622
+#: projects/forms.py:634
 msgid "The payload must be a valid JSON object."
 msgstr "Die Nutzlast muss ein gültiges JSON-Objekt sein."
 
-#: projects/forms.py:652
+#: projects/forms.py:664
 msgid ""
 "This project is configured with a versioning scheme that doesn't support "
 "translations."
 msgstr ""
 
-#: projects/forms.py:829
+#: projects/forms.py:848
 msgid "Only one domain can be canonical at a time."
 msgstr "Es kann immer nur eine Domain kanonisch sein."
 
-#: projects/forms.py:930
+#: projects/forms.py:949
 msgid "Variable name can't start with __ (double underscore)"
 msgstr "Der Variablenname darf nicht mit __ (doppelter Unterstrich) beginnen"
 
-#: projects/forms.py:934
+#: projects/forms.py:953
 msgid "Variable name can't start with READTHEDOCS"
 msgstr "Variablenname kann nicht mit READTHEDOCS beginnen"
 
-#: projects/forms.py:939
+#: projects/forms.py:958
 msgid "There is already a variable with this name for this project"
 msgstr "Es existiert bereits eine Variable mit diesem Namen für dieses Projekt"
 
-#: projects/forms.py:944
+#: projects/forms.py:963
 msgid "Variable name can't contain spaces"
 msgstr "Variablenname darf keine Leerzeichen enthalten"
 
-#: projects/forms.py:948
+#: projects/forms.py:967
 msgid "Only letters, numbers and underscore are allowed"
 msgstr "Nur Buchstaben, Zahlen und Unterstriche sind erlaubt"
 
-#: projects/models.py:91
+#: projects/models.py:93
 msgid "Main project"
 msgstr "Hauptprojekt"
 
-#: projects/models.py:97
+#: projects/models.py:99
 msgid "Subproject"
 msgstr "Unterprojekt"
 
-#: projects/models.py:102
+#: projects/models.py:104
 msgid "Alias"
 msgstr ""
 
-#: projects/models.py:222
+#: projects/models.py:227
 msgid "Short description of this project"
 msgstr "Kurze Beschreibung dieses Projekts"
 
-#: projects/models.py:225
+#: projects/models.py:230
 msgid "Repository URL"
 msgstr "Repository-URL"
 
-#: projects/models.py:228
+#: projects/models.py:233
 msgid "Hosted documentation repository URL"
 msgstr "URL des gehosteten Dokumentations-Repositorys"
 
-#: projects/models.py:235
+#: projects/models.py:240
 msgid "Repository type"
 msgstr "Repository-Typ"
 
-#: projects/models.py:241
+#: projects/models.py:246
 msgid "Project homepage"
 msgstr "Projektstartseite"
 
-#: projects/models.py:243
+#: projects/models.py:248
 msgid "The project's homepage"
 msgstr "Die Startseite des Projekts"
 
-#: projects/models.py:246
+#: projects/models.py:251
 msgid "Canonical URL"
 msgstr "Kanonische URL"
 
-#: projects/models.py:248
+#: projects/models.py:253
 msgid "URL that documentation is expected to serve from"
 msgstr ""
 
-#: projects/models.py:251
+#: projects/models.py:256
 msgid "Versioning scheme"
 msgstr ""
 
-#: projects/models.py:258
+#: projects/models.py:263
 msgid ""
 "This affects how the URL of your documentation looks like, and if it "
 "supports translations or multiple versions. Changing the versioning scheme "
 "will break your current URLs."
 msgstr ""
 
-#: projects/models.py:265
+#: projects/models.py:270
 msgid "Single version"
 msgstr "Einzelversion"
 
-#: projects/models.py:268
+#: projects/models.py:273
 msgid ""
 "A single version site has no translations and only your \"latest\" version, "
 "served at the root of the domain. Use this with caution, only turn it on if "
@@ -2460,29 +2451,29 @@ msgstr ""
 "Verwenden Sie dies mit Vorsicht, schalten Sie es nur ein, wenn Sie <b>nie</"
 "b> mehrere Versionen Ihrer Dokumente haben werden."
 
-#: projects/models.py:275
+#: projects/models.py:280
 msgid "Default version"
 msgstr "Standard-Version"
 
-#: projects/models.py:278
+#: projects/models.py:283
 msgid "The version of your project that / redirects to"
 msgstr "Die Projektversion zu der Zugriffe auf „/“ weitergeleitet werden"
 
-#: projects/models.py:283
+#: projects/models.py:288
 msgid "Default branch"
 msgstr "Standard-Branch"
 
-#: projects/models.py:289
+#: projects/models.py:294
 msgid ""
 "What branch \"latest\" points to. Leave empty to use the default value for "
 "your VCS."
 msgstr ""
 
-#: projects/models.py:294 projects/models.py:561
+#: projects/models.py:299 projects/models.py:566
 msgid "Requirements file"
 msgstr "Anforderungsdatei"
 
-#: projects/models.py:300 projects/models.py:567
+#: projects/models.py:305 projects/models.py:572
 msgid ""
 "A <a href=\"https://pip.pypa.io/en/latest/user_guide.html#requirements-"
 "files\">pip requirements file</a> needed to build your documentation. Path "
@@ -2492,7 +2483,7 @@ msgstr ""
 "files\">Pip-Anforderungsdatei</a>, die zum Erstellen Ihrer Dokumentation "
 "benötigt wird. Pfad vom Stammverzeichnis Ihres Projekts."
 
-#: projects/models.py:312 projects/models.py:579
+#: projects/models.py:317 projects/models.py:584
 msgid ""
 "Type of documentation you are building. <a href=\"http://www.sphinx-doc.org/"
 "en/stable/builders.html#sphinx.builders.html.DirectoryHTMLBuilder\">More "
@@ -2502,32 +2493,32 @@ msgstr ""
 "org/en/stable/builders.html#sphinx.builders.html."
 "DirectoryHTMLBuilder\">Weitere Informationen zu Sphinx-Erbauern</a>."
 
-#: projects/models.py:319
+#: projects/models.py:324
 msgid "Custom path prefix"
 msgstr ""
 
-#: projects/models.py:325
+#: projects/models.py:330
 msgid ""
 "A custom path prefix used when serving documentation from this project. By "
 "default we serve documentation at the root (/) of a domain."
 msgstr ""
 
-#: projects/models.py:330
+#: projects/models.py:335
 msgid "Custom subproject path prefix"
 msgstr ""
 
-#: projects/models.py:336
+#: projects/models.py:341
 msgid ""
 "A custom path prefix used when evaluating the root of a subproject. By "
 "default we serve documentation from subprojects under the `/projects/` "
 "prefix."
 msgstr ""
 
-#: projects/models.py:343
+#: projects/models.py:348
 msgid "Build pull requests for this project"
 msgstr "Pull-Requests für dieses Projekt erstellen"
 
-#: projects/models.py:346
+#: projects/models.py:351
 msgid ""
 "More information in <a href=\"https://docs.readthedocs.io/page/guides/"
 "autobuild-docs-for-pull-requests.html\">our docs</a>."
@@ -2535,23 +2526,25 @@ msgstr ""
 "Weitere Informationen in <a href=\"https://docs.readthedocs.io/page/guides/"
 "autobuild-docs-for-pull-requests.html\">unserer Dokumentation</a>."
 
-#: projects/models.py:350
+#: projects/models.py:355
 msgid "Privacy level of Pull Requests"
 msgstr ""
 
-#: projects/models.py:357
-msgid "Should builds from pull requests be public?"
-msgstr "Sollten Builds aus Pull Requests öffentlich sein?"
-
 #: projects/models.py:362
+msgid ""
+"Should builds from pull requests be public? <strong>If your repository is "
+"public, don't set this to private</strong>."
+msgstr ""
+
+#: projects/models.py:367
 msgid "CDN Enabled"
 msgstr ""
 
-#: projects/models.py:364
+#: projects/models.py:369
 msgid "Analytics code"
 msgstr "Analytics-Code"
 
-#: projects/models.py:369
+#: projects/models.py:374
 msgid ""
 "Google Analytics Tracking ID (ex. <code>UA-22345342-1</code>). This may slow "
 "down your page loads."
@@ -2559,11 +2552,11 @@ msgstr ""
 "Tracking-ID von Google Analytics (z.B. <code>UA-22345342-1</code>). Dies "
 "kann das Laden Ihrer Seite verlangsamen."
 
-#: projects/models.py:375
+#: projects/models.py:380
 msgid "Disable Analytics"
 msgstr "Analysen deaktivieren"
 
-#: projects/models.py:379
+#: projects/models.py:384
 msgid ""
 "Disable Google Analytics completely for this project (requires rebuilding "
 "documentation)"
@@ -2571,65 +2564,65 @@ msgstr ""
 "Deaktivieren Sie Google Analytics für dieses Projekt vollständig (erfordert "
 "Neuaufbau-Dokumentation)"
 
-#: projects/models.py:384
+#: projects/models.py:389
 msgid "Alternative container image"
 msgstr ""
 
-#: projects/models.py:390
+#: projects/models.py:395
 msgid "Container memory limit"
 msgstr ""
 
-#: projects/models.py:395
+#: projects/models.py:400
 msgid ""
 "Memory limit in Docker format -- example: <code>512m</code> or <code>1g</"
 "code>"
 msgstr ""
 
-#: projects/models.py:400
+#: projects/models.py:405
 msgid "Container time limit in seconds"
 msgstr ""
 
-#: projects/models.py:405
+#: projects/models.py:410
 msgid "Alternate build queue id"
 msgstr "Alternative Buildschlangen ID"
 
-#: projects/models.py:411
+#: projects/models.py:416
 msgid "Maximum concurrent builds allowed for this project"
 msgstr "Maximal erlaubte gleichzeitige Builds für dieses Projekt"
 
-#: projects/models.py:416
+#: projects/models.py:421
 msgid "Allow paid advertising"
 msgstr "Bezahlte Werbung zulassen"
 
-#: projects/models.py:418
+#: projects/models.py:423
 msgid "If unchecked, users will still see community ads."
 msgstr ""
 
-#: projects/models.py:421
+#: projects/models.py:426
 msgid "Ad-free"
 msgstr ""
 
-#: projects/models.py:426
+#: projects/models.py:431
 msgid "Is spam?"
 msgstr ""
 
-#: projects/models.py:429
+#: projects/models.py:434
 msgid "Manually marked as (not) spam"
 msgstr ""
 
-#: projects/models.py:432
+#: projects/models.py:437
 msgid "Show version warning"
 msgstr "Versionswarnung anzeigen"
 
-#: projects/models.py:434
+#: projects/models.py:439
 msgid "Show warning banner in non-stable nor latest versions."
 msgstr "Warnbanner in nicht stabilen oder neuesten Versionen anzeigen."
 
-#: projects/models.py:438
+#: projects/models.py:443
 msgid "Path for .readthedocs.yaml"
 msgstr ""
 
-#: projects/models.py:444
+#: projects/models.py:449
 msgid ""
 "<strong>Warning: experimental feature</strong>. Custom path from repository "
 "top-level to your <code>.readthedocs.yaml</code>, ex. <code>subpath/docs/."
@@ -2637,37 +2630,37 @@ msgid ""
 "yaml</code>."
 msgstr ""
 
-#: projects/models.py:452
+#: projects/models.py:457
 msgid "Featured"
 msgstr "Hervorgehoben"
 
-#: projects/models.py:454
+#: projects/models.py:459
 msgid "Skip (disable) building this project"
 msgstr ""
 
-#: projects/models.py:462
+#: projects/models.py:467
 msgid "Delisted"
 msgstr ""
 
-#: projects/models.py:464
+#: projects/models.py:469
 msgid ""
 "Delisting a project removes it from Read the Docs search indexing and asks "
 "external search engines to remove it via robots.txt"
 msgstr ""
 
-#: projects/models.py:475
+#: projects/models.py:480
 msgid "Should the project dashboard be public?"
 msgstr ""
 
-#: projects/models.py:482
+#: projects/models.py:487
 msgid "Related projects"
 msgstr "Verwandte Projekte"
 
-#: projects/models.py:490 templates/search/elastic_search.html:57
+#: projects/models.py:495 templates/search/elastic_search.html:57
 msgid "Language"
 msgstr "Sprache"
 
-#: projects/models.py:494
+#: projects/models.py:499
 msgid ""
 "The language the project documentation is rendered in. Note: this affects "
 "your project's URL."
@@ -2675,51 +2668,51 @@ msgstr ""
 "Die Sprache, in der die Projektdokumentation wiedergegeben wird. Hinweis: "
 "Dies wirkt sich auf die URL Ihres Projekts aus."
 
-#: projects/models.py:502
+#: projects/models.py:507
 msgid "Programming Language"
 msgstr ""
 
-#: projects/models.py:506
+#: projects/models.py:511
 msgid "The primary programming language the project is written in."
 msgstr "Die primäre Programmiersprache, in der das Projekt geschrieben ist."
 
-#: projects/models.py:522
+#: projects/models.py:527
 msgid "This project has been built with a webhook"
 msgstr ""
 
-#: projects/models.py:526
+#: projects/models.py:531
 msgid "This project has been successfully cloned"
 msgstr ""
 
-#: projects/models.py:585
+#: projects/models.py:590
 msgid "Enable EPUB build"
 msgstr "Aktiviere EPUB Erzeugung"
 
-#: projects/models.py:588
+#: projects/models.py:593
 msgid "Create a EPUB version of your documentation with each build."
 msgstr "Erstellen Sie mit jedem Build eine EPUB-Version Ihrer Dokumentation."
 
-#: projects/models.py:592
+#: projects/models.py:597
 msgid "Enable PDF build"
 msgstr "Aktiviere PDF-Erzeugung"
 
-#: projects/models.py:595
+#: projects/models.py:600
 msgid "Create a PDF version of your documentation with each build."
 msgstr "Erstellen Sie mit jedem Build eine PDF-Version Ihrer Dokumentation."
 
-#: projects/models.py:599 projects/models.py:1549
+#: projects/models.py:604 projects/models.py:1559
 msgid "Path"
 msgstr "Pfad"
 
-#: projects/models.py:603
+#: projects/models.py:608
 msgid "The directory where <code>conf.py</code> lives"
 msgstr ""
 
-#: projects/models.py:607
+#: projects/models.py:612
 msgid "Python configuration file"
 msgstr "Python-Konfigurationsdatei"
 
-#: projects/models.py:612
+#: projects/models.py:617
 msgid ""
 "Path from project root to <code>conf.py</code> file (ex. <code>docs/conf.py</"
 "code>). Leave blank if you want us to find it for you."
@@ -2728,89 +2721,89 @@ msgstr ""
 "<code>docs/conf.py</code>). Lassen Sie das Feld leer, wenn Sie möchten, dass "
 "wir es für Sie finden."
 
-#: projects/models.py:618
+#: projects/models.py:623
 msgid "Install Project"
 msgstr "Projekt installieren"
 
-#: projects/models.py:620
+#: projects/models.py:625
 msgid ""
 "Install your project inside a virtualenv using <code>setup.py install</code>"
 msgstr ""
 "Installieren Sie Ihr Projekt mithilfe von <code>setup.py install</code> in "
 "einer virtuellen Umgebung"
 
-#: projects/models.py:626
+#: projects/models.py:631
 msgid "Python Interpreter"
 msgstr "Python Interpreter"
 
-#: projects/models.py:631
+#: projects/models.py:636
 msgid "The Python interpreter used to create the virtual environment."
 msgstr ""
 "Der zum Erstellen der virtuellen Umgebung verwendete Python-Interpreter."
 
-#: projects/models.py:635
+#: projects/models.py:640
 msgid "Use system packages"
 msgstr "Verwende Systempakete"
 
-#: projects/models.py:637
+#: projects/models.py:642
 msgid "Give the virtual environment access to the global site-packages dir."
 msgstr ""
 "Erlauben Sie der virtuellen Umgebung Zugriff auf das Verzeichnis der "
 "globalen site-packages."
 
-#: projects/models.py:647
+#: projects/models.py:652
 msgid "project"
 msgstr "projekt"
 
-#: projects/models.py:658
+#: projects/models.py:663
 msgid "Model must have slug"
 msgstr "Modell muss einen Kürzel haben"
 
-#: projects/models.py:1420
+#: projects/models.py:1430
 msgid "Subproject nesting is not supported"
 msgstr "Unterprojektverschachtelung wird nicht unterstützt"
 
-#: projects/models.py:1551
+#: projects/models.py:1561
 msgid "Build id"
 msgstr "Build ID"
 
-#: projects/models.py:1554
+#: projects/models.py:1564
 msgid "Page search rank"
 msgstr ""
 
-#: projects/models.py:1559
+#: projects/models.py:1569
 msgid "Ignore this file from operations like indexing"
 msgstr ""
 
-#: projects/models.py:1640
+#: projects/models.py:1650
 msgid "Build triggered"
 msgstr "Bauen ausgelöst"
 
-#: projects/models.py:1641
+#: projects/models.py:1651
 msgid "Build passed"
 msgstr "Bauen bestanden"
 
-#: projects/models.py:1658
+#: projects/models.py:1668
 msgid "URL"
 msgstr ""
 
-#: projects/models.py:1660
+#: projects/models.py:1670
 msgid "URL to send the webhook to"
 msgstr "URL, an die der Webhook versandt wird"
 
-#: projects/models.py:1663
+#: projects/models.py:1673
 msgid "Secret used to sign the payload of the webhook"
 msgstr ""
 
-#: projects/models.py:1671
+#: projects/models.py:1681
 msgid "Events to subscribe"
 msgstr "Ereignisse zum Abonnieren"
 
-#: projects/models.py:1674
+#: projects/models.py:1684
 msgid "JSON payload"
 msgstr ""
 
-#: projects/models.py:1676
+#: projects/models.py:1686
 msgid ""
 "JSON payload to send to the webhook. Check <a href=\"https://docs."
 "readthedocs.io/page/build-notifications.html#variable-substitutions-"
@@ -2821,189 +2814,187 @@ msgstr ""
 "substitutions-reference\">der Dokumentation</a> nach, welche Ersetzungen "
 "möglich sind."
 
-#: projects/models.py:1781
+#: projects/models.py:1791
 msgid "Domain"
 msgstr "Domain"
 
-#: projects/models.py:1788
+#: projects/models.py:1798
 msgid "This domain was auto-created"
 msgstr "Diese Domain wurde automatisch erstellt"
 
-#: projects/models.py:1792
+#: projects/models.py:1802
 msgid "This domain is a CNAME for the project"
 msgstr "Diese Domäne ist ein CNAME für das Projekt"
 
-#: projects/models.py:1797
+#: projects/models.py:1807
 msgid "This domain is the primary one where the documentation is served from"
 msgstr ""
 "Diese Domäne ist die primäre, von der aus die Dokumentation bereitgestellt "
 "wird"
 
-#: projects/models.py:1801
+#: projects/models.py:1811
 msgid "Use HTTPS"
 msgstr ""
 
-#: projects/models.py:1803
+#: projects/models.py:1813
 msgid "Always use HTTPS for this domain"
 msgstr "Für diese Domain immer HTTPS verwenden"
 
-#: projects/models.py:1807
+#: projects/models.py:1817
 msgid "Number of times this domain has been hit"
 msgstr "Anzahl der Angriffe auf diese Domain"
 
-#: projects/models.py:1812 templates/projects/domain_form.html:49
+#: projects/models.py:1822 templates/projects/domain_form.html:49
 msgid "SSL certificate status"
 msgstr ""
 
-#: projects/models.py:1821
+#: projects/models.py:1831
 msgid "Skip validation process."
 msgstr ""
 
-#: projects/models.py:1827
+#: projects/models.py:1837
 msgid "Start date of the validation process."
 msgstr ""
 
-#: projects/models.py:1838
+#: projects/models.py:1848
 msgid "Set a custom max-age (eg. 31536000) for the HSTS header"
 msgstr ""
 
-#: projects/models.py:1842
+#: projects/models.py:1852
 msgid ""
 "If hsts_max_age > 0, set the includeSubDomains flag with the HSTS header"
 msgstr ""
 "Wenn hsts_max_age > 0, setzen Sie das Flag includeSubDomains mit dem HSTS-"
 "Header"
 
-#: projects/models.py:1846
+#: projects/models.py:1856
 msgid "If hsts_max_age > 0, set the preload flag with the HSTS header"
 msgstr ""
 
-#: projects/models.py:1982
+#: projects/models.py:1992
 msgid "MkDocs: Use Read the Docs theme for MkDocs as default theme"
 msgstr ""
 
-#: projects/models.py:1986
+#: projects/models.py:1996
 msgid "Build: Try alternative method of posting large data"
 msgstr ""
 
-#: projects/models.py:1990
+#: projects/models.py:2000
 msgid "Conda: Append Read the Docs core requirements to environment.yml file"
 msgstr ""
 
-#: projects/models.py:1995
+#: projects/models.py:2005
 msgid ""
 "Sphinx: Pass all versions (including private) into the html context when "
 "building with Sphinx"
 msgstr ""
 
-#: projects/models.py:2001
+#: projects/models.py:2011
 msgid "Proxito: Record 404s page views."
 msgstr ""
 
-#: projects/models.py:2005
+#: projects/models.py:2015
 msgid "Proxito: Disable all page views"
 msgstr ""
 
-#: projects/models.py:2009
+#: projects/models.py:2019
 msgid "Proxito: Allow usage of the X-RTD-Slug header"
 msgstr ""
 
-#: projects/models.py:2014
+#: projects/models.py:2024
 msgid ""
 "Proxito: Use proxied APIs (/_/*) with the custom prefix if the project has "
 "one (Project.custom_prefix)."
 msgstr ""
 
-#: projects/models.py:2019
+#: projects/models.py:2029
 msgid "Dashboard: Allow project to use the version warning banner."
 msgstr ""
 
-#: projects/models.py:2025
+#: projects/models.py:2035
 msgid "Webhook: Skip syncing branches"
 msgstr ""
 
-#: projects/models.py:2029
+#: projects/models.py:2039
 msgid "Webhook: Skip syncing tags"
 msgstr ""
 
-#: projects/models.py:2033
+#: projects/models.py:2043
 msgid "Webhook: Skip sync versions task"
 msgstr ""
 
-#: projects/models.py:2037
+#: projects/models.py:2047
 msgid "Build: Always run pip install --upgrade"
 msgstr ""
 
-#: projects/models.py:2038
+#: projects/models.py:2048
 msgid "Build: Use new pip resolver"
 msgstr ""
 
-#: projects/models.py:2041
+#: projects/models.py:2051
 msgid "Build: Don't install the latest version of pip"
 msgstr ""
 
-#: projects/models.py:2045
+#: projects/models.py:2055
 msgid "Sphinx: Use latest version of the Read the Docs Sphinx extension"
 msgstr ""
 
-#: projects/models.py:2050
+#: projects/models.py:2060
 msgid ""
 "Build: Install all the latest versions of Read the Docs core requirements"
 msgstr ""
 
-#: projects/models.py:2057
+#: projects/models.py:2067
 msgid "Search: Disable server side search"
 msgstr ""
 
-#: projects/models.py:2061
+#: projects/models.py:2071
 msgid "Search: Enable server side search for MkDocs projects"
 msgstr ""
 
-#: projects/models.py:2065
+#: projects/models.py:2075
 msgid "Search: Default to fuzzy search for simple search queries"
 msgstr ""
 
-#: projects/models.py:2070
+#: projects/models.py:2080
 msgid "Build: Set scale-in protection before/after building."
 msgstr ""
 
-#: projects/models.py:2083
+#: projects/models.py:2093
 msgid "Feature identifier"
 msgstr ""
 
-#: projects/models.py:2088
+#: projects/models.py:2098
 msgid "Date feature was added"
 msgstr ""
 
-#: projects/models.py:2094
+#: projects/models.py:2104
 msgid "Default all past projects to True"
 msgstr ""
 
-#: projects/models.py:2098
+#: projects/models.py:2108
 msgid "Default all future projects to True"
 msgstr ""
 
-#: projects/models.py:2120
+#: projects/models.py:2130
 msgid "Name of the environment variable"
 msgstr "Name der Umgebungsvariable"
 
-#: projects/models.py:2124
+#: projects/models.py:2134
 msgid "Value of the environment variable"
 msgstr "Wert der Umgebungsvariable"
 
-#: projects/models.py:2129
+#: projects/models.py:2139
 msgid "Project where this variable will be used"
 msgstr ""
 
-#: projects/models.py:2135
+#: projects/models.py:2145
 msgid "Expose this environment variable in PR builds?"
 msgstr "Diese Umgebungsvariable in PR-Builds verfügbar machen?"
 
 #: projects/notifications.py:19
-#, fuzzy
-#| msgid "Build pull requests for this project"
 msgid "Build skipped for this project"
-msgstr "Pull-Requests für dieses Projekt erstellen"
+msgstr ""
 
 #: projects/notifications.py:33 projects/notifications.py:71
 #: projects/notifications.py:84
@@ -3011,36 +3002,28 @@ msgid "Error while cloning the repository"
 msgstr ""
 
 #: projects/notifications.py:46
-#, fuzzy
-#| msgid "Public versions"
 msgid "Duplicated reserved versions"
-msgstr "Öffentliche Versionen"
+msgstr ""
 
 #: projects/notifications.py:59
 msgid "Error while checking out the repository"
 msgstr ""
 
 #: projects/notifications.py:98
-#, fuzzy
-#| msgid "Python configuration file"
 msgid "Sphinx configuration file is missing"
-msgstr "Python-Konfigurationsdatei"
+msgstr ""
 
 #: projects/notifications.py:111
-#, fuzzy
-#| msgid "Python configuration file"
 msgid "Multiple Sphinx configuration files found"
-msgstr "Python-Konfigurationsdatei"
+msgstr ""
 
 #: projects/notifications.py:125
 msgid "Expected file not found"
 msgstr ""
 
 #: projects/notifications.py:137
-#, fuzzy
-#| msgid "Repository clone URL"
 msgid "Repository locked"
-msgstr "URL des Repository-Klons"
+msgstr ""
 
 #: projects/validators.py:18
 msgid "Enter a valid plain or internationalized domain name value"
@@ -3215,7 +3198,7 @@ msgstr "Weiterleitung"
 msgid "redirects"
 msgstr "Weiterleitungen"
 
-#: redirects/models.py:203
+#: redirects/models.py:208
 msgid "Redirect: {}"
 msgstr "Weiterleiten: {}"
 
@@ -3421,10 +3404,8 @@ msgid "Audit logs for every page view"
 msgstr ""
 
 #: subscriptions/constants.py:37
-#, fuzzy
-#| msgid "Redirects"
 msgid "Redirects limit"
-msgstr "Weiterleitungen"
+msgstr ""
 
 #: subscriptions/forms.py:29
 msgid ""
@@ -3433,10 +3414,8 @@ msgid ""
 msgstr ""
 
 #: subscriptions/notifications.py:92
-#, fuzzy
-#| msgid "Your invitation has expired."
 msgid "Your organization has been disabled"
-msgstr "Ihre Einladung ist abgelaufen."
+msgstr ""
 
 #: subscriptions/templates/subscriptions/subscription_detail.html:7
 msgid "Organization Subscription"
@@ -5825,221 +5804,3 @@ msgid ""
 "OAuth connection of Read the Docs. On GitHub, this is located in "
 "<code>Settings > Applications > Authorized OAuth Apps</code>."
 msgstr ""
-
-#, python-brace-format
-#~ msgid ""
-#~ "There was a problem with Read the Docs while building your documentation. "
-#~ "Please try again later. If this problem persists, report this error to us "
-#~ "with your build id ({build_id})."
-#~ msgstr ""
-#~ "Es existierte ein Problem mit Read the Docs beim Erstellen Ihrer "
-#~ "Dokumentation. Bitte versuchen Sie es später noch einmal. Wenn dieses "
-#~ "Problem weiterhin besteht, melden Sie uns diesen Fehler mit Ihrer Build-"
-#~ "ID ({build_id})."
-
-#~ msgid ""
-#~ "We encountered a problem with a command while building your project. To "
-#~ "resolve this error, double check your project configuration and installed "
-#~ "dependencies are correct and have not changed recently."
-#~ msgstr ""
-#~ "Beim Erstellen Ihres Projekts ist ein Problem mit einem Befehl "
-#~ "aufgetreten. Um diesen Fehler zu beheben, überprüfen Sie nochmals, ob "
-#~ "Ihre Projektkonfiguration und die installierten Abhängigkeiten korrekt "
-#~ "sind und sich in letzter Zeit nicht geändert haben."
-
-#, python-brace-format
-#~ msgid ""
-#~ "No \"{BUILD_COMMANDS_OUTPUT_PATH_HTML}\" folder was created during this "
-#~ "build."
-#~ msgstr ""
-#~ "Bei diesem Build wurde kein Ordner \"{BUILD_COMMANDS_OUTPUT_PATH_HTML}\" "
-#~ "erstellt."
-
-#~ msgid "This build was manually skipped using a command exit code."
-#~ msgstr ""
-#~ "Dieser Build wurde unter Verwendung eines Befehls-Exit-Codes manuell "
-#~ "übersprungen."
-
-#~ msgid "Builds for this project are temporarily disabled"
-#~ msgstr "Builds für dieses Projekt sind vorübergehend deaktiviert"
-
-#, python-brace-format
-#~ msgid "Problem in your project's configuration. {exception}"
-#~ msgstr "Problem in der Konfiguration Ihres Projekts. {exception}"
-
-#, python-brace-format
-#~ msgid "Concurrency limit reached ({limit}), retrying in 5 minutes."
-#~ msgstr ""
-#~ "Gleichzeitigkeitsgrenze erreicht ({limit}), erneuter Versuch in 5 Minuten."
-
-#~ msgid "Build cancelled by user."
-#~ msgstr "Vom Benutzer abgebrochene Erstellung."
-
-#~ msgid ""
-#~ "PDF file was not generated/found in \"_readthedocs/pdf\" output directory."
-#~ msgstr ""
-#~ "PDF-Datei wurde nicht im Ausgabeverzeichnis \"_readthedocs/pdf\" erzeugt/"
-#~ "gefunden."
-
-#, python-brace-format
-#~ msgid "Problem parsing MkDocs YAML configuration. {exception}"
-#~ msgstr "Problem beim Parsen der MkDocs YAML-Konfiguration. {exception}"
-
-#~ msgid ""
-#~ "The \"docs_dir\" config from your MkDocs YAML config file has to be a "
-#~ "string with relative or absolute path."
-#~ msgstr ""
-#~ "Die Konfiguration \"docs_dir\" aus Ihrer MkDocs YAML-Konfigurationsdatei "
-#~ "muss ein String mit relativem oder absolutem Pfad sein."
-
-#~ msgid ""
-#~ "The \"docs_dir\" config from your MkDocs YAML config file does not "
-#~ "contain a valid path."
-#~ msgstr ""
-#~ "Die Konfiguration \"docs_dir\" aus Ihrer MkDocs YAML-Konfigurationsdatei "
-#~ "enthält keinen gültigen Pfad."
-
-#, python-brace-format
-#~ msgid ""
-#~ "The \"{config}\" config from your MkDocs YAML config file has to be a "
-#~ "list of relative paths."
-#~ msgstr ""
-#~ "Die \"{config}\"-Konfiguration aus Ihrer MkDocs YAML-Konfigurationsdatei "
-#~ "muss eine Liste relativer Pfade sein."
-
-#~ msgid "Please make sure the MkDocs YAML configuration file is not empty."
-#~ msgstr ""
-#~ "Bitte stellen Sie sicher, dass die MkDocs YAML-Konfigurationsdatei nicht "
-#~ "leer ist."
-
-#~ msgid ""
-#~ "Your MkDocs YAML config file is incorrect. Please follow the user guide "
-#~ "https://www.mkdocs.org/user-guide/configuration/ to configure the file "
-#~ "properly."
-#~ msgstr ""
-#~ "Ihre MkDocs YAML-Konfigurationsdatei ist falsch. Bitte folgen Sie dem "
-#~ "Benutzerhandbuch https://www.mkdocs.org/user-guide/configuration/, um die "
-#~ "Datei richtig zu konfigurieren."
-
-#~ msgid "Symlinks are not fully supported"
-#~ msgstr "Symlinks werden nicht vollständig unterstützt"
-
-#~ msgid "Notification"
-#~ msgstr "Benachrichtigung"
-
-#~ msgid "Webhook successfully added."
-#~ msgstr "Webhook erfolgreich hinzugefügt."
-
-#~ msgid ""
-#~ "Could not add webhook for {{ project.name }}. Make sure <a "
-#~ "href=\"{{ url_docs_webhook }}\">you have the correct {{ provider.name }} "
-#~ "permissions</a>."
-#~ msgstr ""
-#~ "Webhook für {{ project.name }} konnte nicht hinzugefügt werden. Stellen "
-#~ "Sie sicher, dass <a href=\"{{ url_docs_webhook }}\">Sie über die "
-#~ "richtigen {{ provider.name }}-Berechtigungen verfügen</a>."
-
-#~ msgid ""
-#~ "Could not add webhook for {{ project.name }}. Please <a "
-#~ "href=\"{{ url_connect_account }}\">connect your {{ provider.name }} "
-#~ "account</a>."
-#~ msgstr ""
-#~ "Webhook für {{ project.name }} konnte nicht hinzugefügt werden. Bitte <a "
-#~ "href=\"{{ url_connect_account }}\">verbinden Sie Ihr {{ provider.name }}-"
-#~ "Konto</a>."
-
-#~ msgid ""
-#~ "The project {{ project.name }} doesn't have a valid webhook set up, "
-#~ "commits won't trigger new builds for this project. See <a "
-#~ "href='{{ url_integrations }}'>the project integrations</a> for more "
-#~ "information."
-#~ msgstr ""
-#~ "Für das Projekt {{ project.name }} ist kein gültiger Webhook "
-#~ "eingerichtet, Commits lösen keine neuen Builds für dieses Projekt aus. "
-#~ "Weitere Informationen finden Sie <a href='{{ url_integrations }}'>in den "
-#~ "Projektintegrationen</a>."
-
-#~ msgid ""
-#~ "Could not send {{ provider_name }} build status report for {{ project."
-#~ "name }}. Make sure you have the correct {{ provider_name }} repository "
-#~ "permissions</a> and your <a "
-#~ "href=\"{{ url_connect_account }}\">{{ provider_name }} account</a> is "
-#~ "connected to Read the Docs."
-#~ msgstr ""
-#~ "Konnte keinen {{ provider_name }} Build-Statusbericht für {{ project."
-#~ "name }} senden. Stellen Sie sicher, dass Sie über die richtigen "
-#~ "{{ provider_name }} Repository-Berechtigungen verfügen</a> und Ihr <a "
-#~ "href=\"{{ url_connect_account }}\">{{ provider_name }} Konto</a> mit Read "
-#~ "the Docs verbunden ist."
-
-#~ msgid ""
-#~ "We found more than one conf.py and are not sure which one to use. Please, "
-#~ "specify the correct file under the Advanced settings tab in the project's "
-#~ "Admin."
-#~ msgstr ""
-#~ "Wir haben mehr als eine conf.py gefunden und sind nicht sicher, welche "
-#~ "wir verwenden sollen. Bitte geben Sie die richtige Datei auf der "
-#~ "Registerkarte Erweiterte Einstellungen in der Projektverwaltung an."
-
-#~ msgid "The file {} doesn't exist. Make sure it's a valid file path."
-#~ msgstr ""
-#~ "Die Datei {} existiert nicht. Stellen Sie sicher, dass es sich um einen "
-#~ "gültigen Dateipfad handelt."
-
-#~ msgid ""
-#~ "There was a problem connecting to your repository, ensure that your "
-#~ "repository URL is correct."
-#~ msgstr ""
-#~ "Es existierte ein Problem bei der Verbindung zu Ihrem Repository. "
-#~ "Vergewissern Sie sich, dass die URL Ihres Repositorys korrekt ist."
-
-#~ msgid ""
-#~ "There was a problem connecting to your repository, ensure that your "
-#~ "repository URL is correct and your repository is public. Private "
-#~ "repositories are not supported."
-#~ msgstr ""
-#~ "Beim Herstellen der Verbindung zu Ihrem Repository ist ein Problem "
-#~ "aufgetreten. Stellen Sie sicher, dass Ihre Repository-URL korrekt und Ihr "
-#~ "Repository öffentlich ist. Private Repositorys werden nicht unterstützt."
-
-#~ msgid ""
-#~ "You can not have two versions with the name latest or stable. Ensure you "
-#~ "don't have both a branch and a tag with this name."
-#~ msgstr ""
-#~ "Sie können nicht über zwei Versionen mit dem Namen latest oder stable "
-#~ "verfügen. Stellen Sie sicher, dass Sie nicht sowohl über einen Zweig als "
-#~ "auch über ein Tag mit diesem Namen verfügen."
-
-#~ msgid "Global settings"
-#~ msgstr "Globale Einstellungen"
-
-#~ msgid "Default settings"
-#~ msgstr "Standardeinstellungen"
-
-#~ msgid ""
-#~ "Your primary email address is not verified. Please <a "
-#~ "href=\"{{account_email_url}}\">verify it here</a>."
-#~ msgstr ""
-#~ "Ihre primäre E-Mail-Adresse ist nicht verifiziert. Bitte <a "
-#~ "href=\"{{account_email_url}}\">überprüfen Sie es hier</a>."
-
-#~ msgid ""
-#~ "This build was terminated due to inactivity. If you continue to encounter "
-#~ "this error, file a support request with and reference this build id ({})."
-#~ msgstr ""
-#~ "Dieser Build wurde aufgrund von Inaktivität beendet. Wenn dieser Fehler "
-#~ "weiterhin auftritt, stellen Sie eine Support-Anfrage mit Verweis auf "
-#~ "diese Build-ID ({})."
-
-#, python-format
-#~ msgid ""
-#~ "Your project is currently disabled for abuse of the system. Please make "
-#~ "sure it isn't using unreasonable amounts of resources or triggering lots "
-#~ "of builds in a short amount of time. Please <a href=\"mailto:"
-#~ "%(SUPPORT_EMAIL)s\">contact support</a> to get your project re-enabled."
-#~ msgstr ""
-#~ "Ihr Projekt ist derzeit wegen Missbrauchs des Systems deaktiviert. Bitte "
-#~ "stellen Sie sicher, dass es nicht unangemessen viele Ressourcen "
-#~ "verbraucht oder viele Builds in kurzer Zeit auslöst. Bitte <a "
-#~ "href=\"mailto:%(SUPPORT_EMAIL)s\">wenden Sie sich an den Support</a>, um "
-#~ "Ihr Projekt wieder zu aktivieren."
