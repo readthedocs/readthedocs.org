@@ -58,18 +58,24 @@ class Message:
 
         return " ".join(classes)
 
+    def _prepend_template_prefix(self, template):
+        """
+        Prepend Django {% load %} template tag.
+
+        This is required to render the notifications with custom filters/tags.
+        """
+        prefix = "{% load notifications_filters %}"
+        return prefix + template
+
     def get_rendered_header(self):
-        template = Template(self.header)
+        template = Template(self._prepend_template_prefix(self.header))
         return template.render(context=Context(self.format_values))
 
     def get_rendered_body(self):
-        template = Template(self.body)
+        template = Template(self._prepend_template_prefix(self.body))
         return template.render(context=Context(self.format_values))
 
 
-# TODO: review the copy of these notifications/messages on PR review and adapt them.
-# Most of them are copied from what we had in `readthedocs.doc_builder.exceptions`
-# and slightly adapted to have a header and a better body.
 BUILD_MESSAGES = [
     Message(
         id=BuildAppError.GENERIC_WITH_BUILD_ID,
@@ -122,11 +128,12 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Concurrency limit reached ({{limit}}), retrying in 5 minutes.
+            Your project, organization, or user has reached its maximum number of concurrent builds allowed ({{limit}}).
+            This build will automatically retry in 5 minutes.
             """
             ).strip(),
         ),
-        type=INFO,
+        type=ERROR,
     ),
     Message(
         id=BuildCancelled.CANCELLED_BY_USER,
@@ -142,7 +149,7 @@ BUILD_MESSAGES = [
     ),
     Message(
         id=BuildUserError.SKIPPED_EXIT_CODE_183,
-        header=_("Build skipped manually."),
+        header=_("Build skipped."),
         body=_(
             textwrap.dedent(
                 """
@@ -155,11 +162,12 @@ BUILD_MESSAGES = [
     ),
     Message(
         id=BuildUserError.BUILD_TIME_OUT,
-        header=_("Build exited due to time out."),
+        header=_("Build terminated due to time out."),
         body=_(
             textwrap.dedent(
                 """
-            Build exited due to time out.
+            The build was terminated due to time out.
+            Read more about <a href="https://docs.readthedocs.io/en/stable/builds.html#build-resources">time and memory limits in our documentation</a>.
             """
             ).strip(),
         ),
@@ -167,11 +175,12 @@ BUILD_MESSAGES = [
     ),
     Message(
         id=BuildUserError.BUILD_EXCESSIVE_MEMORY,
-        header=_("Build exited due to excessive memory consumption."),
+        header=_("Build terminated due to excessive memory consumption."),
         body=_(
             textwrap.dedent(
                 """
-            Build exited due to excessive memory consumption.
+            This build was terminated due to excessive memory consumption.
+            Read more about <a href="https://docs.readthedocs.io/en/stable/builds.html#build-resources">time and memory limits in our documentation</a>.
             """
             ).strip(),
         ),
@@ -179,11 +188,11 @@ BUILD_MESSAGES = [
     ),
     Message(
         id=BuildAppError.BUILD_DOCKER_UNKNOWN_ERROR,
-        header=_("Build exited due to unknown error."),
+        header=_("Build terminated due to unknown error."),
         body=_(
             textwrap.dedent(
                 """
-            Build exited due to unknown error: {{message}}
+            This build was terminated due to unknown error: {{message}}
             """
             ).strip(),
         ),
@@ -204,19 +213,6 @@ BUILD_MESSAGES = [
         type=ERROR,
     ),
     Message(
-        id=BuildUserError.MAX_CONCURRENCY,
-        header=_("Concurrency limit reached"),
-        body=_(
-            textwrap.dedent(
-                """
-            Your project, organization, or user is currently building the maximum concurrency builds allowed ({{limit}}).
-            It will automatically retry in 5 minutes.
-            """
-            ).strip(),
-        ),
-        type=WARNING,
-    ),
-    Message(
         id=BuildUserError.BUILD_COMMANDS_WITHOUT_OUTPUT,
         header=_("No HTML content found"),
         body=_(
@@ -235,6 +231,7 @@ BUILD_MESSAGES = [
             textwrap.dedent(
                 """
             Build output directory for format "{{artifact_type}}" is not a directory.
+            Make sure you created this directory properly when running <code>build.commands</code>.
             """
             ).strip(),
         ),
@@ -273,7 +270,7 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Your documentation did not generate an 'index.html' at its root directory.
+            Your documentation did not generate an <code>index.html</code> at its root directory.
             This is required for documentation serving at the root URL for this version.
             """
             ).strip(),
@@ -286,9 +283,9 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            Some files were detected in an unsupported output path, '_build/html'.
+            Some files were detected in an unsupported output path: <code>_build/html</code>.
             Ensure your project is configured to use the output path
-            '$READTHEDOCS_OUTPUT/html' instead.
+            <code>$READTHEDOCS_OUTPUT/html</code> instead.
             """
             ).strip(),
         ),
@@ -302,7 +299,7 @@ BUILD_MESSAGES = [
                 """
             The configuration file required to build documentation is missing from your project.
             Add a configuration file to your project to make it build successfully.
-            Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html
+            Read more in our <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html">configuration file documentation</a>.
             """
             ).strip(),
         ),
@@ -314,9 +311,9 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            The configuration key "build.image" is deprecated.
-            Use "build.os" instead to continue building your project.
-            Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os
+            The configuration key <code>build.image</code> is deprecated.
+            Use <code>build.os</code> instead to continue building your project.
+            Read more in our <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os">configuration file documentation</a>.
             """
             ).strip(),
         ),
@@ -328,13 +325,14 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            The configuration key "build.os" is required to build your documentation.
-            Read more at https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os
+            The configuration key <code>build.os</code> is required to build your documentation.
+            Read more in our <a href="https://docs.readthedocs.io/en/stable/config-file/v2.html#build-os">configuration file documentation</a>.
             """
             ).strip(),
         ),
         type=ERROR,
     ),
+    # TODO: consider exposing the name of the file exceeding the size limit.
     Message(
         id=BuildUserError.FILE_TOO_LARGE,
         header=_("There is at least one file that exceeds the size limit"),
@@ -355,6 +353,7 @@ BUILD_MESSAGES = [
             textwrap.dedent(
                 f"""
              PDF file was not generated/found in "{BUILD_COMMANDS_OUTPUT_PATH_HTML}/pdf" output directory.
+             Make sure the PDF file is saved in this directory.
              """
             ).strip(),
         ),
@@ -366,7 +365,7 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            <strong>The <code>"build.commands"</code> feature is in beta, and could have backwards incompatible changes while in beta.</strong>
+            <strong>The <code>build.commands</code> feature is in beta, and could have backwards incompatible changes while in beta.</strong>
             Read more at <a href=""https://docs.readthedocs.io/page/build-customization.html#override-the-build-process">our documentation</a> to find out its limitations and potential issues.
             """
             ).strip(),
@@ -379,7 +378,7 @@ BUILD_MESSAGES = [
         body=_(
             textwrap.dedent(
                 """
-            No TeX files were found.
+            Read the Docs could not generate a PDF file because the intermediate step generating the TeX file failed.
             """
             ).strip(),
         ),
@@ -402,11 +401,11 @@ BUILD_MKDOCS_MESSAGES = [
     ),
     Message(
         id=MkDocsYAMLParseError.INVALID_DOCS_DIR_CONFIG,
-        header=_(""),
+        header=_("MkDocs <code>docs_dir</code> configuration option is invalid"),
         body=_(
             textwrap.dedent(
                 """
-            The "docs_dir" config from your MkDocs YAML config file has to be a
+            The <code>docs_dir</code> option from your <code>mkdocs.yml</code> configuration file has to be a
             string with relative or absolute path.
             """
             ).strip(),
@@ -415,10 +414,12 @@ BUILD_MKDOCS_MESSAGES = [
     ),
     Message(
         id=MkDocsYAMLParseError.INVALID_DOCS_DIR_PATH,
-        header=_(""),
+        header=_("MkDocs <code>docs_dir</code> path not found"),
         body=_(
             textwrap.dedent(
                 """
+                The path specified by <code>docs_dir</code> in the <code>mkdocs.yml</code> file does not exist.
+                Make sure this path is correct.
             """
             ).strip(),
         ),
@@ -426,11 +427,13 @@ BUILD_MKDOCS_MESSAGES = [
     ),
     Message(
         id=MkDocsYAMLParseError.INVALID_EXTRA_CONFIG,
-        header=_(""),
+        header=_(
+            "MkDocs <code>{{extra_config}}</code> configuration option is invalid"
+        ),
         body=_(
             textwrap.dedent(
                 """
-            The "{{config}}" config from your MkDocs YAML config file has to be a
+            The <code>{{extra_config}}</code> option from your <code>mkdocs.yml</code> configuration file has to be a
             list of relative paths.
             """
             ).strip(),
@@ -439,11 +442,11 @@ BUILD_MKDOCS_MESSAGES = [
     ),
     Message(
         id=MkDocsYAMLParseError.EMPTY_CONFIG,
-        header=_(""),
+        header=_("MkDocs configuration file is empty"),
         body=_(
             textwrap.dedent(
                 """
-            Please make sure the MkDocs YAML configuration file is not empty.
+            Please make sure the <code>mkdocs.yml</code> configuration file is not empty.
             """
             ).strip(),
         ),
@@ -451,12 +454,13 @@ BUILD_MKDOCS_MESSAGES = [
     ),
     Message(
         id=MkDocsYAMLParseError.NOT_FOUND,
-        header=_(""),
+        header=_("MkDocs configuration file not found"),
         body=_(
             textwrap.dedent(
                 """
-            A configuration file was not found.
-            Make sure you have a "mkdocs.yml" file in your repository.
+            The configuration file for MkDocs was not found.
+            Make sure the <code>mkdocs.configuration</code> option is correct,
+            and you have the <code>mkdocs.yml</code> in that location.
             """
             ).strip(),
         ),
@@ -464,12 +468,12 @@ BUILD_MKDOCS_MESSAGES = [
     ),
     Message(
         id=MkDocsYAMLParseError.CONFIG_NOT_DICT,
-        header=_(""),
+        header=_("Unknown error when loading your MkDocs configuration file"),
         body=_(
             textwrap.dedent(
                 """
-            Your MkDocs YAML config file is incorrect.
-            Please follow the user guide https://www.mkdocs.org/user-guide/configuration/
+            Your <code>mkdocs.yml</code> configuration file is incorrect.
+            Please follow the <a href="https://www.mkdocs.org/user-guide/configuration/">official user guide</a>
             to configure the file properly.
             """
             ).strip(),

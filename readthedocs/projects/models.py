@@ -160,7 +160,10 @@ class AddonsConfig(TimeStampedModel):
     )
 
     # Analytics
-    analytics_enabled = models.BooleanField(default=True)
+
+    # NOTE: we keep analytics disabled by default to save resources.
+    # Most projects won't be taking a look at these numbers.
+    analytics_enabled = models.BooleanField(default=False)
 
     # Docdiff
     doc_diff_enabled = models.BooleanField(default=True)

@@ -1,3 +1,29 @@
+Version 10.17.0
+---------------
+
+:Date: January 30, 2024
+
+* `@humitos <https://github.com/humitos>`__: Build: update some `build.tools` versions (`#11074 <https://github.com/readthedocs/readthedocs.org/pull/11074>`__)
+* `@humitos <https://github.com/humitos>`__: Make Sphinx to share environment between commands (`#11073 <https://github.com/readthedocs/readthedocs.org/pull/11073>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11070 <https://github.com/readthedocs/readthedocs.org/pull/11070>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: `build.current` API response fix (`#11068 <https://github.com/readthedocs/readthedocs.org/pull/11068>`__)
+* `@stsewd <https://github.com/stsewd>`__: Integrations: add created and updated fields to model (`#11067 <https://github.com/readthedocs/readthedocs.org/pull/11067>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix provier_name in notification template (`#11066 <https://github.com/readthedocs/readthedocs.org/pull/11066>`__)
+* `@stsewd <https://github.com/stsewd>`__: Analytics: don't record page views for PR previews (`#11065 <https://github.com/readthedocs/readthedocs.org/pull/11065>`__)
+* `@stsewd <https://github.com/stsewd>`__: Custom domain: don't allow external domain (`#11064 <https://github.com/readthedocs/readthedocs.org/pull/11064>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix migration (`#11063 <https://github.com/readthedocs/readthedocs.org/pull/11063>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: improve copy on error messages (`#11062 <https://github.com/readthedocs/readthedocs.org/pull/11062>`__)
+* `@stsewd <https://github.com/stsewd>`__: Embed API: fix regex patterns for allowed external domains (`#11059 <https://github.com/readthedocs/readthedocs.org/pull/11059>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: check if path is None and fix merge of query params (`#11058 <https://github.com/readthedocs/readthedocs.org/pull/11058>`__)
+* `@humitos <https://github.com/humitos>`__: Build: don't attach notification when build failed `before_start` (`#11057 <https://github.com/readthedocs/readthedocs.org/pull/11057>`__)
+* `@humitos <https://github.com/humitos>`__: Addons: disable analytics by default (`#11056 <https://github.com/readthedocs/readthedocs.org/pull/11056>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.16.1 (`#11054 <https://github.com/readthedocs/readthedocs.org/pull/11054>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: move warning from embed API to the top (`#11053 <https://github.com/readthedocs/readthedocs.org/pull/11053>`__)
+* `@humitos <https://github.com/humitos>`__: APIv3: bring back `OrganizationsViewSet` that was removed (`#11052 <https://github.com/readthedocs/readthedocs.org/pull/11052>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.16.0 (`#11051 <https://github.com/readthedocs/readthedocs.org/pull/11051>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: create an index for `attached_to` (`#11050 <https://github.com/readthedocs/readthedocs.org/pull/11050>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: cancel notifications automatically (`#11048 <https://github.com/readthedocs/readthedocs.org/pull/11048>`__)
+
 Version 10.16.1
 ---------------
 

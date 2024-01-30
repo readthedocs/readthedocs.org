@@ -79,7 +79,7 @@
   },
   "addons": {
     "analytics": {
-      "enabled": true,
+      "enabled": false,
       "code": null
     },
     "external_version_warning": {

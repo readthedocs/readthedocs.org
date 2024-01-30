@@ -35,7 +35,6 @@ class BuildAppError(BuildBaseException):
 class BuildUserError(BuildBaseException):
     GENERIC = "build:user:generic"
     SKIPPED_EXIT_CODE_183 = "build:user:exit-code-183"
-    MAX_CONCURRENCY = "build:user:max-concurrency"
 
     BUILD_COMMANDS_WITHOUT_OUTPUT = "build:user:output:no-html"
     BUILD_OUTPUT_IS_NOT_A_DIRECTORY = "build:user:output:is-no-a-directory"

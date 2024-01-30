@@ -818,8 +818,15 @@ class DomainForm(forms.ModelForm):
 
         domain_string = parsed.netloc
 
-        # Don't allow production or public domain to be set as custom domain
-        for invalid_domain in [settings.PRODUCTION_DOMAIN, settings.PUBLIC_DOMAIN]:
+        # Don't allow internal domains to be added, we have:
+        # - Dashboard domain
+        # - Public domain (from where documentation pages are served)
+        # - External version domain (from where PR previews are served)
+        for invalid_domain in [
+            settings.PRODUCTION_DOMAIN,
+            settings.PUBLIC_DOMAIN,
+            settings.RTD_EXTERNAL_VERSION_DOMAIN,
+        ]:
             if invalid_domain and domain_string.endswith(invalid_domain):
                 raise forms.ValidationError(
                     f'{invalid_domain} is not a valid domain.'
