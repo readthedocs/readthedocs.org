@@ -116,9 +116,6 @@ class Redirect(models.Model):
         help_text=_("Order of execution of the redirect."),
     )
 
-    # TODO: remove this field and use `enabled` instead.
-    status = models.BooleanField(choices=[], default=True, null=True)
-
     create_dt = models.DateTimeField(auto_now_add=True)
     update_dt = models.DateTimeField(auto_now=True)
 
