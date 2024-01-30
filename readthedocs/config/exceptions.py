@@ -11,7 +11,6 @@ class ConfigError(BuildUserError):
         "config:python:use-system-site-packages-removed"
     )
     INVALID_VERSION = "config:base:invalid-version"
-    GENERIC_INVALID_CONFIG_KEY = "config:key:generic-invalid-config-key"
     NOT_BUILD_TOOLS_OR_COMMANDS = "config:build:missing-build-tools-commands"
     BUILD_JOBS_AND_COMMANDS = "config:build:jobs-and-commands"
     APT_INVALID_PACKAGE_NAME_PREFIX = "config:apt:invalid-package-name-prefix"

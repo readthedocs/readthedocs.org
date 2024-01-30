@@ -799,6 +799,7 @@ class TestDocServingBackends(BaseDocServing):
 @override_settings(
     PYTHON_MEDIA=False,
     PUBLIC_DOMAIN='readthedocs.io',
+    RTD_EXTERNAL_VERSION_DOMAIN="dev.readthedocs.build",
 )
 # We are overriding the storage class instead of using RTD_BUILD_MEDIA_STORAGE,
 # since the setting is evaluated just once (first test to use the storage
@@ -1465,6 +1466,33 @@ class TestAdditionalDocViews(BaseDocServing):
         self.assertEqual(pageview.path, "/en/not-found/")
         self.assertEqual(pageview.view_count, 1)
         self.assertEqual(pageview.status, 404)
+
+    @mock.patch.object(BuildMediaFileSystemStorageTest, "exists")
+    def test_dont_track_external_domains(self, storage_exists):
+        storage_exists.return_value = False
+        get(
+            Feature,
+            feature_id=Feature.RECORD_404_PAGE_VIEWS,
+            projects=[self.project],
+        )
+        get(
+            Version,
+            slug="123",
+            type=EXTERNAL,
+            built=True,
+            active=True,
+        )
+        self.assertEqual(PageView.objects.all().count(), 0)
+
+        resp = self.client.get(
+            reverse(
+                "proxito_404_handler",
+                kwargs={"proxito_path": "/en/123/"},
+            ),
+            headers={"host": "project--123.dev.readthedocs.build"},
+        )
+        self.assertEqual(resp.status_code, 404)
+        self.assertEqual(PageView.objects.all().count(), 0)
 
     @mock.patch.object(BuildMediaFileSystemStorageTest, "open")
     def test_track_broken_link_custom_404(self, storage_open):

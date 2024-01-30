@@ -291,9 +291,10 @@ class Conda(PythonEnvironment):
             )
             if not inputfile:
                 raise UserFileNotFound(
-                    UserFileNotFound.FILE_NOT_FOUND.format(
-                        self.config.conda.environment
-                    )
+                    message_id=UserFileNotFound.FILE_NOT_FOUND,
+                    format_values={
+                        "filename": self.config.conda.environment,
+                    },
                 )
             environment = parse_yaml(inputfile)
         except IOError:
@@ -334,9 +335,10 @@ class Conda(PythonEnvironment):
                 )
                 if not outputfile:
                     raise UserFileNotFound(
-                        UserFileNotFound.FILE_NOT_FOUND.format(
-                            self.config.conda.environment
-                        )
+                        message_id=UserFileNotFound.FILE_NOT_FOUND,
+                        format_values={
+                            "filename": self.config.conda.environment,
+                        },
                     )
                 yaml.safe_dump(environment, outputfile)
             except IOError:

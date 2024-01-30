@@ -23,6 +23,7 @@ from readthedocs.core.unresolver import (
     unresolver,
 )
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.core.utils.requests import is_suspicious_request
 from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING, PRIVATE
 from readthedocs.projects.models import Domain, Feature, HTMLFile
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
@@ -497,13 +498,14 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                 # and we don't want to issue infinite redirects.
                 pass
 
-        # Register 404 pages into our database for user's analytics
-        self._register_broken_link(
-            project=project,
-            version=version,
-            path=filename,
-            full_path=proxito_path,
-        )
+        # Register 404 pages into our database for user's analytics.
+        if not unresolved_domain.is_from_external_domain:
+            self._register_broken_link(
+                project=project,
+                version=version,
+                filename=filename,
+                path=proxito_path,
+            )
 
         response = self._get_custom_404_page(
             request=request,
@@ -521,33 +523,26 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             path_not_found=proxito_path,
         )
 
-    def _register_broken_link(self, project, version, path, full_path):
+    def _register_broken_link(self, project, version, filename, path):
         try:
             if not project.has_feature(Feature.RECORD_404_PAGE_VIEWS):
                 return
 
-            # This header is set from Cloudflare,
-            # it goes from 0 to 100, 0 being low risk,
-            # and values above 10 are bots/spammers.
-            # https://developers.cloudflare.com/ruleset-engine/rules-language/fields/#dynamic-fields.
-            threat_score = int(self.request.headers.get("X-Cloudflare-Threat-Score", 0))
-            if threat_score > 10:
+            if is_suspicious_request(self.request):
                 log.info(
-                    "Suspicious threat score, not recording 404.",
-                    threat_score=threat_score,
+                    "Suspicious request, not recording 404.",
                 )
                 return
 
-            # If the path isn't attached to a version
-            # it should be the same as the full_path,
+            # If we don't have a version, the filename is the path,
             # otherwise it would be empty.
             if not version:
-                path = full_path
+                filename = path
             PageView.objects.register_page_view(
                 project=project,
                 version=version,
+                filename=filename,
                 path=path,
-                full_path=full_path,
                 status=404,
             )
         except Exception:
@@ -556,7 +551,7 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
             log.exception(
                 "Error while recording the broken link",
                 project_slug=project.slug,
-                full_path=full_path,
+                path=path,
             )
 
     def _get_custom_404_page(self, request, project, version=None):
