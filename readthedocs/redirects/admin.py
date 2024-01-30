@@ -7,7 +7,14 @@ from .models import Redirect
 
 @admin.register(Redirect)
 class RedirectAdmin(admin.ModelAdmin):
-    list_display = ["project", "redirect_type", "from_url", "to_url", "position", "enabled"]
+    list_display = [
+        "project",
+        "redirect_type",
+        "from_url",
+        "to_url",
+        "position",
+        "enabled",
+    ]
     list_select_related = ("project",)
     list_filter = ("redirect_type", "enabled")
     raw_id_fields = ("project",)
