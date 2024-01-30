@@ -295,7 +295,6 @@ class BaseSphinx(BaseBuilder):
         build_command = [
             *self.get_sphinx_cmd(),
             "-T",
-            "-E",
         ]
         if self.config.sphinx.fail_on_warning:
             build_command.extend(["-W", "--keep-going"])
@@ -483,7 +482,6 @@ class PdfBuilder(BaseSphinx):
         self.run(
             *self.get_sphinx_cmd(),
             "-T",
-            "-E",
             "-b",
             self.sphinx_builder,
             "-d",
