@@ -612,8 +612,6 @@ class GitLabWebhookView(WebhookMixin, APIView):
             event=event,
         )
 
-        integration = self.get_integration()
-
         # Always update `latest` branch to point to the default branch in the repository
         # even if the event is not gonna be handled. This helps us to keep our db in sync.
         default_branch = self.data.get("project", {}).get("default_branch", None)
