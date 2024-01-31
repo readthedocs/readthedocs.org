@@ -65,11 +65,13 @@ RTD_DOCKER_BUILD_SETTINGS = {
 }
 
 # Set latest aliases for OS and tools.
-RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-latest-lts"] = RTD_DOCKER_BUILD_SETTINGS["os"]["ubuntu-20.04"]
-RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3.12"]
-RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["latest"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["3"]
-RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["miniconda-latest"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["miniconda3-4.7"]
-RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["mambaforge-latest"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["python"]["mambaforge-22.9"]
-RTD_DOCKER_BUILD_SETTINGS["tools"]["nodejs"]["latest"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["nodejs"]["20"]
-RTD_DOCKER_BUILD_SETTINGS["tools"]["rust"]["latest"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["rust"]["1.75"]
-RTD_DOCKER_BUILD_SETTINGS["tools"]["golang"]["latest"] = RTD_DOCKER_BUILD_SETTINGS["tools"]["golang"]["1.21"]
+_OS = RTD_DOCKER_BUILD_SETTINGS["os"]
+_TOOLS = RTD_DOCKER_BUILD_SETTINGS["tools"]
+_OS["ubuntu-latest-lts"] = _OS["ubuntu-20.04"]
+_TOOLS["python"]["3"] = _TOOLS["python"]["3.12"]
+_TOOLS["python"]["latest"] = _TOOLS["python"]["3"]
+_TOOLS["python"]["miniconda-latest"] = _TOOLS["python"]["miniconda3-4.7"]
+_TOOLS["python"]["mambaforge-latest"] = _TOOLS["python"]["mambaforge-22.9"]
+_TOOLS["nodejs"]["latest"] = _TOOLS["nodejs"]["20"]
+_TOOLS["rust"]["latest"] = _TOOLS["rust"]["1.75"]
+_TOOLS["golang"]["latest"] = _TOOLS["golang"]["1.21"]
