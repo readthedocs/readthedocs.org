@@ -279,12 +279,12 @@ Image names refer to the operating system Read the Docs uses to build them.
 
 .. note::
 
-   The ``ubuntu-latest-lts`` option refers to the latest LTS version of Ubuntu available on Read the Docs,
-   not the latest LTS version available.
+   The ``ubuntu-latest-lts`` option refers to the latest Ubuntu LTS version of Ubuntu available on Read the Docs,
+   which may not match the latest Ubuntu LTS officially released.
 
 .. warning::
 
-   Using ``ubuntu-latest-lts`` may break your builds unexpectedly if your project isn't compatible with the latest version when it's updated.
+   Using ``ubuntu-latest-lts`` may break your builds unexpectedly if your project isn't compatible with the newest Ubuntu LTS version when it's updated by Read the Docs.
 
 build.tools
 ```````````
@@ -298,11 +298,12 @@ Version specifiers for each tool. It must contain at least one tool.
 .. note::
 
    Each tool has a ``latest`` option available, which refers to the latest version available on Read the Docs,
-   not the latest version available. Versions are updated at least once every six months.
+   which may not match the latest version officially released.
+   Versions and the ``latest`` option are updated at least once every six months to keep up with the latest releases.
 
 .. warning::
 
-   Using ``latest`` may break your builds unexpectedly if your project isn't compatible with the latest version of the tool when it's updated.
+   Using ``latest`` may break your builds unexpectedly if your project isn't compatible with the newest version of the tool when it's updated by Read the Docs.
 
 build.tools.python
 ``````````````````

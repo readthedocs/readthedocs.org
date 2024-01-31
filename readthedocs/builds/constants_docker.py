@@ -14,8 +14,9 @@ DOCKER_DEFAULT_IMAGE = "readthedocs/build"
 # - Add a mapping between the expected version in the config file, to the full
 #   version installed via asdf (found via ``asdf list all <tool>``).
 # - Run the script ``./scripts/compile_version_upload.sh`` in
-#   development and production environments to compile and cache the new
-#   tool/version.
+#   development to compile and cache the new tool/version.
+# - Update the CircleCI job on the ``readthedocs-docker-images`` repository with the new versions at
+#   https://github.com/rtfd/readthedocs-docker-images/blob/d2760526abdfe27001946614b749abf8011b7f90/.circleci/config.yml#L38-L44.
 # - Update the latest aliases for OS and tools (below this setting).
 # - Update readthedocs/rtd_tests/fixtures/spec/v2/schema.json.
 # - Update the documentation in ``docs/user/config-file/v2.rst``.
