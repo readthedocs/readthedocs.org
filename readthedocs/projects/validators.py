@@ -139,7 +139,7 @@ def validate_build_config_file(path):
         raise ValidationError(
             format_html(
                 _("The only allowed filenames are <code>{filenames}</code>."),
-                filenames=", ".join(valid_filenames)
+                filenames=", ".join(valid_filenames),
             ),
             code="path_invalid",
         )
