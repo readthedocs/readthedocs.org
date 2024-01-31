@@ -2,6 +2,7 @@
 
 from django import urls
 from django.contrib import admin
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from pygments.formatters import HtmlFormatter
 
@@ -110,11 +111,10 @@ class IntegrationAdmin(admin.ModelAdmin):
                 HttpExchange._meta.model_name,
             ),
         )
-        return mark_safe(
-            '<a href="{}?{}={}">{} HTTP transactions</a>'.format(
-                url,
-                "integrations__pk",
-                obj.pk,
-                obj.exchanges.count(),
-            ),
+        return format_html(
+            '<a href="{}?{}={}">{} HTTP transactions</a>',
+            url,
+            "integrations__pk",
+            obj.pk,
+            obj.exchanges.count(),
         )

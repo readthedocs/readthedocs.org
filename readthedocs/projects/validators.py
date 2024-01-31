@@ -7,7 +7,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.utils.deconstruct import deconstructible
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.projects.constants import LANGUAGES
@@ -114,11 +114,12 @@ def validate_build_config_file(path):
         )
     if any(ch in path for ch in invalid_characters):
         raise ValidationError(
-            mark_safe(
+            format_html(
                 _(
                     "Found invalid character. Avoid these characters: "
                     "<code>{invalid_characters}</code>"
-                ).format(invalid_characters=invalid_characters),
+                ),
+                invalid_characters=invalid_characters,
             ),
             code="path_invalid",
         )
@@ -128,19 +129,17 @@ def validate_build_config_file(path):
     )
     if not is_valid and len(valid_filenames) == 1:
         raise ValidationError(
-            mark_safe(
-                _("The only allowed filename is <code>{filename}</code>.").format(
-                    filename=valid_filenames[0]
-                ),
+            format_html(
+                _("The only allowed filename is <code>{filename}</code>."),
+                filename=valid_filenames[0],
             ),
             code="path_invalid",
         )
     if not is_valid:
         raise ValidationError(
-            mark_safe(
-                _("The only allowed filenames are <code>{filenames}</code>.").format(
-                    filenames=", ".join(valid_filenames)
-                ),
+            format_html(
+                _("The only allowed filenames are <code>{filenames}</code>."),
+                filenames=", ".join(valid_filenames)
             ),
             code="path_invalid",
         )
