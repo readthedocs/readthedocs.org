@@ -2287,25 +2287,6 @@ class IntegrationsTests(TestCase):
             GitHubWebhookView.invalid_payload_msg
         )
 
-    def test_github_skip_signature_validation(self, trigger_build):
-        client = APIClient()
-        payload = '{"ref":"master"}'
-        Integration.objects.filter(pk=self.github_integration.pk).update(secret=None)
-        headers = {
-            GITHUB_EVENT_HEADER: GITHUB_PUSH,
-            GITHUB_SIGNATURE_HEADER: 'skipped',
-        }
-        resp = client.post(
-            reverse(
-                'api_webhook_github',
-                kwargs={'project_slug': self.project.slug}
-            ),
-            json.loads(payload),
-            format='json',
-            headers=headers,
-        )
-        self.assertEqual(resp.status_code, 200)
-
     @mock.patch('readthedocs.core.views.hooks.sync_repository_task', mock.MagicMock())
     def test_github_sync_on_push_event(self, trigger_build):
         """Sync if the webhook doesn't have the create/delete events, but we receive a push event with created/deleted."""
@@ -2646,23 +2627,6 @@ class IntegrationsTests(TestCase):
             resp.data['detail'],
             GitLabWebhookView.invalid_payload_msg
         )
-
-    def test_gitlab_skip_token_validation(self, trigger_build):
-        client = APIClient()
-        Integration.objects.filter(pk=self.gitlab_integration.pk).update(secret=None)
-        headers = {
-            GITLAB_TOKEN_HEADER: 'skipped',
-        }
-        resp = client.post(
-            reverse(
-                'api_webhook_gitlab',
-                kwargs={'project_slug': self.project.slug}
-            ),
-            {'object_kind': 'pull_request'},
-            format='json',
-            headers=headers,
-        )
-        self.assertEqual(resp.status_code, 200)
 
     @mock.patch('readthedocs.core.utils.trigger_build')
     def test_gitlab_merge_request_open_event(self, trigger_build, core_trigger_build):
@@ -3248,9 +3212,7 @@ class IntegrationsTests(TestCase):
         self.assertTrue(resp.data['build_triggered'])
         self.assertEqual(resp.data['versions'], ['v1.0'])
 
-    @mock.patch("readthedocs.api.v2.views.integrations.timezone.now")
-    def test_deprecate_webhooks_without_a_secret(self, now, trigger_build):
-        now.return_value = datetime.datetime(2024, 1, 31, tzinfo=datetime.timezone.utc)
+    def test_dont_allow_webhooks_without_a_secret(self, trigger_build):
         client = APIClient()
 
         Integration.objects.filter(pk=self.github_integration.pk).update(secret=None)

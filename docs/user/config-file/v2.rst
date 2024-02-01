@@ -292,7 +292,7 @@ build.tools
 Version specifiers for each tool. It must contain at least one tool.
 
 :Type: ``dict``
-:Options: ``python``, ``nodejs``, ``rust``, ``golang``
+:Options: ``python``, ``nodejs``, ``ruby``, ``rust``, ``golang``
 :Required: ``true``
 
 .. note::
@@ -348,6 +348,15 @@ Node.js version to use.
    - ``19``
    - ``20``
    - ``latest`` (alias for the latest version available on Read the Docs)
+
+build.tools.ruby
+````````````````
+
+Ruby version to use.
+
+:Type: ``string``
+:Options:
+   - ``3.3``
 
 build.tools.rust
 ````````````````
