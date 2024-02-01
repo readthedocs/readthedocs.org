@@ -169,6 +169,12 @@
                 "latest"
               ]
             },
+            "ruby": {
+              "enum": [
+                "3.3",
+                "latest"
+              ]
+            },
             "rust": {
               "enum": [
                 "1.55",

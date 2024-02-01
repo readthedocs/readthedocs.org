@@ -357,6 +357,7 @@ Ruby version to use.
 :Type: ``string``
 :Options:
    - ``3.3``
+   - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.rust
 ````````````````
