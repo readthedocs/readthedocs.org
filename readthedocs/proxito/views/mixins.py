@@ -1,4 +1,3 @@
-import copy
 import mimetypes
 from urllib.parse import parse_qsl, urlencode, urlparse
 
@@ -233,22 +232,17 @@ class ServeDocsMixin:
         :param path: The path of the file to serve.
         :param root_path: The root path of the internal redirect.
         """
-        original_path = copy.copy(path)
-        if not path.startswith(f"/{root_path}/"):
-            if path[0] == "/":
-                path = path[1:]
-            path = f"/{root_path}/{path}"
-
+        internal_path = f"/{root_path}/" + path.lstrip("/")
         log.debug(
             "Nginx serve.",
-            original_path=original_path,
-            path=path,
+            original_path=path,
+            internal_path=internal_path,
         )
 
-        content_type, encoding = mimetypes.guess_type(path)
+        content_type, encoding = mimetypes.guess_type(internal_path)
         content_type = content_type or "application/octet-stream"
         response = HttpResponse(
-            f"Serving internal path: {path}", content_type=content_type
+            f"Serving internal path: {internal_path}", content_type=content_type
         )
         if encoding:
             response["Content-Encoding"] = encoding
@@ -258,11 +252,11 @@ class ServeDocsMixin:
         # as the header value.
         # https://github.com/benoitc/gunicorn/issues/1448
         # https://docs.djangoproject.com/en/1.11/ref/unicode/#uri-and-iri-handling
-        x_accel_redirect = iri_to_uri(path)
+        x_accel_redirect = iri_to_uri(internal_path)
         response["X-Accel-Redirect"] = x_accel_redirect
 
         # Needed to strip any GET args, etc.
-        response.proxito_path = urlparse(path).path
+        response.proxito_path = urlparse(internal_path).path
         return response
 
     def _serve_file_from_python(self, request, path, storage):

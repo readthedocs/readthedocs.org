@@ -1729,6 +1729,28 @@ class TestAdditionalDocViews(BaseDocServing):
             resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
         )
 
+    @mock.patch(
+        "readthedocs.proxito.views.mixins.staticfiles_storage",
+        new=StaticFileSystemStorageTest(),
+    )
+    def test_serve_static_files_internal_nginx_redirect_always_appended(self):
+        """Test for #11080."""
+        resp = self.client.get(
+            reverse(
+                "proxito_static_files",
+                args=["proxito-static/javascript/readthedocs-doc-embed.js"],
+            ),
+            headers={"host": "project.readthedocs.io"},
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(
+            resp.headers["x-accel-redirect"],
+            "/proxito-static/media/proxito-static/javascript/readthedocs-doc-embed.js",
+        )
+        self.assertEqual(
+            resp.headers["Cache-Tag"], "project,project:rtd-staticfiles,rtd-staticfiles"
+        )
+
     @mock.patch("readthedocs.proxito.views.mixins.staticfiles_storage")
     def test_serve_invalid_static_file(self, staticfiles_storage):
         staticfiles_storage.url.side_effect = Exception
