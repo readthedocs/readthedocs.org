@@ -14,7 +14,7 @@ def migrate(apps, schema_editor):
     when the created field was added to the Version model
     at https://github.com/readthedocs/readthedocs.org/commit/d72ee6e27dc398b97e884ccec8a8cf135134faac.
     """
-    Version = apps.get_model("buildd", "Version")
+    Version = apps.get_model("builds", "Version")
     date = datetime.datetime(2020, 11, 23, tzinfo=datetime.timezone.utc)
     Version.objects.filter(created=None).update(created=date)
     Version.objects.filter(modified=None).update(modified=date)
