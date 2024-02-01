@@ -274,17 +274,17 @@ Image names refer to the operating system Read the Docs uses to build them.
    Arbitrary Docker images are not supported.
 
 :Type: ``string``
-:Options: ``ubuntu-20.04``, ``ubuntu-22.04``, ``ubuntu-latest-lts``
+:Options: ``ubuntu-20.04``, ``ubuntu-22.04``, ``ubuntu-lts-latest``
 :Required: ``true``
 
 .. note::
 
-   The ``ubuntu-latest-lts`` option refers to the latest Ubuntu LTS version of Ubuntu available on Read the Docs,
+   The ``ubuntu-lts-latest`` option refers to the latest Ubuntu LTS version of Ubuntu available on Read the Docs,
    which may not match the latest Ubuntu LTS officially released.
 
 .. warning::
 
-   Using ``ubuntu-latest-lts`` may break your builds unexpectedly if your project isn't compatible with the newest Ubuntu LTS version when it's updated by Read the Docs.
+   Using ``ubuntu-lts-latest`` may break your builds unexpectedly if your project isn't compatible with the newest Ubuntu LTS version when it's updated by Read the Docs.
 
 build.tools
 ```````````
