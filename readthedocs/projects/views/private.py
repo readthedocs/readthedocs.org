@@ -15,7 +15,7 @@ from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, TemplateView
 from formtools.wizard.views import SessionWizardView
@@ -371,16 +371,15 @@ class ImportView(PrivateViewMixin, TemplateView):
             provider_account = account.get_provider_account()
             messages.error(
                 request,
-                mark_safe((
+                format_html(
                     _(
                         'There is a problem with your {service} account, '
                         'try reconnecting your account on your '
                         '<a href="{url}">connected services page</a>.',
-                    ).format(
-                        service=provider_account.get_brand()['name'],
-                        url=reverse('socialaccount_connections'),
-                    )
-                )),  # yapf: disable
+                    ),
+                    service=provider_account.get_brand()["name"],
+                    url=reverse("socialaccount_connections"),
+                ),
             )
         return super().get(request, *args, **kwargs)
 
