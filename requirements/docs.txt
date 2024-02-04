@@ -10,7 +10,7 @@ babel==2.14.0
     # via
     #   sphinx
     #   sphinx-intl
-certifi==2023.11.17
+certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
@@ -39,7 +39,7 @@ markdown-it-py==3.0.0
     # via
     #   mdit-py-plugins
     #   myst-parser
-markupsafe==2.1.4
+markupsafe==2.1.5
     # via jinja2
 mdit-py-plugins==0.4.0
     # via myst-parser
@@ -131,7 +131,7 @@ sphinxext-opengraph==0.9.1
     # via -r requirements/docs.in
 tornado==6.4
     # via livereload
-urllib3==2.1.0
+urllib3==2.2.0
     # via requests
 
 # The following packages are considered to be unsafe in a requirements file:
