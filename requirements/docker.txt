@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.29
+boto3==1.34.34
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.29
+botocore==1.34.34
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -40,7 +40,7 @@ celery==5.2.7
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-certifi==2023.11.17
+certifi==2024.2.2
     # via
     #   -r requirements/pip.txt
     #   elastic-transport
@@ -76,11 +76,11 @@ click-repl==0.3.0
     #   celery
 colorama==0.4.6
     # via tox
-cron-descriptor==1.4.0
+cron-descriptor==1.4.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==42.0.1
+cryptography==42.0.2
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -144,7 +144,7 @@ django-crispy-forms==1.14.0
     # via -r requirements/pip.txt
 django-csp==3.7
     # via -r requirements/pip.txt
-django-debug-toolbar==4.2.0
+django-debug-toolbar==4.3.0
     # via -r requirements/pip.txt
 django-elasticsearch-dsl==8.0
     # via -r requirements/pip.txt
@@ -232,7 +232,7 @@ idna==3.6
     #   requests
 ipdb==0.13.13
     # via -r requirements/docker.in
-ipython==8.20.0
+ipython==8.21.0
     # via ipdb
 jedi==0.19.1
     # via ipython
@@ -265,7 +265,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.9.12
+orjson==3.9.13
     # via -r requirements/pip.txt
 packaging==23.2
     # via
@@ -282,7 +282,7 @@ pdbpp==0.10.3
     # via -r requirements/docker.in
 pexpect==4.9.0
     # via ipython
-platformdirs==4.1.0
+platformdirs==4.2.0
     # via
     #   -r requirements/pip.txt
     #   tox
@@ -336,7 +336,7 @@ python3-openid==3.2.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-pytz==2023.3.post1
+pytz==2024.1
     # via
     #   -r requirements/pip.txt
     #   celery
