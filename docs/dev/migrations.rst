@@ -2,7 +2,7 @@ Database migrations
 ===================
 
 We use `Django migrations <https://docs.djangoproject.com/en/4.2/topics/migrations/>`__ to manage database schema changes,
-and the `django-safe-migrate <https://github.com/aspiredu/django-safemigrate>`__ package to ensure that migrations are run in a given order to avoid downtime.
+and the `django-safemigrate <https://github.com/aspiredu/django-safemigrate>`__ package to ensure that migrations are run in a given order to avoid downtime.
 
 To make sure that migrations don't cause downtime,
 the following rules should be followed for each case.
