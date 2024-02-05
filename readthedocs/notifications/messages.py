@@ -516,7 +516,7 @@ class MessagesRegistry:
                 raise ValueError("A message with the same 'id' is already registered.")
             self.messages[message.id] = message
 
-    def get(self, message_id, format_values={}):
+    def get(self, message_id, format_values=None):
         # Copy to avoid setting format values on the static instance of the
         # message inside the registry, set on a per-request instance instead.
         message = copy.copy(self.messages.get(message_id))
