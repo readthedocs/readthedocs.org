@@ -42,10 +42,15 @@ from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.invitations.models import Invitation
+from readthedocs.notifications.messages import registry as messages_registry
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
+from readthedocs.projects.exceptions import (
+    ProjectAutomaticCreationDisallowed,
+    ProjectManualCreationDisallowed,
+)
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.forms import (
     AddonsConfigForm,
@@ -398,9 +403,55 @@ class ImportView(PrivateViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['view_csrf_token'] = get_token(self.request)
-        context['has_connected_accounts'] = SocialAccount.objects.filter(
-            user=self.request.user,
-        ).exists()
+
+        if settings.RTD_EXT_THEME_ENABLED:
+            error_import_manually = None
+            error_import_automatically = None
+
+            has_connected_account = SocialAccount.objects.filter(
+                user=self.request.user,
+            ).exists()
+
+            # First check ability for automatic project creation
+            # NOTE that try catch is used here, but isn't super useful yet. But
+            # if it makes more sense to house this logic outside this view,
+            # somewhere central to organization/user modeling, then we don't
+            # have to change any code here.
+            try:
+                if has_connected_account:
+                    raise ProjectAutomaticCreationDisallowed(
+                        message_id=ProjectAutomaticCreationDisallowed.NO_CONNECTED_ACCOUNT,
+                        format_values={
+                            "url": reverse("socialaccount_connections"),
+                        },
+                    )
+                # TODO if organization sso enabled and user is not an owner
+                if True:
+                    raise ProjectAutomaticCreationDisallowed(
+                        message_id=ProjectAutomaticCreationDisallowed.SSO_ENABLED,
+                    )
+            except ProjectAutomaticCreationDisallowed as exc:
+                error_import_automatically = messages_registry.get(
+                    exc.message_id,
+                    format_values=exc.format_values,
+                )
+
+            # Next check ability for manual project creation
+            try:
+                # TODO if organization sso enabled
+                if True:
+                    raise ProjectManualCreationDisallowed(
+                        ProjectManualCreationDisallowed.SSO_ENABLED
+                    )
+            except ProjectManualCreationDisallowed as exc:
+                error_import_manually = messages_registry.get(
+                    exc.message_id,
+                    format_values=exc.format_values,
+                )
+
+            context["error_import_automatically"] = error_import_automatically
+            context["error_import_manually"] = error_import_manually
+
         return context
 
 
