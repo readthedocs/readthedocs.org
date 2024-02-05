@@ -274,8 +274,17 @@ Image names refer to the operating system Read the Docs uses to build them.
    Arbitrary Docker images are not supported.
 
 :Type: ``string``
-:Options: ``ubuntu-20.04``, ``ubuntu-22.04``
+:Options: ``ubuntu-20.04``, ``ubuntu-22.04``, ``ubuntu-lts-latest``
 :Required: ``true``
+
+.. note::
+
+   The ``ubuntu-lts-latest`` option refers to the latest Ubuntu LTS version of Ubuntu available on Read the Docs,
+   which may not match the latest Ubuntu LTS officially released.
+
+.. warning::
+
+   Using ``ubuntu-lts-latest`` may break your builds unexpectedly if your project isn't compatible with the newest Ubuntu LTS version when it's updated by Read the Docs.
 
 build.tools
 ```````````
@@ -285,6 +294,16 @@ Version specifiers for each tool. It must contain at least one tool.
 :Type: ``dict``
 :Options: ``python``, ``nodejs``, ``ruby``, ``rust``, ``golang``
 :Required: ``true``
+
+.. note::
+
+   Each tool has a ``latest`` option available, which refers to the latest version available on Read the Docs,
+   which may not match the latest version officially released.
+   Versions and the ``latest`` option are updated at least once every six months to keep up with the latest releases.
+
+.. warning::
+
+   Using ``latest`` may break your builds unexpectedly if your project isn't compatible with the newest version of the tool when it's updated by Read the Docs.
 
 build.tools.python
 ``````````````````
@@ -301,7 +320,7 @@ You can use several interpreters and versions, from CPython, Miniconda, and Mamb
 :Type: ``string``
 :Options:
   - ``2.7``
-  - ``3`` (last stable CPython version)
+  - ``3`` (alias for the latest 3.x version available on Read the Docs)
   - ``3.6``
   - ``3.7``
   - ``3.8``
@@ -309,9 +328,12 @@ You can use several interpreters and versions, from CPython, Miniconda, and Mamb
   - ``3.10``
   - ``3.11``
   - ``3.12``
+  - ``latest`` (alias for the latest version available on Read the Docs)
   - ``miniconda3-4.7``
+  - ``miniconda-latest`` (alias for the latest version available on Read the Docs)
   - ``mambaforge-4.10``
   - ``mambaforge-22.9``
+  - ``mambaforge-latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.nodejs
 ``````````````````
@@ -325,6 +347,7 @@ Node.js version to use.
    - ``18``
    - ``19``
    - ``20``
+   - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.ruby
 ````````````````
@@ -334,6 +357,7 @@ Ruby version to use.
 :Type: ``string``
 :Options:
    - ``3.3``
+   - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.rust
 ````````````````
@@ -346,6 +370,8 @@ Rust version to use.
    - ``1.61``
    - ``1.64``
    - ``1.70``
+   - ``1.75``
+   - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.tools.golang
 ``````````````````
@@ -358,6 +384,8 @@ Go version to use.
    - ``1.18``
    - ``1.19``
    - ``1.20``
+   - ``1.21``
+   - ``latest`` (alias for the latest version available on Read the Docs)
 
 build.apt_packages
 ``````````````````
