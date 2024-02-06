@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-30 11:15+0000\n"
+"POT-Creation-Date: 2024-02-06 11:14+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Yaron Shahrabani <sh.yaron@gmail.com>, 2018-2019,2022-2024\n"
 "Language-Team: Hebrew (http://app.transifex.com/readthedocs/readthedocs/"
@@ -206,7 +206,7 @@ msgid "Log out"
 msgstr "יציאה"
 
 #: audit/models.py:91 organizations/views/private.py:148
-#: organizations/views/private.py:213 projects/views/private.py:464
+#: organizations/views/private.py:213 projects/views/private.py:463
 msgid "Invitation sent"
 msgstr "נשלחה הזמנה"
 
@@ -858,7 +858,7 @@ msgstr "גרסת הגדרות שגויה"
 
 #: config/notifications.py:105
 msgid "Missing configuration option"
-msgstr ""
+msgstr "אפשרות תצורה חסרה"
 
 #: config/notifications.py:117
 msgid "Invalid configuration option"
@@ -874,7 +874,7 @@ msgstr "שיטת התקנת Python שגויה"
 
 #: config/notifications.py:166
 msgid "Missing configuration key"
-msgstr ""
+msgstr "מפתח תצורה חסר"
 
 #: config/notifications.py:203
 msgid "Invalid configuration key: {{key}}"
@@ -1350,19 +1350,19 @@ msgstr "הבנייה בוטלה ידנית."
 
 #: notifications/messages.py:152
 msgid "Build skipped."
-msgstr ""
+msgstr "בנייה דולגה."
 
 #: notifications/messages.py:165
 msgid "Build terminated due to time out."
-msgstr ""
+msgstr "הבנייה הושמדה כי עבר יותר מדי זמן."
 
 #: notifications/messages.py:178
 msgid "Build terminated due to excessive memory consumption."
-msgstr ""
+msgstr "הבנייה הושמדה כי השתמשה ביותר מדי זיכרון."
 
 #: notifications/messages.py:191
 msgid "Build terminated due to unknown error."
-msgstr ""
+msgstr "הבנייה הושמדה עקב שגיאה לא ידועה."
 
 #: notifications/messages.py:203
 msgid "Builds are temporary disabled for this project."
@@ -1422,27 +1422,27 @@ msgstr "לא נמצאו קובצי טך (TeX)"
 
 #: notifications/messages.py:404
 msgid "MkDocs <code>docs_dir</code> configuration option is invalid"
-msgstr ""
+msgstr "אפשרות ההגדרה <code>docs_dir</code> של MkDocs שגויה"
 
 #: notifications/messages.py:417
 msgid "MkDocs <code>docs_dir</code> path not found"
-msgstr ""
+msgstr "נתיב ה־<code>docs_dir</code> של MkDocs לא נמצא"
 
 #: notifications/messages.py:431
 msgid "MkDocs <code>{{extra_config}}</code> configuration option is invalid"
-msgstr ""
+msgstr "אפשרות ההגדרה <code>{{extra_config}}</code> של MkDocs שגויה"
 
 #: notifications/messages.py:445
 msgid "MkDocs configuration file is empty"
-msgstr ""
+msgstr "קובץ ההגדרות של MkDocs ריק"
 
 #: notifications/messages.py:457
 msgid "MkDocs configuration file not found"
-msgstr ""
+msgstr "קובץ ההגדרות של MkDocs לא נמצא"
 
 #: notifications/messages.py:471
 msgid "Unknown error when loading your MkDocs configuration file"
-msgstr ""
+msgstr "שגיאה לא ידועה בעת טעינת קובץ ההגדרות שלך ב־MkDocs"
 
 #: notifications/messages.py:485
 msgid "Syntax error in <code>mkdocs.yml</code>"
@@ -1537,7 +1537,7 @@ msgstr "למיזם לא מוגדרת התליה תקפה"
 
 #: oauth/notifications.py:62
 msgid "{{provider_name}} build status report failed"
-msgstr ""
+msgstr "דוח מצב בנייה של {{provider_name}} נכשל"
 
 #: oauth/notifications.py:77
 msgid "Deploy key added successfully"
@@ -2321,13 +2321,14 @@ msgstr "הגדרה זו התקבלה בירושה מ<a href=\"{link}\">גרסת 
 msgid ""
 "We have detected that this project is private, pull request previews are set "
 "to private."
-msgstr ""
+msgstr "זיהינו שהמיזם הזה פרטי, תצוגות מקדימות של בקשות דחיפה מוגדרות לפרטיות."
 
 #: projects/forms.py:280
 msgid ""
 "We have detected that this project is public, pull request previews are set "
 "to public."
 msgstr ""
+"זיהינו שהמיזם הזה ציבורי, תצוגות מקדימות של בקשות דחיפה מוגדרות לציבוריות."
 
 #: projects/forms.py:297
 msgid "To build from pull requests you need a "
@@ -2561,6 +2562,8 @@ msgid ""
 "Should builds from pull requests be public? <strong>If your repository is "
 "public, don't set this to private</strong>."
 msgstr ""
+"האם בניות מבקשות הדחיפה האלה תהיינה ציבוריות? <strong>אם המאגר שלך ציבורי, "
+"לא להגדיר את זה לפרטי</strong>."
 
 #: projects/models.py:367
 msgid "CDN Enabled"
@@ -3092,7 +3095,7 @@ msgid ""
 msgstr ""
 "נמצא תו שגוי. יש להימנע מהתווים האלה: <code>{invalid_characters}</code>"
 
-#: projects/validators.py:132
+#: projects/validators.py:133
 #, python-brace-format
 msgid "The only allowed filename is <code>{filename}</code>."
 msgstr "שם הקובץ היחידי שמותר הוא <code>{filename}</code>."
@@ -3123,12 +3126,12 @@ msgstr ""
 "קרתה תקלה עם החשבון שלך אצל {service}, כדאי לנסות לחבר את החשבון שלך מחדש "
 "ב<a href=\"{url}\">עמוד השירותים המחוברים</a> שלך."
 
-#: projects/views/private.py:498
+#: projects/views/private.py:497
 #, python-brace-format
 msgid "{username} is the last owner, can't be removed"
 msgstr "{username} הוא הבעלים האחרונים, לא ניתן להסיר"
 
-#: projects/views/private.py:952
+#: projects/views/private.py:951
 msgid "Project has been opted out from advertisement support"
 msgstr "המיזם ביטל תמיכה עם פרסומות"
 
@@ -3216,15 +3219,15 @@ msgstr "מקום"
 msgid "Order of execution of the redirect."
 msgstr "סדר פעילויות ההפניה."
 
-#: redirects/models.py:130
+#: redirects/models.py:127
 msgid "redirect"
 msgstr "הפניה"
 
-#: redirects/models.py:131
+#: redirects/models.py:128
 msgid "redirects"
 msgstr "הפניות"
 
-#: redirects/models.py:208
+#: redirects/models.py:205
 msgid "Redirect: {}"
 msgstr "הפנייה: {}"
 

@@ -982,8 +982,8 @@ class Build(models.Model):
 
     def get_version_slug(self):
         if self.version:
-            return self.version.verbose_name
-        return self.version_name
+            return self.version.slug
+        return self.version_slug
 
     def get_version_type(self):
         if self.version:

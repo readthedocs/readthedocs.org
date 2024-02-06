@@ -33,7 +33,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-30 11:15+0000\n"
+"POT-Creation-Date: 2024-02-06 11:14+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: JY3, 2022-2023\n"
 "Language-Team: Chinese (China) (http://app.transifex.com/readthedocs/"
@@ -225,7 +225,7 @@ msgid "Log out"
 msgstr "退出登录"
 
 #: audit/models.py:91 organizations/views/private.py:148
-#: organizations/views/private.py:213 projects/views/private.py:464
+#: organizations/views/private.py:213 projects/views/private.py:463
 msgid "Invitation sent"
 msgstr ""
 
@@ -3001,7 +3001,7 @@ msgid ""
 "code>"
 msgstr ""
 
-#: projects/validators.py:132
+#: projects/validators.py:133
 #, python-brace-format
 msgid "The only allowed filename is <code>{filename}</code>."
 msgstr ""
@@ -3032,12 +3032,12 @@ msgstr ""
 "您的 {service} 账号出现了问题，尝试重新连接 <a href=\"{url}\">已连接服务页面"
 "</a>上的账号。"
 
-#: projects/views/private.py:498
+#: projects/views/private.py:497
 #, python-brace-format
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:952
+#: projects/views/private.py:951
 msgid "Project has been opted out from advertisement support"
 msgstr "项目已从广告支持中退出"
 
@@ -3125,15 +3125,15 @@ msgstr ""
 msgid "Order of execution of the redirect."
 msgstr ""
 
-#: redirects/models.py:130
+#: redirects/models.py:127
 msgid "redirect"
 msgstr "重定向"
 
-#: redirects/models.py:131
+#: redirects/models.py:128
 msgid "redirects"
 msgstr "重定向"
 
-#: redirects/models.py:208
+#: redirects/models.py:205
 msgid "Redirect: {}"
 msgstr ""
 
