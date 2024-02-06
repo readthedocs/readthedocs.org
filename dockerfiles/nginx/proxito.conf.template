@@ -1,7 +1,7 @@
 # Proxito
 server {
     listen 8080;
-    server_name nginx;
+    server_name proxito;
 
     # Docker Compose's "logging.driver: none" is not working anymore.
     # So, we are disabling the logs from NGINX directly.
@@ -18,6 +18,17 @@ server {
     location  ~* ^/html/(?P<project>.+)/(?P<version>.+)/(?P<path>.*) {
         add_header X-Served Nginx-External-Redirect always;
         rewrite ^ http://$project--$version.org.dev.readthedocs.build/page/$path;
+    }
+
+    # Proxy the "readthedocs-addons.js" to be downloaded from GitHub
+    location /_/static/javascript/readthedocs-addons.js {
+        proxy_pass https://raw.githubusercontent.com/readthedocs/addons/$NGINX_ADDONS_GITHUB_TAG/dist/readthedocs-addons.js;
+        add_header Content-Type	"text/javascript; charset=utf-8" always;
+    }
+
+    location /_/static/javascript/readthedocs-addons.js.map {
+        proxy_pass https://raw.githubusercontent.com/readthedocs/addons/$NGINX_ADDONS_GITHUB_TAG/dist/readthedocs-addons.js.map;
+        add_header Content-Type	"text/javascript; charset=utf-8" always;
     }
 
     # Proxito doc serving
