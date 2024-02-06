@@ -404,63 +404,43 @@ class ImportView(PrivateViewMixin, TemplateView):
         context['view_csrf_token'] = get_token(self.request)
 
         if settings.RTD_EXT_THEME_ENABLED:
-            error_import_manually = None
-            error_import_automatically = None
             has_connected_account = SocialAccount.objects.filter(
                 user=self.request.user,
             ).exists()
 
             # First check ability for automatic project creation
-            # NOTE that try catch is used here, but isn't super useful yet. But
-            # if it makes more sense to house this logic outside this view,
-            # somewhere central to organization/user modeling, then we don't
-            # have to change any code here.
-
+            message_id = None
+            format_values = None
+            if not has_connected_account:
+                message_id = ProjectAutomaticCreationDisallowed.NO_CONNECTED_ACCOUNT
+                format_values = {"url": reverse("socialaccount_connections")}
+            # TODO if user is on a team with admin permissions
             # TODO see organization templatetags for some of the wrappers
-            try:
-                if not has_connected_account:
-                    raise ProjectAutomaticCreationDisallowed(
-                        message_id=ProjectAutomaticCreationDisallowed.NO_CONNECTED_ACCOUNT,
-                        format_values={
-                            "url": reverse("socialaccount_connections"),
-                        },
-                    )
-                # TODO if user is on a team with admin permissions
-                if True:
-                    raise ProjectAutomaticCreationDisallowed(
-                        ProjectAutomaticCreationDisallowed.INADEQUATE_PERMISSIONS,
-                    )
-                # TODO if organization sso enabled and user is not an owner
-                if True:
-                    raise ProjectAutomaticCreationDisallowed(
-                        message_id=ProjectAutomaticCreationDisallowed.SSO_ENABLED,
-                    )
-            except ProjectAutomaticCreationDisallowed as exc:
-                error_import_automatically = messages_registry.get(
-                    exc.message_id,
-                    format_values=exc.format_values,
+            elif True:
+                message_id = ProjectAutomaticCreationDisallowed.INADEQUATE_PERMISSIONS
+            # TODO if organization sso enabled and user is not an owner
+            elif True:
+                message_id = ProjectAutomaticCreationDisallowed.SSO_ENABLED
+            if message_id is not None:
+                context["error_import_automatically"] = messages_registry.get(
+                    message_id=message_id,
+                    format_values=format_values,
                 )
 
-            # Next check ability for manual project creation
-            try:
-                # TODO if not in a team with admin permissions
-                if True:
-                    raise ProjectManualCreationDisallowed(
-                        ProjectManualCreationDisallowed.INADEQUATE_PERMISSIONS,
-                    )
-                # TODO if organization sso enabled
-                if True:
-                    raise ProjectManualCreationDisallowed(
-                        ProjectManualCreationDisallowed.SSO_ENABLED
-                    )
-            except ProjectManualCreationDisallowed as exc:
-                error_import_manually = messages_registry.get(
-                    exc.message_id,
-                    format_values=exc.format_values,
+            # Again for manual project creation
+            message_id = None
+            format_values = None
+            # TODO if user is on a team with admin permissions
+            if True:
+                message_id = ProjectManualCreationDisallowed.INADEQUATE_PERMISSIONS
+            # TODO if organization sso enabled and user is not an owner
+            elif True:
+                message_id = ProjectManualCreationDisallowed.SSO_ENABLED
+            if message_id is not None:
+                context["error_import_manually"] = messages_registry.get(
+                    message_id=message_id,
+                    format_values=format_values,
                 )
-
-            context["error_import_automatically"] = error_import_automatically
-            context["error_import_manually"] = error_import_manually
 
         return context
 
