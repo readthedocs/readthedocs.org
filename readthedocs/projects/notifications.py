@@ -162,7 +162,7 @@ messages = [
                 """
             ).strip(),
         ),
-        type=WARNING,
+        type=ERROR,
     ),
     Message(
         id=ProjectAutomaticCreationDisallowed.SSO_ENABLED,
@@ -175,20 +175,58 @@ messages = [
                 """
             ).strip(),
         ),
-        type=WARNING,
+        type=ERROR,
     ),
+    Message(
+        id=ProjectAutomaticCreationDisallowed.NO_CONNECTED_ACCOUNT,
+        header=_("No connected services found"),
+        body=_(
+            textwrap.dedent(
+                # Translators: "connected service" refers to the user setting page for "Connected Services"
+                """
+                You must first <a href="{{ url }}">add a connected service to your account</a>
+                to enable automatic configuration of repositories.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    Message(
+        id=ProjectAutomaticCreationDisallowed.INADEQUATE_PERMISSIONS,
+        header=_("Admin permission required"),
+        body=_(
+            textwrap.dedent(
+                """
+                You must be on a team with admin permissions to add a new project.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
+    ),
+    # Same as above but for manual import
     Message(
         id=ProjectManualCreationDisallowed.SSO_ENABLED,
         header=_("Organization single sign-on enabled"),
         body=_(
             textwrap.dedent(
                 """
-                Projects cannot be manually configured when single sign-on is
-                enabled.
+                Projects cannot be manually configured when single sign-on is enabled.
                 """
             ).strip(),
         ),
-        type=WARNING,
+        type=ERROR,
+    ),
+    Message(
+        id=ProjectManualCreationDisallowed.INADEQUATE_PERMISSIONS,
+        header=_("Admin permission required"),
+        body=_(
+            textwrap.dedent(
+                """
+                You must be on a team with admin permissions to add a new project.
+                """
+            ).strip(),
+        ),
+        type=ERROR,
     ),
 ]
 registry.add(messages)

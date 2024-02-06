@@ -406,7 +406,6 @@ class ImportView(PrivateViewMixin, TemplateView):
         if settings.RTD_EXT_THEME_ENABLED:
             error_import_manually = None
             error_import_automatically = None
-
             has_connected_account = SocialAccount.objects.filter(
                 user=self.request.user,
             ).exists()
@@ -416,13 +415,20 @@ class ImportView(PrivateViewMixin, TemplateView):
             # if it makes more sense to house this logic outside this view,
             # somewhere central to organization/user modeling, then we don't
             # have to change any code here.
+
+            # TODO see organization templatetags for some of the wrappers
             try:
-                if has_connected_account:
+                if not has_connected_account:
                     raise ProjectAutomaticCreationDisallowed(
                         message_id=ProjectAutomaticCreationDisallowed.NO_CONNECTED_ACCOUNT,
                         format_values={
                             "url": reverse("socialaccount_connections"),
                         },
+                    )
+                # TODO if user is on a team with admin permissions
+                if True:
+                    raise ProjectAutomaticCreationDisallowed(
+                        ProjectAutomaticCreationDisallowed.INADEQUATE_PERMISSIONS,
                     )
                 # TODO if organization sso enabled and user is not an owner
                 if True:
@@ -437,6 +443,11 @@ class ImportView(PrivateViewMixin, TemplateView):
 
             # Next check ability for manual project creation
             try:
+                # TODO if not in a team with admin permissions
+                if True:
+                    raise ProjectManualCreationDisallowed(
+                        ProjectManualCreationDisallowed.INADEQUATE_PERMISSIONS,
+                    )
                 # TODO if organization sso enabled
                 if True:
                     raise ProjectManualCreationDisallowed(
