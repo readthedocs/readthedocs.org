@@ -326,7 +326,7 @@ for example::
 
   Type: Exact Redirect
   From URL: /*
-  To URL: https://newdocs.example.com/
+  To URL: https://newdocs.example.com/:splat
   Force Redirect: True
 
 Users will now be redirected:

@@ -9,7 +9,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: readthedocs\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-30 11:15+0000\n"
+"POT-Creation-Date: 2024-02-06 11:14+0000\n"
 "PO-Revision-Date: 2012-10-03 11:28+0000\n"
 "Last-Translator: Tomas Straupis, 2021,2023\n"
 "Language-Team: Lithuanian (http://app.transifex.com/readthedocs/readthedocs/"
@@ -203,7 +203,7 @@ msgid "Log out"
 msgstr "Atsijungti"
 
 #: audit/models.py:91 organizations/views/private.py:148
-#: organizations/views/private.py:213 projects/views/private.py:464
+#: organizations/views/private.py:213 projects/views/private.py:463
 msgid "Invitation sent"
 msgstr "Pakvietimas išsiųstas"
 
@@ -3054,7 +3054,7 @@ msgid ""
 "code>"
 msgstr ""
 
-#: projects/validators.py:132
+#: projects/validators.py:133
 #, python-brace-format
 msgid "The only allowed filename is <code>{filename}</code>."
 msgstr ""
@@ -3085,12 +3085,12 @@ msgstr ""
 "Yra problemų su jūsų {service} paskyra, bandykite prijungti iš naujo jūsų <a "
 "href=\"{url}\">prijungtų paslaugų puslapyje</a>."
 
-#: projects/views/private.py:498
+#: projects/views/private.py:497
 #, python-brace-format
 msgid "{username} is the last owner, can't be removed"
 msgstr ""
 
-#: projects/views/private.py:952
+#: projects/views/private.py:951
 msgid "Project has been opted out from advertisement support"
 msgstr "Projektas buvo išimtas iš reklamos palaikymo"
 
@@ -3181,15 +3181,15 @@ msgstr ""
 msgid "Order of execution of the redirect."
 msgstr ""
 
-#: redirects/models.py:130
+#: redirects/models.py:127
 msgid "redirect"
 msgstr "peradresavimas"
 
-#: redirects/models.py:131
+#: redirects/models.py:128
 msgid "redirects"
 msgstr "peradresavimai"
 
-#: redirects/models.py:208
+#: redirects/models.py:205
 msgid "Redirect: {}"
 msgstr "Peradresavimas: {}"
 

@@ -1,3 +1,34 @@
+Version 10.18.0
+---------------
+
+:Date: February 06, 2024
+
+* `@dependabot[bot] <https://github.com/dependabot[bot]>`__: Bump peter-evans/create-pull-request from 5 to 6 (`#11092 <https://github.com/readthedocs/readthedocs.org/pull/11092>`__)
+* `@man-chi <https://github.com/man-chi>`__: add example list for showing basic asciidoc using Antora  (`#11091 <https://github.com/readthedocs/readthedocs.org/pull/11091>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11090 <https://github.com/readthedocs/readthedocs.org/pull/11090>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use html_format instead of mark_safe + format (`#11086 <https://github.com/readthedocs/readthedocs.org/pull/11086>`__)
+* `@stsewd <https://github.com/stsewd>`__: Build: use version slug for get_version_slug (`#11085 <https://github.com/readthedocs/readthedocs.org/pull/11085>`__)
+* `@stsewd <https://github.com/stsewd>`__: Integrations: Don't allow webhooks without a secret (`#11083 <https://github.com/readthedocs/readthedocs.org/pull/11083>`__)
+* `@stsewd <https://github.com/stsewd>`__: Config file: add support for latest aliases (`#11081 <https://github.com/readthedocs/readthedocs.org/pull/11081>`__)
+* `@stsewd <https://github.com/stsewd>`__: Proxito: always add nginx internal path (`#11080 <https://github.com/readthedocs/readthedocs.org/pull/11080>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: remove unused status field (`#11079 <https://github.com/readthedocs/readthedocs.org/pull/11079>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: fix redirects example (`#11078 <https://github.com/readthedocs/readthedocs.org/pull/11078>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.17.0 (`#11077 <https://github.com/readthedocs/readthedocs.org/pull/11077>`__)
+* `@stsewd <https://github.com/stsewd>`__: Docs: clarify search configuration patterns (`#11076 <https://github.com/readthedocs/readthedocs.org/pull/11076>`__)
+* `@humitos <https://github.com/humitos>`__: Build: add support for Ruby (`#11075 <https://github.com/readthedocs/readthedocs.org/pull/11075>`__)
+* `@humitos <https://github.com/humitos>`__: Build: update some `build.tools` versions (`#11074 <https://github.com/readthedocs/readthedocs.org/pull/11074>`__)
+* `@humitos <https://github.com/humitos>`__: Make Sphinx to share environment between commands (`#11073 <https://github.com/readthedocs/readthedocs.org/pull/11073>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Fix provier_name in notification template (`#11066 <https://github.com/readthedocs/readthedocs.org/pull/11066>`__)
+* `@humitos <https://github.com/humitos>`__: Build: don't attach notification when build failed `before_start` (`#11057 <https://github.com/readthedocs/readthedocs.org/pull/11057>`__)
+* `@humitos <https://github.com/humitos>`__: Notification: create an index for `attached_to` (`#11050 <https://github.com/readthedocs/readthedocs.org/pull/11050>`__)
+* `@stsewd <https://github.com/stsewd>`__: Redirects: fix infinite loop detection (`#11038 <https://github.com/readthedocs/readthedocs.org/pull/11038>`__)
+* `@ericholscher <https://github.com/ericholscher>`__: Release 10.15.1 (`#11034 <https://github.com/readthedocs/readthedocs.org/pull/11034>`__)
+* `@humitos <https://github.com/humitos>`__: Logging: reduce not useful lines (`#11030 <https://github.com/readthedocs/readthedocs.org/pull/11030>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#10860 <https://github.com/readthedocs/readthedocs.org/pull/10860>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix docker setting (`#10565 <https://github.com/readthedocs/readthedocs.org/pull/10565>`__)
+* `@humitos <https://github.com/humitos>`__: Deprecation: remove code for config file v1 and default config file (`#10367 <https://github.com/readthedocs/readthedocs.org/pull/10367>`__)
+* `@benjaoming <https://github.com/benjaoming>`__: Docs: Re-scope Intersphinx article as a how-to (`#9622 <https://github.com/readthedocs/readthedocs.org/pull/9622>`__)
+
 Version 10.17.0
 ---------------
 
