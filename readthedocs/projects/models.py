@@ -193,6 +193,10 @@ class AddonsConfig(TimeStampedModel):
         help_text="Sorting pattern supported by BumpVer "
         '(<a href="https://github.com/mbarkhau/bumpver#pattern-examples"> See examples</a>',
     )
+    flyout_sorting_stable_latest_at_beginning = models.BooleanField(
+        default=True,
+        help_text="Show <code>stable</code> and <code>latest</code> at the beginning",
+    )
 
     # Hotkeys
     hotkeys_enabled = models.BooleanField(default=True)

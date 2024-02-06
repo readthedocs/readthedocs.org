@@ -265,6 +265,10 @@ class AddonsResponse:
         version_downloads = []
         versions_active_built_not_hidden = Version.objects.none()
 
+        # Automatically create an AddonsConfig with the default values for
+        # projects that don't have one already
+        AddonsConfig.objects.get_or_create(project=project)
+
         if project.supports_multiple_versions:
             versions_active_built_not_hidden = (
                 Version.internal.public(
@@ -277,6 +281,7 @@ class AddonsResponse:
                 .only("slug", "type")
                 .order_by("slug")
             )
+
             if (
                 project.addons.flyout_sorting
                 == ADDONS_FLYOUT_SORTING_SEMVER_READTHEDOCS_COMPATIBLE
@@ -292,16 +297,19 @@ class AddonsResponse:
                 project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_PYTHON_PACKAGING
             ):
                 versions_active_built_not_hidden = sort_versions_python_packaging(
-                    versions_active_built_not_hidden
+                    versions_active_built_not_hidden,
+                    project.addons.flyout_sorting_stable_latest_at_beginning,
                 )
             elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CALVER:
                 versions_active_built_not_hidden = sort_versions_calver(
-                    versions_active_built_not_hidden
+                    versions_active_built_not_hidden,
+                    project.addons.flyout_sorting_stable_latest_at_beginning,
                 )
             elif project.addons.flyout_sorting == ADDONS_FLYOUT_SORTING_CUSTOM_PATTERN:
                 versions_active_built_not_hidden = sort_versions_custom_pattern(
                     versions_active_built_not_hidden,
                     project.addons.flyout_sorting_custom_pattern,
+                    project.addons.flyout_sorting_stable_latest_at_beginning,
                 )
 
         if version:
@@ -317,10 +325,6 @@ class AddonsResponse:
             # Example: a project with Russian and Spanish translations will be showns as:
             #     en (original), es, ru
             project_translations = itertools.chain([main_project], project_translations)
-
-        # Automatically create an AddonsConfig with the default values for
-        # projects that don't have one already
-        AddonsConfig.objects.get_or_create(project=project)
 
         data = {
             "api_version": "0",

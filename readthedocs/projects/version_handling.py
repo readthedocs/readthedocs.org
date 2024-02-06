@@ -4,9 +4,15 @@ import unicodedata
 
 from bumpver.v2version import parse_version_info
 from bumpver.version import PatternError
-from packaging.version import InvalidVersion, Version, parse
+from packaging.version import InvalidVersion, Version
 
-from readthedocs.builds.constants import LATEST_VERBOSE_NAME, STABLE_VERBOSE_NAME, TAG
+from readthedocs.builds.constants import (
+    LATEST,
+    LATEST_VERBOSE_NAME,
+    STABLE,
+    STABLE_VERBOSE_NAME,
+    TAG,
+)
 from readthedocs.vcs_support.backends import backend_cls
 
 
@@ -163,7 +169,7 @@ def determine_stable_version(version_list):
     return None
 
 
-def sort_versions_python_packaging(version_list):
+def sort_versions_python_packaging(version_list, stable_latest_at_beginning):
     """
     Sort Read the Docs versions list using ``packaging`` algorithm.
 
@@ -178,34 +184,46 @@ def sort_versions_python_packaging(version_list):
         key=operator.attrgetter("slug"),
     )
 
+    initial_versions = []
+
     valid_versions = []
     invalid_versions = []
     for i, version in enumerate(alphabetically_sorted_version_list):
+        if stable_latest_at_beginning:
+            if version.slug in (STABLE, LATEST):
+                # It relies on the version list sorted alphabetically first ("l" comes first than "s")
+                initial_versions.insert(0, (version, version.slug))
+                continue
+
         try:
             valid_versions.append((version, Version(version.slug)))
         except InvalidVersion:
             # When the version is invalid, we put it at the end while keeping
             # the alphabetically sorting between the invalid ones.
-            invalid_versions.append((version, parse(str(100000 + i))))
+            invalid_versions.append((version, None))
 
-    return [
-        item[0]
-        for item in sorted(valid_versions, key=operator.itemgetter(1))
+    all_versions = (
+        initial_versions
+        + sorted(valid_versions, key=operator.itemgetter(1))
         + invalid_versions
-    ]
+    )
+
+    return [item[0] for item in all_versions if item[0] is not None]
 
 
-def sort_versions_calver(version_list):
+def sort_versions_calver(version_list, stable_latest_at_beginning):
     """
     Sort Read the Docs versions using CalVer pattern: ``YYYY.0M.0M``.
 
     All the invalid version are added at the end sorted alphabetically.
     """
     raw_pattern = "YYYY.0M.0D"
-    return sort_versions_custom_pattern(version_list, raw_pattern)
+    return sort_versions_custom_pattern(
+        version_list, raw_pattern, stable_latest_at_beginning
+    )
 
 
-def sort_versions_custom_pattern(version_list, raw_pattern):
+def sort_versions_custom_pattern(version_list, raw_pattern, stable_latest_at_beginning):
     """
     Sort Read the Docs versions using a custom pattern.
 
@@ -221,9 +239,16 @@ def sort_versions_custom_pattern(version_list, raw_pattern):
         key=operator.attrgetter("slug"),
     )
 
+    initial_versions = []
     valid_versions = []
     invalid_versions = []
     for i, version in enumerate(alphabetically_sorted_version_list):
+        if stable_latest_at_beginning:
+            if version.slug in (STABLE, LATEST):
+                # It relies on the version list sorted alphabetically first ("l" comes first than "s")
+                initial_versions.insert(0, (version, version.slug))
+                continue
+
         try:
             valid_versions.append(
                 (
@@ -237,10 +262,12 @@ def sort_versions_custom_pattern(version_list, raw_pattern):
         except PatternError:
             # When the version is invalid, we put it at the end while keeping
             # the alphabetically sorting between the invalid ones.
-            invalid_versions.append((version, parse(str(100000 + i))))
+            invalid_versions.append((version, None))
 
-    return [
-        item[0]
-        for item in sorted(valid_versions, key=operator.itemgetter(1))
+    all_versions = (
+        initial_versions
+        + sorted(valid_versions, key=operator.itemgetter(1))
         + invalid_versions
-    ]
+    )
+
+    return [item[0] for item in all_versions if item[0] is not None]
