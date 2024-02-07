@@ -491,7 +491,14 @@ class BuildDirector:
             # TODO: generate the correct path for the Python version
             # see https://github.com/readthedocs/readthedocs.org/pull/8447#issuecomment-911562267
             # tool_path = f'{self.config.build.os}/{tool}/2021-08-30/{full_version}.tar.gz'
-            tool_path = f"{self.data.config.build.os}-{tool}-{full_version}.tar.gz"
+
+            build_os = self.data.config.build.os
+            if build_os == "ubuntu-lts-latest":
+                _, build_os = settings.RTD_DOCKER_BUILD_SETTINGS["os"][
+                    "ubuntu-lts-latest"
+                ].split(":")
+
+            tool_path = f"{build_os}-{tool}-{full_version}.tar.gz"
             tool_version_cached = build_tools_storage.exists(tool_path)
             if tool_version_cached:
                 remote_fd = build_tools_storage.open(tool_path, mode="rb")
