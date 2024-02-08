@@ -51,6 +51,7 @@ class ProxitoHeaderTests(BaseDocServing):
         self.assertEqual(r["X-RTD-Project-Method"], "public_domain")
         self.assertEqual(r["X-RTD-Version"], "latest")
         self.assertEqual(r["X-RTD-version-Method"], "path")
+        self.assertEqual(r["X-RTD-Resolver-Filename"], "/index.html")
         self.assertEqual(
             r["X-RTD-Path"], "/proxito/media/html/project/latest/index.html"
         )

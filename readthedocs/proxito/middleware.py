@@ -23,9 +23,11 @@ from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import (
     InvalidCustomDomainError,
     InvalidExternalDomainError,
+    InvalidPathForVersionedProjectError,
     InvalidSubdomainError,
     InvalidXRTDSlugHeaderError,
     SuspiciousHostnameError,
+    unresolve,
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
@@ -187,17 +189,19 @@ class ProxitoMiddleware(MiddlewareMixin):
         else:
             cache_response(response, force=False)
 
-    def _set_request_attributes(self, request, unresolved_domain):
+    def _set_request_attributes(self, request, unresolved_domain, unresolved_url):
         """
         Set attributes in the request from the unresolved domain.
 
         - Set ``request.unresolved_domain`` to the unresolved domain.
         """
         request.unresolved_domain = unresolved_domain
+        request.unresolved_url = unresolved_url
 
     def process_request(self, request):  # noqa
         # Initialize our custom request attributes.
         request.unresolved_domain = None
+        request.unresolved_url = None
 
         skip = any(request.path.startswith(reverse(view)) for view in self.skip_views)
         if skip:
@@ -229,7 +233,12 @@ class ProxitoMiddleware(MiddlewareMixin):
         except InvalidXRTDSlugHeaderError as exc:
             raise SuspiciousOperation("Invalid X-RTD-Slug header.") from exc
 
-        self._set_request_attributes(request, unresolved_domain)
+        try:
+            unresolved_url = unresolve(request.build_absolute_uri())
+        except InvalidPathForVersionedProjectError:
+            unresolved_url = None
+
+        self._set_request_attributes(request, unresolved_domain, unresolved_url)
 
         response = self._get_https_redirect(request)
         if response:
@@ -367,11 +376,20 @@ class ProxitoMiddleware(MiddlewareMixin):
 
         return None
 
+    def add_resolver_headers(self, request, response):
+        # TODO: find a better way to re-use the unresolved URL so we don't
+        # query the db multiple times on the same request.
+        # https://github.com/readthedocs/readthedocs.org/issues/10456
+        if request.unresolved_url is not None:
+            # TODO: add more ``X-RTD-Resolver-*`` headers
+            response["X-RTD-Resolver-Filename"] = request.unresolved_url.filename
+
     def process_response(self, request, response):  # noqa
         self.add_proxito_headers(request, response)
         self.add_cache_headers(request, response)
         self.add_hsts_headers(request, response)
         self.add_user_headers(request, response)
         self.add_hosting_integrations_headers(request, response)
+        self.add_resolver_headers(request, response)
         self.add_cors_headers(request, response)
         return response
