@@ -5,6 +5,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout, Submit
 from django import forms
 from django.contrib.auth.models import User
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.forms.fields import CharField
 from django.utils.translation import gettext_lazy as _
 
@@ -96,6 +97,91 @@ class UserAdvertisingForm(forms.ModelForm):
     class Meta:
         model = UserProfile
         fields = ["allow_ads"]
+
+
+class PrevalidatedForm(forms.Form):
+
+    """
+    Form class that allows raising form errors before form submission.
+
+    The base ``Form`` does not support validation errors while the form is
+    unbound (does not have ``data`` defined). There are cases in our UI where we
+    want to show errors and/or disabled the form before the user has a chance to
+    interact with the form -- for example, when a feature is unavailable or
+    disabled for the user or organization.
+
+    This provides the ``clean_prevalidation`` method, which acts much like the
+    ``clean`` method. Any validation errors raised in this method surface as non
+    field errors in the UI.
+    """
+
+    @property
+    def is_valid(self):
+        # This differs from ``Form`` in that we don't care if the form is bound
+        return not self.errors
+
+    @property
+    def is_disabled(self):
+        return self._prevalidation_errors is not None
+
+    def full_clean(self):
+        """
+        Extend full clean method with prevalidation cleaning.
+
+        Where :py:method:`forms.Form.full_clean` bails out if there is no bound
+        data on the form, this method always checks prevalidation no matter
+        what. This gives errors before submission and after submission.
+        """
+        # Always call prevalidation, ``full_clean`` bails if the form is unbound
+        self._prevalidation_errors = None
+        self._clean_prevalidation()
+
+        super().full_clean()
+
+        # ``full_clean`` sets ``self._errors``, so we prepend prevalidation
+        # errors after calling the parent ``full_clean``
+        if self._prevalidation_errors is not None:
+            non_field_errors = []
+            non_field_errors.extend(self._prevalidation_errors)
+            non_field_errors.extend(self._errors.get(NON_FIELD_ERRORS, []))
+            self._errors[NON_FIELD_ERRORS] = non_field_errors
+
+    def _clean_prevalidation(self):
+        """
+        Catch validation errors raised by the subclassed ``clean_validation()``.
+
+        This wraps ``clean_prevalidation()`` using the same pattern that
+        :py:method:`form.Form._clean_form` wraps :py:method:`clean`. An validation
+        errors raised in the subclass method will be eventually added to the
+        form error list but :py:method:`full_clean`.
+        """
+        try:
+            self.clean_prevalidation()
+        except forms.ValidationError as validation_error:
+            self._prevalidation_errors = [validation_error]
+
+
+class RichValidationError(forms.ValidationError):
+
+    """
+    Show non-field form errors as titled messages.
+
+    This uses more of the FUI message specification to give a really clear,
+    concise error message to the user. Without this class, non-field validation
+    errors show at the top of the form with a title "Error", which isn't as
+    helpful to users as something like "Connected service required".
+
+    :param header str: Message header/title text
+    :param message_class str: FUI CSS class to use on the message -- "info",
+        etc. Default: "error".
+    """
+
+    def __init__(
+        self, message, code=None, params=None, header=None, message_class=None
+    ):
+        super().__init__(message, code, params)
+        self.header = header
+        self.message_class = message_class
 
 
 class FacetField(forms.MultipleChoiceField):

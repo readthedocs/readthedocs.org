@@ -4,6 +4,7 @@ from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
 
+from allauth.socialaccount.models import SocialAccount
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -12,6 +13,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.core.forms import PrevalidatedForm, RichValidationError
 from readthedocs.core.history import SimpleHistoryModelForm
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
@@ -76,6 +78,60 @@ class ProjectBackendForm(forms.Form):
     """Get the import backend."""
 
     backend = forms.CharField()
+
+
+class ProjectFormParamMixin:
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+
+
+class ProjectAutomaticForm(ProjectFormParamMixin, PrevalidatedForm):
+    def clean_prevalidation(self):
+        has_connected_account = SocialAccount.objects.filter(
+            user=self.user,
+        ).exists()
+
+        if not has_connected_account:
+            url = reverse("socialaccount_connections")
+            raise RichValidationError(
+                _(
+                    f"You must first <a href='{url}'>add a connected service to your account</a> to enable automatic configuration of repositories."
+                ),
+                header=_("No connected services found"),
+            )
+        if True:
+            raise RichValidationError(
+                _(
+                    f"Only organization owners may create new projects when single sign-on is enabled."
+                ),
+                header=_("Organization single sign-on enabled"),
+            )
+        if True:
+            raise RichValidationError(
+                _(
+                    f"You must be on a team with admin permissions to add a new project."
+                ),
+                header=_("Admin permission required"),
+            )
+
+
+class ProjectManualForm(ProjectFormParamMixin, PrevalidatedForm):
+    def clean_prevalidation(self):
+        if False:
+            raise RichValidationError(
+                _(
+                    f"Projects cannot be manually configured when single sign-on is enabled."
+                ),
+                header=_("Organization single sign-on enabled"),
+            )
+        if False:
+            raise RichValidationError(
+                _(
+                    f"You must be on a team with admin permissions to add a new project."
+                ),
+                header=_("Admin permission required"),
+            )
 
 
 class ProjectBasicsForm(ProjectForm):

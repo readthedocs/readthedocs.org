@@ -42,15 +42,10 @@ from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
 from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.invitations.models import Invitation
-from readthedocs.notifications.messages import registry as messages_registry
 from readthedocs.notifications.models import Notification
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
-from readthedocs.projects.exceptions import (
-    ProjectAutomaticCreationDisallowed,
-    ProjectManualCreationDisallowed,
-)
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.forms import (
     AddonsConfigForm,
@@ -60,8 +55,10 @@ from readthedocs.projects.forms import (
     IntegrationForm,
     ProjectAdvancedForm,
     ProjectAdvertisingForm,
+    ProjectAutomaticForm,
     ProjectBasicsForm,
     ProjectConfigForm,
+    ProjectManualForm,
     ProjectRelationshipForm,
     RedirectForm,
     TranslationForm,
@@ -404,43 +401,8 @@ class ImportView(PrivateViewMixin, TemplateView):
         context['view_csrf_token'] = get_token(self.request)
 
         if settings.RTD_EXT_THEME_ENABLED:
-            has_connected_account = SocialAccount.objects.filter(
-                user=self.request.user,
-            ).exists()
-
-            # First check ability for automatic project creation
-            message_id = None
-            format_values = None
-            if not has_connected_account:
-                message_id = ProjectAutomaticCreationDisallowed.NO_CONNECTED_ACCOUNT
-                format_values = {"url": reverse("socialaccount_connections")}
-            # TODO if user is on a team with admin permissions
-            # TODO see organization templatetags for some of the wrappers
-            elif True:
-                message_id = ProjectAutomaticCreationDisallowed.INADEQUATE_PERMISSIONS
-            # TODO if organization sso enabled and user is not an owner
-            elif True:
-                message_id = ProjectAutomaticCreationDisallowed.SSO_ENABLED
-            if message_id is not None:
-                context["error_import_automatically"] = messages_registry.get(
-                    message_id=message_id,
-                    format_values=format_values,
-                )
-
-            # Again for manual project creation
-            message_id = None
-            format_values = None
-            # TODO if user is on a team with admin permissions
-            if True:
-                message_id = ProjectManualCreationDisallowed.INADEQUATE_PERMISSIONS
-            # TODO if organization sso enabled and user is not an owner
-            elif True:
-                message_id = ProjectManualCreationDisallowed.SSO_ENABLED
-            if message_id is not None:
-                context["error_import_manually"] = messages_registry.get(
-                    message_id=message_id,
-                    format_values=format_values,
-                )
+            context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)
+            context["form_manual"] = ProjectManualForm(user=self.request.user)
 
         return context
 
