@@ -330,6 +330,9 @@ and change the Python version as follows:
      install:
        - requirements: docs/requirements.txt
 
+   sphinx:
+     configuration: docs/source/conf.py
+
 The purpose of each key is:
 
 ``version``
@@ -401,6 +404,7 @@ click on the |:pencil2:| icon, and add these contents:
        - requirements: docs/requirements.txt
 
    sphinx:
+     configuration: docs/source/conf.py
      fail_on_warning: true
 
 At this point, if you navigate back to your "Builds" page,
@@ -443,9 +447,10 @@ To do so, add this extra content to your ``.readthedocs.yaml``:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
-   :emphasize-lines: 4-6
+   :emphasize-lines: 5-7
 
    sphinx:
+     configuration: docs/source/conf.py
      fail_on_warning: true
 
    formats:

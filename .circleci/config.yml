@@ -11,11 +11,14 @@ jobs:
         environment:
           TOX_POSARGS: ''
           PYTEST_COVERAGE: --cov-report=xml --cov-config .coveragerc --cov=. --cov-append
-      - image: 'docker.elastic.co/elasticsearch/elasticsearch:7.14.0'
+      - image: 'docker.elastic.co/elasticsearch/elasticsearch:8.10.2'
         name: search
         environment:
           discovery.type: single-node
           ES_JAVA_OPTS: -Xms750m -Xmx750m
+          ELASTIC_PASSWORD: password
+          # Disabled SSL for testing.
+          xpack.security.transport.ssl.enabled: 'false'
     steps:
       - checkout
       - run: git submodule sync

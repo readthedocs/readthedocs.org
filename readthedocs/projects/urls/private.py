@@ -9,6 +9,7 @@ from readthedocs.constants import pattern_opts
 from readthedocs.projects.backends.views import ImportWizardView
 from readthedocs.projects.views import private
 from readthedocs.projects.views.private import (
+    AddonsConfigUpdate,
     AutomationRuleDelete,
     AutomationRuleList,
     AutomationRuleMove,
@@ -35,6 +36,7 @@ from readthedocs.projects.views.private import (
     ProjectPullRequestsUpdate,
     ProjectRedirectsCreate,
     ProjectRedirectsDelete,
+    ProjectRedirectsInsert,
     ProjectRedirectsList,
     ProjectRedirectsUpdate,
     ProjectTranslationsDelete,
@@ -142,6 +144,11 @@ urlpatterns = [
         name="projects_redirects_create",
     ),
     re_path(
+        r"^(?P<project_slug>[-\w]+)/redirects/(?P<redirect_pk>\d+)/insert/(?P<position>\d+)/$",
+        ProjectRedirectsInsert.as_view(),
+        name="projects_redirects_insert",
+    ),
+    re_path(
         r"^(?P<project_slug>[-\w]+)/redirects/(?P<redirect_pk>[-\w]+)/edit/$",
         ProjectRedirectsUpdate.as_view(),
         name="projects_redirects_edit",
@@ -209,6 +216,18 @@ domain_urls = [
 ]
 
 urlpatterns += domain_urls
+
+# We are allowing users to enable the new beta addons only from the new dashboard
+if settings.RTD_EXT_THEME_ENABLED:
+    addons_urls = [
+        re_path(
+            r"^(?P<project_slug>[-\w]+)/addons/edit/$$",
+            AddonsConfigUpdate.as_view(),
+            name="projects_addons",
+        ),
+    ]
+
+    urlpatterns += addons_urls
 
 integration_urls = [
     re_path(

@@ -17,6 +17,7 @@ from readthedocs.core.unresolver import (
     VersionNotFoundError,
     unresolve,
 )
+from readthedocs.projects.constants import SINGLE_VERSION_WITHOUT_TRANSLATIONS
 from readthedocs.projects.models import Domain
 from readthedocs.rtd_tests.tests.test_resolver import ResolverBase
 
@@ -146,7 +147,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.filename, "/foo.html")
 
     def test_unresolve_subproject_single_version(self):
-        self.subproject.single_version = True
+        self.subproject.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.subproject.save()
         parts = unresolve("https://pip.readthedocs.io/projects/sub/foo.html")
         self.assertEqual(parts.parent_project, self.pip)
@@ -211,7 +212,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.filename, "/index.html")
 
     def test_unresolve_single_version(self):
-        self.pip.single_version = True
+        self.pip.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.pip.save()
         parts = unresolve("https://pip.readthedocs.io/")
         self.assertEqual(parts.parent_project, self.pip)
@@ -220,7 +221,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.filename, "/index.html")
 
     def test_unresolve_single_version_translation_like_path(self):
-        self.pip.single_version = True
+        self.pip.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.pip.save()
         parts = unresolve("https://pip.readthedocs.io/en/latest/index.html")
         self.assertEqual(parts.parent_project, self.pip)
@@ -229,7 +230,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.filename, "/en/latest/index.html")
 
     def test_unresolve_single_version_subproject_like_path(self):
-        self.pip.single_version = True
+        self.pip.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.pip.save()
         parts = unresolve(
             "https://pip.readthedocs.io/projects/other/en/latest/index.html"
@@ -240,7 +241,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.filename, "/projects/other/en/latest/index.html")
 
     def test_unresolve_single_version_subproject(self):
-        self.pip.single_version = True
+        self.pip.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.pip.save()
         parts = unresolve(
             "https://pip.readthedocs.io/projects/sub/ja/latest/index.html"
@@ -265,7 +266,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.filename, "/index.html")
 
     def test_external_version_single_version_project(self):
-        self.pip.single_version = True
+        self.pip.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.pip.save()
         version = get(
             Version,
@@ -281,7 +282,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(parts.filename, "/index.html")
 
     def test_unexisting_external_version_single_version_project(self):
-        self.pip.single_version = True
+        self.pip.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.pip.save()
         with pytest.raises(VersionNotFoundError) as excinfo:
             unresolve("https://pip--10.dev.readthedocs.build/")
@@ -292,7 +293,7 @@ class UnResolverTests(ResolverBase):
         self.assertEqual(exc.filename, "/")
 
     def test_non_external_version_single_version_project(self):
-        self.pip.single_version = True
+        self.pip.versioning_scheme = SINGLE_VERSION_WITHOUT_TRANSLATIONS
         self.pip.save()
 
         with pytest.raises(VersionNotFoundError) as excinfo:

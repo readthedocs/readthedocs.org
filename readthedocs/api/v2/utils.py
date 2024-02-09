@@ -115,10 +115,6 @@ def sync_versions_to_db(project, versions, type):
         if latest_version:
             # Put back the RTD's latest version
             latest_version.machine = True
-            latest_version.identifier = project.get_default_branch()
-            latest_version.verbose_name = LATEST_VERBOSE_NAME
-            # The machine created latest version always points to a branch.
-            latest_version.type = BRANCH
             latest_version.save()
     if added:
         log.info(

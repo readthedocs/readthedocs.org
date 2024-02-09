@@ -4,7 +4,6 @@ import pytest
 from django.urls import reverse
 
 from readthedocs.builds.constants import LATEST, STABLE
-from readthedocs.projects.models import HTMLFile
 from readthedocs.search import utils
 from readthedocs.search.tests.utils import get_search_query_from_project_file
 
@@ -33,10 +32,7 @@ class TestSearchUtils:
         assert self.has_results(api_client, project, LATEST)
         assert self.has_results(api_client, project, STABLE)
 
-        utils.remove_indexed_files(
-            HTMLFile,
-            project_slug=project,
-        )
+        utils.remove_indexed_files(project_slug=project)
         # Deletion of indices from ES happens async,
         # so we need to wait a little before checking for results.
         time.sleep(1)
@@ -55,7 +51,6 @@ class TestSearchUtils:
         assert self.has_results(api_client, project, STABLE)
 
         utils.remove_indexed_files(
-            HTMLFile,
             project_slug=project,
             version_slug=LATEST,
         )

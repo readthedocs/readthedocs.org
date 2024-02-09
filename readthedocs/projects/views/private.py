@@ -15,7 +15,7 @@ from django.middleware.csrf import get_token
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import ListView, TemplateView
 from formtools.wizard.views import SessionWizardView
@@ -39,13 +39,16 @@ from readthedocs.builds.models import (
 )
 from readthedocs.core.history import UpdateChangeReasonPostView
 from readthedocs.core.mixins import ListViewWithForm, PrivateViewMixin
+from readthedocs.core.notifications import MESSAGE_EMAIL_VALIDATION_PENDING
 from readthedocs.integrations.models import HttpExchange, Integration
 from readthedocs.invitations.models import Invitation
+from readthedocs.notifications.models import Notification
 from readthedocs.oauth.services import registry
 from readthedocs.oauth.tasks import attach_webhook
 from readthedocs.oauth.utils import update_webhook
 from readthedocs.projects.filters import ProjectListFilterSet
 from readthedocs.projects.forms import (
+    AddonsConfigForm,
     DomainForm,
     EmailHookForm,
     EnvironmentVariableForm,
@@ -71,7 +74,6 @@ from readthedocs.projects.models import (
     ProjectRelationship,
     WebHook,
 )
-from readthedocs.projects.notifications import EmailConfirmNotification
 from readthedocs.projects.tasks.utils import clean_project_resources
 from readthedocs.projects.utils import get_csv_file
 from readthedocs.projects.views.base import ProjectAdminMixin
@@ -113,17 +115,23 @@ class ProjectDashboard(PrivateViewMixin, ListView):
 
     def validate_primary_email(self, user):
         """
-        Sends a persistent error notification.
+        Sends a dismissable site notification to this user.
 
         Checks if the user has a primary email or if the primary email
-        is verified or not. Sends a persistent error notification if
+        is verified or not. Sends a dismissable notification if
         either of the condition is False.
         """
         email_qs = user.emailaddress_set.filter(primary=True)
         email = email_qs.first()
         if not email or not email.verified:
-            notification = EmailConfirmNotification(user=user, success=False)
-            notification.send()
+            Notification.objects.add(
+                attached_to=user,
+                message_id=MESSAGE_EMAIL_VALIDATION_PENDING,
+                dismissable=True,
+                format_values={
+                    "account_email_url": reverse("account_email"),
+                },
+            )
 
     def get_queryset(self):
         sort = self.request.GET.get('sort')
@@ -167,6 +175,15 @@ class ProjectAdvancedUpdate(ProjectMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('projects_detail', args=[self.object.slug])
+
+
+class AddonsConfigUpdate(ProjectAdminMixin, PrivateViewMixin, CreateView, UpdateView):
+    form_class = AddonsConfigForm
+    success_message = _("Project addons updated")
+    template_name = "projects/addons_form.html"
+
+    def get_success_url(self):
+        return reverse("projects_addons", args=[self.object.project.slug])
 
 
 class ProjectDelete(UpdateChangeReasonPostView, ProjectMixin, DeleteView):
@@ -355,16 +372,15 @@ class ImportView(PrivateViewMixin, TemplateView):
             provider_account = account.get_provider_account()
             messages.error(
                 request,
-                mark_safe((
+                format_html(
                     _(
                         'There is a problem with your {service} account, '
                         'try reconnecting your account on your '
                         '<a href="{url}">connected services page</a>.',
-                    ).format(
-                        service=provider_account.get_brand()['name'],
-                        url=reverse('socialaccount_connections'),
-                    )
-                )),  # yapf: disable
+                    ),
+                    service=provider_account.get_brand()["name"],
+                    url=reverse("socialaccount_connections"),
+                ),
             )
         return super().get(request, *args, **kwargs)
 
@@ -716,6 +732,31 @@ class ProjectRedirectsUpdate(ProjectRedirectsMixin, UpdateView):
     pass
 
 
+class ProjectRedirectsInsert(ProjectRedirectsMixin, GenericModelView):
+
+    """
+    Insert a redirect in a specific position.
+
+    This is done by changing the position of the redirect,
+    after saving the redirect, all other positions are updated
+    automatically.
+    """
+
+    http_method_names = ["post"]
+
+    def post(self, request, *args, **kwargs):
+        redirect = self.get_object()
+        position = int(self.kwargs["position"])
+        redirect.position = position
+        redirect.save()
+        return HttpResponseRedirect(
+            reverse(
+                "projects_redirects",
+                args=[self.get_project().slug],
+            )
+        )
+
+
 class ProjectRedirectsDelete(ProjectRedirectsMixin, DeleteView):
 
     http_method_names = ['post']
@@ -746,11 +787,7 @@ class DomainList(DomainMixin, ListViewWithForm):
         ctx = super().get_context_data(**kwargs)
 
         # Get the default docs domain
-        ctx['default_domain'] = (
-            settings.PUBLIC_DOMAIN
-            if settings.USE_SUBDOMAIN
-            else settings.PRODUCTION_DOMAIN
-        )
+        ctx["default_domain"] = settings.PUBLIC_DOMAIN
 
         return ctx
 
@@ -858,24 +895,7 @@ class IntegrationCreate(IntegrationMixin, CreateView):
 
 
 class IntegrationDetail(IntegrationMixin, DetailView):
-
-    # Some of the templates can be combined, we'll avoid duplicating templates
-    SUFFIX_MAP = {
-        Integration.GITHUB_WEBHOOK: 'webhook',
-        Integration.GITLAB_WEBHOOK: 'webhook',
-        Integration.BITBUCKET_WEBHOOK: 'webhook',
-        Integration.API_WEBHOOK: 'generic_webhook',
-    }
-
-    def get_template_names(self):
-        if self.template_name:
-            return self.template_name
-        integration_type = self.get_integration().integration_type
-        suffix = self.SUFFIX_MAP.get(integration_type, integration_type)
-        return (
-            'projects/integration_{}{}.html'
-            .format(suffix, self.template_name_suffix)
-        )
+    template_name = "projects/integration_webhook_detail.html"
 
 
 class IntegrationDelete(IntegrationMixin, DeleteView):

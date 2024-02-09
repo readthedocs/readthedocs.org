@@ -6,6 +6,7 @@ import structlog
 from allauth.socialaccount.models import SocialAccount
 from allauth.socialaccount.providers import registry
 from django.conf import settings
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from oauthlib.oauth2.rfc6749.errors import InvalidClientIdError
@@ -262,6 +263,19 @@ class Service:
         :type response: requests.Response
         """
         raise NotImplementedError
+
+    def get_webhook_url(self, project, integration):
+        """Get the webhook URL for the project's integration."""
+        return "{base_url}{path}".format(
+            base_url=settings.PUBLIC_API_URL,
+            path=reverse(
+                "api_webhook",
+                kwargs={
+                    "project_slug": project.slug,
+                    "integration_pk": integration.pk,
+                },
+            ),
+        )
 
     def get_provider_data(self, project, integration):
         """

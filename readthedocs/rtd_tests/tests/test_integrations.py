@@ -2,12 +2,10 @@ import django_dynamic_fixture as fixture
 from django.test import TestCase
 from rest_framework.test import APIClient
 
-from readthedocs.integrations.models import (
-    GitHubWebhook,
-    HttpExchange,
-    Integration,
-)
+from readthedocs.api.v2.views.integrations import GITHUB_SIGNATURE_HEADER
+from readthedocs.integrations.models import GitHubWebhook, HttpExchange, Integration
 from readthedocs.projects.models import Project
+from readthedocs.rtd_tests.tests.test_api import get_signature
 
 
 class HttpExchangeTests(TestCase):
@@ -28,12 +26,16 @@ class HttpExchangeTests(TestCase):
             project=project,
             integration_type=Integration.GITHUB_WEBHOOK,
             provider_data="",
-            secret=None,
         )
+        payload = {"ref": "exchange_json"}
+        signature = get_signature(integration, payload)
         resp = client.post(
             "/api/v2/webhook/github/{}/".format(project.slug),
-            {"ref": "exchange_json"},
+            payload,
             format="json",
+            headers={
+                GITHUB_SIGNATURE_HEADER: signature,
+            },
         )
         exchange = HttpExchange.objects.get(integrations=integration)
         self.assertEqual(
@@ -45,6 +47,7 @@ class HttpExchangeTests(TestCase):
             {
                 "Content-Type": "application/json",
                 "Cookie": "",
+                "X-Hub-Signature-256": signature,
             },
         )
         self.assertEqual(
@@ -74,10 +77,15 @@ class HttpExchangeTests(TestCase):
             provider_data="",
             secret=None,
         )
+        payload = "payload=%7B%22ref%22%3A+%22exchange_form%22%7D"
+        signature = get_signature(integration, payload)
         resp = client.post(
             "/api/v2/webhook/github/{}/".format(project.slug),
-            "payload=%7B%22ref%22%3A+%22exchange_form%22%7D",
+            payload,
             content_type="application/x-www-form-urlencoded",
+            headers={
+                GITHUB_SIGNATURE_HEADER: signature,
+            },
         )
         exchange = HttpExchange.objects.get(integrations=integration)
         self.assertEqual(
@@ -89,6 +97,7 @@ class HttpExchangeTests(TestCase):
             {
                 "Content-Type": "application/x-www-form-urlencoded",
                 "Cookie": "",
+                "X-Hub-Signature-256": signature,
             },
         )
         self.assertEqual(

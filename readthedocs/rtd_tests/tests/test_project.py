@@ -88,11 +88,12 @@ class TestProject(ProjectMixin, TestCase):
     def test_conf_file_not_found(self, find_method, full_find_method):
         find_method.return_value = []
         full_find_method.return_value = []
-        with self.assertRaisesMessage(
-                ProjectConfigurationError,
-                ProjectConfigurationError.NOT_FOUND,
-        ) as cm:
+        with self.assertRaises(ProjectConfigurationError) as e:
             self.pip.conf_file()
+        self.assertEqual(
+            e.exception.message_id,
+            ProjectConfigurationError.NOT_FOUND,
+        )
 
     @patch('readthedocs.projects.models.Project.find')
     def test_multiple_conf_files(self, find_method):
@@ -101,11 +102,13 @@ class TestProject(ProjectMixin, TestCase):
             '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/multi-conf.py/src/sub/conf.py',
             '/home/docs/rtfd/code/readthedocs.org/user_builds/pip/checkouts/multi-conf.py/src/sub/src/conf.py',
         ]
-        with self.assertRaisesMessage(
-                ProjectConfigurationError,
-                ProjectConfigurationError.MULTIPLE_CONF_FILES,
-        ) as cm:
+        with self.assertRaises(ProjectConfigurationError) as e:
             self.pip.conf_file()
+
+        self.assertEqual(
+            e.exception.message_id,
+            ProjectConfigurationError.MULTIPLE_CONF_FILES,
+        )
 
     def test_get_storage_path(self):
         for type_ in MEDIA_TYPES:

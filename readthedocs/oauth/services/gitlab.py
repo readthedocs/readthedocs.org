@@ -7,7 +7,6 @@ from urllib.parse import quote_plus, urlparse
 import structlog
 from allauth.socialaccount.providers.gitlab.views import GitLabOAuth2Adapter
 from django.conf import settings
-from django.urls import reverse
 from oauthlib.oauth2.rfc6749.errors import InvalidGrantError, TokenExpiredError
 from requests.exceptions import RequestException
 
@@ -294,16 +293,7 @@ class GitLabService(Service):
                 "id": repo_id,
                 "push_events": True,
                 "tag_push_events": True,
-                "url": "https://{domain}{path}".format(
-                    domain=settings.PRODUCTION_DOMAIN,
-                    path=reverse(
-                        "api_webhook",
-                        kwargs={
-                            "project_slug": project.slug,
-                            "integration_pk": integration.pk,
-                        },
-                    ),
-                ),
+                "url": self.get_webhook_url(project, integration),
                 "token": integration.secret,
                 # Optional
                 "issues_events": False,
@@ -341,16 +331,7 @@ class GitLabService(Service):
             integration_id=integration.pk,
         )
 
-        rtd_webhook_url = "https://{domain}{path}".format(
-            domain=settings.PRODUCTION_DOMAIN,
-            path=reverse(
-                "api_webhook",
-                kwargs={
-                    "project_slug": project.slug,
-                    "integration_pk": integration.pk,
-                },
-            ),
-        )
+        rtd_webhook_url = self.get_webhook_url(project, integration)
 
         try:
             resp = session.get(
@@ -401,15 +382,10 @@ class GitLabService(Service):
                 integration_type=Integration.GITLAB_WEBHOOK,
             )
 
-        if not integration.secret:
-            integration.recreate_secret()
-
         repo_id = self._get_repo_id(project)
         url = f"{self.adapter.provider_base_url}/api/v4/projects/{repo_id}/hooks"
 
         if repo_id is None:
-            # Set the secret to None so that the integration can be used manually.
-            integration.remove_secret()
             return (False, resp)
 
         log.bind(
@@ -445,8 +421,6 @@ class GitLabService(Service):
         except Exception:
             log.exception("GitLab webhook creation failed.")
 
-        # Always remove secret and return False if we don't return True above
-        integration.remove_secret()
         return (False, resp)
 
     def update_webhook(self, project, integration):
@@ -477,9 +451,6 @@ class GitLabService(Service):
 
         if repo_id is None:
             return (False, resp)
-
-        if not integration.secret:
-            integration.recreate_secret()
 
         data = self.get_webhook_data(repo_id, project, integration)
 
@@ -523,7 +494,6 @@ class GitLabService(Service):
                 debug_data=debug_data,
             )
 
-        integration.remove_secret()
         return (False, resp)
 
     def send_build_status(self, build, commit, status):

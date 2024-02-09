@@ -10,11 +10,9 @@ It "directs" all of the high-level build jobs:
 import os
 import tarfile
 
-import pytz
 import structlog
 import yaml
 from django.conf import settings
-from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import EXTERNAL
@@ -183,8 +181,7 @@ class BuildDirector:
         self.run_build_job("post_system_dependencies")
 
         # Install all ``build.tools`` specified by the user
-        if self.data.config.using_build_tools:
-            self.install_build_tools()
+        self.install_build_tools()
 
         self.run_build_job("pre_create_environment")
         self.create_environment()
@@ -250,47 +247,18 @@ class BuildDirector:
         self.data.build["config"] = self.data.config.as_dict()
         self.data.build["readthedocs_yaml_path"] = custom_config_file
 
-        now = timezone.now()
-        pdt = pytz.timezone("America/Los_Angeles")
-
-        # fmt: off
-        # These browndates matches https://blog.readthedocs.com/use-build-os-config/
-        browndates = any([
-            timezone.datetime(2023, 7, 14, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 7, 14, 12, 0, 0, tzinfo=pdt),  # First, 12hs
-            timezone.datetime(2023, 8, 14, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 8, 15, 0, 0, 0, tzinfo=pdt),  # Second, 24hs
-            timezone.datetime(2023, 9, 4, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 9, 6, 0, 0, 0, tzinfo=pdt),  # Third, 24hs
-            timezone.datetime(2023, 9, 25, 0, 0, 0, tzinfo=pdt) < now,  # Fully removal
-        ])
-        # fmt: on
-
         # Raise a build error if the project is not using a config file or using v1
-        if (
-            settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS
-            and browndates
-            and self.data.config.version not in ("2", 2)
-        ):
+        if self.data.config.version not in ("2", 2):
             raise BuildUserError(BuildUserError.NO_CONFIG_FILE_DEPRECATED)
 
         # Raise a build error if the project is using "build.image" on their config file
+        build_config_key = self.data.config.source_config.get("build", {})
+        if "image" in build_config_key:
+            raise BuildUserError(BuildUserError.BUILD_IMAGE_CONFIG_KEY_DEPRECATED)
 
-        # fmt: off
-        # These browndates matches https://blog.readthedocs.com/use-build-os-config/
-        browndates = any([
-            timezone.datetime(2023, 8, 28, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 8, 28, 12, 0, 0, tzinfo=pdt),  # First, 12hs
-            timezone.datetime(2023, 9, 18, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 9, 19, 0, 0, 0, tzinfo=pdt),  # Second, 24hs
-            timezone.datetime(2023, 10, 2, 0, 0, 0, tzinfo=pdt) < now < timezone.datetime(2023, 10, 4, 0, 0, 0, tzinfo=pdt),  # Third, 48hs
-            timezone.datetime(2023, 10, 16, 0, 0, 0, tzinfo=pdt) < now,  # Fully removal
-        ])
-        # fmt: on
-
-        if settings.RTD_ENFORCE_BROWNOUTS_FOR_DEPRECATIONS and browndates:
-            build_config_key = self.data.config.source_config.get("build", {})
-            if "image" in build_config_key:
-                raise BuildUserError(BuildUserError.BUILD_IMAGE_CONFIG_KEY_DEPRECATED)
-
-            # TODO: move this validation to the Config object once we are settled here
-            if "image" not in build_config_key and "os" not in build_config_key:
-                raise BuildUserError(BuildUserError.BUILD_OS_REQUIRED)
+        # TODO: move this validation to the Config object once we are settled here
+        if "image" not in build_config_key and "os" not in build_config_key:
+            raise BuildUserError(BuildUserError.BUILD_OS_REQUIRED)
 
         if self.vcs_repository.supports_submodules:
             self.vcs_repository.update_submodules(self.data.config)
@@ -444,6 +412,11 @@ class BuildDirector:
 
     def run_build_commands(self):
         """Runs each build command in the build environment."""
+
+        self.attach_notification(
+            message_id=BuildUserError.BUILD_COMMANDS_IN_BETA,
+        )
+
         reshim_commands = (
             {"pip", "install"},
             {"conda", "create"},
@@ -518,7 +491,14 @@ class BuildDirector:
             # TODO: generate the correct path for the Python version
             # see https://github.com/readthedocs/readthedocs.org/pull/8447#issuecomment-911562267
             # tool_path = f'{self.config.build.os}/{tool}/2021-08-30/{full_version}.tar.gz'
-            tool_path = f"{self.data.config.build.os}-{tool}-{full_version}.tar.gz"
+
+            build_os = self.data.config.build.os
+            if build_os == "ubuntu-lts-latest":
+                _, build_os = settings.RTD_DOCKER_BUILD_SETTINGS["os"][
+                    "ubuntu-lts-latest"
+                ].split(":")
+
+            tool_path = f"{build_os}-{tool}-{full_version}.tar.gz"
             tool_version_cached = build_tools_storage.exists(tool_path)
             if tool_version_cached:
                 remote_fd = build_tools_storage.open(tool_path, mode="rb")
@@ -768,3 +748,27 @@ class BuildDirector:
         # It will be saved when the API is hit.
         # This data will be used by the `/_/readthedocs-config.json` API endpoint.
         self.data.version.build_data = data
+
+    def attach_notification(
+        self,
+        message_id,
+        format_values=None,
+        state="unread",
+        dismissable=False,
+        news=False,
+    ):
+        """Attach a notification to build in progress using the APIv2."""
+
+        format_values = format_values or {}
+        # NOTE: we are using APIv2 here because it uses BuildAPIKey authentication,
+        # which is not currently supported by APIv3.
+        self.data.api_client.notifications.post(
+            {
+                "attached_to": f'build/{self.data.build["id"]}',
+                "message_id": message_id,
+                "state": state,  # Optional
+                "dismissable": dismissable,
+                "news": news,
+                "format_values": format_values,
+            }
+        )

@@ -75,7 +75,6 @@ class CommunityBaseSettings(Settings):
     PRODUCTION_DOMAIN = 'readthedocs.org'
     PUBLIC_DOMAIN = None
     PUBLIC_DOMAIN_USES_HTTPS = False
-    USE_SUBDOMAIN = False
     PUBLIC_API_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
     RTD_INTERSPHINX_URL = 'https://{}'.format(PRODUCTION_DOMAIN)
     RTD_EXTERNAL_VERSION_DOMAIN = 'external-builds.readthedocs.io'
@@ -175,6 +174,8 @@ class CommunityBaseSettings(Settings):
             RTDProductFeature(type=constants.TYPE_AUDIT_LOGS, value=self.RTD_AUDITLOGS_DEFAULT_RETENTION_DAYS).to_item(),
             # Max number of concurrent builds.
             RTDProductFeature(type=constants.TYPE_CONCURRENT_BUILDS, value=self.RTD_MAX_CONCURRENT_BUILDS).to_item(),
+            # Max number of redirects allowed per project.
+            RTDProductFeature(type=constants.TYPE_REDIRECTS_LIMIT, value=100).to_item(),
         ))
 
     # A dictionary of Stripe products mapped to a RTDProduct object.
@@ -225,11 +226,11 @@ class CommunityBaseSettings(Settings):
             'rest_framework',
             'rest_framework.authtoken',
             "rest_framework_api_key",
+            "generic_relations",
             'corsheaders',
             'annoying',
             'django_extensions',
             'crispy_forms',
-            'messages_extends',
             'django_elasticsearch_dsl',
             'django_filters',
             'polymorphic',
@@ -350,13 +351,6 @@ class CommunityBaseSettings(Settings):
         },
     ]
 
-    MESSAGE_STORAGE = 'readthedocs.notifications.storages.FallbackUniqueStorage'
-
-    NOTIFICATION_BACKENDS = [
-        'readthedocs.notifications.backends.EmailBackend',
-        'readthedocs.notifications.backends.SiteBackend',
-    ]
-
     # Paths
     SITE_ROOT = os.path.dirname(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -424,6 +418,7 @@ class CommunityBaseSettings(Settings):
                         'django.template.context_processors.request',
                         # Read the Docs processor
                         'readthedocs.core.context_processors.readthedocs_processor',
+                        'readthedocs.core.context_processors.user_notifications',
                     ],
                 },
             },
@@ -487,11 +482,6 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
-        'every-three-hour-clear-persistent-messages': {
-            'task': 'readthedocs.core.tasks.clear_persistent_messages',
-            'schedule': crontab(minute=0, hour='*/3'),
-            'options': {'queue': 'web'},
-        },
         'every-day-delete-old-search-queries': {
             'task': 'readthedocs.search.tasks.delete_old_search_queries_from_db',
             'schedule': crontab(minute=0, hour=0),
@@ -499,7 +489,7 @@ class CommunityBaseSettings(Settings):
         },
         'every-day-delete-old-page-views': {
             'task': 'readthedocs.analytics.tasks.delete_old_page_counts',
-            'schedule': crontab(minute=0, hour=1),
+            'schedule': crontab(minute=27, hour='*/6'),
             'options': {'queue': 'web'},
         },
         'every-day-delete-old-buildata-models': {
@@ -549,20 +539,11 @@ class CommunityBaseSettings(Settings):
             'schedule': crontab(minute='*/15'),
             'options': {'queue': 'web'},
         },
-        # We keep having celery send multiple emails,
-        # which is a terrible UX,
-        # so let's remove them for now.
-
-        # 'weekly-config-file-notification': {
-        #     'task': 'readthedocs.projects.tasks.utils.deprecated_config_file_used_notification',
-        #     'schedule': crontab(day_of_week='wed', hour=11, minute=15),
-        #     'options': {'queue': 'web'},
-        # },
-        # 'weekly-build-image-notification': {
-        #     'task': 'readthedocs.projects.tasks.utils.deprecated_build_image_notification',
-        #     'schedule': crontab(day_of_week='wed', hour=9, minute=15),
-        #     'options': {'queue': 'web'},
-        # },
+        'every-day-delete-old-revoked-build-api-keys': {
+            'task': 'readthedocs.api.v2.tasks.delete_old_revoked_build_api_keys',
+            'schedule': crontab(minute=0, hour=4),
+            'options': {'queue': 'web'},
+        },
     }
 
     # Sentry
@@ -585,64 +566,9 @@ class CommunityBaseSettings(Settings):
     RTD_DOCKER_COMPOSE = False
 
     DOCKER_VERSION = 'auto'
-    DOCKER_DEFAULT_VERSION = 'latest'
+    DOCKER_DEFAULT_VERSION = 'ubuntu-22.04'
     DOCKER_IMAGE = '{}:{}'.format(constants_docker.DOCKER_DEFAULT_IMAGE, DOCKER_DEFAULT_VERSION)
-    DOCKER_IMAGE_SETTINGS = {
-        # A large number of users still have this pinned in their config file.
-        # We must have documented it at some point.
-        'readthedocs/build:2.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5'],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.5',
-                },
-            },
-        },
-        'readthedocs/build:4.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', 3.7],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.7',
-                },
-            },
-        },
-        'readthedocs/build:5.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7'],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.7',
-                },
-            },
-        },
-        'readthedocs/build:6.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8'],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.7',
-                },
-            },
-        },
-        'readthedocs/build:7.0': {
-            'python': {
-                'supported_versions': ['2', '2.7', '3', '3.5', '3.6', '3.7', '3.8', '3.9', '3.10'],
-                'default_version': {
-                    '2': '2.7',
-                    '3': '3.7',
-                },
-            },
-        },
-    }
 
-    # Alias tagged via ``docker tag`` on the build servers
-    DOCKER_IMAGE_SETTINGS.update({
-        'readthedocs/build:stable': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:5.0'),
-        'readthedocs/build:latest': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:6.0'),
-        'readthedocs/build:testing': DOCKER_IMAGE_SETTINGS.get('readthedocs/build:7.0'),
-    })
     # Additional binds for the build container
     RTD_DOCKER_ADDITIONAL_BINDS = {}
     RTD_DOCKER_BUILD_SETTINGS = constants_docker.RTD_DOCKER_BUILD_SETTINGS
@@ -790,10 +716,9 @@ class CommunityBaseSettings(Settings):
     RTD_ORG_TRIAL_PERIOD_DAYS = 30
 
     # Elasticsearch settings.
-    ES_HOSTS = ['search:9200']
     ELASTICSEARCH_DSL = {
         'default': {
-            'hosts': 'search:9200'
+            'hosts': 'http://elastic:password@search:9200',
         },
     }
     # Chunk size for elasticsearch reindex celery tasks
@@ -989,6 +914,14 @@ class CommunityBaseSettings(Settings):
                 'handlers': ['null'],
                 'propagate': False,
             },
+            'elastic_transport.transport': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
+            'celery.worker.consumer.gossip': {
+                'handlers': ['null'],
+                'propagate': False,
+            },
         },
     }
 
@@ -999,10 +932,10 @@ class CommunityBaseSettings(Settings):
     MAILERLITE_API_KEY = None
 
     RTD_EMBED_API_EXTERNAL_DOMAINS = [
-        r'docs\.python\.org',
-        r'docs\.scipy\.org',
-        r'docs\.sympy\.org',
-        r'numpy\.org',
+        r'^docs\.python\.org$',
+        r'^docs\.scipy\.org$',
+        r'^docs\.sympy\.org$',
+        r'^numpy\.org$',
     ]
     RTD_EMBED_API_PAGE_CACHE_TIMEOUT = 5 * 10
     RTD_EMBED_API_DEFAULT_REQUEST_TIMEOUT = 1

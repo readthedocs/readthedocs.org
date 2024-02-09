@@ -2,6 +2,9 @@
 {% load core_tags %}
 {% load i18n %}
 
+{# Remove analytics (e.g. Plausible) from 404 pages #}
+{% block analytics %}{% endblock %}
+
 {% block header-wrapper %}
     <div id="rtfd-header">
       <div class="wrapper">

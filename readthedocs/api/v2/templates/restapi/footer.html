@@ -37,7 +37,7 @@
 
       </dl>
       {% endif %}
-      {% if not project.single_version and versions|length >= 1 %}
+      {% if project.supports_multiple_versions and versions|length >= 1 %}
       <dl>
         <dt>{% trans "Versions" %}</dt>
         {% for version in versions %}

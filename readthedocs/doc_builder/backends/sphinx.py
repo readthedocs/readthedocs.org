@@ -18,8 +18,7 @@ from requests.exceptions import ConnectionError
 from readthedocs.builds import utils as version_utils
 from readthedocs.builds.models import APIVersion
 from readthedocs.core.utils.filesystem import safe_open
-from readthedocs.doc_builder.exceptions import PDFNotFound
-from readthedocs.projects.constants import PUBLIC
+from readthedocs.projects.constants import OLD_LANGUAGES_CODE_MAPPING, PUBLIC
 from readthedocs.projects.exceptions import ProjectConfigurationError, UserFileNotFound
 from readthedocs.projects.models import Feature
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
@@ -111,6 +110,10 @@ class BaseSphinx(BaseBuilder):
             # because Read the Docs will automatically create one for it.
             pass
 
+    def get_language(self, project):
+        """Get a Sphinx compatible language code."""
+        language = project.language
+        return OLD_LANGUAGES_CODE_MAPPING.get(language, language)
 
     def get_config_params(self):
         """Get configuration parameters to be rendered into the conf file."""
@@ -255,7 +258,10 @@ class BaseSphinx(BaseBuilder):
 
         if not os.path.exists(self.config_file):
             raise UserFileNotFound(
-                UserFileNotFound.FILE_NOT_FOUND.format(self.config_file)
+                message_id=UserFileNotFound.FILE_NOT_FOUND,
+                format_values={
+                    "filename": os.path.relpath(self.config_file, self.project_path),
+                },
             )
 
         # Allow symlinks, but only the ones that resolve inside the base directory.
@@ -289,10 +295,10 @@ class BaseSphinx(BaseBuilder):
         build_command = [
             *self.get_sphinx_cmd(),
             "-T",
-            "-E",
         ]
         if self.config.sphinx.fail_on_warning:
             build_command.extend(["-W", "--keep-going"])
+        language = self.get_language(project)
         build_command.extend(
             [
                 "-b",
@@ -300,7 +306,7 @@ class BaseSphinx(BaseBuilder):
                 "-d",
                 self.sphinx_doctrees_dir,
                 "-D",
-                f"language={project.language}",
+                f"language={language}",
                 # Sphinx's source directory (SOURCEDIR).
                 # We are executing this command at the location of the `conf.py` file (CWD).
                 # TODO: ideally we should execute it from where the repository was clonned,
@@ -472,16 +478,16 @@ class PdfBuilder(BaseSphinx):
     pdf_file_name = None
 
     def build(self):
+        language = self.get_language(self.project)
         self.run(
             *self.get_sphinx_cmd(),
             "-T",
-            "-E",
             "-b",
             self.sphinx_builder,
             "-d",
             self.sphinx_doctrees_dir,
             "-D",
-            f"language={self.project.language}",
+            f"language={language}",
             # Sphinx's source directory (SOURCEDIR).
             # We are executing this command at the location of the `conf.py` file (CWD).
             # TODO: ideally we should execute it from where the repository was clonned,
@@ -496,7 +502,7 @@ class PdfBuilder(BaseSphinx):
 
         tex_files = glob(os.path.join(self.absolute_host_output_dir, "*.tex"))
         if not tex_files:
-            raise BuildUserError("No TeX files were found.")
+            raise BuildUserError(message_id=BuildUserError.TEX_FILE_NOT_FOUND)
 
         # Run LaTeX -> PDF conversions
         success = self._build_latexmk(self.project_path)
@@ -575,7 +581,7 @@ class PdfBuilder(BaseSphinx):
         """Internal post build to cleanup PDF output directory and leave only one .pdf file."""
 
         if not self.pdf_file_name:
-            raise PDFNotFound()
+            raise BuildUserError(BuildUserError.PDF_NOT_FOUND)
 
         # TODO: merge this with ePUB since it's pretty much the same
         temp_pdf_file = f"/tmp/{self.project.slug}-{self.version.slug}.pdf"

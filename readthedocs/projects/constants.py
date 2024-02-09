@@ -279,15 +279,37 @@ LANGUAGES = (
     ('zh', 'Chinese'),
     ('zu', 'Zulu'),
     # Try these to test our non-2 letter language support
-    ('nb_NO', 'Norwegian Bokmal'),
-    ('pt_BR', 'Brazilian Portuguese'),
-    ('es_MX', 'Mexican Spanish'),
-    ('uk_UA', 'Ukrainian'),
-    ('zh_CN', 'Simplified Chinese'),
-    ('zh_TW', 'Traditional Chinese'),
+    ("nb-no", "Norwegian Bokmal"),
+    ("pt-br", "Brazilian Portuguese"),
+    ("es-mx", "Mexican Spanish"),
+    ("uk-ua", "Ukrainian"),
+    ("zh-cn", "Simplified Chinese"),
+    ("zh-tw", "Traditional Chinese"),
 )
+LANGUAGE_CODES = [code for code, *_ in LANGUAGES]
 
-LANGUAGES_REGEX = '|'.join([re.escape(code[0]) for code in LANGUAGES])
+# Normalize the language codes to lowercase with dashes,
+# we use them to match the language codes in the URL.
+# The old language codes were uppercase with underscores,
+# and are deprecated, but we still need to support them.
+old_language_codes = [
+    "nb_NO",
+    "pt_BR",
+    "es_MX",
+    "uk_UA",
+    "zh_CN",
+    "zh_TW",
+]
+OLD_LANGUAGES_CODE_MAPPING = {
+    code.lower().replace("_", "-"): code for code in old_language_codes
+}
+
+LANGUAGES_REGEX = "|".join(
+    [
+        re.escape(code)
+        for code in LANGUAGE_CODES + list(OLD_LANGUAGES_CODE_MAPPING.values())
+    ]
+)
 
 PROGRAMMING_LANGUAGES = (
     ('words', 'Only Words'),
@@ -361,43 +383,51 @@ BITBUCKET_URL = (
     'https://bitbucket.org/{user}/{repo}/'
     'src/{version}{docroot}{path}{source_suffix}'
 )
-BITBUCKET_COMMIT_URL = (
-    'https://bitbucket.org/{user}/{repo}/'
-    'commits/{commit}'
-)
+BITBUCKET_COMMIT_URL = "https://bitbucket.org/{user}/{repo}/commits/{commit}"
 GITLAB_URL = (
-    'https://gitlab.com/{user}/{repo}/'
-    '{action}/{version}{docroot}{path}{source_suffix}'
+    "https://gitlab.com/{user}/{repo}/"
+    "{action}/{version}{docroot}{path}{source_suffix}"
 )
-GITLAB_COMMIT_URL = (
-    'https://gitlab.com/{user}/{repo}/'
-    'commit/{commit}'
-)
+GITLAB_COMMIT_URL = "https://gitlab.com/{user}/{repo}/commit/{commit}"
 GITLAB_MERGE_REQUEST_COMMIT_URL = (
-    'https://gitlab.com/{user}/{repo}/'
-    'commit/{commit}?merge_request_iid={number}'
+    "https://gitlab.com/{user}/{repo}/commit/{commit}?merge_request_iid={number}"
 )
-GITLAB_MERGE_REQUEST_URL = (
-    'https://gitlab.com/{user}/{repo}/'
-    'merge_requests/{number}'
-)
+GITLAB_MERGE_REQUEST_URL = "https://gitlab.com/{user}/{repo}/merge_requests/{number}"
 
 # Patterns to pull merge/pull request from providers
-GITHUB_PR_PULL_PATTERN = 'pull/{id}/head:external-{id}'
-GITLAB_MR_PULL_PATTERN = 'merge-requests/{id}/head:external-{id}'
+GITHUB_PR_PULL_PATTERN = "pull/{id}/head:external-{id}"
+GITLAB_MR_PULL_PATTERN = "merge-requests/{id}/head:external-{id}"
 
 # Git provider names
-GITHUB_BRAND = 'GitHub'
-GITLAB_BRAND = 'GitLab'
+GITHUB_BRAND = "GitHub"
+GITLAB_BRAND = "GitLab"
 
 # SSL statuses
-SSL_STATUS_VALID = 'valid'
-SSL_STATUS_INVALID = 'invalid'
-SSL_STATUS_PENDING = 'pending'
-SSL_STATUS_UNKNOWN = 'unknown'
+SSL_STATUS_VALID = "valid"
+SSL_STATUS_INVALID = "invalid"
+SSL_STATUS_PENDING = "pending"
+SSL_STATUS_UNKNOWN = "unknown"
 SSL_STATUS_CHOICES = (
-    (SSL_STATUS_VALID, _('Valid and active')),
-    (SSL_STATUS_INVALID, _('Invalid')),
-    (SSL_STATUS_PENDING, _('Pending')),
-    (SSL_STATUS_UNKNOWN, _('Unknown')),
+    (SSL_STATUS_VALID, _("Valid and active")),
+    (SSL_STATUS_INVALID, _("Invalid")),
+    (SSL_STATUS_PENDING, _("Pending")),
+    (SSL_STATUS_UNKNOWN, _("Unknown")),
+)
+
+MULTIPLE_VERSIONS_WITH_TRANSLATIONS = "multiple_versions_with_translations"
+MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS = "multiple_versions_without_translations"
+SINGLE_VERSION_WITHOUT_TRANSLATIONS = "single_version_without_translations"
+VERSIONING_SCHEME_CHOICES = (
+    (
+        MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+        _("Multiple versions with translations (/<language>/<version>/<filename>)"),
+    ),
+    (
+        MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+        _("Multiple versions without translations (/<version>/<filename>)"),
+    ),
+    (
+        SINGLE_VERSION_WITHOUT_TRANSLATIONS,
+        _("Single version without translations (/<filename>)"),
+    ),
 )

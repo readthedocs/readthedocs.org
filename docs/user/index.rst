@@ -26,6 +26,7 @@ Read the Docs: documentation simplified
    /localization
    /explanation/advanced
    /explanation/methodology
+   /security-implications
 
 .. toctree::
    :maxdepth: 2
@@ -136,7 +137,7 @@ Get a high-level overview of our platform:
   Get familiar with some of the more advanced topics of building and deploying documentation with Read the Docs.
 
 💡 :doc:`All explanation articles </explanation/index>`
-  Browser all our explanation articles.
+  Browse all our explanation articles.
 
 
 How-to guides

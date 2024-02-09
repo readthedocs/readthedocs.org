@@ -7,8 +7,8 @@ from functools import partial
 import regex
 import structlog
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from django.db.models import F
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext
@@ -43,7 +43,6 @@ from readthedocs.builds.managers import (
     ExternalVersionManager,
     InternalBuildManager,
     InternalVersionManager,
-    VersionAutomationRuleManager,
     VersionManager,
 )
 from readthedocs.builds.querysets import (
@@ -60,8 +59,8 @@ from readthedocs.builds.utils import (
     get_vcs_url,
 )
 from readthedocs.builds.version_slug import VersionSlugField
-from readthedocs.config import LATEST_CONFIGURATION_VERSION
 from readthedocs.core.utils import extract_valid_attributes_for_model, trigger_build
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.constants import (
     BITBUCKET_COMMIT_URL,
     BITBUCKET_URL,
@@ -82,6 +81,7 @@ from readthedocs.projects.constants import (
     SPHINX_SINGLEHTML,
 )
 from readthedocs.projects.models import APIProject, Project
+from readthedocs.projects.ordering import ProjectItemPositionManager
 from readthedocs.projects.validators import validate_build_config_file
 from readthedocs.projects.version_handling import determine_stable_version
 
@@ -199,6 +199,7 @@ class Version(TimeStampedModel):
         _("Data generated at build time by the doctool (`readthedocs-build.yaml`)."),
         default=None,
         null=True,
+        blank=True,
     )
 
     addons = models.BooleanField(
@@ -319,7 +320,7 @@ class Version(TimeStampedModel):
         :rtype: dict
         """
         last_build = (
-            self.builds(manager=INTERNAL).filter(
+            self.builds.filter(
                 state=BUILD_STATE_FINISHED,
                 success=True,
             ).order_by('-date')
@@ -833,6 +834,13 @@ class Build(models.Model):
         blank=True,
     )
 
+    notifications = GenericRelation(
+        Notification,
+        related_query_name="build",
+        content_type_field="attached_to_content_type",
+        object_id_field="attached_to_id",
+    )
+
     # Managers
     objects = BuildQuerySet.as_manager()
     # Only include BRANCH, TAG, UNKNOWN type Version builds.
@@ -846,8 +854,11 @@ class Build(models.Model):
         ordering = ['-date']
         get_latest_by = 'date'
         index_together = [
-            ['version', 'state', 'type'],
-            ['date', 'id'],
+            # Useful for `/_/addons/` API endpoint.
+            # Query: ``version.builds.filter(success=True, state=BUILD_STATE_FINISHED)``
+            ["version", "state", "date", "success"],
+            ["version", "state", "type"],
+            ["date", "id"],
         ]
         indexes = [
             models.Index(fields=['project', 'date']),
@@ -971,8 +982,8 @@ class Build(models.Model):
 
     def get_version_slug(self):
         if self.version:
-            return self.version.verbose_name
-        return self.version_name
+            return self.version.slug
+        return self.version_slug
 
     def get_version_type(self):
         if self.version:
@@ -1092,36 +1103,6 @@ class Build(models.Model):
     def external_version_name(self):
         return external_version_name(self)
 
-    def deprecated_config_used(self):
-        """
-        Check whether this particular build is using a deprecated config file.
-
-        When using v1 or not having a config file at all, it returns ``True``.
-        Returns ``False`` only when it has a config file and it is using v2.
-
-        Note we are using this to communicate deprecation of v1 file and not using a config file.
-        See https://github.com/readthedocs/readthedocs.org/issues/10342
-        """
-        if not self.config:
-            return True
-
-        return int(self.config.get("version", "1")) != LATEST_CONFIGURATION_VERSION
-
-    def deprecated_build_image_used(self):
-        """
-        Check whether this particular build is using the deprecated "build.image" config.
-
-        Note we are using this to communicate deprecation of "build.image".
-        See https://github.com/readthedocs/meta/discussions/48
-        """
-        if not self.config:
-            # Don't notify users without a config file.
-            # We hope they will migrate to `build.os` in the process of adding a `.readthedocs.yaml`
-            return False
-
-        build_config_key = self.config.get("build", {})
-        return "image" in build_config_key
-
     def reset(self):
         """
         Reset the build so it can be re-used when re-trying.
@@ -1138,6 +1119,7 @@ class Build(models.Model):
         self.builder = ''
         self.cold_storage = False
         self.commands.all().delete()
+        self.notifications.all().delete()
         self.save()
 
 
@@ -1232,9 +1214,10 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         related_name='automation_rules',
         on_delete=models.CASCADE,
     )
-    priority = models.IntegerField(
+    priority = models.PositiveIntegerField(
         _('Rule priority'),
         help_text=_('A lower number (0) means a higher priority'),
+        default=0,
     )
     description = models.CharField(
         _('Description'),
@@ -1279,7 +1262,7 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
         choices=VERSION_TYPES,
     )
 
-    objects = VersionAutomationRuleManager()
+    _position_manager = ProjectItemPositionManager(position_field_name="priority")
 
     class Meta:
         unique_together = (('project', 'priority'),)
@@ -1350,76 +1333,24 @@ class VersionAutomationRule(PolymorphicModel, TimeStampedModel):
 
         :param steps: Number of steps to be moved
                       (it can be negative)
-        :returns: True if the priority was changed
         """
         total = self.project.automation_rules.count()
         current_priority = self.priority
         new_priority = (current_priority + steps) % total
-
-        if current_priority == new_priority:
-            return False
-
-        # Move other's priority
-        if new_priority > current_priority:
-            # It was moved down
-            rules = (
-                self.project.automation_rules
-                .filter(priority__gt=current_priority, priority__lte=new_priority)
-                # We sort the queryset in asc order
-                # to be updated in that order
-                # to avoid hitting the unique constraint (project, priority).
-                .order_by('priority')
-            )
-            expression = F('priority') - 1
-        else:
-            # It was moved up
-            rules = (
-                self.project.automation_rules
-                .filter(priority__lt=current_priority, priority__gte=new_priority)
-                .exclude(pk=self.pk)
-                # We sort the queryset in desc order
-                # to be updated in that order
-                # to avoid hitting the unique constraint (project, priority).
-                .order_by('-priority')
-            )
-            expression = F('priority') + 1
-
-        # Put an impossible priority to avoid
-        # the unique constraint (project, priority)
-        # while updating.
-        self.priority = total + 99
-        self.save()
-
-        # We update each object one by one to
-        # avoid hitting the unique constraint (project, priority).
-        for rule in rules:
-            rule.priority = expression
-            rule.save()
-
-        # Put back new priority
         self.priority = new_priority
         self.save()
-        return True
+
+    def save(self, *args, **kwargs):
+        """Override method to update the other priorities before save."""
+        self._position_manager.change_position_before_save(self)
+        if not self.description:
+            self.description = self.get_description()
+        super().save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         """Override method to update the other priorities after delete."""
-        current_priority = self.priority
-        project = self.project
         super().delete(*args, **kwargs)
-
-        rules = (
-            project.automation_rules
-            .filter(priority__gte=current_priority)
-            # We sort the queryset in asc order
-            # to be updated in that order
-            # to avoid hitting the unique constraint (project, priority).
-            .order_by('priority')
-        )
-        # We update each object one by one to
-        # avoid hitting the unique constraint (project, priority).
-        for rule in rules:
-            rule.priority = F('priority') - 1
-            rule.save()
+        self._position_manager.change_position_after_delete(self)
 
     def get_description(self):
         if self.description:

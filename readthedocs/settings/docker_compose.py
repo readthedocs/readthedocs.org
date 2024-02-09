@@ -15,7 +15,6 @@ class DockerBaseSettings(CommunityBaseSettings):
     RTD_DOCKER_COMPOSE_VOLUME = "community_build-user-builds"
     RTD_DOCKER_USER = f"{os.geteuid()}:{os.getegid()}"
     DOCKER_LIMITS = {"memory": "1g", "time": 900}
-    USE_SUBDOMAIN = True
 
     PRODUCTION_DOMAIN = os.environ.get("RTD_PRODUCTION_DOMAIN", "devthedocs.org")
     PUBLIC_DOMAIN = os.environ.get("RTD_PUBLIC_DOMAIN", "devthedocs.org")
@@ -84,10 +83,10 @@ class DockerBaseSettings(CommunityBaseSettings):
         domains = super().RTD_EMBED_API_EXTERNAL_DOMAINS
         domains.extend(
             [
-                r".*\.readthedocs\.io",
-                r".*\.org\.readthedocs\.build",
-                r".*\.readthedocs-hosted\.com",
-                r".*\.com\.readthedocs\.build",
+                r"^.*\.readthedocs\.io$",
+                r"^.*\.org\.readthedocs\.build$",
+                r"^.*\.readthedocs-hosted\.com$",
+                r"^.*\.com\.readthedocs\.build$",
             ]
         )
         return domains
@@ -204,6 +203,11 @@ class DockerBaseSettings(CommunityBaseSettings):
     AWS_S3_ENDPOINT_URL = "http://storage:9000/"
     AWS_QUERYSTRING_AUTH = False
 
+    STRIPE_SECRET = os.environ.get("RTD_STRIPE_SECRET", "sk_test_x")
+    STRIPE_PUBLISHABLE = os.environ.get("RTD_STRIPE_PUBLISHABLE")
+    STRIPE_TEST_SECRET_KEY = STRIPE_SECRET
+    DJSTRIPE_WEBHOOK_SECRET = os.environ.get("RTD_DJSTRIPE_WEBHOOK_SECRET")
+
     RTD_SAVE_BUILD_COMMANDS_TO_STORAGE = True
     RTD_BUILD_COMMANDS_STORAGE = "readthedocs.storage.s3_storage.S3BuildCommandsStorage"
     BUILD_COLD_STORAGE_URL = "http://storage:9000/builds"
@@ -216,9 +220,7 @@ class DockerBaseSettings(CommunityBaseSettings):
     # Remove the checks on the number of fields being submitted
     # This limit is mostly hit on large forms in the Django admin
     DATA_UPLOAD_MAX_NUMBER_FIELDS = None
-
-    # This allows us to have CORS work well in dev
-    CORS_ORIGIN_ALLOW_ALL = True
+    SUPPORT_EMAIL = "support@example.com"
 
 
 DockerBaseSettings.load_settings(__name__)

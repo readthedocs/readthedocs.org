@@ -9,6 +9,11 @@ from django.conf import settings
 from readthedocs.builds.constants import EXTERNAL, INTERNAL
 from readthedocs.builds.models import Version
 from readthedocs.constants import pattern_opts
+from readthedocs.projects.constants import (
+    MULTIPLE_VERSIONS_WITH_TRANSLATIONS,
+    MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS,
+    SINGLE_VERSION_WITHOUT_TRANSLATIONS,
+)
 from readthedocs.projects.models import Domain, Feature, Project
 
 log = structlog.get_logger(__name__)
@@ -163,10 +168,20 @@ class Unresolver:
     # - /en/latest
     # - /en/latest/
     # - /en/latest/file/name/
-    multiversion_pattern = _expand_regex(
+    multiple_versions_with_translations_pattern = _expand_regex(
         # The path must have a language slug,
         # optionally a version slug followed by a filename.
         "^/{language}(/({version}(/{filename})?)?)?$"
+    )
+
+    # This pattern matches:
+    # - /latest
+    # - /latest/
+    # - /latest/file/name/
+    multiple_versions_without_translations_pattern = _expand_regex(
+        # The path must have a version slug,
+        # optionally followed by a filename.
+        "^/{version}(/{filename})?$"
     )
 
     # This pattern matches:
@@ -261,7 +276,7 @@ class Unresolver:
             filename = "/" + filename
         return filename
 
-    def _match_multiversion_project(
+    def _match_multiple_versions_with_translations_project(
         self, parent_project, path, external_version_slug=None
     ):
         """
@@ -281,11 +296,14 @@ class Unresolver:
             # so syntax is black with noqa for pep8.
             path = self._normalize_filename(path[len(custom_prefix) :])  # noqa
 
-        match = self.multiversion_pattern.match(path)
+        match = self.multiple_versions_with_translations_pattern.match(path)
         if not match:
             return None
 
         language = match.group("language")
+        # Normalize old language codes to lowercase with dashes.
+        language = language.lower().replace("_", "-")
+
         version_slug = match.group("version")
         filename = self._normalize_filename(match.group("filename"))
 
@@ -308,6 +326,41 @@ class Unresolver:
                 project=project,
                 language=language,
             )
+
+        if external_version_slug and external_version_slug != version_slug:
+            raise InvalidExternalVersionError(
+                project=project,
+                version_slug=version_slug,
+                external_version_slug=external_version_slug,
+            )
+
+        manager = EXTERNAL if external_version_slug else INTERNAL
+        version = project.versions(manager=manager).filter(slug=version_slug).first()
+        if not version:
+            raise VersionNotFoundError(
+                project=project, version_slug=version_slug, filename=filename
+            )
+
+        return project, version, filename
+
+    def _match_multiple_versions_without_translations_project(
+        self, parent_project, path, external_version_slug=None
+    ):
+        custom_prefix = parent_project.custom_prefix
+        if custom_prefix:
+            if not path.startswith(custom_prefix):
+                return None
+            # pep8 and black don't agree on having a space before :,
+            # so syntax is black with noqa for pep8.
+            path = self._normalize_filename(path[len(custom_prefix) :])  # noqa
+
+        match = self.multiple_versions_without_translations_pattern.match(path)
+        if not match:
+            return None
+
+        version_slug = match.group("version")
+        filename = self._normalize_filename(match.group("filename"))
+        project = parent_project
 
         if external_version_slug and external_version_slug != version_slug:
             raise InvalidExternalVersionError(
@@ -366,7 +419,7 @@ class Unresolver:
             return response
         return None
 
-    def _match_single_version_project(
+    def _match_single_version_without_translations_project(
         self, parent_project, path, external_version_slug=None
     ):
         """
@@ -440,8 +493,8 @@ class Unresolver:
         :returns: A tuple with: project, version, and filename.
         """
         # Multiversion project.
-        if not parent_project.single_version:
-            response = self._match_multiversion_project(
+        if parent_project.versioning_scheme == MULTIPLE_VERSIONS_WITH_TRANSLATIONS:
+            response = self._match_multiple_versions_with_translations_project(
                 parent_project=parent_project,
                 path=path,
                 external_version_slug=external_version_slug,
@@ -459,9 +512,19 @@ class Unresolver:
             if response:
                 return response
 
+        # Single language project.
+        if parent_project.versioning_scheme == MULTIPLE_VERSIONS_WITHOUT_TRANSLATIONS:
+            response = self._match_multiple_versions_without_translations_project(
+                parent_project=parent_project,
+                path=path,
+                external_version_slug=external_version_slug,
+            )
+            if response:
+                return response
+
         # Single version project.
-        if parent_project.single_version:
-            response = self._match_single_version_project(
+        if parent_project.versioning_scheme == SINGLE_VERSION_WITHOUT_TRANSLATIONS:
+            response = self._match_single_version_without_translations_project(
                 parent_project=parent_project,
                 path=path,
                 external_version_slug=external_version_slug,
@@ -527,7 +590,7 @@ class Unresolver:
         if public_domain in domain or external_domain in domain:
             # NOTE: This can catch some possibly valid domains (docs.readthedocs.io.com)
             # for example, but these might be phishing, so let's block them for now.
-            log.warning("Weird variation of our domain.", domain=domain)
+            log.debug("Weird variation of our domain.", domain=domain)
             raise SuspiciousHostnameError(domain=domain)
 
         # Custom domain.

@@ -355,7 +355,7 @@ class SearchAPITest(SearchTestBase):
 
 
 @pytest.mark.proxito
-@override_settings(PUBLIC_DOMAIN="readthedocs.io", USE_SUBDOMAIN=True)
+@override_settings(PUBLIC_DOMAIN="readthedocs.io")
 class ProxiedSearchAPITest(SearchAPITest):
     host = "project.readthedocs.io"
 

@@ -4,8 +4,15 @@ import re
 from typing import Iterable
 
 import structlog
+from django.conf import settings
 
-from readthedocs.builds.constants import BRANCH, EXTERNAL, TAG
+from readthedocs.builds.constants import (
+    BRANCH,
+    EXTERNAL,
+    LATEST_VERBOSE_NAME,
+    STABLE_VERBOSE_NAME,
+    TAG,
+)
 from readthedocs.config import ALL
 from readthedocs.projects.constants import (
     GITHUB_BRAND,
@@ -73,13 +80,27 @@ class Backend(BaseVCS):
         This method sits on top of a lot of legacy design.
         It decides how to treat the incoming ``Version.identifier`` from
         knowledge of how the caller (the build process) uses build data.
+        Thi is:
 
-        Version.identifier = a branch name (branches)
-        Version.identifier = commit (tags)
-        Version.identifier = commit (external versions)
-        Version.verbose_name = branch alias, e.g. latest (branches)
-        Version.verbose_name = tag name (tags)
-        Version.verbose_name = PR number (external versions)
+        For branches:
+
+        - Version.identifier is the branch name.
+        - Version.verbose_name is also the branch name,
+          except for latest and stable (machine created),
+          where this is the alias name.
+
+        For tags:
+
+        - Version.identifier is the commit hash,
+          except for latest, where this is the tag name.
+        - Version.verbose_name is the tag name,
+          except for latest and stable (machine created),
+          where this is the alias name.
+
+        For external versions:
+
+        - Version.identifier is the commit hash.
+        - Version.verbose_name is the PR number.
 
         :return: A refspec valid for fetch operation
         """
@@ -115,12 +136,19 @@ class Backend(BaseVCS):
             # denoting that it's not a branch/tag that really exists.
             # Because we don't know if it originates from the default branch or some
             # other tagged release, we will fetch the exact commit it points to.
-            if self.version_machine and self.verbose_name == "stable":
+            if self.version_machine and self.verbose_name == STABLE_VERBOSE_NAME:
                 if self.version_identifier:
                     return f"{self.version_identifier}"
                 log.error("'stable' version without a commit hash.")
                 return None
-            return f"refs/tags/{self.verbose_name}:refs/tags/{self.verbose_name}"
+
+            tag_name = self.verbose_name
+            # For a machine created "latest" tag, the name of the tag is set
+            # in the `Version.identifier` field, note that it isn't a commit
+            # hash, but the name of the tag.
+            if self.version_machine and self.verbose_name == LATEST_VERBOSE_NAME:
+                tag_name = self.version_identifier
+            return f"refs/tags/{tag_name}:refs/tags/{tag_name}"
 
         if self.version_type == EXTERNAL:
             # TODO: We should be able to resolve this without looking up in oauth registry
@@ -153,7 +181,10 @@ class Backend(BaseVCS):
             code, stdout, stderr = self.run(*cmd)
             return code, stdout, stderr
         except RepositoryError as exc:
-            raise RepositoryError(RepositoryError.CLONE_ERROR()) from exc
+            message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_NOT_ALLOWED
+            if settings.ALLOW_PRIVATE_REPOS:
+                message_id = RepositoryError.CLONE_ERROR_WITH_PRIVATE_REPO_ALLOWED
+            raise RepositoryError(message_id=message_id) from exc
 
     def fetch(self):
         # --force: Likely legacy, it seems to be irrelevant to this usage
@@ -265,7 +296,10 @@ class Backend(BaseVCS):
             return [code, out, err]
         except RepositoryError as exc:
             raise RepositoryError(
-                RepositoryError.FAILED_TO_CHECKOUT.format(revision),
+                message_id=RepositoryError.FAILED_TO_CHECKOUT,
+                format_values={
+                    "revision": revision,
+                },
             ) from exc
 
     def lsremote(self, include_tags=True, include_branches=True):

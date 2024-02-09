@@ -134,7 +134,7 @@ def get_feature(obj, feature_type) -> RTDProductFeature:
     available_stripe_products_id = [
         product.stripe_id for product in get_products_with_feature(feature_type)
     ]
-    stripe_subscription = organization.get_or_create_stripe_subscription()
+    stripe_subscription = organization.stripe_subscription
     if stripe_subscription:
         subscription_items = stripe_subscription.items.filter(
             price__product__id__in=available_stripe_products_id

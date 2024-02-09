@@ -7,12 +7,17 @@ django-extensions
 django-polymorphic
 django-autoslug
 
+# NOTE: we cannot use ``psycopg`` (3.x), even if it's supported by Django 4.2
+# because New Relic agent is not sending the data of the database to their servers.
+psycopg2
+
 # 3.1.0 includes changes that require running `makemigrations`
 # https://django-simple-history.readthedocs.io/en/latest/#changes
 django-simple-history==3.0.0
 
 djangorestframework
 djangorestframework-api-key
+rest-framework-generic-relations
 
 # Embed v1 still uses docutils.
 # Remove this dependency once we deprecate this API.
@@ -83,9 +88,10 @@ django-allauth==0.51.0
 requests-oauthlib
 
 # Search
-elasticsearch<8.0
-elasticsearch-dsl<8.0
-django-elasticsearch-dsl<8.0
+elasticsearch~=8.0
+elasticsearch-dsl~=8.0
+django-elasticsearch-dsl~=8.0
+
 selectolax
 
 # embed
@@ -132,7 +138,6 @@ django-crispy-forms<2
 docker==6.1.2
 
 django-annoying
-django-messages-extends
 djangorestframework-jsonp
 django-taggit
 dj-pagination
@@ -157,9 +162,15 @@ django-csp
 
 # Upgrading to 3.x requires some extra work
 # https://django-structlog.readthedocs.io/en/latest/upgrade_guide.html#upgrading-to-3-0
+# NOTE: that django-structlog is in version 6.x now,
+# so we should probably consider migrating to avoid incompatibility issues.
 django-structlog==2.2.0
+# Pining due to a Sentry error we started getting
+# https://read-the-docs.sentry.io/issues/4678167578/events/2d9d348729874d67b120b153908ca54c/
+django-ipware<6.0.0
 
-structlog
+# https://github.com/readthedocs/readthedocs.org/issues/10990
+structlog==23.2.0
 dparse
 
 gunicorn

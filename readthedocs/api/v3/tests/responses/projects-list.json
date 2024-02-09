@@ -53,7 +53,9 @@
                 "translations": "https://readthedocs.org/api/v3/projects/project/translations/"
             },
             "privacy_level": "public",
-            "external_builds_privacy_level": "public"
+            "external_builds_privacy_level": "public",
+            "single_version": false,
+            "versioning_scheme": "multiple_versions_with_translations"
         }
     ]
 }

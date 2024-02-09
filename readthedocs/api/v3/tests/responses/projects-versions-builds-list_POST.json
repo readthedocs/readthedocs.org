@@ -8,6 +8,7 @@
         "id": 2,
         "_links": {
             "_self": "https://readthedocs.org/api/v3/projects/project/builds/2/",
+            "notifications": "https://readthedocs.org/api/v3/projects/project/builds/2/notifications/",
             "project": "https://readthedocs.org/api/v3/projects/project/",
             "version": "https://readthedocs.org/api/v3/projects/project/versions/v1.0/"
         },
@@ -74,7 +75,9 @@
             }
         ],
         "privacy_level": "public",
-        "external_builds_privacy_level": "public"
+        "external_builds_privacy_level": "public",
+        "single_version": false,
+        "versioning_scheme": "multiple_versions_with_translations"
     },
     "triggered": true,
     "version": {
