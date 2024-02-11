@@ -85,7 +85,7 @@ sphinx==7.2.6
     #   sphinxcontrib-jquery
     #   sphinxemoji
     #   sphinxext-opengraph
-sphinx-autobuild==2021.3.14
+sphinx-autobuild==2024.2.4
     # via -r requirements/docs.in
 sphinx-copybutton==0.5.2
     # via -r requirements/docs.in
