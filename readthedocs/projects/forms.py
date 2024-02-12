@@ -156,7 +156,7 @@ class ProjectAutomaticForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
                     ),
                     header=_("Organization single sign-on enabled"),
                 )
-            if not self.user_missing_admin_permission:
+            if not self.user_has_admin_permission:
                 raise RichValidationError(
                     _(
                         "You must be on a team with admin permissions "
