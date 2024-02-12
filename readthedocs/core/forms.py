@@ -163,7 +163,7 @@ class PrevalidatedForm(forms.Form):
             self._prevalidation_errors = [validation_error]
 
     def clean_prevalidation(self):
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
 class RichValidationError(forms.ValidationError):
