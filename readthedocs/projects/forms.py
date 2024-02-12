@@ -82,7 +82,10 @@ class ProjectBackendForm(forms.Form):
     backend = forms.CharField()
 
 
-class ProjectFormParamMixin:
+class ProjectFormPrevalidateMixin:
+
+    """Provides shared logic between the automatic and manual create forms."""
+
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user", None)
         super().__init__(*args, **kwargs)
@@ -113,7 +116,7 @@ class ProjectFormParamMixin:
             # TODO this logic should be possible from AdminPermission
             # AdminPermssion.is_admin only inspects organization owners, so the
             # additional team check is necessary
-            self.user_missing_admin_permission = not any(
+            self.user_has_admin_permission = any(
                 [
                     AdminPermission.organizations(
                         user=self.user,
@@ -124,7 +127,7 @@ class ProjectFormParamMixin:
             )
 
 
-class ProjectAutomaticForm(ProjectFormParamMixin, PrevalidatedForm):
+class ProjectAutomaticForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
     def clean_prevalidation(self):
         """
         Block user from using this form for important blocking states.
@@ -153,7 +156,7 @@ class ProjectAutomaticForm(ProjectFormParamMixin, PrevalidatedForm):
                     ),
                     header=_("Organization single sign-on enabled"),
                 )
-            if self.user_missing_admin_permission:
+            if not self.user_missing_admin_permission:
                 raise RichValidationError(
                     _(
                         "You must be on a team with admin permissions "
@@ -163,7 +166,7 @@ class ProjectAutomaticForm(ProjectFormParamMixin, PrevalidatedForm):
                 )
 
 
-class ProjectManualForm(ProjectFormParamMixin, PrevalidatedForm):
+class ProjectManualForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
     def clean_prevalidation(self):
         super().clean_prevalidation()
         if settings.RTD_ALLOW_ORGANIZATIONS:
@@ -175,7 +178,7 @@ class ProjectManualForm(ProjectFormParamMixin, PrevalidatedForm):
                     ),
                     header=_("Organization single sign-on enabled"),
                 )
-            if self.user_missing_admin_permission:
+            if not self.user_has_admin_permission:
                 raise RichValidationError(
                     _(
                         "You must be on a team with admin permissions "
