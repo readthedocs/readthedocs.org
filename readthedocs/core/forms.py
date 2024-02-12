@@ -115,6 +115,10 @@ class PrevalidatedForm(forms.Form):
     field errors in the UI.
     """
 
+    def __init__(self, *args, **kwargs):
+        self._prevalidation_errors = None
+        super().__init__(*args, **kwargs)
+
     @property
     def is_valid(self):
         # This differs from ``Form`` in that we don't care if the form is bound
@@ -133,7 +137,6 @@ class PrevalidatedForm(forms.Form):
         what. This gives errors before submission and after submission.
         """
         # Always call prevalidation, ``full_clean`` bails if the form is unbound
-        self._prevalidation_errors = None
         self._clean_prevalidation()
 
         super().full_clean()
@@ -151,7 +154,7 @@ class PrevalidatedForm(forms.Form):
         Catch validation errors raised by the subclassed ``clean_validation()``.
 
         This wraps ``clean_prevalidation()`` using the same pattern that
-        :py:method:`form.Form._clean_form` wraps :py:method:`clean`. An validation
+        :py:method:`form.Form._clean_form` wraps :py:method:`clean`. Validation
         errors raised in the subclass method will be eventually added to the
         form error list but :py:method:`full_clean`.
         """
@@ -159,6 +162,9 @@ class PrevalidatedForm(forms.Form):
             self.clean_prevalidation()
         except forms.ValidationError as validation_error:
             self._prevalidation_errors = [validation_error]
+
+    def clean_prevalidation(self):
+        raise NotImplemented()
 
 
 class RichValidationError(forms.ValidationError):
