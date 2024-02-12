@@ -119,7 +119,6 @@ class PrevalidatedForm(forms.Form):
         self._prevalidation_errors = None
         super().__init__(*args, **kwargs)
 
-    @property
     def is_valid(self):
         # This differs from ``Form`` in that we don't care if the form is bound
         return not self.errors
