@@ -18,16 +18,15 @@ from django.core.exceptions import SuspiciousOperation
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils.deprecation import MiddlewareMixin
+from django.utils.html import escape
 
 from readthedocs.builds.models import Version
 from readthedocs.core.unresolver import (
     InvalidCustomDomainError,
     InvalidExternalDomainError,
-    InvalidPathForVersionedProjectError,
     InvalidSubdomainError,
     InvalidXRTDSlugHeaderError,
     SuspiciousHostnameError,
-    unresolve,
     unresolver,
 )
 from readthedocs.core.utils import get_cache_tag
@@ -189,19 +188,17 @@ class ProxitoMiddleware(MiddlewareMixin):
         else:
             cache_response(response, force=False)
 
-    def _set_request_attributes(self, request, unresolved_domain, unresolved_url):
+    def _set_request_attributes(self, request, unresolved_domain):
         """
         Set attributes in the request from the unresolved domain.
 
         - Set ``request.unresolved_domain`` to the unresolved domain.
         """
         request.unresolved_domain = unresolved_domain
-        request.unresolved_url = unresolved_url
 
     def process_request(self, request):  # noqa
         # Initialize our custom request attributes.
         request.unresolved_domain = None
-        request.unresolved_url = None
 
         skip = any(request.path.startswith(reverse(view)) for view in self.skip_views)
         if skip:
@@ -233,12 +230,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         except InvalidXRTDSlugHeaderError as exc:
             raise SuspiciousOperation("Invalid X-RTD-Slug header.") from exc
 
-        try:
-            unresolved_url = unresolve(request.build_absolute_uri())
-        except InvalidPathForVersionedProjectError:
-            unresolved_url = None
-
-        self._set_request_attributes(request, unresolved_domain, unresolved_url)
+        self._set_request_attributes(request, unresolved_domain)
 
         response = self._get_https_redirect(request)
         if response:
@@ -380,9 +372,11 @@ class ProxitoMiddleware(MiddlewareMixin):
         # TODO: find a better way to re-use the unresolved URL so we don't
         # query the db multiple times on the same request.
         # https://github.com/readthedocs/readthedocs.org/issues/10456
-        if request.unresolved_url is not None:
+        if hasattr(request, "unresolved_url") and request.unresolved_url is not None:
             # TODO: add more ``X-RTD-Resolver-*`` headers
-            response["X-RTD-Resolver-Filename"] = request.unresolved_url.filename
+            response["X-RTD-Resolver-Filename"] = escape(
+                request.unresolved_url.filename
+            )
 
     def process_response(self, request, response):  # noqa
         self.add_proxito_headers(request, response)
