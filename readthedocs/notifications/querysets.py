@@ -110,4 +110,7 @@ class NotificationQuerySet(models.QuerySet):
         # User, Project and Organization models where the user is admin.
         return (
             user_notifications | project_notifications | organization_notifications
-        ).filter(state__in=(UNREAD, READ))
+        ).display()
+
+    def display(self):
+        return self.filter(state__in=(UNREAD, READ))

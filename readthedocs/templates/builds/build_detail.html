@@ -170,7 +170,7 @@ $(document).ready(function () {
 
       This temporal until we render these notifications from the front-end.
     {% endcomment %}
-    {% for notification in build.notifications.all %}
+    {% for notification in build.notifications.display %}
     {% if notification.get_message.type != "error" %}
     <p class="build-ideas">
       {{ notification.get_message.get_rendered_body|safe }}
@@ -216,7 +216,7 @@ $(document).ready(function () {
 
       This temporal until we render these notifications from the front-end.
     {% endcomment %}
-    {% for notification in build.notifications.all %}
+    {% for notification in build.notifications.display %}
     {% if notification.get_message.type == "error" %}
     <div class="build-error">
         <h3>{{ notification.get_message.type|title }}</h3>

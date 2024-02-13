@@ -11,7 +11,7 @@
 {% block content %}
   {% if organization.notifications.exists %}
     <ul class="notifications">
-    {% for notification in organization.notifications.all %}
+    {% for notification in organization.notifications.display %}
       <li class="notification">
         {{ notification.get_message.get_rendered_body|safe }}
       </li>

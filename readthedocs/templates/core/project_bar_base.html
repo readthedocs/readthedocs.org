@@ -34,7 +34,7 @@
         This notification will be shown here using the same style we used before.
     {% endcomment %}
 
-    {% for notification in project.notifications.all %}
+    {% for notification in project.notifications.display %}
     <p class="build-failure">
       {{ notification.get_message.get_rendered_body|safe }}
     </p>

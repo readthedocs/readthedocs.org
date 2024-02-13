@@ -149,3 +149,32 @@ class TestNotificationQuerySet:
             "user:notification:read",
             "user:notification:unread",
         ]
+
+    def test_display(self):
+        user = fixture.get(User)
+
+        Notification.objects.add(
+            attached_to=user,
+            message_id="user:notification:read",
+            state=READ,
+        )
+        Notification.objects.add(
+            attached_to=user,
+            message_id="user:notification:unread",
+            state=UNREAD,
+        )
+        Notification.objects.add(
+            attached_to=user,
+            message_id="user:notification:dismissed",
+            state=DISMISSED,
+        )
+        Notification.objects.add(
+            attached_to=user,
+            message_id="user:notification:cancelled",
+            state=CANCELLED,
+        )
+
+        assert [n.message_id for n in Notification.objects.display()] == [
+            "user:notification:read",
+            "user:notification:unread",
+        ]
