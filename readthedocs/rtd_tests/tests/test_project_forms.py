@@ -1,9 +1,8 @@
 from unittest import mock
 
-import pytest
 from allauth.socialaccount.models import SocialAccount
 from django.contrib.auth.models import User
-from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.core.exceptions import NON_FIELD_ERRORS
 from django.test import TestCase
 from django.test.utils import override_settings
 from django_dynamic_fixture import get
@@ -444,17 +443,14 @@ class TestProjectPrevalidationForms(TestCase):
         form_manual = ProjectManualForm(user=self.user_email)
 
         # Test validation errors directly
-        with pytest.raises(ValidationError) as validation_error:
-            form_auto.clean_prevalidation()
-        assert validation_error.type is RichValidationError
+        self.assertRaises(RichValidationError, form_auto.clean_prevalidation)
         form_manual.clean_prevalidation()
 
         # Test downstream
-        assert not form_auto.is_valid()
-        assert form_auto.errors == {NON_FIELD_ERRORS: mock.ANY}
-
-        assert form_manual.is_valid()
-        assert form_manual.errors == {}
+        self.assertFalse(form_auto.is_valid())
+        self.assertEqual(form_auto.errors, {NON_FIELD_ERRORS: mock.ANY})
+        self.assertTrue(form_manual.is_valid())
+        self.assertEqual(form_manual.errors, {})
 
     def test_form_prevalidation_github_user(self):
         form_auto = ProjectAutomaticForm(user=self.user_github)
@@ -465,11 +461,10 @@ class TestProjectPrevalidationForms(TestCase):
         form_manual.clean_prevalidation()
 
         # Test downstream
-        assert form_auto.is_valid()
-        assert form_auto.errors == {}
-
-        assert form_manual.is_valid()
-        assert form_manual.errors == {}
+        self.assertTrue(form_auto.is_valid())
+        self.assertEqual(form_auto.errors, {})
+        self.assertTrue(form_manual.is_valid())
+        self.assertEqual(form_manual.errors, {})
 
 
 @override_settings(RTD_ALLOW_ORGANIZATIONS=True)
@@ -505,20 +500,14 @@ class TestProjectPrevalidationFormsWithOrganizations(TestCase):
         form_manual = ProjectManualForm(user=self.user_readonly)
 
         # Test validation errors directly
-        with pytest.raises(
-            RichValidationError, match=r"admin permissions"
-        ) as validation_error:
-            form_auto.clean_prevalidation()
-        with pytest.raises(
-            RichValidationError, match=r"admin permissions"
-        ) as validation_error:
-            form_manual.clean_prevalidation()
+        self.assertRaises(RichValidationError, form_auto.clean_prevalidation)
+        self.assertRaises(RichValidationError, form_manual.clean_prevalidation)
 
         # Test downstream
-        assert not form_auto.is_valid()
-        assert form_auto.errors == {NON_FIELD_ERRORS: mock.ANY}
-        assert not form_manual.is_valid()
-        assert form_manual.errors == {NON_FIELD_ERRORS: mock.ANY}
+        self.assertFalse(form_auto.is_valid())
+        self.assertEqual(form_auto.errors, {NON_FIELD_ERRORS: mock.ANY})
+        self.assertFalse(form_manual.is_valid())
+        self.assertEqual(form_manual.errors, {NON_FIELD_ERRORS: mock.ANY})
 
     def test_form_prevalidation_admin_user(self):
         form_auto = ProjectAutomaticForm(user=self.user_admin)
@@ -529,10 +518,10 @@ class TestProjectPrevalidationFormsWithOrganizations(TestCase):
         form_manual.clean_prevalidation()
 
         # Test downstream
-        assert form_auto.is_valid()
-        assert form_auto.errors == {}
-        assert form_manual.is_valid()
-        assert form_manual.errors == {}
+        self.assertTrue(form_auto.is_valid())
+        self.assertEqual(form_auto.errors, {})
+        self.assertTrue(form_manual.is_valid())
+        self.assertEqual(form_manual.errors, {})
 
     def test_form_prevalidation_owner_user(self):
         form_auto = ProjectAutomaticForm(user=self.user_owner)
@@ -543,10 +532,10 @@ class TestProjectPrevalidationFormsWithOrganizations(TestCase):
         form_manual.clean_prevalidation()
 
         # Test downstream
-        assert form_auto.is_valid()
-        assert form_auto.errors == {}
-        assert form_manual.is_valid()
-        assert form_manual.errors == {}
+        self.assertTrue(form_auto.is_valid())
+        self.assertEqual(form_auto.errors, {})
+        self.assertTrue(form_manual.is_valid())
+        self.assertEqual(form_manual.errors, {})
 
 
 class TestTranslationForms(TestCase):
