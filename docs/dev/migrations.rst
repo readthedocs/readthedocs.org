@@ -10,7 +10,7 @@ the following rules should be followed for each case.
 Adding a new field
 ------------------
 
-When adding a new field to a model, it should be nullable.
+**When adding a new field to a model, it should be nullable.**
 This way, the database can be migrated without downtime, and the field can be populated later.
 Don't forget to make the field non-nullable in a separate migration after the data has been populated.
 You can achieve this by following these steps:
@@ -88,9 +88,9 @@ At the end, the deploy should look like this:
 Removing a field
 ----------------
 
-When removing a field from a model,
+**When removing a field from a model,
 all usages of the field should be removed from the code before the field is removed from the model,
-and the field should be nullable.
+and the field should be nullable.**
 You can achieve this by following these steps:
 
 - #. Remove all usages of the field from the code.
