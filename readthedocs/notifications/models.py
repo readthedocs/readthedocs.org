@@ -7,7 +7,6 @@ from django.db import models
 from django.utils.translation import gettext_noop as _
 from django_extensions.db.models import TimeStampedModel
 
-from readthedocs.core.context_processors import readthedocs_processor
 
 from .constants import CANCELLED, DISMISSED, READ, UNREAD, WARNING
 from .messages import Message, registry
@@ -67,7 +66,12 @@ class Notification(TimeStampedModel):
         return self.message_id
 
     def get_message(self):
-        message = registry.get(self.message_id)
+        # Pass the instance attached to this notification
+        format_values = {
+            "instance": self.attached_to,
+        }
+
+        message = registry.get(self.message_id, format_values=format_values)
         if message is None:
             # Log the error and return an unknown error to avoid breaking the response.
             log.error(
@@ -88,15 +92,4 @@ class Notification(TimeStampedModel):
                 type=WARNING,
             )
 
-        # Pass the instance attached to this notification
-        all_format_values = {
-            "instance": self.attached_to,
-        }
-
-        # Always include global variables
-        all_format_values.update(readthedocs_processor(None))
-
-        # Pass the values stored in the database
-        all_format_values.update(self.format_values or {})
-        message.set_format_values(all_format_values)
         return message
