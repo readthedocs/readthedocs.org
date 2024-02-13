@@ -680,9 +680,13 @@ class NotificationsOrganizationViewSet(
 
     def get_queryset(self):
         content_type = ContentType.objects.get_for_model(Organization)
-        return super().get_queryset().filter(
-            attached_to_content_type=content_type,
-            attached_to_id__in=AdminPermission.organizations(
-                self.request.user, owner=True, member=False
-            ).values("id"),
+        return (
+            super()
+            .get_queryset()
+            .filter(
+                attached_to_content_type=content_type,
+                attached_to_id__in=AdminPermission.organizations(
+                    self.request.user, owner=True, member=False
+                ).values("id"),
+            )
         )
