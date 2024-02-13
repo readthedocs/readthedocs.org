@@ -430,6 +430,7 @@ class TestProjectAdvancedFormDefaultBranch(TestCase):
         )
 
 
+@override_settings(RTD_ALLOW_ORGANIZATIONS=False)
 class TestProjectPrevalidationForms(TestCase):
     def setUp(self):
         # User with connection
