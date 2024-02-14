@@ -424,6 +424,11 @@ class ServeError404Base(CDNCacheControlMixin, ServeRedirectMixin, ServeDocsMixin
                 path=proxito_path,
                 append_indexhtml=False,
             )
+
+            # Inject the UnresolvedURL into the HttpRequest so we can access from the middleware.
+            # We could resolve it again from the middleware, but we would duplicating DB queries.
+            request.unresolved_url = unresolved
+
             project = unresolved.project
             version = unresolved.version
             filename = unresolved.filename
