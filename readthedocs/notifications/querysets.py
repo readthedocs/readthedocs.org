@@ -71,8 +71,8 @@ class NotificationQuerySet(models.QuerySet):
         Retrieve notifications related to resource for a particular user.
 
         Given a user, returns all the notifications for the specified ``resource``
-        considering permissions (e.g. does not return any notification if the user
-        doesn't have admin permissions on the ``Project``).
+        considering permissions (e.g. does not return any notification if the ``user``
+        doesn't have admin permissions on the ``resource``).
 
         If ``resource="all"``, it returns the following notifications:
 
