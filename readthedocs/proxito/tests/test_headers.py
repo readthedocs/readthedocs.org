@@ -56,6 +56,25 @@ class ProxitoHeaderTests(BaseDocServing):
             r["X-RTD-Path"], "/proxito/media/html/project/latest/index.html"
         )
 
+    def test_serve_headers_with_path(self):
+        r = self.client.get(
+            "/en/latest/guides/jupyter/gallery.html",
+            secure=True,
+            headers={"host": "project.dev.readthedocs.io"},
+        )
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Cache-Tag"], "project,project:latest")
+        self.assertEqual(r["X-RTD-Domain"], "project.dev.readthedocs.io")
+        self.assertEqual(r["X-RTD-Project"], "project")
+        self.assertEqual(r["X-RTD-Project-Method"], "public_domain")
+        self.assertEqual(r["X-RTD-Version"], "latest")
+        self.assertEqual(r["X-RTD-version-Method"], "path")
+        self.assertEqual(r["X-RTD-Resolver-Filename"], "/guides/jupyter/gallery.html")
+        self.assertEqual(
+            r["X-RTD-Path"],
+            "/proxito/media/html/project/latest/guides/jupyter/gallery.html",
+        )
+
     def test_subproject_serve_headers(self):
         r = self.client.get(
             "/projects/subproject/en/latest/",
