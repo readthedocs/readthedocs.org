@@ -200,6 +200,7 @@ class ProxitoMiddleware(MiddlewareMixin):
     def process_request(self, request):  # noqa
         # Initialize our custom request attributes.
         request.unresolved_domain = None
+        request.unresolved_url = None
 
         skip = any(request.path.startswith(reverse(view)) for view in self.skip_views)
         if skip:
@@ -370,7 +371,7 @@ class ProxitoMiddleware(MiddlewareMixin):
         return None
 
     def add_resolver_headers(self, request, response):
-        if hasattr(request, "unresolved_url") and request.unresolved_url is not None:
+        if request.unresolved_url is not None:
             # TODO: add more ``X-RTD-Resolver-*`` headers
             header_value = escape(request.unresolved_url.filename)
             try:
