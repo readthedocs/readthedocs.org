@@ -64,7 +64,6 @@ class OrganizationsEndpointTests(APIEndpointMixin):
         )
         other_organization = fixture.get(
             Organization,
-            id=2,
             pub_date=self.created,
             modified_date=self.modified,
             name="other_organization",
