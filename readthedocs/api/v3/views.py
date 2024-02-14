@@ -422,7 +422,7 @@ class NotificationsForUserViewSet(
     filterset_class = NotificationFilter
 
     def get_queryset(self):
-        return Notification.objects.for_user(self.request.user)
+        return Notification.objects.for_user(self.request.user, resource="all")
 
 
 class NotificationsProjectViewSet(
