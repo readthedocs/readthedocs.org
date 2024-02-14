@@ -121,6 +121,7 @@ django==4.2.10
     #   django-filter
     #   django-formtools
     #   django-polymorphic
+    #   django-safemigrate
     #   django-storages
     #   django-structlog
     #   django-taggit
@@ -161,12 +162,12 @@ django-ipware==5.0.2
     #   django-structlog
 django-polymorphic==3.1.0
     # via -r requirements/pip.txt
+django-safemigrate==4.2
+    # via -r requirements/pip.txt
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
 django-storages[boto3]==1.14.2
-    # via
-    #   -r requirements/pip.txt
-    #   django-storages
+    # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
 django-taggit==5.0.1
@@ -315,7 +316,6 @@ pyjwt[crypto]==2.8.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-    #   pyjwt
 pyproject-api==1.6.1
     # via tox
 pyquery==2.0.0

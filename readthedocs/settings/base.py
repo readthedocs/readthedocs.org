@@ -237,6 +237,7 @@ class CommunityBaseSettings(Settings):
             'simple_history',
             'djstripe',
             'django_celery_beat',
+            "django_safemigrate.apps.SafeMigrateConfig",
 
             # our apps
             'readthedocs.projects',

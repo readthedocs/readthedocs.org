@@ -1830,14 +1830,10 @@ class Domain(TimeStampedModel):
     skip_validation = models.BooleanField(
         _("Skip validation process."),
         default=False,
-        # TODO: remove after deploy.
-        null=True,
     )
     validation_process_start = models.DateTimeField(
         _("Start date of the validation process."),
         auto_now_add=True,
-        # TODO: remove after deploy.
-        null=True,
     )
 
     # Strict-Transport-Security header options
