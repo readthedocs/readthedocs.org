@@ -66,11 +66,15 @@ class NotificationQuerySet(models.QuerySet):
             modified=timezone.now(),
         )
 
-    def for_user(self, user):
+    def for_user(self, user, resource=None):
         """
-        Retrieve all notifications related to a particular user.
+        Retrieve notifications related to resource for a particular user.
 
-        Given a user, returns all the notifications that:
+        Given a user, returns all the notifications for the specified ``resource``
+        considering permissions (e.g. does not return any notification if the user
+        doesn't have admin permissions on the ``Project``).
+
+        If ``resource="all"``, it returns the following notifications:
 
          - are attached to an ``Organization`` where the user is owner
          - are attached to a ``Project`` where the user is admin
@@ -82,32 +86,71 @@ class NotificationQuerySet(models.QuerySet):
         from readthedocs.organizations.models import Organization
         from readthedocs.projects.models import Project
 
-        # http://chibisov.github.io/drf-extensions/docs/#usage-with-generic-relations
-        user_notifications = self.filter(
-            attached_to_content_type=ContentType.objects.get_for_model(User),
-            attached_to_id=user.pk,
-        )
+        if resource == "all":
+            # http://chibisov.github.io/drf-extensions/docs/#usage-with-generic-relations
+            user_notifications = self.filter(
+                attached_to_content_type=ContentType.objects.get_for_model(User),
+                attached_to_id=user.pk,
+            )
 
-        project_notifications = self.filter(
-            attached_to_content_type=ContentType.objects.get_for_model(Project),
-            attached_to_id__in=AdminPermission.projects(
-                user,
-                admin=True,
-                member=False,
-            ).values("id"),
-        )
+            project_notifications = self.filter(
+                attached_to_content_type=ContentType.objects.get_for_model(Project),
+                attached_to_id__in=AdminPermission.projects(
+                    user,
+                    admin=True,
+                    member=False,
+                ).values("id"),
+            )
 
-        organization_notifications = self.filter(
-            attached_to_content_type=ContentType.objects.get_for_model(Organization),
-            attached_to_id__in=AdminPermission.organizations(
+            organization_notifications = self.filter(
+                attached_to_content_type=ContentType.objects.get_for_model(
+                    Organization
+                ),
+                attached_to_id__in=AdminPermission.organizations(
+                    user,
+                    owner=True,
+                    member=False,
+                ).values("id"),
+            )
+
+            # Return all the notifications related to this user attached to:
+            # User, Project and Organization models where the user is admin.
+            return (
+                user_notifications | project_notifications | organization_notifications
+            ).filter(state__in=(UNREAD, READ))
+
+        if isinstance(resource, User):
+            if user == resource:
+                return self.filter(
+                    attached_to_content_type=ContentType.objects.get_for_model(
+                        resource
+                    ),
+                    attached_to_id=resource.pk,
+                    state__in=(UNREAD, READ),
+                )
+
+        if isinstance(resource, Project):
+            if resource in AdminPermission.projects(user, admin=True, member=False):
+                return self.filter(
+                    attached_to_content_type=ContentType.objects.get_for_model(
+                        resource
+                    ),
+                    attached_to_id=resource.pk,
+                    state__in=(UNREAD, READ),
+                )
+
+        if isinstance(resource, Organization):
+            if resource in AdminPermission.organizations(
                 user,
                 owner=True,
                 member=False,
-            ).values("id"),
-        )
+            ):
+                return self.filter(
+                    attached_to_content_type=ContentType.objects.get_for_model(
+                        resource
+                    ),
+                    attached_to_id=resource.pk,
+                    state__in=(UNREAD, READ),
+                )
 
-        # Return all the notifications related to this user attached to:
-        # User, Project and Organization models where the user is admin.
-        return (
-            user_notifications | project_notifications | organization_notifications
-        ).filter(state__in=(UNREAD, READ))
+        return self.none()
