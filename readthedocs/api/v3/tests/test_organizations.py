@@ -143,7 +143,6 @@ class OrganizationsEndpointTests(APIEndpointMixin):
     def test_organizations_notifications_detail_other_organization(self):
         other_organization = fixture.get(
             Organization,
-            id=2,
             pub_date=self.created,
             modified_date=self.modified,
             name="new_org",
