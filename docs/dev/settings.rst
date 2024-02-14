@@ -35,11 +35,6 @@ DEFAULT_PRIVACY_LEVEL
 
 What privacy projects default to having. Generally set to `public`. Also acts as a proxy setting for blocking certain historically insecure options, like serving generated artifacts directly from the media server.
 
-INDEX_ONLY_LATEST
------------------
-
-In search, only index the `latest` version of a Project.
-
 PUBLIC_DOMAIN
 -------------
 
