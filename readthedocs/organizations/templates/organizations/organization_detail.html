@@ -9,9 +9,9 @@
 {% block organization-bar-details %}active{% endblock %}
 
 {% block content %}
-  {% if organization.notifications.exists %}
+  {% if notifications %}
     <ul class="notifications">
-    {% for notification in organization.notifications.all %}
+    {% for notification in notifications %}
       <li class="notification">
         {{ notification.get_message.get_rendered_body|safe }}
       </li>

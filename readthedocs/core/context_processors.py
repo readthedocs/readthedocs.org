@@ -44,7 +44,10 @@ def user_notifications(request):
 
     user_notifications = Notification.objects.none()
     if request.user.is_authenticated:
-        user_notifications = Notification.objects.for_user(request.user)
+        user_notifications = Notification.objects.for_user(
+            request.user,
+            resource=request.user,
+        )
 
     return {
         "user_notifications": user_notifications,
