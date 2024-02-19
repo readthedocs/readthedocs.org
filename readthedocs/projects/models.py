@@ -312,17 +312,6 @@ class Project(models.Model):
             "Path from the root of your project.",
         ),
     )
-    documentation_type = models.CharField(
-        _("Documentation type"),
-        max_length=20,
-        choices=constants.DOCUMENTATION_CHOICES,
-        default="sphinx",
-        help_text=_(
-            'Type of documentation you are building. <a href="'
-            "http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html."
-            'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
-        ),
-    )
 
     custom_prefix = models.CharField(
         _("Custom path prefix"),
@@ -552,6 +541,24 @@ class Project(models.Model):
         related_query_name="project",
         content_type_field="attached_to_content_type",
         object_id_field="attached_to_id",
+    )
+
+    # TODO: remove field ``documentation_type`` when possible.
+    # This field is not used anymore in the application.
+    # However, the APIv3 project details endpoint returns it,
+    # and there are some tests and similars that depend on it still.
+    documentation_type = models.CharField(
+        _("Documentation type"),
+        max_length=20,
+        choices=constants.DOCUMENTATION_CHOICES,
+        default=None,
+        null=True,
+        blank=True,
+        help_text=_(
+            'Type of documentation you are building. <a href="'
+            "http://www.sphinx-doc.org/en/stable/builders.html#sphinx.builders.html."
+            'DirectoryHTMLBuilder">More info on sphinx builders</a>.',
+        ),
     )
 
     # Property used for storing the latest build for a project when prefetching
