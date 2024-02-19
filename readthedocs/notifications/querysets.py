@@ -66,7 +66,7 @@ class NotificationQuerySet(models.QuerySet):
             modified=timezone.now(),
         )
 
-    def for_user(self, user, resource=None):
+    def for_user(self, user, resource):
         """
         Retrieve notifications related to resource for a particular user.
 
