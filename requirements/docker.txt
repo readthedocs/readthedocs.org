@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.34
+boto3==1.34.44
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.34
+botocore==1.34.44
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -80,7 +80,7 @@ cron-descriptor==1.4.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==42.0.2
+cryptography==42.0.3
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -106,7 +106,7 @@ dj-pagination==2.5.0
     # via -r requirements/pip.txt
 dj-stripe==2.6.3
     # via -r requirements/pip.txt
-django==4.2.9
+django==4.2.10
     # via
     #   -r requirements/pip.txt
     #   dj-stripe
@@ -121,6 +121,7 @@ django==4.2.9
     #   django-filter
     #   django-formtools
     #   django-polymorphic
+    #   django-safemigrate
     #   django-storages
     #   django-structlog
     #   django-taggit
@@ -161,12 +162,12 @@ django-ipware==5.0.2
     #   django-structlog
 django-polymorphic==3.1.0
     # via -r requirements/pip.txt
+django-safemigrate==4.2
+    # via -r requirements/pip.txt
 django-simple-history==3.0.0
     # via -r requirements/pip.txt
 django-storages[boto3]==1.14.2
-    # via
-    #   -r requirements/pip.txt
-    #   django-storages
+    # via -r requirements/pip.txt
 django-structlog==2.2.0
     # via -r requirements/pip.txt
 django-taggit==5.0.1
@@ -264,7 +265,7 @@ oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.9.13
+orjson==3.9.14
     # via -r requirements/pip.txt
 packaging==23.2
     # via
@@ -315,7 +316,6 @@ pyjwt[crypto]==2.8.0
     # via
     #   -r requirements/pip.txt
     #   django-allauth
-    #   pyjwt
 pyproject-api==1.6.1
     # via tox
 pyquery==2.0.0
@@ -372,7 +372,7 @@ s3transfer==0.10.0
     # via
     #   -r requirements/pip.txt
     #   boto3
-selectolax==0.3.19
+selectolax==0.3.20
     # via -r requirements/pip.txt
 six==1.16.0
     # via
@@ -406,7 +406,7 @@ tomli==2.0.1
     #   ipdb
     #   pyproject-api
     #   tox
-tox==4.12.1
+tox==4.13.0
     # via -r requirements/docker.in
 traitlets==5.14.1
     # via
@@ -416,7 +416,7 @@ typing-extensions==4.9.0
     # via
     #   -r requirements/pip.txt
     #   asgiref
-tzdata==2023.4
+tzdata==2024.1
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
