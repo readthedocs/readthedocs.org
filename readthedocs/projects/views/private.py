@@ -55,8 +55,10 @@ from readthedocs.projects.forms import (
     IntegrationForm,
     ProjectAdvancedForm,
     ProjectAdvertisingForm,
+    ProjectAutomaticForm,
     ProjectBasicsForm,
     ProjectConfigForm,
+    ProjectManualForm,
     ProjectRelationshipForm,
     RedirectForm,
     TranslationForm,
@@ -397,9 +399,11 @@ class ImportView(PrivateViewMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['view_csrf_token'] = get_token(self.request)
-        context['has_connected_accounts'] = SocialAccount.objects.filter(
-            user=self.request.user,
-        ).exists()
+
+        if settings.RTD_EXT_THEME_ENABLED:
+            context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)
+            context["form_manual"] = ProjectManualForm(user=self.request.user)
+
         return context
 
 

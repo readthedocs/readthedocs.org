@@ -4,6 +4,7 @@ from random import choice
 from re import fullmatch
 from urllib.parse import urlparse
 
+from allauth.socialaccount.models import SocialAccount
 from django import forms
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -12,12 +13,15 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from readthedocs.builds.constants import INTERNAL
+from readthedocs.core.forms import PrevalidatedForm, RichValidationError
 from readthedocs.core.history import SimpleHistoryModelForm
+from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.utils import slugify, trigger_build
 from readthedocs.core.utils.extend import SettingsOverrideObject
 from readthedocs.integrations.models import Integration
 from readthedocs.invitations.models import Invitation
 from readthedocs.oauth.models import RemoteRepository
+from readthedocs.organizations.models import Team
 from readthedocs.projects.models import (
     AddonsConfig,
     Domain,
@@ -76,6 +80,112 @@ class ProjectBackendForm(forms.Form):
     """Get the import backend."""
 
     backend = forms.CharField()
+
+
+class ProjectFormPrevalidateMixin:
+
+    """Provides shared logic between the automatic and manual create forms."""
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+
+    def clean_prevalidation(self):
+        # Shared conditionals between automatic and manual forms
+        self.user_has_connected_account = SocialAccount.objects.filter(
+            user=self.user,
+        ).exists()
+        self.user_is_nonowner_with_sso = None
+        self.user_missing_admin_permission = None
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            # TODO there should be some way to initially select the organization
+            # and maybe the team too. It's mostly safe to automatically select
+            # the first organization, but explicit would be better. Reusing the
+            # organization selection UI works, we only really need a query param
+            # here.
+            self.user_is_nonowner_with_sso = all(
+                [
+                    AdminPermission.has_sso_enabled(self.user),
+                    AdminPermission.organizations(
+                        user=self.user,
+                        owner=False,
+                    ).exists(),
+                ]
+            )
+
+            # TODO this logic should be possible from AdminPermission
+            # AdminPermssion.is_admin only inspects organization owners, so the
+            # additional team check is necessary
+            self.user_has_admin_permission = any(
+                [
+                    AdminPermission.organizations(
+                        user=self.user,
+                        owner=True,
+                    ).exists(),
+                    Team.objects.admin(self.user).exists(),
+                ]
+            )
+
+
+class ProjectAutomaticForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
+    def clean_prevalidation(self):
+        """
+        Block user from using this form for important blocking states.
+
+        We know before the user gets a chance to use this form that the user
+        might not have the ability to add a project into their organization.
+        These errors are raised before the user submits the form.
+        """
+        super().clean_prevalidation()
+        if not self.user_has_connected_account:
+            url = reverse("socialaccount_connections")
+            raise RichValidationError(
+                _(
+                    f"You must first <a href='{url}'>add a connected service "
+                    f"to your account</a> to enable automatic configuration of "
+                    f"repositories."
+                ),
+                header=_("No connected services found"),
+            )
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            if self.user_is_nonowner_with_sso:
+                raise RichValidationError(
+                    _(
+                        "Only organization owners may create new projects "
+                        "when single sign-on is enabled."
+                    ),
+                    header=_("Organization single sign-on enabled"),
+                )
+            if not self.user_has_admin_permission:
+                raise RichValidationError(
+                    _(
+                        "You must be on a team with admin permissions "
+                        "in order to add a new project to your organization."
+                    ),
+                    header=_("Admin permission required"),
+                )
+
+
+class ProjectManualForm(ProjectFormPrevalidateMixin, PrevalidatedForm):
+    def clean_prevalidation(self):
+        super().clean_prevalidation()
+        if settings.RTD_ALLOW_ORGANIZATIONS:
+            if self.user_is_nonowner_with_sso:
+                raise RichValidationError(
+                    _(
+                        "Projects cannot be manually configured when "
+                        "single sign-on is enabled for your organization."
+                    ),
+                    header=_("Organization single sign-on enabled"),
+                )
+            if not self.user_has_admin_permission:
+                raise RichValidationError(
+                    _(
+                        "You must be on a team with admin permissions "
+                        "in order to add a new project to your organization."
+                    ),
+                    header=_("Admin permission required"),
+                )
 
 
 class ProjectBasicsForm(ProjectForm):

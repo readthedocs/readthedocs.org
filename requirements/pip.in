@@ -36,6 +36,8 @@ django-vanilla-views
 # dependency as well.
 jsonfield
 
+django-safemigrate
+
 requests
 requests-toolbelt
 slumber
