@@ -13,7 +13,6 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
-from django_extensions.db.fields import CreationDateTimeField, ModificationDateTimeField
 from django_extensions.db.models import TimeStampedModel
 from polymorphic.models import PolymorphicModel
 
@@ -91,19 +90,6 @@ log = structlog.get_logger(__name__)
 class Version(TimeStampedModel):
 
     """Version of a ``Project``."""
-
-    # Overridden from TimeStampedModel just to allow null values.
-    # TODO: remove after deploy.
-    created = CreationDateTimeField(
-        _('created'),
-        null=True,
-        blank=True,
-    )
-    modified = ModificationDateTimeField(
-        _('modified'),
-        null=True,
-        blank=True,
-    )
 
     project = models.ForeignKey(
         Project,

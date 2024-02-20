@@ -18,6 +18,10 @@ click==8.1.7
     # via sphinx-intl
 colorama==0.4.6
     # via sphinx-autobuild
+contourpy==1.2.0
+    # via matplotlib
+cycler==0.12.1
+    # via matplotlib
 docutils==0.20.1
     # via
     #   myst-parser
@@ -25,6 +29,8 @@ docutils==0.20.1
     #   sphinx-prompt
     #   sphinx-rtd-theme
     #   sphinx-tabs
+fonttools==4.49.0
+    # via matplotlib
 idna==3.6
     # via requests
 imagesize==1.4.1
@@ -33,6 +39,8 @@ jinja2==3.1.3
     # via
     #   myst-parser
     #   sphinx
+kiwisolver==1.4.5
+    # via matplotlib
 livereload==2.6.3
     # via sphinx-autobuild
 markdown-it-py==3.0.0
@@ -41,21 +49,35 @@ markdown-it-py==3.0.0
     #   myst-parser
 markupsafe==2.1.5
     # via jinja2
+matplotlib==3.8.3
+    # via -r requirements/docs.in
 mdit-py-plugins==0.4.0
     # via myst-parser
 mdurl==0.1.2
     # via markdown-it-py
 myst-parser==2.0.0
     # via -r requirements/docs.in
+numpy==1.26.4
+    # via
+    #   contourpy
+    #   matplotlib
 packaging==23.2
-    # via sphinx
+    # via
+    #   matplotlib
+    #   sphinx
 pbr==6.0.0
     # via sphinxcontrib-video
+pillow==10.2.0
+    # via matplotlib
 pygments==2.17.2
     # via
     #   sphinx
     #   sphinx-prompt
     #   sphinx-tabs
+pyparsing==3.1.1
+    # via matplotlib
+python-dateutil==2.8.2
+    # via matplotlib
 pyyaml==6.0.1
     # via myst-parser
 readthedocs-sphinx-search==0.3.2
@@ -65,6 +87,7 @@ requests==2.31.0
 six==1.16.0
     # via
     #   livereload
+    #   python-dateutil
     #   sphinxcontrib-httpdomain
 snowballstemmer==2.2.0
     # via sphinx
@@ -85,7 +108,7 @@ sphinx==7.2.6
     #   sphinxcontrib-jquery
     #   sphinxemoji
     #   sphinxext-opengraph
-sphinx-autobuild==2021.3.14
+sphinx-autobuild==2024.2.4
     # via -r requirements/docs.in
 sphinx-copybutton==0.5.2
     # via -r requirements/docs.in

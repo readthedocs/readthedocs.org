@@ -31,6 +31,7 @@ from readthedocs.core.mixins import CDNCacheControlMixin
 from readthedocs.core.permissions import AdminPermission
 from readthedocs.core.resolver import Resolver
 from readthedocs.core.utils.extend import SettingsOverrideObject
+from readthedocs.notifications.models import Notification
 from readthedocs.projects.filters import ProjectVersionListFilterSet
 from readthedocs.projects.models import Project
 from readthedocs.projects.templatetags.projects_tags import sort_version_aware
@@ -142,6 +143,10 @@ class ProjectDetailViewBase(
         context["is_project_admin"] = AdminPermission.is_admin(
             self.request.user,
             project,
+        )
+        context["notifications"] = Notification.objects.for_user(
+            self.request.user,
+            resource=project,
         )
 
         return context

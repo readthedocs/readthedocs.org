@@ -493,7 +493,7 @@ class BuildDirector:
             # tool_path = f'{self.config.build.os}/{tool}/2021-08-30/{full_version}.tar.gz'
 
             build_os = self.data.config.build.os
-            if "lts-latest" in self.data.config.build.os:
+            if build_os == "ubuntu-lts-latest":
                 _, build_os = settings.RTD_DOCKER_BUILD_SETTINGS["os"][
                     "ubuntu-lts-latest"
                 ].split(":")

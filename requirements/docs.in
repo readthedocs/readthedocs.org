@@ -2,6 +2,8 @@
 
 sphinx
 
+matplotlib  # opengraph social cards
+
 sphinx_rtd_theme==2.0.0rc2
 sphinx-tabs
 sphinx-intl
