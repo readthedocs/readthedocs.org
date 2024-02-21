@@ -3244,7 +3244,6 @@ class APIVersionTests(TestCase):
                 "programming_language": "words",
                 "repo": "https://github.com/pypa/pip",
                 "repo_type": "git",
-                "requirements_file": None,
                 "readthedocs_yaml_path": None,
                 "show_advertising": True,
                 "skip": False,
