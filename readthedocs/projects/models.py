@@ -871,18 +871,6 @@ class Project(models.Model):
 
     def conf_file(self, version=LATEST):
         """Find a Sphinx ``conf.py`` file in the project checkout."""
-        if self.conf_py_file:
-            conf_path = os.path.join(
-                self.checkout_path(version),
-                self.conf_py_file,
-            )
-
-            if os.path.exists(conf_path):
-                log.info("Inserting conf.py file path from model")
-                return conf_path
-
-            log.warning("Conf file specified on model doesn't exist")
-
         files = self.find("conf.py", version)
         if not files:
             files = self.full_find("conf.py", version)

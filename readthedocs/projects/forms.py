@@ -458,17 +458,6 @@ class ProjectAdvancedForm(ProjectTriggerBuildMixin, ProjectForm):
                 return True
         return False
 
-    def clean_conf_py_file(self):
-        filename = self.cleaned_data.get("conf_py_file", "").strip()
-        if filename and "conf.py" not in filename:
-            raise forms.ValidationError(
-                _(
-                    'Your configuration file is invalid, make sure it contains '
-                    'conf.py in it.',
-                ),
-            )  # yapf: disable
-        return filename
-
     def clean_readthedocs_yaml_path(self):
         """
         Validate user input to help user.

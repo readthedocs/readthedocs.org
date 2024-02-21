@@ -61,8 +61,6 @@ class BuildEnvironmentBase:
         return fixture.get(
             Project,
             slug="project",
-            enable_epub_build=True,
-            enable_pdf_build=True,
         )
 
     def _trigger_update_docs_task(self):
@@ -83,8 +81,6 @@ class TestCustomConfigFile(BuildEnvironmentBase):
         return fixture.get(
             Project,
             slug="project",
-            enable_epub_build=False,
-            enable_pdf_build=False,
             readthedocs_yaml_path=self.config_file_name,
         )
 

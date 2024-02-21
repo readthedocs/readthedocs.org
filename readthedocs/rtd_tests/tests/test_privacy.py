@@ -48,7 +48,6 @@ class PrivacyTests(TestCase):
             default_branch="",
             project_url="http://django-kong.rtfd.org",
             default_version=LATEST,
-            python_interpreter="python",
             description="OOHHH AH AH AH KONG SMASH",
             documentation_type="sphinx",
         )
