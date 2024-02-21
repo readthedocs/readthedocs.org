@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     safe = Safe.after_deploy
 
     dependencies = [
-        ("projects", "0115_mark_fields_as_null"),
+        ("projects", "0116_mark_fields_as_null"),
     ]
 
     operations = [

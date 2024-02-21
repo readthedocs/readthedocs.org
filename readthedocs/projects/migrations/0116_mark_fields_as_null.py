@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     safe = Safe.before_deploy
 
     dependencies = [
-        ("projects", "0114_set_timestamp_fields_as_no_null"),
+        ("projects", "0115_add_addonsconfig_history"),
     ]
 
     operations = [
