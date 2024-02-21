@@ -29,17 +29,6 @@
 
     <div class="options">
 
-    {% comment %}
-        All projects with "skip=True" needs to be attached a notification using the new system.
-        This notification will be shown here using the same style we used before.
-    {% endcomment %}
-
-    {% for notification in notifications %}
-    <p class="build-failure">
-      {{ notification.get_message.get_rendered_body|safe }}
-    </p>
-    {% endfor %}
-
       <ul>
         <li class="{{ overview_active }}"><a href="{{ project.get_absolute_url }}">{% trans "Overview" %}</a></li>
 

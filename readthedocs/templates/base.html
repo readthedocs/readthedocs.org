@@ -108,24 +108,7 @@
           We need to use a CustomUser to have access to "user.notifications"
           See https://docs.djangoproject.com/en/4.2/ref/settings/#std-setting-AUTH_USER_MODEL
         {% endcomment %}
-        {% if user_notifications %}
-          <ul class="notifications">
-          {% for notification in user_notifications %}
-            <li class="notification"
-              {% if notification.dismissable%}
-                data-dismiss-url="{{ notification.get_absolute_url }}"
-                data-csrf-token="{{ csrf_token }}"
-              {% endif %}>
-              {% if notification.dismissable %}
-              <a class="notification-action" href="#">
-                  <span class="icon close" aria-label="{% trans 'Close notification' %}"></span>
-              </a>
-              {% endif %}
-              {{ notification.get_message.get_rendered_body|safe }}
-            </li>
-          {% endfor %}
-          </ul>
-        {% endif %}
+        {% include "core/notifications.html" with notifications=user_notifications %}
 
         <!-- BEGIN notify -->
         {% block notify %}
