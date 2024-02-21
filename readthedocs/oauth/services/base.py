@@ -73,7 +73,7 @@ class Service:
 
     @property
     def provider_name(self):
-        return registry.by_id(self.provider_id).name
+        return registry.get_class(self.provider_id).name
 
     def get_session(self):
         if self.session is None:
