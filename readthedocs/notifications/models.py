@@ -4,6 +4,7 @@ import structlog
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.urls import reverse
 from django.utils.translation import gettext_noop as _
 from django_extensions.db.models import TimeStampedModel
 
@@ -95,3 +96,49 @@ class Notification(TimeStampedModel):
             )
 
         return message
+
+    def get_absolute_url(self):
+        content_type_name = self.attached_to_content_type.name
+        if content_type_name == "user":
+            url = "users-notifications-detail"
+            path = reverse(
+                url,
+                kwargs={
+                    "notification_pk": self.pk,
+                    "parent_lookup_user__username": self.attached_to.username,
+                },
+            )
+
+        elif content_type_name == "build":
+            url = "projects-builds-notifications-detail"
+            project_slug = self.attached_to.project.slug
+            path = reverse(
+                url,
+                kwargs={
+                    "notification_pk": self.pk,
+                    "parent_lookup_project__slug": project_slug,
+                    "parent_lookup_build__id": self.attached_to_id,
+                },
+            )
+
+        elif content_type_name == "project":
+            url = "projects-notifications-detail"
+            project_slug = self.attached_to.slug
+            path = reverse(
+                url,
+                kwargs={
+                    "notification_pk": self.pk,
+                    "parent_lookup_project__slug": project_slug,
+                },
+            )
+
+        elif content_type_name == "organization":
+            url = "organizations-notifications-detail"
+            path = reverse(
+                url,
+                kwargs={
+                    "notification_pk": self.pk,
+                    "parent_lookup_organization__slug": self.attached_to.slug,
+                },
+            )
+        return path

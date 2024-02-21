@@ -9,15 +9,7 @@
 {% block organization-bar-details %}active{% endblock %}
 
 {% block content %}
-  {% if notifications %}
-    <ul class="notifications">
-    {% for notification in notifications %}
-      <li class="notification">
-        {{ notification.get_message.get_rendered_body|safe }}
-      </li>
-    {% endfor %}
-    </ul>
-  {% endif %}
+  {% include "core/notifications.html" with notifications=notifications %}
 
   <div class="col-major organization-major">
     <div class="module organization organization-detail">
