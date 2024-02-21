@@ -1,3 +1,28 @@
+Version 10.19.0
+---------------
+
+:Date: February 20, 2024
+
+* `@humitos <https://github.com/humitos>`__: Addons: add model history on AddonsConfig (`#11127 <https://github.com/readthedocs/readthedocs.org/pull/11127>`__)
+* `@humitos <https://github.com/humitos>`__: wrangler: move script to `common/` (`#11126 <https://github.com/readthedocs/readthedocs.org/pull/11126>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: update bullet/item list display (`#11123 <https://github.com/readthedocs/readthedocs.org/pull/11123>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11122 <https://github.com/readthedocs/readthedocs.org/pull/11122>`__)
+* `@humitos <https://github.com/humitos>`__: Notifications: show them based on permissions (`#11117 <https://github.com/readthedocs/readthedocs.org/pull/11117>`__)
+* `@humitos <https://github.com/humitos>`__: Settings: remove unused (`#11116 <https://github.com/readthedocs/readthedocs.org/pull/11116>`__)
+* `@stsewd <https://github.com/stsewd>`__: Fix test on .com (`#11115 <https://github.com/readthedocs/readthedocs.org/pull/11115>`__)
+* `@stsewd <https://github.com/stsewd>`__: Notifications: add admin (`#11114 <https://github.com/readthedocs/readthedocs.org/pull/11114>`__)
+* `@saadmk11 <https://github.com/saadmk11>`__: API V3: Only return notifications for a given organization (`#11112 <https://github.com/readthedocs/readthedocs.org/pull/11112>`__)
+* `@humitos <https://github.com/humitos>`__: Docs: build documentation with social cards (`#11109 <https://github.com/readthedocs/readthedocs.org/pull/11109>`__)
+* `@github-actions[bot] <https://github.com/github-actions[bot]>`__: Dependencies: all packages updated via pip-tools (`#11108 <https://github.com/readthedocs/readthedocs.org/pull/11108>`__)
+* `@humitos <https://github.com/humitos>`__: Build: check for pre-compiled `build.tools` when using `ubuntu-lts-latest` (`#11098 <https://github.com/readthedocs/readthedocs.org/pull/11098>`__)
+* `@humitos <https://github.com/humitos>`__: Release 10.18.0 (`#11096 <https://github.com/readthedocs/readthedocs.org/pull/11096>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Use form validation errors for important UI feedback (`#11095 <https://github.com/readthedocs/readthedocs.org/pull/11095>`__)
+* `@agjohnson <https://github.com/agjohnson>`__: Some fixes for notifications (`#11094 <https://github.com/readthedocs/readthedocs.org/pull/11094>`__)
+* `@dependabot[bot] <https://github.com/dependabot[bot]>`__: Bump peter-evans/create-pull-request from 5 to 6 (`#11092 <https://github.com/readthedocs/readthedocs.org/pull/11092>`__)
+* `@stsewd <https://github.com/stsewd>`__: Use django-safemigrate for migrations (`#11087 <https://github.com/readthedocs/readthedocs.org/pull/11087>`__)
+* `@stsewd <https://github.com/stsewd>`__: Integrations: Don't allow webhooks without a secret (`#11083 <https://github.com/readthedocs/readthedocs.org/pull/11083>`__)
+* `@humitos <https://github.com/humitos>`__: Development: use `wrangler` locally (update NGINX/Dockerfile config) (`#10965 <https://github.com/readthedocs/readthedocs.org/pull/10965>`__)
+
 Version 10.18.0
 ---------------
 

@@ -14,9 +14,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView
 from requests.utils import quote
 
-from readthedocs.builds.constants import (
-    BUILD_FINAL_STATES,
-)
+from readthedocs.builds.constants import BUILD_FINAL_STATES
 from readthedocs.builds.filters import BuildListFilter
 from readthedocs.builds.models import Build, Version
 from readthedocs.core.permissions import AdminPermission
@@ -214,4 +212,5 @@ class BuildDetail(BuildBase, DetailView):
         issue_url = scheme.format(**scheme_dict)
         issue_url = urlparse(issue_url).geturl()
         context["issue_url"] = issue_url
+        context["notifications"] = build.notifications.all()
         return context

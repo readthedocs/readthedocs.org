@@ -15,66 +15,66 @@ This way, the database can be migrated without downtime, and the field can be po
 Don't forget to make the field non-nullable in a separate migration after the data has been populated.
 You can achieve this by following these steps:
 
-- #. Set the new field as ``null=True`` and ``blank=True`` in the model.
+#. Set the new field as ``null=True`` and ``blank=True`` in the model.
 
-     .. code-block:: python
+   .. code-block:: python
 
-        class MyModel(models.Model):
-            new_field = models.CharField(
-                max_length=100, null=True, blank=True, default="default"
-            )
+      class MyModel(models.Model):
+          new_field = models.CharField(
+              max_length=100, null=True, blank=True, default="default"
+          )
 
-- #. Make sure that the field is always populated with a proper value in the new code,
-     and the code handles the case where the field is null.
+#. Make sure that the field is always populated with a proper value in the new code,
+   and the code handles the case where the field is null.
 
-     .. code-block:: python
+   .. code-block:: python
 
-        if my_model.new_field in [None, "default"]:
-            pass
-
-
-        # If it's a boolean field, make sure that the null option is removed from the form.
-        class MyModelForm(forms.ModelForm):
-            def __init__(self, *args, **kwargs):
-                super().__init__(*args, **kwargs)
-                self.fields["new_field"].widget = forms.CheckboxInput()
-                self.fields["new_field"].empty_value = False
-
-- #. Create the migration file (let's call this migration ``app 0001``),
-     and mark it as ``Safe.before_deploy``.
-
-     .. code-block:: python
-
-        from django.db import migrations, models
-        from django_safemigrate import Safe
+      if my_model.new_field in [None, "default"]:
+          pass
 
 
-        class Migration(migrations.Migration):
-            safe = Safe.before_deploy
+      # If it's a boolean field, make sure that the null option is removed from the form.
+      class MyModelForm(forms.ModelForm):
+          def __init__(self, *args, **kwargs):
+              super().__init__(*args, **kwargs)
+              self.fields["new_field"].widget = forms.CheckboxInput()
+              self.fields["new_field"].empty_value = False
 
-- #. Create a data migration to populate all null values of the new field with a proper value (let's call this migration ``app 0002``),
-     and mark it as ``Safe.after_deploy``.
+#. Create the migration file (let's call this migration ``app 0001``),
+   and mark it as ``Safe.before_deploy``.
 
-     .. code-block:: python
+   .. code-block:: python
 
-         from django.db import migrations
-
-
-         def migrate(apps, schema_editor):
-             MyModel = apps.get_model("app", "MyModel")
-             MyModel.objects.filter(new_field=None).update(new_field="default")
+      from django.db import migrations, models
+      from django_safemigrate import Safe
 
 
-         class Migration(migrations.Migration):
-             safe = Safe.after_deploy
+      class Migration(migrations.Migration):
+          safe = Safe.before_deploy
 
-             operations = [
-                 migrations.RunPython(migrate),
-             ]
+#. Create a data migration to populate all null values of the new field with a proper value (let's call this migration ``app 0002``),
+   and mark it as ``Safe.after_deploy``.
 
-- #. After the deploy has been completed, create a new migration to set the field as non-nullable (let's call this migration ``app 0003``).
-     Run this migration on a new deploy, you can mark it as ``Safe.before_deploy`` or ``Safe.always``.
-- #. Remove any handling of the null case from the code.
+   .. code-block:: python
+
+       from django.db import migrations
+
+
+       def migrate(apps, schema_editor):
+           MyModel = apps.get_model("app", "MyModel")
+           MyModel.objects.filter(new_field=None).update(new_field="default")
+
+
+       class Migration(migrations.Migration):
+           safe = Safe.after_deploy
+
+           operations = [
+               migrations.RunPython(migrate),
+           ]
+
+#. After the deploy has been completed, create a new migration to set the field as non-nullable (let's call this migration ``app 0003``).
+   Run this migration on a new deploy, you can mark it as ``Safe.before_deploy`` or ``Safe.always``.
+#. Remove any handling of the null case from the code.
 
 At the end, the deploy should look like this:
 
@@ -93,37 +93,37 @@ all usages of the field should be removed from the code before the field is remo
 and the field should be nullable.**
 You can achieve this by following these steps:
 
-- #. Remove all usages of the field from the code.
-- #. Set the field as ``null=True`` and ``blank=True`` in the model.
+#. Remove all usages of the field from the code.
+#. Set the field as ``null=True`` and ``blank=True`` in the model.
 
-     .. code-block:: python
+   .. code-block:: python
 
-        class MyModel(models.Model):
-            field_to_delete = models.CharField(max_length=100, null=True, blank=True)
+      class MyModel(models.Model):
+          field_to_delete = models.CharField(max_length=100, null=True, blank=True)
 
-- #. Create the migration file (let's call this migration ``app 0001``),
-     and mark it as ``Safe.before_deploy``.
+#. Create the migration file (let's call this migration ``app 0001``),
+   and mark it as ``Safe.before_deploy``.
 
-     .. code-block:: python
+   .. code-block:: python
 
-        from django.db import migrations, models
-        from django_safemigrate import Safe
-
-
-        class Migration(migrations.Migration):
-            safe = Safe.before_deploy
-
-- #. Create a migration to remove the field from the database (let's call this migration ``app 0002``),
-     and mark it as ``Safe.after_deploy``.
-
-     .. code-block:: python
-
-        from django.db import migrations, models
-        from django_safemigrate import Safe
+      from django.db import migrations, models
+      from django_safemigrate import Safe
 
 
-        class Migration(migrations.Migration):
-            safe = Safe.after_deploy
+      class Migration(migrations.Migration):
+          safe = Safe.before_deploy
+
+#. Create a migration to remove the field from the database (let's call this migration ``app 0002``),
+   and mark it as ``Safe.after_deploy``.
+
+   .. code-block:: python
+
+      from django.db import migrations, models
+      from django_safemigrate import Safe
+
+
+      class Migration(migrations.Migration):
+          safe = Safe.after_deploy
 
 At the end, the deploy should look like this:
 

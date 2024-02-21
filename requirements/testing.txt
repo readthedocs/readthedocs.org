@@ -25,11 +25,11 @@ billiard==3.6.4.0
     # via
     #   -r requirements/pip.txt
     #   celery
-boto3==1.34.39
+boto3==1.34.44
     # via
     #   -r requirements/pip.txt
     #   django-storages
-botocore==1.34.39
+botocore==1.34.44
     # via
     #   -r requirements/pip.txt
     #   boto3
@@ -76,7 +76,7 @@ cron-descriptor==1.4.3
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat
-cryptography==42.0.2
+cryptography==42.0.3
     # via
     #   -r requirements/pip.txt
     #   pyjwt
@@ -246,13 +246,13 @@ markdown==3.5.2
     # via -r requirements/pip.txt
 markupsafe==2.1.5
     # via jinja2
-mercurial==6.6.2
+mercurial==6.6.3
     # via -r requirements/testing.in
 oauthlib==3.2.2
     # via
     #   -r requirements/pip.txt
     #   requests-oauthlib
-orjson==3.9.13
+orjson==3.9.14
     # via -r requirements/pip.txt
 packaging==23.2
     # via
@@ -289,7 +289,7 @@ pyjwt[crypto]==2.8.0
     #   django-allauth
 pyquery==2.0.0
     # via -r requirements/pip.txt
-pytest==8.0.0
+pytest==8.0.1
     # via
     #   -r requirements/testing.in
     #   pytest-cov
@@ -409,7 +409,7 @@ typing-extensions==4.9.0
     # via
     #   -r requirements/pip.txt
     #   asgiref
-tzdata==2023.4
+tzdata==2024.1
     # via
     #   -r requirements/pip.txt
     #   django-celery-beat

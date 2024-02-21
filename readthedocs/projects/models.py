@@ -146,6 +146,9 @@ class AddonsConfig(TimeStampedModel):
 
     DOC_DIFF_DEFAULT_ROOT_SELECTOR = "[role=main]"
 
+    # Model history
+    history = ExtraHistoricalRecords()
+
     project = models.OneToOneField(
         "Project",
         related_name="addons",
