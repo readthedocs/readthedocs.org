@@ -7,7 +7,6 @@ from django.db import models
 from django.utils.translation import gettext_noop as _
 from django_extensions.db.models import TimeStampedModel
 
-
 from .constants import CANCELLED, DISMISSED, READ, UNREAD, WARNING
 from .messages import Message, registry
 from .querysets import NotificationQuerySet
@@ -67,9 +66,12 @@ class Notification(TimeStampedModel):
 
     def get_message(self):
         # Pass the instance attached to this notification
-        format_values = {
-            "instance": self.attached_to,
-        }
+        format_values = self.format_values or {}
+        format_values.update(
+            {
+                "instance": self.attached_to,
+            }
+        )
 
         message = registry.get(self.message_id, format_values=format_values)
         if message is None:
