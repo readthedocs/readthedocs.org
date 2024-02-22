@@ -401,6 +401,7 @@ class ImportView(PrivateViewMixin, TemplateView):
         context['view_csrf_token'] = get_token(self.request)
 
         if settings.RTD_EXT_THEME_ENABLED:
+            context["allow_private_repos"] = settings.ALLOW_PRIVATE_REPOS
             context["form_automatic"] = ProjectAutomaticForm(user=self.request.user)
             context["form_manual"] = ProjectManualForm(user=self.request.user)
 
