@@ -71,19 +71,13 @@ Read the Docs: documentation simplified
    :caption: Maintaining projects
 
    /user-defined-redirects
+   /security-log
    /badges
    /localization
    /explanation/documentation-structure
    /guides/best-practice/links
    /api/index
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Security & Account management
-
    /security-implications
-   /security-log
 
 .. toctree::
    :maxdepth: 1
