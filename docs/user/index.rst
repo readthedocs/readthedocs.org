@@ -71,11 +71,11 @@ Read the Docs: documentation simplified
    :caption: Maintaining projects
 
    /user-defined-redirects
+   /badges
    /localization
    /explanation/documentation-structure
    /guides/best-practice/links
    /api/index
-   /badges
 
 .. toctree::
    :maxdepth: 2
@@ -100,7 +100,7 @@ Read the Docs: documentation simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: 🪄 How-to guides
+   :caption: How-to guides
 
    Project setup and configuration </guides/setup/index>
    Build process </guides/build/index>
@@ -114,13 +114,13 @@ Read the Docs: documentation simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: 📚 Reference
+   :caption: Reference
 
    /faq
    /changelog
    /about/index
-   Developer Documentation <https://dev.readthedocs.io>
    /science
+   Developer Documentation <https://dev.readthedocs.io>
 
 .. meta::
    :description lang=en: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.
