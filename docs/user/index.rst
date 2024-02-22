@@ -86,6 +86,7 @@ Read the Docs: documentation simplified
 
 .. toctree::
    :maxdepth: 1
+   :hidden:
    :caption: Business features
 
    /commercial/index
