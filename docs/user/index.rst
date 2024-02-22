@@ -4,29 +4,96 @@ Read the Docs: documentation simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: 🚀 Tutorials
+   :caption: Getting Started
 
    /tutorial/index
+   /choosing-a-site
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
    /intro/import-guide
-   /config-file/index
    /examples
 
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: 💡 Explanation
+   :caption: Project setup and configuration
 
-   /choosing-a-site
-   /integrations
-   /downloadable-documentation
+   /config-file/index
+   /config-file/v2
+   /explanation/configuration-file
+   /automation-rules
+   /guides/reproducible-builds
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Build process
+
+   /builds
+   /build-customization
+   /pull-requests
    /environment-variables
-   /subprojects
+   /build-notifications
    /localization
-   /explanation/advanced
-   /explanation/methodology
+   /reference/environment-variables
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Hosting documentation
+
+   /integrations
+   /custom-domains
+   /subprojects
+   /reference/git-integration
+   /versions
+   /versioning-schemes
+   /reference/analytics
+   /reference/cdn
+   /reference/sitemaps
+   /reference/404-not-found
+   /reference/robots
+   /canonical-urls
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Reading documentation
+
+   /downloadable-documentation
+   /guides/embedding-content
+   /flyout-menu
+   /server-side-search/index
+   /server-side-search/syntax
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Maintaining projects
+
+   /user-defined-redirects
+   /explanation/documentation-structure
+   /api/index
+   /badges
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Security & Account management
+
    /security-implications
+   /security-log
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Business features
+
+   /commercial/index
+   /commercial/organizations
+   /commercial/single-sign-on
+   /commercial/sharing
+   /commercial/subscriptions
+   /commercial/privacy-level
 
 .. toctree::
    :maxdepth: 2
@@ -47,16 +114,11 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: 📚 Reference
 
-   /reference/features
-   /config-file/v2
-   /builds
-   /build-customization
-   /server-side-search/syntax
    /faq
-   /api/index
    /changelog
    /about/index
    Developer Documentation <https://dev.readthedocs.io>
+   /science
 
 .. meta::
    :description lang=en: Automate building, versioning, and hosting of your technical documentation continuously on Read the Docs.

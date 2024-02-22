@@ -1,5 +1,5 @@
-Build notifications via webhooks and email
-==========================================
+Build notifications: webhooks and email
+=======================================
 
 Build notifications can alert you when your documentation builds fail so you can take immediate action.
 We offer the following methods for being notified:
