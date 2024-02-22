@@ -314,6 +314,7 @@ class CommunityBaseSettings(Settings):
             'django.middleware.clickjacking.XFrameOptionsMiddleware',
             'django.contrib.auth.middleware.AuthenticationMiddleware',
             'django.contrib.messages.middleware.MessageMiddleware',
+            "allauth.account.middleware.AccountMiddleware",
             'dj_pagination.middleware.PaginationMiddleware',
             'csp.middleware.CSPMiddleware',
             'readthedocs.core.middleware.ReferrerPolicyMiddleware',

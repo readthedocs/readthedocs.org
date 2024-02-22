@@ -206,7 +206,7 @@ def attach_webhook(project_pk, user_pk, integration=None):
             )
             return None
 
-    provider = allauth_registry.by_id(service.adapter.provider_id)
+    provider_class = allauth_registry.get_class(service.adapter.provider_id)
 
     user_accounts = service.for_user(user)
     for account in user_accounts:
@@ -226,7 +226,7 @@ def attach_webhook(project_pk, user_pk, integration=None):
             dismissable=True,
             attached_to=project,
             format_values={
-                "provider_name": provider.name,
+                "provider_name": provider_class.name,
                 "url_docs_webhook": "https://docs.readthedocs.io/page/webhooks.html",
             },
         )
@@ -236,7 +236,7 @@ def attach_webhook(project_pk, user_pk, integration=None):
             dismissable=True,
             attached_to=project,
             format_values={
-                "provider_name": provider.name,
+                "provider_name": provider_class.name,
                 "url_connect_account": reverse(
                     "projects_integrations",
                     args=[project.slug],

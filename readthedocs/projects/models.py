@@ -1069,8 +1069,8 @@ class Project(models.Model):
         """Get the provider name for project. e.g: GitHub, GitLab, Bitbucket."""
         service = self.git_service_class()
         if service:
-            provider = allauth_registry.by_id(service.adapter.provider_id)
-            return provider.name
+            provider_class = allauth_registry.get_class(service.adapter.provider_id)
+            return provider_class.name
         return None
 
     def find(self, filename, version):

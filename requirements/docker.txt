@@ -128,7 +128,7 @@ django==4.2.10
     #   django-timezone-field
     #   djangorestframework
     #   jsonfield
-django-allauth==0.51.0
+django-allauth==0.57.2
     # via -r requirements/pip.txt
 django-annoying==0.10.6
     # via -r requirements/pip.txt
