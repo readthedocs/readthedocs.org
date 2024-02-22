@@ -20,9 +20,9 @@ Read the Docs: documentation simplified
 
    /config-file/index
    /config-file/v2
-   /explanation/configuration-file
    /automation-rules
    /guides/reproducible-builds
+   /explanation/configuration-file
 
 .. toctree::
    :maxdepth: 2
@@ -31,10 +31,9 @@ Read the Docs: documentation simplified
 
    /builds
    /build-customization
+   /build-notifications
    /pull-requests
    /environment-variables
-   /build-notifications
-   /localization
    /reference/environment-variables
 
 .. toctree::
@@ -42,10 +41,9 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Hosting documentation
 
-   /integrations
+   /reference/git-integration
    /custom-domains
    /subprojects
-   /reference/git-integration
    /versions
    /versioning-schemes
    /reference/analytics
@@ -54,6 +52,7 @@ Read the Docs: documentation simplified
    /reference/404-not-found
    /reference/robots
    /canonical-urls
+   /integrations
 
 .. toctree::
    :maxdepth: 2
@@ -72,6 +71,7 @@ Read the Docs: documentation simplified
    :caption: Maintaining projects
 
    /user-defined-redirects
+   /localization
    /explanation/documentation-structure
    /api/index
    /badges

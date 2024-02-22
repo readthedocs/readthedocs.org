@@ -1,5 +1,5 @@
-Versioning configuration files
-==============================
+Why keep configuration files in Git
+===================================
 
 Content and structure of documentation undergo big and small changes.
 And eventually, the configuration of a documentation project also changes.
