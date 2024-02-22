@@ -46,12 +46,18 @@ def get_build_config(config, source_file="readthedocs.yml", validate=False):
 
 
 @pytest.mark.parametrize(
-    'files', [
-        {'readthedocs.ymlmore': ''}, {'first': {'readthedocs.yml': ''}},
-        {'startreadthedocs.yml': ''}, {'second': {'confuser.txt': 'content'}},
-        {'noroot': {'readthedocs.ymlmore': ''}}, {'third': {'readthedocs.yml': 'content', 'Makefile': ''}},
-        {'noroot': {'startreadthedocs.yml': ''}}, {'fourth': {'samplefile.yaml': 'content'}},
-        {'readthebots.yaml': ''}, {'fifth': {'confuser.txt': '', 'readthedocs.yml': 'content'}},
+    "files",
+    [
+        {"readthedocs.ymlmore": ""},
+        {"first": {"readthedocs.yml": ""}},
+        {"startreadthedocs.yml": ""},
+        {"second": {"confuser.txt": "content"}},
+        {"noroot": {"readthedocs.ymlmore": ""}},
+        {"third": {"readthedocs.yml": "content", "Makefile": ""}},
+        {"noroot": {"startreadthedocs.yml": ""}},
+        {"fourth": {"samplefile.yaml": "content"}},
+        {"readthebots.yaml": ""},
+        {"fifth": {"confuser.txt": "", "readthedocs.yml": "content"}},
     ],
 )
 def test_load_no_config_file(tmpdir, files):
@@ -62,10 +68,12 @@ def test_load_no_config_file(tmpdir, files):
             load(base, {})
     assert e.value.message_id == ConfigError.DEFAULT_PATH_NOT_FOUND
 
+
 def test_load_empty_config_file(tmpdir):
     apply_fs(
-        tmpdir, {
-            'readthedocs.yml': '',
+        tmpdir,
+        {
+            "readthedocs.yml": "",
         },
     )
     base = str(tmpdir)
@@ -97,10 +105,13 @@ def test_load_version2(tmpdir):
 
 def test_load_unknow_version(tmpdir):
     apply_fs(
-        tmpdir, {
-            'readthedocs.yml': textwrap.dedent('''
+        tmpdir,
+        {
+            "readthedocs.yml": textwrap.dedent(
+                """
             version: 9
-        '''),
+        """
+            ),
         },
     )
     base = str(tmpdir)
@@ -112,8 +123,10 @@ def test_load_unknow_version(tmpdir):
 
 def test_load_raise_exception_invalid_syntax(tmpdir):
     apply_fs(
-        tmpdir, {
-            'readthedocs.yml': textwrap.dedent('''
+        tmpdir,
+        {
+            "readthedocs.yml": textwrap.dedent(
+                """
                 version: 2
                 python:
                   install:
@@ -122,7 +135,8 @@ def test_load_raise_exception_invalid_syntax(tmpdir):
                         # bad indentation here
                         extra_requirements:
                           - build
-            '''),
+            """
+            ),
         },
     )
     base = str(tmpdir)
@@ -202,9 +216,12 @@ def test_load_non_yaml_extension(tmpdir):
 
 
 @pytest.mark.parametrize(
-    'correct_config_filename',
-    [prefix + 'readthedocs.' + extension for prefix in {'', '.'}
-     for extension in {'yml', 'yaml'}],
+    "correct_config_filename",
+    [
+        prefix + "readthedocs." + extension
+        for prefix in {"", "."}
+        for extension in {"yml", "yaml"}
+    ],
 )
 def test_config_filenames_regex(correct_config_filename):
     assert re.match(CONFIG_FILENAME_REGEX, correct_config_filename)
@@ -619,7 +636,7 @@ class TestBuildConfigV2:
         assert build.build.jobs.post_build == ["echo post_build"]
 
     @pytest.mark.parametrize(
-        'value',
+        "value",
         [
             [],
             ["cmatrix"],
@@ -662,23 +679,23 @@ class TestBuildConfigV2:
     @pytest.mark.parametrize(
         "error_index, value",
         [
-            (0, ['/', 'cmatrix']),
-            (1, ['cmatrix', '-q']),
-            (1, ['cmatrix', ' -q']),
-            (1, ['cmatrix', '\\-q']),
-            (1, ['cmatrix', '--quiet']),
-            (1, ['cmatrix', ' --quiet']),
-            (2, ['cmatrix', 'quiet', './package.deb']),
-            (2, ['cmatrix', 'quiet', ' ./package.deb ']),
-            (2, ['cmatrix', 'quiet', '/home/user/package.deb']),
-            (2, ['cmatrix', 'quiet', ' /home/user/package.deb']),
-            (2, ['cmatrix', 'quiet', '../package.deb']),
-            (2, ['cmatrix', 'quiet', ' ../package.deb']),
-            (1, ['one', '$two']),
-            (1, ['one', 'non-ascíí']),
+            (0, ["/", "cmatrix"]),
+            (1, ["cmatrix", "-q"]),
+            (1, ["cmatrix", " -q"]),
+            (1, ["cmatrix", "\\-q"]),
+            (1, ["cmatrix", "--quiet"]),
+            (1, ["cmatrix", " --quiet"]),
+            (2, ["cmatrix", "quiet", "./package.deb"]),
+            (2, ["cmatrix", "quiet", " ./package.deb "]),
+            (2, ["cmatrix", "quiet", "/home/user/package.deb"]),
+            (2, ["cmatrix", "quiet", " /home/user/package.deb"]),
+            (2, ["cmatrix", "quiet", "../package.deb"]),
+            (2, ["cmatrix", "quiet", " ../package.deb"]),
+            (1, ["one", "$two"]),
+            (1, ["one", "non-ascíí"]),
             # We don't allow regex for now.
-            (1, ['mysql', 'cmatrix$']),
-            (0, ['^mysql-*', 'cmatrix$']),
+            (1, ["mysql", "cmatrix$"]),
+            (0, ["^mysql-*", "cmatrix$"]),
             # We don't allow specifying versions for now.
             (0, ["postgresql=1.2.3"]),
             # We don't allow specifying distributions for now.
@@ -739,7 +756,7 @@ class TestBuildConfigV2:
                     ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
         install = build.python.install
@@ -762,7 +779,7 @@ class TestBuildConfigV2:
                     ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         with raises(ConfigError) as excinfo:
             build.validate()
@@ -777,7 +794,7 @@ class TestBuildConfigV2:
                     "install": [{"requirements": "requirements.txt"}],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
         install = build.python.install
@@ -797,7 +814,7 @@ class TestBuildConfigV2:
                     ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         with raises(ConfigError) as excinfo:
             build.validate()
@@ -816,7 +833,7 @@ class TestBuildConfigV2:
                     ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         with raises(ConfigError) as excinfo:
             build.validate()
@@ -837,7 +854,7 @@ class TestBuildConfigV2:
                     ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         with raises(ConfigError) as excinfo:
             build.validate()
@@ -857,7 +874,7 @@ class TestBuildConfigV2:
                     ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         with raises(ConfigError) as excinfo:
             build.validate()
@@ -875,7 +892,7 @@ class TestBuildConfigV2:
                     ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         with raises(ConfigError) as excinfo:
             build.validate()
@@ -894,7 +911,7 @@ class TestBuildConfigV2:
                     ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
         install = build.python.install
@@ -914,7 +931,7 @@ class TestBuildConfigV2:
                     ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
         install = build.python.install
@@ -957,7 +974,7 @@ class TestBuildConfigV2:
                     ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
         install = build.python.install
@@ -977,7 +994,7 @@ class TestBuildConfigV2:
                     ],
                 }
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         with raises(ConfigError) as excinfo:
             build.validate()
@@ -997,7 +1014,7 @@ class TestBuildConfigV2:
                     ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         with raises(ConfigError) as excinfo:
             build.validate()
@@ -1020,7 +1037,7 @@ class TestBuildConfigV2:
                     ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
         install = build.python.install
@@ -1055,17 +1072,17 @@ class TestBuildConfigV2:
                     ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
         install = build.python.install
         assert len(install) == 3
 
-        assert install[0].path == 'one'
+        assert install[0].path == "one"
         assert install[0].method == PIP
         assert install[0].extra_requirements == []
 
-        assert install[1].path == 'two'
+        assert install[1].path == "two"
         assert install[1].method == SETUPTOOLS
 
         assert install[2].requirements == "three.txt"
@@ -1086,7 +1103,7 @@ class TestBuildConfigV2:
         assert build.doctype == "sphinx"
 
     @pytest.mark.parametrize(
-        'value,expected',
+        "value,expected",
         [
             ("html", "sphinx"),
             ("htmldir", "sphinx_htmldir"),
@@ -1452,9 +1469,9 @@ class TestBuildConfigV2:
         assert excinfo.value.format_values.get("key") == "search"
 
     @pytest.mark.parametrize(
-        'value',
+        "value",
         [
-            'invalid',
+            "invalid",
             True,
             0,
             [],
@@ -1502,7 +1519,7 @@ class TestBuildConfigV2:
             }
         )
         build.validate()
-        assert build.search.ranking == {'foo/bar': value, 'bar/foo': value}
+        assert build.search.ranking == {"foo/bar": value, "bar/foo": value}
 
     @pytest.mark.parametrize(
         "path, expected",
@@ -1533,9 +1550,9 @@ class TestBuildConfigV2:
         assert build.search.ranking == {expected: 1}
 
     @pytest.mark.parametrize(
-        'value',
+        "value",
         [
-            'invalid',
+            "invalid",
             True,
             0,
             [2, 3],
@@ -1634,7 +1651,8 @@ class TestBuildConfigV2:
         assert excinfo.value.format_values.get("key") == key
 
     @pytest.mark.parametrize(
-        'value,expected', [
+        "value,expected",
+        [
             ({}, []),
             ({"one": 1}, ["one"]),
             ({"one": {"two": 3}}, ["one", "two"]),
@@ -1692,33 +1710,41 @@ class TestBuildConfigV2:
                         "nodejs": "16",
                     },
                 },
-                'python': {
-                    'install': [{
-                        'requirements': 'requirements.txt',
-                    }],
+                "python": {
+                    "install": [
+                        {
+                            "requirements": "requirements.txt",
+                        }
+                    ],
                 },
             },
-            source_file=str(tmpdir.join('readthedocs.yml')),
+            source_file=str(tmpdir.join("readthedocs.yml")),
         )
         build.validate()
         expected_dict = {
-            'version': '2',
-            'formats': ['pdf'],
-            'python': {
-                'install': [{
-                    'requirements': 'requirements.txt',
-                }],
+            "version": "2",
+            "formats": ["pdf"],
+            "python": {
+                "install": [
+                    {
+                        "requirements": "requirements.txt",
+                    }
+                ],
             },
-            'build': {
-                'os': 'ubuntu-20.04',
-                'tools': {
-                    'python': {
-                        'version': '3.9',
-                        'full_version': settings.RTD_DOCKER_BUILD_SETTINGS['tools']['python']['3.9'],
+            "build": {
+                "os": "ubuntu-20.04",
+                "tools": {
+                    "python": {
+                        "version": "3.9",
+                        "full_version": settings.RTD_DOCKER_BUILD_SETTINGS["tools"][
+                            "python"
+                        ]["3.9"],
                     },
-                    'nodejs': {
-                        'version': '16',
-                        'full_version': settings.RTD_DOCKER_BUILD_SETTINGS['tools']['nodejs']['16'],
+                    "nodejs": {
+                        "version": "16",
+                        "full_version": settings.RTD_DOCKER_BUILD_SETTINGS["tools"][
+                            "nodejs"
+                        ]["16"],
                     },
                 },
                 "commands": [],
@@ -1734,28 +1760,28 @@ class TestBuildConfigV2:
                     "pre_build": [],
                     "post_build": [],
                 },
-                'apt_packages': [],
+                "apt_packages": [],
             },
-            'conda': None,
-            'sphinx': {
-                'builder': 'sphinx',
-                'configuration': None,
-                'fail_on_warning': False,
+            "conda": None,
+            "sphinx": {
+                "builder": "sphinx",
+                "configuration": None,
+                "fail_on_warning": False,
             },
-            'mkdocs': None,
-            'doctype': 'sphinx',
-            'submodules': {
-                'include': [],
-                'exclude': ALL,
-                'recursive': False,
+            "mkdocs": None,
+            "doctype": "sphinx",
+            "submodules": {
+                "include": [],
+                "exclude": ALL,
+                "recursive": False,
             },
-            'search': {
-                'ranking': {},
-                'ignore': [
-                    'search.html',
-                    'search/index.html',
-                    '404.html',
-                    '404/index.html',
+            "search": {
+                "ranking": {},
+                "ignore": [
+                    "search.html",
+                    "search/index.html",
+                    "404.html",
+                    "404/index.html",
                 ],
             },
         }

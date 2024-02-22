@@ -17,7 +17,6 @@ from readthedocs.notifications.exceptions import NotificationBaseException
 
 
 class BuildBaseException(NotificationBaseException):
-
     default_message = _("Build user exception")
 
 
