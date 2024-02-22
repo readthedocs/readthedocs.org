@@ -59,10 +59,10 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Reading documentation
 
+   /server-side-search/index
    /downloadable-documentation
    /guides/embedding-content
    /flyout-menu
-   /server-side-search/index
    /server-side-search/syntax
 
 .. toctree::
@@ -73,6 +73,7 @@ Read the Docs: documentation simplified
    /user-defined-redirects
    /localization
    /explanation/documentation-structure
+   /guides/best-practice/links
    /api/index
    /badges
 
