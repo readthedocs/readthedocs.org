@@ -4,7 +4,7 @@ Read the Docs: documentation simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: Getting Started
+   :caption: Getting started
 
    /tutorial/index
    /choosing-a-site
