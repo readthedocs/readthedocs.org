@@ -1,3 +1,5 @@
+.. TODO: Update the images to the new flyout design, and update to include Addons
+
 Flyout menu
 ===========
 

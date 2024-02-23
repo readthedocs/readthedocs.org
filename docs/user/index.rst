@@ -4,34 +4,93 @@ Read the Docs: documentation simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: 🚀 Tutorials
+   :caption: Getting started
 
    /tutorial/index
+   /choosing-a-site
    /intro/getting-started-with-sphinx
    /intro/getting-started-with-mkdocs
    /intro/import-guide
-   /config-file/index
    /examples
 
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: 💡 Explanation
+   :caption: Project setup and configuration
 
-   /choosing-a-site
-   /integrations
-   /downloadable-documentation
-   /environment-variables
-   /subprojects
-   /localization
-   /explanation/advanced
-   /explanation/methodology
-   /security-implications
+   /config-file/index
+   /config-file/v2
+   /automation-rules
+   /guides/reproducible-builds
 
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: 🪄 How-to guides
+   :caption: Build process
+
+   /builds
+   /build-customization
+   /reference/git-integration
+   /pull-requests
+   /build-notifications
+   /environment-variables
+   /reference/environment-variables
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Hosting documentation
+
+   /versions
+   /subprojects
+   /localization
+   /versioning-schemes
+   /custom-domains
+   /canonical-urls
+   /reference/cdn
+   /reference/sitemaps
+   /reference/404-not-found
+   /reference/robots
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Reading documentation
+
+   /downloadable-documentation
+   /guides/embedding-content
+   /server-side-search/index
+   /server-side-search/syntax
+   /flyout-menu
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: Maintaining projects
+
+   /user-defined-redirects
+   /reference/analytics
+   /security-log
+   /badges
+   /explanation/documentation-structure
+   /guides/best-practice/links
+   /security-implications
+
+.. toctree::
+   :maxdepth: 1
+   :hidden:
+   :caption: Business features
+
+   /commercial/index
+   /commercial/organizations
+   /commercial/single-sign-on
+   /commercial/sharing
+   /commercial/subscriptions
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+   :caption: How-to guides
 
    Project setup and configuration </guides/setup/index>
    Build process </guides/build/index>
@@ -45,15 +104,10 @@ Read the Docs: documentation simplified
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :caption: 📚 Reference
+   :caption: Reference
 
-   /reference/features
-   /config-file/v2
-   /builds
-   /build-customization
-   /server-side-search/syntax
-   /faq
    /api/index
+   /faq
    /changelog
    /about/index
    Developer Documentation <https://dev.readthedocs.io>

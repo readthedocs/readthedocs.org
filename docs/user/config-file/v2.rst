@@ -1,5 +1,5 @@
-Configuration file v2 (.readthedocs.yaml)
-=========================================
+Configuration file reference
+============================
 
 Read the Docs supports configuring your documentation builds with a configuration file.
 This file is named ``.readthedocs.yaml`` and should be placed in the top level of your Git repository.

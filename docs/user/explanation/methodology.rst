@@ -1,3 +1,5 @@
+:orphan:
+
 Methodology and best practice
 =============================
 
@@ -27,11 +29,3 @@ as this content is applicable to many stages of the documentation process.
 ⏩️ :doc:`Search engine optimization (SEO) for documentation projects </guides/technical-docs-seo-guide>`
     This article explains how documentation can be optimized to appear in search results,
     increasing traffic to your docs.
-
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-
-   documentation-structure
-   /guides/best-practice/index
