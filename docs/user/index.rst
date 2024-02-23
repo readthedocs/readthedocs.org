@@ -22,7 +22,6 @@ Read the Docs: documentation simplified
    /config-file/v2
    /automation-rules
    /guides/reproducible-builds
-   /explanation/configuration-file
 
 .. toctree::
    :maxdepth: 2
@@ -31,8 +30,9 @@ Read the Docs: documentation simplified
 
    /builds
    /build-customization
-   /build-notifications
+   /reference/git-integration
    /pull-requests
+   /build-notifications
    /environment-variables
    /reference/environment-variables
 
@@ -41,29 +41,27 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Hosting documentation
 
-   /reference/git-integration
-   /custom-domains
-   /subprojects
    /versions
+   /subprojects
+   /localization
    /versioning-schemes
-   /reference/analytics
+   /custom-domains
+   /canonical-urls
    /reference/cdn
    /reference/sitemaps
    /reference/404-not-found
    /reference/robots
-   /canonical-urls
-   /integrations
 
 .. toctree::
    :maxdepth: 2
    :hidden:
    :caption: Reading documentation
 
-   /server-side-search/index
    /downloadable-documentation
    /guides/embedding-content
-   /flyout-menu
+   /server-side-search/index
    /server-side-search/syntax
+   /flyout-menu
 
 .. toctree::
    :maxdepth: 2
@@ -71,12 +69,11 @@ Read the Docs: documentation simplified
    :caption: Maintaining projects
 
    /user-defined-redirects
+   /reference/analytics
    /security-log
    /badges
-   /localization
    /explanation/documentation-structure
    /guides/best-practice/links
-   /api/index
    /security-implications
 
 .. toctree::
@@ -89,7 +86,6 @@ Read the Docs: documentation simplified
    /commercial/single-sign-on
    /commercial/sharing
    /commercial/subscriptions
-   /commercial/privacy-level
 
 .. toctree::
    :maxdepth: 2
@@ -110,10 +106,10 @@ Read the Docs: documentation simplified
    :hidden:
    :caption: Reference
 
+   /api/index
    /faq
    /changelog
    /about/index
-   /science
    Developer Documentation <https://dev.readthedocs.io>
 
 .. meta::

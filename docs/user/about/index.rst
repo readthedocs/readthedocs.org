@@ -68,6 +68,7 @@ we've brought most of the most important ones below.
    /advertising/index
    /story
    /sponsors
+   /science
    /open-source-philosophy
    /team
    /support

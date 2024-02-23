@@ -1,3 +1,7 @@
+.. TODO: This is another place where I'd love to share this content with users, but it's not quite there yet.
+
+:orphan:
+
 Why keep configuration files in Git
 ===================================
 

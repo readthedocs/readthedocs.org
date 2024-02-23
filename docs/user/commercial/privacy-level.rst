@@ -1,5 +1,7 @@
 .. TODO: This is a super weird page..
 
+:orphan:
+
 Project privacy level
 ---------------------
 
