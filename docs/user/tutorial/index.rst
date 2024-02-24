@@ -390,7 +390,7 @@ click on the |:pencil2:| icon, and add these contents:
 
 .. code-block:: yaml
    :caption: .readthedocs.yaml
-   :emphasize-lines: 12-13
+   :emphasize-lines: 14
 
    version: 2
 
